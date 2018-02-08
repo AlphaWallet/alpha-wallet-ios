@@ -5,11 +5,11 @@ import Foundation
 public class SignOrders
 {
     //takes a list of orders and returns a list of signature objects
-    func signOrder(orders : List<Order>, account: Account) -> List<Result<Data, KeystoreError>
+    func signOrder(orders : List<Order>, account: Account) -> List<Result<Data, KeystoreError>>
     {
         var signatureObjects : List<Result<Data, KeystoreError>>
         //EtherKeystore.signMessage(encodeMessage(), )
-        for(int i = 0; i < orders.length; i++)
+        for i in orders.length
         {
             //sign each order
             //signatureObjects.add(EtherKeystore.signMessage(encodeMessage(), ))
@@ -38,7 +38,7 @@ public class SignOrders
 //        return message.array();
 //    }
 //
-    func encodeMessage(price : BigInt, expiryTimestamp : BigInt, tickets : (short[])) -> String
+    func encodeMessage(price : BigInt, expiryTimestamp : BigInt, tickets : short[])) -> String
     {
         return ""
     }
