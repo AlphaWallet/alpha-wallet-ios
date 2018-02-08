@@ -10,22 +10,36 @@ import Foundation
 //    byte65 signature1;
 //}
 
-class Order
+struct Order
 {
     var price : BigInt;
-    var ticketIndices : short[];
+    var ticketIndices : (short[]);
     var expiryTimeStamp : BigInt;
     var recipient : String;
     var contractAddress : String;
     var hexSignature : String;
 }
 
-struct MarketOrders : JSONRPCKit.Request {
+struct MarketOrders<Batch: JSONRPCKit.Batch : JSONRPCKit.Request> -> response {
+    
+    let batch : Batch
+    
+    var baseURL : URL {
+        return URL(string: "https://i6pk618b7f.execute-api.ap-southeast-1.amazonaws.com/test/abc")!
+    }
+    
+    var method: HTTPMethod {
+        return .post
+    }
+    
+    var parameters: Any? {
+        return batch.requestObject
+    }
     
     typealias response = List<Order>;
     
     func response(from resultObject: Any) throws -> Response {
-        //if let response = resultObject as? String, let value =
+        return try batch.responses(from: object)
     }
     
 }
