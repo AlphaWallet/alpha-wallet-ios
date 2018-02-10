@@ -19,7 +19,7 @@ class EtherKeystoreTests: XCTestCase {
         let keystore = FakeEtherKeystore()
         let password = "test"
 
-        let account = keystore.createAccout(password: password)
+        let account = keystore.createAccount(password: password)
         let retrivedPassword = keystore.getPassword(for: account)
 
         XCTAssertEqual(password, retrivedPassword)
@@ -138,7 +138,7 @@ class EtherKeystoreTests: XCTestCase {
         let keystore = FakeEtherKeystore()
         let password = "test"
 
-        let account = keystore.createAccout(password: password)
+        let account = keystore.createAccount(password: password)
 
         let result = keystore.export(account: account, password: password, newPassword: password)
 
@@ -155,7 +155,7 @@ class EtherKeystoreTests: XCTestCase {
 
         XCTAssertNil(keystore.recentlyUsedWallet)
 
-        let account = Wallet(type: .real(keystore.createAccout(password: password)))
+        let account = Wallet(type: .real(keystore.createAccount(password: password)))
 
         keystore.recentlyUsedWallet = account
 
@@ -169,7 +169,7 @@ class EtherKeystoreTests: XCTestCase {
     func testDeleteAccount() {
         let keystore = FakeEtherKeystore()
         let password = "test"
-        let wallet = Wallet(type: .real(keystore.createAccout(password: password)))
+        let wallet = Wallet(type: .real(keystore.createAccount(password: password)))
 
         XCTAssertEqual(1, keystore.wallets.count)
 

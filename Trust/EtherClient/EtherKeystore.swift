@@ -78,7 +78,7 @@ open class EtherKeystore: Keystore {
     @available(iOS 10.0, *)
     func createAccount(with password: String, completion: @escaping (Result<Account, KeystoreError>) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
-            let account = self.createAccout(password: password)
+            let account = self.createAccount(password: password)
             DispatchQueue.main.async {
                 completion(.success(account))
             }
@@ -180,7 +180,7 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func createAccout(password: String) -> Account {
+    func createAccount(password: String) -> Account {
         let account = try! keyStore.createAccount(password: password)
         let _ = setPassword(password, for: account)
         return account
@@ -289,7 +289,7 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func signMessage(message: String, account: Account, prefixAdded: Boolean) -> Result<Data, KeystoreError> {
+    func signMessage(_ message: String, _ account: Account, _ prefixAdded: Bool) -> Result<Data, KeystoreError> {
         let formattedMessage: String
         if(prefixAdded)
         {
@@ -316,7 +316,7 @@ open class EtherKeystore: Keystore {
     }
     
     func signMessage(message: String, account: Account) -> Result<Data, KeystoreError> {
-        signMessage(message, account, true)
+        return signMessage(message, account, true)
     }
 
     func signTransaction(_ transaction: SignTransaction) -> Result<Data, KeystoreError> {

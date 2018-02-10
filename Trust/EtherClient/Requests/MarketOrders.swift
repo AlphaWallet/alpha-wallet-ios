@@ -10,20 +10,22 @@ import Foundation
 //    byte65 signature1;
 //}
 
-struct Order
+public class Order
 {
     var price : BigInt;
     var ticketIndices : (short[]);
     var expiryTimeStamp : BigInt;
     var recipient : String;
     var contractAddress : String;
-    var hexSignature : String;
+    var v : Int;
+    var hexR : String;
+    var hexS : String;
 }
 
-struct MarketOrders<Batch: JSONRPCKit.Batch : JSONRPCKit.Request> -> response {
-    
+class MarketOrders
+{
     let batch : Batch
-    
+
     var baseURL : URL {
         return URL(string: "https://i6pk618b7f.execute-api.ap-southeast-1.amazonaws.com/test/abc")!
     }
@@ -36,7 +38,7 @@ struct MarketOrders<Batch: JSONRPCKit.Batch : JSONRPCKit.Request> -> response {
         return batch.requestObject
     }
     
-    typealias response = List<Order>;
+    typealias response = Array<Order>;
     
     func response(from resultObject: Any) throws -> Response {
         return try batch.responses(from: object)
