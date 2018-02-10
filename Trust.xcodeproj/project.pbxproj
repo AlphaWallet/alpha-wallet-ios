@@ -300,7 +300,7 @@
 		73C5CF45201A7CAB00C74316 /* LockPasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73C5CF44201A7CAB00C74316 /* LockPasscodeViewController.swift */; };
 		73CBC75F2020CBF800374666 /* AccountViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 73CBC75E2020CBF800374666 /* AccountViewCell.xib */; };
 		73CBC761202139FB00374666 /* FakeGetBalanceCoordinator(.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73CBC760202139FB00374666 /* FakeGetBalanceCoordinator(.swift */; };
-		76F1D494E0758EAE6581317E /* OrderSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */; };
+		76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */; };
 		771AA94E1FF971CD00D25403 /* DappAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771AA94D1FF971CD00D25403 /* DappAction.swift */; };
 		771AA960200D5E8800D25403 /* PassphraseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771AA95F200D5E8800D25403 /* PassphraseView.swift */; };
 		771AA962200D5EC700D25403 /* PassphraseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771AA961200D5EC700D25403 /* PassphraseViewModel.swift */; };
@@ -2690,7 +2690,6 @@
 				291ED08D1F6F5F0A00E7E93A /* KeyStoreError.swift in Sources */,
 				29F1C83E1FEB5C91003780D8 /* EditTokensViewController.swift in Sources */,
 				296AF9A31F733AB30058AF78 /* WalletCoordinator.swift in Sources */,
-				76F1D494E0758EAE6581317E /* OrderSigningTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2752,6 +2751,7 @@
 				732E0F502022716700B39C1F /* LockEnterPasscodeCoordinatorTest.swift in Sources */,
 				29F114E91FA3EC9E00114A29 /* InCoordinatorTests.swift in Sources */,
 				2981F4731F8303E600CA6590 /* TransactionCoordinatorTests.swift in Sources */,
+				76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
