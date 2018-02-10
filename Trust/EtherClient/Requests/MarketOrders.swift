@@ -10,16 +10,11 @@ import Foundation
 //    byte65 signature1;
 //}
 
-public class Order
-{
-    var price : BigInt;
-    var ticketIndices : (short[]);
-    var expiryTimeStamp : BigInt;
-    var recipient : String;
-    var contractAddress : String;
-    var v : Int;
-    var hexR : String;
-    var hexS : String;
+public struct Order {
+    var price: BigInt?;
+    var ticketIndices: [Int]?;
+    var expiryTimeStamp: BigInt?;
+    var contractAddress: String?;
 }
 
 class MarketOrders
