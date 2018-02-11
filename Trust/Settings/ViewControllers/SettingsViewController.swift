@@ -64,6 +64,8 @@ class SettingsViewController: FormViewController {
                     switch option {
                     case .main, .classic, .poa: return ""
                     case .kovan, .ropsten, .rinkeby, .sokol: return NSLocalizedString("settings.network.test.label.title", value: "Test", comment: "")
+                    case .custom:
+                        return NSLocalizedString("settings.network.custom.label.title", value: "Custom", comment: "")
                     }
                 }
             }.cellSetup { cell, _ in
@@ -226,7 +228,7 @@ class SettingsViewController: FormViewController {
 
             +++ Section()
 
-            <<< TextRow { [weak self] in
+            <<< TextRow {
                 $0.title = NSLocalizedString("settings.version.label.title", value: "Version", comment: "")
                 $0.value = Bundle.main.fullVersion
                 $0.disabled = true

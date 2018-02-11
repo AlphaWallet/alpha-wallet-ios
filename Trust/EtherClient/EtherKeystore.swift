@@ -289,19 +289,14 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func signMessage(_ message: String, _ account: Account, _ prefixAdded: Bool) -> Result<Data, KeystoreError> {
-        let formattedMessage: String
-        if(prefixAdded)
-        {
-            formattedMessage = "\u{19}Ethereum Signed Message:\n" + "\(message.count)" + message
-        }
-        else
-        {
-            //not everybody wants a prefix added
-            formattedMessage = message
-        }
+    func signPersonalMessage(_ message: String, for account: Account) -> Result<Data, KeystoreError> {
+        let formattedMessage: String = "\u{19}Ethereum Signed Message:\n" + "\(message.count)" + message
+        return signMessage(formattedMessage, for: account)
+    }
+
+    func signMessage(_ message: String, for account: Account) -> Result<Data, KeystoreError> {
         guard
-            let hash = formattedMessage.data(using: .utf8)?.sha3(.keccak256),
+            let hash = message.data(using: .utf8)?.sha3(.keccak256),
             let password = getPassword(for: account) else {
                 return .failure(KeystoreError.failedToSignMessage)
         }
@@ -314,10 +309,7 @@ open class EtherKeystore: Keystore {
             return .failure(KeystoreError.failedToSignMessage)
         }
     }
-    
-    func signMessage(message: String, account: Account) -> Result<Data, KeystoreError> {
-        return signMessage(message, account, true)
-    }
+
 
     func signTransaction(_ transaction: SignTransaction) -> Result<Data, KeystoreError> {
         guard let account = keyStore.account(for: transaction.account.address) else {
