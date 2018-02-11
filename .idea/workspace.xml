@@ -2,43 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="36bad8c5-1e9e-4730-ba80-fb45b953be97" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/Coordinators/AddCustomNetworkCoordinator.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/Types/CustomRPC.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/ViewControllers/AddCustomNetworkViewController.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/ViewControllers/NetworksViewController.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/ViewModels/AddCustomNetworkViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Trust.xml" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/TrustTests.xml" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/TrustUITests.xml" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Trust___Europe.xml" afterPath="" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/Trust.xcodeproj/project.pbxproj" afterPath="$PROJECT_DIR$/Trust.xcodeproj/project.pbxproj" />
-      <change beforePath="$PROJECT_DIR$/Trust/AppDelegate.swift" afterPath="$PROJECT_DIR$/Trust/AppDelegate.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Browser/Factory/WKWebViewConfiguration.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Factory/WKWebViewConfiguration.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Browser/Views/BrowserNavigationBar.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Views/BrowserNavigationBar.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Core/ViewModels/InCoordinatorViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Core/ViewModels/InCoordinatorViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" afterPath="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/EtherClient/Keystore.swift" afterPath="$PROJECT_DIR$/Trust/EtherClient/Keystore.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Localization/en.lproj/Localizable.strings" afterPath="$PROJECT_DIR$/Trust/Localization/en.lproj/Localizable.strings" />
-      <change beforePath="$PROJECT_DIR$/Trust/Lock/ViewControllers/LockEnterPasscodeViewController.swift" afterPath="$PROJECT_DIR$/Trust/Lock/ViewControllers/LockEnterPasscodeViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Protection/Coordinators/ProtectionCoordinator.swift" afterPath="$PROJECT_DIR$/Trust/Protection/Coordinators/ProtectionCoordinator.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Settings/Coordinators/HelpUsCoordinator.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Coordinators/HelpUsCoordinator.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/Config.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/Config.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/ConfigExplorer.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/ConfigExplorer.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/RPCServers.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/RPCServers.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Settings/ViewControllers/SettingsViewController.swift" afterPath="$PROJECT_DIR$/Trust/Settings/ViewControllers/SettingsViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Style/AppStyle.swift" afterPath="$PROJECT_DIR$/Trust/Style/AppStyle.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Tokens/ViewModels/EditTokenTableCellViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Tokens/ViewModels/EditTokenTableCellViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewControllers/TransactionViewController.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewControllers/TransactionViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionDetailsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionDetailsViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionsViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transfer/Coordinators/SignMessageCoordinator.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/Coordinators/SignMessageCoordinator.swift" />
-      <change beforePath="$PROJECT_DIR$/TrustTests/EtherClient/EtherKeystoreTests.swift" afterPath="$PROJECT_DIR$/TrustTests/EtherClient/EtherKeystoreTests.swift" />
-      <change beforePath="$PROJECT_DIR$/TrustTests/Factories/FakeKeystore.swift" afterPath="$PROJECT_DIR$/TrustTests/Factories/FakeKeystore.swift" />
-      <change beforePath="$PROJECT_DIR$/fastlane/metadata/en-US/keywords.txt" afterPath="$PROJECT_DIR$/fastlane/metadata/en-US/keywords.txt" />
-      <change beforePath="$PROJECT_DIR$/fastlane/metadata/es-ES/keywords.txt" afterPath="$PROJECT_DIR$/fastlane/metadata/es-ES/keywords.txt" />
-      <change beforePath="$PROJECT_DIR$/fastlane/metadata/ru/keywords.txt" afterPath="$PROJECT_DIR$/fastlane/metadata/ru/keywords.txt" />
+      <change beforePath="$PROJECT_DIR$/Trust/Market/SignOrders.swift" afterPath="$PROJECT_DIR$/Trust/Market/SignOrders.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Trust.entitlements" afterPath="$PROJECT_DIR$/Trust/Trust.entitlements" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/TrustTests.swift" afterPath="$PROJECT_DIR$/TrustTests/TrustTests.swift" />
     </list>
     <ignored path="$USER_HOME$/Library/Developer/Xcode/DerivedData/Trust-fagtjernnlugowdujijvfmqpxdjn/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -54,7 +23,7 @@
       <file leaf-file-name="EtherNumberFormatterTests.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TrustTests/Foundation/EtherNumberFormatterTests.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
+            <state relative-caret-position="30">
               <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
               <folding />
             </state>
@@ -64,8 +33,8 @@
       <file leaf-file-name="OrderSigningTests.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="31" column="21" lean-forward="false" selection-start-line="31" selection-start-column="21" selection-end-line="31" selection-end-column="21" />
+            <state relative-caret-position="120">
+              <caret line="8" column="35" lean-forward="false" selection-start-line="8" selection-start-column="35" selection-end-line="8" selection-end-column="35" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -76,9 +45,11 @@
       <file leaf-file-name="SignOrders.swift" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="480">
-              <caret line="34" column="6" lean-forward="true" selection-start-line="34" selection-start-column="6" selection-end-line="36" selection-end-column="45" />
-              <folding />
+            <state relative-caret-position="117">
+              <caret line="23" column="45" lean-forward="false" selection-start-line="23" selection-start-column="32" selection-end-line="23" selection-end-column="45" />
+              <folding>
+                <element signature="e#0#17#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -196,6 +167,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Cidr.FilesView" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -229,7 +201,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Cidr.FilesView" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -249,20 +220,29 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.Branch">
+  <component name="RunManager" selected="XCTest/Kiwi.OrderSigningTests.testInit">
     <configuration name="Branch" type="AppleRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Pods" TARGET_NAME="Branch" CONFIG_NAME="Debug" SCHEME_NAME="Branch" MAKE_ACTIVE="TRUE">
       <envs />
       <EXTENSION ID="org.jetbrains.appcode.reveal.RevealRunConfigurationExtension">
         <REVEAL_SETTINGS autoInject="false" autoInstall="true" askToEnableAutoInstall="true" />
       </EXTENSION>
     </configuration>
-    <list size="5">
+    <configuration name="OrderSigningTests.testInit" type="OCUnitRunConfiguration" factoryName="XCTest/Kiwi" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Trust" TARGET_NAME="TrustTests" CONFIG_NAME="Debug" SCHEME_NAME="OrderSigningTests.testInit" TEST_CLASS="OrderSigningTests" TEST_METHOD="testInit" TEST_MODE="SUITE_TEST">
+      <envs />
+    </configuration>
+    <list size="6">
       <item index="0" class="java.lang.String" itemvalue="Application.Branch" />
       <item index="1" class="java.lang.String" itemvalue="Application.Trust - Europe" />
       <item index="2" class="java.lang.String" itemvalue="Application.Trust" />
       <item index="3" class="java.lang.String" itemvalue="Application.TrustTests" />
       <item index="4" class="java.lang.String" itemvalue="Application.TrustUITests" />
+      <item index="5" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testInit" />
     </list>
+    <recent_temporary>
+      <list size="1">
+        <item index="0" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testInit" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
@@ -292,6 +272,8 @@
       <workItem from="1518331050521" duration="74000" />
       <workItem from="1518331273522" duration="122000" />
       <workItem from="1518331429859" duration="244000" />
+      <workItem from="1518334122492" duration="303000" />
+      <workItem from="1518334735649" duration="1042000" />
     </task>
     <servers />
   </component>
@@ -316,7 +298,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="31542000" />
+    <option name="totallyTimeSpent" value="32887000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1280" y="23" width="2560" height="1349" extended-state="0" />
@@ -325,8 +307,9 @@
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.123046875" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32498044" sideWeight="0.40585938" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32498044" sideWeight="0.5871094" order="14" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32498044" sideWeight="0.59414065" order="14" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.1229444" sideWeight="0.4890625" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -334,7 +317,6 @@
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32498044" sideWeight="0.4128906" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -377,7 +359,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="285">
           <caret line="19" column="6" lean-forward="false" selection-start-line="19" selection-start-column="6" selection-end-line="19" selection-end-column="6" />
-          <folding />
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -385,9 +369,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="465">
           <caret line="33" column="27" lean-forward="false" selection-start-line="33" selection-start-column="27" selection-end-line="33" selection-end-column="27" />
-          <folding>
-            <element signature="e#48#65#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -395,9 +376,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="120">
           <caret line="13" column="11" lean-forward="false" selection-start-line="13" selection-start-column="11" selection-end-line="13" selection-end-column="11" />
-          <folding>
-            <element signature="e#48#61#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -413,7 +391,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="7" column="19" lean-forward="false" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
-          <folding />
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -428,9 +408,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="465">
           <caret line="33" column="27" lean-forward="false" selection-start-line="33" selection-start-column="27" selection-end-line="33" selection-end-column="27" />
-          <folding>
-            <element signature="e#48#65#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -459,7 +436,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="7" column="19" lean-forward="false" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
-          <folding />
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -467,9 +446,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="465">
           <caret line="33" column="27" lean-forward="false" selection-start-line="33" selection-start-column="27" selection-end-line="33" selection-end-column="27" />
-          <folding>
-            <element signature="e#48#65#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -511,7 +487,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="7" column="19" lean-forward="false" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
-          <folding />
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -533,9 +511,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4770">
           <caret line="318" column="29" lean-forward="false" selection-start-line="318" selection-start-column="29" selection-end-line="318" selection-end-column="29" />
-          <folding>
-            <element signature="e#48#61#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -543,9 +518,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#48#65#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -685,7 +657,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TrustTests/Foundation/EtherNumberFormatterTests.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
+        <state relative-caret-position="30">
           <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
           <folding />
         </state>
@@ -698,16 +670,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="31" column="21" lean-forward="false" selection-start-line="31" selection-start-column="21" selection-end-line="31" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="appcode.project-settings://3c3fc377">
       <provider selected="true" editor-type-id="AppCode.ProjectSettings">
         <state />
@@ -717,9 +679,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="135">
           <caret line="9" column="1" lean-forward="false" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
-          <folding>
-            <element signature="e#48#65#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -727,9 +686,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="9" column="41" lean-forward="true" selection-start-line="9" selection-start-column="41" selection-end-line="9" selection-end-column="41" />
-          <folding>
-            <element signature="e#48#61#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -737,15 +693,26 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
           <caret line="30" column="0" lean-forward="false" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
-          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="35" lean-forward="false" selection-start-line="8" selection-start-column="35" selection-end-line="8" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="34" column="6" lean-forward="true" selection-start-line="34" selection-start-column="6" selection-end-line="36" selection-end-column="45" />
-          <folding />
+        <state relative-caret-position="117">
+          <caret line="23" column="45" lean-forward="false" selection-start-line="23" selection-start-column="32" selection-end-line="23" selection-end-column="45" />
+          <folding>
+            <element signature="e#0#17#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
