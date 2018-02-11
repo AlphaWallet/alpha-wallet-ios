@@ -1,85 +1,72 @@
-// Copyright SIX DAY LLC. All rights reserved.
-
 import Foundation
+import Result
+import BigInt
 
+public struct Order {
+    var price: BigInt;
+    var ticketIndices: [UInt16];
+    var expiryTimeStamp: BigInt;
+    var contractAddress: String;
+}
+
+public struct SignedOrder {
+    var order : Order;
+    var message : String;
+    var signature : String;
+}
 
 public class SignOrders
 {
     //TODO get current account and assign it for signing
     //private let account : Account = Account.init()
-    public static let CONTRACT_ADDR : String = "0xd9864b424447B758CdE90f8655Ff7cA4673956bf"
+    public let CONTRACT_ADDR : String = "0xd9864b424447B758CdE90f8655Ff7cA4673956bf"
 
     //takes a list of orders and returns a list of signature objects
-    func signOrder(orders : Array<Order>, account: Account) -> List<Result<Data, KeystoreError>>
+    func signOrders(orders : Array<Order>, account: Wallet) -> Array<SignedOrder>
     {
-        var signatureObjects : Array<Result<Data, KeystoreError>>
+        var signedOrders : Array<SignedOrder> = Array<SignedOrder>()
         //EtherKeystore.signMessage(encodeMessage(), )
-        for i in orders.length
+        for i in 0...orders.count
         {
             //sign each order
             //TODO check casting to string
-            var message = encodeMessageForTrade(price: orders.get(i).price,
-                    expiryTimestamp: orders.get(i).expiryTimeStamp, tickets: orders.get(i).ticketIndices) as String
-            var signedOrder = EtherKeystore.signMessage(message, self.account, false)
-            signatureObjects.add(signedOrder)
+            var message = encodeMessageForTrade(price: orders[i].price,
+                    expiryTimestamp: orders[i].expiryTimeStamp, tickets: orders[i].ticketIndices)
+//            var signature = .signMessage(message, account, false)
+//            var signedOrder : SignedOrder = SignedOrder(order : orders[i], message: message, signature : signature.dematerialize().hexString)
+//            signedOrders.append(signedOrder)
         }
-        return signatureObjects
-    }
-    
-    
-    func encodeMessageForTrade(price : BigInt, expiryTimestamp : BigInt, tickets : [ushort]) -> [byte]
-    {
-        var priceInWei : [byte] = price.toByteArray();
-        var expiry : [byte] = expiryTimestamp.toByteArray();
-        var message : [byte] = ByteBuffer.allocate(84 + tickets.length * 2);
-        var leadingZeros : [byte] = [32 - priceInWei.length];
-        message.put(leadingZeros);
-        message.put(priceInWei);
-        var leadingZerosExpiry : [byte] = [32 - expiry.length];
-        message.put(leadingZerosExpiry);
-        message.put(expiry);
-        var contract : [byte] = hexStringToBytes(CONTRACT_ADDR.substring(2));
-        System.out.println("length of contract: " + contract.length);
-        message.put(contract);
-        var shortBuffer = message.slice().asShortBuffer();
-        shortBuffer.put(tickets);
-
-        return message.array();
+        return signedOrders
     }
 
-    func hexStringToByteArray(hexString : String) -> [byte]
+    func encodeMessageForTrade(price : BigInt, expiryTimestamp : BigInt, tickets : [UInt16]) -> String
     {
-        var cleanInput : String = cleanHexPrefix(input);
-
-        var len = cleanInput.length();
-
-        if len == 0 {
-            return byte[]{};
+        //TODO array of BigInt instead?
+        var buffer = [UInt16]()[84 + tickets.count * 2]
+        //TODO fix leading zeros issue either here or in method that calls this
+        var priceInWeiBuffer = [UInt16] (price.description.utf16)
+        for i in 0...31 {
+            buffer += priceInWeiBuffer[i]
         }
-
-        var data;
-        var startIdx;
-        if len % 2 != 0
-        {
-            data = byte[(len / 2) + 1];
-            data[0] = Character.digit(cleanInput.charAt(0), 16);
-            startIdx = 1;
+    
+        var expiryBuffer = [UInt16](expiryTimestamp.description.utf16)
+        for i in 0...31 {
+            buffer += expiryBuffer[i]
         }
-        else
-        {
-            data = byte[len / 2];
-            startIdx = 0;
+        //no leading zeros issue here
+        var contractAddress = [UInt16] (CONTRACT_ADDR.utf16)
+        for i in 0...19 {
+            buffer += contractAddress[i]
         }
-
-        var i = startIdx
-        while i < len
-        {
-            data[(i + 1) / 2] = (byte) ((Character.digit(cleanInput.charAt(i), 16) << 4)
-            + Character.digit(cleanInput.charAt(i + 1), 16))
-            i += 2
+        
+        for i in 0...tickets.count {
+            buffer += tickets[i]
         }
-
-        return data;
+        
+        return buffer.description
     }
 
 }
+
+
+

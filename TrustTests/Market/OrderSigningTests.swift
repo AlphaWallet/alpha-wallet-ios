@@ -23,14 +23,13 @@ class OrderSigningTests : XCTestCase
         let indices = [1, 2]
         let testOrder1 = Order(price : 1, ticketIndices : indices, expiryTimeStamp : 0, contractAddress : "0xd9864b424447B758CdE90f8655Ff7cA4673956bf")
         testOrdersList.append(testOrder1)
+        testSigningOrders()
     }
 
     func testSigningOrders()
     {
-        //var signOrders = SignOrders()
+        var signOrders = SignOrders()
         //TODO once working, do this 2016 times as a test
         //signOrders.signOrder(testOrdersList, account)
     }
 }
-
-
