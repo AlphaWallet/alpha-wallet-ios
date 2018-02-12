@@ -7,7 +7,7 @@ import BigInt
 class OrderSigningTests : XCTestCase  {
     //let account = self.createAccount("test")
     var testOrdersList : Array<Order> = Array<Order>()
-    var keyStore = FakeKeystore()
+    var keyStore = FakeEtherKeystore()
 
     func testInit() {
         //set up test orders
@@ -22,7 +22,7 @@ class OrderSigningTests : XCTestCase  {
     func testSigningOrders() {
         let signOrders = SignOrders()
         //TODO once working, do this 2016 times as a test
-        let account = keyStore.createAccount(password: "deleteOnceWorking")
+        var account = keyStore.createAccount(password: "deleteOnceWorking")
         var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
         print(signedOrders.popLast())
     }
