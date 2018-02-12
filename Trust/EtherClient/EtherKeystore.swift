@@ -294,7 +294,7 @@ open class EtherKeystore: Keystore {
         return signMessage(formattedMessage, for: account)
     }
 
-    func signMessage(_ message: String, for account: Account) -> Result<Data, KeystoreError> {
+    public func signMessage(_ message: String, for account: Account) -> Result<Data, KeystoreError> {
         guard
             let hash = message.data(using: .utf8)?.sha3(.keccak256),
             let password = getPassword(for: account) else {
@@ -309,7 +309,6 @@ open class EtherKeystore: Keystore {
             return .failure(KeystoreError.failedToSignMessage)
         }
     }
-
 
     func signTransaction(_ transaction: SignTransaction) -> Result<Data, KeystoreError> {
         guard let account = keyStore.account(for: transaction.account.address) else {
