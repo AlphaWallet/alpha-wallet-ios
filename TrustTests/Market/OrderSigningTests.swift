@@ -24,6 +24,9 @@ class OrderSigningTests : XCTestCase  {
         //TODO once working, do this 2016 times as a test
         var account = keyStore.createAccount(password: "deleteOnceWorking")
         var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
+
+        print(keyStore.signMessage("hi", for: account).description)
+
         print(signedOrders.popLast())
     }
 }
