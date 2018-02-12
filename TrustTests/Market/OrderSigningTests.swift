@@ -21,12 +21,11 @@ class OrderSigningTests : XCTestCase  {
 
     func testSigningOrders() {
         let signOrders = SignOrders()
-        //TODO once working, do this 2016 times as a test
         var account = keyStore.createAccount(password: "deleteOnceWorking")
         var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
-
-        print(keyStore.signMessage("hi", for: account).description)
-
+        for i  in 0 ... 2016 {
+            try! print(keyStore.signMessage("hi" + i.description, for: account).dematerialize().hexString)
+        }
         print(signedOrders.popLast())
     }
 }
