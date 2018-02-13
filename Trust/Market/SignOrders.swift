@@ -4,7 +4,7 @@ import Trust
 
 public struct Order {
     var price: BigInt
-    var ticketIndices: [UInt16]
+    var ticketIndices: [UInt8]
     var expiryTimeStamp: BigInt
     var contractAddress: String
 }
@@ -39,13 +39,16 @@ public class SignOrders {
         return signedOrders
     }
 
-    func encodeMessageForTrade(price : BigInt, expiryTimestamp : BigInt, tickets : [UInt16], contractAddress : String) -> String {
-        //TODO array of BigInt instead?
+    //TODO fix this encoding as it doesn't match solidity ecrecover
+    //price is casted wrong
+    func encodeMessageForTrade(price : BigInt, expiryTimestamp : BigInt,
+                               tickets : [UInt8], contractAddress : String) -> String {
+
         let arrayLength: Int = 102 + tickets.count * 2 //84 + tickets.count * 2
-        var buffer = [UInt16]()
+        var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
-        //TODO fix lea"[UInt16]" issue either here or in method that calls this
-        var priceInWei = [UInt16] (price.description.utf16)
+        //TODO represent as Uint16 and cast back into uint8
+        var priceInWei = [UInt8] (price.description.utf8)
         for i in 0...31 - priceInWei.count {
             //pad with zeros
             priceInWei.insert(0, at: 0)
@@ -54,7 +57,7 @@ public class SignOrders {
             buffer.append(priceInWei[i])
         }
 
-        var expiryBuffer = [UInt16] (expiryTimestamp.description.utf16)
+        var expiryBuffer = [UInt8] (expiryTimestamp.description.utf8)
 
         for i in 0...31 - expiryBuffer.count {
             expiryBuffer.insert(0, at: 0)
@@ -64,9 +67,8 @@ public class SignOrders {
             buffer.append(expiryBuffer[i])
         }
         //no leading zeros issue here
-        var contractAddress = [UInt16] (contractAddress.utf16)
+        var contractAddress = [UInt8] (contractAddress.utf8)
 
-        //TODO cast back to uint8
         for i in 0...39 {
             buffer.append(contractAddress[i])
         }
