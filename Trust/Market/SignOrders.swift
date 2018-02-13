@@ -29,7 +29,8 @@ public class SignOrders {
             //sign each order
             //TODO check casting to string
             let message : String = encodeMessageForTrade(price: orders[i].price,
-                    expiryTimestamp: orders[i].expiryTimeStamp, tickets: orders[i].ticketIndices)
+                    expiryTimestamp: orders[i].expiryTimeStamp, tickets: orders[i].ticketIndices,
+                    contractAddress : orders[i].contractAddress)
             let signature = try! keyStore.signMessage(message, for: account)
             let signedOrder : SignedOrder = try! SignedOrder(order : orders[i], message: message,
                     signature : signature.description)
@@ -38,7 +39,7 @@ public class SignOrders {
         return signedOrders
     }
 
-    func encodeMessageForTrade(price : BigInt, expiryTimestamp : BigInt, tickets : [UInt16]) -> String {
+    func encodeMessageForTrade(price : BigInt, expiryTimestamp : BigInt, tickets : [UInt16], contractAddress : String) -> String {
         //TODO array of BigInt instead?
         let arrayLength: Int = 102 + tickets.count * 2 //84 + tickets.count * 2
         var buffer = [UInt16]()
@@ -63,7 +64,7 @@ public class SignOrders {
             buffer.append(expiryBuffer[i])
         }
         //no leading zeros issue here
-        var contractAddress = [UInt16] ("d9864b424447B758CdE90f8655Ff7cA4673956bf".utf16)
+        var contractAddress = [UInt16] (contractAddress.utf16)
 
         //TODO cast back to uint8
         for i in 0...39 {
