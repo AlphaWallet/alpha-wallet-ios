@@ -20,8 +20,8 @@
       <file leaf-file-name="OrderSigningTests.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="27" column="49" lean-forward="false" selection-start-line="27" selection-start-column="38" selection-end-line="27" selection-end-column="49" />
+            <state relative-caret-position="420">
+              <caret line="28" column="58" lean-forward="true" selection-start-line="28" selection-start-column="58" selection-end-line="28" selection-end-column="58" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -29,21 +29,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="AccountViewModel.swift" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountViewModel.swift">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="19" column="47" lean-forward="false" selection-start-line="19" selection-start-column="47" selection-end-line="19" selection-end-column="47" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SignOrders.swift" pinned="false" current-in-tab="false">
+      <file leaf-file-name="SignOrders.swift" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-7">
-              <caret line="12" column="21" lean-forward="false" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
+            <state relative-caret-position="252">
+              <caret line="47" column="30" lean-forward="true" selection-start-line="47" selection-start-column="30" selection-end-line="47" selection-end-column="30" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -54,75 +44,11 @@
       <file leaf-file-name="AppDelegate.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Trust/AppDelegate.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="17" column="44" lean-forward="false" selection-start-line="17" selection-start-column="31" selection-end-line="17" selection-end-column="44" />
+            <state relative-caret-position="420">
+              <caret line="28" column="13" lean-forward="false" selection-start-line="28" selection-start-column="13" selection-end-line="28" selection-end-column="13" />
               <folding>
                 <element signature="e#48#60#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AccountsViewController.swift" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountsViewController.swift">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-              <folding>
-                <element signature="e#48#68#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EtherKeystore.swift" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="365">
-              <caret line="296" column="16" lean-forward="false" selection-start-line="296" selection-start-column="16" selection-end-line="296" selection-end-column="16" />
-              <folding>
-                <element signature="e#48#61#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EtherKeystoreTests.swift" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TrustTests/EtherClient/EtherKeystoreTests.swift">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="247">
-              <caret line="206" column="13" lean-forward="false" selection-start-line="206" selection-start-column="13" selection-end-line="206" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="KeyStoreError.swift" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Trust/EtherClient/KeyStoreError.swift">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="405">
-              <caret line="27" column="38" lean-forward="false" selection-start-line="27" selection-start-column="38" selection-end-line="27" selection-end-column="38" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Result.swift" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Pods/Result/Result/Result.swift">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3348">
-              <caret line="3" column="12" lean-forward="false" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Keystore.swift" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Trust/EtherClient/Keystore.swift">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="360">
-              <caret line="26" column="4" lean-forward="false" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="4" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -155,7 +81,12 @@
       <find>keystoretest</find>
       <find>signmessage</find>
       <find>balance</find>
+      <find>UInt16</find>
+      <find>Uint8</find>
     </findStrings>
+    <replaceStrings>
+      <replace>UInt8</replace>
+    </replaceStrings>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -177,8 +108,8 @@
         <option value="$PROJECT_DIR$/Trust/EtherClient/Keystore.swift" />
         <option value="$PROJECT_DIR$/Trust/EtherClient/KeyStoreError.swift" />
         <option value="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" />
-        <option value="$PROJECT_DIR$/Trust/Market/SignOrders.swift" />
         <option value="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" />
+        <option value="$PROJECT_DIR$/Trust/Market/SignOrders.swift" />
       </list>
     </option>
   </component>
@@ -381,7 +312,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="XCTest/Kiwi.OrderSigningTests.testInit">
+  <component name="RunManager" selected="XCTest/Kiwi.OrderSigningTests.testSigningOrders">
     <configuration name="All in OrderSigningTests.swift" type="OCUnitRunConfiguration" factoryName="XCTest/Kiwi" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Trust" TARGET_NAME="TrustTests" CONFIG_NAME="Debug" SCHEME_NAME="All in OrderSigningTests.swift" TEST_PATTERN="OrderSigningTests" TEST_MODE="PATTERN">
       <envs />
     </configuration>
@@ -406,8 +337,8 @@
     </list>
     <recent_temporary>
       <list size="4">
-        <item index="0" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testInit" />
-        <item index="1" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testSigningOrders" />
+        <item index="0" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testSigningOrders" />
+        <item index="1" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testInit" />
         <item index="2" class="java.lang.String" itemvalue="XCTest/Kiwi.All in OrderSigningTests.swift" />
         <item index="3" class="java.lang.String" itemvalue="XCTest/Kiwi.All in SignOrders.swift" />
       </list>
@@ -444,61 +375,61 @@
       <workItem from="1518334122492" duration="303000" />
       <workItem from="1518334735649" duration="1042000" />
       <workItem from="1518398527471" duration="1748000" />
-      <workItem from="1518403192759" duration="24218000" />
+      <workItem from="1518403192759" duration="30341000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="OrderSigningTests_testInit - 2018.02.12 at 16h 16m 01s.xml">
-      <configuration name="OrderSigningTests.testInit" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testInit - 2018.02.12 at 16h 17m 25s.xml">
-      <configuration name="OrderSigningTests.testInit" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testInit - 2018.02.12 at 16h 20m 56s.xml">
-      <configuration name="OrderSigningTests.testInit" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testInit - 2018.02.12 at 16h 21m 46s.xml">
-      <configuration name="OrderSigningTests.testInit" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testInit - 2018.02.12 at 16h 36m 24s.xml">
-      <configuration name="OrderSigningTests.testInit" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testInit - 2018.02.13 at 13h 40m 47s.xml">
-      <configuration name="OrderSigningTests.testInit" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testInit - 2018.02.13 at 13h 46m 28s.xml">
-      <configuration name="OrderSigningTests.testInit" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testInit - 2018.02.13 at 14h 04m 18s.xml">
-      <configuration name="OrderSigningTests.testInit" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
     <history-entry file="OrderSigningTests_testInit - 2018.02.13 at 14h 17m 36s.xml">
       <configuration name="OrderSigningTests.testInit" configurationId="OCUnitRunConfiguration" />
     </history-entry>
-    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.13 at 13h 41m 29s.xml">
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.13 at 14h 29m 50s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.13 at 14h 30m 18s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.13 at 14h 30m 49s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.13 at 14h 40m 37s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.13 at 14h 41m 59s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.13 at 15h 07m 45s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.13 at 15h 40m 24s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.13 at 15h 47m 58s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.13 at 16h 26m 38s.xml">
       <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="58885000" />
+    <option name="totallyTimeSpent" value="65008000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1280" y="23" width="2560" height="1349" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32498044" sideWeight="0.31210938" order="13" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32498044" sideWeight="0.29453126" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1229444" sideWeight="0.5390625" order="14" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1229444" sideWeight="0.4609375" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.39937353" sideWeight="0.5390625" order="14" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.1229444" sideWeight="0.4484375" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="16" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.123046875" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39937353" sideWeight="0.4625" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.39937353" sideWeight="0.4609375" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -524,7 +455,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift</url>
-          <line>37</line>
+          <line>29</line>
           <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
@@ -534,16 +465,16 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Trust/Market/SignOrders.swift</url>
-          <line>77</line>
+          <line>79</line>
           <option name="timeStamp" value="19" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Trust/Market/SignOrders.swift</url>
-          <line>66</line>
+          <line>69</line>
           <option name="timeStamp" value="20" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="23" />
+      <option name="time" value="24" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -843,38 +774,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/Keystore.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="26" column="4" lean-forward="false" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountsViewController.swift">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
           <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
           <folding>
-            <element signature="e#48#68#0" expanded="true" />
+            <element signature="e#48#68#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Trust/AppDelegate.swift">
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="44" lean-forward="false" selection-start-line="17" selection-start-column="31" selection-end-line="17" selection-end-column="44" />
+        <state relative-caret-position="365">
+          <caret line="296" column="16" lean-forward="false" selection-start-line="296" selection-start-column="16" selection-end-line="296" selection-end-column="16" />
           <folding>
-            <element signature="e#48#60#0" expanded="true" />
+            <element signature="e#48#61#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Pods/Result/Result/Result.swift">
+    <entry file="file://$PROJECT_DIR$/TrustTests/EtherClient/EtherKeystoreTests.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3348">
-          <caret line="3" column="12" lean-forward="false" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
+        <state relative-caret-position="247">
+          <caret line="206" column="13" lean-forward="false" selection-start-line="206" selection-start-column="13" selection-end-line="206" selection-end-column="13" />
           <folding />
         </state>
       </provider>
@@ -887,11 +810,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TrustTests/EtherClient/EtherKeystoreTests.swift">
+    <entry file="file://$PROJECT_DIR$/Pods/Result/Result/Result.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="247">
-          <caret line="206" column="13" lean-forward="false" selection-start-line="206" selection-start-column="13" selection-end-line="206" selection-end-column="13" />
+        <state relative-caret-position="-3090">
+          <caret line="3" column="12" lean-forward="false" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/Keystore.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="26" column="4" lean-forward="false" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/AppDelegate.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" column="13" lean-forward="false" selection-start-line="28" selection-start-column="13" selection-end-line="28" selection-end-column="13" />
+          <folding>
+            <element signature="e#48#60#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -903,32 +844,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-7">
-          <caret line="12" column="21" lean-forward="false" selection-start-line="12" selection-start-column="21" selection-end-line="12" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="27" column="49" lean-forward="false" selection-start-line="27" selection-start-column="38" selection-end-line="27" selection-end-column="49" />
+        <state relative-caret-position="420">
+          <caret line="28" column="58" lean-forward="true" selection-start-line="28" selection-start-column="58" selection-end-line="28" selection-end-column="58" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift">
+    <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="365">
-          <caret line="296" column="16" lean-forward="false" selection-start-line="296" selection-start-column="16" selection-end-line="296" selection-end-column="16" />
+        <state relative-caret-position="252">
+          <caret line="47" column="30" lean-forward="true" selection-start-line="47" selection-start-column="30" selection-end-line="47" selection-end-column="30" />
           <folding>
-            <element signature="e#48#61#0" expanded="true" />
+            <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
