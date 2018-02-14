@@ -13,11 +13,11 @@ class OrderSigningTests : XCTestCase  {
         var keyStore = FakeEtherKeystore()
 
         //set up test orders
-        var indices = [UInt8]()
+        var indices = [UInt16]()
         indices.append(1)
         indices.append(2)
         let testOrder1 = Order(price : BigInt(0), ticketIndices: indices,
-                expiryTimeStamp: BigInt(0), contractAddress : "fFAB5Ce7C012bc942F5CA0cd42c3C2e1AE5F0005")
+                expiryTimeStamp: BigInt(0), contractAddress : "0x0dcd2f752394c41875e259e00bb44fd505297caf")
         testOrdersList.append(testOrder1)
 
         let signOrders = SignOrders()
@@ -35,7 +35,6 @@ class OrderSigningTests : XCTestCase  {
         //for i  in 0 ... 2016 {
         //    try! keyStore.signMessage(((signedOrders.first?.message)! + i.description) as! String, for: account).dematerialize().hexString
         //}
-
         print(signedOrders.description)
     }
 }

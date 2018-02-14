@@ -4,7 +4,7 @@ import Trust
 
 public struct Order {
     var price: BigInt
-    var ticketIndices: [UInt8]
+    var ticketIndices: [UInt16]
     var expiryTimeStamp: BigInt
     var contractAddress: String
 }
@@ -15,11 +15,27 @@ public struct SignedOrder {
     var signature : String
 }
 
+extension String {
+    var hexa2Bytes: [UInt8] {
+        let hexa = Array(characters)
+        return stride(from: 0, to: count, by: 2).flatMap { UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16) }
+    }
+}
+
+extension BinaryInteger {
+    var data: Data {
+        var source = self
+        return Data(bytes: &source, count: MemoryLayout<Self>.size)
+    }
+}
+
+extension Data {
+    var array: [UInt8] { return Array(self) }
+}
+
 public class SignOrders {
 
-    public let CONTRACT_ADDR = "0xd9864b424447B758CdE90f8655Ff7cA4673956bf"
     private let keyStore = try! EtherKeystore()
-
 
     //takes a list of orders and returns a list of signature objects
     func signOrders(orders : Array<Order>, account : Account) -> Array<SignedOrder> {
@@ -42,9 +58,10 @@ public class SignOrders {
     //TODO fix this encoding as it doesn't match solidity ecrecover
     //price is casted wrong
     func encodeMessageForTrade(price : BigInt, expiryTimestamp : BigInt,
-                               tickets : [UInt8], contractAddress : String) -> String {
-
-        let arrayLength: Int = 102 + tickets.count * 2 //84 + tickets.count * 2
+                               tickets : [UInt16], contractAddress : String) -> String
+    {
+        //ticket count * 2 because it is 16 bits not 8
+        let arrayLength: Int = 84 + tickets.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
         //TODO represent as Uint16 and cast back into uint8
@@ -67,17 +84,30 @@ public class SignOrders {
             buffer.append(expiryBuffer[i])
         }
         //no leading zeros issue here
-        var contractAddress = [UInt8] (contractAddress.utf8)
+        var contractAddr = contractAddress.hexa2Bytes
 
-        for i in 0...39 {
-            buffer.append(contractAddress[i])
+        for i in 0...19 {
+            buffer.append(contractAddr[i])
         }
 
-        for i in 0...tickets.count - 1 {
-            buffer.append(tickets[i])
+        var ticketsUint8 = uInt16ArrayToUInt8(arrayOfUInt16: tickets)
+
+        for i in 0...ticketsUint8.count - 1 {
+            buffer.append(ticketsUint8[i])
         }
 
         return buffer.description
+    }
+
+    func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8]
+    {
+        var arrayOfUint8 : [UInt8] = [UInt8]()
+        for i in 0...arrayOfUInt16.count - 1 {
+            var UInt8ArrayPair = arrayOfUInt16[i].bigEndian.data.array
+            arrayOfUint8.append(UInt8ArrayPair[0])
+            arrayOfUint8.append(UInt8ArrayPair[1])
+        }
+        return arrayOfUint8
     }
 
 }
