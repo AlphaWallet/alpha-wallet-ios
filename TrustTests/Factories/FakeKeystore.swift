@@ -40,7 +40,7 @@ struct FakeKeystore: Keystore {
         //TODO: Implement
     }
 
-    func createAccout(password: String) -> Account {
+    func createAccount(password: String) -> Account {
         //TODO: Implement
         return .make(address: .make())
     }

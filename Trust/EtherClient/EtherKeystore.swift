@@ -78,7 +78,7 @@ open class EtherKeystore: Keystore {
     @available(iOS 10.0, *)
     func createAccount(with password: String, completion: @escaping (Result<Account, KeystoreError>) -> Void) {
         DispatchQueue.global(qos: .userInitiated).async {
-            let account = self.createAccout(password: password)
+            let account = self.createAccount(password: password)
             DispatchQueue.main.async {
                 completion(.success(account))
             }
@@ -180,7 +180,7 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func createAccout(password: String) -> Account {
+    func createAccount(password: String) -> Account {
         let account = try! keyStore.createAccount(password: password)
         let _ = setPassword(password, for: account)
         return account
@@ -294,7 +294,8 @@ open class EtherKeystore: Keystore {
         return signMessage(formattedMessage, for: account)
     }
 
-    func signMessage(_ message: String, for account: Account) -> Result<Data, KeystoreError> {
+    //this method is no good unless message is a plain string, should be replaced with signMessageData below
+    public func signMessage(_ message: String, for account: Account) -> Result<Data, KeystoreError> {
         guard
             let hash = message.data(using: .utf8)?.sha3(.keccak256),
             let password = getPassword(for: account) else {
@@ -303,6 +304,21 @@ open class EtherKeystore: Keystore {
         do {
             var data = try keyStore.signHash(hash, account: account, password: password)
             // TODO: Make it configurable, instead of overriding last byte.
+            data[64] += 27
+            return .success(data)
+        } catch {
+            return .failure(KeystoreError.failedToSignMessage)
+        }
+    }
+
+    public func signMessageData(_ message: Data?, for account: Account) -> Result<Data, KeystoreError> {
+        guard
+                let hash = message?.sha3(.keccak256),
+                let password = getPassword(for: account) else {
+            return .failure(KeystoreError.failedToSignMessage)
+        }
+        do {
+            var data = try keyStore.signHash(hash, account: account, password: password)
             data[64] += 27
             return .success(data)
         } catch {

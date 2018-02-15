@@ -1,0 +1,794 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="36bad8c5-1e9e-4730-ba80-fb45b953be97" name="Default" comment="">
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/.babelrc" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/dist/trust-min.js" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/dist/trust.js" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/gulpfile.babel.js" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/package-lock.json" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/package.json" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/src/index.js" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Assets.xcassets/settings_preferences.imageset/Contents.json" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Assets.xcassets/settings_preferences.imageset/settings_preferences.png" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Extensions/UINavigationController.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Extensions/UITextFieldAdditions.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Foundation/DecimalFormatter.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Foundation/StringFormatter.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/Controllers/PreferencesController.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/Types/PreferenceOption.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/ViewControllers/PreferencesViewController.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/ViewModels/PreferencesViewModel.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Core/ViewModels/InCoordinatorViewModelTests.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Factories/PreferencesController.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Foundation/DecimalNumberFormatterTest.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Foundation/StringFormatterTest.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Settings/Controllers/PreferencesControllerTests.swift" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/Trust.xcodeproj/project.pbxproj" afterPath="$PROJECT_DIR$/Trust.xcodeproj/project.pbxproj" />
+      <change beforePath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountsViewController.swift" afterPath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountsViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.swift" afterPath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.xib" afterPath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.xib" />
+      <change beforePath="$PROJECT_DIR$/Trust/Assets.xcassets/glasses.imageset/glasses@3x.png" afterPath="$PROJECT_DIR$/Trust/Assets.xcassets/glasses.imageset/glasses@3x.png" />
+      <change beforePath="$PROJECT_DIR$/Trust/Browser/Factory/WKWebViewConfiguration.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Factory/WKWebViewConfiguration.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Browser/Types/BrowserURLParser.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Types/BrowserURLParser.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Core/ViewModels/InCoordinatorViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Core/ViewModels/InCoordinatorViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift" afterPath="$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Extensions/Address.swift" afterPath="$PROJECT_DIR$/Trust/Extensions/Address.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/InCoordinator.swift" afterPath="$PROJECT_DIR$/Trust/InCoordinator.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Info.plist" afterPath="$PROJECT_DIR$/Trust/Info.plist" />
+      <change beforePath="$PROJECT_DIR$/Trust/Lock/ViewModels/LockCreatePasscodeViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Lock/ViewModels/LockCreatePasscodeViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Market/SignOrders.swift" afterPath="$PROJECT_DIR$/Trust/Market/SignOrders.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/Config.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/Config.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/ConfigExplorer.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/ConfigExplorer.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/RPCServers.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/RPCServers.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Settings/ViewControllers/SettingsViewController.swift" afterPath="$PROJECT_DIR$/Trust/Settings/ViewControllers/SettingsViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Settings/ViewModels/SettingsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Settings/ViewModels/SettingsViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/NewTokenViewController.swift" afterPath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/NewTokenViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/TokensViewController.swift" afterPath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/TokensViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewControllers/TransactionViewController.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewControllers/TransactionViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionDetailsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionDetailsViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionsViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transfer/Types/GasLimitConfiguration.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/Types/GasLimitConfiguration.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transfer/Types/GasPriceConfiguration.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/Types/GasPriceConfiguration.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/ConfigureTransactionViewController.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/ConfigureTransactionViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/SendViewController.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/SendViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Wallet/ViewControllers/ImportWalletViewController.swift" afterPath="$PROJECT_DIR$/Trust/Wallet/ViewControllers/ImportWalletViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Coordinators/InCoordinatorTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Coordinators/InCoordinatorTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Info.plist" afterPath="$PROJECT_DIR$/TrustTests/Info.plist" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Settings/ConfigTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Settings/ConfigTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasLimitConfigurationTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasLimitConfigurationTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasPriceConfigurationTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasPriceConfigurationTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustUITests/Info.plist" afterPath="$PROJECT_DIR$/TrustUITests/Info.plist" />
+    </list>
+    <ignored path="$USER_HOME$/Library/Developer/Xcode/DerivedData/Trust-fagtjernnlugowdujijvfmqpxdjn/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="iphonesimulator_6216FED6-8581-4A11-8F3B-DC7A7B331DDE" />
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="SignOrders.swift" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="224">
+              <caret line="97" column="0" lean-forward="false" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#13#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OrderSigningTests.swift" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="435">
+              <caret line="29" column="75" lean-forward="true" selection-start-line="29" selection-start-column="75" selection-end-line="29" selection-end-column="75" />
+              <folding>
+                <element signature="e#0#13#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>List&lt;O</find>
+      <find>order</find>
+      <find>CONTRACT_A</find>
+      <find>OrderTests.swift</find>
+      <find>List</find>
+      <find>Account</find>
+      <find>createAcc</find>
+      <find>sign</find>
+      <find>signmess</find>
+      <find>public class Order</find>
+      <find>account</find>
+      <find>CONTRACT_ADDR</find>
+      <find>BigInt</find>
+      <find>public class order</find>
+      <find>SignOrders</find>
+      <find>market</find>
+      <find>response</find>
+      <find>publ</find>
+      <find>EtherKeyStore</find>
+      <find>EtherKeystore</find>
+      <find>Result&lt;Data, KeystoreError&gt;</find>
+      <find>keystoretest</find>
+      <find>signmessage</find>
+      <find>balance</find>
+      <find>UInt16</find>
+      <find>Uint8</find>
+      <find>signMessageDa</find>
+      <find>expiryTimeStamp</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>UInt8</replace>
+      <replace>expiryBuffer</replace>
+    </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/Trust/Transfer/Coordinators/SignMessageCoordinator.swift" />
+        <option value="$PROJECT_DIR$/TrustTests/Market/OrderTests.swift" />
+        <option value="$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift" />
+        <option value="$PROJECT_DIR$/TrustTests/Factories/FakeKeystore.swift" />
+        <option value="$PROJECT_DIR$/TrustTests/Foundation/EtherNumberFormatterTests.swift" />
+        <option value="$PROJECT_DIR$/TrustTests/TrustTests.swift" />
+        <option value="$PROJECT_DIR$/Trust/EtherClient/Keystore.swift" />
+        <option value="$PROJECT_DIR$/Trust/EtherClient/KeyStoreError.swift" />
+        <option value="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" />
+        <option value="$PROJECT_DIR$/Trust/Market/SignOrders.swift" />
+        <option value="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="1280" />
+    <option name="y" value="23" />
+    <option name="width" value="2560" />
+    <option name="height" value="1349" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+          <State>
+            <id>C/C++</id>
+          </State>
+          <State>
+            <id>FunctionsC/C++</id>
+          </State>
+          <State>
+            <id>General</id>
+          </State>
+          <State>
+            <id>GeneralJavaScript</id>
+          </State>
+          <State>
+            <id>GeneralObjective-C</id>
+          </State>
+          <State>
+            <id>JavaScript</id>
+          </State>
+          <State>
+            <id>Objective-C</id>
+          </State>
+          <State>
+            <id>RELAX NG</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>SyntaxError</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Cidr.FilesView" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="" type="efc3779f:XcodeRootNode" />
+              <item name="Pods" type="1d218c8b:XcodeProjectNode" />
+            </path>
+            <path>
+              <item name="" type="efc3779f:XcodeRootNode" />
+              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
+            </path>
+            <path>
+              <item name="" type="efc3779f:XcodeRootNode" />
+              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
+              <item name="Trust" type="fcab9f18:XcodeViewNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="OBJC.PRESERVED_TARGET_SELECTION" value="Trust,,,TrustTests" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="XCTest/Kiwi.OrderSigningTests.testSigningOrders">
+    <configuration name="OrderSigningTests.testSigningOrders" type="OCUnitRunConfiguration" factoryName="XCTest/Kiwi" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Trust" TARGET_NAME="TrustTests" CONFIG_NAME="Debug" SCHEME_NAME="OrderSigningTests.testSigningOrders" TEST_CLASS="OrderSigningTests" TEST_METHOD="testSigningOrders" TEST_MODE="SUITE_TEST">
+      <envs />
+    </configuration>
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="Application.Trust - Europe" />
+      <item index="1" class="java.lang.String" itemvalue="Application.Trust" />
+      <item index="2" class="java.lang.String" itemvalue="Application.TrustTests" />
+      <item index="3" class="java.lang.String" itemvalue="Application.TrustUITests" />
+      <item index="4" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testSigningOrders" />
+    </list>
+    <recent_temporary>
+      <list size="1">
+        <item index="0" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testSigningOrders" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="36bad8c5-1e9e-4730-ba80-fb45b953be97" name="Default" comment="" />
+      <created>1518149403208</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1518149403208</updated>
+      <workItem from="1518149408189" duration="891000" />
+      <workItem from="1518150610647" duration="1878000" />
+      <workItem from="1518156667059" duration="8644000" />
+      <workItem from="1518179719047" duration="2491000" />
+      <workItem from="1518182328173" duration="1050000" />
+      <workItem from="1518184346326" duration="4971000" />
+      <workItem from="1518228488178" duration="575000" />
+      <workItem from="1518256423251" duration="1963000" />
+      <workItem from="1518258416142" duration="2324000" />
+      <workItem from="1518266894983" duration="938000" />
+      <workItem from="1518269073532" duration="252000" />
+      <workItem from="1518269355518" duration="860000" />
+      <workItem from="1518331050521" duration="74000" />
+      <workItem from="1518331273522" duration="122000" />
+      <workItem from="1518331429859" duration="244000" />
+      <workItem from="1518334122492" duration="303000" />
+      <workItem from="1518334735649" duration="1042000" />
+      <workItem from="1518398527471" duration="1748000" />
+      <workItem from="1518403192759" duration="35589000" />
+      <workItem from="1518668693732" duration="3531000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TestHistory">
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 49m 35s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 55m 47s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 12h 40m 41s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 12h 49m 32s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 13h 56m 45s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 16m 02s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 20m 03s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 21m 00s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 21m 31s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 23m 19s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="81764000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="1280" y="23" width="2560" height="1349" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32498044" sideWeight="0.26171875" order="13" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22709475" sideWeight="0.5640625" order="14" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22709475" sideWeight="0.4359375" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="16" side_tool="false" content_ui="tabs" />
+      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.123046875" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39937353" sideWeight="0.4453125" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift</url>
+          <line>35</line>
+          <option name="timeStamp" value="14" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/Trust/Market/SignOrders.swift</url>
+          <line>97</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/Trust/Market/SignOrders.swift</url>
+          <line>108</line>
+          <option name="timeStamp" value="26" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/Trust/Market/SignOrders.swift</url>
+          <line>117</line>
+          <option name="timeStamp" value="29" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/Trust/Market/SignOrders.swift</url>
+          <line>62</line>
+          <option name="timeStamp" value="32" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="35" />
+    </breakpoint-manager>
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/TrustTests/Foundation/QRURLParserTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="24" lean-forward="false" selection-start-line="9" selection-start-column="24" selection-end-line="9" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Foundation/QRURLParserTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="19" lean-forward="false" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Wallet/Coordinators/InitialWalletCreationCoordinator.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="33" column="27" lean-forward="false" selection-start-line="33" selection-start-column="27" selection-end-line="33" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="30" column="0" lean-forward="true" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/EtherClient/EtherKeystoreTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" column="49" lean-forward="true" selection-start-line="25" selection-start-column="49" selection-end-line="25" selection-end-column="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="17" column="30" lean-forward="true" selection-start-line="17" selection-start-column="30" selection-end-line="17" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="19" lean-forward="false" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" column="0" lean-forward="false" selection-start-line="28" selection-start-column="0" selection-end-line="28" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Transfer/Coordinators/SendTransactionCoordinator.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="945">
+          <caret line="67" column="68" lean-forward="false" selection-start-line="67" selection-start-column="57" selection-end-line="67" selection-end-column="68" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4770">
+          <caret line="318" column="29" lean-forward="false" selection-start-line="318" selection-start-column="29" selection-end-line="318" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Wallet/Coordinators/InitialWalletCreationCoordinator.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Foundation/Coordinator.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="9" lean-forward="false" selection-start-line="4" selection-start-column="9" selection-end-line="4" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Transfer/Coordinators/SendTransactionCoordinator.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="50" column="87" lean-forward="false" selection-start-line="50" selection-start-column="72" selection-end-line="50" selection-end-column="87" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Pods/TrustKeystore/Sources/Account.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="14" lean-forward="false" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Coordinators/WalletCoordinatorTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="144">
+          <caret line="58" column="31" lean-forward="true" selection-start-line="58" selection-start-column="31" selection-end-line="58" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Transfer/Coordinators/SignMessageCoordinator.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="945">
+          <caret line="67" column="30" lean-forward="false" selection-start-line="67" selection-start-column="30" selection-end-line="67" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Transactions/Storage/TransactionsStorageTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="5" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Factories/Account.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Factories/TestKeyStore.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Factories/Wallet.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Factories/UnconfirmedTransaction.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Factories/FakeEtherKeystore.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="18" column="31" lean-forward="false" selection-start-line="18" selection-start-column="18" selection-end-line="18" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/AppCoordinator.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Transfer/Controllers/TransactionConfiguratorTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Settings/RPCServerTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="0" lean-forward="true" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderTests.swift" />
+    <entry file="file://$PROJECT_DIR$/TrustTests/Settings/ConfigTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="17" lean-forward="true" selection-start-line="17" selection-start-column="17" selection-end-line="17" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="330">
+          <caret line="22" column="1" lean-forward="false" selection-start-line="22" selection-start-column="1" selection-end-line="22" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Foundation/QRURLParserTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="222">
+          <caret line="41" column="0" lean-forward="true" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Factories/FakeKeystore.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="383">
+          <caret line="48" column="25" lean-forward="true" selection-start-line="48" selection-start-column="25" selection-end-line="48" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Foundation/EtherNumberFormatterTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="4" column="13" lean-forward="false" selection-start-line="4" selection-start-column="13" selection-end-line="4" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/TrustTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="1" lean-forward="false" selection-start-line="6" selection-start-column="1" selection-end-line="6" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="appcode.project-settings://3c3fc377">
+      <provider selected="true" editor-type-id="AppCode.ProjectSettings">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Wallet/Coordinators/InitialWalletCreationCoordinator.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" column="1" lean-forward="false" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Lock/Lock.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountsViewController.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/EtherClient/EtherKeystoreTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="247">
+          <caret line="206" column="13" lean-forward="false" selection-start-line="206" selection-start-column="13" selection-end-line="206" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/KeyStoreError.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="27" column="38" lean-forward="false" selection-start-line="27" selection-start-column="38" selection-end-line="27" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Pods/Result/Result/Result.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3090">
+          <caret line="3" column="12" lean-forward="false" selection-start-line="3" selection-start-column="12" selection-end-line="3" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/Keystore.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="26" column="4" lean-forward="false" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/AppDelegate.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" column="13" lean-forward="false" selection-start-line="28" selection-start-column="13" selection-end-line="28" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountViewModel.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="19" column="47" lean-forward="false" selection-start-line="19" selection-start-column="47" selection-end-line="19" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Pods/CryptoSwift/Sources/CryptoSwift/Foundation/Data+Extension.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="825">
+          <caret line="55" column="16" lean-forward="false" selection-start-line="55" selection-start-column="16" selection-end-line="55" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Pods/TrustKeystore/Sources/KeyStore.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="344">
+          <caret line="177" column="16" lean-forward="false" selection-start-line="177" selection-start-column="16" selection-end-line="177" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Pods/TrustKeystore/Sources/Secp256k1.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="548">
+          <caret line="82" column="22" lean-forward="false" selection-start-line="82" selection-start-column="16" selection-end-line="82" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="213">
+          <caret line="302" column="9" lean-forward="false" selection-start-line="302" selection-start-column="9" selection-end-line="302" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="97" column="0" lean-forward="false" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="29" column="75" lean-forward="true" selection-start-line="29" selection-start-column="75" selection-end-line="29" selection-end-column="75" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
