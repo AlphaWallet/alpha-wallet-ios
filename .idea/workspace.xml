@@ -2,8 +2,67 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="36bad8c5-1e9e-4730-ba80-fb45b953be97" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" afterPath="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/.babelrc" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/dist/trust-min.js" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/dist/trust.js" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/gulpfile.babel.js" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/package-lock.json" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/package.json" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/JS/src/index.js" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Assets.xcassets/settings_preferences.imageset/Contents.json" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Assets.xcassets/settings_preferences.imageset/settings_preferences.png" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Extensions/UINavigationController.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Extensions/UITextFieldAdditions.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Foundation/DecimalFormatter.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Foundation/StringFormatter.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/Controllers/PreferencesController.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/Types/PreferenceOption.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/ViewControllers/PreferencesViewController.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/ViewModels/PreferencesViewModel.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Core/ViewModels/InCoordinatorViewModelTests.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Factories/PreferencesController.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Foundation/DecimalNumberFormatterTest.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Foundation/StringFormatterTest.swift" />
+      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Settings/Controllers/PreferencesControllerTests.swift" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/Trust.xcodeproj/project.pbxproj" afterPath="$PROJECT_DIR$/Trust.xcodeproj/project.pbxproj" />
+      <change beforePath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountsViewController.swift" afterPath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountsViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.swift" afterPath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.xib" afterPath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.xib" />
+      <change beforePath="$PROJECT_DIR$/Trust/Assets.xcassets/glasses.imageset/glasses@3x.png" afterPath="$PROJECT_DIR$/Trust/Assets.xcassets/glasses.imageset/glasses@3x.png" />
+      <change beforePath="$PROJECT_DIR$/Trust/Browser/Factory/WKWebViewConfiguration.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Factory/WKWebViewConfiguration.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Browser/Types/BrowserURLParser.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Types/BrowserURLParser.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Core/ViewModels/InCoordinatorViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Core/ViewModels/InCoordinatorViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift" afterPath="$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Extensions/Address.swift" afterPath="$PROJECT_DIR$/Trust/Extensions/Address.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/InCoordinator.swift" afterPath="$PROJECT_DIR$/Trust/InCoordinator.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Info.plist" afterPath="$PROJECT_DIR$/Trust/Info.plist" />
+      <change beforePath="$PROJECT_DIR$/Trust/Lock/ViewModels/LockCreatePasscodeViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Lock/ViewModels/LockCreatePasscodeViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Market/SignOrders.swift" afterPath="$PROJECT_DIR$/Trust/Market/SignOrders.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/Config.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/Config.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/ConfigExplorer.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/ConfigExplorer.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/RPCServers.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/RPCServers.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Settings/ViewControllers/SettingsViewController.swift" afterPath="$PROJECT_DIR$/Trust/Settings/ViewControllers/SettingsViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Settings/ViewModels/SettingsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Settings/ViewModels/SettingsViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/NewTokenViewController.swift" afterPath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/NewTokenViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/TokensViewController.swift" afterPath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/TokensViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewControllers/TransactionViewController.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewControllers/TransactionViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionDetailsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionDetailsViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionsViewModel.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transfer/Types/GasLimitConfiguration.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/Types/GasLimitConfiguration.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transfer/Types/GasPriceConfiguration.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/Types/GasPriceConfiguration.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/ConfigureTransactionViewController.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/ConfigureTransactionViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/SendViewController.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/SendViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Wallet/ViewControllers/ImportWalletViewController.swift" afterPath="$PROJECT_DIR$/Trust/Wallet/ViewControllers/ImportWalletViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Coordinators/InCoordinatorTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Coordinators/InCoordinatorTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Info.plist" afterPath="$PROJECT_DIR$/TrustTests/Info.plist" />
       <change beforePath="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Settings/ConfigTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Settings/ConfigTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasLimitConfigurationTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasLimitConfigurationTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasPriceConfigurationTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasPriceConfigurationTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustUITests/Info.plist" afterPath="$PROJECT_DIR$/TrustUITests/Info.plist" />
     </list>
     <ignored path="$USER_HOME$/Library/Developer/Xcode/DerivedData/Trust-fagtjernnlugowdujijvfmqpxdjn/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,8 +78,8 @@
       <file leaf-file-name="SignOrders.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="100" column="0" lean-forward="false" selection-start-line="100" selection-start-column="0" selection-end-line="100" selection-end-column="0" />
+            <state relative-caret-position="224">
+              <caret line="97" column="0" lean-forward="false" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -28,21 +87,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="EtherKeystore.swift" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="283">
-              <caret line="310" column="9" lean-forward="false" selection-start-line="310" selection-start-column="9" selection-end-line="310" selection-end-column="9" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="OrderSigningTests.swift" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="450">
-              <caret line="30" column="48" lean-forward="true" selection-start-line="30" selection-start-column="48" selection-end-line="30" selection-end-column="48" />
+            <state relative-caret-position="435">
+              <caret line="29" column="75" lean-forward="true" selection-start-line="29" selection-start-column="75" selection-end-line="29" selection-end-column="75" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -80,9 +129,12 @@
       <find>balance</find>
       <find>UInt16</find>
       <find>Uint8</find>
+      <find>signMessageDa</find>
+      <find>expiryTimeStamp</find>
     </findStrings>
     <replaceStrings>
       <replace>UInt8</replace>
+      <replace>expiryBuffer</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -104,9 +156,9 @@
         <option value="$PROJECT_DIR$/TrustTests/TrustTests.swift" />
         <option value="$PROJECT_DIR$/Trust/EtherClient/Keystore.swift" />
         <option value="$PROJECT_DIR$/Trust/EtherClient/KeyStoreError.swift" />
-        <option value="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" />
         <option value="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" />
         <option value="$PROJECT_DIR$/Trust/Market/SignOrders.swift" />
+        <option value="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" />
       </list>
     </option>
   </component>
@@ -183,108 +235,16 @@
           <expand>
             <path>
               <item name="" type="efc3779f:XcodeRootNode" />
+              <item name="Pods" type="1d218c8b:XcodeProjectNode" />
+            </path>
+            <path>
+              <item name="" type="efc3779f:XcodeRootNode" />
               <item name="Trust" type="1d218c8b:XcodeProjectNode" />
             </path>
             <path>
               <item name="" type="efc3779f:XcodeRootNode" />
               <item name="Trust" type="1d218c8b:XcodeProjectNode" />
               <item name="Trust" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="EtherClient" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Lock" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Lock" type="fcab9f18:XcodeViewNode" />
-              <item name="Coordinators" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Lock" type="fcab9f18:XcodeViewNode" />
-              <item name="ViewControllers" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Lock" type="fcab9f18:XcodeViewNode" />
-              <item name="ViewModels" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Lock" type="fcab9f18:XcodeViewNode" />
-              <item name="Views" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Market" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="UI" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Wallet" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Wallet" type="fcab9f18:XcodeViewNode" />
-              <item name="Types" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Wallet" type="fcab9f18:XcodeViewNode" />
-              <item name="ViewControllers" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Wallet" type="fcab9f18:XcodeViewNode" />
-              <item name="ViewModels" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Welcome" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="TrustTests" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="TrustTests" type="fcab9f18:XcodeViewNode" />
-              <item name="Market" type="fcab9f18:XcodeViewNode" />
             </path>
           </expand>
           <select />
@@ -310,34 +270,19 @@
     </option>
   </component>
   <component name="RunManager" selected="XCTest/Kiwi.OrderSigningTests.testSigningOrders">
-    <configuration name="All in OrderSigningTests.swift" type="OCUnitRunConfiguration" factoryName="XCTest/Kiwi" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Trust" TARGET_NAME="TrustTests" CONFIG_NAME="Debug" SCHEME_NAME="All in OrderSigningTests.swift" TEST_PATTERN="OrderSigningTests" TEST_MODE="PATTERN">
-      <envs />
-    </configuration>
-    <configuration name="All in SignOrders.swift" type="OCUnitRunConfiguration" factoryName="XCTest/Kiwi" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Trust" TARGET_NAME="TrustTests" CONFIG_NAME="Debug" SCHEME_NAME="All in SignOrders.swift" TEST_PATTERN="" TEST_MODE="PATTERN">
-      <envs />
-    </configuration>
-    <configuration name="OrderSigningTests.testInit" type="OCUnitRunConfiguration" factoryName="XCTest/Kiwi" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Trust" TARGET_NAME="TrustTests" CONFIG_NAME="Debug" SCHEME_NAME="OrderSigningTests.testInit" TEST_CLASS="OrderSigningTests" TEST_METHOD="testInit" TEST_MODE="SUITE_TEST">
-      <envs />
-    </configuration>
     <configuration name="OrderSigningTests.testSigningOrders" type="OCUnitRunConfiguration" factoryName="XCTest/Kiwi" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Trust" TARGET_NAME="TrustTests" CONFIG_NAME="Debug" SCHEME_NAME="OrderSigningTests.testSigningOrders" TEST_CLASS="OrderSigningTests" TEST_METHOD="testSigningOrders" TEST_MODE="SUITE_TEST">
       <envs />
     </configuration>
-    <list size="8">
+    <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Application.Trust - Europe" />
       <item index="1" class="java.lang.String" itemvalue="Application.Trust" />
       <item index="2" class="java.lang.String" itemvalue="Application.TrustTests" />
       <item index="3" class="java.lang.String" itemvalue="Application.TrustUITests" />
-      <item index="4" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testInit" />
-      <item index="5" class="java.lang.String" itemvalue="XCTest/Kiwi.All in SignOrders.swift" />
-      <item index="6" class="java.lang.String" itemvalue="XCTest/Kiwi.All in OrderSigningTests.swift" />
-      <item index="7" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testSigningOrders" />
+      <item index="4" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testSigningOrders" />
     </list>
     <recent_temporary>
-      <list size="4">
+      <list size="1">
         <item index="0" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testSigningOrders" />
-        <item index="1" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testInit" />
-        <item index="2" class="java.lang.String" itemvalue="XCTest/Kiwi.All in OrderSigningTests.swift" />
-        <item index="3" class="java.lang.String" itemvalue="XCTest/Kiwi.All in SignOrders.swift" />
       </list>
     </recent_temporary>
   </component>
@@ -373,80 +318,68 @@
       <workItem from="1518334735649" duration="1042000" />
       <workItem from="1518398527471" duration="1748000" />
       <workItem from="1518403192759" duration="35589000" />
+      <workItem from="1518668693732" duration="3531000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 06m 13s.xml">
-      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 14m 26s.xml">
-      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 19m 02s.xml">
-      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 36m 53s.xml">
-      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 37m 35s.xml">
-      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 40m 22s.xml">
-      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 41m 52s.xml">
-      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
-    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 44m 32s.xml">
-      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
     <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 49m 35s.xml">
       <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
     </history-entry>
     <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 11h 55m 47s.xml">
       <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
     </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 12h 40m 41s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 12h 49m 32s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 13h 56m 45s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 16m 02s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 20m 03s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 21m 00s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 21m 31s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
+    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 23m 19s.xml">
+      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="78218000" />
+    <option name="totallyTimeSpent" value="81764000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1280" y="23" width="2560" height="1349" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32498044" sideWeight="0.23828125" order="13" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32498044" sideWeight="0.26171875" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33516052" sideWeight="0.57539064" order="14" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22709475" sideWeight="0.5640625" order="14" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22709475" sideWeight="0.4359375" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.22709475" sideWeight="0.42109376" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="16" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.123046875" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39937353" sideWeight="0.4453125" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33516052" sideWeight="0.42460936" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32498044" sideWeight="0.275" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22709475" sideWeight="0.5578125" order="14" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22709475" sideWeight="0.4421875" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="16" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.123046875" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39937353" sideWeight="0.453125" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -460,26 +393,31 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift</url>
-          <line>28</line>
+          <line>35</line>
           <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Trust/Market/SignOrders.swift</url>
-          <line>100</line>
+          <line>97</line>
           <option name="timeStamp" value="19" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Trust/Market/SignOrders.swift</url>
-          <line>111</line>
+          <line>108</line>
           <option name="timeStamp" value="26" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/Trust/Market/SignOrders.swift</url>
-          <line>120</line>
+          <line>117</line>
           <option name="timeStamp" value="29" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/Trust/Market/SignOrders.swift</url>
+          <line>62</line>
+          <option name="timeStamp" value="32" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="32" />
+      <option name="time" value="35" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -786,7 +724,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
           <caret line="26" column="4" lean-forward="false" selection-start-line="26" selection-start-column="4" selection-end-line="26" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -827,16 +764,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="310" column="9" lean-forward="false" selection-start-line="310" selection-start-column="9" selection-end-line="310" selection-end-column="9" />
+        <state relative-caret-position="213">
+          <caret line="302" column="9" lean-forward="false" selection-start-line="302" selection-start-column="9" selection-end-line="302" selection-end-column="9" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="100" column="0" lean-forward="false" selection-start-line="100" selection-start-column="0" selection-end-line="100" selection-end-column="0" />
+        <state relative-caret-position="224">
+          <caret line="97" column="0" lean-forward="false" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
@@ -845,8 +782,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="450">
-          <caret line="30" column="48" lean-forward="true" selection-start-line="30" selection-start-column="48" selection-end-line="30" selection-end-column="48" />
+        <state relative-caret-position="435">
+          <caret line="29" column="75" lean-forward="true" selection-start-line="29" selection-start-column="75" selection-end-line="29" selection-end-column="75" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>

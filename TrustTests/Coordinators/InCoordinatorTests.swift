@@ -21,16 +21,10 @@ class InCoordinatorTests: XCTestCase {
 
         XCTAssertNotNil(tabbarController)
 
-        if config.isDAppsBrowserAvailable {
-            XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is BrowserViewController)
-            XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is TransactionsViewController)
-            XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is TokensViewController)
-            XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
-        } else {
-            XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is TransactionsViewController)
-            XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is TokensViewController)
-            XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
-        }
+        XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is BrowserViewController)
+        XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is TransactionsViewController)
+        XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is TokensViewController)
+        XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
     }
 
     func testChangeRecentlyUsedAccount() {
@@ -91,5 +85,35 @@ class InCoordinatorTests: XCTestCase {
 
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
         XCTAssertTrue(controller is RequestViewController)
+    }
+
+    func testShowTabDefault() {
+        let coordinator = InCoordinator(
+            navigationController: FakeNavigationController(),
+            wallet: .make(),
+            keystore: FakeEtherKeystore(),
+            config: .make()
+        )
+        coordinator.showTabBar(for: .make())
+
+        let viewController = (coordinator.tabBarController?.selectedViewController as? UINavigationController)?.viewControllers[0]
+
+        XCTAssert(viewController is TransactionsViewController)
+    }
+
+    func testShowTabTokens() {
+        let coordinator = InCoordinator(
+            navigationController: FakeNavigationController(),
+            wallet: .make(),
+            keystore: FakeEtherKeystore(),
+            config: .make()
+        )
+        coordinator.showTabBar(for: .make())
+
+        coordinator.showTab(.tokens)
+
+        let viewController = (coordinator.tabBarController?.selectedViewController as? UINavigationController)?.viewControllers[0]
+
+        XCTAssert(viewController is TokensViewController)
     }
 }

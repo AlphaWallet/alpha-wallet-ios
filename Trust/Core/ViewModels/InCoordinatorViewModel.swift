@@ -5,14 +5,20 @@ import Foundation
 struct InCoordinatorViewModel {
 
     let config: Config
+    let preferences: PreferencesController
 
-    init(config: Config) {
+    init(
+        config: Config,
+        preferences: PreferencesController = PreferencesController()
+    ) {
         self.config = config
+        self.preferences = preferences
     }
 
     var tokensAvailable: Bool {
         switch config.server {
         case .main, .classic, .kovan, .ropsten, .rinkeby, .poa, .sokol, .custom: return true
+        case .callisto: return false
         }
     }
 
@@ -20,7 +26,10 @@ struct InCoordinatorViewModel {
         return config.server.isTestNetwork
     }
 
-    var isDAppsBrowserAvailable: Bool {
-        return config.isDAppsBrowserAvailable
+    var initialTab: Tabs {
+        guard preferences.get(for: .showTokensOnLaunch) else {
+            return .transactions
+        }
+        return .tokens
     }
 }
