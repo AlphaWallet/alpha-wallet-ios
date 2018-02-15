@@ -14,6 +14,7 @@ public enum KeystoreError: LocalizedError {
     case failedToParseJSON
     case accountNotFound
     case failedToSignMessage
+    case failedToExportPrivateKey
 
     public var errorDescription: String? {
         switch self {
@@ -39,6 +40,8 @@ public enum KeystoreError: LocalizedError {
             return "Account not found"
         case .failedToSignMessage:
             return "Failed to sign message"
+        case .failedToExportPrivateKey:
+            return "Failed to export private key"
         }
     }
 }
