@@ -5,6 +5,8 @@ import BigInt
 import XCTest
 
 class EtherNumberFormatterTests: XCTestCase {
+
+
     let fullFormatter = EtherNumberFormatter(locale: Locale(identifier: "en_US_POSIX"))
     let shortFormatter: EtherNumberFormatter = {
         var formatter = EtherNumberFormatter(locale: Locale(identifier: "en_US_POSIX"))

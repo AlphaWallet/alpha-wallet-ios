@@ -2,7 +2,7 @@
 
 import Foundation
 
-enum KeystoreError: LocalizedError {
+public enum KeystoreError: LocalizedError {
     case failedToDeleteAccount
     case failedToDecryptKey
     case failedToImport(Error)
@@ -15,7 +15,7 @@ enum KeystoreError: LocalizedError {
     case accountNotFound
     case failedToSignMessage
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         switch self {
         case .failedToDeleteAccount:
             return "Failed to delete account"
