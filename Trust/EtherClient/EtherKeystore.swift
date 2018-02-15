@@ -235,13 +235,26 @@ open class EtherKeystore: Keystore {
         guard let account = getAccount(for: account.address) else {
             return .failure(.accountNotFound)
         }
-
         do {
             let data = try keyStore.export(account: account, password: password, newPassword: newPassword)
             return (.success(data))
         } catch {
             return (.failure(.failedToDecryptKey))
         }
+
+    }
+    
+    func exportPrivateKey(account: Account) -> Result<Data, KeystoreError> {
+        guard let password = getPassword(for: account) else {
+            return .failure(KeystoreError.accountNotFound)
+        }
+        do {
+            let privateKey = try keyStore.exportPrivateKey(account: account, password: password)
+            return .success(privateKey)
+        } catch {
+            return .failure(KeystoreError.failedToExportPrivateKey)
+        }
+
     }
 
     func delete(wallet: Wallet) -> Result<Void, KeystoreError> {
@@ -289,20 +302,20 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func signPersonalMessage(_ message: String, for account: Account) -> Result<Data, KeystoreError> {
+    func signPersonalMessage(_ data: Data, for account: Account) -> Result<Data, KeystoreError> {
+        let message = String(data: data, encoding: .utf8)!
         let formattedMessage: String = "\u{19}Ethereum Signed Message:\n" + "\(message.count)" + message
-        return signMessage(formattedMessage, for: account)
+        let hash = formattedMessage.data(using: .utf8)?.sha3(.keccak256)
+        return signMessage(hash!, for: account)
     }
 
-    //this method is no good unless message is a plain string, should be replaced with signMessageData below
-    public func signMessage(_ message: String, for account: Account) -> Result<Data, KeystoreError> {
+    func signMessage(_ data: Data, for account: Account) -> Result<Data, KeystoreError> {
         guard
-            let hash = message.data(using: .utf8)?.sha3(.keccak256),
             let password = getPassword(for: account) else {
                 return .failure(KeystoreError.failedToSignMessage)
         }
         do {
-            var data = try keyStore.signHash(hash, account: account, password: password)
+            var data = try keyStore.signHash(data, account: account, password: password)
             // TODO: Make it configurable, instead of overriding last byte.
             data[64] += 27
             return .success(data)

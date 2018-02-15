@@ -2,67 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="36bad8c5-1e9e-4730-ba80-fb45b953be97" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/JS/.babelrc" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/JS/dist/trust-min.js" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/JS/dist/trust.js" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/JS/gulpfile.babel.js" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/JS/package-lock.json" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/JS/package.json" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/JS/src/index.js" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Assets.xcassets/settings_preferences.imageset/Contents.json" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Assets.xcassets/settings_preferences.imageset/settings_preferences.png" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Extensions/UINavigationController.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Extensions/UITextFieldAdditions.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Foundation/DecimalFormatter.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Foundation/StringFormatter.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/Controllers/PreferencesController.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/Types/PreferenceOption.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/ViewControllers/PreferencesViewController.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Trust/Settings/ViewModels/PreferencesViewModel.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Core/ViewModels/InCoordinatorViewModelTests.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Factories/PreferencesController.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Foundation/DecimalNumberFormatterTest.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Foundation/StringFormatterTest.swift" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/TrustTests/Settings/Controllers/PreferencesControllerTests.swift" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/Trust.xcodeproj/project.pbxproj" afterPath="$PROJECT_DIR$/Trust.xcodeproj/project.pbxproj" />
-      <change beforePath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountsViewController.swift" afterPath="$PROJECT_DIR$/Trust/Accounts/ViewModels/AccountsViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.swift" afterPath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.xib" afterPath="$PROJECT_DIR$/Trust/Accounts/Views/AccountViewCell.xib" />
-      <change beforePath="$PROJECT_DIR$/Trust/Assets.xcassets/glasses.imageset/glasses@3x.png" afterPath="$PROJECT_DIR$/Trust/Assets.xcassets/glasses.imageset/glasses@3x.png" />
-      <change beforePath="$PROJECT_DIR$/Trust/Browser/Factory/WKWebViewConfiguration.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Factory/WKWebViewConfiguration.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Browser/Types/BrowserURLParser.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Types/BrowserURLParser.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Core/ViewModels/InCoordinatorViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Core/ViewModels/InCoordinatorViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift" afterPath="$PROJECT_DIR$/Trust/EtherClient/Requests/MarketOrders.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Extensions/Address.swift" afterPath="$PROJECT_DIR$/Trust/Extensions/Address.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/InCoordinator.swift" afterPath="$PROJECT_DIR$/Trust/InCoordinator.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Info.plist" afterPath="$PROJECT_DIR$/Trust/Info.plist" />
-      <change beforePath="$PROJECT_DIR$/Trust/Lock/ViewModels/LockCreatePasscodeViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Lock/ViewModels/LockCreatePasscodeViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Market/SignOrders.swift" afterPath="$PROJECT_DIR$/Trust/Market/SignOrders.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/Config.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/Config.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/ConfigExplorer.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/ConfigExplorer.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Settings/Types/RPCServers.swift" afterPath="$PROJECT_DIR$/Trust/Settings/Types/RPCServers.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Settings/ViewControllers/SettingsViewController.swift" afterPath="$PROJECT_DIR$/Trust/Settings/ViewControllers/SettingsViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Settings/ViewModels/SettingsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Settings/ViewModels/SettingsViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/NewTokenViewController.swift" afterPath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/NewTokenViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/TokensViewController.swift" afterPath="$PROJECT_DIR$/Trust/Tokens/ViewControllers/TokensViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewControllers/TransactionViewController.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewControllers/TransactionViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionDetailsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionDetailsViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionsViewModel.swift" afterPath="$PROJECT_DIR$/Trust/Transactions/ViewModels/TransactionsViewModel.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transfer/Types/GasLimitConfiguration.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/Types/GasLimitConfiguration.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transfer/Types/GasPriceConfiguration.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/Types/GasPriceConfiguration.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/ConfigureTransactionViewController.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/ConfigureTransactionViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/SendViewController.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/ViewControllers/SendViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/Trust/Wallet/ViewControllers/ImportWalletViewController.swift" afterPath="$PROJECT_DIR$/Trust/Wallet/ViewControllers/ImportWalletViewController.swift" />
-      <change beforePath="$PROJECT_DIR$/TrustTests/Coordinators/InCoordinatorTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Coordinators/InCoordinatorTests.swift" />
-      <change beforePath="$PROJECT_DIR$/TrustTests/Info.plist" afterPath="$PROJECT_DIR$/TrustTests/Info.plist" />
-      <change beforePath="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" />
-      <change beforePath="$PROJECT_DIR$/TrustTests/Settings/ConfigTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Settings/ConfigTests.swift" />
-      <change beforePath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasLimitConfigurationTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasLimitConfigurationTests.swift" />
-      <change beforePath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasPriceConfigurationTests.swift" afterPath="$PROJECT_DIR$/TrustTests/Transfer/Types/GasPriceConfigurationTests.swift" />
-      <change beforePath="$PROJECT_DIR$/TrustUITests/Info.plist" afterPath="$PROJECT_DIR$/TrustUITests/Info.plist" />
+      <change beforePath="$PROJECT_DIR$/Trust/Browser/Coordinators/BrowserCoordinator.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Coordinators/BrowserCoordinator.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Browser/Types/DappAction.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Types/DappAction.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Browser/Types/DappCommand.swift" afterPath="$PROJECT_DIR$/Trust/Browser/Types/DappCommand.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Browser/ViewControllers/BrowserViewController.swift" afterPath="$PROJECT_DIR$/Trust/Browser/ViewControllers/BrowserViewController.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" afterPath="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/EtherClient/KeyStoreError.swift" afterPath="$PROJECT_DIR$/Trust/EtherClient/KeyStoreError.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/EtherClient/Keystore.swift" afterPath="$PROJECT_DIR$/Trust/EtherClient/Keystore.swift" />
+      <change beforePath="$PROJECT_DIR$/Trust/Transfer/Coordinators/SignMessageCoordinator.swift" afterPath="$PROJECT_DIR$/Trust/Transfer/Coordinators/SignMessageCoordinator.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/EtherClient/EtherKeystoreTests.swift" afterPath="$PROJECT_DIR$/TrustTests/EtherClient/EtherKeystoreTests.swift" />
+      <change beforePath="$PROJECT_DIR$/TrustTests/Factories/FakeKeystore.swift" afterPath="$PROJECT_DIR$/TrustTests/Factories/FakeKeystore.swift" />
     </list>
     <ignored path="$USER_HOME$/Library/Developer/Xcode/DerivedData/Trust-fagtjernnlugowdujijvfmqpxdjn/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -78,8 +27,8 @@
       <file leaf-file-name="SignOrders.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
-              <caret line="97" column="0" lean-forward="false" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
+            <state relative-caret-position="300">
+              <caret line="20" column="45" lean-forward="false" selection-start-line="20" selection-start-column="45" selection-end-line="20" selection-end-column="45" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -87,11 +36,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="OrderSigningTests.swift" pinned="false" current-in-tab="true">
+      <file leaf-file-name="EtherKeystore.swift" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="431">
+              <caret line="235" column="45" lean-forward="true" selection-start-line="235" selection-start-column="45" selection-end-line="235" selection-end-column="45" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OrderSigningTests.swift" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="29" column="75" lean-forward="true" selection-start-line="29" selection-start-column="75" selection-end-line="29" selection-end-column="75" />
+            <state relative-caret-position="450">
+              <caret line="30" column="22" lean-forward="false" selection-start-line="30" selection-start-column="22" selection-end-line="30" selection-end-column="22" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -156,9 +115,9 @@
         <option value="$PROJECT_DIR$/TrustTests/TrustTests.swift" />
         <option value="$PROJECT_DIR$/Trust/EtherClient/Keystore.swift" />
         <option value="$PROJECT_DIR$/Trust/EtherClient/KeyStoreError.swift" />
-        <option value="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" />
         <option value="$PROJECT_DIR$/Trust/Market/SignOrders.swift" />
         <option value="$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift" />
+        <option value="$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift" />
       </list>
     </option>
   </component>
@@ -245,6 +204,12 @@
               <item name="" type="efc3779f:XcodeRootNode" />
               <item name="Trust" type="1d218c8b:XcodeProjectNode" />
               <item name="Trust" type="fcab9f18:XcodeViewNode" />
+            </path>
+            <path>
+              <item name="" type="efc3779f:XcodeRootNode" />
+              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
+              <item name="Trust" type="fcab9f18:XcodeViewNode" />
+              <item name="EtherClient" type="fcab9f18:XcodeViewNode" />
             </path>
           </expand>
           <select />
@@ -355,7 +320,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="81764000" />
+    <option name="totallyTimeSpent" value="81895000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1280" y="23" width="2560" height="1349" extended-state="0" />
@@ -762,18 +727,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="213">
-          <caret line="302" column="9" lean-forward="false" selection-start-line="302" selection-start-column="9" selection-end-line="302" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Trust/Market/SignOrders.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="97" column="0" lean-forward="false" selection-start-line="97" selection-start-column="0" selection-end-line="97" selection-end-column="0" />
+        <state relative-caret-position="300">
+          <caret line="20" column="45" lean-forward="false" selection-start-line="20" selection-start-column="45" selection-end-line="20" selection-end-column="45" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
@@ -782,11 +739,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderSigningTests.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="29" column="75" lean-forward="true" selection-start-line="29" selection-start-column="75" selection-end-line="29" selection-end-column="75" />
+        <state relative-caret-position="450">
+          <caret line="30" column="22" lean-forward="false" selection-start-line="30" selection-start-column="22" selection-end-line="30" selection-end-column="22" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Trust/EtherClient/EtherKeystore.swift">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="431">
+          <caret line="235" column="45" lean-forward="true" selection-start-line="235" selection-start-column="45" selection-end-line="235" selection-end-column="45" />
+          <folding />
         </state>
       </provider>
     </entry>
