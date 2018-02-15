@@ -294,6 +294,7 @@ open class EtherKeystore: Keystore {
         return signMessage(formattedMessage, for: account)
     }
 
+    //this method is no good unless message is a plain string, should be replaced with signMessageData below
     public func signMessage(_ message: String, for account: Account) -> Result<Data, KeystoreError> {
         guard
             let hash = message.data(using: .utf8)?.sha3(.keccak256),
@@ -301,7 +302,6 @@ open class EtherKeystore: Keystore {
                 return .failure(KeystoreError.failedToSignMessage)
         }
         do {
-            let hash2 = message.data(using: .utf8)?.sha3(.keccak256).hexString
             var data = try keyStore.signHash(hash, account: account, password: password)
             // TODO: Make it configurable, instead of overriding last byte.
             data[64] += 27
@@ -318,9 +318,7 @@ open class EtherKeystore: Keystore {
             return .failure(KeystoreError.failedToSignMessage)
         }
         do {
-            let hash2 = message?.sha3(.keccak256).hexString
             var data = try keyStore.signHash(hash, account: account, password: password)
-            // TODO: Make it configurable, instead of overriding last byte.
             data[64] += 27
             return .success(data)
         } catch {
