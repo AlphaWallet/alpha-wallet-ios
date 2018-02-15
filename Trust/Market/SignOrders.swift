@@ -11,7 +11,7 @@ public struct Order {
 
 public struct SignedOrder {
     var order : Order
-    var message : String
+    var message : Data
     var signature : String
 }
 
@@ -44,11 +44,13 @@ public class SignOrders {
         for i in 0...orders.count - 1 {
             //sign each order
             //TODO check casting to string
-            let message : String = encodeMessageForTrade(price: orders[i].price,
+            let message : [UInt8] = encodeMessageForTrade(price: orders[i].price,
                     expiryTimestamp: orders[i].expiryTimeStamp, tickets: orders[i].ticketIndices,
                     contractAddress : orders[i].contractAddress)
-            let signature = try! keyStore.signMessage(message, for: account)
-            let signedOrder : SignedOrder = try! SignedOrder(order : orders[i], message: message,
+            let messageData = Data(bytes: message)
+
+            let signature = try! keyStore.signMessageData(messageData, for: account)
+            let signedOrder : SignedOrder = try! SignedOrder(order : orders[i], message: messageData,
                     signature : signature.description)
             signedOrders.append(signedOrder)
         }
@@ -58,10 +60,10 @@ public class SignOrders {
     //TODO fix this encoding as it doesn't match solidity ecrecover
     //price is casted wrong
     func encodeMessageForTrade(price : BigInt, expiryTimestamp : BigInt,
-                               tickets : [UInt16], contractAddress : String) -> String
+                               tickets : [UInt16], contractAddress : String) -> [UInt8]
     {
         //ticket count * 2 because it is 16 bits not 8
-        let arrayLength: Int = 84 + tickets.count * 2
+        let arrayLength: Int = 32 //84 + tickets.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
         //TODO represent as Uint16 and cast back into uint8
@@ -71,32 +73,32 @@ public class SignOrders {
             priceInWei.insert(0, at: 0)
         }
         for i in 0...31 {
-            buffer.append(priceInWei[i])
+            buffer.append(0)//priceInWei[i])
         }
 
-        var expiryBuffer = [UInt8] (expiryTimestamp.description.utf8)
+//        var expiryBuffer = [UInt8] (expiryTimestamp.description.utf8)
+//
+//        for i in 0...31 - expiryBuffer.count {
+//            expiryBuffer.insert(0, at: 0)
+//        }
+//
+//        for i in 0...31 {
+//            buffer.append(0)//expiryBuffer[i])
+//        }
+//        //no leading zeros issue here
+//        var contractAddr = contractAddress.hexa2Bytes
+//
+//        for i in 0...19 {
+//            buffer.append(contractAddr[i])
+//        }
+//
+//        var ticketsUint8 = uInt16ArrayToUInt8(arrayOfUInt16: tickets)
+//
+//        for i in 0...ticketsUint8.count - 1 {
+//            buffer.append(ticketsUint8[i])
+//        }
 
-        for i in 0...31 - expiryBuffer.count {
-            expiryBuffer.insert(0, at: 0)
-        }
-
-        for i in 0...31 {
-            buffer.append(expiryBuffer[i])
-        }
-        //no leading zeros issue here
-        var contractAddr = contractAddress.hexa2Bytes
-
-        for i in 0...19 {
-            buffer.append(contractAddr[i])
-        }
-
-        var ticketsUint8 = uInt16ArrayToUInt8(arrayOfUInt16: tickets)
-
-        for i in 0...ticketsUint8.count - 1 {
-            buffer.append(ticketsUint8[i])
-        }
-
-        return buffer.description
+        return buffer
     }
 
     func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8]
@@ -108,6 +110,15 @@ public class SignOrders {
             arrayOfUint8.append(UInt8ArrayPair[1])
         }
         return arrayOfUint8
+    }
+
+    func bufferToString(buffer : [UInt8]) -> String
+    {
+        var bufferString : String = "";
+        for i in 0...buffer.count - 1 {
+            bufferString += String(buffer[i])
+        }
+        return bufferString
     }
 
 }
