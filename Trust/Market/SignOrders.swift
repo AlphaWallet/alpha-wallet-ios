@@ -63,7 +63,7 @@ public class SignOrders {
                                tickets : [UInt16], contractAddress : String) -> [UInt8]
     {
         //ticket count * 2 because it is 16 bits not 8
-        let arrayLength: Int = 32 //84 + tickets.count * 2
+        let arrayLength: Int = 84 + tickets.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
         //TODO represent as Uint16 and cast back into uint8
@@ -76,27 +76,27 @@ public class SignOrders {
             buffer.append(0)//priceInWei[i])
         }
 
-//        var expiryBuffer = [UInt8] (expiryTimestamp.description.utf8)
-//
-//        for i in 0...31 - expiryBuffer.count {
-//            expiryBuffer.insert(0, at: 0)
-//        }
-//
-//        for i in 0...31 {
-//            buffer.append(0)//expiryBuffer[i])
-//        }
-//        //no leading zeros issue here
-//        var contractAddr = contractAddress.hexa2Bytes
-//
-//        for i in 0...19 {
-//            buffer.append(contractAddr[i])
-//        }
-//
-//        var ticketsUint8 = uInt16ArrayToUInt8(arrayOfUInt16: tickets)
-//
-//        for i in 0...ticketsUint8.count - 1 {
-//            buffer.append(ticketsUint8[i])
-//        }
+        var expiryBuffer = [UInt8] (expiryTimestamp.description.utf8)
+
+        for i in 0...31 - expiryBuffer.count {
+            expiryBuffer.insert(0, at: 0)
+        }
+
+        for i in 0...31 {
+            buffer.append(0)//expiryBuffer[i])
+        }
+        //no leading zeros issue here
+        var contractAddr = contractAddress.hexa2Bytes
+
+        for i in 0...19 {
+            buffer.append(contractAddr[i])
+        }
+
+        var ticketsUint8 = uInt16ArrayToUInt8(arrayOfUInt16: tickets)
+
+        for i in 0...ticketsUint8.count - 1 {
+            buffer.append(ticketsUint8[i])
+        }
 
         return buffer
     }
