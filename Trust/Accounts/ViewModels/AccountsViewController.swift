@@ -87,9 +87,9 @@ class AccountsViewController: UITableViewController {
     }
     func confirmDelete(account: Wallet) {
         confirm(
-            title: "Are you sure you would like to delete this wallet?",
-            message: "Make sure you have backup of your wallet",
-            okTitle: "Delete",
+            title: NSLocalizedString("accounts.confirm.delete.title", value: "Are you sure you would like to delete this wallet?", comment: ""),
+            message: NSLocalizedString("accounts.confirm.delete.message", value: "Make sure you have backup of your wallet.", comment: ""),
+            okTitle: NSLocalizedString("accounts.confirm.delete.okTitle", value: "Delete", comment: ""),
             okStyle: .destructive
         ) { result in
             switch result {
@@ -115,10 +115,12 @@ class AccountsViewController: UITableViewController {
     }
     private func refreshWalletBalances() {
        let addresses = wallets.flatMap { $0.address }
-       for (index, address) in addresses.enumerated() {
+       var counter = 0
+       for address in addresses {
             balanceCoordinator.getEthBalance(for: address, completion: { [weak self] (result) in
                 self?.balances[address] = result.value
-                if index == addresses.count - 1 {
+                counter += 1
+                if counter == addresses.count {
                     self?.tableView.reloadData()
                 }
             })

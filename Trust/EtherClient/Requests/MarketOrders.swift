@@ -13,7 +13,7 @@ import Foundation
 public struct Order {
     var price: BigInt?;
     var ticketIndices: [Int]?;
-    var expiryTimeStamp: BigInt?;
+    var expiryBuffer: BigInt?;
     var contractAddress: String?;
 }
 

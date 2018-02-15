@@ -58,11 +58,6 @@ struct Config {
         set { defaults.set(newValue, forKey: Keys.isDebugEnabled) }
     }
 
-    var isDAppsBrowserAvailable: Bool {
-        get { return defaults.bool(forKey: Keys.dAppBrowser) }
-        set { defaults.set(newValue, forKey: Keys.dAppBrowser) }
-    }
-
     var server: RPCServer {
         return RPCServer(chainID: chainID)
     }
@@ -72,6 +67,7 @@ struct Config {
             switch server {
             case .main: return "https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk"
             case .classic: return "https://mewapi.epool.io/"
+            case .callisto: return "https://callisto.network/" //TODO Add endpoint
             case .kovan: return "https://kovan.infura.io/llyrtzQ3YhkdESt2Fzrk"
             case .ropsten: return "https://ropsten.infura.io/llyrtzQ3YhkdESt2Fzrk"
             case .rinkeby: return "https://rinkeby.infura.io/llyrtzQ3YhkdESt2Fzrk"
@@ -89,6 +85,7 @@ struct Config {
             switch server {
             case .main: return "https://api.trustwalletapp.com"
             case .classic: return "https://classic.trustwalletapp.com"
+            case .callisto: return "https://callisto.trustwalletapp.com"
             case .kovan: return "https://kovan.trustwalletapp.com"
             case .ropsten: return "https://ropsten.trustwalletapp.com"
             case .rinkeby: return "https://rinkeby.trustwalletapp.com"

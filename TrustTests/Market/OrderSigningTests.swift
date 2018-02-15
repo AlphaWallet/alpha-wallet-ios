@@ -15,8 +15,15 @@ class OrderSigningTests : XCTestCase  {
         var indices = [UInt16]()
         indices.append(1)
         indices.append(2)
-        let testOrder1 = Order(price : BigInt.init(0), ticketIndices: indices,
-                expiryTimeStamp: BigInt.init(0), contractAddress : "d9864b424447B758CdE90f8655Ff7cA4673956bf")
+
+        var price = [UInt8]()
+        price.append(1) //price is 1 wei
+
+        var expiry = [UInt8]()
+        expiry.append(0)
+
+        let testOrder1 = Order(price : price, ticketIndices: indices,
+                expiryBuffer: expiry, contractAddress : "d9864b424447B758CdE90f8655Ff7cA4673956bf")
         testOrdersList.append(testOrder1)
 
         let signOrders = SignOrders()

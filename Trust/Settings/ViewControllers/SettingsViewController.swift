@@ -53,7 +53,7 @@ class SettingsViewController: FormViewController {
                 $0.value = RPCServer(chainID: strongSelf.config.chainID)
                 $0.selectorTitle = strongSelf.viewModel.networkTitle
                 $0.displayValueFor = { value in
-                    return value?.name
+                    return value?.displayName
                 }
             }.onChange {[weak self] row in
                 self?.config.chainID = row.value?.chainID ?? RPCServer.main.chainID
@@ -62,7 +62,7 @@ class SettingsViewController: FormViewController {
                 selectorController.enableDeselection = false
                 selectorController.sectionKeyForValue = { option in
                     switch option {
-                    case .main, .classic, .poa: return ""
+                    case .main, .classic, .callisto, .poa: return ""
                     case .kovan, .ropsten, .rinkeby, .sokol: return NSLocalizedString("settings.network.test.label.title", value: "Test", comment: "")
                     case .custom:
                         return NSLocalizedString("settings.network.custom.label.title", value: "Custom", comment: "")
@@ -82,6 +82,34 @@ class SettingsViewController: FormViewController {
                 cell.textLabel?.text = NSLocalizedString("settings.wallets.button.title", value: "Wallets", comment: "")
                 cell.detailTextLabel?.text = String(account.address.description.prefix(10)) + "..."
                 cell.accessoryType = .disclosureIndicator
+            }
+
+            +++ Section(NSLocalizedString("settings.security.label.title", value: "Security", comment: ""))
+
+            <<< SwitchRow { [weak self] in
+                $0.title = self?.viewModel.passcodeTitle
+                $0.value = self?.isPasscodeEnabled
+            }.onChange { [unowned self] row in
+                if row.value == true {
+                    self.setPasscode { result in
+                        row.value = result
+                        row.updateCell()
+                    }
+                } else {
+                    self.lock.deletePasscode()
+                }
+            }.cellSetup { cell, _ in
+                cell.imageView?.image = R.image.settings_lock()
+            }
+
+            <<< SwitchRow {
+                $0.title = NSLocalizedString("settings.pushNotifications.button.title", value: "Push Notifications", comment: "")
+                $0.value = SettingsViewController.isPushNotificationEnabled
+            }.onChange { [unowned self] row in
+                let enabled = row.value ?? false
+                self.run(action: .pushNotifications(enabled: enabled))
+            }.cellSetup { cell, _ in
+                cell.imageView?.image = R.image.settings_push_notifications()
             }
 
             +++ Section()
@@ -123,42 +151,17 @@ class SettingsViewController: FormViewController {
             }.cellSetup { cell, _ in
                 cell.imageView?.image = R.image.settingsCurrency()
             }
-            <<< SwitchRow { [weak self] in
-                $0.title = NSLocalizedString("settings.dappbroser.button.title", value: "DApps Browser", comment: "")
-                $0.value = self?.config.isDAppsBrowserAvailable
-            }.onChange { [unowned self] row in
-                self.config.isDAppsBrowserAvailable = row.value ?? false
-                self.run(action: .DAppsBrowser)
-            }.cellSetup { cell, _ in
-                cell.imageView?.image = R.image.dapps_icon()
-            }
 
-            +++ Section(NSLocalizedString("settings.security.label.title", value: "Security", comment: ""))
-
-            <<< SwitchRow { [weak self] in
-                $0.title = self?.viewModel.passcodeTitle
-                $0.value = self?.isPasscodeEnabled
-            }.onChange { [unowned self] row in
-                if row.value == true {
-                    self.setPasscode { result in
-                        row.value = result
-                        row.updateCell()
-                    }
-                } else {
-                    self.lock.deletePasscode()
-                }
-            }.cellSetup { cell, _ in
-                cell.imageView?.image = R.image.settings_lock()
-            }
-
-            <<< SwitchRow {
-                $0.title = NSLocalizedString("settings.pushNotifications.button.title", value: "Push Notifications", comment: "")
-                $0.value = SettingsViewController.isPushNotificationEnabled
-            }.onChange { [unowned self] row in
-                let enabled = row.value ?? false
-                self.run(action: .pushNotifications(enabled: enabled))
-            }.cellSetup { cell, _ in
-                cell.imageView?.image = R.image.settings_push_notifications()
+            <<< AppFormAppearance.button { row in
+                row.cellStyle = .value1
+                row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
+                    return PreferencesViewController() }, onDismiss: { _ in
+                })
+            }.cellUpdate { cell, _ in
+                cell.textLabel?.textColor = .black
+                cell.imageView?.image = R.image.settings_preferences()
+                cell.textLabel?.text = NSLocalizedString("settings.preferences.title", value: "Preferences", comment: "")
+                cell.accessoryType = .disclosureIndicator
             }
 
             +++ Section(NSLocalizedString("settings.openSourceDevelopment.label.title", value: "Open Source Development", comment: ""))
