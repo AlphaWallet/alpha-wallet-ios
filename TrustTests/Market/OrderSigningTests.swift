@@ -7,6 +7,11 @@ import BigInt
 class OrderSigningTests : XCTestCase  {
 
     //TODO fix signing errors
+
+//TODO check that hex to bytes is actually functional
+//    the plan is to sign small chunks at a time till the
+//    signature matches all of the data. first just sign the price with zeros, if this works then iterate on top
+
     func testSigningOrders() {
 
         var testOrdersList : Array<Order> = Array<Order>()
@@ -17,7 +22,7 @@ class OrderSigningTests : XCTestCase  {
         indices.append(1)
         indices.append(2)
         let testOrder1 = Order(price : BigInt(0), ticketIndices: indices,
-                expiryTimeStamp: BigInt(0), contractAddress : "0x0dcd2f752394c41875e259e00bb44fd505297caf")
+                expiryTimeStamp: BigInt(0), contractAddress : "0x9dd1e8169e76a9226b07ab9f85cc20a5e1ed44dd")
         testOrdersList.append(testOrder1)
 
         let signOrders = SignOrders()
@@ -26,15 +31,11 @@ class OrderSigningTests : XCTestCase  {
 
         var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
 
-        var signature = try! keyStore.signMessage(((signedOrders.first?.message)!) as! String, for: account).dematerialize().hexString
+        var signature = try! keyStore.signMessageData(signedOrders.first?.message, for: account).dematerialize().hexString
         print("v: " + Int(signature.substring(from: 128), radix: 16)!.description)
         print("r: 0x" + signature.substring(to: 64))
         print("s: 0x" + signature.substring(from: 64))
 
-        //testing 2016 signature speed
-        //for i  in 0 ... 2016 {
-        //    try! keyStore.signMessage(((signedOrders.first?.message)! + i.description) as! String, for: account).dematerialize().hexString
-        //}
         print(signedOrders.description)
     }
 }
