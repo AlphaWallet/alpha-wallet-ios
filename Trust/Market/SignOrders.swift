@@ -38,9 +38,9 @@ public class SignOrders {
     private let keyStore = try! EtherKeystore()
 
     //takes a list of orders and returns a list of signature objects
-    func signOrders(orders : Array<Order>, account : Account) -> Array<SignedOrder> {
+    func signOrders(orders : Array<Order>, account : Account) -> [SignedOrder] {
 
-        var signedOrders : Array<SignedOrder> = Array<SignedOrder>()
+        var signedOrders = [SignedOrder]()
 
         for i in 0...orders.count - 1 {
             let message : [UInt8] = encodeMessageForTrade(price: orders[i].price,
@@ -108,15 +108,5 @@ public class SignOrders {
         }
         return arrayOfUint8
     }
-
-    func bufferToString(buffer : [UInt8]) -> String
-    {
-        var bufferString : String = "";
-        for i in 0...buffer.count - 1 {
-            bufferString += String(buffer[i])
-        }
-        return bufferString
-    }
-
 
 }
