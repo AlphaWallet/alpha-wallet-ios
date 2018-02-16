@@ -38,7 +38,7 @@ public class SignOrders {
     private let keyStore = try! EtherKeystore()
 
     //takes a list of orders and returns a list of signature objects
-    func signOrders(orders : Array<Order>, account : Account) -> [SignedOrder] {
+    func signOrders(orders : [Order], account : Account) -> [SignedOrder] {
 
         var signedOrders = [SignedOrder]()
 
@@ -56,9 +56,8 @@ public class SignOrders {
         return signedOrders
     }
 
-    func encodeMessageForTrade(price : [UInt8], expiryBuffer : [UInt8],
-                               tickets : [UInt16], contractAddress : String) -> [UInt8]
-    {
+    func encodeMessageForTrade(price: [UInt8], expiryBuffer: [UInt8],
+                               tickets: [UInt16], contractAddress: String) -> [UInt8] {
         //ticket count * 2 because it is 16 bits not 8
         let arrayLength: Int = 84 + tickets.count * 2
         var buffer = [UInt8]()
@@ -75,7 +74,7 @@ public class SignOrders {
             buffer.append(priceInWei[i])
         }
 
-        for i in 0...31 - expiryBuffer.count {
+        for _ in 0...31 - expiryBuffer.count {
             expiry.insert(0, at: 0)
         }
 
@@ -98,9 +97,8 @@ public class SignOrders {
         return buffer
     }
 
-    func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8]
-    {
-        var arrayOfUint8 : [UInt8] = [UInt8]()
+    func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
+        var arrayOfUint8 = [UInt8]()
         for i in 0...arrayOfUInt16.count - 1 {
             var UInt8ArrayPair = arrayOfUInt16[i].bigEndian.data.array
             arrayOfUint8.append(UInt8ArrayPair[0])
