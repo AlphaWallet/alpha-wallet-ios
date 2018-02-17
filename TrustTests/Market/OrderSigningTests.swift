@@ -28,7 +28,7 @@ class OrderSigningTests : XCTestCase  {
 
         let signOrders = SignOrders()
         var account = keyStore.createAccount(password: "deleteOnceWorking")
-        print(account)
+        print(account.address)
 
         var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
 
