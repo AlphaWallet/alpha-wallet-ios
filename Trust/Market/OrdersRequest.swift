@@ -17,6 +17,9 @@ class OrdersRequest {
                 //handle orders via queue?
                 print(r.json)
             }
+            else if !r.ok {
+                print(r.error)
+            }
         }
     }
 

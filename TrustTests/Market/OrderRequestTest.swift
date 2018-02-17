@@ -5,18 +5,17 @@ import RealmSwift
 import BigInt
 import TrustKeystore
 
-class OrderSigningTests : XCTestCase  {
-
-    OrdersRequest().init()
-    let account = keyStore.createAccount(password: "deleteOnceWorking")
+class OrderRequestTest : XCTestCase  {
     
     func testHttpCallToQueue() {
         OrdersRequest().getOrders()
     }
     
     func testPostingOrderToQueue() {
+    
         var testOrdersList : Array<Order> = Array<Order>()
         var keyStore = FakeEtherKeystore()
+        let account = keyStore.createAccount(password: "deleteOnceWorking")
         
         //set up test orders
         var indices = [UInt16]()
@@ -38,6 +37,6 @@ class OrderSigningTests : XCTestCase  {
         var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
         
         //TODO get public key or change server to take address
-        OrdersRequest.init().giveOrderToServer(signedOrders: signedOrders, publicKeyHex: account.address)
+        OrdersRequest.init().giveOrderToServer(signedOrders: signedOrders, publicKeyHex: "0x00")
     }
 }
