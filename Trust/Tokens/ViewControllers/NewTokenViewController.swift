@@ -78,18 +78,22 @@ class NewTokenViewController: FormViewController {
             }
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.decimals) {
-                $0.add(rule: RuleRequired())
+                $0.add(rule: RuleClosure<String> { rowValue in
+                    return (rowValue == nil || rowValue!.isEmpty) && !self.isERC875Token ? ValidationError(msg: "Field required!") : nil
+                })
                 $0.validationOptions = .validatesOnDemand
                 $0.title = NSLocalizedString("Decimals", value: "Decimals", comment: "")
                 $0.cell.textField.keyboardType = .decimalPad
             }
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.balance) {
-                $0.add(rule: RuleRequired())
+                $0.add(rule: RuleClosure<String> { rowValue in
+                    return (rowValue == nil || rowValue!.isEmpty) && self.isERC875Token ? ValidationError(msg: "Field required!") : nil
+                })
                 $0.validationOptions = .validatesOnDemand
                 $0.title = NSLocalizedString("Balance", value: "Balance", comment: "")
                 $0.hidden = true //Condition.predicate(NSPredicate(format: "self.isERC875Token == true"))
-                $0.cell.textField.keyboardType = .decimalPad
+                $0.cell.textField.keyboardType = .numbersAndPunctuation
             }
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(addToken))
@@ -126,6 +130,7 @@ class NewTokenViewController: FormViewController {
         }
         decimalsRow?.evaluateHidden()
         balanceRow?.evaluateHidden()
+        form.validate()
     }
 
     @objc func addToken() {
@@ -196,8 +201,6 @@ extension NewTokenViewController: QRCodeReaderDelegate {
         reader.dismiss(animated: true, completion: nil)
 
         guard let result = QRURLParser.from(string: result) else { return }
-        // TODO: Clean this up
-//        updateContractValue(value: result.address)
-        updateContractValue(value: "0xB0c4506757351200677ae87eB0c7EE459eb471C5")
+        updateContractValue(value: result.address)
     }
 }
