@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="36bad8c5-1e9e-4730-ba80-fb45b953be97" name="Default" comment="" />
+    <list default="true" id="36bad8c5-1e9e-4730-ba80-fb45b953be97" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Trust.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/TrustTests.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/TrustUITests.xml" afterPath="" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Trust___Europe.xml" afterPath="" />
+    </list>
     <ignored path="$USER_HOME$/Library/Developer/Xcode/DerivedData/Trust-fagtjernnlugowdujijvfmqpxdjn/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -28,8 +33,8 @@
       <file leaf-file-name="OrderRequestTest.swift" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderRequestTest.swift">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="16" column="42" lean-forward="false" selection-start-line="16" selection-start-column="42" selection-end-line="16" selection-end-column="42" />
+            <state relative-caret-position="75">
+              <caret line="5" column="38" lean-forward="false" selection-start-line="5" selection-start-column="38" selection-end-line="5" selection-end-column="38" />
               <folding>
                 <element signature="e#0#17#0" expanded="true" />
               </folding>
@@ -190,24 +195,6 @@
             <path>
               <item name="" type="efc3779f:XcodeRootNode" />
               <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Tokens" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
-              <item name="Trust" type="fcab9f18:XcodeViewNode" />
-              <item name="Tokens" type="fcab9f18:XcodeViewNode" />
-              <item name="Coordinators" type="fcab9f18:XcodeViewNode" />
-            </path>
-            <path>
-              <item name="" type="efc3779f:XcodeRootNode" />
-              <item name="Trust" type="1d218c8b:XcodeProjectNode" />
               <item name="TrustTests" type="fcab9f18:XcodeViewNode" />
             </path>
             <path>
@@ -239,7 +226,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="XCTest/Kiwi.OrderRequestTest.testPostingOrderToQueue">
+  <component name="RunManager" selected="XCTest/Kiwi.OrderRequestTest">
     <configuration name="OrderRequestTest" type="OCUnitRunConfiguration" factoryName="XCTest/Kiwi" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Trust" TARGET_NAME="TrustTests" CONFIG_NAME="Debug" SCHEME_NAME="OrderRequestTest" TEST_CLASS="OrderRequestTest" TEST_MODE="SUITE_TEST">
       <envs />
     </configuration>
@@ -249,19 +236,15 @@
     <configuration name="OrderSigningTests.testSigningOrders" type="OCUnitRunConfiguration" factoryName="XCTest/Kiwi" temporary="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Trust" TARGET_NAME="TrustTests" CONFIG_NAME="Debug" SCHEME_NAME="OrderSigningTests.testSigningOrders" TEST_CLASS="OrderSigningTests" TEST_METHOD="testSigningOrders" TEST_MODE="SUITE_TEST">
       <envs />
     </configuration>
-    <list size="7">
-      <item index="0" class="java.lang.String" itemvalue="Application.Trust - Europe" />
-      <item index="1" class="java.lang.String" itemvalue="Application.Trust" />
-      <item index="2" class="java.lang.String" itemvalue="Application.TrustTests" />
-      <item index="3" class="java.lang.String" itemvalue="Application.TrustUITests" />
-      <item index="4" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testSigningOrders" />
-      <item index="5" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderRequestTest" />
-      <item index="6" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderRequestTest.testPostingOrderToQueue" />
+    <list size="3">
+      <item index="0" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testSigningOrders" />
+      <item index="1" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderRequestTest" />
+      <item index="2" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderRequestTest.testPostingOrderToQueue" />
     </list>
     <recent_temporary>
       <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderRequestTest.testPostingOrderToQueue" />
-        <item index="1" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderRequestTest" />
+        <item index="0" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderRequestTest" />
+        <item index="1" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderRequestTest.testPostingOrderToQueue" />
         <item index="2" class="java.lang.String" itemvalue="XCTest/Kiwi.OrderSigningTests.testSigningOrders" />
       </list>
     </recent_temporary>
@@ -315,11 +298,14 @@
       <workItem from="1518837804830" duration="105000" />
       <workItem from="1518837958939" duration="1929000" />
       <workItem from="1518867172389" duration="5672000" />
-      <workItem from="1518922673243" duration="2598000" />
+      <workItem from="1518922673243" duration="3531000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
+    <history-entry file="OrderRequestTest - 2018.02.18 at 14h 32m 09s.xml">
+      <configuration name="OrderRequestTest" configurationId="OCUnitRunConfiguration" />
+    </history-entry>
     <history-entry file="OrderRequestTest_testPostingOrderToQueue - 2018.02.18 at 11h 10m 54s.xml">
       <configuration name="OrderRequestTest.testPostingOrderToQueue" configurationId="OCUnitRunConfiguration" />
     </history-entry>
@@ -335,9 +321,6 @@
     <history-entry file="OrderRequestTest_testPostingOrderToQueue - 2018.02.18 at 11h 29m 24s.xml">
       <configuration name="OrderRequestTest.testPostingOrderToQueue" configurationId="OCUnitRunConfiguration" />
     </history-entry>
-    <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 16m 02s.xml">
-      <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
-    </history-entry>
     <history-entry file="OrderSigningTests_testSigningOrders - 2018.02.15 at 14h 20m 03s.xml">
       <configuration name="OrderSigningTests.testSigningOrders" configurationId="OCUnitRunConfiguration" />
     </history-entry>
@@ -352,17 +335,17 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="102764000" />
+    <option name="totallyTimeSpent" value="103697000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1280" y="23" width="2560" height="1349" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32498044" sideWeight="0.24140625" order="13" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32498044" sideWeight="0.23984376" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32498044" sideWeight="0.75859374" order="14" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.13312452" sideWeight="0.428125" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13312452" sideWeight="0.57304686" order="14" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13312452" sideWeight="0.42695314" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="15" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="16" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -758,8 +741,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TrustTests/Market/OrderRequestTest.swift">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="16" column="42" lean-forward="false" selection-start-line="16" selection-start-column="42" selection-end-line="16" selection-end-column="42" />
+        <state relative-caret-position="75">
+          <caret line="5" column="38" lean-forward="false" selection-start-line="5" selection-start-column="38" selection-end-line="5" selection-end-column="38" />
           <folding>
             <element signature="e#0#17#0" expanded="true" />
           </folding>
