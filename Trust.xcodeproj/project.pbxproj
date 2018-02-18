@@ -269,6 +269,7 @@
 		3CDDD1E2CD1B0180754B7992 /* Pods_Trust.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 646C8C822C986358D7388602 /* Pods_Trust.framework */; };
 		442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */; };
 		442FC39ABE8DD7162BAA4B02 /* ERC875Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC86BDB73BD2AE6F20731 /* ERC875Token.swift */; };
+		442FC4832BA0F13DC4FA7A60 /* ERC875Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCB8306B4F46D7F2E63E5 /* ERC875Balance.swift */; };
 		442FC58B7558F28F9452D383 /* GetIsECR875Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCEBC98D0A367D258D2C3 /* GetIsECR875Coordinator.swift */; };
 		442FC5F70AF003F331F7C841 /* GetSymbolCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCB2726DB345481C1FDA1 /* GetSymbolCoordinator.swift */; };
 		442FC65BFA2D42879648EC06 /* Int.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCCAC6A172506637A2FF6 /* Int.swift */; };
@@ -661,6 +662,7 @@
 		442FC8B1D5B4317DE7D68325 /* GetERC875Balance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC875Balance.swift; sourceTree = "<group>"; };
 		442FCA1F19B6293FE5FAD494 /* GetIsECR875.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsECR875.swift; sourceTree = "<group>"; };
 		442FCB2726DB345481C1FDA1 /* GetSymbolCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetSymbolCoordinator.swift; sourceTree = "<group>"; };
+		442FCB8306B4F46D7F2E63E5 /* ERC875Balance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ERC875Balance.swift; sourceTree = "<group>"; };
 		442FCBDD3A69DF75551B10AC /* GETERC20Symbol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GETERC20Symbol.swift; sourceTree = "<group>"; };
 		442FCCAC6A172506637A2FF6 /* Int.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Int.swift; sourceTree = "<group>"; };
 		442FCEBC98D0A367D258D2C3 /* GetIsECR875Coordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsECR875Coordinator.swift; sourceTree = "<group>"; };
@@ -1374,6 +1376,7 @@
 				29E9CFCE1FE7347200017744 /* ERC20Token.swift */,
 				29C0FCE4200EBAF6004A13CB /* TokenType.swift */,
 				442FC86BDB73BD2AE6F20731 /* ERC875Token.swift */,
+				442FCB8306B4F46D7F2E63E5 /* ERC875Balance.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -2854,6 +2857,7 @@
 				442FC39ABE8DD7162BAA4B02 /* ERC875Token.swift in Sources */,
 				442FC9C4FAC64192FF5DCC40 /* GetERC20Decimals.swift in Sources */,
 				442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */,
+				442FC4832BA0F13DC4FA7A60 /* ERC875Balance.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
