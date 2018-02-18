@@ -13,12 +13,14 @@ protocol NewTokenViewControllerDelegate: class {
 class NewTokenViewController: FormViewController {
 
     let viewModel = NewTokenViewModel()
+    var isERC875Token: Bool = false
 
     private struct Values {
         static let contract = "contract"
         static let name = "name"
         static let symbol = "symbol"
         static let decimals = "decimals"
+        static let balance = "balance"
     }
 
     weak var delegate: NewTokenViewControllerDelegate?
@@ -34,6 +36,9 @@ class NewTokenViewController: FormViewController {
     }
     private var decimalsRow: TextFloatLabelRow? {
         return form.rowBy(tag: Values.decimals) as? TextFloatLabelRow
+    }
+    private var balanceRow: TextFloatLabelRow? {
+        return form.rowBy(tag: Values.balance) as? TextFloatLabelRow
     }
 
     override func viewDidLoad() {
@@ -79,7 +84,48 @@ class NewTokenViewController: FormViewController {
                 $0.cell.textField.keyboardType = .decimalPad
             }
 
+            <<< AppFormAppearance.textFieldFloat(tag: Values.balance) {
+                $0.add(rule: RuleRequired())
+                $0.validationOptions = .validatesOnDemand
+                $0.title = NSLocalizedString("Balance", value: "Balance", comment: "")
+                $0.hidden = true //Condition.predicate(NSPredicate(format: "self.isERC875Token == true"))
+                $0.cell.textField.keyboardType = .decimalPad
+            }
+
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(addToken))
+    }
+    
+    public func updateSymbolValue(_ symbol: String) {
+        symbolRow?.value = symbol
+        symbolRow?.reload()
+    }
+
+    public func updateNameValue(_ name: String) {
+        nameRow?.value = name
+        nameRow?.reload()
+    }
+
+    public func updateDecimalsValue(_ decimals: UInt8) {
+        decimalsRow?.value = String(decimals)
+        decimalsRow?.reload()
+    }
+
+    public func updateBalanceValue(_ balance: [UInt16]) {
+        balanceRow?.value = (balance.map { String($0) }).joined(separator: ",")
+        balanceRow?.reload()
+    }
+
+    public func updateFormForERC875(_ isERC875Token: Bool) {
+        self.isERC875Token = isERC875Token
+        if isERC875Token {
+            decimalsRow?.hidden = true
+            balanceRow?.hidden = false
+        } else {
+            decimalsRow?.hidden = false
+            balanceRow?.hidden = true
+        }
+        decimalsRow?.evaluateHidden()
+        balanceRow?.evaluateHidden()
     }
 
     @objc func addToken() {
@@ -91,19 +137,23 @@ class NewTokenViewController: FormViewController {
         let name = nameRow?.value ?? ""
         let symbol = symbolRow?.value ?? ""
         let decimals = Int(decimalsRow?.value ?? "") ?? 0
+        let balance: [UInt16]
 
         guard let address = Address(string: contract) else {
             return displayError(error: Errors.invalidAddress)
         }
 
-        let token = ERC20Token(
+        let erc20Token = ERC20Token(
             contract: address,
             name: name,
             symbol: symbol,
             decimals: decimals
         )
-
-        delegate?.didAddToken(token: token, in: self)
+        if self.isERC875Token {
+            // TODO
+        } else {
+            delegate?.didAddToken(token: erc20Token, in: self)
+        }
     }
 
     @objc func openReader() {
@@ -132,7 +182,6 @@ class NewTokenViewController: FormViewController {
         contractRow?.reload()
 
         delegate?.didAddAddress(address: value, in: self)
-
     }
 }
 
