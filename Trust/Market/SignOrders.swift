@@ -2,6 +2,17 @@ import BigInt
 import TrustKeystore
 import Trust
 
+//"orders": [
+//    {
+//    "message": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACOG8m/BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWojJJwB77oK92ehmsr0RR4CkfyJhxoTjAAIAAwAE)",
+//    "expiry": "1518913831",
+//    "start": "32800312",
+//    "count": "3",
+//    "price": "10000000000000000",
+//    "signature": "jrzcgpsnV7IPGE3nZQeHQk5vyZdy5c8rHk0R/iG7wpiK9NT730I//DN5Dg5fHs+s4ZFgOGQnk7cXLQROBs9NvgE="
+//    }
+//]
+
 public struct Order {
     var price: [UInt8]
     var ticketIndices: [UInt16]
@@ -18,7 +29,9 @@ public struct SignedOrder {
 extension String {
     var hexa2Bytes: [UInt8] {
         let hexa = Array(characters)
-        return stride(from: 0, to: count, by: 2).flatMap { UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16) }
+        return stride(from: 0, to: count, by: 2).flatMap {
+            UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16)
+        }
     }
 }
 
