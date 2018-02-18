@@ -21,6 +21,23 @@ class TokensDataStore {
     private lazy var getBalanceCoordinator: GetBalanceCoordinator = {
         return GetBalanceCoordinator(web3: self.web3)
     }()
+
+    private lazy var getNameCoordinator: GetNameCoordinator = {
+        return GetNameCoordinator(web3: self.web3)
+    }()
+
+    private lazy var getSymbolCoordinator: GetSymbolCoordinator = {
+        return GetSymbolCoordinator(web3: self.web3)
+    }()
+
+    private lazy var get875BalanceCoordinator: Get875BalanceCoordinator = {
+        return Get875BalanceCoordinator(web3: self.web3)
+    }()
+
+    private lazy var getIsECR875Coordinator: GetIsECR875Coordinator = {
+        return GetIsECR875Coordinator(web3: self.web3)
+    }()
+
     private let provider = TrustProviderFactory.makeProvider()
 
     let account: Wallet
@@ -99,6 +116,48 @@ class TokensDataStore {
     func fetch() {
         updatePrices()
         refreshBalance()
+    }
+
+    // TODO: Clean this up
+    func getContractName(for addressString: String) {
+        let address = Address(string: addressString)
+
+        getNameCoordinator.getName(for: address!) { (result) in
+            NSLog("command.object \(result)")
+        }
+    }
+
+    func getContractSymbol(for addressString: String) {
+        let address = Address(string: addressString)
+
+        getSymbolCoordinator.getSymbol(for: address!) { (result) in
+            NSLog("command.object \(result)")
+        }
+    }
+
+    func getContractBalanceOf(for addressString: String) {
+        let address = Address(string: addressString)
+
+        get875BalanceCoordinator.getBalance(for: account.address, contract: address!) { (result) in
+            NSLog("command.object \(result)")
+        }
+    }
+
+    func getIsECR875(for addressString: String) {
+        let address = Address(string: addressString)
+
+        getIsECR875Coordinator.getIsECR875(for: address!) { [weak self] result in
+            NSLog("command.object \(result)")
+            
+            guard let `self` = self else { return }
+            switch result {
+            case .success(let name):
+                NSLog("name:  \(name)")
+
+            case .failure: break
+            }
+
+        }
     }
 
     func refreshBalance() {
