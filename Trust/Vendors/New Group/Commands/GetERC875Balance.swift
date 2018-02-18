@@ -22,7 +22,7 @@ struct GetERC875BalanceDecode: Web3Request {
     let data: String
 
     var type: Web3RequestType {
-        let run = "web3.eth.abi.decodeParameter('uint16[4]', '\(data)')"
+        let run = "web3.eth.abi.decodeParameter('uint16[]', '\(data)')"
         return .script(command: run)
     }
 }
