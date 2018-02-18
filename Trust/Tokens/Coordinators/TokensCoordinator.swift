@@ -113,9 +113,52 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
 
     // TODO: Clean this up
     func didAddAddress(address: String, in viewController: NewTokenViewController) {
-        storage.getContractName(for: address)
-        storage.getContractSymbol(for: address)
-        storage.getContractBalanceOf(for: address)
-        storage.getIsECR875(for: address)
+        storage.getContractName(for: address) { result in
+            switch result {
+            case .success(let name):
+                viewController.updateNameValue(name)
+                NSLog("Name:  \(name)")
+            case .failure: break
+            }
+        }
+        
+        storage.getContractSymbol(for: address) { result in
+            switch result {
+            case .success(let symbol):
+                viewController.updateSymbolValue(symbol)
+                NSLog("Symbol:  \(symbol)")
+            case .failure: break
+            }
+        }
+
+        storage.getIsECR875(for: address) { result in
+            switch result {
+            case .success(let isERC875):
+                viewController.updateFormForERC875(isERC875)
+                if isERC875 {
+                    self.storage.getContractBalance(for: address) { result in
+                        switch result {
+                        case .success(let balance):
+                            viewController.updateBalanceValue(balance)
+                            NSLog("Balance:  \(balance)")
+                        case .failure: break
+                        }
+                    }
+
+                } else {
+                    self.storage.getDecimals(for: address) { result in
+                        switch result {
+                        case .success(let decimal):
+                            viewController.updateDecimalsValue(decimal)
+
+                            NSLog("Decimal:  \(decimal)")
+                        case .failure: break
+                        }
+                    }
+                }
+                NSLog("isERC875:  \(isERC875)")
+            case .failure: break
+            }
+        }
     }
 }
