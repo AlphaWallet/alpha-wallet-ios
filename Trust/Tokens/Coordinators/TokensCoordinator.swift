@@ -110,4 +110,12 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
         tokensViewController.fetch()
         dismiss()
     }
+
+    // TODO: Clean this up
+    func didAddAddress(address: String, in viewController: NewTokenViewController) {
+        storage.getContractName(for: address)
+        storage.getContractSymbol(for: address)
+        storage.getContractBalanceOf(for: address)
+        storage.getIsECR875(for: address)
+    }
 }
