@@ -7,6 +7,7 @@ import QRCodeReaderViewController
 
 protocol NewTokenViewControllerDelegate: class {
     func didAddToken(token: ERC20Token, in viewController: NewTokenViewController)
+    func didAddAddress(address: String, in viewController: NewTokenViewController)
 }
 
 class NewTokenViewController: FormViewController {
@@ -106,10 +107,12 @@ class NewTokenViewController: FormViewController {
     }
 
     @objc func openReader() {
-        let controller = QRCodeReaderViewController()
-        controller.delegate = self
+        updateContractValue(value: "0xbC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4")
 
-        present(controller, animated: true, completion: nil)
+//        let controller = QRCodeReaderViewController()
+//        controller.delegate = self
+//
+//        present(controller, animated: true, completion: nil)
     }
 
     @objc func pasteAction() {
@@ -127,6 +130,9 @@ class NewTokenViewController: FormViewController {
     private func updateContractValue(value: String) {
         contractRow?.value = value
         contractRow?.reload()
+
+        delegate?.didAddAddress(address: value, in: self)
+
     }
 }
 
@@ -141,6 +147,8 @@ extension NewTokenViewController: QRCodeReaderDelegate {
         reader.dismiss(animated: true, completion: nil)
 
         guard let result = QRURLParser.from(string: result) else { return }
-        updateContractValue(value: result.address)
+        // TODO: Clean this up
+//        updateContractValue(value: result.address)
+        updateContractValue(value: "0xB0c4506757351200677ae87eB0c7EE459eb471C5")
     }
 }
