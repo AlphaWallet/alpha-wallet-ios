@@ -102,6 +102,32 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didPressAddToken(in viewController: UIViewController) {
         addToken()
     }
+    
+    private func getContractBalance(for address: String,
+                                    in viewController: NewTokenViewController) {
+        storage.getContractBalance(for: address) { result in
+            switch result {
+            case .success(let balance):
+                viewController.updateBalanceValue(balance)
+                NSLog("Balance:  \(balance)")
+            case .failure: break
+            }
+        }
+    }
+
+    private func getDecimals(for address: String,
+                             in viewController: NewTokenViewController) {
+        storage.getDecimals(for: address) { result in
+            switch result {
+            case .success(let decimal):
+                viewController.updateDecimalsValue(decimal)
+                
+                NSLog("Decimal:  \(decimal)")
+            case .failure: break
+            }
+        }
+    }
+
 }
 
 extension TokensCoordinator: NewTokenViewControllerDelegate {
@@ -121,7 +147,7 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
             case .failure: break
             }
         }
-        
+
         storage.getContractSymbol(for: address) { result in
             switch result {
             case .success(let symbol):
@@ -136,28 +162,13 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
             case .success(let isERC875):
                 viewController.updateFormForERC875(isERC875)
                 if isERC875 {
-                    self.storage.getContractBalance(for: address) { result in
-                        switch result {
-                        case .success(let balance):
-                            viewController.updateBalanceValue(balance)
-                            NSLog("Balance:  \(balance)")
-                        case .failure: break
-                        }
-                    }
-
+                    self.getContractBalance(for: address, in: viewController)
                 } else {
-                    self.storage.getDecimals(for: address) { result in
-                        switch result {
-                        case .success(let decimal):
-                            viewController.updateDecimalsValue(decimal)
-
-                            NSLog("Decimal:  \(decimal)")
-                        case .failure: break
-                        }
-                    }
+                    self.getDecimals(for: address, in: viewController)
                 }
                 NSLog("isERC875:  \(isERC875)")
-            case .failure: break
+            case .failure:
+                self.getDecimals(for: address, in: viewController)
             }
         }
     }
