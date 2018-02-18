@@ -6,5 +6,5 @@ struct ERC875Token {
     let contract: Address
     let name: String
     let symbol: String
-    let balance: [UInt16]
+    let balance: [ERC875Balance]
 }
