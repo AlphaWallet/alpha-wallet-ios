@@ -6,6 +6,7 @@ import JSONRPCKit
 import APIKit
 import Result
 import TrustKeystore
+import JavaScriptKit
 
 class Get875BalanceCoordinator {
 
@@ -36,13 +37,24 @@ class Get875BalanceCoordinator {
                         self?.web3.request(request: request) { result in
                             switch result {
                             case .success(let res):
-                                
-                                NSLog("result \(res)")
-
-//                                completion(.success(BigInt(res) ?? BigInt()))
+                                let values:[UInt16] = (self?.adapt(res))!
+                                NSLog("result \(values)")
+                                completion(.success(values))
                             case .failure(let error):
-                                NSLog("getPrice3 error \(error)")
-                                completion(.failure(AnyError(error)))
+                                let err = error.error
+                                if err is JSErrorDomain { // TODO:
+                                    switch err {
+                                    case JSErrorDomain.invalidReturnType(let value):
+                                        let values:[UInt16] = (self?.adapt(value))!
+                                        NSLog("result error \(values)")
+                                        completion(.success(values))
+                                    default:
+                                         completion(.failure(AnyError(error)))
+                                    }
+                                } else {
+                                    NSLog("getPrice3 error \(error)")
+                                    completion(.failure(AnyError(error)))
+                                }
                             }
                         }
                     case .failure(let error):
@@ -55,5 +67,14 @@ class Get875BalanceCoordinator {
                 completion(.failure(AnyError(error)))
             }
         }
+    }
+}
+
+extension Get875BalanceCoordinator {
+    private func adapt(_ values: Any) -> [UInt16] {
+        if let array = values as? [Any] {
+            return array.map { UInt16($0 as! String)! }
+        }
+        return []
     }
 }
