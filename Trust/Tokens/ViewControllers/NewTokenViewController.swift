@@ -7,6 +7,7 @@ import QRCodeReaderViewController
 
 protocol NewTokenViewControllerDelegate: class {
     func didAddToken(token: ERC20Token, in viewController: NewTokenViewController)
+    func didAddECR875Token(token: ERC875Token, in viewController: NewTokenViewController)
     func didAddAddress(address: String, in viewController: NewTokenViewController)
 }
 
@@ -92,7 +93,7 @@ class NewTokenViewController: FormViewController {
                 })
                 $0.validationOptions = .validatesOnDemand
                 $0.title = NSLocalizedString("Balance", value: "Balance", comment: "")
-                $0.hidden = true //Condition.predicate(NSPredicate(format: "self.isERC875Token == true"))
+                $0.hidden = true
                 $0.cell.textField.keyboardType = .numbersAndPunctuation
             }
 
@@ -119,7 +120,7 @@ class NewTokenViewController: FormViewController {
         balanceRow?.reload()
     }
 
-    public func updateFormForERC875(_ isERC875Token: Bool) {
+    public func updateFormForERC875Token(_ isERC875Token: Bool) {
         self.isERC875Token = isERC875Token
         if isERC875Token {
             decimalsRow?.hidden = true
@@ -130,7 +131,9 @@ class NewTokenViewController: FormViewController {
         }
         decimalsRow?.evaluateHidden()
         balanceRow?.evaluateHidden()
-        form.validate()
+        form.rows.forEach { row in
+            row.baseCell.isUserInteractionEnabled = false
+        }
     }
 
     @objc func addToken() {
@@ -148,15 +151,16 @@ class NewTokenViewController: FormViewController {
             return displayError(error: Errors.invalidAddress)
         }
 
-        let erc20Token = ERC20Token(
-            contract: address,
-            name: name,
-            symbol: symbol,
-            decimals: decimals
-        )
         if self.isERC875Token {
             // TODO
         } else {
+            let erc20Token = ERC20Token(
+                contract: address,
+                name: name,
+                symbol: symbol,
+                decimals: decimals
+            )
+
             delegate?.didAddToken(token: erc20Token, in: self)
         }
     }
