@@ -160,7 +160,7 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
         storage.getIsECR875(for: address) { result in
             switch result {
             case .success(let isERC875):
-                viewController.updateFormForERC875(isERC875)
+                viewController.updateFormForERC875Token(isERC875)
                 if isERC875 {
                     self.getContractBalance(for: address, in: viewController)
                 } else {
