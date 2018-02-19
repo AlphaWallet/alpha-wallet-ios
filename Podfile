@@ -19,7 +19,7 @@ target 'Trust' do
   pod 'RealmSwift'
   pod 'BonMot', '~> 5.0'
   pod 'Lokalise'
-  pod 'Just'
+  pod 'Just', :git => 'https://github.com/JustHTTP/Just.git', :branch => 'swift-4'
   pod 'Moya', '~> 10.0.1'
   pod 'JavaScriptKit' 
   pod 'CryptoSwift', :git=>'https://github.com/krzyzanowskim/CryptoSwift', :branch=>'master'
