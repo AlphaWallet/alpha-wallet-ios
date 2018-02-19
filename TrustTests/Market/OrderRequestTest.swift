@@ -1,15 +1,21 @@
+import Foundation
 import XCTest
 @testable import Trust
 import TrustKeystore
-import RealmSwift
-import BigInt
 
-class OrderSigningTests : XCTestCase  {
+class OrderRequestTest : XCTestCase  {
     
-    func testSigningOrders() {
+    func testHttpCallToQueue() {
+        OrdersRequest().getOrders() { callback in
+            print(callback)
+        }
+    }
+    
+    func testPostingOrderToQueue() {
         
         var testOrdersList : Array<Order> = Array<Order>()
         var keyStore = FakeEtherKeystore()
+        let account = keyStore.createAccount(password: "deleteOnceWorking")
         
         //set up test orders
         var indices = [UInt16]()
@@ -27,21 +33,19 @@ class OrderSigningTests : XCTestCase  {
         testOrdersList.append(testOrder1)
         
         let signOrders = SignOrders()
-        var account = keyStore.createAccount(password: "deleteOnceWorking")
-        print(account.address)
         
         var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
         
-        var signature = try! keyStore.signMessageData(signedOrders.first?.message, for: account).dematerialize().hexString
-        print("v: " + Int(signature.substring(from: 128), radix: 16)!.description)
-        print("r: 0x" + signature.substring(to: 64))
-        print("s: 0x" + signature.substring(from: 64))
+        var privateKey = keyStore.exportPrivateKey(account: account)
         
-        for i in 0...2016 {
-            try! keyStore.signMessageData((signedOrders.first?.message)!, for: account)
+        var publicKey = "qTIttEQTN2OhfJJimQInXPYwz9EohLtg2MFMrnCtTmSpMi20RBM3Y6F8kmKZAidc9jDP0SiEu2DYwUyucK1OZKk",
+        //try! Secp256k1.shared.getPublicKeyFromPrivateKey(from: privateKey.dematerialize()).hexString
+        
+        //TODO get public key or change server to take address
+        OrdersRequest.init().giveOrderToServer(signedOrders: signedOrders, publicKeyHex: publicKey) {
+            callback in
+            print(callback)
         }
-        
-        print(signedOrders.description)
     }
 }
 
