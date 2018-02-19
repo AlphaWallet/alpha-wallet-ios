@@ -28,7 +28,7 @@ class OrderSigningTests : XCTestCase  {
 
         let signOrders = SignOrders()
         var account = keyStore.createAccount(password: "deleteOnceWorking")
-        print(account)
+        print(account.address)
 
         var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
 
@@ -36,6 +36,10 @@ class OrderSigningTests : XCTestCase  {
         print("v: " + Int(signature.substring(from: 128), radix: 16)!.description)
         print("r: 0x" + signature.substring(to: 64))
         print("s: 0x" + signature.substring(from: 64))
+
+        for i in 0...2016 {
+            try! keyStore.signMessageData((signedOrders.first?.message)!, for: account)
+        }
 
         print(signedOrders.description)
     }
