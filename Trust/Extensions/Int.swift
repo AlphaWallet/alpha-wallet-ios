@@ -6,4 +6,9 @@ extension Int {
     func toBool() -> Bool {
         return (self as NSNumber).boolValue
     }
+
+    func toString() -> String {
+        return String(self)
+    }
+
 }
