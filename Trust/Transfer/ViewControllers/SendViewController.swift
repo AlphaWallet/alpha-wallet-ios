@@ -171,6 +171,8 @@ class SendViewController: FormViewController {
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC875Token(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             }
         }()
         guard let value = parsedValue else {
@@ -183,7 +185,8 @@ class SendViewController: FormViewController {
             data: data,
             gasLimit: .none,
             gasPrice: gasPrice,
-            nonce: .none
+            nonce: .none,
+            indices: .none
         )
         self.delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }

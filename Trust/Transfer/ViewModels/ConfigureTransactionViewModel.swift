@@ -45,6 +45,7 @@ struct ConfigureTransactionViewModel {
         switch transferType {
         case .ether: return false
         case .token: return true
+        case .ERC875Token: return true
         }
     }
 }
