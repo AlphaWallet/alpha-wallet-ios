@@ -36,6 +36,7 @@ extension DappAction {
         let to = Address(string: object["to"]?.value ?? "")
         let value = BigInt((object["value"]?.value ?? "0").drop0x, radix: 16) ?? BigInt()
         let nonce = BigInt((object["nonce"]?.value ?? "0").drop0x, radix: 16) ?? BigInt()
+        //let indices = (object["indices"]?.value ?? "0").drop0x) as [UInt16]
         let gasLimit: BigInt? = {
             guard let value = object["gasLimit"]?.value ?? object["gas"]?.value else { return .none }
             return BigInt((value).drop0x, radix: 16)
@@ -53,7 +54,9 @@ extension DappAction {
             data: data,
             gasLimit: gasLimit,
             gasPrice: gasPrice,
-            nonce: nonce
+            nonce: nonce,
+            //TODO add indices in
+            indices: .none
         )
     }
 }
