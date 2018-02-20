@@ -6,16 +6,15 @@ import TrustKeystore
 class OrderRequestTest : XCTestCase  {
     
     func testHttpCallToQueue() {
-        OrdersRequest().getOrders() { callback in
-            print(callback)
-        }
+        OrdersRequest.init().getOrders(callback: {
+            callback in print(callback)
+        })
     }
     
     func testPostingOrderToQueue() {
-        
         var testOrdersList : Array<Order> = Array<Order>()
-        var keyStore = FakeEtherKeystore()
-        let account = keyStore.createAccount(password: "deleteOnceWorking")
+        let keyStore = FakeEtherKeystore()
+        let account = keyStore.createAccount(password: "haha")
         
         //set up test orders
         var indices = [UInt16]()
@@ -34,18 +33,18 @@ class OrderRequestTest : XCTestCase  {
         
         let signOrders = SignOrders()
         
-        var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
+        let signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
         
-        var privateKey = keyStore.exportPrivateKey(account: account)
+        let privateKey = keyStore.exportPrivateKey(account: account)
         
-        var publicKey = "qTIttEQTN2OhfJJimQInXPYwz9EohLtg2MFMrnCtTmSpMi20RBM3Y6F8kmKZAidc9jDP0SiEu2DYwUyucK1OZKk",
+        let publicKey = "qTIttEQTN2OhfJJimQInXPYwz9EohLtg2MFMrnCtTmSpMi20RBM3Y6F8kmKZAidc9jDP0SiEu2DYwUyucK1OZK"
         //try! Secp256k1.shared.getPublicKeyFromPrivateKey(from: privateKey.dematerialize()).hexString
         
         //TODO get public key or change server to take address
-        OrdersRequest.init().giveOrderToServer(signedOrders: signedOrders, publicKeyHex: publicKey) {
+        OrdersRequest.init().giveOrderToServer(signedOrders: signedOrders, publicKeyHex: publicKey, callback: {
             callback in
             print(callback)
-        }
+        })
     }
 }
 
