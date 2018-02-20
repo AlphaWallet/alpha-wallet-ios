@@ -10,15 +10,14 @@ public struct Constants {
     public static let keychainKeyPrefix = "trustwallet"
 
     // social
-    public static let website = "https://trustwalletapp.com"
-    public static let twitterUsername = "trustwalletapp"
+    public static let website = "https://www.awallet.io/"
+    public static let twitterUsername = "Alpha_wallet"
     public static let telegramUsername = "trustwallet"
-    public static let facebookUsername = "trustwalletapp"
+    public static let facebookUsername = "AlphaWallet"
 
     // support
-    public static let supportEmail = "support@trustwalletapp.com"
-    public static let donationAddress = "0x9f8284ce2cf0c8ce10685f537b1fff418104a317"
-
+    public static let supportEmail = "support@awallet.io"
+    public static let donationAddress = "0xFE6d4bC2De2D0b0E6FE47f08A28Ed52F9d052A02"
     public static let dappsBrowserURL = "https://dapps.trustwalletapp.com"
 }
 
