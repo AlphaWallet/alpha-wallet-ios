@@ -164,12 +164,11 @@ class NewTokenViewController: FormViewController {
     }
 
     @objc func openReader() {
-        updateContractValue(value: "0xbC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4")
 
-//        let controller = QRCodeReaderViewController()
-//        controller.delegate = self
-//
-//        present(controller, animated: true, completion: nil)
+        let controller = QRCodeReaderViewController()
+        controller.delegate = self
+
+        present(controller, animated: true, completion: nil)
     }
 
     @objc func pasteAction() {
