@@ -102,6 +102,32 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didPressAddToken(in viewController: UIViewController) {
         addToken()
     }
+    
+    private func getContractBalance(for address: String,
+                                    in viewController: NewTokenViewController) {
+        storage.getContractBalance(for: address) { result in
+            switch result {
+            case .success(let balance):
+                viewController.updateBalanceValue(balance)
+                NSLog("Balance:  \(balance)")
+            case .failure: break
+            }
+        }
+    }
+
+    private func getDecimals(for address: String,
+                             in viewController: NewTokenViewController) {
+        storage.getDecimals(for: address) { result in
+            switch result {
+            case .success(let decimal):
+                viewController.updateDecimalsValue(decimal)
+                
+                NSLog("Decimal:  \(decimal)")
+            case .failure: break
+            }
+        }
+    }
+
 }
 
 extension TokensCoordinator: NewTokenViewControllerDelegate {
@@ -109,5 +135,41 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
         storage.addCustom(token: token)
         tokensViewController.fetch()
         dismiss()
+    }
+
+    // TODO: Clean this up
+    func didAddAddress(address: String, in viewController: NewTokenViewController) {
+        storage.getContractName(for: address) { result in
+            switch result {
+            case .success(let name):
+                viewController.updateNameValue(name)
+                NSLog("Name:  \(name)")
+            case .failure: break
+            }
+        }
+
+        storage.getContractSymbol(for: address) { result in
+            switch result {
+            case .success(let symbol):
+                viewController.updateSymbolValue(symbol)
+                NSLog("Symbol:  \(symbol)")
+            case .failure: break
+            }
+        }
+
+        storage.getIsECR875(for: address) { result in
+            switch result {
+            case .success(let isERC875):
+                viewController.updateFormForERC875Token(isERC875)
+                if isERC875 {
+                    self.getContractBalance(for: address, in: viewController)
+                } else {
+                    self.getDecimals(for: address, in: viewController)
+                }
+                NSLog("isERC875:  \(isERC875)")
+            case .failure:
+                self.getDecimals(for: address, in: viewController)
+            }
+        }
     }
 }
