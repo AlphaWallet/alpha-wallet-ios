@@ -32,9 +32,6 @@ struct TokenViewCellViewModel {
     }
 
     var amount: String {
-        if self.isStormBird {
-            return self.token.balance.count.toString() + " tickets"
-        }
         return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
     }
 
@@ -82,15 +79,10 @@ struct TokenViewCellViewModel {
     }
 
     var placeHolder: UIImage? {
-        return self.isStormBird ? R.image.stormbirdToken() : R.image.ethereumToken()
+        return R.image.ethereumToken()
     }
 
     var imageUrl: URL? {
         return ticker?.imageURL
     }
-    
-    var isStormBird: Bool {
-        return token.isStormBird
-    }
-
 }
