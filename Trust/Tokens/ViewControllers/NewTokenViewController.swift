@@ -7,7 +7,6 @@ import QRCodeReaderViewController
 
 protocol NewTokenViewControllerDelegate: class {
     func didAddToken(token: ERC20Token, in viewController: NewTokenViewController)
-    func didAddECR875Token(token: ERC875Token, in viewController: NewTokenViewController)
     func didAddAddress(address: String, in viewController: NewTokenViewController)
 }
 
@@ -145,33 +144,31 @@ class NewTokenViewController: FormViewController {
         let name = nameRow?.value ?? ""
         let symbol = symbolRow?.value ?? ""
         let decimals = Int(decimalsRow?.value ?? "") ?? 0
-        let balance: [UInt16]
+        let isStormBird = self.isERC875Token
+        let balance: [Int16] = getBalanceFromUI()
 
         guard let address = Address(string: contract) else {
             return displayError(error: Errors.invalidAddress)
         }
 
-        if self.isERC875Token {
-            // TODO
-        } else {
-            let erc20Token = ERC20Token(
-                contract: address,
-                name: name,
-                symbol: symbol,
-                decimals: decimals
-            )
-
-            delegate?.didAddToken(token: erc20Token, in: self)
-        }
+        let erc20Token = ERC20Token(
+            contract: address,
+            name: name,
+            symbol: symbol,
+            decimals: decimals,
+            isStormBird: isStormBird,
+            balance: balance
+        )
+        
+        delegate?.didAddToken(token: erc20Token, in: self)
     }
 
     @objc func openReader() {
-        updateContractValue(value: "0xbC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4")
 
-//        let controller = QRCodeReaderViewController()
-//        controller.delegate = self
-//
-//        present(controller, animated: true, completion: nil)
+        let controller = QRCodeReaderViewController()
+        controller.delegate = self
+
+        present(controller, animated: true, completion: nil)
     }
 
     @objc func pasteAction() {
@@ -191,6 +188,13 @@ class NewTokenViewController: FormViewController {
         contractRow?.reload()
 
         delegate?.didAddAddress(address: value, in: self)
+    }
+    
+    private func getBalanceFromUI() -> [Int16] {
+        if let balance = balanceRow?.value {
+            return balance.split(separator: ",").map({ Int16($0)! })
+        }
+        return[]
     }
 }
 

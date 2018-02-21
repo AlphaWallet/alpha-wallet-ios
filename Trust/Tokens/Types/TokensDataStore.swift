@@ -219,11 +219,15 @@ class TokensDataStore {
             symbol: token.symbol,
             decimals: token.decimals,
             value: "0",
-            isCustom: true
+            isCustom: true,
+            isStormBird: token.isStormBird
         )
+        token.balance.forEach { balance in
+            newToken.balance.append(TokenBalance(balance: balance))
+        }
         add(tokens: [newToken])
     }
-
+    
     func updatePrices() {
         let tokens = objects.map { TokenPrice(contract: $0.contract, symbol: $0.symbol) }
         let tokensPrice = TokensPrice(
