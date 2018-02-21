@@ -21,6 +21,27 @@ class TokensDataStore {
     private lazy var getBalanceCoordinator: GetBalanceCoordinator = {
         return GetBalanceCoordinator(web3: self.web3)
     }()
+
+    private lazy var getNameCoordinator: GetNameCoordinator = {
+        return GetNameCoordinator(web3: self.web3)
+    }()
+
+    private lazy var getSymbolCoordinator: GetSymbolCoordinator = {
+        return GetSymbolCoordinator(web3: self.web3)
+    }()
+
+    private lazy var get875BalanceCoordinator: Get875BalanceCoordinator = {
+        return Get875BalanceCoordinator(web3: self.web3)
+    }()
+
+    private lazy var getIsECR875Coordinator: GetIsECR875Coordinator = {
+        return GetIsECR875Coordinator(web3: self.web3)
+    }()
+
+    private lazy var getDecimalsCoordinator: GetDecimalsCoordinator = {
+        return GetDecimalsCoordinator(web3: self.web3)
+    }()
+
     private let provider = TrustProviderFactory.makeProvider()
 
     let account: Wallet
@@ -101,6 +122,46 @@ class TokensDataStore {
         refreshBalance()
     }
 
+    // TODO: Clean this up
+    func getContractName(for addressString: String,
+                         completion: @escaping (Result<String, AnyError>) -> Void) {
+        let address = Address(string: addressString)
+        getNameCoordinator.getName(for: address!) { (result) in
+            completion(result)
+        }
+    }
+
+    func getContractSymbol(for addressString: String,
+                           completion: @escaping (Result<String, AnyError>) -> Void) {
+        let address = Address(string: addressString)
+        getSymbolCoordinator.getSymbol(for: address!) { result in
+            completion(result)
+        }
+    }
+    func getDecimals(for addressString: String,
+                     completion: @escaping (Result<UInt8, AnyError>) -> Void) {
+        let address = Address(string: addressString)
+        getDecimalsCoordinator.getDecimals(for: address!) { result in
+            completion(result)
+        }
+    }
+
+    func getContractBalance(for addressString: String,
+                            completion: @escaping (Result<[UInt16], AnyError>) -> Void) {
+        let address = Address(string: addressString)
+        get875BalanceCoordinator.getBalance(for: account.address, contract: address!) { result in
+            completion(result)
+        }
+    }
+
+    func getIsECR875(for addressString: String,
+                     completion: @escaping (Result<Bool, AnyError>) -> Void) {
+        let address = Address(string: addressString)
+        getIsECR875Coordinator.getIsECR875(for: address!) { result in
+            completion(result)
+        }
+    }
+
     func refreshBalance() {
         guard !enabledObject.isEmpty else {
             updateDelegate()
@@ -158,11 +219,15 @@ class TokensDataStore {
             symbol: token.symbol,
             decimals: token.decimals,
             value: "0",
-            isCustom: true
+            isCustom: true,
+            isStormBird: token.isStormBird
         )
+        token.balance.forEach { balance in
+            newToken.balance.append(TokenBalance(balance: balance))
+        }
         add(tokens: [newToken])
     }
-
+    
     func updatePrices() {
         let tokens = objects.map { TokenPrice(contract: $0.contract, symbol: $0.symbol) }
         let tokensPrice = TokensPrice(

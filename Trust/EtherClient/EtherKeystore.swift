@@ -35,7 +35,7 @@ open class EtherKeystore: Keystore {
         self.keystoreDirectory = URL(fileURLWithPath: datadir + keyStoreSubfolder)
         self.keychain = keychain
         self.keychain.synchronizable = false
-        self.keyStore = try KeyStore(keydir: keystoreDirectory)
+        self.keyStore = try KeyStore(keyDirectory: keystoreDirectory, walletDirectory: keystoreDirectory) //TODO double check this, confused as it why walletdir
         self.userDefaults = userDefaults
     }
 
@@ -181,7 +181,7 @@ open class EtherKeystore: Keystore {
     }
 
     func createAccount(password: String) -> Account {
-        let account = try! keyStore.createAccount(password: password)
+        let account = try! keyStore.createAccount(password: password, type: .encryptedKey)
         let _ = setPassword(password, for: account)
         return account
     }
@@ -391,7 +391,7 @@ open class EtherKeystore: Keystore {
             return .failure(KeystoreError.failedToImportPrivateKey)
         }
         do {
-            let key = try Key(password: passphrase, key: data)
+            let key = try KeystoreKey(password: passphrase, key: data)
             let data = try JSONEncoder().encode(key)
             let dict = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
             return .success(dict)
