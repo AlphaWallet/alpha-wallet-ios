@@ -37,10 +37,10 @@ class OrderSigningTests : XCTestCase  {
         print("r: 0x" + signature.substring(to: 64))
         print("s: 0x" + signature.substring(from: 64))
         
-        for i in 0...2016 {
-            try! keyStore.signMessageData((signedOrders.first?.message)!, for: account)
-        }
-        
+//        for i in 0...2016 {
+//            try! keyStore.signMessageData((signedOrders.first?.message)!, for: account)
+//        }
+//
         print(signedOrders.description)
     }
 }

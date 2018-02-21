@@ -41,10 +41,10 @@ class OrderRequestTest : XCTestCase  {
         //try! Secp256k1.shared.getPublicKeyFromPrivateKey(from: privateKey.dematerialize()).hexString
         
         //TODO get public key or change server to take address
-        OrdersRequest.init().giveOrderToServer(signedOrders: signedOrders, publicKeyHex: publicKey, callback: {
-            callback in
-            print(callback)
-        })
+//        OrdersRequest.init().giveOrderToServer(signedOrders: signedOrders, publicKeyHex: publicKey, callback: {
+//            callback in
+//            print(callback)
+//        })
     }
 }
 
