@@ -136,11 +136,6 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
         tokensViewController.fetch()
         dismiss()
     }
-    
-    func didAddECR875Token(token: ERC875Token, in viewController: NewTokenViewController) {
-        
-    }
-
 
     // TODO: Clean this up
     func didAddAddress(address: String, in viewController: NewTokenViewController) {
