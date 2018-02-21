@@ -1,6 +1,6 @@
 # Trust - Ethereum Wallet for iOS
 
-[![Build Status](https://travis-ci.org/TrustWallet/trust-wallet-ios.svg?branch=master)](https://travis-ci.org/TrustWallet/trust-wallet-ios)
+[![Build Status](https://travis-ci.com/James-Sangalli/alpha-wallet-ios.svg?token=J2hT1s5bGKT1npuPugWb&branch=master)](https://travis-ci.com/James-Sangalli/alpha-wallet-ios.svg?token=J2hT1s5bGKT1npuPugWb&branch=master)
 [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/TrustWallet/trust-wallet-ios/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/TrustWallet/trust-wallet-ios/branches/master)
 [![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
 
