@@ -3,6 +3,7 @@
 import UIKit
 import Lokalise
 import Branch
+import RealmSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -13,6 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return ProtectionCoordinator()
     }()
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        print(Realm.Configuration().fileURL!)
+
         window = UIWindow(frame: UIScreen.main.bounds)
         do {
             let keystore = try EtherKeystore()
