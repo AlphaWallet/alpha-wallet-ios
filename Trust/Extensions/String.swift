@@ -54,6 +54,15 @@ extension String {
     var add0x: String {
         return "0x" + self
     }
+    
+    func toInt() -> Int? {
+        return Int(self) ?? nil
+    }
+
+    func toBool() -> Bool {
+        return (self.toInt()?.toBool())!
+    }
+
 }
 
 extension String {
