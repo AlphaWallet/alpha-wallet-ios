@@ -1,6 +1,5 @@
 import BigInt
 import TrustKeystore
-import Trust
 
 public struct Order {
     var price: [UInt8]
