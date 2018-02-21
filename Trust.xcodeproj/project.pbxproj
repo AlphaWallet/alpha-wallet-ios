@@ -354,7 +354,6 @@
 		77E0E777201FAD36009B4B31 /* BrowserURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77E0E776201FAD36009B4B31 /* BrowserURLParserTests.swift */; };
 		AA893ED12037E93000CDCED1 /* GETERC20Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA893ED02037E93000CDCED1 /* GETERC20Name.swift */; };
 		B111F542203C06EA00121B5B /* ContractERC875Transfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B111F541203C06EA00121B5B /* ContractERC875Transfer.swift */; };
-		B111F543203C06EA00121B5B /* ContractERC875Transfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B111F541203C06EA00121B5B /* ContractERC875Transfer.swift */; };
 		AA893ED5203C3E5400CDCED1 /* TokenBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */; };
 		B1DC375D203AEAE200C9756D /* OrdersRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375C203AEAE100C9756D /* OrdersRequest.swift */; };
 		B1DC375F203AEB4800C9756D /* OrderRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */; };
