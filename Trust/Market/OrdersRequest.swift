@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import Just
+import Alamofire
 
 //"orders": [
 //    {
@@ -17,40 +17,44 @@ import Just
 //]
 
 public class OrdersRequest {
+
     public let baseURL = "https://482kdh4npg.execute-api.ap-southeast-1.amazonaws.com/dev/"
     public let contractAddress = "0x007bee82bdd9e866b2bd114780a47f2261c684e3" //this is wrong as it is the deployer address, will be corrected later
 
-    public func getOrders(callback: @escaping (_ result : Any) -> ()) {
-        Just.get(baseURL + "contract/" + contractAddress) {
-            r in
-            if r.ok
-            {
-                callback(r)
-            }
-            else
-            {
-                callback(r.error)
+    public func getOrders(callback: @escaping (_ result : Any) -> Void) {
+        Alamofire.request(baseURL + "/contract/" + contractAddress, method: .get).responseJSON {
+            response in
+            callback(response)
+        }
+    }
+
+    //TODO batch orders
+    public func giveOrderToServer(signedOrders : [SignedOrder], publicKeyHex : String,
+                                  callback: @escaping (_ result: Any) -> Void)
+    {
+        for i in 0...signedOrders.count - 1 {
+
+            var query : String = baseURL + "/publickey/" + publicKeyHex
+            query += "?start=" + signedOrders[i].order.start.description
+            query += ";count=" + signedOrders[i].order.count.description
+
+            let parameters : Parameters = [
+                "data": signedOrders[i].signature
+            ]
+
+            let headers: HTTPHeaders = [
+                "Content-Type": "application/vnd.awallet-signed-orders-v0"
+            ]
+
+            Alamofire.request(query,
+                    method: .put,
+                    parameters: parameters,
+                    encoding: JSONEncoding.default,
+                    headers: headers).responseJSON {
+                response in
+                callback(response)
             }
         }
     }
 
-//    public func giveOrderToServer(signedOrders : [SignedOrder], publicKeyHex : String,
-//                                  callback: @escaping (_ result: Any) -> ()) {
-//        Just.put(baseURL + "public-key/" , data : ["" : publicKeyHex]) {
-//            r in
-//            if r.ok
-//            {
-//                //success of placing orders
-//                callback(r)
-//            }
-//            else
-//            {
-//                callback(r.error)
-//            }
-//        }
-//    }
-
 }
-
-
-

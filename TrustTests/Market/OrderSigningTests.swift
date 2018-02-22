@@ -22,8 +22,7 @@ class OrderSigningTests : XCTestCase  {
         var expiry = [UInt8]()
         expiry.append(0)
         
-        let testOrder1 = Order(price : price, ticketIndices: indices,
-                               expiryBuffer: expiry, contractAddress : "d9864b424447B758CdE90f8655Ff7cA4673956bf")
+        let testOrder1 = Order(price: BigInt("1000000000"), start: 1000, count: 3, expiryBuffer: BigInt("0"), contractAddress: "d9864b424447B758CdE90f8655Ff7cA4673956bf")
         testOrdersList.append(testOrder1)
         
         let signOrders = SignOrders()
@@ -36,11 +35,6 @@ class OrderSigningTests : XCTestCase  {
         print("v: " + Int(signature.substring(from: 128), radix: 16)!.description)
         print("r: 0x" + signature.substring(to: 64))
         print("s: 0x" + signature.substring(from: 64))
-        
-//        for i in 0...2016 {
-//            try! keyStore.signMessageData((signedOrders.first?.message)!, for: account)
-//        }
-//
         print(signedOrders.description)
     }
 }
