@@ -49,9 +49,8 @@ struct TicketDecode {
     }
 
     private static func getZoneID(_ ticketId: Int) -> Int {
-        var zoneID = (ticketId >> 7)
         let bitmask = (1 << 5) - 1
-        zoneID = (zoneID & (bitmask)) //mask with bottom 5 bits
+        let zoneID = ((ticketId >> 7) & (bitmask)) //mask with bottom 5 bits
         return zoneID
     }
 
