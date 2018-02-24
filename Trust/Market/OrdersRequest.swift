@@ -34,9 +34,9 @@ public class OrdersRequest {
     {
         for i in 0...signedOrders.count - 1 {
 
-            var query : String = baseURL + "/publickey/" + publicKeyHex
-            query += "?start=" + signedOrders[i].order.start.description
-            query += ";count=" + signedOrders[i].order.count.description
+            let query : String = baseURL + "/publickey/" + publicKeyHex
+            + "?start=" + signedOrders[i].order.start.description
+            + ";count=" + signedOrders[i].order.count.description
 
             let parameters : Parameters = [
                 "data": signedOrders[i].signature
@@ -46,11 +46,11 @@ public class OrdersRequest {
                 "Content-Type": "application/vnd.awallet-signed-orders-v0"
             ]
 
-            Alamofire.request(query,
-                    method: .put,
-                    parameters: parameters,
-                    encoding: JSONEncoding.default,
-                    headers: headers).responseJSON {
+            let signature = signedOrders[i].signature
+
+            let data = Data(base64Encoded: signature)!
+
+            Alamofire.upload(data, to: query, method: .put, headers: headers).responseJSON {
                 response in
                 callback(response)
             }
