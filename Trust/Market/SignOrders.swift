@@ -72,7 +72,7 @@ public class SignOrders {
         var priceInWei: [UInt8] = toByteArray(price)
         var expiry: [UInt8] = toByteArray(expiryBuffer)
 
-        for _ in 0...31 - price.bitWidth / 8 { //TODO double check
+        for _ in 0...31 - price.bitWidth / 8 {
             //pad with zeros
             priceInWei.insert(0, at: 0)
         }
