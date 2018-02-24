@@ -109,6 +109,12 @@ class TokensViewController: UIViewController {
     @objc func missingToken() {
         delegate?.didPressAddToken(in: self)
     }
+    
+    private func showTicketViewController() {
+        let storyboard = UIStoryboard(name: "Tickets", bundle: nil)
+        let controller = storyboard.instantiateViewController(withIdentifier: "TicketsViewController")
+        self.present(controller, animated: true, completion: nil)
+    }
 }
 
 extension TokensViewController: StatefulViewController {
@@ -122,7 +128,12 @@ extension TokensViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
 
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
-        delegate?.didSelect(token: token, in: self)
+        // TODO: Testing purposes. Clean up!
+        if token.isStormBird {
+            showTicketViewController()
+        } else {
+            delegate?.didSelect(token: token, in: self)
+        }
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
