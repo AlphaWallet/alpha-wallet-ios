@@ -41,17 +41,16 @@ class OrderRequestTest : XCTestCase  {
         testOrdersList.append(testOrder1)
         
         let signOrders = SignOrders()
-        
+
+        //TODO fix signature issues
         var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
-        //TODO remove
-        signedOrders[0].signature = "jrzcgpsnV7IPGE3nZQeHQk5vyZdy5c8rHk0R/iG7wpiK9NT730I//DN5Dg5fHs+s4ZFgOGQnk7cXLQROBs9NvgE="
-        
+
+        signedOrders[0].signature = "z8lFVctNXQLCSxTvC/7cAkuYMUyIg0HddtKsxCuBJ+sZlhYFKPUsCreIRqtkcPlTVaNM2GjIEVT5JQok0iK5KQE="
+
         let privateKey = keyStore.exportPrivateKey(account: account)
         
-        let publicKey = "qTIttEQTN2OhfJJimQInXPYwz9EohLtg2MFMrnCtTmSpMi20RBM3Y6F8kmKZAidc9jDP0SiEu2DYwUyucK1OZK"
-        //try! Secp256k1.shared.getPublicKeyFromPrivateKey(from: privateKey.dematerialize()).hexString
-        
-        //TODO get public key
+        let publicKey = try! Secp256k1.shared.pubKeyFromPrivateKey(from: privateKey.dematerialize()).hexString
+
         OrdersRequest.init().giveOrderToServer(signedOrders: signedOrders, publicKeyHex: publicKey, callback: {
             callback in
             print(callback)
