@@ -14,11 +14,21 @@ import TrustKeystore
 
 class TicketsViewController: UIViewController {
 
+    var viewModel: TicketsViewModel = TicketsViewModel(tokens: []) {
+        didSet {
+            refreshView(viewModel: viewModel)
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.applyTintAdjustment()
     }
 
+    func refreshView(viewModel: TicketsViewModel) {
+    
+    }
+    
     @IBAction func didTapDoneButton(_ sender: UIBarButtonItem) {
         dismiss(animated: true, completion: nil)
     }
