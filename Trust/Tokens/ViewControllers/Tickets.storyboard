@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Tickets View Controller-->
+        <scene sceneID="FVp-jv-uXu">
+            <objects>
+                <viewController id="dt4-4a-Rec" customClass="TicketsViewController" customModule="Trust" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Lhy-Sv-9I6">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="V6W-o7-JQ1">
+                                <rect key="frame" x="0.0" y="20" width="375" height="591"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" rowHeight="122" id="x30-SZ-UO2">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="122"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="x30-SZ-UO2" id="0T6-c0-w1v">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="121.5"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </tableViewCellContentView>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eHR-tD-W9S">
+                                <rect key="frame" x="8" y="619" width="359" height="40"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="BbJ-OT-TDg">
+                                        <rect key="frame" x="0.0" y="0.0" width="359" height="40"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ouj-Jf-3ao">
+                                                <rect key="frame" x="0.0" y="0.0" width="114.5" height="40"/>
+                                                <color key="backgroundColor" red="0.14816972613334656" green="0.56230849027633667" blue="0.86966103315353394" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                                <state key="normal" title="REDEEM">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="j2l-Nc-7x4">
+                                                <rect key="frame" x="122.5" y="0.0" width="114" height="40"/>
+                                                <color key="backgroundColor" red="0.14816972613334656" green="0.56230849027633667" blue="0.86966103315353394" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                                <state key="normal" title="SELL">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8BH-K7-5ko">
+                                                <rect key="frame" x="244.5" y="0.0" width="114.5" height="40"/>
+                                                <color key="backgroundColor" red="0.14816972613334656" green="0.56230849027633667" blue="0.86966103315353394" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="19"/>
+                                                <state key="normal" title="TRANSFER">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </state>
+                                            </button>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="BbJ-OT-TDg" firstAttribute="height" secondItem="eHR-tD-W9S" secondAttribute="height" id="3yM-cQ-Asa"/>
+                                    <constraint firstAttribute="height" constant="40" id="gvf-cz-2S5"/>
+                                    <constraint firstItem="BbJ-OT-TDg" firstAttribute="centerY" secondItem="eHR-tD-W9S" secondAttribute="centerY" id="idZ-Oo-vcH"/>
+                                    <constraint firstItem="BbJ-OT-TDg" firstAttribute="width" secondItem="eHR-tD-W9S" secondAttribute="width" id="rzs-FQ-4iH"/>
+                                    <constraint firstItem="BbJ-OT-TDg" firstAttribute="centerX" secondItem="eHR-tD-W9S" secondAttribute="centerX" id="wfR-b6-43H"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="V6W-o7-JQ1" firstAttribute="top" secondItem="TiC-xe-4Ea" secondAttribute="top" id="BQs-dt-bLR"/>
+                            <constraint firstItem="TiC-xe-4Ea" firstAttribute="bottom" secondItem="eHR-tD-W9S" secondAttribute="bottom" constant="8" id="GAI-Ex-4YE"/>
+                            <constraint firstItem="TiC-xe-4Ea" firstAttribute="trailing" secondItem="V6W-o7-JQ1" secondAttribute="trailing" id="IYZ-d0-wXs"/>
+                            <constraint firstItem="V6W-o7-JQ1" firstAttribute="leading" secondItem="TiC-xe-4Ea" secondAttribute="leading" id="Qq3-gt-Eje"/>
+                            <constraint firstItem="eHR-tD-W9S" firstAttribute="top" secondItem="V6W-o7-JQ1" secondAttribute="bottom" constant="8" id="S5E-uV-VTe"/>
+                            <constraint firstItem="TiC-xe-4Ea" firstAttribute="trailing" secondItem="eHR-tD-W9S" secondAttribute="trailing" constant="8" id="dwC-nv-144"/>
+                            <constraint firstItem="eHR-tD-W9S" firstAttribute="leading" secondItem="TiC-xe-4Ea" secondAttribute="leading" constant="8" id="nVc-To-Zlg"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="TiC-xe-4Ea"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="yVC-XP-XG2" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-212" y="209.14542728635683"/>
+        </scene>
+    </scenes>
+</document>
