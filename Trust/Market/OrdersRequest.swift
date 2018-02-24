@@ -28,33 +28,36 @@ public class OrdersRequest {
         }
     }
 
-    //TODO batch orders
-    public func giveOrderToServer(signedOrders : [SignedOrder], publicKeyHex : String,
+    //only have to give first order to server then pad the signatures
+    public func giveOrderToServer(signedOrders : [SignedOrder], publicKeyb64: String,
                                   callback: @escaping (_ result: Any) -> Void)
     {
+        let query : String = baseURL + "/public-key/" + publicKeyb64
+        var data: [UInt8] = signedOrders[0].message.array
+
         for i in 0...signedOrders.count - 1 {
-
-            let query : String = baseURL + "/publickey/" + publicKeyHex
-            + "?start=" + signedOrders[i].order.start.description
-            + ";count=" + signedOrders[i].order.count.description
-
-            let parameters : Parameters = [
-                "data": signedOrders[i].signature
-            ]
-
-            let headers: HTTPHeaders = [
-                "Content-Type": "application/vnd.awallet-signed-orders-v0"
-            ]
-
-            let signature = signedOrders[i].signature
-
-            let data = Data(base64Encoded: signature)!
-
-            Alamofire.upload(data, to: query, method: .put, headers: headers).responseJSON {
-                response in
-                callback(response)
+            for j in 0...64 {
+                data.append(signedOrders[i].signature.hexa2Bytes[i])
             }
         }
+
+        let parameters : Parameters = [
+            "count" : signedOrders[0].order.start.description,
+            "start" :  signedOrders[0].order.count.description,
+            "data": data
+        ]
+
+        let headers: HTTPHeaders = [
+            "Content-Type": "application/vnd.awallet-signed-orders-v0"
+        ]
+
+        Alamofire.request(query, method: .put, parameters: parameters,
+                encoding: JSONEncoding.default, headers: headers).response
+        {
+            cb in
+            callback(cb)
+        }
+
     }
 
 }
