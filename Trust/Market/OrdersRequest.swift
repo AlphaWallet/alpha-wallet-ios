@@ -29,10 +29,12 @@ public class OrdersRequest {
     }
 
     //only have to give first order to server then pad the signatures
-    public func giveOrderToServer(signedOrders : [SignedOrder], publicKeyb64: String,
+    public func giveOrderToServer(signedOrders : [SignedOrder], publicKey: String,
                                   callback: @escaping (_ result: Any) -> Void)
     {
-        let query : String = baseURL + "/public-key/" + publicKeyb64
+        let query : String = baseURL + "public-key/" + publicKey + "?start=" +
+                signedOrders[0].order.start.description + ";count="
+        + signedOrders[0].order.count.description
         var data: [UInt8] = signedOrders[0].message.array
 
         for i in 0...signedOrders.count - 1 {
@@ -42,8 +44,6 @@ public class OrdersRequest {
         }
 
         let parameters : Parameters = [
-            "count" : signedOrders[0].order.start.description,
-            "start" :  signedOrders[0].order.count.description,
             "data": data
         ]
 
@@ -52,10 +52,20 @@ public class OrdersRequest {
         ]
 
         Alamofire.request(query, method: .put, parameters: parameters,
-                encoding: JSONEncoding.default, headers: headers).response
-        {
-            cb in
-            callback(cb)
+                encoding: JSONEncoding.default, headers: headers).responseJSON {
+            response in
+            print("Request: \(String(describing: response.request))")   // original url request
+            print("Response: \(String(describing: response.response))") // http url response
+            print("Result: \(response.result)")                         // response serialization result
+
+            if let json = response.result.value {
+                print("JSON: \(json)") // serialized json response
+                callback(json)
+            }
+
+            if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                print("Data: \(utf8Text)") // original server data as UTF8 string
+            }
         }
 
     }
