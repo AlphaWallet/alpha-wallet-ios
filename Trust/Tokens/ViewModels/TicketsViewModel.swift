@@ -11,6 +11,17 @@ import UIKit
 
 struct TicketsViewModel {
 
-    var tokens: [TokenObject] = []
+    var token: TokenObject
+
+    var numberOfSections: Int {
+        return 2
+    }
+    
+    func numberOfItems(for section: Int) -> Int {
+        if section == 0 {
+            return 1
+        }
+        return token.balance.count
+    }
 
 }
