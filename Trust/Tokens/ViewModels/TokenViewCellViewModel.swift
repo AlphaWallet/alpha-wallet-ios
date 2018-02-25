@@ -12,8 +12,8 @@ struct TokenViewCellViewModel {
     let ticker: CoinTicker?
 
     init(
-        token: TokenObject,
-        ticker: CoinTicker?
+            token: TokenObject,
+            ticker: CoinTicker?
     ) {
         self.token = token
         self.ticker = ticker
@@ -39,21 +39,29 @@ struct TokenViewCellViewModel {
     }
 
     var currencyAmount: String? {
-        guard let ticker = ticker else { return nil }
+        guard let ticker = ticker else {
+            return nil
+        }
         let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
         let priceInUsd = Double(ticker.price) ?? 0
         let amount = tokenValue * priceInUsd
-        guard amount > 0 else { return nil }
+        guard amount > 0 else {
+            return nil
+        }
         return CurrencyFormatter.formatter.string(from: NSNumber(value: amount))
     }
 
     var percentChange: String? {
-        guard let percent_change_24h = ticker?.percent_change_24h, !percent_change_24h.isEmpty else { return nil }
+        guard let percent_change_24h = ticker?.percent_change_24h, !percent_change_24h.isEmpty else {
+            return nil
+        }
         return "(" + percent_change_24h + "%)"
     }
 
     var percentChangeColor: UIColor {
-        guard let ticker = ticker else { return Colors.lightGray }
+        guard let ticker = ticker else {
+            return Colors.lightGray
+        }
         return ticker.percent_change_24h.starts(with: "-") ? Colors.red : Colors.green
     }
 
@@ -88,7 +96,7 @@ struct TokenViewCellViewModel {
     var imageUrl: URL? {
         return ticker?.imageURL
     }
-    
+
     var isStormBird: Bool {
         return token.isStormBird
     }
