@@ -61,6 +61,8 @@ public class SignOrders {
         return signedOrders
     }
 
+    //Start is the solidity array index here
+    //but is not in the put request, put request is ticket id and is a BigInt
     func encodeMessageForTrade(price: BigInt, expiryBuffer: BigInt, start: UInt16,
                                count: Int, contractAddress: String) -> [UInt8] {
         //ticket count * 2 because it is 16 bits not 8
@@ -68,18 +70,19 @@ public class SignOrders {
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
 
-        var priceInWei: [UInt8] = toByteArray(price)
-        var expiry: [UInt8] = toByteArray(expiryBuffer)
+        var priceInWei: [UInt8] = toByteArray(price.description)
+        var expiry: [UInt8] = toByteArray(expiryBuffer.description)
 
-        for _ in 0...31 - price.bitWidth / 8 {
+        for _ in 0...31 - priceInWei.count {
             //pad with zeros
             priceInWei.insert(0, at: 0)
         }
+
         for i in 0...31 {
             buffer.append(priceInWei[i])
         }
 
-        for _ in 0...31 - expiryBuffer.bitWidth / 8 {
+        for _ in 0...31 - expiry.count {
             expiry.insert(0, at: 0)
         }
 
