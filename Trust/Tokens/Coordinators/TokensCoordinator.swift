@@ -5,6 +5,7 @@ import UIKit
 
 protocol TokensCoordinatorDelegate: class {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
+    func didPressStormBird(for token: TokenObject, in coordinator: TokensCoordinator)
 }
 
 class TokensCoordinator: Coordinator {
@@ -83,6 +84,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didSelect(token: TokenObject, in viewController: UIViewController) {
 
         let type: TokenType = {
+            if token.isStormBird {
+                return .stormBird
+            }
             return TokensDataStore.etherToken(for: session.config) == token ? .ether : .token
         }()
 
@@ -91,6 +95,8 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             delegate?.didPress(for: .send(type: .ether(destination: .none)), in: self)
         case .token:
             delegate?.didPress(for: .send(type: .token(token)), in: self)
+        case .stormBird:
+            delegate?.didPressStormBird(for: token, in: self)
         }
     }
 
@@ -102,7 +108,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didPressAddToken(in viewController: UIViewController) {
         addToken()
     }
-    
     private func getContractBalance(for address: String,
                                     in viewController: NewTokenViewController) {
         storage.getContractBalance(for: address) { result in
@@ -121,7 +126,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             switch result {
             case .success(let decimal):
                 viewController.updateDecimalsValue(decimal)
-                
                 NSLog("Decimal:  \(decimal)")
             case .failure: break
             }
@@ -159,14 +163,14 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
 
         storage.getIsECR875(for: address) { result in
             switch result {
-            case .success(let isERC875):
-                viewController.updateFormForERC875Token(isERC875)
-                if isERC875 {
+            case .success(let isStormBird):
+                viewController.updateFormForERC875Token(isStormBird)
+                if isStormBird {
                     self.getContractBalance(for: address, in: viewController)
                 } else {
                     self.getDecimals(for: address, in: viewController)
                 }
-                NSLog("isERC875:  \(isERC875)")
+                NSLog("isStormBird:  \(isStormBird)")
             case .failure:
                 self.getDecimals(for: address, in: viewController)
             }
