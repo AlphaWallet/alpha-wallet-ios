@@ -126,7 +126,7 @@ class TransactionConfigurator {
             }
         //TODO clean up
         case .stormBird:
-            session.web3.request(request: ContractERC875Transfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
+            session.web3.request(request: ContractStormBirdTransfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
                 switch result {
                 case .success(let res):
                     let data = Data(hex: res.drop0x)

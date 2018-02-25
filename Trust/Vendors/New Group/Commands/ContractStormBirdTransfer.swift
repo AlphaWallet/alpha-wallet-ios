@@ -1,6 +1,6 @@
 import Foundation
 
-struct ContractERC875Transfer: Web3Request {
+struct ContractStormBirdTransfer: Web3Request {
     
     typealias Response = String
     let address: String

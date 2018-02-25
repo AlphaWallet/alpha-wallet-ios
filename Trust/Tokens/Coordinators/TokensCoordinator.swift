@@ -164,7 +164,7 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
         storage.getIsECR875(for: address) { result in
             switch result {
             case .success(let isStormBird):
-                viewController.updateFormForERC875Token(isStormBird)
+                viewController.updateFormForStormBirdToken(isStormBird)
                 if isStormBird {
                     self.getContractBalance(for: address, in: viewController)
                 } else {

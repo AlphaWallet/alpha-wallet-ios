@@ -30,12 +30,12 @@ class TokensDataStore {
         return GetSymbolCoordinator(web3: self.web3)
     }()
 
-    private lazy var get875BalanceCoordinator: Get875BalanceCoordinator = {
-        return Get875BalanceCoordinator(web3: self.web3)
+    private lazy var getStormBirdBalanceCoordinator: GetStormBirdBalanceCoordinator = {
+        return GetStormBirdBalanceCoordinator(web3: self.web3)
     }()
 
-    private lazy var getIsECR875Coordinator: GetIsECR875Coordinator = {
-        return GetIsECR875Coordinator(web3: self.web3)
+    private lazy var getIsStormBirdCoordinator: GetIsStormBirdCoordinator = {
+        return GetIsStormBirdCoordinator(web3: self.web3)
     }()
 
     private lazy var getDecimalsCoordinator: GetDecimalsCoordinator = {
@@ -149,7 +149,7 @@ class TokensDataStore {
     func getContractBalance(for addressString: String,
                             completion: @escaping (Result<[UInt16], AnyError>) -> Void) {
         let address = Address(string: addressString)
-        get875BalanceCoordinator.getBalance(for: account.address, contract: address!) { result in
+        getStormBirdBalanceCoordinator.getBalance(for: account.address, contract: address!) { result in
             completion(result)
         }
     }
@@ -157,7 +157,7 @@ class TokensDataStore {
     func getIsECR875(for addressString: String,
                      completion: @escaping (Result<Bool, AnyError>) -> Void) {
         let address = Address(string: addressString)
-        getIsECR875Coordinator.getIsStormBirdContract(for: address!) { result in
+        getIsStormBirdCoordinator.getIsStormBirdContract(for: address!) { result in
             completion(result)
         }
     }

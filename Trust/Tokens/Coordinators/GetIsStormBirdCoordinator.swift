@@ -7,7 +7,7 @@ import APIKit
 import Result
 import TrustKeystore
 
-class GetIsECR875Coordinator {
+class GetIsStormBirdCoordinator {
 
     private let web3: Web3Swift
 
@@ -21,7 +21,7 @@ class GetIsECR875Coordinator {
         for contract: Address,
         completion: @escaping (Result<Bool, AnyError>) -> Void
     ) {
-        let request = GetIsERC875Encode()
+        let request = GetIsStormBirdEncode()
         web3.request(request: request) { result in
             switch result {
             case .success(let res):
@@ -31,7 +31,7 @@ class GetIsECR875Coordinator {
                 Session.send(request2) { [weak self] result2 in
                     switch result2 {
                     case .success(let balance):
-                        let request = GetIsERC875Decode(data: balance)
+                        let request = GetIsStormBirdDecode(data: balance)
                         self?.web3.request(request: request) { result in
                             switch result {
                             case .success(let res):
