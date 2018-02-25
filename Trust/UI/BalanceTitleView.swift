@@ -106,7 +106,7 @@ extension BalanceTitleView {
             }
         case .token(let token):
             view.viewModel = BalanceTokenViewModel(token: token)
-        case .ERC875Token(let token):
+        case .stormBird(let token):
             view.viewModel = BalanceTokenViewModel(token: token)
         }
         session.refresh(.ethBalance)

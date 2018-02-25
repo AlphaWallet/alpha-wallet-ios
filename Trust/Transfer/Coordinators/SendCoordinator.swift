@@ -65,7 +65,7 @@ class SendCoordinator: Coordinator {
             controller.addressRow?.value = destination?.description
             controller.addressRow?.cell.row.updateCell()
         case .token: break
-        case .ERC875Token: break
+        case .stormBird: break
         }
         controller.delegate = self
         return controller
