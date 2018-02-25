@@ -27,6 +27,7 @@ target 'Trust' do
   pod 'Kingfisher', '~> 4.0'
   pod 'TrustKeystore', :git=>'https://github.com/TrustWallet/trust-keystore', :branch=>'master'
   pod 'Branch'
+  pod 'SwiftyJSON'
   # pod 'web3swift', :git=>'https://github.com/BANKEX/web3swift', :branch=>'master'
   pod 'SAMKeychain'
 

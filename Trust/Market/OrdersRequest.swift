@@ -1,9 +1,9 @@
 //
 // Created by James Sangalli on 15/2/18.
 //
-
 import Foundation
 import Alamofire
+import SwiftyJSON
 
 //"orders": [
 //    {
@@ -29,8 +29,8 @@ public class OrdersRequest {
     }
 
     //only have to give first order to server then pad the signatures
-    public func giveOrderToServer(signedOrders : [SignedOrder], publicKey: String,
-                                  callback: @escaping (_ result: Any) -> Void)
+    public func putOrderToServer(signedOrders : [SignedOrder], publicKey: String,
+                                 callback: @escaping (_ result: Any) -> Void)
     {
         let query : String = baseURL + "public-key/" + publicKey + "?start=" +
                 signedOrders[0].order.start.description + ";count="
@@ -39,7 +39,7 @@ public class OrdersRequest {
 
         for i in 0...signedOrders.count - 1 {
             for j in 0...64 {
-                data.append(signedOrders[i].signature.hexa2Bytes[i])
+                data.append(signedOrders[i].signature.hexa2Bytes[j])
             }
         }
 
@@ -58,11 +58,12 @@ public class OrdersRequest {
             response in
             print("Request: \(String(describing: response.request))")   // original url request
             print("Response: \(String(describing: response.response))") // http url response
-            print("Result: \(response.result)")                         // response serialization result
+            print("Result: \(response.result)") // response serialization result
 
             if let json = response.result.value {
-                print("JSON: \(json)") // serialized json response
-                callback(json)
+                //print("JSON: \(json)") // serialized json response
+                let parsedJSON = JSON(parseJSON: json as! String)
+                callback(parsedJSON["orders"]["accepted"])
             }
 
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {

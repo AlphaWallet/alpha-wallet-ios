@@ -20,7 +20,7 @@ class OrderRequestTest : XCTestCase  {
         wait(for: expectations, timeout: 10)
     }
     
-    func testPostingOrderToQueue() {
+    func testPuttingOrderToQueue() {
         let expectation = self.expectation(description: "wait til callback")
         expectations.append(expectation)
 
@@ -54,7 +54,7 @@ class OrderRequestTest : XCTestCase  {
         let publicKey = try! Secp256k1.shared.pubKeyFromPrivateKey(from:
         privateKey.dematerialize()).hexString
 
-        OrdersRequest.init().giveOrderToServer(signedOrders: signedOrders, publicKey: publicKey, callback: {
+        OrdersRequest.init().putOrderToServer(signedOrders: signedOrders, publicKey: publicKey, callback: {
             callback in
             print(callback)
             expectation.fulfill()
