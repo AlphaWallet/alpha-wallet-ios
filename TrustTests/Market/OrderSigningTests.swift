@@ -32,7 +32,7 @@ class OrderSigningTests : XCTestCase  {
         var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
         signedOrders[0].signature = "jrzcgpsnV7IPGE3nZQeHQk5vyZdy5c8rHk0R/iG7wpiK9NT730I//DN5Dg5fHs+s4ZFgOGQnk7cXLQROBs9NvgE="
         
-        var signature = try! keyStore.signMessageData(signedOrders.first?.message, for: account).dematerialize().hexString
+        var signature = try! keyStore.signMessageData(Data(bytes: signedOrders[0].message), for: account).dematerialize().hexString
         print("v: " + Int(signature.substring(from: 128), radix: 16)!.description)
         print("r: 0x" + signature.substring(to: 64))
         print("s: 0x" + signature.substring(from: 64))

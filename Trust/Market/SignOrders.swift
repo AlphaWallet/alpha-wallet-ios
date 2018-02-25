@@ -12,7 +12,7 @@ public struct Order {
 
 public struct SignedOrder {
     var order: Order
-    var message: Data
+    var message: [UInt8]
     var signature: String
 }
 
@@ -52,10 +52,9 @@ public class SignOrders {
                     count: orders[i].count,
                     contractAddress : orders[i].contractAddress
             )
-            let messageData = Data(bytes: message)
 
-            let signature = try! keyStore.signMessageData(messageData, for: account)
-            let signedOrder : SignedOrder = try! SignedOrder(order : orders[i], message: messageData,
+            let signature = try! keyStore.signMessageData(Data(bytes: message), for: account)
+            let signedOrder : SignedOrder = try! SignedOrder(order : orders[i], message: message,
                     signature : signature.description)
             signedOrders.append(signedOrder)
         }
