@@ -5,7 +5,9 @@ import Foundation
 extension String {
     var hex: String {
         let data = self.data(using: .utf8)!
-        return data.map { String(format: "%02x", $0) }.joined()
+        return data.map {
+            String(format: "%02x", $0)
+        }.joined()
     }
 
     var hexEncoded: String {
@@ -54,7 +56,7 @@ extension String {
     var add0x: String {
         return "0x" + self
     }
-    
+
     func toInt() -> Int? {
         return Int(self) ?? nil
     }
@@ -62,6 +64,7 @@ extension String {
     func toBool() -> Bool {
         return (self.toInt()?.toBool())!
     }
+
 
 }
 
@@ -84,5 +87,18 @@ extension String {
         let startIndex = index(from: r.lowerBound)
         let endIndex = index(from: r.upperBound)
         return String(self[startIndex..<endIndex])
+    }
+
+    func nextLetterInAlphabet(for index: Int) -> String? {
+        guard let uniCode = UnicodeScalar(self) else {
+            return nil
+        }
+        switch uniCode {
+        case "A"..<"Z":
+            return String(UnicodeScalar(uniCode.value.advanced(by: index))!)
+        default:
+            return nil
+        }
+
     }
 }
