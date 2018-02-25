@@ -17,7 +17,7 @@ class GetIsECR875Coordinator {
         self.web3 = web3
     }
 
-    func getIsECR875 (
+    func getIsStormBirdContract(
         for contract: Address,
         completion: @escaping (Result<Bool, AnyError>) -> Void
     ) {
@@ -35,21 +35,21 @@ class GetIsECR875Coordinator {
                         self?.web3.request(request: request) { result in
                             switch result {
                             case .success(let res):
-                                let isECR875 = res.toBool()
-                                NSLog("getIsECR875 result \(isECR875) ")
-                                completion(.success(isECR875))
+                                let isStormBird = res.toBool()
+                                NSLog("getIsStormBirdContract result \(isStormBird) ")
+                                completion(.success(isStormBird))
                             case .failure(let error):
-                                NSLog("getIsECR875 3 error \(error)")
+                                NSLog("getIsStormBirdContract 3 error \(error)")
                                 completion(.failure(AnyError(error)))
                             }
                         }
                     case .failure(let error):
-                        NSLog("getIsECR875 2 error \(error)")
+                        NSLog("getIsStormBirdContract 2 error \(error)")
                         completion(.failure(AnyError(error)))
                     }
                 }
             case .failure(let error):
-                NSLog("getIsECR875 error \(error)")
+                NSLog("getIsStormBirdContract error \(error)")
                 completion(.failure(AnyError(error)))
             }
         }
