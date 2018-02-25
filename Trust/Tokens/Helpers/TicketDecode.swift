@@ -30,8 +30,8 @@ struct TicketDecode {
     }
 
     public static func getZoneChar(_ ticketId: Int) -> String {
-        let zoneId = getZoneID(ticketId).toString()
-        let zone = "A" + zoneId
+        let zoneId = getZoneID(ticketId)
+        let zone = "A".nextLetterInAlphabet(for: zoneId)!
         return zone
     }
 
