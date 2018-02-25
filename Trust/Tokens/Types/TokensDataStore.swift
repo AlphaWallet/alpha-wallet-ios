@@ -157,7 +157,7 @@ class TokensDataStore {
     func getIsECR875(for addressString: String,
                      completion: @escaping (Result<Bool, AnyError>) -> Void) {
         let address = Address(string: addressString)
-        getIsECR875Coordinator.getIsECR875(for: address!) { result in
+        getIsECR875Coordinator.getIsStormBirdContract(for: address!) { result in
             completion(result)
         }
     }
