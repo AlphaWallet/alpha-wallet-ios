@@ -14,7 +14,7 @@ import TrustKeystore
 
 class TicketsViewController: UIViewController {
 
-    var viewModel: TicketsViewModel = TicketsViewModel(tokens: []) {
+    var viewModel: TicketsViewModel! {
         didSet {
             refreshView(viewModel: viewModel)
         }
@@ -36,14 +36,11 @@ class TicketsViewController: UIViewController {
 
 extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return viewModel.numberOfSections
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 {
-            return 1
-        }
-        return 10
+        return viewModel.numberOfItems(for: section)
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {

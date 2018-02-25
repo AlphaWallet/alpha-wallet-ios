@@ -110,10 +110,12 @@ class TokensViewController: UIViewController {
         delegate?.didPressAddToken(in: self)
     }
     
-    private func showTicketViewController() {
+    private func showTicketViewController(for token: TokenObject) {
         let storyboard = UIStoryboard(name: "Tickets", bundle: nil)
-        let controller = storyboard.instantiateViewController(withIdentifier: "TicketsViewController")
-        self.present(controller, animated: true, completion: nil)
+        let navigationController = storyboard.instantiateViewController(withIdentifier: "TicketsViewController") as! UINavigationController
+        let ticketsViewController = navigationController.viewControllers.first as! TicketsViewController
+        ticketsViewController.viewModel = TicketsViewModel(token: token)
+        self.present(navigationController, animated: true, completion: nil)
     }
 }
 
@@ -130,7 +132,7 @@ extension TokensViewController: UITableViewDelegate {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
         // TODO: Testing purposes. Clean up!
         if token.isStormBird {
-            showTicketViewController()
+            showTicketViewController(for: token)
         } else {
             delegate?.didSelect(token: token, in: self)
         }
