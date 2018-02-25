@@ -229,7 +229,7 @@ class InCoordinator: Coordinator {
             navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
         }
     }
-
+    
     private func handlePendingTransaction(transaction: SentTransaction) {
         transactionCoordinator?.dataCoordinator.addSentTransaction(transaction)
     }
@@ -287,6 +287,10 @@ extension InCoordinator: TokensCoordinatorDelegate {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
         showPaymentFlow(for: type)
     }
+    
+    func didPressStormBird(for token: TokenObject, in coordinator: TokensCoordinator) {
+    }
+    
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
