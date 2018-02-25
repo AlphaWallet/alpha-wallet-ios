@@ -267,14 +267,20 @@
 		29FF6D6B2011D2AF00A3011C /* InCoordinatorError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF6D6A2011D2AF00A3011C /* InCoordinatorError.swift */; };
 		29FF6D73201200D500A3011C /* FieldAppereance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF6D72201200D500A3011C /* FieldAppereance.swift */; };
 		3CDDD1E2CD1B0180754B7992 /* Pods_Trust.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 646C8C822C986358D7388602 /* Pods_Trust.framework */; };
+		442FC03669B2BB02B0876278 /* StormBirdTokenSummaryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCFA81968EBB72349E849 /* StormBirdTokenSummaryTableViewCell.swift */; };
+		442FC126C8A73F70F2782025 /* TicketDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC6911EEE85B669D7BDA1 /* TicketDecode.swift */; };
 		442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */; };
+		442FC2CC21FFFC4FAB33A300 /* Ticket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC90F0768C43EF903465B /* Ticket.swift */; };
 		442FC58B7558F28F9452D383 /* GetIsECR875Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCEBC98D0A367D258D2C3 /* GetIsECR875Coordinator.swift */; };
 		442FC5F70AF003F331F7C841 /* GetSymbolCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCB2726DB345481C1FDA1 /* GetSymbolCoordinator.swift */; };
 		442FC65BFA2D42879648EC06 /* Int.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCCAC6A172506637A2FF6 /* Int.swift */; };
+		442FC81F38F80EEF54C69C5B /* TicketAdaptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC20E6470B92A46479342 /* TicketAdaptor.swift */; };
 		442FC9C4FAC64192FF5DCC40 /* GetERC20Decimals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC72F9D22CC36AC015274 /* GetERC20Decimals.swift */; };
+		442FCAD7292D93C261B97D09 /* TicketHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */; };
 		442FCB2B0DD39EB2D9233A2F /* GetERC875Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC8B1D5B4317DE7D68325 /* GetERC875Balance.swift */; };
 		442FCB9850FC6F2D28978199 /* GETERC20Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCBDD3A69DF75551B10AC /* GETERC20Symbol.swift */; };
 		442FCBBFCC5926B4D416E6D3 /* GetNameCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC630874D29159799EEB6 /* GetNameCoordinator.swift */; };
+		442FCD76B5C25C9FB7FE7479 /* TicketsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCB182F854B307761CD82 /* TicketsViewModel.swift */; };
 		442FCE0709E29BF233F32CAB /* Get875BalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC002CDEA792B8ECD3E13 /* Get875BalanceCoordinator.swift */; };
 		442FCED8B618930EFD1F7BA8 /* GetIsECR875.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCA1F19B6293FE5FAD494 /* GetIsECR875.swift */; };
 		613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */ = {isa = PBXBuildFile; fileRef = 613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */; };
@@ -352,8 +358,14 @@
 		77B3BF4A2019247200EEC15A /* BrowserNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B3BF492019247200EEC15A /* BrowserNavigationBar.swift */; };
 		77E0E773201FAD06009B4B31 /* BrowserURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77E0E772201FAD05009B4B31 /* BrowserURLParser.swift */; };
 		77E0E777201FAD36009B4B31 /* BrowserURLParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77E0E776201FAD36009B4B31 /* BrowserURLParserTests.swift */; };
+		AA26C61F20412A1E00318B9B /* TicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C61D20412A1D00318B9B /* TicketsViewController.swift */; };
+		AA26C62020412A1E00318B9B /* Tickets.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA26C61E20412A1E00318B9B /* Tickets.storyboard */; };
+		AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */; };
+		AA26C62420412A4100318B9B /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62220412A4100318B9B /* Double.swift */; };
+		AA26C62620412C9A00318B9B /* ContractERC875Transfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62520412C9A00318B9B /* ContractERC875Transfer.swift */; };
+		AA26C628204134C500318B9B /* TicketTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C627204134C500318B9B /* TicketTableViewCell.swift */; };
+		AA4E531820425A9500143A09 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4E531720425A9500143A09 /* Date.swift */; };
 		AA893ED12037E93000CDCED1 /* GETERC20Name.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA893ED02037E93000CDCED1 /* GETERC20Name.swift */; };
-		B111F542203C06EA00121B5B /* ContractERC875Transfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B111F541203C06EA00121B5B /* ContractERC875Transfer.swift */; };
 		AA893ED5203C3E5400CDCED1 /* TokenBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */; };
 		B1DC375D203AEAE200C9756D /* OrdersRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375C203AEAE100C9756D /* OrdersRequest.swift */; };
 		B1DC375F203AEB4800C9756D /* OrderRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */; };
@@ -658,14 +670,20 @@
 		29FF6D72201200D500A3011C /* FieldAppereance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldAppereance.swift; sourceTree = "<group>"; };
 		442FC002CDEA792B8ECD3E13 /* Get875BalanceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Get875BalanceCoordinator.swift; sourceTree = "<group>"; };
 		442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetDecimalsCoordinator.swift; sourceTree = "<group>"; };
+		442FC20E6470B92A46479342 /* TicketAdaptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketAdaptor.swift; sourceTree = "<group>"; };
 		442FC630874D29159799EEB6 /* GetNameCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetNameCoordinator.swift; sourceTree = "<group>"; };
+		442FC6911EEE85B669D7BDA1 /* TicketDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketDecode.swift; sourceTree = "<group>"; };
 		442FC72F9D22CC36AC015274 /* GetERC20Decimals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC20Decimals.swift; sourceTree = "<group>"; };
 		442FC8B1D5B4317DE7D68325 /* GetERC875Balance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC875Balance.swift; sourceTree = "<group>"; };
+		442FC90F0768C43EF903465B /* Ticket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ticket.swift; sourceTree = "<group>"; };
 		442FCA1F19B6293FE5FAD494 /* GetIsECR875.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsECR875.swift; sourceTree = "<group>"; };
+		442FCB182F854B307761CD82 /* TicketsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewModel.swift; sourceTree = "<group>"; };
 		442FCB2726DB345481C1FDA1 /* GetSymbolCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetSymbolCoordinator.swift; sourceTree = "<group>"; };
 		442FCBDD3A69DF75551B10AC /* GETERC20Symbol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GETERC20Symbol.swift; sourceTree = "<group>"; };
 		442FCCAC6A172506637A2FF6 /* Int.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Int.swift; sourceTree = "<group>"; };
 		442FCEBC98D0A367D258D2C3 /* GetIsECR875Coordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsECR875Coordinator.swift; sourceTree = "<group>"; };
+		442FCFA81968EBB72349E849 /* StormBirdTokenSummaryTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StormBirdTokenSummaryTableViewCell.swift; sourceTree = "<group>"; };
+		442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketHolder.swift; sourceTree = "<group>"; };
 		477899BEAA4489DA423E8857 /* Pods-TrustUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrustUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TrustUITests/Pods-TrustUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		4DB8204016307EAFC079EA48 /* Pods-Trust.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.debug.xcconfig"; sourceTree = "<group>"; };
 		613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = "COMODO ECC Domain Validation Secure Server CA 2.cer"; sourceTree = "<group>"; };
@@ -749,8 +767,14 @@
 		87FA1153388F27F599C430B8 /* Pods-TrustTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrustTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TrustTests/Pods-TrustTests.debug.xcconfig"; sourceTree = "<group>"; };
 		A3B747245A27436E621E7E41 /* Pods-TrustUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrustUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-TrustUITests/Pods-TrustUITests.release.xcconfig"; sourceTree = "<group>"; };
 		A48A17FC2CC895AF2BB871D0 /* Pods_TrustTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TrustTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA26C61D20412A1D00318B9B /* TicketsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewController.swift; sourceTree = "<group>"; };
+		AA26C61E20412A1E00318B9B /* Tickets.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Tickets.storyboard; sourceTree = "<group>"; };
+		AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewInspectableEnhancements.swift; sourceTree = "<group>"; };
+		AA26C62220412A4100318B9B /* Double.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
+		AA26C62520412C9A00318B9B /* ContractERC875Transfer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContractERC875Transfer.swift; sourceTree = "<group>"; };
+		AA26C627204134C500318B9B /* TicketTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTableViewCell.swift; sourceTree = "<group>"; };
+		AA4E531720425A9500143A09 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		AA893ED02037E93000CDCED1 /* GETERC20Name.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GETERC20Name.swift; sourceTree = "<group>"; };
-		B111F541203C06EA00121B5B /* ContractERC875Transfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContractERC875Transfer.swift; sourceTree = "<group>"; };
 		AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalance.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
 		B1DC375C203AEAE100C9756D /* OrdersRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersRequest.swift; sourceTree = "<group>"; };
@@ -968,6 +992,7 @@
 			children = (
 				291795001F95F5E200539A30 /* GetBalance.swift */,
 				2963B6BE1F9AB9A2003063C1 /* ContractERC20Transfer.swift */,
+				AA26C62520412C9A00318B9B /* ContractERC875Transfer.swift */,
 				299B5E281FCA8F040051361C /* GetERC20Balance.swift */,
 				AA893ED02037E93000CDCED1 /* GETERC20Name.swift */,
 				299B5E2A1FCA9A640051361C /* ApproveERC20.swift */,
@@ -975,7 +1000,6 @@
 				442FC8B1D5B4317DE7D68325 /* GetERC875Balance.swift */,
 				442FCA1F19B6293FE5FAD494 /* GetIsECR875.swift */,
 				442FC72F9D22CC36AC015274 /* GetERC20Decimals.swift */,
-				B111F541203C06EA00121B5B /* ContractERC875Transfer.swift */,
 			);
 			path = Commands;
 			sourceTree = "<group>";
@@ -1188,6 +1212,7 @@
 				2977CAF21F7E0C3A009682A0 /* ViewModels */,
 				2977CAF11F7E0C33009682A0 /* ViewControllers */,
 				2977CAF01F7E0C2E009682A0 /* Views */,
+				442FCB1A0F74A68425907AC9 /* Helpers */,
 			);
 			path = Tokens;
 			sourceTree = "<group>";
@@ -1342,11 +1367,13 @@
 		2977CAF01F7E0C2E009682A0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				AA26C627204134C500318B9B /* TicketTableViewCell.swift */,
 				295B61D01FE7B20400642E60 /* TokensHeaderView.swift */,
 				296106C11F76403A0006164B /* TokenViewCell.swift */,
 				29F1C8451FEB6664003780D8 /* EditTokenTableViewCell.swift */,
 				29F1C8461FEB6664003780D8 /* EditTokenTableViewCell.xib */,
 				29F1C84B1FEC4F6F003780D8 /* TokensFooterView.swift */,
+				442FCFA81968EBB72349E849 /* StormBirdTokenSummaryTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1354,6 +1381,8 @@
 		2977CAF11F7E0C33009682A0 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
+				AA26C61E20412A1E00318B9B /* Tickets.storyboard */,
+				AA26C61D20412A1D00318B9B /* TicketsViewController.swift */,
 				296106C51F7645CC0006164B /* TokensViewController.swift */,
 				294DFBA81FE6EBFB004CEB56 /* NewTokenViewController.swift */,
 				29F1C83D1FEB5C91003780D8 /* EditTokensViewController.swift */,
@@ -1369,6 +1398,7 @@
 				29E9CFCC1FE7343C00017744 /* NewTokenViewModel.swift */,
 				29F1C8411FEB62ED003780D8 /* EditTokenTableCellViewModel.swift */,
 				29F1C8491FEB6D6B003780D8 /* EditTokenViewModel.swift */,
+				442FCB182F854B307761CD82 /* TicketsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -1381,6 +1411,8 @@
 				29E9CFCE1FE7347200017744 /* ERC20Token.swift */,
 				29C0FCE4200EBAF6004A13CB /* TokenType.swift */,
 				AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */,
+				442FC90F0768C43EF903465B /* Ticket.swift */,
+				442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -1469,6 +1501,9 @@
 				737D1674202BDCB400B42DDE /* UINavigationController.swift */,
 				73ED85A62034BFEF00593BF3 /* UITextFieldAdditions.swift */,
 				442FCCAC6A172506637A2FF6 /* Int.swift */,
+				AA26C62220412A4100318B9B /* Double.swift */,
+				AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */,
+				AA4E531720425A9500143A09 /* Date.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1886,6 +1921,15 @@
 				732E0F532022786400B39C1F /* LockCreatePasscodeCoordinatorTest.swift */,
 			);
 			path = Coordinators;
+			sourceTree = "<group>";
+		};
+		442FCB1A0F74A68425907AC9 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				442FC20E6470B92A46479342 /* TicketAdaptor.swift */,
+				442FC6911EEE85B669D7BDA1 /* TicketDecode.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		615F10571FCBEF6A008A45AF /* Views */ = {
@@ -2318,6 +2362,7 @@
 				771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */,
 				291794FC1F95DE5F00539A30 /* index.html in Resources */,
 				296106CE1F777E410006164B /* LaunchScreen.storyboard in Resources */,
+				AA26C62020412A1E00318B9B /* Tickets.storyboard in Resources */,
 				290B2B541F8F50030053C83E /* Localizable.strings in Resources */,
 				2912CD021F6A830700C6CBE3 /* Assets.xcassets in Resources */,
 				73CBC75F2020CBF800374666 /* AccountViewCell.xib in Resources */,
@@ -2613,8 +2658,8 @@
 				29C80D491FB51C380037B1E0 /* Dictionary.swift in Sources */,
 				77872D232023F43B0032D687 /* TransactionsTracker.swift in Sources */,
 				29FA00CE201CA64E002F7DC5 /* DappCommand.swift in Sources */,
-				B111F542203C06EA00121B5B /* ContractERC875Transfer.swift in Sources */,
 				29FF12F61F74799D00AFD326 /* NSAttributedString.swift in Sources */,
+				AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */,
 				290B2B651F91A4880053C83E /* TransactionsFooterView.swift in Sources */,
 				293B8B431F70815900356286 /* BalanceTitleView.swift in Sources */,
 				AA893ED12037E93000CDCED1 /* GETERC20Name.swift in Sources */,
@@ -2629,6 +2674,7 @@
 				BBF4F9B72029D0B3009E04C0 /* GasViewModel.swift in Sources */,
 				73C41C75201B65AD00243C6C /* LockCreatePasscodeCoordinator.swift in Sources */,
 				296106C81F7646590006164B /* TokensViewModel.swift in Sources */,
+				AA26C628204134C500318B9B /* TicketTableViewCell.swift in Sources */,
 				299B5E471FD2C87F0051361C /* ConfigureTransactionError.swift in Sources */,
 				615F10561FCBEF2E008A45AF /* OnboardingPageViewModel.swift in Sources */,
 				29E2E3411F7B1585000CF94A /* ActionButtonRow.swift in Sources */,
@@ -2661,6 +2707,7 @@
 				AA893ED5203C3E5400CDCED1 /* TokenBalance.swift in Sources */,
 				29850D251F6B27A800791A49 /* R.generated.swift in Sources */,
 				737D1675202BDCB400B42DDE /* UINavigationController.swift in Sources */,
+				AA4E531820425A9500143A09 /* Date.swift in Sources */,
 				296105931FA2AA2100292494 /* SignTransaction.swift in Sources */,
 				296105951FA2DEF000292494 /* TransactionDirection.swift in Sources */,
 				291ED08B1F6F5D2100E7E93A /* Bundle.swift in Sources */,
@@ -2706,6 +2753,7 @@
 				77B3BF3C201908ED00EEC15A /* ConfirmCoordinator.swift in Sources */,
 				298542F91FBE9A0100CB5081 /* CryptoAddressValidator.swift in Sources */,
 				291F52C11F6C8A1F00B369AB /* AccountsViewModel.swift in Sources */,
+				AA26C62620412C9A00318B9B /* ContractERC875Transfer.swift in Sources */,
 				7721A6CC202EFBC5004DB16C /* AddCustomNetworkViewController.swift in Sources */,
 				77872D322027AA4A0032D687 /* SliderTextFieldRow.swift in Sources */,
 				298542E31FBA722F00CB5081 /* ContainerView.swift in Sources */,
@@ -2734,6 +2782,7 @@
 				29CA4B791F6FBFD50032313D /* Balance.swift in Sources */,
 				291F52A71F6B766100B369AB /* BalanceRequest.swift in Sources */,
 				29F1C85A20036968003780D8 /* HelpUsCoordinator.swift in Sources */,
+				AA26C61F20412A1E00318B9B /* TicketsViewController.swift in Sources */,
 				29D72A2A1F6A8D1500CE9209 /* AppCoordinator.swift in Sources */,
 				290B2B671F9266630053C83E /* SettingsAction.swift in Sources */,
 				293E626F1FA2ED1400CB0A66 /* InCoordinator.swift in Sources */,
@@ -2759,6 +2808,7 @@
 				291F52A51F6B762300B369AB /* EtherServiceRequest.swift in Sources */,
 				CCA4FE361FD4282400749AE4 /* DeviceChecker.swift in Sources */,
 				732086B9201508690047F605 /* SplashCoordinator.swift in Sources */,
+				AA26C62420412A4100318B9B /* Double.swift in Sources */,
 				29E6E06C1FE897D90079265A /* BrowserCoordinator.swift in Sources */,
 				77872D292025116E0032D687 /* EnterPasswordCoordinator.swift in Sources */,
 				298542FB1FBEA03300CB5081 /* SendInputErrors.swift in Sources */,
@@ -2856,7 +2906,6 @@
 				291ED08D1F6F5F0A00E7E93A /* KeyStoreError.swift in Sources */,
 				29F1C83E1FEB5C91003780D8 /* EditTokensViewController.swift in Sources */,
 				296AF9A31F733AB30058AF78 /* WalletCoordinator.swift in Sources */,
-				76F1DA1A819D5543FF698AF1,
 				442FCBBFCC5926B4D416E6D3 /* GetNameCoordinator.swift in Sources */,
 				442FCB9850FC6F2D28978199 /* GETERC20Symbol.swift in Sources */,
 				442FC5F70AF003F331F7C841 /* GetSymbolCoordinator.swift in Sources */,
@@ -2868,6 +2917,12 @@
 				442FC9C4FAC64192FF5DCC40 /* GetERC20Decimals.swift in Sources */,
 				442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */,
 				76F1D5AF727A83205BBCF0EC /* SignOrders.swift in Sources */,
+				442FCD76B5C25C9FB7FE7479 /* TicketsViewModel.swift in Sources */,
+				442FC2CC21FFFC4FAB33A300 /* Ticket.swift in Sources */,
+				442FCAD7292D93C261B97D09 /* TicketHolder.swift in Sources */,
+				442FC81F38F80EEF54C69C5B /* TicketAdaptor.swift in Sources */,
+				442FC126C8A73F70F2782025 /* TicketDecode.swift in Sources */,
+				442FC03669B2BB02B0876278 /* StormBirdTokenSummaryTableViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2896,7 +2951,6 @@
 				299573A21FA1F369006F17FD /* QRURLParserTests.swift in Sources */,
 				61FC5ED11FCFBDEB00CCB12A /* EtherNumberFormatterTests.swift in Sources */,
 				29E14FD91F7F4D4E00185568 /* FakeTransactionsStorage.swift in Sources */,
-				AA893ED6203C3E5400CDCED1,
 				29BDF1961FEE43F40023A45F /* UnconfirmedTransaction.swift in Sources */,
 				29E14FD71F7F490000185568 /* Transaction.swift in Sources */,
 				296106CC1F776FD00006164B /* WalletCoordinatorTests.swift in Sources */,
@@ -2933,7 +2987,6 @@
 				29BDF19D1FEE50E90023A45F /* GasPriceConfigurationTests.swift in Sources */,
 				295996141FAB09A200DB66A8 /* DepositCoordinatorTests.swift in Sources */,
 				778EAF7D1FF10AF400C8E2AB /* SettingsCoordinatorTests.swift in Sources */,
-				B111F543203C06EA00121B5B /* ContractERC875Transfer.swift in Sources */,
 				732E0F502022716700B39C1F /* LockEnterPasscodeCoordinatorTest.swift in Sources */,
 				29F114E91FA3EC9E00114A29 /* InCoordinatorTests.swift in Sources */,
 				2981F4731F8303E600CA6590 /* TransactionCoordinatorTests.swift in Sources */,
