@@ -23,7 +23,7 @@
                                 <rect key="frame" x="0.0" y="64" width="375" height="547"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="TicketInfoCell" rowHeight="50" id="TFt-LR-2x5">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="StormBirdTokenSummaryTableViewCell" rowHeight="50" id="TFt-LR-2x5" customClass="StormBirdTokenSummaryTableViewCell" customModule="Trust" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="375" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="TFt-LR-2x5" id="kE7-Tf-gCn">
@@ -53,6 +53,10 @@
                                                 </label>
                                             </subviews>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="countLabel" destination="JXu-rd-4EU" id="2hz-ba-ISW"/>
+                                            <outlet property="nameLabel" destination="0F1-Dz-cM8" id="lDE-TD-Ot5"/>
+                                        </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="TicketCell" rowHeight="90" id="x30-SZ-UO2" customClass="TicketTableViewCell" customModule="Trust" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="78" width="375" height="90"/>
