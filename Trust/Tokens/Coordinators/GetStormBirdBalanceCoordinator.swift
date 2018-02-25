@@ -8,7 +8,7 @@ import Result
 import TrustKeystore
 import JavaScriptKit
 
-class Get875BalanceCoordinator {
+class GetStormBirdBalanceCoordinator {
 
     private let web3: Web3Swift
 
@@ -23,7 +23,7 @@ class Get875BalanceCoordinator {
         contract: Address,
         completion: @escaping (Result<[UInt16], AnyError>) -> Void
     ) {
-        let request = GetERC875BalanceEncode(address: address)
+        let request = GetStormBirdBalanceEncode(address: address)
         web3.request(request: request) { result in
             switch result {
             case .success(let res):
@@ -33,7 +33,7 @@ class Get875BalanceCoordinator {
                 Session.send(request2) { [weak self] result2 in
                     switch result2 {
                     case .success(let balance):
-                        let request = GetERC875BalanceDecode(data: balance)
+                        let request = GetStormBirdBalanceDecode(data: balance)
                         self?.web3.request(request: request) { result in
                             switch result {
                             case .success(let res):
@@ -70,7 +70,7 @@ class Get875BalanceCoordinator {
     }
 }
 
-extension Get875BalanceCoordinator {
+extension GetStormBirdBalanceCoordinator {
     private func adapt(_ values: Any) -> [UInt16] {
         if let array = values as? [Any] {
             return array.map { UInt16($0 as! String)! }
