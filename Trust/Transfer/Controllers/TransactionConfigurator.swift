@@ -59,18 +59,16 @@ class TransactionConfigurator {
             data: transaction.data ?? Data()
         )
     }
-    
     func estimateGasLimit() {
         let to: Address? = {
             switch transaction.transferType {
             case .ether: return transaction.to
             case .token(let token):
                 return Address(string: token.contract)
-            case .ERC875Token(let token):
+            case .stormBird(let token):
                 return Address(string: token.contract)
             }
         }()
-        
         let request = EstimateGasRequest(
             from: session.account.address,
             to: to,
@@ -88,7 +86,6 @@ class TransactionConfigurator {
                     }
                     return limit + (limit * 20 / 100)
                 }()
-                
                 self.configuration =  TransactionConfiguration(
                     gasPrice: self.calculatedGasPrice,
                     gasLimit: gasLimit,
@@ -128,7 +125,7 @@ class TransactionConfigurator {
                 }
             }
         //TODO clean up
-        case .ERC875Token:
+        case .stormBird:
             session.web3.request(request: ContractERC875Transfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
                 switch result {
                 case .success(let res):
@@ -165,14 +162,14 @@ class TransactionConfigurator {
             switch transaction.transferType {
             case .ether: return transaction.value
             case .token: return 0
-            case .ERC875Token: return 0
+            case .stormBird: return 0
             }
         }()
         let address: Address? = {
             switch transaction.transferType {
             case .ether: return transaction.to
             case .token(let token): return token.address
-            case .ERC875Token(let token): return token.address
+            case .stormBird(let token): return token.address
             }
         }()
         let signTransaction = SignTransaction(

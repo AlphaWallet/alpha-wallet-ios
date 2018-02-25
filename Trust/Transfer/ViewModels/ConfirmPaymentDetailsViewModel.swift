@@ -107,7 +107,7 @@ struct ConfirmPaymentDetailsViewModel {
             return amountAttributedText(
                 string: fullFormatter.string(from: transaction.value)
             )
-        case .ERC875Token(let token):
+        case .stormBird(let token):
             return amountAttributedText(
                 string: fullFormatter.string(from: transaction.value, decimals: token.decimals)
             )

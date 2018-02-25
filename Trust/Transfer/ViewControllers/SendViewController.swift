@@ -171,7 +171,7 @@ class SendViewController: FormViewController {
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .ERC875Token(let token):
+            case .stormBird(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             }
         }()
