@@ -114,7 +114,10 @@ class TokensViewController: UIViewController {
         let storyboard = UIStoryboard(name: "Tickets", bundle: nil)
         let navigationController = storyboard.instantiateViewController(withIdentifier: "TicketsViewController") as! UINavigationController
         let ticketsViewController = navigationController.viewControllers.first as! TicketsViewController
-        ticketsViewController.viewModel = TicketsViewModel(token: token)
+        ticketsViewController.viewModel = TicketsViewModel(
+            token: token,
+            ticketHolders: TicketAdaptor.getTicketHolders(for: token)
+        )
         self.present(navigationController, animated: true, completion: nil)
     }
 }
