@@ -37,7 +37,8 @@ class OrderRequestTest : XCTestCase  {
         
         let expiry = BigInt("100000000")
 
-        let testOrder1 = Order(price: price!, start: 1000, count: 3, expiryBuffer: expiry!, contractAddress: "007bee82bdd9e866b2bd114780a47f2261c684e3")
+        let testOrder1 = Order(price: price!, indices: indices,
+                expiryBuffer: expiry!, contractAddress: "007bee82bdd9e866b2bd114780a47f2261c684e3")
         testOrdersList.append(testOrder1)
         
         let signOrders = SignOrders()

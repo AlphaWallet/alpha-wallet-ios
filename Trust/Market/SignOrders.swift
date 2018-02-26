@@ -1,11 +1,11 @@
 import BigInt
 import TrustKeystore
+//TODO not sure why errors keep coming without this
 import Trust
 
 public struct Order {
     var price: BigInt
-    var start: UInt16
-    var count: Int
+    var indices: [UInt16]
     var expiryBuffer: BigInt
     var contractAddress: String
 }
@@ -39,19 +39,14 @@ public class SignOrders {
     private let keyStore = try! EtherKeystore()
 
     //takes a list of orders and returns a list of signature objects
-    func signOrders(orders : Array<Order>, account : Account) -> Array<SignedOrder> {
+    func signOrders(orders : [Order], account : Account) -> Array<SignedOrder> {
 
-        var signedOrders : Array<SignedOrder> = Array<SignedOrder>()
+        var signedOrders = [SignedOrder]()
 
         for i in 0...orders.count - 1 {
             let message : [UInt8] =
-            encodeMessageForTrade(
-                    price: orders[i].price,
-                    expiryBuffer: orders[i].expiryBuffer,
-                    start: orders[i].start,
-                    count: orders[i].count,
-                    contractAddress : orders[i].contractAddress
-            )
+            encodeMessageForTrade(price: orders[i].price, expiryBuffer: orders[i].expiryBuffer,
+                    tickets: orders[i].indices, contractAddress: orders[i].contractAddress)
 
             let signature = try! keyStore.signMessageData(Data(bytes: message), for: account)
             let signedOrder : SignedOrder = try! SignedOrder(order : orders[i], message: message,
@@ -61,15 +56,14 @@ public class SignOrders {
         return signedOrders
     }
 
-    //Start is the solidity array index here
-    //but is not in the put request, put request is ticket id and is a BigInt
-    func encodeMessageForTrade(price: BigInt, expiryBuffer: BigInt, start: UInt16,
-                               count: Int, contractAddress: String) -> [UInt8] {
+    func encodeMessageForTrade(price : BigInt, expiryBuffer : BigInt,
+                               tickets : [UInt16], contractAddress : String) -> [UInt8]
+    {
         //ticket count * 2 because it is 16 bits not 8
-        let arrayLength: Int = 84 + count * 2
+        let arrayLength: Int = 84 + tickets.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
-
+        
         var priceInWei: [UInt8] = toByteArray(price.description)
         var expiry: [UInt8] = toByteArray(expiryBuffer.description)
 
@@ -77,7 +71,6 @@ public class SignOrders {
             //pad with zeros
             priceInWei.insert(0, at: 0)
         }
-
         for i in 0...31 {
             buffer.append(priceInWei[i])
         }
@@ -96,17 +89,10 @@ public class SignOrders {
             buffer.append(contractAddr[i])
         }
 
-        var indices : [UInt16] = [UInt16]()
+        var ticketsUint8 = uInt16ArrayToUInt8(arrayOfUInt16: tickets)
 
-        for i in 0...count {
-            let ticket : UInt16 = start + UInt16(i);
-            indices.append(ticket)
-        }
-
-        var uint8Indices = uInt16ArrayToUInt8(arrayOfUInt16: indices)
-
-        for i in 0...count {
-            buffer.append(uint8Indices[i])
+        for i in 0...ticketsUint8.count - 1 {
+            buffer.append(ticketsUint8[i])
         }
 
         return buffer

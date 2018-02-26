@@ -32,9 +32,9 @@ public class OrdersRequest {
     public func putOrderToServer(signedOrders : [SignedOrder], publicKey: String,
                                  callback: @escaping (_ result: Any) -> Void)
     {
+        //TODO get encoding for count and start
         let query : String = baseURL + "public-key/" + publicKey + "?start=" +
-                signedOrders[0].order.start.description + ";count="
-        + signedOrders[0].order.count.description
+                "102001" + ";count=3"
         var data: [UInt8] = signedOrders[0].message
 
         for i in 0...signedOrders.count - 1 {
