@@ -34,7 +34,7 @@ public class OrdersRequest {
     {
         //TODO get encoding for count and start
         let query : String = baseURL + "public-key/" + publicKey + "?start=" +
-                "102001" + ";count=3"
+                signedOrders[0].order.start.description + ";count=" + signedOrders[0].order.count.description
         var data: [UInt8] = signedOrders[0].message
 
         for i in 0...signedOrders.count - 1 {
