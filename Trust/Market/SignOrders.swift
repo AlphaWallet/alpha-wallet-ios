@@ -4,12 +4,12 @@ import TrustKeystore
 import Trust
 
 public struct Order {
-    var price: [UInt8]
+    var price: BigUInt
     var indices: [UInt16]
-    var expiry: [UInt8]
+    var expiry: BigUInt
     var contractAddress: String
     //for mapping to server
-    var start : BigInt
+    var start : BigUInt
     var count : Int
 }
 
@@ -59,7 +59,7 @@ public class SignOrders {
         return signedOrders
     }
 
-    func encodeMessageForTrade(price : [UInt8], expiryBuffer : [UInt8],
+    func encodeMessageForTrade(price : BigUInt, expiryBuffer : BigUInt,
                                tickets : [UInt16], contractAddress : String) -> [UInt8]
     {
         //ticket count * 2 because it is 16 bits not 8
@@ -67,8 +67,9 @@ public class SignOrders {
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
 
-        var priceInWei = price
-        var expiry = expiryBuffer
+        //TODO check up on this
+        var priceInWei = Array(price.serialize())
+        var expiry = Array(expiryBuffer.serialize())
 
         for _ in 0...31 - priceInWei.count {
             //pad with zeros
