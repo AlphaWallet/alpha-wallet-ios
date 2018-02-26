@@ -4,6 +4,8 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>AlphaWallet</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.1.145</string>
+	<string>0.1</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -99,8 +101,6 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>com.apple.security.get-task-allow</key>
-	<true/>
 	<key>branch_key</key>
 	<dict>
 		<key>live</key>
@@ -108,5 +108,7 @@
 		<key>test</key>
 		<string>key_test_odFMiPaHXUB4zNECuK28kdboCqgkAF3K</string>
 	</dict>
+	<key>com.apple.security.get-task-allow</key>
+	<true/>
 </dict>
 </plist>
