@@ -4,10 +4,13 @@ import TrustKeystore
 import Trust
 
 public struct Order {
-    var price: BigInt
+    var price: [UInt8]
     var indices: [UInt16]
-    var expiryBuffer: BigInt
+    var expiry: [UInt8]
     var contractAddress: String
+    //for mapping to server
+    var start : BigInt
+    var count : Int
 }
 
 public struct SignedOrder {
@@ -45,7 +48,7 @@ public class SignOrders {
 
         for i in 0...orders.count - 1 {
             let message : [UInt8] =
-            encodeMessageForTrade(price: orders[i].price, expiryBuffer: orders[i].expiryBuffer,
+            encodeMessageForTrade(price: orders[i].price, expiryBuffer: orders[i].expiry,
                     tickets: orders[i].indices, contractAddress: orders[i].contractAddress)
 
             let signature = try! keyStore.signMessageData(Data(bytes: message), for: account)
@@ -56,16 +59,16 @@ public class SignOrders {
         return signedOrders
     }
 
-    func encodeMessageForTrade(price : BigInt, expiryBuffer : BigInt,
+    func encodeMessageForTrade(price : [UInt8], expiryBuffer : [UInt8],
                                tickets : [UInt16], contractAddress : String) -> [UInt8]
     {
         //ticket count * 2 because it is 16 bits not 8
         let arrayLength: Int = 84 + tickets.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
-        
-        var priceInWei: [UInt8] = toByteArray(price.description)
-        var expiry: [UInt8] = toByteArray(expiryBuffer.description)
+
+        var priceInWei = price
+        var expiry = expiryBuffer
 
         for _ in 0...31 - priceInWei.count {
             //pad with zeros
@@ -106,15 +109,6 @@ public class SignOrders {
             arrayOfUint8.append(UInt8ArrayPair[1])
         }
         return arrayOfUint8
-    }
-
-    func toByteArray<T>(_ value: T) -> [UInt8] {
-        var value = value
-        return withUnsafePointer(to: &value) {
-            $0.withMemoryRebound(to: UInt8.self, capacity: MemoryLayout<T>.size) {
-                Array(UnsafeBufferPointer(start: $0, count: MemoryLayout<T>.size))
-            }
-        }
     }
 
 }
