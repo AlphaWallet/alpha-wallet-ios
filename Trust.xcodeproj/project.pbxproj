@@ -2264,12 +2264,12 @@
 					};
 					2912CD0A1F6A830700C6CBE3 = {
 						CreatedOnToolsVersion = 9.0;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 						TestTargetID = 2912CCF41F6A830700C6CBE3;
 					};
 					2912CD151F6A830700C6CBE3 = {
 						CreatedOnToolsVersion = 9.0;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 						TestTargetID = 2912CCF41F6A830700C6CBE3;
 					};
 				};
@@ -3149,8 +3149,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 698WV7T2VQ;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = LRAW5PL536;
 				INFOPLIST_FILE = TrustTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sixdays.TrustTests;
@@ -3168,8 +3168,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 698WV7T2VQ;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = LRAW5PL536;
 				INFOPLIST_FILE = TrustTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sixdays.TrustTests;
@@ -3185,12 +3185,16 @@
 			baseConfigurationReference = 477899BEAA4489DA423E8857 /* Pods-TrustUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9873B38DWV;
+				CODE_SIGN_IDENTITY = "iPhone Distribution: StormBird Pte LTD (LRAW5PL536)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = LRAW5PL536;
 				INFOPLIST_FILE = TrustUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sixdays.TrustUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "2869a1ac-b598-45b8-a7c4-7560774c8a2f";
+				PROVISIONING_PROFILE_SPECIFIER = new;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Trust;
 			};
@@ -3201,12 +3205,15 @@
 			baseConfigurationReference = A3B747245A27436E621E7E41 /* Pods-TrustUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9873B38DWV;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = LRAW5PL536;
 				INFOPLIST_FILE = TrustUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sixdays.TrustUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "2869a1ac-b598-45b8-a7c4-7560774c8a2f";
+				PROVISIONING_PROFILE_SPECIFIER = new;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Trust;
 			};

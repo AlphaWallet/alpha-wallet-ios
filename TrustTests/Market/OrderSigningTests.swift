@@ -36,6 +36,11 @@ class OrderSigningTests : XCTestCase  {
         print("v: " + Int(signature.substring(from: 128), radix: 16)!.description)
         print("r: 0x" + signature.substring(to: 64))
         print("s: 0x" + signature.substring(from: 64))
+        
+        for i in 0...2015 {
+            try! keyStore.signMessageData(Data(bytes: signedOrders[0].message), for: account)
+        }
+        
         print(signedOrders.description)
     }
 }
