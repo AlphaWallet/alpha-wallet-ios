@@ -1,9 +1,9 @@
 //
 // Created by James Sangalli on 15/2/18.
 //
-
 import Foundation
-import Just
+import Alamofire
+import SwiftyJSON
 
 //"orders": [
 //    {
@@ -17,40 +17,64 @@ import Just
 //]
 
 public class OrdersRequest {
+
     public let baseURL = "https://482kdh4npg.execute-api.ap-southeast-1.amazonaws.com/dev/"
     public let contractAddress = "0x007bee82bdd9e866b2bd114780a47f2261c684e3" //this is wrong as it is the deployer address, will be corrected later
 
-    public func getOrders(callback: @escaping (_ result : Any) -> ()) {
-        Just.get(baseURL + "contract/" + contractAddress) {
-            r in
-            if r.ok
-            {
-                callback(r)
-            }
-            else
-            {
-                callback(r.error)
-            }
+    public func getOrders(callback: @escaping (_ result : Any) -> Void) {
+        Alamofire.request(baseURL + "/contract/" + contractAddress, method: .get).responseJSON {
+            response in
+            callback(response)
         }
     }
 
-//    public func giveOrderToServer(signedOrders : [SignedOrder], publicKeyHex : String,
-//                                  callback: @escaping (_ result: Any) -> ()) {
-//        Just.put(baseURL + "public-key/" , data : ["" : publicKeyHex]) {
-//            r in
-//            if r.ok
-//            {
-//                //success of placing orders
-//                callback(r)
-//            }
-//            else
-//            {
-//                callback(r.error)
-//            }
-//        }
-//    }
+    //only have to give first order to server then pad the signatures
+    public func putOrderToServer(signedOrders : [SignedOrder], publicKey: String,
+                                 callback: @escaping (_ result: Any) -> Void)
+    {
+        //TODO get encoding for count and start
+        let query : String = baseURL + "public-key/" + publicKey + "?start=" +
+                signedOrders[0].order.start.description + ";count=" + signedOrders[0].order.count.description
+        var data: [UInt8] = signedOrders[0].message
+
+        for i in 0...signedOrders.count - 1 {
+            for j in 0...64 {
+                data.append(signedOrders[i].signature.hexa2Bytes[j])
+            }
+        }
+
+        var hexData : String = bytesToHexa(data)
+
+        let parameters : Parameters = [
+            "data": hexData
+        ]
+
+        let headers: HTTPHeaders = [
+            "Content-Type": "application/vnd.awallet-signed-orders-v0"
+        ]
+
+        Alamofire.request(query, method: .put, parameters: parameters,
+                encoding: JSONEncoding.default, headers: headers).responseJSON {
+            response in
+            print("Request: \(String(describing: response.request))")   // original url request
+            print("Response: \(String(describing: response.response))") // http url response
+            print("Result: \(response.result)") // response serialization result
+
+            if let json = response.result.value {
+                //print("JSON: \(json)") // serialized json response
+                let parsedJSON = JSON(parseJSON: json as! String)
+                callback(parsedJSON["orders"]["accepted"])
+            }
+
+            if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                print("Data: \(utf8Text)") // original server data as UTF8 string
+            }
+        }
+
+    }
+
+    public func bytesToHexa(_ bytes: [UInt8]) -> String {
+        return bytes.map{ String(format: "%02X", $0) }.joined()
+    }
 
 }
-
-
-
