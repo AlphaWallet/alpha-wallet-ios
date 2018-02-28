@@ -19,7 +19,7 @@ class TicketAdaptor {
             if id == 0 { // if balance is 0, then skip
                 continue
             }
-            let ticket = getTicket(for: id, index: index)
+            let ticket = getTicket(for: id, index: UInt16(index))
             if let item = ticketHolders.filter({ $0.zone == ticket.zone && $0.date == ticket.date }).first {
                 item.tickets.append(ticket)
             } else {
@@ -30,7 +30,7 @@ class TicketAdaptor {
         return ticketHolders
     }
 
-    private class func getTicket(for id: Int16, index: Int) -> Ticket {
+    private class func getTicket(for id: Int16, index: UInt16) -> Ticket {
         let zone = TicketDecode.getZone(Int(id))
         let name = TicketDecode.getName()
         let venue = TicketDecode.getVenue(Int(id))
