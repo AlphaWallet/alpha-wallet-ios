@@ -33,7 +33,8 @@ struct TokenViewCellViewModel {
 
     var amount: String {
         if self.isStormBird {
-            return self.token.balance.count.toString() + " tickets"
+            let actualBalance = self.token.balance.filter { $0.balance != 0 }
+            return actualBalance.count.toString() + " tickets"
         }
         return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
     }
