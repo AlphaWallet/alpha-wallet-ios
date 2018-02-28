@@ -109,17 +109,6 @@ class TokensViewController: UIViewController {
     @objc func missingToken() {
         delegate?.didPressAddToken(in: self)
     }
-    
-    private func showTicketViewController(for token: TokenObject) {
-        let storyboard = UIStoryboard(name: "Tickets", bundle: nil)
-        let navigationController = storyboard.instantiateViewController(withIdentifier: "TicketsViewController") as! UINavigationController
-        let ticketsViewController = navigationController.viewControllers.first as! TicketsViewController
-        ticketsViewController.viewModel = TicketsViewModel(
-            token: token,
-            ticketHolders: TicketAdaptor.getTicketHolders(for: token)
-        )
-        self.present(navigationController, animated: true, completion: nil)
-    }
 }
 
 extension TokensViewController: StatefulViewController {
@@ -131,14 +120,8 @@ extension TokensViewController: StatefulViewController {
 extension TokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
-        // TODO: Testing purposes. Clean up!
-        if token.isStormBird {
-            showTicketViewController(for: token)
-        } else {
-            delegate?.didSelect(token: token, in: self)
-        }
+        delegate?.didSelect(token: token, in: self)
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
