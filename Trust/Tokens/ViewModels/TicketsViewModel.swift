@@ -42,7 +42,11 @@ struct TicketsViewModel {
         }
         return 90
     }
-    
+
+    func ticketCellPressed(for indexPath: IndexPath) -> Bool {
+        return indexPath.section == 1
+    }
+
     private func summaryCell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "StormBirdTokenSummaryTableViewCell", for: indexPath) as! StormBirdTokenSummaryTableViewCell
         cell.configure(for: token)
