@@ -13,7 +13,7 @@ protocol NewTokenViewControllerDelegate: class {
 class NewTokenViewController: FormViewController {
 
     let viewModel = NewTokenViewModel()
-    var isERC875Token: Bool = false
+    var isStormBirdToken: Bool = false
 
     private struct Values {
         static let contract = "contract"
@@ -79,7 +79,7 @@ class NewTokenViewController: FormViewController {
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.decimals) {
                 $0.add(rule: RuleClosure<String> { rowValue in
-                    return (rowValue == nil || rowValue!.isEmpty) && !self.isERC875Token ? ValidationError(msg: "Field required!") : nil
+                    return (rowValue == nil || rowValue!.isEmpty) && !self.isStormBirdToken ? ValidationError(msg: "Field required!") : nil
                 })
                 $0.validationOptions = .validatesOnDemand
                 $0.title = NSLocalizedString("Decimals", value: "Decimals", comment: "")
@@ -88,7 +88,7 @@ class NewTokenViewController: FormViewController {
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.balance) {
                 $0.add(rule: RuleClosure<String> { rowValue in
-                    return (rowValue == nil || rowValue!.isEmpty) && self.isERC875Token ? ValidationError(msg: "Field required!") : nil
+                    return (rowValue == nil || rowValue!.isEmpty) && self.isStormBirdToken ? ValidationError(msg: "Field required!") : nil
                 })
                 $0.validationOptions = .validatesOnDemand
                 $0.title = NSLocalizedString("Balance", value: "Balance", comment: "")
@@ -98,7 +98,7 @@ class NewTokenViewController: FormViewController {
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(addToken))
     }
-    
+
     public func updateSymbolValue(_ symbol: String) {
         symbolRow?.value = symbol
         symbolRow?.reload()
@@ -119,9 +119,9 @@ class NewTokenViewController: FormViewController {
         balanceRow?.reload()
     }
 
-    public func updateFormForERC875Token(_ isERC875Token: Bool) {
-        self.isERC875Token = isERC875Token
-        if isERC875Token {
+    public func updateFormForStormBirdToken(_ isStormBirdToken: Bool) {
+        self.isStormBirdToken = isStormBirdToken
+        if isStormBirdToken {
             decimalsRow?.hidden = true
             balanceRow?.hidden = false
         } else {
@@ -144,7 +144,7 @@ class NewTokenViewController: FormViewController {
         let name = nameRow?.value ?? ""
         let symbol = symbolRow?.value ?? ""
         let decimals = Int(decimalsRow?.value ?? "") ?? 0
-        let isStormBird = self.isERC875Token
+        let isStormBird = self.isStormBirdToken
         let balance: [Int16] = getBalanceFromUI()
 
         guard let address = Address(string: contract) else {
@@ -194,7 +194,7 @@ class NewTokenViewController: FormViewController {
         if let balance = balanceRow?.value {
             return balance.split(separator: ",").map({ Int16($0)! })
         }
-        return[]
+        return []
     }
 }
 
