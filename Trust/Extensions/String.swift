@@ -65,6 +65,14 @@ extension String {
         return (self.toInt()?.toBool())!
     }
 
+    func isNumeric() -> Bool {
+        let numberCharacters = CharacterSet.decimalDigits.inverted
+        return !self.isEmpty && self.rangeOfCharacter(from: numberCharacters) == nil
+    }
+
+    func isNotNumeric() -> Bool {
+        return !isNumeric()
+    }
 
 }
 
