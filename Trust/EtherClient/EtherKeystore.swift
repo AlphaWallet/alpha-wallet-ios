@@ -323,6 +323,24 @@ open class EtherKeystore: Keystore {
             return .failure(KeystoreError.failedToSignMessage)
         }
     }
+    
+    func signMessage(_ data: [Data], for account: Account) -> Result<[Data], KeystoreError> {
+        guard
+            let password = getPassword(for: account) else {
+                return .failure(KeystoreError.failedToSignMessage)
+        }
+        do {
+            var data = try keyStore.signBatch(data, account: account, password: password)
+            // TODO: Make it configurable, instead of overriding last byte.
+            for i in 0...data.count - 1 {
+                var element = data[i]
+                element[64] += 27
+            }
+            return .success(data)
+        } catch {
+            return .failure(KeystoreError.failedToSignMessage)
+        }
+    }
 
     public func signMessageData(_ message: Data?, for account: Account) -> Result<Data, KeystoreError> {
         guard

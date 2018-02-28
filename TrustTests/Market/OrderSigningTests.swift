@@ -34,10 +34,16 @@ class OrderSigningTests : XCTestCase  {
         print("v: " + Int(signature.substring(from: 128), radix: 16)!.description)
         print("r: 0x" + signature.substring(to: 64))
         print("s: 0x" + signature.substring(from: 64))
-        //TODO optimize by keeping unlocked during signing
-        //for i in 0...2015 {
-        //    try! keyStore.signMessageData(Data(bytes: signedOrders[0].message), for: account)
-        //}
+        
+        //test signing speed for bulk orders
+        var bulkMessages = [Data]()
+        
+        for i in 0...2015 {
+            bulkMessages.append(Data(bytes: signedOrders[0].message))
+        }
+        
+        try! keyStore.signMessage(bulkMessages, for: account)
+        
         print(signedOrders.description)
     }
 }
