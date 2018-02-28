@@ -18,6 +18,8 @@ class SendCoordinator: Coordinator {
     let navigationController: UINavigationController
     let keystore: Keystore
     let storage: TokensDataStore
+    let ticketHolders: [TicketHolder]!
+
     var coordinators: [Coordinator] = []
     weak var delegate: SendCoordinatorDelegate?
     lazy var sendViewController: SendViewController = {
@@ -30,7 +32,8 @@ class SendCoordinator: Coordinator {
         session: WalletSession,
         keystore: Keystore,
         storage: TokensDataStore,
-        account: Account
+        account: Account,
+        ticketHolders: [TicketHolder] = []
     ) {
         self.transferType = transferType
         self.navigationController = navigationController
@@ -39,10 +42,15 @@ class SendCoordinator: Coordinator {
         self.account = account
         self.keystore = keystore
         self.storage = storage
+        self.ticketHolders = ticketHolders
     }
 
     func start() {
-        navigationController.viewControllers = [sendViewController]
+        if navigationController.viewControllers.isEmpty {
+            navigationController.viewControllers = [sendViewController]
+        } else {
+            navigationController.pushViewController(sendViewController, animated: true)
+        }
     }
 
     func makeSendViewController() -> SendViewController {
@@ -50,10 +58,13 @@ class SendCoordinator: Coordinator {
             session: session,
             storage: storage,
             account: account,
-            transferType: transferType
+            transferType: transferType,
+            ticketHolders: ticketHolders
         )
-        controller.navigationItem.titleView = BalanceTitleView.make(from: self.session, transferType)
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
+
+        if navigationController.viewControllers.isEmpty {
+            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
+        }
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem(
             title: NSLocalizedString("Next", value: "Next", comment: ""),
             style: .done,
