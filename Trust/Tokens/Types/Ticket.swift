@@ -11,7 +11,7 @@ import BigInt
 
 struct Ticket {
     let id: Int16
-    let index: Int
+    let index: UInt16
     let zone: String
     let name: String
     let venue: String
