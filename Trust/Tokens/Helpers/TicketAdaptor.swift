@@ -15,7 +15,7 @@ class TicketAdaptor {
         var ticketHolders: [TicketHolder] = []
         let balance = token.balance
         for (index, item) in balance.enumerated() {
-            let id = item.balance
+            let id = UInt16(item.balance)
             if id == 0 { // if balance is 0, then skip
                 continue
             }
@@ -30,7 +30,7 @@ class TicketAdaptor {
         return ticketHolders
     }
 
-    private class func getTicket(for id: Int16, index: UInt16) -> Ticket {
+    private class func getTicket(for id: UInt16, index: UInt16) -> Ticket {
         let zone = TicketDecode.getZone(Int(id))
         let name = TicketDecode.getName()
         let venue = TicketDecode.getVenue(Int(id))

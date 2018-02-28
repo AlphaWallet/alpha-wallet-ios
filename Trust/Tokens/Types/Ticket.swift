@@ -10,7 +10,7 @@ import Foundation
 import BigInt
 
 struct Ticket {
-    let id: Int16
+    let id: UInt16
     let index: UInt16
     let zone: String
     let name: String
