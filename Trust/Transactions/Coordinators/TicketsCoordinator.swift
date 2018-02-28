@@ -116,7 +116,7 @@ extension TicketsCoordinator: TicketsViewControllerDelegate {
 
 extension TicketsCoordinator: PaymentCoordinatorDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator) {
-
+        dismiss()
     }
 
     func didCancel(in coordinator: PaymentCoordinator) {
