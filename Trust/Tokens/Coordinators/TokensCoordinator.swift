@@ -5,7 +5,7 @@ import UIKit
 
 protocol TokensCoordinatorDelegate: class {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
-    func didPressStormBird(for token: TokenObject, in coordinator: TokensCoordinator)
+    func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator)
 }
 
 class TokensCoordinator: Coordinator {
@@ -96,7 +96,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         case .token:
             delegate?.didPress(for: .send(type: .token(token)), in: self)
         case .stormBird:
-            delegate?.didPressStormBird(for: token, in: self)
+            delegate?.didPressStormBird(for: .send(type: .stormBird(token)), token: token, in: self)
         }
     }
 
