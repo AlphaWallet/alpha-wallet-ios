@@ -118,14 +118,6 @@ class InCoordinator: Coordinator {
         transactionCoordinator.start()
         addCoordinator(transactionCoordinator)
 
-        let ticketsCoordinator = TicketsCoordinator(
-                session: session,
-                storage: transactionsStorage,
-                keystore: keystore,
-                tokensStorage: tokensStorage
-        )
-        addCoordinator(ticketsCoordinator)
-
         let tabBarController = TabBarController()
         tabBarController.viewControllers = [
             transactionCoordinator.navigationController,
@@ -252,35 +244,51 @@ class InCoordinator: Coordinator {
             navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
         }
     }
-
-    func showTicketList(for type: PaymentFlow, token: TokenObject) {
-        guard let ticketsCoordinator = ticketsCoordinator else {
+    // TODO: Fix this
+    func showPaymentFlow(for paymentFlow: PaymentFlow, ticketHolders: [TicketHolder] = [], in ticketsCoordinator: TicketsCoordinator) {
+        guard let transactionCoordinator = transactionCoordinator else {
             return
         }
+        let session = transactionCoordinator.session
+        let tokenStorage = transactionCoordinator.tokensStorage
+
+        switch (paymentFlow, session.account.type) {
+        case (.send, .real), (.request, _):
+            let coordinator = PaymentCoordinator(
+                navigationController: ticketsCoordinator.navigationController,
+                flow: paymentFlow,
+                session: session,
+                keystore: keystore,
+                storage: tokenStorage,
+                ticketHolders: ticketHolders
+            )
+            coordinator.delegate = self
+            coordinator.start()
+            addCoordinator(coordinator)
+        case (_, _):
+            navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
+        }
+    }
+
+    func showTicketList(for type: PaymentFlow, token: TokenObject) {
+        guard let transactionCoordinator = transactionCoordinator else {
+            return
+        }
+
+        let session = transactionCoordinator.session
+        let tokenStorage = transactionCoordinator.tokensStorage
+
+        let ticketsCoordinator = TicketsCoordinator(
+            session: session,
+            keystore: keystore,
+            tokensStorage: tokenStorage
+        )
+        addCoordinator(ticketsCoordinator)
         ticketsCoordinator.token = token
         ticketsCoordinator.type = type
+        ticketsCoordinator.delegate = self
         ticketsCoordinator.start()
-//        let session = ticketsCoordinator.session
-//        let tokenStorage = ticketsCoordinator.tokensStorage
-
         navigationController.present(ticketsCoordinator.navigationController, animated: true, completion: nil)
-
-
-//        switch (type, session.account.type) {
-//        case (.send, .real), (.request, _):
-//            let coordinator = PaymentCoordinator(
-//                flow: type,
-//                session: session,
-//                keystore: keystore,
-//                storage: tokenStorage
-//            )
-//            coordinator.delegate = self
-//            navigationController.present(coordinator.navigationController, animated: true, completion: nil)
-//            coordinator.start()
-//            addCoordinator(coordinator)
-//        case (_, _):
-//            navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
-//        }
     }
 
     private func handlePendingTransaction(transaction: SentTransaction) {
@@ -303,6 +311,16 @@ class InCoordinator: Coordinator {
         alertController.addAction(copyAction)
         alertController.addAction(UIAlertAction(title: NSLocalizedString("OK", value: "OK", comment: ""), style: UIAlertActionStyle.default, handler: nil))
         navigationController.present(alertController, animated: true, completion: nil)
+    }
+}
+
+extension InCoordinator: TicketsCoordinatorDelegate {
+    func didPress(for type: PaymentFlow, ticketHolders: [TicketHolder], in coordinator: TicketsCoordinator) {
+        showPaymentFlow(for: type, ticketHolders: ticketHolders, in: coordinator)
+    }
+
+    func didCancel(in coordinator: TicketsCoordinator) {
+        removeCoordinator(coordinator)
     }
 }
 
