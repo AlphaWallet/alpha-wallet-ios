@@ -14,7 +14,7 @@ class TokenObject: Object {
     @objc dynamic var isCustom: Bool = false
     @objc dynamic var isDisabled: Bool = false
     @objc dynamic var isStormBird: Bool = false
-    let balance = List<TokenBalance>()
+    var balance = List<TokenBalance>()
 
     convenience init(
         contract: String = "",
