@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-               BuildableName = "Trust.app"
-               BlueprintName = "Trust"
+               BuildableName = "AlphaWallet.app"
+               BlueprintName = "AlphaWallet"
                ReferencedContainer = "container:Trust.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -49,8 +49,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-            BuildableName = "Trust.app"
-            BlueprintName = "Trust"
+            BuildableName = "AlphaWallet.app"
+            BlueprintName = "AlphaWallet"
             ReferencedContainer = "container:Trust.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
