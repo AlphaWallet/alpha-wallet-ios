@@ -159,7 +159,7 @@ class NewTokenViewController: FormViewController {
             isStormBird: isStormBird,
             balance: balance
         )
-        
+
         delegate?.didAddToken(token: erc20Token, in: self)
     }
 
@@ -189,7 +189,7 @@ class NewTokenViewController: FormViewController {
 
         delegate?.didAddAddress(address: value, in: self)
     }
-    
+
     private func getBalanceFromUI() -> [Int16] {
         if let balance = balanceRow?.value {
             return balance.split(separator: ",").map({ Int16($0)! })
