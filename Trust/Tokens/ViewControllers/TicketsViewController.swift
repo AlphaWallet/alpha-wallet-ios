@@ -15,7 +15,8 @@ import TrustKeystore
 protocol TicketsViewControllerDelegate: class {
     func didPressRedeem(token: TokenObject, in viewController: UIViewController)
     func didPressSell(token: TokenObject, in viewController: UIViewController)
-    func didPressTransfer(ticketHolder: TicketHolder?, token: TokenObject, in viewController: UIViewController)
+    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: UIViewController)
+    func didCancel(in viewController: UIViewController)
 }
 
 class TicketsViewController: UIViewController {
@@ -23,7 +24,6 @@ class TicketsViewController: UIViewController {
     var viewModel: TicketsViewModel!
     var tokensStorage: TokensDataStore!
     var account: Wallet!
-    var dataCoordinator: TransactionDataCoordinator!
     var session: WalletSession!
     weak var delegate: TicketsViewControllerDelegate?
 
@@ -33,7 +33,7 @@ class TicketsViewController: UIViewController {
     }
 
     @IBAction func didTapDoneButton(_ sender: UIBarButtonItem) {
-        dismiss(animated: true, completion: nil)
+        delegate?.didCancel(in: self)
     }
 
     @IBAction func didPressRedeem(_ sender: UIButton) {
@@ -45,7 +45,9 @@ class TicketsViewController: UIViewController {
     }
 
     @IBAction func didPressTransfer(_ sender: UIButton) {
-        delegate?.didPressTransfer(ticketHolder: nil, token: viewModel.token, in: self)
+        delegate?.didPressTransfer(for: .send(type: .stormBird(viewModel.token)),
+                                   ticketHolders: viewModel.ticketHolders!,
+                                   in: self)
     }
 }
 
@@ -69,7 +71,9 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if viewModel.ticketCellPressed(for: indexPath) {
             let ticketHolder = viewModel.item(for: indexPath)
-            delegate?.didPressTransfer(ticketHolder: ticketHolder, token: viewModel.token, in: self)
+            delegate?.didPressTransfer(for: .send(type: .stormBird(viewModel.token)),
+                                       ticketHolders: [ticketHolder],
+                                       in: self)
             tableView.deselectRow(at: indexPath, animated: true)
         }
     }
