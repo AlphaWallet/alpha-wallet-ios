@@ -25,7 +25,7 @@ target 'Trust' do
   pod 'Fabric'
   pod 'Crashlytics'
   pod 'Kingfisher', '~> 4.0'
-  pod 'TrustKeystore', :git=>'https://github.com/TrustWallet/trust-keystore', :branch=>'master'
+  pod 'TrustKeystore', :git=>'https://github.com/alpha-wallet/trust-keystore-snapshot', :branch=>'master'
   pod 'Branch'
   pod 'SwiftyJSON'
   # pod 'web3swift', :git=>'https://github.com/BANKEX/web3swift', :branch=>'master'
