@@ -31,7 +31,7 @@ extension UIAlertController {
         return alertController
     }
 
-    static func alert(_ title: String,
+    static func alert(title: String,
                       message: String,
                       alertButtonTitles: [String],
                       alertButtonStyles: [UIAlertActionStyle],
