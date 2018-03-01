@@ -122,7 +122,6 @@ class TokensDataStore {
         refreshBalance()
     }
 
-    // TODO: Clean this up
     func getContractName(for addressString: String,
                          completion: @escaping (Result<String, AnyError>) -> Void) {
         let address = Address(string: addressString)
@@ -146,16 +145,16 @@ class TokensDataStore {
         }
     }
 
-    func getContractBalance(for addressString: String,
-                            completion: @escaping (Result<[UInt16], AnyError>) -> Void) {
+    func getStormBirdBalance(for addressString: String,
+                             completion: @escaping (Result<[UInt16], AnyError>) -> Void) {
         let address = Address(string: addressString)
         getStormBirdBalanceCoordinator.getBalance(for: account.address, contract: address!) { result in
             completion(result)
         }
     }
 
-    func getIsECR875(for addressString: String,
-                     completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    func getIsStormBird(for addressString: String,
+                        completion: @escaping (Result<Bool, AnyError>) -> Void) {
         let address = Address(string: addressString)
         getIsStormBirdCoordinator.getIsStormBirdContract(for: address!) { result in
             completion(result)
@@ -171,17 +170,28 @@ class TokensDataStore {
         let updateTokens = enabledObject.filter { $0 != etherToken }
         var count = 0
         for tokenObject in updateTokens {
-            guard let contract = Address(string: tokenObject.contract) else { return }
-            getBalanceCoordinator.getBalance(for: account.address, contract: contract) { [weak self] result in
-                guard let `self` = self else { return }
-                switch result {
-                case .success(let balance):
-                    self.update(token: tokenObject, action: .value(balance))
-                case .failure: break
-                }
-                count += 1
-                if count == updateTokens.count {
-                    self.refreshETHBalance()
+            if tokenObject.isStormBird {
+                getStormBirdBalance(for: tokenObject.contract, completion: { result in
+                    switch result {
+                    case .success(let balance):
+                        self.update(token: tokenObject, action: .stormBirdBalance(balance))
+                    case .failure: break
+                    }
+
+                })
+            } else {
+                guard let contract = Address(string: tokenObject.contract) else { return }
+                getBalanceCoordinator.getBalance(for: account.address, contract: contract) { [weak self] result in
+                    guard let `self` = self else { return }
+                    switch result {
+                    case .success(let balance):
+                        self.update(token: tokenObject, action: .value(balance))
+                    case .failure: break
+                    }
+                    count += 1
+                    if count == updateTokens.count {
+                        self.refreshETHBalance()
+                    }
                 }
             }
         }
@@ -227,7 +237,7 @@ class TokensDataStore {
         }
         add(tokens: [newToken])
     }
-    
+
     func updatePrices() {
         let tokens = objects.map { TokenPrice(contract: $0.contract, symbol: $0.symbol) }
         let tokensPrice = TokensPrice(
@@ -272,6 +282,7 @@ class TokensDataStore {
     enum TokenUpdate {
         case value(BigInt)
         case isDisabled(Bool)
+        case stormBirdBalance([UInt16])
     }
 
     func update(token: TokenObject, action: TokenUpdate) {
@@ -281,6 +292,9 @@ class TokensDataStore {
                 token.value = value.description
             case .isDisabled(let value):
                 token.isDisabled = value
+            case .stormBirdBalance(let balance):
+                token.balance.removeAll()
+                token.balance.append(objectsIn: balance.map { TokenBalance(balance: Int16($0)) })
             }
         }
     }
