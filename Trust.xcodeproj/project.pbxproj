@@ -409,13 +409,13 @@
 		290B2B6B1F92C35B0053C83E /* RPCServerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCServerTests.swift; sourceTree = "<group>"; };
 		290B2B6D1F92C3980053C83E /* UserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaults.swift; sourceTree = "<group>"; };
 		290B2B6F1F930AB90053C83E /* PushNotificationsRegistrar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsRegistrar.swift; sourceTree = "<group>"; };
-		2912CCF51F6A830700C6CBE3 /* Trust.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trust.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlphaWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2912CCF81F6A830700C6CBE3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2912CD011F6A830700C6CBE3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2912CD061F6A830700C6CBE3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2912CD0B1F6A830700C6CBE3 /* TrustTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrustTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2912CD0B1F6A830700C6CBE3 /* AlphaWalletTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AlphaWalletTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2912CD111F6A830700C6CBE3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2912CD161F6A830700C6CBE3 /* TrustUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrustUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2912CD161F6A830700C6CBE3 /* AlphaWalletUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AlphaWalletUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2912CD1A1F6A830700C6CBE3 /* TrustUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustUITests.swift; sourceTree = "<group>"; };
 		2912CD1C1F6A830700C6CBE3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2912CD2A1F6A833E00C6CBE3 /* TransactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsViewController.swift; sourceTree = "<group>"; };
@@ -852,9 +852,9 @@
 		2912CCF61F6A830700C6CBE3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2912CCF51F6A830700C6CBE3 /* Trust.app */,
-				2912CD0B1F6A830700C6CBE3 /* TrustTests.xctest */,
-				2912CD161F6A830700C6CBE3 /* TrustUITests.xctest */,
+				2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */,
+				2912CD0B1F6A830700C6CBE3 /* AlphaWalletTests.xctest */,
+				2912CD161F6A830700C6CBE3 /* AlphaWalletUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2219,9 +2219,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2912CCF41F6A830700C6CBE3 /* Trust */ = {
+		2912CCF41F6A830700C6CBE3 /* AlphaWallet */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2912CD1F1F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "Trust" */;
+			buildConfigurationList = 2912CD1F1F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "AlphaWallet" */;
 			buildPhases = (
 				F48CC1C9F6D4FAE6EF587C03 /* [CP] Check Pods Manifest.lock */,
 				29336FE81F6B24FF005E3BFC /* R.Swift */,
@@ -2237,14 +2237,14 @@
 			);
 			dependencies = (
 			);
-			name = Trust;
+			name = AlphaWallet;
 			productName = etherwallet;
-			productReference = 2912CCF51F6A830700C6CBE3 /* Trust.app */;
+			productReference = 2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2912CD0A1F6A830700C6CBE3 /* TrustTests */ = {
+		2912CD0A1F6A830700C6CBE3 /* AlphaWalletTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2912CD221F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "TrustTests" */;
+			buildConfigurationList = 2912CD221F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "AlphaWalletTests" */;
 			buildPhases = (
 				558B94C30BF51EDC00493AF8 /* [CP] Check Pods Manifest.lock */,
 				2912CD071F6A830700C6CBE3 /* Sources */,
@@ -2258,14 +2258,14 @@
 			dependencies = (
 				2912CD0D1F6A830700C6CBE3 /* PBXTargetDependency */,
 			);
-			name = TrustTests;
+			name = AlphaWalletTests;
 			productName = etherwalletTests;
-			productReference = 2912CD0B1F6A830700C6CBE3 /* TrustTests.xctest */;
+			productReference = 2912CD0B1F6A830700C6CBE3 /* AlphaWalletTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		2912CD151F6A830700C6CBE3 /* TrustUITests */ = {
+		2912CD151F6A830700C6CBE3 /* AlphaWalletUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2912CD251F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "TrustUITests" */;
+			buildConfigurationList = 2912CD251F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "AlphaWalletUITests" */;
 			buildPhases = (
 				EB2D49CBEF37022D8861D8E0 /* [CP] Check Pods Manifest.lock */,
 				2912CD121F6A830700C6CBE3 /* Sources */,
@@ -2279,9 +2279,9 @@
 			dependencies = (
 				2912CD181F6A830700C6CBE3 /* PBXTargetDependency */,
 			);
-			name = TrustUITests;
+			name = AlphaWalletUITests;
 			productName = etherwalletUITests;
-			productReference = 2912CD161F6A830700C6CBE3 /* TrustUITests.xctest */;
+			productReference = 2912CD161F6A830700C6CBE3 /* AlphaWalletUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -2345,9 +2345,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2912CCF41F6A830700C6CBE3 /* Trust */,
-				2912CD0A1F6A830700C6CBE3 /* TrustTests */,
-				2912CD151F6A830700C6CBE3 /* TrustUITests */,
+				2912CCF41F6A830700C6CBE3 /* AlphaWallet */,
+				2912CD0A1F6A830700C6CBE3 /* AlphaWalletTests */,
+				2912CD151F6A830700C6CBE3 /* AlphaWalletUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -3012,12 +3012,12 @@
 /* Begin PBXTargetDependency section */
 		2912CD0D1F6A830700C6CBE3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2912CCF41F6A830700C6CBE3 /* Trust */;
+			target = 2912CCF41F6A830700C6CBE3 /* AlphaWallet */;
 			targetProxy = 2912CD0C1F6A830700C6CBE3 /* PBXContainerItemProxy */;
 		};
 		2912CD181F6A830700C6CBE3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2912CCF41F6A830700C6CBE3 /* Trust */;
+			target = 2912CCF41F6A830700C6CBE3 /* AlphaWallet */;
 			targetProxy = 2912CD171F6A830700C6CBE3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -3295,7 +3295,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2912CD1F1F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "Trust" */ = {
+		2912CD1F1F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "AlphaWallet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2912CD201F6A830700C6CBE3 /* Debug */,
@@ -3304,7 +3304,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2912CD221F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "TrustTests" */ = {
+		2912CD221F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "AlphaWalletTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2912CD231F6A830700C6CBE3 /* Debug */,
@@ -3313,7 +3313,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2912CD251F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "TrustUITests" */ = {
+		2912CD251F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "AlphaWalletUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2912CD261F6A830700C6CBE3 /* Debug */,
