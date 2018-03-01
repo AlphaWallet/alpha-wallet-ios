@@ -41,9 +41,11 @@ class OrderSigningTests : XCTestCase  {
         for i in 0...2015 {
             bulkMessages.append(Data(bytes: signedOrders[0].message))
         }
+    
+        print(account.address)
         
-        try! keyStore.signMessage(bulkMessages, for: account)
-        
+        try! keyStore.signMessageBulk(bulkMessages, for: account)
+
         print(signedOrders.description)
     }
 }

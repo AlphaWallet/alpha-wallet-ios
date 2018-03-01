@@ -42,6 +42,7 @@ public class SignOrders {
     private let keyStore = try! EtherKeystore()
 
     //takes a list of orders and returns a list of signature objects
+    //TODO sign message bulk
     func signOrders(orders : [Order], account : Account) -> Array<SignedOrder> {
 
         var signedOrders = [SignedOrder]()
@@ -59,9 +60,10 @@ public class SignOrders {
         return signedOrders
     }
 
-    func encodeMessageForTrade(price : BigUInt, expiryBuffer : BigUInt,
-                               tickets : [UInt16], contractAddress : String) -> [UInt8]
-    {
+    func encodeMessageForTrade(price: BigUInt,
+                               expiryBuffer: BigUInt,
+                               tickets: [UInt16],
+                               contractAddress: String) -> [UInt8] {
         //ticket count * 2 because it is 16 bits not 8
         let arrayLength: Int = 84 + tickets.count * 2
         var buffer = [UInt8]()
