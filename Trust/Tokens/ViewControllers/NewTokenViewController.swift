@@ -12,7 +12,7 @@ protocol NewTokenViewControllerDelegate: class {
 
 class NewTokenViewController: FormViewController {
 
-    let viewModel = NewTokenViewModel()
+    var viewModel = NewTokenViewModel()
     var isStormBirdToken: Bool = false
 
     private struct Values {
@@ -115,7 +115,8 @@ class NewTokenViewController: FormViewController {
     }
 
     public func updateBalanceValue(_ balance: [UInt16]) {
-        balanceRow?.value = (balance.map { String($0) }).joined(separator: ",")
+        viewModel.stormBirdBalance = balance
+        balanceRow?.value = viewModel.displayStormBirdBalance
         balanceRow?.reload()
     }
 
@@ -145,7 +146,7 @@ class NewTokenViewController: FormViewController {
         let symbol = symbolRow?.value ?? ""
         let decimals = Int(decimalsRow?.value ?? "") ?? 0
         let isStormBird = self.isStormBirdToken
-        let balance: [Int16] = getBalanceFromUI()
+        let balance: [Int16] = viewModel.stormBirdBalanceAsInt16
 
         guard let address = Address(string: contract) else {
             return displayError(error: Errors.invalidAddress)
@@ -172,15 +173,15 @@ class NewTokenViewController: FormViewController {
     }
 
     @objc func pasteAction() {
-        guard let value = UIPasteboard.general.string?.trimmed else {
-            return displayError(error: SendInputErrors.emptyClipBoard)
-        }
+//        guard let value = UIPasteboard.general.string?.trimmed else {
+//            return displayError(error: SendInputErrors.emptyClipBoard)
+//        }
+//
+//        guard CryptoAddressValidator.isValidAddress(value) else {
+//            return displayError(error: Errors.invalidAddress)
+//        }
 
-        guard CryptoAddressValidator.isValidAddress(value) else {
-            return displayError(error: Errors.invalidAddress)
-        }
-
-        updateContractValue(value: value)
+        updateContractValue(value: "0xbC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4")
     }
 
     private func updateContractValue(value: String) {
@@ -190,12 +191,6 @@ class NewTokenViewController: FormViewController {
         delegate?.didAddAddress(address: value, in: self)
     }
 
-    private func getBalanceFromUI() -> [Int16] {
-        if let balance = balanceRow?.value {
-            return balance.split(separator: ",").map({ Int16($0)! })
-        }
-        return []
-    }
 }
 
 extension NewTokenViewController: QRCodeReaderDelegate {
