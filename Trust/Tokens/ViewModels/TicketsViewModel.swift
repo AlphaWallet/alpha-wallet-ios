@@ -11,11 +11,16 @@ import UIKit
 
 struct TicketsViewModel {
 
-    let token: TokenObject
-    let ticketHolders: [TicketHolder]
+    var token: TokenObject
+    var ticketHolders: [TicketHolder]?
+
+    init(token: TokenObject) {
+        self.token = token
+        self.ticketHolders = TicketAdaptor.getTicketHolders(for: token)
+    }
 
     func item(for indexPath: IndexPath) -> TicketHolder {
-        return ticketHolders[indexPath.row]
+        return ticketHolders![indexPath.row]
     }
 
     func cell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
@@ -33,7 +38,7 @@ struct TicketsViewModel {
         if section == 0 {
             return 1
         }
-        return ticketHolders.count
+        return ticketHolders!.count
     }
 
     func height(for section: Int) -> CGFloat {
