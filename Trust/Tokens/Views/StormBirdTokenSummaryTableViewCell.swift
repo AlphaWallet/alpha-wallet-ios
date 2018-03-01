@@ -17,7 +17,7 @@ class StormBirdTokenSummaryTableViewCell: UITableViewCell {
         countLabel.text = totalValidTicketNumber(for: token)
         nameLabel.text = token.name.capitalized
     }
-    
+
     private func totalValidTicketNumber(for token: TokenObject) -> String {
         let balance = token.balance
         let validTickets = balance.filter { $0.balance > 0 }
