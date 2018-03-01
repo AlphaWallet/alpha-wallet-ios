@@ -324,17 +324,21 @@ open class EtherKeystore: Keystore {
         }
     }
     
-    func signMessage(_ data: [Data], for account: Account) -> Result<[Data], KeystoreError> {
+    func signMessageBulk(_ data: [Data], for account: Account) -> Result<[Data], KeystoreError> {
         guard
             let password = getPassword(for: account) else {
                 return .failure(KeystoreError.failedToSignMessage)
         }
         do {
-            var data = try keyStore.signBatch(data, account: account, password: password)
+            var messageHashes = [Data]()
+            for i in 0...data.count - 1 {
+                let hash = data[i].sha3(.keccak256)
+                messageHashes.append(hash)
+            }
+            var data = try keyStore.signBatch(messageHashes, account: account, password: password)
             // TODO: Make it configurable, instead of overriding last byte.
             for i in 0...data.count - 1 {
-                var element = data[i]
-                element[64] += 27
+                data[i][64] += 27
             }
             return .success(data)
         } catch {
