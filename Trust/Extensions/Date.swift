@@ -9,9 +9,9 @@
 import Foundation
 
 public extension Date {
-    
-    private static var formatsMap: [String : DateFormatter] = [:]
-    
+
+    private static var formatsMap: [String: DateFormatter] = [:]
+
     public init?(string: String, format: String) {
         let date = Date.formatter(with: format).date(from: string)
         if date != nil {
@@ -20,7 +20,7 @@ public extension Date {
         }
         return nil
     }
-    
+
     public func format(_ format: String) -> String {
         return Date.formatter(with: format).string(from: self)
     }
