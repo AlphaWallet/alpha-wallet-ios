@@ -110,7 +110,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
     private func getContractBalance(for address: String,
                                     in viewController: NewTokenViewController) {
-        storage.getContractBalance(for: address) { result in
+        storage.getStormBirdBalance(for: address) { result in
             switch result {
             case .success(let balance):
                 viewController.updateBalanceValue(balance)
@@ -161,7 +161,7 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
             }
         }
 
-        storage.getIsECR875(for: address) { result in
+        storage.getIsStormBird(for: address) { result in
             switch result {
             case .success(let isStormBird):
                 viewController.updateFormForStormBirdToken(isStormBird)
