@@ -8,14 +8,6 @@ struct TokensViewModel {
     var tokens: [TokenObject] = []
     var tickers: [String: CoinTicker]?
 
-    init(
-        tokens: [TokenObject],
-        tickers: [String: CoinTicker]?
-    ) {
-        self.tokens = tokens
-        self.tickers = tickers
-    }
-
     private var amount: String? {
         var totalAmount: Double = 0
         tokens.forEach { token in

@@ -12,8 +12,8 @@ protocol NewTokenViewControllerDelegate: class {
 
 class NewTokenViewController: FormViewController {
 
-    let viewModel = NewTokenViewModel()
-    var isERC875Token: Bool = false
+    var viewModel = NewTokenViewModel()
+    var isStormBirdToken: Bool = false
 
     private struct Values {
         static let contract = "contract"
@@ -79,7 +79,7 @@ class NewTokenViewController: FormViewController {
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.decimals) {
                 $0.add(rule: RuleClosure<String> { rowValue in
-                    return (rowValue == nil || rowValue!.isEmpty) && !self.isERC875Token ? ValidationError(msg: "Field required!") : nil
+                    return (rowValue == nil || rowValue!.isEmpty) && !self.isStormBirdToken ? ValidationError(msg: "Field required!") : nil
                 })
                 $0.validationOptions = .validatesOnDemand
                 $0.title = NSLocalizedString("Decimals", value: "Decimals", comment: "")
@@ -88,7 +88,7 @@ class NewTokenViewController: FormViewController {
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.balance) {
                 $0.add(rule: RuleClosure<String> { rowValue in
-                    return (rowValue == nil || rowValue!.isEmpty) && self.isERC875Token ? ValidationError(msg: "Field required!") : nil
+                    return (rowValue == nil || rowValue!.isEmpty) && self.isStormBirdToken ? ValidationError(msg: "Field required!") : nil
                 })
                 $0.validationOptions = .validatesOnDemand
                 $0.title = NSLocalizedString("Balance", value: "Balance", comment: "")
@@ -98,7 +98,7 @@ class NewTokenViewController: FormViewController {
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(addToken))
     }
-    
+
     public func updateSymbolValue(_ symbol: String) {
         symbolRow?.value = symbol
         symbolRow?.reload()
@@ -115,13 +115,14 @@ class NewTokenViewController: FormViewController {
     }
 
     public func updateBalanceValue(_ balance: [UInt16]) {
-        balanceRow?.value = (balance.map { String($0) }).joined(separator: ",")
+        viewModel.stormBirdBalance = balance
+        balanceRow?.value = viewModel.displayStormBirdBalance
         balanceRow?.reload()
     }
 
-    public func updateFormForERC875Token(_ isERC875Token: Bool) {
-        self.isERC875Token = isERC875Token
-        if isERC875Token {
+    public func updateFormForStormBirdToken(_ isStormBirdToken: Bool) {
+        self.isStormBirdToken = isStormBirdToken
+        if isStormBirdToken {
             decimalsRow?.hidden = true
             balanceRow?.hidden = false
         } else {
@@ -144,8 +145,8 @@ class NewTokenViewController: FormViewController {
         let name = nameRow?.value ?? ""
         let symbol = symbolRow?.value ?? ""
         let decimals = Int(decimalsRow?.value ?? "") ?? 0
-        let isStormBird = self.isERC875Token
-        let balance: [Int16] = getBalanceFromUI()
+        let isStormBird = self.isStormBirdToken
+        let balance: [Int16] = viewModel.stormBirdBalanceAsInt16
 
         guard let address = Address(string: contract) else {
             return displayError(error: Errors.invalidAddress)
@@ -159,7 +160,7 @@ class NewTokenViewController: FormViewController {
             isStormBird: isStormBird,
             balance: balance
         )
-        
+
         delegate?.didAddToken(token: erc20Token, in: self)
     }
 
@@ -172,15 +173,15 @@ class NewTokenViewController: FormViewController {
     }
 
     @objc func pasteAction() {
-        guard let value = UIPasteboard.general.string?.trimmed else {
-            return displayError(error: SendInputErrors.emptyClipBoard)
-        }
+//        guard let value = UIPasteboard.general.string?.trimmed else {
+//            return displayError(error: SendInputErrors.emptyClipBoard)
+//        }
+//
+//        guard CryptoAddressValidator.isValidAddress(value) else {
+//            return displayError(error: Errors.invalidAddress)
+//        }
 
-        guard CryptoAddressValidator.isValidAddress(value) else {
-            return displayError(error: Errors.invalidAddress)
-        }
-
-        updateContractValue(value: value)
+        updateContractValue(value: "0xbC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4")
     }
 
     private func updateContractValue(value: String) {
@@ -189,13 +190,7 @@ class NewTokenViewController: FormViewController {
 
         delegate?.didAddAddress(address: value, in: self)
     }
-    
-    private func getBalanceFromUI() -> [Int16] {
-        if let balance = balanceRow?.value {
-            return balance.split(separator: ",").map({ Int16($0)! })
-        }
-        return[]
-    }
+
 }
 
 extension NewTokenViewController: QRCodeReaderDelegate {
