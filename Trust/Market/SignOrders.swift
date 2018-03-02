@@ -1,7 +1,5 @@
 import BigInt
 import TrustKeystore
-//TODO not sure why errors keep coming without this
-//import Trust
 
 public struct Order {
     var price: BigUInt
@@ -46,6 +44,7 @@ public class SignOrders {
     private let keyStore = try! EtherKeystore()
 
     //takes a list of orders and returns a list of signature objects
+    //TODO sign message bulk
     func signOrders(orders : [Order], account : Account) -> Array<SignedOrder> {
 
         var signedOrders = [SignedOrder]()
@@ -62,7 +61,6 @@ public class SignOrders {
         }
         return signedOrders
     }
-
 
     func encodeMessageForTrade(price : BigUInt, expiryBuffer : BigUInt,
                                tickets : [UInt16], contractAddress : String) -> [UInt8]
