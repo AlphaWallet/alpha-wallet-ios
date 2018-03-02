@@ -29,7 +29,26 @@
       language = ""
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "2912CD0A1F6A830700C6CBE3"
+               BuildableName = "AlphaWalletTests.xctest"
+               BlueprintName = "AlphaWalletTests"
+               ReferencedContainer = "container:Trust.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
+            BuildableName = "AlphaWallet.app"
+            BlueprintName = "AlphaWallet"
+            ReferencedContainer = "container:Trust.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -63,6 +82,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
+            BuildableName = "AlphaWallet.app"
+            BlueprintName = "AlphaWallet"
+            ReferencedContainer = "container:Trust.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
