@@ -120,7 +120,6 @@ extension TokensViewController: StatefulViewController {
 extension TokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
         delegate?.didSelect(token: token, in: self)
     }
