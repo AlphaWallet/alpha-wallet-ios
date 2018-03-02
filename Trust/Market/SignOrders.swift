@@ -94,7 +94,7 @@ public class SignOrders {
             buffer.append(contractAddr[i])
         }
 
-        var ticketsUint8 = uInt16ArrayToUInt8(arrayOfUInt16: tickets)
+        var ticketsUint8 = SignOrders.uInt16ArrayToUInt8(arrayOfUInt16: tickets)
 
         for i in 0...ticketsUint8.count - 1 {
             buffer.append(ticketsUint8[i])
@@ -103,7 +103,7 @@ public class SignOrders {
         return buffer
     }
 
-    func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
+    static func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
         var arrayOfUint8 = [UInt8]()
         for i in 0...arrayOfUInt16.count - 1 {
             var UInt8ArrayPair = arrayOfUInt16[i].bigEndian.data.array
