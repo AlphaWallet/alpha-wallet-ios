@@ -1,7 +1,7 @@
 import BigInt
 import TrustKeystore
 //TODO not sure why errors keep coming without this
-import Trust
+//import Trust
 
 public struct Order {
     var price: BigUInt
