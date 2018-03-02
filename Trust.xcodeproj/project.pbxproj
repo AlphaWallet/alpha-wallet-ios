@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		1699405F72849CC43A13D181 /* Pods_AlphaWalletTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F18F1FBA3C66C15C047AF0B8 /* Pods_AlphaWalletTests.framework */; };
-		1D2831CD94641E5166E3A798 /* Pods_TrustUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0AEE09E815DB68F6634F89AA /* Pods_TrustUITests.framework */; };
 		290B2B541F8F50030053C83E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 290B2B561F8F50030053C83E /* Localizable.strings */; };
 		290B2B5B1F8F551E0053C83E /* LokaliseInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B5A1F8F551E0053C83E /* LokaliseInitializer.swift */; };
 		290B2B5F1F9177860053C83E /* UIImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B5E1F9177860053C83E /* UIImage.swift */; };
@@ -325,8 +324,6 @@
 		73ED85A92034C42D00593BF3 /* StringFormatterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */; };
 		76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */; };
 		76F1D5AF727A83205BBCF0EC /* SignOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* SignOrders.swift */; };
-		76F1D8E2B5BCCD68EF2AF362 /* OrdersRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375C203AEAE100C9756D /* OrdersRequest.swift */; };
-		76F1DE32A8FDB44BFEE6B8C3 /* SignOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* SignOrders.swift */; };
 		771A8471202F067D00528D28 /* NetworksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771A8470202F067D00528D28 /* NetworksViewController.swift */; };
 		771A847320322F2500528D28 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771A847220322F2500528D28 /* PreferencesViewController.swift */; };
 		771A847520322FD700528D28 /* PreferencesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771A847420322FD700528D28 /* PreferencesViewModel.swift */; };
@@ -379,7 +376,6 @@
 		CCA4FE381FD428B300749AE4 /* JailbreakChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */; };
 		CCA4FE3A1FD42B4100749AE4 /* FakeJailbreakChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE391FD42B4100749AE4 /* FakeJailbreakChecker.swift */; };
 		CCCD74FD1FD2D38D004A087D /* CheckDeviceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCD74FC1FD2D38D004A087D /* CheckDeviceCoordinator.swift */; };
-		D9F052FDC5B72E024DD05F0D /* Pods_TrustTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A48A17FC2CC895AF2BB871D0 /* Pods_TrustTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -814,7 +810,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D9F052FDC5B72E024DD05F0D /* Pods_TrustTests.framework in Frameworks */,
 				1699405F72849CC43A13D181 /* Pods_AlphaWalletTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -823,7 +818,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1D2831CD94641E5166E3A798 /* Pods_TrustUITests.framework in Frameworks */,
 				9B2444900035A62AD4FA2D55 /* Pods_AlphaWalletUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3014,8 +3008,6 @@
 				29F114E91FA3EC9E00114A29 /* InCoordinatorTests.swift in Sources */,
 				2981F4731F8303E600CA6590 /* TransactionCoordinatorTests.swift in Sources */,
 				76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */,
-				76F1D8E2B5BCCD68EF2AF362 /* OrdersRequest.swift in Sources */,
-				76F1DE32A8FDB44BFEE6B8C3 /* SignOrders.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
