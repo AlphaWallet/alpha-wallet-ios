@@ -5,4 +5,5 @@ import Foundation
 enum TokenType: Int {
     case ether
     case token
+    case stormBird
 }

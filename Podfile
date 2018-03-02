@@ -2,7 +2,7 @@ platform :ios, '9.0'
 inhibit_all_warnings!
 source 'https://github.com/CocoaPods/Specs.git'
 
-target 'Trust' do
+target 'AlphaWallet' do
   use_frameworks!
 
   pod 'BigInt', '~> 3.0'
@@ -31,12 +31,12 @@ target 'Trust' do
   # pod 'web3swift', :git=>'https://github.com/BANKEX/web3swift', :branch=>'master'
   pod 'SAMKeychain'
 
-  target 'TrustTests' do
+  target 'AlphaWalletTests' do
     inherit! :search_paths
     # Pods for testing
   end
 
-  target 'TrustUITests' do
+  target 'AlphaWalletUITests' do
     inherit! :search_paths
     # Pods for testing
   end

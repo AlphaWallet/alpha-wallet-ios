@@ -1,7 +1,5 @@
 import BigInt
 import TrustKeystore
-//TODO not sure why errors keep coming without this
-import Trust
 
 public struct Order {
     var price: BigUInt
@@ -19,6 +17,15 @@ public struct SignedOrder {
     var signature: String
 }
 
+extension String {
+    var hexa2Bytes: [UInt8] {
+        let hexa = Array(characters)
+        return stride(from: 0, to: count, by: 2).flatMap {
+            UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16)
+        }
+    }
+}
+
 extension BinaryInteger {
     var data: Data {
         var source = self
@@ -26,15 +33,10 @@ extension BinaryInteger {
     }
 }
 
-extension String {
-    var hexa2Bytes: [UInt8] {
-        let hexa = Array(characters)
-        return stride(from: 0, to: count, by: 2).flatMap { UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16) }
-    }
-}
-
 extension Data {
-    var array: [UInt8] { return Array(self) }
+    var array: [UInt8] {
+        return Array(self)
+    }
 }
 
 public class SignOrders {
@@ -60,19 +62,16 @@ public class SignOrders {
         return signedOrders
     }
 
-    func encodeMessageForTrade(price: BigUInt,
-                               expiryBuffer: BigUInt,
-                               tickets: [UInt16],
-                               contractAddress: String) -> [UInt8] {
+    func encodeMessageForTrade(price : BigUInt, expiryBuffer : BigUInt,
+                               tickets : [UInt16], contractAddress : String) -> [UInt8]
+    {
         //ticket count * 2 because it is 16 bits not 8
         let arrayLength: Int = 84 + tickets.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
 
-        //TODO check up on this
         var priceInWei = Array(price.serialize())
         var expiry = Array(expiryBuffer.serialize())
-
         for _ in 0...31 - priceInWei.count {
             //pad with zeros
             priceInWei.insert(0, at: 0)
@@ -114,4 +113,11 @@ public class SignOrders {
         return arrayOfUint8
     }
 
+    func bufferToString(buffer: [UInt8]) -> String {
+        var bufferString: String = ""
+        for i in 0...buffer.count - 1 {
+            bufferString += String(buffer[i])
+        }
+        return bufferString
+    }
 }

@@ -59,6 +59,42 @@ class TransactionConfigurator {
             data: transaction.data ?? Data()
         )
     }
+    func estimateGasLimit() {
+        let to: Address? = {
+            switch transaction.transferType {
+            case .ether: return transaction.to
+            case .token(let token):
+                return Address(string: token.contract)
+            case .stormBird(let token):
+                return Address(string: token.contract)
+            }
+        }()
+        let request = EstimateGasRequest(
+            from: session.account.address,
+            to: to,
+            value: transaction.value,
+            data: configuration.data
+        )
+        Session.send(EtherServiceRequest(batch: BatchFactory().create(request))) { [weak self] result in
+            guard let `self` = self else { return }
+            switch result {
+            case .success(let gasLimit):
+                let gasLimit: BigInt = {
+                    let limit = BigInt(gasLimit.drop0x, radix: 16) ?? BigInt()
+                    if limit == BigInt(21000) {
+                        return limit
+                    }
+                    return limit + (limit * 20 / 100)
+                }()
+                self.configuration =  TransactionConfiguration(
+                    gasPrice: self.calculatedGasPrice,
+                    gasLimit: gasLimit,
+                    data: self.configuration.data
+                )
+            case .failure: break
+            }
+        }
+    }
 
     func load(completion: @escaping (Result<Void, AnyError>) -> Void) {
         switch transaction.transferType {
@@ -88,42 +124,21 @@ class TransactionConfigurator {
                     completion(.failure(error))
                 }
             }
-        }
-    }
-
-    func estimateGasLimit() {
-        let to: Address? = {
-            switch transaction.transferType {
-            case .ether: return transaction.to
-            case .token(let token):
-                return Address(string: token.contract)
-            }
-        }()
-
-        let request = EstimateGasRequest(
-            from: session.account.address,
-            to: to,
-            value: transaction.value,
-            data: configuration.data
-        )
-        Session.send(EtherServiceRequest(batch: BatchFactory().create(request))) { [weak self] result in
-            guard let `self` = self else { return }
-            switch result {
-            case .success(let gasLimit):
-                let gasLimit: BigInt = {
-                    let limit = BigInt(gasLimit.drop0x, radix: 16) ?? BigInt()
-                    if limit == BigInt(21000) {
-                        return limit
-                    }
-                    return limit + (limit * 20 / 100)
-                }()
-
-                self.configuration =  TransactionConfiguration(
-                    gasPrice: self.calculatedGasPrice,
-                    gasLimit: gasLimit,
-                    data: self.configuration.data
-                )
-            case .failure: break
+        //TODO clean up
+        case .stormBird:
+            session.web3.request(request: ContractStormBirdTransfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
+                switch result {
+                case .success(let res):
+                    let data = Data(hex: res.drop0x)
+                    self.configuration = TransactionConfiguration(
+                        gasPrice: self.calculatedGasPrice,
+                        gasLimit: 144000,
+                        data: data
+                    )
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
             }
         }
     }
@@ -147,12 +162,14 @@ class TransactionConfigurator {
             switch transaction.transferType {
             case .ether: return transaction.value
             case .token: return 0
+            case .stormBird: return 0
             }
         }()
         let address: Address? = {
             switch transaction.transferType {
             case .ether: return transaction.to
             case .token(let token): return token.address
+            case .stormBird(let token): return token.address
             }
         }()
         let signTransaction = SignTransaction(

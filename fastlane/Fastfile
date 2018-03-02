@@ -36,7 +36,7 @@ platform :ios do
     increment_version_number(bump_type: "patch")
     cert
     match(type: "appstore", readonly: true)
-    gym(scheme: "Trust")
+    gym(scheme: "AlphaWallet")
     commit_version_bump(message: "Version Bump", force: true)
     deliver(force: true)
     push_to_git_remote
@@ -74,7 +74,7 @@ platform :ios do
     cocoapods(use_bundle_exec: false)
     run_tests(
       workspace: "Trust.xcworkspace",
-      scheme: "TrustTests",
+      scheme: "AlphaWalletTests",
       clean: false
     )
   end

@@ -73,4 +73,5 @@ class QRURLParserTests: XCTestCase {
         XCTAssertEqual("0x123", result?.params["data"])
         XCTAssertEqual("1.0", result?.params["amount"])
     }
+
 }
