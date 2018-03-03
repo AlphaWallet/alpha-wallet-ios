@@ -7,8 +7,8 @@ public struct Order {
     var expiry: BigUInt
     var contractAddress: String
     //for mapping to server
-    var start : BigUInt
-    var count : Int
+    var start: BigUInt
+    var count: Int
 }
 
 public struct SignedOrder {
@@ -45,26 +45,29 @@ public class SignOrders {
 
     //takes a list of orders and returns a list of signature objects
     //TODO sign message bulk
-    func signOrders(orders : [Order], account : Account) -> Array<SignedOrder> {
+    func signOrders(orders: [Order], account: Account) -> [SignedOrder] {
 
         var signedOrders = [SignedOrder]()
 
         for i in 0...orders.count - 1 {
-            let message : [UInt8] =
-            encodeMessageForTrade(price: orders[i].price, expiryBuffer: orders[i].expiry,
-                    tickets: orders[i].indices, contractAddress: orders[i].contractAddress)
+            let message: [UInt8] = encodeMessageForTrade(price: orders[i].price,
+                                                         expiryBuffer: orders[i].expiry,
+                                                         tickets: orders[i].indices,
+                                                         contractAddress: orders[i].contractAddress)
 
-            let signature = try! keyStore.signMessageData(Data(bytes: message), for: account)
-            let signedOrder : SignedOrder = try! SignedOrder(order : orders[i], message: message,
-                    signature : signature.description)
+            let signature = keyStore.signMessageData(Data(bytes: message), for: account)
+            let signedOrder: SignedOrder = SignedOrder(order: orders[i],
+                                                       message: message,
+                                                       signature: signature.description)
             signedOrders.append(signedOrder)
         }
         return signedOrders
     }
 
-    func encodeMessageForTrade(price : BigUInt, expiryBuffer : BigUInt,
-                               tickets : [UInt16], contractAddress : String) -> [UInt8]
-    {
+    func encodeMessageForTrade(price: BigUInt,
+                               expiryBuffer: BigUInt,
+                               tickets: [UInt16],
+                               contractAddress: String) -> [UInt8] {
         //ticket count * 2 because it is 16 bits not 8
         let arrayLength: Int = 84 + tickets.count * 2
         var buffer = [UInt8]()
