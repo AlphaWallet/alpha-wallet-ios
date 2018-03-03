@@ -8,6 +8,8 @@ import TrustKeystore
 
 class CreateRedeem {
 
+    //TODO make for decimal
+
     private let keyStore = try! EtherKeystore()
 
     func generateRedeem(ticketIndices: [UInt16], account: Account) -> [Data] {
@@ -30,11 +32,6 @@ class CreateRedeem {
         print(try! "signature: " + signature.dematerialize().hexString)
 
         return messageAndSignature
-    }
-
-    //optimised for decimal
-    func parseToQR(_ data: Data) -> BigInt {
-        return BigInt.init(data.hexString, radix: 16)!
     }
     
     func generateTimeStamp() -> [UInt8] {
