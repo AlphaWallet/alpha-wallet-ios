@@ -69,16 +69,21 @@ class SettingsViewController: FormViewController {
                     }
                 }
             }.cellSetup { cell, _ in
-                cell.imageView?.image = R.image.settings_server()
+                cell.imageView?.tintColor = Colors.appBackground
+                cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
+                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
             }
 
             <<< AppFormAppearance.button { button in
                 button.cellStyle = .value1
             }.onCellSelection { [unowned self] _, _ in
                 self.run(action: .wallets)
+            }.cellSetup { cell, _ in
+                cell.imageView?.tintColor = Colors.appBackground
+                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
             }.cellUpdate { cell, _ in
                 cell.textLabel?.textColor = .black
-                cell.imageView?.image = R.image.settings_wallet()
+                cell.imageView?.image = R.image.settings_wallet()?.withRenderingMode(.alwaysTemplate)
                 cell.textLabel?.text = NSLocalizedString("settings.wallets.button.title", value: "Wallets", comment: "")
                 cell.detailTextLabel?.text = String(account.address.description.prefix(10)) + "..."
                 cell.accessoryType = .disclosureIndicator
@@ -99,7 +104,9 @@ class SettingsViewController: FormViewController {
                     self.lock.deletePasscode()
                 }
             }.cellSetup { cell, _ in
-                cell.imageView?.image = R.image.settings_lock()
+                cell.imageView?.tintColor = Colors.appBackground
+                cell.imageView?.image = R.image.settings_lock()?.withRenderingMode(.alwaysTemplate)
+                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
             }
 
             <<< SwitchRow {
@@ -109,7 +116,9 @@ class SettingsViewController: FormViewController {
                 let enabled = row.value ?? false
                 self.run(action: .pushNotifications(enabled: enabled))
             }.cellSetup { cell, _ in
-                cell.imageView?.image = R.image.settings_push_notifications()
+                cell.imageView?.tintColor = Colors.appBackground
+                cell.imageView?.image = R.image.settings_push_notifications()?.withRenderingMode(.alwaysTemplate)
+                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
             }
 
             +++ Section()
@@ -149,7 +158,9 @@ class SettingsViewController: FormViewController {
                     }
                 }
             }.cellSetup { cell, _ in
-                cell.imageView?.image = R.image.settingsCurrency()
+                cell.imageView?.tintColor = Colors.appBackground
+                cell.imageView?.image = R.image.settingsCurrency()?.withRenderingMode(.alwaysTemplate)
+                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
             }
 
             <<< AppFormAppearance.button { row in
@@ -157,9 +168,12 @@ class SettingsViewController: FormViewController {
                 row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
                     return PreferencesViewController() }, onDismiss: { _ in
                 })
+            }.cellSetup { cell, _ in
+                cell.imageView?.tintColor = Colors.appBackground
+                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
             }.cellUpdate { cell, _ in
                 cell.textLabel?.textColor = .black
-                cell.imageView?.image = R.image.settings_preferences()
+                cell.imageView?.image = R.image.settings_preferences()?.withRenderingMode(.alwaysTemplate)
                 cell.textLabel?.text = NSLocalizedString("settings.preferences.title", value: "Preferences", comment: "")
                 cell.accessoryType = .disclosureIndicator
             }
@@ -188,7 +202,9 @@ class SettingsViewController: FormViewController {
 
             <<< AppFormAppearance.button { button in
                 button.title = NSLocalizedString("settings.shareWithFriends.button.title", value: "Share With Friends", comment: "")
-                button.cell.imageView?.image = R.image.settingsShare()
+                button.cell.imageView?.tintColor = Colors.appBackground
+                button.cell.imageView?.image = R.image.settingsShare()?.withRenderingMode(.alwaysTemplate)
+                button.cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
             }.onCellSelection { [unowned self] cell, _  in
                 self.helpUsCoordinator.presentSharing(in: self, from: cell.contentView)
             }
@@ -198,7 +214,9 @@ class SettingsViewController: FormViewController {
             }.onCellSelection {[weak self] _, _  in
                 self?.helpUsCoordinator.rateUs()
             }.cellSetup { cell, _ in
-                cell.imageView?.image = R.image.settings_rating()
+                cell.imageView?.tintColor = Colors.appBackground
+                cell.imageView?.image = R.image.settings_rating()?.withRenderingMode(.alwaysTemplate)
+                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
             }
 
             <<< AppFormAppearance.button { button in
@@ -206,7 +224,9 @@ class SettingsViewController: FormViewController {
             }.onCellSelection {[weak self] _, _  in
                 self?.sendUsEmail()
             }.cellSetup { cell, _ in
-                cell.imageView?.image = R.image.settings_email()
+                cell.imageView?.tintColor = Colors.appBackground
+                cell.imageView?.image = R.image.settings_email()?.withRenderingMode(.alwaysTemplate)
+                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
             }
 
             +++ Section(NSLocalizedString("settings.learnMore.label.title", value: "Learn More", comment: ""))
@@ -235,6 +255,8 @@ class SettingsViewController: FormViewController {
                 $0.title = NSLocalizedString("settings.version.label.title", value: "Version", comment: "")
                 $0.value = Bundle.main.fullVersion
                 $0.disabled = true
+            }.cellSetup { cell, _ in
+                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
             }
     }
 
@@ -259,7 +281,9 @@ class SettingsViewController: FormViewController {
                 self.openURL(type.remoteURL)
             }
         }.cellSetup { cell, _ in
-            cell.imageView?.image = type.image
+            cell.imageView?.tintColor = Colors.appBackground
+            cell.imageView?.image = type.image?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
         }
     }
 
@@ -275,7 +299,9 @@ class SettingsViewController: FormViewController {
             guard let value = row.value, let url = URL(string: value) else { return }
             self.openURL(url)
         }.cellSetup { cell, _ in
-            cell.imageView?.image = image
+            cell.imageView?.tintColor = Colors.appBackground
+            cell.imageView?.image = image?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
         }
     }
 

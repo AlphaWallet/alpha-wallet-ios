@@ -24,7 +24,7 @@ struct EditTokenTableCellViewModel {
     }
 
     var titleFont: UIFont {
-        return UIFont.systemFont(ofSize: 18, weight: .medium)
+        return Fonts.semibold(size: 18)!
     }
 
     var titleTextColor: UIColor {

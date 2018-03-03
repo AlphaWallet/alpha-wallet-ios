@@ -85,7 +85,7 @@ class ImportWalletViewController: FormViewController {
                     view.label.attributedText = "Importing wallet as easy as creating".styled(
                         with:
                         .color(UIColor(hex: "6e6e72")),
-                        .font(UIFont.systemFont(ofSize: 14, weight: UIFont.Weight.regular)),
+                        .font(Fonts.regular(size: 16)!),
                         .lineHeightMultiple(1.25)
                     )
                     view.logoImageView.image = R.image.create_wallet_import()

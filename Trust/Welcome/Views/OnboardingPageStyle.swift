@@ -4,7 +4,7 @@ import UIKit
 
 struct OnboardingPageStyle {
     var titleFont: UIFont {
-        return UIFont.systemFont(ofSize: 23, weight: UIFont.Weight.medium)
+        return Fonts.semibold(size: 23)!
     }
 
     var titleColor: UIColor {
@@ -12,7 +12,7 @@ struct OnboardingPageStyle {
     }
 
     var subtitleFont: UIFont {
-        return UIFont.systemFont(ofSize: 15)
+        return Fonts.regular(size: 15)!
     }
 
     var subtitleColor: UIColor {
