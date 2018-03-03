@@ -6,19 +6,19 @@ import UIKit
 struct StateViewModel {
 
     var titleTextColor: UIColor {
-        return UIColor(hex: "438FCA")
-    }
+        return Colors.appBackground
+   }
 
     var titleFont: UIFont {
-        return UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.medium)
+        return Fonts.semibold(size: 18)!
     }
 
     var descriptionTextColor: UIColor {
-        return UIColor(hex: "69A5D5")
+        return Colors.appBackground
     }
 
     var descriptionFont: UIFont {
-        return UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.regular)
+        return Fonts.regular(size: 16)!
     }
 
     var stackSpacing: CGFloat {

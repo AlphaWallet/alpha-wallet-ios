@@ -11,15 +11,12 @@ protocol InCoordinatorDelegate: class {
 }
 
 enum Tabs {
-    case browser
     case transactions
     case tokens
     case settings
 
     var className: String {
         switch self {
-        case .browser:
-            return String(describing: BrowserViewController.self)
         case .tokens:
             return String(describing: TokensViewController.self)
         case .transactions:
@@ -128,17 +125,6 @@ class InCoordinator: Coordinator {
                 self?.activateDebug()
             }
         }
-
-        let coordinator = BrowserCoordinator(session: session, keystore: keystore)
-        coordinator.delegate = self
-        coordinator.start()
-        coordinator.rootViewController.tabBarItem = UITabBarItem(
-                title: NSLocalizedString("browser.tabbar.item.title", value: "Browser", comment: ""),
-                image: R.image.dapps_icon(),
-                selectedImage: nil
-        )
-        addCoordinator(coordinator)
-        tabBarController.viewControllers?.insert(coordinator.navigationController, at: 0)
 
         if inCoordinatorViewModel.tokensAvailable {
             let tokenCoordinator = TokensCoordinator(
@@ -384,11 +370,5 @@ extension InCoordinator: PaymentCoordinatorDelegate {
     func didCancel(in coordinator: PaymentCoordinator) {
         coordinator.navigationController.dismiss(animated: true, completion: nil)
         removeCoordinator(coordinator)
-    }
-}
-
-extension InCoordinator: BrowserCoordinatorDelegate {
-    func didSentTransaction(transaction: SentTransaction, in coordinator: BrowserCoordinator) {
-        handlePendingTransaction(transaction: transaction)
     }
 }

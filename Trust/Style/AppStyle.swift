@@ -10,13 +10,15 @@ func applyStyle() {
     } else {
         UINavigationBar.appearance().isTranslucent = false
     }
+    UIWindow.appearance().tintColor = Colors.appBackground
     UINavigationBar.appearance().tintColor = UIColor.white
-    UINavigationBar.appearance().setBackgroundImage(.filled(with: Colors.darkBlue), for: .default)
+    UINavigationBar.appearance().setBackgroundImage(.filled(with: Colors.appBackground), for: .default)
+    UINavigationBar.appearance().shadowImage = UIImage()
 
     UINavigationBar.appearance().titleTextAttributes = [
         .foregroundColor: UIColor.white,
     ]
-    
+
     UITextField.appearance().tintColor = Colors.blue
 
     UIImageView.appearance().tintColor = Colors.lightBlue
@@ -40,8 +42,29 @@ struct Colors {
     static let black = UIColor(hex: "313849")
     static let lightBlack = UIColor(hex: "313849")
     static let lightBlue = UIColor(hex: "007aff")
+    static let appBackground = UIColor(red: 84, green: 193, blue: 227)
+    static let appWhite = UIColor.white
+    static let appText = UIColor(red: 47, green: 47, blue: 47)
 }
 
 struct StyleLayout {
     static let sideMargin: CGFloat = 15
+}
+
+struct Fonts {
+    static let labelSize: CGFloat = 18
+    static let buttonSize: CGFloat = 20
+
+    static func light(size: CGFloat) -> UIFont? {
+        return UIFont(resource: R.font.sourceSansProLight, size: size)
+    }
+    static func regular(size: CGFloat) -> UIFont? {
+        return UIFont(resource: R.font.sourceSansProRegular, size: size)
+    }
+    static func semibold(size: CGFloat) -> UIFont? {
+        return UIFont(resource: R.font.sourceSansProSemibold, size: size)
+    }
+    static func bold(size: CGFloat) -> UIFont? {
+        return UIFont(resource: R.font.sourceSansProBold, size: size)
+    }
 }
