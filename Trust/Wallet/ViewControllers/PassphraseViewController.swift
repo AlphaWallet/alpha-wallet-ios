@@ -21,7 +21,7 @@ class PassphraseViewController: UIViewController {
         label.textAlignment = .center
         label.numberOfLines = 0
         label.text = viewModel.rememberPassphraseText
-        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.font = Fonts.semibold(size: 14)
 
         let copyButton = Button(size: .small, style: .borderless)
         copyButton.setTitle(NSLocalizedString("Copy", value: "Copy", comment: ""), for: .normal)

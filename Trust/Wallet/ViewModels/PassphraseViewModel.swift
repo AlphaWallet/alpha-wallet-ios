@@ -26,6 +26,6 @@ struct PassphraseViewModel {
     }
 
     var phraseFont: UIFont {
-        return UIFont.systemFont(ofSize: 16, weight: .medium)
+        return Fonts.semibold(size: 16)!
     }
 }

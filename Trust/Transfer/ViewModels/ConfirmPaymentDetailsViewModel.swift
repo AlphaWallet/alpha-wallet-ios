@@ -118,7 +118,7 @@ struct ConfirmPaymentDetailsViewModel {
         let amount = NSAttributedString(
             string: amountWithSign(for: string),
             attributes: [
-                .font: UIFont.systemFont(ofSize: 28),
+                .font: Fonts.regular(size: 28),
                 .foregroundColor: amountTextColor,
             ]
         )
@@ -126,7 +126,7 @@ struct ConfirmPaymentDetailsViewModel {
         let currency = NSAttributedString(
             string: " \(transaction.transferType.symbol(server: config.server))",
             attributes: [
-                .font: UIFont.systemFont(ofSize: 20),
+                .font: Fonts.regular(size: 20),
             ]
         )
         return amount + currency
