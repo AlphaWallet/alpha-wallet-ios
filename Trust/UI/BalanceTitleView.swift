@@ -62,8 +62,8 @@ class BalanceTitleView: UIView {
     }
 
     private func configure(viewModel: BalanceBaseViewModel) {
-        titleLabel.font = UIFont.systemFont(ofSize: 18, weight: UIFont.Weight.semibold)
-        subTitleLabel.font = UIFont.systemFont(ofSize: 14, weight: UIFont.Weight.regular)
+        titleLabel.font = Fonts.semibold(size: 18)
+        subTitleLabel.font = Fonts.regular(size: 14)
 
         let amount: String
         switch mode {

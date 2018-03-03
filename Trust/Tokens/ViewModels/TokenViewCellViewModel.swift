@@ -24,7 +24,7 @@ struct TokenViewCellViewModel {
     }
 
     var titleFont: UIFont {
-        return UIFont.systemFont(ofSize: 16, weight: .medium)
+        return Fonts.semibold(size: 18)!
     }
 
     var titleTextColor: UIColor {
@@ -67,7 +67,7 @@ struct TokenViewCellViewModel {
     }
 
     var percentChangeFont: UIFont {
-        return UIFont.systemFont(ofSize: 12, weight: .light)
+        return Fonts.light(size: 14)!
     }
 
     var amountTextColor: UIColor {
@@ -75,7 +75,7 @@ struct TokenViewCellViewModel {
     }
 
     var amountFont: UIFont {
-        return UIFont.systemFont(ofSize: 17, weight: .medium)
+        return Fonts.semibold(size: 18)!
     }
 
     var currencyAmountTextColor: UIColor {
@@ -83,7 +83,7 @@ struct TokenViewCellViewModel {
     }
 
     var currencyAmountFont: UIFont {
-        return UIFont.systemFont(ofSize: 12, weight: .regular)
+        return Fonts.regular(size: 14)!
     }
 
     var backgroundColor: UIColor {
