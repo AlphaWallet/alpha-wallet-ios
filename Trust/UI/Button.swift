@@ -53,7 +53,7 @@ enum ButtonStyle: Int {
              .squared,
              .border,
              .borderless:
-            return UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.medium)
+            return Fonts.semibold(size: 16)!
         }
     }
 

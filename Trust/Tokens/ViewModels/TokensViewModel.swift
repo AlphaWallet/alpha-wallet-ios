@@ -38,7 +38,7 @@ struct TokensViewModel {
     }
 
     var headerBalanceFont: UIFont {
-        return UIFont.systemFont(ofSize: 26, weight: .medium)
+        return Fonts.semibold(size: 26)!
     }
 
     var title: String {
@@ -83,6 +83,6 @@ struct TokensViewModel {
     }
 
     var footerTextFont: UIFont {
-        return UIFont.systemFont(ofSize: 13, weight: .light)
+        return Fonts.light(size: 15)!
     }
 }

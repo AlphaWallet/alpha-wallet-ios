@@ -50,3 +50,21 @@ struct Colors {
 struct StyleLayout {
     static let sideMargin: CGFloat = 15
 }
+
+struct Fonts {
+    static let labelSize: CGFloat = 18
+    static let buttonSize: CGFloat = 20
+
+    static func light(size: CGFloat) -> UIFont? {
+        return UIFont(resource: R.font.sourceSansProLight, size: size)
+    }
+    static func regular(size: CGFloat) -> UIFont? {
+        return UIFont(resource: R.font.sourceSansProRegular, size: size)
+    }
+    static func semibold(size: CGFloat) -> UIFont? {
+        return UIFont(resource: R.font.sourceSansProSemibold, size: size)
+    }
+    static func bold(size: CGFloat) -> UIFont? {
+        return UIFont(resource: R.font.sourceSansProBold, size: size)
+    }
+}

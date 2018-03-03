@@ -26,7 +26,7 @@ class BackupViewController: UIViewController {
         let noBackupLabel = UILabel()
         noBackupLabel.translatesAutoresizingMaskIntoConstraints = false
         noBackupLabel.text = viewModel.headlineText
-        noBackupLabel.font = UIFont.systemFont(ofSize: 24, weight: UIFont.Weight.medium)
+        noBackupLabel.font = Fonts.semibold(size: 24)
         noBackupLabel.adjustsFontSizeToFitWidth = true
         noBackupLabel.textColor = Colors.lightBlack
 
