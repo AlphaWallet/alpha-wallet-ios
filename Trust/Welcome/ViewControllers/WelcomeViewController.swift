@@ -35,7 +35,7 @@ class WelcomeViewController: UIViewController {
         let button = Button(size: .large, style: .solid)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString("welcome.createWallet.button.title", value: "CREATE WALLET", comment: ""), for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.semibold)
+        button.titleLabel?.font = Fonts.semibold(size: 16)
         button.backgroundColor = Colors.darkBlue
         return button
     }()
@@ -43,7 +43,7 @@ class WelcomeViewController: UIViewController {
         let importWalletButton = Button(size: .large, style: .solid)
         importWalletButton.translatesAutoresizingMaskIntoConstraints = false
         importWalletButton.setTitle(NSLocalizedString("welcome.importWallet.button.title", value: "IMPORT WALLET", comment: ""), for: .normal)
-        importWalletButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.semibold)
+        importWalletButton.titleLabel?.font = Fonts.semibold(size: 16)
         importWalletButton.setBackgroundColor(Colors.gray, forState: .normal)
         importWalletButton.setBackgroundColor(Colors.lightGray, forState: .highlighted)
         importWalletButton.accessibilityIdentifier = "import-wallet"

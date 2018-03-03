@@ -373,6 +373,12 @@
 		B1DC375F203AEB4800C9756D /* OrderRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */; };
 		BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */; };
 		BBF4F9B72029D0B3009E04C0 /* GasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */; };
+		C876FF79204A79D300B7D0EA /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6B204A79D300B7D0EA /* README.md */; };
+		C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */; };
+		C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */; };
+		C876FF82204A79D300B7D0EA /* SourceSansPro-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */; };
+		C876FF84204A79D300B7D0EA /* SourceSansPro-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */; };
+		C876FF85204A79D300B7D0EA /* SourceSansPro-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF77204A79D300B7D0EA /* SourceSansPro-Semibold.otf */; };
 		CCA4FE331FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE321FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift */; };
 		CCA4FE361FD4282400749AE4 /* DeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */; };
 		CCA4FE381FD428B300749AE4 /* JailbreakChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */; };
@@ -791,6 +797,12 @@
 		B2CF9CDF557F98DECE6D0AF6 /* Pods_AlphaWalletUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWalletUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CurrencyRate+Fee.swift"; sourceTree = "<group>"; };
 		BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasViewModel.swift; sourceTree = "<group>"; };
+		C876FF6B204A79D300B7D0EA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SIL Open Font License.txt"; sourceTree = "<group>"; };
+		C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Bold.otf"; sourceTree = "<group>"; };
+		C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Light.otf"; sourceTree = "<group>"; };
+		C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Regular.otf"; sourceTree = "<group>"; };
+		C876FF77204A79D300B7D0EA /* SourceSansPro-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Semibold.otf"; sourceTree = "<group>"; };
 		CCA4FE321FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckDeviceCoordinatorTests.swift; sourceTree = "<group>"; };
 		CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceChecker.swift; sourceTree = "<group>"; };
 		CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakChecker.swift; sourceTree = "<group>"; };
@@ -873,6 +885,7 @@
 		2912CCF71F6A830700C6CBE3 /* Trust */ = {
 			isa = PBXGroup;
 			children = (
+				C876FF69204A77B400B7D0EA /* Fonts */,
 				73ACEEF620163B4E003DD71D /* Lock */,
 				732086B2201506AA0047F605 /* Protection */,
 				29E6E0681FE897BB0079265A /* Browser */,
@@ -2206,6 +2219,27 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
+		C876FF69204A77B400B7D0EA /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				C876FF6A204A79D300B7D0EA /* source-sans-pro */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		C876FF6A204A79D300B7D0EA /* source-sans-pro */ = {
+			isa = PBXGroup;
+			children = (
+				C876FF6B204A79D300B7D0EA /* README.md */,
+				C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */,
+				C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */,
+				C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */,
+				C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */,
+				C876FF77204A79D300B7D0EA /* SourceSansPro-Semibold.otf */,
+			);
+			path = "source-sans-pro";
+			sourceTree = "<group>";
+		};
 		CCA4FE301FD3652100749AE4 /* Core */ = {
 			isa = PBXGroup;
 			children = (
@@ -2395,12 +2429,18 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C876FF82204A79D300B7D0EA /* SourceSansPro-Light.otf in Resources */,
+				C876FF84204A79D300B7D0EA /* SourceSansPro-Regular.otf in Resources */,
 				7721A6C4202D9520004DB16C /* trust-min.js in Resources */,
+				C876FF85204A79D300B7D0EA /* SourceSansPro-Semibold.otf in Resources */,
 				613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */,
+				C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */,
 				29FA00D2201CA79F002F7DC5 /* web3.min.js in Resources */,
 				771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */,
 				291794FC1F95DE5F00539A30 /* index.html in Resources */,
 				296106CE1F777E410006164B /* LaunchScreen.storyboard in Resources */,
+				C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */,
+				C876FF79204A79D300B7D0EA /* README.md in Resources */,
 				AA26C62020412A1E00318B9B /* Tickets.storyboard in Resources */,
 				290B2B541F8F50030053C83E /* Localizable.strings in Resources */,
 				2912CD021F6A830700C6CBE3 /* Assets.xcassets in Resources */,

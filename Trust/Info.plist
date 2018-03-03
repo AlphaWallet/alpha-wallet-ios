@@ -67,6 +67,21 @@
 	<string>Sending QR Code to your contacts</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Sending QR Code to your contacts</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>SourceSansPro-Black.otf</string>
+		<string>SourceSansPro-BlackIt.otf</string>
+		<string>SourceSansPro-Bold.otf</string>
+		<string>SourceSansPro-BoldIt.otf</string>
+		<string>SourceSansPro-ExtraLight.otf</string>
+		<string>SourceSansPro-ExtraLightIt.otf</string>
+		<string>SourceSansPro-It.otf</string>
+		<string>SourceSansPro-Light.otf</string>
+		<string>SourceSansPro-LightIt.otf</string>
+		<string>SourceSansPro-Regular.otf</string>
+		<string>SourceSansPro-Semibold.otf</string>
+		<string>SourceSansPro-SemiboldIt.otf</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

@@ -86,7 +86,7 @@ struct TransactionCellViewModel {
     }
 
     var subTitleFont: UIFont {
-        return UIFont.systemFont(ofSize: 12, weight: UIFont.Weight.thin)
+        return Fonts.light(size: 14)!
     }
 
     var backgroundColor: UIColor {
@@ -104,7 +104,7 @@ struct TransactionCellViewModel {
         return NSAttributedString(
             string: transactionViewModel.amountWithSign(for: value.amount) + " " + value.symbol,
             attributes: [
-                .font: UIFont.systemFont(ofSize: 16, weight: UIFont.Weight.semibold),
+                .font: Fonts.semibold(size: 16)!,
                 .foregroundColor: transactionViewModel.amountTextColor,
             ]
         )
