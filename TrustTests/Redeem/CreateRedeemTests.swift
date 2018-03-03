@@ -4,6 +4,7 @@
 import Foundation
 @testable import Trust
 import XCTest
+import BigInt
 
 class CreateRedeemTests: XCTestCase {
 
@@ -17,7 +18,10 @@ class CreateRedeemTests: XCTestCase {
         XCTAssertNoThrow(CreateRedeem.init().generateRedeem(
                 ticketIndices: indices))
         let data = CreateRedeem.init().generateRedeem(ticketIndices: indices)
-        print(try! keyStore.signMessageData(data, for: account).dematerialize().hexString)
+        let hexSig = try! keyStore.signMessageData(data, for: account).dematerialize().hexString
+        //hex string should be cast into decimal
+        XCTAssertGreaterThanOrEqual((BigUInt(hexSig, radix: 16)?.bitWidth)!, 0)
+        print(BigUInt(hexSig, radix: 16))
     }
 
 }

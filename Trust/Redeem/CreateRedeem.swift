@@ -24,7 +24,7 @@ class CreateRedeem {
     
     func generateTimeStamp() -> [UInt8] {
         let time = Date().timeIntervalSince1970.binade
-        let minsTime = (time / 30).binade
+        let minsTime = time / 30
         let minsTimeBigUInt = BigUInt(minsTime)
         return Array(minsTimeBigUInt.serialize())
     }
