@@ -15,7 +15,9 @@ class CreateRedeemTests: XCTestCase {
         indices.append(2)
         let account = keyStore.createAccount(password: "test")
         XCTAssertNoThrow(CreateRedeem.init().generateRedeem(
-                ticketIndices: indices, account: account))
+                ticketIndices: indices))
+        let data = CreateRedeem.init().generateRedeem(ticketIndices: indices)
+        print(try! keyStore.signMessageData(data, for: account).dematerialize().hexString)
     }
 
 }
