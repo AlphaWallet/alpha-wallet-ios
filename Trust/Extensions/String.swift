@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import UIKit
 
 extension String {
     var hex: String {
@@ -65,6 +66,11 @@ extension String {
         return (self.toInt()?.toBool())!
     }
 
+    func toQRCode() -> UIImage? {
+        let data = self.data(using: String.Encoding.ascii)
+        return data?.toQRCode()
+    }
+
     func isNumeric() -> Bool {
         let numberCharacters = CharacterSet.decimalDigits.inverted
         return !self.isEmpty && self.rangeOfCharacter(from: numberCharacters) == nil
@@ -107,6 +113,5 @@ extension String {
         default:
             return nil
         }
-
     }
 }
