@@ -90,7 +90,7 @@ public class OrdersRequest {
             response in
 
             if let json = response.result.value {
-                let parsedJSON = try! JSON(data: response.data!)
+                let parsedJSON = try! JSON(parseJSON: (json as! String))
                 callback(parsedJSON["orders"]["accepted"])
             }
 

@@ -53,7 +53,7 @@ public class SignOrders {
             encodeMessageForTrade(price: orders[i].price, expiryBuffer: orders[i].expiry,
                     tickets: orders[i].indices, contractAddress: orders[i].contractAddress)
 
-            let signature = try! keyStore.signMessageData(Data(bytes: message), for: account).dematerialize().toHexString()
+            let signature = try! "0x" + keyStore.signMessageData(Data(bytes: message), for: account).dematerialize().toHexString()
             let signedOrder = try! SignedOrder(order : orders[i], message: message,
                     signature : signature.description)
             signedOrders.append(signedOrder)
