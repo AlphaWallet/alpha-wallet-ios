@@ -4,6 +4,7 @@
 import Foundation
 import Alamofire
 import SwiftyJSON
+import BigInt
 
 //"orders": [
 //    {
@@ -16,26 +17,59 @@ import SwiftyJSON
 //    }
 //]
 
+//TODO parse for transaction
+
 public class OrdersRequest {
 
     public let baseURL = "https://482kdh4npg.execute-api.ap-southeast-1.amazonaws.com/dev/"
-    public let contractAddress = "0x007bee82bdd9e866b2bd114780a47f2261c684e3" //this is wrong as it is the deployer address, will be corrected later
+    public let contractAddress = "0xbc9a1026a4bc6f0ba8bbe486d1d09da5732b39e4"
+    private let methodSig = "0xa6fb475f"
 
     public func getOrders(callback: @escaping (_ result : Any) -> Void) {
-        Alamofire.request(baseURL + "/contract/" + contractAddress, method: .get).responseJSON {
+        Alamofire.request(baseURL + "contract/" + contractAddress, method: .get).responseJSON {
             response in
-            callback(response)
+            var orders = [SignedOrder]()
+            if let json = response.result.value {
+                let parsedJSON = try! JSON(data: response.data!)
+                for i in 0...parsedJSON.count - 1 {
+                    let orderObj: JSON = parsedJSON["orders"][i]
+                    orders.append(self.parseOrder(orderObj))
+                }
+                callback(orders)
+            }
         }
     }
 
+    func parseOrder(_ orderObj: JSON) -> SignedOrder {
+        let orderString = orderObj["message"].string!
+        let message = bytesToHexa(Array(Data(base64Encoded: orderString.substring(to: orderString.count - 1))!))
+        let price = message.substring(to: 64)
+        let expiry = message.substring(with: Range(uncheckedBounds: (64, 128)))
+        let contractAddress = "0x" + message.substring(with: Range(uncheckedBounds: (128, 168)))
+        let indices = message.substring(from: 168)
+        let order = Order(
+                price: BigUInt(price, radix: 16)!,
+                indices: indices.hexa2Bytes.map({ UInt16($0) }),
+                expiry: BigUInt(expiry, radix: 16)!,
+                contractAddress: contractAddress,
+                start: BigUInt(orderObj["start"].string!)!,
+                count: orderObj["count"].intValue
+        )
+        let signedOrder = SignedOrder(
+                order: order,
+                message: message.hexa2Bytes,
+                signature: "0x" + bytesToHexa(Array(Data(base64Encoded: orderObj["signature"].string!)!))
+        )
+        return signedOrder
+    }
+
     //only have to give first order to server then pad the signatures
-    public func putOrderToServer(signedOrders : [SignedOrder], publicKey: String,
-                                 callback: @escaping (_ result: Any) -> Void)
-    {
+    func putOrderToServer(signedOrders : [SignedOrder], publicKey: String,
+                             callback: @escaping (_ result: Any) -> Void) {
         //TODO get encoding for count and start
         let query : String = baseURL + "public-key/" + publicKey + "?start=" +
                 signedOrders[0].order.start.description + ";count=" + signedOrders[0].order.count.description
-        var data: [UInt8] = signedOrders[0].message
+        var data = signedOrders[0].message
 
         for i in 0...signedOrders.count - 1 {
             for j in 0...64 {
@@ -43,12 +77,10 @@ public class OrdersRequest {
             }
         }
 
-        var hexData : String = bytesToHexa(data)
-
+        let hexData : String = bytesToHexa(data)
         let parameters : Parameters = [
             "data": hexData
         ]
-
         let headers: HTTPHeaders = [
             "Content-Type": "application/vnd.awallet-signed-orders-v0"
         ]
@@ -56,13 +88,9 @@ public class OrdersRequest {
         Alamofire.request(query, method: .put, parameters: parameters,
                 encoding: JSONEncoding.default, headers: headers).responseJSON {
             response in
-            print("Request: \(String(describing: response.request))")   // original url request
-            print("Response: \(String(describing: response.response))") // http url response
-            print("Result: \(response.result)") // response serialization result
 
             if let json = response.result.value {
-                //print("JSON: \(json)") // serialized json response
-                let parsedJSON = JSON(parseJSON: json as! String)
+                let parsedJSON = try! JSON(data: response.data!)
                 callback(parsedJSON["orders"]["accepted"])
             }
 
@@ -70,10 +98,9 @@ public class OrdersRequest {
                 print("Data: \(utf8Text)") // original server data as UTF8 string
             }
         }
-
     }
 
-    public func bytesToHexa(_ bytes: [UInt8]) -> String {
+    func bytesToHexa(_ bytes: [UInt8]) -> String {
         return bytes.map{ String(format: "%02X", $0) }.joined()
     }
 

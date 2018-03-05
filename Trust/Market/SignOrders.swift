@@ -25,7 +25,6 @@ extension String {
         }
     }
 }
-
 extension BinaryInteger {
     var data: Data {
         var source = self
@@ -42,24 +41,36 @@ extension Data {
 public class SignOrders {
 
     private let keyStore = try! EtherKeystore()
+    private let orderMethodSignatureHash = "f1aaf147"
 
-    //takes a list of orders and returns a list of signature objects
-    //TODO sign message bulk
-    func signOrders(orders : [Order], account : Account) -> Array<SignedOrder> {
-
+    func signOrders(orders : [Order], account : Account) -> ([SignedOrder], [String]) {
+        
         var signedOrders = [SignedOrder]()
+        var data = [String]()
 
         for i in 0...orders.count - 1 {
             let message : [UInt8] =
             encodeMessageForTrade(price: orders[i].price, expiryBuffer: orders[i].expiry,
                     tickets: orders[i].indices, contractAddress: orders[i].contractAddress)
 
-            let signature = try! keyStore.signMessageData(Data(bytes: message), for: account)
-            let signedOrder : SignedOrder = try! SignedOrder(order : orders[i], message: message,
+            let signature = try! keyStore.signMessageData(Data(bytes: message), for: account).dematerialize().toHexString()
+            let signedOrder = try! SignedOrder(order : orders[i], message: message,
                     signature : signature.description)
             signedOrders.append(signedOrder)
+            //encode transaction data
+            let v = signature.substring(from: 130)
+            let r = signature.substring(to: 64)
+            var s = "0x" + signature.substring(from: 64)
+            s = s.substring(to: 62)
+            let hexIndices =  uInt16ArrayToUInt8(arrayOfUInt16: orders[i].indices).toHexString()
+            var hexExpires = orders[i].expiry.serialize().toHexString()
+            if(hexExpires == "") {
+                hexExpires = "0"
+            }
+            let encoding = orderMethodSignatureHash + hexIndices + hexExpires + v + r + s
+            data.append(encoding)
         }
-        return signedOrders
+        return (signedOrders, data)
     }
 
     func encodeMessageForTrade(price : BigUInt, expiryBuffer : BigUInt,
