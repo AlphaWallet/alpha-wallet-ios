@@ -40,8 +40,7 @@ class OrderRequestTest : XCTestCase  {
         
         let signOrders = SignOrders()
 
-        //TODO fix signature issues
-        var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
+        var signedOrders = signOrders.signOrders(orders: testOrdersList, account: account).0
 
         signedOrders[0].signature = "0x1cae08113567db5303fb1ed1b157fbc8c7247aa" +
                 "9689ee76902d731c9806ab9853d8fcded6145fc7ebe5c32e41e247b315" +

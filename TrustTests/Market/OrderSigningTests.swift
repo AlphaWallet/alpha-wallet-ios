@@ -7,12 +7,11 @@ import BigInt
 class OrderSigningTests : XCTestCase  {
 
     var contractAddress = "d9864b424447B758CdE90f8655Ff7cA4673956bf"
+    var keyStore = FakeEtherKeystore()
 
     func testSigningOrders() {
         
         var testOrdersList : Array<Order> = Array<Order>()
-        var keyStore = FakeEtherKeystore()
-        
         //set up test orders
         var indices = [UInt16]()
         indices.append(1)
@@ -27,10 +26,11 @@ class OrderSigningTests : XCTestCase  {
         var account = keyStore.createAccount(password: "deleteOnceWorking")
         print(account.address)
         
-        var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
+        var signedOrders = signOrders.signOrders(orders: testOrdersList, account: account).0
         signedOrders[0].signature = "jrzcgpsnV7IPGE3nZQeHQk5vyZdy5c8rHk0R/iG7wpiK9NT730I//DN5Dg5fHs+s4ZFgOGQnk7cXLQROBs9NvgE="
         
-        var signature = try! keyStore.signMessageData(Data(bytes: signedOrders[0].message), for: account).dematerialize().hexString
+        let signature = try! keyStore.signMessageData(Data(bytes: signedOrders[0].message), for: account).dematerialize().hexString
+
         print("v: " + Int(signature.substring(from: 128), radix: 16)!.description)
         print("r: 0x" + signature.substring(to: 64))
         print("s: 0x" + signature.substring(from: 64))
@@ -38,7 +38,7 @@ class OrderSigningTests : XCTestCase  {
         //test signing speed for bulk orders
         var bulkMessages = [Data]()
         
-        for i in 0...2015 {
+        for _ in 0...2015 {
             bulkMessages.append(Data(bytes: signedOrders[0].message))
         }
     
@@ -48,5 +48,6 @@ class OrderSigningTests : XCTestCase  {
 
         print(signedOrders.description)
     }
+    
 }
 
