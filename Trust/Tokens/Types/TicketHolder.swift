@@ -8,25 +8,32 @@
 
 import Foundation
 
+enum TicketHolderStatus {
+    case available, sold, redeemed, forSale, transferred
+}
+
 class TicketHolder {
     var tickets: [Ticket]
     var zone: String
     var name: String
     var venue: String
     var date: Date
+    var status: TicketHolderStatus
 
     init(
         tickets: [Ticket],
         zone: String,
         name: String,
         venue: String,
-        date: Date
+        date: Date,
+        status: TicketHolderStatus
     ) {
         self.tickets = tickets
         self.zone = zone
         self.name = name
         self.venue = venue
         self.date = date
+        self.status = status
     }
     
     var seatRange: String {
