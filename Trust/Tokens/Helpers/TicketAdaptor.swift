@@ -53,7 +53,8 @@ class TicketAdaptor {
             zone: ticket.zone,
             name: ticket.name,
             venue: ticket.venue,
-            date: ticket.date
+            date: ticket.date,
+            status: .available
         )
     }
 
