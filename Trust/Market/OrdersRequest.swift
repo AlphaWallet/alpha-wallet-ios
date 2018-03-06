@@ -17,8 +17,6 @@ import BigInt
 //    }
 //]
 
-//TODO parse for transaction
-
 public class OrdersRequest {
 
     public let baseURL = "https://482kdh4npg.execute-api.ap-southeast-1.amazonaws.com/dev/"
@@ -35,9 +33,37 @@ public class OrdersRequest {
                     let orderObj: JSON = parsedJSON["orders"][i]
                     orders.append(self.parseOrder(orderObj))
                 }
-                callback(orders)
+                callback(self.encodeOrderToTrade(orders: orders))
             }
         }
+    }
+    //TODO change this to model the Coordinators in TokensDataStore
+    //trade data encoding example: https://rinkeby.etherscan.io/tx/0x5037827ac882c037c5632cb78497df1f213e0d8c068cd0fd3621c1d25eadb63c
+    func encodeOrderToTrade(orders: [SignedOrder]) -> [String] {
+        var listOfEncodedData = [String]()
+        for i in 0...orders.count - 1 {
+            var encoding = methodSig + padWith32ByteLengthZeros(orders[i].order.expiry.serialize().hexEncoded)
+            encoding += padWith32ByteLengthZeros(
+                    //indices
+                    bytesToHexa(SignOrders.uInt16ArrayToUInt8(arrayOfUInt16: orders[i].order.indices))
+            )
+            let signature = orders[i].signature
+            let v = padWith32ByteLengthZeros(signature.substring(from: 130))
+            let r = signature.substring(to: 66)
+            let s = signature.substring(with: Range(uncheckedBounds: (66, 128)))
+            encoding += v + r + s
+            listOfEncodedData.append(encoding)
+        }
+        return listOfEncodedData
+    }
+
+    func padWith32ByteLengthZeros(_ item: String) -> String {
+        var newItem: String = ""
+        for _ in 0...64 - item.count {
+            newItem += "0"
+        }
+        newItem += item
+        return newItem
     }
 
     func parseOrder(_ orderObj: JSON) -> SignedOrder {

@@ -60,9 +60,8 @@ public class SignOrders {
             //encode transaction data
             let v = signature.substring(from: 130)
             let r = signature.substring(to: 64)
-            var s = "0x" + signature.substring(from: 64)
-            s = s.substring(to: 62)
-            let hexIndices =  uInt16ArrayToUInt8(arrayOfUInt16: orders[i].indices).toHexString()
+            let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 126)))
+            let hexIndices =  SignOrders.uInt16ArrayToUInt8(arrayOfUInt16: orders[i].indices).toHexString()
             var hexExpires = orders[i].expiry.serialize().toHexString()
             if(hexExpires == "") {
                 hexExpires = "0"
@@ -105,7 +104,7 @@ public class SignOrders {
             buffer.append(contractAddr[i])
         }
 
-        var ticketsUint8 = uInt16ArrayToUInt8(arrayOfUInt16: tickets)
+        var ticketsUint8 = SignOrders.uInt16ArrayToUInt8(arrayOfUInt16: tickets)
 
         for i in 0...ticketsUint8.count - 1 {
             buffer.append(ticketsUint8[i])
@@ -114,7 +113,7 @@ public class SignOrders {
         return buffer
     }
 
-    func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
+    public static func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
         var arrayOfUint8 = [UInt8]()
         for i in 0...arrayOfUInt16.count - 1 {
             var UInt8ArrayPair = arrayOfUInt16[i].bigEndian.data.array
