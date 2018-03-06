@@ -10,23 +10,19 @@ class CreateRedeem {
 
     private let keyStore = try! EtherKeystore()
 
-    func generateRedeem(ticketIndices: [UInt16]) -> Data {
-        var message = [UInt8]()
-        var timestamp = generateTimeStamp()
-        let ticketCount = ticketIndices.count * 2
-        message.reserveCapacity(ticketCount + timestamp.count)
-        message = SignOrders.uInt16ArrayToUInt8(arrayOfUInt16: ticketIndices)
-        for i in 0...timestamp.count - 1 {
-            message.append(timestamp[i])
-        }
-        return Data(bytes: message)
+    func generateTimeStamp() -> String {
+        let time = NSDate().timeIntervalSince1970
+        let minsTime = Int(time / 30)
+        return String(minsTime)
     }
-    
-    func generateTimeStamp() -> [UInt8] {
-        let time = Date().timeIntervalSince1970.binade
-        let minsTime = time / 30
-        let minsTimeBigUInt = BigUInt(minsTime)
-        return Array(minsTimeBigUInt.serialize())
+
+    //TODO make sure the encoding into data is correct for this redeem message
+    func redeemMessage(ticketIndices: [UInt16]) -> String {
+        var indicesString = ""
+        for i in 0...ticketIndices.count - 1 {
+            indicesString += String(ticketIndices[i]) + ","
+        }
+        return indicesString + generateTimeStamp()
     }
     
 }
