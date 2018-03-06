@@ -15,13 +15,14 @@ class CreateRedeemTests: XCTestCase {
         indices.append(1)
         indices.append(2)
         let account = keyStore.createAccount(password: "test")
-        XCTAssertNoThrow(CreateRedeem.init().generateRedeem(
-                ticketIndices: indices))
-        let data = CreateRedeem.init().generateRedeem(ticketIndices: indices)
-        let hexSig = try! keyStore.signMessageData(data, for: account).dematerialize().hexString
-        //hex string should be cast into decimal
-        XCTAssertGreaterThanOrEqual((BigUInt(hexSig, radix: 16)?.bitWidth)!, 0)
-        print(BigUInt(hexSig, radix: 16))
+        let message = CreateRedeem.init().redeemMessage(ticketIndices: indices)
+        print(message)
+        let data = message.data(using: String.Encoding.utf8)
+
+        let signature = keyStore.signMessageData(data!, for: account)
+        //message and signature is to go in qr code
+        print("message: " + message)
+        print(try! "signature: " + signature.dematerialize().hexString)
     }
 
 }
