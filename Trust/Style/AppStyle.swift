@@ -14,10 +14,15 @@ func applyStyle() {
     UINavigationBar.appearance().tintColor = UIColor.white
     UINavigationBar.appearance().setBackgroundImage(.filled(with: Colors.appBackground), for: .default)
     UINavigationBar.appearance().shadowImage = UIImage()
+    UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
+    UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
 
     UINavigationBar.appearance().titleTextAttributes = [
         .foregroundColor: UIColor.white,
     ]
+
+    //We could have set the backBarButtonItem with an empty title for every view controller, but we don't have a place to do it for Eureka view controllers. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
+    UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: -200, vertical: 0), for: .default)
 
     UITextField.appearance().tintColor = Colors.blue
 
@@ -26,6 +31,11 @@ func applyStyle() {
 
     BalanceTitleView.appearance().titleTextColor = UIColor.white
     BalanceTitleView.appearance().subTitleTextColor = UIColor(white: 0.9, alpha: 1)
+}
+
+func applyStyle(viewController: UIViewController) {
+	// See use of setBackButtonTitlePositionAdjustment(:for:) above
+//    viewController.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
 }
 
 struct Colors {
