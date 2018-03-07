@@ -35,7 +35,7 @@ class TicketHolder {
         self.date = date
         self.status = status
     }
-    
+
     var seatRange: String {
         let seatIds = tickets.map { $0.seatId }
         if seatIds.count == 1 {
@@ -48,4 +48,7 @@ class TicketHolder {
         return tickets.count.toString()
     }
 
+    var ticketIndices: [UInt16] {
+        return tickets.map { $0.index }
+    }
 }

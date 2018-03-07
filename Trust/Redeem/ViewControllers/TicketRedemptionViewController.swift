@@ -42,11 +42,6 @@ class TicketRedemptionViewController: UIViewController {
     @objc
     private func configureUI() {
         ticketView.configure(ticketHolder: viewModel.ticketHolder)
-        imageView.image = redeem.redeemMessage(ticketIndices: getIndices()).toQRCode()
-    }
-
-    private func getIndices() -> [UInt16] {
-        let tickets = viewModel.ticketHolder.tickets
-        return tickets.map { $0.index }
+        imageView.image = redeem.redeemMessage(ticketIndices: viewModel.ticketHolder.ticketIndices).toQRCode()
     }
 }
