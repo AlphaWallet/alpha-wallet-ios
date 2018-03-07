@@ -48,18 +48,22 @@ struct TicketsViewModel {
         return 90
     }
 
+    var title: String {
+        return "Use Token"
+    }
+
     func ticketCellPressed(for indexPath: IndexPath) -> Bool {
         return indexPath.section == 1
     }
 
     private func summaryCell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "StormBirdTokenSummaryTableViewCell", for: indexPath) as! StormBirdTokenSummaryTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.stormBirdTokenSummaryTableViewCell, for: indexPath)!
         cell.configure(for: token)
         return cell
     }
 
     private func ticketCell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TicketCell", for: indexPath) as! TicketTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.ticketCell, for: indexPath)!
         let ticketHolder = item(for: indexPath)
         cell.configure(ticketHolder: ticketHolder)
         return cell
