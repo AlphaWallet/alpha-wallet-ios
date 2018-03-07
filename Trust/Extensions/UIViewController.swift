@@ -57,7 +57,7 @@ extension UIViewController {
 
     func openURL(_ url: URL) {
         let controller = SFSafariViewController(url: url)
-        controller.preferredBarTintColor = Colors.appBackground
+        // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
         present(controller, animated: true, completion: nil)
     }
 }
