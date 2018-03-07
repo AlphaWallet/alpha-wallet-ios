@@ -20,7 +20,7 @@ class TicketRedemptionViewController: UIViewController {
     func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
-        timer = Timer.scheduledTimer(timeInterval: 5,
+        timer = Timer.scheduledTimer(timeInterval: 30,
                                      target: self,
                                      selector: #selector(configureUI),
                                      userInfo: nil,
