@@ -43,7 +43,7 @@ public class OrdersRequest {
             }
         }
 
-        let hexData: String = bytesToHexa(data)
+        let hexData: String = OrdersRequest.bytesToHexa(data)
         let parameters: Parameters = ["data": hexData]
         let headers: HTTPHeaders = ["Content-Type": "application/vnd.awallet-signed-orders-v0"]
 
@@ -68,7 +68,7 @@ public class OrdersRequest {
 
     }
 
-    public func bytesToHexa(_ bytes: [UInt8]) -> String {
+    public static func bytesToHexa(_ bytes: [UInt8]) -> String {
         return bytes.map {
             String(format: "%02X", $0)
         }.joined()

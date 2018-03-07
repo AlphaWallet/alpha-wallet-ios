@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import BigInt
 
 class TicketRedemptionViewController: UIViewController {
 
@@ -15,6 +16,7 @@ class TicketRedemptionViewController: UIViewController {
     var viewModel: TicketRedemptionViewModel!
     let redeem = CreateRedeem()
     var timer: Timer!
+    let keystore = try! EtherKeystore()
 
     override
     func viewDidLoad() {
@@ -42,6 +44,15 @@ class TicketRedemptionViewController: UIViewController {
     @objc
     private func configureUI() {
         ticketView.configure(ticketHolder: viewModel.ticketHolder)
-        imageView.image = redeem.redeemMessage(ticketIndices: viewModel.ticketHolder.ticketIndices).toQRCode()
+        let redeemData = redeem.redeemMessage(ticketIndices: viewModel.ticketHolder.ticketIndices)
+        //TODO get default account
+        let defaultAccount = self.keystore.keyStore.accounts[0]
+        let signature = keystore.signMessageData(redeemData.0.data(using: String.Encoding.utf8), for: defaultAccount)
+        print("message: " + redeemData.0)
+        print(defaultAccount.address)
+        let hexSignature = try! OrdersRequest.bytesToHexa(Array(signature.dematerialize()))
+        let decimalSignature = BigInt(hexSignature, radix: 16)!.description
+        let qrCodeInfo = try! redeemData.1 + decimalSignature
+        imageView.image = qrCodeInfo.toQRCode()
     }
 }
