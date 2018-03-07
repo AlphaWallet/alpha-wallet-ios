@@ -28,6 +28,8 @@ func applyStyle() {
 
     UITextField.appearance().tintColor = Colors.blue
 
+    UIRefreshControl.appearance().tintColor = Colors.appWhite
+
     UIImageView.appearance().tintColor = Colors.lightBlue
     UIImageView.appearance(whenContainedInInstancesOf: [BrowserNavigationBar.self]).tintColor = .white
 
