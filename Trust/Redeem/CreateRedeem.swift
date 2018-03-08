@@ -12,7 +12,8 @@ class CreateRedeem {
 
     func generateTimeStamp() -> String {
         let time = NSDate().timeIntervalSince1970
-        let minsTime = Int(time / 30)
+        //rotate qr every 30 seconds for security (preventing screenshot claims)
+        let minsTime = Int(time / 30) 
         return String(minsTime)
     }
 
