@@ -8,7 +8,7 @@ class OrderRequestTest : XCTestCase  {
 
     var expectations = [XCTestExpectation]()
     
-    func testHttpCallToQueue() {
+    func testGetOrders() {
         let expectation = self.expectation(description: "wait til callback")
         expectations.append(expectation)
         OrdersRequest.init().getOrders(callback: {
