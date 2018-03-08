@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import BigInt
 
 struct Ticket {
     let id: UInt16

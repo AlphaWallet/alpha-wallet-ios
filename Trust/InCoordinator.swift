@@ -277,6 +277,10 @@ class InCoordinator: Coordinator {
         navigationController.present(ticketsCoordinator.navigationController, animated: true, completion: nil)
     }
 
+    func showTicketListToRedeem(for token: TokenObject, coordinator: TicketsCoordinator) {
+        coordinator.showRedeemViewController()
+    }
+
     private func handlePendingTransaction(transaction: SentTransaction) {
         transactionCoordinator?.dataCoordinator.addSentTransaction(transaction)
     }
@@ -301,11 +305,16 @@ class InCoordinator: Coordinator {
 }
 
 extension InCoordinator: TicketsCoordinatorDelegate {
-    func didPress(for type: PaymentFlow, ticketHolders: [TicketHolder], in coordinator: TicketsCoordinator) {
+    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in coordinator: TicketsCoordinator) {
         showPaymentFlow(for: type, ticketHolders: ticketHolders, in: coordinator)
     }
 
+    func didPressRedeem(for token: TokenObject, in coordinator: TicketsCoordinator) {
+        showTicketListToRedeem(for: token, coordinator: coordinator)
+    }
+
     func didCancel(in coordinator: TicketsCoordinator) {
+        coordinator.navigationController.dismiss(animated: true, completion: nil)
         removeCoordinator(coordinator)
     }
 }

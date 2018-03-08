@@ -12,9 +12,11 @@ import Result
 import TrustKeystore
 
 protocol TicketsCoordinatorDelegate: class {
-    func didPress(for type: PaymentFlow,
-                  ticketHolders: [TicketHolder],
-                  in coordinator: TicketsCoordinator)
+    func didPressTransfer(for type: PaymentFlow,
+                          ticketHolders: [TicketHolder],
+                          in coordinator: TicketsCoordinator)
+    func didPressRedeem(for token: TokenObject,
+                        in coordinator: TicketsCoordinator)
     func didCancel(in coordinator: TicketsCoordinator)
 }
 
@@ -35,10 +37,10 @@ class TicketsCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     init(
-            session: WalletSession,
-            navigationController: UINavigationController = NavigationController(),
-            keystore: Keystore,
-            tokensStorage: TokensDataStore
+        session: WalletSession,
+        navigationController: UINavigationController = NavigationController(),
+        keystore: Keystore,
+        tokensStorage: TokensDataStore
     ) {
         self.session = session
         self.keystore = keystore
@@ -55,8 +57,7 @@ class TicketsCoordinator: Coordinator {
     }
 
     private func makeTicketsViewController(with account: Wallet) -> TicketsViewController {
-        let storyboard = UIStoryboard(name: "Tickets", bundle: nil)
-        let controller = storyboard.instantiateViewController(withIdentifier: "TicketsViewController") as! TicketsViewController
+        let controller = R.storyboard.tickets.ticketsViewController()!
         controller.account = account
         controller.session = session
         controller.tokensStorage = tokensStorage
@@ -64,25 +65,53 @@ class TicketsCoordinator: Coordinator {
         return controller
     }
 
-    @objc func dismiss() {
-        navigationController.dismiss(animated: true, completion: nil)
-    }
-
     func stop() {
         session.stop()
+    }
+
+    func showRedeemViewController() {
+        let redeemViewController = makeRedeemTicketsViewController()
+        navigationController.pushViewController(redeemViewController, animated: true)
+    }
+
+    private func showQuantityViewController(for ticketHolder: TicketHolder,
+                                            in viewController: UIViewController) {
+        let quantityViewController = makeQuantitySelectionViewController(for: ticketHolder)
+        viewController.navigationController?.pushViewController(quantityViewController, animated: true)
+    }
+
+    private func showTicketRedemptionViewController(for ticketHolder: TicketHolder,
+                                                    in viewController: UIViewController) {
+        let quantityViewController = makeTicketRedemptionViewController(for: ticketHolder)
+        viewController.navigationController?.pushViewController(quantityViewController, animated: true)
+    }
+
+    private func makeRedeemTicketsViewController() -> RedeemTicketsViewController {
+        let controller = R.storyboard.redeemTickets.redeemTicketsViewController()!
+        let viewModel = RedeemTicketsViewModel(token: token)
+        controller.viewModel = viewModel
+        controller.delegate = self
+        return controller
+    }
+
+    private func makeQuantitySelectionViewController(for ticketHolder: TicketHolder) -> QuantitySelectionViewController {
+        let controller = R.storyboard.redeemTickets.quantitySelectionViewController()!
+        controller.viewModel = QuantitySelectionViewModel(ticketHolder: ticketHolder)
+        controller.delegate = self
+        return controller
+    }
+
+    private func makeTicketRedemptionViewController(for ticketHolder: TicketHolder) -> TicketRedemptionViewController {
+        let controller = R.storyboard.redeemTickets.ticketRedemptionViewController()!
+        controller.viewModel = TicketRedemptionViewModel(ticketHolder: ticketHolder)
+        return controller
     }
 
 }
 
 extension TicketsCoordinator: TicketsViewControllerDelegate {
     func didPressRedeem(token: TokenObject, in viewController: UIViewController) {
-        UIAlertController.alert(title: "",
-                                message: "This feature is not yet implemented",
-                                alertButtonTitles: ["OK"],
-                                alertButtonStyles: [.cancel],
-                                viewController: viewController,
-                                completion: nil)
-
+        delegate?.didPressRedeem(for: token, in: self)
     }
 
     func didPressSell(token: TokenObject, in viewController: UIViewController) {
@@ -95,11 +124,22 @@ extension TicketsCoordinator: TicketsViewControllerDelegate {
     }
 
     func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: UIViewController) {
-        delegate?.didPress(for: type, ticketHolders: ticketHolders, in: self)
+        delegate?.didPressTransfer(for: type, ticketHolders: ticketHolders, in: self)
     }
 
     func didCancel(in viewController: UIViewController) {
-        viewController.navigationController?.dismiss(animated: true, completion: nil)
         delegate?.didCancel(in: self)
+    }
+}
+
+extension TicketsCoordinator: RedeemTicketsViewControllerDelegate {
+    func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: UIViewController) {
+        showQuantityViewController(for: ticketHolder, in: viewController)
+    }
+}
+
+extension TicketsCoordinator: QuantitySelectionViewControllerDelegate {
+    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: UIViewController) {
+        showTicketRedemptionViewController(for: ticketHolder, in: viewController)
     }
 }
