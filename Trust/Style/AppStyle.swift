@@ -59,6 +59,7 @@ struct Colors {
     static let appBackground = UIColor(red: 84, green: 193, blue: 227)
     static let appWhite = UIColor.white
     static let appText = UIColor(red: 47, green: 47, blue: 47)
+    static let appHighlightGreen = UIColor(red: 117, green: 185, blue: 67)
 }
 
 struct StyleLayout {
