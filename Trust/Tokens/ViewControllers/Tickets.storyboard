@@ -11,10 +11,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Use Token-->
+        <!--Ticket List-->
         <scene sceneID="FVp-jv-uXu">
             <objects>
-                <viewController storyboardIdentifier="TicketsViewController" id="dt4-4a-Rec" customClass="TicketsViewController" customModule="Trust" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="TicketsViewController" id="dt4-4a-Rec" userLabel="Ticket List" customClass="TicketsViewController" customModule="Trust" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Lhy-Sv-9I6">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -58,87 +58,27 @@
                                             <outlet property="nameLabel" destination="0F1-Dz-cM8" id="lDE-TD-Ot5"/>
                                         </connections>
                                     </tableViewCell>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="TicketCell" rowHeight="90" id="x30-SZ-UO2" customClass="TicketTableViewCell" customModule="Trust" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="TicketCell" rowHeight="90" id="l8Y-Nf-9WZ" customClass="TicketTableViewCell" customModule="Trust" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="78" width="375" height="90"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="x30-SZ-UO2" id="0T6-c0-w1v">
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="l8Y-Nf-9WZ" id="IyH-Wf-i02">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="90"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ls9-Of-gMp" customClass="DesignableView" customModule="Trust" customModuleProvider="target">
-                                                    <rect key="frame" x="8" y="4" width="359" height="81.5"/>
-                                                    <subviews>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="x10" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I71-hK-SSi">
-                                                            <rect key="frame" x="8" y="16" width="27" height="21"/>
-                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                            <color key="textColor" red="0.12941176470588234" green="0.73725490196078436" blue="0.29411764705882354" alpha="1" colorSpace="calibratedRGB"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="ARRANGING MORTGAGE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pzW-62-t7L">
-                                                            <rect key="frame" x="43" y="16" width="194" height="21"/>
-                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                            <nil key="textColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="RBS Forbidden City" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fwx-Tg-GeQ">
-                                                            <rect key="frame" x="224" y="16" width="135" height="21"/>
-                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                            <nil key="textColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="05 Mar 2018" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WvW-6W-pEq">
-                                                            <rect key="frame" x="8" y="53" width="102" height="21"/>
-                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                            <nil key="textColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="1-11" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JcO-lG-eyZ">
-                                                            <rect key="frame" x="118" y="53" width="102" height="21"/>
-                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                            <nil key="textColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="ZONE A" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ges-YP-Yo3">
-                                                            <rect key="frame" x="249" y="53" width="102" height="21"/>
-                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                            <nil key="textColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
-                                                    </subviews>
+                                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="x15-5e-n64" customClass="TicketView" customModule="Trust" customModuleProvider="target">
+                                                    <rect key="frame" x="8" y="4" width="359" height="82"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                    <userDefinedRuntimeAttributes>
-                                                        <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                                            <color key="value" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                                            <real key="value" value="1"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                        <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                                            <real key="value" value="7"/>
-                                                        </userDefinedRuntimeAttribute>
-                                                    </userDefinedRuntimeAttributes>
                                                 </view>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="Ls9-Of-gMp" firstAttribute="top" secondItem="0T6-c0-w1v" secondAttribute="top" constant="4" id="9hf-jZ-idt"/>
-                                                <constraint firstAttribute="trailing" secondItem="Ls9-Of-gMp" secondAttribute="trailing" constant="8" id="FrU-en-Vdb"/>
-                                                <constraint firstItem="Ls9-Of-gMp" firstAttribute="leading" secondItem="0T6-c0-w1v" secondAttribute="leading" constant="8" id="cFw-eB-GLw"/>
-                                                <constraint firstAttribute="bottom" secondItem="Ls9-Of-gMp" secondAttribute="bottom" constant="4" id="uvE-sw-yKL"/>
+                                                <constraint firstAttribute="bottom" secondItem="x15-5e-n64" secondAttribute="bottom" constant="4" id="eIp-Jj-SsE"/>
+                                                <constraint firstItem="x15-5e-n64" firstAttribute="leading" secondItem="IyH-Wf-i02" secondAttribute="leading" constant="8" id="n60-3Z-gOl"/>
+                                                <constraint firstAttribute="trailing" secondItem="x15-5e-n64" secondAttribute="trailing" constant="8" id="qIM-Dk-qe5"/>
+                                                <constraint firstItem="x15-5e-n64" firstAttribute="top" secondItem="IyH-Wf-i02" secondAttribute="top" constant="4" id="rmm-Uk-l3a"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                         <connections>
-                                            <outlet property="dateLabel" destination="WvW-6W-pEq" id="s2z-3Y-byi"/>
-                                            <outlet property="nameLabel" destination="pzW-62-t7L" id="K0P-B2-kd6"/>
-                                            <outlet property="seatLabel" destination="JcO-lG-eyZ" id="LiS-m9-UFf"/>
-                                            <outlet property="ticketNumberLabel" destination="I71-hK-SSi" id="q8M-4N-GbZ"/>
-                                            <outlet property="venueLabel" destination="Fwx-Tg-GeQ" id="MzR-qk-Oro"/>
-                                            <outlet property="zoneLabel" destination="ges-YP-Yo3" id="ldf-c0-Dc5"/>
+                                            <outlet property="ticketView" destination="x15-5e-n64" id="aEb-5I-5Hr"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -226,17 +166,11 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="TiC-xe-4Ea"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Use Token" id="KPo-ua-2Ez">
-                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="hab-nB-Udc">
-                            <connections>
-                                <action selector="didTapDoneButton:" destination="dt4-4a-Rec" id="HpJ-gd-LTS"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Use Token" id="KPo-ua-2Ez"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="yVC-XP-XG2" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-110" y="171"/>
+            <point key="canvasLocation" x="228" y="170.46476761619192"/>
         </scene>
     </scenes>
 </document>

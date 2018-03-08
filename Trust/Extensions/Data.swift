@@ -1,6 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import UIKit
+import CoreImage
 
 extension Data {
     var hex: String {
@@ -59,5 +61,16 @@ extension Data {
 
     func toString() -> String? {
         return String(data: self, encoding: .utf8)
+    }
+    
+    func toQRCode() -> UIImage? {
+        if let filter = CIFilter(name: "CIQRCodeGenerator") {
+            filter.setValue(self, forKey: "inputMessage")
+            let transform = CGAffineTransform(scaleX: 7, y: 7)
+            if let output = filter.outputImage?.transformed(by: transform) {
+                return UIImage(ciImage: output)
+            }
+        }
+        return nil
     }
 }
