@@ -5,12 +5,18 @@ import UIKit
 import CoreImage
 
 extension Data {
-    var hex: String {
-        return map { String(format: "%02hhx", $0) }.joined()
+    struct HexEncodingOptions: OptionSet {
+        let rawValue: Int
+        static let upperCase = HexEncodingOptions(rawValue: 1 << 0)
+    }
+
+    func toHex(options: HexEncodingOptions = []) -> String {
+        let format = options.contains(.upperCase) ? "%02hhX" : "%02hhx"
+        return map { String(format: format, $0) }.joined()
     }
 
     var hexEncoded: String {
-        return "0x" + self.hex
+        return "0x" + self.toHex()
     }
 
     init(hex: String) {
@@ -62,7 +68,7 @@ extension Data {
     func toString() -> String? {
         return String(data: self, encoding: .utf8)
     }
-    
+
     func toQRCode() -> UIImage? {
         if let filter = CIFilter(name: "CIQRCodeGenerator") {
             filter.setValue(self, forKey: "inputMessage")
