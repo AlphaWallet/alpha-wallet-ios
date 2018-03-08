@@ -16,9 +16,9 @@ struct GetIsStormBirdEncode: Web3Request {
 
 struct GetIsStormBirdDecode: Web3Request {
     typealias Response = String
-    
+
     let data: String
-    
+
     var type: Web3RequestType {
         let run = "web3.eth.abi.decodeParameter('uint256', '\(data)')"
         return .script(command: run)

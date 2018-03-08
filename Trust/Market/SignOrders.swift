@@ -52,7 +52,6 @@ public class SignOrders {
             let message : [UInt8] =
             encodeMessageForTrade(price: orders[i].price, expiryBuffer: orders[i].expiry,
                     tickets: orders[i].indices, contractAddress: orders[i].contractAddress)
-
             let signature = try! "0x" + keyStore.signMessageData(Data(bytes: message), for: account).dematerialize().toHexString()
             let signedOrder = try! SignedOrder(order : orders[i], message: message,
                     signature : signature.description)
@@ -61,13 +60,10 @@ public class SignOrders {
             let v = signature.substring(from: 130)
             let r = signature.substring(to: 64)
             let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 126)))
-            let hexIndices =  SignOrders.uInt16ArrayToUInt8(arrayOfUInt16: orders[i].indices).toHexString()
             var hexExpires = orders[i].expiry.serialize().toHexString()
             if(hexExpires == "") {
                 hexExpires = "0"
             }
-            let encoding = orderMethodSignatureHash + hexIndices + hexExpires + v + r + s
-            data.append(encoding)
         }
         return (signedOrders, data)
     }
