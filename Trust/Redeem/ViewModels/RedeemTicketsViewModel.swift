@@ -1,15 +1,15 @@
 //
-//  TicketsViewModel.swift
+//  RedeemTicketsViewModel.swift
 //  Alpha-Wallet
 //
-//  Created by Oguzhan Gungor on 2/24/18.
+//  Created by Oguzhan Gungor on 3/4/18.
 //  Copyright © 2018 Alpha-Wallet. All rights reserved.
 //
 
 import Foundation
 import UIKit
 
-struct TicketsViewModel {
+struct RedeemTicketsViewModel {
 
     var token: TokenObject
     var ticketHolders: [TicketHolder]?
@@ -43,13 +43,13 @@ struct TicketsViewModel {
 
     func height(for section: Int) -> CGFloat {
         if section == 0 {
-            return 50
+            return 30
         }
         return 90
     }
 
     var title: String {
-        return "Use Token"
+        return "Redeem Asset"
     }
 
     func ticketCellPressed(for indexPath: IndexPath) -> Bool {
@@ -57,15 +57,15 @@ struct TicketsViewModel {
     }
 
     private func summaryCell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.stormBirdTokenSummaryTableViewCell, for: indexPath)!
-        cell.configure(for: token)
-        return cell
+        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.redeemTableViewCell, for: indexPath)
+        return cell!
     }
 
     private func ticketCell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.ticketCell, for: indexPath)!
+        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.redeemTicketCell, for: indexPath)!
         let ticketHolder = item(for: indexPath)
         cell.configure(ticketHolder: ticketHolder)
         return cell
     }
+
 }
