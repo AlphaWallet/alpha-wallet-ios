@@ -96,7 +96,7 @@ class AlphaWalletTicketTokenViewCell: UITableViewCell {
 
         titleLabel.textColor = viewModel.titleColor
         titleLabel.font = viewModel.titleFont
-        titleLabel.text = viewModel.title
+        titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
 
         blockchainLabel.textColor = viewModel.subtitleColor
         blockchainLabel.font = viewModel.subtitleFont
