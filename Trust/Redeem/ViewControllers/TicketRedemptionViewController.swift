@@ -50,6 +50,7 @@ class TicketRedemptionViewController: UIViewController {
             imageView.image = qrCodeInfo.toQRCode()
         case .watch: break // TODO: What to do here?
         }
+        ticketView.configure(ticketHolder: viewModel.ticketHolder)
     }
 
  }
