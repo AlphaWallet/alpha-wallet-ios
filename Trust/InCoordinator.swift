@@ -14,9 +14,12 @@ enum Tabs {
     case transactions
     case tokens
     case settings
+    case wallet
 
     var className: String {
         switch self {
+        case .wallet:
+            return String(describing: TokensViewController.self)
         case .tokens:
             return String(describing: TokensViewController.self)
         case .transactions:
@@ -90,6 +93,7 @@ class InCoordinator: Coordinator {
         web3.start()
         let realm = self.realm(for: migration.config)
         let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
+        let alphaWalletTokensStorage = AlphaWalletTokensDataStore(realm: realm, account: account, config: config, web3: web3)
         let balanceCoordinator = GetBalanceCoordinator(web3: web3)
         let balance = BalanceCoordinator(account: account, config: config, storage: tokensStorage)
         let session = WalletSession(
@@ -137,6 +141,17 @@ class InCoordinator: Coordinator {
             tokenCoordinator.start()
             addCoordinator(tokenCoordinator)
             tabBarController.viewControllers?.append(tokenCoordinator.navigationController)
+
+            let alphaWalletTokensCoordinator = AlphaWalletTokensCoordinator(
+                    session: session,
+                    keystore: keystore,
+                    tokensStorage: alphaWalletTokensStorage
+            )
+            alphaWalletTokensCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
+            alphaWalletTokensCoordinator.delegate = self
+            alphaWalletTokensCoordinator.start()
+            addCoordinator(alphaWalletTokensCoordinator)
+            tabBarController.viewControllers?.append(alphaWalletTokensCoordinator.navigationController)
         }
         let settingsCoordinator = SettingsCoordinator(
                 keystore: keystore,
@@ -317,6 +332,11 @@ extension InCoordinator: TicketsCoordinatorDelegate {
         coordinator.navigationController.dismiss(animated: true, completion: nil)
         removeCoordinator(coordinator)
     }
+
+    func didPressViewRedemptionInfo(in viewController: UIViewController) {
+        let controller = TicketRedemptionInfoViewController()
+		viewController.navigationController?.pushViewController(controller, animated: true)
+    }
 }
 
 extension InCoordinator: TransactionCoordinatorDelegate {
@@ -357,6 +377,16 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
+        showTicketList(for: type, token: token)
+    }
+}
+
+extension InCoordinator: AlphaWalletTokensCoordinatorDelegate {
+    func didPress(for type: PaymentFlow, in coordinator: AlphaWalletTokensCoordinator) {
+        showPaymentFlow(for: type)
+    }
+
+    func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: AlphaWalletTokensCoordinator) {
         showTicketList(for: type, token: token)
     }
 }

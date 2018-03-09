@@ -18,6 +18,7 @@ protocol TicketsCoordinatorDelegate: class {
     func didPressRedeem(for token: TokenObject,
                         in coordinator: TicketsCoordinator)
     func didCancel(in coordinator: TicketsCoordinator)
+    func didPressViewRedemptionInfo(in: UIViewController)
 }
 
 class TicketsCoordinator: Coordinator {
@@ -52,12 +53,13 @@ class TicketsCoordinator: Coordinator {
         let viewModel = TicketsViewModel(
             token: token
         )
-        rootViewController.viewModel = viewModel
+        rootViewController.tokenObject = token
+        rootViewController.configure(viewModel: viewModel)
         navigationController.viewControllers = [rootViewController]
     }
 
     private func makeTicketsViewController(with account: Wallet) -> TicketsViewController {
-        let controller = R.storyboard.tickets.ticketsViewController()!
+        let controller = TicketsViewController()
         controller.account = account
         controller.session = session
         controller.tokensStorage = tokensStorage
@@ -130,6 +132,10 @@ extension TicketsCoordinator: TicketsViewControllerDelegate {
 
     func didCancel(in viewController: UIViewController) {
         delegate?.didCancel(in: self)
+    }
+
+    func didPressViewRedemptionInfo(viewController: UIViewController) {
+       delegate?.didPressViewRedemptionInfo(in: viewController)
     }
 }
 
