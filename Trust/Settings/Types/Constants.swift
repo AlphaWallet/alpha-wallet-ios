@@ -12,7 +12,7 @@ public struct Constants {
     // social
     public static let website = "https://www.awallet.io/"
     public static let twitterUsername = "Alpha_wallet"
-    public static let telegramUsername = "trustwallet"
+    public static let redditGroupName = "r/AlphaWallet/"
     public static let facebookUsername = "AlphaWallet"
 
     // support
