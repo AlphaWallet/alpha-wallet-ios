@@ -10,13 +10,13 @@ extension Data {
         static let upperCase = HexEncodingOptions(rawValue: 1 << 0)
     }
 
-    func toHex(options: HexEncodingOptions = []) -> String {
+    func hex(options: HexEncodingOptions = []) -> String {
         let format = options.contains(.upperCase) ? "%02hhX" : "%02hhx"
         return map { String(format: format, $0) }.joined()
     }
 
     var hexEncoded: String {
-        return "0x" + self.toHex()
+        return "0x" + self.hex()
     }
 
     init(hex: String) {
