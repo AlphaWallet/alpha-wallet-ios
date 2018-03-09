@@ -27,24 +27,39 @@ class TicketsViewController: UIViewController {
     var session: WalletSession!
     weak var delegate: TicketsViewControllerDelegate?
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.applyTintAdjustment()
+    override
+    func viewDidLoad() {
+        super.viewDidLoad()
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel,
+                                                           target: self,
+                                                           action: #selector(didTapCancelButton))
     }
 
-    @IBAction func didTapDoneButton(_ sender: UIBarButtonItem) {
+    override
+    func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.navigationController?.applyTintAdjustment()
+        title = viewModel.title
+    }
+
+    @IBAction
+    func didTapCancelButton(_ sender: UIBarButtonItem) {
         delegate?.didCancel(in: self)
     }
 
-    @IBAction func didPressRedeem(_ sender: UIButton) {
-        delegate?.didPressRedeem(token: viewModel.token, in: self)
+    @IBAction
+    func didPressRedeem(_ sender: UIButton) {
+        delegate?.didPressRedeem(token: viewModel.token,
+                                 in: self)
     }
 
-    @IBAction func didPressSell(_ sender: UIButton) {
+    @IBAction
+    func didPressSell(_ sender: UIButton) {
         delegate?.didPressSell(token: viewModel.token, in: self)
     }
 
-    @IBAction func didPressTransfer(_ sender: UIButton) {
+    @IBAction
+    func didPressTransfer(_ sender: UIButton) {
         delegate?.didPressTransfer(for: .send(type: .stormBird(viewModel.token)),
                                    ticketHolders: viewModel.ticketHolders!,
                                    in: self)
