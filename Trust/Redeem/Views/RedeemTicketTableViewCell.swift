@@ -8,13 +8,13 @@
 
 import UIKit
 
-class RedeemTicketTableViewCell: TicketTableViewCell {
+class RedeemTicketTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var ticketView: TicketView!
     @IBOutlet weak var radioButton: RadioButton!
 
-    override
     func configure(ticketHolder: TicketHolder) {
-        super.configure(ticketHolder: ticketHolder)
+        ticketView.configure(ticketHolder: ticketHolder)
         radioButton.isOn = ticketHolder.status == .redeemed
     }
 }
