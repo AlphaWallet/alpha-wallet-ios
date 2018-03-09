@@ -52,12 +52,13 @@ class TicketsCoordinator: Coordinator {
         let viewModel = TicketsViewModel(
             token: token
         )
-        rootViewController.viewModel = viewModel
+        rootViewController.tokenObject = token
+        rootViewController.configure(viewModel: viewModel)
         navigationController.viewControllers = [rootViewController]
     }
 
     private func makeTicketsViewController(with account: Wallet) -> TicketsViewController {
-        let controller = R.storyboard.tickets.ticketsViewController()!
+        let controller = TicketsViewController()
         controller.account = account
         controller.session = session
         controller.tokensStorage = tokensStorage
