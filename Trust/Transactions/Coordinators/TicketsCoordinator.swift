@@ -18,6 +18,7 @@ protocol TicketsCoordinatorDelegate: class {
     func didPressRedeem(for token: TokenObject,
                         in coordinator: TicketsCoordinator)
     func didCancel(in coordinator: TicketsCoordinator)
+    func didPressViewRedemptionInfo(in: UIViewController)
 }
 
 class TicketsCoordinator: Coordinator {
@@ -130,6 +131,10 @@ extension TicketsCoordinator: TicketsViewControllerDelegate {
 
     func didCancel(in viewController: UIViewController) {
         delegate?.didCancel(in: self)
+    }
+
+    func didPressViewRedemptionInfo(viewController: UIViewController) {
+       delegate?.didPressViewRedemptionInfo(in: viewController)
     }
 }
 
