@@ -75,6 +75,6 @@ class AlphaWalletTokenViewCell: UITableViewCell {
 
         separator.textColor = viewModel.subtitleColor
         separator.font = viewModel.subtitleFont
-        separator.text = "|"
+        separator.text = ""
     }
 }

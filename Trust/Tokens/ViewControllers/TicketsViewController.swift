@@ -16,6 +16,7 @@ protocol TicketsViewControllerDelegate: class {
     func didPressSell(token: TokenObject, in viewController: UIViewController)
     func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: UIViewController)
     func didCancel(in viewController: UIViewController)
+    func didPressViewRedemptionInfo(viewController: UIViewController)
 }
 
 class TicketsViewController: UIViewController {
@@ -38,6 +39,8 @@ class TicketsViewController: UIViewController {
 
     init() {
         super.init(nibName: nil, bundle: nil)
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
 
         view.backgroundColor = Colors.appBackground
 		
@@ -142,6 +145,10 @@ class TicketsViewController: UIViewController {
         delegate?.didPressTransfer(for: .send(type: .stormBird(viewModel.token)),
                                    ticketHolders: viewModel.ticketHolders!,
                                    in: self)
+    }
+
+    @objc func showInfo() {
+		delegate?.didPressViewRedemptionInfo(viewController: self)
     }
 }
 

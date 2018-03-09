@@ -332,6 +332,11 @@ extension InCoordinator: TicketsCoordinatorDelegate {
         coordinator.navigationController.dismiss(animated: true, completion: nil)
         removeCoordinator(coordinator)
     }
+
+    func didPressViewRedemptionInfo(in viewController: UIViewController) {
+        let controller = TicketRedemptionInfoViewController()
+		viewController.navigationController?.pushViewController(controller, animated: true)
+    }
 }
 
 extension InCoordinator: TransactionCoordinatorDelegate {
