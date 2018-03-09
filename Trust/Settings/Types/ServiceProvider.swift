@@ -5,13 +5,13 @@ import UIKit
 
 enum URLServiceProvider {
     case twitter
-    case telegram
+    case reddit
     case facebook
 
     var title: String {
         switch self {
         case .twitter: return "Twitter"
-        case .telegram: return "Telegram Group"
+        case .reddit: return "Reddit"
         case .facebook: return "Facebook"
         }
     }
@@ -20,8 +20,8 @@ enum URLServiceProvider {
         switch self {
         case .twitter:
             return URL(string: "twitter://user?screen_name=\(Constants.twitterUsername)")!
-        case .telegram:
-            return URL(string: "tg://resolve?domain=\(Constants.telegramUsername)")
+        case .reddit:
+            return URL(string: "reddit.com\(Constants.redditGroupName)")
         case .facebook:
             return URL(string: "fb://profile?id=\(Constants.facebookUsername)")
         }
@@ -35,8 +35,8 @@ enum URLServiceProvider {
         switch self {
         case .twitter:
             return "https://twitter.com/\(Constants.twitterUsername)"
-        case .telegram:
-            return "https://telegram.me/\(Constants.telegramUsername)"
+        case .reddit:
+            return "https://reddit.com/\(Constants.redditGroupName)"
         case .facebook:
             return "https://www.facebook.com/\(Constants.facebookUsername)"
         }
@@ -45,7 +45,7 @@ enum URLServiceProvider {
     var image: UIImage? {
         switch self {
         case .twitter: return R.image.settings_twitter()
-        case .telegram: return R.image.settings_telegram()
+        case .reddit: return R.image.settings_reddit()
         case .facebook: return R.image.settings_facebook()
         }
     }
