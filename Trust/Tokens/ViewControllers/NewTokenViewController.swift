@@ -198,11 +198,11 @@ class NewTokenViewController: FormViewController {
         guard let value = contractRow?.value?.trimmed else {
             return
         }
-        
+
         guard CryptoAddressValidator.isValidAddress(value) else {
             return
         }
-        
+
         updateContractValue(value: value)
     }
 
