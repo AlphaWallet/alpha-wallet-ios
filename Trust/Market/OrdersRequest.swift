@@ -20,7 +20,7 @@ import BigInt
 public class OrdersRequest {
 
     public let baseURL = "https://482kdh4npg.execute-api.ap-southeast-1.amazonaws.com/dev/"
-    public let contractAddress = "0xbc9a1026a4bc6f0ba8bbe486d1d09da5732b39e4"
+    public let contractAddress = "0x84DFD837931954c6ca515516598468564308bde6"
     private let methodSig = "0xa6fb475f"
 
     public func getOrders(callback: @escaping (_ result : Any) -> Void) {
