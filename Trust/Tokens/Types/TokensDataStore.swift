@@ -165,12 +165,13 @@ class TokensDataStore {
         }
     }
 
+    //Result<Void, AnyError>
     func claimOrder(ticketIndices: [UInt16],
                     expiry: BigUInt,
                     v: UInt8,
                     r: String,
                     s: String,
-                    completion: @escaping(Result<Void, AnyError>) -> Void) {
+                    completion: @escaping(Any) -> Void) {
         claimOrderCoordinator.claimOrder(indices: ticketIndices, expiry: expiry, v: v, r: r, s: s) { result in
             completion(result)
         }

@@ -181,7 +181,7 @@ class NewTokenViewController: FormViewController {
 //            return displayError(error: Errors.invalidAddress)
 //        }
 
-        updateContractValue(value: "0xbC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4")
+        updateContractValue(value: "0x84DFD837931954c6ca515516598468564308bde6")
     }
 
     private func updateContractValue(value: String) {
