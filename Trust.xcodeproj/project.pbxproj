@@ -296,11 +296,15 @@
 		5E7C71D3F8BCECB0F641CE1B /* AlphaWalletFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B27B233839F6E02B22D /* AlphaWalletFilter.swift */; };
 		5E7C7281CB985E0E198B169F /* AlphaWalletTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C8CFADC77E818F0ECF2 /* AlphaWalletTokensCoordinator.swift */; };
 		5E7C7523220590DFEFA66E0B /* AlphaWalletFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D9AA7F23134664CA01B /* AlphaWalletFilterView.swift */; };
+		5E7C75F80A7E178B49830BCD /* TicketsViewControllerHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */; };
+		5E7C760C7D55C97424F55138 /* TicketTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */; };
 		5E7C770E80DA43E9DA43F545 /* AlphaWalletFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70004B43AB45BF6467C0 /* AlphaWalletFilterViewModel.swift */; };
 		5E7C77BFE0FF3F9C11BF4182 /* AlphaWalletTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70F6DB462E665D36AF42 /* AlphaWalletTokensViewModel.swift */; };
 		5E7C78AA206C73015BEF771A /* AlphaWalletTokensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70D162C7F6C1F94462F5 /* AlphaWalletTokensViewController.swift */; };
+		5E7C7B3E08EEA63C5B68B9C4 /* TicketRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */; };
 		5E7C7B94143AB817CB2D8145 /* AlphaWalletTokensDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BA83C86BAC1C1BAA7D2 /* AlphaWalletTokensDataStore.swift */; };
 		5E7C7BDF5EF2EC02589F03E0 /* AlphaWalletTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A715287C98D09E977EB /* AlphaWalletTokenViewCell.swift */; };
+		5E7C7E5C30EFDC70DF1E00C1 /* TicketsViewControllerHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */; };
 		5E7C7F35A222EA9CC0933E37 /* AlphaWalletTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7140CFD06FF344C64085 /* AlphaWalletTokenViewCellViewModel.swift */; };
 		613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */ = {isa = PBXBuildFile; fileRef = 613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */; };
 		613D048B1FDE162B008DE72E /* TrustProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 613D048A1FDE162B008DE72E /* TrustProvider.swift */; };
@@ -395,6 +399,7 @@
 		AAEB8DA2204BC7B700CB0B2C /* RedeemTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */; };
 		AAEB8DA6204D5CDE00CB0B2C /* TicketView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AAEB8DA5204D5CDE00CB0B2C /* TicketView.xib */; };
 		AAEB8DA8204D5CFA00CB0B2C /* TicketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA7204D5CFA00CB0B2C /* TicketView.swift */; };
+		AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */; };
 		B1DC375D203AEAE200C9756D /* OrdersRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375C203AEAE100C9756D /* OrdersRequest.swift */; };
 		B1DC375F203AEB4800C9756D /* OrderRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */; };
 		BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */; };
@@ -731,8 +736,12 @@
 		5E7C70D162C7F6C1F94462F5 /* AlphaWalletTokensViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokensViewController.swift; sourceTree = "<group>"; };
 		5E7C70F6DB462E665D36AF42 /* AlphaWalletTokensViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokensViewModel.swift; sourceTree = "<group>"; };
 		5E7C7140CFD06FF344C64085 /* AlphaWalletTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokenViewCellViewModel.swift; sourceTree = "<group>"; };
+		5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C770BDFCD59740E20D9FC /* AlphaWalletTicketTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTicketTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C77264EC27237CD9DA18F /* AlphaWalletTicketTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTicketTokenViewCell.swift; sourceTree = "<group>"; };
+		5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeaderViewModel.swift; sourceTree = "<group>"; };
+		5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionInfoViewController.swift; sourceTree = "<group>"; };
+		5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeader.swift; sourceTree = "<group>"; };
 		5E7C7A715287C98D09E977EB /* AlphaWalletTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C7B27B233839F6E02B22D /* AlphaWalletFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletFilter.swift; sourceTree = "<group>"; };
 		5E7C7BA83C86BAC1C1BAA7D2 /* AlphaWalletTokensDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokensDataStore.swift; sourceTree = "<group>"; };
@@ -843,6 +852,7 @@
 		AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemTicketsViewController.swift; sourceTree = "<group>"; };
 		AAEB8DA5204D5CDE00CB0B2C /* TicketView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TicketView.xib; sourceTree = "<group>"; };
 		AAEB8DA7204D5CFA00CB0B2C /* TicketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketView.swift; sourceTree = "<group>"; };
+		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
 		B1DC375C203AEAE100C9756D /* OrdersRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersRequest.swift; sourceTree = "<group>"; };
 		B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRequestTest.swift; sourceTree = "<group>"; };
@@ -1459,6 +1469,7 @@
 				442FCFA81968EBB72349E849 /* StormBirdTokenSummaryTableViewCell.swift */,
 				AAEB8DA5204D5CDE00CB0B2C /* TicketView.xib */,
 				AAEB8DA7204D5CFA00CB0B2C /* TicketView.swift */,
+				5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1471,6 +1482,7 @@
 				296106C51F7645CC0006164B /* TokensViewController.swift */,
 				294DFBA81FE6EBFB004CEB56 /* NewTokenViewController.swift */,
 				29F1C83D1FEB5C91003780D8 /* EditTokensViewController.swift */,
+				5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -1484,6 +1496,8 @@
 				29F1C8411FEB62ED003780D8 /* EditTokenTableCellViewModel.swift */,
 				29F1C8491FEB6D6B003780D8 /* EditTokenViewModel.swift */,
 				442FCB182F854B307761CD82 /* TicketsViewModel.swift */,
+				5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */,
+				5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -2220,7 +2234,7 @@
 		76F1D47A29573DA8BD3E4979 /* Redeem */ = {
 			isa = PBXGroup;
 			children = (
-				76F1DF80932454E9F58B7830 /* CreateRedeem.swift */,
+				AAEF2CA92050A64F0038BE0D /* Helpers */,
 				442FC7C7CCBFDDE6B395C64B /* ViewControllers */,
 				442FC5CFFC1E1126C7E6C682 /* ViewModels */,
 				442FC515DE27FF45AB993345 /* Views */,
@@ -2375,6 +2389,15 @@
 				8E0282B596A862A10ACB6686 /* Pods-AlphaWalletUITests.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		AAEF2CA92050A64F0038BE0D /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				76F1DF80932454E9F58B7830 /* CreateRedeem.swift */,
+				AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		C876FF69204A77B400B7D0EA /* Fonts */ = {
@@ -3108,6 +3131,7 @@
 				77B3BF4A2019247200EEC15A /* BrowserNavigationBar.swift in Sources */,
 				29BB94951F6FC54C009B09CC /* EthereumUnit.swift in Sources */,
 				29C70C712016C7780072E454 /* SentTransaction.swift in Sources */,
+				AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */,
 				29E9CFD21FE737FE00017744 /* TrustRealmConfiguration.swift in Sources */,
 				2959961C1FAE3EDF00DB66A8 /* TrustClient.swift in Sources */,
 				29AD8A0C1F93FBBF008E10E7 /* Subscribable.swift in Sources */,
@@ -3187,6 +3211,10 @@
 				5E7C7523220590DFEFA66E0B /* AlphaWalletFilterView.swift in Sources */,
 				5E7C71D3F8BCECB0F641CE1B /* AlphaWalletFilter.swift in Sources */,
 				5E7C770E80DA43E9DA43F545 /* AlphaWalletFilterViewModel.swift in Sources */,
+				5E7C760C7D55C97424F55138 /* TicketTableViewCellViewModel.swift in Sources */,
+				5E7C75F80A7E178B49830BCD /* TicketsViewControllerHeader.swift in Sources */,
+				5E7C7E5C30EFDC70DF1E00C1 /* TicketsViewControllerHeaderViewModel.swift in Sources */,
+				5E7C7B3E08EEA63C5B68B9C4 /* TicketRedemptionInfoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

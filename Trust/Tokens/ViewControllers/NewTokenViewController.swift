@@ -63,6 +63,10 @@ class NewTokenViewController: FormViewController {
                 cell.textField.textAlignment = .left
                 cell.textField.rightView = recipientRightView
                 cell.textField.rightViewMode = .always
+                cell.textField.addTarget(self,
+                                         action: #selector(self.contractAddressUpdated),
+                                         for: UIControlEvents.editingChanged)
+
             }
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.name) {
@@ -96,7 +100,9 @@ class NewTokenViewController: FormViewController {
                 $0.cell.textField.keyboardType = .numbersAndPunctuation
             }
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(addToken))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done,
+                                                            target: self,
+                                                            action: #selector(addToken))
     }
 
     public func updateSymbolValue(_ symbol: String) {
@@ -136,7 +142,8 @@ class NewTokenViewController: FormViewController {
         }
     }
 
-    @objc func addToken() {
+    @objc
+    func addToken() {
         guard form.validate().isEmpty else {
             return
         }
@@ -164,7 +171,8 @@ class NewTokenViewController: FormViewController {
         delegate?.didAddToken(token: erc20Token, in: self)
     }
 
-    @objc func openReader() {
+    @objc
+    func openReader() {
 
         let controller = QRCodeReaderViewController()
         controller.delegate = self
@@ -172,16 +180,29 @@ class NewTokenViewController: FormViewController {
         present(controller, animated: true, completion: nil)
     }
 
-    @objc func pasteAction() {
-//        guard let value = UIPasteboard.general.string?.trimmed else {
-//            return displayError(error: SendInputErrors.emptyClipBoard)
-//        }
-//
-//        guard CryptoAddressValidator.isValidAddress(value) else {
-//            return displayError(error: Errors.invalidAddress)
-//        }
+    @objc
+    func pasteAction() {
+        guard let value = UIPasteboard.general.string?.trimmed else {
+            return displayError(error: SendInputErrors.emptyClipBoard)
+        }
 
-        updateContractValue(value: "0x84DFD837931954c6ca515516598468564308bde6")
+        guard CryptoAddressValidator.isValidAddress(value) else {
+            return displayError(error: Errors.invalidAddress)
+        }
+
+        updateContractValue(value: value)
+    }
+
+    @objc
+    func contractAddressUpdated() {
+        guard let value = contractRow?.value?.trimmed else {
+            return
+        }
+
+        guard CryptoAddressValidator.isValidAddress(value) else {
+            return
+        }
+        updateContractValue(value: value)
     }
 
     private func updateContractValue(value: String) {
