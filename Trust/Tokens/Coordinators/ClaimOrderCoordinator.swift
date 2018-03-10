@@ -25,20 +25,25 @@ class ClaimOrderCoordinator {
                     v: UInt8,
                     r: String,
                     s: String,
-                    completion: @escaping (Any) -> Void//Result<Void, AnyError>) -> Void
-    ) {
+                    completion: @escaping (Result<Any, AnyError>) -> Void
+        ) {
         let request = ClaimStormBirdOrder(expiry: expiry, indices: indices, v: v, r: r, s: s)
-        self.web3.request(request: request) { result in
+        web3.request(request: request) { result in
             switch result {
-                //TODO handle cases for UI
-                case .success(let res):
-                    print(res)
-                    completion(res)
-                case .failure(let err):
-                    print(err)
-                    completion(err)
+            //TODO handle cases for UI
+            case .success(let res):
+                print(res)
+                completion(.success(res))
+            case .failure(let err):
+                print(err)
+                completion(.failure(AnyError(err)))
             }
-
         }
     }
+
+    // TODO: Testing purposes only. Remove this when it is fully functional
+    func startWeb3() {
+        web3.start()
+    }
+
 }
