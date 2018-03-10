@@ -23,7 +23,7 @@ class OrderSigningTests : XCTestCase  {
         testOrdersList.append(testOrder1)
         
         let signOrders = SignOrders()
-        var account = keyStore.createAccount(password: "deleteOnceWorking")
+        let account = keyStore.createAccount(password: "deleteOnceWorking")
         print(account.address)
         
         var signedOrders = signOrders.signOrders(orders: testOrdersList, account: account).0
