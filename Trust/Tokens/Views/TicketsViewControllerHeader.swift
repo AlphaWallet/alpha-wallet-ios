@@ -1,23 +1,21 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import UIKit
-import Kingfisher
 
-class AlphaWalletTokenViewCell: UITableViewCell {
-    static let identifier = "AlphaWalletTokenViewCell"
-
+class TicketsViewControllerHeader: UIView {
     let background = UIView()
     let titleLabel = UILabel()
     let blockchainLabel = UILabel()
     let separator = UILabel()
     let issuerLabel = UILabel()
 
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
 
-        contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(background)
+
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         let bottomRowStack = UIStackView(arrangedSubviews: [blockchainLabel, separator, issuerLabel])
         bottomRowStack.axis = .horizontal
@@ -29,22 +27,20 @@ class AlphaWalletTokenViewCell: UITableViewCell {
         stackView.axis = .vertical
         stackView.spacing = 15
         stackView.distribution = .fill
-        stackView.alignment = .leading
         background.addSubview(stackView)
 
+        let backgroundWidthConstraint = background.widthAnchor.constraint(equalTo: widthAnchor)
+        backgroundWidthConstraint.priority = .defaultHigh
         // TODO extract constant. Maybe StyleLayout.sideMargin
-        let xMargin  = CGFloat(7)
-        let yMargin  = CGFloat(20)
         NSLayoutConstraint.activate([
+            background.leadingAnchor.constraint(equalTo: leadingAnchor),
+            background.topAnchor.constraint(equalTo: topAnchor),
+            backgroundWidthConstraint,
+
             stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
-
-            background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
-            background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-            background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-            background.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -yMargin),
         ])
     }
 
@@ -52,18 +48,13 @@ class AlphaWalletTokenViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: AlphaWalletTokenViewCellViewModel) {
-        selectionStyle = .none
+    func configure(viewModel: TicketsViewControllerHeaderViewModel) {
+        frame = CGRect(x: 0, y: 0, width: 300, height: 90)
         backgroundColor = viewModel.backgroundColor
-
-        background.backgroundColor = viewModel.contentsBackgroundColor
-        background.layer.cornerRadius = 20
-
-        contentView.backgroundColor = viewModel.backgroundColor
 
         titleLabel.textColor = viewModel.titleColor
         titleLabel.font = viewModel.titleFont
-        titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
+        titleLabel.text = viewModel.title
 
         blockchainLabel.textColor = viewModel.subtitleColor
         blockchainLabel.font = viewModel.subtitleFont
@@ -71,10 +62,15 @@ class AlphaWalletTokenViewCell: UITableViewCell {
 
         issuerLabel.textColor = viewModel.subtitleColor
         issuerLabel.font = viewModel.subtitleFont
-        issuerLabel.text = viewModel.issuer
+        let issuer = viewModel.issuer
+        if issuer.isEmpty {
+            issuerLabel.text = ""
+        } else {
+            issuerLabel.text = "\(R.string.localizable.aWalletContentsIssuerTitle()): \(issuer)"
+        }
 
         separator.textColor = viewModel.subtitleColor
         separator.font = viewModel.subtitleFont
-        separator.text = ""
+        separator.text = "|"
     }
 }
