@@ -106,6 +106,7 @@ class TicketsCoordinator: Coordinator {
     private func makeTicketRedemptionViewController(for ticketHolder: TicketHolder) -> TicketRedemptionViewController {
         let controller = R.storyboard.redeemTickets.ticketRedemptionViewController()!
         controller.viewModel = TicketRedemptionViewModel(ticketHolder: ticketHolder)
+        controller.session = session
         return controller
     }
 

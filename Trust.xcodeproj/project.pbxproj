@@ -396,6 +396,7 @@
 		AAEB8DA2204BC7B700CB0B2C /* RedeemTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */; };
 		AAEB8DA6204D5CDE00CB0B2C /* TicketView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AAEB8DA5204D5CDE00CB0B2C /* TicketView.xib */; };
 		AAEB8DA8204D5CFA00CB0B2C /* TicketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA7204D5CFA00CB0B2C /* TicketView.swift */; };
+		AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */; };
 		B1DC375D203AEAE200C9756D /* OrdersRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375C203AEAE100C9756D /* OrdersRequest.swift */; };
 		B1DC375F203AEB4800C9756D /* OrderRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */; };
 		BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */; };
@@ -845,6 +846,7 @@
 		AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemTicketsViewController.swift; sourceTree = "<group>"; };
 		AAEB8DA5204D5CDE00CB0B2C /* TicketView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TicketView.xib; sourceTree = "<group>"; };
 		AAEB8DA7204D5CFA00CB0B2C /* TicketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketView.swift; sourceTree = "<group>"; };
+		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
 		B1DC375C203AEAE100C9756D /* OrdersRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersRequest.swift; sourceTree = "<group>"; };
 		B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRequestTest.swift; sourceTree = "<group>"; };
@@ -2223,7 +2225,7 @@
 		76F1D47A29573DA8BD3E4979 /* Redeem */ = {
 			isa = PBXGroup;
 			children = (
-				76F1DF80932454E9F58B7830 /* CreateRedeem.swift */,
+				AAEF2CA92050A64F0038BE0D /* Helpers */,
 				442FC7C7CCBFDDE6B395C64B /* ViewControllers */,
 				442FC5CFFC1E1126C7E6C682 /* ViewModels */,
 				442FC515DE27FF45AB993345 /* Views */,
@@ -2378,6 +2380,15 @@
 				8E0282B596A862A10ACB6686 /* Pods-AlphaWalletUITests.release.xcconfig */,
 			);
 			name = Pods;
+			sourceTree = "<group>";
+		};
+		AAEF2CA92050A64F0038BE0D /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				76F1DF80932454E9F58B7830 /* CreateRedeem.swift */,
+				AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		C876FF69204A77B400B7D0EA /* Fonts */ = {
@@ -3111,6 +3122,7 @@
 				77B3BF4A2019247200EEC15A /* BrowserNavigationBar.swift in Sources */,
 				29BB94951F6FC54C009B09CC /* EthereumUnit.swift in Sources */,
 				29C70C712016C7780072E454 /* SentTransaction.swift in Sources */,
+				AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */,
 				29E9CFD21FE737FE00017744 /* TrustRealmConfiguration.swift in Sources */,
 				2959961C1FAE3EDF00DB66A8 /* TrustClient.swift in Sources */,
 				29AD8A0C1F93FBBF008E10E7 /* Subscribable.swift in Sources */,
