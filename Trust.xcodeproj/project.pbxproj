@@ -104,7 +104,6 @@
 		296106C81F7646590006164B /* TokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296106C71F7646590006164B /* TokensViewModel.swift */; };
 		296106CA1F764AB60006164B /* TokensDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296106C91F764AB60006164B /* TokensDataStore.swift */; };
 		296106CC1F776FD00006164B /* WalletCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296106CB1F776FD00006164B /* WalletCoordinatorTests.swift */; };
-		296106CE1F777E410006164B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 296106CD1F777E410006164B /* LaunchScreen.storyboard */; };
 		296106D01F778A8D0006164B /* TransferType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 296106CF1F778A8D0006164B /* TransferType.swift */; };
 		2961BD071FB146EB00C4B840 /* ChainState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2961BD061FB146EB00C4B840 /* ChainState.swift */; };
 		2961BD091FB14B6D00C4B840 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2961BD081FB14B6D00C4B840 /* Config.swift */; };
@@ -405,6 +404,7 @@
 		B1DC375F203AEB4800C9756D /* OrderRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */; };
 		BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */; };
 		BBF4F9B72029D0B3009E04C0 /* GasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */; };
+		C868C5292053BDE00059672B /* AlphaWalletLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C868C5282053BDE00059672B /* AlphaWalletLaunchScreen.storyboard */; };
 		C876FF79204A79D300B7D0EA /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6B204A79D300B7D0EA /* README.md */; };
 		C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */; };
 		C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */; };
@@ -539,7 +539,6 @@
 		296106C71F7646590006164B /* TokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensViewModel.swift; sourceTree = "<group>"; };
 		296106C91F764AB60006164B /* TokensDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensDataStore.swift; sourceTree = "<group>"; };
 		296106CB1F776FD00006164B /* WalletCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletCoordinatorTests.swift; sourceTree = "<group>"; };
-		296106CD1F777E410006164B /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		296106CF1F778A8D0006164B /* TransferType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferType.swift; sourceTree = "<group>"; };
 		2961BD061FB146EB00C4B840 /* ChainState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainState.swift; sourceTree = "<group>"; };
 		2961BD081FB14B6D00C4B840 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
@@ -861,6 +860,7 @@
 		B2CF9CDF557F98DECE6D0AF6 /* Pods_AlphaWalletUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWalletUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CurrencyRate+Fee.swift"; sourceTree = "<group>"; };
 		BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasViewModel.swift; sourceTree = "<group>"; };
+		C868C5282053BDE00059672B /* AlphaWalletLaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AlphaWalletLaunchScreen.storyboard; sourceTree = "<group>"; };
 		C876FF6B204A79D300B7D0EA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SIL Open Font License.txt"; sourceTree = "<group>"; };
 		C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Bold.otf"; sourceTree = "<group>"; };
@@ -979,7 +979,7 @@
 				2912CD061F6A830700C6CBE3 /* Info.plist */,
 				29AD8A071F93E1F0008E10E7 /* Trust.entitlements */,
 				613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */,
-				296106CD1F777E410006164B /* LaunchScreen.storyboard */,
+				C868C5282053BDE00059672B /* AlphaWalletLaunchScreen.storyboard */,
 				76F1D1936604D6A022E9AE90 /* Market */,
 				76F1D47A29573DA8BD3E4979 /* Redeem */,
 				5E7C73982B69BC9612DC52F3 /* AlphaWallet */,
@@ -2616,6 +2616,7 @@
 				C876FF82204A79D300B7D0EA /* SourceSansPro-Light.otf in Resources */,
 				C876FF84204A79D300B7D0EA /* SourceSansPro-Regular.otf in Resources */,
 				7721A6C4202D9520004DB16C /* trust-min.js in Resources */,
+				C868C5292053BDE00059672B /* AlphaWalletLaunchScreen.storyboard in Resources */,
 				C876FF85204A79D300B7D0EA /* SourceSansPro-Semibold.otf in Resources */,
 				613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */,
 				C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */,
@@ -2623,7 +2624,6 @@
 				29FA00D2201CA79F002F7DC5 /* web3.min.js in Resources */,
 				771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */,
 				291794FC1F95DE5F00539A30 /* index.html in Resources */,
-				296106CE1F777E410006164B /* LaunchScreen.storyboard in Resources */,
 				C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */,
 				C876FF79204A79D300B7D0EA /* README.md in Resources */,
 				AA26C62020412A1E00318B9B /* Tickets.storyboard in Resources */,
