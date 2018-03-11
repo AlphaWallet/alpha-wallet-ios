@@ -26,6 +26,7 @@ class InCoordinatorTests: XCTestCase {
         XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is TokensViewController)
         XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is AlphaWalletTokensViewController)
         XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
+        XCTAssert((tabbarController?.viewControllers?[4] as? UINavigationController)?.viewControllers[0] is AlphaWalletHelpViewController)
     }
 
     func testChangeRecentlyUsedAccount() {
