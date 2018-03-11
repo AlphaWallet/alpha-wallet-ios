@@ -38,7 +38,7 @@ class OrderRequestTest : XCTestCase  {
         let privateKey = try! keyStore.exportPrivateKey(account: account)
         let publicKey = try! Secp256k1.shared.pubKeyFromPrivateKey(from: privateKey.dematerialize())
 
-        OrdersRequest.init().putOrderToServer(signedOrders: signedOrders, publicKey: publicKey.hex, callback: {
+        OrdersRequest.init().putOrderToServer(signedOrders: signedOrders, publicKey: publicKey.hexString, callback: {
             callback in
             print(callback)
             expectation.fulfill()
