@@ -303,6 +303,7 @@
 		5E7C7B3E08EEA63C5B68B9C4 /* TicketRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */; };
 		5E7C7B94143AB817CB2D8145 /* AlphaWalletTokensDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BA83C86BAC1C1BAA7D2 /* AlphaWalletTokensDataStore.swift */; };
 		5E7C7BDF5EF2EC02589F03E0 /* AlphaWalletTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A715287C98D09E977EB /* AlphaWalletTokenViewCell.swift */; };
+		5E7C7CF06533EDACC8E220B3 /* StaticHTMLViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */; };
 		5E7C7E5C30EFDC70DF1E00C1 /* TicketsViewControllerHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */; };
 		5E7C7F35A222EA9CC0933E37 /* AlphaWalletTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7140CFD06FF344C64085 /* AlphaWalletTokenViewCellViewModel.swift */; };
 		613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */ = {isa = PBXBuildFile; fileRef = 613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */; };
@@ -401,12 +402,16 @@
 		BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */; };
 		BBF4F9B72029D0B3009E04C0 /* GasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */; };
 		C868C5292053BDE00059672B /* AlphaWalletLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C868C5282053BDE00059672B /* AlphaWalletLaunchScreen.storyboard */; };
+		C868C536205409160059672B /* redeemInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C868C534205409160059672B /* redeemInfo.html */; };
 		C876FF79204A79D300B7D0EA /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6B204A79D300B7D0EA /* README.md */; };
 		C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */; };
 		C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */; };
 		C876FF82204A79D300B7D0EA /* SourceSansPro-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */; };
 		C876FF84204A79D300B7D0EA /* SourceSansPro-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */; };
 		C876FF85204A79D300B7D0EA /* SourceSansPro-Semibold.otf in Resources */ = {isa = PBXBuildFile; fileRef = C876FF77204A79D300B7D0EA /* SourceSansPro-Semibold.otf */; };
+		C880330C2054371500D73D6F /* non_asset_catalog_redemption_location.png in Resources */ = {isa = PBXBuildFile; fileRef = C88033092054371500D73D6F /* non_asset_catalog_redemption_location.png */; };
+		C880330D2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C880330A2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png */; };
+		C880330E2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = C880330B2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png */; };
 		CCA4FE331FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE321FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift */; };
 		CCA4FE361FD4282400749AE4 /* DeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */; };
 		CCA4FE381FD428B300749AE4 /* JailbreakChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */; };
@@ -733,6 +738,7 @@
 		5E7C70F6DB462E665D36AF42 /* AlphaWalletTokensViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokensViewModel.swift; sourceTree = "<group>"; };
 		5E7C7140CFD06FF344C64085 /* AlphaWalletTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTableViewCellViewModel.swift; sourceTree = "<group>"; };
+		5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaticHTMLViewController.swift; sourceTree = "<group>"; };
 		5E7C770BDFCD59740E20D9FC /* AlphaWalletTicketTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTicketTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C77264EC27237CD9DA18F /* AlphaWalletTicketTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTicketTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeaderViewModel.swift; sourceTree = "<group>"; };
@@ -853,12 +859,17 @@
 		BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CurrencyRate+Fee.swift"; sourceTree = "<group>"; };
 		BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasViewModel.swift; sourceTree = "<group>"; };
 		C868C5282053BDE00059672B /* AlphaWalletLaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = AlphaWalletLaunchScreen.storyboard; sourceTree = "<group>"; };
+		C868C535205409160059672B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/redeemInfo.html; sourceTree = "<group>"; };
 		C876FF6B204A79D300B7D0EA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SIL Open Font License.txt"; sourceTree = "<group>"; };
 		C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Bold.otf"; sourceTree = "<group>"; };
 		C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Light.otf"; sourceTree = "<group>"; };
 		C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Regular.otf"; sourceTree = "<group>"; };
 		C876FF77204A79D300B7D0EA /* SourceSansPro-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Semibold.otf"; sourceTree = "<group>"; };
+		C88033092054371500D73D6F /* non_asset_catalog_redemption_location.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = non_asset_catalog_redemption_location.png; sourceTree = "<group>"; };
+		C880330A2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "non_asset_catalog_redemption_location@2x.png"; sourceTree = "<group>"; };
+		C880330B2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "non_asset_catalog_redemption_location@3x.png"; sourceTree = "<group>"; };
+		C880330F205500C300D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/redeemInfo.html"; sourceTree = "<group>"; };
 		CCA4FE321FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckDeviceCoordinatorTests.swift; sourceTree = "<group>"; };
 		CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceChecker.swift; sourceTree = "<group>"; };
 		CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakChecker.swift; sourceTree = "<group>"; };
@@ -900,6 +911,7 @@
 		290B2B511F8F4F840053C83E /* Localization */ = {
 			isa = PBXGroup;
 			children = (
+				C868C534205409160059672B /* redeemInfo.html */,
 				290B2B561F8F50030053C83E /* Localizable.strings */,
 			);
 			path = Localization;
@@ -941,6 +953,7 @@
 		2912CCF71F6A830700C6CBE3 /* Trust */ = {
 			isa = PBXGroup;
 			children = (
+				C8803302205436EE00D73D6F /* ImagesOutsideAssetCatalog */,
 				C876FF69204A77B400B7D0EA /* Fonts */,
 				73ACEEF620163B4E003DD71D /* Lock */,
 				732086B2201506AA0047F605 /* Protection */,
@@ -1476,6 +1489,7 @@
 				294DFBA81FE6EBFB004CEB56 /* NewTokenViewController.swift */,
 				29F1C83D1FEB5C91003780D8 /* EditTokensViewController.swift */,
 				5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */,
+				5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -2412,6 +2426,16 @@
 			path = "source-sans-pro";
 			sourceTree = "<group>";
 		};
+		C8803302205436EE00D73D6F /* ImagesOutsideAssetCatalog */ = {
+			isa = PBXGroup;
+			children = (
+				C88033092054371500D73D6F /* non_asset_catalog_redemption_location.png */,
+				C880330A2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png */,
+				C880330B2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png */,
+			);
+			path = ImagesOutsideAssetCatalog;
+			sourceTree = "<group>";
+		};
 		CCA4FE301FD3652100749AE4 /* Core */ = {
 			isa = PBXGroup;
 			children = (
@@ -2606,13 +2630,17 @@
 				7721A6C4202D9520004DB16C /* trust-min.js in Resources */,
 				C868C5292053BDE00059672B /* AlphaWalletLaunchScreen.storyboard in Resources */,
 				C876FF85204A79D300B7D0EA /* SourceSansPro-Semibold.otf in Resources */,
+				C880330E2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png in Resources */,
 				613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */,
 				C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */,
 				AAEB8DA6204D5CDE00CB0B2C /* TicketView.xib in Resources */,
+				C880330D2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png in Resources */,
 				29FA00D2201CA79F002F7DC5 /* web3.min.js in Resources */,
 				771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */,
+				C868C536205409160059672B /* redeemInfo.html in Resources */,
 				291794FC1F95DE5F00539A30 /* index.html in Resources */,
 				C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */,
+				C880330C2054371500D73D6F /* non_asset_catalog_redemption_location.png in Resources */,
 				C876FF79204A79D300B7D0EA /* README.md in Resources */,
 				AA26C62020412A1E00318B9B /* Tickets.storyboard in Resources */,
 				290B2B541F8F50030053C83E /* Localizable.strings in Resources */,
@@ -3204,6 +3232,7 @@
 				5E7C75F80A7E178B49830BCD /* TicketsViewControllerHeader.swift in Sources */,
 				5E7C7E5C30EFDC70DF1E00C1 /* TicketsViewControllerHeaderViewModel.swift in Sources */,
 				5E7C7B3E08EEA63C5B68B9C4 /* TicketRedemptionInfoViewController.swift in Sources */,
+				5E7C7CF06533EDACC8E220B3 /* StaticHTMLViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3316,6 +3345,15 @@
 				7721A6C1202B1D5A004DB16C /* vi */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		C868C534205409160059672B /* redeemInfo.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C868C535205409160059672B /* en */,
+				C880330F205500C300D73D6F /* zh-Hans */,
+			);
+			name = redeemInfo.html;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
