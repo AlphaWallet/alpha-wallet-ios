@@ -20,7 +20,7 @@ class TransactionSigningTests: XCTestCase {
         let signer = EIP155Signer(chainId: 1)
         let hash = signer.hash(transaction: transaction)
 
-        XCTAssertEqual(hash.hex, "daf5a779ae972f972197303d7b574746c7ef83eadac0f2791ad23db92e4c8e53")
+        XCTAssertEqual(hash.hex(), "daf5a779ae972f972197303d7b574746c7ef83eadac0f2791ad23db92e4c8e53")
     }
 
     func testHomesteadSignHash() {
@@ -37,7 +37,7 @@ class TransactionSigningTests: XCTestCase {
         let signer = HomesteadSigner()
         let hash = signer.hash(transaction: transaction)
 
-        XCTAssertEqual(hash.hex, "f9e36c28c8cb35adba138005c02ab7aa7fbcd891f3139cb2eeed052a51cd2713")
+        XCTAssertEqual(hash.hex(), "f9e36c28c8cb35adba138005c02ab7aa7fbcd891f3139cb2eeed052a51cd2713")
     }
 
     func testSignTransaction() {

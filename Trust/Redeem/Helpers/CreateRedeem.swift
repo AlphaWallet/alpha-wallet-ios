@@ -8,8 +8,6 @@ import TrustKeystore
 
 class CreateRedeem {
 
-    private let keyStore = try! EtherKeystore()
-
     func generateTimeStamp() -> String {
         let time = NSDate().timeIntervalSince1970
         //rotate qr every 30 seconds for security (preventing screenshot claims)
@@ -17,7 +15,7 @@ class CreateRedeem {
         return String(minsTime)
     }
 
-    func redeemMessage(ticketIndices: [UInt16]) -> (String, String) {
+    func redeemMessage(ticketIndices: [UInt16]) -> (message: String, qrCode: String) {
         let messageForSigning = formIndicesSelection(indices: ticketIndices) + "," + generateTimeStamp()
         let qrCodeData = formIndicesSelection(indices: ticketIndices)
         return (messageForSigning, qrCodeData)
@@ -38,12 +36,12 @@ class CreateRedeem {
         indexList = indexList - correctionFactor # reduce every element of the list by an int
         selection = sum(2^indexList)             # raise every element and add the result back */
         var bitFieldLookup = BigUInt("0")!
-        for i in 0...indices.count - 1 {
+        for _ in 0...indices.count - 1 {
             let adder = BigUInt("2")?.power(Int(indices[0]) - correctionFactor)
             bitFieldLookup = bitFieldLookup.advanced(by: BigInt(adder!))
         }
 
-        var bitIntLength: Int = bitFieldLookup.description.count
+        let bitIntLength: Int = bitFieldLookup.description.count
         var bitString = ""
         if(bitIntLength < 10){
             bitString = "0"
