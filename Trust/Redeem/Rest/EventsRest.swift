@@ -24,7 +24,10 @@ public class EventsRest {
             }
 
             if 200...299 ~= statusCode { // success
-                let events: [Event] = Event.from(data: jsonData)!
+                guard let events: [Event] = Event.from(data: jsonData) else {
+                    completion(.failure(AnyError(RestError.invalidResponse("Could not parse data"))))
+                    return
+                }
                 completion(.success(events))
             } else {
                 completion(.failure(AnyError(RestError.invalidResponse("Could not parse data"))))
