@@ -8,6 +8,7 @@ protocol AlphaWalletTokensCoordinatorDelegate: class {
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: AlphaWalletTokensCoordinator)
 }
 
+//Duplicated from TokensCoordinator.swift for easier upstream merging
 class AlphaWalletTokensCoordinator: Coordinator {
 
     let navigationController: UINavigationController
