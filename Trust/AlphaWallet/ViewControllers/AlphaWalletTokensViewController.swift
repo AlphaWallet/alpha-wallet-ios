@@ -10,6 +10,7 @@ protocol AlphaWalletTokensViewControllerDelegate: class {
     func didDelete(token: TokenObject, in viewController: UIViewController)
 }
 
+//Duplicated from TokensViewController.swift for easier upstream merging
 class AlphaWalletTokensViewController: UIViewController {
 
     private let dataStore: AlphaWalletTokensDataStore
