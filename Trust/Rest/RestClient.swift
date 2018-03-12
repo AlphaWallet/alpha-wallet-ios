@@ -14,6 +14,7 @@ enum RestError: Error {
 }
 
 struct RestClient {
+
     static func get(endPoint: String,
                     parameters: [String: AnyHashable]? = nil,
                     completion: @escaping (_ response: DataResponse<Any>) -> Void) {
@@ -21,6 +22,14 @@ struct RestClient {
         Alamofire.request(endPoint, method: .get).responseJSON { response in
             completion(response)
         }
-
     }
+
+    static func cancel() {
+        Alamofire.SessionManager.default.session.getTasksWithCompletionHandler { (sessionDataTask, uploadData, downloadData) in
+            sessionDataTask.forEach { $0.cancel() }
+            uploadData.forEach { $0.cancel() }
+            downloadData.forEach { $0.cancel() }
+        }
+    }
+
 }
