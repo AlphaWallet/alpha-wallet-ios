@@ -189,3 +189,10 @@
 "a.wallet.contents.filter.assetsOnly.title" = "ASSETS";
 "a.wallet.contents.issuer.title" = "Issuer";
 "a.wallet.tickets" = "Tickets";
+"a.help.navigation.title" = "Help & FAQs";
+"a.help.contact.footer.button.title" = "Still need help? Contact Us";
+"a.help.contents.whatIsETH" = "What is ETH/Ethereum?";
+"a.help.contents.whyETH" = "Why does aWallet use Ethereum?";
+"a.help.contents.howDoIGetMyMoney" = "How do I get my money?";
+"a.help.contents.whatIsSeedPhrase" = "What is a Seed Phrase?";
+"a.help.contents.howDoITransferETHIntoMyWallet" = "How do I transfer ETH into my wallet?";
