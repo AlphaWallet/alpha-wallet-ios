@@ -20,7 +20,7 @@ enum Tabs {
     var className: String {
         switch self {
         case .wallet:
-            return String(describing: TokensViewController.self)
+            return String(describing: AlphaWalletTokensViewController.self)
         case .tokens:
             return String(describing: TokensViewController.self)
         case .transactions:
@@ -134,17 +134,6 @@ class InCoordinator: Coordinator {
         }
 
         if inCoordinatorViewModel.tokensAvailable {
-            let tokenCoordinator = TokensCoordinator(
-                    session: session,
-                    keystore: keystore,
-                    tokensStorage: tokensStorage
-            )
-            tokenCoordinator.rootViewController.tabBarItem = UITabBarItem(title: NSLocalizedString("tokens.tabbar.item.title", value: "Tokens", comment: ""), image: R.image.coins(), selectedImage: nil)
-            tokenCoordinator.delegate = self
-            tokenCoordinator.start()
-            addCoordinator(tokenCoordinator)
-            tabBarController.viewControllers?.append(tokenCoordinator.navigationController)
-
             let alphaWalletTokensCoordinator = AlphaWalletTokensCoordinator(
                     session: session,
                     keystore: keystore,
@@ -165,6 +154,19 @@ class InCoordinator: Coordinator {
         let helpController = AlphaWalletHelpViewController()
         helpController.tabBarItem = UITabBarItem(title: R.string.localizable.aHelpNavigationTitle(), image: R.image.tab_help(), selectedImage: nil)
         tabBarController.viewControllers?.append(UINavigationController(rootViewController: helpController))
+
+        if inCoordinatorViewModel.tokensAvailable {
+            let tokenCoordinator = TokensCoordinator(
+                    session: session,
+                    keystore: keystore,
+                    tokensStorage: tokensStorage
+            )
+            tokenCoordinator.rootViewController.tabBarItem = UITabBarItem(title: NSLocalizedString("tokens.tabbar.item.title", value: "Tokens", comment: ""), image: R.image.coins(), selectedImage: nil)
+            tokenCoordinator.delegate = self
+            tokenCoordinator.start()
+            addCoordinator(tokenCoordinator)
+            tabBarController.viewControllers?.append(tokenCoordinator.navigationController)
+        }
 
         let settingsCoordinator = SettingsCoordinator(
                 keystore: keystore,
