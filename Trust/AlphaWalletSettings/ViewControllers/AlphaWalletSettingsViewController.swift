@@ -11,7 +11,6 @@ class AlphaWalletSettingsViewController: UIViewController {
 	enum Options {
 		case myWalletAddress
         case notificationSettings
-        case logOut
     }
 
     weak var delegate: AlphaWalletSettingsViewControllerDelegate?
@@ -19,7 +18,6 @@ class AlphaWalletSettingsViewController: UIViewController {
     let rows: [(title: String, option: Options)] = [
         (title: R.string.localizable.aSettingsContentsMyWalletAddress(), option: .myWalletAddress),
         (title: R.string.localizable.aSettingsContentsNotificationsSettings(), option: .notificationSettings),
-        (title: R.string.localizable.aSettingsContentsLogout (), option: .logOut),
     ]
 
     init() {
@@ -58,13 +56,7 @@ extension AlphaWalletSettingsViewController: UITableViewDelegate {
             showWalletAddress()
         case .notificationSettings:
             showNotificationsSettings()
-        case .logOut:
-            logout()
         }
-    }
-
-    private func logout() {
-        //TODO logout?
     }
 
     private func showNotificationsSettings() {
@@ -90,8 +82,6 @@ extension AlphaWalletSettingsViewController: UITableViewDataSource {
             cell.configure(text: rows[indexPath.row].title, image: R.image.settings_wallet1())
         case .notificationSettings:
             cell.configure(text: rows[indexPath.row].title, image: R.image.settings_notifications())
-        case .logOut:
-            cell.configure(text: rows[indexPath.row].title, image: R.image.settings_logout())
         }
         return cell
     }
