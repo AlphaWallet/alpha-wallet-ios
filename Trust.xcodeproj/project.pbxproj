@@ -39,7 +39,6 @@
 		291ED08B1F6F5D2100E7E93A /* Bundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 291ED08A1F6F5D2100E7E93A /* Bundle.swift */; };
 		291ED08D1F6F5F0A00E7E93A /* KeyStoreError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 291ED08C1F6F5F0A00E7E93A /* KeyStoreError.swift */; };
 		291ED08F1F6F613200E7E93A /* GetTransactionRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 291ED08E1F6F613200E7E93A /* GetTransactionRequest.swift */; };
-		291ED0921F6FA5D900E7E93A /* RequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 291ED0911F6FA5D900E7E93A /* RequestViewController.swift */; };
 		291F52A21F6B6DCF00B369AB /* EtherClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 291F52A11F6B6DCF00B369AB /* EtherClient.swift */; };
 		291F52A51F6B762300B369AB /* EtherServiceRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 291F52A41F6B762300B369AB /* EtherServiceRequest.swift */; };
 		291F52A71F6B766100B369AB /* BalanceRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 291F52A61F6B766100B369AB /* BalanceRequest.swift */; };
@@ -290,6 +289,7 @@
 		442FCE2BEE8D475C7DEB39C1 /* QuantitySelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC54DA900FA2F9BB73A63 /* QuantitySelectionViewModel.swift */; };
 		442FCED8B618930EFD1F7BA8 /* GetIsStormBird.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCA1F19B6293FE5FAD494 /* GetIsStormBird.swift */; };
 		4AEDE35A1DC3B1F4B885A073 /* Pods_AlphaWallet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BD60178B937124277D81CCD /* Pods_AlphaWallet.framework */; };
+		5E7C701BFF4469B35A074EB9 /* AlphaWalletRequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C767497AD8DEE83F384D7 /* AlphaWalletRequestViewModel.swift */; };
 		5E7C705431CB4690FCD9BF18 /* AlphaWalletTicketTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C770BDFCD59740E20D9FC /* AlphaWalletTicketTokenViewCellViewModel.swift */; };
 		5E7C709EFBED069EA07DCEFD /* AlphaWalletTicketTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77264EC27237CD9DA18F /* AlphaWalletTicketTokenViewCell.swift */; };
 		5E7C70BE9AE35408038E1971 /* AlphaWalletHelpContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B089FD4C96810DD10FD /* AlphaWalletHelpContentsViewController.swift */; };
@@ -302,6 +302,7 @@
 		5E7C760C7D55C97424F55138 /* TicketTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */; };
 		5E7C770E80DA43E9DA43F545 /* AlphaWalletFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70004B43AB45BF6467C0 /* AlphaWalletFilterViewModel.swift */; };
 		5E7C77BFE0FF3F9C11BF4182 /* AlphaWalletTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70F6DB462E665D36AF42 /* AlphaWalletTokensViewModel.swift */; };
+		5E7C77E844D710D7AFBC58D4 /* AlphaWalletRequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74DCC21272EC231A20E2 /* AlphaWalletRequestViewController.swift */; };
 		5E7C78AA206C73015BEF771A /* AlphaWalletTokensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70D162C7F6C1F94462F5 /* AlphaWalletTokensViewController.swift */; };
 		5E7C78D6C94739B1ADDFBB5B /* WhyUseEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */; };
 		5E7C7B3E08EEA63C5B68B9C4 /* TicketRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */; };
@@ -491,7 +492,6 @@
 		291ED08A1F6F5D2100E7E93A /* Bundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bundle.swift; sourceTree = "<group>"; };
 		291ED08C1F6F5F0A00E7E93A /* KeyStoreError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyStoreError.swift; sourceTree = "<group>"; };
 		291ED08E1F6F613200E7E93A /* GetTransactionRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetTransactionRequest.swift; sourceTree = "<group>"; };
-		291ED0911F6FA5D900E7E93A /* RequestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestViewController.swift; sourceTree = "<group>"; };
 		291F52A11F6B6DCF00B369AB /* EtherClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherClient.swift; sourceTree = "<group>"; };
 		291F52A41F6B762300B369AB /* EtherServiceRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherServiceRequest.swift; sourceTree = "<group>"; };
 		291F52A61F6B766100B369AB /* BalanceRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceRequest.swift; sourceTree = "<group>"; };
@@ -754,11 +754,13 @@
 		5E7C70F6DB462E665D36AF42 /* AlphaWalletTokensViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokensViewModel.swift; sourceTree = "<group>"; };
 		5E7C7140CFD06FF344C64085 /* AlphaWalletTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C715F395B973FB61056CF /* AlphaWalletHelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletHelpViewController.swift; sourceTree = "<group>"; };
+		5E7C74DCC21272EC231A20E2 /* AlphaWalletRequestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletRequestViewController.swift; sourceTree = "<group>"; };
 		5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhyUseEthereumInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C74A2C738BF2412D412A7 /* TicketSellInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketSellInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7646352F10C96B5FC6F6 /* AlphaWalletHelpViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletHelpViewCell.swift; sourceTree = "<group>"; };
 		5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaticHTMLViewController.swift; sourceTree = "<group>"; };
+		5E7C767497AD8DEE83F384D7 /* AlphaWalletRequestViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletRequestViewModel.swift; sourceTree = "<group>"; };
 		5E7C770BDFCD59740E20D9FC /* AlphaWalletTicketTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTicketTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C77264EC27237CD9DA18F /* AlphaWalletTicketTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTicketTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeaderViewModel.swift; sourceTree = "<group>"; };
@@ -1753,10 +1755,10 @@
 		29B6AECC1F7C87E700EC6DE3 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				291ED0911F6FA5D900E7E93A /* RequestViewController.swift */,
 				29285B411F6FB3E60044CF29 /* SendViewController.swift */,
 				291A1B661F98092F00ADEC80 /* ConfirmPaymentViewController.swift */,
 				299B5E411FD2298E0051361C /* ConfigureTransactionViewController.swift */,
+				5E7C74DCC21272EC231A20E2 /* AlphaWalletRequestViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -1769,6 +1771,7 @@
 				299B5E331FCBC5180051361C /* ConfirmPaymentViewModel.swift */,
 				29E6E0711FEA200D0079265A /* ConfirmPaymentDetailsViewModel.swift */,
 				299B5E441FD22FB40051361C /* ConfigureTransactionViewModel.swift */,
+				5E7C767497AD8DEE83F384D7 /* AlphaWalletRequestViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -3061,7 +3064,6 @@
 				29F1C85120032688003780D8 /* Address.swift in Sources */,
 				295B61D11FE7B20400642E60 /* TokensHeaderView.swift in Sources */,
 				29FA00D4201EC662002F7DC5 /* NSObject.swift in Sources */,
-				291ED0921F6FA5D900E7E93A /* RequestViewController.swift in Sources */,
 				299B5E341FCBC5180051361C /* ConfirmPaymentViewModel.swift in Sources */,
 				771AA94E1FF971CD00D25403 /* DappAction.swift in Sources */,
 				29F1C8471FEB6664003780D8 /* EditTokenTableViewCell.swift in Sources */,
@@ -3327,6 +3329,8 @@
 				5E7C7E2C03099D78A9D911D7 /* WhatIsASeedPhraseInfoViewController.swift in Sources */,
 				5E7C78D6C94739B1ADDFBB5B /* WhyUseEthereumInfoViewController.swift in Sources */,
 				5E7C7D8AFC9BA1E8C1D05167 /* TicketSellInfoViewController.swift in Sources */,
+				5E7C77E844D710D7AFBC58D4 /* AlphaWalletRequestViewController.swift in Sources */,
+				5E7C701BFF4469B35A074EB9 /* AlphaWalletRequestViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

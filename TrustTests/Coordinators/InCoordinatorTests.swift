@@ -86,7 +86,7 @@ class InCoordinatorTests: XCTestCase {
         let controller = (coordinator.navigationController.presentedViewController as? UINavigationController)?.viewControllers[0]
 
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
-        XCTAssertTrue(controller is RequestViewController)
+        XCTAssertTrue(controller is AlphaWalletRequestViewController)
     }
 
     func testShowTabDefault() {
