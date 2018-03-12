@@ -12,6 +12,7 @@ protocol AlphaWalletTokensDataStoreDelegate: class {
     func didUpdate(result: Result<AlphaWalletTokensViewModel, TokenError>)
 }
 
+//Duplicated from TokensDataStore.swift for easier upstream merging
 class AlphaWalletTokensDataStore {
 
     private lazy var getBalanceCoordinator: GetBalanceCoordinator = {
