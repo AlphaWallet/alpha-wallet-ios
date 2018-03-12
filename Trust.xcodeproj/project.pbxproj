@@ -312,6 +312,7 @@
 		5E7C7D71D3184F44C397FFE7 /* AlphaWalletHelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C715F395B973FB61056CF /* AlphaWalletHelpViewController.swift */; };
 		5E7C7D8173CB1089D622DA38 /* AlphaWalletHelpViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7646352F10C96B5FC6F6 /* AlphaWalletHelpViewCell.swift */; };
 		5E7C7E2C03099D78A9D911D7 /* WhatIsASeedPhraseInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B0BE9EE3B198AE7D92D /* WhatIsASeedPhraseInfoViewController.swift */; };
+		5E7C7D8AFC9BA1E8C1D05167 /* TicketSellInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74A2C738BF2412D412A7 /* TicketSellInfoViewController.swift */; };
 		5E7C7E5C30EFDC70DF1E00C1 /* TicketsViewControllerHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */; };
 		5E7C7F35A222EA9CC0933E37 /* AlphaWalletTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7140CFD06FF344C64085 /* AlphaWalletTokenViewCellViewModel.swift */; };
 		5E7C7FE8247F0E50BEF35D77 /* HowDoITransferETHIntoMyWalletInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D4F7C566EDD30EF1C19 /* HowDoITransferETHIntoMyWalletInfoViewController.swift */; };
@@ -426,6 +427,7 @@
 		C880332020551DF800D73D6F /* howDoIGetMyMoneyInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331820551DF700D73D6F /* howDoIGetMyMoneyInfo.html */; };
 		C880332120551DF800D73D6F /* whyUseEthereumInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331A20551DF700D73D6F /* whyUseEthereumInfo.html */; };
 		C880332220551DF800D73D6F /* whatIsEthereumInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331C20551DF700D73D6F /* whatIsEthereumInfo.html */; };
+		C88033122055034E00D73D6F /* sellInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C88033102055034E00D73D6F /* sellInfo.html */; };
 		CCA4FE331FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE321FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift */; };
 		CCA4FE361FD4282400749AE4 /* DeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */; };
 		CCA4FE381FD428B300749AE4 /* JailbreakChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */; };
@@ -753,6 +755,7 @@
 		5E7C7140CFD06FF344C64085 /* AlphaWalletTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C715F395B973FB61056CF /* AlphaWalletHelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletHelpViewController.swift; sourceTree = "<group>"; };
 		5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhyUseEthereumInfoViewController.swift; sourceTree = "<group>"; };
+		5E7C74A2C738BF2412D412A7 /* TicketSellInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketSellInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7646352F10C96B5FC6F6 /* AlphaWalletHelpViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletHelpViewCell.swift; sourceTree = "<group>"; };
 		5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaticHTMLViewController.swift; sourceTree = "<group>"; };
@@ -903,6 +906,8 @@
 		C880332520552FF400D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/whatIsASeedPhraseInfo.html"; sourceTree = "<group>"; };
 		C880332620552FF700D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/whatIsEthereumInfo.html"; sourceTree = "<group>"; };
 		C880332720552FF900D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/whyUseEthereumInfo.html"; sourceTree = "<group>"; };
+		C88033112055034E00D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/sellInfo.html; sourceTree = "<group>"; };
+		C88033132055035200D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/sellInfo.html"; sourceTree = "<group>"; };
 		CCA4FE321FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckDeviceCoordinatorTests.swift; sourceTree = "<group>"; };
 		CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceChecker.swift; sourceTree = "<group>"; };
 		CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakChecker.swift; sourceTree = "<group>"; };
@@ -949,6 +954,7 @@
 				C880331420551DF700D73D6F /* whatIsASeedPhraseInfo.html */,
 				C880331C20551DF700D73D6F /* whatIsEthereumInfo.html */,
 				C880331A20551DF700D73D6F /* whyUseEthereumInfo.html */,
+				C88033102055034E00D73D6F /* sellInfo.html */,
 				C868C534205409160059672B /* redeemInfo.html */,
 				290B2B561F8F50030053C83E /* Localizable.strings */,
 			);
@@ -1529,6 +1535,7 @@
 				29F1C83D1FEB5C91003780D8 /* EditTokensViewController.swift */,
 				5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */,
 				5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */,
+				5E7C74A2C738BF2412D412A7 /* TicketSellInfoViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -2711,6 +2718,7 @@
 				C880332120551DF800D73D6F /* whyUseEthereumInfo.html in Resources */,
 				29FA00D2201CA79F002F7DC5 /* web3.min.js in Resources */,
 				771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */,
+				C88033122055034E00D73D6F /* sellInfo.html in Resources */,
 				C868C536205409160059672B /* redeemInfo.html in Resources */,
 				291794FC1F95DE5F00539A30 /* index.html in Resources */,
 				C876FF7A204A79D300B7D0EA /* SIL Open Font License.txt in Resources */,
@@ -3318,6 +3326,7 @@
 				5E7C7FE8247F0E50BEF35D77 /* HowDoITransferETHIntoMyWalletInfoViewController.swift in Sources */,
 				5E7C7E2C03099D78A9D911D7 /* WhatIsASeedPhraseInfoViewController.swift in Sources */,
 				5E7C78D6C94739B1ADDFBB5B /* WhyUseEthereumInfoViewController.swift in Sources */,
+				5E7C7D8AFC9BA1E8C1D05167 /* TicketSellInfoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3484,6 +3493,15 @@
 				C880332620552FF700D73D6F /* zh-Hans */,
 			);
 			name = whatIsEthereumInfo.html;
+			sourceTree = "<group>";
+		};
+		C88033102055034E00D73D6F /* sellInfo.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C88033112055034E00D73D6F /* en */,
+				C88033132055035200D73D6F /* zh-Hans */,
+			);
+			name = sellInfo.html;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
