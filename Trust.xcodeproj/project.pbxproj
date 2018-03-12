@@ -297,6 +297,7 @@
 		5E7C7281CB985E0E198B169F /* AlphaWalletTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C8CFADC77E818F0ECF2 /* AlphaWalletTokensCoordinator.swift */; };
 		5E7C72B0A10A92E591696E48 /* AlphaWalletContactUsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AE6FAE0DF969B4F52E9 /* AlphaWalletContactUsBannerView.swift */; };
 		5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */; };
+		5E7C74888419EB374AF3DE50 /* AlphaWalletSettingsViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79A33D53D269C8F188FF /* AlphaWalletSettingsViewCell.swift */; };
 		5E7C7523220590DFEFA66E0B /* AlphaWalletFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D9AA7F23134664CA01B /* AlphaWalletFilterView.swift */; };
 		5E7C75F80A7E178B49830BCD /* TicketsViewControllerHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */; };
 		5E7C760C7D55C97424F55138 /* TicketTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */; };
@@ -309,11 +310,12 @@
 		5E7C7B94143AB817CB2D8145 /* AlphaWalletTokensDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BA83C86BAC1C1BAA7D2 /* AlphaWalletTokensDataStore.swift */; };
 		5E7C7BDF5EF2EC02589F03E0 /* AlphaWalletTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A715287C98D09E977EB /* AlphaWalletTokenViewCell.swift */; };
 		5E7C7C21E5CAF122AA4F6617 /* HowDoIGetMyMoneyInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78B001F9F95F404D5FEF /* HowDoIGetMyMoneyInfoViewController.swift */; };
+		5E7C7C9D7D97A7CB7A779F32 /* AlphaWalletSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71C92D5281FE5BAF0C13 /* AlphaWalletSettingsViewController.swift */; };
 		5E7C7CF06533EDACC8E220B3 /* StaticHTMLViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */; };
 		5E7C7D71D3184F44C397FFE7 /* AlphaWalletHelpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C715F395B973FB61056CF /* AlphaWalletHelpViewController.swift */; };
 		5E7C7D8173CB1089D622DA38 /* AlphaWalletHelpViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7646352F10C96B5FC6F6 /* AlphaWalletHelpViewCell.swift */; };
-		5E7C7E2C03099D78A9D911D7 /* WhatIsASeedPhraseInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B0BE9EE3B198AE7D92D /* WhatIsASeedPhraseInfoViewController.swift */; };
 		5E7C7D8AFC9BA1E8C1D05167 /* TicketSellInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74A2C738BF2412D412A7 /* TicketSellInfoViewController.swift */; };
+		5E7C7E2C03099D78A9D911D7 /* WhatIsASeedPhraseInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B0BE9EE3B198AE7D92D /* WhatIsASeedPhraseInfoViewController.swift */; };
 		5E7C7E5C30EFDC70DF1E00C1 /* TicketsViewControllerHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */; };
 		5E7C7F35A222EA9CC0933E37 /* AlphaWalletTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7140CFD06FF344C64085 /* AlphaWalletTokenViewCellViewModel.swift */; };
 		5E7C7FE8247F0E50BEF35D77 /* HowDoITransferETHIntoMyWalletInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D4F7C566EDD30EF1C19 /* HowDoITransferETHIntoMyWalletInfoViewController.swift */; };
@@ -423,12 +425,12 @@
 		C880330C2054371500D73D6F /* non_asset_catalog_redemption_location.png in Resources */ = {isa = PBXBuildFile; fileRef = C88033092054371500D73D6F /* non_asset_catalog_redemption_location.png */; };
 		C880330D2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C880330A2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png */; };
 		C880330E2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = C880330B2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png */; };
+		C88033122055034E00D73D6F /* sellInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C88033102055034E00D73D6F /* sellInfo.html */; };
 		C880331E20551DF800D73D6F /* whatIsASeedPhraseInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331420551DF700D73D6F /* whatIsASeedPhraseInfo.html */; };
 		C880331F20551DF800D73D6F /* howDoITransferETHIntoMyWalletInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331620551DF700D73D6F /* howDoITransferETHIntoMyWalletInfo.html */; };
 		C880332020551DF800D73D6F /* howDoIGetMyMoneyInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331820551DF700D73D6F /* howDoIGetMyMoneyInfo.html */; };
 		C880332120551DF800D73D6F /* whyUseEthereumInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331A20551DF700D73D6F /* whyUseEthereumInfo.html */; };
 		C880332220551DF800D73D6F /* whatIsEthereumInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331C20551DF700D73D6F /* whatIsEthereumInfo.html */; };
-		C88033122055034E00D73D6F /* sellInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C88033102055034E00D73D6F /* sellInfo.html */; };
 		CCA4FE331FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE321FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift */; };
 		CCA4FE361FD4282400749AE4 /* DeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */; };
 		CCA4FE381FD428B300749AE4 /* JailbreakChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */; };
@@ -756,7 +758,9 @@
 		5E7C715F395B973FB61056CF /* AlphaWalletHelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletHelpViewController.swift; sourceTree = "<group>"; };
 		5E7C74DCC21272EC231A20E2 /* AlphaWalletRequestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletRequestViewController.swift; sourceTree = "<group>"; };
 		5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhyUseEthereumInfoViewController.swift; sourceTree = "<group>"; };
+		5E7C71C92D5281FE5BAF0C13 /* AlphaWalletSettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletSettingsViewController.swift; sourceTree = "<group>"; };
 		5E7C74A2C738BF2412D412A7 /* TicketSellInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketSellInfoViewController.swift; sourceTree = "<group>"; };
+		5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhyUseEthereumInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7646352F10C96B5FC6F6 /* AlphaWalletHelpViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletHelpViewCell.swift; sourceTree = "<group>"; };
 		5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaticHTMLViewController.swift; sourceTree = "<group>"; };
@@ -768,6 +772,7 @@
 		5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C78B001F9F95F404D5FEF /* HowDoIGetMyMoneyInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HowDoIGetMyMoneyInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeader.swift; sourceTree = "<group>"; };
+		5E7C79A33D53D269C8F188FF /* AlphaWalletSettingsViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletSettingsViewCell.swift; sourceTree = "<group>"; };
 		5E7C7A715287C98D09E977EB /* AlphaWalletTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C7AE6FAE0DF969B4F52E9 /* AlphaWalletContactUsBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletContactUsBannerView.swift; sourceTree = "<group>"; };
 		5E7C7B089FD4C96810DD10FD /* AlphaWalletHelpContentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletHelpContentsViewController.swift; sourceTree = "<group>"; };
@@ -898,6 +903,8 @@
 		C880330A2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "non_asset_catalog_redemption_location@2x.png"; sourceTree = "<group>"; };
 		C880330B2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "non_asset_catalog_redemption_location@3x.png"; sourceTree = "<group>"; };
 		C880330F205500C300D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/redeemInfo.html"; sourceTree = "<group>"; };
+		C88033112055034E00D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/sellInfo.html; sourceTree = "<group>"; };
+		C88033132055035200D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/sellInfo.html"; sourceTree = "<group>"; };
 		C880331520551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/whatIsASeedPhraseInfo.html; sourceTree = "<group>"; };
 		C880331720551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/howDoITransferETHIntoMyWalletInfo.html; sourceTree = "<group>"; };
 		C880331920551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/howDoIGetMyMoneyInfo.html; sourceTree = "<group>"; };
@@ -908,8 +915,6 @@
 		C880332520552FF400D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/whatIsASeedPhraseInfo.html"; sourceTree = "<group>"; };
 		C880332620552FF700D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/whatIsEthereumInfo.html"; sourceTree = "<group>"; };
 		C880332720552FF900D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/whyUseEthereumInfo.html"; sourceTree = "<group>"; };
-		C88033112055034E00D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/sellInfo.html; sourceTree = "<group>"; };
-		C88033132055035200D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/sellInfo.html"; sourceTree = "<group>"; };
 		CCA4FE321FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckDeviceCoordinatorTests.swift; sourceTree = "<group>"; };
 		CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceChecker.swift; sourceTree = "<group>"; };
 		CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JailbreakChecker.swift; sourceTree = "<group>"; };
@@ -1035,6 +1040,7 @@
 				76F1D47A29573DA8BD3E4979 /* Redeem */,
 				5E7C73982B69BC9612DC52F3 /* AlphaWallet */,
 				5E7C7ACB32FB112CD7D92977 /* AlphaWalletHelp */,
+				5E7C7EB039E615B015F1B808 /* AlphaWalletSettings */,
 			);
 			path = Trust;
 			sourceTree = "<group>";
@@ -2179,6 +2185,14 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
+		5E7C79BC9190C50A1CDAD21F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C79A33D53D269C8F188FF /* AlphaWalletSettingsViewCell.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		5E7C7ACB32FB112CD7D92977 /* AlphaWalletHelp */ = {
 			isa = PBXGroup;
 			children = (
@@ -2204,6 +2218,15 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		5E7C7EB039E615B015F1B808 /* AlphaWalletSettings */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7F2526395BA1F74437EE /* ViewControllers */,
+				5E7C79BC9190C50A1CDAD21F /* Views */,
+			);
+			path = AlphaWalletSettings;
+			sourceTree = "<group>";
+		};
 		5E7C7F04205986D1956F1624 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -2212,6 +2235,14 @@
 				5E7C7D9AA7F23134664CA01B /* AlphaWalletFilterView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		5E7C7F2526395BA1F74437EE /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C71C92D5281FE5BAF0C13 /* AlphaWalletSettingsViewController.swift */,
+			);
+			path = ViewControllers;
 			sourceTree = "<group>";
 		};
 		615F10571FCBEF6A008A45AF /* Views */ = {
@@ -3331,6 +3362,8 @@
 				5E7C7D8AFC9BA1E8C1D05167 /* TicketSellInfoViewController.swift in Sources */,
 				5E7C77E844D710D7AFBC58D4 /* AlphaWalletRequestViewController.swift in Sources */,
 				5E7C701BFF4469B35A074EB9 /* AlphaWalletRequestViewModel.swift in Sources */,
+				5E7C7C9D7D97A7CB7A779F32 /* AlphaWalletSettingsViewController.swift in Sources */,
+				5E7C74888419EB374AF3DE50 /* AlphaWalletSettingsViewCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3454,6 +3487,15 @@
 			name = redeemInfo.html;
 			sourceTree = "<group>";
 		};
+		C88033102055034E00D73D6F /* sellInfo.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C88033112055034E00D73D6F /* en */,
+				C88033132055035200D73D6F /* zh-Hans */,
+			);
+			name = sellInfo.html;
+			sourceTree = "<group>";
+		};
 		C880331420551DF700D73D6F /* whatIsASeedPhraseInfo.html */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -3497,15 +3539,6 @@
 				C880332620552FF700D73D6F /* zh-Hans */,
 			);
 			name = whatIsEthereumInfo.html;
-			sourceTree = "<group>";
-		};
-		C88033102055034E00D73D6F /* sellInfo.html */ = {
-			isa = PBXVariantGroup;
-			children = (
-				C88033112055034E00D73D6F /* en */,
-				C88033132055035200D73D6F /* zh-Hans */,
-			);
-			name = sellInfo.html;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
