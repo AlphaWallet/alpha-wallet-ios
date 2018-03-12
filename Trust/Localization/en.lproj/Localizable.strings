@@ -196,3 +196,5 @@
 "a.help.contents.howDoIGetMyMoney" = "How do I get my money?";
 "a.help.contents.whatIsSeedPhrase" = "What is a Seed Phrase?";
 "a.help.contents.howDoITransferETHIntoMyWallet" = "How do I transfer ETH into my wallet?";
+"a.wallet.address.scan.instructions" = "Scan the QR Code or copy the text below:";
+"a.wallet.address.title" = "My %@ Wallet Address";
