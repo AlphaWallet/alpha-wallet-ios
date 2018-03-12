@@ -60,4 +60,21 @@ extension UIViewController {
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
         present(controller, animated: true, completion: nil)
     }
+
+    public var isVisible: Bool {
+        if isViewLoaded {
+            return view.window != nil
+        }
+        return false
+    }
+
+    public var isTopViewController: Bool {
+        if self.navigationController != nil {
+            return self.navigationController?.visibleViewController === self
+        } else if self.tabBarController != nil {
+            return self.tabBarController?.selectedViewController == self && self.presentedViewController == nil
+        }
+        return self.presentedViewController == nil && self.isVisible
+    }
+
 }
