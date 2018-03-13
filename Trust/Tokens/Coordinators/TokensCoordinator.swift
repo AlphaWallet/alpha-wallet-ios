@@ -97,6 +97,8 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             delegate?.didPress(for: .send(type: .token(token)), in: self)
         case .stormBird:
             delegate?.didPressStormBird(for: .send(type: .stormBird(token)), token: token, in: self)
+        case .stormBirdOrder:
+            break
         }
     }
 

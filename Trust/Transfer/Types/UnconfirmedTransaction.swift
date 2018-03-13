@@ -12,5 +12,9 @@ struct UnconfirmedTransaction {
     let gasLimit: BigInt?
     let gasPrice: BigInt?
     let nonce: BigInt?
+    let v: UInt8?
+    let r: String?
+    let s: String?
+    let expiry: BigUInt?
     let indices: [UInt16]?
 }

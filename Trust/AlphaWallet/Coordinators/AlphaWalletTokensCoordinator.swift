@@ -6,6 +6,7 @@ import UIKit
 protocol AlphaWalletTokensCoordinatorDelegate: class {
     func didPress(for type: PaymentFlow, in coordinator: AlphaWalletTokensCoordinator)
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: AlphaWalletTokensCoordinator)
+    func didPressOrder(for type: PaymentFlow, token: TokenObject, in coordinator: ClaimOrderCoordinator)
 }
 
 //Duplicated from TokensCoordinator.swift for easier upstream merging
@@ -97,6 +98,8 @@ extension AlphaWalletTokensCoordinator: AlphaWalletTokensViewControllerDelegate 
             delegate?.didPress(for: .send(type: .token(token)), in: self)
         case .stormBird:
             delegate?.didPressStormBird(for: .send(type: .stormBird(token)), token: token, in: self)
+        case .stormBirdOrder:
+            delegate?.didPressStormBird(for: .send(type: .stormBirdOrder(token)), token: token, in: self)
         }
     }
 

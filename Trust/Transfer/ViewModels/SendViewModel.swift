@@ -54,6 +54,8 @@ struct SendViewModel {
             return token
         case .stormBird(let token):
             return token
+        case .stormBirdOrder(let token):
+            return token
         }
     }
 

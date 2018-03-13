@@ -7,6 +7,7 @@ enum TransferType {
     case ether(destination: Address?)
     case token(TokenObject)
     case stormBird(TokenObject)
+    case stormBirdOrder(TokenObject)
 }
 
 extension TransferType {
@@ -18,6 +19,8 @@ extension TransferType {
             return token.symbol
         case .stormBird(let token):
             return token.symbol
+        case .stormBirdOrder(let token):
+            return token.symbol
         }
     }
 
@@ -28,6 +31,8 @@ extension TransferType {
         case .token(let token):
             return Address(string: token.contract)!
         case .stormBird(let token):
+            return Address(string: token.contract)!
+        case .stormBirdOrder(let token):
             return Address(string: token.contract)!
         }
     }

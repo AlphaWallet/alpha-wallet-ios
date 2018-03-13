@@ -24,10 +24,8 @@ class ClaimOrderCoordinatorTests : XCTestCase {
         let s = "0x23D8D97AB44A2389043ECB3C1FB29C40EC702282DB6EE1D2B2204F8954E4B451"
 
         claimOrderCoordinator.claimOrder(indices: indices, expiry: expiry, v: v, r: r, s: s) { result in
-            print(result)
             switch result {
             case .success( _):
-                print(result)
                 expectation.fulfill()
             case .failure: break
             }
