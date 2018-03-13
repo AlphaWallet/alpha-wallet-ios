@@ -232,6 +232,8 @@ class SendViewController: FormViewController {
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             case .stormBird(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .stormBirdOrder(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             }
         }()
         guard let value = parsedValue else {
@@ -246,7 +248,11 @@ class SendViewController: FormViewController {
                 gasLimit: .none,
                 gasPrice: gasPrice,
                 nonce: .none,
-                indices: viewModel.isStormBird ? getIndiciesFromUI() : .none
+                v: .none,
+                r: .none,
+                s: .none,
+                expiry: .none,
+                indices: .none
         )
         self.delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }

@@ -111,6 +111,10 @@ struct ConfirmPaymentDetailsViewModel {
             return amountAttributedText(
                 string: fullFormatter.string(from: transaction.value, decimals: token.decimals)
             )
+        case .stormBirdOrder(let token):
+            return amountAttributedText(
+                    string: fullFormatter.string(from: transaction.value, decimals: token.decimals)
+            )
         }
     }
 

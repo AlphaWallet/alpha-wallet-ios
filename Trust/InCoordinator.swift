@@ -404,6 +404,9 @@ extension InCoordinator: AlphaWalletTokensCoordinatorDelegate {
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: AlphaWalletTokensCoordinator) {
         showTicketList(for: type, token: token)
     }
+    func didPressOrder(for type: PaymentFlow, token: TokenObject, in coordinator: ClaimOrderCoordinator){
+        //TODO implement
+    }
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
