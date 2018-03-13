@@ -204,3 +204,7 @@
 "a.settings.contents.myWalletAddress" = "My Wallet Address";
 "a.settings.contents.notificationsSettings" = "Notifications Settings";
 "a.settings.contents.logout" = "Log Out";
+"a.welcome.onboarding.1" = "Hold all your Crypto assets in one place";
+"a.welcome.onboarding.2" = "Powered by blockchain technology, smart tickets, fraud free";
+"a.welcome.onboarding.3" = "Buy, sell and transfer your favourite tokens";
+"a.welcome.onboarding.createwallet.button.title" = "GET STARTED";
