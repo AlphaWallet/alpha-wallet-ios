@@ -18,17 +18,18 @@ public class EventsRest {
                 completion(.failure(AnyError(response.error!)))
                 return
             }
-            guard let jsonData = response.data else {
-                completion(.failure(AnyError(RestError.invalidResponse("JSON is invalid"))))
-                return
-            }
+            // TODO: Fix this
+//            guard let jsonData = response.data else {
+//                completion(.failure(AnyError(RestError.invalidResponse("JSON is invalid"))))
+//                return
+//            }
 
             if 200...299 ~= statusCode { // success
-                guard let events: [Event] = Event.from(data: jsonData) else {
-                    completion(.failure(AnyError(RestError.invalidResponse("Could not parse data"))))
-                    return
-                }
-                completion(.success(events))
+//                guard let events: [Event] = Event.from(data: jsonData) else {
+//                    completion(.failure(AnyError(RestError.invalidResponse("Could not parse data"))))
+//                    return
+//                }
+                completion(.success([]))
             } else {
                 completion(.failure(AnyError(RestError.invalidResponse("Could not parse data"))))
             }
