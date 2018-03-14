@@ -196,9 +196,15 @@
 "a.help.contents.howDoIGetMyMoney" = "How do I get my money?";
 "a.help.contents.whatIsSeedPhrase" = "What is a Seed Phrase?";
 "a.help.contents.howDoITransferETHIntoMyWallet" = "How do I transfer ETH into my wallet?";
+"a.help.contents.privacyPolicy" = "Privacy Policy";
+"a.help.contents.termsOfService" = "Terms of Service";
 "a.wallet.address.scan.instructions" = "Scan the QR Code or copy the text below:";
 "a.wallet.address.title" = "My %@ Wallet Address";
 "a.settings.navigation.title" = "Settings";
 "a.settings.contents.myWalletAddress" = "My Wallet Address";
 "a.settings.contents.notificationsSettings" = "Notifications Settings";
 "a.settings.contents.logout" = "Log Out";
+"a.welcome.onboarding.1" = "Hold all your Crypto assets in one place";
+"a.welcome.onboarding.2" = "Powered by blockchain technology, smart tickets, fraud free";
+"a.welcome.onboarding.3" = "Buy, sell and transfer your favourite tokens";
+"a.welcome.onboarding.createwallet.button.title" = "GET STARTED";
