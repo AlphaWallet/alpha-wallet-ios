@@ -11,6 +11,8 @@ class AlphaWalletHelpViewController: UIViewController {
         (title: R.string.localizable.aHelpContentsHowDoIGetMyMoney(), controller: HowDoIGetMyMoneyInfoViewController()),
         (title: R.string.localizable.aHelpContentsWhatIsSeedPhrase(), controller: WhatIsASeedPhraseInfoViewController()),
         (title: R.string.localizable.aHelpContentsHowDoITransferETHIntoMyWallet(),controller: HowDoITransferETHIntoMyWalletInfoViewController()),
+        (title: R.string.localizable.aHelpContentsPrivacyPolicy(),controller: PrivacyPolicyViewController()),
+        (title: R.string.localizable.aHelpContentsTermsOfService(),controller: TermsOfServiceViewController()),
     ]
 
     init() {
