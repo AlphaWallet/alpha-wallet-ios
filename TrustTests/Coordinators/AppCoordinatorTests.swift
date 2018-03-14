@@ -13,7 +13,7 @@ class AppCoordinatorTests: XCTestCase {
         
         coordinator.start()
 
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is WelcomeViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is AlphaWalletWelcomeViewController)
     }
     
     func testStartWithAccounts() {
@@ -41,7 +41,7 @@ class AppCoordinatorTests: XCTestCase {
         
         coordinator.reset()
         
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is WelcomeViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is AlphaWalletWelcomeViewController)
     }
 
     func testStartWelcomeWalletCoordinator() {
@@ -54,7 +54,7 @@ class AppCoordinatorTests: XCTestCase {
         
         coordinator.showInitialWalletCoordinator(entryPoint: .createInstantWallet)
         
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is WelcomeViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is AlphaWalletWelcomeViewController)
     }
 
     func testImportWalletCoordinator() {
