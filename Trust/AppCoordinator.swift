@@ -6,8 +6,8 @@ import UIKit
 
 class AppCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
-    lazy var welcomeViewController: WelcomeViewController = {
-        let controller = WelcomeViewController()
+    lazy var welcomeViewController: AlphaWalletWelcomeViewController = {
+        let controller = AlphaWalletWelcomeViewController()
         controller.delegate = self
         return controller
     }()
@@ -107,13 +107,20 @@ class AppCoordinator: NSObject, Coordinator {
     }
 }
 
-extension AppCoordinator: WelcomeViewControllerDelegate {
-    func didPressCreateWallet(in viewController: WelcomeViewController) {
-        showInitialWalletCoordinator(entryPoint: .createInstantWallet)
-    }
+//Disable creating and importing wallets from welcome screen
+//extension AppCoordinator: WelcomeViewControllerDelegate {
+//    func didPressCreateWallet(in viewController: WelcomeViewController) {
+//        showInitialWalletCoordinator(entryPoint: .createInstantWallet)
+//    }
 
-    func didPressImportWallet(in viewController: WelcomeViewController) {
-        showInitialWalletCoordinator(entryPoint: .importWallet)
+//    func didPressImportWallet(in viewController: WelcomeViewController) {
+//        showInitialWalletCoordinator(entryPoint: .importWallet)
+//    }
+//}
+
+extension AppCoordinator: AlphaWalletWelcomeViewControllerDelegate {
+    func didPressCreateWallet(in viewController: AlphaWalletWelcomeViewController) {
+        showInitialWalletCoordinator(entryPoint: .createInstantWallet)
     }
 }
 
