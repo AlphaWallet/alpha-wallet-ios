@@ -69,7 +69,7 @@ class TicketRedemptionViewController: UIViewController {
                                 viewController: self,
                                 completion: { _ in
                                     // TODO: let ticket coordinator handle this as we need to refresh the ticket list as well
-                                    self.navigationController?.popToRootViewController(animated: true)
+                                    self.dismiss(animated: true, completion: nil)
                                 })
 
     }
