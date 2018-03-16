@@ -71,4 +71,14 @@ struct AppFormAppearance {
         callback(button)
         return button
     }
+
+    static func alphaWalletSettingsButton(_ title: String? = .none, callback: @escaping (AlphaWalletSettingsButtonRow ) -> Void) -> AlphaWalletSettingsButtonRow {
+        let button = AlphaWalletSettingsButtonRow(title)
+                .cellUpdate { cell, _ in
+                    cell.textLabel?.textAlignment = .left
+                    cell.textLabel?.textColor = .black
+                }
+        callback(button)
+        return button
+    }
 }
