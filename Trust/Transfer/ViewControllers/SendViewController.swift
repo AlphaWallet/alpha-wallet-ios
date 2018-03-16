@@ -252,7 +252,7 @@ class SendViewController: FormViewController {
                 r: .none,
                 s: .none,
                 expiry: .none,
-                indices: .none
+                indices: viewModel.isStormBird ? getIndiciesFromUI() : .none
         )
         self.delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }
