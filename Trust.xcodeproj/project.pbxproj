@@ -288,6 +288,7 @@
 		5E7C70FF17622C0FFD45A542 /* AlphaWalletSettingPushRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D2AAB777BF35B8B56BD /* AlphaWalletSettingPushRow.swift */; };
 		5E7C71B52A77008694BFA5D1 /* TokensDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74B9EB81C51E956566E7 /* TokensDataStore.swift */; };
 		5E7C7248A9A732452BDC27D7 /* AdvancedSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78581AA28CA5C3CBC468 /* AdvancedSettingsViewController.swift */; };
+		5E7C7254FB59CAE55555A2E0 /* AlphaWalletLockPasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A5B9ED9A8877BB4CB66 /* AlphaWalletLockPasscodeViewController.swift */; };
 		5E7C72670E16AFB8DAF64673 /* OnboardingPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E24936CC2190D2A16C2 /* OnboardingPageViewModel.swift */; };
 		5E7C72B0A10A92E591696E48 /* ContactUsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */; };
 		5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */; };
@@ -296,8 +297,10 @@
 		5E7C73FC3990D110C474C3D6 /* WalletFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75CC640BAFFE0E789F44 /* WalletFilterViewModel.swift */; };
 		5E7C73FD5BD75D90C8D0EF3C /* WalletFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C58586099F082973073 /* WalletFilterView.swift */; };
 		5E7C745DACB5FCCEBCEB49CA /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C793E23E2364B73C4D813 /* WelcomeViewController.swift */; };
+		5E7C7484283994625028447E /* AlphaWalletLockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71285A1C16395F37113B /* AlphaWalletLockView.swift */; };
 		5E7C75F80A7E178B49830BCD /* TicketsViewControllerHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */; };
 		5E7C760C7D55C97424F55138 /* TicketTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */; };
+		5E7C7661CE069FB8B6D6DDD4 /* AlphaWalletLockCreatePasscodeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70A86133D4D6D060E963 /* AlphaWalletLockCreatePasscodeCoordinator.swift */; };
 		5E7C76F8CB67466725C590CE /* TokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79ED9F842D3FC102AC54 /* TokenViewCellViewModel.swift */; };
 		5E7C7793AB6B577906F2BCA3 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AFE9AF9FE6B58C925D4 /* SettingsViewController.swift */; };
 		5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74DCC21272EC231A20E2 /* RequestViewController.swift */; };
@@ -305,6 +308,7 @@
 		5E7C78B3FD5CA87E395E1861 /* OnboardingPageStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AF9A592D7224ED58016 /* OnboardingPageStyle.swift */; };
 		5E7C78D6C94739B1ADDFBB5B /* WhyUseEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */; };
 		5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7103135DCCCAB96EE5FC /* OnboardingPage.swift */; };
+		5E7C798DCD6CEF9307ADE1CF /* AlphaWalletPasscodeCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72B4DBDD44DFCC257A1D /* AlphaWalletPasscodeCharacterView.swift */; };
 		5E7C7AB2ECFB589632F2A26C /* WalletFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E2DCCE0D775ECF83088 /* WalletFilter.swift */; };
 		5E7C7AB6950E43BD6E8D0CBE /* TokensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B3302309706CA0F972A /* TokensViewController.swift */; };
 		5E7C7B3E08EEA63C5B68B9C4 /* TicketRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */; };
@@ -323,6 +327,7 @@
 		5E7C7E2C03099D78A9D911D7 /* WhatIsASeedPhraseInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B0BE9EE3B198AE7D92D /* WhatIsASeedPhraseInfoViewController.swift */; };
 		5E7C7E4B4054AAD41C5BE3EC /* SettingsAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7564AF453BAB0BDAAA57 /* SettingsAction.swift */; };
 		5E7C7E5C30EFDC70DF1E00C1 /* TicketsViewControllerHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */; };
+		5E7C7EE313C34C0A10893CC7 /* AlphaWalletLockCreatePasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7784076E433A427534D3 /* AlphaWalletLockCreatePasscodeViewController.swift */; };
 		5E7C7FAF2A07E7AE21BF09AF /* AlphaWalletSettingsTextRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71684B93F60206992E10 /* AlphaWalletSettingsTextRow.swift */; };
 		5E7C7FC0770A411DB09F8C09 /* TokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C077372C3F2A4349FA1 /* TokenViewCell.swift */; };
 		5E7C7FDD73F658772181896B /* TermsOfServiceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7607B0EF9B8F1BC41073 /* TermsOfServiceViewController.swift */; };
@@ -753,13 +758,16 @@
 		442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketHolder.swift; sourceTree = "<group>"; };
 		477899BEAA4489DA423E8857 /* Pods-TrustUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrustUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TrustUITests/Pods-TrustUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		4DB8204016307EAFC079EA48 /* Pods-Trust.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.debug.xcconfig"; sourceTree = "<group>"; };
+		5E7C70A86133D4D6D060E963 /* AlphaWalletLockCreatePasscodeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletLockCreatePasscodeCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7103135DCCCAB96EE5FC /* OnboardingPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingPage.swift; sourceTree = "<group>"; };
+		5E7C71285A1C16395F37113B /* AlphaWalletLockView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletLockView.swift; sourceTree = "<group>"; };
 		5E7C715F395B973FB61056CF /* HelpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpViewController.swift; sourceTree = "<group>"; };
 		5E7C71684B93F60206992E10 /* AlphaWalletSettingsTextRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AlphaWalletSettingsTextRow.swift; path = Views/AlphaWalletSettingsTextRow.swift; sourceTree = "<group>"; };
 		5E7C719B717E002583B1E2E9 /* AdvancedSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsViewModel.swift; sourceTree = "<group>"; };
 		5E7C71CE10548877F1124BF2 /* WelcomeViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeViewModel.swift; sourceTree = "<group>"; };
 		5E7C71EBD4C95AD4E11F3352 /* AlphaWalletSettingsButtonRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AlphaWalletSettingsButtonRow.swift; path = Views/AlphaWalletSettingsButtonRow.swift; sourceTree = "<group>"; };
 		5E7C72142D5817EF8FA8CADA /* PrivacyPolicyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyViewController.swift; sourceTree = "<group>"; };
+		5E7C72B4DBDD44DFCC257A1D /* AlphaWalletPasscodeCharacterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletPasscodeCharacterView.swift; sourceTree = "<group>"; };
 		5E7C731B6F01534683227123 /* TicketTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C74A2C738BF2412D412A7 /* TicketSellInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketSellInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C74B9EB81C51E956566E7 /* TokensDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensDataStore.swift; sourceTree = "<group>"; };
@@ -776,6 +784,7 @@
 		5E7C767497AD8DEE83F384D7 /* RequestViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestViewModel.swift; sourceTree = "<group>"; };
 		5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeaderViewModel.swift; sourceTree = "<group>"; };
 		5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatIsEthereumInfoViewController.swift; sourceTree = "<group>"; };
+		5E7C7784076E433A427534D3 /* AlphaWalletLockCreatePasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletLockCreatePasscodeViewController.swift; sourceTree = "<group>"; };
 		5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C783E3ADA4CF9554A0E7D /* TicketTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C78581AA28CA5C3CBC468 /* AdvancedSettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsViewController.swift; sourceTree = "<group>"; };
@@ -783,6 +792,7 @@
 		5E7C793E23E2364B73C4D813 /* WelcomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeader.swift; sourceTree = "<group>"; };
 		5E7C79ED9F842D3FC102AC54 /* TokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenViewCellViewModel.swift; sourceTree = "<group>"; };
+		5E7C7A5B9ED9A8877BB4CB66 /* AlphaWalletLockPasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletLockPasscodeViewController.swift; sourceTree = "<group>"; };
 		5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactUsBannerView.swift; sourceTree = "<group>"; };
 		5E7C7AF9A592D7224ED58016 /* OnboardingPageStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingPageStyle.swift; sourceTree = "<group>"; };
 		5E7C7AFE9AF9FE6B58C925D4 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
@@ -1059,6 +1069,7 @@
 				76F1D1936604D6A022E9AE90 /* Market */,
 				76F1D47A29573DA8BD3E4979 /* Redeem */,
 				5E7C7ACB32FB112CD7D92977 /* AlphaWalletHelp */,
+				5E7C7FEEAC77688488322EC0 /* AlphaWalletLock */,
 			);
 			path = Trust;
 			sourceTree = "<group>";
@@ -2193,6 +2204,32 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		5E7C779681F6C06A603A2131 /* Coordinators */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C70A86133D4D6D060E963 /* AlphaWalletLockCreatePasscodeCoordinator.swift */,
+			);
+			path = Coordinators;
+			sourceTree = "<group>";
+		};
+		5E7C7824EE1D8D536EF6F8F3 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C71285A1C16395F37113B /* AlphaWalletLockView.swift */,
+				5E7C72B4DBDD44DFCC257A1D /* AlphaWalletPasscodeCharacterView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		5E7C796938368D3877B0E9DC /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7A5B9ED9A8877BB4CB66 /* AlphaWalletLockPasscodeViewController.swift */,
+				5E7C7784076E433A427534D3 /* AlphaWalletLockCreatePasscodeViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
 		5E7C7ACB32FB112CD7D92977 /* AlphaWalletHelp */ = {
 			isa = PBXGroup;
 			children = (
@@ -2200,6 +2237,16 @@
 				5E7C74128421DCAC6BCC2354 /* Views */,
 			);
 			path = AlphaWalletHelp;
+			sourceTree = "<group>";
+		};
+		5E7C7FEEAC77688488322EC0 /* AlphaWalletLock */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7824EE1D8D536EF6F8F3 /* Views */,
+				5E7C779681F6C06A603A2131 /* Coordinators */,
+				5E7C796938368D3877B0E9DC /* ViewControllers */,
+			);
+			path = AlphaWalletLock;
 			sourceTree = "<group>";
 		};
 		615F10571FCBEF6A008A45AF /* Views */ = {
@@ -3340,6 +3387,11 @@
 				5E7C7C98EAF40E8110241DBD /* TicketTokenViewCell.swift in Sources */,
 				5E7C71B52A77008694BFA5D1 /* TokensDataStore.swift in Sources */,
 				5E7C7793AB6B577906F2BCA3 /* SettingsViewController.swift in Sources */,
+				5E7C7484283994625028447E /* AlphaWalletLockView.swift in Sources */,
+				5E7C798DCD6CEF9307ADE1CF /* AlphaWalletPasscodeCharacterView.swift in Sources */,
+				5E7C7661CE069FB8B6D6DDD4 /* AlphaWalletLockCreatePasscodeCoordinator.swift in Sources */,
+				5E7C7254FB59CAE55555A2E0 /* AlphaWalletLockPasscodeViewController.swift in Sources */,
+				5E7C7EE313C34C0A10893CC7 /* AlphaWalletLockCreatePasscodeViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
