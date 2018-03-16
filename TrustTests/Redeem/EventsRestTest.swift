@@ -17,6 +17,7 @@ class EventsRestTest: XCTestCase {
     func testEventsRest() {
         let expectation = self.expectation(description: "wait til callback")
         expectations.append(expectation)
+        let address = Address(string: "")
         EventsRest().getEvents { result in
             switch result {
             case .success(let events):
