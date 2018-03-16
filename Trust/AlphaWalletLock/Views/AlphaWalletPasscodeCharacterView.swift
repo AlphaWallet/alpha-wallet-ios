@@ -27,7 +27,7 @@ class AlphaWalletPasscodeCharacterView : UIView {
 		let radius: CGFloat = bounds.width / 2 - borderWidth
 		let circle = CAShapeLayer()
 		circle.path = UIBezierPath(roundedRect: CGRect(x: borderWidth, y: borderWidth, width: 2.0 * radius, height: 2.0 * radius), cornerRadius: radius).cgPath
-		let circleColor: UIColor? = Colors.appBackground
+		let circleColor: UIColor? = Colors.appWhite
 		circle.fillColor = circleColor?.cgColor
 		circle.strokeColor = circleColor?.cgColor
 		circle.borderWidth = borderWidth
@@ -48,7 +48,7 @@ class AlphaWalletPasscodeCharacterView : UIView {
 		hyphenPath.addLine(to: rightBottomCorner)
 		hyphenPath.addLine(to: leftBottomCorner)
 		hyphen.path = hyphenPath.cgPath
-		let hyphenColor: UIColor? = Colors.appBackground
+		let hyphenColor: UIColor? = Colors.appWhite
 		hyphen.fillColor = hyphenColor?.cgColor
 		hyphen.strokeColor = hyphenColor?.cgColor
 		layer.addSublayer(hyphen)

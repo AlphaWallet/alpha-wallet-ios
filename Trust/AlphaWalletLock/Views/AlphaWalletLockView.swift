@@ -27,9 +27,10 @@ class AlphaWalletLockView: UIView {
 		characterView.translatesAutoresizingMaskIntoConstraints = false
 	}
 	private func configLabel() {
-		lockTitle.font = Fonts.light(size: 18)
+		lockTitle.font = Fonts.light(size: 20)
 		lockTitle.textAlignment = .center
 		lockTitle.translatesAutoresizingMaskIntoConstraints = false
+		lockTitle.textColor = Colors.appWhite
 	}
 	private func applyConstraints() {
 		characterView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
@@ -40,7 +41,7 @@ class AlphaWalletLockView: UIView {
 		lockTitle.bottomAnchor.constraint(equalTo: characterView.topAnchor, constant: -20).isActive = true
 	}
 	private func addUiElements() {
-		self.backgroundColor = UIColor.white
+		self.backgroundColor = Colors.appBackground
 		self.addSubview(lockTitle)
 		self.addSubview(characterView)
 	}

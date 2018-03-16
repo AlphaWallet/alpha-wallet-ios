@@ -10,8 +10,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     var window: UIWindow?
     var coordinator: AppCoordinator!
     //This is separate coordinator for the protection of the sensitive information.
-    lazy var protectionCoordinator: ProtectionCoordinator = {
-        return ProtectionCoordinator()
+    lazy var protectionCoordinator: AlphaWalletProtectionCoordinator = {
+        return AlphaWalletProtectionCoordinator()
     }()
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         print(Realm.Configuration().fileURL!)

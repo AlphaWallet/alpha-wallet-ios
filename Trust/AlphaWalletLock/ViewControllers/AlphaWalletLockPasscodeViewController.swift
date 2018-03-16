@@ -18,7 +18,7 @@ class AlphaWalletLockPasscodeViewController: UIViewController {
 	override func viewDidLoad() {
 		self.navigationItem.hidesBackButton = true
 		NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-		self.view.backgroundColor = UIColor.white
+		self.view.backgroundColor = Colors.appBackground
 		self.configureInvisiblePasscodeField()
 		self.configureNavigationItems()
 		self.configureLockView()
