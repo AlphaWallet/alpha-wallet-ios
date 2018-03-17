@@ -25,6 +25,7 @@ extension String {
         }
     }
 }
+
 extension BinaryInteger {
     var data: Data {
         var source = self
@@ -42,27 +43,27 @@ public class SignOrders {
 
     private let keyStore = try! EtherKeystore()
 
-    func signOrders(orders : [Order], account : Account) -> ([SignedOrder], [String]) {
+    func signOrders(orders: [Order], account: Account) -> ([SignedOrder], [String]) {
         var signedOrders = [SignedOrder]()
-        var data = [String]()
+        let data = [String]()
 
         for i in 0...orders.count - 1 {
-            let message : [UInt8] = encodeMessageForTrade(
+            let message: [UInt8] = encodeMessageForTrade(
                     price: orders[i].price,
                     expiryBuffer: orders[i].expiry,
                     tickets: orders[i].indices,
                     contractAddress: orders[i].contractAddress
             )
             let signature = try! "0x" + keyStore.signMessageData(Data(bytes: message), for: account).dematerialize().toHexString()
-            let signedOrder = try! SignedOrder(order : orders[i], message: message,
-                    signature : signature.description)
+            let signedOrder = try! SignedOrder(order: orders[i], message: message,
+                    signature: signature.description)
             signedOrders.append(signedOrder)
             //encode transaction data
             let v = signature.substring(from: 130)
             let r = signature.substring(to: 64)
             let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 126)))
             var hexExpires = orders[i].expiry.serialize().toHexString()
-            if(hexExpires == "") {
+            if (hexExpires == "") {
                 hexExpires = "0"
             }
         }
