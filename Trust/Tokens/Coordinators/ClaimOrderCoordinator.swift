@@ -25,7 +25,7 @@ class ClaimOrderCoordinator {
                     v: UInt8,
                     r: String,
                     s: String,
-                    completion: @escaping (Result<Any, AnyError>) -> Void
+                    completion: @escaping (Result<String, AnyError>) -> Void
         ) {
         let request = ClaimStormBirdOrder(expiry: expiry, indices: indices, v: v, r: r, s: s)
         web3.request(request: request) { result in
