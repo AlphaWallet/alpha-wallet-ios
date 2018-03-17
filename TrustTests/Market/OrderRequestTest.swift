@@ -11,7 +11,7 @@ class OrderRequestTest : XCTestCase  {
     func testGetOrders() {
         let expectation = self.expectation(description: "wait til callback")
         expectations.append(expectation)
-        OrdersRequest.init().getOrders(callback: {
+        OrdersRequest().getOrders(callback: {
             callback in
             print(callback)
             expectation.fulfill()
@@ -34,8 +34,8 @@ class OrderRequestTest : XCTestCase  {
                 start: BigUInt("500000210121213")!, count: 3)
         testOrdersList.append(testOrder1)
         let signOrders = SignOrders()
-        var signedOrders = signOrders.signOrders(orders: testOrdersList, account: account).0
-        let privateKey = try! keyStore.exportPrivateKey(account: account)
+        let signedOrders = signOrders.signOrders(orders: testOrdersList, account: account).0
+        let privateKey = keyStore.exportPrivateKey(account: account)
         let publicKey = try! Secp256k1.shared.pubKeyFromPrivateKey(from: privateKey.dematerialize())
 
         OrdersRequest.init().putOrderToServer(signedOrders: signedOrders, publicKey: publicKey.hexString, callback: {

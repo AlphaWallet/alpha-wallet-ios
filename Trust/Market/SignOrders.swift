@@ -55,8 +55,9 @@ public class SignOrders {
                     contractAddress: orders[i].contractAddress
             )
             let signature = try! "0x" + keyStore.signMessageData(Data(bytes: message), for: account).dematerialize().toHexString()
-            let signedOrder = try! SignedOrder(order: orders[i], message: message,
-                    signature: signature.description)
+            let signedOrder = SignedOrder(order: orders[i],
+                                          message: message,
+                                          signature: signature.description)
             signedOrders.append(signedOrder)
             //encode transaction data
             let v = signature.substring(from: 130)

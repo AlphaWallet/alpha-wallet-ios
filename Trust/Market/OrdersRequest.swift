@@ -21,7 +21,7 @@ import BigInt
 public class OrdersRequest {
 
     public let baseURL = "https://482kdh4npg.execute-api.ap-southeast-1.amazonaws.com/dev/"
-    public let contractAddress = "0xbc9a1026a4bc6f0ba8bbe486d1d09da5732b39e4"
+    public let contractAddress = "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0"
 
     public func getOrders(callback: @escaping (_ result : Any) -> Void) {
         Alamofire.request(baseURL + "contract/" + contractAddress, method: .get).responseJSON {
