@@ -13,19 +13,19 @@ class ClaimOrderCoordinatorTests : XCTestCase {
     var expectations = [XCTestExpectation]()
 
     func testClaimOrder() {
+        let keystore = try! EtherKeystore()
         let claimOrderCoordinator = FakeClaimOrderCoordinator()
         let expectation = self.expectation(description: "wait til callback")
         expectations.append(expectation)
         var indices = [UInt16]()
-        indices.append(3)
-        indices.append(4)
-        let expiry = BigUInt(0)
+        indices.append(14)
+        let expiry = BigUInt("0")
         let v = UInt8(27)
-        let r = "0x9CAF1C785074F5948310CD1AA44CE2EFDA0AB19C308307610D7BA2C74604AE98"
-        let s = "0x23D8D97AB44A2389043ECB3C1FB29C40EC702282DB6EE1D2B2204F8954E4B451"
+        let r = "0x2d8e40406bf6175036ab1e1099b48590438bf48d429a8b209120fecd07894566"
+        let s = "0x59ccf58ca36f681976228309fdd9de7e30e860084d9d63014fa79d48a25bb93d"
 
         let token = TokenObject(
-            contract: "0x84DFD837931954c6ca515516598468564308bde6",
+            contract: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0",
             name: "MJ Comeback",
             symbol: "MJC",
             decimals: 0,
@@ -35,12 +35,10 @@ class ClaimOrderCoordinatorTests : XCTestCase {
             isStormBird: true
         )
 
-        
-        claimOrderCoordinator.claimOrder(indices: indices, expiry: expiry, v: v, r: r, s: s) { result in
+        claimOrderCoordinator.claimOrder(indices: indices, expiry: expiry!, v: v, r: r, s: s) { result in
             switch result {
-
             case .success(let payload):
-                let address: Address = .make()
+                let address: Address = .makeStormBord()
                 let transaction = UnconfirmedTransaction(
                     transferType: .stormBirdOrder(token),
                     value: BigInt("0"),
@@ -56,22 +54,45 @@ class ClaimOrderCoordinatorTests : XCTestCase {
                     indices: indices
                 )
 
+                let session: WalletSession = .makeStormBirdSession()
+
                 let configurator = TransactionConfigurator(
-                    session: .make(),
+                    session: session,
                     account: .make(),
                     transaction: transaction
                 )
 
                 let signTransaction = configurator.signTransaction()
-                let sendTransactionCoordinator = SendTransactionCoordinator(session: .make(), keystore: FakeKeystore(), confirmType: .signThenSend)
-                sendTransactionCoordinator.send(transaction: signTransaction) { result in
-                    print(result);
-                    expectation.fulfill()
+                
+                let account = keystore.getAccount(for: address)!
+                
+                let signedTransaction = SignTransaction(value: signTransaction.value,
+                                                        account: account,
+                                                        to: signTransaction.to,
+                                                        nonce: signTransaction.nonce,
+                                                        data: signTransaction.data,
+                                                        gasPrice: signTransaction.gasPrice,
+                                                        gasLimit: signTransaction.gasLimit,
+                                                        chainID: 3)
+                
+                
+                let sendTransactionCoordinator = SendTransactionCoordinator(session: session,
+                                                                            keystore: keystore,
+                                                                            confirmType: .signThenSend)
+                
+                sendTransactionCoordinator.send(transaction: signedTransaction) { result in
+                    switch result {
+                    case .success(let res):
+                        print(res);
+                        expectation.fulfill()
+                    case .failure(let error):
+                        print(error);
+                    }
                 }
             case .failure: break
             }
         }
-        wait(for: expectations, timeout: 10)
+        wait(for: expectations, timeout: 10000)
     }
     
 }

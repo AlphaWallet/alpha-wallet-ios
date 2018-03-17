@@ -35,8 +35,8 @@ class SendTransactionCoordinator {
                 address: session.account.address.description,
                 state: "pending"
             )))
-            Session.send(request) { [weak self] result in
-                guard let `self` = self else { return }
+            Session.send(request) { result in
+//                guard let `self` = self else { return }
                 switch result {
                 case .success(let count):
                     let transaction = self.appendNonce(to: transaction, currentNonce: count)
