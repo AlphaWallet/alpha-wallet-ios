@@ -146,10 +146,21 @@ class InCoordinator: Coordinator {
             tabBarController.viewControllers?.append(alphaWalletTokensCoordinator.navigationController)
         }
 
-        let alphaWalletSettingsController = AlphaWalletSettingsViewController()
-        alphaWalletSettingsController.delegate = self
-        alphaWalletSettingsController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(), image: R.image.tab_settings(), selectedImage: nil)
-        tabBarController.viewControllers?.append(UINavigationController(rootViewController: alphaWalletSettingsController))
+        let alphaSettingsCoordinator = AlphaWalletSettingsCoordinator(
+                keystore: keystore,
+                session: session,
+                storage: transactionsStorage,
+                balanceCoordinator: balanceCoordinator
+        )
+        alphaSettingsCoordinator.rootViewController.tabBarItem = UITabBarItem(
+                title: R.string.localizable.aSettingsNavigationTitle(),
+                image: R.image.tab_settings(),
+                selectedImage: nil
+        )
+        alphaSettingsCoordinator.delegate = self
+        alphaSettingsCoordinator.start()
+        addCoordinator(alphaSettingsCoordinator)
+        tabBarController.viewControllers?.append(alphaSettingsCoordinator.navigationController)
 
         let helpController = AlphaWalletHelpViewController()
         helpController.tabBarItem = UITabBarItem(title: R.string.localizable.aHelpNavigationTitle(), image: R.image.tab_help(), selectedImage: nil)
@@ -386,6 +397,29 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     }
 }
 
+extension InCoordinator: AlphaWalletSettingsCoordinatorDelegate {
+    func didCancel(in coordinator: AlphaWalletSettingsCoordinator) {
+        removeCoordinator(coordinator)
+        coordinator.navigationController.dismiss(animated: true, completion: nil)
+        delegate?.didCancel(in: self)
+    }
+
+    func didRestart(with account: Wallet, in coordinator: AlphaWalletSettingsCoordinator) {
+        guard let transactionCoordinator = transactionCoordinator else {
+            return
+        }
+        restart(for: account, in: transactionCoordinator)
+    }
+
+    func didUpdateAccounts(in coordinator: AlphaWalletSettingsCoordinator) {
+        delegate?.didUpdateAccounts(in: self)
+    }
+
+    func didPressShowWallet(in coordinator: AlphaWalletSettingsCoordinator) {
+        showPaymentFlow(for: .request)
+    }
+}
+
 extension InCoordinator: TokensCoordinatorDelegate {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
         showPaymentFlow(for: type)
@@ -427,8 +461,3 @@ extension InCoordinator: PaymentCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: AlphaWalletSettingsViewControllerDelegate {
-    func didPressShowWallet(in viewController: AlphaWalletSettingsViewController) {
-        showPaymentFlow(for: .request)
-    }
-}
