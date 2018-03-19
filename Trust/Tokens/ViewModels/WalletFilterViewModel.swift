@@ -2,10 +2,10 @@
 
 import UIKit
 
-struct AlphaWalletFilterViewModel {
-	var currentFilter: AlphaWalletFilter
+struct WalletFilterViewModel {
+	var currentFilter: WalletFilter
 
-	init(filter: AlphaWalletFilter) {
+	init(filter: WalletFilter) {
 		currentFilter = filter
 	}
 
@@ -13,7 +13,7 @@ struct AlphaWalletFilterViewModel {
 		return Colors.appBackground
 	}
 
-	func colorForFilter(filter: AlphaWalletFilter) -> UIColor {
+	func colorForFilter(filter: WalletFilter) -> UIColor {
 		if currentFilter == filter {
 			return Colors.appWhite
 		} else {

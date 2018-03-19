@@ -6,7 +6,7 @@ import UIKit
 struct TokensViewModel {
     var tokens: [TokenObject] = []
     var tickers: [String: CoinTicker]?
-    var filter: AlphaWalletFilter = .all
+    var filter: WalletFilter = .all
     var filteredTokens: [TokenObject] {
         get {
             switch filter {
