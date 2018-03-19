@@ -1,4 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 
@@ -8,7 +9,6 @@ final class OnboardingPage: UICollectionViewCell {
 
     private var imageView: UIImageView!
     private var titleLabel: UILabel!
-    private var subtitleLabel: UILabel!
 
     override var reuseIdentifier: String? {
         return OnboardingPage.identifier
@@ -18,7 +18,6 @@ final class OnboardingPage: UICollectionViewCell {
         didSet {
             imageView.image = model.image
             titleLabel.text = model.title
-            subtitleLabel.text = model.subtitle
         }
     }
 
@@ -36,39 +35,30 @@ final class OnboardingPage: UICollectionViewCell {
         imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFit
-        addSubview(imageView)
 
         titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textAlignment = .center
         titleLabel.textColor = style.titleColor
         titleLabel.font = style.titleFont
-        addSubview(titleLabel)
-
-        subtitleLabel = UILabel()
-        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
-        subtitleLabel.textAlignment = .center
-        subtitleLabel.textColor = style.subtitleColor
-        subtitleLabel.numberOfLines = 2
-        subtitleLabel.font = style.subtitleFont
-        addSubview(subtitleLabel)
+        titleLabel.numberOfLines = 0
 
         let stackView = UIStackView(arrangedSubviews: [
-            imageView,
             titleLabel,
-            subtitleLabel,
+            imageView,
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.alignment = .center
-        stackView.spacing = 15
+        stackView.spacing = 80
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -60),
+            stackView.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -40),
             stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
+			
             imageView.heightAnchor.constraint(equalToConstant: 240),
         ])
     }

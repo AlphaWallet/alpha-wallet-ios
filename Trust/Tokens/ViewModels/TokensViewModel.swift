@@ -1,16 +1,28 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
 import UIKit
 
 struct TokensViewModel {
-
     var tokens: [TokenObject] = []
     var tickers: [String: CoinTicker]?
+    var filter: AlphaWalletFilter = .all
+    var filteredTokens: [TokenObject] {
+        get {
+            switch filter {
+            case .all:
+                return tokens
+            case .currencyOnly:
+                return tokens.filter { !$0.isStormBird }
+            case .assetsOnly:
+                return tokens.filter { $0.isStormBird }
+            }
+        }
+    }
 
     private var amount: String? {
         var totalAmount: Double = 0
-        tokens.forEach { token in
+        filteredTokens.forEach { token in
             totalAmount += amount(for: token)
         }
         guard totalAmount != 0 else { return "--" }
@@ -42,7 +54,7 @@ struct TokensViewModel {
     }
 
     var title: String {
-        return NSLocalizedString("tokens.navigation.title", value: "Tokens", comment: "")
+        return R.string.localizable.walletTokensTabbarItemTitle()
     }
 
     var backgroundColor: UIColor {
@@ -50,7 +62,7 @@ struct TokensViewModel {
     }
 
     var hasContent: Bool {
-        return !tokens.isEmpty
+        return !filteredTokens.isEmpty
     }
 
     var numberOfSections: Int {
@@ -58,11 +70,11 @@ struct TokensViewModel {
     }
 
     func numberOfItems(for section: Int) -> Int {
-        return tokens.count
+        return filteredTokens.count
     }
 
     func item(for row: Int, section: Int) -> TokenObject {
-        return tokens[row]
+        return filteredTokens[row]
     }
 
     func ticker(for token: TokenObject) -> CoinTicker? {
@@ -74,15 +86,19 @@ struct TokensViewModel {
         return token.isCustom
     }
 
-    var footerTitle: String {
-        return NSLocalizedString("tokens.footer.label.title", value: "Tokens will appear automagically. + to add manually.", comment: "")
-    }
-
     var footerTextColor: UIColor {
         return Colors.black
     }
 
     var footerTextFont: UIFont {
         return Fonts.light(size: 15)!
+    }
+
+    init(
+        tokens: [TokenObject],
+        tickers: [String: CoinTicker]?
+    ) {
+        self.tokens = tokens
+        self.tickers = tickers
     }
 }

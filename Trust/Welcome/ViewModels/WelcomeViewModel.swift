@@ -1,4 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
 import UIKit
@@ -14,11 +15,11 @@ struct WelcomeViewModel {
     }
 
     var pageIndicatorTintColor: UIColor {
-        return UIColor(hex: "c3dbee")
+        return UIColor(red: 216, green: 216, blue: 216)
     }
 
     var currentPageIndicatorTintColor: UIColor {
-        return UIColor(hex: "438FCA")
+        return UIColor(red: 183, green: 183, blue: 183)
     }
 
     var numberOfPages = 0
