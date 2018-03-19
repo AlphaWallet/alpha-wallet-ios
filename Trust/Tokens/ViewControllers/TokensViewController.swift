@@ -20,7 +20,7 @@ class TokensViewController: UIViewController {
         }
     }
     let account: Wallet
-	let filterView = AlphaWalletFilterView()
+	let filterView = WalletFilterView()
     var importWalletView: UIView?
     var importWalletLayer = CAShapeLayer()
     let tableView: UITableView
@@ -273,8 +273,8 @@ extension TokensViewController: UITableViewDataSource {
     }
 }
 
-extension TokensViewController: AlphaWalletFilterViewDelegate {
-    func didPressWalletFilter(filter: AlphaWalletFilter, in filterView: AlphaWalletFilterView) {
+extension TokensViewController: WalletFilterViewDelegate {
+    func didPressWalletFilter(filter: WalletFilter, in filterView: WalletFilterView) {
         viewModel.filter = filter
         reload()
     }

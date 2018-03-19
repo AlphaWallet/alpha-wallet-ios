@@ -156,7 +156,7 @@ class InCoordinator: Coordinator {
         addCoordinator(alphaSettingsCoordinator)
         tabBarController.viewControllers?.append(alphaSettingsCoordinator.navigationController)
 
-        let helpController = AlphaWalletHelpViewController()
+        let helpController = HelpViewController()
         helpController.tabBarItem = UITabBarItem(title: R.string.localizable.aHelpNavigationTitle(), image: R.image.tab_help(), selectedImage: nil)
         tabBarController.viewControllers?.append(UINavigationController(rootViewController: helpController))
 

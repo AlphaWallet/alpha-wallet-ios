@@ -2,8 +2,8 @@
 
 import UIKit
 
-class AlphaWalletHelpContentsViewController: StaticHTMLViewController {
-    let banner = AlphaWalletContactUsBannerView()
+class HelpContentsViewController: StaticHTMLViewController {
+    let banner = ContactUsBannerView()
 
     override init() {
         super.init()
