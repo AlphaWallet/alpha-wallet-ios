@@ -1,75 +1,50 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
 import UIKit
 import Kingfisher
 
 class TokenViewCell: UITableViewCell {
-
     static let identifier = "TokenViewCell"
 
+    let background = UIView()
     let titleLabel = UILabel()
-    let amountLabel = UILabel()
-    let currencyAmountLabel = UILabel()
-    let symbolImageView = UIImageView()
-    let percentChange = UILabel()
+    let blockchainLabel = UILabel()
+    let separator = UILabel()
+    let issuerLabel = UILabel()
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.lineBreakMode = .byTruncatingMiddle
-        titleLabel.adjustsFontSizeToFitWidth = true
-        titleLabel.minimumScaleFactor = 0.7
+        contentView.addSubview(background)
+        background.translatesAutoresizingMaskIntoConstraints = false
 
-        symbolImageView.translatesAutoresizingMaskIntoConstraints = false
-        symbolImageView.contentMode = .scaleAspectFit
+        let bottomRowStack = UIStackView(arrangedSubviews: [blockchainLabel, separator, issuerLabel])
+        bottomRowStack.axis = .horizontal
+        bottomRowStack.spacing = 15
+        bottomRowStack.distribution = .fill
 
-        amountLabel.translatesAutoresizingMaskIntoConstraints = false
-        amountLabel.textAlignment = .right
-
-        currencyAmountLabel.translatesAutoresizingMaskIntoConstraints = false
-        currencyAmountLabel.textAlignment = .right
-
-        percentChange.translatesAutoresizingMaskIntoConstraints = false
-        percentChange.textAlignment = .right
-
-        let leftStackView = UIStackView(arrangedSubviews: [titleLabel])
-        leftStackView.translatesAutoresizingMaskIntoConstraints = false
-        leftStackView.axis = .vertical
-        leftStackView.spacing = 12
-
-        let rightBottomStackView = UIStackView(arrangedSubviews: [currencyAmountLabel, percentChange])
-        rightBottomStackView.translatesAutoresizingMaskIntoConstraints = false
-        rightBottomStackView.axis = .horizontal
-        rightBottomStackView.spacing = 5
-
-        let rightStackView = UIStackView(arrangedSubviews: [amountLabel, rightBottomStackView])
-        rightStackView.translatesAutoresizingMaskIntoConstraints = false
-        rightStackView.axis = .vertical
-        rightStackView.spacing =  5
-
-        let stackView = UIStackView(arrangedSubviews: [symbolImageView, leftStackView, rightStackView])
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, bottomRowStack])
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.spacing = 12
+        stackView.axis = .vertical
+        stackView.spacing = 15
+        stackView.distribution = .fill
+        stackView.alignment = .leading
+        background.addSubview(stackView)
 
-        symbolImageView.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        rightStackView.setContentHuggingPriority(.required, for: .horizontal)
-        stackView.setContentHuggingPriority(.required, for: .horizontal)
-
-        addSubview(stackView)
-
+        // TODO extract constant. Maybe StyleLayout.sideMargin
+        let xMargin  = CGFloat(7)
+        let yMargin  = CGFloat(20)
         NSLayoutConstraint.activate([
-            symbolImageView.widthAnchor.constraint(equalToConstant: 42),
-            symbolImageView.heightAnchor.constraint(equalToConstant: 42),
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: StyleLayout.sideMargin),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -StyleLayout.sideMargin),
-            stackView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -StyleLayout.sideMargin),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: StyleLayout.sideMargin),
+            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
+            stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
+            stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
+
+            background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
+            background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
+            background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
+            background.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -yMargin),
         ])
     }
 
@@ -78,28 +53,28 @@ class TokenViewCell: UITableViewCell {
     }
 
     func configure(viewModel: TokenViewCellViewModel) {
-
-        titleLabel.text = viewModel.title
-        titleLabel.textColor = viewModel.titleTextColor
-        titleLabel.font = viewModel.titleFont
-
-        amountLabel.text = viewModel.amount
-        amountLabel.textColor = viewModel.amountTextColor
-        amountLabel.font = viewModel.amountFont
-
-        currencyAmountLabel.text = viewModel.currencyAmount
-        currencyAmountLabel.textColor = viewModel.currencyAmountTextColor
-        currencyAmountLabel.font = viewModel.currencyAmountFont
-
-        percentChange.text = viewModel.percentChange
-        percentChange.textColor = viewModel.percentChangeColor
-        percentChange.font = viewModel.percentChangeFont
-
-        symbolImageView.kf.setImage(
-            with: viewModel.imageUrl,
-            placeholder: viewModel.placeHolder
-        )
-
+        selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
+
+        background.backgroundColor = viewModel.contentsBackgroundColor
+        background.layer.cornerRadius = 20
+
+        contentView.backgroundColor = viewModel.backgroundColor
+
+        titleLabel.textColor = viewModel.titleColor
+        titleLabel.font = viewModel.titleFont
+        titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
+
+        blockchainLabel.textColor = viewModel.subtitleColor
+        blockchainLabel.font = viewModel.subtitleFont
+        blockchainLabel.text = viewModel.blockChainName
+
+        issuerLabel.textColor = viewModel.subtitleColor
+        issuerLabel.font = viewModel.subtitleFont
+        issuerLabel.text = viewModel.issuer
+
+        separator.textColor = viewModel.subtitleColor
+        separator.font = viewModel.subtitleFont
+        separator.text = ""
     }
 }

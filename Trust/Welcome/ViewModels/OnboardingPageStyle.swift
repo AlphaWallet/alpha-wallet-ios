@@ -3,8 +3,7 @@
 
 import UIKit
 
-//Duplicated from OnboardingPageStyle.swift for easier upstream merging
-struct AlphaWalletOnboardingPageStyle {
+struct OnboardingPageStyle {
     var titleFont: UIFont {
         return Fonts.light(size: 30)!
     }
