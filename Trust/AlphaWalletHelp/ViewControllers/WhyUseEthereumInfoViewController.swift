@@ -2,7 +2,7 @@
 
 import UIKit
 
-class WhyUseEthereumInfoViewController: AlphaWalletHelpContentsViewController{
+class WhyUseEthereumInfoViewController: HelpContentsViewController {
     override func url() -> URL? {
         return R.file.whyUseEthereumInfoHtml()
     }
