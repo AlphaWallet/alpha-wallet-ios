@@ -2,7 +2,7 @@
 
 import UIKit
 
-class PrivacyPolicyViewController: AlphaWalletHelpContentsViewController{
+class PrivacyPolicyViewController: HelpContentsViewController {
 	override func url() -> URL? {
 		return R.file.privacyPolicyHtml()
 	}

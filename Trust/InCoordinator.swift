@@ -11,24 +11,18 @@ protocol InCoordinatorDelegate: class {
 }
 
 enum Tabs {
-    case transactions
-    case tokens
-    case settings
     case wallet
     case alphaWalletSettings
+    case transactions
 
     var className: String {
         switch self {
         case .wallet:
-            return String(describing: AlphaWalletTokensViewController.self)
-        case .tokens:
             return String(describing: TokensViewController.self)
         case .transactions:
             return String(describing: TransactionsViewController.self)
-        case .settings:
-            return String(describing: SettingsViewController.self)
         case .alphaWalletSettings:
-            return String(describing: AlphaWalletSettingsViewController.self)
+            return String(describing: SettingsViewController.self)
         }
     }
 }
@@ -96,7 +90,7 @@ class InCoordinator: Coordinator {
         web3.start()
         let realm = self.realm(for: migration.config)
         let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
-        let alphaWalletTokensStorage = AlphaWalletTokensDataStore(realm: realm, account: account, config: config, web3: web3)
+        let alphaWalletTokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
         let balanceCoordinator = GetBalanceCoordinator(web3: web3)
         let balance = BalanceCoordinator(account: account, config: config, storage: tokensStorage)
         let session = WalletSession(
@@ -134,19 +128,19 @@ class InCoordinator: Coordinator {
         }
 
         if inCoordinatorViewModel.tokensAvailable {
-            let alphaWalletTokensCoordinator = AlphaWalletTokensCoordinator(
+            let tokensCoordinator = TokensCoordinator(
                     session: session,
                     keystore: keystore,
                     tokensStorage: alphaWalletTokensStorage
             )
-            alphaWalletTokensCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
-            alphaWalletTokensCoordinator.delegate = self
-            alphaWalletTokensCoordinator.start()
-            addCoordinator(alphaWalletTokensCoordinator)
-            tabBarController.viewControllers?.append(alphaWalletTokensCoordinator.navigationController)
+            tokensCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
+            tokensCoordinator.delegate = self
+            tokensCoordinator.start()
+            addCoordinator(tokensCoordinator)
+            tabBarController.viewControllers?.append(tokensCoordinator.navigationController)
         }
 
-        let alphaSettingsCoordinator = AlphaWalletSettingsCoordinator(
+        let alphaSettingsCoordinator = SettingsCoordinator(
                 keystore: keystore,
                 session: session,
                 storage: transactionsStorage,
@@ -162,38 +156,9 @@ class InCoordinator: Coordinator {
         addCoordinator(alphaSettingsCoordinator)
         tabBarController.viewControllers?.append(alphaSettingsCoordinator.navigationController)
 
-        let helpController = AlphaWalletHelpViewController()
+        let helpController = HelpViewController()
         helpController.tabBarItem = UITabBarItem(title: R.string.localizable.aHelpNavigationTitle(), image: R.image.tab_help(), selectedImage: nil)
         tabBarController.viewControllers?.append(UINavigationController(rootViewController: helpController))
-
-        if inCoordinatorViewModel.tokensAvailable {
-            let tokenCoordinator = TokensCoordinator(
-                    session: session,
-                    keystore: keystore,
-                    tokensStorage: tokensStorage
-            )
-            tokenCoordinator.rootViewController.tabBarItem = UITabBarItem(title: NSLocalizedString("tokens.tabbar.item.title", value: "Tokens", comment: ""), image: R.image.coins(), selectedImage: nil)
-            tokenCoordinator.delegate = self
-            tokenCoordinator.start()
-            addCoordinator(tokenCoordinator)
-            tabBarController.viewControllers?.append(tokenCoordinator.navigationController)
-        }
-
-        let settingsCoordinator = SettingsCoordinator(
-                keystore: keystore,
-                session: session,
-                storage: transactionsStorage,
-                balanceCoordinator: balanceCoordinator
-        )
-        settingsCoordinator.rootViewController.tabBarItem = UITabBarItem(
-                title: NSLocalizedString("settings.navigation.title", value: "Settings", comment: ""),
-                image: R.image.settings_icon(),
-                selectedImage: nil
-        )
-        settingsCoordinator.delegate = self
-        settingsCoordinator.start()
-        addCoordinator(settingsCoordinator)
-        tabBarController.viewControllers?.append(settingsCoordinator.navigationController)
 
         navigationController.setViewControllers(
                 [tabBarController],
@@ -395,27 +360,8 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     func didUpdateAccounts(in coordinator: SettingsCoordinator) {
         delegate?.didUpdateAccounts(in: self)
     }
-}
 
-extension InCoordinator: AlphaWalletSettingsCoordinatorDelegate {
-    func didCancel(in coordinator: AlphaWalletSettingsCoordinator) {
-        removeCoordinator(coordinator)
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
-        delegate?.didCancel(in: self)
-    }
-
-    func didRestart(with account: Wallet, in coordinator: AlphaWalletSettingsCoordinator) {
-        guard let transactionCoordinator = transactionCoordinator else {
-            return
-        }
-        restart(for: account, in: transactionCoordinator)
-    }
-
-    func didUpdateAccounts(in coordinator: AlphaWalletSettingsCoordinator) {
-        delegate?.didUpdateAccounts(in: self)
-    }
-
-    func didPressShowWallet(in coordinator: AlphaWalletSettingsCoordinator) {
+    func didPressShowWallet(in coordinator: SettingsCoordinator) {
         showPaymentFlow(for: .request)
     }
 }
@@ -426,16 +372,6 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
-        showTicketList(for: type, token: token)
-    }
-}
-
-extension InCoordinator: AlphaWalletTokensCoordinatorDelegate {
-    func didPress(for type: PaymentFlow, in coordinator: AlphaWalletTokensCoordinator) {
-        showPaymentFlow(for: type)
-    }
-
-    func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: AlphaWalletTokensCoordinator) {
         showTicketList(for: type, token: token)
     }
 }

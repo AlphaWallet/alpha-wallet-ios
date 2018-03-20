@@ -4,16 +4,16 @@ import Foundation
 import UIKit
 import Eureka
 
-protocol AlphaWalletAdvancedSettingsViewControllerDelegate: class {
-    func didAction(action: AlphaWalletSettingsAction, in viewController: AlphaWalletAdvancedSettingsViewController)
+protocol AdvancedSettingsViewControllerDelegate: class {
+    func didAction(action: AlphaWalletSettingsAction, in viewController: AdvancedSettingsViewController)
 }
 
-class AlphaWalletAdvancedSettingsViewController: FormViewController {
+class AdvancedSettingsViewController: FormViewController {
 
     private var account: Wallet
     private var config: Config
-    weak var delegate: AlphaWalletAdvancedSettingsViewControllerDelegate?
-    let viewModel = AlphaWalletAdvancedSettingsViewModel()
+    weak var delegate: AdvancedSettingsViewControllerDelegate?
+    let viewModel = AdvancedSettingsViewModel()
 
     init(
 		account: Wallet,

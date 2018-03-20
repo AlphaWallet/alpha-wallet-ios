@@ -2,16 +2,16 @@
 
 import UIKit
 
-protocol AlphaWalletFilterViewDelegate: class {
-	func didPressWalletFilter(filter: AlphaWalletFilter, in filterView: AlphaWalletFilterView)
+protocol WalletFilterViewDelegate: class {
+	func didPressWalletFilter(filter: WalletFilter, in filterView: WalletFilterView)
 }
 
-class AlphaWalletFilterView: UIView {
+class WalletFilterView: UIView {
 	let allButton = UIButton(type: .system)
 	let currencyButton = UIButton(type: .system)
 	let assetsButton = UIButton(type: .system)
 	let highlightedBar = UIView()
-	var filter: AlphaWalletFilter = .all {
+	var filter: WalletFilter = .all {
 		didSet {
 			viewModel.currentFilter = filter
 			delegate?.didPressWalletFilter(filter: filter, in: self)
@@ -20,8 +20,8 @@ class AlphaWalletFilterView: UIView {
 		}
 	}
 	var highlightBarHorizontalConstraints: [NSLayoutConstraint]?
-	weak var delegate: AlphaWalletFilterViewDelegate?
-	lazy var viewModel = AlphaWalletFilterViewModel(filter: filter)
+	weak var delegate: WalletFilterViewDelegate?
+	lazy var viewModel = WalletFilterViewModel(filter: filter)
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
