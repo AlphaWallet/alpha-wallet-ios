@@ -4,8 +4,7 @@
 import UIKit
 import LocalAuthentication
 
-//Duplicated from LockEnterPasscodeViewController.swift for easier upstream merging
-class AlphaWalletLockEnterPasscodeViewController: AlphaWalletLockPasscodeViewController {
+class LockEnterPasscodeViewController: LockPasscodeViewController {
 	private lazy var lockEnterPasscodeViewModel: LockEnterPasscodeViewModel? = {
 		return self.model as? LockEnterPasscodeViewModel
 	}()
