@@ -2,7 +2,7 @@
 
 import UIKit
 
-class WhatIsASeedPhraseInfoViewController: AlphaWalletHelpContentsViewController{
+class WhatIsASeedPhraseInfoViewController: HelpContentsViewController {
     override func url() -> URL? {
         return R.file.whatIsASeedPhraseInfoHtml()
     }

@@ -1,4 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 import Eureka
@@ -6,25 +7,20 @@ import StoreKit
 import MessageUI
 
 protocol SettingsViewControllerDelegate: class {
-    func didAction(action: SettingsAction, in viewController: SettingsViewController)
+    func didAction(action: AlphaWalletSettingsAction, in viewController: SettingsViewController)
 }
 
 class SettingsViewController: FormViewController {
-    struct Values {
-        static let currencyPopularKey = "0"
-        static let currencyAllKey = "1"
-    }
     private var config = Config()
     private var lock = Lock()
-    private let helpUsCoordinator = HelpUsCoordinator()
     weak var delegate: SettingsViewControllerDelegate?
     var isPasscodeEnabled: Bool {
         return lock.isPasscodeSet()
     }
     static var isPushNotificationEnabled: Bool {
         guard let settings = UIApplication.shared.currentUserNotificationSettings
-            else {
-                return false
+                else {
+            return false
         }
         return UIApplication.shared.isRegisteredForRemoteNotifications && !settings.types.isEmpty
     }
@@ -34,230 +30,95 @@ class SettingsViewController: FormViewController {
     let session: WalletSession
     init(session: WalletSession) {
         self.session = session
-        super.init(nibName: nil, bundle: nil)
+        super.init(style: .plain)
     }
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = NSLocalizedString("settings.navigation.title", value: "Settings", comment: "")
+        title = R.string.localizable.aSettingsNavigationTitle()
         let account = session.account
+
+        view.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = Colors.appBackground
 
         form = Section()
 
-            <<< PushRow<RPCServer> { [weak self] in
-                guard let strongSelf = self else {
-                    return
+        <<< AppFormAppearance.alphaWalletSettingsButton {
+            $0.title = R.string.localizable.aSettingsContentsMyWalletAddress()
+        }.onCellSelection { [unowned self] _, _ in
+            self.delegate?.didAction(action: .myWalletAddress, in: self)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+            cell.imageView?.image = R.image.settings_wallet1()?.withRenderingMode(.alwaysTemplate)
+            cell.accessoryType = .disclosureIndicator
+        }
+
+        <<< AppFormAppearance.alphaWalletSettingsButton {
+            $0.title = R.string.localizable.aSettingsContentsNotificationsSettings()
+        }.onCellSelection { [unowned self] _, _ in
+            self.delegate?.didAction(action: .notificationsSettings, in: self)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+            cell.imageView?.image = R.image.settings_notifications()?.withRenderingMode(.alwaysTemplate)
+            cell.accessoryType = .disclosureIndicator
+        }
+
+        <<< AlphaWalletSettingsSwitchRow { [weak self] in
+            $0.title = self?.viewModel.passcodeTitle
+            $0.value = self?.isPasscodeEnabled
+        }.onChange { [unowned self] row in
+            if row.value == true {
+                self.setPasscode { result in
+                    row.value = result
+                    row.updateCell()
                 }
-                $0.title = strongSelf.viewModel.networkTitle
-                $0.options = strongSelf.viewModel.servers
-                $0.value = RPCServer(chainID: strongSelf.config.chainID)
-                $0.selectorTitle = strongSelf.viewModel.networkTitle
-                $0.displayValueFor = { value in
-                    return value?.displayName
-                }
-            }.onChange {[weak self] row in
-                self?.config.chainID = row.value?.chainID ?? RPCServer.main.chainID
-                self?.run(action: .RPCServer)
-            }.onPresent { _, selectorController in
-                selectorController.enableDeselection = false
-                selectorController.sectionKeyForValue = { option in
-                    switch option {
-                    case .main, .classic, .callisto, .poa: return ""
-                    case .kovan, .ropsten, .rinkeby, .sokol: return NSLocalizedString("settings.network.test.label.title", value: "Test", comment: "")
-                    case .custom:
-                        return NSLocalizedString("settings.network.custom.label.title", value: "Custom", comment: "")
-                    }
-                }
-            }.cellSetup { cell, _ in
-                cell.imageView?.tintColor = Colors.appBackground
-                cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
-                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
+            } else {
+                self.lock.deletePasscode()
             }
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+            cell.imageView?.image = R.image.settings_lock()?.withRenderingMode(.alwaysTemplate)
+        }
 
-            <<< AppFormAppearance.button { button in
-                button.cellStyle = .value1
-            }.onCellSelection { [unowned self] _, _ in
-                self.run(action: .wallets)
-            }.cellSetup { cell, _ in
-                cell.imageView?.tintColor = Colors.appBackground
-                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
-            }.cellUpdate { cell, _ in
-                cell.textLabel?.textColor = .black
-                cell.imageView?.image = R.image.settings_wallet()?.withRenderingMode(.alwaysTemplate)
-                cell.textLabel?.text = NSLocalizedString("settings.wallets.button.title", value: "Wallets", comment: "")
-                cell.detailTextLabel?.text = String(account.address.description.prefix(10)) + "..."
-                cell.accessoryType = .disclosureIndicator
-            }
+        <<< AlphaWalletSettingsSwitchRow {
+            $0.title = NSLocalizedString("settings.pushNotifications.button.title", value: "Push Notifications", comment: "")
+            $0.value = SettingsViewController.isPushNotificationEnabled
+        }.onChange { [unowned self] row in
+            let enabled = row.value ?? false
+            self.run(action: .pushNotifications(enabled: enabled))
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+            cell.imageView?.image = R.image.settings_push_notifications()?.withRenderingMode(.alwaysTemplate)
+        }
 
-            +++ Section(NSLocalizedString("settings.security.label.title", value: "Security", comment: ""))
 
-            <<< SwitchRow { [weak self] in
-                $0.title = self?.viewModel.passcodeTitle
-                $0.value = self?.isPasscodeEnabled
-            }.onChange { [unowned self] row in
-                if row.value == true {
-                    self.setPasscode { result in
-                        row.value = result
-                        row.updateCell()
-                    }
-                } else {
-                    self.lock.deletePasscode()
-                }
-            }.cellSetup { cell, _ in
-                cell.imageView?.tintColor = Colors.appBackground
-                cell.imageView?.image = R.image.settings_lock()?.withRenderingMode(.alwaysTemplate)
-                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
-            }
+        <<< linkProvider(type: .twitter)
+        <<< linkProvider(type: .reddit)
+        <<< linkProvider(type: .facebook)
 
-            <<< SwitchRow {
-                $0.title = NSLocalizedString("settings.pushNotifications.button.title", value: "Push Notifications", comment: "")
-                $0.value = SettingsViewController.isPushNotificationEnabled
-            }.onChange { [unowned self] row in
-                let enabled = row.value ?? false
-                self.run(action: .pushNotifications(enabled: enabled))
-            }.cellSetup { cell, _ in
-                cell.imageView?.tintColor = Colors.appBackground
-                cell.imageView?.image = R.image.settings_push_notifications()?.withRenderingMode(.alwaysTemplate)
-                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
-            }
+        +++ Section()
 
-            +++ Section()
-
-            <<< PushRow<Currency> { [weak self] in
-                $0.title = self?.viewModel.currencyTitle
-                $0.selectorTitle = self?.viewModel.currencyTitle
-                $0.options = self?.viewModel.currency
-                $0.value = self?.config.currency
-                $0.displayValueFor = { value in
-                    let currencyCode = value?.rawValue ?? ""
-                    if #available(iOS 10.0, *) {
-                        return currencyCode + " - " + (NSLocale.current.localizedString(forCurrencyCode: currencyCode) ?? "")
-                    } else {
-                        return currencyCode
-                    }
-                }
-            }.onChange { [weak self]  row in
-                guard let value = row.value else { return }
-                self?.config.currency = value
-                self?.run(action: .currency)
-            }.onPresent { _, selectorController in
-                selectorController.enableDeselection = false
-                selectorController.sectionKeyForValue = { option in
-                    switch option {
-                    case .USD, .EUR, .GBP, .AUD, .RUB: return Values.currencyPopularKey
-                    default: return Values.currencyAllKey
-                    }
-                }
-                selectorController.sectionHeaderTitleForKey = { option in
-                    switch option {
-                    case Values.currencyPopularKey:
-                        return NSLocalizedString("settings.currency.popular.label.title", value: "Popular", comment: "")
-                    case Values.currencyAllKey:
-                        return NSLocalizedString("settings.currency.all.label.title", value: "All", comment: "")
-                    default: return ""
-                    }
-                }
-            }.cellSetup { cell, _ in
-                cell.imageView?.tintColor = Colors.appBackground
-                cell.imageView?.image = R.image.settingsCurrency()?.withRenderingMode(.alwaysTemplate)
-                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
-            }
-
-            <<< AppFormAppearance.button { row in
-                row.cellStyle = .value1
-                row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-                    return PreferencesViewController() }, onDismiss: { _ in
+        <<< AppFormAppearance.alphaWalletSettingsButton { row in
+            row.cellStyle = .value1
+            row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
+                let vc = AdvancedSettingsViewController(account: account, config: self.config)
+                vc.delegate = self
+                return vc }, onDismiss: { _ in
                 })
-            }.cellSetup { cell, _ in
-                cell.imageView?.tintColor = Colors.appBackground
-                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
-            }.cellUpdate { cell, _ in
-                cell.textLabel?.textColor = .black
-                cell.imageView?.image = R.image.settings_preferences()?.withRenderingMode(.alwaysTemplate)
-                cell.textLabel?.text = NSLocalizedString("settings.preferences.title", value: "Preferences", comment: "")
-                cell.accessoryType = .disclosureIndicator
-            }
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { cell, _ in
+            cell.imageView?.image = R.image.settings_preferences()?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = R.string.localizable.aSettingsAdvancedLabelTitle()
+            cell.accessoryType = .disclosureIndicator
+        }
 
-            +++ Section(NSLocalizedString("settings.openSourceDevelopment.label.title", value: "Open Source Development", comment: ""))
-
-            <<< link(
-                title: NSLocalizedString("settings.sourceCode.button.title", value: "Source Code", comment: ""),
-                value: "https://github.com/TrustWallet/trust-wallet-ios",
-                image: R.image.settings_open_source()
-            )
-
-            <<< link(
-                title: NSLocalizedString("settings.reportBug.button.title", value: "Report a Bug", comment: ""),
-                value: "https://github.com/TrustWallet/trust-wallet-ios/issues/new",
-                image: R.image.settings_bug()
-            )
-
-            +++ Section(NSLocalizedString("settings.community.label.title", value: "Community", comment: ""))
-
-            <<< linkProvider(type: .twitter)
-            <<< linkProvider(type: .reddit)
-            <<< linkProvider(type: .facebook)
-
-            +++ Section(NSLocalizedString("settings.support.label.title", value: "Support", comment: ""))
-
-            <<< AppFormAppearance.button { button in
-                button.title = NSLocalizedString("settings.shareWithFriends.button.title", value: "Share With Friends", comment: "")
-                button.cell.imageView?.tintColor = Colors.appBackground
-                button.cell.imageView?.image = R.image.settingsShare()?.withRenderingMode(.alwaysTemplate)
-                button.cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
-            }.onCellSelection { [unowned self] cell, _  in
-                self.helpUsCoordinator.presentSharing(in: self, from: cell.contentView)
-            }
-
-            <<< AppFormAppearance.button { button in
-                button.title = NSLocalizedString("settings.rateUsAppStore.button.title", value: "Rate Us on App Store", comment: "")
-            }.onCellSelection {[weak self] _, _  in
-                self?.helpUsCoordinator.rateUs()
-            }.cellSetup { cell, _ in
-                cell.imageView?.tintColor = Colors.appBackground
-                cell.imageView?.image = R.image.settings_rating()?.withRenderingMode(.alwaysTemplate)
-                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
-            }
-
-            <<< AppFormAppearance.button { button in
-                button.title = NSLocalizedString("settings.emailUsReadFAQ.button.title", value: "Email Us (Read FAQ first)", comment: "")
-            }.onCellSelection {[weak self] _, _  in
-                self?.sendUsEmail()
-            }.cellSetup { cell, _ in
-                cell.imageView?.tintColor = Colors.appBackground
-                cell.imageView?.image = R.image.settings_email()?.withRenderingMode(.alwaysTemplate)
-                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
-            }
-
-            +++ Section(NSLocalizedString("settings.learnMore.label.title", value: "Learn More", comment: ""))
-
-            <<< link(
-                title: NSLocalizedString("settings.faq.button.title", value: "FAQ", comment: ""),
-                value: "https://trustwalletapp.com/faq.html",
-                image: R.image.settings_faq()
-            )
-
-            <<< link(
-                title: NSLocalizedString("settings.privacyPolicy.button.title", value: "Privacy Policy", comment: ""),
-                value: "https://trustwalletapp.com/privacy-policy.html",
-                image: R.image.settings_privacy_policy()
-            )
-
-            <<< link(
-                title: NSLocalizedString("settings.termsOfService.button.title", value: "Terms of Service", comment: ""),
-                value: "https://trustwalletapp.com/terms.html",
-                image: R.image.settings_terms()
-            )
-
-            +++ Section()
-
-            <<< TextRow {
-                $0.title = NSLocalizedString("settings.version.label.title", value: "Version", comment: "")
-                $0.value = Bundle.main.fullVersion
-                $0.disabled = true
-            }.cellSetup { cell, _ in
-                cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
-            }
+        <<< AlphaWalletSettingsTextRow {
+            $0.disabled = true
+        }.cellSetup { cell, _ in
+            cell.mainLabel.text = NSLocalizedString("settings.version.label.title", value: "Version", comment: "")
+            cell.subLabel.text = Bundle.main.fullVersion
+        }
     }
 
     func setPasscode(completion: ((Bool) -> Void)? = .none) {
@@ -270,9 +131,9 @@ class SettingsViewController: FormViewController {
     }
 
     private func linkProvider(
-        type: URLServiceProvider
-    ) -> ButtonRow {
-        return AppFormAppearance.button {
+            type: URLServiceProvider
+    ) -> AlphaWalletSettingsButtonRow {
+        return AppFormAppearance.alphaWalletSettingsButton {
             $0.title = type.title
         }.onCellSelection { [unowned self] _, _ in
             if let localURL = type.localURL, UIApplication.shared.canOpenURL(localURL) {
@@ -283,63 +144,40 @@ class SettingsViewController: FormViewController {
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
             cell.imageView?.image = type.image?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
         }
     }
 
-    private func link(
-        title: String,
-        value: String,
-        image: UIImage?
-    ) -> ButtonRow {
-        return AppFormAppearance.button {
-            $0.title = title
-            $0.value = value
-        }.onCellSelection { [unowned self] (_, row) in
-            guard let value = row.value, let url = URL(string: value) else { return }
-            self.openURL(url)
-        }.cellSetup { cell, _ in
-            cell.imageView?.tintColor = Colors.appBackground
-            cell.imageView?.image = image?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.font = Fonts.regular(size: Fonts.labelSize)
-        }
-    }
-
-    func run(action: SettingsAction) {
+    func run(action: AlphaWalletSettingsAction) {
         delegate?.didAction(action: action, in: self)
-    }
-
-    func sendUsEmail() {
-        let composerController = MFMailComposeViewController()
-        composerController.mailComposeDelegate = self
-        composerController.setToRecipients([Constants.supportEmail])
-        composerController.setSubject(NSLocalizedString("settings.feedback.email.title", value: "Trust Feedback", comment: ""))
-        composerController.setMessageBody(emailTemplate(), isHTML: false)
-
-        if MFMailComposeViewController.canSendMail() {
-            present(composerController, animated: true, completion: nil)
-        }
-    }
-
-    private func emailTemplate() -> String {
-        return """
-        \n\n\n
-
-        Helpful information to developers:
-        iOS Version: \(UIDevice.current.systemVersion)
-        Device Model: \(UIDevice.current.model)
-        Trust Version: \(Bundle.main.fullVersion)
-        Current locale: \(Locale.preferredLanguages.first ?? "")
-        """
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-}
 
-extension SettingsViewController: MFMailComposeViewControllerDelegate {
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        controller.dismiss(animated: true, completion: nil)
+    override open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let v = UIView()
+        v.backgroundColor = Colors.appBackground
+        return v
+    }
+
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if section == 0 {
+            //Match Help tab
+            return 0
+        } else {
+            return super.tableView(tableView, heightForHeaderInSection: section)
+        }
+    }
+
+    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0
     }
 }
+
+extension SettingsViewController: AdvancedSettingsViewControllerDelegate {
+    func didAction(action: AlphaWalletSettingsAction, in viewController: AdvancedSettingsViewController) {
+        run(action: action)
+    }
+}
+

@@ -1,19 +1,17 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
 import UIKit
 import BigInt
 
 struct TokenViewCellViewModel {
-
     private let shortFormatter = EtherNumberFormatter.short
-
-    let token: TokenObject
+    private let token: TokenObject
     let ticker: CoinTicker?
 
     init(
-            token: TokenObject,
-            ticker: CoinTicker?
+        token: TokenObject,
+        ticker: CoinTicker?
     ) {
         self.token = token
         self.ticker = ticker
@@ -23,83 +21,43 @@ struct TokenViewCellViewModel {
         return token.title
     }
 
-    var titleFont: UIFont {
-        return Fonts.semibold(size: 18)!
-    }
-
-    var titleTextColor: UIColor {
-        return Colors.black
-    }
-
     var amount: String {
-        if self.isStormBird {
-            let actualBalance = self.token.balance.filter { $0.balance != 0 }
-            return actualBalance.count.toString() + " tickets"
-        }
         return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
     }
 
-    var currencyAmount: String? {
-        guard let ticker = ticker else {
-            return nil
-        }
-        let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
-        let priceInUsd = Double(ticker.price) ?? 0
-        let amount = tokenValue * priceInUsd
-        guard amount > 0 else {
-            return nil
-        }
-        return CurrencyFormatter.formatter.string(from: NSNumber(value: amount))
+    var issuer: String {
+        return ""
     }
 
-    var percentChange: String? {
-        guard let percent_change_24h = ticker?.percent_change_24h, !percent_change_24h.isEmpty else {
-            return nil
-        }
-        return "(" + percent_change_24h + "%)"
-    }
-
-    var percentChangeColor: UIColor {
-        guard let ticker = ticker else {
-            return Colors.lightGray
-        }
-        return ticker.percent_change_24h.starts(with: "-") ? Colors.red : Colors.green
-    }
-
-    var percentChangeFont: UIFont {
-        return Fonts.light(size: 14)!
-    }
-
-    var amountTextColor: UIColor {
-        return Colors.black
-    }
-
-    var amountFont: UIFont {
-        return Fonts.semibold(size: 18)!
-    }
-
-    var currencyAmountTextColor: UIColor {
-        return Colors.lightGray
-    }
-
-    var currencyAmountFont: UIFont {
-        return Fonts.regular(size: 14)!
+    var blockChainName: String {
+        return "Ethereum Blockchain"
     }
 
     var backgroundColor: UIColor {
-        return .white
+        return Colors.appBackground
     }
 
-    var placeHolder: UIImage? {
-        return self.isStormBird ? R.image.stormbirdToken() : R.image.ethereumToken()
+    var contentsBackgroundColor: UIColor {
+        return Colors.appWhite
     }
 
-    var imageUrl: URL? {
-        return ticker?.imageURL
+    var titleColor: UIColor {
+        return Colors.appText
     }
 
-    var isStormBird: Bool {
-        return token.isStormBird
+    var subtitleColor: UIColor {
+        return Colors.appBackground
     }
 
+    var titleFont: UIFont {
+        return Fonts.light(size: 25)!
+    }
+
+    var subtitleFont: UIFont {
+        return Fonts.semibold(size: 10)!
+    }
+
+    var cellHeight: CGFloat {
+        return 130
+    }
 }

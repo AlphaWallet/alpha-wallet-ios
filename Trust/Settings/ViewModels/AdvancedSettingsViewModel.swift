@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct AlphaWalletAdvancedSettingsViewModel {
+struct AdvancedSettingsViewModel {
 
     var title: String {
         return NSLocalizedString("settings.preferences.title", value: "Preferences", comment: "")
