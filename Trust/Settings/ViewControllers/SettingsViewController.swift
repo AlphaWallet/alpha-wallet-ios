@@ -122,7 +122,7 @@ class SettingsViewController: FormViewController {
     }
 
     func setPasscode(completion: ((Bool) -> Void)? = .none) {
-        let lock = AlphaWalletLockCreatePasscodeCoordinator(navigationController: self.navigationController!, model: LockCreatePasscodeViewModel())
+        let lock = LockCreatePasscodeCoordinator(navigationController: self.navigationController!, model: LockCreatePasscodeViewModel())
         lock.start()
         lock.lockViewController.willFinishWithResult = { result in
             completion?(result)
