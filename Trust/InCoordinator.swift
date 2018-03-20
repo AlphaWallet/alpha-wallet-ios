@@ -117,9 +117,6 @@ class InCoordinator: Coordinator {
         addCoordinator(transactionCoordinator)
 
         let tabBarController = TabBarController()
-        tabBarController.viewControllers = [
-            transactionCoordinator.navigationController,
-        ]
         tabBarController.tabBar.isTranslucent = false
         tabBarController.didShake = { [weak self] in
             if inCoordinatorViewModel.canActivateDebugMode {
@@ -138,6 +135,11 @@ class InCoordinator: Coordinator {
             tokensCoordinator.start()
             addCoordinator(tokensCoordinator)
             tabBarController.viewControllers?.append(tokensCoordinator.navigationController)
+            if let viewControllers = tabBarController.viewControllers, !viewControllers.isEmpty {
+                tabBarController.viewControllers?.append(tokensCoordinator.navigationController)
+            } else {
+                tabBarController.viewControllers = [tokensCoordinator.navigationController]
+            }
         }
 
         let alphaSettingsCoordinator = SettingsCoordinator(
@@ -154,7 +156,11 @@ class InCoordinator: Coordinator {
         alphaSettingsCoordinator.delegate = self
         alphaSettingsCoordinator.start()
         addCoordinator(alphaSettingsCoordinator)
-        tabBarController.viewControllers?.append(alphaSettingsCoordinator.navigationController)
+        if let viewControllers = tabBarController.viewControllers, !viewControllers.isEmpty {
+            tabBarController.viewControllers?.append(alphaSettingsCoordinator.navigationController)
+        } else {
+            tabBarController.viewControllers = [alphaSettingsCoordinator.navigationController]
+        }
 
         let helpController = HelpViewController()
         helpController.tabBarItem = UITabBarItem(title: R.string.localizable.aHelpNavigationTitle(), image: R.image.tab_help(), selectedImage: nil)
@@ -170,6 +176,10 @@ class InCoordinator: Coordinator {
         keystore.recentlyUsedWallet = account
 
         showTab(inCoordinatorViewModel.initialTab)
+    }
+
+    @objc func dismissTransactions() {
+        navigationController.dismiss(animated: true)
     }
 
     func showTab(_ selectTab: Tabs) {
@@ -229,7 +239,11 @@ class InCoordinator: Coordinator {
                     storage: tokenStorage
             )
             coordinator.delegate = self
-            navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+            if let topVC = navigationController.presentedViewController {
+                topVC.present(coordinator.navigationController, animated: true, completion: nil)
+            } else {
+                navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+            }
             coordinator.start()
             addCoordinator(coordinator)
         case (_, _):
@@ -285,6 +299,15 @@ class InCoordinator: Coordinator {
 
     func showTicketListToRedeem(for token: TokenObject, coordinator: TicketsCoordinator) {
         coordinator.showRedeemViewController()
+    }
+
+    private func showTransactions() {
+        guard let transactionCoordinator = transactionCoordinator else {
+            return
+        }
+
+        transactionCoordinator.rootViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissTransactions))
+        navigationController.present(transactionCoordinator.navigationController, animated: true, completion: nil)
     }
 
     private func handlePendingTransaction(transaction: SentTransaction) {
@@ -368,7 +391,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 
 extension InCoordinator: TokensCoordinatorDelegate {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
-        showPaymentFlow(for: type)
+        showTransactions()
     }
 
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
