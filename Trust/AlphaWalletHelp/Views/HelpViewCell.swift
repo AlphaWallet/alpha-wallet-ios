@@ -2,8 +2,8 @@
 
 import UIKit
 
-class AlphaWalletHelpViewCell: UITableViewCell {
-	static let identifier = "AlphaWalletHelpViewCell"
+class HelpViewCell: UITableViewCell {
+	static let identifier = "HelpViewCell"
 
 	let background = UIView()
 	let titleLabel = UILabel()

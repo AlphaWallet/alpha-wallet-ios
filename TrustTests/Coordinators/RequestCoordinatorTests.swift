@@ -13,7 +13,7 @@ class RequestCoordinatorTests: XCTestCase {
 
         coordinator.start()
 
-        XCTAssertTrue(coordinator.navigationController.viewControllers.first is AlphaWalletRequestViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers.first is RequestViewController)
     }
 }
 
