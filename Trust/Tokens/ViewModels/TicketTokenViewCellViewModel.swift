@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import BigInt
 
-struct AlphaWalletTicketTokenViewCellViewModel {
+struct TicketTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
     let ticker: CoinTicker?

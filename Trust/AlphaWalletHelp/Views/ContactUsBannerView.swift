@@ -2,7 +2,7 @@
 
 import UIKit
 
-class AlphaWalletContactUsBannerView: UIView {
+class ContactUsBannerView: UIView {
     let button = UIButton(type: .system)
     let imageView = UIImageView()
     let label = UILabel()

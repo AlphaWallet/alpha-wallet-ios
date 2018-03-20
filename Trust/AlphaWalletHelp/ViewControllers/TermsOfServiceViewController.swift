@@ -2,7 +2,7 @@
 
 import UIKit
 
-class TermsOfServiceViewController: AlphaWalletHelpContentsViewController{
+class TermsOfServiceViewController: HelpContentsViewController {
 	override func url() -> URL? {
 		return R.file.termsOfServiceHtml()
 	}
