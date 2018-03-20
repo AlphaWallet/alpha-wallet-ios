@@ -2,9 +2,9 @@
 
 import UIKit
 
-class AlphaWalletHelpViewController: UIViewController {
+class HelpViewController: UIViewController {
     let tableView = UITableView()
-    let banner = AlphaWalletContactUsBannerView()
+    let banner = ContactUsBannerView()
     let rows: [(title: String, controller: UIViewController)] = [
         (title: R.string.localizable.aHelpContentsWhatIsETH(), controller: WhatIsEthereumInfoViewController()),
         (title: R.string.localizable.aHelpContentsWhyETH(), controller: WhyUseEthereumInfoViewController()),
@@ -22,7 +22,7 @@ class AlphaWalletHelpViewController: UIViewController {
 
         view.backgroundColor = Colors.appBackground
 
-        tableView.register(AlphaWalletHelpViewCell.self, forCellReuseIdentifier: AlphaWalletHelpViewCell.identifier)
+        tableView.register(HelpViewCell.self, forCellReuseIdentifier: HelpViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
@@ -57,7 +57,7 @@ class AlphaWalletHelpViewController: UIViewController {
     }
 }
 
-extension AlphaWalletHelpViewController: UITableViewDelegate {
+extension HelpViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let controller = rows[indexPath.row].controller
@@ -69,9 +69,9 @@ extension AlphaWalletHelpViewController: UITableViewDelegate {
     }
 }
 
-extension AlphaWalletHelpViewController: UITableViewDataSource {
+extension HelpViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: AlphaWalletHelpViewCell.identifier, for: indexPath) as! AlphaWalletHelpViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: HelpViewCell.identifier, for: indexPath) as! HelpViewCell
         cell.configure(text: rows[indexPath.row].title)
         return cell
     }
