@@ -8,11 +8,14 @@
 
 import Foundation
 import Result
+import TrustKeystore
 
 public class EventsRest {
 
-    func getEvents(completion: @escaping (Result<[Event], AnyError>) -> Void) {
-        RestClient.get(endPoint: EndPoints.EventBaseUrl, completion: { response in
+    func getEvents(for address: Address,
+                   completion: @escaping (Result<[Event], AnyError>) -> Void) {
+        let endpoint = EndPoints.EventBaseUrl + "/" + address.description
+        RestClient.get(endPoint: endpoint, completion: { response in
             print(response)
             guard let statusCode = response.response?.statusCode else {
                 completion(.failure(AnyError(response.error!)))

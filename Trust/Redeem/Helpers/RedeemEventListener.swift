@@ -7,16 +7,18 @@
 //
 
 import Foundation
+import TrustKeystore
 
 class RedeemEventListener {
 
     var shouldListen = false
 
-    func start(completion: @escaping () -> Void) {
+    func start(for address: Address,
+               completion: @escaping () -> Void) {
         if !shouldListen {
             return
         }
-        EventsRest().getEvents { result in
+        EventsRest().getEvents(for: address, completion: { result in
             print(result)
             switch result {
             case .success(let events):
@@ -24,9 +26,9 @@ class RedeemEventListener {
                 completion()
             case .failure(let error):
                 print(error)
-                self.start(completion: completion)
+                self.start(for: address, completion: completion)
             }
-        }
+        })
     }
 
     func stop() {
