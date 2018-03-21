@@ -14,7 +14,8 @@ public class EventsRest {
 
     func getEvents(for address: Address,
                    completion: @escaping (Result<[Event], AnyError>) -> Void) {
-        let endpoint = EndPoints.EventBaseUrl + "/" + address.description
+        let endpoint = EndPoints.EventBaseUrl + "/" + address.description.lowercased()
+        print(endpoint)
         RestClient.get(endPoint: endpoint, completion: { response in
 
             guard let statusCode = response.response?.statusCode else {
@@ -22,7 +23,6 @@ public class EventsRest {
                 return
             }
 
-            print(statusCode)
             if 200...299 ~= statusCode { // success
                 completion(.success([]))
             } else {
