@@ -93,13 +93,20 @@ class WalletCoordinator: Coordinator {
     }
 }
 
-extension WalletCoordinator: WelcomeViewControllerDelegate {
-    func didPressImportWallet(in viewController: WelcomeViewController) {
-        pushImportWallet()
-    }
+//Disable creating and importing wallets from welcome screen
+//extension WalletCoordinator: WelcomeViewControllerDelegate {
+//    func didPressImportWallet(in viewController: WelcomeViewController) {
+//        pushImportWallet()
+//    }
 
+//    func didPressCreateWallet(in viewController: WelcomeViewController) {
+//        createInstantWallet()
+//    }
+//}
+
+extension WalletCoordinator: WelcomeViewControllerDelegate {
     func didPressCreateWallet(in viewController: WelcomeViewController) {
-        createInstantWallet()
+//        showInitialWalletCoordinator(entryPoint: .createInstantWallet)
     }
 }
 

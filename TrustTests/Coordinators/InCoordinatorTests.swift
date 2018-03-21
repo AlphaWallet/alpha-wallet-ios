@@ -21,11 +21,10 @@ class InCoordinatorTests: XCTestCase {
 
         XCTAssertNotNil(tabbarController)
 
-        //XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is BrowserViewController)
-        XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is TransactionsViewController)
-        XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is AlphaWalletTokensViewController)
-        XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is AlphaWalletSettingsViewController)
-        XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is AlphaWalletHelpViewController)
+        XCTAssert(tabbarController?.viewControllers!.count == 3)
+        XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is TokensViewController)
+        XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
+        XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is HelpViewController)
     }
 
     func testChangeRecentlyUsedAccount() {
@@ -85,7 +84,7 @@ class InCoordinatorTests: XCTestCase {
         let controller = (coordinator.navigationController.presentedViewController as? UINavigationController)?.viewControllers[0]
 
         XCTAssertTrue(coordinator.coordinators.last is PaymentCoordinator)
-        XCTAssertTrue(controller is AlphaWalletRequestViewController)
+        XCTAssertTrue(controller is RequestViewController)
     }
 
     func testShowTabDefault() {
@@ -99,7 +98,7 @@ class InCoordinatorTests: XCTestCase {
 
         let viewController = (coordinator.tabBarController?.selectedViewController as? UINavigationController)?.viewControllers[0]
 
-        XCTAssert(viewController is TransactionsViewController)
+        XCTAssert(viewController is TokensViewController)
     }
 
 	//Commented out because the tokens tab has been moved to be under the More tab and will be moved
@@ -132,6 +131,6 @@ class InCoordinatorTests: XCTestCase {
 
         let viewController = (coordinator.tabBarController?.selectedViewController as? UINavigationController)?.viewControllers[0]
 
-        XCTAssert(viewController is AlphaWalletTokensViewController)
+        XCTAssert(viewController is TokensViewController)
     }
 }

@@ -1,5 +1,3 @@
-// Copyright SIX DAY LLC. All rights reserved.
-
 import Foundation
 import UIKit
 import StatefulViewController
@@ -22,6 +20,9 @@ class TokensViewController: UIViewController {
         }
     }
     let account: Wallet
+	let filterView = WalletFilterView()
+    var importWalletView: UIView?
+    var importWalletLayer = CAShapeLayer()
     let tableView: UITableView
     let refreshControl = UIRefreshControl()
     weak var delegate: TokensViewControllerDelegate?
@@ -35,17 +36,30 @@ class TokensViewController: UIViewController {
         tableView = UITableView(frame: .zero, style: .plain)
         super.init(nibName: nil, bundle: nil)
         dataStore.delegate = self
+
+        view.backgroundColor = Colors.appBackground
+
+        filterView.delegate = self
+        filterView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(filterView)
+
+        tableView.register(TokenViewCell.self, forCellReuseIdentifier: TokenViewCell.identifier)
+        tableView.register(TicketTokenViewCell.self, forCellReuseIdentifier: TicketTokenViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = Colors.appBackground
         view.addSubview(tableView)
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            filterView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            filterView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            filterView.topAnchor.constraint(equalTo: view.topAnchor),
+            filterView.bottomAnchor.constraint(equalTo: tableView.topAnchor),
+
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
         ])
         refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         tableView.addSubview(refreshControl)
@@ -77,6 +91,72 @@ class TokensViewController: UIViewController {
         self.dataStore.fetch()
     }
 
+    override func viewDidLayoutSubviews() {
+        if let importWalletView = importWalletView {
+            importWalletLayer.frame = importWalletView.bounds
+            importWalletLayer.path = createImportWalletImagePath().cgPath
+        }
+    }
+
+    private func reload() {
+        tableView.reloadData()
+        let haveData = viewModel.numberOfSections > 0 && viewModel.numberOfItems(for: 0) > 0
+        if haveData {
+            hideImportWalletImage()
+        } else {
+            showImportWalletImage()
+        }
+    }
+
+    private func hideImportWalletImage() {
+        importWalletView?.isHidden = true
+    }
+
+    private func showImportWalletImage() {
+        if let importWalletView = importWalletView {
+            importWalletView.isHidden = false
+            return
+        }
+        importWalletView = UIView()
+        if let importWalletView = importWalletView {
+            view.addSubview(importWalletView)
+
+            let imageView = UIImageView(image: R.image.wallet_import())
+
+            importWalletLayer.path = createImportWalletImagePath().cgPath
+            importWalletLayer.lineDashPattern = [5, 5]
+            importWalletLayer.strokeColor = UIColor.white.cgColor
+            importWalletLayer.fillColor = UIColor.clear.cgColor
+            importWalletView.layer.addSublayer(importWalletLayer)
+
+            let label = UILabel()
+            label.textColor = .white
+            label.text = R.string.localizable.aWalletImportWalletTitle()
+
+            let stackView = UIStackView(arrangedSubviews: [
+                imageView,
+                label,
+            ])
+            stackView.translatesAutoresizingMaskIntoConstraints = false
+            stackView.axis = .vertical
+            stackView.alignment = .center
+            stackView.spacing = 10
+            importWalletView.addSubview(stackView)
+
+            let sideMargin = CGFloat(7)
+            importWalletView.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                importWalletView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sideMargin),
+                importWalletView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sideMargin),
+                importWalletView.topAnchor.constraint(equalTo: view.topAnchor, constant: 52),
+                importWalletView.heightAnchor.constraint(equalToConstant: 138),
+
+                stackView.centerXAnchor.constraint(equalTo: importWalletView.centerXAnchor),
+                stackView.centerYAnchor.constraint(equalTo: importWalletView.centerYAnchor),
+            ])
+        }
+    }
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -84,30 +164,19 @@ class TokensViewController: UIViewController {
     func refreshView(viewModel: TokensViewModel) {
         title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
-
-        let header = TokensHeaderView(frame: .zero)
-        header.amountLabel.text = viewModel.headerBalance
-        header.amountLabel.textColor = viewModel.headerBalanceTextColor
-        header.backgroundColor = viewModel.headerBackgroundColor
-        header.amountLabel.font = viewModel.headerBalanceFont
-        header.frame.size = header.systemLayoutSizeFitting(UILayoutFittingExpandedSize)
-        tableView.tableHeaderView = header
-
-        let footer = TokensFooterView(frame: .zero)
-        footer.textLabel.text = viewModel.footerTitle
-        footer.textLabel.font = viewModel.footerTextFont
-        footer.textLabel.textColor = viewModel.footerTextColor
-        footer.frame.size = header.systemLayoutSizeFitting(UILayoutFittingExpandedSize)
-
-        footer.addGestureRecognizer(
-            UITapGestureRecognizer(target: self, action: #selector(missingToken))
-        )
-
-        tableView.tableFooterView = footer
     }
 
     @objc func missingToken() {
         delegate?.didPressAddToken(in: self)
+    }
+
+    private func createImportWalletImagePath() -> UIBezierPath {
+        if let importWalletView = importWalletView {
+            let path = UIBezierPath(roundedRect: importWalletView.bounds, cornerRadius: 7)
+            return path
+        } else {
+            return UIBezierPath()
+        }
     }
 }
 
@@ -135,7 +204,21 @@ extension TokensViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80
+        let token = viewModel.item(for: indexPath.row, section: indexPath.section)
+
+        if token.isStormBird {
+            let cellViewModel = TicketTokenViewCellViewModel(
+                    token: token,
+                    ticker: viewModel.ticker(for: token)
+            )
+            return cellViewModel.cellHeight
+        } else {
+            let cellViewModel = TokenViewCellViewModel(
+                    token: token,
+                    ticker: viewModel.ticker(for: token)
+            )
+            return cellViewModel.cellHeight
+        }
     }
 }
 
@@ -148,7 +231,7 @@ extension TokensViewController: TokensDataStoreDelegate {
         case .failure(let error):
             endLoading(error: error)
         }
-        tableView.reloadData()
+        reload()
 
         if refreshControl.isRefreshing {
             refreshControl.endRefreshing()
@@ -164,17 +247,35 @@ extension TokensViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
 
-        let cell = TokenViewCell(style: .default, reuseIdentifier: TokenViewCell.identifier)
-        cell.configure(
-            viewModel: .init(
-                token: token,
-                ticker: viewModel.ticker(for: token)
+        if token.isStormBird {
+            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
+            cell.configure(
+                    viewModel: .init(
+                            token: token,
+                            ticker: viewModel.ticker(for: token)
+                    )
             )
-        )
-        return cell
+            return cell
+        } else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewCell.identifier, for: indexPath) as! TokenViewCell
+            cell.configure(
+                    viewModel: .init(
+                            token: token,
+                            ticker: viewModel.ticker(for: token)
+                    )
+            )
+            return cell
+        }
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.numberOfItems(for: section)
+    }
+}
+
+extension TokensViewController: WalletFilterViewDelegate {
+    func didPressWalletFilter(filter: WalletFilter, in filterView: WalletFilterView) {
+        viewModel.filter = filter
+        reload()
     }
 }

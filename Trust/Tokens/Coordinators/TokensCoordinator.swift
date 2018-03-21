@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
 import UIKit
@@ -22,8 +22,6 @@ class TokensCoordinator: Coordinator {
             dataStore: storage
         )
         controller.delegate = self
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(edit))
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addToken))
         return controller
     }()
     weak var delegate: TokensCoordinatorDelegate?
@@ -72,11 +70,12 @@ class TokensCoordinator: Coordinator {
     }
 
     @objc func edit() {
-        let controller = EditTokensViewController(
-            session: session,
-            storage: storage
-        )
-        navigationController.pushViewController(controller, animated: true)
+        //edit tokens disabled
+//        let controller = EditTokensViewController(
+//            session: session,
+//            storage: storage
+//        )
+//        navigationController.pushViewController(controller, animated: true)
     }
 }
 
@@ -116,7 +115,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             switch result {
             case .success(let balance):
                 viewController.updateBalanceValue(balance)
-                NSLog("Balance:  \(balance)")
             case .failure: break
             }
         }
@@ -128,7 +126,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             switch result {
             case .success(let decimal):
                 viewController.updateDecimalsValue(decimal)
-                NSLog("Decimal:  \(decimal)")
             case .failure: break
             }
         }
@@ -149,7 +146,6 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
             switch result {
             case .success(let name):
                 viewController.updateNameValue(name)
-                NSLog("Name:  \(name)")
             case .failure: break
             }
         }
@@ -158,7 +154,6 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
             switch result {
             case .success(let symbol):
                 viewController.updateSymbolValue(symbol)
-                NSLog("Symbol:  \(symbol)")
             case .failure: break
             }
         }
@@ -172,7 +167,6 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
                 } else {
                     self.getDecimals(for: address, in: viewController)
                 }
-                NSLog("isStormBird:  \(isStormBird)")
             case .failure:
                 self.getDecimals(for: address, in: viewController)
             }

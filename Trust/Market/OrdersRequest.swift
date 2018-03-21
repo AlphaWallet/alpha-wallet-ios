@@ -76,8 +76,7 @@ public class OrdersRequest {
             }
         }
 
-        let hexData: String = OrdersRequest.bytesToHexa(data)
-        let parameters: Parameters = ["data": hexData]
+        let parameters: Parameters = ["data": data]
         let headers: HTTPHeaders = ["Content-Type": "application/vnd.awallet-signed-orders-v0"]
 
         Alamofire.request(query, method: .put,

@@ -2,7 +2,7 @@
 
 import UIKit
 
-class HowDoIGetMyMoneyInfoViewController: AlphaWalletHelpContentsViewController{
+class HowDoIGetMyMoneyInfoViewController: HelpContentsViewController {
     override func url() -> URL? {
         return R.file.howDoIGetMyMoneyInfoHtml()
     }
