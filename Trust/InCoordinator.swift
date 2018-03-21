@@ -399,22 +399,6 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 }
 
-<<<<<<< HEAD
-extension InCoordinator: AlphaWalletTokensCoordinatorDelegate {
-    func didPress(for type: PaymentFlow, in coordinator: AlphaWalletTokensCoordinator) {
-        showPaymentFlow(for: type)
-    }
-
-    func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: AlphaWalletTokensCoordinator) {
-        showTicketList(for: type, token: token)
-    }
-    func didPressOrder(for type: PaymentFlow, token: TokenObject, in coordinator: ClaimOrderCoordinator){
-        //TODO implement
-    }
-}
-
-=======
->>>>>>> f1c005928c4a85258fd58e5e076dc9046e4d8f43
 extension InCoordinator: PaymentCoordinatorDelegate {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator) {
         switch result {
