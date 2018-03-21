@@ -29,9 +29,18 @@ class OrderRequestTest : XCTestCase  {
         var indices = [UInt16]()
         indices.append(1)
         indices.append(2)
-        let testOrder1 = Order(price: BigUInt("100000")!, indices: indices,
-                expiry: BigUInt("0")!, contractAddress: "007bee82bdd9e866b2bd114780a47f2261c684e3",
-                start: BigUInt("500000210121213")!, count: 3)
+
+        var timestamp = NSDate().timeIntervalSince1970.description //1521562138
+        timestamp = timestamp.substring(to: timestamp.count - 6);
+        let ts = Int(timestamp)! + 300;
+        let testOrder1 = Order(
+                price: BigUInt("100000")!,
+                indices: indices,
+                expiry: BigUInt(String(ts))!,
+                contractAddress: "007bee82bdd9e866b2bd114780a47f2261c684e3",
+                start: BigUInt("500000210121213")!,
+                count: 3
+        )
         testOrdersList.append(testOrder1)
         let signOrders = SignOrders()
         let signedOrders = signOrders.signOrders(orders: testOrdersList, account: account).0

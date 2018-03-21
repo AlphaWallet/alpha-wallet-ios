@@ -2,7 +2,7 @@
 
 import UIKit
 
-class HowDoITransferETHIntoMyWalletInfoViewController: AlphaWalletHelpContentsViewController{
+class HowDoITransferETHIntoMyWalletInfoViewController: HelpContentsViewController {
     override func url() -> URL? {
         return R.file.howDoITransferETHIntoMyWalletInfoHtml()
     }

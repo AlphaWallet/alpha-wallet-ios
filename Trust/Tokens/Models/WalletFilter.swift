@@ -2,7 +2,7 @@
 
 import Foundation
 
-enum AlphaWalletFilter {
+enum WalletFilter {
 	case all
 	case currencyOnly
 	case assetsOnly

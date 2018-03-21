@@ -13,10 +13,10 @@ class RequestCoordinator: Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: RequestCoordinatorDelegate?
-    lazy var requestViewController: AlphaWalletRequestViewController = {
+    lazy var requestViewController: RequestViewController = {
         return self.makeRequestViewController()
     }()
-    private lazy var viewModel: AlphaWalletRequestViewModel = {
+    private lazy var viewModel: RequestViewModel = {
         return .init(account: session.account, config: session.config)
     }()
 
@@ -33,8 +33,8 @@ class RequestCoordinator: Coordinator {
         navigationController.viewControllers = [requestViewController]
     }
 
-    func makeRequestViewController() -> AlphaWalletRequestViewController {
-        let controller = AlphaWalletRequestViewController(viewModel: viewModel)
+    func makeRequestViewController() -> RequestViewController {
+        let controller = RequestViewController(viewModel: viewModel)
         controller.navigationItem.titleView = BalanceTitleView.make(from: self.session, .ether(destination: .none))
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share(_:)))

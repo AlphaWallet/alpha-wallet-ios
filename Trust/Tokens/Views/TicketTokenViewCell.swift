@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import Kingfisher
 
-class AlphaWalletTicketTokenViewCell: UITableViewCell {
+class TicketTokenViewCell: UITableViewCell {
     static let identifier = "AlphaWalletTicketTokenViewCell"
 
     let background = UIView()
@@ -85,7 +85,7 @@ class AlphaWalletTicketTokenViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: AlphaWalletTicketTokenViewCellViewModel) {
+    func configure(viewModel: TicketTokenViewCellViewModel) {
         selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
 

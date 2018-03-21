@@ -1,10 +1,10 @@
 // Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 
 protocol WelcomeViewControllerDelegate: class {
     func didPressCreateWallet(in viewController: WelcomeViewController)
-    func didPressImportWallet(in viewController: WelcomeViewController)
 }
 
 class WelcomeViewController: UIViewController {
@@ -32,43 +32,27 @@ class WelcomeViewController: UIViewController {
         return pageControl
     }()
     let createWalletButton: UIButton = {
-        let button = Button(size: .large, style: .solid)
+        let button = Button(size: .large, style: .squared)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString("welcome.createWallet.button.title", value: "CREATE WALLET", comment: ""), for: .normal)
+        button.setTitle(R.string.localizable.aWelcomeOnboardingCreatewalletButtonTitle(), for: .normal)
         button.titleLabel?.font = Fonts.semibold(size: 16)
-        button.backgroundColor = Colors.darkBlue
+        button.backgroundColor = Colors.appBackground
+        button.setTitleColor(Colors.appWhite, for: .normal)
         return button
     }()
-    let importWalletButton: UIButton = {
-        let importWalletButton = Button(size: .large, style: .solid)
-        importWalletButton.translatesAutoresizingMaskIntoConstraints = false
-        importWalletButton.setTitle(NSLocalizedString("welcome.importWallet.button.title", value: "IMPORT WALLET", comment: ""), for: .normal)
-        importWalletButton.titleLabel?.font = Fonts.semibold(size: 16)
-        importWalletButton.setBackgroundColor(Colors.gray, forState: .normal)
-        importWalletButton.setBackgroundColor(Colors.lightGray, forState: .highlighted)
-        importWalletButton.accessibilityIdentifier = "import-wallet"
-        return importWalletButton
-    }()
     let pages: [OnboardingPageViewModel] = [
+
         OnboardingPageViewModel(
-            title: NSLocalizedString("welcome.privateAndSecure.label.title", value: "Private & Secure", comment: ""),
-            subtitle: NSLocalizedString("welcome.privateAndSecure.label.description", value: "Private keys never leave your device.", comment: ""),
-            image: R.image.onboarding_lock()!
+            title: R.string.localizable.aWelcomeOnboarding1(),
+            image: R.image.onboarding_1()!
         ),
         OnboardingPageViewModel(
-            title: NSLocalizedString("welcome.erc20.label.title", value: "ERC20 Compatible", comment: ""),
-            subtitle: NSLocalizedString("welcome.erc20.label.description", value: "Support for ERC20 tokens by default. ", comment: ""),
-            image: R.image.onboarding_erc20()!
+			title: R.string.localizable.aWelcomeOnboarding2(),
+            image: R.image.onboarding_2()!
         ),
         OnboardingPageViewModel(
-            title: NSLocalizedString("welcome.fullyTransparent.label.title", value: "Fully transparent", comment: ""),
-            subtitle: NSLocalizedString("welcome.fullyTransparent.label.description", value: "Code is open sourced (GPL-3.0 license) and fully audited.", comment: ""),
-            image: R.image.onboarding_open_source()!
-        ),
-        OnboardingPageViewModel(
-            title: NSLocalizedString("welcome.ultraReliable.label.title", value: "Ultra Reliable", comment: ""),
-            subtitle: NSLocalizedString("welcome.ultraReliable.label.description", value: "The fastest Ethereum wallet experience on mobile", comment: ""),
-            image: R.image.onboarding_rocket()!
+			title: R.string.localizable.aWelcomeOnboarding3(),
+            image: R.image.onboarding_3()!
         ),
     ]
 
@@ -77,15 +61,8 @@ class WelcomeViewController: UIViewController {
         viewModel.numberOfPages = pages.count
         view.addSubview(collectionViewController.view)
 
-        let stackView = UIStackView(arrangedSubviews: [
-            pageControl,
-            createWalletButton,
-            importWalletButton,
-        ])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 15
-        view.addSubview(stackView)
+        view.addSubview(pageControl)
+        view.addSubview(createWalletButton)
 
         collectionViewController.view.translatesAutoresizingMaskIntoConstraints = false
 
@@ -95,22 +72,16 @@ class WelcomeViewController: UIViewController {
             collectionViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            stackView.topAnchor.constraint(equalTo: collectionViewController.view.centerYAnchor, constant: 120),
-            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.widthAnchor.constraint(equalToConstant: 300),
-
+            pageControl.centerYAnchor.constraint(equalTo: collectionViewController.view.centerYAnchor, constant: -120),
+            pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             pageControl.heightAnchor.constraint(equalToConstant: 20),
-            pageControl.centerXAnchor.constraint(equalTo: stackView.centerXAnchor),
 
-            createWalletButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            createWalletButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-
-            importWalletButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            importWalletButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            createWalletButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: -10),
+            createWalletButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 10),
+            createWalletButton.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
         createWalletButton.addTarget(self, action: #selector(start), for: .touchUpInside)
-        importWalletButton.addTarget(self, action: #selector(importFlow), for: .touchUpInside)
 
         configure(viewModel: viewModel)
     }
@@ -126,9 +97,5 @@ class WelcomeViewController: UIViewController {
 
     @IBAction func start() {
         delegate?.didPressCreateWallet(in: self)
-    }
-
-    @IBAction func importFlow() {
-        delegate?.didPressImportWallet(in: self)
     }
 }
