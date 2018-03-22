@@ -5,7 +5,7 @@ import Foundation
 struct AdvancedSettingsViewModel {
 
     var title: String {
-        return NSLocalizedString("settings.preferences.title", value: "Preferences", comment: "")
+        return R.string.localizable.aSettingsAdvancedLabelTitle()
     }
 
     var showTokensTabTitle: String {
