@@ -191,6 +191,12 @@
 "a.wallet.tickets" = "%@ Tickets";
 "a.help.navigation.title" = "Help & FAQs";
 "a.help.contact.footer.button.title" = "Still need help? Contact Us";
+"a.help.contact.email.subject" = "Help/Feedback for AlphaWallet";
+"a.help.contact.email.helpfulToDevelopers" = "Helpful information to developers:";
+"a.help.contact.email.iosVersion" = "iOS Version: %@";
+"a.help.contact.email.deviceModel" = "Device Model: %@";
+"a.help.contact.email.appVersion" = "App Version: %@";
+"a.help.contact.email.locale" = "Current locale: %@";
 "a.help.contents.whatIsETH" = "What is ETH/Ethereum?";
 "a.help.contents.whyETH" = "Why does aWallet use Ethereum?";
 "a.help.contents.howDoIGetMyMoney" = "How do I get my money?";
