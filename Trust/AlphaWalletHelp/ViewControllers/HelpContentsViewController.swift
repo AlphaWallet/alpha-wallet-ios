@@ -8,6 +8,7 @@ class HelpContentsViewController: StaticHTMLViewController {
     override init() {
         super.init()
 
+        banner.delegate = self
         banner.translatesAutoresizingMaskIntoConstraints = false
         footer.addSubview(banner)
 
@@ -31,6 +32,12 @@ class HelpContentsViewController: StaticHTMLViewController {
 
     override func footerHeight() -> CGFloat {
         return banner.bannerHeight
+    }
+}
+
+extension HelpContentsViewController: ContactUsBannerViewDelegate {
+    func present(_ viewController: UIViewController, for view: ContactUsBannerView) {
+        present(viewController, animated: true, completion: nil)
     }
 }
 
