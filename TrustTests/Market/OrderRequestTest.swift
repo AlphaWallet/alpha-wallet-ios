@@ -42,8 +42,7 @@ class OrderRequestTest : XCTestCase  {
                 count: 3
         )
         testOrdersList.append(testOrder1)
-        let signOrders = SignOrders()
-        let signedOrders = signOrders.signOrders(orders: testOrdersList, account: account).0
+        let signedOrders = SignOrders().signOrders(orders: testOrdersList, account: account)
         let privateKey = keyStore.exportPrivateKey(account: account)
         let publicKey = try! Secp256k1.shared.pubKeyFromPrivateKey(from: privateKey.dematerialize())
 

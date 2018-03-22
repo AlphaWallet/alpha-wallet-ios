@@ -68,23 +68,23 @@ public class OrdersRequest {
         //TODO get encoding for count and start
         let query: String = baseURL + "public-key/" + publicKey + "?start=" +
                 signedOrders[0].order.start.description + ";count=" + signedOrders[0].order.count.description
-        var hexMessageData = signedOrders[0].message
-        print(query)
+        var messageBytes: [UInt8] = signedOrders[0].message
 
         for i in 0...signedOrders.count - 1 {
             for j in 0...64 {
-                hexMessageData.append(signedOrders[i].signature.hexa2Bytes[j])
+                messageBytes.append(signedOrders[i].signature.hexa2Bytes[j])
             }
         }
 
-        print(hexMessageData)
+        print(Data(bytes: messageBytes).array)
+        print(query)
 
         let headers: HTTPHeaders = ["Content-Type": "application/vnd.awallet-signed-orders-v0"]
 
-        Alamofire.upload(Data(bytes: hexMessageData), to: query, method: .put, headers: headers).response { response in
+        Alamofire.upload(Data(bytes: messageBytes), to: query, method: .put, headers: headers).response { response in
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
                 print("Data: \(utf8Text)") // original server data as UTF8 string
-                callback(data.hexEncoded)
+                callback(data)
             }
         }
     }

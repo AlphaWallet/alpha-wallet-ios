@@ -25,7 +25,7 @@ class OrderSigningTests : XCTestCase  {
         let account = keyStore.getAccount(for: Address(string: "0x007bEe82BDd9e866b2bd114780a47f2261C684E3")!)!
         print(account.address)
         
-        var signedOrders = signOrders.signOrders(orders: testOrdersList, account: account).0
+        var signedOrders = signOrders.signOrders(orders: testOrdersList, account: account)
         
         let signature = try! keyStore.signMessageData(Data(bytes: signedOrders[0].message), for: account).dematerialize().hexString
 
