@@ -43,9 +43,8 @@ public class SignOrders {
 
     private let keyStore = try! EtherKeystore()
 
-    func signOrders(orders: [Order], account: Account) -> ([SignedOrder], [String]) {
+    func signOrders(orders: [Order], account: Account) -> ([SignedOrder]) {
         var signedOrders = [SignedOrder]()
-        let data = [String]()
 
         for i in 0...orders.count - 1 {
             let message: [UInt8] = encodeMessageForTrade(
@@ -68,7 +67,7 @@ public class SignOrders {
                 hexExpires = "0"
             }
         }
-        return (signedOrders, data)
+        return signedOrders
     }
 
     func encodeMessageForTrade(price: BigUInt,
