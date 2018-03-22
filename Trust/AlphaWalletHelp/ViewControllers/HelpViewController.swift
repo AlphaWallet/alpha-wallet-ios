@@ -30,6 +30,7 @@ class HelpViewController: UIViewController {
         tableView.backgroundColor = Colors.appBackground
         view.addSubview(tableView)
 
+        banner.delegate = self
         banner.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(banner)
 
@@ -79,5 +80,11 @@ extension HelpViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return rows.count
+    }
+}
+
+extension HelpViewController: ContactUsBannerViewDelegate {
+    func present(_ viewController: UIViewController, for view: ContactUsBannerView) {
+        present(viewController, animated: true, completion: nil)
     }
 }

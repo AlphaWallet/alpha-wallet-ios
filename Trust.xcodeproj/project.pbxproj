@@ -1067,7 +1067,6 @@
 				76F1D1936604D6A022E9AE90 /* Market */,
 				76F1D47A29573DA8BD3E4979 /* Redeem */,
 				5E7C7ACB32FB112CD7D92977 /* AlphaWalletHelp */,
-				5E7C788AF1C199AC61863B85 /* AlphaWalletProtection */,
 			);
 			path = Trust;
 			sourceTree = "<group>";
@@ -2206,14 +2205,6 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		5E7C788AF1C199AC61863B85 /* AlphaWalletProtection */ = {
-			isa = PBXGroup;
-			children = (
-				5E7C7BC8799AC9C84FB6269F /* Coordinators */,
-			);
-			path = AlphaWalletProtection;
-			sourceTree = "<group>";
-		};
 		5E7C7ACB32FB112CD7D92977 /* AlphaWalletHelp */ = {
 			isa = PBXGroup;
 			children = (
@@ -2221,13 +2212,6 @@
 				5E7C74128421DCAC6BCC2354 /* Views */,
 			);
 			path = AlphaWalletHelp;
-			sourceTree = "<group>";
-		};
-		5E7C7BC8799AC9C84FB6269F /* Coordinators */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Coordinators;
 			sourceTree = "<group>";
 		};
 		615F10571FCBEF6A008A45AF /* Views */ = {
