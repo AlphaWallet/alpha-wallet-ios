@@ -43,23 +43,29 @@ public class SignOrders {
 
     private let keyStore = try! EtherKeystore()
 
-    //takes a list of orders and returns a list of signature objects
-    //TODO sign message bulk
-    func signOrders(orders: [Order], account: Account) -> [SignedOrder] {
-
+    func signOrders(orders: [Order], account: Account) -> ([SignedOrder]) {
         var signedOrders = [SignedOrder]()
 
         for i in 0...orders.count - 1 {
-            let message: [UInt8] = encodeMessageForTrade(price: orders[i].price,
-                                                         expiryBuffer: orders[i].expiry,
-                                                         tickets: orders[i].indices,
-                                                         contractAddress: orders[i].contractAddress)
-
-            let signature = keyStore.signMessageData(Data(bytes: message), for: account)
-            let signedOrder: SignedOrder = SignedOrder(order: orders[i],
-                                                       message: message,
-                                                       signature: signature.description)
+            let message: [UInt8] = encodeMessageForTrade(
+                    price: orders[i].price,
+                    expiryBuffer: orders[i].expiry,
+                    tickets: orders[i].indices,
+                    contractAddress: orders[i].contractAddress
+            )
+            let signature = try! "0x" + keyStore.signMessageData(Data(bytes: message), for: account).dematerialize().toHexString()
+            let signedOrder = SignedOrder(order: orders[i],
+                                          message: message,
+                                          signature: signature.description)
             signedOrders.append(signedOrder)
+            //encode transaction data
+            let v = signature.substring(from: 130)
+            let r = signature.substring(to: 64)
+            let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 126)))
+            var hexExpires = orders[i].expiry.serialize().toHexString()
+            if (hexExpires == "") {
+                hexExpires = "0"
+            }
         }
         return signedOrders
     }
@@ -106,7 +112,7 @@ public class SignOrders {
         return buffer
     }
 
-    static func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
+    public static func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
         var arrayOfUint8 = [UInt8]()
         for i in 0...arrayOfUInt16.count - 1 {
             var UInt8ArrayPair = arrayOfUInt16[i].bigEndian.data.array
