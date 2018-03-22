@@ -8,27 +8,22 @@
 
 import Foundation
 import Result
+import TrustKeystore
 
 public class EventsRest {
 
-    func getEvents(completion: @escaping (Result<[Event], AnyError>) -> Void) {
-        RestClient.get(endPoint: EndPoints.EventBaseUrl, completion: { response in
-            print(response)
+    func getEvents(for address: Address,
+                   completion: @escaping (Result<[Event], AnyError>) -> Void) {
+        let endpoint = EndPoints.EventBaseUrl + "/" + address.description.lowercased()
+        print(endpoint)
+        RestClient.get(endPoint: endpoint, completion: { response in
+
             guard let statusCode = response.response?.statusCode else {
                 completion(.failure(AnyError(response.error!)))
                 return
             }
-            // TODO: Fix this
-//            guard let jsonData = response.data else {
-//                completion(.failure(AnyError(RestError.invalidResponse("JSON is invalid"))))
-//                return
-//            }
 
             if 200...299 ~= statusCode { // success
-//                guard let events: [Event] = Event.from(data: jsonData) else {
-//                    completion(.failure(AnyError(RestError.invalidResponse("Could not parse data"))))
-//                    return
-//                }
                 completion(.success([]))
             } else {
                 completion(.failure(AnyError(RestError.invalidResponse("Could not parse data"))))
