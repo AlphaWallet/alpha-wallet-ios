@@ -10,7 +10,7 @@ struct TicketsViewControllerHeaderViewModel {
     }
 
     var title: String {
-        return "\(totalValidTicketNumber) \(R.string.localizable.aWalletTickets()) \(tokenObject.title)"
+        return "\(R.string.localizable.aWalletTickets(totalValidTicketNumber)) \(tokenObject.title)"
     }
 
     var issuer: String {

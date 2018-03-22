@@ -7,7 +7,7 @@ import UIKit
 struct WelcomeViewModel {
 
     var title: String {
-        return "Welcome"
+        return R.string.localizable.aWelcomeNavigationTitle()
     }
 
     var backgroundColor: UIColor {
