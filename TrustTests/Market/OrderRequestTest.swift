@@ -37,7 +37,7 @@ class OrderRequestTest : XCTestCase  {
                 price: BigUInt("100000")!,
                 indices: indices,
                 expiry: BigUInt(String(ts))!,
-                contractAddress: "007bee82bdd9e866b2bd114780a47f2261c684e3",
+                contractAddress: "bC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4".lowercased(),
                 start: BigUInt("500000210121213")!,
                 count: 3
         )

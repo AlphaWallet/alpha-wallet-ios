@@ -68,32 +68,23 @@ public class OrdersRequest {
         //TODO get encoding for count and start
         let query: String = baseURL + "public-key/" + publicKey + "?start=" +
                 signedOrders[0].order.start.description + ";count=" + signedOrders[0].order.count.description
-        var data = signedOrders[0].message
+        var hexMessageData = signedOrders[0].message
+        print(query)
 
         for i in 0...signedOrders.count - 1 {
             for j in 0...64 {
-                data.append(signedOrders[i].signature.hexa2Bytes[j])
+                hexMessageData.append(signedOrders[i].signature.hexa2Bytes[j])
             }
         }
 
-        let parameters: Parameters = ["data": data]
+        print(hexMessageData)
+
         let headers: HTTPHeaders = ["Content-Type": "application/vnd.awallet-signed-orders-v0"]
 
-        Alamofire.request(query, method: .put,
-                          parameters: parameters,
-                          encoding: JSONEncoding.default,
-                          headers: headers).responseJSON { response in
-            print("Request: \(String(describing: response.request))")   // original url request
-            print("Response: \(String(describing: response.response))") // http url response
-            print("Result: \(response.result)") // response serialization result
-
-            if let json = response.result.value {
-                let parsedJSON = try! JSON(parseJSON: (json as! String))
-                callback(parsedJSON["orders"]["accepted"])
-            }
-
+        Alamofire.upload(Data(bytes: hexMessageData), to: query, method: .put, headers: headers).response { response in
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
                 print("Data: \(utf8Text)") // original server data as UTF8 string
+                callback(data.hexEncoded)
             }
         }
     }
