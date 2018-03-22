@@ -20,7 +20,7 @@ class TransactionsFooterView: UIView {
         requestButton.translatesAutoresizingMaskIntoConstraints = false
         requestButton.layer.cornerRadius = 6
         requestButton.titleLabel?.font = Fonts.semibold(size: Fonts.buttonSize)
-        requestButton.setTitle(NSLocalizedString("transactions.receive.button.title", value: "Receive", comment: ""), for: .normal)
+        requestButton.setTitle(R.string.localizable.transactionsReceiveButtonTitle(), for: .normal)
         return requestButton
     }()
 
