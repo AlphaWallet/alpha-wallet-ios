@@ -1,8 +1,14 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import MessageUI
+
+protocol ContactUsBannerViewDelegate: class {
+    func present(_ viewController: UIViewController, for view: ContactUsBannerView)
+}
 
 class ContactUsBannerView: UIView {
+    weak var delegate: ContactUsBannerViewDelegate?
     let button = UIButton(type: .system)
     let imageView = UIImageView()
     let label = UILabel()
@@ -51,7 +57,36 @@ class ContactUsBannerView: UIView {
     }
 
     @objc func tapped() {
-        //TODO show help contact options by firing a delegate method
-        print("Tapped contact us")
+        sendUsEmail()
+    }
+
+    func sendUsEmail() {
+        let composerController = MFMailComposeViewController()
+        composerController.mailComposeDelegate = self
+        composerController.setToRecipients([Constants.supportEmail])
+        composerController.setSubject(R.string.localizable.aHelpContactEmailSubject())
+        composerController.setMessageBody(emailTemplate(), isHTML: false)
+
+        if MFMailComposeViewController.canSendMail() {
+            delegate?.present(composerController, for: self)
+        }
+    }
+
+    private func emailTemplate() -> String {
+        return """
+        \n\n\n
+
+        \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
+        \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
+        \(R.string.localizable.aHelpContactEmailDeviceModel(UIDevice.current.model))
+        \(R.string.localizable.aHelpContactEmailAppVersion(Bundle.main.fullVersion))
+        \(R.string.localizable.aHelpContactEmailLocale(Locale.preferredLanguages.first ?? ""))
+        """
+    }
+}
+
+extension ContactUsBannerView: MFMailComposeViewControllerDelegate {
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
     }
 }
