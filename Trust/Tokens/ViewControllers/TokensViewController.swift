@@ -36,6 +36,7 @@ class TokensViewController: UIViewController {
         tableView = UITableView(frame: .zero, style: .plain)
         super.init(nibName: nil, bundle: nil)
         dataStore.delegate = self
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(missingToken))
 
         view.backgroundColor = Colors.appBackground
 
