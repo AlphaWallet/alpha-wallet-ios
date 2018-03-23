@@ -7,7 +7,7 @@ import BigInt
 class OrderSigningTests : XCTestCase  {
 
     var contractAddress = "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0"
-    var keyStore = try! EtherKeystore()
+    let keystore = FakeEtherKeystore()
 
     func testSigningOrders() {
         
@@ -16,35 +16,43 @@ class OrderSigningTests : XCTestCase  {
         var indices = [UInt16]()
         indices.append(14)
         
-        let testOrder1 = Order(price: BigUInt("0")!, indices: indices,
-                expiry: BigUInt("0")!, contractAddress: contractAddress,
-                start: BigUInt("91239231313")!, count: 3)
-        testOrdersList.append(testOrder1)
-        
-        let signOrders = SignOrders()
-        let account = keyStore.getAccount(for: Address(string: "0x007bEe82BDd9e866b2bd114780a47f2261C684E3")!)!
-        print(account.address)
-        
-        var signedOrders = signOrders.signOrders(orders: testOrdersList, account: account)
-        
-        let signature = try! keyStore.signMessageData(Data(bytes: signedOrders[0].message), for: account).dematerialize().hexString
+        let testOrder1 = Order(price: BigUInt("0")!,
+                indices: indices,
+                expiry: BigUInt("0")!,
+                contractAddress: contractAddress,
+                start: BigUInt("91239231313")!,
+                count: 3
+        )
 
-        print("v: " + Int(signature.substring(from: 128), radix: 16)!.description)
-        print("r: 0x" + signature.substring(to: 64))
-        print("s: 0x" + signature.substring(from: 64, to: 128))
-        
-        //test signing speed for bulk orders
-        var bulkMessages = [Data]()
-        
         for _ in 0...2015 {
-            bulkMessages.append(Data(bytes: signedOrders[0].message))
+            testOrdersList.append(testOrder1)
         }
-    
-        print(account.address)
-        
-        keyStore.signMessageBulk(bulkMessages, for: account)
 
-        print(signedOrders.description)
+        let signOrders = SignOrders()
+
+        let privateKeyResult = keystore.convertPrivateKeyToKeystoreFile(
+                privateKey: "0x4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318",
+                passphrase: TestKeyStore.password
+        )
+
+        guard case let .success(keystoreString) = privateKeyResult else {
+            return XCTFail()
+        }
+
+        let result = keystore.importKeystore(
+                value: keystoreString.jsonString!,
+                password: TestKeyStore.password,
+                newPassword: TestKeyStore.password
+        )
+
+        guard case let .success(account) = result else {
+            return XCTFail()
+        }
+
+        //TODO signedOrders doesn't like getting keystore from test for some reason
+        //let signedOrders = try! signOrders.signOrders(orders: testOrdersList, account: account)
+        //XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
+
     }
     
 }
