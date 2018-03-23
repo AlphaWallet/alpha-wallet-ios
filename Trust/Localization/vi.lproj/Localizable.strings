@@ -1,5 +1,5 @@
 "Advanced" = "Nâng cao";
-"app.device.jailbreak.description" = "Bất kỳ ứng dụng 'jailbreak' nào cũng có thể truy cập dữ liệu keychain của Trust và ăn cắp ví của bạn! Xóa ví tiền này và khôi phục lại trên một thiết bị khác an toàn hơn.";
+"app.device.jailbreak.description" = "Bất kỳ ứng dụng 'jailbreak' nào cũng có thể truy cập dữ liệu keychain của AlphaWallet và ăn cắp ví của bạn! Xóa ví tiền này và khôi phục lại trên một thiết bị khác an toàn hơn.";
 "app.device.jailbreak.title" = "BẢO MẬT THIẾT BỊ ĐÃ BỊ XÂM PHẠM";
 "Cancel" = "Hủy bỏ";
 "configureTransaction.error.gasFeeTooHigh" = "Phí Gas quá cao. Chỉ có sẵn tối đa: %@";
@@ -57,7 +57,7 @@
 "settings.donate.button.title" = "Quyên góp";
 "settings.emailUs.button.title" = "Email cho chúng tôi";
 "settings.error.failedToSendEmail" = "Thất bại trong việc gửi email. Đảm bảo rằng bạn có ứng dụng Mail được cài đặt.";
-"settings.feedback.email.title" = "Phản hồi tới Trust";
+"settings.feedback.email.title" = "Phản hồi tới AlphaWallet";
 "settings.navigation.title" = "Cài đặt";
 "settings.network.button.title" = "Mạng lưới";
 "settings.openSourceDevelopment.label.title" = "Phát triển nguồn mở";
@@ -132,6 +132,6 @@
 "welldone.navigation.title" = "Cám ơn!";
 "welldone.share.label.text" = "Chia sẻ";
 "welldone.viewmodel.sharing.text1" = "Đây là ứng dụng tôi dùng để quản lý ETH và các loại tiền mã hóa tương thích chuẩn ERC20";
-"welldone.viewmodel.sharing.text2" = "Khám phá Trust - Một ví cho phép lưu trữ an toàn Ethereum và các loại tiền tương thích với ERC20.";
-"welldone.viewmodel.sharing.text3" = "Ethereum và các loại tiền mã hóa tương thích ERC20 của tôi được quản lý an toàn bởi ví Trust.";
-"welldone.viewmodel.sharing.text4" = "Tôi quản lý Ethereum và các loại tiền mã hóa tương thích ERC20 bằng ví Trust.";
+"welldone.viewmodel.sharing.text2" = "Khám phá AlphaWallet - Một ví cho phép lưu trữ an toàn Ethereum và các loại tiền tương thích với ERC20.";
+"welldone.viewmodel.sharing.text3" = "Ethereum và các loại tiền mã hóa tương thích ERC20 của tôi được quản lý an toàn bởi ví AlphaWallet.";
+"welldone.viewmodel.sharing.text4" = "Tôi quản lý Ethereum và các loại tiền mã hóa tương thích ERC20 bằng ví AlphaWallet.";
