@@ -13,7 +13,7 @@ extension Address {
         )!
     }
 
-    static func makeStormBord(
+    static func makeStormBird(
         address: String = "0x007bEe82BDd9e866b2bd114780a47f2261C684E3"
         ) -> Address {
         return Address(

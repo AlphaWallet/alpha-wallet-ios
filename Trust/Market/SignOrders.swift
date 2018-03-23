@@ -57,18 +57,15 @@ public class SignOrders {
             messages.append(Data(bytes: message))
         }
 
-        let signatures = try! keyStore.signMessageBulk(messages, for: account).dematerialize()
+        let signatures: [Data] = try! keyStore.signMessageBulk(messages, for: account).dematerialize()
 
         for i in 0...signatures.count - 1 {
             let signedOrder = SignedOrder(
                     order: orders[i],
                     message: messages[i].bytes,
-                    signature: signatures[i].description
+                    signature: signatures[i].hexString
             )
             signedOrders.append(signedOrder)
-
-            var hexExpires = orders[i].expiry.serialize().toHexString()
-            if (hexExpires == "") { hexExpires = "0" }
         }
         return signedOrders
     }
@@ -125,11 +122,4 @@ public class SignOrders {
         return arrayOfUint8
     }
 
-    func bufferToString(buffer: [UInt8]) -> String {
-        var bufferString: String = ""
-        for i in 0...buffer.count - 1 {
-            bufferString += String(buffer[i])
-        }
-        return bufferString
-    }
 }
