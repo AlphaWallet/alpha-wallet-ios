@@ -63,8 +63,8 @@ class TransactionsViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        tableView.backgroundColor = .white
-        tableView.rowHeight = 68
+        tableView.backgroundColor = Colors.appBackground
+        tableView.rowHeight = 80
         view.addSubview(tableView)
         view.addSubview(footerView)
 
@@ -77,6 +77,7 @@ class TransactionsViewController: UIViewController {
             footerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerView.bottomAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor),
+            footerView.heightAnchor.constraint(equalToConstant: 60),
         ])
 
         dataCoordinator.delegate = self
@@ -90,6 +91,13 @@ class TransactionsViewController: UIViewController {
             self?.dataCoordinator.fetch()
         })
         loadingView = LoadingView(insets: insets)
+        //TODO move into StateViewModel once this change is global
+        if let loadingView = loadingView as? LoadingView {
+            loadingView.backgroundColor = Colors.appBackground
+            loadingView.label.textColor = Colors.appWhite
+            loadingView.loadingIndicator.color = Colors.appWhite
+            loadingView.label.font = Fonts.regular(size: 18)
+        }
         emptyView = {
             let view = TransactionsEmptyView(
                 insets: insets,
@@ -217,8 +225,6 @@ extension TransactionsViewController: UITableViewDataSource {
         return hederView(for: section)
     }
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        view.layer.addBorder(edge: .top, color: viewModel.headerBorderColor, thickness: 0.5)
-        view.layer.addBorder(edge: .bottom, color: viewModel.headerBorderColor, thickness: 0.5)
     }
     //Method heightForHeaderInSection is required for iOS 10.
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {

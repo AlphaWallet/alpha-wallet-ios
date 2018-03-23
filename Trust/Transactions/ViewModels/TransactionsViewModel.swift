@@ -37,15 +37,15 @@ struct TransactionsViewModel {
     }
 
     var backgroundColor: UIColor {
-        return .white
+        return Colors.appBackground
     }
 
     var headerBackgroundColor: UIColor {
-        return UIColor(hex: "fafafa")
+        return Colors.appBackground
     }
 
     var headerTitleTextColor: UIColor {
-        return UIColor(hex: "555357")
+        return Colors.appWhite
     }
 
     var headerTitleFont: UIFont {
