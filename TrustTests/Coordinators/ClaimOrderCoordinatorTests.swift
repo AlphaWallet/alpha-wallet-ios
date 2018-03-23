@@ -38,7 +38,7 @@ class ClaimOrderCoordinatorTests : XCTestCase {
         claimOrderCoordinator.claimOrder(indices: indices, expiry: expiry!, v: v, r: r, s: s) { result in
             switch result {
             case .success(let payload):
-                let address: Address = .makeStormBord()
+                let address: Address = .makeStormBird()
                 let transaction = UnconfirmedTransaction(
                     transferType: .stormBirdOrder(token),
                     value: BigInt("0"),

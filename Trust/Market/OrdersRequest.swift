@@ -74,6 +74,7 @@ public class OrdersRequest {
         let query: String = baseURL + "public-key/" + publicKey + "?start=" +
                 signedOrders[0].order.start.description + ";count=" + signedOrders.count.description
         var messageBytes: [UInt8] = signedOrders[0].message
+        print(signedOrders[0].signature.count)
 
         for i in 0...signedOrders.count - 1 {
             for j in 0...64 {
