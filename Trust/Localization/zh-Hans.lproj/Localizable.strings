@@ -1,5 +1,5 @@
 "Advanced" = "高级设置";
-"app.device.jailbreak.description" = "任何“越狱”应用都可以访问 Trust 的钥匙串数据和窃取你的钱包！请立刻抹掉这个钱包，并在另外一台安全设备上恢复。";
+"app.device.jailbreak.description" = "任何“越狱”应用都可以访问 AlphaWallet 的钥匙串数据和窃取你的钱包！请立刻抹掉这个钱包，并在另外一台安全设备上恢复。";
 "app.device.jailbreak.title" = "设备安全受损";
 "Cancel" = "取消";
 "configureTransaction.error.gasFeeTooHigh" = "Gas 费用太高，最大可用：%@";
@@ -57,7 +57,7 @@
 "settings.donate.button.title" = "捐赠";
 "settings.emailUs.button.title" = "邮件联系我们";
 "settings.error.failedToSendEmail" = "无法发送邮件。请确保你已经安装了邮件应用。";
-"settings.feedback.email.title" = "Trust 反馈";
+"settings.feedback.email.title" = "AlphaWallet 反馈";
 "settings.navigation.title" = "设置";
 "settings.network.button.title" = "网络";
 "settings.openSourceDevelopment.label.title" = "开源式开发";
@@ -132,6 +132,6 @@
 "welldone.navigation.title" = "谢谢！";
 "welldone.share.label.text" = "分享";
 "welldone.viewmodel.sharing.text1" = "这个是我用来存储以太币和 ERC20 通证应用。";
-"welldone.viewmodel.sharing.text2" = "请看看 Trust - 让我安全地存储以太币和 ERC20 通证的钱包。";
-"welldone.viewmodel.sharing.text3" = "我安全地将以太币和 ERC20 通证存储在 Trust 钱包里。";
-"welldone.viewmodel.sharing.text4" = "我在 Trust 钱包里安全地储存以太币和 ERC20 通证。";
+"welldone.viewmodel.sharing.text2" = "请看看 AlphaWallet - 让我安全地存储以太币和 ERC20 通证的钱包。";
+"welldone.viewmodel.sharing.text3" = "我安全地将以太币和 ERC20 通证存储在 AlphaWallet 钱包里。";
+"welldone.viewmodel.sharing.text4" = "我在 AlphaWallet 钱包里安全地储存以太币和 ERC20 通证。";

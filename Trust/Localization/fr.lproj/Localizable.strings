@@ -1,5 +1,5 @@
 "Advanced" = "Avancée";
-"app.device.jailbreak.description" = "Toute application 'jailbreak' peut accéder aux données du trousseau de Trust et voler votre porte-monnaie! Essuyez immédiatement ce portefeuille et restaurez-le sur un périphérique sécurisé.";
+"app.device.jailbreak.description" = "Toute application 'jailbreak' peut accéder aux données du trousseau de AlphaWallet et voler votre porte-monnaie! Essuyez immédiatement ce portefeuille et restaurez-le sur un périphérique sécurisé.";
 "app.device.jailbreak.title" = "SÉCURITÉ DU DISPOSITIF COMPROMIS";
 "Cancel" = "Annuler";
 "configureTransaction.error.gasFeeTooHigh" = "Les frais de gaz sont trop élevés. Max disponible: %@";
