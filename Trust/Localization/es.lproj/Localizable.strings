@@ -1,5 +1,5 @@
 "Advanced" = "Avanzado";
-"app.device.jailbreak.description" = "¡Cualquier aplicación 'jailbreak' puede acceder a los datos de llavero de Trust y robar tu cartera! Limpia esta cartera de inmediato y restáurala en un dispositivo seguro.";
+"app.device.jailbreak.description" = "¡Cualquier aplicación 'jailbreak' puede acceder a los datos de llavero de AlphaWallet y robar tu cartera! Limpia esta cartera de inmediato y restáurala en un dispositivo seguro.";
 "app.device.jailbreak.title" = "SEGURIDAD DEL DISPOSITIVO COMPROMETIDA";
 "Cancel" = "Cancelar";
 "configureTransaction.error.gasFeeTooHigh" = "Tarifa del Gas demasiado alta. Máximo disponible: %@";
@@ -57,7 +57,7 @@
 "settings.donate.button.title" = "Donar";
 "settings.emailUs.button.title" = "Envíanos un email";
 "settings.error.failedToSendEmail" = "Error al enviar el correo electrónico Asegúrate de tener instalada la aplicación Mail.";
-"settings.feedback.email.title" = "Comentarios sobre Trust";
+"settings.feedback.email.title" = "Comentarios sobre AlphaWallet";
 "settings.navigation.title" = "Configuración";
 "settings.network.button.title" = "Red";
 "settings.openSourceDevelopment.label.title" = "Desarrollo en abierto";
