@@ -43,8 +43,9 @@ public class SignOrders {
 
     private let keyStore = try! EtherKeystore()
 
-    func signOrders(orders: [Order], account: Account) -> ([SignedOrder]) {
+    func signOrders(orders: [Order], account: Account) throws -> ([SignedOrder]) {
         var signedOrders = [SignedOrder]()
+        var messages = [Data]()
 
         for i in 0...orders.count - 1 {
             let message: [UInt8] = encodeMessageForTrade(
@@ -53,19 +54,21 @@ public class SignOrders {
                     tickets: orders[i].indices,
                     contractAddress: orders[i].contractAddress
             )
-            let signature = try! "0x" + keyStore.signMessageData(Data(bytes: message), for: account).dematerialize().toHexString()
-            let signedOrder = SignedOrder(order: orders[i],
-                                          message: message,
-                                          signature: signature.description)
+            messages.append(Data(bytes: message))
+        }
+
+        let signatures = try! keyStore.signMessageBulk(messages, for: account).dematerialize()
+
+        for i in 0...signatures.count - 1 {
+            let signedOrder = SignedOrder(
+                    order: orders[i],
+                    message: messages[i].bytes,
+                    signature: signatures[i].description
+            )
             signedOrders.append(signedOrder)
-            //encode transaction data
-            let v = signature.substring(from: 130)
-            let r = signature.substring(to: 64)
-            let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 126)))
+
             var hexExpires = orders[i].expiry.serialize().toHexString()
-            if (hexExpires == "") {
-                hexExpires = "0"
-            }
+            if (hexExpires == "") { hexExpires = "0" }
         }
         return signedOrders
     }
