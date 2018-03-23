@@ -5,21 +5,16 @@ import UIKit
 
 class TransactionsFooterView: UIView {
 
-    lazy var sendButton: Button = {
-        let sendButton = Button(size: .large, style: .squared)
+    lazy var sendButton: UIButton = {
+        let sendButton = UIButton(type: .system)
         sendButton.translatesAutoresizingMaskIntoConstraints = false
-        sendButton.layer.cornerRadius = 6
         sendButton.setTitle(NSLocalizedString("Send", value: "Send", comment: ""), for: .normal)
-        sendButton.accessibilityIdentifier = "send-button"
-        sendButton.titleLabel?.font = Fonts.semibold(size: Fonts.buttonSize)
         return sendButton
     }()
 
-    lazy var requestButton: Button = {
-        let requestButton = Button(size: .large, style: .squared)
+    lazy var requestButton: UIButton = {
+        let requestButton = UIButton(type: .system)
         requestButton.translatesAutoresizingMaskIntoConstraints = false
-        requestButton.layer.cornerRadius = 6
-        requestButton.titleLabel?.font = Fonts.semibold(size: Fonts.buttonSize)
         requestButton.setTitle(R.string.localizable.transactionsReceiveButtonTitle(), for: .normal)
         return requestButton
     }()
@@ -32,18 +27,11 @@ class TransactionsFooterView: UIView {
             requestButton,
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.layoutMargins = UIEdgeInsets(top: 10, left: 15, bottom: 10, right: 15)
         stackView.distribution = .fillEqually
-        stackView.spacing = 15
+        stackView.spacing = 0
         addSubview(stackView)
 
-        backgroundColor = .white
-        layer.masksToBounds = false
-        layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.1
-        layer.shadowOffset = CGSize(width: 0, height: -1)
-        layer.shadowRadius = 0.1
+        backgroundColor = Colors.appHighlightGreen
 
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: layoutGuide.topAnchor),
@@ -51,9 +39,21 @@ class TransactionsFooterView: UIView {
             stackView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor),
             stackView.bottomAnchor.constraint(equalTo: layoutGuide.bottomAnchor),
         ])
+
+        configure()
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure() {
+		sendButton.setTitleColor(Colors.appWhite, for: .normal)
+        sendButton.backgroundColor = Colors.appHighlightGreen
+        sendButton.titleLabel?.font = Fonts.regular(size: 20)!
+
+        requestButton.setTitleColor(Colors.appWhite, for: .normal)
+        requestButton.backgroundColor = Colors.appHighlightGreen
+        requestButton.titleLabel?.font = Fonts.regular(size: 20)!
     }
 }
