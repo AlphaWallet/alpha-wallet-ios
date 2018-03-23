@@ -124,7 +124,11 @@ class TransactionCoordinator: Coordinator {
 
 extension TransactionCoordinator: TransactionsViewControllerDelegate {
     func didPressSend(in viewController: TransactionsViewController) {
-        delegate?.didPress(for: .send(type: .ether(destination: .none)), in: self)
+        if let type = viewController.paymentType {
+            delegate?.didPress(for: type, in: self)
+        } else {
+            delegate?.didPress(for: .send(type: .ether(destination: .none)), in: self)
+        }
     }
 
     func didPressRequest(in viewController: TransactionsViewController) {

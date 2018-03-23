@@ -17,6 +17,7 @@ protocol TransactionsViewControllerDelegate: class {
 class TransactionsViewController: UIViewController {
 
     var viewModel: TransactionsViewModel
+    var paymentType: PaymentFlow?
 
     let tokensStorage: TokensDataStore
     let account: Wallet
