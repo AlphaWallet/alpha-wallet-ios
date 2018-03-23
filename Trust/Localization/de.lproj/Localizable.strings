@@ -1,5 +1,5 @@
 "Advanced" = "Erweitert";
-"app.device.jailbreak.description" = "Jede Jailbreak-App kann auf Trust-Schlüsselbunddaten zugreifen und Ihre Wallet stehlen! Deinstallieren Sie diese Wallet sofort und installieren Sie sie auf einem sicheren Gerät neu.";
+"app.device.jailbreak.description" = "Jede Jailbreak-App kann auf AlphaWallet-Schlüsselbunddaten zugreifen und Ihre Wallet stehlen! Deinstallieren Sie diese Wallet sofort und installieren Sie sie auf einem sicheren Gerät neu.";
 "app.device.jailbreak.title" = "GERÄTESICHERHEIT BEEINTRÄCHTIGT";
 "Cancel" = "Abbrechen";
 "configureTransaction.error.gasFeeTooHigh" = "Gasgebühr zu hoch. Maximal verfügbar: %@";
@@ -57,7 +57,7 @@
 "settings.donate.button.title" = "Spenden";
 "settings.emailUs.button.title" = "Schreiben Sie uns eine E-Mail";
 "settings.error.failedToSendEmail" = "Die E-Mail konnte nicht gesendet werden. Stellen Sie sicher, dass Sie eine Mail-App installiert haben.";
-"settings.feedback.email.title" = "Trust Feedback";
+"settings.feedback.email.title" = "AlphaWallet Feedback";
 "settings.navigation.title" = "Einstellungen";
 "settings.network.button.title" = "Netzwerk";
 "settings.openSourceDevelopment.label.title" = "Open-Source-Entwicklung";
@@ -76,7 +76,7 @@
 "wallet.navigation.title" = "Wallets";
 "wallets.backup.alertSheet.title" = "Sicherungsschlüsselspeicher";
 "welcome.createWallet.button.title" = "WALLET ERSTELLEN";
-"welcome.erc20.label.description" = "Trust Wallet unterstützt standardmäßig ERC20-Tokens.";
+"welcome.erc20.label.description" = "AlphaWallet Wallet unterstützt standardmäßig ERC20-Tokens.";
 "welcome.erc20.label.title" = "ERC20-kompatibel";
 "welcome.fullyTransparent.label.description" = "Der Code ist Open Source (GPL-3.0-Lizenz) und vollständig auditiert.";
 "welcome.fullyTransparent.label.title" = "Völlig transparent";

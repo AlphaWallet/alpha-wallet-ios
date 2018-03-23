@@ -28,7 +28,8 @@ class TicketRedemptionViewController: UIViewController {
                                      userInfo: nil,
                                      repeats: true)
         redeemListener.shouldListen = true
-        redeemListener.start(completion: {
+        redeemListener.start(for: session.account.address,
+                             completion: {
             self.redeemListener.stop()
             self.showSuccessMessage()
         })
