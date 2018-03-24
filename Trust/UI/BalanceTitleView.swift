@@ -108,6 +108,7 @@ extension BalanceTitleView {
             view.viewModel = BalanceTokenViewModel(token: token)
         case .stormBird(let token):
             view.viewModel = BalanceTokenViewModel(token: token)
+        case .stormBirdOrder: break
         }
         session.refresh(.ethBalance)
         return view
