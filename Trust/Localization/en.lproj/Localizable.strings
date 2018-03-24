@@ -1,5 +1,5 @@
 "Advanced" = "Advanced";
-"app.device.jailbreak.description" = "Any 'jailbreak' app can access Trust's keychain data and steal your wallet! Wipe this wallet immediately and restore on a secure device.";
+"app.device.jailbreak.description" = "Any 'jailbreak' app can access AlphaWallet's keychain data and steal your wallet! Wipe this wallet immediately and restore on a secure device.";
 "app.device.jailbreak.title" = "DEVICE SECURITY COMPROMISED";
 "Cancel" = "Cancel";
 "configureTransaction.error.gasFeeTooHigh" = "Gas Fee too high. Max available: %@";
@@ -68,7 +68,7 @@
 "settings.donate.button.title" = "Donate";
 "settings.emailUs.button.title" = "Email Us";
 "settings.error.failedToSendEmail" = "Failed to send email. Make sure you have Mail app installed.";
-"settings.feedback.email.title" = "Trust Feedback";
+"settings.feedback.email.title" = "AlphaWallet Feedback";
 "settings.navigation.title" = "Settings";
 "settings.network.button.title" = "Network";
 "settings.openSourceDevelopment.label.title" = "Open Source Development";
@@ -143,9 +143,9 @@
 "welldone.navigation.title" = "Thank you!";
 "welldone.share.label.text" = "Share";
 "welldone.viewmodel.sharing.text1" = "Here is the app I use to store my ETH and ERC20 tokens.";
-"welldone.viewmodel.sharing.text2" = "Check out Trust - the wallet that lets me securely store my Ethereum and ERC20 tokens.";
-"welldone.viewmodel.sharing.text3" = "I securely store Ethereum and ERC20 tokens in the Trust wallet";
-"welldone.viewmodel.sharing.text4" = "I secure my Ethereum and ERC20 tokens in the Trust wallet.";
+"welldone.viewmodel.sharing.text2" = "Check out AlphaWallet - the wallet that lets me securely store my Ethereum and ERC20 tokens.";
+"welldone.viewmodel.sharing.text3" = "I securely store Ethereum and ERC20 tokens in the AlphaWallet wallet";
+"welldone.viewmodel.sharing.text4" = "I secure my Ethereum and ERC20 tokens in the AlphaWallet wallet.";
 "browser.home.button.title" = "Home";
 "browser.reload.button.title" = "Reload";
 "configureTransaction.gasPriceGwei.label.title" = "Gas Price (Gwei)";

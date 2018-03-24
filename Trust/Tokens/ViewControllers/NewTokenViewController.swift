@@ -202,7 +202,6 @@ class NewTokenViewController: FormViewController {
         guard CryptoAddressValidator.isValidAddress(value) else {
             return
         }
-
         updateContractValue(value: value)
     }
 

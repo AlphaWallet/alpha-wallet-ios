@@ -1,5 +1,5 @@
 "Advanced" = "Avançado";
-"app.device.jailbreak.description" = "Qualquer aplicativo 'jailbreak' pode acessar os dados do chave de segurança Trust e roubar sua carteira! Limpe esta carteira imediatamente e restaure em um dispositivo seguro.";
+"app.device.jailbreak.description" = "Qualquer aplicativo 'jailbreak' pode acessar os dados do chave de segurança AlphaWallet e roubar sua carteira! Limpe esta carteira imediatamente e restaure em um dispositivo seguro.";
 "app.device.jailbreak.title" = "A SEGURANÇA DO DISPOSITIVO FOI COMPROMETIDA";
 "Cancel" = "Cancelar";
 "configureTransaction.error.gasFeeTooHigh" = "Taxa do GAS muito alto. Máximo disponível: %d";
@@ -57,7 +57,7 @@
 "settings.donate.button.title" = "Doar";
 "settings.emailUs.button.title" = "Nos envie um email";
 "settings.error.failedToSendEmail" = "Falha ao enviar o e-mail. Certifique-se de que você tem o aplicativo Mail instalado.";
-"settings.feedback.email.title" = "Trust Feedback";
+"settings.feedback.email.title" = "AlphaWallet Feedback";
 "settings.navigation.title" = "Configurações";
 "settings.network.button.title" = "Network";
 "settings.openSourceDevelopment.label.title" = "Desenvolvimento de código aberto";
@@ -132,6 +132,6 @@
 "welldone.navigation.title" = "Obrigado!";
 "welldone.share.label.text" = "Compartilhar";
 "welldone.viewmodel.sharing.text1" = "Aqui está o aplicativo que eu uso para armazenar meus tokens ETH e ERC20.";
-"welldone.viewmodel.sharing.text2" = "Dê uma olhada no Trust - a carteira que me permite armazenar de forma segura meus tokens Ethereum e ERC20.";
-"welldone.viewmodel.sharing.text3" = "Eu armazeno de forma segura tokens Ethereum e ERC20 na carteira Trust.";
-"welldone.viewmodel.sharing.text4" = "Os meus tokens Ethereum e ERC20 estão seguros na carteira Trust.";
+"welldone.viewmodel.sharing.text2" = "Dê uma olhada no AlphaWallet - a carteira que me permite armazenar de forma segura meus tokens Ethereum e ERC20.";
+"welldone.viewmodel.sharing.text3" = "Eu armazeno de forma segura tokens Ethereum e ERC20 na carteira AlphaWallet.";
+"welldone.viewmodel.sharing.text4" = "Os meus tokens Ethereum e ERC20 estão seguros na carteira AlphaWallet.";

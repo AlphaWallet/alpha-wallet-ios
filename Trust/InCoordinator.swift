@@ -301,12 +301,13 @@ class InCoordinator: Coordinator {
         coordinator.showRedeemViewController()
     }
 
-    private func showTransactions() {
+    private func showTransactions(for type: PaymentFlow) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
 
         transactionCoordinator.rootViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissTransactions))
+		transactionCoordinator.rootViewController.paymentType = type
         navigationController.present(transactionCoordinator.navigationController, animated: true, completion: nil)
     }
 
@@ -391,7 +392,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 
 extension InCoordinator: TokensCoordinatorDelegate {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
-        showTransactions()
+        showTransactions(for: type)
     }
 
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
