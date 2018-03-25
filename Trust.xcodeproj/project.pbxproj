@@ -370,7 +370,9 @@
 		76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
 		76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */; };
+		76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */; };
 		76F1DD10DF9A6C844E5F57D6 /* CreateRedeemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D8877226D5DD086B135D /* CreateRedeemTests.swift */; };
+		76F1DEFF94F9A1F67BDF2735 /* UniversalLinkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */; };
 		771A8471202F067D00528D28 /* NetworksViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771A8470202F067D00528D28 /* NetworksViewController.swift */; };
 		771A847320322F2500528D28 /* PreferencesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771A847220322F2500528D28 /* PreferencesViewController.swift */; };
 		771A847520322FD700528D28 /* PreferencesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771A847420322FD700528D28 /* PreferencesViewModel.swift */; };
@@ -843,8 +845,10 @@
 		76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimStormBirdOrder.swift; sourceTree = "<group>"; };
 		76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimOrderCoordinator.swift; sourceTree = "<group>"; };
 		76F1D8877226D5DD086B135D /* CreateRedeemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeemTests.swift; sourceTree = "<group>"; };
+		76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandlerTests.swift; sourceTree = "<group>"; };
 		76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimOrderCoordinatorTests.swift; sourceTree = "<group>"; };
 		76F1DADFD07E2941897FD2E1 /* SignOrders.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignOrders.swift; sourceTree = "<group>"; };
+		76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandler.swift; sourceTree = "<group>"; };
 		76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderSigningTests.swift; sourceTree = "<group>"; };
 		76F1DF80932454E9F58B7830 /* CreateRedeem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeem.swift; sourceTree = "<group>"; };
 		771A8470202F067D00528D28 /* NetworksViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworksViewController.swift; sourceTree = "<group>"; };
@@ -2313,6 +2317,7 @@
 			children = (
 				76F1DADFD07E2941897FD2E1 /* SignOrders.swift */,
 				B1DC375C203AEAE100C9756D /* OrdersRequest.swift */,
+				76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */,
 			);
 			path = Market;
 			sourceTree = "<group>";
@@ -2335,6 +2340,7 @@
 			children = (
 				76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */,
 				B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */,
+				76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */,
 			);
 			path = Market;
 			sourceTree = "<group>";
@@ -3354,6 +3360,7 @@
 				5E7C74B99922D0CAB635970E /* PasscodeCharacterView.swift in Sources */,
 				5E7C76B917517C93D1E26B0A /* LockEnterPasscodeCoordinator.swift in Sources */,
 				5E7C76A0365D128B7F19A0C2 /* ProtectionCoordinator.swift in Sources */,
+				76F1DEFF94F9A1F67BDF2735 /* UniversalLinkHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3425,6 +3432,7 @@
 				76F1DD10DF9A6C844E5F57D6 /* CreateRedeemTests.swift in Sources */,
 				442FC8E82231273273B95D85 /* FakeClaimOrderCoordinator.swift in Sources */,
 				442FCBA4A5E39A4C4B16426A /* EventsRestTest.swift in Sources */,
+				76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
