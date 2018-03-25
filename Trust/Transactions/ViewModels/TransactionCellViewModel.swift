@@ -85,17 +85,28 @@ struct TransactionCellViewModel {
         return Colors.gray
     }
 
-    var subTitleFont: UIFont {
-        return Fonts.light(size: 14)!
+    var titleFont: UIFont {
+        return Fonts.light(size: 22)!
     }
 
-    var backgroundColor: UIColor {
+    var subTitleFont: UIFont {
+        return Fonts.semibold(size: 13)!
+    }
+
+    var amountFont: UIFont {
+        return Fonts.semibold(size: 15)!
+    }
+
+    var contentsBackgroundColor: UIColor {
         switch transaction.state {
         case .completed, .error, .unknown, .failed:
             return .white
         case .pending:
             return Colors.veryLightOrange
         }
+    }
+    var backgroundColor: UIColor {
+        return Colors.appBackground
     }
 
     var amountAttributedString: NSAttributedString {
@@ -104,7 +115,7 @@ struct TransactionCellViewModel {
         return NSAttributedString(
             string: transactionViewModel.amountWithSign(for: value.amount) + " " + value.symbol,
             attributes: [
-                .font: Fonts.semibold(size: 16)!,
+                .font: Fonts.light(size: 25)!,
                 .foregroundColor: transactionViewModel.amountTextColor,
             ]
         )
