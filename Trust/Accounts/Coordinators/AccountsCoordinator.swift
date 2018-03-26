@@ -49,15 +49,37 @@ class AccountsCoordinator: Coordinator {
     }
 
     @objc func add() {
-        showCreateWallet()
+        chooseImportOrCreateWallet()
     }
 
-    func showCreateWallet() {
+    func chooseImportOrCreateWallet() {
+        UIAlertController.alert(title: nil,
+                message: nil,
+                alertButtonTitles: [R.string.localizable.walletCreateButtonTitle(), R.string.localizable.walletImportButtonTitle(), R.string.localizable.cancel()],
+                alertButtonStyles: [.default, .default, .cancel],
+                viewController: navigationController) { index in
+			        if index == 0 {
+                        self.showCreateWallet()
+                    } else if index == 1 {
+                        self.showImportWallet()
+                    }
+				}
+	}
+
+    func importOrCreateWallet(entryPoint: WalletEntryPoint) {
         let coordinator = WalletCoordinator(keystore: keystore)
         coordinator.delegate = self
         addCoordinator(coordinator)
-        coordinator.start(.welcome)
+        coordinator.start(entryPoint)
         navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+    }
+
+	func showCreateWallet() {
+        importOrCreateWallet(entryPoint: .welcome)
+    }
+
+    func showImportWallet() {
+        importOrCreateWallet(entryPoint: .importWallet)
     }
 
     func showInfoSheet(for account: Wallet, sender: UIView) {
