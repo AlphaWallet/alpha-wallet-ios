@@ -45,6 +45,7 @@ class TokensViewController: UIViewController {
         view.addSubview(filterView)
 
         tableView.register(TokenViewCell.self, forCellReuseIdentifier: TokenViewCell.identifier)
+        tableView.register(EthTokenViewCell.self, forCellReuseIdentifier: EthTokenViewCell.identifier)
         tableView.register(TicketTokenViewCell.self, forCellReuseIdentifier: TicketTokenViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
@@ -207,14 +208,29 @@ extension TokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
 
-        if token.isStormBird {
-            let cellViewModel = TicketTokenViewCellViewModel(
+        //TODO extract getting type of token/config from TokensDatastore class side and instance side
+        let type: TokenType = {
+            if token.isStormBird {
+                return .stormBird
+            }
+            return TokensDataStore.etherToken(for: dataStore.config) == token ? .ether : .token
+        }()
+
+        switch type {
+        case .ether:
+            let cellViewModel = EthTokenViewCellViewModel(
                     token: token,
                     ticker: viewModel.ticker(for: token)
             )
             return cellViewModel.cellHeight
-        } else {
+        case .token:
             let cellViewModel = TokenViewCellViewModel(
+                    token: token,
+                    ticker: viewModel.ticker(for: token)
+            )
+            return cellViewModel.cellHeight
+        case .stormBird:
+            let cellViewModel = TicketTokenViewCellViewModel(
                     token: token,
                     ticker: viewModel.ticker(for: token)
             )
@@ -248,8 +264,17 @@ extension TokensViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
 
-        if token.isStormBird {
-            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
+        //TODO extract getting type of token/config from TokensDatastore class side and instance side
+        let type: TokenType = {
+            if token.isStormBird {
+                return .stormBird
+            }
+            return TokensDataStore.etherToken(for: dataStore.config) == token ? .ether : .token
+        }()
+
+        switch type {
+        case .ether:
+            let cell = tableView.dequeueReusableCell(withIdentifier: EthTokenViewCell.identifier, for: indexPath) as! EthTokenViewCell
             cell.configure(
                     viewModel: .init(
                             token: token,
@@ -257,8 +282,17 @@ extension TokensViewController: UITableViewDataSource {
                     )
             )
             return cell
-        } else {
+        case .token:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewCell.identifier, for: indexPath) as! TokenViewCell
+            cell.configure(
+                    viewModel: .init(
+                            token: token,
+                            ticker: viewModel.ticker(for: token)
+                    )
+            )
+            return cell
+        case .stormBird:
+            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
             cell.configure(
                     viewModel: .init(
                             token: token,
