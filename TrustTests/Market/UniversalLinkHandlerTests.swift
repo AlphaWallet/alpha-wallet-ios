@@ -9,13 +9,19 @@ import XCTest
 class UniversalLinkHandlerTests: XCTestCase {
 
     func testUniversalLinkParser() {
-        let signedOrder: SignedOrder = UniversalLinkHandler.parseURL(url:
-        "https://www.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGNZZ6m2MG7VeJp8" +
-                "GRkWQXHjfczfS1m+VHVEEFMIGLiWt9JA9WxZ698gkGLuVNp6NZCQVzlnTc/c7PPpsb"
-        )
+        let testUrl = "https://app.awallet.io/AA9CQAAAAAC8mhAmpLxvC6i75IbR0J2lcys55IDwAoKW" +
+                "hOr6d7KY+8hNPvg7BADzHG9wEdp+nfFuaoeZzZ5PskIO9ym+0j0VxiTh6uyb7et3F/Y2HcgvcqNTA0xZ1gE="
+
+        let signedOrder: SignedOrder = UniversalLinkHandler.parseURL(url: testUrl)
 
         print(signedOrder.signature)
         XCTAssertGreaterThanOrEqual(signedOrder.signature.count, 130)
+
+        let url = UniversalLinkHandler.createUniversalLink(signedOrder: signedOrder)
+
+        print(url)
+
+        XCTAssertEqual(testUrl, url)
     }
 
 }

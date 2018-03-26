@@ -18,7 +18,7 @@ https://www.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICQovmCuEx
  * uint32:    price in Szabo                                           000f4240
  * uint32:    expiry in Unix Time                                      5AB5B400
  * bytes20:   contract address         007bee82bdd9e866b2bd114780a47f2261c684e3
- * Uint16[]:  ticket indices                               0102030405060708090a
+ * Uint16[]:  ticket indices                               010203040506070809
  * bytes32:    2F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE547544105
  * bytes32:    30818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B
  * byte:                                                                     1b
@@ -30,8 +30,41 @@ import BigInt
 
 public class UniversalLinkHandler {
 
+    private static let urlPrefix = "https://www.awallet.io/"
+
+    static func createUniversalLink(signedOrder: SignedOrder) -> String {
+        let price = signedOrder.order.price / 1000000000000
+        let priceInHex = padHexString(hex: String(price, radix: 16), length: 8)
+        let expiry = signedOrder.order.expiry
+        let expiryHex = padHexString(hex: String(expiry, radix: 16), length: 8)
+        let contractAddress = signedOrder.order.contractAddress
+        let tickets = signedOrder.order.indices
+        let ticketsHex = OrdersRequest.bytesToHexa(SignOrders.uInt16ArrayToUInt8(arrayOfUInt16: tickets))
+        let signature = signedOrder.signature.substring(from: 2)
+        let s = signature.substring(to: 64)
+        let r = signature.substring(with: Range(uncheckedBounds: (64, 128)))
+        let v = signature.substring(from: 128)
+        let url = priceInHex + expiryHex + contractAddress + ticketsHex + s + r + v
+
+        let message = OrdersRequest.bytesToHexa(signedOrder.message)
+        let binaryData = Data(bytes: signedOrder.message)//url.hexa2Bytes)
+        let base64String = binaryData.base64EncodedString()
+
+        return urlPrefix + base64String
+    }
+
+    static func padHexString(hex: String, length: Int) -> String {
+        let hexLength = hex.count
+        let range = length - hexLength
+        var zeros = ""
+        for _ in 0...range {
+            zeros += "0"
+        }
+        return zeros + hex
+    }
+
     static func parseURL(url: String) -> SignedOrder {
-        let linkInfo = url.substring(from: 23)
+        let linkInfo = url.substring(from: urlPrefix.count)
         let linkBytes = Data(base64Encoded: linkInfo)?.array
 
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
@@ -123,7 +156,7 @@ public class UniversalLinkHandler {
         }
 
         let r = OrdersRequest.bytesToHexa(rBytes)
-        let v = String(format:"%2X", linkBytes![(linkBytes?.count)! - 1])
+        let v = String(format:"%2X", linkBytes![(linkBytes?.count)! - 1] + 27)
 
         return (v, r, s)
     }
