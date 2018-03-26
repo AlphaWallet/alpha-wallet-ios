@@ -31,31 +31,59 @@ import BigInt
 public class UniversalLinkHandler {
 
     static func parseURL(url: String) -> SignedOrder {
-        var ticketIndices = [UInt16]()
         let linkInfo = url.substring(from: 23)
         let linkBytes = Data(base64Encoded: linkInfo)?.array
 
+        let price = getPriceFromLinkBytes(linkBytes: linkBytes)
+        let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
+        let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
+        let ticketIndices = getTicketIndicesFromLinkBytes(linkBytes: linkBytes)
+        let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes)
+        let message = getMessageFromLinkBytes(linkBytes: linkBytes!)
+
+        let order = Order(
+                price: price,
+                indices: ticketIndices,
+                expiry: expiry,
+                contractAddress: contractAddress,
+                start: BigUInt("0")!,
+                count: ticketIndices.count
+        )
+
+        return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
+    }
+
+    static func getPriceFromLinkBytes(linkBytes: [UInt8]?) -> BigUInt {
         var priceBytes = [UInt8]()
         for i in 0...3 {
             //price in szabo
             priceBytes.append(linkBytes![i])
         }
-        let price = BigUInt(OrdersRequest.bytesToHexa(priceBytes), radix: 16)?.multiplied(by: BigUInt("1000000000000")!)
+        return (BigUInt(OrdersRequest.bytesToHexa(priceBytes),
+                radix: 16)?.multiplied(by: BigUInt("1000000000000")!))!
+    }
 
+    static func getExpiryFromLinkBytes(linkBytes: [UInt8]?) -> BigUInt {
         var expiryBytes = [UInt8]()
         for i in 4...7 {
             expiryBytes.append(linkBytes![i])
         }
         let expiry = OrdersRequest.bytesToHexa(expiryBytes)
+        return BigUInt(expiry, radix: 16)!
+    }
 
+    static func getContractAddressFromLinkBytes(linkBytes: [UInt8]?) -> String {
         var contractAddrBytes = [UInt8]()
         for i in 8...28 {
             contractAddrBytes.append(linkBytes![i])
         }
-        let contractAddress = OrdersRequest.bytesToHexa(contractAddrBytes)
+        return OrdersRequest.bytesToHexa(contractAddrBytes)
+    }
 
+    static func getTicketIndicesFromLinkBytes(linkBytes: [UInt8]?) -> [UInt16] {
         let ticketLength = (linkBytes?.count)! - (65 + 20 + 8)
 
+        var ticketIndices = [UInt16]()
         for i in stride(from: 28, through: 28 + ticketLength, by: 2) {
             var ticket = [UInt8]()
             for _ in 0...2 {
@@ -76,6 +104,10 @@ public class UniversalLinkHandler {
             }
         }
 
+        return ticketIndices
+    }
+
+    static func getVRSFromLinkBytes(linkBytes: [UInt8]?) -> (String, String, String) {
         var signatureStart = (linkBytes?.count)! - 64
         var sBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31
@@ -93,21 +125,16 @@ public class UniversalLinkHandler {
         let r = OrdersRequest.bytesToHexa(rBytes)
         let v = String(format:"%2X", linkBytes![(linkBytes?.count)! - 1])
 
-        let order = Order(
-                price: price!,
-                indices: ticketIndices,
-                expiry: BigUInt(expiry, radix: 16)!,
-                contractAddress: contractAddress,
-                start: BigUInt("0")!,
-                count: ticketIndices.count
-        )
+        return (v, r, s)
+    }
 
+    static func getMessageFromLinkBytes(linkBytes: [UInt8]?) -> ([UInt8]) {
+        let ticketLength = (linkBytes?.count)! - (65 + 20 + 8)
         var message = [UInt8]()
         for i in 0...ticketLength + 84 {
             message.append(linkBytes![i])
         }
-
-        return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
+        return message
     }
 
 }
