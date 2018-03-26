@@ -77,6 +77,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     // Respond to Universal Links
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
         Branch.getInstance().continue(userActivity)
+        //TODO query authorisation server from here for import universal link
         return true
     }
 }

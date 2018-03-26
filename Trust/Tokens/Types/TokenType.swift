@@ -6,4 +6,5 @@ enum TokenType: Int {
     case ether
     case token
     case stormBird
+    case stormBirdOrder
 }
