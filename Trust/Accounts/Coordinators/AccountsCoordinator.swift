@@ -75,7 +75,7 @@ class AccountsCoordinator: Coordinator {
     }
 
 	func showCreateWallet() {
-        importOrCreateWallet(entryPoint: .welcome)
+        importOrCreateWallet(entryPoint: .createInstantWallet)
     }
 
     func showImportWallet() {
