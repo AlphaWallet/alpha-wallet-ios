@@ -7,14 +7,17 @@ import BigInt
 struct EthTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
+    private let currencyAmount: String?
     let ticker: CoinTicker?
 
     init(
         token: TokenObject,
-        ticker: CoinTicker?
+        ticker: CoinTicker?,
+        currencyAmount: String?
     ) {
         self.token = token
         self.ticker = ticker
+        self.currencyAmount = currencyAmount
     }
 
     var title: String {
@@ -97,8 +100,11 @@ struct EthTokenViewCellViewModel {
     }
 
     var value: String {
-        //TODO read from model
-        return "$51,000"
+        if let currencyAmount = currencyAmount {
+            return currencyAmount
+        } else {
+            return "-"
+        }
     }
 
     var valueName: String {

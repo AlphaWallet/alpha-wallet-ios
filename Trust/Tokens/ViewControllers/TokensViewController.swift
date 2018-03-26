@@ -19,6 +19,7 @@ class TokensViewController: UIViewController {
             refreshView(viewModel: viewModel)
         }
     }
+    let session: WalletSession
     let account: Wallet
 	let filterView = WalletFilterView()
     var importWalletView: UIView?
@@ -28,9 +29,11 @@ class TokensViewController: UIViewController {
     weak var delegate: TokensViewControllerDelegate?
 
     init(
+		session: WalletSession,
         account: Wallet,
         dataStore: TokensDataStore
     ) {
+		self.session = session
         self.account = account
         self.dataStore = dataStore
         tableView = UITableView(frame: .zero, style: .plain)
@@ -220,7 +223,8 @@ extension TokensViewController: UITableViewDelegate {
         case .ether:
             let cellViewModel = EthTokenViewCellViewModel(
                     token: token,
-                    ticker: viewModel.ticker(for: token)
+                    ticker: viewModel.ticker(for: token),
+                    currencyAmount: session.balanceCoordinator.viewModel.currencyAmount
             )
             return cellViewModel.cellHeight
         case .token:
@@ -278,7 +282,8 @@ extension TokensViewController: UITableViewDataSource {
             cell.configure(
                     viewModel: .init(
                             token: token,
-                            ticker: viewModel.ticker(for: token)
+                            ticker: viewModel.ticker(for: token),
+                            currencyAmount: session.balanceCoordinator.viewModel.currencyAmount
                     )
             )
             return cell
