@@ -70,6 +70,11 @@ public class SignOrders {
         return signedOrders
     }
 
+    //buffer size is 84 + tickets
+    //first 32 bytes is allocated for price
+    //next 32 for expiry
+    //20 for contract address
+    //remaining for tickets
     func encodeMessageForTrade(price: BigUInt,
                                expiryBuffer: BigUInt,
                                tickets: [UInt16],

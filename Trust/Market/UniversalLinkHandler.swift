@@ -33,40 +33,18 @@ public class UniversalLinkHandler {
     private static let urlPrefix = "https://www.awallet.io/"
 
     static func createUniversalLink(signedOrder: SignedOrder) -> String {
-        let price = signedOrder.order.price / 1000000000000
-        let priceInHex = padHexString(hex: String(price, radix: 16), length: 8)
-        let expiry = signedOrder.order.expiry
-        let expiryHex = padHexString(hex: String(expiry, radix: 16), length: 8)
-        let contractAddress = signedOrder.order.contractAddress
-        let tickets = signedOrder.order.indices
-        let ticketsHex = OrdersRequest.bytesToHexa(SignOrders.uInt16ArrayToUInt8(arrayOfUInt16: tickets))
-        let signature = signedOrder.signature.substring(from: 2)
-        let s = signature.substring(to: 64)
-        let r = signature.substring(with: Range(uncheckedBounds: (64, 128)))
-        let v = signature.substring(from: 128)
-        let url = priceInHex + expiryHex + contractAddress + ticketsHex + s + r + v
-
         let message = OrdersRequest.bytesToHexa(signedOrder.message)
-        let binaryData = Data(bytes: signedOrder.message)//url.hexa2Bytes)
+        let signature = signedOrder.signature.substring(from: 2)
+        let link = (message + signature).hexa2Bytes
+        let binaryData = Data(bytes: link)
         let base64String = binaryData.base64EncodedString()
 
         return urlPrefix + base64String
     }
 
-    static func padHexString(hex: String, length: Int) -> String {
-        let hexLength = hex.count
-        let range = length - hexLength
-        var zeros = ""
-        for _ in 0...range {
-            zeros += "0"
-        }
-        return zeros + hex
-    }
-
     static func parseURL(url: String) -> SignedOrder {
         let linkInfo = url.substring(from: urlPrefix.count)
         let linkBytes = Data(base64Encoded: linkInfo)?.array
-
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
         let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
