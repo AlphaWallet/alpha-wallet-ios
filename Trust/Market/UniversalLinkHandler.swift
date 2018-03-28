@@ -13,8 +13,7 @@
  * There needs to be text in the specific link too, in this case 'import'.
 $ echo -n https://www.awallet.io/; \
   echo -n 000f42405AB5B400007bee82bdd9e866b2bd114780a47f2261c684e30102030405060708092F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE54754410530818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B1b | xxd -r -p | base64;\
-
-https://www.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICQovmCuExjWWeptjBu1XiafBkZFkFx433M30tZvlR1RBBTCBi4lrfSQPVsWevfIJBi7lTaejWQkFc5Z03P3Ozz6bb
+https://app.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGNZZ6m2MG7VeJp8GRkWQXHjfczfS1m+VHVEEFMIGLiWt9JA9WxZ698gkGLuVNp6NZCQVzlnTc/c7PPpsb
  * uint32:    price in Szabo                                           000f4240
  * uint32:    expiry in Unix Time                                      5AB5B400
  * bytes20:   contract address         007bee82bdd9e866b2bd114780a47f2261c684e3
@@ -22,7 +21,7 @@ https://www.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICQovmCuEx
  * bytes32:    2F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE547544105
  * bytes32:    30818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B
  * byte:                                                                     1b
- *
+ * 1521857536, [0,1,2,3,4,5,6,7,8,9], 27, "0x2F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE547544105", "0x30818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B" -> 0xd2bef24c7e90192426b54bf437a5eac4e220dde7
  */
 
 import Foundation
@@ -61,7 +60,6 @@ public class UniversalLinkHandler {
                 start: BigUInt("0")!,
                 count: ticketIndices.count
         )
-
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
 
@@ -86,12 +84,13 @@ public class UniversalLinkHandler {
 
     static func getContractAddressFromLinkBytes(linkBytes: [UInt8]?) -> String {
         var contractAddrBytes = [UInt8]()
-        for i in 8...28 {
+        for i in 8...27 {
             contractAddrBytes.append(linkBytes![i])
         }
         return OrdersRequest.bytesToHexa(contractAddrBytes)
     }
 
+    //000F424000000000BC9A1026A4BC6F0BA8BBE486D1D09DA5732B39E480F002829684EAFA77B298FBC84D3EF83B0400F31C6F7011DA7E9DF16E6A8799CD9E4FB2420EF729BED23D15C624E1EAEC9BEDEB7717F6361DC82F72A353034C59D601C
     static func getTicketIndicesFromLinkBytes(linkBytes: [UInt8]?) -> [UInt16] {
 
         let ticketLength = ((linkBytes?.count)! - (65 + 20 + 8)) - 1
@@ -104,6 +103,7 @@ public class UniversalLinkHandler {
             let byte: UInt8 = linkBytes![i]
             switch(state) {
                 case 1:
+                    //8th bit is equal to 128, if not set then it is only one ticket and will change the state
                     if(byte & (128) == 128) { //should be done with masks
                         currentIndex = UInt16((byte & 127)) << 8
                         state = 2
@@ -126,15 +126,14 @@ public class UniversalLinkHandler {
     }
 
     static func getVRSFromLinkBytes(linkBytes: [UInt8]?) -> (String, String, String) {
-        var signatureStart = (linkBytes?.count)! - 64
+        var signatureStart = (linkBytes?.count)! - 65
         var sBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31
         {
             sBytes.append(linkBytes![i])
         }
-        signatureStart += 31
         let s = OrdersRequest.bytesToHexa(sBytes)
-
+        signatureStart += 32
         var rBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31 {
             rBytes.append(linkBytes![i])
