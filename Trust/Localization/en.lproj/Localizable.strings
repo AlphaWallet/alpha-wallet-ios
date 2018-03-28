@@ -85,6 +85,8 @@
 "transactions.myAddress.button.title" = "My Address";
 "transactions.noTransactions.label.title" = "No Transactions Yet!";
 "wallet.navigation.title" = "Wallets";
+"wallet.create.button.title" = "Create Wallet";
+"wallet.import.button.title" = "Import Wallet";
 "wallets.backup.alertSheet.title" = "Backup Keystore";
 "welcome.createWallet.button.title" = "CREATE WALLET";
 "welcome.erc20.label.description" = "Support for ERC20 tokens by default. ";

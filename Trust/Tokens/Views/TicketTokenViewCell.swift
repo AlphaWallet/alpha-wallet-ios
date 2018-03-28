@@ -13,50 +13,18 @@ class TicketTokenViewCell: UITableViewCell {
     let separator = UILabel()
     let issuerLabel = UILabel()
 
-    let middleBorder = UIView()
-    let valuePercentageChangeValueLabel = UILabel()
-    let valuePercentageChangePeriodLabel = UILabel()
-    let valueChangeLabel = UILabel()
-    let valueChangeNameLabel = UILabel()
-    let valueLabel = UILabel()
-    let valueNameLabel = UILabel()
-
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
-        valuePercentageChangeValueLabel.textAlignment = .center
-        valuePercentageChangePeriodLabel.textAlignment = .center
-        valueChangeLabel.textAlignment = .center
-        valueChangeNameLabel.textAlignment = .center
-        valueLabel.textAlignment = .center
-        valueNameLabel.textAlignment = .center
-
         let bottomRowStack = UIStackView(arrangedSubviews: [blockchainLabel, separator, issuerLabel])
         bottomRowStack.axis = .horizontal
         bottomRowStack.spacing = 15
         bottomRowStack.distribution = .fill
 
-        let footerValuesStack = UIStackView(arrangedSubviews: [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel])
-        footerValuesStack.axis = .horizontal
-        footerValuesStack.spacing = 15
-        footerValuesStack.distribution = .fillEqually
-
-        let footerNamesStack = UIStackView(arrangedSubviews: [valuePercentageChangePeriodLabel, valueChangeNameLabel, valueNameLabel])
-        footerNamesStack.axis = .horizontal
-        footerNamesStack.spacing = 15
-        footerNamesStack.distribution = .fillEqually
-
-        let footerStackView = UIStackView(arrangedSubviews: [middleBorder, .spacer(height: 14), footerValuesStack, footerNamesStack])
-        footerStackView.translatesAutoresizingMaskIntoConstraints = false
-        footerStackView.axis = .vertical
-        footerStackView.spacing = 0
-        footerStackView.distribution = .fill
-        footerValuesStack.setContentHuggingPriority(.defaultLow, for: .horizontal)
-
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, bottomRowStack, footerStackView])
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, bottomRowStack])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = 15
@@ -71,8 +39,6 @@ class TicketTokenViewCell: UITableViewCell {
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
-
-            middleBorder.heightAnchor.constraint(equalToConstant: 1),
 
             background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
             background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
@@ -109,27 +75,5 @@ class TicketTokenViewCell: UITableViewCell {
         separator.textColor = viewModel.subtitleColor
         separator.font = viewModel.subtitleFont
         separator.text = "|"
-
-        middleBorder.backgroundColor = viewModel.borderColor
-
-        valuePercentageChangePeriodLabel.textColor = viewModel.textColor
-        valuePercentageChangePeriodLabel.font = viewModel.textLabelFont
-        valuePercentageChangePeriodLabel.text = viewModel.valuePercentageChangePeriod
-        valueChangeNameLabel.textColor = viewModel.textColor
-        valueChangeNameLabel.font = viewModel.textLabelFont
-        valueChangeNameLabel.text = viewModel.valueChangeName
-        valueNameLabel.textColor = viewModel.textColor
-        valueNameLabel.font = viewModel.textLabelFont
-        valueNameLabel.text = viewModel.valueName
-
-        valuePercentageChangeValueLabel.textColor = viewModel.valuePercentageChangeColor
-        valuePercentageChangeValueLabel.font = viewModel.textValueFont
-        valuePercentageChangeValueLabel.text = viewModel.valuePercentageChangeValue
-        valueChangeLabel.textColor = viewModel.textColor
-        valueChangeLabel.font = viewModel.textValueFont
-        valueChangeLabel.text = viewModel.valueChange
-        valueLabel.textColor = viewModel.textColor
-        valueLabel.font = viewModel.textValueFont
-        valueLabel.text = viewModel.value
     }
 }

@@ -58,55 +58,7 @@ struct TicketTokenViewCellViewModel {
         return Fonts.semibold(size: 10)!
     }
 
-    var borderColor: UIColor {
-        return UIColor(red: 236, green: 236, blue: 236)
-    }
-
-    var textColor: UIColor {
-        return UIColor(red: 155, green: 155, blue: 155)
-    }
-
-    var valuePercentageChangeColor: UIColor {
-        //TODO must have a different color when depreciate?
-        return Colors.appHighlightGreen
-    }
-
-    var textValueFont: UIFont {
-        return Fonts.semibold(size: 15)!
-    }
-
-    var textLabelFont: UIFont {
-        return Fonts.regular(size: 10)!
-    }
-
-    var valuePercentageChangeValue: String {
-        //TODO read from model
-        return "+50%"
-    }
-
-    var valuePercentageChangePeriod: String {
-        return R.string.localizable.aWalletContentsValuePeriodTitle()
-    }
-
-    var valueChange: String {
-        //TODO read from model
-        return "$17,000"
-    }
-
-    var valueChangeName: String {
-        return R.string.localizable.aWalletContentsValueAppreciationTitle()
-    }
-
-    var value: String {
-        //TODO read from model
-        return "$51,000"
-    }
-
-    var valueName: String {
-        return R.string.localizable.aWalletContentsValueDollarTitle()
-    }
-
     var cellHeight: CGFloat {
-        return 196
+        return 130
     }
 }
