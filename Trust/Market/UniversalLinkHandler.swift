@@ -32,6 +32,7 @@ public class UniversalLinkHandler {
 
     private static let urlPrefix = "https://www.awallet.io/"
 
+    //TODO fix encoding of this link later as it is low priority
     static func createUniversalLink(signedOrder: SignedOrder) -> String {
         let message = OrdersRequest.bytesToHexa(signedOrder.message)
         let signature = signedOrder.signature.substring(from: 2)
@@ -92,26 +93,32 @@ public class UniversalLinkHandler {
     }
 
     static func getTicketIndicesFromLinkBytes(linkBytes: [UInt8]?) -> [UInt16] {
-        let ticketLength = (linkBytes?.count)! - (65 + 20 + 8)
 
+        let ticketLength = ((linkBytes?.count)! - (65 + 20 + 8)) - 1
         var ticketIndices = [UInt16]()
-        for i in stride(from: 28, through: 28 + ticketLength, by: 2) {
-            var ticket = [UInt8]()
-            for _ in 0...2 {
-                ticket.append(linkBytes![i])
-            }
-            let binaryTicket = String((UInt16(ticket[1]) << 8) + UInt16(ticket[0]), radix: 2)
+        var state: Int = 1
+        var currentIndex: UInt16 = 0
+        let ticketStart = 28
 
-            if(binaryTicket.substring(to: 1) == "0")
-            {
-                //just one ticket
-                let result = (UInt16(ticket[1]) << 8) + UInt16(ticket[0])
-                ticketIndices.append(result)
-            }
-            else
-            {
-                ticketIndices.append(UInt16(ticket[1]) << 8)
-                ticketIndices.append(UInt16(ticket[0]))
+        for i in stride(from: ticketStart, through: ticketStart + ticketLength, by: 1) {
+            let byte: UInt8 = linkBytes![i]
+            switch(state) {
+                case 1:
+                    if(byte & (128) == 128) { //should be done with masks
+                        currentIndex = UInt16((byte & 127)) << 8
+                        state = 2
+                    }
+                    else {
+                        ticketIndices.append(UInt16(byte))
+                    }
+                    break;
+                case 2:
+                    currentIndex += UInt16(byte)
+                    ticketIndices.append(currentIndex)
+                    state = 1
+                    break;
+                default:
+                    break
             }
         }
 
@@ -134,7 +141,7 @@ public class UniversalLinkHandler {
         }
 
         let r = OrdersRequest.bytesToHexa(rBytes)
-        let v = String(format:"%2X", linkBytes![(linkBytes?.count)! - 1] + 27)
+        let v = String(format:"%2X", linkBytes![(linkBytes?.count)! - 1])
 
         return (v, r, s)
     }
