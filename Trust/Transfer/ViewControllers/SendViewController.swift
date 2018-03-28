@@ -311,7 +311,13 @@ class SendViewController: FormViewController {
         //We use this section update to prevent update of the all section including cells.
         UIView.setAnimationsEnabled(false)
         tableView.beginUpdates()
-        if let containerView = tableView.footerView(forSection: 1) {
+        let footerSectionIndex: Int
+        if viewModel.isStormBird {
+            footerSectionIndex = 1
+        } else {
+            footerSectionIndex = 0
+		}
+        if let containerView = tableView.footerView(forSection: footerSectionIndex) {
             containerView.textLabel!.text = valueOfPairRepresantetion()
             containerView.sizeToFit()
         }
