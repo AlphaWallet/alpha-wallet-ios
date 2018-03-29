@@ -127,19 +127,19 @@ public class UniversalLinkHandler {
 
     static func getVRSFromLinkBytes(linkBytes: [UInt8]?) -> (String, String, String) {
         var signatureStart = (linkBytes?.count)! - 65
-        var sBytes = [UInt8]()
+        var rBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31
         {
-            sBytes.append(linkBytes![i])
-        }
-        let s = OrdersRequest.bytesToHexa(sBytes)
-        signatureStart += 32
-        var rBytes = [UInt8]()
-        for i in signatureStart...signatureStart + 31 {
             rBytes.append(linkBytes![i])
         }
-
         let r = OrdersRequest.bytesToHexa(rBytes)
+        signatureStart += 32
+        var sBytes = [UInt8]()
+        for i in signatureStart...signatureStart + 31 {
+            sBytes.append(linkBytes![i])
+        }
+
+        let s = OrdersRequest.bytesToHexa(sBytes)
         let v = String(format:"%2X", linkBytes![(linkBytes?.count)! - 1])
 
         return (v, r, s)
