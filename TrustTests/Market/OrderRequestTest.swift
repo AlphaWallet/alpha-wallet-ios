@@ -7,8 +7,7 @@ import BigInt
 class OrderRequestTest : XCTestCase  {
 
     var expectations = [XCTestExpectation]()
-    let keystore = try! EtherKeystore()
-    let address: Address = .makeStormBird()
+    let keyStore = FakeEtherKeystore()
     
     func testGetOrders() {
         let expectation = self.expectation(description: "wait til callback")
@@ -26,7 +25,7 @@ class OrderRequestTest : XCTestCase  {
 //        let expectation = self.expectation(description: "wait til callback")
 //        expectations.append(expectation)
 //        var testOrdersList : Array<Order> = Array<Order>()
-//        let account = keystore.getAccount(for: address)!
+//        let account = keyStore.createAccount(password: "test")
 //        //set up test orders
 //        var indices = [UInt16]()
 //        indices.append(1)
@@ -45,7 +44,7 @@ class OrderRequestTest : XCTestCase  {
 //        )
 //        testOrdersList.append(testOrder1)
 //        let signedOrders = try! SignOrders().signOrders(orders: testOrdersList, account: account)
-//        let privateKey = keystore.exportPrivateKey(account: account)
+//        let privateKey = keyStore.exportPrivateKey(account: account)
 //        let publicKey = try! Secp256k1.shared.pubKeyFromPrivateKey(from: privateKey.dematerialize())
 //
 //        OrdersRequest.init().putOrderToServer(signedOrders: signedOrders, publicKey: publicKey.hexString, callback: {
