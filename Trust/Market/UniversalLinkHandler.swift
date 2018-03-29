@@ -27,6 +27,8 @@ https://app.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGN
 import Foundation
 import BigInt
 
+
+//TODO remove statics - Boon
 public class UniversalLinkHandler {
 
     private static let urlPrefix = "https://www.awallet.io/"
@@ -90,7 +92,6 @@ public class UniversalLinkHandler {
         return OrdersRequest.bytesToHexa(contractAddrBytes)
     }
 
-    //000F424000000000BC9A1026A4BC6F0BA8BBE486D1D09DA5732B39E480F002829684EAFA77B298FBC84D3EF83B0400F31C6F7011DA7E9DF16E6A8799CD9E4FB2420EF729BED23D15C624E1EAEC9BEDEB7717F6361DC82F72A353034C59D601C
     static func getTicketIndicesFromLinkBytes(linkBytes: [UInt8]?) -> [UInt16] {
 
         let ticketLength = ((linkBytes?.count)! - (65 + 20 + 8)) - 1
