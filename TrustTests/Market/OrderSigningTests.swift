@@ -7,7 +7,7 @@ import BigInt
 class OrderSigningTests : XCTestCase  {
 
     var contractAddress = "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0"
-    let keystore = try! EtherKeystore()
+    let keystore = FakeEtherKeystore()
     let address: Address = .makeStormBird()
 
     func testSigningOrders() {
@@ -31,7 +31,7 @@ class OrderSigningTests : XCTestCase  {
 
         let signOrders = SignOrders()
 
-        //let account = keystore.getAccount(for: address)!
+        let account = keystore.getAccount(for: address)!
 
         //let signedOrders = try! signOrders.signOrders(orders: testOrdersList, account: account)
         //XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
