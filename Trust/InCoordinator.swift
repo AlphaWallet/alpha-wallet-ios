@@ -142,6 +142,11 @@ class InCoordinator: Coordinator {
             }
         }
 
+        let marketplaceController = MarketplaceViewController()
+        let marketplaceNavigationController = UINavigationController(rootViewController: marketplaceController)
+        marketplaceController.tabBarItem = UITabBarItem(title: R.string.localizable.aMarketplaceTabbarItemTitle(), image: R.image.tab_marketplace(), selectedImage: nil)
+        tabBarController.viewControllers?.append(marketplaceNavigationController)
+
         let alphaSettingsCoordinator = SettingsCoordinator(
                 keystore: keystore,
                 session: session,
