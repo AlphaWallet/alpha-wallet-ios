@@ -8,7 +8,7 @@ import BigInt
 
 class CreateRedeemTests: XCTestCase {
 
-    var keyStore = FakeEtherKeystore()
+    let keyStore = FakeEtherKeystore()
 
     //when loading qr only include signature in decimal and the indices
     func testGenerateRedeem() {
