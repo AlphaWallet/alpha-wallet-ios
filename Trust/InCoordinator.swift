@@ -4,6 +4,7 @@ import Foundation
 import TrustKeystore
 import UIKit
 import RealmSwift
+import BigInt
 
 protocol InCoordinatorDelegate: class {
     func didCancel(in coordinator: InCoordinator)
@@ -397,6 +398,85 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
         showTicketList(for: type, token: token)
+    }
+
+    func importSignedOrder(signedOrder: SignedOrder, in coordinator: TokensCoordinator, tokenObject: TokenObject) {
+        let web3 = self.web3(for: config.server)
+        web3.start()
+        let signature = signedOrder.signature.substring(from: 2)
+        let v = UInt8(signature.substring(from: 128), radix: 16)!
+        let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
+        let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
+
+        ClaimOrderCoordinator.init(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) {
+            result in
+            switch result {
+            case .success(let payload):
+                let address: Address = self.initialWallet.address
+                let transaction = UnconfirmedTransaction(
+                        transferType: .stormBirdOrder(tokenObject),
+                        value: BigInt("0"),
+                        to: address,
+                        data: Data(bytes: payload.hexa2Bytes),
+                        gasLimit: .none,
+                        gasPrice: 14400,
+                        nonce: .none,
+                        v: v,
+                        r: r,
+                        s: s,
+                        expiry: signedOrder.order.expiry,
+                        indices: signedOrder.order.indices
+                )
+
+                let balanceCoordinator = GetStormBirdBalanceCoordinator(web3: web3)
+                let account = self.initialWallet
+                let migration = MigrationInitializer(account: account, chainID: self.config.chainID)
+                migration.perform()
+                let realm = self.realm(for: migration.config)
+                let tokensStorage = TokensDataStore(realm: realm, account: account, config: self.config, web3: web3)
+                let balance = BalanceCoordinator(account: account, config: self.config, storage: tokensStorage)
+                let session = WalletSession(
+                        account: account,
+                        config: self.config,
+                        web3: web3,
+                        balanceCoordinator: balance
+                )
+
+                let realAccount = try! EtherKeystore().getAccount(for: account.address)!
+
+                let configurator = TransactionConfigurator(
+                        session: session,
+                        account: realAccount,
+                        transaction: transaction
+                )
+
+                let signTransaction = configurator.signTransaction()
+
+                let signedTransaction = SignTransaction(value: signTransaction.value,
+                        account: realAccount,
+                        to: signTransaction.to,
+                        nonce: signTransaction.nonce,
+                        data: signTransaction.data,
+                        gasPrice: signTransaction.gasPrice,
+                        gasLimit: signTransaction.gasLimit,
+                        chainID: 3)
+
+
+                let sendTransactionCoordinator = SendTransactionCoordinator(session: session,
+                        keystore: self.keystore,
+                        confirmType: .signThenSend)
+
+                sendTransactionCoordinator.send(transaction: signedTransaction) { result in
+                    switch result {
+                    case .success(let res):
+                        print(res);
+                    case .failure(let error):
+                        print(error);
+                    }
+                }
+            case .failure: break
+            }
+        }
     }
 }
 
