@@ -4,6 +4,7 @@ import UIKit
 import Lokalise
 import Branch
 import RealmSwift
+import Alamofire
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -68,16 +69,37 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         )
         if !branchHandled {
             // If not handled by Branch, do other deep link routing for the Facebook SDK, Pinterest SDK, etc
-        }
+            if(url.description.contains("awallet"))
+            {
+                let keystore = try! EtherKeystore()
+                let signedOrder = UniversalLinkHandler().parseURL(url: url.description)
+                let signature = signedOrder.signature.substring(from: 2)
+                let parameters: Parameters = [
+                    "address" : keystore.recentlyUsedWallet?.address.description,
+                    "indices": signedOrder.order.indices,
+                    "v" : signature.substring(from: 128),
+                    "r": signature.substring(from: 0, to: 64),
+                    "s": signature.substring(from: 64, to: 128)
+                ]
+                let query = UniversalLinkHandler.paymentServer
 
+                Alamofire.request(
+                        query,
+                        method: .post,
+                        parameters: parameters
+                ).responseJSON {
+                    result in
+                    print(result)
+                }
+            }
+        }
         // do other deep link routing for the Facebook SDK, Pinterest SDK, etc
         return true
     }
 
-    // Respond to Universal Links
+    // TODO Respond to Universal Links? Why not above?
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
         Branch.getInstance().continue(userActivity)
-        //TODO query authorisation server from here for import universal link
         return true
     }
 }
