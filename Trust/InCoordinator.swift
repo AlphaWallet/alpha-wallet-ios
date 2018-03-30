@@ -41,6 +41,8 @@ class InCoordinator: Coordinator {
             $0 as? TransactionCoordinator
         }.first
     }
+	//In addition to `transactionCoordinator` which is shown as a tab, `nonTabTransactionCoordinator` is meant for presenting (in iOS terms)
+    var nonTabTransactionCoordinator: TransactionCoordinator?
 
     var ticketsCoordinator: TicketsCoordinator? {
         return self.coordinators.flatMap {
@@ -117,6 +119,9 @@ class InCoordinator: Coordinator {
         addCoordinator(transactionCoordinator)
 
         let tabBarController = TabBarController()
+        tabBarController.viewControllers = [
+            transactionCoordinator.navigationController,
+        ]
         tabBarController.tabBar.isTranslucent = false
         tabBarController.didShake = { [weak self] in
             if inCoordinatorViewModel.canActivateDebugMode {
@@ -135,11 +140,6 @@ class InCoordinator: Coordinator {
             tokensCoordinator.start()
             addCoordinator(tokensCoordinator)
             tabBarController.viewControllers?.append(tokensCoordinator.navigationController)
-            if let viewControllers = tabBarController.viewControllers, !viewControllers.isEmpty {
-                tabBarController.viewControllers?.append(tokensCoordinator.navigationController)
-            } else {
-                tabBarController.viewControllers = [tokensCoordinator.navigationController]
-            }
         }
 
         let marketplaceController = MarketplaceViewController()
@@ -215,6 +215,12 @@ class InCoordinator: Coordinator {
         coordinator.stop()
         removeAllCoordinators()
         showTabBar(for: account)
+    }
+
+    func removeAllCoordinators() {
+        coordinators.removeAll()
+        //Manually remove nonTabTransactionCoordinator since we don't add it to coordinators because existing code assume there is only 1 TransactionCoordinator there
+        nonTabTransactionCoordinator = nil
     }
 
     func checkDevice() {
@@ -307,11 +313,39 @@ class InCoordinator: Coordinator {
     }
 
     private func showTransactions(for type: PaymentFlow) {
-        guard let transactionCoordinator = transactionCoordinator else {
+        if nonTabTransactionCoordinator == nil {
+            if let account = keystore.recentlyUsedWallet {
+                let migration = MigrationInitializer(account: account, chainID: config.chainID)
+                let web3 = self.web3(for: config.server)
+                web3.start()
+                let realm = self.realm(for: migration.config)
+                let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
+                let balance = BalanceCoordinator(account: account, config: config, storage: tokensStorage)
+                let session = WalletSession(
+                        account: account,
+                        config: config,
+                        web3: web3,
+                        balanceCoordinator: balance
+                )
+                let transactionsStorage = TransactionsStorage(
+                        realm: realm
+                )
+
+                nonTabTransactionCoordinator = TransactionCoordinator(
+                        session: session,
+                        storage: transactionsStorage,
+                        keystore: keystore,
+                        tokensStorage: tokensStorage
+                )
+                nonTabTransactionCoordinator?.delegate = self
+                nonTabTransactionCoordinator?.start()
+                nonTabTransactionCoordinator?.rootViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissTransactions))
+            }
+        }
+        guard let transactionCoordinator = nonTabTransactionCoordinator else {
             return
         }
 
-        transactionCoordinator.rootViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissTransactions))
 		transactionCoordinator.rootViewController.paymentType = type
         navigationController.present(transactionCoordinator.navigationController, animated: true, completion: nil)
     }
