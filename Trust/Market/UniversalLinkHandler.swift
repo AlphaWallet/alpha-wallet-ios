@@ -31,7 +31,7 @@ import BigInt
 public class UniversalLinkHandler {
 
     private let urlPrefix = "https://www.awallet.io/"
-    public static let paymentServer = "http://stormbird.duckdns.org/"
+    public static let paymentServer = "http://stormbird.duckdns.org:8080"
 
     //TODO fix encoding of this link later as it is low priority
     func createUniversalLink(signedOrder: SignedOrder) -> String {
