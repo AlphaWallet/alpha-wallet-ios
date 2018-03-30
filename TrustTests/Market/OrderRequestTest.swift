@@ -7,58 +7,53 @@ import BigInt
 class OrderRequestTest : XCTestCase  {
 
     var expectations = [XCTestExpectation]()
+    let keyStore = FakeEtherKeystore()
     
-    func testHttpCallToQueue() {
+    func testGetOrders() {
         let expectation = self.expectation(description: "wait til callback")
         expectations.append(expectation)
-        OrdersRequest.init().getOrders(callback: {
+        OrdersRequest().getOrders(callback: {
             callback in
             print(callback)
             expectation.fulfill()
         })
-
         wait(for: expectations, timeout: 10)
     }
-    
+
+    //TODO reuse when test account works
     func testPuttingOrderToQueue() {
-        let expectation = self.expectation(description: "wait til callback")
-        expectations.append(expectation)
-
-        var testOrdersList : Array<Order> = Array<Order>()
-        let keyStore = FakeEtherKeystore()
-        let account = keyStore.createAccount(password: "haha")
-        
-        //set up test orders
-        var indices = [UInt16]()
-        indices.append(1)
-        indices.append(2)
-
-        let testOrder1 = Order(price: BigUInt("100000")!, indices: indices,
-                expiry: BigUInt("0")!, contractAddress: "007bee82bdd9e866b2bd114780a47f2261c684e3",
-                start: BigUInt("500000210121213")!, count: 3)
-        testOrdersList.append(testOrder1)
-        
-        let signOrders = SignOrders()
-
-        //TODO fix signature issues
-        var signedOrders : Array<SignedOrder> = signOrders.signOrders(orders: testOrdersList, account: account)
-
-        signedOrders[0].signature = "0x1cae08113567db5303fb1ed1b157fbc8c7247aa" +
-                "9689ee76902d731c9806ab9853d8fcded6145fc7ebe5c32e41e247b315" +
-                "b2b23f41dcb3acd17d01a9f6140669f1c"
-
-        let privateKey = keyStore.exportPrivateKey(account: account)
-        
-        let publicKey = try! Secp256k1.shared.pubKeyFromPrivateKey(from:
-        privateKey.dematerialize()).hexString
-
-        OrdersRequest.init().putOrderToServer(signedOrders: signedOrders, publicKey: publicKey, callback: {
-            callback in
-            print(callback)
-            expectation.fulfill()
-        })
-
-        wait(for: expectations, timeout: 10)
+//        let expectation = self.expectation(description: "wait til callback")
+//        expectations.append(expectation)
+//        var testOrdersList : Array<Order> = Array<Order>()
+//        let account = keyStore.createAccount(password: "test")
+//        //set up test orders
+//        var indices = [UInt16]()
+//        indices.append(1)
+//        indices.append(2)
+//
+//        var timestamp = NSDate().timeIntervalSince1970.description //1521562138
+//        timestamp = timestamp.substring(to: timestamp.count - 6);
+//        let ts = Int(timestamp)! + 300;
+//        let testOrder1 = Order(
+//                price: BigUInt("100000")!,
+//                indices: indices,
+//                expiry: BigUInt(String(ts))!,
+//                contractAddress: "bC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4".lowercased(),
+//                start: BigUInt("500000210121213")!,
+//                count: 3
+//        )
+//        testOrdersList.append(testOrder1)
+//        let signedOrders = try! SignOrders().signOrders(orders: testOrdersList, account: account)
+//        let privateKey = keyStore.exportPrivateKey(account: account)
+//        let publicKey = try! Secp256k1.shared.pubKeyFromPrivateKey(from: privateKey.dematerialize())
+//
+//        OrdersRequest.init().putOrderToServer(signedOrders: signedOrders, publicKey: publicKey.hexString, callback: {
+//            callback in
+//            print(callback)
+//            expectation.fulfill()
+//        })
+//
+//        wait(for: expectations, timeout: 10)
     }
 }
 

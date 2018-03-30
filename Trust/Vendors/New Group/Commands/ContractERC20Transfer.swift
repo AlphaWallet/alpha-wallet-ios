@@ -10,7 +10,10 @@ struct ContractERC20Transfer: Web3Request {
     let address: String
 
     var type: Web3RequestType {
-        let run = "web3.eth.abi.encodeFunctionCall({\"constant\": false, \"inputs\": [ { \"name\": \"_to\", \"type\": \"address\" }, { \"name\": \"_value\", \"type\": \"uint256\" } ], \"name\": \"transfer\", \"outputs\": [ { \"name\": \"success\", \"type\": \"bool\" } ], \"type\": \"function\"} , [\"\(address)\", \"\(amount.description)\"])"
+        let run = "web3.eth.abi.encodeFunctionCall({\"constant\": false, \"inputs\": [ { \"name\": \"_to\", \"type\": " +
+                "\"address\" }, { \"name\": \"_value\", \"type\": \"uint256\" } ], \"name\": \"transfer\", \"outputs\": " +
+                "[ { \"name\": \"success\", \"type\": \"bool\" } ], \"type\": \"function\"} " +
+                ", [\"\(address)\", \"\(amount.description)\"])"
         return .script(command: run)
     }
 }

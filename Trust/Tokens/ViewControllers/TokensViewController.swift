@@ -239,6 +239,12 @@ extension TokensViewController: UITableViewDelegate {
                     ticker: viewModel.ticker(for: token)
             )
             return cellViewModel.cellHeight
+        case .stormBirdOrder:
+            let cellViewModel = TicketTokenViewCellViewModel(
+                token: token,
+                ticker: viewModel.ticker(for: token)
+            )
+            return cellViewModel.cellHeight
         }
     }
 }
@@ -303,6 +309,16 @@ extension TokensViewController: UITableViewDataSource {
                             token: token,
                             ticker: viewModel.ticker(for: token)
                     )
+            )
+            return cell
+            //TODO patch
+        case .stormBirdOrder:
+            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
+            cell.configure(
+                viewModel: .init(
+                    token: token,
+                    ticker: viewModel.ticker(for: token)
+                )
             )
             return cell
         }
