@@ -29,6 +29,7 @@ class TicketTokenViewCell: UITableViewCell {
         stackView.axis = .vertical
         stackView.spacing = 15
         stackView.distribution = .fill
+        stackView.alignment = .leading
         background.addSubview(stackView)
 
         // TODO extract constant. Maybe StyleLayout.sideMargin
