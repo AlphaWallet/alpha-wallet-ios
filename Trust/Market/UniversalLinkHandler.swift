@@ -28,13 +28,13 @@ import Foundation
 import BigInt
 
 
-//TODO remove statics - Boon
 public class UniversalLinkHandler {
 
-    private static let urlPrefix = "https://www.awallet.io/"
+    private let urlPrefix = "https://www.awallet.io/"
+    public static let paymentServer = "http://stormbird.duckdns.org/"
 
     //TODO fix encoding of this link later as it is low priority
-    static func createUniversalLink(signedOrder: SignedOrder) -> String {
+    func createUniversalLink(signedOrder: SignedOrder) -> String {
         let message = OrdersRequest.bytesToHexa(signedOrder.message)
         let signature = signedOrder.signature.substring(from: 2)
         let link = (message + signature).hexa2Bytes
@@ -44,7 +44,7 @@ public class UniversalLinkHandler {
         return urlPrefix + base64String
     }
 
-    static func parseURL(url: String) -> SignedOrder {
+    func parseURL(url: String) -> SignedOrder {
         let linkInfo = url.substring(from: urlPrefix.count)
         let linkBytes = Data(base64Encoded: linkInfo)?.array
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
@@ -62,10 +62,11 @@ public class UniversalLinkHandler {
                 start: BigUInt("0")!,
                 count: ticketIndices.count
         )
+
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
 
-    static func getPriceFromLinkBytes(linkBytes: [UInt8]?) -> BigUInt {
+    func getPriceFromLinkBytes(linkBytes: [UInt8]?) -> BigUInt {
         var priceBytes = [UInt8]()
         for i in 0...3 {
             //price in szabo
@@ -75,7 +76,7 @@ public class UniversalLinkHandler {
                 radix: 16)?.multiplied(by: BigUInt("1000000000000")!))!
     }
 
-    static func getExpiryFromLinkBytes(linkBytes: [UInt8]?) -> BigUInt {
+    func getExpiryFromLinkBytes(linkBytes: [UInt8]?) -> BigUInt {
         var expiryBytes = [UInt8]()
         for i in 4...7 {
             expiryBytes.append(linkBytes![i])
@@ -84,7 +85,7 @@ public class UniversalLinkHandler {
         return BigUInt(expiry, radix: 16)!
     }
 
-    static func getContractAddressFromLinkBytes(linkBytes: [UInt8]?) -> String {
+    func getContractAddressFromLinkBytes(linkBytes: [UInt8]?) -> String {
         var contractAddrBytes = [UInt8]()
         for i in 8...27 {
             contractAddrBytes.append(linkBytes![i])
@@ -92,7 +93,7 @@ public class UniversalLinkHandler {
         return OrdersRequest.bytesToHexa(contractAddrBytes)
     }
 
-    static func getTicketIndicesFromLinkBytes(linkBytes: [UInt8]?) -> [UInt16] {
+    func getTicketIndicesFromLinkBytes(linkBytes: [UInt8]?) -> [UInt16] {
 
         let ticketLength = ((linkBytes?.count)! - (65 + 20 + 8)) - 1
         var ticketIndices = [UInt16]()
@@ -126,7 +127,7 @@ public class UniversalLinkHandler {
         return ticketIndices
     }
 
-    static func getVRSFromLinkBytes(linkBytes: [UInt8]?) -> (String, String, String) {
+    func getVRSFromLinkBytes(linkBytes: [UInt8]?) -> (String, String, String) {
         var signatureStart = (linkBytes?.count)! - 65
         var rBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31
@@ -146,7 +147,7 @@ public class UniversalLinkHandler {
         return (v, r, s)
     }
 
-    static func getMessageFromLinkBytes(linkBytes: [UInt8]?) -> ([UInt8]) {
+    func getMessageFromLinkBytes(linkBytes: [UInt8]?) -> [UInt8] {
         let ticketLength = (linkBytes?.count)! - (65 + 20 + 8)
         var message = [UInt8]()
         for i in 0...ticketLength + 84 {
