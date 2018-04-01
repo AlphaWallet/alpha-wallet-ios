@@ -30,8 +30,8 @@ import BigInt
 
 public class UniversalLinkHandler {
 
-    private let urlPrefix = "https://www.awallet.io/"
-    public static let paymentServer = "http://stormbird.duckdns.org:8080"
+    public let urlPrefix = "https://blockchainapis.herokuapp.com/" //"https://www.app.awallet.io/"
+    public static let paymentServer = "http://stormbird.duckdns.org:8080/api/claimToken"
 
     //TODO fix encoding of this link later as it is low priority
     func createUniversalLink(signedOrder: SignedOrder) -> String {
@@ -142,7 +142,7 @@ public class UniversalLinkHandler {
         }
 
         let s = OrdersRequest.bytesToHexa(sBytes)
-        let v = String(format:"%2X", linkBytes![(linkBytes?.count)! - 1])
+        let v = String(format:"%2X", linkBytes![(linkBytes?.count)! - 1]).trimmed
 
         return (v, r, s)
     }
