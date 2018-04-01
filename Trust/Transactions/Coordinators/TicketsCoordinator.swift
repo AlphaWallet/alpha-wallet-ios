@@ -97,8 +97,9 @@ class TicketsCoordinator: Coordinator {
     }
 
     private func makeQuantitySelectionViewController(for ticketHolder: TicketHolder) -> QuantitySelectionViewController {
-        let controller = R.storyboard.redeemTickets.quantitySelectionViewController()!
-        controller.viewModel = QuantitySelectionViewModel(ticketHolder: ticketHolder)
+        let controller = QuantitySelectionViewController()
+        let viewModel = QuantitySelectionViewModel(ticketHolder: ticketHolder)
+		controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
     }
