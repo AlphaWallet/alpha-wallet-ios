@@ -315,15 +315,15 @@ class InCoordinator: Coordinator {
 
     private func showTransactions(for type: PaymentFlow) {
         if nonTabTransactionCoordinator == nil {
-            if let account = keystore.recentlyUsedWallet {
-                let migration = MigrationInitializer(account: account, chainID: config.chainID)
+            if let wallet = keystore.recentlyUsedWallet {
+                let migration = MigrationInitializer(account: wallet, chainID: config.chainID)
                 let web3 = self.web3(for: config.server)
                 web3.start()
                 let realm = self.realm(for: migration.config)
-                let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
-                let balance = BalanceCoordinator(account: account, config: config, storage: tokensStorage)
+                let tokensStorage = TokensDataStore(realm: realm, account: wallet, config: config, web3: web3)
+                let balance = BalanceCoordinator(wallet: wallet, config: config, storage: tokensStorage)
                 let session = WalletSession(
-                        account: account,
+                        account: wallet,
                         config: config,
                         web3: web3,
                         balanceCoordinator: balance
