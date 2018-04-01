@@ -69,37 +69,52 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         )
         if !branchHandled {
             // If not handled by Branch, do other deep link routing for the Facebook SDK, Pinterest SDK, etc
-            if(url.description.contains("awallet"))
-            {
-                let keystore = try! EtherKeystore()
-                let signedOrder = UniversalLinkHandler().parseURL(url: url.description)
-                let signature = signedOrder.signature.substring(from: 2)
-                let parameters: Parameters = [
-                    "address" : keystore.recentlyUsedWallet?.address.description,
-                    "indices": signedOrder.order.indices,
-                    "v" : signature.substring(from: 128),
-                    "r": signature.substring(from: 0, to: 64),
-                    "s": signature.substring(from: 64, to: 128)
-                ]
-                let query = UniversalLinkHandler.paymentServer
 
-                Alamofire.request(
-                        query,
-                        method: .post,
-                        parameters: parameters
-                ).responseJSON {
-                    result in
-                    print(result)
-                }
-            }
         }
         // do other deep link routing for the Facebook SDK, Pinterest SDK, etc
         return true
     }
 
-    // TODO Respond to Universal Links? Why not above?
-    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+    // Respond to Universal Links
+    func application(_ application: UIApplication,
+                     continue userActivity: NSUserActivity,
+                     restorationHandler: @escaping ([Any]?) -> Void) -> Bool
+    {
         Branch.getInstance().continue(userActivity)
+
+        let url = userActivity.webpageURL
+
+        if(url?.description.contains(UniversalLinkHandler().urlPrefix))!
+        {
+            let keystore = try! EtherKeystore()
+            let signedOrder = UniversalLinkHandler().parseURL(url: (url?.description)!)
+            let signature = signedOrder.signature.substring(from: 2)
+            let indices = signedOrder.order.indices
+            var indicesStringEncoded = ""
+            for i in 0...indices.count - 1 {
+                indicesStringEncoded += String(indices[i]) + ","
+            }
+            //cut off last comma
+            indicesStringEncoded = indicesStringEncoded.substring(from: indicesStringEncoded.count - 1)
+
+            let parameters: Parameters = [
+                "address" : keystore.recentlyUsedWallet?.address.description,
+                "indices": indicesStringEncoded,
+                "v" : signature.substring(from: 128),
+                "r": "0x" + signature.substring(from: 0, to: 64),
+                "s": "0x" + signature.substring(from: 64, to: 128)
+            ]
+            let query = UniversalLinkHandler.paymentServer
+
+            Alamofire.request(
+                    query,
+                    method: .post,
+                    parameters: parameters
+            ).responseJSON {
+                result in
+                print(result)
+            }
+        }
         return true
     }
 }
