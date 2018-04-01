@@ -89,9 +89,9 @@ class TicketsCoordinator: Coordinator {
     }
 
     private func makeRedeemTicketsViewController() -> RedeemTicketsViewController {
-        let controller = R.storyboard.redeemTickets.redeemTicketsViewController()!
+        let controller = RedeemTicketsViewController()
         let viewModel = RedeemTicketsViewModel(token: token)
-        controller.viewModel = viewModel
+        controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
     }

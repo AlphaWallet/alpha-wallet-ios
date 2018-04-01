@@ -23,37 +23,16 @@ struct RedeemTicketsViewModel {
         return ticketHolders![indexPath.row]
     }
 
-    func cell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.section == 0 {
-            return summaryCell(for: tableView, indexPath: indexPath)
-        }
-        return ticketCell(for: tableView, indexPath: indexPath)
-    }
-
-    var numberOfSections: Int {
-        return 2
-    }
-
     func numberOfItems(for section: Int) -> Int {
-        if section == 0 {
-            return 1
-        }
         return ticketHolders!.count
     }
 
     func height(for section: Int) -> CGFloat {
-        if section == 0 {
-            return 30
-        }
         return 90
     }
 
     var title: String {
-        return "Redeem Asset"
-    }
-
-    func ticketCellPressed(for indexPath: IndexPath) -> Bool {
-        return indexPath.section == 1
+        return R.string.localizable.aWalletTicketTokenRedeemSelectTicketsTitle ()
     }
 
     private func summaryCell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
@@ -61,11 +40,15 @@ struct RedeemTicketsViewModel {
         return cell!
     }
 
-    private func ticketCell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.redeemTicketCell, for: indexPath)!
-        let ticketHolder = item(for: indexPath)
-        cell.configure(ticketHolder: ticketHolder)
-        return cell
+    var buttonTitleColor: UIColor {
+        return Colors.appWhite
     }
 
+    var buttonBackgroundColor: UIColor {
+        return Colors.appHighlightGreen
+    }
+
+    var buttonFont: UIFont {
+        return Fonts.regular(size: 20)!
+    }
 }
