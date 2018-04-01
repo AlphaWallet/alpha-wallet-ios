@@ -59,6 +59,6 @@ struct TicketTokenViewCellViewModel {
     }
 
     var cellHeight: CGFloat {
-        return 130
+        return 98
     }
 }
