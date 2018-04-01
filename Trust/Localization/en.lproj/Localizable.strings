@@ -176,6 +176,8 @@
 "a.wallet.navigation.title" = "Wallet";
 "a.wallet.import.wallet.title" = "Import";
 "a.wallet.ticketToken.redeem.button.title" = "Redeem";
+"a.wallet.ticketToken.redeem.selectTickets.title" = "Select Tickets To Redeem:";
+"a.wallet.ticketToken.redeem.selectTickets.atLeastOne.title" = "Please select a ticket to redeem";
 "a.wallet.ticketToken.sell.button.title" = "Sell";
 "a.wallet.ticketToken.transfer.button.title" = "Transfer";
 "a.wallet.ticketTokenBundle.status.sold.title" = "Sold";
@@ -191,6 +193,7 @@
 "a.wallet.contents.filter.assetsOnly.title" = "ASSETS";
 "a.wallet.contents.issuer.title" = "Issuer";
 "a.wallet.tickets" = "%@ Tickets";
+"a.wallet.next.button.title" = "Next";
 "a.help.navigation.title" = "Help & FAQs";
 "a.help.contact.footer.button.title" = "Still need help? Contact Us";
 "a.help.contact.email.subject" = "Help/Feedback for AlphaWallet";
