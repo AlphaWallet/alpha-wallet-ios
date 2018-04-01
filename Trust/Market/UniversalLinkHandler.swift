@@ -30,7 +30,7 @@ import BigInt
 
 public class UniversalLinkHandler {
 
-    public let urlPrefix = "https://blockchainapis.herokuapp.com/" //"https://www.app.awallet.io/"
+    public let urlPrefix = "https://app.awallet.io/"
     public static let paymentServer = "http://stormbird.duckdns.org:8080/api/claimToken"
 
     //TODO fix encoding of this link later as it is low priority
