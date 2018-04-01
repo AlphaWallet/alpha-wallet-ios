@@ -60,7 +60,7 @@ class TokensViewController: UIViewController {
             filterView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             filterView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             filterView.topAnchor.constraint(equalTo: view.topAnchor),
-            filterView.bottomAnchor.constraint(equalTo: tableView.topAnchor),
+            filterView.bottomAnchor.constraint(equalTo: tableView.topAnchor, constant: -7),
 
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),

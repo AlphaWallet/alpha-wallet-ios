@@ -112,6 +112,6 @@ struct EthTokenViewCellViewModel {
     }
 
     var cellHeight: CGFloat {
-        return 196
+        return 164
     }
 }
