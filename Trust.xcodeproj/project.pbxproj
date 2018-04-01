@@ -307,6 +307,7 @@
 		5E7C75F80A7E178B49830BCD /* TicketsViewControllerHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */; };
 		5E7C760C7D55C97424F55138 /* TicketTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */; };
 		5E7C76A0365D128B7F19A0C2 /* ProtectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74BEC095303B66FB4B1E /* ProtectionCoordinator.swift */; };
+		5E7C76A65C14D0F11AF7848F /* TicketRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7742709724B3BD0C2A0D /* TicketRowViewModel.swift */; };
 		5E7C76B917517C93D1E26B0A /* LockEnterPasscodeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7981AB6584B25C72D46B /* LockEnterPasscodeCoordinator.swift */; };
 		5E7C76F8CB67466725C590CE /* TokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79ED9F842D3FC102AC54 /* TokenViewCellViewModel.swift */; };
 		5E7C7700014B93A966BBA463 /* RedeemTicketTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77061BEF269BCE358086 /* RedeemTicketTableViewCellViewModel.swift */; };
@@ -317,6 +318,7 @@
 		5E7C78B3FD5CA87E395E1861 /* OnboardingPageStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AF9A592D7224ED58016 /* OnboardingPageStyle.swift */; };
 		5E7C78D6C94739B1ADDFBB5B /* WhyUseEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */; };
 		5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7103135DCCCAB96EE5FC /* OnboardingPage.swift */; };
+		5E7C798E5F5EE00D405B91AE /* TicketRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7ACB94CEE493AC37487F /* TicketRowView.swift */; };
 		5E7C7AB2ECFB589632F2A26C /* WalletFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E2DCCE0D775ECF83088 /* WalletFilter.swift */; };
 		5E7C7AB6950E43BD6E8D0CBE /* TokensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B3302309706CA0F972A /* TokensViewController.swift */; };
 		5E7C7B3E08EEA63C5B68B9C4 /* TicketRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */; };
@@ -785,6 +787,7 @@
 		5E7C767497AD8DEE83F384D7 /* RequestViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestViewModel.swift; sourceTree = "<group>"; };
 		5E7C77061BEF269BCE358086 /* RedeemTicketTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemTicketTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeaderViewModel.swift; sourceTree = "<group>"; };
+		5E7C7742709724B3BD0C2A0D /* TicketRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRowViewModel.swift; sourceTree = "<group>"; };
 		5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatIsEthereumInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerTitleHeader.swift; sourceTree = "<group>"; };
@@ -798,6 +801,7 @@
 		5E7C79D674D45A07E694CE31 /* LockView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockView.swift; sourceTree = "<group>"; };
 		5E7C79ED9F842D3FC102AC54 /* TokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7AB3440C01136DF4F3E9 /* LockCreatePasscodeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeCoordinator.swift; sourceTree = "<group>"; };
+		5E7C7ACB94CEE493AC37487F /* TicketRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRowView.swift; sourceTree = "<group>"; };
 		5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactUsBannerView.swift; sourceTree = "<group>"; };
 		5E7C7AF9A592D7224ED58016 /* OnboardingPageStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingPageStyle.swift; sourceTree = "<group>"; };
 		5E7C7AFE9AF9FE6B58C925D4 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
@@ -2131,6 +2135,7 @@
 			children = (
 				442FCD4311FCAFE6FB288A5E /* RedeemTicketTableViewCell.swift */,
 				5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */,
+				5E7C7ACB94CEE493AC37487F /* TicketRowView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2142,6 +2147,7 @@
 				442FC54DA900FA2F9BB73A63 /* QuantitySelectionViewModel.swift */,
 				442FCBDB86579889BC773540 /* TicketRedemptionViewModel.swift */,
 				5E7C77061BEF269BCE358086 /* RedeemTicketTableViewCellViewModel.swift */,
+				5E7C7742709724B3BD0C2A0D /* TicketRowViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -3376,6 +3382,8 @@
 				5E7C728CDF33FBDBA47F71A6 /* MarketplaceViewController.swift in Sources */,
 				5E7C7CDB837DCD57E0594CBA /* TicketsViewControllerTitleHeader.swift in Sources */,
 				5E7C7700014B93A966BBA463 /* RedeemTicketTableViewCellViewModel.swift in Sources */,
+				5E7C798E5F5EE00D405B91AE /* TicketRowView.swift in Sources */,
+				5E7C76A65C14D0F11AF7848F /* TicketRowViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

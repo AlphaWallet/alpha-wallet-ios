@@ -39,52 +39,8 @@ struct RedeemTicketTableViewCellViewModel {
         return Colors.appWhite
     }
 
-    var contentsBackgroundColor: UIColor {
-        return Colors.appWhite
-    }
-
-    var titleColor: UIColor {
-        return Colors.appText
-    }
-
-    var countColor: UIColor {
-        return Colors.appHighlightGreen
-    }
-
-    var subtitleColor: UIColor {
-        return UIColor(red: 112, green: 112, blue: 112)
-    }
-
-    var iconsColor: UIColor {
-        return Colors.appBackground
-    }
-
-    var ticketCountFont: UIFont {
-        return Fonts.bold(size: 21)!
-    }
-
-    var titleFont: UIFont {
-        return Fonts.light(size: 21)!
-    }
-
-    var venueFont: UIFont {
-        return Fonts.light(size: 18)!
-    }
-
-    var subtitleFont: UIFont {
-        return Fonts.semibold(size: 15)!
-    }
-
     var status: String {
         return ""
-    }
-
-    var stateBackgroundColor: UIColor {
-        return UIColor(red: 151, green: 151, blue: 151)
-    }
-
-    var stateColor: UIColor {
-        return .white
     }
 
     var cellHeight: CGFloat {
