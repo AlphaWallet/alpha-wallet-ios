@@ -29,11 +29,12 @@ class TicketTokenViewCell: UITableViewCell {
         stackView.axis = .vertical
         stackView.spacing = 15
         stackView.distribution = .fill
+        stackView.alignment = .leading
         background.addSubview(stackView)
 
         // TODO extract constant. Maybe StyleLayout.sideMargin
         let xMargin  = CGFloat(7)
-        let yMargin  = CGFloat(20)
+        let yMargin  = CGFloat(4)
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),

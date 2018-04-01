@@ -58,6 +58,6 @@ struct TokenViewCellViewModel {
     }
 
     var cellHeight: CGFloat {
-        return 130
+        return 98
     }
 }
