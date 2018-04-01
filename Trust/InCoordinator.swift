@@ -93,7 +93,7 @@ class InCoordinator: Coordinator {
         let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
         let alphaWalletTokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
         let balanceCoordinator = GetBalanceCoordinator(web3: web3)
-        let balance = BalanceCoordinator(account: account, config: config, storage: tokensStorage)
+        let balance = BalanceCoordinator(wallet: account, config: config, storage: tokensStorage)
         let session = WalletSession(
                 account: account,
                 config: config,
@@ -429,20 +429,20 @@ extension InCoordinator: TokensCoordinatorDelegate {
                 )
 
                 let balanceCoordinator = GetStormBirdBalanceCoordinator(web3: web3)
-                let account = self.initialWallet
-                let migration = MigrationInitializer(account: account, chainID: self.config.chainID)
+                let wallet = self.keystore.recentlyUsedWallet!
+                let migration = MigrationInitializer(account: wallet, chainID: self.config.chainID)
                 migration.perform()
                 let realm = self.realm(for: migration.config)
-                let tokensStorage = TokensDataStore(realm: realm, account: account, config: self.config, web3: web3)
-                let balance = BalanceCoordinator(account: account, config: self.config, storage: tokensStorage)
+                let tokensStorage = TokensDataStore(realm: realm, account: wallet, config: self.config, web3: web3)
+                let balance = BalanceCoordinator(wallet: wallet, config: self.config, storage: tokensStorage)
                 let session = WalletSession(
-                        account: account,
+                        account: wallet,
                         config: self.config,
                         web3: web3,
                         balanceCoordinator: balance
                 )
 
-                let realAccount = try! EtherKeystore().getAccount(for: account.address)!
+                let realAccount = try! EtherKeystore().getAccount(for: wallet.address)!
 
                 let configurator = TransactionConfigurator(
                         session: session,
