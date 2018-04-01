@@ -35,11 +35,6 @@ struct RedeemTicketsViewModel {
         return R.string.localizable.aWalletTicketTokenRedeemSelectTicketsTitle ()
     }
 
-    private func summaryCell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.redeemTableViewCell, for: indexPath)
-        return cell!
-    }
-
     var buttonTitleColor: UIColor {
         return Colors.appWhite
     }
