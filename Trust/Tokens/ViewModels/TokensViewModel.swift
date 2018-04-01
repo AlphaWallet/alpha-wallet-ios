@@ -58,7 +58,7 @@ struct TokensViewModel {
     }
 
     var backgroundColor: UIColor {
-        return .white
+        return Colors.appBackground
     }
 
     var hasContent: Bool {
