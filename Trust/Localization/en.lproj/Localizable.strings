@@ -180,6 +180,7 @@
 "a.wallet.ticketToken.redeem.selectTickets.atLeastOne.title" = "Please select a ticket to redeem";
 "a.wallet.ticketToken.redeem.selectQuantity.title" = "Select Quantity of Tickets";
 "a.wallet.ticketToken.redeem.quantity.title" = "QUANTITY OF TICKETS";
+"a.wallet.ticketToken.redeem.showQRCode.title" = "Show QR Code to Redemption Booth";
 "a.wallet.ticketToken.sell.button.title" = "Sell";
 "a.wallet.ticketToken.transfer.button.title" = "Transfer";
 "a.wallet.ticketTokenBundle.status.sold.title" = "Sold";
