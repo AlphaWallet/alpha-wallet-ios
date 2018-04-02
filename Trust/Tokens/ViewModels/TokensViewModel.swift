@@ -108,8 +108,7 @@ struct TokensViewModel {
 
     //FIFA make the FIFA token be index 1. Can remove the function and replace with the argument when we no longer need this
     private func reorderTokensSoFIFAAtIndex1(tokens: [TokenObject]) -> [TokenObject] {
-        let index = tokens.index { $0.address.eip55String == Constants.fifaContractAddress
-        }
+        let index = tokens.index { $0.address.eip55String == Constants.fifaContractAddress }
         if let index = index, tokens.count >= 2 {
             var reorderedTokens = tokens
             let target = reorderedTokens[index]
