@@ -1,5 +1,13 @@
 //
 // Created by James Sangalli on 7/3/18.
+// This is a struct with the capacity to convert an order to a new format:
+// the data field of a transaction.
+// There are 4 formats of orders:
+// 1) the binary data the signature is corrisponding to.
+// 2) the compressed format, which is Base64 encoded to UniversalLink
+// 3) the JSON format, which is used to pass to feeMaster server.
+// 4) this data format, to pass as part of an Ethereum transaction
+// This class gets you the 4th format.
 //
 
 import Foundation

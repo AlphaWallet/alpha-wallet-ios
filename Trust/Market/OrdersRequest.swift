@@ -1,5 +1,6 @@
 //
 // Created by James Sangalli on 15/2/18.
+// Sends the sales orders to and from the market queue server
 //
 
 import Foundation

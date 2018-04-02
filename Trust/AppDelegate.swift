@@ -89,8 +89,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             let keystore = try! EtherKeystore()
             let signedOrder = UniversalLinkHandler().parseURL(url: (url?.description)!)
             let signature = signedOrder.signature.substring(from: 2)
+
+	    // form the json string out of the order for the paymaster server
+	    // James S. wrote
             let indices = signedOrder.order.indices
             var indicesStringEncoded = ""
+	    
             for i in 0...indices.count - 1 {
                 indicesStringEncoded += String(indices[i]) + ","
             }
@@ -112,6 +116,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                     parameters: parameters
             ).responseJSON {
                 result in
+		// TODO handle http response
                 print(result)
             }
         }

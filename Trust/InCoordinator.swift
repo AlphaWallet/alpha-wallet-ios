@@ -439,6 +439,12 @@ extension InCoordinator: TokensCoordinatorDelegate {
         showTicketList(for: type, token: token)
     }
 
+    // When a user clicks a Universal Link, either the user pays to publish a
+    // transaction or, if the ticket price = 0 (new purchase or incoming
+    // transfer from a buddy), the user can send the data to a paymaster.
+    // This function deal with the special case that the ticket price = 0
+    // but not sent to the paymaster because the user has ether.
+
     func importSignedOrder(signedOrder: SignedOrder, in coordinator: TokensCoordinator, tokenObject: TokenObject) {
         let web3 = self.web3(for: config.server)
         web3.start()
@@ -508,8 +514,10 @@ extension InCoordinator: TokensCoordinatorDelegate {
                 sendTransactionCoordinator.send(transaction: signedTransaction) { result in
                     switch result {
                     case .success(let res):
+		        // TODO: user still isn't unaware when this happens
                         print(res);
                     case .failure(let error):
+		        // TODO: user still isn't unaware when this happens
                         print(error);
                     }
                 }

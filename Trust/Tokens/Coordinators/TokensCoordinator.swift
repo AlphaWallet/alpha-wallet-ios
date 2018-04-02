@@ -67,6 +67,9 @@ class TokensCoordinator: Coordinator {
         navigationController.present(nav, animated: true, completion: nil)
     }
 
+    // relevent when user pays transaction fee to redeem from UniversalLink
+    // which contains a ticket priced 0. TODO: The case when ticket price > 0
+    // is not dealt yet.
     @objc func useUniversalLink(url: String) {
         let signedOrder = UniversalLinkHandler().parseURL(url: url)
         //TODO get info around name, symbol etc
