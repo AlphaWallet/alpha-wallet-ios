@@ -19,6 +19,9 @@ public struct Constants {
     public static let supportEmail = "support@awallet.io"
     public static let donationAddress = "0xFE6d4bC2De2D0b0E6FE47f08A28Ed52F9d052A02"
     public static let dappsBrowserURL = "https://dapps.trustwalletapp.com"
+
+    //FIFA hardcoded FIFA token address. Look for "//FIFA" for relevant changes
+    public static let fifaContractAddress = "0xa3347C8ED134444C25169872c90a6360D42b3691"
 }
 
 public struct UnitConfiguration {
