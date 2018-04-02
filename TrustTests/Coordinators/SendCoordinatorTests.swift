@@ -21,7 +21,7 @@ class SendCoordinatorTests: XCTestCase {
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is SendViewController)
     }
 
-    func testDestanation() {
+    func testDestination() {
         let address: Address = .make()
         let coordinator = SendCoordinator(
             transferType: .ether(destination: address),
@@ -36,4 +36,5 @@ class SendCoordinatorTests: XCTestCase {
         XCTAssertEqual(address.description, coordinator.sendViewController.addressRow?.value)
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is SendViewController)
     }
+
 }
