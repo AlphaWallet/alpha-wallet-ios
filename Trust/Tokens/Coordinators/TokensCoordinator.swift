@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import TrustKeystore
 
 protocol TokensCoordinatorDelegate: class {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
@@ -46,6 +47,7 @@ class TokensCoordinator: Coordinator {
     }
 
     func start() {
+        addFIFAToken()
         showTokens()
     }
 
@@ -97,6 +99,24 @@ class TokensCoordinator: Coordinator {
 //            storage: storage
 //        )
 //        navigationController.pushViewController(controller, animated: true)
+    }
+
+    //FIFA add the FIFA token with a hardcoded address if not already present
+    private func addFIFAToken() {
+        let fifaTokenPresent = storage.enabledObject.contains{ $0.address.eip55String == Constants.fifaContractAddress }
+        if fifaTokenPresent {
+			return
+        }
+        let token = ERC20Token(
+                contract: Address(string: Constants.fifaContractAddress)!,
+                name: "FIFA WC 2018",
+                symbol: "FIFA",
+                decimals: 0,
+                isStormBird: true,
+                balance: []
+        )
+        storage.addCustom(token: token)
+        tokensViewController.fetch()
     }
 }
 
