@@ -176,7 +176,7 @@ class TransactionConfigurator {
         )
     }
 
-    func signTransaction() -> SignTransaction {
+    func formUnsignedTransaction() -> UnsignedTransaction {
         let value: BigInt = {
             switch transaction.transferType {
             case .ether: return transaction.value
@@ -193,7 +193,7 @@ class TransactionConfigurator {
             case .stormBirdOrder(let token): return token.address
             }
         }()
-        let signTransaction = SignTransaction(
+        let signTransaction = UnsignedTransaction(
             value: value,
             account: account,
             to: address,

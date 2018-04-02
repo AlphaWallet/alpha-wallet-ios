@@ -25,7 +25,7 @@ protocol Keystore {
     func updateAccount(account: Account, password: String, newPassword: String) -> Result<Void, KeystoreError>
     func signPersonalMessage(_ data: Data, for account: Account) -> Result<Data, KeystoreError>
     func signMessage(_ data: Data, for account: Account) -> Result<Data, KeystoreError>
-    func signTransaction(_ signTransaction: SignTransaction) -> Result<Data, KeystoreError>
+    func signTransaction(_ signTransaction: UnsignedTransaction) -> Result<Data, KeystoreError>
     func getPassword(for account: Account) -> String?
     func convertPrivateKeyToKeystoreFile(privateKey: String, passphrase: String) -> Result<[String: Any], KeystoreError>
 }

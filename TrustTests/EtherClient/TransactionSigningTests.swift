@@ -8,7 +8,7 @@ import XCTest
 class TransactionSigningTests: XCTestCase {
     func testEIP155SignHash() {
         let address = Address(string: "0x3535353535353535353535353535353535353535")!
-        let transaction = SignTransaction(
+        let transaction = UnsignedTransaction(
             value: BigInt("1000000000000000000"),
             account: .make(address: address),
             to: address,
@@ -25,7 +25,7 @@ class TransactionSigningTests: XCTestCase {
 
     func testHomesteadSignHash() {
         let address = Address(string: "0x3535353535353535353535353535353535353535")!
-        let transaction = SignTransaction(
+        let transaction = UnsignedTransaction(
             value: BigInt("1000000000000000000"),
             account: .make(address: address),
             to: address,
@@ -42,7 +42,7 @@ class TransactionSigningTests: XCTestCase {
 
     func testSignTransaction() {
         let account: Account = .make(address: Address(data: Data(repeating: 0, count: 20)))
-        let transaction = SignTransaction(
+        let transaction = UnsignedTransaction(
             value: BigInt("1000000000000000000"),
             account: account,
             to: Address(string: "0x3535353535353535353535353535353535353535")!,
