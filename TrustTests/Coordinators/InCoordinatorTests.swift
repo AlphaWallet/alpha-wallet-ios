@@ -21,12 +21,11 @@ class InCoordinatorTests: XCTestCase {
 
         XCTAssertNotNil(tabbarController)
 
-        XCTAssert(tabbarController?.viewControllers!.count == 5)
+        XCTAssert(tabbarController?.viewControllers!.count == 4)
         XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is TransactionsViewController)
         XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is TokensViewController)
         XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is MarketplaceViewController)
         XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
-        XCTAssert((tabbarController?.viewControllers?[4] as? UINavigationController)?.viewControllers[0] is HelpViewController)
     }
 
     func testChangeRecentlyUsedAccount() {
