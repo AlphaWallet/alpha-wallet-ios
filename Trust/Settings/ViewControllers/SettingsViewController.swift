@@ -95,6 +95,19 @@ class SettingsViewController: FormViewController {
         <<< linkProvider(type: .twitter)
         <<< linkProvider(type: .reddit)
         <<< linkProvider(type: .facebook)
+		<<< AppFormAppearance.alphaWalletSettingsButton { row in
+			row.cellStyle = .value1
+			row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
+                let vc = HelpViewController()
+				return vc }, onDismiss: { _ in
+			})
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { cell, _ in
+            cell.imageView?.image = R.image.tab_help()?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = R.string.localizable.aHelpNavigationTitle()
+            cell.accessoryType = .disclosureIndicator
+        }
 
         +++ Section()
 
