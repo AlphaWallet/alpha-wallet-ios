@@ -487,18 +487,18 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         balanceCoordinator: balance
                 )
 
-                let realAccount = try! EtherKeystore().getAccount(for: wallet.address)!
+                let account = try! EtherKeystore().getAccount(for: wallet.address)!
 
                 let configurator = TransactionConfigurator(
                         session: session,
-                        account: realAccount,
+                        account: account,
                         transaction: transaction
                 )
 
-                let signTransaction = configurator.signTransaction()
+                let signTransaction = configurator.formUnsignedTransaction()
 
-                let signedTransaction = SignTransaction(value: signTransaction.value,
-                        account: realAccount,
+                let signedTransaction = UnsignedTransaction(value: signTransaction.value,
+                        account: account,
                         to: signTransaction.to,
                         nonce: signTransaction.nonce,
                         data: signTransaction.data,

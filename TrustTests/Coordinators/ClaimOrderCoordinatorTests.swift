@@ -62,17 +62,17 @@ class ClaimOrderCoordinatorTests : XCTestCase {
                     transaction: transaction
                 )
 
-                let signTransaction = configurator.signTransaction()
+                let unsignedTransaction = configurator.formUnsignedTransaction()
                 
                 let account = keystore.getAccount(for: address)!
                 
-                let signedTransaction = SignTransaction(value: signTransaction.value,
+                let signedTransaction = UnsignedTransaction(value: unsignedTransaction.value,
                                                         account: account,
-                                                        to: signTransaction.to,
-                                                        nonce: signTransaction.nonce,
-                                                        data: signTransaction.data,
-                                                        gasPrice: signTransaction.gasPrice,
-                                                        gasLimit: signTransaction.gasLimit,
+                                                        to: unsignedTransaction.to,
+                                                        nonce: unsignedTransaction.nonce,
+                                                        data: unsignedTransaction.data,
+                                                        gasPrice: unsignedTransaction.gasPrice,
+                                                        gasLimit: unsignedTransaction.gasLimit,
                                                         chainID: 3)
                 
                 

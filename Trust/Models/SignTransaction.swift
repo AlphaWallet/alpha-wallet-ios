@@ -4,7 +4,7 @@ import Foundation
 import BigInt
 import TrustKeystore
 
-public struct SignTransaction {
+public struct UnsignedTransaction {
     let value: BigInt
     let account: Account
     let to: Address?

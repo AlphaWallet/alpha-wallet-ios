@@ -25,7 +25,7 @@ class SendTransactionCoordinator {
     }
 
     func send(
-        transaction: SignTransaction,
+        transaction: UnsignedTransaction,
         completion: @escaping (Result<ConfirmResult, AnyError>) -> Void
     ) {
         if transaction.nonce >= 0 {
@@ -48,8 +48,8 @@ class SendTransactionCoordinator {
         }
     }
 
-    private func appendNonce(to: SignTransaction, currentNonce: Int) -> SignTransaction {
-        return SignTransaction(
+    private func appendNonce(to: UnsignedTransaction, currentNonce: Int) -> UnsignedTransaction {
+        return UnsignedTransaction(
             value: to.value,
             account: to.account,
             to: to.to,
@@ -62,7 +62,7 @@ class SendTransactionCoordinator {
     }
 
     func signAndSend(
-        transaction: SignTransaction,
+        transaction: UnsignedTransaction,
         completion: @escaping (Result<ConfirmResult, AnyError>) -> Void
     ) {
         let signedTransaction = keystore.signTransaction(transaction)
