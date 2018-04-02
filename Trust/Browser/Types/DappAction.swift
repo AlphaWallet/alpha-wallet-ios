@@ -55,7 +55,10 @@ extension DappAction {
             gasLimit: gasLimit,
             gasPrice: gasPrice,
             nonce: nonce,
-            //TODO add indices in
+            v: .none,
+            r: .none,
+            s: .none,
+            expiry: .none,
             indices: .none
         )
     }

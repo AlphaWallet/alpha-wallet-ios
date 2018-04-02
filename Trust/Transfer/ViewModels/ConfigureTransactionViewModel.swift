@@ -46,6 +46,7 @@ struct ConfigureTransactionViewModel {
         case .ether: return false
         case .token: return true
         case .stormBird: return true
+        case .stormBirdOrder: return true
         }
     }
 }

@@ -23,6 +23,10 @@ extension UnconfirmedTransaction {
             gasLimit: gasLimit,
             gasPrice: gasPrice,
             nonce: nonce,
+            v: .none,
+            r: .none,
+            s: .none,
+            expiry: .none,
             indices: .none
         )
     }
