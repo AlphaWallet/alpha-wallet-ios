@@ -12,13 +12,13 @@ class Web3Swift: NSObject {
     let url: URL
     var isLoaded = false
 
-    init(url: URL = URL(string: "http://localhost:8545")!) {
+    let nodeURL = "http://stormbird.duckdns.org:8545"
+    init(url: URL = URL(string: "http://stormbird.duckdns.org:8545")!) {
         self.url = url
     }
 
     func start() {
         self.webView.navigationDelegate = self
-
         loadWeb3()
     }
 

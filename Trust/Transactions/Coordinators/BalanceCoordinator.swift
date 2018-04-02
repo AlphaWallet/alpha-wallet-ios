@@ -11,7 +11,7 @@ protocol BalanceCoordinatorDelegate: class {
 }
 
 class BalanceCoordinator {
-    let account: Wallet
+    let wallet: Wallet
     let storage: TokensDataStore
     var balance: Balance?
     var currencyRate: CurrencyRate?
@@ -23,11 +23,11 @@ class BalanceCoordinator {
         )
     }
     init(
-        account: Wallet,
-        config: Config,
-        storage: TokensDataStore
+            wallet: Wallet,
+            config: Config,
+            storage: TokensDataStore
     ) {
-        self.account = account
+        self.wallet = wallet
         self.storage = storage
         self.storage.refreshBalance()
 
