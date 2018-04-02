@@ -19,7 +19,7 @@ class TicketAdaptor {
             if id == 0 { // if balance is 0, then skip
                 continue
             }
-            let ticket = getTicket(for: id, index: UInt16(index))
+            let ticket = getTicket(for: id, index: UInt16(index), in: token)
             if let item = ticketHolders.filter({ $0.zone == ticket.zone && $0.date == ticket.date }).first {
                 item.tickets.append(ticket)
             } else {
@@ -30,9 +30,14 @@ class TicketAdaptor {
         return ticketHolders
     }
 
-    private class func getTicket(for id: UInt16, index: UInt16) -> Ticket {
+    private class func getTicket(for id: UInt16, index: UInt16, in token: TokenObject) -> Ticket {
         let zone = TicketDecode.getZone(Int(id))
-        let name = TicketDecode.getName()
+        let name: String
+        if token.address.eip55String == Constants.fifaContractAddress {
+            name = token.title
+        } else {
+            name = TicketDecode.getName()
+        }
         let venue = TicketDecode.getVenue(Int(id))
         let seatId = TicketDecode.getSeatIdInt(Int(id))
         let date = Date.init(string: TicketDecode.getDate(Int(id)), format: "dd MMM yyyy")
