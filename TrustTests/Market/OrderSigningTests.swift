@@ -29,7 +29,7 @@ class OrderSigningTests : XCTestCase  {
             testOrdersList.append(testOrder1)
         }
 
-        let signOrders = SignOrders()
+        let signOrders = OrderHandler()
 
         let account = keystore.getAccount(for: address)!
 

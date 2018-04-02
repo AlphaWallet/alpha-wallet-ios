@@ -39,11 +39,11 @@ extension Data {
     }
 }
 
-public class SignOrders {
+public class OrderHandler {
 
     private let keyStore = try! EtherKeystore()
 
-    func signOrders(orders: [Order], account: Account) throws -> ([SignedOrder]) {
+    func signOrders(orders: [Order], account: Account) throws -> [SignedOrder] {
         var signedOrders = [SignedOrder]()
         var messages = [Data]()
 
@@ -108,7 +108,7 @@ public class SignOrders {
             buffer.append(contractAddr[i])
         }
 
-        var ticketsUint8 = SignOrders.uInt16ArrayToUInt8(arrayOfUInt16: tickets)
+        var ticketsUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: tickets)
 
         for i in 0...ticketsUint8.count - 1 {
             buffer.append(ticketsUint8[i])

@@ -19,7 +19,7 @@ import BigInt
 //    }
 //]
 
-public class OrdersRequest {
+public class MarketQueueHandler {
 
     public let baseURL = "https://482kdh4npg.execute-api.ap-southeast-1.amazonaws.com/dev/"
     public let contractAddress = "bC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4".lowercased()
@@ -46,7 +46,7 @@ public class OrdersRequest {
 
     func parseOrder(_ orderObj: JSON) -> SignedOrder {
         let orderString = orderObj["message"].string!
-        let message = OrdersRequest.bytesToHexa(Array(Data(base64Encoded: orderString)!))
+        let message = MarketQueueHandler.bytesToHexa(Array(Data(base64Encoded: orderString)!))
         let price = message.substring(to: 64)
         let expiry = message.substring(with: Range(uncheckedBounds: (64, 128)))
         let contractAddress = "0x" + message.substring(with: Range(uncheckedBounds: (128, 168)))
@@ -62,7 +62,7 @@ public class OrdersRequest {
         let signedOrder = SignedOrder(
                 order: order,
                 message: message.hexa2Bytes,
-                signature: "0x" + OrdersRequest.bytesToHexa(Array(Data(base64Encoded: orderObj["signature"].string!)!))
+                signature: "0x" + MarketQueueHandler.bytesToHexa(Array(Data(base64Encoded: orderObj["signature"].string!)!))
         )
         return signedOrder
     }

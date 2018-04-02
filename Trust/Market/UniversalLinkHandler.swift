@@ -34,8 +34,9 @@ public class UniversalLinkHandler {
     public static let paymentServer = "http://stormbird.duckdns.org:8080/api/claimToken"
 
     //TODO fix encoding of this link later as it is low priority
-    func createUniversalLink(signedOrder: SignedOrder) -> String {
-        let message = OrdersRequest.bytesToHexa(signedOrder.message)
+    func createUniversalLink(signedOrder: SignedOrder) -> String
+    {
+        let message = MarketQueueHandler.bytesToHexa(signedOrder.message)
         let signature = signedOrder.signature.substring(from: 2)
         let link = (message + signature).hexa2Bytes
         let binaryData = Data(bytes: link)
@@ -72,7 +73,7 @@ public class UniversalLinkHandler {
             //price in szabo
             priceBytes.append(linkBytes![i])
         }
-        return (BigUInt(OrdersRequest.bytesToHexa(priceBytes),
+        return (BigUInt(MarketQueueHandler.bytesToHexa(priceBytes),
                 radix: 16)?.multiplied(by: BigUInt("1000000000000")!))!
     }
 
@@ -81,7 +82,7 @@ public class UniversalLinkHandler {
         for i in 4...7 {
             expiryBytes.append(linkBytes![i])
         }
-        let expiry = OrdersRequest.bytesToHexa(expiryBytes)
+        let expiry = MarketQueueHandler.bytesToHexa(expiryBytes)
         return BigUInt(expiry, radix: 16)!
     }
 
@@ -90,7 +91,7 @@ public class UniversalLinkHandler {
         for i in 8...27 {
             contractAddrBytes.append(linkBytes![i])
         }
-        return OrdersRequest.bytesToHexa(contractAddrBytes)
+        return MarketQueueHandler.bytesToHexa(contractAddrBytes)
     }
 
     func getTicketIndicesFromLinkBytes(linkBytes: [UInt8]?) -> [UInt16] {
@@ -134,21 +135,21 @@ public class UniversalLinkHandler {
         {
             rBytes.append(linkBytes![i])
         }
-        let r = OrdersRequest.bytesToHexa(rBytes)
+        let r = MarketQueueHandler.bytesToHexa(rBytes)
         signatureStart += 32
         var sBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31 {
             sBytes.append(linkBytes![i])
         }
 
-        let s = OrdersRequest.bytesToHexa(sBytes)
+        let s = MarketQueueHandler.bytesToHexa(sBytes)
         let v = String(format:"%2X", linkBytes![(linkBytes?.count)! - 1]).trimmed
 
         return (v, r, s)
     }
 
     func getMessageFromLinkBytes(linkBytes: [UInt8]?) -> [UInt8] {
-        let ticketLength = (linkBytes?.count)! - (65 + 20 + 8)
+        let ticketLength = (linkBytes?.count)! - (65 + 20 + 8) - 1
         var message = [UInt8]()
         for i in 0...ticketLength + 84 {
             message.append(linkBytes![i])

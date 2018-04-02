@@ -105,8 +105,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                 "address" : keystore.recentlyUsedWallet?.address.description,
                 "indices": indicesStringEncoded,
                 "v" : signature.substring(from: 128),
-                "r": "0x" + signature.substring(from: 0, to: 64),
-                "s": "0x" + signature.substring(from: 64, to: 128)
+                "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
+                "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
             ]
             let query = UniversalLinkHandler.paymentServer
 

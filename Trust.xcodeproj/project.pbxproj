@@ -369,7 +369,7 @@
 		73ED85A92034C42D00593BF3 /* StringFormatterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */; };
 		76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */; };
 		76F1D13FC8A41AD967C59947 /* ClaimOrderCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */; };
-		76F1D5AF727A83205BBCF0EC /* SignOrders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* SignOrders.swift */; };
+		76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */; };
 		76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
 		76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */; };
@@ -425,8 +425,8 @@
 		AAEB8DA6204D5CDE00CB0B2C /* TicketView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AAEB8DA5204D5CDE00CB0B2C /* TicketView.xib */; };
 		AAEB8DA8204D5CFA00CB0B2C /* TicketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA7204D5CFA00CB0B2C /* TicketView.swift */; };
 		AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */; };
-		B1DC375D203AEAE200C9756D /* OrdersRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375C203AEAE100C9756D /* OrdersRequest.swift */; };
-		B1DC375F203AEB4800C9756D /* OrderRequestTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */; };
+		B1DC375D203AEAE200C9756D /* MarketQueueHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375C203AEAE100C9756D /* MarketQueueHandler.swift */; };
+		B1DC375F203AEB4800C9756D /* MarketQueueHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375E203AEB4800C9756D /* MarketQueueHandlerTests.swift */; };
 		BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */; };
 		BBF4F9B72029D0B3009E04C0 /* GasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */; };
 		C868C5292053BDE00059672B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C868C5282053BDE00059672B /* LaunchScreen.storyboard */; };
@@ -853,7 +853,7 @@
 		76F1D8877226D5DD086B135D /* CreateRedeemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeemTests.swift; sourceTree = "<group>"; };
 		76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandlerTests.swift; sourceTree = "<group>"; };
 		76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimOrderCoordinatorTests.swift; sourceTree = "<group>"; };
-		76F1DADFD07E2941897FD2E1 /* SignOrders.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignOrders.swift; sourceTree = "<group>"; };
+		76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderHandler.swift; sourceTree = "<group>"; };
 		76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandler.swift; sourceTree = "<group>"; };
 		76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderSigningTests.swift; sourceTree = "<group>"; };
 		76F1DF80932454E9F58B7830 /* CreateRedeem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeem.swift; sourceTree = "<group>"; };
@@ -917,8 +917,8 @@
 		AAEB8DA7204D5CFA00CB0B2C /* TicketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketView.swift; sourceTree = "<group>"; };
 		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
-		B1DC375C203AEAE100C9756D /* OrdersRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrdersRequest.swift; sourceTree = "<group>"; };
-		B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderRequestTest.swift; sourceTree = "<group>"; };
+		B1DC375C203AEAE100C9756D /* MarketQueueHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketQueueHandler.swift; sourceTree = "<group>"; };
+		B1DC375E203AEB4800C9756D /* MarketQueueHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketQueueHandlerTests.swift; sourceTree = "<group>"; };
 		B2CF9CDF557F98DECE6D0AF6 /* Pods_AlphaWalletUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWalletUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CurrencyRate+Fee.swift"; sourceTree = "<group>"; };
 		BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasViewModel.swift; sourceTree = "<group>"; };
@@ -2340,8 +2340,8 @@
 		76F1D1936604D6A022E9AE90 /* Market */ = {
 			isa = PBXGroup;
 			children = (
-				76F1DADFD07E2941897FD2E1 /* SignOrders.swift */,
-				B1DC375C203AEAE100C9756D /* OrdersRequest.swift */,
+				76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */,
+				B1DC375C203AEAE100C9756D /* MarketQueueHandler.swift */,
 				76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */,
 			);
 			path = Market;
@@ -2364,7 +2364,7 @@
 			isa = PBXGroup;
 			children = (
 				76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */,
-				B1DC375E203AEB4800C9756D /* OrderRequestTest.swift */,
+				B1DC375E203AEB4800C9756D /* MarketQueueHandlerTests.swift */,
 				76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */,
 			);
 			path = Market;
@@ -3200,7 +3200,7 @@
 				29A13E331F6B1B7A00E432A2 /* AppStyle.swift in Sources */,
 				737EEDDA201BE3A8009D9D5D /* Lock.swift in Sources */,
 				29FF12F81F747D6C00AFD326 /* Error.swift in Sources */,
-				B1DC375D203AEAE200C9756D /* OrdersRequest.swift in Sources */,
+				B1DC375D203AEAE200C9756D /* MarketQueueHandler.swift in Sources */,
 				29AD8A061F93DC8C008E10E7 /* PushDevice.swift in Sources */,
 				294DFBA91FE6EBFB004CEB56 /* NewTokenViewController.swift in Sources */,
 				29B933F51F860074009FCABB /* SendTransactionCoordinator.swift in Sources */,
@@ -3309,7 +3309,7 @@
 				442FC65BFA2D42879648EC06 /* Int.swift in Sources */,
 				442FC9C4FAC64192FF5DCC40 /* GetERC20Decimals.swift in Sources */,
 				442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */,
-				76F1D5AF727A83205BBCF0EC /* SignOrders.swift in Sources */,
+				76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */,
 				442FCD76B5C25C9FB7FE7479 /* TicketsViewModel.swift in Sources */,
 				442FC2CC21FFFC4FAB33A300 /* Ticket.swift in Sources */,
 				442FCAD7292D93C261B97D09 /* TicketHolder.swift in Sources */,
@@ -3400,7 +3400,7 @@
 				29F1C85620036887003780D8 /* AppTrackerTests.swift in Sources */,
 				29BDF19F1FEE51650023A45F /* GasLimitConfigurationTests.swift in Sources */,
 				290B2B6C1F92C35B0053C83E /* RPCServerTests.swift in Sources */,
-				B1DC375F203AEB4800C9756D /* OrderRequestTest.swift in Sources */,
+				B1DC375F203AEB4800C9756D /* MarketQueueHandlerTests.swift in Sources */,
 				29FF13031F75EB7500AFD326 /* Account.swift in Sources */,
 				290B2B6A1F92C0440053C83E /* ConfigTests.swift in Sources */,
 				29BDF1941FEE43AA0023A45F /* TransactionConfiguratorTests.swift in Sources */,
