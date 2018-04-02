@@ -4,6 +4,7 @@ import Foundation
 import TrustKeystore
 import UIKit
 import RealmSwift
+import BigInt
 
 protocol InCoordinatorDelegate: class {
     func didCancel(in coordinator: InCoordinator)
@@ -94,7 +95,7 @@ class InCoordinator: Coordinator {
         let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
         let alphaWalletTokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
         let balanceCoordinator = GetBalanceCoordinator(web3: web3)
-        let balance = BalanceCoordinator(account: account, config: config, storage: tokensStorage)
+        let balance = BalanceCoordinator(wallet: account, config: config, storage: tokensStorage)
         let session = WalletSession(
                 account: account,
                 config: config,
@@ -314,15 +315,15 @@ class InCoordinator: Coordinator {
 
     private func showTransactions(for type: PaymentFlow) {
         if nonTabTransactionCoordinator == nil {
-            if let account = keystore.recentlyUsedWallet {
-                let migration = MigrationInitializer(account: account, chainID: config.chainID)
+            if let wallet = keystore.recentlyUsedWallet {
+                let migration = MigrationInitializer(account: wallet, chainID: config.chainID)
                 let web3 = self.web3(for: config.server)
                 web3.start()
                 let realm = self.realm(for: migration.config)
-                let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
-                let balance = BalanceCoordinator(account: account, config: config, storage: tokensStorage)
+                let tokensStorage = TokensDataStore(realm: realm, account: wallet, config: config, web3: web3)
+                let balance = BalanceCoordinator(wallet: wallet, config: config, storage: tokensStorage)
                 let session = WalletSession(
-                        account: account,
+                        account: wallet,
                         config: config,
                         web3: web3,
                         balanceCoordinator: balance
@@ -436,6 +437,93 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
         showTicketList(for: type, token: token)
+    }
+
+    // When a user clicks a Universal Link, either the user pays to publish a
+    // transaction or, if the ticket price = 0 (new purchase or incoming
+    // transfer from a buddy), the user can send the data to a paymaster.
+    // This function deal with the special case that the ticket price = 0
+    // but not sent to the paymaster because the user has ether.
+
+    func importSignedOrder(signedOrder: SignedOrder, in coordinator: TokensCoordinator, tokenObject: TokenObject) {
+        let web3 = self.web3(for: config.server)
+        web3.start()
+        let signature = signedOrder.signature.substring(from: 2)
+        let v = UInt8(signature.substring(from: 128), radix: 16)!
+        let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
+        let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
+
+        ClaimOrderCoordinator.init(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) {
+            result in
+            switch result {
+            case .success(let payload):
+                let address: Address = self.initialWallet.address
+                let transaction = UnconfirmedTransaction(
+                        transferType: .stormBirdOrder(tokenObject),
+                        value: BigInt("0"),
+                        to: address,
+                        data: Data(bytes: payload.hexa2Bytes),
+                        gasLimit: .none,
+                        gasPrice: 14400,
+                        nonce: .none,
+                        v: v,
+                        r: r,
+                        s: s,
+                        expiry: signedOrder.order.expiry,
+                        indices: signedOrder.order.indices
+                )
+
+                let balanceCoordinator = GetStormBirdBalanceCoordinator(web3: web3)
+                let wallet = self.keystore.recentlyUsedWallet!
+                let migration = MigrationInitializer(account: wallet, chainID: self.config.chainID)
+                migration.perform()
+                let realm = self.realm(for: migration.config)
+                let tokensStorage = TokensDataStore(realm: realm, account: wallet, config: self.config, web3: web3)
+                let balance = BalanceCoordinator(wallet: wallet, config: self.config, storage: tokensStorage)
+                let session = WalletSession(
+                        account: wallet,
+                        config: self.config,
+                        web3: web3,
+                        balanceCoordinator: balance
+                )
+
+                let account = try! EtherKeystore().getAccount(for: wallet.address)!
+
+                let configurator = TransactionConfigurator(
+                        session: session,
+                        account: account,
+                        transaction: transaction
+                )
+
+                let signTransaction = configurator.formUnsignedTransaction()
+
+                let signedTransaction = UnsignedTransaction(value: signTransaction.value,
+                        account: account,
+                        to: signTransaction.to,
+                        nonce: signTransaction.nonce,
+                        data: signTransaction.data,
+                        gasPrice: signTransaction.gasPrice,
+                        gasLimit: signTransaction.gasLimit,
+                        chainID: 3)
+
+
+                let sendTransactionCoordinator = SendTransactionCoordinator(session: session,
+                        keystore: self.keystore,
+                        confirmType: .signThenSend)
+
+                sendTransactionCoordinator.send(transaction: signedTransaction) { result in
+                    switch result {
+                    case .success(let res):
+		        // TODO: user still isn't unaware when this happens
+                        print(res);
+                    case .failure(let error):
+		        // TODO: user still isn't unaware when this happens
+                        print(error);
+                    }
+                }
+            case .failure: break
+            }
+        }
     }
 }
 

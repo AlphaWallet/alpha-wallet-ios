@@ -27,7 +27,7 @@ class NumberStepper: UIControl {
     }
 
     @IBInspectable
-    public var buttonsTextColor: UIColor = UIColor.white {
+    public var buttonsTextColor: UIColor = Colors.appBackground {
         didSet {
             for button in [leftButton, rightButton] {
                 button.setTitleColor(buttonsTextColor, for: .normal)
@@ -36,7 +36,7 @@ class NumberStepper: UIControl {
     }
 
     @IBInspectable
-    public var buttonsBackgroundColor: UIColor = UIColor(red: 0.21, green: 0.5, blue: 0.74, alpha: 1) {
+    public var buttonsBackgroundColor: UIColor = .clear {
         didSet {
             for button in [leftButton, rightButton] {
                 button.backgroundColor = buttonsBackgroundColor
@@ -45,7 +45,7 @@ class NumberStepper: UIControl {
         }
     }
 
-    public var buttonsFont = UIFont(name: "AvenirNext-Bold", size: 20.0)! {
+    public var buttonsFont = Fonts.bold(size: 21)! {
         didSet {
             for button in [leftButton, rightButton] {
                 button.titleLabel?.font = buttonsFont
@@ -54,38 +54,22 @@ class NumberStepper: UIControl {
     }
 
     @IBInspectable
-    public var labelTextColor: UIColor = UIColor.white {
+    public var labelTextColor: UIColor = Colors.appBackground {
         didSet {
             label.textColor = labelTextColor
         }
     }
 
     @IBInspectable
-    public var labelBackgroundColor: UIColor = UIColor(red: 0.26, green: 0.6, blue: 0.87, alpha: 1) {
+    public var labelBackgroundColor: UIColor = .clear {
         didSet {
             label.backgroundColor = labelBackgroundColor
         }
     }
 
-    public var labelFont = UIFont(name: "AvenirNext-Bold", size: 25.0)! {
+    public var labelFont = Fonts.semibold(size: 21)! {
         didSet {
             label.font = labelFont
-        }
-    }
-
-    @IBInspectable
-    public var labelCornerRadius: CGFloat = 0 {
-        didSet {
-            label.layer.cornerRadius = labelCornerRadius
-
-        }
-    }
-
-    @IBInspectable override
-    public var cornerRadius: CGFloat {
-        didSet {
-            layer.cornerRadius = cornerRadius
-            clipsToBounds = true
         }
     }
 
@@ -93,7 +77,6 @@ class NumberStepper: UIControl {
     public var borderWidth: CGFloat {
         didSet {
             layer.borderWidth = borderWidth
-            label.layer.borderWidth = borderWidth
         }
     }
 
@@ -101,60 +84,47 @@ class NumberStepper: UIControl {
     public var borderColor: UIColor! {
         didSet {
             layer.borderColor = borderColor.cgColor
-            label.layer.borderColor = borderColor.cgColor
         }
     }
 
-    @IBInspectable
-    public var labelWidthWeight: CGFloat = 0.5 {
-        didSet {
-            labelWidthWeight = min(1, max(0, labelWidthWeight))
-            setNeedsLayout()
-        }
-    }
-
-    lazy var leftButton: UIButton = {
+    lazy var rightButton: UIButton = {
         let button = UIButton()
+		button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("-", for: .normal)
         button.setTitleColor(self.buttonsTextColor, for: .normal)
         button.backgroundColor = self.buttonsBackgroundColor
         button.titleLabel?.font = self.buttonsFont
-        button.addTarget(self, action: #selector(NumberStepper.leftButtonTouchDown), for: .touchDown)
-        button.addTarget(self, action: #selector(NumberStepper.buttonTouchUp), for: .touchUpInside)
-        button.addTarget(self, action: #selector(NumberStepper.buttonTouchUp), for: .touchUpOutside)
-        button.addTarget(self, action: #selector(NumberStepper.buttonTouchUp), for: .touchCancel)
+        button.addTarget(self, action: #selector(rightButtonTouchDown), for: .touchDown)
+        button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpInside)
+        button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpOutside)
+        button.addTarget(self, action: #selector(buttonTouchUp), for: .touchCancel)
         return button
     }()
 
-    lazy var rightButton: UIButton = {
+    lazy var leftButton: UIButton = {
         let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("+", for: .normal)
         button.setTitleColor(self.buttonsTextColor, for: .normal)
         button.backgroundColor = self.buttonsBackgroundColor
         button.titleLabel?.font = self.buttonsFont
-        button.addTarget(self, action: #selector(NumberStepper.rightButtonTouchDown), for: .touchDown)
-        button.addTarget(self, action: #selector(NumberStepper.buttonTouchUp), for: .touchUpInside)
-        button.addTarget(self, action: #selector(NumberStepper.buttonTouchUp), for: .touchUpOutside)
-        button.addTarget(self, action: #selector(NumberStepper.buttonTouchUp), for: .touchCancel)
+        button.addTarget(self, action: #selector(leftButtonTouchDown), for: .touchDown)
+        button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpInside)
+        button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpOutside)
+        button.addTarget(self, action: #selector(buttonTouchUp), for: .touchCancel)
         return button
     }()
 
     lazy var label: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
         label.text = String(self.value)
         label.textColor = self.labelTextColor
         label.backgroundColor = self.labelBackgroundColor
         label.font = self.labelFont
-        label.layer.cornerRadius = self.labelCornerRadius
-        label.layer.masksToBounds = true
-        label.isUserInteractionEnabled = true
         return label
     }()
-
-    var labelOriginalCenter: CGPoint!
-    var labelMaximumCenterX: CGFloat!
-    var labelMinimumCenterX: CGFloat!
 
     enum StepperState {
         case Stable, ShouldIncrease, ShouldDecrease
@@ -178,6 +148,7 @@ class NumberStepper: UIControl {
     public init(frame: CGRect) {
         super.init(frame: frame)
         setup()
+		layout()
     }
 
     func setup() {
@@ -188,19 +159,26 @@ class NumberStepper: UIControl {
         backgroundColor = buttonsBackgroundColor
         layer.cornerRadius = cornerRadius
         clipsToBounds = true
-        labelOriginalCenter = label.center
     }
 
-    override
-    public func layoutSubviews() {
-        let buttonWidth = bounds.size.width * ((1 - labelWidthWeight) / 2)
-        let labelWidth = bounds.size.width * labelWidthWeight
+    func layout() {
+		let xMargin = CGFloat(3)
+        NSLayoutConstraint.activate([
+            leftButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 7),
+            leftButton.trailingAnchor.constraint(equalTo: label.leadingAnchor, constant: -xMargin),
+            leftButton.topAnchor.constraint(equalTo: topAnchor),
+            leftButton.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-        leftButton.frame = CGRect(x: 0, y: 0, width: buttonWidth, height: bounds.size.height)
-        label.frame = CGRect(x: buttonWidth, y: 0, width: labelWidth, height: bounds.size.height)
-        rightButton.frame = CGRect(x: labelWidth + buttonWidth, y: 0, width: buttonWidth, height: bounds.size.height)
+            label.trailingAnchor.constraint(equalTo: rightButton.leadingAnchor, constant: -xMargin),
+            //Just so the label doesn't change width when we change the value
+			label.widthAnchor.constraint(greaterThanOrEqualToConstant: 50),
+            label.topAnchor.constraint(equalTo: topAnchor),
+            label.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-        labelOriginalCenter = label.center
+            rightButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -7),
+            rightButton.topAnchor.constraint(equalTo: topAnchor),
+            rightButton.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
     }
 
     func updateValue() {
@@ -218,26 +196,23 @@ extension NumberStepper {
         stepperState = .Stable
         leftButton.isEnabled = true
         rightButton.isEnabled = true
-        label.isUserInteractionEnabled = true
     }
 }
 
 extension NumberStepper {
     @objc
     func leftButtonTouchDown(button: UIButton) {
-        rightButton.isEnabled = false
-        label.isUserInteractionEnabled = false
-        if value != minimumValue {
-            stepperState = .ShouldDecrease
+        leftButton.isEnabled = false
+        if value != maximumValue {
+            stepperState = .ShouldIncrease
         }
     }
 
     @objc
     func rightButtonTouchDown(button: UIButton) {
-        leftButton.isEnabled = false
-        label.isUserInteractionEnabled = false
-        if value != maximumValue {
-            stepperState = .ShouldIncrease
+        rightButton.isEnabled = false
+        if value != minimumValue {
+            stepperState = .ShouldDecrease
         }
     }
 
