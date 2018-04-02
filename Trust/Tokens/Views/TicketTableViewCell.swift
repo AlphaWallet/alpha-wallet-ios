@@ -45,6 +45,8 @@ class TicketTableViewCell: UITableViewCell {
 
         rowView.titleLabel.text = viewModel.title
 
+        rowView.venueLabel.text = viewModel.venue
+
         rowView.dateLabel.text = viewModel.date
 
         rowView.seatRangeLabel.text = viewModel.seatRange
