@@ -10,6 +10,7 @@ import UIKit
 
 protocol QuantitySelectionViewControllerDelegate: class {
     func didSelectQuantity(ticketHolder: TicketHolder, in viewController: UIViewController)
+    func didPressViewRedemptionInfo(in viewController: QuantitySelectionViewController)
 }
 
 class QuantitySelectionViewController: UIViewController {
@@ -26,6 +27,8 @@ class QuantitySelectionViewController: UIViewController {
 
     init() {
         super.init(nibName: nil, bundle: nil)
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.backgroundColor = Colors.appWhite
@@ -105,6 +108,10 @@ class QuantitySelectionViewController: UIViewController {
         } else {
             delegate?.didSelectQuantity(ticketHolder: getTicketHolderFromQuantity(), in: self)
         }
+    }
+
+    @objc func showInfo() {
+        delegate?.didPressViewRedemptionInfo(in: self)
     }
 
     func configure(viewModel: QuantitySelectionViewModel) {

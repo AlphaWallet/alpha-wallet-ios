@@ -16,7 +16,7 @@ protocol TicketsViewControllerDelegate: class {
     func didPressSell(token: TokenObject, in viewController: UIViewController)
     func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: UIViewController)
     func didCancel(in viewController: UIViewController)
-    func didPressViewRedemptionInfo(viewController: UIViewController)
+    func didPressViewRedemptionInfo(in viewController: TicketsViewController)
 }
 
 class TicketsViewController: UIViewController {
@@ -148,7 +148,7 @@ class TicketsViewController: UIViewController {
     }
 
     @objc func showInfo() {
-		delegate?.didPressViewRedemptionInfo(viewController: self)
+		delegate?.didPressViewRedemptionInfo(in: self)
     }
 }
 
