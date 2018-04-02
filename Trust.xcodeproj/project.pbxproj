@@ -254,7 +254,6 @@
 		442FC01053E2F1B59355A961 /* Arguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC7DC5A13C023F7F2C26 /* Arguments.swift */; };
 		442FC03669B2BB02B0876278 /* StormBirdTokenSummaryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCFA81968EBB72349E849 /* StormBirdTokenSummaryTableViewCell.swift */; };
 		442FC0B59B23C0F3068621C0 /* NumberStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC575B6A4A50B0555E1B0 /* NumberStepper.swift */; };
-		442FC11C94F17E8FDC0DA7B7 /* RedeemTickets.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 442FCC6869F8D9EBCE80C1E0 /* RedeemTickets.storyboard */; };
 		442FC126C8A73F70F2782025 /* TicketDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC6911EEE85B669D7BDA1 /* TicketDecode.swift */; };
 		442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */; };
 		442FC258BAEFDE2D64E48D0D /* TicketsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC8150042FE9179D574A /* TicketsCoordinator.swift */; };
@@ -308,8 +307,10 @@
 		5E7C75F80A7E178B49830BCD /* TicketsViewControllerHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */; };
 		5E7C760C7D55C97424F55138 /* TicketTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */; };
 		5E7C76A0365D128B7F19A0C2 /* ProtectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74BEC095303B66FB4B1E /* ProtectionCoordinator.swift */; };
+		5E7C76A65C14D0F11AF7848F /* TicketRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7742709724B3BD0C2A0D /* TicketRowViewModel.swift */; };
 		5E7C76B917517C93D1E26B0A /* LockEnterPasscodeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7981AB6584B25C72D46B /* LockEnterPasscodeCoordinator.swift */; };
 		5E7C76F8CB67466725C590CE /* TokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79ED9F842D3FC102AC54 /* TokenViewCellViewModel.swift */; };
+		5E7C7700014B93A966BBA463 /* RedeemTicketTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77061BEF269BCE358086 /* RedeemTicketTableViewCellViewModel.swift */; };
 		5E7C774B5332AC0DC19C5B1B /* EthTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74B82783A94091A43470 /* EthTokenViewCellViewModel.swift */; };
 		5E7C7793AB6B577906F2BCA3 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AFE9AF9FE6B58C925D4 /* SettingsViewController.swift */; };
 		5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74DCC21272EC231A20E2 /* RequestViewController.swift */; };
@@ -317,6 +318,7 @@
 		5E7C78B3FD5CA87E395E1861 /* OnboardingPageStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AF9A592D7224ED58016 /* OnboardingPageStyle.swift */; };
 		5E7C78D6C94739B1ADDFBB5B /* WhyUseEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */; };
 		5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7103135DCCCAB96EE5FC /* OnboardingPage.swift */; };
+		5E7C798E5F5EE00D405B91AE /* TicketRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7ACB94CEE493AC37487F /* TicketRowView.swift */; };
 		5E7C7AB2ECFB589632F2A26C /* WalletFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E2DCCE0D775ECF83088 /* WalletFilter.swift */; };
 		5E7C7AB6950E43BD6E8D0CBE /* TokensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B3302309706CA0F972A /* TokensViewController.swift */; };
 		5E7C7B3E08EEA63C5B68B9C4 /* TicketRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */; };
@@ -324,6 +326,7 @@
 		5E7C7C658D619C70F1E3DE59 /* AdvancedSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C719B717E002583B1E2E9 /* AdvancedSettingsViewModel.swift */; };
 		5E7C7C98EAF40E8110241DBD /* TicketTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C783E3ADA4CF9554A0E7D /* TicketTokenViewCell.swift */; };
 		5E7C7C9E89056069C8FEFA76 /* AlphaWalletSettingsSwitchRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7534FB6BF4D199643246 /* AlphaWalletSettingsSwitchRow.swift */; };
+		5E7C7CDB837DCD57E0594CBA /* TicketsViewControllerTitleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */; };
 		5E7C7CE5CA19183FCED8C907 /* TokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EE467A7F5F2E5B1F660 /* TokensViewModel.swift */; };
 		5E7C7CF06533EDACC8E220B3 /* StaticHTMLViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */; };
 		5E7C7CF3BB38045FA40F38AE /* PrivacyPolicyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72142D5817EF8FA8CADA /* PrivacyPolicyViewController.swift */; };
@@ -422,8 +425,6 @@
 		AA893ED5203C3E5400CDCED1 /* TokenBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */; };
 		AAEB8DA0204BBDB200CB0B2C /* RadioButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8D9F204BBDB100CB0B2C /* RadioButton.swift */; };
 		AAEB8DA2204BC7B700CB0B2C /* RedeemTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */; };
-		AAEB8DA6204D5CDE00CB0B2C /* TicketView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AAEB8DA5204D5CDE00CB0B2C /* TicketView.xib */; };
-		AAEB8DA8204D5CFA00CB0B2C /* TicketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA7204D5CFA00CB0B2C /* TicketView.swift */; };
 		AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */; };
 		B1DC375D203AEAE200C9756D /* MarketQueueHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375C203AEAE100C9756D /* MarketQueueHandler.swift */; };
 		B1DC375F203AEB4800C9756D /* MarketQueueHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375E203AEB4800C9756D /* MarketQueueHandlerTests.swift */; };
@@ -752,7 +753,6 @@
 		442FCBDB86579889BC773540 /* TicketRedemptionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionViewModel.swift; sourceTree = "<group>"; };
 		442FCBDD3A69DF75551B10AC /* GetERC20Symbol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC20Symbol.swift; sourceTree = "<group>"; };
 		442FCC17EAB857C58732831E /* QuantitySelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuantitySelectionViewController.swift; sourceTree = "<group>"; };
-		442FCC6869F8D9EBCE80C1E0 /* RedeemTickets.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = RedeemTickets.storyboard; sourceTree = "<group>"; };
 		442FCC7DC5A13C023F7F2C26 /* Arguments.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Arguments.swift; sourceTree = "<group>"; };
 		442FCC8150042FE9179D574A /* TicketsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsCoordinator.swift; sourceTree = "<group>"; };
 		442FCCAC6A172506637A2FF6 /* Int.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Int.swift; sourceTree = "<group>"; };
@@ -788,9 +788,12 @@
 		5E7C7646352F10C96B5FC6F6 /* HelpViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpViewCell.swift; sourceTree = "<group>"; };
 		5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaticHTMLViewController.swift; sourceTree = "<group>"; };
 		5E7C767497AD8DEE83F384D7 /* RequestViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestViewModel.swift; sourceTree = "<group>"; };
+		5E7C77061BEF269BCE358086 /* RedeemTicketTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemTicketTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeaderViewModel.swift; sourceTree = "<group>"; };
+		5E7C7742709724B3BD0C2A0D /* TicketRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRowViewModel.swift; sourceTree = "<group>"; };
 		5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatIsEthereumInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionInfoViewController.swift; sourceTree = "<group>"; };
+		5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerTitleHeader.swift; sourceTree = "<group>"; };
 		5E7C783E3ADA4CF9554A0E7D /* TicketTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C78581AA28CA5C3CBC468 /* AdvancedSettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsViewController.swift; sourceTree = "<group>"; };
 		5E7C78B001F9F95F404D5FEF /* HowDoIGetMyMoneyInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HowDoIGetMyMoneyInfoViewController.swift; sourceTree = "<group>"; };
@@ -801,6 +804,7 @@
 		5E7C79D674D45A07E694CE31 /* LockView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockView.swift; sourceTree = "<group>"; };
 		5E7C79ED9F842D3FC102AC54 /* TokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7AB3440C01136DF4F3E9 /* LockCreatePasscodeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeCoordinator.swift; sourceTree = "<group>"; };
+		5E7C7ACB94CEE493AC37487F /* TicketRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRowView.swift; sourceTree = "<group>"; };
 		5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactUsBannerView.swift; sourceTree = "<group>"; };
 		5E7C7AF9A592D7224ED58016 /* OnboardingPageStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingPageStyle.swift; sourceTree = "<group>"; };
 		5E7C7AFE9AF9FE6B58C925D4 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
@@ -913,8 +917,6 @@
 		AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalance.swift; sourceTree = "<group>"; };
 		AAEB8D9F204BBDB100CB0B2C /* RadioButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadioButton.swift; sourceTree = "<group>"; };
 		AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemTicketsViewController.swift; sourceTree = "<group>"; };
-		AAEB8DA5204D5CDE00CB0B2C /* TicketView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TicketView.xib; sourceTree = "<group>"; };
-		AAEB8DA7204D5CFA00CB0B2C /* TicketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicketView.swift; sourceTree = "<group>"; };
 		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
 		B1DC375C203AEAE100C9756D /* MarketQueueHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketQueueHandler.swift; sourceTree = "<group>"; };
@@ -1565,8 +1567,6 @@
 				29F1C8461FEB6664003780D8 /* EditTokenTableViewCell.xib */,
 				29F1C84B1FEC4F6F003780D8 /* TokensFooterView.swift */,
 				442FCFA81968EBB72349E849 /* StormBirdTokenSummaryTableViewCell.swift */,
-				AAEB8DA5204D5CDE00CB0B2C /* TicketView.xib */,
-				AAEB8DA7204D5CFA00CB0B2C /* TicketView.swift */,
 				5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */,
 				5E7C7C077372C3F2A4349FA1 /* TokenViewCell.swift */,
 				5E7C7C58586099F082973073 /* WalletFilterView.swift */,
@@ -2142,6 +2142,8 @@
 			isa = PBXGroup;
 			children = (
 				442FCD4311FCAFE6FB288A5E /* RedeemTicketTableViewCell.swift */,
+				5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */,
+				5E7C7ACB94CEE493AC37487F /* TicketRowView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2152,6 +2154,8 @@
 				442FCB2915417EB871E40D6C /* RedeemTicketsViewModel.swift */,
 				442FC54DA900FA2F9BB73A63 /* QuantitySelectionViewModel.swift */,
 				442FCBDB86579889BC773540 /* TicketRedemptionViewModel.swift */,
+				5E7C77061BEF269BCE358086 /* RedeemTicketTableViewCellViewModel.swift */,
+				5E7C7742709724B3BD0C2A0D /* TicketRowViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -2160,7 +2164,6 @@
 			isa = PBXGroup;
 			children = (
 				AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */,
-				442FCC6869F8D9EBCE80C1E0 /* RedeemTickets.storyboard */,
 				442FCC17EAB857C58732831E /* QuantitySelectionViewController.swift */,
 				442FCACD2BF4DD90BD9C6DBC /* TicketRedemptionViewController.swift */,
 			);
@@ -2760,7 +2763,6 @@
 				613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */,
 				C887C53A2057B703005ACF81 /* termsOfService.html in Resources */,
 				C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */,
-				AAEB8DA6204D5CDE00CB0B2C /* TicketView.xib in Resources */,
 				C880330D2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png in Resources */,
 				C880332120551DF800D73D6F /* whyUseEthereumInfo.html in Resources */,
 				29FA00D2201CA79F002F7DC5 /* web3.min.js in Resources */,
@@ -2779,7 +2781,6 @@
 				73CBC75F2020CBF800374666 /* AccountViewCell.xib in Resources */,
 				C880332220551DF800D73D6F /* whatIsEthereumInfo.html in Resources */,
 				29F1C8481FEB6664003780D8 /* EditTokenTableViewCell.xib in Resources */,
-				442FC11C94F17E8FDC0DA7B7 /* RedeemTickets.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3216,7 +3217,6 @@
 				771A847520322FD700528D28 /* PreferencesViewModel.swift in Sources */,
 				296AF9A51F736BA20058AF78 /* Config.swift in Sources */,
 				7721A6C8202EF81B004DB16C /* CustomRPC.swift in Sources */,
-				AAEB8DA8204D5CFA00CB0B2C /* TicketView.swift in Sources */,
 				29E9CFCD1FE7343C00017744 /* NewTokenViewModel.swift in Sources */,
 				AAEB8DA2204BC7B700CB0B2C /* RedeemTicketsViewController.swift in Sources */,
 				291F52A21F6B6DCF00B369AB /* EtherClient.swift in Sources */,
@@ -3389,6 +3389,10 @@
 				5E7C774B5332AC0DC19C5B1B /* EthTokenViewCellViewModel.swift in Sources */,
 				5E7C75D46140FACBD12333BF /* EthTokenViewCell.swift in Sources */,
 				5E7C728CDF33FBDBA47F71A6 /* MarketplaceViewController.swift in Sources */,
+				5E7C7CDB837DCD57E0594CBA /* TicketsViewControllerTitleHeader.swift in Sources */,
+				5E7C7700014B93A966BBA463 /* RedeemTicketTableViewCellViewModel.swift in Sources */,
+				5E7C798E5F5EE00D405B91AE /* TicketRowView.swift in Sources */,
+				5E7C76A65C14D0F11AF7848F /* TicketRowViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
