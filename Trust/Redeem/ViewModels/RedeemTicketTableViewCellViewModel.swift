@@ -2,7 +2,7 @@
 
 import UIKit
 
-struct TicketTableViewCellViewModel {
+struct RedeemTicketTableViewCellViewModel {
     private let ticketHolder: TicketHolder
 
     init(
@@ -26,6 +26,9 @@ struct TicketTableViewCellViewModel {
     var zoneName: String {
         return ticketHolder.zone
     }
+	var venue: String {
+        return ticketHolder.venue
+    }
 
     var date: String {
         //TODO Should format be localized?
@@ -37,25 +40,18 @@ struct TicketTableViewCellViewModel {
     }
 
     var status: String {
-        switch ticketHolder.status {
-        case .available:
-            return ""
-        case .sold:
-            return R.string.localizable.aWalletTicketTokenBundleStatusSoldTitle()
-        case .forSale:
-            return R.string.localizable.aWalletTicketTokenBundleStatusForSaleTitle()
-        case .transferred:
-            return R.string.localizable.aWalletTicketTokenBundleStatusTransferredTitle()
-        case .redeemed:
-            return R.string.localizable.aWalletTicketTokenBundleStatusRedeemedTitle()
-        }
+        return ""
     }
 
     var cellHeight: CGFloat {
-        if status.isEmpty {
-            return 113
+        return 113
+    }
+
+    var checkboxImage: UIImage {
+        if ticketHolder.status == .redeemed {
+            return R.image.ticket_bundle_checked()!
         } else {
-            return 143
+            return R.image.ticket_bundle_unchecked()!
         }
     }
 }

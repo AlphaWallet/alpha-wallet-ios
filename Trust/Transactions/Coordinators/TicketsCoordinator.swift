@@ -89,24 +89,25 @@ class TicketsCoordinator: Coordinator {
     }
 
     private func makeRedeemTicketsViewController() -> RedeemTicketsViewController {
-        let controller = R.storyboard.redeemTickets.redeemTicketsViewController()!
+        let controller = RedeemTicketsViewController()
         let viewModel = RedeemTicketsViewModel(token: token)
-        controller.viewModel = viewModel
+        controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
     }
 
     private func makeQuantitySelectionViewController(for ticketHolder: TicketHolder) -> QuantitySelectionViewController {
-        let controller = R.storyboard.redeemTickets.quantitySelectionViewController()!
-        controller.viewModel = QuantitySelectionViewModel(ticketHolder: ticketHolder)
+        let controller = QuantitySelectionViewController()
+        let viewModel = QuantitySelectionViewModel(ticketHolder: ticketHolder)
+		controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
     }
 
     private func makeTicketRedemptionViewController(for ticketHolder: TicketHolder) -> TicketRedemptionViewController {
-        let controller = R.storyboard.redeemTickets.ticketRedemptionViewController()!
-        controller.viewModel = TicketRedemptionViewModel(ticketHolder: ticketHolder)
-        controller.session = session
+        let controller = TicketRedemptionViewController(session: session)
+        let viewModel = TicketRedemptionViewModel(ticketHolder: ticketHolder)
+		controller.configure(viewModel: viewModel)
         return controller
     }
 
