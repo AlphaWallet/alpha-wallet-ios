@@ -44,7 +44,7 @@ struct RedeemTicketTableViewCellViewModel {
     }
 
     var cellHeight: CGFloat {
-        return 113
+        return 120
     }
 
     var checkboxImage: UIImage {

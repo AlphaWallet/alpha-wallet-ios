@@ -27,6 +27,10 @@ struct TicketTableViewCellViewModel {
         return ticketHolder.zone
     }
 
+    var venue: String {
+        return ticketHolder.venue
+    }
+
     var date: String {
         //TODO Should format be localized?
         return ticketHolder.date.format("dd MMM yyyy")
@@ -53,9 +57,9 @@ struct TicketTableViewCellViewModel {
 
     var cellHeight: CGFloat {
         if status.isEmpty {
-            return 113
+		    return 120
         } else {
-            return 143
+            return 150
         }
     }
 }

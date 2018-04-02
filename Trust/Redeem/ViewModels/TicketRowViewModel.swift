@@ -36,7 +36,7 @@ struct TicketRowViewModel {
     }
 
     var venueFont: UIFont {
-        return Fonts.light(size: 18)!
+        return Fonts.light(size: 16)!
     }
 
     var stateBackgroundColor: UIColor {
