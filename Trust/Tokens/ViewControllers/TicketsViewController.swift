@@ -12,10 +12,10 @@ import Result
 import TrustKeystore
 
 protocol TicketsViewControllerDelegate: class {
-    func didPressRedeem(token: TokenObject, in viewController: UIViewController)
-    func didPressSell(token: TokenObject, in viewController: UIViewController)
-    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: UIViewController)
-    func didCancel(in viewController: UIViewController)
+    func didPressRedeem(token: TokenObject, in viewController: TicketsViewController)
+    func didPressSell(token: TokenObject, in viewController: TicketsViewController)
+    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: TicketsViewController)
+    func didCancel(in viewController: TicketsViewController)
     func didPressViewRedemptionInfo(in viewController: TicketsViewController)
 }
 

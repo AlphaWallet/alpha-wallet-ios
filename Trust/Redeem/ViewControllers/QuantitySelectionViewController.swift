@@ -9,7 +9,7 @@
 import UIKit
 
 protocol QuantitySelectionViewControllerDelegate: class {
-    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: UIViewController)
+    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: QuantitySelectionViewController)
     func didPressViewRedemptionInfo(in viewController: QuantitySelectionViewController)
 }
 
