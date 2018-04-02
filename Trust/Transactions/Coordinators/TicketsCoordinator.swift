@@ -135,7 +135,7 @@ extension TicketsCoordinator: TicketsViewControllerDelegate {
         delegate?.didCancel(in: self)
     }
 
-    func didPressViewRedemptionInfo(viewController: UIViewController) {
+    func didPressViewRedemptionInfo(in viewController: TicketsViewController) {
        delegate?.didPressViewRedemptionInfo(in: viewController)
     }
 }
@@ -144,10 +144,18 @@ extension TicketsCoordinator: RedeemTicketsViewControllerDelegate {
     func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: UIViewController) {
         showQuantityViewController(for: ticketHolder, in: viewController)
     }
+
+	func didPressViewRedemptionInfo(in viewController: UIViewController) {
+        delegate?.didPressViewRedemptionInfo(in: viewController)
+    }
 }
 
 extension TicketsCoordinator: QuantitySelectionViewControllerDelegate {
     func didSelectQuantity(ticketHolder: TicketHolder, in viewController: UIViewController) {
         showTicketRedemptionViewController(for: ticketHolder, in: viewController)
+    }
+
+    func didPressViewRedemptionInfo(in viewController: QuantitySelectionViewController) {
+        delegate?.didPressViewRedemptionInfo(in: viewController)
     }
 }
