@@ -114,11 +114,11 @@ class TicketsCoordinator: Coordinator {
 }
 
 extension TicketsCoordinator: TicketsViewControllerDelegate {
-    func didPressRedeem(token: TokenObject, in viewController: UIViewController) {
+    func didPressRedeem(token: TokenObject, in viewController: TicketsViewController) {
         delegate?.didPressRedeem(for: token, in: self)
     }
 
-    func didPressSell(token: TokenObject, in viewController: UIViewController) {
+    func didPressSell(token: TokenObject, in viewController: TicketsViewController) {
         UIAlertController.alert(title: "",
                                 message: "This feature is not yet implemented",
                                 alertButtonTitles: ["OK"],
@@ -127,11 +127,11 @@ extension TicketsCoordinator: TicketsViewControllerDelegate {
                                 completion: nil)
     }
 
-    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: UIViewController) {
+    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: TicketsViewController) {
         delegate?.didPressTransfer(for: type, ticketHolders: ticketHolders, in: self)
     }
 
-    func didCancel(in viewController: UIViewController) {
+    func didCancel(in viewController: TicketsViewController) {
         delegate?.didCancel(in: self)
     }
 
@@ -151,7 +151,7 @@ extension TicketsCoordinator: RedeemTicketsViewControllerDelegate {
 }
 
 extension TicketsCoordinator: QuantitySelectionViewControllerDelegate {
-    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: UIViewController) {
+    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: QuantitySelectionViewController) {
         showTicketRedemptionViewController(for: ticketHolder, in: viewController)
     }
 
