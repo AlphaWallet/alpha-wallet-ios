@@ -4,7 +4,11 @@ import Foundation
 import UIKit
 
 struct TokensViewModel {
-    var tokens: [TokenObject] = []
+    var tokens: [TokenObject] = [] {
+        willSet {
+			tokens = reorderTokensSoFIFAAtIndex1(tokens: newValue)
+        }
+    }
     var tickers: [String: CoinTicker]?
     var filter: WalletFilter = .all
     var filteredTokens: [TokenObject] {
@@ -98,7 +102,22 @@ struct TokensViewModel {
         tokens: [TokenObject],
         tickers: [String: CoinTicker]?
     ) {
-        self.tokens = tokens
+        self.tokens = reorderTokensSoFIFAAtIndex1(tokens: tokens)
         self.tickers = tickers
+    }
+
+    //FIFA make the FIFA token be index 1. Can remove the function and replace with the argument when we no longer need this
+    private func reorderTokensSoFIFAAtIndex1(tokens: [TokenObject]) -> [TokenObject] {
+        let index = tokens.index { $0.address.eip55String == Constants.fifaContractAddress
+        }
+        if let index = index, tokens.count >= 2 {
+            var reorderedTokens = tokens
+            let target = reorderedTokens[index]
+            reorderedTokens.remove(at: index)
+            reorderedTokens.insert(target, at: 1)
+            return reorderedTokens
+        } else {
+            return tokens
+        }
     }
 }
