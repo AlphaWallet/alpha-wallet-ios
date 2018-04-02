@@ -361,7 +361,7 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func signTransaction(_ transaction: SignTransaction) -> Result<Data, KeystoreError> {
+    func signTransaction(_ transaction: UnsignedTransaction) -> Result<Data, KeystoreError> {
         guard let account = keyStore.account(for: transaction.account.address) else {
             return .failure(.failedToSignTransaction)
         }

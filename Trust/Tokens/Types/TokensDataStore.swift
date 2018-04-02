@@ -22,6 +22,10 @@ class TokensDataStore {
         return GetBalanceCoordinator(web3: self.web3)
     }()
 
+    private lazy var claimOrderCoordinator: ClaimOrderCoordinator = {
+        return ClaimOrderCoordinator(web3: self.web3)
+    }()
+
     private lazy var getNameCoordinator: GetNameCoordinator = {
         return GetNameCoordinator(web3: self.web3)
     }()
@@ -157,6 +161,18 @@ class TokensDataStore {
                         completion: @escaping (Result<Bool, AnyError>) -> Void) {
         let address = Address(string: addressString)
         getIsStormBirdCoordinator.getIsStormBirdContract(for: address!) { result in
+            completion(result)
+        }
+    }
+
+    //Result<Void, AnyError>
+    func claimOrder(ticketIndices: [UInt16],
+                    expiry: BigUInt,
+                    v: UInt8,
+                    r: String,
+                    s: String,
+                    completion: @escaping(Any) -> Void) {
+        claimOrderCoordinator.claimOrder(indices: ticketIndices, expiry: expiry, v: v, r: r, s: s) { result in
             completion(result)
         }
     }

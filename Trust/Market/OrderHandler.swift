@@ -39,31 +39,42 @@ extension Data {
     }
 }
 
-public class SignOrders {
+public class OrderHandler {
 
     private let keyStore = try! EtherKeystore()
 
-    //takes a list of orders and returns a list of signature objects
-    //TODO sign message bulk
-    func signOrders(orders: [Order], account: Account) -> [SignedOrder] {
-
+    func signOrders(orders: [Order], account: Account) throws -> [SignedOrder] {
         var signedOrders = [SignedOrder]()
+        var messages = [Data]()
 
         for i in 0...orders.count - 1 {
-            let message: [UInt8] = encodeMessageForTrade(price: orders[i].price,
-                                                         expiryBuffer: orders[i].expiry,
-                                                         tickets: orders[i].indices,
-                                                         contractAddress: orders[i].contractAddress)
+            let message: [UInt8] = encodeMessageForTrade(
+                    price: orders[i].price,
+                    expiryBuffer: orders[i].expiry,
+                    tickets: orders[i].indices,
+                    contractAddress: orders[i].contractAddress
+            )
+            messages.append(Data(bytes: message))
+        }
 
-            let signature = keyStore.signMessageData(Data(bytes: message), for: account)
-            let signedOrder: SignedOrder = SignedOrder(order: orders[i],
-                                                       message: message,
-                                                       signature: signature.description)
+        let signatures: [Data] = try! keyStore.signMessageBulk(messages, for: account).dematerialize()
+
+        for i in 0...signatures.count - 1 {
+            let signedOrder = SignedOrder(
+                    order: orders[i],
+                    message: messages[i].bytes,
+                    signature: signatures[i].hexString
+            )
             signedOrders.append(signedOrder)
         }
         return signedOrders
     }
 
+    //buffer size is 84 + tickets
+    //first 32 bytes is allocated for price
+    //next 32 for expiry
+    //20 for contract address
+    //remaining for tickets
     func encodeMessageForTrade(price: BigUInt,
                                expiryBuffer: BigUInt,
                                tickets: [UInt16],
@@ -97,7 +108,7 @@ public class SignOrders {
             buffer.append(contractAddr[i])
         }
 
-        var ticketsUint8 = SignOrders.uInt16ArrayToUInt8(arrayOfUInt16: tickets)
+        var ticketsUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: tickets)
 
         for i in 0...ticketsUint8.count - 1 {
             buffer.append(ticketsUint8[i])
@@ -106,7 +117,7 @@ public class SignOrders {
         return buffer
     }
 
-    static func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
+    public static func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
         var arrayOfUint8 = [UInt8]()
         for i in 0...arrayOfUInt16.count - 1 {
             var UInt8ArrayPair = arrayOfUInt16[i].bigEndian.data.array
@@ -116,11 +127,4 @@ public class SignOrders {
         return arrayOfUint8
     }
 
-    func bufferToString(buffer: [UInt8]) -> String {
-        var bufferString: String = ""
-        for i in 0...buffer.count - 1 {
-            bufferString += String(buffer[i])
-        }
-        return bufferString
-    }
 }

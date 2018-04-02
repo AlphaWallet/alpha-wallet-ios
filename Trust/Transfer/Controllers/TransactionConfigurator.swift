@@ -67,6 +67,8 @@ class TransactionConfigurator {
                 return Address(string: token.contract)
             case .stormBird(let token):
                 return Address(string: token.contract)
+            case .stormBirdOrder(let token):
+                return Address(string: token.contract)
             }
         }()
         let request = EstimateGasRequest(
@@ -98,48 +100,65 @@ class TransactionConfigurator {
 
     func load(completion: @escaping (Result<Void, AnyError>) -> Void) {
         switch transaction.transferType {
-        case .ether:
-            guard requestEstimateGas else {
-                return completion(.success(()))
-            }
-            estimateGasLimit()
-            self.configuration = TransactionConfiguration(
-                gasPrice: calculatedGasPrice,
-                gasLimit: GasLimitConfiguration.default,
-                data: transaction.data ?? self.configuration.data
-            )
-            completion(.success(()))
-        case .token:
-            session.web3.request(request: ContractERC20Transfer(amount: transaction.value, address: transaction.to!.description)) { [unowned self] result in
-                switch result {
-                case .success(let res):
-                    let data = Data(hex: res.drop0x)
-                    self.configuration = TransactionConfiguration(
-                        gasPrice: self.calculatedGasPrice,
-                        gasLimit: 144000,
-                        data: data
-                    )
-                    completion(.success(()))
-                case .failure(let error):
-                    completion(.failure(error))
+            case .ether:
+                guard requestEstimateGas else {
+                    return completion(.success(()))
                 }
-            }
-        //TODO clean up
-        case .stormBird:
-            session.web3.request(request: ContractStormBirdTransfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
-                switch result {
-                case .success(let res):
-                    let data = Data(hex: res.drop0x)
-                    self.configuration = TransactionConfiguration(
-                        gasPrice: self.calculatedGasPrice,
-                        gasLimit: 144000,
-                        data: data
-                    )
-                    completion(.success(()))
-                case .failure(let error):
-                    completion(.failure(error))
+                estimateGasLimit()
+                self.configuration = TransactionConfiguration(
+                        gasPrice: calculatedGasPrice,
+                        gasLimit: GasLimitConfiguration.default,
+                        data: transaction.data ?? self.configuration.data
+                )
+                completion(.success(()))
+            case .token:
+                session.web3.request(request: ContractERC20Transfer(amount: transaction.value, address: transaction.to!.description)) { [unowned self] result in
+                    switch result {
+                    case .success(let res):
+                        let data = Data(hex: res.drop0x)
+                        self.configuration = TransactionConfiguration(
+                                gasPrice: self.calculatedGasPrice,
+                                gasLimit: 144000,
+                                data: data
+                        )
+                        completion(.success(()))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
                 }
-            }
+            //TODO clean up
+            case .stormBird:
+                session.web3.request(request: ContractStormBirdTransfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
+                    switch result {
+                    case .success(let res):
+                        let data = Data(hex: res.drop0x)
+                        self.configuration = TransactionConfiguration(
+                                gasPrice: self.calculatedGasPrice,
+                                gasLimit: 144000,
+                                data: data
+                        )
+                        completion(.success(()))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
+            //TODO put order claim tx here somehow, or maybe the same one above
+            case .stormBirdOrder:
+                session.web3.request(request: ClaimStormBirdOrder(expiry: transaction.expiry!, indices: transaction.indices!,
+                        v: transaction.v!, r: transaction.r!, s: transaction.s!)) { [unowned self] result in
+                    switch result {
+                    case .success(let res):
+                        let data = Data(hex: res.drop0x)
+                        self.configuration = TransactionConfiguration(
+                                gasPrice: self.calculatedGasPrice,
+                                gasLimit: 144000,
+                                data: data
+                        )
+                        completion(.success(()))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
         }
     }
 
@@ -157,12 +176,13 @@ class TransactionConfigurator {
         )
     }
 
-    func signTransaction() -> SignTransaction {
+    func formUnsignedTransaction() -> UnsignedTransaction {
         let value: BigInt = {
             switch transaction.transferType {
             case .ether: return transaction.value
             case .token: return 0
             case .stormBird: return 0
+            case .stormBirdOrder: return transaction.value
             }
         }()
         let address: Address? = {
@@ -170,9 +190,10 @@ class TransactionConfigurator {
             case .ether: return transaction.to
             case .token(let token): return token.address
             case .stormBird(let token): return token.address
+            case .stormBirdOrder(let token): return token.address
             }
         }()
-        let signTransaction = SignTransaction(
+        let signTransaction = UnsignedTransaction(
             value: value,
             account: account,
             to: address,
