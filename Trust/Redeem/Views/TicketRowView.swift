@@ -30,18 +30,14 @@ class TicketRowView: UIView {
 		background.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(background)
 
-		venueLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-
 		//A spacer view to take up empty horizontal space so venueLabel can be right aligned while the rest is left aligned in topRowStack
 		let topRowStack = UIStackView(arrangedSubviews: [
 			ticketCountLabel,
 			titleLabel,
-			.spacer(),
-			venueLabel])
+		])
 		topRowStack.axis = .horizontal
 		topRowStack.spacing = 15
 		topRowStack.distribution = .fill
-		topRowStack.alignment = .center
 		topRowStack.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
 
 		let bottomRowStack = UIStackView(arrangedSubviews: [
@@ -62,12 +58,14 @@ class TicketRowView: UIView {
 		let stackView = UIStackView(arrangedSubviews: [
 			stateLabel,
 			topRowStack,
+			venueLabel,
+			.spacer(height: 10),
 			bottomRowStack
 		])
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.axis = .vertical
 		stackView.alignment = .leading
-		stackView.spacing = 10
+		stackView.spacing = 0
 		stackView.distribution = .fill
 		stackView.setContentHuggingPriority(UILayoutPriority.required, for: .vertical)
 		background.addSubview(stackView)
@@ -85,13 +83,10 @@ class TicketRowView: UIView {
         }
 
 		NSLayoutConstraint.activate([
-			topRowStack.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
-
 			stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
 			stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
 			stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
 			stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
-
 
 			background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
 			background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
@@ -128,7 +123,6 @@ class TicketRowView: UIView {
 
 		venueLabel.textColor = viewModel.titleColor
 		venueLabel.font = viewModel.venueFont
-		venueLabel.textAlignment = .right
 
 		dateLabel.textColor = viewModel.subtitleColor
 		dateLabel.font = viewModel.subtitleFont
