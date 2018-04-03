@@ -347,6 +347,7 @@ class InCoordinator: Coordinator {
                 )
                 nonTabTransactionCoordinator?.delegate = self
                 nonTabTransactionCoordinator?.start()
+                nonTabTransactionCoordinator?.rootViewController.showActionButtons = true
                 nonTabTransactionCoordinator?.rootViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissTransactions))
             }
         }

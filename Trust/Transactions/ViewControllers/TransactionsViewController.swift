@@ -32,6 +32,17 @@ class TransactionsViewController: UIViewController {
     weak var delegate: TransactionsViewControllerDelegate?
     let dataCoordinator: TransactionDataCoordinator
     let session: WalletSession
+	var footerHeightConstraint: NSLayoutConstraint?
+    var showActionButtons = false {
+        didSet {
+			footerView.isHidden = !showActionButtons
+            if showActionButtons {
+                footerHeightConstraint?.constant = 60
+            } else {
+                footerHeightConstraint?.constant = 0
+            }
+        }
+    }
 
     lazy var footerView: TransactionsFooterView = {
         let footerView = TransactionsFooterView(frame: .zero)
@@ -68,6 +79,9 @@ class TransactionsViewController: UIViewController {
         view.addSubview(tableView)
         view.addSubview(footerView)
 
+        footerView.isHidden = !showActionButtons
+        footerHeightConstraint = footerView.heightAnchor.constraint(equalToConstant: 0)
+
         NSLayoutConstraint.activate([
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -77,7 +91,7 @@ class TransactionsViewController: UIViewController {
             footerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerView.bottomAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor),
-            footerView.heightAnchor.constraint(equalToConstant: 60),
+            footerHeightConstraint!,
         ])
 
         dataCoordinator.delegate = self
