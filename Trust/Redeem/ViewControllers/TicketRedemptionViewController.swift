@@ -63,6 +63,7 @@ class TicketRedemptionViewController: UIViewController {
 
             imageHolder.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: xMargin),
             imageHolder.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -xMargin),
+			imageHolder.widthAnchor.constraint(equalTo: imageHolder.heightAnchor),
 
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
