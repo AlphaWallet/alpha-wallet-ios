@@ -23,6 +23,8 @@ class TicketRedemptionViewController: UIViewController {
 		self.session = session
         super.init(nibName: nil, bundle: nil)
 
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -105,6 +107,11 @@ class TicketRedemptionViewController: UIViewController {
             imageView.image = qrCodeInfo.toQRCode()
         case .watch: break // TODO: What to do here?
         }
+    }
+
+    @objc func showInfo() {
+        let controller = TicketRedemptionInfoViewController()
+        navigationController?.pushViewController(controller, animated: true)
     }
 
     private func showSuccessMessage() {
