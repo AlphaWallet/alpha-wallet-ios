@@ -75,6 +75,9 @@ class QuantitySelectionViewController: UIViewController {
 
 			quantityStepper.heightAnchor.constraint(equalToConstant: 50),
 
+            ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
             roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             roundedBackground.topAnchor.constraint(equalTo: view.topAnchor),
