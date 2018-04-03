@@ -179,6 +179,7 @@
 "a.wallet.import.wallet.bubble.description" = "Check your Email/SMS for the import link. Tap it and it will automatically import to the app!";
 "a.wallet.ticketToken.redeem.button.title" = "Redeem";
 "a.wallet.ticketToken.redeem.selectTickets.title" = "Select Tickets To Redeem:";
+"a.wallet.ticketToken.redeem.selectTicketQuantity.atLeastOne.title" = "Please select quantity of tickets";
 "a.wallet.ticketToken.redeem.selectTickets.atLeastOne.title" = "Please select a ticket to redeem";
 "a.wallet.ticketToken.redeem.selectQuantity.title" = "Select Quantity of Tickets";
 "a.wallet.ticketToken.redeem.quantity.title" = "QUANTITY OF TICKETS";
