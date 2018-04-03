@@ -38,10 +38,4 @@ struct TicketsViewModel {
     var buttonFont: UIFont {
         return Fonts.regular(size: 20)!
     }
-
-    private func summaryCell(for tableView: UITableView, indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.stormBirdTokenSummaryTableViewCell, for: indexPath)!
-        cell.configure(for: token)
-        return cell
-    }
 }
