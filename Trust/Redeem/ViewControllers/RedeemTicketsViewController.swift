@@ -10,6 +10,7 @@ import UIKit
 
 protocol RedeemTicketsViewControllerDelegate: class {
     func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: UIViewController)
+    func didPressViewRedemptionInfo(in viewController: UIViewController)
 }
 
 class RedeemTicketsViewController: UIViewController {
@@ -24,6 +25,8 @@ class RedeemTicketsViewController: UIViewController {
 
     init() {
         super.init(nibName: nil, bundle: nil)
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
 
         view.backgroundColor = Colors.appBackground
 
@@ -106,6 +109,10 @@ class RedeemTicketsViewController: UIViewController {
         } else {
             self.delegate?.didSelectTicketHolder(ticketHolder: selectedTicketHolders!.first!, in: self)
         }
+    }
+
+    @objc func showInfo() {
+        delegate?.didPressViewRedemptionInfo(in: self)
     }
 }
 
