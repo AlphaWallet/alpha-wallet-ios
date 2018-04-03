@@ -175,6 +175,8 @@
 "walletTokens.tabbar.item.title" = "Wallet";
 "a.wallet.navigation.title" = "Wallet";
 "a.wallet.import.wallet.title" = "Import";
+"a.wallet.import.wallet.bubble.title" = "Have a ticket to import?";
+"a.wallet.import.wallet.bubble.description" = "Check your Email/SMS for the import link. Tap it and it will automatically import to the app!";
 "a.wallet.ticketToken.redeem.button.title" = "Redeem";
 "a.wallet.ticketToken.redeem.selectTickets.title" = "Select Tickets To Redeem:";
 "a.wallet.ticketToken.redeem.selectTickets.atLeastOne.title" = "Please select a ticket to redeem";

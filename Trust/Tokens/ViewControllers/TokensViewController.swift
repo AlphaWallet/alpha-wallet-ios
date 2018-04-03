@@ -24,6 +24,7 @@ class TokensViewController: UIViewController {
 	let filterView = WalletFilterView()
     var importWalletView: UIView?
     var importWalletLayer = CAShapeLayer()
+    var importWalletHelpBubbleView: ImportWalletHelpBubbleView?
     let tableView: UITableView
     let refreshControl = UIRefreshControl()
     weak var delegate: TokensViewControllerDelegate?
@@ -115,6 +116,7 @@ class TokensViewController: UIViewController {
 
     private func hideImportWalletImage() {
         importWalletView?.isHidden = true
+		importWalletHelpBubbleView?.isHidden = true
     }
 
     private func showImportWalletImage() {
@@ -160,6 +162,17 @@ class TokensViewController: UIViewController {
                 stackView.centerYAnchor.constraint(equalTo: importWalletView.centerYAnchor),
             ])
         }
+        importWalletHelpBubbleView = ImportWalletHelpBubbleView()
+		let sideMargin = CGFloat(7)
+        if let importWalletView = importWalletView, let importWalletHelpBubbleView = importWalletHelpBubbleView {
+            view.addSubview(importWalletHelpBubbleView)
+
+            NSLayoutConstraint.activate([
+                importWalletHelpBubbleView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sideMargin),
+                importWalletHelpBubbleView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sideMargin),
+                importWalletHelpBubbleView.topAnchor.constraint(equalTo: importWalletView.bottomAnchor, constant: 7),
+            ])
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -177,7 +190,7 @@ class TokensViewController: UIViewController {
 
     private func createImportWalletImagePath() -> UIBezierPath {
         if let importWalletView = importWalletView {
-            let path = UIBezierPath(roundedRect: importWalletView.bounds, cornerRadius: 7)
+            let path = UIBezierPath(roundedRect: importWalletView.bounds, cornerRadius: 20)
             return path
         } else {
             return UIBezierPath()
@@ -335,3 +348,4 @@ extension TokensViewController: WalletFilterViewDelegate {
         reload()
     }
 }
+
