@@ -29,9 +29,9 @@ class OrderSigningTests : XCTestCase  {
             testOrdersList.append(testOrder1)
         }
 
-        let signOrders = OrderHandler()
+        //let signOrders = OrderHandler()
 
-        let account = keystore.getAccount(for: address)!
+        //let account = keystore.getAccount(for: address)!
 
         //let signedOrders = try! signOrders.signOrders(orders: testOrdersList, account: account)
         //XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
