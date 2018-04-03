@@ -102,7 +102,7 @@ class RedeemTicketsViewController: UIViewController {
         if selectedTicketHolders!.isEmpty {
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTicketTokenRedeemSelectTicketsAtLeastOneTitle(),
-                                    alertButtonTitles: ["OK"],
+                                    alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,
                                     completion: nil)

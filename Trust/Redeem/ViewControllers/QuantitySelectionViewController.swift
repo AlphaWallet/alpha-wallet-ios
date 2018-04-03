@@ -100,8 +100,8 @@ class QuantitySelectionViewController: UIViewController {
     func nextButtonTapped() {
         if quantityStepper.value == 0 {
             UIAlertController.alert(title: "",
-                                    message: "Please select quantity of tickets",
-                                    alertButtonTitles: ["OK"],
+                                    message: R.string.localizable.aWalletTicketTokenRedeemSelectTicketQuantityAtLeastOneTitle(),
+                                    alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,
                                     completion: nil)
