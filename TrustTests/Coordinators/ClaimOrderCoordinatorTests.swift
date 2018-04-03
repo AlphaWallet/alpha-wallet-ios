@@ -64,7 +64,7 @@ class ClaimOrderCoordinatorTests : XCTestCase {
 
                 let unsignedTransaction = configurator.formUnsignedTransaction()
                 
-                let account = keystore.getAccount(for: address)!
+                let account = keystore.createAccount(password: "test")
                 
                 let signedTransaction = UnsignedTransaction(value: unsignedTransaction.value,
                                                         account: account,
@@ -79,16 +79,17 @@ class ClaimOrderCoordinatorTests : XCTestCase {
                 let sendTransactionCoordinator = SendTransactionCoordinator(session: session,
                                                                             keystore: keystore,
                                                                             confirmType: .signThenSend)
-                
-                sendTransactionCoordinator.send(transaction: signedTransaction) { result in
-                    switch result {
-                    case .success(let res):
-                        print(res);
-                        expectation.fulfill()
-                    case .failure(let error):
-                        print(error);
-                    }
-                }
+                expectation.fulfill()
+                //should not broadcast for a test
+//                sendTransactionCoordinator.send(transaction: signedTransaction) { result in
+//                    switch result {
+//                    case .success(let res):
+//                        print(res);
+//                        expectation.fulfill()
+//                    case .failure(let error):
+//                        print(error);
+//                    }
+//                }
             case .failure: break
             }
         }
