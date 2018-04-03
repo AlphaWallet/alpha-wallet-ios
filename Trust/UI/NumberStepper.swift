@@ -92,7 +92,7 @@ class NumberStepper: UIControl {
 		button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("-", for: .normal)
         button.setTitleColor(self.buttonsTextColor, for: .normal)
-        button.backgroundColor = self.buttonsBackgroundColor
+        button.setBackgroundColor(self.buttonsBackgroundColor, forState: .normal)
         button.titleLabel?.font = self.buttonsFont
         button.addTarget(self, action: #selector(rightButtonTouchDown), for: .touchDown)
         button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpInside)
@@ -106,7 +106,7 @@ class NumberStepper: UIControl {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("+", for: .normal)
         button.setTitleColor(self.buttonsTextColor, for: .normal)
-        button.backgroundColor = self.buttonsBackgroundColor
+        button.setBackgroundColor(self.buttonsBackgroundColor, forState: .normal)
         button.titleLabel?.font = self.buttonsFont
         button.addTarget(self, action: #selector(leftButtonTouchDown), for: .touchDown)
         button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpInside)
@@ -166,16 +166,18 @@ class NumberStepper: UIControl {
         NSLayoutConstraint.activate([
             leftButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 7),
             leftButton.trailingAnchor.constraint(equalTo: label.leadingAnchor, constant: -xMargin),
+			leftButton.widthAnchor.constraint(equalToConstant: 44),
             leftButton.topAnchor.constraint(equalTo: topAnchor),
             leftButton.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             label.trailingAnchor.constraint(equalTo: rightButton.leadingAnchor, constant: -xMargin),
             //Just so the label doesn't change width when we change the value
-			label.widthAnchor.constraint(greaterThanOrEqualToConstant: 50),
+            label.widthAnchor.constraint(greaterThanOrEqualToConstant: 50),
             label.topAnchor.constraint(equalTo: topAnchor),
             label.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             rightButton.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -7),
+            rightButton.widthAnchor.constraint(equalToConstant: 44),
             rightButton.topAnchor.constraint(equalTo: topAnchor),
             rightButton.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
