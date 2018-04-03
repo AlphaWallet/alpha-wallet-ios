@@ -118,7 +118,7 @@ class TicketRedemptionViewController: UIViewController {
         invalidateTimer()
         UIAlertController.alert(title: "Congrats",
                                 message: "You have successfully redeemed your ticket(s)",
-                                alertButtonTitles: ["OK"],
+                                alertButtonTitles: [R.string.localizable.oK()],
                                 alertButtonStyles: [.cancel],
                                 viewController: self,
                                 completion: { _ in
