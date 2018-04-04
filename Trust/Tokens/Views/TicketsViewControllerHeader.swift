@@ -55,6 +55,7 @@ class TicketsViewControllerHeader: UIView {
         titleLabel.textColor = viewModel.titleColor
         titleLabel.font = viewModel.titleFont
         titleLabel.text = viewModel.title
+        titleLabel.adjustsFontSizeToFitWidth = true
 
         blockchainLabel.textColor = viewModel.subtitleColor
         blockchainLabel.font = viewModel.subtitleFont
