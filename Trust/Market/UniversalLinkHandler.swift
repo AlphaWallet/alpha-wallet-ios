@@ -33,7 +33,6 @@ public class UniversalLinkHandler {
     public let urlPrefix = "https://app.awallet.io/"
     public static let paymentServer = "http://stormbird.duckdns.org:8080/api/claimToken"
 
-    //TODO fix encoding of this link later as it is low priority
     func createUniversalLink(signedOrder: SignedOrder) -> String
     {
         let message = MarketQueueHandler.bytesToHexa(signedOrder.message)
@@ -48,11 +47,11 @@ public class UniversalLinkHandler {
     func parseURL(url: String) -> SignedOrder {
         let linkInfo = url.substring(from: urlPrefix.count)
         let linkBytes = Data(base64Encoded: linkInfo)?.array
-        let price = getPriceFromLinkBytes(linkBytes: linkBytes)
-        let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
-        let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
-        let ticketIndices = getTicketIndicesFromLinkBytes(linkBytes: linkBytes)
-        let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes)
+        let price = getPriceFromLinkBytes(linkBytes: linkBytes!)
+        let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes!)
+        let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes!)
+        let ticketIndices = getTicketIndicesFromLinkBytes(linkBytes: linkBytes!)
+        let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes!)
         let message = getMessageFromLinkBytes(linkBytes: linkBytes!)
 
         let order = Order(
@@ -67,43 +66,43 @@ public class UniversalLinkHandler {
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
 
-    func getPriceFromLinkBytes(linkBytes: [UInt8]?) -> BigUInt {
+    func getPriceFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
         var priceBytes = [UInt8]()
         for i in 0...3 {
             //price in szabo
-            priceBytes.append(linkBytes![i])
+            priceBytes.append(linkBytes[i])
         }
         return (BigUInt(MarketQueueHandler.bytesToHexa(priceBytes),
-                radix: 16)?.multiplied(by: BigUInt("1000000000000")!))!
+                radix: 16)!.multiplied(by: BigUInt("1000000000000")!))
     }
 
-    func getExpiryFromLinkBytes(linkBytes: [UInt8]?) -> BigUInt {
+    func getExpiryFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
         var expiryBytes = [UInt8]()
         for i in 4...7 {
-            expiryBytes.append(linkBytes![i])
+            expiryBytes.append(linkBytes[i])
         }
         let expiry = MarketQueueHandler.bytesToHexa(expiryBytes)
         return BigUInt(expiry, radix: 16)!
     }
 
-    func getContractAddressFromLinkBytes(linkBytes: [UInt8]?) -> String {
+    func getContractAddressFromLinkBytes(linkBytes: [UInt8]) -> String {
         var contractAddrBytes = [UInt8]()
         for i in 8...27 {
-            contractAddrBytes.append(linkBytes![i])
+            contractAddrBytes.append(linkBytes[i])
         }
         return MarketQueueHandler.bytesToHexa(contractAddrBytes)
     }
 
-    func getTicketIndicesFromLinkBytes(linkBytes: [UInt8]?) -> [UInt16] {
+    func getTicketIndicesFromLinkBytes(linkBytes: [UInt8]) -> [UInt16] {
 
-        let ticketLength = ((linkBytes?.count)! - (65 + 20 + 8)) - 1
+        let ticketLength = linkBytes.count - (65 + 20 + 8) - 1
         var ticketIndices = [UInt16]()
         var state: Int = 1
         var currentIndex: UInt16 = 0
         let ticketStart = 28
 
         for i in stride(from: ticketStart, through: ticketStart + ticketLength, by: 1) {
-            let byte: UInt8 = linkBytes![i]
+            let byte: UInt8 = linkBytes[i]
             switch(state) {
                 case 1:
                     //8th bit is equal to 128, if not set then it is only one ticket and will change the state
@@ -128,31 +127,31 @@ public class UniversalLinkHandler {
         return ticketIndices
     }
 
-    func getVRSFromLinkBytes(linkBytes: [UInt8]?) -> (String, String, String) {
-        var signatureStart = (linkBytes?.count)! - 65
+    func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String) {
+        var signatureStart = linkBytes.count - 65
         var rBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31
         {
-            rBytes.append(linkBytes![i])
+            rBytes.append(linkBytes[i])
         }
         let r = MarketQueueHandler.bytesToHexa(rBytes)
         signatureStart += 32
         var sBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31 {
-            sBytes.append(linkBytes![i])
+            sBytes.append(linkBytes[i])
         }
 
         let s = MarketQueueHandler.bytesToHexa(sBytes)
-        let v = String(format:"%2X", linkBytes![(linkBytes?.count)! - 1]).trimmed
+        let v = String(format:"%2X", linkBytes[linkBytes.count - 1]).trimmed
 
         return (v, r, s)
     }
 
-    func getMessageFromLinkBytes(linkBytes: [UInt8]?) -> [UInt8] {
-        let ticketLength = (linkBytes?.count)! - (65 + 20 + 8) - 1
+    func getMessageFromLinkBytes(linkBytes: [UInt8]) -> [UInt8] {
+        let messageLength = linkBytes.count - 65
         var message = [UInt8]()
-        for i in 0...ticketLength + 84 {
-            message.append(linkBytes![i])
+        for i in 0...messageLength - 1 {
+            message.append(linkBytes[i])
         }
         return message
     }
