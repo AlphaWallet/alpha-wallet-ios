@@ -82,6 +82,17 @@ class TicketsViewController: UIViewController {
         let buttonsHeight = CGFloat(60)
         footerBar.addSubview(buttonsStackView)
 
+        let separator0 = UIView()
+        separator0.translatesAutoresizingMaskIntoConstraints = false
+        separator0.backgroundColor = Colors.appLightButtonSeparator
+        footerBar.addSubview(separator0)
+
+        let separator1 = UIView()
+        separator1.translatesAutoresizingMaskIntoConstraints = false
+        separator1.backgroundColor = separator0.backgroundColor
+        footerBar.addSubview(separator1)
+
+		let separatorThickness = CGFloat(1)
         NSLayoutConstraint.activate([
             roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -97,6 +108,16 @@ class TicketsViewController: UIViewController {
             buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
             buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
+
+            separator0.leadingAnchor.constraint(equalTo: redeemButton.trailingAnchor, constant: -separatorThickness / 2),
+            separator0.trailingAnchor.constraint(equalTo: sellButton.leadingAnchor, constant: separatorThickness / 2),
+			separator0.topAnchor.constraint(equalTo: buttonsStackView.topAnchor, constant: 8),
+            separator0.bottomAnchor.constraint(equalTo: buttonsStackView.bottomAnchor, constant: -8),
+
+            separator1.leadingAnchor.constraint(equalTo: sellButton.trailingAnchor, constant: -0.5),
+            separator1.trailingAnchor.constraint(equalTo: transferButton.leadingAnchor, constant: 0.5),
+            separator1.topAnchor.constraint(equalTo: separator0.topAnchor),
+            separator1.bottomAnchor.constraint(equalTo: separator0.bottomAnchor),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
