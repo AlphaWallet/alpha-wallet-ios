@@ -85,11 +85,17 @@ class TransactionsViewController: UIViewController {
 		let footerViewHeight = CGFloat(60)
         footerBar.addSubview(footerView)
 
+        let separator = UIView()
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        separator.backgroundColor = Colors.appLightButtonSeparator
+        footerBar.addSubview(separator)
+
         actionButtonsVisibleConstraint = footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -footerViewHeight)
         actionButtonsInVisibleConstraint = footerBar.topAnchor.constraint(equalTo: footerBar.bottomAnchor)
 
         reflectActionButtonsVisibility()
 
+        let separatorThickness = CGFloat(1)
         NSLayoutConstraint.activate([
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -100,6 +106,11 @@ class TransactionsViewController: UIViewController {
             footerView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             footerView.topAnchor.constraint(equalTo: footerBar.topAnchor),
 			footerView.heightAnchor.constraint(equalToConstant: footerViewHeight),
+
+            separator.leadingAnchor.constraint(equalTo: footerView.sendButton.trailingAnchor, constant: -separatorThickness / 2),
+            separator.trailingAnchor.constraint(equalTo: footerView.requestButton.leadingAnchor, constant: separatorThickness / 2),
+            separator.topAnchor.constraint(equalTo: footerView.topAnchor, constant: 8),
+            separator.bottomAnchor.constraint(equalTo: footerView.bottomAnchor, constant: -8),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
