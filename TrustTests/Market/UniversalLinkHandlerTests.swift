@@ -14,7 +14,7 @@ class UniversalLinkHandlerTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(signedOrder.signature.count, 130)
         let url = UniversalLinkHandler().createUniversalLink(signedOrder: signedOrder)
         print(url)
-        //XCTAssertEqual(testUrl, url)
+        XCTAssertEqual(testUrl, url)
     }
 
 }
