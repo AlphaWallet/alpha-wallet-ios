@@ -39,6 +39,7 @@ class SettingsViewController: FormViewController {
         let account = session.account
 
         view.backgroundColor = Colors.appBackground
+        tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appBackground
 
         form = Section()
