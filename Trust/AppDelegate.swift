@@ -4,7 +4,6 @@ import UIKit
 import Lokalise
 import Branch
 import RealmSwift
-import Alamofire
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -83,43 +82,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         Branch.getInstance().continue(userActivity)
 
         let url = userActivity.webpageURL
+		let coordinator = UniversalLinkCoordinator()
+        coordinator.delegate = self
+        coordinator.start()
+		let handled = coordinator.handleUniversalLink(url: url)
+		//TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
 
-        if(url?.description.contains(UniversalLinkHandler().urlPrefix))!
-        {
-            let keystore = try! EtherKeystore()
-            let signedOrder = UniversalLinkHandler().parseURL(url: (url?.description)!)
-            let signature = signedOrder.signature.substring(from: 2)
-
-	    // form the json string out of the order for the paymaster server
-	    // James S. wrote
-            let indices = signedOrder.order.indices
-            var indicesStringEncoded = ""
-	    
-            for i in 0...indices.count - 1 {
-                indicesStringEncoded += String(indices[i]) + ","
-            }
-            //cut off last comma
-            indicesStringEncoded = indicesStringEncoded.substring(from: indicesStringEncoded.count - 1)
-
-            let parameters: Parameters = [
-                "address" : keystore.recentlyUsedWallet?.address.description,
-                "indices": indicesStringEncoded,
-                "v" : signature.substring(from: 128),
-                "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
-                "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
-            ]
-            let query = UniversalLinkHandler.paymentServer
-
-            Alamofire.request(
-                    query,
-                    method: .post,
-                    parameters: parameters
-            ).responseJSON {
-                result in
-		// TODO handle http response
-                print(result)
-            }
-        }
         return true
+    }
+}
+
+extension AppDelegate: UniversalLinkCoordinatorDelegate {
+    func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController? {
+        return window?.rootViewController
     }
 }
