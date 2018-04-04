@@ -32,15 +32,11 @@ class TransactionsViewController: UIViewController {
     weak var delegate: TransactionsViewControllerDelegate?
     let dataCoordinator: TransactionDataCoordinator
     let session: WalletSession
-	var footerHeightConstraint: NSLayoutConstraint?
+    var actionButtonsVisibleConstraint: NSLayoutConstraint?
+    var actionButtonsInVisibleConstraint: NSLayoutConstraint?
     var showActionButtons = false {
         didSet {
-			footerView.isHidden = !showActionButtons
-            if showActionButtons {
-                footerHeightConstraint?.constant = 60
-            } else {
-                footerHeightConstraint?.constant = 0
-            }
+			reflectActionButtonsVisibility()
         }
     }
 
@@ -50,6 +46,12 @@ class TransactionsViewController: UIViewController {
         footerView.requestButton.addTarget(self, action: #selector(request), for: .touchUpInside)
         footerView.sendButton.addTarget(self, action: #selector(send), for: .touchUpInside)
         return footerView
+    }()
+    let footerBar: UIView = {
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = Colors.appHighlightGreen
+		return footerBar
     }()
 
     let insets = UIEdgeInsets(top: 130, left: 0, bottom: ButtonSize.extraLarge.height + 84, right: 0)
@@ -77,21 +79,42 @@ class TransactionsViewController: UIViewController {
         tableView.backgroundColor = Colors.appBackground
         tableView.rowHeight = 80
         view.addSubview(tableView)
-        view.addSubview(footerView)
 
-        footerView.isHidden = !showActionButtons
-        footerHeightConstraint = footerView.heightAnchor.constraint(equalToConstant: 0)
+        view.addSubview(footerBar)
 
+		let footerViewHeight = CGFloat(60)
+        footerBar.addSubview(footerView)
+
+        let separator = UIView()
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        separator.backgroundColor = Colors.appLightButtonSeparator
+        footerBar.addSubview(separator)
+
+        actionButtonsVisibleConstraint = footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -footerViewHeight)
+        actionButtonsInVisibleConstraint = footerBar.topAnchor.constraint(equalTo: footerBar.bottomAnchor)
+
+        reflectActionButtonsVisibility()
+
+        let separatorThickness = CGFloat(1)
         NSLayoutConstraint.activate([
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: footerView.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            footerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerView.bottomAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor),
-            footerHeightConstraint!,
+            footerView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            footerView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            footerView.topAnchor.constraint(equalTo: footerBar.topAnchor),
+			footerView.heightAnchor.constraint(equalToConstant: footerViewHeight),
+
+            separator.leadingAnchor.constraint(equalTo: footerView.sendButton.trailingAnchor, constant: -separatorThickness / 2),
+            separator.trailingAnchor.constraint(equalTo: footerView.requestButton.leadingAnchor, constant: separatorThickness / 2),
+            separator.topAnchor.constraint(equalTo: footerView.topAnchor, constant: 8),
+            separator.bottomAnchor.constraint(equalTo: footerView.bottomAnchor, constant: -8),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
         dataCoordinator.delegate = self
@@ -182,6 +205,16 @@ class TransactionsViewController: UIViewController {
         conteiner.addConstraints([horConstraint, verConstraint, leftConstraint])
         return conteiner
     }
+
+    private func reflectActionButtonsVisibility() {
+        if showActionButtons {
+            actionButtonsVisibleConstraint?.isActive = true
+            actionButtonsInVisibleConstraint?.isActive = false
+        } else {
+            actionButtonsVisibleConstraint?.isActive = false
+            actionButtonsInVisibleConstraint?.isActive = true
+        }
+    }
 }
 
 extension TransactionsViewController: StatefulViewController {
@@ -245,3 +278,4 @@ extension TransactionsViewController: UITableViewDataSource {
         return 30
     }
 }
+

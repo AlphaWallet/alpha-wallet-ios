@@ -67,9 +67,16 @@ class QuantitySelectionViewController: UIViewController {
         buttonsStackView.spacing = 0
         buttonsStackView.distribution = .fillEqually
         buttonsStackView.setContentHuggingPriority(.required, for: .horizontal)
-        roundedBackground.addSubview(buttonsStackView)
 
         let marginToHideBottomRoundedCorners = CGFloat(30)
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = Colors.appHighlightGreen
+        roundedBackground.addSubview(footerBar)
+
+        let buttonsHeight = CGFloat(60)
+        footerBar.addSubview(buttonsStackView)
+
         NSLayoutConstraint.activate([
 			header.heightAnchor.constraint(equalToConstant: 90),
 
@@ -86,12 +93,16 @@ class QuantitySelectionViewController: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-//            stackView.bottomAnchor.constraint(lessThanOrEqualTo: buttonsStackView.topAnchor),
 
-            buttonsStackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            buttonsStackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            buttonsStackView.heightAnchor.constraint(equalToConstant: 60),
-            buttonsStackView.bottomAnchor.constraint(equalTo: roundedBackground.bottomAnchor, constant: -marginToHideBottomRoundedCorners),
+            buttonsStackView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
+            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
 

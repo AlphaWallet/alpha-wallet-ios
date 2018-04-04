@@ -62,7 +62,14 @@ class WelcomeViewController: UIViewController {
         view.addSubview(collectionViewController.view)
 
         view.addSubview(pageControl)
-        view.addSubview(createWalletButton)
+
+        let footerBar = UIView()
+        footerBar.backgroundColor = Colors.appBackground
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(footerBar)
+
+        let walletButtonHeight = CGFloat(50)
+        footerBar.addSubview(createWalletButton)
 
         collectionViewController.view.translatesAutoresizingMaskIntoConstraints = false
 
@@ -78,7 +85,12 @@ class WelcomeViewController: UIViewController {
 
             createWalletButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: -10),
             createWalletButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 10),
-            createWalletButton.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            createWalletButton.topAnchor.constraint(equalTo: footerBar.topAnchor),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -walletButtonHeight),
+            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
         createWalletButton.addTarget(self, action: #selector(start), for: .touchUpInside)
