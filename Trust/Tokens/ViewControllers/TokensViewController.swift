@@ -16,6 +16,7 @@ class TokensViewController: UIViewController {
 
     var viewModel: TokensViewModel = TokensViewModel(tokens: [], tickers: .none) {
         didSet {
+            viewModel.filter = oldValue.filter
             refreshView(viewModel: viewModel)
         }
     }
