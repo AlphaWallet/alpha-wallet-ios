@@ -51,7 +51,12 @@ struct TicketTokenViewCellViewModel {
     }
 
     var titleFont: UIFont {
-        return Fonts.light(size: 25)!
+        if ScreenChecker().isNarrowScreen() {
+            return Fonts.light(size: 22)!
+        } else {
+            return Fonts.light(size: 25)!
+        }
+
     }
 
     var subtitleFont: UIFont {
