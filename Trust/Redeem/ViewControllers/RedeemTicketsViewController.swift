@@ -35,7 +35,7 @@ class RedeemTicketsViewController: UIViewController {
         roundedBackground.cornerRadius = 20
         view.addSubview(roundedBackground)
 
-        tableView.register(RedeemTicketTableViewCell.self, forCellReuseIdentifier: RedeemTicketTableViewCell.identifier)
+        tableView.register(TicketTableViewCellWithCheckbox.self, forCellReuseIdentifier: TicketTableViewCellWithCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
@@ -102,15 +102,15 @@ class RedeemTicketsViewController: UIViewController {
     }
 
     private func resetSelection(for ticketHolder: TicketHolder) {
-        let status = ticketHolder.status
-        viewModel.ticketHolders?.forEach { $0.status = .available }
-        ticketHolder.status = (status == .available) ? .redeemed : .available
+        let selected = ticketHolder.isSelected
+        viewModel.ticketHolders?.forEach { $0.isSelected = false }
+        ticketHolder.isSelected = !selected
         tableView.reloadData()
     }
 
     @objc
     func nextButtonTapped() {
-        let selectedTicketHolders = viewModel.ticketHolders?.filter { $0.status == .redeemed }
+        let selectedTicketHolders = viewModel.ticketHolders?.filter { $0.isSelected }
         if selectedTicketHolders!.isEmpty {
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTicketTokenRedeemSelectTicketsAtLeastOneTitle(),
@@ -138,7 +138,7 @@ extension RedeemTicketsViewController: UITableViewDelegate, UITableViewDataSourc
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: RedeemTicketTableViewCell.identifier, for: indexPath) as! RedeemTicketTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithCheckbox
         let ticketHolder = viewModel.item(for: indexPath)
 		cell.configure(viewModel: .init(ticketHolder: ticketHolder))
         return cell
@@ -146,7 +146,7 @@ extension RedeemTicketsViewController: UITableViewDelegate, UITableViewDataSourc
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let ticketHolder = viewModel.item(for: indexPath)
-        let cellViewModel = RedeemTicketTableViewCellViewModel(ticketHolder: ticketHolder)
+        let cellViewModel = BaseTicketTableViewCellViewModel(ticketHolder: ticketHolder)
         return cellViewModel.cellHeight
     }
 
