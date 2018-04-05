@@ -3,7 +3,8 @@
 import Foundation
 import UIKit
 
-struct TokensViewModel {
+//Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
+class TokensViewModel {
     var tokens: [TokenObject] = [] {
         willSet {
 			tokens = reorderTokensSoFIFAAtIndex1(tokens: newValue)
