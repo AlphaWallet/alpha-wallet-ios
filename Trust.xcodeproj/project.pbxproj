@@ -286,6 +286,7 @@
 		5E7C70BE9AE35408038E1971 /* HelpContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B089FD4C96810DD10FD /* HelpContentsViewController.swift */; };
 		5E7C70FF17622C0FFD45A542 /* AlphaWalletSettingPushRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D2AAB777BF35B8B56BD /* AlphaWalletSettingPushRow.swift */; };
 		5E7C710331196CD591B51785 /* LockCreatePasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C741196D9D9C9C3EE5E30 /* LockCreatePasscodeViewController.swift */; };
+		5E7C71A6B0BDF301747A49AE /* ScreenChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77E1E6194F5A1DC8D645 /* ScreenChecker.swift */; };
 		5E7C71A7D2BD6FCE3980CC51 /* ImportWalletHelpBubbleViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A16ABC8BD5D508AA641 /* ImportWalletHelpBubbleViewViewModel.swift */; };
 		5E7C71B52A77008694BFA5D1 /* TokensDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74B9EB81C51E956566E7 /* TokensDataStore.swift */; };
 		5E7C71C3356BF80240720EFE /* LockEnterPasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73495E0C0A207152EC25 /* LockEnterPasscodeViewController.swift */; };
@@ -796,6 +797,7 @@
 		5E7C7742709724B3BD0C2A0D /* TicketRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRowViewModel.swift; sourceTree = "<group>"; };
 		5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatIsEthereumInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionInfoViewController.swift; sourceTree = "<group>"; };
+		5E7C77E1E6194F5A1DC8D645 /* ScreenChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenChecker.swift; sourceTree = "<group>"; };
 		5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerTitleHeader.swift; sourceTree = "<group>"; };
 		5E7C783E3ADA4CF9554A0E7D /* TicketTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C78581AA28CA5C3CBC468 /* AdvancedSettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsViewController.swift; sourceTree = "<group>"; };
@@ -2616,6 +2618,7 @@
 			children = (
 				CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */,
 				CCA4FE371FD428B300749AE4 /* JailbreakChecker.swift */,
+				5E7C77E1E6194F5A1DC8D645 /* ScreenChecker.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -3425,6 +3428,7 @@
 				5E7C7E04D4DDD7D8881A2AB1 /* UniversalLinkCoordinator.swift in Sources */,
 				5E7C72AF95DCE8BC65490BCA /* TicketImportStatusViewController.swift in Sources */,
 				5E7C783B4784DE76971EEBB4 /* TicketImportStatusViewControllerViewModel.swift in Sources */,
+				5E7C71A6B0BDF301747A49AE /* ScreenChecker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
