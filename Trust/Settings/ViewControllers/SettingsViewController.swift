@@ -31,11 +31,11 @@ class SettingsViewController: FormViewController {
     init(session: WalletSession) {
         self.session = session
         super.init(style: .plain)
+        title = R.string.localizable.aSettingsNavigationTitle()
     }
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = R.string.localizable.aSettingsNavigationTitle()
         let account = session.account
 
         view.backgroundColor = Colors.appBackground
