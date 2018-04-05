@@ -27,21 +27,88 @@ https://app.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGN
 import Foundation
 import BigInt
 
-
 public class UniversalLinkHandler {
 
     public let urlPrefix = "https://app.awallet.io/"
     public static let paymentServer = "http://stormbird.duckdns.org:8080/api/claimToken"
 
-    func createUniversalLink(signedOrder: SignedOrder) -> String
-    {
-        let message = MarketQueueHandler.bytesToHexa(signedOrder.message)
-        let signature = signedOrder.signature.substring(from: 2)
+    func createUniversalLink(signedOrder: SignedOrder) -> String {
+        let indices = uint16TIcketToEncodedBytes(indices: signedOrder.order.indices)
+        let message = messageWeiToSzabo(message: signedOrder.message, indices: indices)
+        let signature = signedOrder.signature
         let link = (message + signature).hexa2Bytes
         let binaryData = Data(bytes: link)
         let base64String = binaryData.base64EncodedString()
 
         return urlPrefix + base64String
+    }
+    
+    func uint16TIcketToEncodedBytes(indices: [UInt16]) -> [UInt8] {
+        var indicesBytes = [UInt8]()
+        for i in 0...indices.count - 1 {
+            let index = indices[i]
+            if(index < 128) {
+                let byte = UInt8(index)
+                indicesBytes.append(byte)
+            }
+            else {
+                //Top 7 bits
+                let firstByteHigh = UInt8(128 + (index >> 8))
+                //bottom 8 bits
+                let secondByteLow = UInt8(index & 255)
+                indicesBytes.append(firstByteHigh)
+                indicesBytes.append(secondByteLow)
+            }
+        }
+        
+        return indicesBytes
+    }
+    
+    func messageWeiToSzabo(message: [UInt8], indices: [UInt8]) -> String {
+        var messageWithSzabo = [UInt8]()
+        var expiry = [UInt8]()
+        var price = [UInt8]()
+        for i in 0...31 {
+            price.append(message[i])
+        }
+        for i in 32...63 {
+            expiry.append(message[i])
+        }
+        let priceHex = MarketQueueHandler.bytesToHexa(price)
+        let expiryHex = MarketQueueHandler.bytesToHexa(expiry)
+        let priceInt = BigUInt(priceHex, radix: 16)!
+        let expiryInt = BigUInt(expiryHex, radix: 16)!
+        let priceSzabo = priceInt / 1000000000000
+        var priceBytes = priceSzabo.serialize().bytes
+        var expiryBytes = expiryInt.serialize().bytes
+        
+        if(priceInt == 0) {
+            priceBytes = [UInt8]()
+            for _ in 0...3 {
+                priceBytes.append(0)
+            }
+        }
+        if(expiryInt == 0) {
+            expiryBytes = [UInt8]()
+            for _ in 0...3 {
+                expiryBytes.append(0)
+            }
+        }
+        for i in 0...priceBytes.count - 1 {
+            messageWithSzabo.append(priceBytes[i])
+        }
+        for i in 0...expiryBytes.count - 1 {
+            messageWithSzabo.append(expiryBytes[i])
+        }
+        for i in 64...83 {
+            messageWithSzabo.append(message[i])
+        }
+        
+        for i in 0...indices.count - 1 {
+            messageWithSzabo.append(indices[i])
+        }
+        
+        return MarketQueueHandler.bytesToHexa(messageWithSzabo)
     }
 
     func parseURL(url: String) -> SignedOrder {
@@ -130,8 +197,7 @@ public class UniversalLinkHandler {
     func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String) {
         var signatureStart = linkBytes.count - 65
         var rBytes = [UInt8]()
-        for i in signatureStart...signatureStart + 31
-        {
+        for i in signatureStart...signatureStart + 31 {
             rBytes.append(linkBytes[i])
         }
         let r = MarketQueueHandler.bytesToHexa(rBytes)

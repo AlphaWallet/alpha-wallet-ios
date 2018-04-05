@@ -21,22 +21,24 @@ class UniversalLinkHandlerTests: XCTestCase {
     
     func testCreateUniversalLink() {
         var indices = [UInt16]()
-        indices.append(1)
+        indices.append(150)
+        indices.append(890)
+        indices.append(12)
         
         let testOrder1 = Order(price: BigUInt("0")!,
                                indices: indices,
                                expiry: BigUInt("0")!,
-                               contractAddress: "0xa3347C8ED134444C25169872c90a6360D42b3691",
+                               contractAddress: "0xbC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4",
                                start: BigUInt("91239231313")!,
                                count: 3
         )
         
         var testOrders = [Order]()
         testOrders.append(testOrder1)
-        //let account = try! EtherKeystore().getAccount(for: Address(string: "0x007bEe82BDd9e866b2bd114780a47f2261C684E3")!)
-        //let signedOrder = try! OrderHandler().signOrders(orders: testOrders, account: account!)
-        //let url = UniversalLinkHandler().createUniversalLink(signedOrder: signedOrder[0])
-        //print(url)
+        let account = try! EtherKeystore().getAccount(for: Address(string: "0x007bEe82BDd9e866b2bd114780a47f2261C684E3")!)
+        let signedOrder = try! OrderHandler().signOrders(orders: testOrders, account: account!)
+        let url = UniversalLinkHandler().createUniversalLink(signedOrder: signedOrder[0])
+        print(url)
     }
 
 }
