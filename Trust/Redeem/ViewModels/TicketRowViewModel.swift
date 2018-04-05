@@ -48,6 +48,10 @@ struct TicketRowViewModel {
     }
 
     var subtitleFont: UIFont {
-        return Fonts.semibold(size: 15)!
+        if ScreenChecker().isNarrowScreen() {
+            return Fonts.semibold(size: 12)!
+        } else {
+            return Fonts.semibold(size: 15)!
+        }
     }
 }
