@@ -97,6 +97,7 @@ class EthTokenViewCell: UITableViewCell {
         titleLabel.textColor = viewModel.titleColor
         titleLabel.font = viewModel.titleFont
         titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
+        titleLabel.adjustsFontSizeToFitWidth = true
 
         blockchainLabel.textColor = viewModel.subtitleColor
         blockchainLabel.font = viewModel.subtitleFont
