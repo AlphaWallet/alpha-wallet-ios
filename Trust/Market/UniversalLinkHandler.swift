@@ -34,7 +34,7 @@ public class UniversalLinkHandler {
 
     func createUniversalLink(signedOrder: SignedOrder) -> String {
         let indices = uint16TIcketToEncodedBytes(indices: signedOrder.order.indices)
-        let message = messageWeiToSzabo(message: signedOrder.message, indices: indices)
+        let message = formatMessageForLink(message: signedOrder.message, indices: indices)
         let signature = signedOrder.signature
         let link = (message + signature).hexa2Bytes
         let binaryData = Data(bytes: link)
@@ -50,8 +50,7 @@ public class UniversalLinkHandler {
             if(index < 128) {
                 let byte = UInt8(index)
                 indicesBytes.append(byte)
-            }
-            else {
+            } else {
                 //Top 7 bits
                 let firstByteHigh = UInt8(128 + (index >> 8))
                 //bottom 8 bits
@@ -60,11 +59,10 @@ public class UniversalLinkHandler {
                 indicesBytes.append(secondByteLow)
             }
         }
-        
         return indicesBytes
     }
     
-    func messageWeiToSzabo(message: [UInt8], indices: [UInt8]) -> String {
+    func formatMessageForLink(message: [UInt8], indices: [UInt8]) -> String {
         var messageWithSzabo = [UInt8]()
         var expiry = [UInt8]()
         var price = [UInt8]()
@@ -81,7 +79,6 @@ public class UniversalLinkHandler {
         let priceSzabo = priceInt / 1000000000000
         var priceBytes = priceSzabo.serialize().bytes
         var expiryBytes = expiryInt.serialize().bytes
-        
         if(priceInt == 0) {
             priceBytes = [UInt8]()
             for _ in 0...3 {
@@ -103,11 +100,9 @@ public class UniversalLinkHandler {
         for i in 64...83 {
             messageWithSzabo.append(message[i])
         }
-        
         for i in 0...indices.count - 1 {
             messageWithSzabo.append(indices[i])
         }
-        
         return MarketQueueHandler.bytesToHexa(messageWithSzabo)
     }
 
@@ -190,9 +185,9 @@ public class UniversalLinkHandler {
                     break
             }
         }
-
         return ticketIndices
     }
+    
 
     func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String) {
         var signatureStart = linkBytes.count - 65
