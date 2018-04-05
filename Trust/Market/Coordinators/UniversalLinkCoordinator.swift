@@ -38,7 +38,7 @@ class UniversalLinkCoordinator: Coordinator {
 		indicesStringEncoded = indicesStringEncoded.substring(from: indicesStringEncoded.count - 1)
 
 		let parameters: Parameters = [
-			"address": keystore.recentlyUsedWallet?.address.description,
+            "address": keystore.recentlyUsedWallet?.address.description,
 			"indices": indicesStringEncoded,
 			"v": signature.substring(from: 128),
 			"r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
@@ -46,9 +46,8 @@ class UniversalLinkCoordinator: Coordinator {
 		]
 		let query = UniversalLinkHandler.paymentServer
 
-		//TODO check if URL is valid or not. Price?
-		let validURL = true
-		if validURL {
+		//TODO check if URL is valid or not by validating signature, low priority
+		if signature.count > 128 {
 			if let viewController = delegate?.viewControllerForPresenting(in: self) {
 				UIAlertController.alert(title: nil, message: "Import Link?", alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: viewController) {
 					if $0 == 0 {
@@ -80,10 +79,12 @@ class UniversalLinkCoordinator: Coordinator {
 				parameters: parameters
 		).responseJSON {
 			result in
-			// TODO handle http response
-			print(result)
 			//TODO handle successful or not. Pass an error (message?) to the view model if we have one
-			let successful = true
+			var successful = true
+            //401 code will be given if signature is invalid on the server
+            if(result.response?.statusCode == 401) {
+                successful = false
+            }
 			if let vc = self.statusViewController {
 				if successful {
 					vc.configure(viewModel: .init(state: .succeeded))
