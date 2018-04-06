@@ -206,12 +206,4 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
         let cellViewModel = TicketTableViewCellViewModel(ticketHolder: ticketHolder)
         return cellViewModel.cellHeight
     }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-		let ticketHolder = viewModel.item(for: indexPath)
-		delegate?.didPressTransfer(for: .send(type: .stormBird(viewModel.token)),
-								   ticketHolders: [ticketHolder],
-								   in: self)
-		tableView.deselectRow(at: indexPath, animated: true)
-    }
 }

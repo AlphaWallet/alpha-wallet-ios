@@ -10,7 +10,7 @@ protocol UniversalLinkCoordinatorDelegate: class {
 class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	weak var delegate: UniversalLinkCoordinatorDelegate?
-	var statusViewController: TicketImportStatusViewController?
+	var statusViewController: StatusViewController?
 
 	func start() {
 	}
@@ -65,10 +65,15 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func importUniversalLink(query: String, parameters: Parameters) {
 		if let viewController = delegate?.viewControllerForPresenting(in: self) {
-			statusViewController = TicketImportStatusViewController()
+			statusViewController = StatusViewController()
 			if let vc = statusViewController {
 				vc.delegate = self
-				vc.configure(viewModel: .init(state: .processing))
+				vc.configure(viewModel: .init(
+						state: .processing,
+						inProgressText: R.string.localizable.aClaimTicketInProgressTitle(),
+						succeededTextText: R.string.localizable.aClaimTicketSuccessTitle(),
+						failedText: R.string.localizable.aClaimTicketFailedTitle()
+				))
 				vc.modalPresentationStyle = .overCurrentContext
 				viewController.present(vc, animated: true)
 			}
@@ -84,19 +89,21 @@ class UniversalLinkCoordinator: Coordinator {
 			print(result)
 			//TODO handle successful or not. Pass an error (message?) to the view model if we have one
 			let successful = true
-			if let vc = self.statusViewController {
+			if let vc = self.statusViewController, var viewModel = vc.viewModel {
 				if successful {
-					vc.configure(viewModel: .init(state: .succeeded))
+					viewModel.state = .succeeded
+					vc.configure(viewModel: viewModel)
 				} else {
-					vc.configure(viewModel: .init(state: .failed))
+					viewModel.state = .failed
+					vc.configure(viewModel: viewModel)
 				}
 			}
 		}
 	}
 }
 
-extension UniversalLinkCoordinator: TicketImportStatusViewControllerDelegate {
-	func didPressDone(in viewController: TicketImportStatusViewController) {
+extension UniversalLinkCoordinator: StatusViewControllerDelegate {
+	func didPressDone(in viewController: StatusViewController) {
 		viewController.dismiss(animated: true)
 	}
 }
