@@ -33,7 +33,7 @@ public class UniversalLinkHandler {
     public static let paymentServer = "http://stormbird.duckdns.org:8080/api/claimToken"
 
     func createUniversalLink(signedOrder: SignedOrder) -> String {
-        let indices = uint16TIcketToEncodedBytes(indices: signedOrder.order.indices)
+        let indices = decodeTicketIndices(indices: signedOrder.order.indices)
         let message = formatMessageForLink(message: signedOrder.message, indices: indices)
         let signature = signedOrder.signature
         let link = (message + signature).hexa2Bytes
@@ -43,7 +43,9 @@ public class UniversalLinkHandler {
         return urlPrefix + base64String
     }
     
-    func uint16TIcketToEncodedBytes(indices: [UInt16]) -> [UInt8] {
+    //we used a special encoding so that one 16 bit number could represent either one ticket or two
+    //this is for the purpose of keeping universal links as short as possible
+    func decodeTicketIndices(indices: [UInt16]) -> [UInt8] {
         var indicesBytes = [UInt8]()
         for i in 0...indices.count - 1 {
             let index = indices[i]
