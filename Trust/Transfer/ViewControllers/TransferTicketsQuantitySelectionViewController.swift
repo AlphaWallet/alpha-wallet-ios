@@ -1,19 +1,13 @@
-//
-//  QuantitySelectionViewController.swift
-//  Alpha-Wallet
-//
-//  Created by Oguzhan Gungor on 3/5/18.
-//  Copyright © 2018 Alpha-Wallet. All rights reserved.
-//
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 
-protocol QuantitySelectionViewControllerDelegate: class {
-    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: QuantitySelectionViewController)
-    func didPressViewRedemptionInfo(in viewController: QuantitySelectionViewController)
+protocol TransferTicketsQuantitySelectionViewControllerDelegate: class {
+    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: TransferTicketsQuantitySelectionViewController)
+    func didPressViewInfo(in viewController: TransferTicketsQuantitySelectionViewController)
 }
 
-class QuantitySelectionViewController: UIViewController {
+class TransferTicketsQuantitySelectionViewController: UIViewController {
 
     //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
     let roundedBackground = UIView()
@@ -22,10 +16,12 @@ class QuantitySelectionViewController: UIViewController {
     var quantityStepper = NumberStepper()
     let ticketView = TicketRowView()
     let nextButton = UIButton(type: .system)
-    var viewModel: QuantitySelectionViewModel!
-    weak var delegate: QuantitySelectionViewControllerDelegate?
+    var viewModel: TransferTicketsQuantitySelectionViewModel!
+    var paymentFlow: PaymentFlow
+    weak var delegate: TransferTicketsQuantitySelectionViewControllerDelegate?
 
-    init() {
+    init(paymentFlow: PaymentFlow) {
+        self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
@@ -37,7 +33,7 @@ class QuantitySelectionViewController: UIViewController {
 
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        nextButton.setTitle(R.string.localizable.aWalletTicketTokenRedeemButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.aWalletTicketTokenTransferButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
         ticketView.translatesAutoresizingMaskIntoConstraints = false
@@ -101,7 +97,7 @@ class QuantitySelectionViewController: UIViewController {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
@@ -114,7 +110,7 @@ class QuantitySelectionViewController: UIViewController {
     func nextButtonTapped() {
         if quantityStepper.value == 0 {
             UIAlertController.alert(title: "",
-                                    message: R.string.localizable.aWalletTicketTokenRedeemSelectTicketQuantityAtLeastOneTitle(),
+                                    message: R.string.localizable.aWalletTicketTokenTransferSelectTicketQuantityAtLeastOneTitle(),
                                     alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,
@@ -125,10 +121,10 @@ class QuantitySelectionViewController: UIViewController {
     }
 
     @objc func showInfo() {
-        delegate?.didPressViewRedemptionInfo(in: self)
+        delegate?.didPressViewInfo(in: self)
     }
 
-    func configure(viewModel: QuantitySelectionViewModel) {
+    func configure(viewModel: TransferTicketsQuantitySelectionViewModel) {
         self.viewModel = viewModel
 
         view.backgroundColor = viewModel.backgroundColor
@@ -184,9 +180,4 @@ class QuantitySelectionViewController: UIViewController {
         super.viewDidLayoutSubviews()
         quantityStepper.layer.cornerRadius = quantityStepper.frame.size.height / 2
     }
-
-    deinit {
-        print("deinit quantity view controller")
-    }
-
 }

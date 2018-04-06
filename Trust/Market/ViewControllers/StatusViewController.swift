@@ -1,19 +1,19 @@
 // Copyright © 2018 Stormbird PTE. LTD.
-
 import Foundation
 import UIKit
 
-protocol TicketImportStatusViewControllerDelegate: class {
-	func didPressDone(in viewController: TicketImportStatusViewController)
+protocol StatusViewControllerDelegate: class {
+	func didPressDone(in viewController: StatusViewController)
 }
 
-class TicketImportStatusViewController: UIViewController {
-	weak var delegate: TicketImportStatusViewControllerDelegate?
+class StatusViewController: UIViewController {
+	weak var delegate: StatusViewControllerDelegate?
 	let background = UIView()
 	let imageView = UIImageView()
 	let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
 	let titleLabel = UILabel()
 	let actionButton = UIButton()
+	var viewModel: StatusViewControllerViewModel?
 
 	init() {
 		super.init(nibName: nil, bundle: nil)
@@ -86,32 +86,35 @@ class TicketImportStatusViewController: UIViewController {
 		fatalError("init(coder:) has not been implemented")
 	}
 
-	func configure(viewModel: TicketImportStatusViewControllerViewModel) {
-		background.backgroundColor = viewModel.contentsBackgroundColor
-		background.layer.cornerRadius = 20
+	func configure(viewModel: StatusViewControllerViewModel) {
+        self.viewModel = viewModel
+        if let viewModel = self.viewModel {
+			background.backgroundColor = viewModel.contentsBackgroundColor
+			background.layer.cornerRadius = 20
 
-		activityIndicator.color = viewModel.activityIndicatorColor
+			activityIndicator.color = viewModel.activityIndicatorColor
 
-		if viewModel.showActivityIndicator {
-			activityIndicator.startAnimating()
-		} else {
-			activityIndicator.stopAnimating()
+			if viewModel.showActivityIndicator {
+				activityIndicator.startAnimating()
+			} else {
+				activityIndicator.stopAnimating()
+			}
+
+			imageView.isHidden = viewModel.showActivityIndicator
+			imageView.image = viewModel.image
+
+			titleLabel.numberOfLines = 0
+			titleLabel.textColor = viewModel.titleColor
+			titleLabel.font = viewModel.titleFont
+			titleLabel.textAlignment = .center
+			titleLabel.text = viewModel.titleLabelText
+
+			actionButton.setTitleColor(viewModel.actionButtonTitleColor, for: .normal)
+			actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
+			actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
+			actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
+			actionButton.layer.masksToBounds = true
 		}
-
-		imageView.isHidden = viewModel.showActivityIndicator
-		imageView.image = viewModel.image
-
-		titleLabel.numberOfLines = 0
-		titleLabel.textColor = viewModel.titleColor
-		titleLabel.font = viewModel.titleFont
-		titleLabel.textAlignment = .center
-		titleLabel.text = viewModel.titleLabelText
-
-		actionButton.setTitleColor(viewModel.actionButtonTitleColor, for: .normal)
-		actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
-		actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
-		actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
-		actionButton.layer.masksToBounds = true
 	}
 
 	override func viewDidLayoutSubviews() {
