@@ -45,6 +45,13 @@ class TransferModeButton: UIControl {
         imageView.contentMode = .scaleAspectFit
         addSubview(imageView)
 
+        let constraintForImageViewTop: NSLayoutConstraint
+        if ScreenChecker().isNarrowScreen() {
+            constraintForImageViewTop = imageView.topAnchor.constraint(equalTo: topAnchor, constant: 3)
+        } else {
+            constraintForImageViewTop = imageView.bottomAnchor.constraint(equalTo: centerYAnchor, constant: 7)
+        }
+
         NSLayoutConstraint.activate([
             background.leadingAnchor.constraint(equalTo: leadingAnchor),
             background.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -52,7 +59,7 @@ class TransferModeButton: UIControl {
             background.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             imageView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            imageView.bottomAnchor.constraint(equalTo: centerYAnchor, constant: 7),
+            constraintForImageViewTop,
             imageView.bottomAnchor.constraint(equalTo: label.topAnchor, constant: -3),
 
             imageView.widthAnchor.constraint(equalToConstant: 70),

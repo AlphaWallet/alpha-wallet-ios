@@ -46,7 +46,11 @@ class ChooseTicketTransferModeViewControllerViewModel {
         return R.image.transfer_others()
     }
     var buttonTitleFont: UIFont {
-        return Fonts.light(size: 21)!
+        if ScreenChecker().isNarrowScreen() {
+            return Fonts.light(size: 18)!
+        } else {
+            return Fonts.light(size: 21)!
+        }
     }
     var buttonTitleColor: UIColor {
         return Colors.appText
