@@ -73,7 +73,7 @@ class TokensCoordinator: Coordinator {
     // which contains a ticket priced 0. TODO: The case when ticket price > 0
     // is not dealt yet.
     @objc func useUniversalLink(url: String) {
-        let signedOrder = UniversalLinkHandler().parseURL(url: url)
+        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url)
         //TODO get info around name, symbol etc
         let tokenObject = TokenObject(
                 contract: signedOrder.order.contractAddress,
