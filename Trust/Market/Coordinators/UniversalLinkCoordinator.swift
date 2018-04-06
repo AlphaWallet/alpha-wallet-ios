@@ -23,7 +23,7 @@ class UniversalLinkCoordinator: Coordinator {
 		}
 
 		let keystore = try! EtherKeystore()
-		let signedOrder = UniversalLinkHandler().parseURL(url: (url?.description)!)
+		let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.description)!)
 		let signature = signedOrder.signature.substring(from: 2)
 
 		// form the json string out of the order for the paymaster server
@@ -35,20 +35,20 @@ class UniversalLinkCoordinator: Coordinator {
 			indicesStringEncoded += String(indices[i]) + ","
 		}
 		//cut off last comma
-		indicesStringEncoded = indicesStringEncoded.substring(from: indicesStringEncoded.count - 1)
+		indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
+        let address = (keystore.recentlyUsedWallet?.address.eip55String)!
 
 		let parameters: Parameters = [
-			"address": keystore.recentlyUsedWallet?.address.description,
+            "address": address,
 			"indices": indicesStringEncoded,
 			"v": signature.substring(from: 128),
 			"r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
 			"s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
 		]
-		let query = UniversalLinkHandler.paymentServer
+        let query = UniversalLinkHandler.paymentServer
 
-		//TODO check if URL is valid or not. Price?
-		let validURL = true
-		if validURL {
+		//TODO check if URL is valid or not by validating signature, low priority
+		if signature.count > 128 {
 			if let viewController = delegate?.viewControllerForPresenting(in: self) {
 				UIAlertController.alert(title: nil, message: "Import Link?", alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: viewController) {
 					if $0 == 0 {
@@ -80,10 +80,11 @@ class UniversalLinkCoordinator: Coordinator {
 				parameters: parameters
 		).responseJSON {
 			result in
-			// TODO handle http response
-			print(result)
-			//TODO handle successful or not. Pass an error (message?) to the view model if we have one
-			let successful = true
+			var successful = true
+            //401 code will be given if signature is invalid on the server
+            if(result.response?.statusCode == 401 || result.response!.statusCode > 299) {
+                successful = false
+            }
 			if let vc = self.statusViewController {
 				if successful {
 					vc.configure(viewModel: .init(state: .succeeded))
