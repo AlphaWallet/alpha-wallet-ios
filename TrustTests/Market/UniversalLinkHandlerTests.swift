@@ -35,10 +35,10 @@ class UniversalLinkHandlerTests: XCTestCase {
         
         var testOrders = [Order]()
         testOrders.append(testOrder1)
-        let account = try! EtherKeystore().getAccount(for: Address(string: "0x007bEe82BDd9e866b2bd114780a47f2261C684E3")!)
-        let signedOrder = try! OrderHandler().signOrders(orders: testOrders, account: account!)
-        let url = UniversalLinkHandler().createUniversalLink(signedOrder: signedOrder[0])
-        print(url)
+        //let account = try! EtherKeystore().getAccount(for: Address(string: "0x007bEe82BDd9e866b2bd114780a47f2261C684E3")!)
+        //let signedOrder = try! OrderHandler().signOrders(orders: testOrders, account: account!)
+        //let url = UniversalLinkHandler().createUniversalLink(signedOrder: signedOrder[0])
+        //print(url)
     }
 
 }
