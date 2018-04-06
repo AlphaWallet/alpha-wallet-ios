@@ -90,7 +90,7 @@ class TransactionsViewController: UIViewController {
         separator.backgroundColor = Colors.appLightButtonSeparator
         footerBar.addSubview(separator)
 
-        actionButtonsVisibleConstraint = footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -footerViewHeight)
+        actionButtonsVisibleConstraint = footerBar.heightAnchor.constraint(equalToConstant: footerViewHeight)
         actionButtonsInVisibleConstraint = footerBar.topAnchor.constraint(equalTo: footerBar.bottomAnchor)
 
         reflectActionButtonsVisibility()
