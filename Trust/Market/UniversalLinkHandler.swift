@@ -34,13 +34,41 @@ public class UniversalLinkHandler {
 
     func createUniversalLink(signedOrder: SignedOrder) -> String {
         let indices = decodeTicketIndices(indices: signedOrder.order.indices)
-        let message = formatMessageForLink(message: signedOrder.message, indices: indices)
+        var message = ""
+        if(signedOrder.message.count > 84) {
+            //price and expiry are not shortened
+            message = formatMessageForLink(message: signedOrder.message, indices: indices)
+        } else {
+            message = MarketQueueHandler.bytesToHexa(signedOrder.message)
+        }
         let signature = signedOrder.signature
         let link = (message + signature).hexa2Bytes
         let binaryData = Data(bytes: link)
         let base64String = binaryData.base64EncodedString()
 
         return urlPrefix + base64String
+    }
+    
+    func parseUniversalLink(url: String) -> SignedOrder {
+        let linkInfo = url.substring(from: urlPrefix.count)
+        let linkBytes = Data(base64Encoded: linkInfo)?.array
+        let price = getPriceFromLinkBytes(linkBytes: linkBytes!)
+        let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes!)
+        let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes!)
+        let ticketIndices = getTicketIndicesFromLinkBytes(linkBytes: linkBytes!)
+        let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes!)
+        let message = getMessageFromLinkBytes(linkBytes: linkBytes!, price32: price, expiry32: expiry)
+        
+        let order = Order(
+            price: price,
+            indices: ticketIndices,
+            expiry: expiry,
+            contractAddress: contractAddress,
+            start: BigUInt("0")!,
+            count: ticketIndices.count
+        )
+        
+        return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
     
     //we used a special encoding so that one 16 bit number could represent either one ticket or two
@@ -106,28 +134,6 @@ public class UniversalLinkHandler {
             messageWithSzabo.append(indices[i])
         }
         return MarketQueueHandler.bytesToHexa(messageWithSzabo)
-    }
-
-    func parseURL(url: String) -> SignedOrder {
-        let linkInfo = url.substring(from: urlPrefix.count)
-        let linkBytes = Data(base64Encoded: linkInfo)?.array
-        let price = getPriceFromLinkBytes(linkBytes: linkBytes!)
-        let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes!)
-        let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes!)
-        let ticketIndices = getTicketIndicesFromLinkBytes(linkBytes: linkBytes!)
-        let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes!)
-        let message = getMessageFromLinkBytes(linkBytes: linkBytes!)
-
-        let order = Order(
-                price: price,
-                indices: ticketIndices,
-                expiry: expiry,
-                contractAddress: contractAddress,
-                start: BigUInt("0")!,
-                count: ticketIndices.count
-        )
-
-        return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
 
     func getPriceFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
@@ -209,10 +215,18 @@ public class UniversalLinkHandler {
         return (v, r, s)
     }
 
-    func getMessageFromLinkBytes(linkBytes: [UInt8]) -> [UInt8] {
+    func getMessageFromLinkBytes(linkBytes: [UInt8], price32: BigUInt, expiry32: BigUInt) -> [UInt8] {
         let messageLength = linkBytes.count - 65
         var message = [UInt8]()
-        for i in 0...messageLength - 1 {
+        var priceBytes = price32.serialize().array
+        var expiryBytes = expiry32.serialize().array
+        for i in 0...31 {
+            message.append(priceBytes[i])
+        }
+        for i in 32...63 {
+            message.append(expiryBytes[i])
+        }
+        for i in 7...messageLength - 1 {
             message.append(linkBytes[i])
         }
         return message

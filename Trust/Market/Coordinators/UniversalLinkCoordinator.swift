@@ -23,7 +23,7 @@ class UniversalLinkCoordinator: Coordinator {
 		}
 
 		let keystore = try! EtherKeystore()
-		let signedOrder = UniversalLinkHandler().parseURL(url: (url?.description)!)
+		let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.description)!)
 		let signature = signedOrder.signature.substring(from: 2)
 
 		// form the json string out of the order for the paymaster server
