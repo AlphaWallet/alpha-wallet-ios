@@ -35,7 +35,7 @@ class UniversalLinkCoordinator: Coordinator {
 			indicesStringEncoded += String(indices[i]) + ","
 		}
 		//cut off last comma
-		indicesStringEncoded = indicesStringEncoded.substring(from: indicesStringEncoded.count - 1)
+		indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
 
 		let parameters: Parameters = [
             "address": keystore.recentlyUsedWallet?.address.description,
@@ -44,7 +44,7 @@ class UniversalLinkCoordinator: Coordinator {
 			"r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
 			"s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
 		]
-		let query = UniversalLinkHandler.paymentServer
+        let query = UniversalLinkHandler.paymentServer
 
 		//TODO check if URL is valid or not by validating signature, low priority
 		if signature.count > 128 {
