@@ -177,12 +177,12 @@ public class UniversalLinkHandler {
                     else {
                         ticketIndices.append(UInt16(byte))
                     }
-                    break;
+                    break
                 case 2:
                     currentIndex += UInt16(byte)
                     ticketIndices.append(currentIndex)
                     state = 1
-                    break;
+                    break
                 default:
                     break
             }
@@ -190,7 +190,6 @@ public class UniversalLinkHandler {
         return ticketIndices
     }
     
-
     func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String) {
         var signatureStart = linkBytes.count - 65
         var rBytes = [UInt8]()
