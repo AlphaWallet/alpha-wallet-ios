@@ -36,9 +36,10 @@ class UniversalLinkCoordinator: Coordinator {
 		}
 		//cut off last comma
 		indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
+        let address = (keystore.recentlyUsedWallet?.address.eip55String)!
 
 		let parameters: Parameters = [
-            "address": keystore.recentlyUsedWallet?.address.description,
+            "address": address,
 			"indices": indicesStringEncoded,
 			"v": signature.substring(from: 128),
 			"r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
