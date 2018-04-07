@@ -97,7 +97,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
+            footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
