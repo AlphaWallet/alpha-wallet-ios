@@ -85,19 +85,31 @@ class TransferTicketsCoordinator: Coordinator {
                     account: account,
                     transaction: transaction
             )
-            let unsignedTransaction = configurator.formUnsignedTransaction()
-            let sendTransactionCoordinator = SendTransactionCoordinator(
-                    session: session,
-                    keystore: keystore,
-                    confirmType: .signThenSend)
-            sendTransactionCoordinator.send(transaction: unsignedTransaction) { [weak self] result in
-                if let celf = self {
-                    switch result {
-                    case .success(let type):
-                        celf.processSuccessful()
-                    case .failure(let error):
-                        celf.processFailed()
-                    }
+            configurator.load { [weak self] result in
+                guard let `self` = self else { return }
+                switch result {
+                case .success:
+                    self.sendTransaction(with: configurator)
+                case .failure(let error):
+                    self.processFailed()
+                }
+            }
+        }
+    }
+
+    private func sendTransaction(with configurator: TransactionConfigurator) {
+        let unsignedTransaction = configurator.formUnsignedTransaction()
+        let sendTransactionCoordinator = SendTransactionCoordinator(
+                session: session,
+                keystore: keystore,
+                confirmType: .signThenSend)
+        sendTransactionCoordinator.send(transaction: unsignedTransaction) { [weak self] result in
+            if let celf = self {
+                switch result {
+                case .success(let type):
+                    celf.processSuccessful()
+                case .failure(let error):
+                    celf.processFailed()
                 }
             }
         }
