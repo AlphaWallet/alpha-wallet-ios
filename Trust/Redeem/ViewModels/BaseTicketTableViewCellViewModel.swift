@@ -2,7 +2,7 @@
 
 import UIKit
 
-struct RedeemTicketTableViewCellViewModel {
+struct BaseTicketTableViewCellViewModel {
     private let ticketHolder: TicketHolder
 
     init(
@@ -48,7 +48,7 @@ struct RedeemTicketTableViewCellViewModel {
     }
 
     var checkboxImage: UIImage {
-        if ticketHolder.status == .redeemed {
+        if ticketHolder.isSelected {
             return R.image.ticket_bundle_checked()!
         } else {
             return R.image.ticket_bundle_unchecked()!

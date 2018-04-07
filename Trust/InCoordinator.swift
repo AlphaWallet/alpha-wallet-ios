@@ -270,27 +270,18 @@ class InCoordinator: Coordinator {
             navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
         }
     }
-    // TODO: Fix this
+
     func showPaymentFlow(for paymentFlow: PaymentFlow, ticketHolders: [TicketHolder] = [], in ticketsCoordinator: TicketsCoordinator) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
+        //TODO do we need to pass these (especially tokenStorage) to showTransferViewController(for:ticketHolders:) to make sure storage is synchronized?
         let session = transactionCoordinator.session
         let tokenStorage = transactionCoordinator.tokensStorage
 
         switch (paymentFlow, session.account.type) {
         case (.send, .real), (.request, _):
-            let coordinator = PaymentCoordinator(
-                navigationController: ticketsCoordinator.navigationController,
-                flow: paymentFlow,
-                session: session,
-                keystore: keystore,
-                storage: tokenStorage,
-                ticketHolders: ticketHolders
-            )
-            coordinator.delegate = self
-            coordinator.start()
-            addCoordinator(coordinator)
+            ticketsCoordinator.showTransferViewController(for: paymentFlow, ticketHolders: ticketHolders)
         case (_, _):
             navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
         }

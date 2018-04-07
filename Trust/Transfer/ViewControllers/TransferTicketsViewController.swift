@@ -1,29 +1,25 @@
-//
-//  RedeemTicketsViewController.swift
-//  Alpha-Wallet
-//
-//  Created by Oguzhan Gungor on 3/4/18.
-//  Copyright © 2018 Alpha-Wallet. All rights reserved.
-//
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 
-protocol RedeemTicketsViewControllerDelegate: class {
-    func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: RedeemTicketsViewController)
-    func didPressViewInfo(in viewController: RedeemTicketsViewController)
+protocol TransferTicketsViewControllerDelegate: class {
+    func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: TransferTicketsViewController)
+    func didPressViewInfo(in viewController: TransferTicketsViewController)
 }
 
-class RedeemTicketsViewController: UIViewController {
+class TransferTicketsViewController: UIViewController {
 
     //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
     let roundedBackground = UIView()
     let header = TicketsViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
 	let nextButton = UIButton(type: .system)
-    var viewModel: RedeemTicketsViewModel!
-    weak var delegate: RedeemTicketsViewControllerDelegate?
+    var viewModel: TransferTicketsViewModel!
+    var paymentFlow: PaymentFlow
+    weak var delegate: TransferTicketsViewControllerDelegate?
 
-    init() {
+    init(paymentFlow: PaymentFlow) {
+        self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
@@ -89,7 +85,7 @@ class RedeemTicketsViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: RedeemTicketsViewModel) {
+    func configure(viewModel: TransferTicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
 
@@ -113,7 +109,7 @@ class RedeemTicketsViewController: UIViewController {
         let selectedTicketHolders = viewModel.ticketHolders?.filter { $0.isSelected }
         if selectedTicketHolders!.isEmpty {
             UIAlertController.alert(title: "",
-                                    message: R.string.localizable.aWalletTicketTokenRedeemSelectTicketsAtLeastOneTitle(),
+                                    message: R.string.localizable.aWalletTicketTokenTransferSelectTicketsAtLeastOneTitle(),
                                     alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,
@@ -128,7 +124,7 @@ class RedeemTicketsViewController: UIViewController {
     }
 }
 
-extension RedeemTicketsViewController: UITableViewDelegate, UITableViewDataSource {
+extension TransferTicketsViewController: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
