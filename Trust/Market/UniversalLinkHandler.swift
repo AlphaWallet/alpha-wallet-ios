@@ -32,15 +32,9 @@ public class UniversalLinkHandler {
     public let urlPrefix = "https://app.awallet.io/"
     public static let paymentServer = "http://stormbird.duckdns.org:8080/api/claimToken"
 
+    //message is with 32 bytes each of price and expiry and is shortened for link
     func createUniversalLink(signedOrder: SignedOrder) -> String {
-        let indices = decodeTicketIndices(indices: signedOrder.order.indices)
-        var message = ""
-        if(signedOrder.message.count > 84) {
-            //price and expiry are not shortened
-            message = formatMessageForLink(message: signedOrder.message, indices: indices)
-        } else {
-            message = MarketQueueHandler.bytesToHexa(signedOrder.message)
-        }
+        let message = formatMessageForLink(signedOrder: signedOrder)
         let signature = signedOrder.signature
         let link = (message + signature).hexa2Bytes
         let binaryData = Data(bytes: link)
@@ -49,6 +43,7 @@ public class UniversalLinkHandler {
         return urlPrefix + base64String
     }
     
+    //link has shortened price and expiry and must be expanded
     func parseUniversalLink(url: String) -> SignedOrder {
         let linkInfo = url.substring(from: urlPrefix.count)
         let linkBytes = Data(base64Encoded: linkInfo)?.array
@@ -57,8 +52,6 @@ public class UniversalLinkHandler {
         let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes!)
         let ticketIndices = getTicketIndicesFromLinkBytes(linkBytes: linkBytes!)
         let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes!)
-        let message = getMessageFromLinkBytes(linkBytes: linkBytes!, price32: price, expiry32: expiry)
-        
         let order = Order(
             price: price,
             indices: ticketIndices,
@@ -67,7 +60,7 @@ public class UniversalLinkHandler {
             start: BigUInt("0")!,
             count: ticketIndices.count
         )
-        
+        let message = getMessageFromOrder(order: order)
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
     
@@ -92,7 +85,10 @@ public class UniversalLinkHandler {
         return indicesBytes
     }
     
-    func formatMessageForLink(message: [UInt8], indices: [UInt8]) -> String {
+    //shortens price and expiry
+    func formatMessageForLink(signedOrder: SignedOrder) -> String {
+        let message = signedOrder.message
+        let indices = decodeTicketIndices(indices: signedOrder.order.indices)
         var messageWithSzabo = [UInt8]()
         var expiry = [UInt8]()
         var price = [UInt8]()
@@ -104,27 +100,17 @@ public class UniversalLinkHandler {
         }
         let priceHex = MarketQueueHandler.bytesToHexa(price)
         let expiryHex = MarketQueueHandler.bytesToHexa(expiry)
+        //removes leading zeros
         let priceInt = BigUInt(priceHex, radix: 16)!
         let expiryInt = BigUInt(expiryHex, radix: 16)!
+        //change from wei to szabo
         let priceSzabo = priceInt / 1000000000000
-        var priceBytes = priceSzabo.serialize().bytes
-        var expiryBytes = expiryInt.serialize().bytes
-        if(priceInt == 0) {
-            priceBytes = [UInt8]()
-            for _ in 0...3 {
-                priceBytes.append(0)
-            }
-        }
-        if(expiryInt == 0) {
-            expiryBytes = [UInt8]()
-            for _ in 0...3 {
-                expiryBytes.append(0)
-            }
-        }
-        for i in 0...priceBytes.count - 1 {
+        var priceBytes = formatTo4Bytes(priceSzabo.serialize().bytes)
+        var expiryBytes = formatTo4Bytes(expiryInt.serialize().bytes)
+        for i in 0...3 {
             messageWithSzabo.append(priceBytes[i])
         }
-        for i in 0...expiryBytes.count - 1 {
+        for i in 0...3 {
             messageWithSzabo.append(expiryBytes[i])
         }
         for i in 64...83 {
@@ -135,6 +121,24 @@ public class UniversalLinkHandler {
         }
         return MarketQueueHandler.bytesToHexa(messageWithSzabo)
     }
+    
+    func formatTo4Bytes(_ array: [UInt8]) -> [UInt8] {
+        var formattedArray = [UInt8]()
+        if(array.count == 4) {
+            return array
+        } else if array.isEmpty {
+            for _ in 0...3 {
+                formattedArray.append(0)
+            }
+            return formattedArray
+        } else {
+            let missingDigits = 4 - array.count
+            for _ in 0...missingDigits - 1 {
+                formattedArray.append(0)
+            }
+            return formattedArray
+        }
+    }
 
     func getPriceFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
         var priceBytes = [UInt8]()
@@ -142,8 +146,9 @@ public class UniversalLinkHandler {
             //price in szabo
             priceBytes.append(linkBytes[i])
         }
-        return (BigUInt(MarketQueueHandler.bytesToHexa(priceBytes),
-                radix: 16)!.multiplied(by: BigUInt("1000000000000")!))
+        let priceHex = MarketQueueHandler.bytesToHexa(priceBytes)
+        let price = BigUInt(priceHex, radix: 16)!
+        return price * 1000000000000
     }
 
     func getExpiryFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
@@ -208,28 +213,49 @@ public class UniversalLinkHandler {
         for i in signatureStart...signatureStart + 31 {
             sBytes.append(linkBytes[i])
         }
-
         let s = MarketQueueHandler.bytesToHexa(sBytes)
         let v = String(format:"%2X", linkBytes[linkBytes.count - 1]).trimmed
-
         return (v, r, s)
     }
-
-    func getMessageFromLinkBytes(linkBytes: [UInt8], price32: BigUInt, expiry32: BigUInt) -> [UInt8] {
-        let messageLength = linkBytes.count - 65
+    
+    //price and expiry need to be 32 bytes each
+    func getMessageFromOrder(order: Order) -> [UInt8] {
         var message = [UInt8]()
-        var priceBytes = price32.serialize().array
-        var expiryBytes = expiry32.serialize().array
+        //encode price and expiry first
+        let priceBytes = padTo32(order.price.serialize().array)
         for i in 0...31 {
             message.append(priceBytes[i])
         }
-        for i in 32...63 {
+        let expiryBytes = padTo32(order.expiry.serialize().array)
+        for i in 0...31 {
             message.append(expiryBytes[i])
         }
-        for i in 7...messageLength - 1 {
-            message.append(linkBytes[i])
+        let contractBytes = order.contractAddress.hexa2Bytes
+        for i in 0...19 {
+            message.append(contractBytes[i])
+        }
+        let indices = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: order.indices)
+        for i in 0...indices.count - 1 {
+            message.append(indices[i])
         }
         return message
+    }
+    
+    func padTo32(_ buffer: [UInt8]) -> [UInt8] {
+        var padded = [UInt8]()
+        if buffer.isEmpty {
+            for _ in 0...31 {
+                padded.append(0)
+            }
+        } else {
+            for _ in 0...31 - buffer.count - 1 {
+                padded.append(0)
+            }
+            for i in 0...buffer.count - 1 {
+                padded.append(buffer[i])
+            }
+        }
+        return padded
     }
 
 }
