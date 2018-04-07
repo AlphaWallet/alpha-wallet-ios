@@ -49,7 +49,7 @@ class TicketsViewController: UIViewController {
         roundedBackground.cornerRadius = 20
         view.addSubview(roundedBackground)
 
-        tableView.register(TicketTableViewCell.self, forCellReuseIdentifier: TicketTableViewCell.identifier)
+        tableView.register(TicketTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TicketTableViewCellWithoutCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
@@ -195,7 +195,7 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCell.identifier, for: indexPath) as! TicketTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithoutCheckbox
         let ticketHolder = viewModel.item(for: indexPath)
 		cell.configure(viewModel: .init(ticketHolder: ticketHolder))
         return cell
@@ -205,13 +205,5 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
         let ticketHolder = viewModel.item(for: indexPath)
         let cellViewModel = TicketTableViewCellViewModel(ticketHolder: ticketHolder)
         return cellViewModel.cellHeight
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-		let ticketHolder = viewModel.item(for: indexPath)
-		delegate?.didPressTransfer(for: .send(type: .stormBird(viewModel.token)),
-								   ticketHolders: [ticketHolder],
-								   in: self)
-		tableView.deselectRow(at: indexPath, animated: true)
     }
 }
