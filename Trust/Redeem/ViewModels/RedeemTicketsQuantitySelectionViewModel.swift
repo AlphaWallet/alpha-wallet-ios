@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-struct QuantitySelectionViewModel {
+struct RedeemTicketsQuantitySelectionViewModel {
 
     var ticketHolder: TicketHolder
 

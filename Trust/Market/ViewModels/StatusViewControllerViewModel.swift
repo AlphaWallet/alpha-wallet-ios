@@ -2,13 +2,16 @@
 
 import UIKit
 
-struct TicketImportStatusViewControllerViewModel {
+struct StatusViewControllerViewModel {
 	enum State {
 		case processing
 		case succeeded
 		case failed
 	}
-	let state: State
+	var state: State
+    let inProgressText: String
+	let succeededTextText: String
+	let failedText: String
 
 	var contentsBackgroundColor: UIColor {
 		return Colors.appWhite
@@ -45,11 +48,11 @@ struct TicketImportStatusViewControllerViewModel {
 	var titleLabelText: String {
 		switch state {
 		case .processing:
-			return R.string.localizable.aClaimTicketInProgressTitle()
+			return inProgressText
 		case .succeeded:
-			return R.string.localizable.aClaimTicketSuccessTitle()
+			return succeededTextText
 		case .failed:
-			return R.string.localizable.aClaimTicketFailedTitle()
+			return failedText
 		}
 	}
 	var actionButtonTitle: String {
@@ -59,7 +62,10 @@ struct TicketImportStatusViewControllerViewModel {
 		return state == .processing
 	}
 
-	init(state: State) {
+	init(state: State, inProgressText: String, succeededTextText: String, failedText: String) {
 		self.state = state
+		self.inProgressText = inProgressText
+        self.succeededTextText = succeededTextText
+        self.failedText = failedText
 	}
 }
