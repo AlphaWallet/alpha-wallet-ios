@@ -19,6 +19,7 @@ class TicketHolder {
     var venue: String
     var date: Date
     var status: TicketHolderStatus
+    var isSelected = false
 
     init(
         tickets: [Ticket],
