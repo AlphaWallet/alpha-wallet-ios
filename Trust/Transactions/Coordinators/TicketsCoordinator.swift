@@ -10,6 +10,7 @@ import UIKit
 import Result
 import TrustKeystore
 import MessageUI
+import BigInt
 
 protocol TicketsCoordinatorDelegate: class {
     func didPressTransfer(for type: PaymentFlow,
@@ -180,8 +181,20 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func generateTransferLink(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> String {
-        //TODO replace with transfer link generated from ticketHolder and paymentFlow
-        return "https://app.alphawallet.io/something"
+        let order = Order(
+            price: BigUInt("0")!,
+            indices: ticketHolder.ticketIndices,
+            expiry: BigUInt("0")!,
+            contractAddress: Constants.fifaContractAddress,
+            start: BigUInt("0")!,
+            count: ticketHolder.ticketCount.toInt()!
+        )
+        var orders = [Order]()
+        orders.append(order)
+        let address = keystore.recentlyUsedWallet?.address
+        let account = try! EtherKeystore().getAccount(for: address!)
+        let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
+        return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
     }
 
     private func transferViaWalletAddressTextEntry(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
