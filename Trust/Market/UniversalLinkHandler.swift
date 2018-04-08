@@ -30,7 +30,7 @@ import BigInt
 public class UniversalLinkHandler {
 
     public let urlPrefix = "https://app.awallet.io/"
-    public static let paymentServer = "http://stormbird.duckdns.org:8080/api/claimToken"
+    public static let paymentServer = "http://localhost:8080/api/claimToken" //"http://stormbird.duckdns.org:8080/api/claimToken"
 
     //message is with 32 bytes each of price and expiry and is shortened for link
     func createUniversalLink(signedOrder: SignedOrder) -> String {
