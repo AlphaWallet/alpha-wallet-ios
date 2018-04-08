@@ -30,8 +30,7 @@ import BigInt
 public class UniversalLinkHandler {
 
     public let urlPrefix = "https://app.awallet.io/"
-    public static let paymentServer = "https://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken"
-    //"http://stormbird.duckdns.org:8080/api/claimToken"
+    public static let paymentServer = "https://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken" //"http://stormbird.duckdns.org:8080/api/claimToken"
 
     //message is with 32 bytes each of price and expiry and is shortened for link
     func createUniversalLink(signedOrder: SignedOrder) -> String {
@@ -43,7 +42,7 @@ public class UniversalLinkHandler {
 
         return urlPrefix + base64String
     }
-    
+    //TODO add exception handling
     //link has shortened price and expiry and must be expanded
     func parseUniversalLink(url: String) -> SignedOrder {
         let linkInfo = url.substring(from: urlPrefix.count)
@@ -91,14 +90,8 @@ public class UniversalLinkHandler {
         let message = signedOrder.message
         let indices = decodeTicketIndices(indices: signedOrder.order.indices)
         var messageWithSzabo = [UInt8]()
-        var expiry = [UInt8]()
-        var price = [UInt8]()
-        for i in 0...31 {
-            price.append(message[i])
-        }
-        for i in 32...63 {
-            expiry.append(message[i])
-        }
+        let price = Array(message[0...31])
+        let expiry = Array(message[32...63])
         let priceHex = MarketQueueHandler.bytesToHexa(price)
         let expiryHex = MarketQueueHandler.bytesToHexa(expiry)
         //removes leading zeros
@@ -125,7 +118,7 @@ public class UniversalLinkHandler {
     
     func formatTo4Bytes(_ array: [UInt8]) -> [UInt8] {
         var formattedArray = [UInt8]()
-        if(array.count == 4) {
+        if array.count == 4 {
             return array
         } else if array.isEmpty {
             for _ in 0...3 {
