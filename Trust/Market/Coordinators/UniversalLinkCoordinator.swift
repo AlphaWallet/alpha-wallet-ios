@@ -21,9 +21,8 @@ class UniversalLinkCoordinator: Coordinator {
 		guard matchedPrefix else {
 			return false
 		}
-
 		let keystore = try! EtherKeystore()
-		let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.description)!)
+        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
 		let signature = signedOrder.signature.substring(from: 2)
 
 		// form the json string out of the order for the paymaster server
@@ -48,6 +47,7 @@ class UniversalLinkCoordinator: Coordinator {
         let query = UniversalLinkHandler.paymentServer
 
 		//TODO check if URL is valid or not by validating signature, low priority
+        //TODO localize
 		if signature.count > 128 {
 			if let viewController = delegate?.viewControllerForPresenting(in: self) {
 				UIAlertController.alert(title: nil, message: "Import Link?", alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: viewController) {
@@ -87,14 +87,9 @@ class UniversalLinkCoordinator: Coordinator {
             result in
             var successful = true
             //401 code will be given if signature is invalid on the server
-            if let response = result.response {
-                if(response.statusCode == 401 || response.statusCode > 299) {
-                    successful = false
-                }
-            } else {
+            if let response = result.response, (response.statusCode == 401 || response.statusCode > 299) {
                 successful = false
             }
-            
             if let vc = self.statusViewController {
                 // TODO handle http response
                 print(result)

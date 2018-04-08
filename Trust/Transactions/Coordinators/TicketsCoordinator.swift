@@ -189,8 +189,7 @@ class TicketsCoordinator: NSObject, Coordinator {
             start: BigUInt("0")!,
             count: ticketHolder.ticketIndices.count
         )
-        var orders = [Order]()
-        orders.append(order)
+        let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
         let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
