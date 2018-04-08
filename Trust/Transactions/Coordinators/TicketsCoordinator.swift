@@ -187,7 +187,7 @@ class TicketsCoordinator: NSObject, Coordinator {
             expiry: BigUInt("0")!,
             contractAddress: Constants.fifaContractAddress,
             start: BigUInt("0")!,
-            count: ticketHolder.ticketCount.toInt()!
+            count: ticketHolder.ticketIndices.count
         )
         var orders = [Order]()
         orders.append(order)

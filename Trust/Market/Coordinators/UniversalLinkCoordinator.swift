@@ -87,9 +87,14 @@ class UniversalLinkCoordinator: Coordinator {
             result in
             var successful = true
             //401 code will be given if signature is invalid on the server
-            if(result.response?.statusCode == 401 || result.response!.statusCode > 299) {
+            if let response = result.response {
+                if(response.statusCode == 401 || response.statusCode > 299) {
+                    successful = false
+                }
+            } else {
                 successful = false
             }
+            
             if let vc = self.statusViewController {
                 // TODO handle http response
                 print(result)
