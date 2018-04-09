@@ -21,9 +21,8 @@ class UniversalLinkCoordinator: Coordinator {
 		guard matchedPrefix else {
 			return false
 		}
-
 		let keystore = try! EtherKeystore()
-		let signedOrder = UniversalLinkHandler().parseURL(url: (url?.description)!)
+        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
 		let signature = signedOrder.signature.substring(from: 2)
 
 		// form the json string out of the order for the paymaster server
@@ -35,20 +34,21 @@ class UniversalLinkCoordinator: Coordinator {
 			indicesStringEncoded += String(indices[i]) + ","
 		}
 		//cut off last comma
-		indicesStringEncoded = indicesStringEncoded.substring(from: indicesStringEncoded.count - 1)
+		indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
+        let address = (keystore.recentlyUsedWallet?.address.eip55String)!
 
 		let parameters: Parameters = [
-			"address": keystore.recentlyUsedWallet?.address.description,
+            "address": address,
 			"indices": indicesStringEncoded,
 			"v": signature.substring(from: 128),
 			"r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
 			"s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
 		]
-		let query = UniversalLinkHandler.paymentServer
+        let query = UniversalLinkHandler.paymentServer
 
-		//TODO check if URL is valid or not. Price?
-		let validURL = true
-		if validURL {
+		//TODO check if URL is valid or not by validating signature, low priority
+        //TODO localize
+		if signature.count > 128 {
 			if let viewController = delegate?.viewControllerForPresenting(in: self) {
 				UIAlertController.alert(title: nil, message: "Import Link?", alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: viewController) {
 					if $0 == 0 {
@@ -79,28 +79,34 @@ class UniversalLinkCoordinator: Coordinator {
 			}
 		}
 
-		Alamofire.request(
-				query,
-				method: .post,
-				parameters: parameters
-		).responseJSON {
-			result in
-			// TODO handle http response
-			print(result)
-			//TODO handle successful or not. Pass an error (message?) to the view model if we have one
-			let successful = true
-			if let vc = self.statusViewController, var viewModel = vc.viewModel {
-				if successful {
-					viewModel.state = .succeeded
-					vc.configure(viewModel: viewModel)
-				} else {
-					viewModel.state = .failed
-					vc.configure(viewModel: viewModel)
-				}
-			}
-		}
-	}
+        Alamofire.request(
+                query,
+                method: .post,
+                parameters: parameters
+        ).responseJSON {
+            result in
+            var successful = true
+            //401 code will be given if signature is invalid on the server
+            if let response = result.response, (response.statusCode == 401 || response.statusCode > 299) {
+                successful = false
+            }
+            if let vc = self.statusViewController {
+                // TODO handle http response
+                print(result)
+                if let vc = self.statusViewController, var viewModel = vc.viewModel {
+                    if successful {
+                        viewModel.state = .succeeded
+                        vc.configure(viewModel: viewModel)
+                    } else {
+                        viewModel.state = .failed
+                        vc.configure(viewModel: viewModel)
+                    }
+                }
+            }
+        }
+    }
 }
+
 
 extension UniversalLinkCoordinator: StatusViewControllerDelegate {
 	func didPressDone(in viewController: StatusViewController) {
