@@ -40,6 +40,7 @@ class UniversalLinkCoordinator: Coordinator {
 		let parameters: Parameters = [
             "address": address,
 			"indices": indicesStringEncoded,
+            "expiry": signedOrder.order.expiry.description,
 			"v": signature.substring(from: 128),
 			"r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
 			"s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
@@ -85,11 +86,14 @@ class UniversalLinkCoordinator: Coordinator {
                 parameters: parameters
         ).responseJSON {
             result in
-            var successful = true
+            var successful = false //need to set this to false by default else it will allow no connections to be considered successful etc
             //401 code will be given if signature is invalid on the server
-            if let response = result.response, (response.statusCode == 401 || response.statusCode > 299) {
-                successful = false
+            if let response = result.response {
+                if (response.statusCode != 401 && response.statusCode < 300) {
+                    successful = true
+                }
             }
+            
             if let vc = self.statusViewController {
                 // TODO handle http response
                 print(result)

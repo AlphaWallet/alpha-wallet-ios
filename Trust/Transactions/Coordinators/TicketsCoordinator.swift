@@ -181,10 +181,11 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func generateTransferLink(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> String {
+        let timestamp = Int(NSDate().timeIntervalSince1970) + 86400
         let order = Order(
             price: BigUInt("0")!,
             indices: ticketHolder.ticketIndices,
-            expiry: BigUInt("0")!,
+            expiry: BigUInt(timestamp.description)!,
             contractAddress: Constants.fifaContractAddress,
             start: BigUInt("0")!,
             count: ticketHolder.ticketIndices.count
