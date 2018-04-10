@@ -235,21 +235,11 @@ public class UniversalLinkHandler {
         return message
     }
     
-    func padTo32(_ buffer: [UInt8]) -> [UInt8] {
-        var padded = [UInt8]()
-        let count = buffer.count - 1
-        if buffer.isEmpty {
-            for _ in 0...31 {
-                padded.append(0)
-            }
-        } else {
-            for _ in 0...31 - count - 1 {
-                padded.append(0)
-            }
-            for i in 0...count {
-                padded.append(buffer[i])
-            }
-        }
+    func padTo32(_ buffer: [UInt8], to count: Int = 32) -> [UInt8] {
+        let padCount = count - buffer.count
+        var padded = buffer
+        let padding: [UInt8] = Array(repeating: 0, count: padCount)
+        padded.insert(contentsOf: padding, at: 0)
         return padded
     }
 

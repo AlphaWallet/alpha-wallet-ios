@@ -89,7 +89,7 @@ class UniversalLinkCoordinator: Coordinator {
             var successful = false //need to set this to false by default else it will allow no connections to be considered successful etc
             //401 code will be given if signature is invalid on the server
             if let response = result.response {
-                if (response.statusCode != 401 && response.statusCode < 300) {
+                if (response.statusCode < 300) {
                     successful = true
                 }
             }
