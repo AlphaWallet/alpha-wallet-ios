@@ -49,7 +49,6 @@
 		2923D9B51FDA4E07000CF3F8 /* PasswordGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2923D9B41FDA4E07000CF3F8 /* PasswordGenerator.swift */; };
 		2923D9B71FDA5E51000CF3F8 /* PasswordGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2923D9B61FDA5E51000CF3F8 /* PasswordGeneratorTests.swift */; };
 		29282B531F7630970067F88D /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29282B521F7630970067F88D /* Token.swift */; };
-		29285B421F6FB3E60044CF29 /* SendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29285B411F6FB3E60044CF29 /* SendViewController.swift */; };
 		293112101FC4ADCB00966EEA /* InCoordinatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2931120F1FC4ADCB00966EEA /* InCoordinatorViewModel.swift */; };
 		293112121FC4F48400966EEA /* ServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 293112111FC4F48400966EEA /* ServiceProvider.swift */; };
 		2931122E1FC94E4200966EEA /* SettingsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2931122D1FC94E4200966EEA /* SettingsError.swift */; };
@@ -287,6 +286,7 @@
 		5E7C70EEFB9D9745C6CF7578 /* ChooseTicketTransferModeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D177F5297D4A3DB3F33 /* ChooseTicketTransferModeViewController.swift */; };
 		5E7C70FF17622C0FFD45A542 /* AlphaWalletSettingPushRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D2AAB777BF35B8B56BD /* AlphaWalletSettingPushRow.swift */; };
 		5E7C710331196CD591B51785 /* LockCreatePasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C741196D9D9C9C3EE5E30 /* LockCreatePasscodeViewController.swift */; };
+		5E7C713ACE8C72642B1C9F93 /* SendHeaderViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B7A45EDFA8ED1E25863 /* SendHeaderViewViewModel.swift */; };
 		5E7C71A6B0BDF301747A49AE /* ScreenChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77E1E6194F5A1DC8D645 /* ScreenChecker.swift */; };
 		5E7C71A7D2BD6FCE3980CC51 /* ImportWalletHelpBubbleViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A16ABC8BD5D508AA641 /* ImportWalletHelpBubbleViewViewModel.swift */; };
 		5E7C71B52A77008694BFA5D1 /* TokensDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74B9EB81C51E956566E7 /* TokensDataStore.swift */; };
@@ -299,6 +299,7 @@
 		5E7C72AF95DCE8BC65490BCA /* StatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B82CC07F290B9CAA4E4 /* StatusViewController.swift */; };
 		5E7C72B0A10A92E591696E48 /* ContactUsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */; };
 		5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */; };
+		5E7C72E1D4B4B4C8443F3DA1 /* SendHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7828BD821B6F04B71C00 /* SendHeaderView.swift */; };
 		5E7C731B88842C036A74A039 /* AlphaWalletSettingsButtonRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71EBD4C95AD4E11F3352 /* AlphaWalletSettingsButtonRow.swift */; };
 		5E7C73305DF984B99E94D9F9 /* TransferModeButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7717D829205D1E254AC1 /* TransferModeButton.swift */; };
 		5E7C733638D7596F93DEE2A9 /* OnboardingCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75CE3F1D6B7993E7A840 /* OnboardingCollectionViewController.swift */; };
@@ -307,6 +308,7 @@
 		5E7C745DACB5FCCEBCEB49CA /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C793E23E2364B73C4D813 /* WelcomeViewController.swift */; };
 		5E7C7499A8D6814F7950DA70 /* LockCreatePasscodeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AB3440C01136DF4F3E9 /* LockCreatePasscodeCoordinator.swift */; };
 		5E7C74B99922D0CAB635970E /* PasscodeCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B9220E616F82EDA956F /* PasscodeCharacterView.swift */; };
+		5E7C7567A690B6B8F889AE83 /* SendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70088832B2D161EB4AAB /* SendViewController.swift */; };
 		5E7C75C99B9F595F26EDC405 /* LockPasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D5F3CAE69CF932AB236 /* LockPasscodeViewController.swift */; };
 		5E7C75D46140FACBD12333BF /* EthTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EE374A74F2B00013C18 /* EthTokenViewCell.swift */; };
 		5E7C75E3C4BAE885746BD1B3 /* TransferTicketViaWalletAddressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72B37551451352EBB9F9 /* TransferTicketViaWalletAddressViewController.swift */; };
@@ -537,7 +539,6 @@
 		2923D9B41FDA4E07000CF3F8 /* PasswordGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordGenerator.swift; sourceTree = "<group>"; };
 		2923D9B61FDA5E51000CF3F8 /* PasswordGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasswordGeneratorTests.swift; sourceTree = "<group>"; };
 		29282B521F7630970067F88D /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
-		29285B411F6FB3E60044CF29 /* SendViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewController.swift; sourceTree = "<group>"; };
 		2931120F1FC4ADCB00966EEA /* InCoordinatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InCoordinatorViewModel.swift; sourceTree = "<group>"; };
 		293112111FC4F48400966EEA /* ServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProvider.swift; sourceTree = "<group>"; };
 		2931122D1FC94E4200966EEA /* SettingsError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsError.swift; sourceTree = "<group>"; };
@@ -777,6 +778,7 @@
 		442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketHolder.swift; sourceTree = "<group>"; };
 		477899BEAA4489DA423E8857 /* Pods-TrustUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrustUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TrustUITests/Pods-TrustUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		4DB8204016307EAFC079EA48 /* Pods-Trust.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.debug.xcconfig"; sourceTree = "<group>"; };
+		5E7C70088832B2D161EB4AAB /* SendViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendViewController.swift; sourceTree = "<group>"; };
 		5E7C7011D8E5C9FFE0E59D55 /* TransferTicketsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTicketsViewController.swift; sourceTree = "<group>"; };
 		5E7C703BA1D0E9ACB7399155 /* TransferTicketsQuantitySelectionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTicketsQuantitySelectionViewModel.swift; sourceTree = "<group>"; };
 		5E7C70CC85B337061151724E /* ImportWalletHelpBubbleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportWalletHelpBubbleView.swift; sourceTree = "<group>"; };
@@ -819,6 +821,7 @@
 		5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C77E1E6194F5A1DC8D645 /* ScreenChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenChecker.swift; sourceTree = "<group>"; };
 		5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerTitleHeader.swift; sourceTree = "<group>"; };
+		5E7C7828BD821B6F04B71C00 /* SendHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendHeaderView.swift; sourceTree = "<group>"; };
 		5E7C783E3ADA4CF9554A0E7D /* TicketTokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C78581AA28CA5C3CBC468 /* AdvancedSettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsViewController.swift; sourceTree = "<group>"; };
 		5E7C78B001F9F95F404D5FEF /* HowDoIGetMyMoneyInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HowDoIGetMyMoneyInfoViewController.swift; sourceTree = "<group>"; };
@@ -838,6 +841,7 @@
 		5E7C7B0BE9EE3B198AE7D92D /* WhatIsASeedPhraseInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatIsASeedPhraseInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C7B1FB2702A2A8A4EBD76 /* SettingsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7B3302309706CA0F972A /* TokensViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensViewController.swift; sourceTree = "<group>"; };
+		5E7C7B7A45EDFA8ED1E25863 /* SendHeaderViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendHeaderViewViewModel.swift; sourceTree = "<group>"; };
 		5E7C7B82CC07F290B9CAA4E4 /* StatusViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusViewController.swift; sourceTree = "<group>"; };
 		5E7C7B9220E616F82EDA956F /* PasscodeCharacterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PasscodeCharacterView.swift; sourceTree = "<group>"; };
 		5E7C7BD9B4BDAFC2D9EBD741 /* StatusViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusViewControllerViewModel.swift; sourceTree = "<group>"; };
@@ -1845,7 +1849,6 @@
 		29B6AECC1F7C87E700EC6DE3 /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				29285B411F6FB3E60044CF29 /* SendViewController.swift */,
 				291A1B661F98092F00ADEC80 /* ConfirmPaymentViewController.swift */,
 				299B5E411FD2298E0051361C /* ConfigureTransactionViewController.swift */,
 				5E7C74DCC21272EC231A20E2 /* RequestViewController.swift */,
@@ -1853,6 +1856,7 @@
 				5E7C7419F47CC8B2996AA8F9 /* TransferTicketsQuantitySelectionViewController.swift */,
 				5E7C7D177F5297D4A3DB3F33 /* ChooseTicketTransferModeViewController.swift */,
 				5E7C72B37551451352EBB9F9 /* TransferTicketViaWalletAddressViewController.swift */,
+				5E7C70088832B2D161EB4AAB /* SendViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -1869,6 +1873,7 @@
 				5E7C703BA1D0E9ACB7399155 /* TransferTicketsQuantitySelectionViewModel.swift */,
 				5E7C75BE23CDD9CD271EC30C /* ChooseTicketTransferModeViewControllerViewModel.swift */,
 				5E7C7610C8DD3223230E3951 /* TransferTicketViaWalletAddressViewControllerViewModel.swift */,
+				5E7C7B7A45EDFA8ED1E25863 /* SendHeaderViewViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -2323,6 +2328,7 @@
 			isa = PBXGroup;
 			children = (
 				5E7C7717D829205D1E254AC1 /* TransferModeButton.swift */,
+				5E7C7828BD821B6F04B71C00 /* SendHeaderView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3213,7 +3219,6 @@
 				296421951F70C1EC00EB363B /* LoadingView.swift in Sources */,
 				2961BD071FB146EB00C4B840 /* ChainState.swift in Sources */,
 				73D26837202E827E009777A1 /* DecimalFormatter.swift in Sources */,
-				29285B421F6FB3E60044CF29 /* SendViewController.swift in Sources */,
 				2996F14D1F6CA743005C33AE /* UIViewController.swift in Sources */,
 				2959961F1FAE759700DB66A8 /* RawTransaction.swift in Sources */,
 				295B61D41FE7D5B500642E60 /* CurrencyFormatter.swift in Sources */,
@@ -3493,6 +3498,9 @@
 				5E7C7AD4DF6DFA6B3AF206E7 /* TransferTicketViaWalletAddressViewControllerViewModel.swift in Sources */,
 				5E7C7A41B07499B607476300 /* ScanQRCodeForWalletAddressToTransferTicketCoordinator.swift in Sources */,
 				5E7C7EEE563D81793CB96FA0 /* TransferTicketsCoordinator.swift in Sources */,
+				5E7C7567A690B6B8F889AE83 /* SendViewController.swift in Sources */,
+				5E7C72E1D4B4B4C8443F3DA1 /* SendHeaderView.swift in Sources */,
+				5E7C713ACE8C72642B1C9F93 /* SendHeaderViewViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
