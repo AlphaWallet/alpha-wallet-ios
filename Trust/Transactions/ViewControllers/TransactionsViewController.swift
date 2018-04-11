@@ -9,7 +9,6 @@ import TrustKeystore
 
 protocol TransactionsViewControllerDelegate: class {
     func didPressSend(in viewController: TransactionsViewController)
-    func didPressRequest(in viewController: TransactionsViewController)
     func didPressTransaction(transaction: Transaction, in viewController: TransactionsViewController)
     func didPressDeposit(for account: Wallet, sender: UIView, in viewController: TransactionsViewController)
 }
@@ -43,7 +42,6 @@ class TransactionsViewController: UIViewController {
     lazy var footerView: TransactionsFooterView = {
         let footerView = TransactionsFooterView(frame: .zero)
         footerView.translatesAutoresizingMaskIntoConstraints = false
-        footerView.requestButton.addTarget(self, action: #selector(request), for: .touchUpInside)
         footerView.sendButton.addTarget(self, action: #selector(send), for: .touchUpInside)
         return footerView
     }()
@@ -85,11 +83,6 @@ class TransactionsViewController: UIViewController {
 		let footerViewHeight = CGFloat(60)
         footerBar.addSubview(footerView)
 
-        let separator = UIView()
-        separator.translatesAutoresizingMaskIntoConstraints = false
-        separator.backgroundColor = Colors.appLightButtonSeparator
-        footerBar.addSubview(separator)
-
         actionButtonsVisibleConstraint = footerBar.heightAnchor.constraint(equalToConstant: footerViewHeight)
         actionButtonsInVisibleConstraint = footerBar.topAnchor.constraint(equalTo: footerBar.bottomAnchor)
 
@@ -106,11 +99,6 @@ class TransactionsViewController: UIViewController {
             footerView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             footerView.topAnchor.constraint(equalTo: footerBar.topAnchor),
 			footerView.heightAnchor.constraint(equalToConstant: footerViewHeight),
-
-            separator.leadingAnchor.constraint(equalTo: footerView.sendButton.trailingAnchor, constant: -separatorThickness / 2),
-            separator.trailingAnchor.constraint(equalTo: footerView.requestButton.leadingAnchor, constant: separatorThickness / 2),
-            separator.topAnchor.constraint(equalTo: footerView.topAnchor, constant: 8),
-            separator.bottomAnchor.constraint(equalTo: footerView.bottomAnchor, constant: -8),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -172,10 +160,6 @@ class TransactionsViewController: UIViewController {
 
     @objc func send() {
         delegate?.didPressSend(in: self)
-    }
-
-    @objc func request() {
-        delegate?.didPressRequest(in: self)
     }
 
     func showDeposit(_ sender: UIButton) {

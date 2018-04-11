@@ -1,4 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
 import UIKit
@@ -8,6 +9,7 @@ import APIKit
 import QRCodeReaderViewController
 import BigInt
 import TrustKeystore
+import MBProgressHUD
 
 protocol SendViewControllerDelegate: class {
     func didPressConfirm(
@@ -17,20 +19,43 @@ protocol SendViewControllerDelegate: class {
     )
 }
 
-class SendViewController: FormViewController {
-    private lazy var viewModel: SendViewModel = {
-        return SendViewModel(transferType: self.transferType,
-                             config: Config(),
-                             ticketHolders: self.ticketHolders)
+class SendViewController: UIViewController {
+    //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
+    let roundedBackground = UIView()
+    let header = SendHeaderView()
+    let targetAddressTextField = UITextField()
+    let amountTextField = UITextField()
+    let alternativeAmountLabel = UILabel()
+    let targetAddressLabel = UILabel()
+    let amountLabel = UILabel()
+    let myAddressContainer = UIView()
+    let myAddressLabelLabel = UILabel()
+    let myAddressLabel: UILabel = {
+        let label = UILabel(frame: .zero)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.minimumScaleFactor = 0.5
+        label.adjustsFontSizeToFitWidth = true
+        return label
     }()
-    weak var delegate: SendViewControllerDelegate?
+    let copyButton: UIButton = {
+        let button = Button(size: .normal, style: .border)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(copyAddress), for: .touchUpInside)
+        return button
+    }()
+    let imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    let nextButton = UIButton(type: .system)
 
-    struct Values {
-        static let address = "address"
-        static let amount = "amount"
-        static let existingTicketIds = "existingTicketIds"
-        static let ticketIdsToSend = "ticketIdsToSend"
-    }
+    var viewModel: SendViewModel!
+    var headerViewModel = SendHeaderViewViewModel()
+    var balanceViewModel: BalanceBaseViewModel?
+    weak var delegate: SendViewControllerDelegate?
 
     struct Pair {
         let left: String
@@ -46,17 +71,7 @@ class SendViewController: FormViewController {
     let account: Account
     let transferType: TransferType
     let storage: TokensDataStore
-    let ticketHolders: [TicketHolder]!
 
-    var addressRow: TextFloatLabelRow? {
-        return form.rowBy(tag: Values.address) as? TextFloatLabelRow
-    }
-    var amountRow: TextFloatLabelRow? {
-        return form.rowBy(tag: Values.amount) as? TextFloatLabelRow
-    }
-    var ticketIdsRow: TextFloatLabelRow? {
-        return form.rowBy(tag: Values.ticketIdsToSend) as? TextFloatLabelRow
-    }
     private var allowedCharacters: String = {
         let decimalSeparator = Locale.current.decimalSeparator ?? "."
         return "0123456789" + decimalSeparator
@@ -69,122 +84,233 @@ class SendViewController: FormViewController {
     lazy var decimalFormatter: DecimalFormatter = {
         return DecimalFormatter()
     }()
-    lazy var stringFormatter: StringFormatter = {
-        return StringFormatter()
-    }()
 
     init(
             session: WalletSession,
             storage: TokensDataStore,
             account: Account,
-            transferType: TransferType = .ether(destination: .none),
-            ticketHolders: [TicketHolder] = []
+            transferType: TransferType = .ether(destination: .none)
     ) {
         self.session = session
         self.account = account
         self.transferType = transferType
         self.storage = storage
-        self.ticketHolders = ticketHolders
 
         super.init(nibName: nil, bundle: nil)
 
+        configureBalanceViewModel()
+
+        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.backgroundColor = Colors.appWhite
+        roundedBackground.cornerRadius = 20
+        view.addSubview(roundedBackground)
+
+        targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
+        targetAddressTextField.delegate = self
+        targetAddressTextField.returnKeyType = .next
+        targetAddressTextField.leftViewMode = .always
+        targetAddressTextField.rightViewMode = .always
+
+        amountTextField.translatesAutoresizingMaskIntoConstraints = false
+        amountTextField.delegate = self
+        amountTextField.keyboardType = .decimalPad
+        amountTextField.leftViewMode = .always
+        amountTextField.rightViewMode = .always
+        amountTextField.inputAccessoryView = makeToolbarWithDoneButton()
+
+        myAddressContainer.translatesAutoresizingMaskIntoConstraints = false
+
+        let myAddressContainerCol0 = UIStackView(arrangedSubviews: [
+            myAddressLabelLabel,
+            .spacer(height: 10),
+            myAddressLabel,
+            .spacer(height: 10),
+            copyButton,
+        ])
+        myAddressContainerCol0.translatesAutoresizingMaskIntoConstraints = false
+        myAddressContainerCol0.axis = .vertical
+        myAddressContainerCol0.spacing = 0
+        myAddressContainerCol0.distribution = .fill
+        myAddressContainerCol0.alignment = .center
+
+        let myAddressContainerStackView = UIStackView(arrangedSubviews: [
+            myAddressContainerCol0,
+            .spacerWidth(20),
+            imageView,
+        ])
+        myAddressContainerStackView.translatesAutoresizingMaskIntoConstraints = false
+        myAddressContainerStackView.axis = .horizontal
+        myAddressContainerStackView.spacing = 0
+        myAddressContainerStackView.distribution = .fill
+        myAddressContainerStackView.alignment = .center
+        myAddressContainer.addSubview(myAddressContainerStackView)
+
+        nextButton.setTitle(R.string.localizable.aWalletTicketTokenTransferButtonTitle(), for: .normal)
+        nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
+
+        let buttonsStackView = UIStackView(arrangedSubviews: [nextButton])
+        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
+        buttonsStackView.axis = .horizontal
+        buttonsStackView.spacing = 0
+        buttonsStackView.distribution = .fillEqually
+        buttonsStackView.setContentHuggingPriority(.required, for: .horizontal)
+
+        let stackView = UIStackView(arrangedSubviews: [
+            header,
+            .spacer(height: 20),
+            targetAddressLabel,
+            .spacer(height: 4),
+            targetAddressTextField,
+            .spacer(height: 14),
+            amountLabel,
+            .spacer(height: 4),
+            amountTextField,
+            alternativeAmountLabel,
+            .spacer(height: 20),
+            myAddressContainer,
+        ])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.spacing = 0
+        stackView.distribution = .fill
+        stackView.alignment = .center
+        roundedBackground.addSubview(stackView)
+
+
+        let marginToHideBottomRoundedCorners = CGFloat(30)
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = Colors.appHighlightGreen
+        roundedBackground.addSubview(footerBar)
+
+        let buttonsHeight = CGFloat(60)
+        footerBar.addSubview(buttonsStackView)
+        
+        NSLayoutConstraint.activate([
+            header.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
+            header.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
+
+            targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
+            targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
+            targetAddressTextField.heightAnchor.constraint(equalToConstant: 50),
+
+            amountTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
+            amountTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
+            amountTextField.heightAnchor.constraint(equalToConstant: 50),
+
+            myAddressContainerStackView.leadingAnchor.constraint(equalTo: myAddressContainer.leadingAnchor, constant: 20),
+            myAddressContainerStackView.trailingAnchor.constraint(equalTo: myAddressContainer.trailingAnchor, constant: -20),
+            myAddressContainerStackView.topAnchor.constraint(equalTo: myAddressContainer.topAnchor, constant: 20),
+            myAddressContainerStackView.bottomAnchor.constraint(equalTo: myAddressContainer.bottomAnchor, constant: -20),
+
+            myAddressContainer.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
+            myAddressContainer.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
+
+            roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            roundedBackground.topAnchor.constraint(equalTo: view.topAnchor),
+            roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
+
+            imageView.widthAnchor.constraint(equalTo: myAddressContainerStackView.widthAnchor, multiplier: 0.5, constant: 10),
+            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor),
+
+            stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+
+            buttonsStackView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
+            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+
         storage.updatePrices()
         getGasPrice()
+    }
 
-        if viewModel.isStormBird {
-            title = viewModel.title
-        } else {
-            navigationItem.titleView = BalanceTitleView.make(from: self.session, transferType)
+    @objc func closeKeyboard() {
+        view.endEditing(true)
+    }
+
+    func configure(viewModel: SendViewModel) {
+        let firstConfigure = self.viewModel == nil
+        self.viewModel = viewModel
+
+        if firstConfigure {
+            //Not good to rely on viewModel here on firstConfigure, which means if we change the padding on subsequent calls (which will probably never happen), it wouldn't be reflected. Unfortunately this needs to be here, otherwise while typing in the amount text field, the left and right views will move out of the text field momentarily
+            amountTextField.leftView = .spacerWidth(viewModel.textFieldHorizontalPadding)
+            amountTextField.rightView = makeAmountRightView()
+            targetAddressTextField.leftView = .spacerWidth(viewModel.textFieldHorizontalPadding)
+            targetAddressTextField.rightView = makeTargetAddressRightView()
         }
+
+        changeQRCode(value: 0)
 
         view.backgroundColor = viewModel.backgroundColor
 
-        let recipientRightView = FieldAppereance.addressFieldRightView(
-                pasteAction: { [unowned self] in self.pasteAction() },
-                qrAction: { [unowned self] in self.openReader() }
-        )
+        header.configure(viewModel: headerViewModel)
 
-        let maxButton = Button(size: .normal, style: .borderless)
-        maxButton.translatesAutoresizingMaskIntoConstraints = false
-        maxButton.setTitle(NSLocalizedString("send.max.button.title", value: "Max", comment: ""), for: .normal)
-        maxButton.addTarget(self, action: #selector(useMaxAmount), for: .touchUpInside)
+        targetAddressTextField.textColor = viewModel.textFieldTextColor
+        targetAddressTextField.font = viewModel.textFieldFont
+        targetAddressTextField.layer.borderColor = viewModel.textFieldBorderColor.cgColor
+        targetAddressTextField.layer.borderWidth = viewModel.textFieldBorderWidth
 
-        let fiatButton = Button(size: .normal, style: .borderless)
-        fiatButton.translatesAutoresizingMaskIntoConstraints = false
-        fiatButton.setTitle(currentPair.right, for: .normal)
-        fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
-        fiatButton.isHidden = isFiatViewHidden()
+        targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
+        targetAddressLabel.font = viewModel.textFieldsLabelFont
+        targetAddressLabel.textColor = viewModel.textFieldsLabelTextColor
 
-        let amountRightView = UIStackView(arrangedSubviews: [
-            fiatButton,
-        ])
+        amountLabel.text = R.string.localizable.aSendRecipientAmountTitle()
+        amountLabel.font = viewModel.textFieldsLabelFont
+        amountLabel.textColor = viewModel.textFieldsLabelTextColor
 
-        amountRightView.translatesAutoresizingMaskIntoConstraints = false
-        amountRightView.distribution = .equalSpacing
-        amountRightView.spacing = 1
-        amountRightView.axis = .horizontal
+        amountTextField.textColor = viewModel.textFieldTextColor
+        amountTextField.font = viewModel.textFieldFont
+        amountTextField.layer.borderColor = viewModel.textFieldBorderColor.cgColor
+        amountTextField.layer.borderWidth = viewModel.textFieldBorderWidth
 
-        if viewModel.isStormBird {
-            form += [Section(viewModel.formHeaderTitle)
-                <<< TextAreaRow(Values.existingTicketIds) {
-                    $0.textAreaHeight = .dynamic(initialTextViewHeight: 44)
-                    $0.value = viewModel.ticketNumbers
-                }.cellUpdate { cell, _ in
-                    cell.isUserInteractionEnabled = false
-                },
-            ]
-        }
+        alternativeAmountLabel.numberOfLines = 0
+        alternativeAmountLabel.textColor = viewModel.alternativeAmountColor
+        alternativeAmountLabel.font = viewModel.alternativeAmountFont
+        alternativeAmountLabel.textAlignment = .center
+        alternativeAmountLabel.text = viewModel.alternativeAmountText
+        alternativeAmountLabel.isHidden = !viewModel.showAlternativeAmount
 
-        form += [Section(footer: formFooterText())
-            <<< AppFormAppearance.textFieldFloat(tag: Values.address) {
-            $0.add(rule: EthereumAddressRule())
-            $0.validationOptions = .validatesOnDemand
-            }.cellUpdate { cell, _ in
-                cell.textField.textAlignment = .left
-                cell.textField.placeholder = NSLocalizedString("send.recipientAddress.textField.placeholder", value: "Recipient Address", comment: "")
-                cell.textField.rightView = recipientRightView
-                cell.textField.rightViewMode = .always
-                cell.textField.accessibilityIdentifier = "amount-field"
-            }
-            <<< AppFormAppearance.textFieldFloat(tag: Values.amount) {
-                $0.add(rule: RuleClosure<String> { [weak self] rowValue in
-                    return !(self?.viewModel.isStormBird)! && (rowValue == nil || rowValue!.isEmpty) ? ValidationError(msg: "Field required!") : nil
-                })
-                $0.validationOptions = .validatesOnDemand
-                $0.hidden = Condition(booleanLiteral: self.viewModel.isStormBird)
-            }.cellUpdate { [weak self] cell, _ in
-                    cell.textField.isCopyPasteDisabled = true
-                    cell.textField.textAlignment = .left
-                    cell.textField.delegate = self
-                    cell.textField.placeholder = "\(self?.currentPair.left ?? "") " + NSLocalizedString("send.amount.textField.placeholder", value: "Amount", comment: "")
-                    cell.textField.keyboardType = .decimalPad
-                    cell.textField.rightView = amountRightView
-                    cell.textField.rightViewMode = .always
-            }
-            <<< AppFormAppearance.textFieldFloat(tag: Values.ticketIdsToSend) {
-                $0.add(rule: RuleClosure<String> { [weak self] rowValue in
-                    if (self?.viewModel.isStormBird)! {
-                        if !(self?.ticketIdsValidated())! {
-                            return ValidationError(msg: "Please enter valid ticket IDs!")
-                        }
-                    }
-                    return nil
-                })
-                $0.validationOptions = .validatesOnDemand
-                $0.hidden = Condition(booleanLiteral: !self.viewModel.isStormBird)
-            }.cellUpdate { cell, _ in
-                    cell.textField.isCopyPasteDisabled = true
-                    cell.textField.textAlignment = .left
-                    cell.textField.placeholder =  NSLocalizedString("send.amount.textField.ticketids", value: "Enter Ticket IDs", comment: "")
-                    cell.textField.keyboardType = .numbersAndPunctuation
-            },
-        ]
+        myAddressLabelLabel.text = R.string.localizable.aSendSenderAddressTitle()
+        myAddressLabelLabel.font = viewModel.textFieldsLabelFont
+        myAddressLabelLabel.textColor = viewModel.textFieldsLabelTextColor
 
+        myAddressLabel.textColor = viewModel.myAddressTextColor
+        myAddressLabel.font = viewModel.addressFont
+        myAddressLabel.text = viewModel.myAddressText
+
+        copyButton.titleLabel?.font = viewModel.copyAddressButtonFont
+        copyButton.setTitle("    \(viewModel.copyAddressButtonTitle)    ", for: .normal)
+        copyButton.setTitleColor(viewModel.copyAddressButtonTitleColor, for: .normal)
+        copyButton.backgroundColor = viewModel.copyAddressButtonBackgroundColor
+
+        myAddressContainer.borderColor = viewModel.myAddressBorderColor
+        myAddressContainer.borderWidth = viewModel.myAddressBorderWidth
+        myAddressContainer.cornerRadius = 20
+
+        nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
+        nextButton.backgroundColor = viewModel.buttonBackgroundColor
+        nextButton.titleLabel?.font = viewModel.buttonFont
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        self.navigationController?.applyTintAdjustment()
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        roundCornersBasedOnHeight()
+    }
+
+    private func roundCornersBasedOnHeight() {
+        targetAddressTextField.layer.cornerRadius = targetAddressTextField.frame.size.height / 2
+        amountTextField.layer.cornerRadius = amountTextField.frame.size.height / 2
+        copyButton.cornerRadius = copyButton.frame.size.height / 2
     }
 
     func getGasPrice() {
@@ -198,23 +324,11 @@ class SendViewController: FormViewController {
         }
     }
 
-    func clear() {
-        let fields = [addressRow, amountRow, ticketIdsRow]
-        for field in fields {
-            field?.value = ""
-            field?.reload()
-        }
-    }
-
     @objc func send() {
-        let errors = form.validate()
-        guard errors.isEmpty else {
-            return
-        }
-        let addressString = addressRow?.value?.trimmed ?? ""
+        let addressString = targetAddressTextField.text?.trimmed ?? ""
         var amountString = ""
         if self.currentPair.left == viewModel.symbol {
-            amountString = amountRow?.value?.trimmed ?? ""
+            amountString = amountTextField.text?.trimmed ?? ""
         } else {
             guard let formatedValue = decimalFormatter.string(from: NSNumber(value: self.pairValue)) else {
                 return displayError(error: SendInputErrors.wrongInput)
@@ -252,7 +366,7 @@ class SendViewController: FormViewController {
                 r: .none,
                 s: .none,
                 expiry: .none,
-                indices: viewModel.isStormBird ? getIndiciesFromUI() : .none
+                indices: .none
         )
         self.delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }
@@ -271,28 +385,24 @@ class SendViewController: FormViewController {
         guard CryptoAddressValidator.isValidAddress(value) else {
             return displayError(error: Errors.invalidAddress)
         }
-        addressRow?.value = "0x99f05a668119d8938d79f85add73c9ab8ff719b1"
-        addressRow?.reload()
+        targetAddressTextField.text = value
         activateAmountView()
-    }
-
-    @objc func useMaxAmount() {
-        guard let value = session.balance?.amountFull else {
-            return
-        }
-        amountRow?.value = value
-        amountRow?.reload()
     }
 
     @objc func fiatAction(sender: UIButton) {
         let swappedPair = currentPair.swapPair()
         //New pair for future calculation we should swap pair each time we press fiat button.
         self.currentPair = swappedPair
+
+        if var viewModel = viewModel {
+            viewModel.currentPair = currentPair
+            viewModel.pairValue = 0
+            configure(viewModel: viewModel)
+        }
+
         //Update button title.
         sender.setTitle(currentPair.right, for: .normal)
-        //Reset amountRow value.
-        amountRow?.value = nil
-        amountRow?.reload()
+        amountTextField.text = nil
         //Reset pair value.
         pairValue = 0.0
         //Update section.
@@ -301,8 +411,17 @@ class SendViewController: FormViewController {
         activateAmountView()
     }
 
+    @objc func copyAddress() {
+        UIPasteboard.general.string = viewModel.myAddressText
+
+        let hud = MBProgressHUD.showAdded(to: view, animated: true)
+        hud.mode = .text
+        hud.label.text = viewModel.addressCopiedText
+        hud.hide(animated: true, afterDelay: 1.5)
+    }
+
     func activateAmountView() {
-        amountRow?.cell.textField.becomeFirstResponder()
+        amountTextField.becomeFirstResponder()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -310,87 +429,157 @@ class SendViewController: FormViewController {
     }
 
     private func updatePriceSection() {
-        //Update section only if fiat view is visible.
-        guard !isFiatViewHidden() else {
+        guard viewModel.showAlternativeAmount else {
             return
         }
-        //We use this section update to prevent update of the all section including cells.
-        UIView.setAnimationsEnabled(false)
-        tableView.beginUpdates()
-        let footerSectionIndex: Int
-        if viewModel.isStormBird {
-            footerSectionIndex = 1
-        } else {
-            footerSectionIndex = 0
-		}
-        if let containerView = tableView.footerView(forSection: footerSectionIndex) {
-            containerView.textLabel!.text = valueOfPairRepresantetion()
-            containerView.sizeToFit()
+
+        if var viewModel = viewModel {
+            viewModel.pairValue = pairValue
+            configure(viewModel: viewModel)
         }
-        tableView.endUpdates()
-        UIView.setAnimationsEnabled(true)
     }
 
     private func updatePairPrice(with amount: Double) {
         guard let rates = storage.tickers, let currentTokenInfo = rates[viewModel.destinationAddress.description], let price = Double(currentTokenInfo.price) else {
             return
         }
-        if self.currentPair.left == viewModel.symbol {
+        if currentPair.left == viewModel.symbol {
             pairValue = amount * price
         } else {
             pairValue = amount / price
         }
-        self.updatePriceSection()
+        updatePriceSection()
     }
 
-    private func isFiatViewHidden() -> Bool {
-        guard let currentTokenInfo = storage.tickers?[viewModel.destinationAddress.description], let price = Double(currentTokenInfo.price), price > 0 else {
-            return true
-        }
-        return false
-    }
-
-    private func formFooterText() -> String {
-        return isFiatViewHidden() ? "" : valueOfPairRepresantetion()
-    }
-
-    private func getTicket(for id: UInt16) -> Ticket? {
-        let tickets = ticketHolders.flatMap { $0.tickets }
-        let filteredTickets = tickets.filter { $0.id == id }
-        return filteredTickets.first
-    }
-
-    private func isTicketExisting(for id: UInt16) -> Bool {
-        return getTicket(for: id) != nil
-    }
-
-    private func getTicketIds() -> [String] {
-        return (ticketIdsRow?.value?.components(separatedBy: ","))!
-    }
-
-    private func ticketIdsValidated() -> Bool {
-        let rowValue = ticketIdsRow?.value
-        if rowValue == nil || rowValue!.isEmpty {
-            return false
-        }
-        let ticketIds = getTicketIds()
-        for id in ticketIds {
-            guard id.isNumeric() else {
-                return false
-            }
-            guard let intId = UInt16(id) else {
-                return false
-            }
-            guard isTicketExisting(for: intId) else {
-                return false
-            }
-        }
+    private func addressTextFieldChanged(in range: NSRange, to string: String) -> Bool {
         return true
     }
 
-    private func getIndiciesFromUI() -> [UInt16] {
-        let ticketIds = getTicketIds()
-        return ticketIds.map { (getTicket(for: UInt16($0)!)?.index)! }
+    private func amountTextFieldChanged(in range: NSRange, to string: String) -> Bool {
+        guard let input = amountTextField.text else {
+            return true
+        }
+        //In this step we validate only allowed characters it is because of the iPad keyboard.
+        let characterSet = NSCharacterSet(charactersIn: allowedCharacters).inverted
+        let separatedChars = string.components(separatedBy: characterSet)
+        let filteredNumbersAndSeparator = separatedChars.joined(separator: "")
+        if string != filteredNumbersAndSeparator {
+            return false
+        }
+        //This is required to prevent user from input of numbers like 1.000.25 or 1,000,25.
+        if string == "," || string == "." || string == "'" {
+            return !input.contains(string)
+        }
+        let text = (input as NSString).replacingCharacters(in: range, with: string)
+        guard let amount = decimalFormatter.number(from: text) else {
+            //Should be done in another way.
+            pairValue = 0.0
+            updatePriceSection()
+            return true
+        }
+        updatePairPrice(with: amount.doubleValue)
+        return true
+    }
+
+    private func changeQRCode(value: Int) {
+        if let viewModel = viewModel {
+            let string = viewModel.myAddressText
+            DispatchQueue.global(qos: .background).async {
+                // EIP67 format not being used much yet, use hex value for now
+                // let string = "ethereum:\(account.address.address)?value=\(value)"
+                let image = self.generateQRCode(from: string)
+                DispatchQueue.main.async {
+                    self.imageView.image = image
+                }
+            }
+        }
+    }
+
+    private func generateQRCode(from string: String) -> UIImage? {
+        return string.toQRCode()
+    }
+
+    private func configureBalanceViewModel() {
+        switch transferType {
+        case .ether:
+            session.balanceViewModel.subscribe { viewModel in
+                guard let viewModel = viewModel else { return }
+                let amount = viewModel.amountShort
+                self.headerViewModel.title = "\(amount) \(self.session.config.server.name) (\(viewModel.symbol))"
+                if let viewModel = self.viewModel {
+                    self.configure(viewModel: viewModel)
+                }
+            }
+            session.refresh(.ethBalance)
+        case .token(let token):
+            let viewModel = BalanceTokenViewModel(token: token)
+            let amount = viewModel.amountShort
+            headerViewModel.title = "\(amount) \(viewModel.symbol)"
+            if let viewModel = self.viewModel {
+                configure(viewModel: self.viewModel)
+            }
+        default:
+            break
+        }
+    }
+
+    private func makeTargetAddressRightView() -> UIView {
+        let pasteButton = Button(size: .normal, style: .borderless)
+        pasteButton.translatesAutoresizingMaskIntoConstraints = false
+        pasteButton.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
+        pasteButton.setTitleColor(UIColor(red: 155, green: 155, blue: 155), for: .normal)
+        pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
+
+        let scanQRCodeButton = Button(size: .normal, style: .borderless)
+        scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
+        scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
+        scanQRCodeButton.setTitleColor(UIColor(red: 155, green: 155, blue: 155), for: .normal)
+        scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
+
+        let targetAddressRightView = UIStackView(arrangedSubviews: [
+            pasteButton,
+            scanQRCodeButton,
+        ])
+        targetAddressRightView.translatesAutoresizingMaskIntoConstraints = false
+        targetAddressRightView.distribution = .equalSpacing
+        targetAddressRightView.spacing = 0
+        targetAddressRightView.axis = .horizontal
+
+        return targetAddressRightView
+    }
+
+    private func makeAmountRightView() -> UIView {
+        let fiatButton = Button(size: .normal, style: .borderless)
+        fiatButton.translatesAutoresizingMaskIntoConstraints = false
+        fiatButton.setTitle(currentPair.right, for: .normal)
+        fiatButton.setTitleColor(UIColor(red: 155, green: 155, blue: 155), for: .normal)
+        fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
+        fiatButton.isHidden = !viewModel.showAlternativeAmount
+
+        let amountRightView = UIStackView(arrangedSubviews: [
+            fiatButton,
+        ])
+
+        amountRightView.translatesAutoresizingMaskIntoConstraints = false
+        amountRightView.distribution = .equalSpacing
+        amountRightView.spacing = 1
+        amountRightView.axis = .horizontal
+
+        return amountRightView
+    }
+
+    private func makeToolbarWithDoneButton() -> UIToolbar {
+        //Frame needed, but actual values aren't that important
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
+        toolbar.barStyle = .default
+
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let done = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(closeKeyboard))
+
+        toolbar.items = [flexSpace, done]
+        toolbar.sizeToFit()
+
+        return toolbar
     }
 }
 
@@ -409,8 +598,7 @@ extension SendViewController: QRCodeReaderDelegate {
         guard let result = QRURLParser.from(string: result) else {
             return
         }
-        addressRow?.value = result.address
-        addressRow?.reload()
+        targetAddressTextField.text = result.address
 
         if let dataString = result.params["data"] {
             data = Data(hex: dataString.drop0x)
@@ -419,50 +607,32 @@ extension SendViewController: QRCodeReaderDelegate {
         }
 
         if let value = result.params["amount"] {
-            amountRow?.value = EtherNumberFormatter.full.string(from: BigInt(value) ?? BigInt(), units: .ether)
+            amountTextField.text = EtherNumberFormatter.full.string(from: BigInt(value) ?? BigInt(), units: .ether)
         } else {
-            amountRow?.value = ""
+            amountTextField.text = ""
         }
-        amountRow?.reload()
         pairValue = 0.0
         updatePriceSection()
-    }
-
-    private func valueOfPairRepresantetion() -> String {
-        var formattedString = ""
-        if self.currentPair.left == viewModel.symbol {
-            formattedString = StringFormatter().currency(with: self.pairValue, and: self.session.config.currency.rawValue)
-        } else {
-            formattedString = stringFormatter.formatter(for: self.pairValue)
-        }
-        return "~ \(formattedString) " + "\(currentPair.right)"
     }
 }
 
 extension SendViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        guard let input = textField.text else {
+        if textField == targetAddressTextField {
+            return addressTextFieldChanged(in: range, to: string)
+        } else if textField == amountTextField {
+            return amountTextFieldChanged(in: range, to: string)
+        } else {
             return true
         }
-        //In this step we validate only allowed characters it is because of the iPad keyboard.
-        let characterSet = NSCharacterSet(charactersIn: self.allowedCharacters).inverted
-        let separatedChars = string.components(separatedBy: characterSet)
-        let filteredNumbersAndSeparator = separatedChars.joined(separator: "")
-        if string != filteredNumbersAndSeparator {
-            return false
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == targetAddressTextField {
+            activateAmountView()
+        } else if textField == amountTextField {
+            view.endEditing(true)
         }
-        //This is required to prevent user from input of numbers like 1.000.25 or 1,000,25.
-        if string == "," || string == "." || string == "'" {
-            return !input.contains(string)
-        }
-        let text = (input as NSString).replacingCharacters(in: range, with: string)
-        guard let amount = decimalFormatter.number(from: text) else {
-            //Should be done in another way.
-            pairValue = 0.0
-            updatePriceSection()
-            return true
-        }
-        self.updatePairPrice(with: amount.doubleValue)
         return true
     }
 }
