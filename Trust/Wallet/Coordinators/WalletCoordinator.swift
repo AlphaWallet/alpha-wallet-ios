@@ -56,7 +56,8 @@ class WalletCoordinator: Coordinator {
         keystore.createAccount(with: password) { result in
             switch result {
             case .success(let account):
-                self.pushBackup(for: account)
+                let wallet = Wallet(type: WalletType.real(account))
+                self.delegate?.didFinish(with: wallet, in: self)
             case .failure(let error):
                 self.navigationController.displayError(error: error)
             }

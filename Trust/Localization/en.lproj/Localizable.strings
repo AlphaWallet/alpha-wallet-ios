@@ -191,7 +191,7 @@
 "a.wallet.ticketToken.transfer.selectTickets.atLeastOne.title" = "Please select a ticket to transfer";
 "a.wallet.ticketToken.transfer.selectQuantity.title" = "Select Quantity of Tickets";
 "a.wallet.ticketToken.transfer.quantity.title" = "QUANTITY OF TICKETS";
-"a.wallet.ticketToken.transfer.mode.choose.title" = "Select an Option to Transfer:";
+"a.wallet.ticketToken.transfer.mode.choose.title" = "Send your 24 hour transfer link";
 "a.wallet.ticketToken.transfer.mode.choose.text.title" = "Send SMS/iMessage";
 "a.wallet.ticketToken.transfer.mode.choose.email.title" = "Send Email";
 "a.wallet.ticketToken.transfer.mode.choose.inputWalletAddress.title" = "Input Wallet Address";
