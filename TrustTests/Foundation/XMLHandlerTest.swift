@@ -10,11 +10,11 @@ import XCTest
 @testable import Trust
 
 class XMLHandlerTest: XCTestCase {
-    
+
     func testParser() {
         let fifaDetails = XMLHandler().getFifaInfoForToken(
-            tokenId: "0x0a015af6d74042544e43484e01010001",
-            lang: "en"
+            tokenId: "0x0a015af6d74042544e43484e01010001".substring(from: 2),
+            lang: 1
         )
         XCTAssertNotNil(fifaDetails)
     }
