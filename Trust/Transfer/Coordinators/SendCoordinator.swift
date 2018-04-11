@@ -56,6 +56,8 @@ class SendCoordinator: Coordinator {
                         currentPair: SendViewController.Pair(left: symbol, right: session.config.currency.rawValue)
                         )
         )
+        //Make sure the pop up, especially the height, is enough to fit the content in iPad
+        sendViewController.preferredContentSize = CGSize(width: 540, height: 700)
         if navigationController.viewControllers.isEmpty {
             navigationController.viewControllers = [sendViewController]
         } else {
