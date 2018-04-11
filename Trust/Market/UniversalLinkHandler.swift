@@ -30,8 +30,8 @@ import BigInt
 public class UniversalLinkHandler {
 
     public let urlPrefix = "https://app.awallet.io/"
-    public static let paymentServer = "https://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken"
-    //"http://stormbird.duckdns.org:8080/api/claimToken"
+    public static let paymentServer = "http://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken"
+
 
     //message is with 32 bytes each of price and expiry and is shortened for link
     func createUniversalLink(signedOrder: SignedOrder) -> String {
@@ -236,20 +236,11 @@ public class UniversalLinkHandler {
         return message
     }
     
-    func padTo32(_ buffer: [UInt8]) -> [UInt8] {
-        var padded = [UInt8]()
-        if buffer.isEmpty {
-            for _ in 0...31 {
-                padded.append(0)
-            }
-        } else {
-            for _ in 0...31 - buffer.count - 1 {
-                padded.append(0)
-            }
-            for i in 0...buffer.count - 1 {
-                padded.append(buffer[i])
-            }
-        }
+    func padTo32(_ buffer: [UInt8], to count: Int = 32) -> [UInt8] {
+        let padCount = count - buffer.count
+        var padded = buffer
+        let padding: [UInt8] = Array(repeating: 0, count: padCount)
+        padded.insert(contentsOf: padding, at: 0)
         return padded
     }
 
