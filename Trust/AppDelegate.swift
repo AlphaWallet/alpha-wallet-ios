@@ -94,6 +94,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
 extension AppDelegate: UniversalLinkCoordinatorDelegate {
     func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController? {
-        return window?.rootViewController
+        if var top = window?.rootViewController {
+            while let vc = top.presentedViewController {
+                top = vc
+            }
+            return top
+        } else {
+            return nil
+        }
     }
 }
