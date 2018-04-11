@@ -52,10 +52,15 @@ class SendHeaderView: UIView {
         footerStackView.distribution = .fill
         footerValuesStack.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, bottomRowStack, footerStackView])
+        let stackView = UIStackView(arrangedSubviews: [
+            titleLabel,
+            bottomRowStack,
+            .spacer(height: 7),
+            footerStackView,
+        ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = 10
+        stackView.spacing = 0
         stackView.distribution = .fill
         background.addSubview(stackView)
 

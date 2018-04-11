@@ -157,16 +157,16 @@ class SendViewController: UIViewController {
 
         let stackView = UIStackView(arrangedSubviews: [
             header,
-            .spacer(height: 20),
+            .spacer(height: ScreenChecker().isNarrowScreen() ? 7: 20),
             targetAddressLabel,
-            .spacer(height: 4),
+            .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
             targetAddressTextField,
-            .spacer(height: 14),
+            .spacer(height: ScreenChecker().isNarrowScreen() ? 7 : 14),
             amountLabel,
-            .spacer(height: 4),
+            .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
             amountTextField,
             alternativeAmountLabel,
-            .spacer(height: 20),
+            .spacer(height: ScreenChecker().isNarrowScreen() ? 10: 20),
             myAddressContainer,
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -192,16 +192,16 @@ class SendViewController: UIViewController {
 
             targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
-            targetAddressTextField.heightAnchor.constraint(equalToConstant: 50),
+            targetAddressTextField.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen() ? 30 : 50),
 
             amountTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             amountTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
-            amountTextField.heightAnchor.constraint(equalToConstant: 50),
+            amountTextField.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen() ? 30 : 50),
 
             myAddressContainerStackView.leadingAnchor.constraint(equalTo: myAddressContainer.leadingAnchor, constant: 20),
             myAddressContainerStackView.trailingAnchor.constraint(equalTo: myAddressContainer.trailingAnchor, constant: -20),
-            myAddressContainerStackView.topAnchor.constraint(equalTo: myAddressContainer.topAnchor, constant: 20),
-            myAddressContainerStackView.bottomAnchor.constraint(equalTo: myAddressContainer.bottomAnchor, constant: -20),
+            myAddressContainerStackView.topAnchor.constraint(equalTo: myAddressContainer.topAnchor, constant: ScreenChecker().isNarrowScreen() ? 10 : 20),
+            myAddressContainerStackView.bottomAnchor.constraint(equalTo: myAddressContainer.bottomAnchor, constant: ScreenChecker().isNarrowScreen() ? -10 : -20),
 
             myAddressContainer.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             myAddressContainer.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
@@ -527,6 +527,7 @@ class SendViewController: UIViewController {
         let pasteButton = Button(size: .normal, style: .borderless)
         pasteButton.translatesAutoresizingMaskIntoConstraints = false
         pasteButton.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
+        pasteButton.titleLabel?.font = Fonts.regular(size: 14)!
         pasteButton.setTitleColor(UIColor(red: 155, green: 155, blue: 155), for: .normal)
         pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
 
