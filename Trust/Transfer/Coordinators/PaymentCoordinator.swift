@@ -21,15 +21,6 @@ class PaymentCoordinator: Coordinator {
     let storage: TokensDataStore
     let ticketHolders: [TicketHolder]!
 
-    lazy var transferType: TransferType = {
-        switch self.flow {
-        case .send(let type):
-            return type
-        case .request:
-            return .ether(destination: .none)
-        }
-    }()
-
     init(
         navigationController: UINavigationController = UINavigationController(),
         flow: PaymentFlow,
