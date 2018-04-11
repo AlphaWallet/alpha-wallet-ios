@@ -401,7 +401,7 @@ class SendViewController: UIViewController {
         }
 
         //Update button title.
-        sender.setTitle(currentPair.right, for: .normal)
+        sender.setTitle(currentPair.left, for: .normal)
         amountTextField.text = nil
         //Reset pair value.
         pairValue = 0.0
@@ -552,7 +552,7 @@ class SendViewController: UIViewController {
     private func makeAmountRightView() -> UIView {
         let fiatButton = Button(size: .normal, style: .borderless)
         fiatButton.translatesAutoresizingMaskIntoConstraints = false
-        fiatButton.setTitle(currentPair.right, for: .normal)
+        fiatButton.setTitle(currentPair.left, for: .normal)
         fiatButton.setTitleColor(UIColor(red: 155, green: 155, blue: 155), for: .normal)
         fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
         fiatButton.isHidden = !viewModel.showAlternativeAmount
