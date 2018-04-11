@@ -441,6 +441,9 @@
 		AA893ED5203C3E5400CDCED1 /* TokenBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */; };
 		AAEB8DA2204BC7B700CB0B2C /* RedeemTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */; };
 		AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */; };
+		B1DB1A95207DBF6D00CA2B77 /* XMLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */; };
+		B1DB1A97207DCECF00CA2B77 /* AssetDefinitionXML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */; };
+		B1DB1A99207DDF9600CA2B77 /* XMLHandlerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A98207DDF9600CA2B77 /* XMLHandlerTest.swift */; };
 		B1DC375D203AEAE200C9756D /* MarketQueueHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375C203AEAE100C9756D /* MarketQueueHandler.swift */; };
 		B1DC375F203AEB4800C9756D /* MarketQueueHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DC375E203AEB4800C9756D /* MarketQueueHandlerTests.swift */; };
 		BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */; };
@@ -949,6 +952,9 @@
 		AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemTicketsViewController.swift; sourceTree = "<group>"; };
 		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
+		B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLHandler.swift; sourceTree = "<group>"; };
+		B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDefinitionXML.swift; sourceTree = "<group>"; };
+		B1DB1A98207DDF9600CA2B77 /* XMLHandlerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLHandlerTest.swift; sourceTree = "<group>"; };
 		B1DC375C203AEAE100C9756D /* MarketQueueHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketQueueHandler.swift; sourceTree = "<group>"; };
 		B1DC375E203AEB4800C9756D /* MarketQueueHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketQueueHandlerTests.swift; sourceTree = "<group>"; };
 		B2CF9CDF557F98DECE6D0AF6 /* Pods_AlphaWalletUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWalletUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1699,6 +1705,7 @@
 				61FC5ED01FCFBDEB00CCB12A /* EtherNumberFormatterTests.swift */,
 				73D2683A202E8411009777A1 /* DecimalNumberFormatterTest.swift */,
 				73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */,
+				B1DB1A98207DDF9600CA2B77 /* XMLHandlerTest.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -1838,6 +1845,8 @@
 				298542F81FBE9A0100CB5081 /* CryptoAddressValidator.swift */,
 				61FC5ECE1FCFBAE500CCB12A /* EtherNumberFormatter.swift */,
 				73ED85A420349BE400593BF3 /* StringFormatter.swift */,
+				B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */,
+				B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -3068,6 +3077,7 @@
 				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
 				"${BUILT_PRODUCTS_DIR}/StatefulViewController/StatefulViewController.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftyXMLParser/SwiftyXMLParser.framework",
 				"${BUILT_PRODUCTS_DIR}/TrezorCrypto/TrezorCrypto.framework",
 				"${BUILT_PRODUCTS_DIR}/TrustKeystore/TrustKeystore.framework",
 				"${BUILT_PRODUCTS_DIR}/secp256k1_ios/secp256k1_ios.framework",
@@ -3097,6 +3107,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/StatefulViewController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyXMLParser.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TrezorCrypto.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TrustKeystore.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/secp256k1_ios.framework",
@@ -3156,6 +3167,7 @@
 				77872D232023F43B0032D687 /* TransactionsTracker.swift in Sources */,
 				29FA00CE201CA64E002F7DC5 /* DappCommand.swift in Sources */,
 				29FF12F61F74799D00AFD326 /* NSAttributedString.swift in Sources */,
+				B1DB1A97207DCECF00CA2B77 /* AssetDefinitionXML.swift in Sources */,
 				AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */,
 				290B2B651F91A4880053C83E /* TransactionsFooterView.swift in Sources */,
 				293B8B431F70815900356286 /* BalanceTitleView.swift in Sources */,
@@ -3383,6 +3395,7 @@
 				29F1C83E1FEB5C91003780D8 /* EditTokensViewController.swift in Sources */,
 				296AF9A31F733AB30058AF78 /* WalletCoordinator.swift in Sources */,
 				442FCBBFCC5926B4D416E6D3 /* GetNameCoordinator.swift in Sources */,
+				B1DB1A95207DBF6D00CA2B77 /* XMLHandler.swift in Sources */,
 				442FCB9850FC6F2D28978199 /* GetERC20Symbol.swift in Sources */,
 				442FC5F70AF003F331F7C841 /* GetSymbolCoordinator.swift in Sources */,
 				442FCB2B0DD39EB2D9233A2F /* GetStormBirdBalance.swift in Sources */,
@@ -3556,6 +3569,7 @@
 				29BDF19D1FEE50E90023A45F /* GasPriceConfigurationTests.swift in Sources */,
 				295996141FAB09A200DB66A8 /* DepositCoordinatorTests.swift in Sources */,
 				778EAF7D1FF10AF400C8E2AB /* SettingsCoordinatorTests.swift in Sources */,
+				B1DB1A99207DDF9600CA2B77 /* XMLHandlerTest.swift in Sources */,
 				732E0F502022716700B39C1F /* LockEnterPasscodeCoordinatorTest.swift in Sources */,
 				29F114E91FA3EC9E00114A29 /* InCoordinatorTests.swift in Sources */,
 				2981F4731F8303E600CA6590 /* TransactionCoordinatorTests.swift in Sources */,
