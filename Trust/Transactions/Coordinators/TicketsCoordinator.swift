@@ -154,32 +154,6 @@ class TicketsCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func transferViaText(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
-        guard MFMessageComposeViewController.canSendText() else {
-            UIAlertController.alert(title: "", message: R.string.localizable.aSetupReminderTextText(), alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.cancel], viewController: navigationController, completion: nil)
-            return
-        }
-
-        let url = generateTransferLink(ticketHolder: ticketHolder, paymentFlow: paymentFlow)
-        let vc = MFMessageComposeViewController()
-        vc.messageComposeDelegate = self
-        vc.body = url
-        navigationController.present(vc, animated: true)
-    }
-
-    private func transferViaEmail(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
-        guard MFMailComposeViewController.canSendMail() else {
-            UIAlertController.alert(title: "", message: R.string.localizable.aSetupReminderEmailText(), alertButtonTitles: [R.string.localizable.oK()], alertButtonStyles: [.cancel], viewController: navigationController, completion: nil)
-            return
-        }
-
-        let url = generateTransferLink(ticketHolder: ticketHolder, paymentFlow: paymentFlow)
-        let vc = MFMailComposeViewController()
-        vc.setMessageBody(url, isHTML: false)
-        vc.mailComposeDelegate = self
-        navigationController.present(vc, animated: true)
-    }
-
     private func generateTransferLink(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> String {
         let timestamp = Int(NSDate().timeIntervalSince1970) + 86400
         let order = Order(
@@ -303,10 +277,6 @@ extension TicketsCoordinator: ChooseTicketTransferModeViewControllerDelegate {
         let ticketHolder = viewController.ticketHolder
 
         switch transferMode {
-        case .text:
-            transferViaText(ticketHolder: ticketHolder, paymentFlow: viewController.paymentFlow)
-        case .email:
-            transferViaEmail(ticketHolder: ticketHolder, paymentFlow: viewController.paymentFlow)
         case .walletAddressTextEntry:
             transferViaWalletAddressTextEntry(ticketHolder: ticketHolder, paymentFlow: viewController.paymentFlow)
         case .walletAddressFromQRCode:
@@ -362,24 +332,3 @@ extension TicketsCoordinator: TransferTicketsCoordinatorDelegate {
     }
 }
 
-extension TicketsCoordinator: MFMessageComposeViewControllerDelegate {
-    func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
-        if result == .cancelled || result == .failed {
-            controller.dismiss(animated: true)
-        } else {
-            controller.dismiss(animated: false)
-            navigationController.dismiss(animated: true)
-        }
-    }
-}
-
-extension TicketsCoordinator: MFMailComposeViewControllerDelegate {
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        if result == .cancelled || result == .failed {
-            controller.dismiss(animated: true)
-        } else {
-            controller.dismiss(animated: false)
-            navigationController.dismiss(animated: true)
-        }
-    }
-}
