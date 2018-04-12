@@ -42,8 +42,6 @@ class InCoordinator: Coordinator {
             $0 as? TransactionCoordinator
         }.first
     }
-	//In addition to `transactionCoordinator` which is shown as a tab, `nonTabTransactionCoordinator` is meant for presenting (in iOS terms)
-    var nonTabTransactionCoordinator: TransactionCoordinator?
 
     var ticketsCoordinator: TicketsCoordinator? {
         return self.coordinators.flatMap {
@@ -228,8 +226,6 @@ class InCoordinator: Coordinator {
 
     func removeAllCoordinators() {
         coordinators.removeAll()
-        //Manually remove nonTabTransactionCoordinator since we don't add it to coordinators because existing code assume there is only 1 TransactionCoordinator there
-        nonTabTransactionCoordinator = nil
     }
 
     func checkDevice() {
@@ -310,45 +306,6 @@ class InCoordinator: Coordinator {
 
     func showTicketListToRedeem(for token: TokenObject, coordinator: TicketsCoordinator) {
         coordinator.showRedeemViewController()
-    }
-
-    private func showTransactions(for type: PaymentFlow) {
-        if nonTabTransactionCoordinator == nil {
-            if let wallet = keystore.recentlyUsedWallet {
-                let migration = MigrationInitializer(account: wallet, chainID: config.chainID)
-                let web3 = self.web3(for: config.server)
-                web3.start()
-                let realm = self.realm(for: migration.config)
-                let tokensStorage = TokensDataStore(realm: realm, account: wallet, config: config, web3: web3)
-                let balance = BalanceCoordinator(wallet: wallet, config: config, storage: tokensStorage)
-                let session = WalletSession(
-                        account: wallet,
-                        config: config,
-                        web3: web3,
-                        balanceCoordinator: balance
-                )
-                let transactionsStorage = TransactionsStorage(
-                        realm: realm
-                )
-
-                nonTabTransactionCoordinator = TransactionCoordinator(
-                        session: session,
-                        storage: transactionsStorage,
-                        keystore: keystore,
-                        tokensStorage: tokensStorage
-                )
-                nonTabTransactionCoordinator?.delegate = self
-                nonTabTransactionCoordinator?.start()
-                nonTabTransactionCoordinator?.rootViewController.showActionButtons = true
-                nonTabTransactionCoordinator?.rootViewController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissTransactions))
-            }
-        }
-        guard let transactionCoordinator = nonTabTransactionCoordinator else {
-            return
-        }
-
-		transactionCoordinator.rootViewController.paymentType = type
-        navigationController.present(transactionCoordinator.navigationController, animated: true, completion: nil)
     }
 
     private func handlePendingTransaction(transaction: SentTransaction) {
@@ -432,7 +389,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 
 extension InCoordinator: TokensCoordinatorDelegate {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
-        showTransactions(for: type)
+        showPaymentFlow(for: type)
     }
 
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
