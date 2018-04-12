@@ -46,6 +46,18 @@ class SendCoordinator: Coordinator {
     }
 
     func start() {
+        let config = Config()
+        let symbol = sendViewController.transferType.symbol(server: config.server)
+        sendViewController.configure(viewModel:
+                .init(transferType: sendViewController.transferType,
+                        session: session,
+                        storage: sendViewController.storage,
+                        config: config,
+                        currentPair: SendViewController.Pair(left: symbol, right: session.config.currency.rawValue)
+                        )
+        )
+        //Make sure the pop up, especially the height, is enough to fit the content in iPad
+        sendViewController.preferredContentSize = CGSize(width: 540, height: 700)
         if navigationController.viewControllers.isEmpty {
             navigationController.viewControllers = [sendViewController]
         } else {
@@ -58,23 +70,15 @@ class SendCoordinator: Coordinator {
             session: session,
             storage: storage,
             account: account,
-            transferType: transferType,
-            ticketHolders: ticketHolders
+            transferType: transferType
         )
 
         if navigationController.viewControllers.isEmpty {
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
         }
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: NSLocalizedString("Next", value: "Next", comment: ""),
-            style: .done,
-            target: controller,
-            action: #selector(SendViewController.send)
-        )
         switch transferType {
         case .ether(let destination):
-            controller.addressRow?.value = destination?.description
-            controller.addressRow?.cell.row.updateCell()
+            controller.targetAddressTextField.text = destination?.description
         case .token: break
         case .stormBird: break
         case .stormBirdOrder: break
