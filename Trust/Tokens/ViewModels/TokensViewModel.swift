@@ -88,7 +88,7 @@ class TokensViewModel {
 
     func canDelete(for row: Int, section: Int) -> Bool {
         let token = item(for: row, section: section)
-        return token.isCustom
+        return token.isCustom && token.contract.lowercased() != Constants.fifaContractAddress.lowercased()
     }
 
     var footerTextColor: UIColor {
