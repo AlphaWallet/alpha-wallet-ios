@@ -20,7 +20,7 @@ class GetBalanceCoordinator {
     func getBalance(
         for address: Address,
         contract: Address,
-        completion: @escaping (Result<BigInt, AnyError>) -> Void
+        completion: @escaping (Result<[String], AnyError>) -> Void
     ) {
         let request = GetERC20BalanceEncode(address: address)
         web3.request(request: request) { result in
@@ -36,7 +36,7 @@ class GetBalanceCoordinator {
                         self?.web3.request(request: request) { result in
                             switch result {
                             case .success(let res):
-                                completion(.success(BigInt(res) ?? BigInt()))
+                                completion(.success(res.flatMap { String($0) }))
                             case .failure(let error):
                                 NSLog("getPrice3 error \(error)")
                                 completion(.failure(AnyError(error)))

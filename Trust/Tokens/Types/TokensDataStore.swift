@@ -150,10 +150,16 @@ class TokensDataStore {
     }
 
     func getStormBirdBalance(for addressString: String,
-                             completion: @escaping (Result<[String], AnyError>) -> Void) {
+                             completion: @escaping (Result<BigUInt, AnyError>) -> Void) {
         let address = Address(string: addressString)
         getStormBirdBalanceCoordinator.getBalance(for: account.address, contract: address!) { result in
-            completion(result)
+            var balance = 0
+            for i in try! 0...result.dematerialize().count - 1 {
+                if(BigUInt(try! result.dematerialize()[i], radix: 16)! > 0) {
+                    balance += 1
+                }
+            }
+            completion(.success(BigUInt(balance)))
         }
     }
 
@@ -188,7 +194,9 @@ class TokensDataStore {
         var count = 0
         for tokenObject in updateTokens {
             if tokenObject.isStormBird {
-                getStormBirdBalance(for: tokenObject.contract, completion: { result in
+                //getStormBirdBalance(for: tokenObject.contract, completion: { result in
+                let contractAddress = Address(eip55: tokenObject.contract)!
+                getStormBirdBalanceCoordinator.getBalance(for: tokenObject.address, contract: contractAddress) { result in
                     switch result {
                     case .success(let balance):
                         guard !balance.isEmpty else {
@@ -196,20 +204,32 @@ class TokensDataStore {
                         }
                         var indices = [UInt16]()
                         for i in 0...balance.count - 1 {
-                            indices.append(UInt16(i))
+                            if(BigUInt(balance[i], radix: 16)! > 0){
+                                indices.append(UInt16(i))
+                            }
                         }
                         self.update(token: tokenObject, action: .stormBirdBalance(indices))
                     case .failure: break
                     }
-
-                })
+                
+                }
             } else {
                 guard let contract = Address(string: tokenObject.contract) else { return }
                 getBalanceCoordinator.getBalance(for: account.address, contract: contract) { [weak self] result in
                     guard let `self` = self else { return }
                     switch result {
                     case .success(let balance):
-                        self.update(token: tokenObject, action: .value(balance))
+                        guard !balance.isEmpty else {
+                            return
+                        }
+                        var indices = [UInt16]()
+                        for i in 0...balance.count - 1 {
+                            if(BigUInt(balance[i], radix: 16)! > 0){
+                                indices.append(UInt16(i))
+                            }
+                        }
+                        //TODO make this consistant, either BigUInt or Int
+                        self.update(token: tokenObject, action: .value(BigInt(indices.count)))
                     case .failure: break
                     }
                     count += 1
