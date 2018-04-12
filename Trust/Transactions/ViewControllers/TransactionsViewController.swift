@@ -54,8 +54,6 @@ class TransactionsViewController: UIViewController {
 		return footerBar
     }()
 
-    let insets = UIEdgeInsets(top: 130, left: 0, bottom: ButtonSize.extraLarge.height + 84, right: 0)
-
     init(
         account: Wallet,
         dataCoordinator: TransactionDataCoordinator,
@@ -123,11 +121,11 @@ class TransactionsViewController: UIViewController {
         refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         tableView.addSubview(refreshControl)
 
-        errorView = ErrorView(insets: insets, onRetry: { [weak self] in
+        errorView = ErrorView(onRetry: { [weak self] in
             self?.startLoading()
             self?.dataCoordinator.fetch()
         })
-        loadingView = LoadingView(insets: insets)
+        loadingView = LoadingView()
         //TODO move into StateViewModel once this change is global
         if let loadingView = loadingView as? LoadingView {
             loadingView.backgroundColor = Colors.appBackground
@@ -137,7 +135,6 @@ class TransactionsViewController: UIViewController {
         }
         emptyView = {
             let view = TransactionsEmptyView(
-                insets: insets,
                 onDeposit: { [unowned self] sender in
                     self.showDeposit(sender)
                 }
