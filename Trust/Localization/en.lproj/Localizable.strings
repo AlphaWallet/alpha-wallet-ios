@@ -196,7 +196,7 @@
 "a.wallet.ticketToken.transfer.mode.choose.email.title" = "Send Email";
 "a.wallet.ticketToken.transfer.mode.choose.inputWalletAddress.title" = "Input Wallet Address";
 "a.wallet.ticketToken.transfer.mode.choose.walletAddressViaQRCodeScanner.title" = "Use QR Code Scanner";
-"a.wallet.ticketToken.transfer.mode.choose.other.title" = "Others";
+"a.wallet.ticketToken.transfer.mode.choose.other.title" = "Share Link";
 "a.wallet.ticketToken.transfer.mode.walletAddress.title" = "Input Wallet Address";
 "a.wallet.ticketToken.transfer.mode.walletAddress.target.title" = "WALLET ADDRESS TO TRANSFER TO";
 "a.wallet.ticketToken.transfer.mode.walletAddress.confirmation" = "Transfer to wallet address %@?";
