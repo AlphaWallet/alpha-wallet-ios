@@ -159,7 +159,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
                 for i in 1...balance.count {
                     indices.append(UInt16(i))
                 }
-                viewController.updateBalanceValue(indices)
+                viewController.updateBalanceValue(indices.count)
             case .failure: break
             }
         }

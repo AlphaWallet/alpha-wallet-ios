@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import BigInt
 
 struct TicketsViewControllerHeaderViewModel {
     private let tokenObject: TokenObject
