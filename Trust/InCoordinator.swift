@@ -114,7 +114,7 @@ class InCoordinator: Coordinator {
                 keystore: keystore,
                 tokensStorage: tokensStorage
         )
-        transactionCoordinator.rootViewController.tabBarItem = UITabBarItem(title: NSLocalizedString("transactions.tabbar.item.title", value: "Transactions", comment: ""), image: R.image.feed(), selectedImage: nil)
+        transactionCoordinator.rootViewController.tabBarItem = UITabBarItem(title: NSLocalizedString("transactions.tabbar.item.title", value: "Transactions", comment: ""), image: R.image.feed()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.feed())
         transactionCoordinator.delegate = self
         transactionCoordinator.start()
         addCoordinator(transactionCoordinator)
@@ -136,7 +136,7 @@ class InCoordinator: Coordinator {
                     keystore: keystore,
                     tokensStorage: alphaWalletTokensStorage
             )
-            tokensCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
+            tokensCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_wallet())
             tokensCoordinator.delegate = self
             tokensCoordinator.start()
             addCoordinator(tokensCoordinator)
@@ -145,7 +145,7 @@ class InCoordinator: Coordinator {
 
         let marketplaceController = MarketplaceViewController()
         let marketplaceNavigationController = UINavigationController(rootViewController: marketplaceController)
-        marketplaceController.tabBarItem = UITabBarItem(title: R.string.localizable.aMarketplaceTabbarItemTitle(), image: R.image.tab_marketplace(), selectedImage: nil)
+        marketplaceController.tabBarItem = UITabBarItem(title: R.string.localizable.aMarketplaceTabbarItemTitle(), image: R.image.tab_marketplace()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_marketplace())
         tabBarController.viewControllers?.append(marketplaceNavigationController)
 
         let alphaSettingsCoordinator = SettingsCoordinator(
@@ -156,8 +156,8 @@ class InCoordinator: Coordinator {
         )
         alphaSettingsCoordinator.rootViewController.tabBarItem = UITabBarItem(
                 title: R.string.localizable.aSettingsNavigationTitle(),
-                image: R.image.tab_settings(),
-                selectedImage: nil
+                image: R.image.tab_settings()?.withRenderingMode(.alwaysOriginal),
+                selectedImage: R.image.tab_settings()
         )
         alphaSettingsCoordinator.delegate = self
         alphaSettingsCoordinator.start()
