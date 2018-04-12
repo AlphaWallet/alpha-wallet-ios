@@ -150,7 +150,7 @@ class TokensDataStore {
     }
 
     func getStormBirdBalance(for addressString: String,
-                             completion: @escaping (Result<[UInt16], AnyError>) -> Void) {
+                             completion: @escaping (Result<[String], AnyError>) -> Void) {
         let address = Address(string: addressString)
         getStormBirdBalanceCoordinator.getBalance(for: account.address, contract: address!) { result in
             completion(result)
@@ -166,6 +166,7 @@ class TokensDataStore {
     }
 
     //Result<Void, AnyError>
+    //claim order continues to use indices to do the transaction, not the bytes32 variables
     func claimOrder(ticketIndices: [UInt16],
                     expiry: BigUInt,
                     v: UInt8,
@@ -190,7 +191,11 @@ class TokensDataStore {
                 getStormBirdBalance(for: tokenObject.contract, completion: { result in
                     switch result {
                     case .success(let balance):
-                        self.update(token: tokenObject, action: .stormBirdBalance(balance))
+                        var indices = [UInt16]()
+                        for i in 1...balance.count {
+                            indices.append(UInt16(i))
+                        }
+                        self.update(token: tokenObject, action: .stormBirdBalance(indices))
                     case .failure: break
                     }
 

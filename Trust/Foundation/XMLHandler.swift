@@ -46,7 +46,7 @@ public class XMLHandler {
                         venue: venue,
                         time: time,
                         countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
-                        countryB: String(data: Data(bytes:countryB), encoding: .utf8)!,
+                        countryB: String(data: Data(bytes: countryB), encoding: .utf8)!,
                         match: match,
                         category: category,
                         number: number
