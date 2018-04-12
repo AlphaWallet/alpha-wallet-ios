@@ -12,8 +12,8 @@ struct FIFAInfo {
     let locale: String
     let venue: String
     let time: Int
-    let countryA: Int
-    let countryB: Int
+    let countryA: String
+    let countryB: String
     let match: Int
     let category: Int
     let number: Int
@@ -29,23 +29,24 @@ struct FIFAInfo {
 
 public class XMLHandler {
     
-    let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
+    private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
     
     func getFifaInfoForToken(tokenId: String, lang: Int) -> FIFAInfo {
         let locale = getLocale(attribute: tokenId.substring(to: 2), lang: lang)
         let venue = getVenue(attribute: tokenId.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
         let time = Int(tokenId.substring(with: Range(uncheckedBounds: (5, 12))), radix: 16)!
-        let countryA = Int(tokenId.substring(with: Range(uncheckedBounds: (13, 18))), radix: 16)!
-        let countryB = Int(tokenId.substring(with: Range(uncheckedBounds: (19, 24))), radix: 16)!
-        let match = Int(tokenId.substring(with: Range(uncheckedBounds: (25, 26))), radix: 16)!
-        let category = Int(tokenId.substring(with: Range(uncheckedBounds: (27, 29))), radix: 16)!
-        let number = Int(tokenId.substring(from: 30), radix: 16)!
+        //translatable to ascii
+        let countryA = tokenId.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
+        let countryB = tokenId.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
+        let match = Int(tokenId.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16)!
+        let category = Int(tokenId.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16)!
+        let number = Int(tokenId.substring(from: 28), radix: 16)!
         return FIFAInfo(
                         locale: locale,
                         venue: venue,
                         time: time,
-                        countryA: countryA,
-                        countryB: countryB,
+                        countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
+                        countryB: String(data: Data(bytes:countryB), encoding: .utf8)!,
                         match: match,
                         category: category,
                         number: number
