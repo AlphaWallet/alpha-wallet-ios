@@ -120,9 +120,10 @@ class NewTokenViewController: FormViewController {
         decimalsRow?.reload()
     }
 
-    public func updateBalanceValue(_ balance: [UInt16]) {
-        viewModel.stormBirdBalance = balance
-        balanceRow?.value = viewModel.displayStormBirdBalance
+    //int is 64 bits, if this proves not enough later we can convert to BigUInt
+    public func updateBalanceValue(_ balance: Int) {
+        //viewModel.stormBirdBalance = balance
+        //balanceRow?.value = viewModel.displayStormBirdBalance
         balanceRow?.reload()
     }
 
@@ -153,7 +154,7 @@ class NewTokenViewController: FormViewController {
         let symbol = symbolRow?.value ?? ""
         let decimals = Int(decimalsRow?.value ?? "") ?? 0
         let isStormBird = self.isStormBirdToken
-        let balance: [Int16] = viewModel.stormBirdBalanceAsInt16
+        let balance: [String] = viewModel.stormBirdBalance
 
         guard let address = Address(string: contract) else {
             return displayError(error: Errors.invalidAddress)

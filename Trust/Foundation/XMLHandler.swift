@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftyXMLParser
+import BigInt
 
 struct FIFAInfo {
     let locale: String
@@ -31,7 +32,9 @@ public class XMLHandler {
     
     private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
     
-    func getFifaInfoForToken(tokenId: String, lang: Int) -> FIFAInfo {
+    //TODO make this take bytes instead of hex string
+    func getFifaInfoForToken(tokenId tokenBytes32: BigUInt, lang: Int) -> FIFAInfo {
+        let tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
         let locale = getLocale(attribute: tokenId.substring(to: 2), lang: lang)
         let venue = getVenue(attribute: tokenId.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
         let time = Int(tokenId.substring(with: Range(uncheckedBounds: (5, 12))), radix: 16)!

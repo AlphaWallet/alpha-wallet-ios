@@ -8,6 +8,7 @@
 
 import Foundation
 import RealmSwift
+import BigInt
 
 class TicketAdaptor {
 
@@ -15,7 +16,8 @@ class TicketAdaptor {
         var ticketHolders: [TicketHolder] = []
         let balance = token.balance
         for (index, item) in balance.enumerated() {
-            let id = UInt16(item.balance)
+            //id is the value of the bytes32 ticket
+            let id = item.balance
             if id == 0 { // if balance is 0, then skip
                 continue
             }
@@ -30,24 +32,27 @@ class TicketAdaptor {
         return ticketHolders
     }
 
-    private class func getTicket(for id: UInt16, index: UInt16, in token: TokenObject) -> Ticket {
-        let zone = TicketDecode.getZone(Int(id))
+    //TODO pass lang into here
+    private class func getTicket(for id: BigUInt, index: UInt16, in token: TokenObject) -> Ticket {
+        //todo make this take a bigUint
+        let fifaInfo = XMLHandler().getFifaInfoForToken(tokenId: id, lang: 1)
+        let zone = fifaInfo.locale
         let name: String
         if token.address.eip55String == Constants.fifaContractAddress {
             name = token.title
         } else {
-            name = TicketDecode.getName()
+            name = "FIFA WC 2018" //TicketDecode.getName()
         }
-        let venue = TicketDecode.getVenue(Int(id))
-        let seatId = TicketDecode.getSeatIdInt(Int(id))
-        let date = Date.init(string: TicketDecode.getDate(Int(id)), format: "dd MMM yyyy")
+        let venue = fifaInfo.locale
+        let seatId = fifaInfo.number
+        let date = Date(timeIntervalSince1970: TimeInterval(fifaInfo.time)) //Date.init(string: fifaInfo.time, format: "dd MMM yyyy")
         return Ticket(
-            id: id,
+            id: MarketQueueHandler.bytesToHexa(id.serialize().bytes),
             index: index,
             zone: zone,
             name: name,
             venue: venue,
-            date: date!,
+            date: date,
             seatId: seatId
         )
     }

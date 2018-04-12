@@ -191,8 +191,11 @@ class TokensDataStore {
                 getStormBirdBalance(for: tokenObject.contract, completion: { result in
                     switch result {
                     case .success(let balance):
+                        guard !balance.isEmpty else {
+                            return
+                        }
                         var indices = [UInt16]()
-                        for i in 1...balance.count {
+                        for i in 0...balance.count - 1 {
                             indices.append(UInt16(i))
                         }
                         self.update(token: tokenObject, action: .stormBirdBalance(indices))
@@ -254,7 +257,7 @@ class TokensDataStore {
             isStormBird: token.isStormBird
         )
         token.balance.forEach { balance in
-            newToken.balance.append(TokenBalance(balance: balance))
+            newToken.balance.append(TokenBalance(balance: BigUInt(balance, radix: 16)!))
         }
         add(tokens: [newToken])
     }
@@ -315,7 +318,7 @@ class TokensDataStore {
                 token.isDisabled = value
             case .stormBirdBalance(let balance):
                 token.balance.removeAll()
-                token.balance.append(objectsIn: balance.map { TokenBalance(balance: Int16($0)) })
+                //token.balance.append(objectsIn: balance.map { TokenBalance(balance: Int16($0)) })
             }
         }
     }
