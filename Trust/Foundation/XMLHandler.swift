@@ -34,7 +34,8 @@ public class XMLHandler {
     
     //TODO make this take bytes instead of hex string
     func getFifaInfoForToken(tokenId tokenBytes32: BigUInt, lang: Int) -> FIFAInfo {
-        let tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
+        var tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
+        tokenId = tokenId.substring(to: 32) //slicing off the leading zeros
         let locale = getLocale(attribute: tokenId.substring(to: 2), lang: lang)
         let venue = getVenue(attribute: tokenId.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
         let time = Int(tokenId.substring(with: Range(uncheckedBounds: (5, 12))), radix: 16)!
