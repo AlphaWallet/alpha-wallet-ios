@@ -191,14 +191,7 @@ class TokensDataStore {
                 getStormBirdBalance(for: tokenObject.contract, completion: { result in
                     switch result {
                     case .success(let balance):
-                        guard !balance.isEmpty else {
-                            return
-                        }
-                        var indices = [UInt16]()
-                        for i in 0...balance.count - 1 {
-                            indices.append(UInt16(i))
-                        }
-                        self.update(token: tokenObject, action: .stormBirdBalance(indices))
+                        self.update(token: tokenObject, action: .stormBirdBalance(balance))
                     case .failure: break
                     }
 
@@ -257,7 +250,7 @@ class TokensDataStore {
             isStormBird: token.isStormBird
         )
         token.balance.forEach { balance in
-            newToken.balance.append(TokenBalance(balance: BigUInt(balance, radix: 16)!))
+            newToken.balance.append(TokenBalance(balance: balance))
         }
         add(tokens: [newToken])
     }
@@ -306,7 +299,7 @@ class TokensDataStore {
     enum TokenUpdate {
         case value(BigInt)
         case isDisabled(Bool)
-        case stormBirdBalance([UInt16])
+        case stormBirdBalance([String])
     }
 
     func update(token: TokenObject, action: TokenUpdate) {
@@ -318,7 +311,16 @@ class TokensDataStore {
                 token.isDisabled = value
             case .stormBirdBalance(let balance):
                 token.balance.removeAll()
-                //token.balance.append(objectsIn: balance.map { TokenBalance(balance: Int16($0)) })
+                if !balance.isEmpty {
+                    for i in 0...balance.count - 1 {
+                        token.balance.append(TokenBalance(balance: balance[i]))
+                    }
+                    //token.balance.append(TokenBalance(value: BigUInt(balance.count)))
+                } else {
+                    token.balance.append(TokenBalance(balance: "0"))
+                    //token.balance.append(TokenBalance(value: BigUInt("0")!))
+                }
+                
             }
         }
     }

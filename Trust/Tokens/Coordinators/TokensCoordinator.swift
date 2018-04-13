@@ -155,11 +155,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         storage.getStormBirdBalance(for: address) { result in
             switch result {
             case .success(let balance):
-                var indices = [UInt16]()
-                for i in 1...balance.count {
-                    indices.append(UInt16(i))
-                }
-                viewController.updateBalanceValue(indices.count)
+                viewController.updateBalanceValue(balance)
             case .failure: break
             }
         }

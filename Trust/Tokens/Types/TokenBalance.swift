@@ -6,16 +6,9 @@ import BigInt
 
 class TokenBalance: Object {
     
-    @objc dynamic var backingBalance = "0"
-    var balance: BigUInt {
-        get {
-            return BigUInt(Data(bytes: backingBalance.hexa2Bytes))
-        } set {
-            backingBalance = MarketQueueHandler.bytesToHexa(balance.serialize().array)
-        }
-    }
+    @objc dynamic var balance = "0"
 
-    convenience init(balance: BigUInt = BigUInt(0)) {
+    convenience init(balance: String = "0") {
         self.init()
         self.balance = balance
     }

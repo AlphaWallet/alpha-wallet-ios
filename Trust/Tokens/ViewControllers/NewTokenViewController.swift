@@ -121,9 +121,9 @@ class NewTokenViewController: FormViewController {
     }
 
     //int is 64 bits, if this proves not enough later we can convert to BigUInt
-    public func updateBalanceValue(_ balance: Int) {
-        //viewModel.stormBirdBalance = balance
-        //balanceRow?.value = viewModel.displayStormBirdBalance
+    public func updateBalanceValue(_ balance: [String]) {
+        viewModel.stormBirdBalance = balance
+        balanceRow?.value = viewModel.stormBirdBalanceAsInt.description
         balanceRow?.reload()
     }
 
