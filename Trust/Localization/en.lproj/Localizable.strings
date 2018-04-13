@@ -196,7 +196,7 @@
 "a.wallet.ticketToken.transfer.mode.choose.email.title" = "Send Email";
 "a.wallet.ticketToken.transfer.mode.choose.inputWalletAddress.title" = "Input Wallet Address";
 "a.wallet.ticketToken.transfer.mode.choose.walletAddressViaQRCodeScanner.title" = "Use QR Code Scanner";
-"a.wallet.ticketToken.transfer.mode.choose.other.title" = "Others";
+"a.wallet.ticketToken.transfer.mode.choose.other.title" = "Share Link";
 "a.wallet.ticketToken.transfer.mode.walletAddress.title" = "Input Wallet Address";
 "a.wallet.ticketToken.transfer.mode.walletAddress.target.title" = "WALLET ADDRESS TO TRANSFER TO";
 "a.wallet.ticketToken.transfer.mode.walletAddress.confirmation" = "Transfer to wallet address %@?";
@@ -248,10 +248,14 @@
 "a.welcome.onboarding.createwallet.button.title" = "GET STARTED";
 "a.settings.advanced.label.title" = "Advanced";
 "a.marketplace.tabbar.item.title" = "Marketplace";
-"a.claim.ticket.success.title" = "Your ticket has been imported and will be available shortly";
+"a.claim.ticket.success.title" = "Your ticket has been transferred and the balance will be updated shortly";
 "a.claim.ticket.failed.title" = "Invalid ticket link";
 "a.claim.ticket.inProgress.title" = "Importing ticket...";
 "a.claim.ticket.done.button.title" = "Done";
 "a.claim.ticket.import.button.title" = "Import";
 "a.setup.reminder.text.text" = "Please set up text messaging to send a text.";
 "a.setup.reminder.email.text" = "Please set up a Mail account in order to send email.";
+"a.send.receive.button.title" = "Send/Receive";
+"a.send.recipient.address.title" = "ADDRESS";
+"a.send.recipient.amount.title" = "AMOUNT TO TRANSFER";
+"a.send.sender.address.title" = "MY ADDRESS";
