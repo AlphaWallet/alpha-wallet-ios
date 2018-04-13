@@ -248,7 +248,7 @@
 "a.welcome.onboarding.createwallet.button.title" = "GET STARTED";
 "a.settings.advanced.label.title" = "Advanced";
 "a.marketplace.tabbar.item.title" = "Marketplace";
-"a.claim.ticket.success.title" = "Your ticket has been imported and will be available shortly";
+"a.claim.ticket.success.title" = "Your ticket has been transferred and the balance will be updated shortly";
 "a.claim.ticket.failed.title" = "Invalid ticket link";
 "a.claim.ticket.inProgress.title" = "Importing ticket...";
 "a.claim.ticket.done.button.title" = "Done";
