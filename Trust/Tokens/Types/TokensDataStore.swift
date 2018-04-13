@@ -313,12 +313,12 @@ class TokensDataStore {
                 token.balance.removeAll()
                 if !balance.isEmpty {
                     for i in 0...balance.count - 1 {
-                        token.balance.append(TokenBalance(balance: balance[i]))
+                        if balance[i] != "0x0000000000000000000000000000000000000000000000000000000000000000" {
+                            token.balance.append(TokenBalance(balance: balance[i]))
+                        }
                     }
-                    //token.balance.append(TokenBalance(value: BigUInt(balance.count)))
                 } else {
                     token.balance.append(TokenBalance(balance: "0"))
-                    //token.balance.append(TokenBalance(value: BigUInt("0")!))
                 }
                 
             }
