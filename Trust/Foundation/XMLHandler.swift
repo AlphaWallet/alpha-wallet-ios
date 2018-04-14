@@ -29,13 +29,12 @@ struct FIFAInfo {
  */
 
 public class XMLHandler {
-    
+
     private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
     
-    //TODO make this take bytes instead of hex string
+    //TODO configure language settings to be compatible with this
     func getFifaInfoForToken(tokenId tokenBytes32: BigUInt, lang: Int) -> FIFAInfo {
-        var tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
-        tokenId = tokenId.substring(to: 32) //slicing off the trailing zeros
+        let tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes).substring(to: 32) //slicing off the trailing zeros
         let locale = getLocale(attribute: tokenId.substring(to: 2), lang: lang)
         let venue = getVenue(attribute: tokenId.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
         let time = Int(tokenId.substring(with: Range(uncheckedBounds: (5, 12))), radix: 16)!
@@ -61,7 +60,7 @@ public class XMLHandler {
         let localeNumber = Int(attribute, radix: 16)!
         return xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][localeNumber]["name"][lang].text!
     }
-    
+
     func getVenue(attribute: String, lang: Int) -> String {
         let venueNumber = Int(attribute, radix: 16)!
         return xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber]["name"][lang].text!
