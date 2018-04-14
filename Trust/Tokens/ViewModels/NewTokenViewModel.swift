@@ -11,9 +11,11 @@ struct NewTokenViewModel {
 
     var stormBirdBalanceAsInt: Int {
         var balance = 0
-        for i in 0...stormBirdBalance.count - 1 {
-            if Int(stormBirdBalance[i], radix: 16)! > 0 {
-                balance += 1
+        if !stormBirdBalance.isEmpty {
+            for i in 0...stormBirdBalance.count - 1 {
+                if Int(stormBirdBalance[i], radix: 16)! > 0 {
+                    balance += 1
+                }
             }
         }
         return balance
