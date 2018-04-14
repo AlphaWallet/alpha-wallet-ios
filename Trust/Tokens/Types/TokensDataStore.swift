@@ -320,7 +320,6 @@ class TokensDataStore {
                 } else {
                     token.balance.append(TokenBalance(balance: "0"))
                 }
-                
             }
         }
     }

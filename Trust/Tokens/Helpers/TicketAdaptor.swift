@@ -21,7 +21,7 @@ class TicketAdaptor {
             if id == "0x0000000000000000000000000000000000000000000000000000000000000000" { // if balance is 0, then skip
                 continue
             }
-            let ticket = getTicket(for: BigUInt(id.substring(from: 2), radix: 16)! , index: UInt16(index), in: token)
+            let ticket = getTicket(for: BigUInt(id.substring(from: 2), radix: 16)!, index: UInt16(index), in: token)
             if let item = ticketHolders.filter({ $0.zone == ticket.zone && $0.date == ticket.date }).first {
                 item.tickets.append(ticket)
             } else {
@@ -34,14 +34,13 @@ class TicketAdaptor {
 
     //TODO pass lang into here
     private class func getTicket(for id: BigUInt, index: UInt16, in token: TokenObject) -> Ticket {
-        //todo make this take a bigUint
         let fifaInfo = XMLHandler().getFifaInfoForToken(tokenId: id, lang: 1)
         let zone = fifaInfo.locale
         let name: String
         if token.address.eip55String == Constants.fifaContractAddress {
             name = token.title
         } else {
-            name = "FIFA WC 2018" //TicketDecode.getName()
+            name = "FIFA WC 2018"
         }
         let venue = fifaInfo.locale
         let seatId = fifaInfo.number
