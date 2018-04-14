@@ -154,10 +154,14 @@ class NewTokenViewController: FormViewController {
         let symbol = symbolRow?.value ?? ""
         let decimals = Int(decimalsRow?.value ?? "") ?? 0
         let isStormBird = self.isStormBirdToken
-        let balance: [String] = viewModel.stormBirdBalance
+        var balance: [String] = viewModel.stormBirdBalance
 
         guard let address = Address(string: contract) else {
             return displayError(error: Errors.invalidAddress)
+        }
+        
+        if balance.isEmpty {
+            balance.append("0")
         }
 
         let erc20Token = ERC20Token(
