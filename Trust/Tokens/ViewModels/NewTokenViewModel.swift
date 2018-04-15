@@ -19,7 +19,6 @@ struct NewTokenViewModel {
             }
         }
         return balance
-        //return stormBirdBalance.map { Int16($0) }
     }
 
 }

@@ -21,7 +21,7 @@ public struct Constants {
     public static let dappsBrowserURL = "https://dapps.trustwalletapp.com"
 
     //FIFA hardcoded FIFA token address. Look for "//FIFA" for relevant changes
-    public static let fifaContractAddress = "0xe7eaa293bd2f223Bd2580029B0f4B9D7752139d1"
+    public static let fifaContractAddress = "0x930819FfD41449cd7a5b60103A313e1ACD2069Cd"
 }
 
 public struct UnitConfiguration {
