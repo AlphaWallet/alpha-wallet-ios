@@ -303,6 +303,7 @@ class TokensDataStore {
     }
 
     func update(token: TokenObject, action: TokenUpdate) {
+        let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
         try! realm.write {
             switch action {
             case .value(let value):
@@ -313,7 +314,7 @@ class TokensDataStore {
                 token.balance.removeAll()
                 if !balance.isEmpty {
                     for i in 0...balance.count - 1 {
-                        if balance[i] != "0x0000000000000000000000000000000000000000000000000000000000000000" {
+                        if balance[i] != nullTicket {
                             token.balance.append(TokenBalance(balance: balance[i]))
                         }
                     }
