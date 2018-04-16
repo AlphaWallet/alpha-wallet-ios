@@ -8,7 +8,7 @@ import RealmSwift
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
     var window: UIWindow?
-    var coordinator: AppCoordinator!
+    var appCoordinator: AppCoordinator!
     //This is separate coordinator for the protection of the sensitive information.
     lazy var protectionCoordinator: ProtectionCoordinator = {
         return ProtectionCoordinator()
@@ -19,8 +19,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         window = UIWindow(frame: UIScreen.main.bounds)
         do {
             let keystore = try EtherKeystore()
-            coordinator = AppCoordinator(window: window!, keystore: keystore)
-            coordinator.start()
+            appCoordinator = AppCoordinator(window: window!, keystore: keystore)
+            appCoordinator.start()
         } catch {
             print("EtherKeystore init issue.")
         }
@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return true
     }
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        coordinator.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: deviceToken)
+        appCoordinator.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: deviceToken)
     }
     func applicationWillResignActive(_ application: UIApplication) {
         protectionCoordinator.applicationWillResignActive()
@@ -93,6 +93,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 }
 
 extension AppDelegate: UniversalLinkCoordinatorDelegate {
+
     func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController? {
         if var top = window?.rootViewController {
             while let vc = top.presentedViewController {
@@ -102,5 +103,8 @@ extension AppDelegate: UniversalLinkCoordinatorDelegate {
         } else {
             return nil
         }
+    }
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
+        appCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
     }
 }
