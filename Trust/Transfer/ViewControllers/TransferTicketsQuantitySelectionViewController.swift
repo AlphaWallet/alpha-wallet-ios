@@ -40,6 +40,8 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
         view.addSubview(ticketView)
 
         quantityStepper.translatesAutoresizingMaskIntoConstraints = false
+        quantityStepper.minimumValue = 1
+        quantityStepper.value = 1
         view.addSubview(quantityStepper)
 
         let stackView = UIStackView(arrangedSubviews: [
