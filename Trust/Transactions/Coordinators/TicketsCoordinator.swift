@@ -79,8 +79,8 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     func showTransferViewController(for paymentFlow: PaymentFlow, ticketHolders: [TicketHolder]) {
-        let redeemViewController = makeTransferTicketsViewController(paymentFlow: paymentFlow)
-        navigationController.pushViewController(redeemViewController, animated: true)
+        let transferViewController = makeTransferTicketsViewController(paymentFlow: paymentFlow)
+        navigationController.pushViewController(transferViewController, animated: true)
     }
 
     private func showChooseTicketTransferModeViewController(for ticketHolder: TicketHolder,
