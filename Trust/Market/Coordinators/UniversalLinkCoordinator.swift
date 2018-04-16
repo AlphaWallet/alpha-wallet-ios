@@ -9,6 +9,7 @@ protocol UniversalLinkCoordinatorDelegate: class {
 	func completed(in coordinator: UniversalLinkCoordinator)
 }
 
+//TODO handle the sale link imports
 class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	weak var delegate: UniversalLinkCoordinatorDelegate?
@@ -18,7 +19,7 @@ class UniversalLinkCoordinator: Coordinator {
 		preparingToImportUniversalLink()
 	}
     
-    func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder) -> Bool {
+    func createQueryForPaymentServer(signedOrder: SignedOrder) -> Parameters {
         // form the json string out of the order for the paymaster server
         // James S. wrote
         let keystore = try! EtherKeystore()
@@ -41,76 +42,59 @@ class UniversalLinkCoordinator: Coordinator {
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
         ]
-        let query = UniversalLinkHandler.paymentServer
         
+        return parameters
+    }
+    
+    func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
+        let parameters = createQueryForPaymentServer(signedOrder: signedOrder)
+        let query = UniversalLinkHandler.paymentServer
         //TODO check if URL is valid or not by validating signature, low priority
         //TODO localize
-        if signature.count > 128 {
-            if let viewController = delegate?.viewControllerForPresenting(in: self) {
-                UIAlertController.alert(title: nil, message: "Import Link?",
-                                        alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()],
-                                        alertButtonStyles: [.default, .cancel], viewController: viewController) {
-                    if $0 == 0 {
-                        self.importUniversalLink(query: query, parameters: parameters)
-                    }
+        if let viewController = delegate?.viewControllerForPresenting(in: self) {
+            UIAlertController.alert(title: nil, message: "Import Link?",
+                                    alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()],
+                                    alertButtonStyles: [.default, .cancel], viewController: viewController) {
+                if $0 == 0 {
+                    self.importUniversalLink(query: query, parameters: parameters)
                 }
-                //TODO create Ticket instances and 1 TicketHolder instance and compute cost from link's information
-                let ticket = Ticket(id: "1", index: 1, zone: "", name: "", venue: "", date: Date(), seatId: 1)
-                let ticketHolder = TicketHolder(
-                    tickets: [ticket],
-                    zone: "ABC",
-                    name: "Applying for mortages (APM)",
-                    venue: "XYZ Stadium",
-                    date: Date(),
-                    status: .available
-                )
-                //nil or "" implies free
-                let ethCost = signedOrder.order.price.description
-                let dollarCost = "0"
-                if let vc = importTicketViewController {
-                    vc.query = query
-                    vc.parameters = parameters
-                }
-                self.promptImportUniversalLink(ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
             }
-        } else {
-            return true
+            if let vc = importTicketViewController {
+                vc.query = query
+                vc.parameters = parameters
+            }
+            //nil or "" implies free, if using payment server it is always free
+            self.promptImportUniversalLink(
+                ticketHolder: ticketHolder,
+                ethCost: "",
+                dollarCost: ""
+            )
         }
-        
         return true
     }
 
 	//Returns true if handled
+    //TODO handle paying for universal link
 	func handleUniversalLink(url: URL?) -> Bool {
 		let matchedPrefix = (url?.description.contains(UniversalLinkHandler().urlPrefix))!
 		guard matchedPrefix else {
 			return false
 		}
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
-        if(signedOrder.order.price > 0) {
-            return handlePaidUniversalLink(signedOrder: signedOrder)
-        } else {
-            return usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
-        }
+        //TODO create Ticket instances and 1 TicketHolder instance and compute cost from link's information
+        let ticket = Ticket(id: "1", index: 1, zone: "", name: "", venue: "", date: Date(), seatId: 1)
+        let ticketHolder = TicketHolder(
+            tickets: [ticket],
+            zone: "ABC",
+            name: "Applying for mortages (APM)",
+            venue: "XYZ Stadium",
+            date: Date(),
+            status: .available
+        )
+        return usePaymentServerForFreeTransferLinks(signedOrder: signedOrder, ticketHolder: ticketHolder)
 	}
     
-    //TODO handle claim order flow here
-    //delegate from app coordinator 
-    func handlePaidUniversalLink(signedOrder: SignedOrder) -> Bool {
-        let keystore = try! EtherKeystore()
-        let tokenObject = TokenObject(
-            contract: signedOrder.order.contractAddress,
-            name: "FIFA WC Tickets",
-            symbol: "FIFA",
-            decimals: 0,
-            value: "0",
-            isCustom: true,
-            isDisabled: false,
-            isStormBird: true
-        )
-        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
-        return true
-    }
+    //delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
 
 	private func preparingToImportUniversalLink() {
 		if let viewController = delegate?.viewControllerForPresenting(in: self) {
@@ -149,7 +133,7 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func importUniversalLink(query: String, parameters: Parameters) {
 		updateImportTicketController(with: .processing)
-
+        
         Alamofire.request(
                 query,
                 method: .post,
@@ -188,8 +172,8 @@ extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
 	}
 
 	func didPressImport(in viewController: ImportTicketViewController) {
-		if let query = viewController.query, let parameters = viewController.parameters {
-			importUniversalLink(query: query, parameters: parameters)
-		}
+        if let query = viewController.query, let parameters = viewController.parameters {
+            importUniversalLink(query: query, parameters: parameters)
+        }
 	}
 }
