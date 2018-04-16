@@ -6,14 +6,16 @@ import Alamofire
 protocol UniversalLinkCoordinatorDelegate: class {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject)
+	func completed(in coordinator: UniversalLinkCoordinator)
 }
 
 class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	weak var delegate: UniversalLinkCoordinatorDelegate?
-	var statusViewController: StatusViewController?
+	var importTicketViewController: ImportTicketViewController?
 
 	func start() {
+		preparingToImportUniversalLink()
 	}
     
     func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder) -> Bool {
@@ -52,6 +54,24 @@ class UniversalLinkCoordinator: Coordinator {
                         self.importUniversalLink(query: query, parameters: parameters)
                     }
                 }
+                //TODO create Ticket instances and 1 TicketHolder instance and compute cost from link's information
+                let ticket = Ticket(id: "1", index: 1, zone: "", name: "", venue: "", date: Date(), seatId: 1)
+                let ticketHolder = TicketHolder(
+                    tickets: [ticket],
+                    zone: "ABC",
+                    name: "Applying for mortages (APM)",
+                    venue: "XYZ Stadium",
+                    date: Date(),
+                    status: .available
+                )
+                //nil or "" implies free
+                let ethCost = signedOrder.order.price.description
+                let dollarCost = "0"
+                if let vc = importTicketViewController {
+                    vc.query = query
+                    vc.parameters = parameters
+                }
+                self.promptImportUniversalLink(ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
             }
         } else {
             return true
@@ -88,26 +108,47 @@ class UniversalLinkCoordinator: Coordinator {
             isDisabled: false,
             isStormBird: true
         )
-        let wallet = keystore.recentlyUsedWallet!
         delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
         return true
     }
 
-	private func importUniversalLink(query: String, parameters: Parameters) {
+	private func preparingToImportUniversalLink() {
 		if let viewController = delegate?.viewControllerForPresenting(in: self) {
-			statusViewController = StatusViewController()
-			if let vc = statusViewController {
+			importTicketViewController = ImportTicketViewController()
+			if let vc = importTicketViewController {
 				vc.delegate = self
-				vc.configure(viewModel: .init(
-						state: .processing,
-						inProgressText: R.string.localizable.aClaimTicketInProgressTitle(),
-						succeededTextText: R.string.localizable.aClaimTicketSuccessTitle(),
-						failedText: R.string.localizable.aClaimTicketFailedTitle()
-				))
-				vc.modalPresentationStyle = .overCurrentContext
-				viewController.present(vc, animated: true)
+				vc.configure(viewModel: .init(state: .validating))
+				viewController.present(UINavigationController(rootViewController: vc), animated: true)
 			}
 		}
+	}
+
+	private func updateImportTicketController(with state: ImportTicketViewControllerViewModel.State, ticketHolder: TicketHolder? = nil, ethCost: String? = nil, dollarCost: String? = nil) {
+		if let vc = importTicketViewController, var viewModel = vc.viewModel {
+			viewModel.state = state
+            if let ticketHolder = ticketHolder, let ethCost = ethCost, let dollarCost = dollarCost {
+				viewModel.ticketHolder = ticketHolder
+				viewModel.ethCost = ethCost
+				viewModel.dollarCost = dollarCost
+			}
+			vc.configure(viewModel: viewModel)
+		}
+	}
+
+	private func promptImportUniversalLink(ticketHolder: TicketHolder, ethCost: String, dollarCost: String) {
+		updateImportTicketController(with: .promptImport, ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
+    }
+
+	private func showImportSuccessful() {
+		updateImportTicketController(with: .succeeded)
+	}
+
+	private func showImportError(errorMessage: String) {
+        updateImportTicketController(with: .failed(errorMessage: errorMessage))
+	}
+
+	private func importUniversalLink(query: String, parameters: Parameters) {
+		updateImportTicketController(with: .processing)
 
         Alamofire.request(
                 query,
@@ -122,17 +163,16 @@ class UniversalLinkCoordinator: Coordinator {
                     successful = true
                 }
             }
-            
-            if let vc = self.statusViewController {
+
+            if let vc = self.importTicketViewController {
                 // TODO handle http response
                 print(result)
-                if let vc = self.statusViewController, var viewModel = vc.viewModel {
+                if let vc = self.importTicketViewController, var viewModel = vc.viewModel {
                     if successful {
-                        viewModel.state = .succeeded
-                        vc.configure(viewModel: viewModel)
+                        self.showImportSuccessful()
                     } else {
-                        viewModel.state = .failed
-                        vc.configure(viewModel: viewModel)
+                        //TODO Pass in error message
+                        self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
                     }
                 }
             }
@@ -141,8 +181,15 @@ class UniversalLinkCoordinator: Coordinator {
 }
 
 
-extension UniversalLinkCoordinator: StatusViewControllerDelegate {
-	func didPressDone(in viewController: StatusViewController) {
+extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
+	func didPressDone(in viewController: ImportTicketViewController) {
 		viewController.dismiss(animated: true)
+		delegate?.completed(in: self)
+	}
+
+	func didPressImport(in viewController: ImportTicketViewController) {
+		if let query = viewController.query, let parameters = viewController.parameters {
+			importUniversalLink(query: query, parameters: parameters)
+		}
 	}
 }
