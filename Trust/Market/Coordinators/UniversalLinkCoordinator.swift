@@ -5,14 +5,16 @@ import Alamofire
 
 protocol UniversalLinkCoordinatorDelegate: class {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
+	func completed(in coordinator: UniversalLinkCoordinator)
 }
 
 class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	weak var delegate: UniversalLinkCoordinatorDelegate?
-	var statusViewController: StatusViewController?
+	var importTicketViewController: ImportTicketViewController?
 
 	func start() {
+		preparingToImportUniversalLink()
 	}
 
 	//Returns true if handled
@@ -22,7 +24,7 @@ class UniversalLinkCoordinator: Coordinator {
 			return false
 		}
 		let keystore = try! EtherKeystore()
-        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
+		let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
 		let signature = signedOrder.signature.substring(from: 2)
 
 		// form the json string out of the order for the paymaster server
@@ -35,50 +37,83 @@ class UniversalLinkCoordinator: Coordinator {
 		}
 		//cut off last comma
 		indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
-        let address = (keystore.recentlyUsedWallet?.address.eip55String)!
+		let address = (keystore.recentlyUsedWallet?.address.eip55String)!
 
 		let parameters: Parameters = [
-            "address": address,
+			"address": address,
 			"indices": indicesStringEncoded,
-            "expiry": signedOrder.order.expiry.description,
+			"expiry": signedOrder.order.expiry.description,
 			"v": signature.substring(from: 128),
 			"r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
 			"s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
 		]
-        let query = UniversalLinkHandler.paymentServer
+		let query = UniversalLinkHandler.paymentServer
 
 		//TODO check if URL is valid or not by validating signature, low priority
-        //TODO localize
 		if signature.count > 128 {
-			if let viewController = delegate?.viewControllerForPresenting(in: self) {
-				UIAlertController.alert(title: nil, message: "Import Link?", alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: viewController) {
-					if $0 == 0 {
-						self.importUniversalLink(query: query, parameters: parameters)
-					}
-				}
-			}
+			//TODO create Ticket instances and 1 TicketHolder instance and compute cost from link's information
+			let ticket = Ticket(id: 1, index: 1, zone: "", name: "", venue: "", date: Date(), seatId: 1)
+			let ticketHolder = TicketHolder(
+					tickets: [ticket],
+					zone: "ABC",
+					name: "Applying for mortages (APM)",
+					venue: "XYZ Stadium",
+					date: Date(),
+					status: .available
+			)
+			//nil or "" implies free
+			let ethCost = "0.00001"
+			let dollarCost = "0.004"
+            if let vc = importTicketViewController {
+                vc.query = query
+                vc.parameters = parameters
+            }
+			self.promptImportUniversalLink(ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
 		} else {
-			return true
+			//TODO Pass in error message
+			self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
 		}
 
 		return true
 	}
 
-	private func importUniversalLink(query: String, parameters: Parameters) {
+	private func preparingToImportUniversalLink() {
 		if let viewController = delegate?.viewControllerForPresenting(in: self) {
-			statusViewController = StatusViewController()
-			if let vc = statusViewController {
+			importTicketViewController = ImportTicketViewController()
+			if let vc = importTicketViewController {
 				vc.delegate = self
-				vc.configure(viewModel: .init(
-						state: .processing,
-						inProgressText: R.string.localizable.aClaimTicketInProgressTitle(),
-						succeededTextText: R.string.localizable.aClaimTicketSuccessTitle(),
-						failedText: R.string.localizable.aClaimTicketFailedTitle()
-				))
-				vc.modalPresentationStyle = .overCurrentContext
-				viewController.present(vc, animated: true)
+				vc.configure(viewModel: .init(state: .validating))
+				viewController.present(UINavigationController(rootViewController: vc), animated: true)
 			}
 		}
+	}
+
+	private func updateImportTicketController(with state: ImportTicketViewControllerViewModel.State, ticketHolder: TicketHolder? = nil, ethCost: String? = nil, dollarCost: String? = nil) {
+		if let vc = importTicketViewController, var viewModel = vc.viewModel {
+			viewModel.state = state
+            if let ticketHolder = ticketHolder, let ethCost = ethCost, let dollarCost = dollarCost {
+				viewModel.ticketHolder = ticketHolder
+				viewModel.ethCost = ethCost
+				viewModel.dollarCost = dollarCost
+			}
+			vc.configure(viewModel: viewModel)
+		}
+	}
+
+	private func promptImportUniversalLink(ticketHolder: TicketHolder, ethCost: String, dollarCost: String) {
+		updateImportTicketController(with: .promptImport, ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
+    }
+
+	private func showImportSuccessful() {
+		updateImportTicketController(with: .succeeded)
+	}
+
+	private func showImportError(errorMessage: String) {
+        updateImportTicketController(with: .failed(errorMessage: errorMessage))
+	}
+
+	private func importUniversalLink(query: String, parameters: Parameters) {
+		updateImportTicketController(with: .processing)
 
         Alamofire.request(
                 query,
@@ -93,17 +128,16 @@ class UniversalLinkCoordinator: Coordinator {
                     successful = true
                 }
             }
-            
-            if let vc = self.statusViewController {
+
+            if let vc = self.importTicketViewController {
                 // TODO handle http response
                 print(result)
-                if let vc = self.statusViewController, var viewModel = vc.viewModel {
+                if let vc = self.importTicketViewController, var viewModel = vc.viewModel {
                     if successful {
-                        viewModel.state = .succeeded
-                        vc.configure(viewModel: viewModel)
+                        self.showImportSuccessful()
                     } else {
-                        viewModel.state = .failed
-                        vc.configure(viewModel: viewModel)
+                        //TODO Pass in error message
+                        self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
                     }
                 }
             }
@@ -112,8 +146,15 @@ class UniversalLinkCoordinator: Coordinator {
 }
 
 
-extension UniversalLinkCoordinator: StatusViewControllerDelegate {
-	func didPressDone(in viewController: StatusViewController) {
+extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
+	func didPressDone(in viewController: ImportTicketViewController) {
 		viewController.dismiss(animated: true)
+		delegate?.completed(in: self)
+	}
+
+	func didPressImport(in viewController: ImportTicketViewController) {
+		if let query = viewController.query, let parameters = viewController.parameters {
+			importUniversalLink(query: query, parameters: parameters)
+		}
 	}
 }
