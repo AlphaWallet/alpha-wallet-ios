@@ -64,6 +64,10 @@ class UniversalLinkCoordinator: Coordinator {
 			//nil or "" implies free
 			let ethCost = "0.00001"
 			let dollarCost = "0.004"
+            if let vc = importTicketViewController {
+                vc.query = query
+                vc.parameters = parameters
+            }
 			self.promptImportUniversalLink(ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
 		} else {
 			//TODO Pass in error message
