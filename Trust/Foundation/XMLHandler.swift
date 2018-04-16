@@ -58,12 +58,20 @@ public class XMLHandler {
     
     func getLocale(attribute: String, lang: Int) -> String {
         let localeNumber = Int(attribute, radix: 16)!
-        return xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][localeNumber]["name"][lang].text!
+        if let parsedLocale = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][localeNumber]["name"][lang].text {
+            return parsedLocale
+        } else {
+            return "N/A"
+        }
     }
 
     func getVenue(attribute: String, lang: Int) -> String {
         let venueNumber = Int(attribute, radix: 16)!
-        return xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber]["name"][lang].text!
+        if let parsedVenue = xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber]["name"][lang].text {
+            return parsedVenue
+        } else {
+            return "N/A"
+        }
     }
     
 }
