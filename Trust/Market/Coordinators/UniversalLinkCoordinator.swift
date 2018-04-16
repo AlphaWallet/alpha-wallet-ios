@@ -5,6 +5,7 @@ import Alamofire
 
 protocol UniversalLinkCoordinatorDelegate: class {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject)
 }
 
 class UniversalLinkCoordinator: Coordinator {
@@ -14,6 +15,50 @@ class UniversalLinkCoordinator: Coordinator {
 
 	func start() {
 	}
+    
+    func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder) -> Bool {
+        // form the json string out of the order for the paymaster server
+        // James S. wrote
+        let keystore = try! EtherKeystore()
+        let signature = signedOrder.signature.substring(from: 2)
+        let indices = signedOrder.order.indices
+        var indicesStringEncoded = ""
+        
+        for i in 0...indices.count - 1 {
+            indicesStringEncoded += String(indices[i]) + ","
+        }
+        //cut off last comma
+        indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
+        let address = (keystore.recentlyUsedWallet?.address.eip55String)!
+        
+        let parameters: Parameters = [
+            "address": address,
+            "indices": indicesStringEncoded,
+            "expiry": signedOrder.order.expiry.description,
+            "v": signature.substring(from: 128),
+            "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
+            "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
+        ]
+        let query = UniversalLinkHandler.paymentServer
+        
+        //TODO check if URL is valid or not by validating signature, low priority
+        //TODO localize
+        if signature.count > 128 {
+            if let viewController = delegate?.viewControllerForPresenting(in: self) {
+                UIAlertController.alert(title: nil, message: "Import Link?",
+                                        alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()],
+                                        alertButtonStyles: [.default, .cancel], viewController: viewController) {
+                    if $0 == 0 {
+                        self.importUniversalLink(query: query, parameters: parameters)
+                    }
+                }
+            }
+        } else {
+            return true
+        }
+        
+        return true
+    }
 
 	//Returns true if handled
 	func handleUniversalLink(url: URL?) -> Bool {
@@ -21,48 +66,32 @@ class UniversalLinkCoordinator: Coordinator {
 		guard matchedPrefix else {
 			return false
 		}
-		let keystore = try! EtherKeystore()
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
-		let signature = signedOrder.signature.substring(from: 2)
-
-		// form the json string out of the order for the paymaster server
-		// James S. wrote
-		let indices = signedOrder.order.indices
-		var indicesStringEncoded = ""
-
-		for i in 0...indices.count - 1 {
-			indicesStringEncoded += String(indices[i]) + ","
-		}
-		//cut off last comma
-		indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
-        let address = (keystore.recentlyUsedWallet?.address.eip55String)!
-
-		let parameters: Parameters = [
-            "address": address,
-			"indices": indicesStringEncoded,
-            "expiry": signedOrder.order.expiry.description,
-			"v": signature.substring(from: 128),
-			"r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
-			"s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
-		]
-        let query = UniversalLinkHandler.paymentServer
-
-		//TODO check if URL is valid or not by validating signature, low priority
-        //TODO localize
-		if signature.count > 128 {
-			if let viewController = delegate?.viewControllerForPresenting(in: self) {
-				UIAlertController.alert(title: nil, message: "Import Link?", alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: viewController) {
-					if $0 == 0 {
-						self.importUniversalLink(query: query, parameters: parameters)
-					}
-				}
-			}
-		} else {
-			return true
-		}
-
-		return true
+        if(signedOrder.order.price > 0) {
+            return handlePaidUniversalLink(signedOrder: signedOrder)
+        } else {
+            return usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
+        }
 	}
+    
+    //TODO handle claim order flow here
+    //delegate from app coordinator 
+    func handlePaidUniversalLink(signedOrder: SignedOrder) -> Bool {
+        let keystore = try! EtherKeystore()
+        let tokenObject = TokenObject(
+            contract: signedOrder.order.contractAddress,
+            name: "FIFA WC Tickets",
+            symbol: "FIFA",
+            decimals: 0,
+            value: "0",
+            isCustom: true,
+            isDisabled: false,
+            isStormBird: true
+        )
+        let wallet = keystore.recentlyUsedWallet!
+        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
+        return true
+    }
 
 	private func importUniversalLink(query: String, parameters: Parameters) {
 		if let viewController = delegate?.viewControllerForPresenting(in: self) {

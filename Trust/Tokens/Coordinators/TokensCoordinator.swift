@@ -7,7 +7,7 @@ import TrustKeystore
 protocol TokensCoordinatorDelegate: class {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator)
-    func importSignedOrder(signedOrder: SignedOrder, in coordinator: TokensCoordinator, tokenObject: TokenObject)
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject)
 }
 
 class TokensCoordinator: Coordinator {
@@ -69,24 +69,21 @@ class TokensCoordinator: Coordinator {
         navigationController.present(nav, animated: true, completion: nil)
     }
 
-    // relevent when user pays transaction fee to redeem from UniversalLink
-    // which contains a ticket priced 0. TODO: The case when ticket price > 0
-    // is not dealt yet.
-    @objc func useUniversalLink(url: String) {
-        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url)
-        //TODO get info around name, symbol etc
-        let tokenObject = TokenObject(
-                contract: signedOrder.order.contractAddress,
-                name: "ticket",
-                symbol: "TIX",
-                decimals: 0,
-                value: "0",
-                isCustom: true,
-                isDisabled: false,
-                isStormBird: true
-        )
-        delegate?.importSignedOrder(signedOrder: signedOrder, in: self, tokenObject: tokenObject)
-    }
+//    @objc func useUniversalLink(url: String) {
+//        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url)
+//        //TODO get info around name, symbol etc
+//        let tokenObject = TokenObject(
+//                contract: signedOrder.order.contractAddress,
+//                name: "ticket",
+//                symbol: "TIX",
+//                decimals: 0,
+//                value: "0",
+//                isCustom: true,
+//                isDisabled: false,
+//                isStormBird: true
+//        )
+//        delegate?.importPaidSignedOrder(signedOrder: signedOrder, in: self, tokenObject: tokenObject)
+//    }
 
     @objc func dismiss() {
         navigationController.dismiss(animated: true, completion: nil)

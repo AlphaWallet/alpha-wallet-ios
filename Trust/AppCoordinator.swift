@@ -94,6 +94,16 @@ class AppCoordinator: NSObject, Coordinator {
             addresses: keystore.wallets.map { $0.address }
         )
     }
+    
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
+        let inCoordinatorInstance = coordinators.first {
+            $0 is InCoordinator
+        } as? InCoordinator
+        
+        if let inCoordinator = inCoordinatorInstance {
+            inCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
+        }
+    }
 
     func showInitialWalletCoordinator(entryPoint: WalletEntryPoint) {
         let coordinator = InitialWalletCreationCoordinator(

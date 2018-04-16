@@ -388,6 +388,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
+
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
         showPaymentFlow(for: type)
     }
@@ -402,7 +403,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
     // This function deal with the special case that the ticket price = 0
     // but not sent to the paymaster because the user has ether.
 
-    func importSignedOrder(signedOrder: SignedOrder, in coordinator: TokensCoordinator, tokenObject: TokenObject) {
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
         let web3 = self.web3(for: config.server)
         web3.start()
         let signature = signedOrder.signature.substring(from: 2)
@@ -430,7 +431,6 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         indices: signedOrder.order.indices
                 )
 
-                let balanceCoordinator = GetStormBirdBalanceCoordinator(web3: web3)
                 let wallet = self.keystore.recentlyUsedWallet!
                 let migration = MigrationInitializer(account: wallet, chainID: self.config.chainID)
                 migration.perform()
@@ -454,28 +454,30 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
                 let signTransaction = configurator.formUnsignedTransaction()
 
-                let signedTransaction = UnsignedTransaction(value: signTransaction.value,
+                let signedTransaction = UnsignedTransaction(
+                        value: signTransaction.value,
                         account: account,
                         to: signTransaction.to,
                         nonce: signTransaction.nonce,
                         data: signTransaction.data,
                         gasPrice: signTransaction.gasPrice,
                         gasLimit: signTransaction.gasLimit,
-                        chainID: 3)
-
-
-                let sendTransactionCoordinator = SendTransactionCoordinator(session: session,
+                        chainID: 3
+                )
+                let sendTransactionCoordinator = SendTransactionCoordinator(
+                        session: session,
                         keystore: self.keystore,
-                        confirmType: .signThenSend)
+                        confirmType: .signThenSend
+                )
 
                 sendTransactionCoordinator.send(transaction: signedTransaction) { result in
                     switch result {
                     case .success(let res):
-		        // TODO: user still isn't unaware when this happens
-                        print(res);
+                        // TODO: user still isn't aware when this happens
+                        print(res)
                     case .failure(let error):
-		        // TODO: user still isn't unaware when this happens
-                        print(error);
+                        // TODO: user still isn't aware when this happens
+                        print(error)
                     }
                 }
             case .failure: break
