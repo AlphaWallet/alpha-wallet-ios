@@ -252,7 +252,6 @@
 		29FF6D73201200D500A3011C /* FieldAppereance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF6D72201200D500A3011C /* FieldAppereance.swift */; };
 		442FC01053E2F1B59355A961 /* Arguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC7DC5A13C023F7F2C26 /* Arguments.swift */; };
 		442FC0B59B23C0F3068621C0 /* NumberStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC575B6A4A50B0555E1B0 /* NumberStepper.swift */; };
-		442FC126C8A73F70F2782025 /* TicketDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC6911EEE85B669D7BDA1 /* TicketDecode.swift */; };
 		442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */; };
 		442FC258BAEFDE2D64E48D0D /* TicketsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC8150042FE9179D574A /* TicketsCoordinator.swift */; };
 		442FC2CC21FFFC4FAB33A300 /* Ticket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC90F0768C43EF903465B /* Ticket.swift */; };
@@ -760,7 +759,6 @@
 		442FC575B6A4A50B0555E1B0 /* NumberStepper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumberStepper.swift; sourceTree = "<group>"; };
 		442FC57AD0C04FAB66FB834D /* RedeemEventListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemEventListener.swift; sourceTree = "<group>"; };
 		442FC630874D29159799EEB6 /* GetNameCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetNameCoordinator.swift; sourceTree = "<group>"; };
-		442FC6911EEE85B669D7BDA1 /* TicketDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketDecode.swift; sourceTree = "<group>"; };
 		442FC72F9D22CC36AC015274 /* GetERC20Decimals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC20Decimals.swift; sourceTree = "<group>"; };
 		442FC8B1D5B4317DE7D68325 /* GetStormBirdBalance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetStormBirdBalance.swift; sourceTree = "<group>"; };
 		442FC90F0768C43EF903465B /* Ticket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ticket.swift; sourceTree = "<group>"; };
@@ -2251,7 +2249,6 @@
 			isa = PBXGroup;
 			children = (
 				442FC20E6470B92A46479342 /* TicketAdaptor.swift */,
-				442FC6911EEE85B669D7BDA1 /* TicketDecode.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -3421,7 +3418,6 @@
 				442FC2CC21FFFC4FAB33A300 /* Ticket.swift in Sources */,
 				442FCAD7292D93C261B97D09 /* TicketHolder.swift in Sources */,
 				442FC81F38F80EEF54C69C5B /* TicketAdaptor.swift in Sources */,
-				442FC126C8A73F70F2782025 /* TicketDecode.swift in Sources */,
 				442FC258BAEFDE2D64E48D0D /* TicketsCoordinator.swift in Sources */,
 				76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */,
 				76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */,

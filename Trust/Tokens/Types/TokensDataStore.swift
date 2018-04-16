@@ -150,7 +150,7 @@ class TokensDataStore {
     }
 
     func getStormBirdBalance(for addressString: String,
-                             completion: @escaping (Result<[UInt16], AnyError>) -> Void) {
+                             completion: @escaping (Result<[String], AnyError>) -> Void) {
         let address = Address(string: addressString)
         getStormBirdBalanceCoordinator.getBalance(for: account.address, contract: address!) { result in
             completion(result)
@@ -166,6 +166,7 @@ class TokensDataStore {
     }
 
     //Result<Void, AnyError>
+    //claim order continues to use indices to do the transaction, not the bytes32 variables
     func claimOrder(ticketIndices: [UInt16],
                     expiry: BigUInt,
                     v: UInt8,
@@ -298,10 +299,11 @@ class TokensDataStore {
     enum TokenUpdate {
         case value(BigInt)
         case isDisabled(Bool)
-        case stormBirdBalance([UInt16])
+        case stormBirdBalance([String])
     }
 
     func update(token: TokenObject, action: TokenUpdate) {
+        let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
         try! realm.write {
             switch action {
             case .value(let value):
@@ -310,7 +312,15 @@ class TokensDataStore {
                 token.isDisabled = value
             case .stormBirdBalance(let balance):
                 token.balance.removeAll()
-                token.balance.append(objectsIn: balance.map { TokenBalance(balance: Int16($0)) })
+                if !balance.isEmpty {
+                    for i in 0...balance.count - 1 {
+                        if balance[i] != nullTicket {
+                            token.balance.append(TokenBalance(balance: balance[i]))
+                        }
+                    }
+                } else {
+                    token.balance.append(TokenBalance(balance: "0"))
+                }
             }
         }
     }

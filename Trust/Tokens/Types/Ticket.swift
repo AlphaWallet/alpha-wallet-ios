@@ -9,7 +9,7 @@
 import Foundation
 
 struct Ticket {
-    let id: UInt16
+    let id: String
     let index: UInt16
     let zone: String
     let name: String

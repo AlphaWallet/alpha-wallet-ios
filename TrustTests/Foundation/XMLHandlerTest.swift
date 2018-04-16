@@ -8,12 +8,15 @@
 import Foundation
 import XCTest
 @testable import Trust
+import BigInt
 
 class XMLHandlerTest: XCTestCase {
 
+    let tokenHex = "0x0a015af6d74042544e43484e0101000200000000000000000000000000000000".substring(from: 2)
+    
     func testParser() {
         let fifaDetails = XMLHandler().getFifaInfoForToken(
-            tokenId: "0x0a015af6d74042544e43484e01010001".substring(from: 2),
+            tokenId: BigUInt(tokenHex, radix: 16)!,
             lang: 1
         )
         XCTAssertNotNil(fifaDetails)

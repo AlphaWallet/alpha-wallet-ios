@@ -21,7 +21,7 @@ class GetStormBirdBalanceCoordinator {
     func getBalance(
         for address: Address,
         contract: Address,
-        completion: @escaping (Result<[UInt16], AnyError>) -> Void
+        completion: @escaping (Result<[String], AnyError>) -> Void
     ) {
         let request = GetStormBirdBalanceEncode(address: address)
         web3.request(request: request) { result in
@@ -37,7 +37,7 @@ class GetStormBirdBalanceCoordinator {
                         self?.web3.request(request: request) { result in
                             switch result {
                             case .success(let res):
-                                let values:[UInt16] = (self?.adapt(res))!
+                                let values: [String] = (self?.adapt(res))!
                                 NSLog("result \(values)")
                                 completion(.success(values))
                             case .failure(let error):
@@ -45,7 +45,7 @@ class GetStormBirdBalanceCoordinator {
                                 if err is JSErrorDomain { // TODO:
                                     switch err {
                                     case JSErrorDomain.invalidReturnType(let value):
-                                        let values:[UInt16] = (self?.adapt(value))!
+                                        let values:[String] = (self?.adapt(value))!
                                         NSLog("result error \(values)")
                                         completion(.success(values))
                                     default:
@@ -71,9 +71,9 @@ class GetStormBirdBalanceCoordinator {
 }
 
 extension GetStormBirdBalanceCoordinator {
-    private func adapt(_ values: Any) -> [UInt16] {
+    private func adapt(_ values: Any) -> [String] {
         if let array = values as? [Any] {
-            return array.map { UInt16($0 as! String)! }
+            return array.map { String(describing: $0) }
         }
         return []
     }

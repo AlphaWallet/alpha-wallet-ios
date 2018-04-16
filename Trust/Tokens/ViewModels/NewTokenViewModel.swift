@@ -7,15 +7,18 @@ struct NewTokenViewModel {
         return NSLocalizedString("tokens.newtoken.navigation.title", value: "Add Custom Token", comment: "")
     }
 
-    var stormBirdBalance: [UInt16] = []
+    var stormBirdBalance: [String] = []
 
-    var displayStormBirdBalance: String {
-        let stormBirdBalanceWithNoZeros = stormBirdBalance.filter { $0 != 0 }
-        return (stormBirdBalanceWithNoZeros.map { String($0) }).joined(separator: ",")
-    }
-
-    var stormBirdBalanceAsInt16: [Int16] {
-        return stormBirdBalance.map { Int16($0) }
+    var stormBirdBalanceAsInt: Int {
+        var balance = 0
+        if !stormBirdBalance.isEmpty {
+            for i in 0...stormBirdBalance.count - 1 {
+                if stormBirdBalance[i] != "0x0000000000000000000000000000000000000000000000000000000000000000" {
+                    balance += 1
+                }
+            }
+        }
+        return balance
     }
 
 }
