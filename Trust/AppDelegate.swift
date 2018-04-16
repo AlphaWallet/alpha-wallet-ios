@@ -9,6 +9,9 @@ import RealmSwift
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
     var window: UIWindow?
     var appCoordinator: AppCoordinator!
+    var coordinator: AppCoordinator!
+    // Need to retain while still processing
+    var universalLinkCoordinator: UniversalLinkCoordinator!
     //This is separate coordinator for the protection of the sensitive information.
     lazy var protectionCoordinator: ProtectionCoordinator = {
         return ProtectionCoordinator()
@@ -82,10 +85,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         Branch.getInstance().continue(userActivity)
 
         let url = userActivity.webpageURL
-		let coordinator = UniversalLinkCoordinator()
-        coordinator.delegate = self
-        coordinator.start()
-		let handled = coordinator.handleUniversalLink(url: url)
+		universalLinkCoordinator = UniversalLinkCoordinator()
+        universalLinkCoordinator.delegate = self
+        universalLinkCoordinator.start()
+		let handled = universalLinkCoordinator.handleUniversalLink(url: url)
 		//TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
 
         return true
@@ -106,5 +109,9 @@ extension AppDelegate: UniversalLinkCoordinatorDelegate {
     }
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
         appCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
+    }
+
+    func completed(in coordinator: UniversalLinkCoordinator) {
+        universalLinkCoordinator = nil
     }
 }
