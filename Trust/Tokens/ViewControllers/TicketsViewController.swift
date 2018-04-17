@@ -13,7 +13,7 @@ import TrustKeystore
 
 protocol TicketsViewControllerDelegate: class {
     func didPressRedeem(token: TokenObject, in viewController: TicketsViewController)
-    func didPressSell(token: TokenObject, in viewController: TicketsViewController)
+    func didPressSell(for type: PaymentFlow, in viewController: TicketsViewController)
     func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: TicketsViewController)
     func didCancel(in viewController: TicketsViewController)
     func didPressViewRedemptionInfo(in viewController: TicketsViewController)
@@ -171,7 +171,7 @@ class TicketsViewController: UIViewController {
     }
 
     @objc func sell() {
-        delegate?.didPressSell(token: viewModel.token, in: self)
+        delegate?.didPressSell(for: .send(type: .stormBird(viewModel.token)), in: self)
     }
 
     @objc func transfer() {
