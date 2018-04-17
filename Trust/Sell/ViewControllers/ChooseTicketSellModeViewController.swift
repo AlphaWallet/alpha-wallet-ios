@@ -3,17 +3,17 @@
 import UIKit
 import MessageUI
 
-enum TicketTransferMode {
+enum TicketSellMode {
     case walletAddressTextEntry
     case walletAddressFromQRCode
     case other
 }
 
-protocol ChooseTicketTransferModeViewControllerDelegate: class {
-    func didChoose(transferMode: TicketTransferMode, in viewController: ChooseTicketTransferModeViewController, sender: UIView)
+protocol ChooseTicketSellModeViewControllerDelegate: class {
+    func didChoose(sellMode: TicketSellMode, in viewController: ChooseTicketSellModeViewController)
 }
 
-class ChooseTicketTransferModeViewController: UIViewController {
+class ChooseTicketSellModeViewController: UIViewController {
     //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
     let roundedBackground = UIView()
     let titleLabel = UILabel()
@@ -21,11 +21,18 @@ class ChooseTicketTransferModeViewController: UIViewController {
     let qrCodeScannerButton = ShareModeButton()
     let otherButton = ShareModeButton()
 	let ticketHolder: TicketHolder
+    var ethCost: String
+    var dollarCost: String
+    var linkExpiryDate: Date
     var paymentFlow: PaymentFlow
-    weak var delegate: ChooseTicketTransferModeViewControllerDelegate?
+    weak var delegate: ChooseTicketSellModeViewControllerDelegate?
 
-    init(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+    init(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow) {
         self.ticketHolder = ticketHolder
+        self.linkExpiryDate = linkExpiryDate
+        self.ethCost = ethCost
+        //TODO if we only need ethCost, remove dollarCost?
+        self.dollarCost = dollarCost
         self.paymentFlow = paymentFlow
 
         super.init(nibName: nil, bundle: nil)
@@ -36,17 +43,17 @@ class ChooseTicketTransferModeViewController: UIViewController {
         view.addSubview(roundedBackground)
 
         inputWalletAddressButton.callback = {
-            self.delegate?.didChoose(transferMode: .walletAddressTextEntry, in: self, sender: self.inputWalletAddressButton)
+            self.delegate?.didChoose(sellMode: .walletAddressTextEntry, in: self)
         }
         inputWalletAddressButton.translatesAutoresizingMaskIntoConstraints = false
 
         qrCodeScannerButton.callback = {
-            self.delegate?.didChoose(transferMode: .walletAddressFromQRCode, in: self, sender: self.qrCodeScannerButton)
+            self.delegate?.didChoose(sellMode: .walletAddressFromQRCode, in: self)
         }
         qrCodeScannerButton.translatesAutoresizingMaskIntoConstraints = false
 
         otherButton.callback = {
-            self.delegate?.didChoose(transferMode: .other, in: self, sender: self.otherButton)
+            self.delegate?.didChoose(sellMode: .other, in: self)
         }
         otherButton.translatesAutoresizingMaskIntoConstraints = false
 
@@ -105,7 +112,7 @@ class ChooseTicketTransferModeViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: ChooseTicketTransferModeViewControllerViewModel) {
+    func configure(viewModel: ChooseTicketSellModeViewControllerViewModel) {
         roundedBackground.backgroundColor = viewModel.contentsBackgroundColor
         roundedBackground.layer.cornerRadius = 20
 

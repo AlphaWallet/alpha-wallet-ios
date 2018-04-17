@@ -34,4 +34,8 @@ public extension Date {
         }
         return foundFormatter!
     }
+
+    public static var yesterday: Date {
+        return Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+    }
 }
