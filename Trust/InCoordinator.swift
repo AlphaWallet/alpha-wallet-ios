@@ -411,7 +411,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
 
-        ClaimOrderCoordinator.init(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) {
+        ClaimOrderCoordinator(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) {
             result in
             switch result {
             case .success(let payload):

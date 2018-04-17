@@ -23,7 +23,7 @@ struct TicketTokenViewCellViewModel {
 
     var amount: String {
         let actualBalance = self.token.balance.filter { $0.balance != "0" }
-        return R.string.localizable.aWalletTickets(actualBalance.count.toString())
+        return actualBalance.count.toString()
     }
 
     var issuer: String {

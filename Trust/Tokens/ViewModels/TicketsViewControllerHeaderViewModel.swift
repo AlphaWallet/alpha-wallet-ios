@@ -11,7 +11,7 @@ struct TicketsViewControllerHeaderViewModel {
     }
 
     var title: String {
-        return "\(R.string.localizable.aWalletTickets(totalValidTicketNumber)) \(tokenObject.title)"
+        return "\((totalValidTicketNumber)) \(tokenObject.title)"
     }
 
     var issuer: String {
