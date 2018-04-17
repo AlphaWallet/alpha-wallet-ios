@@ -218,7 +218,7 @@
 "a.wallet.contents.filter.currencyOnly.title" = "CURRENCY";
 "a.wallet.contents.filter.assetsOnly.title" = "ASSETS";
 "a.wallet.contents.issuer.title" = "Issuer";
-"a.wallet.tickets" = "%@ Tickets";
+//"a.wallet.tickets" = "%@ Tickets";
 "a.wallet.next.button.title" = "Next";
 "a.help.navigation.title" = "Help & FAQs";
 "a.help.contact.footer.button.title" = "Still need help? Contact Us";

@@ -18,7 +18,7 @@ class GetStormBirdBalanceCoordinator {
         self.web3 = web3
     }
 
-    func getBalance(
+    func getStormBirdBalance(
         for address: Address,
         contract: Address,
         completion: @escaping (Result<[String], AnyError>) -> Void

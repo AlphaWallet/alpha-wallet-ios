@@ -26,12 +26,16 @@ class UniversalLinkCoordinator: Coordinator {
         let signature = signedOrder.signature.substring(from: 2)
         let indices = signedOrder.order.indices
         var indicesStringEncoded = ""
-        
-        for i in 0...indices.count - 1 {
-            indicesStringEncoded += String(indices[i]) + ","
+        if !indices.isEmpty {
+            for i in 0...indices.count - 1 {
+                indicesStringEncoded += String(indices[i]) + ","
+            }
+            //cut off last comma
+            indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
+        } else {
+            //this shouldn't happen
+            indicesStringEncoded = "0"
         }
-        //cut off last comma
-        indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
         let address = (keystore.recentlyUsedWallet?.address.eip55String)!
         
         let parameters: Parameters = [
@@ -82,7 +86,7 @@ class UniversalLinkCoordinator: Coordinator {
 		}
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
         //TODO create Ticket instances and 1 TicketHolder instance and compute cost from link's information
-        let ticket = Ticket(id: "1", index: 1, zone: "", name: "", venue: "", date: Date(), seatId: 1)
+        let ticket = Ticket(id: "0x0000000000000000000000000000000000000000000000000000000000000000", index: 1, zone: "", name: "", venue: "", date: Date(), seatId: 1)
         let ticketHolder = TicketHolder(
             tickets: [ticket],
             zone: "ABC",

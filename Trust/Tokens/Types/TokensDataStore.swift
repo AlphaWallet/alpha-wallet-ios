@@ -152,7 +152,7 @@ class TokensDataStore {
     func getStormBirdBalance(for addressString: String,
                              completion: @escaping (Result<[String], AnyError>) -> Void) {
         let address = Address(string: addressString)
-        getStormBirdBalanceCoordinator.getBalance(for: account.address, contract: address!) { result in
+        getStormBirdBalanceCoordinator.getStormBirdBalance(for: account.address, contract: address!) { result in
             completion(result)
         }
     }
