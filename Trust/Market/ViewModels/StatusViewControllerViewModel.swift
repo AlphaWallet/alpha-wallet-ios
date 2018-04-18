@@ -23,8 +23,7 @@ struct StatusViewControllerViewModel {
 		case .succeeded:
 			return R.image.onboarding_complete()
 		case .failed:
-			 //TODO return a failed version
-			return R.image.onboarding_complete()
+			return R.image.onboarding_failed()
 		}
 	}
 	var titleColor: UIColor {
