@@ -462,7 +462,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         data: signTransaction.data,
                         gasPrice: signTransaction.gasPrice,
                         gasLimit: signTransaction.gasLimit,
-                        chainID: 3
+                        chainID: self.config.chainID
                 )
                 let sendTransactionCoordinator = SendTransactionCoordinator(
                         session: session,
