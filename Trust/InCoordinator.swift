@@ -421,7 +421,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         value: BigInt("0"),
                         to: address,
                         data: Data(bytes: payload.hexa2Bytes),
-                        gasLimit: .none,
+                        gasLimit: Constants.gasLimit,
                         gasPrice: 14400,
                         nonce: .none,
                         v: v,
