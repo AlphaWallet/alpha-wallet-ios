@@ -48,7 +48,7 @@ struct TicketsViewControllerHeaderViewModel {
 
     var totalValidTicketNumber: String {
         let balance = tokenObject.balance
-        let validTickets = balance.filter { $0.balance != "0" }
+        let validTickets = balance.filter { $0.balance != Constants.nullTicket }
         return validTickets.count.toString()
     }
 }
