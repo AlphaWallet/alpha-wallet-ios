@@ -2,6 +2,7 @@
 
 import Foundation
 import Alamofire
+import BigInt
 
 protocol UniversalLinkCoordinatorDelegate: class {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
@@ -32,9 +33,6 @@ class UniversalLinkCoordinator: Coordinator {
             }
             //cut off last comma
             indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
-        } else {
-            //this shouldn't happen
-            indicesStringEncoded = "0"
         }
         let address = (keystore.recentlyUsedWallet?.address.eip55String)!
         
@@ -52,7 +50,7 @@ class UniversalLinkCoordinator: Coordinator {
     
     func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
         let parameters = createQueryForPaymentServer(signedOrder: signedOrder)
-        let query = UniversalLinkHandler.paymentServer
+        let query = Constants.paymentServer
         //TODO check if URL is valid or not by validating signature, low priority
         //TODO localize
         if let viewController = delegate?.viewControllerForPresenting(in: self) {
@@ -78,25 +76,82 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
 	//Returns true if handled
-    //TODO handle paying for universal link
 	func handleUniversalLink(url: URL?) -> Bool {
 		let matchedPrefix = (url?.description.contains(UniversalLinkHandler().urlPrefix))!
 		guard matchedPrefix else {
 			return false
 		}
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
-        //TODO create Ticket instances and 1 TicketHolder instance and compute cost from link's information
-        let ticket = Ticket(id: "0x0000000000000000000000000000000000000000000000000000000000000000", index: 1, zone: "", name: "", venue: "", date: Date(), seatId: 1)
-        let ticketHolder = TicketHolder(
-            tickets: [ticket],
-            zone: "ABC",
-            name: "Applying for mortages (APM)",
-            venue: "XYZ Stadium",
-            date: Date(),
-            status: .available
-        )
-        return usePaymentServerForFreeTransferLinks(signedOrder: signedOrder, ticketHolder: ticketHolder)
+        getTicketDetailsAndEcRecover(signedOrder: signedOrder) {
+            result in
+            if let goodResult = result {
+                let handled = self.usePaymentServerForFreeTransferLinks(
+                        signedOrder: signedOrder,
+                        ticketHolder: goodResult
+                )
+            }
+        }
+        return true
 	}
+
+    private func getTicketDetailsAndEcRecover(
+            signedOrder: SignedOrder,
+            completion: @escaping( _ response: TicketHolder?) -> Void
+    ) {
+        let indices = signedOrder.order.indices
+        var indicesStringEncoded = ""
+        if !indices.isEmpty {
+            for i in 0...indices.count - 1 {
+                indicesStringEncoded += String(indices[i]) + ","
+            }
+            //cut off last comma
+            indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
+        }
+        let signature = signedOrder.signature.substring(from: 2)
+        let parameters: Parameters = [
+            "indices": indicesStringEncoded,
+            "expiry": signedOrder.order.expiry.description,
+            "price": signedOrder.order.price.description,
+            "v": signature.substring(from: 128),
+            "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
+            "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
+        ]
+
+        Alamofire.request(Constants.getTicketInfoFromServer, method: .get, parameters: parameters).responseJSON {
+            response in
+            if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                let array: [String] = utf8Text.split{ $0 == "," }.map(String.init)
+                if array.isEmpty {
+                    completion(nil)
+                    return
+                }
+                var tickets = [Ticket]()
+                for i in 1...array.count - 1 {
+                    let xmlParsed = XMLHandler().getFifaInfoForToken(tokenId: BigUInt(array[i], radix: 16)!, lang: 1)
+                    let ticket = Ticket(
+                            id: array[i],
+                            index: indices[i - 1],
+                            zone: xmlParsed.venue,
+                            name: "FIFA WC",
+                            venue: xmlParsed.locale,
+                            date: Date(timeIntervalSince1970: TimeInterval(xmlParsed.time)),
+                            seatId: xmlParsed.number
+                    )
+                    tickets.append(ticket)
+                }
+                let ticketHolder = TicketHolder(tickets: tickets,
+                        zone: tickets[0].zone,
+                        name: tickets[0].name,
+                        venue: tickets[0].venue,
+                        date: tickets[0].date,
+                        status: .available
+                )
+                completion(ticketHolder)
+            } else {
+                completion(nil)
+            }
+        }
+    }
     
     //delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
 
@@ -167,7 +222,6 @@ class UniversalLinkCoordinator: Coordinator {
         }
     }
 }
-
 
 extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
 	func didPressDone(in viewController: ImportTicketViewController) {
