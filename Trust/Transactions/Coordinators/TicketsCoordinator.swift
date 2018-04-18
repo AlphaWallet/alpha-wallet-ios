@@ -184,9 +184,10 @@ class TicketsCoordinator: NSObject, Coordinator {
         scanQRCodeForWalletAddressToTransferTicketCoordinator?.start()
     }
 
-    private func transferViaActivitySheet(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+    private func transferViaActivitySheet(ticketHolder: TicketHolder, paymentFlow: PaymentFlow, sender: UIView) {
         let url = generateTransferLink(ticketHolder: ticketHolder, paymentFlow: paymentFlow)
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        vc.popoverPresentationController?.sourceView = sender
         vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
             //Be annoying if user copies and we close the transfer process
             if completed && activityType != UIActivityType.copyToPasteboard {
@@ -273,7 +274,7 @@ extension TicketsCoordinator: TransferTicketsQuantitySelectionViewControllerDele
 }
 
 extension TicketsCoordinator: ChooseTicketTransferModeViewControllerDelegate {
-    func didChoose(transferMode: TicketTransferMode, in viewController: ChooseTicketTransferModeViewController) {
+    func didChoose(transferMode: TicketTransferMode, in viewController: ChooseTicketTransferModeViewController, sender: UIView) {
         let ticketHolder = viewController.ticketHolder
 
         switch transferMode {
@@ -282,7 +283,7 @@ extension TicketsCoordinator: ChooseTicketTransferModeViewControllerDelegate {
         case .walletAddressFromQRCode:
             transferViaReadingWalletAddressFromQRCode(ticketHolder: ticketHolder, paymentFlow: viewController.paymentFlow)
         case .other:
-            transferViaActivitySheet(ticketHolder: ticketHolder, paymentFlow: viewController.paymentFlow)
+            transferViaActivitySheet(ticketHolder: ticketHolder, paymentFlow: viewController.paymentFlow, sender: sender)
         }
     }
 }
