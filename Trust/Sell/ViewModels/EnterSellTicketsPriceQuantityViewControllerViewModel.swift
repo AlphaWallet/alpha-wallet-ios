@@ -3,10 +3,11 @@
 import Foundation
 import UIKit
 
-struct SellTicketsQuantitySelectionViewModel {
+struct EnterSellTicketsPriceQuantityViewControllerViewModel {
 
     var ticketHolder: TicketHolder
     var ethCost: String = "0"
+    var dollarCost: String = "0"
 
     var headerTitle: String {
 		return R.string.localizable.aWalletTicketTokenSellSelectQuantityTitle()
@@ -30,22 +31,6 @@ struct SellTicketsQuantitySelectionViewModel {
 
     var buttonFont: UIFont {
         return Fonts.regular(size: 20)!
-    }
-
-    var subtitleLabelColor: UIColor {
-        return UIColor(red: 155, green: 155, blue: 155)
-    }
-
-    var subtitleLabelFont: UIFont {
-        return Fonts.light(size: 18)!
-    }
-
-    var subtitleLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellEthHelpTitle()
-    }
-
-    var ethHelpButtonFont: UIFont {
-        return Fonts.semibold(size: 18)!
     }
 
     var choiceLabelColor: UIColor {
@@ -101,28 +86,52 @@ struct SellTicketsQuantitySelectionViewModel {
         return R.string.localizable.aWalletTicketTokenSellLinkExpiryTimeTitle()
     }
 
-    var totalCostLabelText: String {
+    var ethCostLabelLabelText: String {
         return R.string.localizable.aWalletTicketTokenSellTotalCostTitle()
     }
 
-    var totalCostLabelFont: UIFont {
+    var ethCostLabelLabelFont: UIFont {
         return Fonts.light(size: 21)!
     }
 
-    var totalCostLabelColor: UIColor {
+    var ethCostLabelLabelColor: UIColor {
         return Colors.appText
     }
 
-    var costLabelText: String {
+    var ethCostLabelText: String {
         return "\(ethCost) ETH"
     }
 
-    var costLabelColor: UIColor {
+    var ethCostLabelColor: UIColor {
         return Colors.appBackground
     }
 
-    var costLabelFont: UIFont {
+    var ethCostLabelFont: UIFont {
         return Fonts.semibold(size: 21)!
+    }
+
+    var dollarCostLabelLabelColor: UIColor {
+        return UIColor(red: 155, green: 155, blue: 155)
+    }
+
+    var dollarCostLabelLabelFont: UIFont {
+        return Fonts.regular(size: 10)!
+    }
+
+    var dollarCostLabelText: String {
+        return "$\(dollarCost)"
+    }
+
+    var dollarCostLabelColor: UIColor {
+        return Colors.darkGray
+    }
+
+    var dollarCostLabelFont: UIFont {
+        return Fonts.light(size: 21)!
+    }
+
+    var dollarCostLabelBackgroundColor: UIColor {
+        return UIColor(red: 236, green: 236, blue: 236)
     }
 
     init(ticketHolder: TicketHolder) {

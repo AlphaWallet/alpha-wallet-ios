@@ -45,6 +45,7 @@ class TicketHolder {
         return seatIds.min()!.toString() + "-" + seatIds.max()!.toString()
     }
 
+    //TODO this should be a numeric type
     var ticketCount: String {
         return tickets.count.toString()
     }

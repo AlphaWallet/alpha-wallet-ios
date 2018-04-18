@@ -2,41 +2,46 @@
 
 import UIKit
 
-protocol EnterSellTicketsDetailsViewControllerDelegate: class {
-    func didEnterSellTicketDetails(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, in viewController: EnterSellTicketsDetailsViewController)
-    func didPressViewInfo(in viewController: EnterSellTicketsDetailsViewController)
+protocol SetSellTicketsExpiryDateViewControllerDelegate: class {
+    func didSetSellTicketsExpiryDate(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, in viewController: SetSellTicketsExpiryDateViewController)
+    func didPressViewInfo(in viewController: SetSellTicketsExpiryDateViewController)
 }
 
-class EnterSellTicketsDetailsViewController: UIViewController {
+class SetSellTicketsExpiryDateViewController: UIViewController {
 
     let storage: TokensDataStore
     //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
     let roundedBackground = UIView()
     let scrollView = UIScrollView()
     let header = TicketsViewControllerTitleHeader()
-    let subtitleLabel = UILabel()
-    let ethHelpButton = UIButton(type: .system)
-    let pricePerTicketLabel = UILabel()
-    let pricePerTicketField = AmountTextField()
-	let quantityLabel = UILabel()
-    let quantityStepper = NumberStepper()
     let linkExpiryDateLabel = UILabel()
     let linkExpiryDateField = DateEntryField()
     let linkExpiryTimeLabel = UILabel()
     let linkExpiryTimeField = TimeEntryField()
-    let totalCostLabel = UILabel()
-    let costLabel = UILabel()
+    let ticketCountLabel = UILabel()
+    let perTicketPriceLabel = UILabel()
+    let totalEthLabel = UILabel()
+    let descriptionLabel = UILabel()
+    let noteTitleLabel = UILabel()
+    let noteLabel = UILabel()
+    let noteBorderView = UIView()
     let ticketView = TicketRowView()
     let nextButton = UIButton(type: .system)
     var datePicker = UIDatePicker()
     var timePicker = UIDatePicker()
-    var viewModel: SellTicketsQuantitySelectionViewModel!
+    var viewModel: SetSellTicketsExpiryDateViewControllerViewModel!
     var paymentFlow: PaymentFlow
-    weak var delegate: EnterSellTicketsDetailsViewControllerDelegate?
+    var ticketHolder: TicketHolder
+    var ethCost: String
+    var dollarCost: String
+    weak var delegate: SetSellTicketsExpiryDateViewControllerDelegate?
 
-    init(storage: TokensDataStore, paymentFlow: PaymentFlow) {
+    init(storage: TokensDataStore, paymentFlow: PaymentFlow, ticketHolder: TicketHolder, ethCost: String, dollarCost: String) {
         self.storage = storage
         self.paymentFlow = paymentFlow
+        self.ticketHolder = ticketHolder
+        self.ethCost = ethCost
+        self.dollarCost = dollarCost
         super.init(nibName: nil, bundle: nil)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
@@ -49,49 +54,32 @@ class EnterSellTicketsDetailsViewController: UIViewController {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(scrollView)
 
-        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        ethHelpButton.setTitle(R.string.localizable.aWalletTicketTokenSellLearnAboutEthButtonTitle(), for: .normal)
-        ethHelpButton.addTarget(self, action: #selector(learnMoreAboutEthereumTapped), for: .touchUpInside)
-
-        nextButton.setTitle(R.string.localizable.aWalletTicketTokenSellGenerateLinkButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
         ticketView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(ticketView)
 
-        pricePerTicketLabel.translatesAutoresizingMaskIntoConstraints = false
-        quantityLabel.translatesAutoresizingMaskIntoConstraints = false
         linkExpiryDateLabel.translatesAutoresizingMaskIntoConstraints = false
         linkExpiryTimeLabel.translatesAutoresizingMaskIntoConstraints = false
-        totalCostLabel.translatesAutoresizingMaskIntoConstraints = false
+        ticketCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        perTicketPriceLabel.translatesAutoresizingMaskIntoConstraints = false
+        totalEthLabel.translatesAutoresizingMaskIntoConstraints = false
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        noteTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        noteLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        pricePerTicketField.translatesAutoresizingMaskIntoConstraints = false
-        //TODO is there a better way to get the price?
-        if let rates = storage.tickers, let ticker = rates.values.first(where: { $0.symbol == "ETH" }), let price = Double(ticker.price) {
-            pricePerTicketField.ethToDollarRate = price
-        }
-        pricePerTicketField.delegate = self
-
-        costLabel.translatesAutoresizingMaskIntoConstraints = false
+        noteBorderView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(noteBorderView)
 
         linkExpiryDateField.translatesAutoresizingMaskIntoConstraints = false
-        linkExpiryDateField.value = Date.yesterday
+        linkExpiryDateField.value = Date.tomorrow
         linkExpiryDateField.delegate = self
 
         linkExpiryTimeField.translatesAutoresizingMaskIntoConstraints = false
         linkExpiryTimeField.delegate = self
 
-        quantityStepper.translatesAutoresizingMaskIntoConstraints = false
-        quantityStepper.minimumValue = 1
-        quantityStepper.value = 1
-
         let col0 = UIStackView(arrangedSubviews: [
-            pricePerTicketLabel,
-            .spacer(height: 4),
-            pricePerTicketField,
-            pricePerTicketField.alternativeAmountLabel,
-            .spacer(height: 16),
             linkExpiryDateLabel,
             .spacer(height: 4),
             linkExpiryDateField,
@@ -101,15 +89,7 @@ class EnterSellTicketsDetailsViewController: UIViewController {
         col0.spacing = 0
         col0.distribution = .fill
 
-        let sameHeightAsPricePerTicketAlternativeAmountLabelPlaceholder = UIView()
-        sameHeightAsPricePerTicketAlternativeAmountLabelPlaceholder.translatesAutoresizingMaskIntoConstraints = false
-
         let col1 = UIStackView(arrangedSubviews: [
-            quantityLabel,
-            .spacer(height: 4),
-            quantityStepper,
-            sameHeightAsPricePerTicketAlternativeAmountLabelPlaceholder,
-            .spacer(height: 16),
             linkExpiryTimeLabel,
             .spacer(height: 4),
             linkExpiryTimeField,
@@ -129,6 +109,17 @@ class EnterSellTicketsDetailsViewController: UIViewController {
         choicesStackView.spacing = 0
         choicesStackView.distribution = .fill
 
+        let noteStackView = UIStackView(arrangedSubviews: [
+            noteTitleLabel,
+            .spacer(height: 4),
+            noteLabel,
+        ])
+        noteStackView.translatesAutoresizingMaskIntoConstraints = false
+        noteStackView.axis = .vertical
+        noteStackView.spacing = 0
+        noteStackView.distribution = .fill
+        noteBorderView.addSubview(noteStackView)
+
         datePicker.datePickerMode = .date
         datePicker.minimumDate = Date()
         datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
@@ -139,26 +130,21 @@ class EnterSellTicketsDetailsViewController: UIViewController {
         timePicker.addTarget(self, action: #selector(timePickerValueChanged), for: .valueChanged)
         timePicker.isHidden = true
 
-        let separator = UIView()
-        separator.backgroundColor = UIColor(red: 230, green: 230, blue: 230)
-
         let stackView = UIStackView(arrangedSubviews: [
             header,
-            subtitleLabel,
-            .spacer(height: 16),
-            ethHelpButton,
-            .spacer(height: 30),
             ticketView,
-            .spacer(height: 20),
+            .spacer(height: 18),
+            ticketCountLabel,
+            perTicketPriceLabel,
+            totalEthLabel,
+            .spacer(height: 4),
+            descriptionLabel,
+            .spacer(height: 18),
             choicesStackView,
             datePicker,
             timePicker,
-            .spacer(height: 18),
-            totalCostLabel,
             .spacer(height: 10),
-            separator,
-            .spacer(height: 10),
-            costLabel,
+            noteBorderView,
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -189,10 +175,6 @@ class EnterSellTicketsDetailsViewController: UIViewController {
             header.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             header.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
 
-			quantityStepper.heightAnchor.constraint(equalToConstant: 50),
-
-            sameHeightAsPricePerTicketAlternativeAmountLabelPlaceholder.heightAnchor.constraint(equalTo: pricePerTicketField.alternativeAmountLabel.heightAnchor),
-
             ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
@@ -201,20 +183,25 @@ class EnterSellTicketsDetailsViewController: UIViewController {
             roundedBackground.topAnchor.constraint(equalTo: view.topAnchor),
             roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
 
-            separator.heightAnchor.constraint(equalToConstant: 1),
-            separator.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            separator.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
-
-            pricePerTicketField.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            quantityStepper.rightAnchor.constraint(equalTo: ticketView.background.rightAnchor),
             linkExpiryDateField.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
             linkExpiryTimeField.rightAnchor.constraint(equalTo: ticketView.background.rightAnchor),
+            linkExpiryDateField.heightAnchor.constraint(equalToConstant: 50),
+            linkExpiryDateField.widthAnchor.constraint(equalTo: linkExpiryTimeField.widthAnchor),
+            linkExpiryDateField.heightAnchor.constraint(equalTo: linkExpiryTimeField.heightAnchor),
 
             datePicker.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
             datePicker.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
 
             timePicker.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
             timePicker.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+
+            noteBorderView.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
+            noteBorderView.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+
+            noteStackView.leadingAnchor.constraint(equalTo: noteBorderView.leadingAnchor, constant: 10),
+            noteStackView.trailingAnchor.constraint(equalTo: noteBorderView.trailingAnchor, constant: -10),
+            noteStackView.topAnchor.constraint(equalTo: noteBorderView.topAnchor, constant: 10),
+            noteStackView.bottomAnchor.constraint(equalTo: noteBorderView.bottomAnchor, constant: -10),
 
             stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
@@ -235,13 +222,6 @@ class EnterSellTicketsDetailsViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-
-            pricePerTicketField.widthAnchor.constraint(equalTo: quantityStepper.widthAnchor),
-            pricePerTicketField.heightAnchor.constraint(equalTo: quantityStepper.heightAnchor),
-            linkExpiryDateField.widthAnchor.constraint(equalTo: quantityStepper.widthAnchor),
-            linkExpiryDateField.heightAnchor.constraint(equalTo: quantityStepper.heightAnchor),
-            linkExpiryTimeField.widthAnchor.constraint(equalTo: quantityStepper.widthAnchor),
-            linkExpiryTimeField.heightAnchor.constraint(equalTo: quantityStepper.heightAnchor),
         ])
     }
 
@@ -251,36 +231,8 @@ class EnterSellTicketsDetailsViewController: UIViewController {
 
     @objc
     func nextButtonTapped() {
-        guard quantityStepper.value > 0 else {
-            UIAlertController.alert(title: "",
-                    message: R.string.localizable.aWalletTicketTokenSellSelectTicketQuantityAtLeastOneTitle(),
-                    alertButtonTitles: [R.string.localizable.oK()],
-                    alertButtonStyles: [.cancel],
-                    viewController: self,
-                    completion: nil)
-            return
-        }
-
-        let noPrice: Bool
-        if let price = Double(pricePerTicketField.ethCost) {
-            noPrice = price.isZero
-        } else {
-            noPrice = true
-        }
-
-        guard !noPrice else {
-            UIAlertController.alert(title: "",
-                    message: R.string.localizable.aWalletTicketTokenSellPriceProvideTitle(),
-                    alertButtonTitles: [R.string.localizable.oK()],
-                    alertButtonStyles: [.cancel],
-                    viewController: self,
-                    completion: nil)
-            return
-        }
-
         //TODO be good if we check if date chosen is not too far into the future. Example 1 year ahead. Common error?
-
-        delegate?.didEnterSellTicketDetails(ticketHolder: getTicketHolderFromQuantity(), linkExpiryDate: linkExpiryDate(), ethCost: pricePerTicketField.ethCost, dollarCost: pricePerTicketField.dollarCost, in: self)
+        delegate?.didSetSellTicketsExpiryDate(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate(), ethCost: ethCost, dollarCost: dollarCost, in: self)
     }
 
     private func linkExpiryDate() -> Date {
@@ -294,69 +246,68 @@ class EnterSellTicketsDetailsViewController: UIViewController {
         }
     }
 
-
-    @objc func learnMoreAboutEthereumTapped() {
-        showInfo()
-    }
-
     @objc func showInfo() {
         delegate?.didPressViewInfo(in: self)
     }
 
-    func configure(viewModel: SellTicketsQuantitySelectionViewModel) {
+    func configure(viewModel: SetSellTicketsExpiryDateViewControllerViewModel) {
         self.viewModel = viewModel
 
         view.backgroundColor = viewModel.backgroundColor
 
         header.configure(title: viewModel.headerTitle)
 
-        subtitleLabel.textAlignment = .center
-        subtitleLabel.textColor = viewModel.subtitleLabelColor
-        subtitleLabel.font = viewModel.subtitleLabelFont
-        subtitleLabel.text = viewModel.subtitleLabelText
-
-        ethHelpButton.titleLabel?.font = viewModel.ethHelpButtonFont
-
         ticketView.configure(viewModel: .init())
 
-        pricePerTicketLabel.textAlignment = .center
-        pricePerTicketLabel.textColor = viewModel.subtitleLabelColor
-        pricePerTicketLabel.font = viewModel.choiceLabelFont
-        pricePerTicketLabel.text = viewModel.pricePerTicketLabelText
-
         linkExpiryDateLabel.textAlignment = .center
-        linkExpiryDateLabel.textColor = viewModel.subtitleLabelColor
+        linkExpiryDateLabel.textColor = viewModel.choiceLabelColor
         linkExpiryDateLabel.font = viewModel.choiceLabelFont
         linkExpiryDateLabel.text = viewModel.linkExpiryDateLabelText
 
         linkExpiryTimeLabel.textAlignment = .center
-        linkExpiryTimeLabel.textColor = viewModel.subtitleLabelColor
+        linkExpiryTimeLabel.textColor = viewModel.choiceLabelColor
         linkExpiryTimeLabel.font = viewModel.choiceLabelFont
         linkExpiryTimeLabel.text = viewModel.linkExpiryTimeLabelText
 
-        totalCostLabel.textAlignment = .center
-        totalCostLabel.textColor = viewModel.totalCostLabelColor
-        totalCostLabel.font = viewModel.totalCostLabelFont
-        totalCostLabel.text = viewModel.totalCostLabelText
+        ticketCountLabel.textAlignment = .center
+        ticketCountLabel.textColor = viewModel.ticketSaleDetailsLabelColor
+        ticketCountLabel.font = viewModel.ticketSaleDetailsLabelFont
+        ticketCountLabel.text = viewModel.ticketCountLabelText
 
-        costLabel.textAlignment = .center
-        costLabel.textColor = viewModel.costLabelColor
-        costLabel.font = viewModel.costLabelFont
-        costLabel.text = viewModel.costLabelText
+        perTicketPriceLabel.textAlignment = .center
+        perTicketPriceLabel.textColor = viewModel.ticketSaleDetailsLabelColor
+        perTicketPriceLabel.font = viewModel.ticketSaleDetailsLabelFont
+        perTicketPriceLabel.text = viewModel.perTicketPriceLabelText
 
-        quantityLabel.textAlignment = .center
-        quantityLabel.textColor = viewModel.choiceLabelColor
-        quantityLabel.font = viewModel.choiceLabelFont
-        quantityLabel.text = viewModel.quantityLabelText
+        totalEthLabel.textAlignment = .center
+        totalEthLabel.textColor = viewModel.ticketSaleDetailsLabelColor
+        totalEthLabel.font = viewModel.ticketSaleDetailsLabelFont
+        totalEthLabel.text = viewModel.totalEthLabelText
 
-        quantityStepper.borderWidth = 1
-        quantityStepper.clipsToBounds = true
-        quantityStepper.borderColor = viewModel.stepperBorderColor
-        quantityStepper.maximumValue = viewModel.maxValue
+        descriptionLabel.textAlignment = .center
+        descriptionLabel.numberOfLines = 0
+        descriptionLabel.textColor = viewModel.descriptionLabelColor
+        descriptionLabel.font = viewModel.descriptionLabelFont
+        descriptionLabel.text = viewModel.descriptionLabelText
+
+        noteTitleLabel.textAlignment = .center
+        noteTitleLabel.textColor = viewModel.noteTitleLabelColor
+        noteTitleLabel.font = viewModel.noteTitleLabelFont
+        noteTitleLabel.text = viewModel.noteTitleLabelText
+
+        noteLabel.textAlignment = .center
+        noteLabel.numberOfLines = 0
+        noteLabel.textColor = viewModel.noteLabelColor
+        noteLabel.font = viewModel.noteLabelFont
+        noteLabel.text = viewModel.noteLabelText
+
+        noteBorderView.layer.cornerRadius = 20
+        noteBorderView.layer.borderColor = viewModel.noteBorderColor.cgColor
+        noteBorderView.layer.borderWidth = 1
 
         ticketView.stateLabel.isHidden = true
 
-        ticketView.ticketCountLabel.text = viewModel.ticketCount
+        ticketView.ticketCountLabel.text = viewModel.ticketCountString
 
         ticketView.titleLabel.text = viewModel.title
 
@@ -373,24 +324,8 @@ class EnterSellTicketsDetailsViewController: UIViewController {
         nextButton.titleLabel?.font = viewModel.buttonFont
     }
 
-    private func getTicketHolderFromQuantity() -> TicketHolder {
-        let quantity = quantityStepper.value
-        let ticketHolder = viewModel.ticketHolder
-        let tickets = Array(ticketHolder.tickets[..<quantity])
-        return TicketHolder(
-            tickets: tickets,
-            zone: ticketHolder.zone,
-            name: ticketHolder.name,
-            venue: ticketHolder.venue,
-            date: ticketHolder.date,
-            status: ticketHolder.status
-        )
-    }
-
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        quantityStepper.layer.cornerRadius = quantityStepper.frame.size.height / 2
-        pricePerTicketField.layer.cornerRadius = quantityStepper.frame.size.height / 2
         linkExpiryDateField.layer.cornerRadius = linkExpiryDateField.frame.size.height / 2
         linkExpiryTimeField.layer.cornerRadius = linkExpiryTimeField.frame.size.height / 2
     }
@@ -404,7 +339,7 @@ class EnterSellTicketsDetailsViewController: UIViewController {
     }
 }
 
-extension EnterSellTicketsDetailsViewController: DateEntryFieldDelegate {
+extension SetSellTicketsExpiryDateViewController: DateEntryFieldDelegate {
     func didTap(in dateEntryField: DateEntryField) {
         datePicker.isHidden = !datePicker.isHidden
         if !datePicker.isHidden {
@@ -414,7 +349,7 @@ extension EnterSellTicketsDetailsViewController: DateEntryFieldDelegate {
     }
 }
 
-extension EnterSellTicketsDetailsViewController: TimeEntryFieldDelegate {
+extension SetSellTicketsExpiryDateViewController: TimeEntryFieldDelegate {
     func didTap(in timeEntryField: TimeEntryField) {
         timePicker.isHidden = !timePicker.isHidden
         if !timePicker.isHidden {
@@ -424,7 +359,7 @@ extension EnterSellTicketsDetailsViewController: TimeEntryFieldDelegate {
     }
 }
 
-extension EnterSellTicketsDetailsViewController: AmountTextFieldDelegate {
+extension SetSellTicketsExpiryDateViewController: AmountTextFieldDelegate {
     func changeAmount(in textField: AmountTextField) {
         viewModel.ethCost = textField.ethCost
         configure(viewModel: viewModel)
