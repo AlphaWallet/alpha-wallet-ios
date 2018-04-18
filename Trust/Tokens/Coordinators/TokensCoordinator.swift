@@ -107,7 +107,7 @@ class TokensCoordinator: Coordinator {
         let token = ERC20Token(
                 contract: Address(string: Constants.fifaContractAddress)!,
                 name: "AlphaWallet Test Tickets",
-                symbol: "ATT",
+                symbol: "AWTT",
                 decimals: 0,
                 isStormBird: true,
                 balance: []
