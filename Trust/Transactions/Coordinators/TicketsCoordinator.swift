@@ -41,7 +41,6 @@ class TicketsCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var scanQRCodeForWalletAddressToTransferTicketCoordinator: ScanQRCodeForWalletAddressToTransferTicketCoordinator?
-    var scanQRCodeForWalletAddressToSellTicketCoordinator: ScanQRCodeForWalletAddressToSellTicketCoordinator?
 
     init(
         session: WalletSession,
@@ -98,12 +97,38 @@ class TicketsCoordinator: NSObject, Coordinator {
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
-    private func showChooseTicketSellModeViewController(for ticketHolder: TicketHolder,
+    private func showSaleConfirmationScreen(for ticketHolder: TicketHolder,
                                                         linkExpiryDate: Date,
                                                         ethCost: String,
                                                         dollarCost: String,
-                                                        in viewController: EnterSellTicketsDetailsViewController) {
-        let vc = makeChooseTicketSellModeViewController(for: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, dollarCost: dollarCost, paymentFlow: viewController.paymentFlow)
+                                                        in viewController: SetSellTicketsExpiryDateViewController) {
+        let vc = makeGenerateSellMagicLinkViewController(paymentFlow: viewController.paymentFlow, ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost, linkExpiryDate: linkExpiryDate)
+        viewController.navigationController?.present(vc, animated: true)
+    }
+
+    private func makeGenerateSellMagicLinkViewController(paymentFlow: PaymentFlow, ticketHolder: TicketHolder, ethCost: String, dollarCost: String, linkExpiryDate: Date) -> GenerateSellMagicLinkViewController{
+        let vc = GenerateSellMagicLinkViewController(
+                paymentFlow: paymentFlow,
+                ticketHolder: ticketHolder,
+                ethCost: ethCost,
+                dollarCost: dollarCost,
+                linkExpiryDate: linkExpiryDate
+        )
+        vc.delegate = self
+        vc.configure(viewModel: .init(
+                ticketHolder: ticketHolder,
+                ethCost: ethCost,
+                linkExpiryDate: linkExpiryDate
+        ))
+        vc.modalPresentationStyle = .overCurrentContext
+        return vc
+    }
+
+    private func showEnterSellTicketsExpiryDateViewController(for ticketHolder: TicketHolder,
+                                                        ethCost: String,
+                                                        dollarCost: String,
+                                                        in viewController: EnterSellTicketsPriceQuantityViewController) {
+        let vc = makeEnterSellTicketsExpiryDateViewController(for: ticketHolder, ethCost: ethCost, dollarCost: dollarCost, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -115,8 +140,8 @@ class TicketsCoordinator: NSObject, Coordinator {
 
     private func showQuantityViewController(for ticketHolder: TicketHolder,
                                             in viewController: SellTicketsViewController) {
-        let quantityViewController = makeSellTicketsQuantitySelectionViewController(for: ticketHolder, paymentFlow: viewController.paymentFlow)
-        viewController.navigationController?.pushViewController(quantityViewController, animated: true)
+        let vc = makeEnterSellTicketsPriceQuantityViewController(for: ticketHolder, paymentFlow: viewController.paymentFlow)
+        viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
     private func showTicketRedemptionViewController(for ticketHolder: TicketHolder,
@@ -149,9 +174,17 @@ class TicketsCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func makeSellTicketsQuantitySelectionViewController(for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> EnterSellTicketsDetailsViewController {
-        let controller = EnterSellTicketsDetailsViewController(storage: tokensStorage, paymentFlow: paymentFlow)
-        let viewModel = SellTicketsQuantitySelectionViewModel(ticketHolder: ticketHolder)
+    private func makeEnterSellTicketsPriceQuantityViewController(for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> EnterSellTicketsPriceQuantityViewController {
+        let controller = EnterSellTicketsPriceQuantityViewController(storage: tokensStorage, paymentFlow: paymentFlow)
+        let viewModel = EnterSellTicketsPriceQuantityViewControllerViewModel(ticketHolder: ticketHolder)
+        controller.configure(viewModel: viewModel)
+        controller.delegate = self
+        return controller
+    }
+
+    private func makeEnterSellTicketsExpiryDateViewController(for ticketHolder: TicketHolder, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow) -> SetSellTicketsExpiryDateViewController {
+        let controller = SetSellTicketsExpiryDateViewController(storage: tokensStorage, paymentFlow: paymentFlow, ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
+        let viewModel = SetSellTicketsExpiryDateViewControllerViewModel(ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
@@ -189,14 +222,6 @@ class TicketsCoordinator: NSObject, Coordinator {
     private func makeChooseTicketTransferModeViewController(for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> ChooseTicketTransferModeViewController {
         let controller = ChooseTicketTransferModeViewController(ticketHolder: ticketHolder, paymentFlow: paymentFlow)
         let viewModel = ChooseTicketTransferModeViewControllerViewModel()
-        controller.configure(viewModel: viewModel)
-        controller.delegate = self
-        return controller
-    }
-
-    private func makeChooseTicketSellModeViewController(for ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow) -> ChooseTicketSellModeViewController {
-        let controller = ChooseTicketSellModeViewController(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, dollarCost: dollarCost, paymentFlow: paymentFlow)
-        let viewModel = ChooseTicketSellModeViewControllerViewModel()
         controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
@@ -250,29 +275,18 @@ class TicketsCoordinator: NSObject, Coordinator {
         navigationController.present(vc, animated: true)
     }
 
-    private func sellViaWalletAddressTextEntry(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow) {
-        let controller = SellTicketViaWalletAddressViewController(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, dollarCost: dollarCost, paymentFlow: paymentFlow)
-        controller.delegate = self
-        controller.configure(viewModel: .init(ticketHolder: ticketHolder))
-        navigationController.pushViewController(controller, animated: true)
-    }
-
-    private func sellViaReadingWalletAddressFromQRCode(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow) {
-        scanQRCodeForWalletAddressToSellTicketCoordinator = ScanQRCodeForWalletAddressToSellTicketCoordinator(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, dollarCost: dollarCost, paymentFlow: paymentFlow, in: navigationController)
-        scanQRCodeForWalletAddressToSellTicketCoordinator?.delegate = self
-        scanQRCodeForWalletAddressToSellTicketCoordinator?.start()
-    }
-
-    private func sellViaActivitySheet(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow) {
+    private func sellViaActivitySheet(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow, in viewController: UIViewController) {
         let url = generateSellLink(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, dollarCost: dollarCost, paymentFlow: paymentFlow)
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
             //Be annoying if user copies and we close the sell process
             if completed && activityType != UIActivityType.copyToPasteboard {
-                self.navigationController.dismiss(animated: true)
+                self.navigationController.dismiss(animated: false) {
+                    self.delegate?.didCancel(in: self)
+                }
             }
         }
-        navigationController.present(vc, animated: true)
+        viewController.present(vc, animated: true)
     }
 
     private func transfer(ticketHolder: TicketHolder, to walletAddress: String, paymentFlow: PaymentFlow) {
@@ -286,24 +300,6 @@ class TicketsCoordinator: NSObject, Coordinator {
 
             if case .real(let account) = self.session.account.type {
                 let coordinator = TransferTicketsCoordinator(ticketHolder: ticketHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: self.keystore, session: self.session, account: account, on: self.navigationController)
-                coordinator.delegate = self
-                coordinator.start()
-                self.addCoordinator(coordinator)
-            }
-        }
-    }
-
-    private func sell(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, to walletAddress: String, paymentFlow: PaymentFlow) {
-        UIAlertController.alert(title: "", message: R.string.localizable.aWalletTicketTokenSellModeWalletAddressConfirmation(walletAddress), alertButtonTitles: [R.string.localizable.aWalletTicketTokenSellButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: navigationController) {
-            guard $0 == 0 else { return }
-
-            //Defensive. Should already be checked before this
-            guard let address = Address(string: walletAddress) else {
-                return self.navigationController.displayError(error: Errors.invalidAddress)
-            }
-
-            if case .real(let account) = self.session.account.type {
-                let coordinator = SellTicketsCoordinator(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, dollarCost: dollarCost, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: self.keystore, session: self.session, account: account, on: self.navigationController)
                 coordinator.delegate = self
                 coordinator.start()
                 self.addCoordinator(coordinator)
@@ -374,12 +370,22 @@ extension TicketsCoordinator: TransferTicketsQuantitySelectionViewControllerDele
     }
 }
 
-extension TicketsCoordinator: EnterSellTicketsDetailsViewControllerDelegate {
-    func didEnterSellTicketDetails(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, in viewController: EnterSellTicketsDetailsViewController) {
-        showChooseTicketSellModeViewController(for: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, dollarCost: dollarCost, in: viewController)
+extension TicketsCoordinator: EnterSellTicketsPriceQuantityViewControllerDelegate {
+    func didEnterSellTicketsPriceQuantity(ticketHolder: TicketHolder, ethCost: String, dollarCost: String, in viewController: EnterSellTicketsPriceQuantityViewController) {
+        showEnterSellTicketsExpiryDateViewController(for: ticketHolder, ethCost: ethCost, dollarCost: dollarCost, in: viewController)
     }
 
-    func didPressViewInfo(in viewController: EnterSellTicketsDetailsViewController) {
+    func didPressViewInfo(in viewController: EnterSellTicketsPriceQuantityViewController) {
+        delegate?.didPressViewEthereumInfo(in: viewController)
+    }
+}
+
+extension TicketsCoordinator: SetSellTicketsExpiryDateViewControllerDelegate {
+    func didSetSellTicketsExpiryDate(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, in viewController: SetSellTicketsExpiryDateViewController) {
+        showSaleConfirmationScreen(for: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, dollarCost: dollarCost, in: viewController)
+    }
+
+    func didPressViewInfo(in viewController: SetSellTicketsExpiryDateViewController) {
         delegate?.didPressViewEthereumInfo(in: viewController)
     }
 }
@@ -395,21 +401,6 @@ extension TicketsCoordinator: ChooseTicketTransferModeViewControllerDelegate {
             transferViaReadingWalletAddressFromQRCode(ticketHolder: ticketHolder, paymentFlow: viewController.paymentFlow)
         case .other:
             transferViaActivitySheet(ticketHolder: ticketHolder, paymentFlow: viewController.paymentFlow, sender: sender)
-        }
-    }
-}
-
-extension TicketsCoordinator: ChooseTicketSellModeViewControllerDelegate {
-    func didChoose(sellMode: TicketSellMode, in viewController: ChooseTicketSellModeViewController) {
-        let ticketHolder = viewController.ticketHolder
-
-        switch sellMode {
-        case .walletAddressTextEntry:
-            sellViaWalletAddressTextEntry(ticketHolder: ticketHolder, linkExpiryDate: viewController.linkExpiryDate, ethCost: viewController.ethCost, dollarCost: viewController.dollarCost, paymentFlow: viewController.paymentFlow)
-        case .walletAddressFromQRCode:
-            sellViaReadingWalletAddressFromQRCode(ticketHolder: ticketHolder, linkExpiryDate: viewController.linkExpiryDate, ethCost: viewController.ethCost, dollarCost: viewController.dollarCost, paymentFlow: viewController.paymentFlow)
-        case .other:
-            sellViaActivitySheet(ticketHolder: ticketHolder, linkExpiryDate: viewController.linkExpiryDate, ethCost: viewController.ethCost, dollarCost: viewController.dollarCost, paymentFlow: viewController.paymentFlow)
         }
     }
 }
@@ -459,37 +450,12 @@ extension TicketsCoordinator: TransferTicketsCoordinatorDelegate {
     }
 }
 
-extension TicketsCoordinator: SellTicketsCoordinatorDelegate {
-    private func cleanUpAfterSell(coordinator: SellTicketsCoordinator) {
-        navigationController.dismiss(animated: true)
-        removeCoordinator(coordinator)
+extension TicketsCoordinator: GenerateSellMagicLinkViewControllerDelegate {
+    func didPressShare(in viewController: GenerateSellMagicLinkViewController) {
+        sellViaActivitySheet(ticketHolder: viewController.ticketHolder, linkExpiryDate: viewController.linkExpiryDate, ethCost: viewController.ethCost, dollarCost: viewController.dollarCost, paymentFlow: viewController.paymentFlow, in: viewController)
     }
 
-    func didClose(in coordinator: SellTicketsCoordinator) {
-        cleanUpAfterSell(coordinator: coordinator)
-    }
-
-    func didFinishSuccessfully(in coordinator: SellTicketsCoordinator) {
-        cleanUpAfterSell(coordinator: coordinator)
-    }
-
-    func didFail(in coordinator: SellTicketsCoordinator) {
-        cleanUpAfterSell(coordinator: coordinator)
-    }
-}
-
-extension TicketsCoordinator: SellTicketViaWalletAddressViewControllerDelegate {
-    func didChooseSell(to walletAddress: String, viewController: SellTicketViaWalletAddressViewController) {
-        sell(ticketHolder: viewController.ticketHolder, linkExpiryDate: viewController.linkExpiryDate, ethCost: viewController.ethCost, dollarCost: viewController.dollarCost, to: walletAddress, paymentFlow: viewController.paymentFlow)
-    }
-}
-
-extension TicketsCoordinator: ScanQRCodeForWalletAddressToSellTicketCoordinatorDelegate {
-    func scanned(walletAddress: String, in coordinator: ScanQRCodeForWalletAddressToSellTicketCoordinator) {
-        sell(ticketHolder: coordinator.ticketHolder, linkExpiryDate: coordinator.linkExpiryDate, ethCost: coordinator.ethCost, dollarCost: coordinator.dollarCost, to: walletAddress, paymentFlow: coordinator.paymentFlow)
-    }
-
-    func cancelled(in coordinator: ScanQRCodeForWalletAddressToSellTicketCoordinator) {
-        //no-op
+    func didPressCancel(in viewController: GenerateSellMagicLinkViewController) {
+        viewController.dismiss(animated: true)
     }
 }

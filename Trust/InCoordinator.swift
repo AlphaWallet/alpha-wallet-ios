@@ -349,7 +349,7 @@ extension InCoordinator: TicketsCoordinatorDelegate {
     }
 
     func didCancel(in coordinator: TicketsCoordinator) {
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
+        navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
     }
 
