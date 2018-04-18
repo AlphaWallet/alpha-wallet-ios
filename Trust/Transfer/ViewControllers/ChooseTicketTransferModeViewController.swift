@@ -10,7 +10,7 @@ enum TicketTransferMode {
 }
 
 protocol ChooseTicketTransferModeViewControllerDelegate: class {
-    func didChoose(transferMode: TicketTransferMode, in viewController: ChooseTicketTransferModeViewController)
+    func didChoose(transferMode: TicketTransferMode, in viewController: ChooseTicketTransferModeViewController, sender: UIView)
 }
 
 class ChooseTicketTransferModeViewController: UIViewController {
@@ -36,17 +36,17 @@ class ChooseTicketTransferModeViewController: UIViewController {
         view.addSubview(roundedBackground)
 
         inputWalletAddressButton.callback = {
-            self.delegate?.didChoose(transferMode: .walletAddressTextEntry, in: self)
+            self.delegate?.didChoose(transferMode: .walletAddressTextEntry, in: self, sender: self.inputWalletAddressButton)
         }
         inputWalletAddressButton.translatesAutoresizingMaskIntoConstraints = false
 
         qrCodeScannerButton.callback = {
-            self.delegate?.didChoose(transferMode: .walletAddressFromQRCode, in: self)
+            self.delegate?.didChoose(transferMode: .walletAddressFromQRCode, in: self, sender: self.qrCodeScannerButton)
         }
         qrCodeScannerButton.translatesAutoresizingMaskIntoConstraints = false
 
         otherButton.callback = {
-            self.delegate?.didChoose(transferMode: .other, in: self)
+            self.delegate?.didChoose(transferMode: .other, in: self, sender: self.otherButton)
         }
         otherButton.translatesAutoresizingMaskIntoConstraints = false
 
