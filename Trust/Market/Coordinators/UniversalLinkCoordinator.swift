@@ -3,6 +3,7 @@
 import Foundation
 import Alamofire
 import BigInt
+import Realm
 
 protocol UniversalLinkCoordinatorDelegate: class {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
@@ -65,11 +66,26 @@ class UniversalLinkCoordinator: Coordinator {
                 vc.parameters = parameters
             }
             //nil or "" implies free, if using payment server it is always free
-            self.promptImportUniversalLink(
-                ticketHolder: ticketHolder,
-                ethCost: "",
-                dollarCost: ""
-            )
+            let etherprice = signedOrder.order.price / 1000000000000000000
+            let etherPriceDecimal = Decimal(string: etherprice.description)!
+            //TODO find a less convoluted method of getting the price
+//            let storage = TokensDataStore(
+//                    realm: ,
+//                    account: Wallet(type: .real),
+//                    config: Config(),
+//                    web3: Web3Swift()
+//            )
+//            if let rates = storage.tickers,
+//               let ticker = rates.values.first(where: { $0.symbol == "ETH" }),
+//               let price = Double(ticker.price)
+//            {
+                self.promptImportUniversalLink(
+                        ticketHolder: ticketHolder,
+                        ethCost: etherPriceDecimal.description,
+                        dollarCost: ""
+                )
+//            }
+
         }
         return true
     }

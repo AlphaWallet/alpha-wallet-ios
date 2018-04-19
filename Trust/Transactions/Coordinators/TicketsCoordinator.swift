@@ -286,7 +286,8 @@ class TicketsCoordinator: NSObject, Coordinator {
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
         let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
-        delegate?.didPressGenerateSellMagicLink(ticketHolder: ticketHolder,
+        delegate?.didPressGenerateSellMagicLink(
+                ticketHolder: ticketHolder,
                 linkExpiryDate: linkExpiryDate,
                 ethCost: ethCost,
                 dollarCost: dollarCost,
