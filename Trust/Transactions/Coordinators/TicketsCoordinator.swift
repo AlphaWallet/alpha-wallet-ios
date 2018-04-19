@@ -23,6 +23,12 @@ protocol TicketsCoordinatorDelegate: class {
     func didCancel(in coordinator: TicketsCoordinator)
     func didPressViewRedemptionInfo(in: UIViewController)
     func didPressViewEthereumInfo(in: UIViewController)
+    func didPressGenerateSellMagicLink(ticketHolder: TicketHolder,
+                                       linkExpiryDate: Date,
+                                       ethCost: String,
+                                       dollarCost: String,
+                                       paymentFlow: PaymentFlow
+    )
 }
 
 class TicketsCoordinator: NSObject, Coordinator {
@@ -263,7 +269,11 @@ class TicketsCoordinator: NSObject, Coordinator {
                                   ethCost: String,
                                   dollarCost: String,
                                   paymentFlow: PaymentFlow) -> String {
-        let wei = BigUInt(ethCost)! * 1000000000000000000
+        //gwei
+        let cost = Decimal(string: ethCost)! * 1000
+        //TODO this is crap, convert to wei properly
+        let costInt = Int(cost.description)!
+        let wei = BigUInt(costInt) * 1000000000000000
         let order = Order(
                 price: wei,
                 indices: ticketHolder.ticketIndices,
@@ -276,6 +286,12 @@ class TicketsCoordinator: NSObject, Coordinator {
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
         let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
+        delegate?.didPressGenerateSellMagicLink(ticketHolder: ticketHolder,
+                linkExpiryDate: linkExpiryDate,
+                ethCost: ethCost,
+                dollarCost: dollarCost,
+                paymentFlow: paymentFlow
+        )
         return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
     }
 
