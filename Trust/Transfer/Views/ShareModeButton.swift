@@ -2,7 +2,7 @@
 
 import UIKit
 
-class TransferModeButton: UIControl {
+class ShareModeButton: UIControl {
     var title: String = "" {
         didSet {
             label.text = title

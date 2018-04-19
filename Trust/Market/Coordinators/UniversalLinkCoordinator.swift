@@ -47,18 +47,6 @@ class UniversalLinkCoordinator: Coordinator {
         
         return parameters
     }
-    //TODO: Boon where should this go? SHould be prompted if price > 0 else use payment server
-//    let tokenObj = TokenObject(
-//        contract: signedOrder.order.contractAddress,
-//        name: "FIFA WC",
-//        symbol: "FIFA",
-//        decimals: 0,
-//        value: "0",
-//        isCustom: true,
-//        isDisabled: false,
-//        isStormBird: true
-//    )
-//    self.delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObj)
     
     func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
         let parameters = createQueryForPaymentServer(signedOrder: signedOrder)
