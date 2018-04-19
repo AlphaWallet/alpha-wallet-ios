@@ -17,9 +17,9 @@ class ChooseTicketTransferModeViewController: UIViewController {
     //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
     let roundedBackground = UIView()
     let titleLabel = UILabel()
-    let inputWalletAddressButton = TransferModeButton()
-    let qrCodeScannerButton = TransferModeButton()
-    let otherButton = TransferModeButton()
+    let inputWalletAddressButton = ShareModeButton()
+    let qrCodeScannerButton = ShareModeButton()
+    let otherButton = ShareModeButton()
 	let ticketHolder: TicketHolder
     var paymentFlow: PaymentFlow
     weak var delegate: ChooseTicketTransferModeViewControllerDelegate?
