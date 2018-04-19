@@ -47,11 +47,22 @@ class UniversalLinkCoordinator: Coordinator {
         
         return parameters
     }
+    //TODO: Boon where should this go? SHould be prompted if price > 0 else use payment server
+//    let tokenObj = TokenObject(
+//        contract: signedOrder.order.contractAddress,
+//        name: "FIFA WC",
+//        symbol: "FIFA",
+//        decimals: 0,
+//        value: "0",
+//        isCustom: true,
+//        isDisabled: false,
+//        isStormBird: true
+//    )
+//    self.delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObj)
     
     func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
         let parameters = createQueryForPaymentServer(signedOrder: signedOrder)
         let query = Constants.paymentServer
-        //TODO check if URL is valid or not by validating signature, low priority
         //TODO localize
         if let viewController = delegate?.viewControllerForPresenting(in: self) {
             UIAlertController.alert(title: nil, message: "Import Link?",
@@ -85,7 +96,7 @@ class UniversalLinkCoordinator: Coordinator {
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) {
             result in
             if let goodResult = result {
-                let handled = self.usePaymentServerForFreeTransferLinks(
+                self.usePaymentServerForFreeTransferLinks(
                         signedOrder: signedOrder,
                         ticketHolder: goodResult
                 )
@@ -121,7 +132,7 @@ class UniversalLinkCoordinator: Coordinator {
             response in
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
                 let array: [String] = utf8Text.split{ $0 == "," }.map(String.init)
-                if array.isEmpty {
+                if array.isEmpty || array[0] == "invalid indices" {
                     completion(nil)
                     return
                 }
@@ -139,7 +150,8 @@ class UniversalLinkCoordinator: Coordinator {
                     )
                     tickets.append(ticket)
                 }
-                let ticketHolder = TicketHolder(tickets: tickets,
+                let ticketHolder = TicketHolder(
+                        tickets: tickets,
                         zone: tickets[0].zone,
                         name: tickets[0].name,
                         venue: tickets[0].venue,
@@ -152,8 +164,6 @@ class UniversalLinkCoordinator: Coordinator {
             }
         }
     }
-    
-    //delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
 
 	private func preparingToImportUniversalLink() {
 		if let viewController = delegate?.viewControllerForPresenting(in: self) {
@@ -190,6 +200,7 @@ class UniversalLinkCoordinator: Coordinator {
         updateImportTicketController(with: .failed(errorMessage: errorMessage))
 	}
 
+    //handling free transfers, sell links cannot be handled here
 	private func importUniversalLink(query: String, parameters: Parameters) {
 		updateImportTicketController(with: .processing)
         
