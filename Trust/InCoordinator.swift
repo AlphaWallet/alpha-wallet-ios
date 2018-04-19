@@ -452,7 +452,7 @@ extension InCoordinator: TicketsCoordinatorDelegate {
                                    isDisabled: false,
                                    isStormBird: true
         )
-        self.importPaidSignedOrder(signedOrder: signedOrders[0], tokenObject: tokenObj)
+        //self.importPaidSignedOrder(signedOrder: signedOrders[0], tokenObject: tokenObj)
     }
     
     func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in coordinator: TicketsCoordinator) {
