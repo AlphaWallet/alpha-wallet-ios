@@ -130,6 +130,9 @@ public class UniversalLinkHandler {
             for _ in 0...missingDigits - 1 {
                 formattedArray.append(0)
             }
+            for i in 0...array.count - 1 {
+                formattedArray.append(array[i])
+            }
             return formattedArray
         }
     }
