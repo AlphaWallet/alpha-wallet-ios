@@ -258,12 +258,16 @@ class TicketsCoordinator: NSObject, Coordinator {
     //    self.delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObj)
 
     //TODO check ether casting to wei
-    private func generateSellLink(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow) -> String {
+    private func generateSellLink(ticketHolder: TicketHolder,
+                                  linkExpiryDate: Date,
+                                  ethCost: String,
+                                  dollarCost: String,
+                                  paymentFlow: PaymentFlow) -> String {
         let wei = BigUInt(ethCost)! * 1000000000000000000
         let order = Order(
                 price: wei,
                 indices: ticketHolder.ticketIndices,
-                expiry: BigUInt(linkExpiryDate.timeIntervalSince1970.description)!,
+                expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
                 contractAddress: Constants.fifaContractAddress,
                 start: BigUInt("0")!,
                 count: ticketHolder.ticketIndices.count
