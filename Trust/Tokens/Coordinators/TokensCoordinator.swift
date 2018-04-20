@@ -69,22 +69,6 @@ class TokensCoordinator: Coordinator {
         navigationController.present(nav, animated: true, completion: nil)
     }
 
-//    @objc func useUniversalLink(url: String) {
-//        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url)
-//        //TODO get info around name, symbol etc
-//        let tokenObject = TokenObject(
-//                contract: signedOrder.order.contractAddress,
-//                name: "ticket",
-//                symbol: "TIX",
-//                decimals: 0,
-//                value: "0",
-//                isCustom: true,
-//                isDisabled: false,
-//                isStormBird: true
-//        )
-//        delegate?.importPaidSignedOrder(signedOrder: signedOrder, in: self, tokenObject: tokenObject)
-//    }
-
     @objc func dismiss() {
         navigationController.dismiss(animated: true, completion: nil)
     }

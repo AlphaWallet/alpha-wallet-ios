@@ -12,8 +12,8 @@ public struct Constants {
 
     // fee master
     public static let paymentServer = "http://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken"
-    public static let getTicketInfoFromServer = "http://feemaster.eastasia.cloudapp.azure.com:8080/api/ecrecoverAndGetTickets"
-    //"http://192.168.1.50:8080/api/ecrecoverAndGetTickets"
+    public static let getTicketInfoFromServer = "http://localhost:8080/api/ecrecoverAndGetTickets"
+    //"http://feemaster.eastasia.cloudapp.azure.com:8080/api/ecrecoverAndGetTickets"
 
 
     // social

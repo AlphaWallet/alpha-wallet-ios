@@ -16,6 +16,9 @@ class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	weak var delegate: UniversalLinkCoordinatorDelegate?
 	var importTicketViewController: ImportTicketViewController?
+    var kkkSignedOrder: SignedOrder?
+    var kkkTokenObject: TokenObject?
+
 
 	func start() {
 		preparingToImportUniversalLink()
@@ -48,24 +51,26 @@ class UniversalLinkCoordinator: Coordinator {
         
         return parameters
     }
-    
-    func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
-        let parameters = createQueryForPaymentServer(signedOrder: signedOrder)
-        let query = Constants.paymentServer
+
+    func handlePaidUniversalLink(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
         //TODO localize
         if let viewController = delegate?.viewControllerForPresenting(in: self) {
-            UIAlertController.alert(title: nil, message: "Import Link?",
-                                    alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()],
-                                    alertButtonStyles: [.default, .cancel], viewController: viewController) {
-                //What is this?
-                if $0 == 0 {
-                    self.importUniversalLink(query: query, parameters: parameters)
-                }
-            }
-            if let vc = importTicketViewController {
-                vc.query = query
-                vc.parameters = parameters
-            }
+            //kkk might use this
+//            if let vc = importTicketViewController {
+//                vc.query = query
+//                vc.parameters = parameters
+//            }
+            self.kkkSignedOrder = signedOrder
+            //TODO value should not be string
+            self.kkkTokenObject = TokenObject(contract: signedOrder.order.contractAddress,
+                    name: "FIFA WC",
+                    symbol: "FIFA",
+                    decimals: 0,
+                    value: signedOrder.order.price.description,
+                    isCustom: true,
+                    isDisabled: false,
+                    isStormBird: true
+            )
             //nil or "" implies free, if using payment server it is always free
             let etherprice = signedOrder.order.price / 1000000000000000000
             let etherPriceDecimal = Decimal(string: etherprice.description)!
@@ -80,13 +85,42 @@ class UniversalLinkCoordinator: Coordinator {
 //               let ticker = rates.values.first(where: { $0.symbol == "ETH" }),
 //               let price = Double(ticker.price)
 //            {
-                self.promptImportUniversalLink(
-                        ticketHolder: ticketHolder,
-                        ethCost: etherPriceDecimal.description,
-                        dollarCost: ""
-                )
+            self.promptImportUniversalLink(
+                    ticketHolder: ticketHolder,
+                    ethCost: etherPriceDecimal.description,
+                    dollarCost: ""
+            )
 //            }
 
+        }
+        return true
+    }
+
+
+    func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
+        let parameters = createQueryForPaymentServer(signedOrder: signedOrder)
+        let query = Constants.paymentServer
+        //TODO localize
+        if let viewController = delegate?.viewControllerForPresenting(in: self) {
+            //kkk remove this
+            UIAlertController.alert(title: nil, message: "Import Link?",
+                                    alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()],
+                                    alertButtonStyles: [.default, .cancel], viewController: viewController) {
+                //ok else cancel
+                if $0 == 0 {
+                    self.importUniversalLink(query: query, parameters: parameters)
+                }
+            }
+            if let vc = importTicketViewController {
+                vc.query = query
+                vc.parameters = parameters
+            }
+            //nil or "" implies free, if using payment server it is always free
+            self.promptImportUniversalLink(
+                    ticketHolder: ticketHolder,
+                    ethCost: "",
+                    dollarCost: ""
+            )
         }
         return true
     }
@@ -101,14 +135,22 @@ class UniversalLinkCoordinator: Coordinator {
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) {
             result in
             if let goodResult = result {
-                self.usePaymentServerForFreeTransferLinks(
-                        signedOrder: signedOrder,
-                        ticketHolder: goodResult
-                )
+                if signedOrder.order.price > 0 {
+                    self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: goodResult)
+                } else {
+                    self.usePaymentServerForFreeTransferLinks(
+                            signedOrder: signedOrder,
+                            ticketHolder: goodResult
+                    )
+                }
             }
         }
         return true
 	}
+
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
+        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
+    }
 
     private func getTicketDetailsAndEcRecover(
             signedOrder: SignedOrder,
@@ -248,6 +290,9 @@ extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
 	func didPressImport(in viewController: ImportTicketViewController) {
         if let query = viewController.query, let parameters = viewController.parameters {
             importUniversalLink(query: query, parameters: parameters)
+        } else {
+            importPaidSignedOrder(signedOrder: kkkSignedOrder!, tokenObject: kkkTokenObject!)
+            //kkk look for the call to showImportSuccessful(). Need to call this
         }
 	}
 }
