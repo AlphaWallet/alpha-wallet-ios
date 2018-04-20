@@ -56,7 +56,7 @@ class UniversalLinkCoordinator: Coordinator {
             if let vc = importTicketViewController {
                 vc.signedOrder = signedOrder
                 vc.tokenObject = TokenObject(contract: signedOrder.order.contractAddress,
-                                                name: "FIFA WC",
+                                                name: Constants.event,
                                                 symbol: "FIFA",
                                                 decimals: 0,
                                                 value: signedOrder.order.price.description,

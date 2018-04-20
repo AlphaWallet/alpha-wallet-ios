@@ -40,7 +40,7 @@ class TicketAdaptor {
         if token.address.eip55String == Constants.fifaContractAddress {
             name = token.title
         } else {
-            name = "FIFA WC 2018"
+            name = Constants.event
         }
         let venue = fifaInfo.locale
         let seatId = fifaInfo.number
