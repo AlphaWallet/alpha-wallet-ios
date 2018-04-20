@@ -94,14 +94,23 @@ class AppCoordinator: NSObject, Coordinator {
             addresses: keystore.wallets.map { $0.address }
         )
     }
+
+    func getPriceOfEther() -> Double {
+        let incoordinator = coordinators.first { $0 is InCoordinator }
+        if let incoordinator = incoordinator as? InCoordinator {
+             return incoordinator.getPriceOfEther()
+        } else {
+            return 0
+        }
+    }
     
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
         let inCoordinatorInstance = coordinators.first {
             $0 is InCoordinator
         } as? InCoordinator
         
         if let inCoordinator = inCoordinatorInstance {
-            inCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
+            inCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, completion: completion)
         }
     }
 

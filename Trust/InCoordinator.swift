@@ -82,6 +82,22 @@ class InCoordinator: Coordinator {
         addCoordinator(helpUsCoordinator)
     }
 
+    func getPriceOfEther() -> Double {
+        let keystore = try! EtherKeystore()
+        let address = keystore.recentlyUsedWallet?.address
+        let migration = MigrationInitializer(account: keystore.recentlyUsedWallet! , chainID: config.chainID)
+        migration.perform()
+        let web3 = self.web3(for: config.server)
+        web3.start()
+        let realm = self.realm(for: migration.config)
+        let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, web3: web3)
+        if let rates = tokensStorage.tickers, let ticker = rates.values.first(where: { $0.symbol == "ETH" }), let price = Double(ticker.price) {
+            return price
+        } else {
+            return 0
+        }
+    }
+
     func showTabBar(for account: Wallet) {
 
         let migration = MigrationInitializer(account: account, chainID: config.chainID)
@@ -402,7 +418,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
-
+    
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
         showPaymentFlow(for: type)
     }
@@ -417,7 +433,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
     // This function deal with the special case that the ticket price = 0
     // but not sent to the paymaster because the user has ether.
 
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
         let web3 = self.web3(for: config.server)
         web3.start()
         let signature = signedOrder.signature.substring(from: 2)
@@ -487,10 +503,10 @@ extension InCoordinator: TokensCoordinatorDelegate {
                 sendTransactionCoordinator.send(transaction: signedTransaction) { result in
                     switch result {
                     case .success(let res):
-                        // TODO: user still isn't aware when this happens
+                        completion(true)
                         print(res)
                     case .failure(let error):
-                        // TODO: user still isn't aware when this happens
+                        completion(false)
                         print(error)
                     }
                 }

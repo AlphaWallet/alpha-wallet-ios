@@ -86,6 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
         let url = userActivity.webpageURL
 		universalLinkCoordinator = UniversalLinkCoordinator()
+        universalLinkCoordinator.price = appCoordinator.getPriceOfEther()
         universalLinkCoordinator.delegate = self
         universalLinkCoordinator.start()
 		let handled = universalLinkCoordinator.handleUniversalLink(url: url)
@@ -107,8 +108,9 @@ extension AppDelegate: UniversalLinkCoordinatorDelegate {
             return nil
         }
     }
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
-        appCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
+
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
+        appCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, completion: completion)
     }
 
     func completed(in coordinator: UniversalLinkCoordinator) {

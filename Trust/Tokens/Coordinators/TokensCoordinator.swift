@@ -7,7 +7,7 @@ import TrustKeystore
 protocol TokensCoordinatorDelegate: class {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator)
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject)
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
 }
 
 class TokensCoordinator: Coordinator {
