@@ -57,6 +57,7 @@ class UniversalLinkCoordinator: Coordinator {
             UIAlertController.alert(title: nil, message: "Import Link?",
                                     alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()],
                                     alertButtonStyles: [.default, .cancel], viewController: viewController) {
+                //What is this?
                 if $0 == 0 {
                     self.importUniversalLink(query: query, parameters: parameters)
                 }

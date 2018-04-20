@@ -32,7 +32,6 @@ public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
     
-    //TODO change to bytes rather than hex
     //TODO configure language settings to be compatible with this
     func getFifaInfoForToken(tokenId tokenBytes32: BigUInt, lang: Int) -> FIFAInfo {
         //check if leading or trailing zeros
@@ -42,7 +41,7 @@ public class XMLHandler {
         }
         let locale = getLocale(attribute: tokenId.substring(to: 2), lang: lang)
         let venue = getVenue(attribute: tokenId.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
-        let time = Int(tokenId.substring(with: Range(uncheckedBounds: (5, 12))), radix: 16)!
+        let time = Int(tokenId.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)!
         //translatable to ascii
         let countryA = tokenId.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
         let countryB = tokenId.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
@@ -60,32 +59,10 @@ public class XMLHandler {
                         number: number
         )
     }
-    
-//    func getFifaInfoForTokenInBytes(tokenId tokenBytes32: BigUInt, lang: Int) -> FIFAInfo {
-//        var tokenId = tokenBytes32.serialize().bytes
-//        let token = filterLeadingOrTrailingZeros(tokenId)
-//
-//    }
-//
-//    func filterLeadingOrTrailingZeros(_ array: [UInt8]) -> [UInt8] {
-//        var tokenId = array
-//        var leadingToken = [UInt8]()
-//        var trailingToken = [UInt8]()
-//        for i in 0...(tokenId.count / 2) - 1 {
-//            leadingToken.append(tokenId[i])
-//        }
-//        if BigUInt(Data(bytes: leadingToken)) <= 0 {
-//            for i in (tokenId.count / 2)...tokenId.count - 1 {
-//                trailingToken.append(tokenId[i])
-//            }
-//        } else {
-//            tokenId = leadingToken
-//        }
-//        return tokenId
-//    }
-    
+
     func getLocale(attribute: String, lang: Int) -> String {
-        let localeNumber = Int(attribute, radix: 16)!
+        //TODO find out why -1
+        let localeNumber = Int(attribute, radix: 16)! - 1
         if let parsedLocale = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][localeNumber]["name"][lang].text {
             return parsedLocale
         } else {

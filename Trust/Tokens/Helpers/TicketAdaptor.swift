@@ -44,7 +44,7 @@ class TicketAdaptor {
         }
         let venue = fifaInfo.locale
         let seatId = fifaInfo.number
-        let date = Date(timeIntervalSince1970: TimeInterval(fifaInfo.time)) //Date.init(string: fifaInfo.time, format: "dd MMM yyyy")
+        let date = Date(timeIntervalSince1970: TimeInterval(fifaInfo.time))
         return Ticket(
             id: MarketQueueHandler.bytesToHexa(id.serialize().bytes),
             index: index,
