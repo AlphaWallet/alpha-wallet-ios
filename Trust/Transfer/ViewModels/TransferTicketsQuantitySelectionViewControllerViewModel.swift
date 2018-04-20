@@ -3,12 +3,16 @@
 import Foundation
 import UIKit
 
-struct ChooseTicketTransferModeViewControllerViewModel {
+struct TransferTicketsChooseTransferModeViewControllerViewModel {
 
     var ticketHolder: TicketHolder
 
     var headerTitle: String {
 		return R.string.localizable.aWalletTicketTokenTransferSelectQuantityTitle()
+    }
+
+    var maxValue: Int {
+        return ticketHolder.tickets.count
     }
 
     var backgroundColor: UIColor {
@@ -24,11 +28,19 @@ struct ChooseTicketTransferModeViewControllerViewModel {
     }
 
     var buttonFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
-            return Fonts.regular(size: 13)!
-        } else {
-            return Fonts.regular(size: 16)!
-        }
+        return Fonts.regular(size: 20)!
+    }
+
+    var subtitleColor: UIColor {
+        return UIColor(red: 155, green: 155, blue: 155)
+    }
+
+    var subtitleFont: UIFont {
+        return Fonts.regular(size: 10)!
+    }
+
+    var stepperBorderColor: UIColor {
+        return Colors.appBackground
     }
 
     var ticketCount: String {
@@ -49,6 +61,10 @@ struct ChooseTicketTransferModeViewControllerViewModel {
 
 	var venue: String {
         return ticketHolder.venue
+    }
+
+    var subtitleText: String {
+		return R.string.localizable.aWalletTicketTokenTransferQuantityTitle()
     }
 
     var date: String {

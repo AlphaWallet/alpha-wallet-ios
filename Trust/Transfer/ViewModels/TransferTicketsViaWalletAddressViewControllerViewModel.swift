@@ -3,7 +3,7 @@
 import Foundation
 import UIKit
 
-struct ChooseTicketTransferModeViewControllerViewModel {
+struct TransferTicketsViaWalletAddressViewControllerViewModel {
 
     var ticketHolder: TicketHolder
 
@@ -24,11 +24,7 @@ struct ChooseTicketTransferModeViewControllerViewModel {
     }
 
     var buttonFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
-            return Fonts.regular(size: 13)!
-        } else {
-            return Fonts.regular(size: 16)!
-        }
+        return Fonts.regular(size: 20)!
     }
 
     var ticketCount: String {
@@ -54,5 +50,30 @@ struct ChooseTicketTransferModeViewControllerViewModel {
     var date: String {
         //TODO Should format be localized?
         return ticketHolder.date.format("dd MMM yyyy")
+    }
+    var textFieldTextColor: UIColor {
+        return Colors.appText
+    }
+    var textFieldFont: UIFont {
+        if ScreenChecker().isNarrowScreen() {
+            return Fonts.light(size: 11)!
+        } else {
+            return Fonts.light(size: 15)!
+        }
+    }
+    var textFieldBorderColor: UIColor {
+        return Colors.appBackground
+    }
+    var textFieldBorderWidth: CGFloat {
+        return 1
+    }
+    var textFieldHorizontalPadding: CGFloat {
+        return 22
+    }
+    var textFieldsLabelTextColor: UIColor {
+        return UIColor(red: 155, green: 155, blue: 155)
+    }
+    var textFieldsLabelFont: UIFont {
+        return Fonts.regular(size: 10)!
     }
 }
