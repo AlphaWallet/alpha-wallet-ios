@@ -442,8 +442,7 @@ extension InCoordinator: TicketsCoordinatorDelegate {
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
         let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
-        let tokenObj = TokenObject(
-                                   contract: order.contractAddress,
+        let tokenObj = TokenObject(contract: order.contractAddress,
                                    name: "FIFA WC",
                                    symbol: "FIFA",
                                    decimals: 0,
