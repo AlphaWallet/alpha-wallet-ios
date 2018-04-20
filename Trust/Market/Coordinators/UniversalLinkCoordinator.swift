@@ -54,8 +54,8 @@ class UniversalLinkCoordinator: Coordinator {
         //TODO localize
         if let viewController = delegate?.viewControllerForPresenting(in: self) {
             if let vc = importTicketViewController {
-                vc.kkkSignedOrder = signedOrder
-                vc.kkkTokenObject = TokenObject(contract: signedOrder.order.contractAddress,
+                vc.signedOrder = signedOrder
+                vc.tokenObject = TokenObject(contract: signedOrder.order.contractAddress,
                                                 name: "FIFA WC",
                                                 symbol: "FIFA",
                                                 decimals: 0,
@@ -82,7 +82,6 @@ class UniversalLinkCoordinator: Coordinator {
         let query = Constants.paymentServer
         //TODO localize
         if let viewController = delegate?.viewControllerForPresenting(in: self) {
-            //kkk remove this
             UIAlertController.alert(title: nil, message: "Import Link?",
                                     alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()],
                                     alertButtonStyles: [.default, .cancel], viewController: viewController) {
@@ -287,7 +286,7 @@ extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
         if let query = viewController.query, let parameters = viewController.parameters {
             importUniversalLink(query: query, parameters: parameters)
         } else {
-            if let signedOrder = viewController.kkkSignedOrder, let tokenObj = viewController.kkkTokenObject {
+            if let signedOrder = viewController.signedOrder, let tokenObj = viewController.tokenObject {
                 importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObj)
             }
             //kkk look for the call to showImportSuccessful(). Need to call this
