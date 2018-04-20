@@ -7,8 +7,8 @@ import Realm
 
 protocol UniversalLinkCoordinatorDelegate: class {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject)
 	func completed(in coordinator: UniversalLinkCoordinator)
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
 }
 
 //TODO handle the sale link imports
@@ -16,9 +16,7 @@ class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	weak var delegate: UniversalLinkCoordinatorDelegate?
 	var importTicketViewController: ImportTicketViewController?
-    var kkkSignedOrder: SignedOrder?
-    var kkkTokenObject: TokenObject?
-
+    var price: Double?
 
 	func start() {
 		preparingToImportUniversalLink()
@@ -55,47 +53,29 @@ class UniversalLinkCoordinator: Coordinator {
     func handlePaidUniversalLink(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
         //TODO localize
         if let viewController = delegate?.viewControllerForPresenting(in: self) {
-            //kkk might use this
-//            if let vc = importTicketViewController {
-//                vc.query = query
-//                vc.parameters = parameters
-//            }
-            self.kkkSignedOrder = signedOrder
-            //TODO value should not be string
-            self.kkkTokenObject = TokenObject(contract: signedOrder.order.contractAddress,
-                    name: "FIFA WC",
-                    symbol: "FIFA",
-                    decimals: 0,
-                    value: signedOrder.order.price.description,
-                    isCustom: true,
-                    isDisabled: false,
-                    isStormBird: true
-            )
+            if let vc = importTicketViewController {
+                vc.kkkSignedOrder = signedOrder
+                vc.kkkTokenObject = TokenObject(contract: signedOrder.order.contractAddress,
+                                                name: "FIFA WC",
+                                                symbol: "FIFA",
+                                                decimals: 0,
+                                                value: signedOrder.order.price.description,
+                                                isCustom: true,
+                                                isDisabled: false,
+                                                isStormBird: true
+                )
+            }
             //nil or "" implies free, if using payment server it is always free
             let etherprice = signedOrder.order.price / 1000000000000000000
             let etherPriceDecimal = Decimal(string: etherprice.description)!
-            //TODO find a less convoluted method of getting the price
-//            let storage = TokensDataStore(
-//                    realm: ,
-//                    account: Wallet(type: .real),
-//                    config: Config(),
-//                    web3: Web3Swift()
-//            )
-//            if let rates = storage.tickers,
-//               let ticker = rates.values.first(where: { $0.symbol == "ETH" }),
-//               let price = Double(ticker.price)
-//            {
             self.promptImportUniversalLink(
                     ticketHolder: ticketHolder,
                     ethCost: etherPriceDecimal.description,
-                    dollarCost: ""
+                    dollarCost: self.price!.description
             )
-//            }
-
         }
         return true
     }
-
 
     func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
         let parameters = createQueryForPaymentServer(signedOrder: signedOrder)
@@ -119,7 +99,7 @@ class UniversalLinkCoordinator: Coordinator {
             self.promptImportUniversalLink(
                     ticketHolder: ticketHolder,
                     ethCost: "",
-                    dollarCost: ""
+                    dollarCost: self.price!.description
             )
         }
         return true
@@ -149,7 +129,20 @@ class UniversalLinkCoordinator: Coordinator {
 	}
 
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
-        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
+        updateImportTicketController(with: .processing)
+        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject) { successful in
+            if let vc = self.importTicketViewController {
+                if let vc = self.importTicketViewController, var viewModel = vc.viewModel {
+                    if successful {
+                        self.showImportSuccessful()
+                    } else {
+                        //TODO Pass in error message
+                        self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
+                    }
+                }
+            }
+        }
+
     }
 
     private func getTicketDetailsAndEcRecover(
@@ -185,8 +178,10 @@ class UniversalLinkCoordinator: Coordinator {
                 }
                 var tickets = [Ticket]()
                 for i in 1...array.count - 1 {
-                    let xmlParsed = XMLHandler().getFifaInfoForToken(tokenId: BigUInt(array[i], radix: 16)!, lang: 1)
-                    let ticket = Ticket(
+                    //move to function
+                    if let tokenId = BigUInt(array[i], radix: 16) {
+                        let xmlParsed = XMLHandler().getFifaInfoForToken(tokenId: tokenId, lang: 1)
+                        let ticket = Ticket(
                             id: array[i],
                             index: indices[i - 1],
                             zone: xmlParsed.venue,
@@ -194,8 +189,9 @@ class UniversalLinkCoordinator: Coordinator {
                             venue: xmlParsed.locale,
                             date: Date(timeIntervalSince1970: TimeInterval(xmlParsed.time)),
                             seatId: xmlParsed.number
-                    )
-                    tickets.append(ticket)
+                        )
+                        tickets.append(ticket)
+                    }
                 }
                 let ticketHolder = TicketHolder(
                         tickets: tickets,
@@ -291,7 +287,9 @@ extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
         if let query = viewController.query, let parameters = viewController.parameters {
             importUniversalLink(query: query, parameters: parameters)
         } else {
-            importPaidSignedOrder(signedOrder: kkkSignedOrder!, tokenObject: kkkTokenObject!)
+            if let signedOrder = viewController.kkkSignedOrder, let tokenObj = viewController.kkkTokenObject {
+                importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObj)
+            }
             //kkk look for the call to showImportSuccessful(). Need to call this
         }
 	}
