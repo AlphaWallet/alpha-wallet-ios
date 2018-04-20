@@ -316,8 +316,6 @@ class TokensDataStore {
                     for i in 0...balance.count - 1 {
                         token.balance.append(TokenBalance(balance: balance[i]))
                     }
-                } else {
-                    token.balance.append(TokenBalance(balance: "0"))
                 }
             }
         }

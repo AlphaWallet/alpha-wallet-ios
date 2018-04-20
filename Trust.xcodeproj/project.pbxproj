@@ -361,7 +361,6 @@
 		5E7C7DD506747B6224C28721 /* TransferTicketsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E2486CDE31871C98FC7 /* TransferTicketsViewModel.swift */; };
 		5E7C7E04D4DDD7D8881A2AB1 /* UniversalLinkCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76AF81B8DFF605558499 /* UniversalLinkCoordinator.swift */; };
 		5E7C7E1B18EC7F7FD6D64439 /* SellTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FF84A4377FC395772C3 /* SellTicketsViewController.swift */; };
-		5E7C7E2C03099D78A9D911D7 /* WhatIsASeedPhraseInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B0BE9EE3B198AE7D92D /* WhatIsASeedPhraseInfoViewController.swift */; };
 		5E7C7E2F558A1DFF078B61F9 /* TransferTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7011D8E5C9FFE0E59D55 /* TransferTicketsViewController.swift */; };
 		5E7C7E4B4054AAD41C5BE3EC /* SettingsAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7564AF453BAB0BDAAA57 /* SettingsAction.swift */; };
 		5E7C7E5C30EFDC70DF1E00C1 /* TicketsViewControllerHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */; };
