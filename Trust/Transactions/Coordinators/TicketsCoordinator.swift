@@ -23,12 +23,6 @@ protocol TicketsCoordinatorDelegate: class {
     func didCancel(in coordinator: TicketsCoordinator)
     func didPressViewRedemptionInfo(in: UIViewController)
     func didPressViewEthereumInfo(in: UIViewController)
-    func didPressGenerateSellMagicLink(ticketHolder: TicketHolder,
-                                       linkExpiryDate: Date,
-                                       ethCost: String,
-                                       dollarCost: String,
-                                       paymentFlow: PaymentFlow
-    )
 }
 
 class TicketsCoordinator: NSObject, Coordinator {
@@ -286,13 +280,6 @@ class TicketsCoordinator: NSObject, Coordinator {
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
         let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
-        delegate?.didPressGenerateSellMagicLink(
-                ticketHolder: ticketHolder,
-                linkExpiryDate: linkExpiryDate,
-                ethCost: ethCost,
-                dollarCost: dollarCost,
-                paymentFlow: paymentFlow
-        )
         return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
     }
 
