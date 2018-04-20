@@ -2,27 +2,25 @@
 
 import UIKit
 
-protocol ChooseTicketTransferModeViewControllerDelegate: class {
-    func didChooseTransferViaMagicLink(ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController)
-    func didChooseTransferNow(ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController)
-    func didPressViewInfo(in viewController: ChooseTicketTransferModeViewController)
+protocol TransferTicketsChooseTransferModeViewControllerDelegate: class {
+    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: TransferTicketsChooseTransferModeViewController)
+    func didPressViewInfo(in viewController: TransferTicketsChooseTransferModeViewController)
 }
 
-class ChooseTicketTransferModeViewController: UIViewController {
+class TransferTicketsChooseTransferModeViewController: UIViewController {
 
     //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
     let roundedBackground = UIView()
     let header = TicketsViewControllerTitleHeader()
+	let subtitleLabel = UILabel()
+    var quantityStepper = NumberStepper()
     let ticketView = TicketRowView()
-    let generateMagicLinkButton = UIButton(type: .system)
-    let transferNowButton = UIButton(type: .system)
-    var viewModel: ChooseTicketTransferModeViewControllerViewModel!
-    var ticketHolder: TicketHolder
+    let nextButton = UIButton(type: .system)
+    var viewModel: TransferTicketsChooseTransferModeViewControllerViewModel!
     var paymentFlow: PaymentFlow
-    weak var delegate: ChooseTicketTransferModeViewControllerDelegate?
+    weak var delegate: TransferTicketsChooseTransferModeViewControllerDelegate?
 
-    init(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
-        self.ticketHolder = ticketHolder
+    init(paymentFlow: PaymentFlow) {
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
 
@@ -33,18 +31,26 @@ class ChooseTicketTransferModeViewController: UIViewController {
         roundedBackground.cornerRadius = 20
         view.addSubview(roundedBackground)
 
-        generateMagicLinkButton.setTitle(R.string.localizable.aWalletTicketTokenTransferModeMagicLinkButtonTitle(), for: .normal)
-        generateMagicLinkButton.addTarget(self, action: #selector(generateMagicLinkTapped), for: .touchUpInside)
+        subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        transferNowButton.setTitle(R.string.localizable.aWalletTicketTokenTransferModeNowButtonTitle(), for: .normal)
-        transferNowButton.addTarget(self, action: #selector(transferNowTapped), for: .touchUpInside)
+        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
+        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
         ticketView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(ticketView)
 
+        quantityStepper.translatesAutoresizingMaskIntoConstraints = false
+        quantityStepper.minimumValue = 1
+        quantityStepper.value = 1
+        view.addSubview(quantityStepper)
+
         let stackView = UIStackView(arrangedSubviews: [
             header,
             ticketView,
+            .spacer(height: 20),
+            subtitleLabel,
+            .spacer(height: 4),
+            quantityStepper,
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -53,7 +59,7 @@ class ChooseTicketTransferModeViewController: UIViewController {
 		stackView.alignment = .center
         roundedBackground.addSubview(stackView)
 
-        let buttonsStackView = UIStackView(arrangedSubviews: [generateMagicLinkButton, transferNowButton])
+        let buttonsStackView = UIStackView(arrangedSubviews: [nextButton])
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         buttonsStackView.axis = .horizontal
         buttonsStackView.spacing = 0
@@ -71,6 +77,8 @@ class ChooseTicketTransferModeViewController: UIViewController {
 
         NSLayoutConstraint.activate([
 			header.heightAnchor.constraint(equalToConstant: 90),
+
+			quantityStepper.heightAnchor.constraint(equalToConstant: 50),
 
             ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -100,26 +108,42 @@ class ChooseTicketTransferModeViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    @objc func generateMagicLinkTapped() {
-        delegate?.didChooseTransferViaMagicLink(ticketHolder: ticketHolder, in: self)
-    }
-
-    @objc func transferNowTapped() {
-        delegate?.didChooseTransferNow(ticketHolder: ticketHolder, in: self)
+    @objc
+    func nextButtonTapped() {
+        if quantityStepper.value == 0 {
+            UIAlertController.alert(title: "",
+                                    message: R.string.localizable.aWalletTicketTokenTransferSelectTicketQuantityAtLeastOneTitle(),
+                                    alertButtonTitles: [R.string.localizable.oK()],
+                                    alertButtonStyles: [.cancel],
+                                    viewController: self,
+                                    completion: nil)
+        } else {
+            delegate?.didSelectQuantity(ticketHolder: getTicketHolderFromQuantity(), in: self)
+        }
     }
 
     @objc func showInfo() {
         delegate?.didPressViewInfo(in: self)
     }
 
-    func configure(viewModel: ChooseTicketTransferModeViewControllerViewModel) {
+    func configure(viewModel: TransferTicketsChooseTransferModeViewControllerViewModel) {
         self.viewModel = viewModel
 
         view.backgroundColor = viewModel.backgroundColor
 
         header.configure(title: viewModel.headerTitle)
 
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.textColor = viewModel.subtitleColor
+        subtitleLabel.font = viewModel.subtitleFont
+        subtitleLabel.text = viewModel.subtitleText
+
         ticketView.configure(viewModel: .init())
+
+        quantityStepper.borderWidth = 2
+        quantityStepper.clipsToBounds = true
+        quantityStepper.borderColor = viewModel.stepperBorderColor
+        quantityStepper.maximumValue = viewModel.maxValue
 
         ticketView.stateLabel.isHidden = true
 
@@ -135,14 +159,27 @@ class ChooseTicketTransferModeViewController: UIViewController {
 
         ticketView.zoneNameLabel.text = viewModel.zoneName
 
-        generateMagicLinkButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-		generateMagicLinkButton.backgroundColor = viewModel.buttonBackgroundColor
-        generateMagicLinkButton.titleLabel?.font = viewModel.buttonFont
-        //Hardcode position because text is very long compared to the transferNowButton
-        generateMagicLinkButton.titleEdgeInsets = .init(top: 0, left: 20, bottom: 0, right: 0)
+        nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
+		nextButton.backgroundColor = viewModel.buttonBackgroundColor
+        nextButton.titleLabel?.font = viewModel.buttonFont
+    }
 
-        transferNowButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-        transferNowButton.backgroundColor = viewModel.buttonBackgroundColor
-        transferNowButton.titleLabel?.font = viewModel.buttonFont
+    private func getTicketHolderFromQuantity() -> TicketHolder {
+        let quantity = quantityStepper.value
+        let ticketHolder = viewModel.ticketHolder
+        let tickets = Array(ticketHolder.tickets[..<quantity])
+        return TicketHolder(
+            tickets: tickets,
+            zone: ticketHolder.zone,
+            name: ticketHolder.name,
+            venue: ticketHolder.venue,
+            date: ticketHolder.date,
+            status: ticketHolder.status
+        )
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        quantityStepper.layer.cornerRadius = quantityStepper.frame.size.height / 2
     }
 }
