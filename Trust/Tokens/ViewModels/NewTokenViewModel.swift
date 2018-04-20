@@ -13,9 +13,7 @@ struct NewTokenViewModel {
         var balance = 0
         if !stormBirdBalance.isEmpty {
             for _ in 0...stormBirdBalance.count - 1 {
-                //if stormBirdBalance[i] != "0x0000000000000000000000000000000000000000000000000000000000000000" {
-                    balance += 1
-                //}
+                balance += 1
             }
         }
         return balance
