@@ -170,6 +170,14 @@ class UniversalLinkCoordinator: Coordinator {
         Alamofire.request(Constants.getTicketInfoFromServer, method: .get, parameters: parameters).responseJSON {
             response in
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                
+                if let statusCode = response.response?.statusCode {
+                    if !response.result.isSuccess || statusCode > 299 {
+                        completion(nil)
+                        return
+                    }
+                }
+                
                 let array: [String] = utf8Text.split{ $0 == "," }.map(String.init)
                 if array.isEmpty || array[0] == "invalid indices" {
                     completion(nil)
