@@ -36,7 +36,7 @@ public class XMLHandler {
     func getFifaInfoForToken(tokenId tokenBytes32: BigUInt, lang: Int) -> FIFAInfo {
         //check if leading or trailing zeros
         var tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes).substring(to: 32)
-        if BigUInt(tokenId, radix: 16)! < 0 {
+        if BigUInt(tokenId, radix: 16)! == 0 {
             tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes).substring(from: 32)
         }
         let locale = getLocale(attribute: tokenId.substring(to: 2), lang: lang)
