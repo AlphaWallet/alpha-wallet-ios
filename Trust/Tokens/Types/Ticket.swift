@@ -16,4 +16,7 @@ struct Ticket {
     let venue: String
     let date: Date
     let seatId: Int
+    let category: Int
+    let countryA: String
+    let countryB: String
 }

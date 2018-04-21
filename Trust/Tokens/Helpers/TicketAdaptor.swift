@@ -52,7 +52,10 @@ class TicketAdaptor {
             name: name,
             venue: venue,
             date: date,
-            seatId: seatId
+            seatId: seatId,
+            category: fifaInfo.category,
+            countryA: fifaInfo.countryA,
+            countryB: fifaInfo.countryB
         )
     }
 

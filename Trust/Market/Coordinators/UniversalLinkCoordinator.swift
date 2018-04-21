@@ -122,7 +122,10 @@ class UniversalLinkCoordinator: Coordinator {
                             ticketHolder: goodResult
                     )
                 }
+            } else {
+                //TODO prompt the user that it has failed
             }
+
         }
         return true
 	}
@@ -172,7 +175,7 @@ class UniversalLinkCoordinator: Coordinator {
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
                 
                 if let statusCode = response.response?.statusCode {
-                    if !response.result.isSuccess || statusCode > 299 {
+                    if statusCode > 299 {
                         completion(nil)
                         return
                     }
@@ -195,7 +198,10 @@ class UniversalLinkCoordinator: Coordinator {
                             name: "FIFA WC",
                             venue: xmlParsed.locale,
                             date: Date(timeIntervalSince1970: TimeInterval(xmlParsed.time)),
-                            seatId: xmlParsed.number
+                            seatId: xmlParsed.number,
+                            category: xmlParsed.category,
+                            countryA: xmlParsed.countryA,
+                            countryB: xmlParsed.countryB
                         )
                         tickets.append(ticket)
                     }
