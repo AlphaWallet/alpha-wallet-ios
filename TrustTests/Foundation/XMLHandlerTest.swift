@@ -16,8 +16,7 @@ class XMLHandlerTest: XCTestCase {
     
     func testParser() {
         let fifaDetails = XMLHandler().getFifaInfoForToken(
-            tokenId: BigUInt(tokenHex, radix: 16)!,
-            lang: 1
+            tokenId: BigUInt(tokenHex, radix: 16)!
         )
         XCTAssertNotNil(fifaDetails)
     }
