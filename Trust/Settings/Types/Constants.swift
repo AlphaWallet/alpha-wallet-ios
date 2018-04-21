@@ -11,8 +11,8 @@ public struct Constants {
     public static let gasLimit = BigInt(300000)
 
     // fee master
-    public static let paymentServer = "http://192.168.1.50:8080/api/claimToken"//"http://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken"
-    public static let getTicketInfoFromServer = "http://192.168.1.50:8080/api/ecrecoverAndGetTickets"//"http://feemaster.eastasia.cloudapp.azure.com:8080/api/ecrecoverAndGetTickets"
+    public static let paymentServer = "http://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken"
+    public static let getTicketInfoFromServer = "http://feemaster.eastasia.cloudapp.azure.com:8080/api/ecrecoverAndGetTickets"
 
 
     // social
