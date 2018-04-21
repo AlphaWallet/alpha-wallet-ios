@@ -190,7 +190,7 @@ class UniversalLinkCoordinator: Coordinator {
                 for i in 1...array.count - 1 {
                     //move to function
                     if let tokenId = BigUInt(array[i], radix: 16) {
-                        let xmlParsed = XMLHandler().getFifaInfoForToken(tokenId: tokenId, lang: 1)
+                        let xmlParsed = XMLHandler().getFifaInfoForToken(tokenId: tokenId)
                         let ticket = Ticket(
                             id: array[i],
                             index: indices[i - 1],

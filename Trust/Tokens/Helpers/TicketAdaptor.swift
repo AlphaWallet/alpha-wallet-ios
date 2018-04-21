@@ -34,7 +34,7 @@ class TicketAdaptor {
 
     //TODO pass lang into here
     private class func getTicket(for id: BigUInt, index: UInt16, in token: TokenObject) -> Ticket {
-        let fifaInfo = XMLHandler().getFifaInfoForToken(tokenId: id, lang: 1)
+        let fifaInfo = XMLHandler().getFifaInfoForToken(tokenId: id)
         let zone = fifaInfo.locale
         let name: String
         if token.address.eip55String == Constants.fifaContractAddress {

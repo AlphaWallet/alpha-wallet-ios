@@ -33,8 +33,9 @@ public class XMLHandler {
     private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
     
     //TODO configure language settings to be compatible with this
-    func getFifaInfoForToken(tokenId tokenBytes32: BigUInt, lang: Int) -> FIFAInfo {
+    func getFifaInfoForToken(tokenId tokenBytes32: BigUInt) -> FIFAInfo {
         //check if leading or trailing zeros
+        let lang = getLang()
         var tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes).substring(to: 32)
         if BigUInt(tokenId, radix: 16)! == 0 {
             tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes).substring(from: 32)
@@ -58,6 +59,20 @@ public class XMLHandler {
                         category: category,
                         number: number
         )
+    }
+
+    func getLang() -> Int {
+        let lang = Locale.preferredLanguages[0]
+        var langNum = 0
+        //english etc is often en-SG
+        if lang.contains("en") {
+            langNum = 1
+        } else if lang.contains("zh") {
+            langNum = 2
+        } else if lang.contains("es") {
+            langNum = 3
+        }
+        return langNum
     }
 
     func getLocale(attribute: String, lang: Int) -> String {
