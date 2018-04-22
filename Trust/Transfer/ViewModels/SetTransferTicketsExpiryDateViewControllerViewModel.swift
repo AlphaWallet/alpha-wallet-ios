@@ -53,7 +53,7 @@ struct SetTransferTicketsExpiryDateViewControllerViewModel {
     }
 
     var descriptionLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellMagicLinkDescriptionTitle()
+        return R.string.localizable.aWalletTicketTokenTransferMagicLinkDescriptionTitle()
     }
 
     var descriptionLabelFont: UIFont {

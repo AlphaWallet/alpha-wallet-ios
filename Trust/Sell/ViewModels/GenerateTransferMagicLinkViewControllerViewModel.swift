@@ -16,11 +16,11 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return Fonts.light(size: 25)!
     }
     var subtitleLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellConfirmSubtitle()
+        return R.string.localizable.aWalletTicketTokenTransferConfirmSubtitle()
     }
 
 	var headerTitle: String {
-		return R.string.localizable.aWalletTicketTokenSellConfirmTitle()
+		return R.string.localizable.aWalletTicketTokenTransferConfirmTitle()
 	}
 
     var actionButtonTitleColor: UIColor {
