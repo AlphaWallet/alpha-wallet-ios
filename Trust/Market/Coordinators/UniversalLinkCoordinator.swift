@@ -16,7 +16,7 @@ class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	weak var delegate: UniversalLinkCoordinatorDelegate?
 	var importTicketViewController: ImportTicketViewController?
-    var price: Double?
+    var ethPrice: Subscribable<Double>?
 
 	func start() {
 		preparingToImportUniversalLink()
@@ -68,11 +68,28 @@ class UniversalLinkCoordinator: Coordinator {
             //nil or "" implies free, if using payment server it is always free
             let etherprice = signedOrder.order.price / 1000000000000000000
             let etherPriceDecimal = Decimal(string: etherprice.description)!
-            self.promptImportUniversalLink(
-                    ticketHolder: ticketHolder,
-                    ethCost: etherPriceDecimal.description,
-                    dollarCost: self.price!.description
-            )
+            if let price = ethPrice {
+                if let s = price.value {
+                    self.promptImportUniversalLink(
+                            ticketHolder: ticketHolder,
+                            ethCost: etherPriceDecimal.description,
+                            dollarCost: s.description)
+                } else {
+                    price.subscribe { value in
+                        //TODO good to test if there's a leak here if user has already cancelled before this
+                        if let s = price.value {
+                            self.promptImportUniversalLink(
+                                    ticketHolder: ticketHolder,
+                                    ethCost: etherPriceDecimal.description,
+                                    dollarCost: s.description)
+                        }
+                    }
+                }
+            } else {
+                //No wallet and should be handled by client code, but we'll just be careful
+                //TODO pass in error message
+                showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
+            }
         }
         return true
     }
@@ -98,7 +115,7 @@ class UniversalLinkCoordinator: Coordinator {
             self.promptImportUniversalLink(
                     ticketHolder: ticketHolder,
                     ethCost: "",
-                    dollarCost: self.price!.description
+                    dollarCost: ""
             )
         }
         return true
@@ -110,6 +127,7 @@ class UniversalLinkCoordinator: Coordinator {
 		guard matchedPrefix else {
 			return false
 		}
+
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) {
             result in
@@ -303,7 +321,6 @@ extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
             if let signedOrder = viewController.signedOrder, let tokenObj = viewController.tokenObject {
                 importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObj)
             }
-            //kkk look for the call to showImportSuccessful(). Need to call this
         }
 	}
 }
