@@ -35,30 +35,43 @@ public class XMLHandler {
     //TODO configure language settings to be compatible with this
     func getFifaInfoForToken(tokenId tokenBytes32: BigUInt) -> FIFAInfo {
         //check if leading or trailing zeros
-        let lang = getLang()
-        var tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes).substring(to: 32)
-        if BigUInt(tokenId, radix: 16)! == 0 {
-            tokenId = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes).substring(from: 32)
+        let tokenId = tokenBytes32
+        if tokenId != 0 {
+            let lang = getLang()
+            let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
+            let location = getLocale(attribute: tokenHex.substring(to: 2), lang: lang)
+            let venue = getVenue(attribute: tokenHex.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
+            let time = Int(tokenHex.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)!
+            //translatable to ascii
+            let countryA = tokenHex.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
+            let countryB = tokenHex.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
+            let match = Int(tokenHex.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16)!
+            let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16)!
+            let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16)!
+            return FIFAInfo(
+                locale: location,
+                venue: venue,
+                time: time,
+                countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
+                countryB: String(data: Data(bytes: countryB), encoding: .utf8)!,
+                match: match,
+                category: category,
+                number: number
+            )
         }
-        let locale = getLocale(attribute: tokenId.substring(to: 2), lang: lang)
-        let venue = getVenue(attribute: tokenId.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
-        let time = Int(tokenId.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)!
-        //translatable to ascii
-        let countryA = tokenId.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
-        let countryB = tokenId.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
-        let match = Int(tokenId.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16)!
-        let category = Int(tokenId.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16)!
-        let number = Int(tokenId.substring(from: 28), radix: 16)!
+        
+        //empty object return for null ticket
         return FIFAInfo(
-                        locale: locale,
-                        venue: venue,
-                        time: time,
-                        countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
-                        countryB: String(data: Data(bytes: countryB), encoding: .utf8)!,
-                        match: match,
-                        category: category,
-                        number: number
+            locale: "N/A",
+            venue: "N/A",
+            time: 0,
+            countryA: "N/A",
+            countryB: "N/A",
+            match: 0,
+            category: 0,
+            number: 0
         )
+        
     }
 
     func getLang() -> Int {
@@ -93,5 +106,5 @@ public class XMLHandler {
             return "N/A"
         }
     }
-    
+
 }
