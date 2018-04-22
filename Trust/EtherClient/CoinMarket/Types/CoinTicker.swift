@@ -6,11 +6,7 @@ import RealmSwift
 struct CoinTicker: Codable {
     let id: String
     let symbol: String
-    var price: String {
-        didSet {
-            print("here")
-        }
-    }
+    var price: String
     let percent_change_24h: String
     let contract: String
     let image: String

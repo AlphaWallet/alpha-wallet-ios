@@ -36,6 +36,11 @@ class InCoordinator: Coordinator {
     var keystore: Keystore
     var config: Config
     let appTracker: AppTracker
+    lazy var ethPrice: Subscribable<Double> = {
+        var value = Subscribable<Double>(nil)
+        fetchEthPrice()
+        return value
+    }()
     weak var delegate: InCoordinatorDelegate?
     var transactionCoordinator: TransactionCoordinator? {
         return self.coordinators.flatMap {
@@ -82,19 +87,25 @@ class InCoordinator: Coordinator {
         addCoordinator(helpUsCoordinator)
     }
 
-    func getPriceOfEther() -> Double {
+    func fetchEthPrice() {
         let keystore = try! EtherKeystore()
-        let address = keystore.recentlyUsedWallet?.address
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet! , chainID: config.chainID)
         migration.perform()
         let web3 = self.web3(for: config.server)
         web3.start()
         let realm = self.realm(for: migration.config)
         let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, web3: web3)
-        if let rates = tokensStorage.tickers, let ticker = rates.values.first(where: { $0.symbol == "ETH" }), let price = Double(ticker.price) {
-            return price
-        } else {
-            return 0
+        tokensStorage.updatePrices()
+
+        let etherToken = TokensDataStore.etherToken(for: config)
+        tokensStorage.tokensModel.subscribe {[weak self] tokensModel in
+            guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
+                return
+            }
+            var ticker = tokensStorage.coinTicker(for: eth)
+            if let ticker = ticker {
+                self?.ethPrice.value = Double(ticker.price)
+            }
         }
     }
 

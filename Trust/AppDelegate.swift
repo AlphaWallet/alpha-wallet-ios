@@ -1,5 +1,4 @@
 // Copyright SIX DAY LLC. All rights reserved.
-
 import UIKit
 import Lokalise
 import Branch
@@ -86,7 +85,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
         let url = userActivity.webpageURL
 		universalLinkCoordinator = UniversalLinkCoordinator()
-        universalLinkCoordinator.price = appCoordinator.getPriceOfEther()
+        universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
         universalLinkCoordinator.delegate = self
         universalLinkCoordinator.start()
 		let handled = universalLinkCoordinator.handleUniversalLink(url: url)

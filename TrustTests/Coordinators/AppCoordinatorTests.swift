@@ -84,4 +84,28 @@ class AppCoordinatorTests: XCTestCase {
         XCTAssertEqual(1, coordinator.coordinators.count)
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is UITabBarController)
     }
+
+    func testHasInCoordinatorWithWallet() {
+        let coordinator = AppCoordinator(
+                window: UIWindow(),
+                keystore: FakeKeystore(
+                        wallets: [.make()]
+                )
+        )
+
+        coordinator.start()
+
+        XCTAssertNotNil(coordinator.inCoordinator)
+    }
+
+    func testHasNoInCoordinatorWithoutWallets() {
+        let coordinator = AppCoordinator(
+                window: UIWindow(),
+                keystore: FakeKeystore()
+        )
+
+        coordinator.start()
+
+        XCTAssertNil(coordinator.inCoordinator)
+    }
 }
