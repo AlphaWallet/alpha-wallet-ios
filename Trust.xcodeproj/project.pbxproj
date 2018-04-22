@@ -403,6 +403,7 @@
 		76F1D13FC8A41AD967C59947 /* ClaimOrderCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */; };
 		76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */; };
 		76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */; };
+		76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
 		76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */; };
 		76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */; };
@@ -453,6 +454,7 @@
 		AA893ED5203C3E5400CDCED1 /* TokenBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */; };
 		AAEB8DA2204BC7B700CB0B2C /* RedeemTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */; };
 		AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */; };
+		B138ABD0208C2C93000FC28A /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		B1DB1A95207DBF6D00CA2B77 /* XMLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */; };
 		B1DB1A97207DCECF00CA2B77 /* AssetDefinitionXML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */; };
 		B1DB1A99207DDF9600CA2B77 /* XMLHandlerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A98207DDF9600CA2B77 /* XMLHandlerTest.swift */; };
@@ -973,6 +975,7 @@
 		AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalance.swift; sourceTree = "<group>"; };
 		AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemTicketsViewController.swift; sourceTree = "<group>"; };
 		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
+		B138ABCF208C2C93000FC28A /* MonkeyTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonkeyTest.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
 		B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLHandler.swift; sourceTree = "<group>"; };
 		B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDefinitionXML.swift; sourceTree = "<group>"; };
@@ -1723,6 +1726,7 @@
 				73D2683A202E8411009777A1 /* DecimalNumberFormatterTest.swift */,
 				73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */,
 				B1DB1A98207DDF9600CA2B77 /* XMLHandlerTest.swift */,
+				B138ABCF208C2C93000FC28A /* MonkeyTest.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -3134,6 +3138,7 @@
 				"${BUILT_PRODUCTS_DIR}/SeedStackViewController/StackViewController.framework",
 				"${BUILT_PRODUCTS_DIR}/SipHash/SipHash.framework",
 				"${BUILT_PRODUCTS_DIR}/StatefulViewController/StatefulViewController.framework",
+				"${BUILT_PRODUCTS_DIR}/SwiftMonkey/SwiftMonkey.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyJSON/SwiftyJSON.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyXMLParser/SwiftyXMLParser.framework",
 				"${BUILT_PRODUCTS_DIR}/TrezorCrypto/TrezorCrypto.framework",
@@ -3164,6 +3169,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/StackViewController.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SipHash.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/StatefulViewController.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftMonkey.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyJSON.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyXMLParser.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TrezorCrypto.framework",
@@ -3649,6 +3655,7 @@
 				442FC8E82231273273B95D85 /* FakeClaimOrderCoordinator.swift in Sources */,
 				442FCBA4A5E39A4C4B16426A /* EventsRestTest.swift in Sources */,
 				76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */,
+				76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3657,6 +3664,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2912CD1B1F6A830700C6CBE3 /* TrustUITests.swift in Sources */,
+				B138ABD0208C2C93000FC28A /* MonkeyTest.swift in Sources */,
 				29358D9F1F78D5B700925D61 /* Screenshots.swift in Sources */,
 				29358D991F78D1E400925D61 /* SnapshotHelper.swift in Sources */,
 			);

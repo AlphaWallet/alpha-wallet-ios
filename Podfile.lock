@@ -42,6 +42,7 @@ PODS:
   - SipHash (1.2.0)
   - StatefulViewController (3.0)
   - SwiftLint (0.24.1)
+  - SwiftMonkey (1.1.0)
   - SwiftyJSON (4.0.0)
   - SwiftyXMLParser (4.1.0)
   - TrezorCrypto (0.0.4)
@@ -74,6 +75,7 @@ DEPENDENCIES:
   - SeedStackViewController
   - StatefulViewController
   - SwiftLint
+  - SwiftMonkey (~> 1.0)
   - SwiftyJSON
   - SwiftyXMLParser (from `https://github.com/yahoojapan/SwiftyXMLParser.git`)
   - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore-snapshot`, branch `master`)
@@ -139,11 +141,12 @@ SPEC CHECKSUMS:
   SipHash: c6e9e43e9c531b5bc6602545130c26194a6d31ce
   StatefulViewController: 4803bf900d44de26074344998e10e041113b5931
   SwiftLint: 2e4b89feed5909c42c3735bbd6745f4345c4b772
+  SwiftMonkey: 7aafba2de889229abbf7397496aee699a0d97a6b
   SwiftyJSON: 070dabdcb1beb81b247c65ffa3a79dbbfb3b48aa
   SwiftyXMLParser: b5a79fb8a730903703d0a92d30752a0b05158967
   TrezorCrypto: 7f87a2296cf13872b21565c29fd9f7882dd00803
   TrustKeystore: 381590c561f58fe0948abbd9cb626cbc08d75ff8
 
-PODFILE CHECKSUM: caca540a69e277efe6ea84cc65721152f15ab2cd
+PODFILE CHECKSUM: 4ab0dc410947e8ecd387b0c90888872001f29c84
 
 COCOAPODS: 1.3.1
