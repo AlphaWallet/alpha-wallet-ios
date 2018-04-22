@@ -5,7 +5,6 @@ import UIKit
 
 class LockEnterPasscodeCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
-	var protectionWasShown = false
 	private let window: UIWindow = UIWindow()
 	private let model: LockEnterPasscodeViewModel
 	private let lock: LockInterface
@@ -20,21 +19,20 @@ class LockEnterPasscodeCoordinator: Coordinator {
 			if state {
 				self?.stop()
 			}
-			self?.protectionWasShown = bioUnlock
 		}
 	}
 	func start() {
-		guard lock.isPasscodeSet() else {
-			return
-		}
-		protectionWasShown = true
+		guard lock.isPasscodeSet() else { return }
 		window.rootViewController = lockEnterPasscodeViewController
 		window.makeKeyAndVisible()
-		//Because of the usage of the window and rootViewController we are not able to receive properly view life circle events. So we should call this methods manually.
-		lockEnterPasscodeViewController.showKeyboard()
-		lockEnterPasscodeViewController.showBioMerickAuth()
 	}
 	func stop() {
 		window.isHidden = true
+	}
+
+	func showAuthentication() {
+		guard lock.isPasscodeSet() else { return }
+		lockEnterPasscodeViewController.showKeyboard()
+		lockEnterPasscodeViewController.showBioMerickAuth()
 	}
 }
