@@ -81,6 +81,10 @@ class TicketRowView: UIView {
 			if ScreenChecker().isNarrowScreen() {
 				checkboxRelatedConstraints.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 20))
 				checkboxRelatedConstraints.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 20))
+			} else {
+                //Have to be hardcoded and not rely on the image's size because different string lengths for the text fields can force the checkbox to shrink
+				checkboxRelatedConstraints.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 28))
+				checkboxRelatedConstraints.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 28))
 			}
         } else {
 			checkboxRelatedConstraints.append(background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
