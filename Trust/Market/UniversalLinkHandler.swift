@@ -211,7 +211,15 @@ public class UniversalLinkHandler {
             sBytes.append(linkBytes[i])
         }
         let s = MarketQueueHandler.bytesToHexa(sBytes)
-        let v = String(format:"%2X", linkBytes[linkBytes.count - 1]).trimmed
+        var v = String(format:"%2X", linkBytes[linkBytes.count - 1]).trimmed
+        //handle JB code if he uses non standard format
+        if var vInt = Int(v) {
+            if vInt < 5 {
+                vInt += 27
+                v = String(format: "%2X", vInt)
+            }
+        }
+        
         return (v, r, s)
     }
     

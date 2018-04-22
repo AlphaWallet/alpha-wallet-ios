@@ -205,13 +205,17 @@ class UniversalLinkCoordinator: Coordinator {
                     return
                 }
                 var tickets = [Ticket]()
-                let userAddress = array.popLast()
-                for i in 0...array.count - 1 {
+                let userAddress = array[0]
+                var bytes32Tickets = [String]()
+                for i in 1...array.count - 1 {
+                    bytes32Tickets.append(array[i])
+                }
+                for i in 0...bytes32Tickets.count - 1 {
                     //move to function
-                    if let tokenId = BigUInt(array[i], radix: 16) {
+                    if let tokenId = BigUInt(bytes32Tickets[i], radix: 16) {
                         let xmlParsed = XMLHandler().getFifaInfoForToken(tokenId: tokenId)
                         let ticket = Ticket(
-                            id: array[i],
+                            id: bytes32Tickets[i],
                             index: indices[i],
                             zone: xmlParsed.venue,
                             name: "FIFA WC",
