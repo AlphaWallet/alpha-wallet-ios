@@ -33,7 +33,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
 
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        nextButton.setTitle(R.string.localizable.aWalletTicketTokenTransferButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
         ticketView.translatesAutoresizingMaskIntoConstraints = false
@@ -46,11 +46,11 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
 
         let stackView = UIStackView(arrangedSubviews: [
             header,
+            ticketView,
+            .spacer(height: 20),
             subtitleLabel,
             .spacer(height: 4),
             quantityStepper,
-            .spacer(height: 50),
-            ticketView,
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical

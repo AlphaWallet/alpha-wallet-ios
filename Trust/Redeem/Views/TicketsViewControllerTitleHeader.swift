@@ -48,6 +48,7 @@ class TicketsViewControllerTitleHeader: UIView {
 
         titleLabel.textColor = Colors.appText
         titleLabel.font = Fonts.light(size: 25)!
+        titleLabel.adjustsFontSizeToFitWidth = true
         titleLabel.text = title
     }
 }
