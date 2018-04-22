@@ -126,7 +126,7 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
         datePicker.isHidden = true
 
         timePicker.datePickerMode = .time
-        timePicker.minimumDate = Date()
+        timePicker.minimumDate = Date.yesterday
         timePicker.addTarget(self, action: #selector(timePickerValueChanged), for: .valueChanged)
         timePicker.isHidden = true
 
@@ -229,8 +229,18 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    @objc
-    func nextButtonTapped() {
+    @objc func nextButtonTapped() {
+        let expiryDate = linkExpiryDate()
+        guard expiryDate > Date() else {
+            UIAlertController.alert(title: "",
+                    message: R.string.localizable.aWalletTicketTokenSellLinkExpiryTimeAtLeastNowTitle(),
+                    alertButtonTitles: [R.string.localizable.oK()],
+                    alertButtonStyles: [.cancel],
+                    viewController: self,
+                    completion: nil)
+            return
+        }
+
         //TODO be good if we check if date chosen is not too far into the future. Example 1 year ahead. Common error?
         delegate?.didSetSellTicketsExpiryDate(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate(), ethCost: ethCost, dollarCost: dollarCost, in: self)
     }
