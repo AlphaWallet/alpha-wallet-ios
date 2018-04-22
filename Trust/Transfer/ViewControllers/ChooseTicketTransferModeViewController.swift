@@ -1,103 +1,110 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import MessageUI
-
-enum TicketTransferMode {
-    case walletAddressTextEntry
-    case walletAddressFromQRCode
-    case other
-}
 
 protocol ChooseTicketTransferModeViewControllerDelegate: class {
-    func didChoose(transferMode: TicketTransferMode, in viewController: ChooseTicketTransferModeViewController, sender: UIView)
+    func didChooseTransferViaMagicLink(ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController)
+    func didChooseTransferNow(ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController)
+    func didPressViewInfo(in viewController: ChooseTicketTransferModeViewController)
 }
 
 class ChooseTicketTransferModeViewController: UIViewController {
+    let horizontalAdjustmentForLongMagicLinkButtonTitle = CGFloat(20)
+
     //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
     let roundedBackground = UIView()
-    let titleLabel = UILabel()
-    let inputWalletAddressButton = ShareModeButton()
-    let qrCodeScannerButton = ShareModeButton()
-    let otherButton = ShareModeButton()
-	let ticketHolder: TicketHolder
+    let header = TicketsViewControllerTitleHeader()
+    let ticketView = TicketRowView()
+    let generateMagicLinkButton = UIButton(type: .system)
+    let transferNowButton = UIButton(type: .system)
+    var viewModel: ChooseTicketTransferModeViewControllerViewModel!
+    var ticketHolder: TicketHolder
     var paymentFlow: PaymentFlow
     weak var delegate: ChooseTicketTransferModeViewControllerDelegate?
 
     init(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
-
         super.init(nibName: nil, bundle: nil)
-        view.backgroundColor = Colors.appBackground
+
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.backgroundColor = Colors.appWhite
         roundedBackground.cornerRadius = 20
         view.addSubview(roundedBackground)
 
-        inputWalletAddressButton.callback = {
-            self.delegate?.didChoose(transferMode: .walletAddressTextEntry, in: self, sender: self.inputWalletAddressButton)
-        }
-        inputWalletAddressButton.translatesAutoresizingMaskIntoConstraints = false
+        generateMagicLinkButton.setTitle(R.string.localizable.aWalletTicketTokenTransferModeMagicLinkButtonTitle(), for: .normal)
+        generateMagicLinkButton.addTarget(self, action: #selector(generateMagicLinkTapped), for: .touchUpInside)
 
-        qrCodeScannerButton.callback = {
-            self.delegate?.didChoose(transferMode: .walletAddressFromQRCode, in: self, sender: self.qrCodeScannerButton)
-        }
-        qrCodeScannerButton.translatesAutoresizingMaskIntoConstraints = false
+        transferNowButton.setTitle(R.string.localizable.aWalletTicketTokenTransferModeNowButtonTitle(), for: .normal)
+        transferNowButton.addTarget(self, action: #selector(transferNowTapped), for: .touchUpInside)
 
-        otherButton.callback = {
-            self.delegate?.didChoose(transferMode: .other, in: self, sender: self.otherButton)
-        }
-        otherButton.translatesAutoresizingMaskIntoConstraints = false
-
-        let buttonRow1 = UIStackView(arrangedSubviews: [
-            inputWalletAddressButton,
-            qrCodeScannerButton,
-        ])
-        buttonRow1.translatesAutoresizingMaskIntoConstraints = false
-        buttonRow1.axis = .horizontal
-        buttonRow1.spacing = 12
-        buttonRow1.distribution = .fill
-
-        let buttonPlaceholder = UIView()
-        let buttonRow2 = UIStackView(arrangedSubviews: [
-            otherButton,
-            buttonPlaceholder,
-        ])
-        buttonRow2.translatesAutoresizingMaskIntoConstraints = false
-        buttonRow2.axis = .horizontal
-        buttonRow2.spacing = 12
-        buttonRow2.distribution = .fill
+        ticketView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(ticketView)
 
         let stackView = UIStackView(arrangedSubviews: [
-            .spacer(height: 7),
-            titleLabel,
-            .spacer(height: 20),
-            buttonRow1,
-            .spacer(height: 12),
-            buttonRow2,
+            header,
+            ticketView,
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = 0
         stackView.distribution = .fill
+		stackView.alignment = .center
         roundedBackground.addSubview(stackView)
 
-        let marginToHideBottomRoundedCorners = CGFloat(30)
-        NSLayoutConstraint.activate([
-            otherButton.widthAnchor.constraint(equalTo: inputWalletAddressButton.widthAnchor),
-            otherButton.heightAnchor.constraint(equalTo: inputWalletAddressButton.heightAnchor),
-            otherButton.widthAnchor.constraint(equalTo: buttonPlaceholder.widthAnchor),
-            otherButton.heightAnchor.constraint(equalTo: buttonPlaceholder.heightAnchor),
+        let buttonsStackView = UIStackView(arrangedSubviews: [generateMagicLinkButton, transferNowButton])
+        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
+        buttonsStackView.axis = .horizontal
+        buttonsStackView.spacing = 0
+        buttonsStackView.distribution = .fillEqually
+        buttonsStackView.setContentHuggingPriority(.required, for: .horizontal)
 
-            stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
-            stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
-            stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor, constant: 16),
+        let marginToHideBottomRoundedCorners = CGFloat(30)
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = Colors.appHighlightGreen
+        roundedBackground.addSubview(footerBar)
+
+        let buttonsHeight = CGFloat(60)
+        footerBar.addSubview(buttonsStackView)
+
+        let separator0 = UIView()
+        separator0.translatesAutoresizingMaskIntoConstraints = false
+        separator0.backgroundColor = Colors.appLightButtonSeparator
+        footerBar.addSubview(separator0)
+
+        let separatorThickness = CGFloat(1)
+        NSLayoutConstraint.activate([
+			header.heightAnchor.constraint(equalToConstant: 90),
+
+            ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
             roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             roundedBackground.topAnchor.constraint(equalTo: view.topAnchor),
             roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
+
+            stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+
+            buttonsStackView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
+
+            separator0.leadingAnchor.constraint(equalTo: generateMagicLinkButton.trailingAnchor, constant: -separatorThickness / 2 + horizontalAdjustmentForLongMagicLinkButtonTitle),
+            separator0.trailingAnchor.constraint(equalTo: transferNowButton.leadingAnchor, constant: separatorThickness / 2 + horizontalAdjustmentForLongMagicLinkButtonTitle),
+            separator0.topAnchor.constraint(equalTo: buttonsStackView.topAnchor, constant: 8),
+            separator0.bottomAnchor.constraint(equalTo: buttonsStackView.bottomAnchor, constant: -8),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
+            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
 
@@ -105,38 +112,49 @@ class ChooseTicketTransferModeViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: ChooseTicketTransferModeViewControllerViewModel) {
-        roundedBackground.backgroundColor = viewModel.contentsBackgroundColor
-        roundedBackground.layer.cornerRadius = 20
-
-        titleLabel.numberOfLines = 0
-        titleLabel.textColor = viewModel.titleColor
-        titleLabel.font = viewModel.titleFont
-        titleLabel.textAlignment = .center
-        titleLabel.text = viewModel.titleLabelText
-
-        inputWalletAddressButton.title = viewModel.inputWalletAddressButtonTitle
-        inputWalletAddressButton.image = viewModel.inputWalletAddressButtonImage
-
-        qrCodeScannerButton.title = viewModel.qrCodeScannerButtonTitle
-        qrCodeScannerButton.image = viewModel.qrCodeScannerButtonImage
-
-        otherButton.title = viewModel.otherButtonTitle
-        otherButton.image = viewModel.otherButtonImage
-
-        inputWalletAddressButton.label.font = viewModel.buttonTitleFont
-        qrCodeScannerButton.label.font = viewModel.buttonTitleFont
-        otherButton.label.font = viewModel.buttonTitleFont
-
-        inputWalletAddressButton.label.textColor = viewModel.buttonTitleColor
-        qrCodeScannerButton.label.textColor = viewModel.buttonTitleColor
-        otherButton.label.textColor = viewModel.buttonTitleColor
+    @objc func generateMagicLinkTapped() {
+        delegate?.didChooseTransferViaMagicLink(ticketHolder: ticketHolder, in: self)
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        inputWalletAddressButton.layer.cornerRadius = inputWalletAddressButton.frame.size.height / 2
-        qrCodeScannerButton.layer.cornerRadius = qrCodeScannerButton.frame.size.height / 2
+    @objc func transferNowTapped() {
+        delegate?.didChooseTransferNow(ticketHolder: ticketHolder, in: self)
+    }
+
+    @objc func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func configure(viewModel: ChooseTicketTransferModeViewControllerViewModel) {
+        self.viewModel = viewModel
+
+        view.backgroundColor = viewModel.backgroundColor
+
+        header.configure(title: viewModel.headerTitle)
+
+        ticketView.configure(viewModel: .init())
+
+        ticketView.stateLabel.isHidden = true
+
+        ticketView.ticketCountLabel.text = viewModel.ticketCount
+
+        ticketView.titleLabel.text = viewModel.title
+
+        ticketView.venueLabel.text = viewModel.venue
+
+        ticketView.dateLabel.text = viewModel.date
+
+        ticketView.seatRangeLabel.text = viewModel.seatRange
+
+        ticketView.zoneNameLabel.text = viewModel.zoneName
+
+        generateMagicLinkButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
+		generateMagicLinkButton.backgroundColor = viewModel.buttonBackgroundColor
+        generateMagicLinkButton.titleLabel?.font = viewModel.buttonFont
+        //Hardcode position because text is very long compared to the transferNowButton
+        generateMagicLinkButton.titleEdgeInsets = .init(top: 0, left: horizontalAdjustmentForLongMagicLinkButtonTitle, bottom: 0, right: 0)
+
+        transferNowButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
+        transferNowButton.backgroundColor = viewModel.buttonBackgroundColor
+        transferNowButton.titleLabel?.font = viewModel.buttonFont
     }
 }
-
