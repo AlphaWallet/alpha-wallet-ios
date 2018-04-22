@@ -318,7 +318,6 @@
 		5E7C75E5C64619ABFD246183 /* TransferTicketsViaWalletAddressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78B63FDE2FAF25389260 /* TransferTicketsViaWalletAddressViewController.swift */; };
 		5E7C75E81F85353844CACECC /* EnterSellTicketsPriceQuantityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F610139D24D947B1625 /* EnterSellTicketsPriceQuantityViewController.swift */; };
 		5E7C75F80A7E178B49830BCD /* TicketsViewControllerHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C796039C0F47CDCA236C0 /* TicketsViewControllerHeader.swift */; };
-		5E7C76037119D18718068C66 /* TransferTicketsChooseTransferModeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C777F35DFD4021FB8D198 /* TransferTicketsChooseTransferModeViewController.swift */; };
 		5E7C760C7D55C97424F55138 /* TicketTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */; };
 		5E7C764D3C130AAB26E80EC1 /* AmountTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73617E3A4C0B9A90A5F8 /* AmountTextField.swift */; };
 		5E7C76605A5102FBD376F32A /* ImportTicketViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7535095323B035CA47C0 /* ImportTicketViewController.swift */; };
@@ -365,7 +364,6 @@
 		5E7C7D8AFC9BA1E8C1D05167 /* TicketSellInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74A2C738BF2412D412A7 /* TicketSellInfoViewController.swift */; };
 		5E7C7DD506747B6224C28721 /* TransferTicketsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E2486CDE31871C98FC7 /* TransferTicketsViewModel.swift */; };
 		5E7C7E04D4DDD7D8881A2AB1 /* UniversalLinkCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76AF81B8DFF605558499 /* UniversalLinkCoordinator.swift */; };
-		5E7C7E0C977265B96199354A /* TransferTicketsQuantitySelectionViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C720151BC95DB1F0A454B /* TransferTicketsQuantitySelectionViewControllerViewModel.swift */; };
 		5E7C7E1B18EC7F7FD6D64439 /* SellTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FF84A4377FC395772C3 /* SellTicketsViewController.swift */; };
 		5E7C7E2C03099D78A9D911D7 /* WhatIsASeedPhraseInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B0BE9EE3B198AE7D92D /* WhatIsASeedPhraseInfoViewController.swift */; };
 		5E7C7E2F558A1DFF078B61F9 /* TransferTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7011D8E5C9FFE0E59D55 /* TransferTicketsViewController.swift */; };
@@ -811,7 +809,6 @@
 		5E7C719B717E002583B1E2E9 /* AdvancedSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsViewModel.swift; sourceTree = "<group>"; };
 		5E7C71CE10548877F1124BF2 /* WelcomeViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeViewModel.swift; sourceTree = "<group>"; };
 		5E7C71EBD4C95AD4E11F3352 /* AlphaWalletSettingsButtonRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AlphaWalletSettingsButtonRow.swift; path = Views/AlphaWalletSettingsButtonRow.swift; sourceTree = "<group>"; };
-		5E7C720151BC95DB1F0A454B /* TransferTicketsQuantitySelectionViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTicketsQuantitySelectionViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C72142D5817EF8FA8CADA /* PrivacyPolicyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyViewController.swift; sourceTree = "<group>"; };
 		5E7C727433F7B8E322B3C68A /* SetTransferTicketsExpiryDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTicketsExpiryDateViewController.swift; sourceTree = "<group>"; };
 		5E7C72D0E7CA03ADE5CFAE7A /* ImportTicketViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportTicketViewControllerViewModel.swift; sourceTree = "<group>"; };
@@ -847,7 +844,6 @@
 		5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeaderViewModel.swift; sourceTree = "<group>"; };
 		5E7C7742709724B3BD0C2A0D /* TicketRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRowViewModel.swift; sourceTree = "<group>"; };
 		5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatIsEthereumInfoViewController.swift; sourceTree = "<group>"; };
-		5E7C777F35DFD4021FB8D198 /* TransferTicketsChooseTransferModeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTicketsChooseTransferModeViewController.swift; sourceTree = "<group>"; };
 		5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C77E1E6194F5A1DC8D645 /* ScreenChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenChecker.swift; sourceTree = "<group>"; };
 		5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerTitleHeader.swift; sourceTree = "<group>"; };
@@ -1900,7 +1896,6 @@
 				5E7C7011D8E5C9FFE0E59D55 /* TransferTicketsViewController.swift */,
 				5E7C7419F47CC8B2996AA8F9 /* TransferTicketsQuantitySelectionViewController.swift */,
 				5E7C70088832B2D161EB4AAB /* SendViewController.swift */,
-				5E7C777F35DFD4021FB8D198 /* TransferTicketsChooseTransferModeViewController.swift */,
 				5E7C70FB40612BB02594EC00 /* ChooseTicketTransferModeViewController.swift */,
 				5E7C727433F7B8E322B3C68A /* SetTransferTicketsExpiryDateViewController.swift */,
 				5E7C7D46C7CABC31A7477F37 /* GenerateTransferMagicLinkViewController.swift */,
@@ -1920,7 +1915,6 @@
 				5E7C7E2486CDE31871C98FC7 /* TransferTicketsViewModel.swift */,
 				5E7C703BA1D0E9ACB7399155 /* TransferTicketsQuantitySelectionViewModel.swift */,
 				5E7C7B7A45EDFA8ED1E25863 /* SendHeaderViewViewModel.swift */,
-				5E7C720151BC95DB1F0A454B /* TransferTicketsQuantitySelectionViewControllerViewModel.swift */,
 				5E7C7BA578BE5FB0E613A6D6 /* ChooseTicketTransferModeViewControllerViewModel.swift */,
 				5E7C754C0E2E57F32A61F9A3 /* SetTransferTicketsExpiryDateViewControllerViewModel.swift */,
 				5E7C76D3CFA12C2236E73E10 /* TransferTicketsViaWalletAddressViewControllerViewModel.swift */,
@@ -3608,8 +3602,6 @@
 				5E7C7A4384A8E3F22D3F8249 /* SetSellTicketsExpiryDateViewControllerViewModel.swift in Sources */,
 				5E7C776CF721EBBD43195926 /* GenerateSellMagicLinkViewController.swift in Sources */,
 				5E7C7B0367CFB413C6885474 /* GenerateSellMagicLinkViewControllerViewModel.swift in Sources */,
-				5E7C76037119D18718068C66 /* TransferTicketsChooseTransferModeViewController.swift in Sources */,
-				5E7C7E0C977265B96199354A /* TransferTicketsQuantitySelectionViewControllerViewModel.swift in Sources */,
 				5E7C7692C981580CD32228EB /* ChooseTicketTransferModeViewController.swift in Sources */,
 				5E7C74DBAE43954C185057B3 /* ChooseTicketTransferModeViewControllerViewModel.swift in Sources */,
 				5E7C71DAA5DAFF764F92587D /* SetTransferTicketsExpiryDateViewController.swift in Sources */,
