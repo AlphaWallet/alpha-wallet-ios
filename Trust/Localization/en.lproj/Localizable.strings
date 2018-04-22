@@ -204,6 +204,7 @@
 "a.wallet.ticketToken.sell.noteLabel.title" = "Before the link expires, anyone with the MagicLink can purchase your tickets with one click";
 "a.wallet.ticketToken.sell.linkExpiryDate.title" = "LINK EXPIRY DATE";
 "a.wallet.ticketToken.sell.linkExpiryTime.title" = "LINK EXPIRY TIME";
+"a.wallet.ticketToken.sell.linkExpiryTime.atLeastNow.title" = "Please select a date in the future";
 "a.wallet.ticketToken.sell.totalCost.title" = "Total Cost:";
 "a.wallet.ticketToken.sell.confirm.title" = "Confirm Sale?";
 "a.wallet.ticketToken.sell.confirm.subtitle" = "Generate Sale Link";
