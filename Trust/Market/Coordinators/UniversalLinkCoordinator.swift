@@ -141,7 +141,7 @@ class UniversalLinkCoordinator: Coordinator {
                     )
                 }
             } else {
-                //TODO prompt the user that it has failed
+                self.showImportError(errorMessage: "Invalid Link, please try again")
             }
 
         }
@@ -165,6 +165,7 @@ class UniversalLinkCoordinator: Coordinator {
 
     }
 
+    //TODO this function is a total mess
     private func getTicketDetailsAndEcRecover(
             signedOrder: SignedOrder,
             completion: @escaping( _ response: TicketHolder?) -> Void
@@ -198,20 +199,20 @@ class UniversalLinkCoordinator: Coordinator {
                         return
                     }
                 }
-                
-                let array: [String] = utf8Text.split{ $0 == "," }.map(String.init)
+                var array: [String] = utf8Text.split{ $0 == "," }.map(String.init)
                 if array.isEmpty || array[0] == "invalid indices" {
                     completion(nil)
                     return
                 }
                 var tickets = [Ticket]()
-                for i in 1...array.count - 1 {
+                let userAddress = array.popLast()
+                for i in 0...array.count - 1 {
                     //move to function
                     if let tokenId = BigUInt(array[i], radix: 16) {
                         let xmlParsed = XMLHandler().getFifaInfoForToken(tokenId: tokenId)
                         let ticket = Ticket(
                             id: array[i],
-                            index: indices[i - 1],
+                            index: indices[i],
                             zone: xmlParsed.venue,
                             name: "FIFA WC",
                             venue: xmlParsed.locale,
