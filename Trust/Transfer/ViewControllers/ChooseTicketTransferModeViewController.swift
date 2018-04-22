@@ -9,6 +9,7 @@ protocol ChooseTicketTransferModeViewControllerDelegate: class {
 }
 
 class ChooseTicketTransferModeViewController: UIViewController {
+    let horizontalAdjustmentForLongMagicLinkButtonTitle = CGFloat(20)
 
     //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
     let roundedBackground = UIView()
@@ -69,6 +70,12 @@ class ChooseTicketTransferModeViewController: UIViewController {
         let buttonsHeight = CGFloat(60)
         footerBar.addSubview(buttonsStackView)
 
+        let separator0 = UIView()
+        separator0.translatesAutoresizingMaskIntoConstraints = false
+        separator0.backgroundColor = Colors.appLightButtonSeparator
+        footerBar.addSubview(separator0)
+
+        let separatorThickness = CGFloat(1)
         NSLayoutConstraint.activate([
 			header.heightAnchor.constraint(equalToConstant: 90),
 
@@ -88,6 +95,11 @@ class ChooseTicketTransferModeViewController: UIViewController {
             buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
             buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
+
+            separator0.leadingAnchor.constraint(equalTo: generateMagicLinkButton.trailingAnchor, constant: -separatorThickness / 2 + horizontalAdjustmentForLongMagicLinkButtonTitle),
+            separator0.trailingAnchor.constraint(equalTo: transferNowButton.leadingAnchor, constant: separatorThickness / 2 + horizontalAdjustmentForLongMagicLinkButtonTitle),
+            separator0.topAnchor.constraint(equalTo: buttonsStackView.topAnchor, constant: 8),
+            separator0.bottomAnchor.constraint(equalTo: buttonsStackView.bottomAnchor, constant: -8),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -139,7 +151,7 @@ class ChooseTicketTransferModeViewController: UIViewController {
 		generateMagicLinkButton.backgroundColor = viewModel.buttonBackgroundColor
         generateMagicLinkButton.titleLabel?.font = viewModel.buttonFont
         //Hardcode position because text is very long compared to the transferNowButton
-        generateMagicLinkButton.titleEdgeInsets = .init(top: 0, left: 20, bottom: 0, right: 0)
+        generateMagicLinkButton.titleEdgeInsets = .init(top: 0, left: horizontalAdjustmentForLongMagicLinkButtonTitle, bottom: 0, right: 0)
 
         transferNowButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         transferNowButton.backgroundColor = viewModel.buttonBackgroundColor
