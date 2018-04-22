@@ -9,6 +9,7 @@ target 'AlphaWallet' do
   pod 'R.swift'
   pod 'JSONRPCKit', :git=> 'https://github.com/bricklife/JSONRPCKit.git'
   pod 'APIKit'
+  pod "SwiftMonkey", "~> 1.0"
   pod 'Eureka', '~> 4.0.1'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
