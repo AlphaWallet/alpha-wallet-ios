@@ -506,6 +506,11 @@ class SendViewController: UIViewController {
                 guard let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
                 self.headerViewModel.title = "\(amount) \(self.session.config.server.name) (\(viewModel.symbol))"
+                let etherToken = TokensDataStore.etherToken(for: self.session.config)
+                let ticker = self.storage.coinTicker(for: etherToken)
+                self.headerViewModel.ticker = ticker
+                self.headerViewModel.currencyAmount = self.session.balanceCoordinator.viewModel.currencyAmount
+                self.headerViewModel.currencyAmountWithoutSymbol = self.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
                 if let viewModel = self.viewModel {
                     self.configure(viewModel: viewModel)
                 }
@@ -515,6 +520,11 @@ class SendViewController: UIViewController {
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
             headerViewModel.title = "\(amount) \(viewModel.symbol)"
+            let etherToken = TokensDataStore.etherToken(for: self.session.config)
+            let ticker = self.storage.coinTicker(for: etherToken)
+            self.headerViewModel.ticker = ticker
+            self.headerViewModel.currencyAmount = self.session.balanceCoordinator.viewModel.currencyAmount
+            self.headerViewModel.currencyAmountWithoutSymbol = self.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
             if let viewModel = self.viewModel {
                 configure(viewModel: self.viewModel)
             }

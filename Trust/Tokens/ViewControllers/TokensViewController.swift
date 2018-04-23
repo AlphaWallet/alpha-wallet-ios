@@ -238,7 +238,8 @@ extension TokensViewController: UITableViewDelegate {
             let cellViewModel = EthTokenViewCellViewModel(
                     token: token,
                     ticker: viewModel.ticker(for: token),
-                    currencyAmount: session.balanceCoordinator.viewModel.currencyAmount
+                    currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
+                    currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
             )
             return cellViewModel.cellHeight
         case .token:
@@ -303,7 +304,8 @@ extension TokensViewController: UITableViewDataSource {
                     viewModel: .init(
                             token: token,
                             ticker: viewModel.ticker(for: token),
-                            currencyAmount: session.balanceCoordinator.viewModel.currencyAmount
+                            currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
+                            currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
                     )
             )
             return cell
