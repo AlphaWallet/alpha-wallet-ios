@@ -320,9 +320,10 @@ class TicketsCoordinator: NSObject, Coordinator {
         return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
     }
 
-    private func sellViaActivitySheet(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow, in viewController: UIViewController) {
+    private func sellViaActivitySheet(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
         let url = generateSellLink(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, dollarCost: dollarCost, paymentFlow: paymentFlow)
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        vc.popoverPresentationController?.sourceView = sender
         vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
             //Be annoying if user copies and we close the sell process
             if completed && activityType != UIActivityType.copyToPasteboard {
@@ -462,8 +463,8 @@ extension TicketsCoordinator: TransferTicketsCoordinatorDelegate {
 }
 
 extension TicketsCoordinator: GenerateSellMagicLinkViewControllerDelegate {
-    func didPressShare(in viewController: GenerateSellMagicLinkViewController) {
-        sellViaActivitySheet(ticketHolder: viewController.ticketHolder, linkExpiryDate: viewController.linkExpiryDate, ethCost: viewController.ethCost, dollarCost: viewController.dollarCost, paymentFlow: viewController.paymentFlow, in: viewController)
+    func didPressShare(in viewController: GenerateSellMagicLinkViewController, sender: UIView) {
+        sellViaActivitySheet(ticketHolder: viewController.ticketHolder, linkExpiryDate: viewController.linkExpiryDate, ethCost: viewController.ethCost, dollarCost: viewController.dollarCost, paymentFlow: viewController.paymentFlow, in: viewController, sender: sender)
     }
 
     func didPressCancel(in viewController: GenerateSellMagicLinkViewController) {
