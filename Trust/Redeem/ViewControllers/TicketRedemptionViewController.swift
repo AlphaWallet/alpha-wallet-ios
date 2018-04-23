@@ -117,8 +117,9 @@ class TicketRedemptionViewController: UIViewController {
 
     private func showSuccessMessage() {
         invalidateTimer()
-        UIAlertController.alert(title: "Congrats",
-                                message: "You have successfully redeemed your ticket(s)",
+
+        UIAlertController.alert(title: R.string.localizable.aWalletTicketTokenRedeemSuccessfulTitle(),
+                                message: R.string.localizable.aWalletTicketTokenRedeemSuccessfulDescription(),
                                 alertButtonTitles: [R.string.localizable.oK()],
                                 alertButtonStyles: [.cancel],
                                 viewController: self,
