@@ -11,7 +11,7 @@ protocol UniversalLinkCoordinatorDelegate: class {
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
 }
 
-//TODO handle the sale link imports
+
 class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	weak var delegate: UniversalLinkCoordinatorDelegate?
@@ -66,22 +66,28 @@ class UniversalLinkCoordinator: Coordinator {
                 )
             }
             //nil or "" implies free, if using payment server it is always free
-            let etherprice = signedOrder.order.price / 1000000000000000000
-            let etherPriceDecimal = Decimal(string: etherprice.description)!
+            let etherprice = signedOrder.order.price /// 1000000000000000000
+            let etherPriceDecimal = Decimal(string: etherprice.description)! / 1000000000000000000
             if let price = ethPrice {
                 if let s = price.value {
+                    let dollarCost = Decimal(s) * etherPriceDecimal
                     self.promptImportUniversalLink(
                             ticketHolder: ticketHolder,
                             ethCost: etherPriceDecimal.description,
-                            dollarCost: s.description)
-                } else {
+                            dollarCost: dollarCost.description
+                    )
+                }
+                else
+                {
                     price.subscribe { value in
                         //TODO good to test if there's a leak here if user has already cancelled before this
                         if let s = price.value {
+                            let dollarCost = Decimal(s) * etherPriceDecimal
                             self.promptImportUniversalLink(
                                     ticketHolder: ticketHolder,
                                     ethCost: etherPriceDecimal.description,
-                                    dollarCost: s.description)
+                                    dollarCost: dollarCost.description
+                            )
                         }
                     }
                 }
