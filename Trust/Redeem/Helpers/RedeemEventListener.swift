@@ -35,9 +35,4 @@ class RedeemEventListener {
         shouldListen = false
         RestClient.cancel()
     }
-
-    deinit {
-        print("deinit")
-    }
-
 }
