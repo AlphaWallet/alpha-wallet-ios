@@ -11,6 +11,8 @@ class StaticHTMLViewController: UIViewController {
         view.backgroundColor = Colors.appBackground
 
         webView.backgroundColor = Colors.appBackground
+        //So webview is seethrough to reveal its parents background color when HTML is not loaded yet
+        webView.isOpaque = false
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.delegate = self
         if let path = url() {
