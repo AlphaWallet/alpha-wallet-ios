@@ -10,7 +10,7 @@ import SwiftyXMLParser
 import BigInt
 
 struct FIFAInfo {
-    let locale: String
+    let locality: String
     let venue: String
     let time: Int
     let countryA: String
@@ -20,26 +20,27 @@ struct FIFAInfo {
     let number: Int
 }
 
-/**
- langs:
- 0 = ru
- 1 = en
- 2 = zh
- 3 = es
- */
-
 public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
+    public let blankFIFAInfo = FIFAInfo(
+            locality: "N/A",
+            venue: "N/A",
+            time: 0,
+            countryA: "N/A",
+            countryB: "N/A",
+            match: 0,
+            category: 0,
+            number: 0
+    )
     
-    //TODO configure language settings to be compatible with this
     func getFifaInfoForToken(tokenId tokenBytes32: BigUInt) -> FIFAInfo {
         //check if leading or trailing zeros
         let tokenId = tokenBytes32
         if tokenId != 0 {
             let lang = getLang()
             let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
-            let location = getLocale(attribute: tokenHex.substring(to: 2), lang: lang)
+            let location = getLocality(attribute: tokenHex.substring(to: 2), lang: lang)
             let venue = getVenue(attribute: tokenHex.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
             let time = Int(tokenHex.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)!
             //translatable to ascii
@@ -49,7 +50,7 @@ public class XMLHandler {
             let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16)!
             let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16)!
             return FIFAInfo(
-                locale: location,
+                locality: location,
                 venue: venue,
                 time: time,
                 countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
@@ -59,19 +60,7 @@ public class XMLHandler {
                 number: number
             )
         }
-        
-        //empty object return for null ticket
-        return FIFAInfo(
-            locale: "N/A",
-            venue: "N/A",
-            time: 0,
-            countryA: "N/A",
-            countryB: "N/A",
-            match: 0,
-            category: 0,
-            number: 0
-        )
-        
+        return self.blankFIFAInfo
     }
 
     func getLang() -> Int {
@@ -88,23 +77,21 @@ public class XMLHandler {
         return langNum
     }
 
-    func getLocale(attribute: String, lang: Int) -> String {
-        //TODO find out why -1
-        let localeNumber = Int(attribute, radix: 16)! - 1
-        if let parsedLocale = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][localeNumber]["name"][lang].text {
-            return parsedLocale
-        } else {
-            return "N/A"
+    func getLocality(attribute: String, lang: Int) -> String {
+        //TODO find out why - 1
+        let locality = Int(attribute, radix: 16)! - 1
+        if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][locality]["name"][lang].text {
+            return parsedLocality
         }
+        return "N/A"
     }
 
     func getVenue(attribute: String, lang: Int) -> String {
         let venueNumber = Int(attribute, radix: 16)!
         if let parsedVenue = xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber]["name"][lang].text {
             return parsedVenue
-        } else {
-            return "N/A"
         }
+        return "N/A"
     }
 
 }

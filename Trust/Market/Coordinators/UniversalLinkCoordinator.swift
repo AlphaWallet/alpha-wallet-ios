@@ -233,7 +233,7 @@ class UniversalLinkCoordinator: Coordinator {
                     index: indices[i],
                     zone: xmlParsed.venue,
                     name: "FIFA WC",
-                    venue: xmlParsed.locale,
+                    venue: xmlParsed.locality,
                     date: Date(timeIntervalSince1970: TimeInterval(xmlParsed.time)),
                     seatId: xmlParsed.number,
                     category: xmlParsed.category,
