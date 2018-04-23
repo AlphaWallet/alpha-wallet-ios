@@ -22,30 +22,27 @@ class UniversalLinkCoordinator: Coordinator {
 		preparingToImportUniversalLink()
 	}
     
-    func createQueryForPaymentServer(signedOrder: SignedOrder) -> Parameters {
+    func createHTTPParametersForPaymentServer(signedOrder: SignedOrder, isForTransfer: Bool) -> Parameters {
         // form the json string out of the order for the paymaster server
         // James S. wrote
         let keystore = try! EtherKeystore()
         let signature = signedOrder.signature.substring(from: 2)
         let indices = signedOrder.order.indices
-        var indicesStringEncoded = ""
-        if !indices.isEmpty {
-            for i in 0...indices.count - 1 {
-                indicesStringEncoded += String(indices[i]) + ","
-            }
-            //cut off last comma
-            indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
-        }
+        let indicesStringEncoded = stringEncodeIndices(indices)
         let address = (keystore.recentlyUsedWallet?.address.eip55String)!
-        
-        let parameters: Parameters = [
+        var parameters: Parameters = [
             "address": address,
             "indices": indicesStringEncoded,
+            "price": signedOrder.order.price.description,
             "expiry": signedOrder.order.expiry.description,
             "v": signature.substring(from: 128),
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
         ]
+        
+        if isForTransfer {
+            parameters.removeValue(forKey: "price")
+        }
         
         return parameters
     }
@@ -67,7 +64,8 @@ class UniversalLinkCoordinator: Coordinator {
             }
             //nil or "" implies free, if using payment server it is always free
             let etherprice = signedOrder.order.price /// 1000000000000000000
-            let etherPriceDecimal = Decimal(string: etherprice.description)! / 1000000000000000000
+            let divideAmount = Decimal(string: "1000000000000000000")!
+            let etherPriceDecimal = Decimal(string: etherprice.description)! / divideAmount
             if let price = ethPrice {
                 if let s = price.value {
                     let dollarCost = Decimal(s) * etherPriceDecimal
@@ -101,7 +99,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
-        let parameters = createQueryForPaymentServer(signedOrder: signedOrder)
+        let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: true)
         let query = Constants.paymentServer
         //TODO localize
         if let viewController = delegate?.viewControllerForPresenting(in: self) {
@@ -138,15 +136,19 @@ class UniversalLinkCoordinator: Coordinator {
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) {
             result in
             if let goodResult = result {
-                if signedOrder.order.price > 0 {
-                    self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: goodResult)
-                } else {
-                    self.usePaymentServerForFreeTransferLinks(
+                if signedOrder.order.price > 0
+                {
+                    let success = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: goodResult)
+                }
+                else
+                {
+                    let success = self.usePaymentServerForFreeTransferLinks(
                             signedOrder: signedOrder,
                             ticketHolder: goodResult
                     )
                 }
-            } else {
+            }
+            else {
                 self.showImportError(errorMessage: "Invalid Link, please try again")
             }
 
@@ -157,8 +159,8 @@ class UniversalLinkCoordinator: Coordinator {
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
         updateImportTicketController(with: .processing)
         delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject) { successful in
-            if let vc = self.importTicketViewController {
-                if let vc = self.importTicketViewController, var viewModel = vc.viewModel {
+            if self.importTicketViewController != nil {
+                if let vc = self.importTicketViewController, var _ = vc.viewModel {
                     if successful {
                         self.showImportSuccessful()
                     } else {
@@ -170,13 +172,8 @@ class UniversalLinkCoordinator: Coordinator {
         }
 
     }
-
-    //TODO this function is a total mess
-    private func getTicketDetailsAndEcRecover(
-            signedOrder: SignedOrder,
-            completion: @escaping( _ response: TicketHolder?) -> Void
-    ) {
-        let indices = signedOrder.order.indices
+    
+    private func stringEncodeIndices(_ indices: [UInt16]) -> String {
         var indicesStringEncoded = ""
         if !indices.isEmpty {
             for i in 0...indices.count - 1 {
@@ -185,21 +182,21 @@ class UniversalLinkCoordinator: Coordinator {
             //cut off last comma
             indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
         }
-        let signature = signedOrder.signature.substring(from: 2)
-        let parameters: Parameters = [
-            "indices": indicesStringEncoded,
-            "expiry": signedOrder.order.expiry.description,
-            "price": signedOrder.order.price.description,
-            "v": signature.substring(from: 128),
-            "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
-            "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
-        ]
+        return indicesStringEncoded
+    }
 
+    private func getTicketDetailsAndEcRecover(
+            signedOrder: SignedOrder,
+            completion: @escaping( _ response: TicketHolder?) -> Void
+    ) {
+        let indices = signedOrder.order.indices
+        let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: false)
+        
         Alamofire.request(Constants.getTicketInfoFromServer, method: .get, parameters: parameters).responseJSON {
             response in
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
-                
-                if let statusCode = response.response?.statusCode {
+                if let statusCode = response.response?.statusCode
+                {
                     if statusCode > 299 {
                         completion(nil)
                         return
@@ -210,44 +207,51 @@ class UniversalLinkCoordinator: Coordinator {
                     completion(nil)
                     return
                 }
-                var tickets = [Ticket]()
-                let userAddress = array[0]
                 var bytes32Tickets = [String]()
+                //start at one to slice off address
                 for i in 1...array.count - 1 {
                     bytes32Tickets.append(array[i])
                 }
-                for i in 0...bytes32Tickets.count - 1 {
-                    //move to function
-                    if let tokenId = BigUInt(bytes32Tickets[i], radix: 16) {
-                        let xmlParsed = XMLHandler().getFifaInfoForToken(tokenId: tokenId)
-                        let ticket = Ticket(
-                            id: bytes32Tickets[i],
-                            index: indices[i],
-                            zone: xmlParsed.venue,
-                            name: "FIFA WC",
-                            venue: xmlParsed.locale,
-                            date: Date(timeIntervalSince1970: TimeInterval(xmlParsed.time)),
-                            seatId: xmlParsed.number,
-                            category: xmlParsed.category,
-                            countryA: xmlParsed.countryA,
-                            countryB: xmlParsed.countryB
-                        )
-                        tickets.append(ticket)
-                    }
-                }
-                let ticketHolder = TicketHolder(
-                        tickets: tickets,
-                        zone: tickets[0].zone,
-                        name: tickets[0].name,
-                        venue: tickets[0].venue,
-                        date: tickets[0].date,
-                        status: .available
-                )
-                completion(ticketHolder)
-            } else {
+                
+                completion(self.sortTickets(bytes32Tickets, indices))
+            }
+            else
+            {
                 completion(nil)
             }
         }
+    }
+    
+    private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16]) -> TicketHolder
+    {
+        var tickets = [Ticket]()
+        for i in 0...bytes32Tickets.count - 1 {
+            if let tokenId = BigUInt(bytes32Tickets[i], radix: 16) {
+                let xmlParsed = XMLHandler().getFifaInfoForToken(tokenId: tokenId)
+                let ticket = Ticket(
+                    id: bytes32Tickets[i],
+                    index: indices[i],
+                    zone: xmlParsed.venue,
+                    name: "FIFA WC",
+                    venue: xmlParsed.locale,
+                    date: Date(timeIntervalSince1970: TimeInterval(xmlParsed.time)),
+                    seatId: xmlParsed.number,
+                    category: xmlParsed.category,
+                    countryA: xmlParsed.countryA,
+                    countryB: xmlParsed.countryB
+                )
+                tickets.append(ticket)
+            }
+        }
+        let ticketHolder = TicketHolder(
+            tickets: tickets,
+            zone: tickets[0].zone,
+            name: tickets[0].name,
+            venue: tickets[0].venue,
+            date: tickets[0].date,
+            status: .available
+        )
+        return ticketHolder
     }
 
 	private func preparingToImportUniversalLink() {
