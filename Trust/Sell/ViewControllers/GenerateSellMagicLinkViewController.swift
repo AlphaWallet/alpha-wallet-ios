@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 protocol GenerateSellMagicLinkViewControllerDelegate: class {
-    func didPressShare(in viewController: GenerateSellMagicLinkViewController)
+    func didPressShare(in viewController: GenerateSellMagicLinkViewController, sender: UIView)
     func didPressCancel(in viewController: GenerateSellMagicLinkViewController)
 }
 
@@ -168,7 +168,7 @@ class GenerateSellMagicLinkViewController: UIViewController {
     }
 
     @objc func share() {
-        delegate?.didPressShare(in: self)
+        delegate?.didPressShare(in: self, sender: actionButton)
     }
 
     @objc func cancel() {
