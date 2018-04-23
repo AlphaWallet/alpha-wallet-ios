@@ -69,7 +69,7 @@ struct EthTokenViewCellViewModel {
     }
 
     var textColor: UIColor {
-        return UIColor(red: 155, green: 155, blue: 155)
+        return Colors.appGrayLabelColor
     }
 
     var valuePercentageChangeColor: UIColor {
