@@ -184,6 +184,8 @@
 "a.wallet.ticketToken.redeem.selectQuantity.title" = "Select Quantity of Tickets";
 "a.wallet.ticketToken.redeem.quantity.title" = "QUANTITY OF TICKETS";
 "a.wallet.ticketToken.redeem.showQRCode.title" = "Show QR Code to Redemption Booth";
+"a.wallet.ticketToken.redeem.successful.title" = "Congrats";
+"a.wallet.ticketToken.redeem.successful.description" = "You have successfully redeemed your ticket(s)";
 "a.wallet.ticketToken.sell.button.title" = "Sell";
 "a.wallet.ticketToken.sell.selectTickets.title" = "Select Tickets To Sell:";
 "a.wallet.ticketToken.sell.ethHelp.title" = "Set Ethereum price for magic link:";
