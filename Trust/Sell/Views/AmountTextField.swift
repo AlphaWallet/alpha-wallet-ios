@@ -68,7 +68,7 @@ class AmountTextField: UIControl {
 
         alternativeAmountLabel.translatesAutoresizingMaskIntoConstraints = false
         alternativeAmountLabel.numberOfLines = 0
-        alternativeAmountLabel.textColor = UIColor(red: 155, green: 155, blue: 155)
+        alternativeAmountLabel.textColor = Colors.appGrayLabelColor
         alternativeAmountLabel.font = Fonts.regular(size: 10)!
         alternativeAmountLabel.textAlignment = .center
 
@@ -85,7 +85,7 @@ class AmountTextField: UIControl {
     private func makeAmountRightView() -> UIView {
         fiatButton.translatesAutoresizingMaskIntoConstraints = false
         fiatButton.setTitle(currentPair.left, for: .normal)
-        fiatButton.setTitleColor(UIColor(red: 155, green: 155, blue: 155), for: .normal)
+        fiatButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
         fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
 
         let amountRightView = UIStackView(arrangedSubviews: [
