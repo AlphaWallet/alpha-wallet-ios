@@ -23,7 +23,7 @@ struct FIFAInfo {
 public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
-    public let blankFIFAInfo = FIFAInfo(
+    let blankFIFAInfo = FIFAInfo(
             locality: "N/A",
             venue: "N/A",
             time: 0,
