@@ -26,6 +26,23 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
     let nextButton = UIButton(type: .system)
     var viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel!
     var paymentFlow: PaymentFlow
+    var totalEthCost: Double {
+        if let ethCostPerTicket = Double(pricePerTicketField.ethCost) {
+            let quantity = Double(quantityStepper.value)
+            return ethCostPerTicket * quantity
+        } else {
+            return 0
+        }
+    }
+
+    var totalDollarCost: Double {
+        if let dollarCostPerTicket = Double(pricePerTicketField.dollarCost) {
+            let quantity = Double(quantityStepper.value)
+            return dollarCostPerTicket * quantity
+        } else {
+            return 0
+        }
+    }
     weak var delegate: EnterSellTicketsPriceQuantityViewControllerDelegate?
 
     init(storage: TokensDataStore, paymentFlow: PaymentFlow) {
@@ -67,6 +84,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         quantityStepper.translatesAutoresizingMaskIntoConstraints = false
         quantityStepper.minimumValue = 1
         quantityStepper.value = 1
+        quantityStepper.addTarget(self, action: #selector(quantityChanged), for: .valueChanged)
 
         let col0 = UIStackView(arrangedSubviews: [
             pricePerTicketLabel,
@@ -237,7 +255,17 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
             return
         }
 
-        delegate?.didEnterSellTicketsPriceQuantity(ticketHolder: getTicketHolderFromQuantity(), ethCost: pricePerTicketField.ethCost, dollarCost: pricePerTicketField.dollarCost, in: self)
+        delegate?.didEnterSellTicketsPriceQuantity(ticketHolder: getTicketHolderFromQuantity(), ethCost: String(totalEthCost), dollarCost: String(totalDollarCost), in: self)
+    }
+
+    @objc func quantityChanged() {
+        updateTotalCostsLabels()
+    }
+
+    private func updateTotalCostsLabels() {
+        viewModel.ethCost = String(totalEthCost)
+        viewModel.dollarCost = String(totalDollarCost)
+        configure(viewModel: viewModel)
     }
 
     @objc func showInfo() {
@@ -342,14 +370,10 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
 
 extension EnterSellTicketsPriceQuantityViewController: AmountTextFieldDelegate {
     func changeAmount(in textField: AmountTextField) {
-        viewModel.ethCost = textField.ethCost
-        viewModel.dollarCost = textField.dollarCost
-        configure(viewModel: viewModel)
+        updateTotalCostsLabels()
     }
 
     func changeType(in textField: AmountTextField) {
-        viewModel.ethCost = textField.ethCost
-        viewModel.dollarCost = textField.dollarCost
-        configure(viewModel: viewModel)
+        updateTotalCostsLabels()
     }
 }
