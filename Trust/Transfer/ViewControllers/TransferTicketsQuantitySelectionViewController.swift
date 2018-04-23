@@ -140,7 +140,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
 
         ticketView.configure(viewModel: .init())
 
-        quantityStepper.borderWidth = 2
+        quantityStepper.borderWidth = 1
         quantityStepper.clipsToBounds = true
         quantityStepper.borderColor = viewModel.stepperBorderColor
         quantityStepper.maximumValue = viewModel.maxValue
