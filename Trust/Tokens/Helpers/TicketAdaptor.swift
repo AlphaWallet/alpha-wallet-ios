@@ -22,7 +22,7 @@ class TicketAdaptor {
                 continue
             }
             let ticket = getTicket(for: BigUInt(id.substring(from: 2), radix: 16)!, index: UInt16(index), in: token)
-            if let item = ticketHolders.filter({ $0.zone == ticket.zone && $0.date == ticket.date }).first {
+            if let item = ticketHolders.filter({ $0.zone == ticket.zone && $0.date == ticket.date && $0.category == ticket.category }).first {
                 item.tickets.append(ticket)
             } else {
                 let ticketHolder = getTicketHolder(for: ticket)
@@ -44,6 +44,7 @@ class TicketAdaptor {
             name: ticket.name,
             venue: ticket.venue,
             date: ticket.date,
+            category: ticket.category,
             status: .available
         )
     }
