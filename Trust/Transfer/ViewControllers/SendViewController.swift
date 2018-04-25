@@ -545,13 +545,13 @@ class SendViewController: UIViewController {
         pasteButton.translatesAutoresizingMaskIntoConstraints = false
         pasteButton.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
         pasteButton.titleLabel?.font = Fonts.regular(size: 14)!
-        pasteButton.setTitleColor(UIColor(red: 155, green: 155, blue: 155), for: .normal)
+        pasteButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
         pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
 
         let scanQRCodeButton = Button(size: .normal, style: .borderless)
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
         scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
-        scanQRCodeButton.setTitleColor(UIColor(red: 155, green: 155, blue: 155), for: .normal)
+        scanQRCodeButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
 
         let targetAddressRightView = UIStackView(arrangedSubviews: [
@@ -570,7 +570,7 @@ class SendViewController: UIViewController {
         let fiatButton = Button(size: .normal, style: .borderless)
         fiatButton.translatesAutoresizingMaskIntoConstraints = false
         fiatButton.setTitle(currentPair.left, for: .normal)
-        fiatButton.setTitleColor(UIColor(red: 155, green: 155, blue: 155), for: .normal)
+        fiatButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
         fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
         fiatButton.isHidden = !viewModel.showAlternativeAmount
 
