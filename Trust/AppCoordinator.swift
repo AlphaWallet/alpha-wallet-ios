@@ -16,6 +16,16 @@ class AppCoordinator: NSObject, Coordinator {
     private var keystore: Keystore
     private var appTracker = AppTracker()
     var coordinators: [Coordinator] = []
+    var inCoordinator: InCoordinator? {
+        return coordinators.first { $0 is InCoordinator } as? InCoordinator
+    }
+    var ethPrice: Subscribable<Double>? {
+        if let inCoordinator = inCoordinator {
+            return inCoordinator.ethPrice
+        } else {
+            return nil
+        }
+    }
     init(
         window: UIWindow,
         keystore: Keystore,
@@ -93,6 +103,16 @@ class AppCoordinator: NSObject, Coordinator {
             with: deviceToken,
             addresses: keystore.wallets.map { $0.address }
         )
+    }
+
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
+        let inCoordinatorInstance = coordinators.first {
+            $0 is InCoordinator
+        } as? InCoordinator
+        
+        if let inCoordinator = inCoordinatorInstance {
+            inCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, completion: completion)
+        }
     }
 
     func showInitialWalletCoordinator(entryPoint: WalletEntryPoint) {
