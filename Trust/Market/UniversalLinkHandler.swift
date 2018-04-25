@@ -30,8 +30,6 @@ import BigInt
 public class UniversalLinkHandler {
 
     public let urlPrefix = "https://app.awallet.io/"
-    public static let paymentServer = "http://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken"
-
 
     //message is with 32 bytes each of price and expiry and is shortened for link
     func createUniversalLink(signedOrder: SignedOrder) -> String {
@@ -43,6 +41,7 @@ public class UniversalLinkHandler {
 
         return urlPrefix + base64String
     }
+    
     //TODO add exception handling
     //link has shortened price and expiry and must be expanded
     func parseUniversalLink(url: String) -> SignedOrder {
@@ -131,6 +130,9 @@ public class UniversalLinkHandler {
             for _ in 0...missingDigits - 1 {
                 formattedArray.append(0)
             }
+            for i in 0...array.count - 1 {
+                formattedArray.append(array[i])
+            }
             return formattedArray
         }
     }
@@ -209,7 +211,15 @@ public class UniversalLinkHandler {
             sBytes.append(linkBytes[i])
         }
         let s = MarketQueueHandler.bytesToHexa(sBytes)
-        let v = String(format:"%2X", linkBytes[linkBytes.count - 1]).trimmed
+        var v = String(format:"%2X", linkBytes[linkBytes.count - 1]).trimmed
+        //handle JB code if he uses non standard format
+        if var vInt = Int(v) {
+            if vInt < 5 {
+                vInt += 27
+                v = String(format: "%2X", vInt)
+            }
+        }
+        
         return (v, r, s)
     }
     

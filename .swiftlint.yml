@@ -17,7 +17,6 @@ opt_in_rules:
   - empty_count
   - file_header
   - multiline_parameters
-  - vertical_parameter_alignment_on_call
 included:
   - Trust
 excluded:
@@ -38,9 +37,7 @@ function_body_length: 80
 file_length:
   warning: 600
   error: 1200
-trailing_comma:
-  mandatory_comma: true
-file_header:
-  required_pattern: "// Copyright SIX DAY LLC. All rights reserved.\n"
+ 
+
 superfluous_disable_command: warning
 reporter: "xcode"

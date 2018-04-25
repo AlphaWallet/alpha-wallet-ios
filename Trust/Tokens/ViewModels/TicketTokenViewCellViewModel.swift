@@ -7,6 +7,7 @@ import BigInt
 struct TicketTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
+
     let ticker: CoinTicker?
 
     init(
@@ -22,8 +23,8 @@ struct TicketTokenViewCellViewModel {
     }
 
     var amount: String {
-        let actualBalance = self.token.balance.filter { $0.balance != 0 }
-        return R.string.localizable.aWalletTickets(actualBalance.count.toString())
+        let actualBalance = self.token.balance.filter { $0.balance != Constants.nullTicket }
+        return actualBalance.count.toString()
     }
 
     var issuer: String {
