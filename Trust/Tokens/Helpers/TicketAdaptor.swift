@@ -34,29 +34,7 @@ class TicketAdaptor {
 
     //TODO pass lang into here
     private class func getTicket(for id: BigUInt, index: UInt16, in token: TokenObject) -> Ticket {
-        let fifaInfo = XMLHandler().getFifaInfoForToken(tokenId: id)
-        let zone = fifaInfo.locality
-        let name: String
-        if token.address.eip55String == Constants.fifaContractAddress {
-            name = token.title
-        } else {
-            name = Constants.event
-        }
-        let venue = fifaInfo.locality
-        let seatId = fifaInfo.number
-        let date = Date(timeIntervalSince1970: TimeInterval(fifaInfo.time))
-        return Ticket(
-            id: MarketQueueHandler.bytesToHexa(id.serialize().bytes),
-            index: index,
-            zone: zone,
-            name: name,
-            venue: venue,
-            date: date,
-            seatId: seatId,
-            category: fifaInfo.category,
-            countryA: fifaInfo.countryA,
-            countryB: fifaInfo.countryB
-        )
+        return XMLHandler().getFifaInfoForTicket(tokenId: id, index: index)
     }
 
     private class func getTicketHolder(for ticket: Ticket) -> TicketHolder {

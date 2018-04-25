@@ -9,69 +9,49 @@ import Foundation
 import SwiftyXMLParser
 import BigInt
 
-struct FIFAInfo {
-    let locality: String
-    let venue: String
-    let time: Int
-    let countryA: String
-    let countryB: String
-    let match: Int
-    let category: Int
-    let number: Int
-}
-
 public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
-    let blankFIFAInfo = FIFAInfo(
-            locality: "N/A",
-            venue: "N/A",
-            time: 0,
-            countryA: "N/A",
-            countryB: "N/A",
-            match: 0,
-            category: 0,
-            number: 0
-    )
-    
-    func getFifaInfoForToken(tokenId tokenBytes32: BigUInt) -> FIFAInfo {
+
+    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
         //check if leading or trailing zeros
         let tokenId = tokenBytes32
-        if tokenId != 0 {
-            let lang = getLang()
-            let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
-            let location = getLocality(attribute: tokenHex.substring(to: 2), lang: lang)
-            let venue = getVenue(attribute: tokenHex.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
-            let time = Int(tokenHex.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)!
-            //translatable to ascii
-            let countryA = tokenHex.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
-            let countryB = tokenHex.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
-            let match = Int(tokenHex.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16)!
-            let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16)!
-            let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16)!
-            return FIFAInfo(
-                locality: location,
-                venue: venue,
-                time: time,
-                countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
-                countryB: String(data: Data(bytes: countryB), encoding: .utf8)!,
-                match: match,
+        guard tokenId != 0 else { return .empty }
+        let lang = getLang()
+        let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
+        let location = getLocality(attribute: tokenHex.substring(to: 2), lang: lang)
+        let venue = getVenue(attribute: tokenHex.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
+        let time = Int(tokenHex.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)!
+        //translatable to ascii
+        let countryA = tokenHex.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
+        let countryB = tokenHex.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
+        let match = Int(tokenHex.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16)!
+        let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16)!
+        let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16)!
+
+        return Ticket(
+                id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
+                index: index,
+                zone: location,
+                name: "FIFA WC",
+                venue: location,
+                date: Date(timeIntervalSince1970: TimeInterval(time)),
+                seatId: number,
                 category: category,
-                number: number
-            )
-        }
-        return self.blankFIFAInfo
+                countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
+                countryB: String(data: Data(bytes: countryB), encoding: .utf8)!
+        )
     }
 
     func getLang() -> Int {
         let lang = Locale.preferredLanguages[0]
         var langNum = 0
         //english etc is often en-SG
-        if lang.contains("en") {
+        if lang.hasPrefix("en") {
             langNum = 1
-        } else if lang.contains("zh") {
+        } else if lang.hasPrefix("zh") {
             langNum = 2
-        } else if lang.contains("es") {
+        } else if lang.hasPrefix("es") {
             langNum = 3
         }
         return langNum
