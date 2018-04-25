@@ -143,7 +143,7 @@ struct ImportTicketViewControllerViewModel {
     }
 
     var ethCostLabelLabelColor: UIColor {
-        return UIColor(red: 155, green: 155, blue: 155)
+        return Colors.appGrayLabelColor
     }
 
     var ethCostLabelLabelFont: UIFont {
@@ -172,7 +172,7 @@ struct ImportTicketViewControllerViewModel {
     }
 
     var dollarCostLabelLabelColor: UIColor {
-        return UIColor(red: 155, green: 155, blue: 155)
+        return Colors.appGrayLabelColor
     }
 
     var dollarCostLabelLabelFont: UIFont {

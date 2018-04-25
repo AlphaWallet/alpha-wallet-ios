@@ -45,7 +45,7 @@ struct SendHeaderViewViewModel {
     }
 
     var textColor: UIColor {
-        return UIColor(red: 155, green: 155, blue: 155)
+        return Colors.appGrayLabelColor
     }
 
     var valuePercentageChangeColor: UIColor {
@@ -71,9 +71,9 @@ struct SendHeaderViewViewModel {
     var valuePercentageChangeValue: String {
         switch EthCurrencyHelper(ticker: ticker).change24h {
         case .appreciate(let percentageChange24h):
-            return "+\(percentageChange24h)%"
+            return "\(percentageChange24h)%"
         case .depreciate(let percentageChange24h):
-            return "-\(percentageChange24h)%"
+            return "\(percentageChange24h)%"
         case .none:
             return "-"
         }

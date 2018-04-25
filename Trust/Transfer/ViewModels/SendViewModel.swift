@@ -69,7 +69,7 @@ struct SendViewModel {
     }
 
     var alternativeAmountColor: UIColor {
-        return UIColor(red: 155, green: 155, blue: 155)
+        return Colors.appGrayLabelColor
     }
     var alternativeAmountFont: UIFont {
         return Fonts.regular(size: 10)!
@@ -121,7 +121,7 @@ struct SendViewModel {
         return R.string.localizable.copy()
     }
     var textFieldsLabelTextColor: UIColor {
-        return UIColor(red: 155, green: 155, blue: 155)
+        return Colors.appGrayLabelColor
     }
     var textFieldsLabelFont: UIFont {
         return Fonts.regular(size: 10)!
