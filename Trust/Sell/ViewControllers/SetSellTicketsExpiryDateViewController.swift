@@ -368,15 +368,3 @@ extension SetSellTicketsExpiryDateViewController: TimeEntryFieldDelegate {
         }
     }
 }
-
-extension SetSellTicketsExpiryDateViewController: AmountTextFieldDelegate {
-    func changeAmount(in textField: AmountTextField) {
-        viewModel.ethCost = textField.ethCost
-        configure(viewModel: viewModel)
-    }
-
-    func changeType(in textField: AmountTextField) {
-        viewModel.ethCost = textField.ethCost
-        configure(viewModel: viewModel)
-    }
-}
