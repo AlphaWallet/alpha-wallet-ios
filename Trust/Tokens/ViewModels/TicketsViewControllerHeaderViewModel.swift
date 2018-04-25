@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import BigInt
 
 struct TicketsViewControllerHeaderViewModel {
     private let tokenObject: TokenObject
@@ -10,7 +11,7 @@ struct TicketsViewControllerHeaderViewModel {
     }
 
     var title: String {
-        return "\(R.string.localizable.aWalletTickets(totalValidTicketNumber)) \(tokenObject.title)"
+        return "\((totalValidTicketNumber)) \(tokenObject.title)"
     }
 
     var issuer: String {
@@ -47,7 +48,7 @@ struct TicketsViewControllerHeaderViewModel {
 
     var totalValidTicketNumber: String {
         let balance = tokenObject.balance
-        let validTickets = balance.filter { $0.balance > 0 }
+        let validTickets = balance.filter { $0.balance != Constants.nullTicket }
         return validTickets.count.toString()
     }
 }

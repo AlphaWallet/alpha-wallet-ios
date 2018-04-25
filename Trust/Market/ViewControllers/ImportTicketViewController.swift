@@ -27,6 +27,8 @@ class ImportTicketViewController: UIViewController {
     var viewModel: ImportTicketViewControllerViewModel?
     var query: String?
     var parameters: Parameters?
+    var signedOrder: SignedOrder?
+    var tokenObject: TokenObject?
 
     init() {
         super.init(nibName: nil, bundle: nil)

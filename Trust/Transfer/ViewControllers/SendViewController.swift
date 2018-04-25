@@ -260,11 +260,11 @@ class SendViewController: UIViewController {
         targetAddressTextField.layer.borderColor = viewModel.textFieldBorderColor.cgColor
         targetAddressTextField.layer.borderWidth = viewModel.textFieldBorderWidth
 
-        targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
+        //targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
         targetAddressLabel.font = viewModel.textFieldsLabelFont
         targetAddressLabel.textColor = viewModel.textFieldsLabelTextColor
 
-        amountLabel.text = R.string.localizable.aSendRecipientAmountTitle()
+        //amountLabel.text = R.string.localizable.aSendRecipientAmountTitle()
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
 
@@ -280,7 +280,7 @@ class SendViewController: UIViewController {
         alternativeAmountLabel.text = viewModel.alternativeAmountText
         alternativeAmountLabel.isHidden = !viewModel.showAlternativeAmount
 
-        myAddressLabelLabel.text = R.string.localizable.aSendSenderAddressTitle()
+        //myAddressLabelLabel.text = R.string.localizable.aSendSenderAddressTitle()
         myAddressLabelLabel.font = viewModel.textFieldsLabelFont
         myAddressLabelLabel.textColor = viewModel.textFieldsLabelTextColor
 
@@ -495,6 +495,13 @@ class SendViewController: UIViewController {
         }
     }
 
+
+//    private func getTicket(for id: UInt16) -> Ticket? {
+//        let tickets = ticketHolders.flatMap { $0.tickets }
+//        let filteredTickets = tickets.filter { UInt16($0.id, radix: 16)! == id }
+//        return filteredTickets[Int(id)]
+//    }
+    
     private func generateQRCode(from string: String) -> UIImage? {
         return string.toQRCode()
     }
@@ -506,6 +513,11 @@ class SendViewController: UIViewController {
                 guard let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
                 self.headerViewModel.title = "\(amount) \(self.session.config.server.name) (\(viewModel.symbol))"
+                let etherToken = TokensDataStore.etherToken(for: self.session.config)
+                let ticker = self.storage.coinTicker(for: etherToken)
+                self.headerViewModel.ticker = ticker
+                self.headerViewModel.currencyAmount = self.session.balanceCoordinator.viewModel.currencyAmount
+                self.headerViewModel.currencyAmountWithoutSymbol = self.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
                 if let viewModel = self.viewModel {
                     self.configure(viewModel: viewModel)
                 }
@@ -515,6 +527,11 @@ class SendViewController: UIViewController {
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
             headerViewModel.title = "\(amount) \(viewModel.symbol)"
+            let etherToken = TokensDataStore.etherToken(for: self.session.config)
+            let ticker = self.storage.coinTicker(for: etherToken)
+            self.headerViewModel.ticker = ticker
+            self.headerViewModel.currencyAmount = self.session.balanceCoordinator.viewModel.currencyAmount
+            self.headerViewModel.currencyAmountWithoutSymbol = self.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
             if let viewModel = self.viewModel {
                 configure(viewModel: self.viewModel)
             }

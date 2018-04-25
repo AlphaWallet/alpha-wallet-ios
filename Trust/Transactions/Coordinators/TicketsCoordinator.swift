@@ -281,9 +281,26 @@ class TicketsCoordinator: NSObject, Coordinator {
         return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
     }
 
-    private func generateSellLink(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow) -> String {
-        //TODO Generate sell link
-        return "https://app.awallet.com/a_sell_link"
+    private func generateSellLink(ticketHolder: TicketHolder,
+                                  linkExpiryDate: Date,
+                                  ethCost: String,
+                                  dollarCost: String,
+                                  paymentFlow: PaymentFlow) -> String {
+        let cost = Decimal(string: ethCost)! * Decimal(string: "1000000000000000000")!
+        let wei = BigUInt(cost.description)!
+        let order = Order(
+                price: wei,
+                indices: ticketHolder.ticketIndices,
+                expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
+                contractAddress: Constants.fifaContractAddress,
+                start: BigUInt("0")!,
+                count: ticketHolder.ticketIndices.count
+        )
+        let orders = [order]
+        let address = keystore.recentlyUsedWallet?.address
+        let account = try! EtherKeystore().getAccount(for: address!)
+        let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
+        return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
     }
 
     private func sellViaActivitySheet(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {

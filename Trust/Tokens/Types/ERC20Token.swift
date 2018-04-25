@@ -8,5 +8,5 @@ struct ERC20Token {
     let symbol: String
     let decimals: Int
     let isStormBird: Bool
-    let balance: [Int16]
+    let balance: [String]
 }
