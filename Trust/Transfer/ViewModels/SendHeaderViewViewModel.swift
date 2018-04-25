@@ -4,6 +4,9 @@ import UIKit
 
 struct SendHeaderViewViewModel {
     var title = ""
+    var ticker: CoinTicker? = nil
+    var currencyAmount: String? = nil
+    var currencyAmountWithoutSymbol: Double? = nil
 
     var issuer: String {
         return ""
@@ -46,8 +49,15 @@ struct SendHeaderViewViewModel {
     }
 
     var valuePercentageChangeColor: UIColor {
-        //TODO must have a different color when depreciate?
-        return Colors.appHighlightGreen
+        switch EthCurrencyHelper(ticker: ticker).change24h {
+        case .appreciate(_):
+            return Colors.appHighlightGreen
+        case .depreciate(_):
+            return Colors.appRed
+        case .none:
+            //TODO use the constant in Colors
+            return UIColor(red: 155, green: 155, blue: 155)
+        }
     }
 
     var textValueFont: UIFont {
@@ -59,9 +69,14 @@ struct SendHeaderViewViewModel {
     }
 
     var valuePercentageChangeValue: String {
-        //TODO read from model
-//        return "+50%"
-        return "N/A"
+        switch EthCurrencyHelper(ticker: ticker).change24h {
+        case .appreciate(let percentageChange24h):
+            return "+\(percentageChange24h)%"
+        case .depreciate(let percentageChange24h):
+            return "-\(percentageChange24h)%"
+        case .none:
+            return "-"
+        }
     }
 
     var valuePercentageChangePeriod: String {
@@ -69,9 +84,11 @@ struct SendHeaderViewViewModel {
     }
 
     var valueChange: String {
-        //TODO read from model
-//        return "$17,000"
-        return "N/A"
+        if let value = EthCurrencyHelper(ticker: ticker).valueChanged24h(currencyAmountWithoutSymbol: currencyAmountWithoutSymbol) {
+            return value
+        } else {
+            return "-"
+        }
     }
 
     var valueChangeName: String {
@@ -79,8 +96,11 @@ struct SendHeaderViewViewModel {
     }
 
     var value: String {
-        //TODO read from model
-        return "N/A"
+        if let currencyAmount = currencyAmount {
+            return currencyAmount
+        } else {
+            return "-"
+        }
     }
 
     var valueName: String {

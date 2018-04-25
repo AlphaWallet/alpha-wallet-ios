@@ -8,16 +8,19 @@ struct EthTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
     private let currencyAmount: String?
+    private let currencyAmountWithoutSymbol: Double?
     let ticker: CoinTicker?
 
     init(
         token: TokenObject,
         ticker: CoinTicker?,
-        currencyAmount: String?
+        currencyAmount: String?,
+        currencyAmountWithoutSymbol: Double?
     ) {
         self.token = token
         self.ticker = ticker
         self.currencyAmount = currencyAmount
+        self.currencyAmountWithoutSymbol = currencyAmountWithoutSymbol
     }
 
     var title: String {
@@ -73,8 +76,15 @@ struct EthTokenViewCellViewModel {
     }
 
     var valuePercentageChangeColor: UIColor {
-        //TODO must have a different color when depreciate?
-        return Colors.appHighlightGreen
+        switch EthCurrencyHelper(ticker: ticker).change24h {
+        case .appreciate(_):
+            return Colors.appHighlightGreen
+        case .depreciate(_):
+            return Colors.appRed
+        case .none:
+            //TODO use the constant in Colors
+            return UIColor(red: 155, green: 155, blue: 155)
+        }
     }
 
     var textValueFont: UIFont {
@@ -86,8 +96,14 @@ struct EthTokenViewCellViewModel {
     }
 
     var valuePercentageChangeValue: String {
-        //TODO read from model
-        return "+50%"
+        switch EthCurrencyHelper(ticker: ticker).change24h {
+        case .appreciate(let percentageChange24h):
+            return "+\(percentageChange24h)%"
+        case .depreciate(let percentageChange24h):
+            return "-\(percentageChange24h)%"
+        case .none:
+            return "-"
+        }
     }
 
     var valuePercentageChangePeriod: String {
@@ -95,8 +111,11 @@ struct EthTokenViewCellViewModel {
     }
 
     var valueChange: String {
-        //TODO read from model
-        return "$17,000"
+        if let value = EthCurrencyHelper(ticker: ticker).valueChanged24h(currencyAmountWithoutSymbol: currencyAmountWithoutSymbol) {
+            return value
+        } else {
+            return "-"
+        }
     }
 
     var valueChangeName: String {

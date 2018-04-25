@@ -252,7 +252,6 @@
 		29FF6D73201200D500A3011C /* FieldAppereance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF6D72201200D500A3011C /* FieldAppereance.swift */; };
 		442FC01053E2F1B59355A961 /* Arguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC7DC5A13C023F7F2C26 /* Arguments.swift */; };
 		442FC0B59B23C0F3068621C0 /* NumberStepper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC575B6A4A50B0555E1B0 /* NumberStepper.swift */; };
-		442FC126C8A73F70F2782025 /* TicketDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC6911EEE85B669D7BDA1 /* TicketDecode.swift */; };
 		442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */; };
 		442FC258BAEFDE2D64E48D0D /* TicketsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC8150042FE9179D574A /* TicketsCoordinator.swift */; };
 		442FC2CC21FFFC4FAB33A300 /* Ticket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC90F0768C43EF903465B /* Ticket.swift */; };
@@ -337,7 +336,6 @@
 		5E7C783B4784DE76971EEBB4 /* StatusViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BD9B4BDAFC2D9EBD741 /* StatusViewControllerViewModel.swift */; };
 		5E7C78407F6DCB0EDD562DF6 /* TicketTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C731B6F01534683227123 /* TicketTokenViewCellViewModel.swift */; };
 		5E7C78B3FD5CA87E395E1861 /* OnboardingPageStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AF9A592D7224ED58016 /* OnboardingPageStyle.swift */; };
-		5E7C78D6C94739B1ADDFBB5B /* WhyUseEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */; };
 		5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7103135DCCCAB96EE5FC /* OnboardingPage.swift */; };
 		5E7C798E5F5EE00D405B91AE /* TicketRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7ACB94CEE493AC37487F /* TicketRowView.swift */; };
 		5E7C79F30A324D75DF42DDDE /* SellTicketsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EB14E787BC019660389 /* SellTicketsViewModel.swift */; };
@@ -351,6 +349,7 @@
 		5E7C7C658D619C70F1E3DE59 /* AdvancedSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C719B717E002583B1E2E9 /* AdvancedSettingsViewModel.swift */; };
 		5E7C7C98EAF40E8110241DBD /* TicketTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C783E3ADA4CF9554A0E7D /* TicketTokenViewCell.swift */; };
 		5E7C7C9E89056069C8FEFA76 /* AlphaWalletSettingsSwitchRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7534FB6BF4D199643246 /* AlphaWalletSettingsSwitchRow.swift */; };
+		5E7C7CCC8D376C6E5C245715 /* EthCurrencyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73DF5FBFE756097D32B1 /* EthCurrencyHelper.swift */; };
 		5E7C7CDB837DCD57E0594CBA /* TicketsViewControllerTitleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */; };
 		5E7C7CE5CA19183FCED8C907 /* TokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EE467A7F5F2E5B1F660 /* TokensViewModel.swift */; };
 		5E7C7CF06533EDACC8E220B3 /* StaticHTMLViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */; };
@@ -364,7 +363,6 @@
 		5E7C7DD506747B6224C28721 /* TransferTicketsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E2486CDE31871C98FC7 /* TransferTicketsViewModel.swift */; };
 		5E7C7E04D4DDD7D8881A2AB1 /* UniversalLinkCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76AF81B8DFF605558499 /* UniversalLinkCoordinator.swift */; };
 		5E7C7E1B18EC7F7FD6D64439 /* SellTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FF84A4377FC395772C3 /* SellTicketsViewController.swift */; };
-		5E7C7E2C03099D78A9D911D7 /* WhatIsASeedPhraseInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B0BE9EE3B198AE7D92D /* WhatIsASeedPhraseInfoViewController.swift */; };
 		5E7C7E2F558A1DFF078B61F9 /* TransferTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7011D8E5C9FFE0E59D55 /* TransferTicketsViewController.swift */; };
 		5E7C7E4B4054AAD41C5BE3EC /* SettingsAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7564AF453BAB0BDAAA57 /* SettingsAction.swift */; };
 		5E7C7E5C30EFDC70DF1E00C1 /* TicketsViewControllerHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */; };
@@ -408,6 +406,7 @@
 		76F1D13FC8A41AD967C59947 /* ClaimOrderCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */; };
 		76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */; };
 		76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */; };
+		76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
 		76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */; };
 		76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */; };
@@ -458,6 +457,7 @@
 		AA893ED5203C3E5400CDCED1 /* TokenBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */; };
 		AAEB8DA2204BC7B700CB0B2C /* RedeemTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */; };
 		AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */; };
+		B138ABD0208C2C93000FC28A /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		B1DB1A95207DBF6D00CA2B77 /* XMLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */; };
 		B1DB1A97207DCECF00CA2B77 /* AssetDefinitionXML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */; };
 		B1DB1A99207DDF9600CA2B77 /* XMLHandlerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A98207DDF9600CA2B77 /* XMLHandlerTest.swift */; };
@@ -477,10 +477,8 @@
 		C880330D2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = C880330A2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png */; };
 		C880330E2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = C880330B2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png */; };
 		C88033122055034E00D73D6F /* sellInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C88033102055034E00D73D6F /* sellInfo.html */; };
-		C880331E20551DF800D73D6F /* whatIsASeedPhraseInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331420551DF700D73D6F /* whatIsASeedPhraseInfo.html */; };
 		C880331F20551DF800D73D6F /* howDoITransferETHIntoMyWalletInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331620551DF700D73D6F /* howDoITransferETHIntoMyWalletInfo.html */; };
 		C880332020551DF800D73D6F /* howDoIGetMyMoneyInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331820551DF700D73D6F /* howDoIGetMyMoneyInfo.html */; };
-		C880332120551DF800D73D6F /* whyUseEthereumInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331A20551DF700D73D6F /* whyUseEthereumInfo.html */; };
 		C880332220551DF800D73D6F /* whatIsEthereumInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C880331C20551DF700D73D6F /* whatIsEthereumInfo.html */; };
 		C887C5392057B703005ACF81 /* privacyPolicy.html in Resources */ = {isa = PBXBuildFile; fileRef = C887C5352057B703005ACF81 /* privacyPolicy.html */; };
 		C887C53A2057B703005ACF81 /* termsOfService.html in Resources */ = {isa = PBXBuildFile; fileRef = C887C5372057B703005ACF81 /* termsOfService.html */; };
@@ -773,7 +771,6 @@
 		442FC575B6A4A50B0555E1B0 /* NumberStepper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumberStepper.swift; sourceTree = "<group>"; };
 		442FC57AD0C04FAB66FB834D /* RedeemEventListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemEventListener.swift; sourceTree = "<group>"; };
 		442FC630874D29159799EEB6 /* GetNameCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetNameCoordinator.swift; sourceTree = "<group>"; };
-		442FC6911EEE85B669D7BDA1 /* TicketDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketDecode.swift; sourceTree = "<group>"; };
 		442FC72F9D22CC36AC015274 /* GetERC20Decimals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC20Decimals.swift; sourceTree = "<group>"; };
 		442FC8B1D5B4317DE7D68325 /* GetStormBirdBalance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetStormBirdBalance.swift; sourceTree = "<group>"; };
 		442FC90F0768C43EF903465B /* Ticket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ticket.swift; sourceTree = "<group>"; };
@@ -814,6 +811,7 @@
 		5E7C731B6F01534683227123 /* TicketTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C73495E0C0A207152EC25 /* LockEnterPasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LockEnterPasscodeViewController.swift; path = Trust/AlphaWalletLock/ViewControllers/LockEnterPasscodeViewController.swift; sourceTree = SOURCE_ROOT; };
 		5E7C73617E3A4C0B9A90A5F8 /* AmountTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountTextField.swift; sourceTree = "<group>"; };
+		5E7C73DF5FBFE756097D32B1 /* EthCurrencyHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthCurrencyHelper.swift; sourceTree = "<group>"; };
 		5E7C741196D9D9C9C3EE5E30 /* LockCreatePasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeViewController.swift; sourceTree = "<group>"; };
 		5E7C7419F47CC8B2996AA8F9 /* TransferTicketsQuantitySelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTicketsQuantitySelectionViewController.swift; sourceTree = "<group>"; };
 		5E7C74A2C738BF2412D412A7 /* TicketSellInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketSellInfoViewController.swift; sourceTree = "<group>"; };
@@ -821,7 +819,6 @@
 		5E7C74B9EB81C51E956566E7 /* TokensDataStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensDataStore.swift; sourceTree = "<group>"; };
 		5E7C74BEC095303B66FB4B1E /* ProtectionCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProtectionCoordinator.swift; sourceTree = "<group>"; };
 		5E7C74DCC21272EC231A20E2 /* RequestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestViewController.swift; sourceTree = "<group>"; };
-		5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhyUseEthereumInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C7534FB6BF4D199643246 /* AlphaWalletSettingsSwitchRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AlphaWalletSettingsSwitchRow.swift; path = Views/AlphaWalletSettingsSwitchRow.swift; sourceTree = "<group>"; };
 		5E7C7535095323B035CA47C0 /* ImportTicketViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportTicketViewController.swift; sourceTree = "<group>"; };
 		5E7C754C0E2E57F32A61F9A3 /* SetTransferTicketsExpiryDateViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTicketsExpiryDateViewControllerViewModel.swift; sourceTree = "<group>"; };
@@ -866,7 +863,6 @@
 		5E7C7AF9A592D7224ED58016 /* OnboardingPageStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingPageStyle.swift; sourceTree = "<group>"; };
 		5E7C7AFE9AF9FE6B58C925D4 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		5E7C7B089FD4C96810DD10FD /* HelpContentsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpContentsViewController.swift; sourceTree = "<group>"; };
-		5E7C7B0BE9EE3B198AE7D92D /* WhatIsASeedPhraseInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatIsASeedPhraseInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C7B1FB2702A2A8A4EBD76 /* SettingsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7B3302309706CA0F972A /* TokensViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensViewController.swift; sourceTree = "<group>"; };
 		5E7C7B7A45EDFA8ED1E25863 /* SendHeaderViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendHeaderViewViewModel.swift; sourceTree = "<group>"; };
@@ -985,6 +981,7 @@
 		AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalance.swift; sourceTree = "<group>"; };
 		AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemTicketsViewController.swift; sourceTree = "<group>"; };
 		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
+		B138ABCF208C2C93000FC28A /* MonkeyTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonkeyTest.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
 		B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLHandler.swift; sourceTree = "<group>"; };
 		B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDefinitionXML.swift; sourceTree = "<group>"; };
@@ -1008,16 +1005,12 @@
 		C880330F205500C300D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/redeemInfo.html"; sourceTree = "<group>"; };
 		C88033112055034E00D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/sellInfo.html; sourceTree = "<group>"; };
 		C88033132055035200D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/sellInfo.html"; sourceTree = "<group>"; };
-		C880331520551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/whatIsASeedPhraseInfo.html; sourceTree = "<group>"; };
 		C880331720551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/howDoITransferETHIntoMyWalletInfo.html; sourceTree = "<group>"; };
 		C880331920551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/howDoIGetMyMoneyInfo.html; sourceTree = "<group>"; };
-		C880331B20551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/whyUseEthereumInfo.html; sourceTree = "<group>"; };
 		C880331D20551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/whatIsEthereumInfo.html; sourceTree = "<group>"; };
 		C880332320552FED00D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/howDoIGetMyMoneyInfo.html"; sourceTree = "<group>"; };
 		C880332420552FF100D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/howDoITransferETHIntoMyWalletInfo.html"; sourceTree = "<group>"; };
-		C880332520552FF400D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/whatIsASeedPhraseInfo.html"; sourceTree = "<group>"; };
 		C880332620552FF700D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/whatIsEthereumInfo.html"; sourceTree = "<group>"; };
-		C880332720552FF900D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/whyUseEthereumInfo.html"; sourceTree = "<group>"; };
 		C887C5362057B703005ACF81 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/privacyPolicy.html; sourceTree = "<group>"; };
 		C887C5382057B703005ACF81 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/termsOfService.html; sourceTree = "<group>"; };
 		C887C53B2057B707005ACF81 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/privacyPolicy.html"; sourceTree = "<group>"; };
@@ -1067,9 +1060,7 @@
 				C887C5372057B703005ACF81 /* termsOfService.html */,
 				C880331820551DF700D73D6F /* howDoIGetMyMoneyInfo.html */,
 				C880331620551DF700D73D6F /* howDoITransferETHIntoMyWalletInfo.html */,
-				C880331420551DF700D73D6F /* whatIsASeedPhraseInfo.html */,
 				C880331C20551DF700D73D6F /* whatIsEthereumInfo.html */,
-				C880331A20551DF700D73D6F /* whyUseEthereumInfo.html */,
 				C88033102055034E00D73D6F /* sellInfo.html */,
 				C868C534205409160059672B /* redeemInfo.html */,
 				290B2B561F8F50030053C83E /* Localizable.strings */,
@@ -1677,6 +1668,7 @@
 				5E7C75CC640BAFFE0E789F44 /* WalletFilterViewModel.swift */,
 				5E7C74B82783A94091A43470 /* EthTokenViewCellViewModel.swift */,
 				5E7C7A16ABC8BD5D508AA641 /* ImportWalletHelpBubbleViewViewModel.swift */,
+				5E7C73DF5FBFE756097D32B1 /* EthCurrencyHelper.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -1740,6 +1732,7 @@
 				73D2683A202E8411009777A1 /* DecimalNumberFormatterTest.swift */,
 				73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */,
 				B1DB1A98207DDF9600CA2B77 /* XMLHandlerTest.swift */,
+				B138ABCF208C2C93000FC28A /* MonkeyTest.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -2280,7 +2273,6 @@
 			isa = PBXGroup;
 			children = (
 				442FC20E6470B92A46479342 /* TicketAdaptor.swift */,
-				442FC6911EEE85B669D7BDA1 /* TicketDecode.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -2293,8 +2285,6 @@
 				5E7C7B089FD4C96810DD10FD /* HelpContentsViewController.swift */,
 				5E7C78B001F9F95F404D5FEF /* HowDoIGetMyMoneyInfoViewController.swift */,
 				5E7C7D4F7C566EDD30EF1C19 /* HowDoITransferETHIntoMyWalletInfoViewController.swift */,
-				5E7C7B0BE9EE3B198AE7D92D /* WhatIsASeedPhraseInfoViewController.swift */,
-				5E7C74FABE14B7B1BEEC4F5E /* WhyUseEthereumInfoViewController.swift */,
 				5E7C72142D5817EF8FA8CADA /* PrivacyPolicyViewController.swift */,
 				5E7C7607B0EF9B8F1BC41073 /* TermsOfServiceViewController.swift */,
 			);
@@ -2936,12 +2926,10 @@
 				C876FF85204A79D300B7D0EA /* SourceSansPro-Semibold.otf in Resources */,
 				C880330E2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png in Resources */,
 				C880332020551DF800D73D6F /* howDoIGetMyMoneyInfo.html in Resources */,
-				C880331E20551DF800D73D6F /* whatIsASeedPhraseInfo.html in Resources */,
 				613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */,
 				C887C53A2057B703005ACF81 /* termsOfService.html in Resources */,
 				C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */,
 				C880330D2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png in Resources */,
-				C880332120551DF800D73D6F /* whyUseEthereumInfo.html in Resources */,
 				29FA00D2201CA79F002F7DC5 /* web3.min.js in Resources */,
 				771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */,
 				C88033122055034E00D73D6F /* sellInfo.html in Resources */,
@@ -3492,7 +3480,6 @@
 				442FC2CC21FFFC4FAB33A300 /* Ticket.swift in Sources */,
 				442FCAD7292D93C261B97D09 /* TicketHolder.swift in Sources */,
 				442FC81F38F80EEF54C69C5B /* TicketAdaptor.swift in Sources */,
-				442FC126C8A73F70F2782025 /* TicketDecode.swift in Sources */,
 				442FC258BAEFDE2D64E48D0D /* TicketsCoordinator.swift in Sources */,
 				76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */,
 				76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */,
@@ -3521,8 +3508,6 @@
 				5E7C70BE9AE35408038E1971 /* HelpContentsViewController.swift in Sources */,
 				5E7C7C21E5CAF122AA4F6617 /* HowDoIGetMyMoneyInfoViewController.swift in Sources */,
 				5E7C7FE8247F0E50BEF35D77 /* HowDoITransferETHIntoMyWalletInfoViewController.swift in Sources */,
-				5E7C7E2C03099D78A9D911D7 /* WhatIsASeedPhraseInfoViewController.swift in Sources */,
-				5E7C78D6C94739B1ADDFBB5B /* WhyUseEthereumInfoViewController.swift in Sources */,
 				5E7C7D8AFC9BA1E8C1D05167 /* TicketSellInfoViewController.swift in Sources */,
 				5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */,
 				5E7C701BFF4469B35A074EB9 /* RequestViewModel.swift in Sources */,
@@ -3606,6 +3591,7 @@
 				5E7C76696EF7F27EC0788CDD /* GenerateTransferMagicLinkViewControllerViewModel.swift in Sources */,
 				5E7C75E5C64619ABFD246183 /* TransferTicketsViaWalletAddressViewController.swift in Sources */,
 				5E7C7EAEBB435F3909DA36FB /* TransferTicketsViaWalletAddressViewControllerViewModel.swift in Sources */,
+				5E7C7CCC8D376C6E5C245715 /* EthCurrencyHelper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3679,6 +3665,7 @@
 				442FC8E82231273273B95D85 /* FakeClaimOrderCoordinator.swift in Sources */,
 				442FCBA4A5E39A4C4B16426A /* EventsRestTest.swift in Sources */,
 				76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */,
+				76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3687,6 +3674,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2912CD1B1F6A830700C6CBE3 /* TrustUITests.swift in Sources */,
+				B138ABD0208C2C93000FC28A /* MonkeyTest.swift in Sources */,
 				29358D9F1F78D5B700925D61 /* Screenshots.swift in Sources */,
 				29358D991F78D1E400925D61 /* SnapshotHelper.swift in Sources */,
 			);
@@ -3743,15 +3731,6 @@
 			name = sellInfo.html;
 			sourceTree = "<group>";
 		};
-		C880331420551DF700D73D6F /* whatIsASeedPhraseInfo.html */ = {
-			isa = PBXVariantGroup;
-			children = (
-				C880331520551DF700D73D6F /* en */,
-				C880332520552FF400D73D6F /* zh-Hans */,
-			);
-			name = whatIsASeedPhraseInfo.html;
-			sourceTree = "<group>";
-		};
 		C880331620551DF700D73D6F /* howDoITransferETHIntoMyWalletInfo.html */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -3768,15 +3747,6 @@
 				C880332320552FED00D73D6F /* zh-Hans */,
 			);
 			name = howDoIGetMyMoneyInfo.html;
-			sourceTree = "<group>";
-		};
-		C880331A20551DF700D73D6F /* whyUseEthereumInfo.html */ = {
-			isa = PBXVariantGroup;
-			children = (
-				C880331B20551DF700D73D6F /* en */,
-				C880332720552FF900D73D6F /* zh-Hans */,
-			);
-			name = whyUseEthereumInfo.html;
 			sourceTree = "<group>";
 		};
 		C880331C20551DF700D73D6F /* whatIsEthereumInfo.html */ = {
