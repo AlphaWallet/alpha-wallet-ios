@@ -24,6 +24,7 @@ func applyStyle() {
     //We could have set the backBarButtonItem with an empty title for every view controller, but we don't have a place to do it for Eureka view controllers. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
     UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: -200, vertical: 0), for: .default)
     UIBarButtonItem.appearance().tintColor = Colors.appWhite
+    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIToolbar.self]).tintColor = Colors.appBackground
 
     UIToolbar.appearance().tintColor = Colors.appBackground
 
