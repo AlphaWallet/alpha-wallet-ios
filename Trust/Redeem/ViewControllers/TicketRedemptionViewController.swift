@@ -136,10 +136,6 @@ class TicketRedemptionViewController: UIViewController {
         }
     }
     
-    deinit {
-        print("deinit called")
-    }
-
     func configure(viewModel: TicketRedemptionViewModel) {
         self.viewModel = viewModel
 
