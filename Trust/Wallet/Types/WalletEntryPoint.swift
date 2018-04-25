@@ -6,4 +6,5 @@ enum WalletEntryPoint {
     case welcome
     case createInstantWallet
     case importWallet
+    case backupWallet
 }
