@@ -36,6 +36,11 @@ class InCoordinator: Coordinator {
     var keystore: Keystore
     var config: Config
     let appTracker: AppTracker
+    lazy var ethPrice: Subscribable<Double> = {
+        var value = Subscribable<Double>(nil)
+        fetchEthPrice()
+        return value
+    }()
     weak var delegate: InCoordinatorDelegate?
     var transactionCoordinator: TransactionCoordinator? {
         return self.coordinators.flatMap {
@@ -80,6 +85,28 @@ class InCoordinator: Coordinator {
 
         helpUsCoordinator.start()
         addCoordinator(helpUsCoordinator)
+    }
+
+    func fetchEthPrice() {
+        let keystore = try! EtherKeystore()
+        let migration = MigrationInitializer(account: keystore.recentlyUsedWallet! , chainID: config.chainID)
+        migration.perform()
+        let web3 = self.web3(for: config.server)
+        web3.start()
+        let realm = self.realm(for: migration.config)
+        let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, web3: web3)
+        tokensStorage.updatePrices()
+
+        let etherToken = TokensDataStore.etherToken(for: config)
+        tokensStorage.tokensModel.subscribe {[weak self] tokensModel in
+            guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
+                return
+            }
+            var ticker = tokensStorage.coinTicker(for: eth)
+            if let ticker = ticker {
+                self?.ethPrice.value = Double(ticker.price)
+            }
+        }
     }
 
     func showTabBar(for account: Wallet) {
@@ -336,6 +363,7 @@ class InCoordinator: Coordinator {
 }
 
 extension InCoordinator: TicketsCoordinatorDelegate {
+
     func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in coordinator: TicketsCoordinator) {
         showPaymentFlow(for: type, ticketHolders: ticketHolders, in: coordinator)
     }
@@ -401,6 +429,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
+    
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
         showPaymentFlow(for: type)
     }
@@ -415,7 +444,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
     // This function deal with the special case that the ticket price = 0
     // but not sent to the paymaster because the user has ether.
 
-    func importSignedOrder(signedOrder: SignedOrder, in coordinator: TokensCoordinator, tokenObject: TokenObject) {
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
         let web3 = self.web3(for: config.server)
         web3.start()
         let signature = signedOrder.signature.substring(from: 2)
@@ -423,17 +452,17 @@ extension InCoordinator: TokensCoordinatorDelegate {
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
 
-        ClaimOrderCoordinator.init(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) {
+        ClaimOrderCoordinator(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) {
             result in
             switch result {
             case .success(let payload):
                 let address: Address = self.initialWallet.address
                 let transaction = UnconfirmedTransaction(
                         transferType: .stormBirdOrder(tokenObject),
-                        value: BigInt("0"),
+                        value: BigInt(signedOrder.order.price),
                         to: address,
                         data: Data(bytes: payload.hexa2Bytes),
-                        gasLimit: .none,
+                        gasLimit: Constants.gasLimit,
                         gasPrice: 14400,
                         nonce: .none,
                         v: v,
@@ -443,7 +472,6 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         indices: signedOrder.order.indices
                 )
 
-                let balanceCoordinator = GetStormBirdBalanceCoordinator(web3: web3)
                 let wallet = self.keystore.recentlyUsedWallet!
                 let migration = MigrationInitializer(account: wallet, chainID: self.config.chainID)
                 migration.perform()
@@ -467,28 +495,30 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
                 let signTransaction = configurator.formUnsignedTransaction()
 
-                let signedTransaction = UnsignedTransaction(value: signTransaction.value,
+                let signedTransaction = UnsignedTransaction(
+                        value: signTransaction.value,
                         account: account,
                         to: signTransaction.to,
                         nonce: signTransaction.nonce,
                         data: signTransaction.data,
                         gasPrice: signTransaction.gasPrice,
                         gasLimit: signTransaction.gasLimit,
-                        chainID: 3)
-
-
-                let sendTransactionCoordinator = SendTransactionCoordinator(session: session,
+                        chainID: self.config.chainID
+                )
+                let sendTransactionCoordinator = SendTransactionCoordinator(
+                        session: session,
                         keystore: self.keystore,
-                        confirmType: .signThenSend)
+                        confirmType: .signThenSend
+                )
 
                 sendTransactionCoordinator.send(transaction: signedTransaction) { result in
                     switch result {
                     case .success(let res):
-		        // TODO: user still isn't unaware when this happens
-                        print(res);
+                        completion(true)
+                        print(res)
                     case .failure(let error):
-		        // TODO: user still isn't unaware when this happens
-                        print(error);
+                        completion(false)
+                        print(error)
                     }
                 }
             case .failure: break

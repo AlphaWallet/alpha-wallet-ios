@@ -31,14 +31,18 @@ struct BalanceViewModel: BalanceBaseViewModel {
     }
 
     var currencyAmount: String? {
+        guard let totalAmount = currencyAmountWithoutSymbol else { return nil }
+        return CurrencyFormatter.formatter.string(from: NSNumber(value: totalAmount))
+    }
+
+    var currencyAmountWithoutSymbol: Double? {
         guard let rate = rate else { return nil }
         guard
-            let currentRate = (rate.rates.filter { $0.code == config.server.symbol }.first),
-            currentRate.price > 0,
-            amount > 0
-        else { return nil }
-        let totalAmount = amount * currentRate.price
-        return CurrencyFormatter.formatter.string(from: NSNumber(value: totalAmount))
+                let currentRate = (rate.rates.filter { $0.code == config.server.symbol }.first),
+                currentRate.price > 0,
+                amount > 0
+                else { return nil }
+        return amount * currentRate.price
     }
 
     var amountFull: String {
