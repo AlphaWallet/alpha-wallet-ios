@@ -33,6 +33,8 @@ class InitialWalletCreationCoordinator: Coordinator {
             showCreateWallet()
         case .importWallet:
             presentImportWallet()
+        case .backupWallet:
+            break
         }
     }
 

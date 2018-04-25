@@ -26,7 +26,8 @@ class WalletCoordinator: Coordinator {
         self.keystore = keystore
     }
 
-    func start(_ entryPoint: WalletEntryPoint) {
+    //Return true if proceed
+    func start(_ entryPoint: WalletEntryPoint) -> Bool {
         self.entryPoint = entryPoint
         switch entryPoint {
         case .welcome:
@@ -41,7 +42,16 @@ class WalletCoordinator: Coordinator {
             navigationController.viewControllers = [controller]
         case .createInstantWallet:
             createInstantWallet()
+        case .backupWallet:
+            if let type = keystore.recentlyUsedWallet?.type, case let .real(account) = type {
+                guard !Config().isWalletAddresseAlreadyPromptedForBackUp(address: account.address.eip55String) else { return false }
+                Config().addToWalletAddressesAlreadyPromptedForBackup(address: account.address.eip55String)
+                pushBackup(for: account)
+            } else {
+                return false
+            }
         }
+        return true
     }
 
     func pushImportWallet() {
