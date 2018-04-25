@@ -7,60 +7,71 @@
 
 import Foundation
 import SwiftyXMLParser
-
-struct FIFAInfo {
-    let locale: String
-    let venue: String
-    let time: Int
-    let countryA: String
-    let countryB: String
-    let match: Int
-    let category: Int
-    let number: Int
-}
-
-/**
- langs:
- 0 = ru
- 1 = en
- 2 = zh
- 3 = es
- */
+import BigInt
 
 public class XMLHandler {
-    
+
     private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
-    
-    func getFifaInfoForToken(tokenId: String, lang: Int) -> FIFAInfo {
-        let locale = getLocale(attribute: tokenId.substring(to: 2), lang: lang)
-        let venue = getVenue(attribute: tokenId.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
-        let time = Int(tokenId.substring(with: Range(uncheckedBounds: (5, 12))), radix: 16)!
+
+    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
+        //check if leading or trailing zeros
+        let tokenId = tokenBytes32
+        guard tokenId != 0 else { return .empty }
+        let lang = getLang()
+        let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
+        let location = getLocality(attribute: tokenHex.substring(to: 2), lang: lang)
+        let venue = getVenue(attribute: tokenHex.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
+        let time = Int(tokenHex.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)!
         //translatable to ascii
-        let countryA = tokenId.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
-        let countryB = tokenId.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
-        let match = Int(tokenId.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16)!
-        let category = Int(tokenId.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16)!
-        let number = Int(tokenId.substring(from: 28), radix: 16)!
-        return FIFAInfo(
-                        locale: locale,
-                        venue: venue,
-                        time: time,
-                        countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
-                        countryB: String(data: Data(bytes:countryB), encoding: .utf8)!,
-                        match: match,
-                        category: category,
-                        number: number
+        let countryA = tokenHex.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
+        let countryB = tokenHex.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
+        let match = Int(tokenHex.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16)!
+        let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16)!
+        let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16)!
+
+        return Ticket(
+                id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
+                index: index,
+                zone: location,
+                name: "FIFA WC",
+                venue: location,
+                date: Date(timeIntervalSince1970: TimeInterval(time)),
+                seatId: number,
+                category: category,
+                countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
+                countryB: String(data: Data(bytes: countryB), encoding: .utf8)!
         )
     }
-    
-    func getLocale(attribute: String, lang: Int) -> String {
-        let localeNumber = Int(attribute, radix: 16)!
-        return xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][localeNumber]["name"][lang].text!
+
+    func getLang() -> Int {
+        let lang = Locale.preferredLanguages[0]
+        var langNum = 0
+        //english etc is often en-SG
+        if lang.hasPrefix("en") {
+            langNum = 1
+        } else if lang.hasPrefix("zh") {
+            langNum = 2
+        } else if lang.hasPrefix("es") {
+            langNum = 3
+        }
+        return langNum
     }
-    
+
+    func getLocality(attribute: String, lang: Int) -> String {
+        //TODO find out why - 1
+        let locality = Int(attribute, radix: 16)! - 1
+        if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][locality]["name"][lang].text {
+            return parsedLocality
+        }
+        return "N/A"
+    }
+
     func getVenue(attribute: String, lang: Int) -> String {
         let venueNumber = Int(attribute, radix: 16)!
-        return xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber]["name"][lang].text!
+        if let parsedVenue = xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber]["name"][lang].text {
+            return parsedVenue
+        }
+        return "N/A"
     }
-    
+
 }

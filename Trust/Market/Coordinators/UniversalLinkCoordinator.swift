@@ -2,20 +2,129 @@
 
 import Foundation
 import Alamofire
+import BigInt
+import Realm
 
 protocol UniversalLinkCoordinatorDelegate: class {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
 	func completed(in coordinator: UniversalLinkCoordinator)
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
 }
+
 
 class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	weak var delegate: UniversalLinkCoordinatorDelegate?
 	var importTicketViewController: ImportTicketViewController?
+    var ethPrice: Subscribable<Double>?
 
-	func start() {
+	func start()
+    {
 		preparingToImportUniversalLink()
 	}
+    
+    func createHTTPParametersForPaymentServer(signedOrder: SignedOrder, isForTransfer: Bool) -> Parameters {
+        // form the json string out of the order for the paymaster server
+        // James S. wrote
+        let keystore = try! EtherKeystore()
+        let signature = signedOrder.signature.substring(from: 2)
+        let indices = signedOrder.order.indices
+        let indicesStringEncoded = stringEncodeIndices(indices)
+        let address = (keystore.recentlyUsedWallet?.address.eip55String)!
+        var parameters: Parameters = [
+            "address": address,
+            "indices": indicesStringEncoded,
+            "price": signedOrder.order.price.description,
+            "expiry": signedOrder.order.expiry.description,
+            "v": signature.substring(from: 128),
+            "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
+            "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
+        ]
+        
+        if isForTransfer {
+            parameters.removeValue(forKey: "price")
+        }
+        
+        return parameters
+    }
+
+    func handlePaidUniversalLink(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
+        //TODO localize
+        if let viewController = delegate?.viewControllerForPresenting(in: self) {
+            if let vc = importTicketViewController {
+                vc.signedOrder = signedOrder
+                vc.tokenObject = TokenObject(contract: signedOrder.order.contractAddress,
+                                                name: Constants.event,
+                                                symbol: "FIFA",
+                                                decimals: 0,
+                                                value: signedOrder.order.price.description,
+                                                isCustom: true,
+                                                isDisabled: false,
+                                                isStormBird: true
+                )
+            }
+            //nil or "" implies free, if using payment server it is always free
+            let etherprice = signedOrder.order.price /// 1000000000000000000
+            let divideAmount = Decimal(string: "1000000000000000000")!
+            let etherPriceDecimal = Decimal(string: etherprice.description)! / divideAmount
+            if let price = ethPrice {
+                if let s = price.value {
+                    let dollarCost = Decimal(s) * etherPriceDecimal
+                    self.promptImportUniversalLink(
+                            ticketHolder: ticketHolder,
+                            ethCost: etherPriceDecimal.description,
+                            dollarCost: dollarCost.description
+                    )
+                }
+                else
+                {
+                    price.subscribe { value in
+                        //TODO good to test if there's a leak here if user has already cancelled before this
+                        if let s = price.value {
+                            let dollarCost = Decimal(s) * etherPriceDecimal
+                            self.promptImportUniversalLink(
+                                    ticketHolder: ticketHolder,
+                                    ethCost: etherPriceDecimal.description,
+                                    dollarCost: dollarCost.description
+                            )
+                        }
+                    }
+                }
+            } else {
+                //No wallet and should be handled by client code, but we'll just be careful
+                //TODO pass in error message
+                showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
+            }
+        }
+        return true
+    }
+
+    func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
+        let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: true)
+        let query = Constants.paymentServer
+        //TODO localize
+        if let viewController = delegate?.viewControllerForPresenting(in: self) {
+            UIAlertController.alert(title: nil, message: "Import Link?",
+                                    alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()],
+                                    alertButtonStyles: [.default, .cancel], viewController: viewController) {
+                //ok else cancel
+                if $0 == 0 {
+                    self.importUniversalLink(query: query, parameters: parameters)
+                }
+            }
+            if let vc = importTicketViewController {
+                vc.query = query
+                vc.parameters = parameters
+            }
+            //nil or "" implies free, if using payment server it is always free
+            self.promptImportUniversalLink(
+                    ticketHolder: ticketHolder,
+                    ethCost: "",
+                    dollarCost: ""
+            )
+        }
+        return true
+    }
 
 	//Returns true if handled
 	func handleUniversalLink(url: URL?) -> Bool {
@@ -23,59 +132,105 @@ class UniversalLinkCoordinator: Coordinator {
 		guard matchedPrefix else {
 			return false
 		}
-		let keystore = try! EtherKeystore()
-		let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
-		let signature = signedOrder.signature.substring(from: 2)
 
-		// form the json string out of the order for the paymaster server
-		// James S. wrote
-		let indices = signedOrder.order.indices
-		var indicesStringEncoded = ""
-
-		for i in 0...indices.count - 1 {
-			indicesStringEncoded += String(indices[i]) + ","
-		}
-		//cut off last comma
-		indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
-		let address = (keystore.recentlyUsedWallet?.address.eip55String)!
-
-		let parameters: Parameters = [
-			"address": address,
-			"indices": indicesStringEncoded,
-			"expiry": signedOrder.order.expiry.description,
-			"v": signature.substring(from: 128),
-			"r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
-			"s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
-		]
-		let query = UniversalLinkHandler.paymentServer
-
-		//TODO check if URL is valid or not by validating signature, low priority
-		if signature.count > 128 {
-			//TODO create Ticket instances and 1 TicketHolder instance and compute cost from link's information
-			let ticket = Ticket(id: 1, index: 1, zone: "", name: "", venue: "", date: Date(), seatId: 1)
-			let ticketHolder = TicketHolder(
-					tickets: [ticket],
-					zone: "ABC",
-					name: "Applying for mortages (APM)",
-					venue: "XYZ Stadium",
-					date: Date(),
-					status: .available
-			)
-			//nil or "" implies free
-			let ethCost = "0.00001"
-			let dollarCost = "0.004"
-            if let vc = importTicketViewController {
-                vc.query = query
-                vc.parameters = parameters
+        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
+        getTicketDetailsAndEcRecover(signedOrder: signedOrder) {
+            result in
+            if let goodResult = result {
+                if signedOrder.order.price > 0
+                {
+                    let success = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: goodResult)
+                }
+                else
+                {
+                    let success = self.usePaymentServerForFreeTransferLinks(
+                            signedOrder: signedOrder,
+                            ticketHolder: goodResult
+                    )
+                }
             }
-			self.promptImportUniversalLink(ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
-		} else {
-			//TODO Pass in error message
-			self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
-		}
+            else {
+                self.showImportError(errorMessage: "Invalid Link, please try again")
+            }
 
-		return true
+        }
+        return true
 	}
+
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
+        updateImportTicketController(with: .processing)
+        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject) { successful in
+            if self.importTicketViewController != nil {
+                if let vc = self.importTicketViewController, var _ = vc.viewModel {
+                    if successful {
+                        self.showImportSuccessful()
+                    } else {
+                        //TODO Pass in error message
+                        self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
+                    }
+                }
+            }
+        }
+
+    }
+
+    private func stringEncodeIndices(_ indices: [UInt16]) -> String {
+        return indices.map(String.init).joined(separator: ",")
+    }
+
+    private func getTicketDetailsAndEcRecover(
+            signedOrder: SignedOrder,
+            completion: @escaping( _ response: TicketHolder?) -> Void
+    ) {
+        let indices = signedOrder.order.indices
+        let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: false)
+        
+        Alamofire.request(Constants.getTicketInfoFromServer, method: .get, parameters: parameters).responseJSON {
+            response in
+            if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
+                if let statusCode = response.response?.statusCode
+                {
+                    if statusCode > 299 {
+                        completion(nil)
+                        return
+                    }
+                }
+                var array = utf8Text.split(separator: ",").map(String.init)
+                if array.isEmpty || array[0] == "invalid indices" {
+                    completion(nil)
+                    return
+                }
+                //start at one to slice off address
+                let bytes32Tickets = Array(array[1...])
+                completion(self.sortTickets(bytes32Tickets, indices))
+            }
+            else
+            {
+                completion(nil)
+            }
+        }
+    }
+    
+    private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16]) -> TicketHolder
+    {
+        var tickets = [Ticket]()
+        let xmlHandler = XMLHandler()
+        for i in 0...bytes32Tickets.count - 1 {
+            if let tokenId = BigUInt(bytes32Tickets[i], radix: 16) {
+                let ticket = xmlHandler.getFifaInfoForTicket(tokenId: tokenId, index: UInt16(i))
+                tickets.append(ticket)
+            }
+        }
+        let ticketHolder = TicketHolder(
+            tickets: tickets,
+            zone: tickets[0].zone,
+            name: tickets[0].name,
+            venue: tickets[0].venue,
+            date: tickets[0].date,
+            status: .available
+        )
+        return ticketHolder
+    }
 
 	private func preparingToImportUniversalLink() {
 		if let viewController = delegate?.viewControllerForPresenting(in: self) {
@@ -125,9 +280,10 @@ class UniversalLinkCoordinator: Coordinator {
         updateImportTicketController(with: .failed(errorMessage: errorMessage))
 	}
 
+    //handling free transfers, sell links cannot be handled here
 	private func importUniversalLink(query: String, parameters: Parameters) {
 		updateImportTicketController(with: .processing)
-
+        
         Alamofire.request(
                 query,
                 method: .post,
@@ -158,7 +314,6 @@ class UniversalLinkCoordinator: Coordinator {
     }
 }
 
-
 extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
 	func didPressDone(in viewController: ImportTicketViewController) {
 		viewController.dismiss(animated: true)
@@ -166,9 +321,13 @@ extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
 	}
 
 	func didPressImport(in viewController: ImportTicketViewController) {
-		if let query = viewController.query, let parameters = viewController.parameters {
-			importUniversalLink(query: query, parameters: parameters)
-		}
+        if let query = viewController.query, let parameters = viewController.parameters {
+            importUniversalLink(query: query, parameters: parameters)
+        } else {
+            if let signedOrder = viewController.signedOrder, let tokenObj = viewController.tokenObject {
+                importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObj)
+            }
+        }
 	}
 }
 
