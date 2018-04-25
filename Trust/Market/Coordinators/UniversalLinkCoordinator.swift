@@ -265,15 +265,10 @@ class UniversalLinkCoordinator: Coordinator {
 	}
 
 	private func promptBackupWallet() {
-		let keystore = try! EtherKeystore()
-		let coordinator = WalletCoordinator(keystore: keystore)
-		coordinator.delegate = self
-		let proceed = coordinator.start(.backupWallet)
-        guard proceed else { return }
-		if let vc = delegate?.viewControllerForPresenting(in: self) {
-			vc.present(coordinator.navigationController, animated: true, completion: nil)
-		}
+		let coordinator = PromptBackupCoordinator()
 		addCoordinator(coordinator)
+		coordinator.delegate = self
+		coordinator.start()
 	}
 
 	private func showImportError(errorMessage: String) {
@@ -331,19 +326,12 @@ extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
 	}
 }
 
-extension UniversalLinkCoordinator: WalletCoordinatorDelegate {
-	func didFinish(with account: Wallet, in coordinator: WalletCoordinator) {
-		coordinator.navigationController.dismiss(animated: true, completion: nil)
-		removeCoordinator(coordinator)
+extension UniversalLinkCoordinator: PromptBackupCoordinatorDelegate {
+	func viewControllerForPresenting(in coordinator: PromptBackupCoordinator) -> UIViewController? {
+		return delegate?.viewControllerForPresenting(in: self)
 	}
 
-	func didFail(with error: Error, in coordinator: WalletCoordinator) {
-		coordinator.navigationController.dismiss(animated: true, completion: nil)
-		removeCoordinator(coordinator)
-	}
-
-	func didCancel(in coordinator: WalletCoordinator) {
-		coordinator.navigationController.dismiss(animated: true, completion: nil)
+	func didFinish(in coordinator: PromptBackupCoordinator) {
 		removeCoordinator(coordinator)
 	}
 }
