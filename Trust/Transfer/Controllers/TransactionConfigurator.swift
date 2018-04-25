@@ -118,7 +118,7 @@ class TransactionConfigurator {
                         let data = Data(hex: res.drop0x)
                         self.configuration = TransactionConfiguration(
                                 gasPrice: self.calculatedGasPrice,
-                                gasLimit: 144000,
+                                gasLimit: Constants.gasLimit,
                                 data: data
                         )
                         completion(.success(()))
@@ -134,7 +134,7 @@ class TransactionConfigurator {
                         let data = Data(hex: res.drop0x)
                         self.configuration = TransactionConfiguration(
                                 gasPrice: self.calculatedGasPrice,
-                                gasLimit: 144000,
+                                gasLimit: Constants.gasLimit,
                                 data: data
                         )
                         completion(.success(()))
@@ -151,7 +151,7 @@ class TransactionConfigurator {
                         let data = Data(hex: res.drop0x)
                         self.configuration = TransactionConfiguration(
                                 gasPrice: self.calculatedGasPrice,
-                                gasLimit: 144000,
+                                gasLimit: Constants.gasLimit,
                                 data: data
                         )
                         completion(.success(()))

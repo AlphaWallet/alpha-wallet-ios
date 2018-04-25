@@ -1,13 +1,18 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import BigInt
 
 public struct Constants {
     public static let coinbaseWidgetCode = "88d6141a-ff60-536c-841c-8f830adaacfd"
     public static let shapeShiftPublicKey = "c4097b033e02163da6114fbbc1bf15155e759ddfd8352c88c55e7fef162e901a800e7eaecf836062a0c075b2b881054e0b9aa2324be7bc3694578493faf59af4"
     public static let changellyRefferalID = "968d4f0f0bf9"
-    //
     public static let keychainKeyPrefix = "trustwallet"
+    public static let gasLimit = BigInt(300000)
+
+    // fee master
+    public static let paymentServer = "http://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken"
+    public static let getTicketInfoFromServer = "http://feemaster.eastasia.cloudapp.azure.com:8080/api/ecrecoverAndGetTickets"
 
     // social
     public static let website = "https://www.awallet.io/"
@@ -22,8 +27,10 @@ public struct Constants {
     public static let donationAddress = "0xFE6d4bC2De2D0b0E6FE47f08A28Ed52F9d052A02"
     public static let dappsBrowserURL = "https://dapps.trustwalletapp.com"
 
-    //FIFA hardcoded FIFA token address. Look for "//FIFA" for relevant changes
-    public static let fifaContractAddress = "0xBDa2f6e7101c25bA3e5978934E2470f49F721e6E"
+    // FIFA hardcoded FIFA token address. Look for "//FIFA" for relevant changes
+    public static let fifaContractAddress = "0x4eBacaE9E9901f0E50026AD021ea5Bab82402bf7"
+    public static let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
+    public static let event = "FIFA WC 2018"
 }
 
 public struct UnitConfiguration {
