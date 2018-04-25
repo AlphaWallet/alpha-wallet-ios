@@ -45,7 +45,7 @@ class ClaimOrderCoordinatorTests : XCTestCase {
                     to: address,
                     data: Data(bytes: payload.hexa2Bytes),
                     gasLimit: .none,
-                    gasPrice: 14400,
+                    gasPrice: 200000,
                     nonce: .none,
                     v: v,
                     r: r,

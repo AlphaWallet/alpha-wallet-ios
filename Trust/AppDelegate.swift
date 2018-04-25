@@ -1,5 +1,4 @@
 // Copyright SIX DAY LLC. All rights reserved.
-
 import UIKit
 import Lokalise
 import Branch
@@ -8,6 +7,7 @@ import RealmSwift
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
     var window: UIWindow?
+    var appCoordinator: AppCoordinator!
     var coordinator: AppCoordinator!
     // Need to retain while still processing
     var universalLinkCoordinator: UniversalLinkCoordinator!
@@ -21,8 +21,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         window = UIWindow(frame: UIScreen.main.bounds)
         do {
             let keystore = try EtherKeystore()
-            coordinator = AppCoordinator(window: window!, keystore: keystore)
-            coordinator.start()
+            appCoordinator = AppCoordinator(window: window!, keystore: keystore)
+            appCoordinator.start()
         } catch {
             print("EtherKeystore init issue.")
         }
@@ -36,7 +36,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return true
     }
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        coordinator.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: deviceToken)
+        appCoordinator.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: deviceToken)
     }
     func applicationWillResignActive(_ application: UIApplication) {
         protectionCoordinator.applicationWillResignActive()
@@ -85,6 +85,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
         let url = userActivity.webpageURL
 		universalLinkCoordinator = UniversalLinkCoordinator()
+        universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
         universalLinkCoordinator.delegate = self
         universalLinkCoordinator.start()
 		let handled = universalLinkCoordinator.handleUniversalLink(url: url)
@@ -95,6 +96,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 }
 
 extension AppDelegate: UniversalLinkCoordinatorDelegate {
+
     func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController? {
         if var top = window?.rootViewController {
             while let vc = top.presentedViewController {
@@ -104,6 +106,10 @@ extension AppDelegate: UniversalLinkCoordinatorDelegate {
         } else {
             return nil
         }
+    }
+
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
+        appCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, completion: completion)
     }
 
     func completed(in coordinator: UniversalLinkCoordinator) {
