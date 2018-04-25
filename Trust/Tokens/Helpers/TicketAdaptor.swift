@@ -8,6 +8,7 @@
 
 import Foundation
 import RealmSwift
+import BigInt
 
 class TicketAdaptor {
 
@@ -15,11 +16,12 @@ class TicketAdaptor {
         var ticketHolders: [TicketHolder] = []
         let balance = token.balance
         for (index, item) in balance.enumerated() {
-            let id = UInt16(item.balance)
-            if id == 0 { // if balance is 0, then skip
+            //id is the value of the bytes32 ticket
+            let id = item.balance
+            if id == "0x0000000000000000000000000000000000000000000000000000000000000000" { // if balance is 0, then skip
                 continue
             }
-            let ticket = getTicket(for: id, index: UInt16(index), in: token)
+            let ticket = getTicket(for: BigUInt(id.substring(from: 2), radix: 16)!, index: UInt16(index), in: token)
             if let item = ticketHolders.filter({ $0.zone == ticket.zone && $0.date == ticket.date }).first {
                 item.tickets.append(ticket)
             } else {
@@ -30,26 +32,9 @@ class TicketAdaptor {
         return ticketHolders
     }
 
-    private class func getTicket(for id: UInt16, index: UInt16, in token: TokenObject) -> Ticket {
-        let zone = TicketDecode.getZone(Int(id))
-        let name: String
-        if token.address.eip55String == Constants.fifaContractAddress {
-            name = token.title
-        } else {
-            name = TicketDecode.getName()
-        }
-        let venue = TicketDecode.getVenue(Int(id))
-        let seatId = TicketDecode.getSeatIdInt(Int(id))
-        let date = Date.init(string: TicketDecode.getDate(Int(id)), format: "dd MMM yyyy")
-        return Ticket(
-            id: id,
-            index: index,
-            zone: zone,
-            name: name,
-            venue: venue,
-            date: date!,
-            seatId: seatId
-        )
+    //TODO pass lang into here
+    private class func getTicket(for id: BigUInt, index: UInt16, in token: TokenObject) -> Ticket {
+        return XMLHandler().getFifaInfoForTicket(tokenId: id, index: index)
     }
 
     private class func getTicketHolder(for ticket: Ticket) -> TicketHolder {
