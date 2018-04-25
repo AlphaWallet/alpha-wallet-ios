@@ -13,6 +13,10 @@ class PromptBackupCoordinator: Coordinator {
 
     func start() {
         let keystore = try! EtherKeystore()
+        guard let vc = delegate?.viewControllerForPresenting(in: self) else {
+            finish()
+            return
+        }
         let coordinator = WalletCoordinator(keystore: keystore)
         coordinator.delegate = self
         let proceed = coordinator.start(.backupWallet)
@@ -20,9 +24,7 @@ class PromptBackupCoordinator: Coordinator {
             finish()
             return
         }
-        if let vc = delegate?.viewControllerForPresenting(in: self) {
-            vc.present(coordinator.navigationController, animated: true, completion: nil)
-        }
+        vc.present(coordinator.navigationController, animated: true, completion: nil)
         addCoordinator(coordinator)
     }
 
