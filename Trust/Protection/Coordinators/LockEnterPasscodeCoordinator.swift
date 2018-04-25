@@ -5,7 +5,7 @@ import UIKit
 
 class LockEnterPasscodeCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
-	private let window: UIWindow = UIWindow()
+	let window: UIWindow = UIWindow()
 	private let model: LockEnterPasscodeViewModel
 	private let lock: LockInterface
 	private lazy var lockEnterPasscodeViewController: LockEnterPasscodeViewController = {
