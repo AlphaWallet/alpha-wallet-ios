@@ -18,7 +18,8 @@ class UniversalLinkCoordinator: Coordinator {
 	var importTicketViewController: ImportTicketViewController?
     var ethPrice: Subscribable<Double>?
 
-	func start() {
+	func start()
+    {
 		preparingToImportUniversalLink()
 	}
     
@@ -172,17 +173,9 @@ class UniversalLinkCoordinator: Coordinator {
         }
 
     }
-    
+
     private func stringEncodeIndices(_ indices: [UInt16]) -> String {
-        var indicesStringEncoded = ""
-        if !indices.isEmpty {
-            for i in 0...indices.count - 1 {
-                indicesStringEncoded += String(indices[i]) + ","
-            }
-            //cut off last comma
-            indicesStringEncoded = indicesStringEncoded.substring(to: indicesStringEncoded.count - 1)
-        }
-        return indicesStringEncoded
+        return indices.map(String.init).joined(separator: ",")
     }
 
     private func getTicketDetailsAndEcRecover(
@@ -202,17 +195,13 @@ class UniversalLinkCoordinator: Coordinator {
                         return
                     }
                 }
-                var array: [String] = utf8Text.split{ $0 == "," }.map(String.init)
+                var array = utf8Text.split(separator: ",").map(String.init)
                 if array.isEmpty || array[0] == "invalid indices" {
                     completion(nil)
                     return
                 }
-                var bytes32Tickets = [String]()
                 //start at one to slice off address
-                for i in 1...array.count - 1 {
-                    bytes32Tickets.append(array[i])
-                }
-                
+                let bytes32Tickets = Array(array[1...])
                 completion(self.sortTickets(bytes32Tickets, indices))
             }
             else
@@ -225,21 +214,10 @@ class UniversalLinkCoordinator: Coordinator {
     private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16]) -> TicketHolder
     {
         var tickets = [Ticket]()
+        let xmlHandler = XMLHandler()
         for i in 0...bytes32Tickets.count - 1 {
             if let tokenId = BigUInt(bytes32Tickets[i], radix: 16) {
-                let xmlParsed = XMLHandler().getFifaInfoForToken(tokenId: tokenId)
-                let ticket = Ticket(
-                    id: bytes32Tickets[i],
-                    index: indices[i],
-                    zone: xmlParsed.venue,
-                    name: "FIFA WC",
-                    venue: xmlParsed.locality,
-                    date: Date(timeIntervalSince1970: TimeInterval(xmlParsed.time)),
-                    seatId: xmlParsed.number,
-                    category: xmlParsed.category,
-                    countryA: xmlParsed.countryA,
-                    countryB: xmlParsed.countryB
-                )
+                let ticket = xmlHandler.getFifaInfoForTicket(tokenId: tokenId, index: UInt16(i))
                 tickets.append(ticket)
             }
         }

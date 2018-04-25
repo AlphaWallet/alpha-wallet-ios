@@ -281,30 +281,13 @@ class TicketsCoordinator: NSObject, Coordinator {
         return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
     }
 
-    //TODO: Boon where should this go? SHould be prompted if price > 0 else use payment server
-    //    let tokenObj = TokenObject(
-    //        contract: signedOrder.order.contractAddress,
-    //        name: "FIFA WC",
-    //        symbol: "FIFA",
-    //        decimals: 0,
-    //        value: "0",
-    //        isCustom: true,
-    //        isDisabled: false,
-    //        isStormBird: true
-    //    )
-    //    self.delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObj)
-
-    //TODO check ether casting to wei
     private func generateSellLink(ticketHolder: TicketHolder,
                                   linkExpiryDate: Date,
                                   ethCost: String,
                                   dollarCost: String,
                                   paymentFlow: PaymentFlow) -> String {
-        //gwei
-        let cost = Decimal(string: ethCost)! * 1000
-        //TODO this is crap, convert to wei properly
-        let costInt = Int(cost.description)!
-        let wei = BigUInt(costInt) * 1000000000000000
+        let cost = Decimal(string: ethCost)! * Decimal(string: "1000000000000000000")!
+        let wei = BigUInt(cost.description)!
         let order = Order(
                 price: wei,
                 indices: ticketHolder.ticketIndices,

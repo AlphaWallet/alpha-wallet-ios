@@ -19,4 +19,18 @@ struct Ticket {
     let category: Int
     let countryA: String
     let countryB: String
+    static var empty: Ticket {
+        return Ticket(
+                id: Constants.nullTicket,
+                index: UInt16(0),
+                zone: "N/A",
+                name: "FIFA WC",
+                venue: "N/A",
+                date: Date(),
+                seatId: 0,
+                category: 0,
+                countryA: "N/A",
+                countryB: "N/A"
+        )
+    }
 }
