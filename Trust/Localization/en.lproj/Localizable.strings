@@ -144,10 +144,7 @@
 "welldone.description.label.text" = "Help us grow by sharing this app with your friends!";
 "welldone.navigation.title" = "Thank you!";
 "welldone.share.label.text" = "Share";
-"welldone.viewmodel.sharing.text1" = "Here is the app I use to store my ETH and ERC20 tokens.";
-"welldone.viewmodel.sharing.text2" = "Check out AlphaWallet - the wallet that lets me securely store my Ethereum and ERC20 tokens.";
-"welldone.viewmodel.sharing.text3" = "I securely store Ethereum and ERC20 tokens in the AlphaWallet wallet";
-"welldone.viewmodel.sharing.text4" = "I secure my Ethereum and ERC20 tokens in the AlphaWallet wallet.";
+"welldone.viewmodel.sharing.text" = "Check out AlphaWallet - The first crypto mobile wallet which can interact with smart contracts to perform real-world use cases.";
 "browser.home.button.title" = "Home";
 "browser.reload.button.title" = "Reload";
 "configureTransaction.gasPriceGwei.label.title" = "Gas Price (Gwei)";
