@@ -10,6 +10,7 @@ struct Config {
         static let isDebugEnabled = "isDebugEnabled"
         static let currencyID = "currencyID"
         static let dAppBrowser = "dAppBrowser"
+        static let walletAddressesAlreadyPromptedForBackUp = "walletAddressesAlreadyPromptedForBackUp "
     }
 
     let defaults: UserDefaults
@@ -97,4 +98,33 @@ struct Config {
         }()
         return URL(string: urlString)!
     }
+
+    var walletAddressesAlreadyPromptedForBackUp: [String] {
+        if let addresses = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
+            return addresses as! [String]
+        } else {
+            return []
+        }
+    }
+
+    func addToWalletAddressesAlreadyPromptedForBackup(address: String) {
+        var addresses: [String]
+        if let value = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
+            addresses = value as! [String]
+        } else {
+            addresses = [String]()
+        }
+        addresses.append(address)
+        defaults.setValue(addresses, forKey: Keys.walletAddressesAlreadyPromptedForBackUp)
+    }
+
+    func isWalletAddresseAlreadyPromptedForBackUp(address: String) -> Bool {
+        if let value = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
+            let addresses = value as! [String]
+            return addresses.contains(address)
+        } else {
+            return false
+        }
+    }
+
 }
