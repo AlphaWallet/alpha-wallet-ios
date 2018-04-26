@@ -480,7 +480,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         to: address,
                         data: Data(bytes: payload.hexa2Bytes),
                         gasLimit: Constants.gasLimit,
-                        gasPrice: 14400,
+                        gasPrice: Constants.gasPriceDefaultStormbird,
                         nonce: .none,
                         v: v,
                         r: r,
@@ -512,13 +512,14 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
                 let signTransaction = configurator.formUnsignedTransaction()
 
+                //TODO why is the gas price loaded in twice?
                 let signedTransaction = UnsignedTransaction(
                         value: signTransaction.value,
                         account: account,
                         to: signTransaction.to,
                         nonce: signTransaction.nonce,
                         data: signTransaction.data,
-                        gasPrice: signTransaction.gasPrice,
+                        gasPrice: Constants.gasPriceDefaultStormbird,
                         gasLimit: signTransaction.gasLimit,
                         chainID: self.config.chainID
                 )
