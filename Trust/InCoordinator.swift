@@ -205,6 +205,23 @@ class InCoordinator: Coordinator {
 		hideTitlesInTabBarController(tabBarController: tabBarController)
 
         showTab(inCoordinatorViewModel.initialTab)
+
+
+        let etherToken = TokensDataStore.etherToken(for: config)
+        tokensStorage.tokensModel.subscribe {[weak self] tokensModel in
+            guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
+                return
+            }
+            guard let balance = BigInt(eth.value), !(balance.isZero) else { return }
+            self?.promptBackupWallet()
+        }
+    }
+
+    private func promptBackupWallet() {
+        let coordinator = PromptBackupCoordinator()
+        addCoordinator(coordinator)
+        coordinator.delegate = self
+        coordinator.start()
     }
 
     private func hideTitlesInTabBarController(tabBarController: UITabBarController) {
@@ -548,3 +565,12 @@ extension InCoordinator: PaymentCoordinatorDelegate {
     }
 }
 
+extension InCoordinator: PromptBackupCoordinatorDelegate {
+    func viewControllerForPresenting(in coordinator: PromptBackupCoordinator) -> UIViewController? {
+        return navigationController
+    }
+
+    func didFinish(in coordinator: PromptBackupCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}

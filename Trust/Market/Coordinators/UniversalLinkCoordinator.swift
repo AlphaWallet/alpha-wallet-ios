@@ -261,6 +261,14 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func showImportSuccessful() {
 		updateImportTicketController(with: .succeeded)
+		promptBackupWallet()
+	}
+
+	private func promptBackupWallet() {
+		let coordinator = PromptBackupCoordinator()
+		addCoordinator(coordinator)
+		coordinator.delegate = self
+		coordinator.start()
 	}
 
 	private func showImportError(errorMessage: String) {
@@ -315,5 +323,15 @@ extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
                 importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObj)
             }
         }
+	}
+}
+
+extension UniversalLinkCoordinator: PromptBackupCoordinatorDelegate {
+	func viewControllerForPresenting(in coordinator: PromptBackupCoordinator) -> UIViewController? {
+		return delegate?.viewControllerForPresenting(in: self)
+	}
+
+	func didFinish(in coordinator: PromptBackupCoordinator) {
+		removeCoordinator(coordinator)
 	}
 }
