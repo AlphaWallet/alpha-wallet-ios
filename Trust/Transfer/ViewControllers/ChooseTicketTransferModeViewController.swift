@@ -145,7 +145,7 @@ class ChooseTicketTransferModeViewController: UIViewController {
 
         ticketView.seatRangeLabel.text = viewModel.seatRange
 
-        ticketView.zoneNameLabel.text = viewModel.zoneName
+        ticketView.cityLabel.text = viewModel.city
 
         generateMagicLinkButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		generateMagicLinkButton.backgroundColor = viewModel.buttonBackgroundColor

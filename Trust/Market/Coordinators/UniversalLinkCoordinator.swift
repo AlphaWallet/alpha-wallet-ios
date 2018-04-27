@@ -223,7 +223,7 @@ class UniversalLinkCoordinator: Coordinator {
         }
         let ticketHolder = TicketHolder(
             tickets: tickets,
-            zone: tickets[0].zone,
+            city: tickets[0].city,
             name: tickets[0].name,
             venue: tickets[0].venue,
             date: tickets[0].date,

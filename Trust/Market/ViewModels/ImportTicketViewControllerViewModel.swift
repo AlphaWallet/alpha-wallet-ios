@@ -75,12 +75,12 @@ struct ImportTicketViewControllerViewModel {
         }
     }
 
-    var zoneName: String {
+    var city: String {
         guard let ticketHolder = ticketHolder else { return "" }
         if case let .validating = state {
             return ""
         } else {
-            return ticketHolder.zone
+            return ticketHolder.city
         }
     }
 
