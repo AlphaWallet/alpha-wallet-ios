@@ -45,6 +45,8 @@ class TicketAdaptor {
             venue: ticket.venue,
             date: ticket.date,
             category: ticket.category,
+            countryA: ticket.countryA,
+            countryB: ticket.countryB,
             status: .available
         )
     }

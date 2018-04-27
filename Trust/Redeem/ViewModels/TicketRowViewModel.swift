@@ -54,4 +54,8 @@ struct TicketRowViewModel {
             return Fonts.semibold(size: 15)!
         }
     }
+
+    var detailsFont: UIFont {
+        return Fonts.light(size: 16)!
+    }
 }

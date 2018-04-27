@@ -19,8 +19,11 @@ class TicketHolder {
     var venue: String
     var date: Date
     let category: Int
+    let countryA: String
+    let countryB: String
     var status: TicketHolderStatus
     var isSelected = false
+    var areDetailsVisible = false
 
     init(
             tickets: [Ticket],
@@ -29,6 +32,8 @@ class TicketHolder {
             venue: String,
             date: Date,
             category: Int,
+            countryA: String,
+            countryB: String,
             status: TicketHolderStatus
     ) {
         self.tickets = tickets
@@ -37,6 +42,8 @@ class TicketHolder {
         self.venue = venue
         self.date = date
         self.category = category
+        self.countryA = countryA
+        self.countryB = countryB
         self.status = status
     }
 

@@ -31,6 +31,15 @@ struct BaseTicketTableViewCellViewModel {
         return String(ticketHolder.category)
     }
 
+    var time: String {
+        //TODO Should format be localized?
+        return ticketHolder.date.format("hh:mm")
+    }
+
+    var teams: String {
+        return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
+    }
+
 	var venue: String {
         return ticketHolder.venue
     }
@@ -49,8 +58,13 @@ struct BaseTicketTableViewCellViewModel {
     }
 
     var cellHeight: CGFloat {
-        return 120
-    }
+        let detailsHeight = CGFloat(40)
+        if ticketHolder.areDetailsVisible {
+            return 120 + detailsHeight
+        } else {
+            return 120
+        }
+        }
 
     var checkboxImage: UIImage {
         if ticketHolder.isSelected {
@@ -58,5 +72,9 @@ struct BaseTicketTableViewCellViewModel {
         } else {
             return R.image.ticket_bundle_unchecked()!
         }
+    }
+
+    var areDetailsVisible: Bool {
+        return ticketHolder.areDetailsVisible
     }
 }

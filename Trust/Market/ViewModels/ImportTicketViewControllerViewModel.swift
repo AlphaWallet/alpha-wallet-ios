@@ -93,6 +93,25 @@ struct ImportTicketViewControllerViewModel {
         }
     }
 
+    var time: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        if case let .validating = state {
+            return ""
+        } else {
+            //TODO Should format be localized?
+            return ticketHolder.date.format("hh:mm")
+        }
+    }
+
+    var teams: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        if case let .validating = state {
+            return ""
+        } else {
+            return "\(ticketHolder.countryA) vs \(ticketHolder.countryB)"
+        }
+    }
+
     var venue: String {
         guard let ticketHolder = ticketHolder else { return "" }
         if case let .validating = state {
