@@ -47,6 +47,10 @@ struct ChooseTicketTransferModeViewControllerViewModel {
         return ticketHolder.city
     }
 
+    var category: String {
+        return String(ticketHolder.category)
+    }
+
 	var venue: String {
         return ticketHolder.venue
     }

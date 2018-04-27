@@ -11,10 +11,11 @@ class TicketRowView: UIView {
 	let venueLabel = UILabel()
 	let dateLabel = UILabel()
 	let seatRangeLabel = UILabel()
-	let cityLabel = UILabel()
+	let categoryLabel = UILabel()
 	let dateImageView = UIImageView()
 	let seatRangeImageView = UIImageView()
-	let cityImageView = UIImageView()
+	let categoryImageView = UIImageView()
+	let cityLabel = UILabel()
     let showCheckbox: Bool
 
 	init(showCheckbox: Bool = false) {
@@ -47,8 +48,8 @@ class TicketRowView: UIView {
 			seatRangeImageView,
 			seatRangeLabel,
 			.spacerWidth(7),
-			cityImageView,
-            cityLabel
+			categoryImageView,
+            categoryLabel,
 		])
 		bottomRowStack.axis = .horizontal
 		bottomRowStack.spacing = 7
@@ -138,15 +139,19 @@ class TicketRowView: UIView {
 		seatRangeLabel.textColor = viewModel.subtitleColor
 		seatRangeLabel.font = viewModel.subtitleFont
 
-		cityLabel.textColor = viewModel.subtitleColor
-		cityLabel.font = viewModel.subtitleFont
+		categoryLabel.textColor = viewModel.subtitleColor
+		categoryLabel.font = viewModel.subtitleFont
 
 		dateImageView.image = R.image.calendar()?.withRenderingMode(.alwaysTemplate)
 		seatRangeImageView.image = R.image.ticket()?.withRenderingMode(.alwaysTemplate)
-		cityImageView.image = R.image.category()?.withRenderingMode(.alwaysTemplate)
+		categoryImageView.image = R.image.category()?.withRenderingMode(.alwaysTemplate)
 
 		dateImageView.tintColor = viewModel.iconsColor
 		seatRangeImageView.tintColor = viewModel.iconsColor
-		cityImageView.tintColor = viewModel.iconsColor
+		categoryImageView.tintColor = viewModel.iconsColor
+
+		//kkk might change
+		cityLabel.textColor = viewModel.subtitleColor
+		cityLabel.font = viewModel.subtitleFont
 	}
 }

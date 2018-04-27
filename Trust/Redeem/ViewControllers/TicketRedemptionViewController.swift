@@ -164,5 +164,7 @@ class TicketRedemptionViewController: UIViewController {
         ticketView.seatRangeLabel.text = viewModel.seatRange
 
         ticketView.cityLabel.text = viewModel.city
+
+        ticketView.categoryLabel.text = viewModel.category
     }
  }

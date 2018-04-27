@@ -182,10 +182,11 @@ class ImportTicketViewController: UIViewController {
             ticketView.dateLabel.text = viewModel.date
             ticketView.seatRangeLabel.text = viewModel.seatRange
             ticketView.cityLabel.text = viewModel.city
+            ticketView.categoryLabel.text = viewModel.category
 
             ticketView.dateImageView.isHidden = !viewModel.showTicketRowIcons
             ticketView.seatRangeImageView.isHidden = !viewModel.showTicketRowIcons
-            ticketView.cityImageView.isHidden = !viewModel.showTicketRowIcons
+            ticketView.categoryImageView.isHidden = !viewModel.showTicketRowIcons
 
             statusLabel.textColor = viewModel.statusColor
             statusLabel.font = viewModel.statusFont
