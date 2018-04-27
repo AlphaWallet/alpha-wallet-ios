@@ -175,6 +175,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
             city: ticketHolder.city,
             name: ticketHolder.name,
             venue: ticketHolder.venue,
+            match: ticketHolder.match,
             date: ticketHolder.date,
             category: ticketHolder.category,
             countryA: ticketHolder.countryA,

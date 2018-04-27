@@ -14,6 +14,7 @@ struct Ticket {
     let city: String
     let name: String
     let venue: String
+    let match: Int
     let date: Date
     let seatId: Int
     let category: Int
@@ -26,6 +27,7 @@ struct Ticket {
                 city: "N/A",
                 name: "FIFA WC",
                 venue: "N/A",
+                match: 0,
                 date: Date(),
                 seatId: 0,
                 category: 0,
