@@ -336,6 +336,7 @@
 		5E7C77E844D710D7AFBC58D4 /* RequestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74DCC21272EC231A20E2 /* RequestViewController.swift */; };
 		5E7C783B4784DE76971EEBB4 /* StatusViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BD9B4BDAFC2D9EBD741 /* StatusViewControllerViewModel.swift */; };
 		5E7C78407F6DCB0EDD562DF6 /* TicketTokenViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C731B6F01534683227123 /* TicketTokenViewCellViewModel.swift */; };
+		5E7C786AD8E4877C36D3B14A /* TicketAdaptorTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C775FD95FE80B0F1CEA33 /* TicketAdaptorTest.swift */; };
 		5E7C78B3FD5CA87E395E1861 /* OnboardingPageStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AF9A592D7224ED58016 /* OnboardingPageStyle.swift */; };
 		5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7103135DCCCAB96EE5FC /* OnboardingPage.swift */; };
 		5E7C798E5F5EE00D405B91AE /* TicketRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7ACB94CEE493AC37487F /* TicketRowView.swift */; };
@@ -840,6 +841,7 @@
 		5E7C77316522DF2B256F1F92 /* TicketsViewControllerHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerHeaderViewModel.swift; sourceTree = "<group>"; };
 		5E7C7742709724B3BD0C2A0D /* TicketRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRowViewModel.swift; sourceTree = "<group>"; };
 		5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhatIsEthereumInfoViewController.swift; sourceTree = "<group>"; };
+		5E7C775FD95FE80B0F1CEA33 /* TicketAdaptorTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketAdaptorTest.swift; sourceTree = "<group>"; };
 		5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionInfoViewController.swift; sourceTree = "<group>"; };
 		5E7C77E1E6194F5A1DC8D645 /* ScreenChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenChecker.swift; sourceTree = "<group>"; };
 		5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewControllerTitleHeader.swift; sourceTree = "<group>"; };
@@ -1167,6 +1169,7 @@
 				2912CD111F6A830700C6CBE3 /* Info.plist */,
 				76F1D6E06C9FA1261851B222 /* Market */,
 				76F1D16C3A06F5B2041BCBB3 /* Redeem */,
+				5E7C78E79A2C45A2124F259D /* Tokens */,
 			);
 			path = TrustTests;
 			sourceTree = "<group>";
@@ -2359,6 +2362,14 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		5E7C78E79A2C45A2124F259D /* Tokens */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7DB349EEDBC8AE9AD500 /* Helpers */,
+			);
+			path = Tokens;
+			sourceTree = "<group>";
+		};
 		5E7C79274D73196395BBA426 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -2402,6 +2413,14 @@
 				5E7C7254740FFAE67AE9ECE6 /* ViewControllers */,
 			);
 			path = Marketplace;
+			sourceTree = "<group>";
+		};
+		5E7C7DB349EEDBC8AE9AD500 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C775FD95FE80B0F1CEA33 /* TicketAdaptorTest.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		5E7C7F64537949FBD3F77457 /* Views */ = {
@@ -3670,6 +3689,7 @@
 				442FCBA4A5E39A4C4B16426A /* EventsRestTest.swift in Sources */,
 				76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */,
 				76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */,
+				5E7C786AD8E4877C36D3B14A /* TicketAdaptorTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

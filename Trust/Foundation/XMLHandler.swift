@@ -35,6 +35,7 @@ public class XMLHandler {
                 city: location,
                 name: "FIFA WC",
                 venue: venue,
+                match: match,
                 date: Date(timeIntervalSince1970: TimeInterval(time)),
                 seatId: number,
                 category: category,

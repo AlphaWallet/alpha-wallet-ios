@@ -10,7 +10,7 @@ struct SellTicketsViewModel {
 
     init(token: TokenObject) {
         self.token = token
-        self.ticketHolders = TicketAdaptor.getTicketHolders(for: token)
+        self.ticketHolders = TicketAdaptor(token: token).getTicketHolders()
     }
 
     func item(for indexPath: IndexPath) -> TicketHolder {
