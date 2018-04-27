@@ -350,6 +350,8 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
             venue: ticketHolder.venue,
             date: ticketHolder.date,
             category: ticketHolder.category,
+            countryA: ticketHolder.countryA,
+            countryB: ticketHolder.countryB,
             status: ticketHolder.status
         )
     }

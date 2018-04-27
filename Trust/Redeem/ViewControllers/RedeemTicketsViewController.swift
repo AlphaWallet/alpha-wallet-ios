@@ -101,13 +101,6 @@ class RedeemTicketsViewController: UIViewController {
         nextButton.titleLabel?.font = viewModel.buttonFont
     }
 
-    private func resetSelection(for ticketHolder: TicketHolder) {
-        let selected = ticketHolder.isSelected
-        viewModel.ticketHolders?.forEach { $0.isSelected = false }
-        ticketHolder.isSelected = !selected
-        tableView.reloadData()
-    }
-
     @objc
     func nextButtonTapped() {
         let selectedTicketHolders = viewModel.ticketHolders?.filter { $0.isSelected }
@@ -125,6 +118,12 @@ class RedeemTicketsViewController: UIViewController {
 
     @objc func showInfo() {
         delegate?.didPressViewInfo(in: self)
+    }
+
+    private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
+        tableView.reloadRows(at: indexPaths, with: .automatic)
+        tableView.beginUpdates()
+        tableView.endUpdates()
     }
 }
 
@@ -152,7 +151,7 @@ extension RedeemTicketsViewController: UITableViewDelegate, UITableViewDataSourc
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let ticketHolder = viewModel.item(for: indexPath)
-		resetSelection(for: ticketHolder)
-        tableView.deselectRow(at: indexPath, animated: true)
+        let changedIndexPaths = viewModel.toggleSelection(for: indexPath)
+        animateRowHeightChanges(for: changedIndexPaths, in: tableView)
     }
 }

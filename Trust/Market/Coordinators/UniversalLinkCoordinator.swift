@@ -228,6 +228,8 @@ class UniversalLinkCoordinator: Coordinator {
             venue: tickets[0].venue,
             date: tickets[0].date,
             category: tickets[0].category,
+            countryA: tickets[0].countryA,
+            countryB: tickets[0].countryB,
             status: .available
         )
         return ticketHolder
