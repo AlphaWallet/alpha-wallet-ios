@@ -32,7 +32,7 @@ public class XMLHandler {
         return Ticket(
                 id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
                 index: index,
-                zone: location,
+                city: location,
                 name: "FIFA WC",
                 venue: location,
                 date: Date(timeIntervalSince1970: TimeInterval(time)),

@@ -40,8 +40,8 @@ struct TicketRedemptionViewModel {
         return ticketHolder.seatRange
     }
 
-    var zoneName: String {
-        return ticketHolder.zone
+    var city: String {
+        return ticketHolder.city
     }
 
     var venue: String {

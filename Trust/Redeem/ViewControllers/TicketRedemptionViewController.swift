@@ -163,6 +163,6 @@ class TicketRedemptionViewController: UIViewController {
 
         ticketView.seatRangeLabel.text = viewModel.seatRange
 
-        ticketView.zoneNameLabel.text = viewModel.zoneName
+        ticketView.cityLabel.text = viewModel.city
     }
  }

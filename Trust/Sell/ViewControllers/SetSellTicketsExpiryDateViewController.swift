@@ -327,7 +327,7 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
 
         ticketView.seatRangeLabel.text = viewModel.seatRange
 
-        ticketView.zoneNameLabel.text = viewModel.zoneName
+        ticketView.cityLabel.text = viewModel.city
 
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor
