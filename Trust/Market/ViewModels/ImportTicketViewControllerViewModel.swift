@@ -84,6 +84,15 @@ struct ImportTicketViewControllerViewModel {
         }
     }
 
+    var category: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        if case let .validating = state {
+            return ""
+        } else {
+            return String(ticketHolder.category)
+        }
+    }
+
     var venue: String {
         guard let ticketHolder = ticketHolder else { return "" }
         if case let .validating = state {

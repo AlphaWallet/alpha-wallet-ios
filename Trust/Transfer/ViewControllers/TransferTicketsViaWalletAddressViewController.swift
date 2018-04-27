@@ -150,6 +150,8 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
 
         ticketView.cityLabel.text = viewModel.city
 
+        ticketView.categoryLabel.text = viewModel.category
+
         targetAddressTextField.textColor = viewModel.textFieldTextColor
         targetAddressTextField.font = viewModel.textFieldFont
         targetAddressTextField.layer.borderColor = viewModel.textFieldBorderColor.cgColor

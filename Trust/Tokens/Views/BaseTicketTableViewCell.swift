@@ -52,6 +52,8 @@ class BaseTicketTableViewCell: UITableViewCell {
         rowView.seatRangeLabel.text = viewModel.seatRange
 
         rowView.cityLabel.text = viewModel.city
+
+        rowView.categoryLabel.text = viewModel.category
     }
 
     func showCheckbox() -> Bool {
