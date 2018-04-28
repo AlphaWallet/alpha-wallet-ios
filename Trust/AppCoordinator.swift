@@ -3,6 +3,7 @@
 import Foundation
 import TrustKeystore
 import UIKit
+import BigInt
 
 class AppCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
@@ -22,6 +23,13 @@ class AppCoordinator: NSObject, Coordinator {
     var ethPrice: Subscribable<Double>? {
         if let inCoordinator = inCoordinator {
             return inCoordinator.ethPrice
+        } else {
+            return nil
+        }
+    }
+    var ethBalance: Subscribable<BigInt>? {
+        if let inCoordinator = inCoordinator {
+            return inCoordinator.ethBalance
         } else {
             return nil
         }

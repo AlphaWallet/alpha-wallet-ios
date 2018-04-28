@@ -298,6 +298,7 @@
 "a.claim.ticket.title" = "Importing tickets";
 "a.claim.ticket.success.title" = "Your ticket has been transferred and the balance will be updated shortly";
 "a.claim.ticket.failed.title" = "Invalid ticket link";
+"a.claim.ticket.failed.notEnoughEth.title" = "You do not have enough ETH to import this ticket";
 "a.claim.ticket.validating.title" = "Processing...";
 "a.claim.ticket.promptImport.title" = "Import?";
 "a.claim.ticket.inProgress.title" = "Importing tickets...";
