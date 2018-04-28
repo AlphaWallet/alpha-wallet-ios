@@ -96,7 +96,7 @@ class TicketRedemptionViewController: UIViewController {
 
     @objc
     private func configureUI() {
-        let redeemData = redeem.redeemMessage(ticketIndices: viewModel.ticketHolder.ticketIndices)
+        let redeemData = redeem.redeemMessage(ticketIndices: viewModel.ticketHolder.indices)
         switch session.account.type {
         case .real(let account):
             let decimalSignature = SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account)!

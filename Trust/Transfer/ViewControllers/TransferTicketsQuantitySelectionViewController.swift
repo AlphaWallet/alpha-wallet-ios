@@ -163,14 +163,6 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
         let tickets = Array(ticketHolder.tickets[..<quantity])
         return TicketHolder(
             tickets: tickets,
-            city: ticketHolder.city,
-            name: ticketHolder.name,
-            venue: ticketHolder.venue,
-            match: ticketHolder.match,
-            date: ticketHolder.date,
-            category: ticketHolder.category,
-            countryA: ticketHolder.countryA,
-            countryB: ticketHolder.countryB,
             status: ticketHolder.status
         )
     }
