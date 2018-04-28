@@ -233,6 +233,7 @@ class SendViewController: UIViewController {
 
         view.backgroundColor = viewModel.backgroundColor
 
+        headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
         header.configure(viewModel: headerViewModel)
 
         targetAddressTextField.textColor = viewModel.textFieldTextColor
