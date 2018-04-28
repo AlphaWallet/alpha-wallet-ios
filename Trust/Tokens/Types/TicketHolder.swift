@@ -8,11 +8,11 @@
 
 import Foundation
 
-enum TicketHolderStatus {
-    case available, sold, redeemed, forSale, transferred
-}
-
 class TicketHolder {
+    enum TicketHolderStatus {
+        case available, sold, redeemed, forSale, transferred
+    }
+
     var tickets: [Ticket]
     var city: String { return tickets[0].city }
     var name: String { return tickets[0].name }
