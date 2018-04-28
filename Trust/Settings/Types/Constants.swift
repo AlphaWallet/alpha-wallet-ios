@@ -9,7 +9,7 @@ public struct Constants {
     public static let changellyRefferalID = "968d4f0f0bf9"
     public static let keychainKeyPrefix = "trustwallet"
     public static let gasLimit = BigInt(300000)
-    public static let gasPriceDefaultStormbird = BigInt(22000000000)
+    public static let gasPriceDefaultStormbird = BigInt("22000000000")!
 
     // fee master
     public static let paymentServer = "http://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken"
