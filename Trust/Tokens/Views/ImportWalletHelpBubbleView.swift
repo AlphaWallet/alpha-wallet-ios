@@ -19,15 +19,11 @@ class ImportWalletHelpBubbleView: UIView {
 
 		descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
 
-		let stackView = UIStackView(arrangedSubviews: [
+		let stackView = [
 			titleLabel,
 			descriptionLabel,
-		])
+		].asStackView(axis: .vertical, spacing: 7, contentHuggingPriority: .required)
 		stackView.translatesAutoresizingMaskIntoConstraints = false
-		stackView.axis = .vertical
-		stackView.spacing = 7
-		stackView.distribution = .fill
-		stackView.setContentHuggingPriority(UILayoutPriority.required, for: .vertical)
 		addSubview(stackView)
 
 		configure(viewModel: ImportWalletHelpBubbleViewViewModel())

@@ -43,14 +43,11 @@ final class OnboardingPage: UICollectionViewCell {
         titleLabel.font = style.titleFont
         titleLabel.numberOfLines = 0
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             titleLabel,
             imageView,
-        ])
+        ].asStackView(axis: .vertical, spacing: 80, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.alignment = .center
-        stackView.spacing = 80
         addSubview(stackView)
 
         NSLayoutConstraint.activate([

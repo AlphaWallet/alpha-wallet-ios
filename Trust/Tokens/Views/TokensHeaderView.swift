@@ -17,11 +17,8 @@ class TokensHeaderView: UIView {
 
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let stackView = UIStackView(arrangedSubviews: [
-            amountLabel,
-        ])
+        let stackView = [amountLabel].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
         addSubview(stackView)
 
         NSLayoutConstraint.activate([

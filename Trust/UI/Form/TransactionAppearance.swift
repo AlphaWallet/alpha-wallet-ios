@@ -28,10 +28,11 @@ struct TransactionAppearance {
         subTitleLabel.font = Fonts.light(size: 15)
         subTitleLabel.numberOfLines = 0
 
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, subTitleLabel])
+        let stackView = [
+            titleLabel,
+            subTitleLabel,
+        ].asStackView(axis: .vertical, spacing: 10)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 10
         stackView.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
         stackView.isLayoutMarginsRelativeArrangement = true
 

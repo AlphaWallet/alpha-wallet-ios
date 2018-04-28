@@ -49,21 +49,16 @@ class BackupViewController: UIViewController {
         backupButton.setTitle(NSLocalizedString("export.backup.button.title", value: "Backup Wallet", comment: ""), for: .normal)
         backupButton.addTarget(self, action: #selector(backup), for: .touchUpInside)
 
-        let stackView = UIStackView(
-            arrangedSubviews: [
-                warningImageView,
-                .spacer(),
-                noBackupLabel,
-                .spacer(height: 15),
-                controlMoneyLabel,
-                neverStoredLabel,
-                .spacer(height: 15),
-                backupButton,
-            ]
-        )
-        stackView.axis = .vertical
-        stackView.spacing = 20
-        stackView.alignment = .center
+        let stackView = [
+            warningImageView,
+            .spacer(),
+            noBackupLabel,
+            .spacer(height: 15),
+            controlMoneyLabel,
+            neverStoredLabel,
+            .spacer(height: 15),
+            backupButton,
+        ].asStackView(axis: .vertical, spacing: 20, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         view.backgroundColor = .white

@@ -141,14 +141,11 @@ class TokensViewController: UIViewController {
             label.textColor = .white
             label.text = R.string.localizable.aWalletImportWalletTitle()
 
-            let stackView = UIStackView(arrangedSubviews: [
+            let stackView = [
                 imageView,
                 label,
-            ])
+            ].asStackView(axis: .vertical, spacing: 10, alignment: .center)
             stackView.translatesAutoresizingMaskIntoConstraints = false
-            stackView.axis = .vertical
-            stackView.alignment = .center
-            stackView.spacing = 10
             importWalletView.addSubview(stackView)
 
             let sideMargin = CGFloat(7)

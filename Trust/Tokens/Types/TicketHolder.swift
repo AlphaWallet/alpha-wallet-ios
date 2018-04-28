@@ -8,45 +8,26 @@
 
 import Foundation
 
-enum TicketHolderStatus {
-    case available, sold, redeemed, forSale, transferred
-}
-
 class TicketHolder {
+    enum TicketHolderStatus {
+        case available, sold, redeemed, forSale, transferred
+    }
+
     var tickets: [Ticket]
-    var city: String
-    var name: String
-    var venue: String
-    var match: Int
-    var date: Date
-    let category: Int
-    let countryA: String
-    let countryB: String
+    var city: String { return tickets[0].city }
+    var name: String { return tickets[0].name }
+    var venue: String { return tickets[0].venue }
+    var match: Int { return tickets[0].match }
+    var date: Date { return tickets[0].date }
+    var category: Int { return tickets[0].category }
+    var countryA: String { return tickets[0].countryA }
+    var countryB: String { return tickets[0].countryB }
     var status: TicketHolderStatus
     var isSelected = false
     var areDetailsVisible = false
 
-    init(
-            tickets: [Ticket],
-            city: String,
-            name: String,
-            venue: String,
-            match: Int,
-            date: Date,
-            category: Int,
-            countryA: String,
-            countryB: String,
-            status: TicketHolderStatus
-    ) {
+    init(tickets: [Ticket], status: TicketHolderStatus) {
         self.tickets = tickets
-        self.city = city
-        self.name = name
-        self.venue = venue
-        self.match = match
-        self.date = date
-        self.category = category
-        self.countryA = countryA
-        self.countryB = countryB
         self.status = status
     }
 
@@ -58,12 +39,11 @@ class TicketHolder {
         return seatIds.min()!.toString() + "-" + seatIds.max()!.toString()
     }
 
-    //TODO this should be a numeric type
-    var ticketCount: String {
-        return tickets.count.toString()
+    var count: Int {
+        return tickets.count
     }
 
-    var ticketIndices: [UInt16] {
+    var indices: [UInt16] {
         return tickets.map { $0.index }
     }
 }

@@ -40,13 +40,11 @@ class BalanceTitleView: UIView {
         subTitleLabel.textAlignment = .center
         subTitleLabel.adjustsFontSizeToFitWidth = true
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             titleLabel,
             subTitleLabel,
-        ])
+        ].asStackView(axis: .vertical, spacing: 2)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 2
         addSubview(stackView)
 
         NSLayoutConstraint.activate([

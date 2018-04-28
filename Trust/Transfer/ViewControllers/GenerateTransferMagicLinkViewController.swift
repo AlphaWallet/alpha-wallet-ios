@@ -46,8 +46,8 @@ class GenerateTransferMagicLinkViewController: UIViewController {
         actionButton.addTarget(self, action: #selector(share), for: .touchUpInside)
         cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
 
-        let stackView = UIStackView(arrangedSubviews: [
-			header,
+        let stackView = [
+            header,
             .spacer(height: 20),
             subtitleLabel,
             ticketCountLabel,
@@ -58,11 +58,8 @@ class GenerateTransferMagicLinkViewController: UIViewController {
             .spacer(height: 10),
             cancelButton,
             .spacer(height: 1)
-        ])
+        ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
         background.addSubview(stackView)
 
         NSLayoutConstraint.activate([
