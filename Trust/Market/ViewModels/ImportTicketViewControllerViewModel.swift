@@ -155,7 +155,11 @@ struct ImportTicketViewControllerViewModel {
     }
 
     var statusColor: UIColor {
-        return UIColor(red: 20, green: 20, blue: 20)
+        if case let .failed = state {
+            return Colors.appRed
+        } else {
+            return UIColor(red: 20, green: 20, blue: 20)
+        }
     }
 
     var statusFont: UIFont {
