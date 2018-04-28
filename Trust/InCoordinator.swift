@@ -41,6 +41,7 @@ class InCoordinator: Coordinator {
         fetchEthPrice()
         return value
     }()
+    var ethBalance = Subscribable<BigInt>(nil)
     weak var delegate: InCoordinatorDelegate?
     var transactionCoordinator: TransactionCoordinator? {
         return self.coordinators.flatMap {
@@ -212,8 +213,11 @@ class InCoordinator: Coordinator {
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
                 return
             }
-            guard let balance = BigInt(eth.value), !(balance.isZero) else { return }
-            self?.promptBackupWallet()
+            if let balance = BigInt(eth.value) {
+                self?.ethBalance.value = BigInt(eth.value)
+                guard !(balance.isZero) else { return }
+                self?.promptBackupWallet()
+            }
         }
     }
 

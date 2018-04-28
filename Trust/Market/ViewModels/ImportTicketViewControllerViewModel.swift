@@ -149,8 +149,8 @@ struct ImportTicketViewControllerViewModel {
             return R.string.localizable.aClaimTicketInProgressTitle()
         case .succeeded:
             return R.string.localizable.aClaimTicketSuccessTitle()
-        case .failed:
-            return R.string.localizable.aClaimTicketFailedTitle()
+        case .failed(let errorMessage):
+            return errorMessage
         }
     }
 
