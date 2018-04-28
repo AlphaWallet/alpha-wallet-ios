@@ -39,8 +39,12 @@ struct SetTransferTicketsExpiryDateViewControllerViewModel {
         return ticketHolder.seatRange
     }
 
-    var zoneName: String {
-        return ticketHolder.zone
+    var city: String {
+        return ticketHolder.city
+    }
+
+    var category: String {
+        return String(ticketHolder.category)
     }
 
 	var venue: String {

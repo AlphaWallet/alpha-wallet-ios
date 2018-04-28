@@ -11,11 +11,20 @@ class TicketRowView: UIView {
 	let venueLabel = UILabel()
 	let dateLabel = UILabel()
 	let seatRangeLabel = UILabel()
-	let zoneNameLabel = UILabel()
+	let categoryLabel = UILabel()
 	let dateImageView = UIImageView()
 	let seatRangeImageView = UIImageView()
-	let zoneNameImageView = UIImageView()
+	let categoryImageView = UIImageView()
+	let cityLabel = UILabel()
+	let timeLabel = UILabel()
+	let teamsLabel = UILabel()
+	let detailsRowStack = UIStackView()
     let showCheckbox: Bool
+	var areDetailsVisible = false {
+		didSet {
+			detailsRowStack.isHidden = !areDetailsVisible
+		}
+	}
 
 	init(showCheckbox: Bool = false) {
         self.showCheckbox = showCheckbox
@@ -30,7 +39,6 @@ class TicketRowView: UIView {
 		background.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(background)
 
-		//A spacer view to take up empty horizontal space so venueLabel can be right aligned while the rest is left aligned in topRowStack
 		let topRowStack = UIStackView(arrangedSubviews: [
 			ticketCountLabel,
 			titleLabel,
@@ -47,20 +55,41 @@ class TicketRowView: UIView {
 			seatRangeImageView,
 			seatRangeLabel,
 			.spacerWidth(7),
-			zoneNameImageView,
-			zoneNameLabel
+			categoryImageView,
+            categoryLabel,
 		])
 		bottomRowStack.axis = .horizontal
 		bottomRowStack.spacing = 7
 		bottomRowStack.distribution = .fill
 		bottomRowStack.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
 
+		let detailsRow0 = UIStackView(arrangedSubviews: [
+			timeLabel,
+			.spacerWidth(10),
+			cityLabel,
+		])
+		detailsRow0.axis = .horizontal
+		detailsRow0.spacing = 0
+		detailsRow0.distribution = .fill
+		detailsRow0.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
+
+		detailsRowStack.addArrangedSubview(.spacer(height: 10))
+		detailsRowStack.addArrangedSubview(detailsRow0)
+		detailsRowStack.addArrangedSubview(teamsLabel)
+		detailsRowStack.axis = .vertical
+		detailsRowStack.spacing = 0
+		detailsRowStack.distribution = .fill
+		detailsRowStack.setContentHuggingPriority(UILayoutPriority.required, for: .vertical)
+		detailsRowStack.isHidden = true
+
+		//TODO variable names are unwieldy after several rounds of changes, fix them
 		let stackView = UIStackView(arrangedSubviews: [
 			stateLabel,
 			topRowStack,
 			venueLabel,
 			.spacer(height: 10),
-			bottomRowStack
+			bottomRowStack,
+			detailsRowStack,
 		])
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		stackView.axis = .vertical
@@ -73,8 +102,8 @@ class TicketRowView: UIView {
 		// TODO extract constant. Maybe StyleLayout.sideMargin
 		let xMargin  = CGFloat(7)
 		let yMargin  = CGFloat(5)
-        var checkboxRelatedConstraints = [NSLayoutConstraint]()
-        if showCheckbox {
+		var checkboxRelatedConstraints = [NSLayoutConstraint]()
+		if showCheckbox {
 			checkboxRelatedConstraints.append(checkboxImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
 			checkboxRelatedConstraints.append(checkboxImageView.centerYAnchor.constraint(equalTo: centerYAnchor))
 			checkboxRelatedConstraints.append(background.leadingAnchor.constraint(equalTo: checkboxImageView.trailingAnchor, constant: xMargin))
@@ -82,13 +111,13 @@ class TicketRowView: UIView {
 				checkboxRelatedConstraints.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 20))
 				checkboxRelatedConstraints.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 20))
 			} else {
-                //Have to be hardcoded and not rely on the image's size because different string lengths for the text fields can force the checkbox to shrink
+				//Have to be hardcoded and not rely on the image's size because different string lengths for the text fields can force the checkbox to shrink
 				checkboxRelatedConstraints.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 28))
 				checkboxRelatedConstraints.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 28))
 			}
-        } else {
+		} else {
 			checkboxRelatedConstraints.append(background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
-        }
+		}
 
 		NSLayoutConstraint.activate([
 			stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
@@ -138,15 +167,24 @@ class TicketRowView: UIView {
 		seatRangeLabel.textColor = viewModel.subtitleColor
 		seatRangeLabel.font = viewModel.subtitleFont
 
-		zoneNameLabel.textColor = viewModel.subtitleColor
-		zoneNameLabel.font = viewModel.subtitleFont
+		categoryLabel.textColor = viewModel.subtitleColor
+		categoryLabel.font = viewModel.subtitleFont
 
 		dateImageView.image = R.image.calendar()?.withRenderingMode(.alwaysTemplate)
 		seatRangeImageView.image = R.image.ticket()?.withRenderingMode(.alwaysTemplate)
-		zoneNameImageView.image = R.image.category()?.withRenderingMode(.alwaysTemplate)
+		categoryImageView.image = R.image.category()?.withRenderingMode(.alwaysTemplate)
 
 		dateImageView.tintColor = viewModel.iconsColor
 		seatRangeImageView.tintColor = viewModel.iconsColor
-		zoneNameImageView.tintColor = viewModel.iconsColor
+		categoryImageView.tintColor = viewModel.iconsColor
+
+		cityLabel.textColor = viewModel.subtitleColor
+		cityLabel.font = viewModel.detailsFont
+
+		timeLabel.textColor = viewModel.subtitleColor
+		timeLabel.font = viewModel.detailsFont
+
+		teamsLabel.textColor = viewModel.subtitleColor
+		teamsLabel.font = viewModel.detailsFont
 	}
 }

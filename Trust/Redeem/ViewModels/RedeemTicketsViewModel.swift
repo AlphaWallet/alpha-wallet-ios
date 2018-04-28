@@ -16,7 +16,7 @@ struct RedeemTicketsViewModel {
 
     init(token: TokenObject) {
         self.token = token
-        self.ticketHolders = TicketAdaptor.getTicketHolders(for: token)
+        self.ticketHolders = TicketAdaptor(token: token).getTicketHolders()
     }
 
     func item(for indexPath: IndexPath) -> TicketHolder {
@@ -45,5 +45,25 @@ struct RedeemTicketsViewModel {
 
     var buttonFont: UIFont {
         return Fonts.regular(size: 20)!
+    }
+
+    func toggleSelection(for indexPath: IndexPath) ->  [IndexPath] {
+        let ticketHolder = item(for: indexPath)
+        var changed = [indexPath]
+        if ticketHolder.areDetailsVisible {
+            ticketHolder.areDetailsVisible = false
+            ticketHolder.isSelected = false
+        } else {
+            for (i, each) in ticketHolders!.enumerated() {
+                if each.areDetailsVisible {
+                    each.areDetailsVisible = false
+                    each.isSelected = false
+                    changed.append(.init(row: i, section: indexPath.section))
+                }
+            }
+            ticketHolder.areDetailsVisible = true
+            ticketHolder.isSelected = true
+        }
+        return changed
     }
 }

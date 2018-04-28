@@ -157,7 +157,9 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
 
         ticketView.seatRangeLabel.text = viewModel.seatRange
 
-        ticketView.zoneNameLabel.text = viewModel.zoneName
+        ticketView.cityLabel.text = viewModel.city
+
+        ticketView.categoryLabel.text = viewModel.category
 
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor
@@ -170,10 +172,14 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
         let tickets = Array(ticketHolder.tickets[..<quantity])
         return TicketHolder(
             tickets: tickets,
-            zone: ticketHolder.zone,
+            city: ticketHolder.city,
             name: ticketHolder.name,
             venue: ticketHolder.venue,
+            match: ticketHolder.match,
             date: ticketHolder.date,
+            category: ticketHolder.category,
+            countryA: ticketHolder.countryA,
+            countryB: ticketHolder.countryB,
             status: ticketHolder.status
         )
     }

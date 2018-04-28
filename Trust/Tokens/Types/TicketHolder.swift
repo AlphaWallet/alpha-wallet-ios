@@ -14,26 +14,39 @@ enum TicketHolderStatus {
 
 class TicketHolder {
     var tickets: [Ticket]
-    var zone: String
+    var city: String
     var name: String
     var venue: String
+    var match: Int
     var date: Date
+    let category: Int
+    let countryA: String
+    let countryB: String
     var status: TicketHolderStatus
     var isSelected = false
+    var areDetailsVisible = false
 
     init(
-        tickets: [Ticket],
-        zone: String,
-        name: String,
-        venue: String,
-        date: Date,
-        status: TicketHolderStatus
+            tickets: [Ticket],
+            city: String,
+            name: String,
+            venue: String,
+            match: Int,
+            date: Date,
+            category: Int,
+            countryA: String,
+            countryB: String,
+            status: TicketHolderStatus
     ) {
         self.tickets = tickets
-        self.zone = zone
+        self.city = city
         self.name = name
         self.venue = venue
+        self.match = match
         self.date = date
+        self.category = category
+        self.countryA = countryA
+        self.countryB = countryB
         self.status = status
     }
 
