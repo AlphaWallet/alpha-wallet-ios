@@ -42,4 +42,8 @@ public extension Date {
     public static var tomorrow: Date {
         return Calendar.current.date(byAdding: .day, value: 1, to: Date())!
     }
+
+    public func formatAsShortDateString() -> String {
+        return format("dd MMM")
+    }
 }

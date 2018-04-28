@@ -11,10 +11,14 @@ import RealmSwift
 import BigInt
 
 class TicketAdaptor {
+    var token: TokenObject
+    init(token: TokenObject) {
+        self.token = token
+    }
 
-    public class func getTicketHolders(for token: TokenObject) -> [TicketHolder] {
-        var ticketHolders: [TicketHolder] = []
+    public func getTicketHolders() -> [TicketHolder] {
         let balance = token.balance
+        var tickets = [Ticket]()
         for (index, item) in balance.enumerated() {
             //id is the value of the bytes32 ticket
             let id = item.balance
@@ -22,29 +26,75 @@ class TicketAdaptor {
                 continue
             }
             let ticket = getTicket(for: BigUInt(id.substring(from: 2), radix: 16)!, index: UInt16(index), in: token)
-            if let item = ticketHolders.filter({ $0.zone == ticket.zone && $0.date == ticket.date }).first {
-                item.tickets.append(ticket)
-            } else {
-                let ticketHolder = getTicketHolder(for: ticket)
-                ticketHolders.append(ticketHolder)
+            tickets.append(ticket)
+        }
+
+        return bundle(tickets: tickets)
+    }
+
+    func bundle(tickets: [Ticket]) -> [TicketHolder] {
+        var ticketHolders: [TicketHolder] = []
+        let groups = groupTicketsByFields(tickets: tickets)
+        for each in groups {
+            let results = breakBundlesFurtherToHaveContinuousSeatRange(tickets: each)
+            for tickets in results {
+                ticketHolders.append(getTicketHolder(for: tickets))
             }
         }
+        ticketHolders = sortBundlesUpcomingFirst(bundles: ticketHolders)
         return ticketHolders
     }
 
+    private func sortBundlesUpcomingFirst(bundles: [TicketHolder]) -> [TicketHolder] {
+        return bundles.sorted { $0.date < $1.date }
+    }
+
+    ///e.g 21, 22, 25 is broken up into 2 bundles: 21-22 and 25.
+    private func breakBundlesFurtherToHaveContinuousSeatRange(tickets: [Ticket]) -> [[Ticket]] {
+        let tickets = tickets.sorted { $0.seatId < $1.seatId }
+        return tickets.reduce([[Ticket]]()) { results, ticket in
+            var results = results
+            if var previousRange = results.last, let previousTicket = previousRange.last, previousTicket.seatId + 1 == ticket.seatId {
+                previousRange.append(ticket)
+                results.popLast()
+                results.append(previousRange)
+                return results
+            } else {
+                results.append([ticket])
+                return results
+            }
+        }
+    }
+
+    ///Group by the properties used in the hash. We abuse a dictionary to help with grouping
+    private func groupTicketsByFields(tickets: [Ticket]) -> Dictionary<String, [Ticket]>.Values {
+        var dictionary = [String:[Ticket]]()
+        for each in tickets {
+            let hash = "\(each.city),\(each.venue),\(each.date),\(each.countryA),\(each.countryB),\(each.match),\(each.category)"
+            var group = dictionary[hash] ?? []
+            group.append(each)
+            dictionary[hash] = group
+        }
+        return dictionary.values
+    }
+
     //TODO pass lang into here
-    private class func getTicket(for id: BigUInt, index: UInt16, in token: TokenObject) -> Ticket {
+    private func getTicket(for id: BigUInt, index: UInt16, in token: TokenObject) -> Ticket {
         return XMLHandler().getFifaInfoForTicket(tokenId: id, index: index)
     }
 
-    private class func getTicketHolder(for ticket: Ticket) -> TicketHolder {
+    private func getTicketHolder(for tickets: [Ticket]) -> TicketHolder {
         return TicketHolder(
-            tickets: [ticket],
-            zone: ticket.zone,
-            name: ticket.name,
-            venue: ticket.venue,
-            date: ticket.date,
-            status: .available
+                tickets: tickets,
+                city: tickets[0].city,
+                name: tickets[0].name,
+                venue: tickets[0].venue,
+                match: tickets[0].match,
+                date: tickets[0].date,
+                category: tickets[0].category,
+                countryA: tickets[0].countryA,
+                countryB: tickets[0].countryB,
+                status: .available
         )
     }
 

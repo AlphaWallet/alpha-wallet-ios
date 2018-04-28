@@ -183,6 +183,12 @@ class TicketsViewController: UIViewController {
     @objc func showInfo() {
 		delegate?.didPressViewRedemptionInfo(in: self)
     }
+
+    private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
+        tableView.reloadRows(at: indexPaths, with: .automatic)
+        tableView.beginUpdates()
+        tableView.endUpdates()
+    }
 }
 
 extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
@@ -205,5 +211,11 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
         let ticketHolder = viewModel.item(for: indexPath)
         let cellViewModel = TicketTableViewCellViewModel(ticketHolder: ticketHolder)
         return cellViewModel.cellHeight
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let ticketHolder = viewModel.item(for: indexPath)
+        let changedIndexPaths = viewModel.toggleDetailsVisible(for: indexPath)
+        animateRowHeightChanges(for: changedIndexPaths, in: tableView)
     }
 }

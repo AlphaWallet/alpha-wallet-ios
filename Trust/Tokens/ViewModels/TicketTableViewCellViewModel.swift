@@ -23,8 +23,8 @@ struct TicketTableViewCellViewModel {
         return ticketHolder.seatRange
     }
 
-    var zoneName: String {
-        return ticketHolder.zone
+    var city: String {
+        return ticketHolder.city
     }
 
     var venue: String {
@@ -56,10 +56,19 @@ struct TicketTableViewCellViewModel {
     }
 
     var cellHeight: CGFloat {
+        let detailsHeight = CGFloat(40)
         if status.isEmpty {
-		    return 120
+            if ticketHolder.areDetailsVisible {
+                return 120 + detailsHeight
+            } else {
+                return 120
+            }
         } else {
-            return 150
+            if ticketHolder.areDetailsVisible {
+                return 150 + detailsHeight
+            } else {
+                return 150
+            }
         }
     }
 }

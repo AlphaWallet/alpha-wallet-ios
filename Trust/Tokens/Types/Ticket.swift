@@ -11,9 +11,10 @@ import Foundation
 struct Ticket {
     let id: String
     let index: UInt16
-    let zone: String
+    let city: String
     let name: String
     let venue: String
+    let match: Int
     let date: Date
     let seatId: Int
     let category: Int
@@ -23,9 +24,10 @@ struct Ticket {
         return Ticket(
                 id: Constants.nullTicket,
                 index: UInt16(0),
-                zone: "N/A",
+                city: "N/A",
                 name: "FIFA WC",
                 venue: "N/A",
+                match: 0,
                 date: Date(),
                 seatId: 0,
                 category: 0,
