@@ -46,27 +46,19 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
         ticketView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(ticketView)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             header,
             ticketView,
             .spacer(height: 10),
             targetAddressLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
             targetAddressTextField,
-        ])
+        ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
-		stackView.alignment = .center
         roundedBackground.addSubview(stackView)
 
-        let buttonsStackView = UIStackView(arrangedSubviews: [nextButton])
+        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        buttonsStackView.axis = .horizontal
-        buttonsStackView.spacing = 0
-        buttonsStackView.distribution = .fillEqually
-        buttonsStackView.setContentHuggingPriority(.required, for: .horizontal)
 
         let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()
@@ -206,14 +198,8 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
         scanQRCodeButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
 
-        let targetAddressRightView = UIStackView(arrangedSubviews: [
-            pasteButton,
-            scanQRCodeButton,
-        ])
+        let targetAddressRightView = [pasteButton, scanQRCodeButton].asStackView(distribution: .equalSpacing)
         targetAddressRightView.translatesAutoresizingMaskIntoConstraints = false
-        targetAddressRightView.distribution = .equalSpacing
-        targetAddressRightView.spacing = 0
-        targetAddressRightView.axis = .horizontal
 
         return targetAddressRightView
     }

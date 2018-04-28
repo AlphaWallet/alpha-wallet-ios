@@ -32,18 +32,15 @@ class WellDoneViewController: UIViewController {
         otherButton.setTitle(NSLocalizedString("welldone.share.label.text", value: "Share", comment: ""), for: .normal)
         otherButton.addTarget(self, action: #selector(other(_:)), for: .touchUpInside)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             imageView,
             //titleLabel,
             descriptionLabel,
             .spacer(height: 10),
             .spacer(),
             otherButton,
-        ])
+        ].asStackView(axis: .vertical, spacing: 10, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.alignment = .center
-        stackView.axis = .vertical
-        stackView.spacing = 10
 
         view.backgroundColor = .white
         view.addSubview(stackView)

@@ -38,14 +38,11 @@ class EmptyView: UIView {
         button.setTitle(NSLocalizedString("Refresh", value: "Refresh", comment: ""), for: .normal)
         button.addTarget(self, action: #selector(retry), for: .touchUpInside)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             imageView,
             titleLabel,
-        ])
+        ].asStackView(axis: .vertical, spacing: 30, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.alignment = .center
-        stackView.axis = .vertical
-        stackView.spacing = 30
 
         if let _ = onRetry {
             stackView.addArrangedSubview(button)

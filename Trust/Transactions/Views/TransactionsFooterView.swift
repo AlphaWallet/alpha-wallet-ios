@@ -16,12 +16,8 @@ class TransactionsFooterView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        let stackView = UIStackView(arrangedSubviews: [
-            sendButton,
-        ])
+        let stackView = [sendButton].asStackView(distribution: .fillEqually)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.distribution = .fillEqually
-        stackView.spacing = 0
         addSubview(stackView)
 
         backgroundColor = Colors.appHighlightGreen

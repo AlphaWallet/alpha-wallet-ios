@@ -46,12 +46,8 @@ class RedeemTicketsViewController: UIViewController {
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
-        let buttonsStackView = UIStackView(arrangedSubviews: [nextButton])
+        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        buttonsStackView.axis = .horizontal
-        buttonsStackView.spacing = 0
-        buttonsStackView.distribution = .fillEqually
-        buttonsStackView.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
 
         let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()
