@@ -16,7 +16,7 @@ class ImportTicketViewController: UIViewController {
     let ticketView = TicketRowView()
     let statusLabel = UILabel()
     let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
-    let costStackView = UIStackView()
+    var costStackView: UIStackView?
     let ethCostLabelLabel = UILabel()
     let ethCostLabel = UILabel()
     let dollarCostLabelLabel = UILabel()
@@ -56,35 +56,29 @@ class ImportTicketViewController: UIViewController {
         let separator2 = UIView()
         separator2.backgroundColor = UIColor(red: 230, green: 230, blue: 230)
 
-        costStackView.addArrangedSubview(ethCostLabelLabel)
-        costStackView.addArrangedSubview(.spacer(height: 7))
-        costStackView.addArrangedSubview(separator1)
-        costStackView.addArrangedSubview(.spacer(height: 7))
-        costStackView.addArrangedSubview(ethCostLabel)
-        costStackView.addArrangedSubview(.spacer(height: 7))
-        costStackView.addArrangedSubview(separator2)
-        costStackView.addArrangedSubview(.spacer(height: 7))
-        costStackView.addArrangedSubview(dollarCostLabelLabel)
-        costStackView.addArrangedSubview(.spacer(height: 3))
-        costStackView.addArrangedSubview(dollarCostLabel)
-        costStackView.translatesAutoresizingMaskIntoConstraints = false
-        costStackView.axis = .vertical
-        costStackView.spacing = 0
-        costStackView.distribution = .fill
-        costStackView.alignment = .center
+        costStackView = [
+            ethCostLabelLabel,
+            .spacer(height: 7),
+            separator1,
+            .spacer(height: 7),
+            ethCostLabel,
+            .spacer(height: 7),
+            separator2,
+            .spacer(height: 7),
+            dollarCostLabelLabel,
+            .spacer(height: 3),
+            dollarCostLabel,
+        ].asStackView(axis: .vertical, alignment: .center)
+        costStackView?.translatesAutoresizingMaskIntoConstraints = false
 
         actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
 
         cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
 
-        let buttonsStackView = UIStackView(arrangedSubviews: [actionButton, cancelButton])
+        let buttonsStackView = [actionButton, cancelButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        buttonsStackView.axis = .horizontal
-        buttonsStackView.spacing = 0
-        buttonsStackView.distribution = .fillEqually
-        buttonsStackView.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             header,
             .spacer(height: 1),
             ticketView,
@@ -93,13 +87,9 @@ class ImportTicketViewController: UIViewController {
             .spacer(height: 14),
             statusLabel,
             .spacer(height: 20),
-            costStackView,
-        ])
+            costStackView!,
+        ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
-        stackView.alignment = .center
         roundedBackground.addSubview(stackView)
 
         let marginToHideBottomRoundedCorners = CGFloat(30)
@@ -196,7 +186,7 @@ class ImportTicketViewController: UIViewController {
             statusLabel.text = viewModel.statusText
             statusLabel.numberOfLines = 0
 
-            costStackView.isHidden = !viewModel.showCost
+            costStackView?.isHidden = !viewModel.showCost
 
             ethCostLabelLabel.textColor = viewModel.ethCostLabelLabelColor
             ethCostLabelLabel.font = viewModel.ethCostLabelLabelFont

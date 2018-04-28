@@ -48,27 +48,19 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController {
         quantityStepper.value = 1
         view.addSubview(quantityStepper)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             header,
             subtitleLabel,
             .spacer(height: 4),
             quantityStepper,
             .spacer(height: 50),
             ticketView,
-        ])
+        ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
-		stackView.alignment = .center
         roundedBackground.addSubview(stackView)
 
-        let buttonsStackView = UIStackView(arrangedSubviews: [nextButton])
+        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        buttonsStackView.axis = .horizontal
-        buttonsStackView.spacing = 0
-        buttonsStackView.distribution = .fillEqually
-        buttonsStackView.setContentHuggingPriority(.required, for: .horizontal)
 
         let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()

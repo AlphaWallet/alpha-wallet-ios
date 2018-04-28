@@ -38,15 +38,12 @@ class ErrorView: UIView {
         button.setTitle(NSLocalizedString("Retry", value: "Retry", comment: ""), for: .normal)
         button.addTarget(self, action: #selector(retry), for: .touchUpInside)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             imageView,
             descriptionLabel,
             button,
-        ])
+        ].asStackView(axis: .vertical, spacing: viewModel.stackSpacing, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.alignment = .center
-        stackView.axis = .vertical
-        stackView.spacing = viewModel.stackSpacing
 
         addSubview(stackView)
 

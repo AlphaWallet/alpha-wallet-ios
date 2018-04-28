@@ -85,10 +85,8 @@ class TransactionViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(more), for: .touchUpInside)
 
-        let stackView = UIStackView(arrangedSubviews: [button])
+        let stackView = [button].asStackView(spacing: 10)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 10
         stackView.layoutMargins = UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15)
         stackView.isLayoutMarginsRelativeArrangement = true
 

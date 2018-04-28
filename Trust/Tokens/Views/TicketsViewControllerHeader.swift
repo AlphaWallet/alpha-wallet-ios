@@ -17,16 +17,12 @@ class TicketsViewControllerHeader: UIView {
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let bottomRowStack = UIStackView(arrangedSubviews: [blockchainLabel, separator, issuerLabel])
-        bottomRowStack.axis = .horizontal
-        bottomRowStack.spacing = 15
-        bottomRowStack.distribution = .fill
-
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, bottomRowStack])
+        let bottomRowStack = [blockchainLabel, separator, issuerLabel].asStackView(spacing: 15)
+        let stackView = [
+            titleLabel,
+            bottomRowStack
+        ].asStackView(axis: .vertical, spacing: 15)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 15
-        stackView.distribution = .fill
         background.addSubview(stackView)
 
         let backgroundWidthConstraint = background.widthAnchor.constraint(equalTo: widthAnchor)

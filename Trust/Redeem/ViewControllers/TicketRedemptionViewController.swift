@@ -37,18 +37,14 @@ class TicketRedemptionViewController: UIViewController {
 
         ticketView.translatesAutoresizingMaskIntoConstraints = false
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             titleLabel,
             .spacer(height: 10),
             imageHolder,
-			.spacer(height: 4),
-			ticketView,
-        ])
+            .spacer(height: 4),
+            ticketView,
+        ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
-		stackView.alignment = .center
         view.addSubview(stackView)
 
         let xMargin  = CGFloat(16)
