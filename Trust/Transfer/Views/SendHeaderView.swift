@@ -8,6 +8,8 @@ class SendHeaderView: UIView {
     let issuerLabel = UILabel()
 
     let middleBorder = UIView()
+
+    var footerStackView: UIStackView?
     let valuePercentageChangeValueLabel = UILabel()
     let valuePercentageChangePeriodLabel = UILabel()
     let valueChangeLabel = UILabel()
@@ -36,19 +38,19 @@ class SendHeaderView: UIView {
 
         let footerNamesStack = [valuePercentageChangePeriodLabel, valueChangeNameLabel, valueNameLabel].asStackView(distribution: .fillEqually, spacing: 15)
 
-        let footerStackView = [
-            middleBorder,
+        footerStackView = [
             .spacer(height: 14),
             footerValuesStack,
             footerNamesStack,
         ].asStackView(axis: .vertical, perpendicularContentHuggingPriority: .defaultLow)
-        footerStackView.translatesAutoresizingMaskIntoConstraints = false
+        footerStackView?.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [
             titleLabel,
             bottomRowStack,
             .spacer(height: 7),
-            footerStackView,
+            middleBorder,
+            footerStackView!,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
@@ -117,5 +119,7 @@ class SendHeaderView: UIView {
         valueLabel.textColor = viewModel.textColor
         valueLabel.font = viewModel.textValueFont
         valueLabel.text = viewModel.value
+
+        footerStackView?.isHidden = !viewModel.showAlternativeAmount
     }
 }
