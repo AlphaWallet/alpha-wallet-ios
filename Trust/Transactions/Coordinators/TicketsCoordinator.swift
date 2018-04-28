@@ -268,11 +268,11 @@ class TicketsCoordinator: NSObject, Coordinator {
         let timestamp = Int(NSDate().timeIntervalSince1970) + 86400
         let order = Order(
             price: BigUInt("0")!,
-            indices: ticketHolder.ticketIndices,
+            indices: ticketHolder.indices,
             expiry: BigUInt(timestamp.description)!,
             contractAddress: Constants.fifaContractAddress,
             start: BigUInt("0")!,
-            count: ticketHolder.ticketIndices.count
+            count: ticketHolder.indices.count
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
@@ -290,11 +290,11 @@ class TicketsCoordinator: NSObject, Coordinator {
         let wei = BigUInt(cost.description)!
         let order = Order(
                 price: wei,
-                indices: ticketHolder.ticketIndices,
+                indices: ticketHolder.indices,
                 expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
                 contractAddress: Constants.fifaContractAddress,
                 start: BigUInt("0")!,
-                count: ticketHolder.ticketIndices.count
+                count: ticketHolder.indices.count
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
