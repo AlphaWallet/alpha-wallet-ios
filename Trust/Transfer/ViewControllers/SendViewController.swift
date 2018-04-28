@@ -475,13 +475,6 @@ class SendViewController: UIViewController {
         }
     }
 
-
-//    private func getTicket(for id: UInt16) -> Ticket? {
-//        let tickets = ticketHolders.flatMap { $0.tickets }
-//        let filteredTickets = tickets.filter { UInt16($0.id, radix: 16)! == id }
-//        return filteredTickets[Int(id)]
-//    }
-    
     private func generateQRCode(from string: String) -> UIImage? {
         return string.toQRCode()
     }
