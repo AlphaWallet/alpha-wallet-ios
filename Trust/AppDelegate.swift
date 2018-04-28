@@ -86,6 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         let url = userActivity.webpageURL
 		universalLinkCoordinator = UniversalLinkCoordinator()
         universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
+        universalLinkCoordinator.ethBalance = appCoordinator.ethBalance
         universalLinkCoordinator.delegate = self
         universalLinkCoordinator.start()
 		let handled = universalLinkCoordinator.handleUniversalLink(url: url)

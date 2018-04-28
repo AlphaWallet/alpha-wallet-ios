@@ -17,6 +17,7 @@ class UniversalLinkCoordinator: Coordinator {
 	weak var delegate: UniversalLinkCoordinatorDelegate?
 	var importTicketViewController: ImportTicketViewController?
     var ethPrice: Subscribable<Double>?
+    var ethBalance: Subscribable<BigInt>?
 
 	func start()
     {
@@ -139,7 +140,15 @@ class UniversalLinkCoordinator: Coordinator {
             if let goodResult = result {
                 if signedOrder.order.price > 0
                 {
-                    let success = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: goodResult)
+                    if let balance = self.ethBalance {
+                        balance.subscribeOnce { value in
+                            if value > signedOrder.order.price {
+                                let success = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: goodResult)
+                            } else {
+                                self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle())
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -150,6 +159,7 @@ class UniversalLinkCoordinator: Coordinator {
                 }
             }
             else {
+                //TODO localize
                 self.showImportError(errorMessage: "Invalid Link, please try again")
             }
 
