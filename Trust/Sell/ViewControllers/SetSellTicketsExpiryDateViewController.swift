@@ -79,45 +79,29 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
         linkExpiryTimeField.translatesAutoresizingMaskIntoConstraints = false
         linkExpiryTimeField.delegate = self
 
-        let col0 = UIStackView(arrangedSubviews: [
+        let col0 = [
             linkExpiryDateLabel,
             .spacer(height: 4),
             linkExpiryDateField,
-        ])
+        ].asStackView(axis: .vertical)
         col0.translatesAutoresizingMaskIntoConstraints = false
-        col0.axis = .vertical
-        col0.spacing = 0
-        col0.distribution = .fill
 
-        let col1 = UIStackView(arrangedSubviews: [
+        let col1 = [
             linkExpiryTimeLabel,
             .spacer(height: 4),
             linkExpiryTimeField,
-        ])
+        ].asStackView(axis: .vertical)
         col1.translatesAutoresizingMaskIntoConstraints = false
-        col1.axis = .vertical
-        col1.spacing = 0
-        col1.distribution = .fill
 
-        let choicesStackView = UIStackView(arrangedSubviews: [
-            col0,
-            .spacerWidth(10),
-            col1,
-        ])
+        let choicesStackView = [col0, .spacerWidth(10), col1].asStackView()
         choicesStackView.translatesAutoresizingMaskIntoConstraints = false
-        choicesStackView.axis = .horizontal
-        choicesStackView.spacing = 0
-        choicesStackView.distribution = .fill
 
-        let noteStackView = UIStackView(arrangedSubviews: [
+        let noteStackView = [
             noteTitleLabel,
             .spacer(height: 4),
             noteLabel,
-        ])
+        ].asStackView(axis: .vertical)
         noteStackView.translatesAutoresizingMaskIntoConstraints = false
-        noteStackView.axis = .vertical
-        noteStackView.spacing = 0
-        noteStackView.distribution = .fill
         noteBorderView.addSubview(noteStackView)
 
         datePicker.datePickerMode = .date
@@ -130,7 +114,7 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
         timePicker.addTarget(self, action: #selector(timePickerValueChanged), for: .valueChanged)
         timePicker.isHidden = true
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             header,
             ticketView,
             .spacer(height: 18),
@@ -145,20 +129,12 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
             timePicker,
             .spacer(height: 10),
             noteBorderView,
-        ])
+        ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
-		stackView.alignment = .center
         scrollView.addSubview(stackView)
 
-        let buttonsStackView = UIStackView(arrangedSubviews: [nextButton])
+        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        buttonsStackView.axis = .horizontal
-        buttonsStackView.spacing = 0
-        buttonsStackView.distribution = .fillEqually
-        buttonsStackView.setContentHuggingPriority(.required, for: .horizontal)
 
         let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()

@@ -51,17 +51,8 @@ class BrowserNavigationBar: UINavigationBar {
         moreButton.setImage(R.image.toolbarMenu(), for: .normal)
         moreButton.addTarget(self, action: #selector(moreAction(_:)), for: .touchUpInside)
 
-        let stackView = UIStackView(arrangedSubviews: [
-            goBack,
-            goForward,
-            textField,
-            moreButton,
-        ])
+        let stackView = [goBack, goForward, textField, moreButton].asStackView(spacing: 4)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.spacing = 4
-
         addSubview(stackView)
 
         NSLayoutConstraint.activate([

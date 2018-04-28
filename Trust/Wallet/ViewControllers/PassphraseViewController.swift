@@ -28,16 +28,13 @@ class PassphraseViewController: UIViewController {
         copyButton.translatesAutoresizingMaskIntoConstraints = false
         copyButton.addTarget(self, action: #selector(copyAction), for: .touchUpInside)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             .spacer(height: 10),
             passphraseView,
             copyButton,
             label,
-        ])
+        ].asStackView(axis: .vertical, spacing: 10)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 10
-
         view.addSubview(stackView)
 
         NSLayoutConstraint.activate([

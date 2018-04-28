@@ -88,14 +88,8 @@ class AmountTextField: UIControl {
         fiatButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
         fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
 
-        let amountRightView = UIStackView(arrangedSubviews: [
-            fiatButton,
-        ])
-
+        let amountRightView = [fiatButton].asStackView(distribution: .equalSpacing)
         amountRightView.translatesAutoresizingMaskIntoConstraints = false
-        amountRightView.distribution = .equalSpacing
-        amountRightView.spacing = 1
-        amountRightView.axis = .horizontal
 
         return amountRightView
     }

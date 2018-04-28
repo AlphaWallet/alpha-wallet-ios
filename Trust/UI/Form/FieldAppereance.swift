@@ -24,14 +24,8 @@ class FieldAppereance {
         UITapGestureRecognizer(addToView: qrButton) {
             qrAction()
         }
-        let recipientRightView = UIStackView(arrangedSubviews: [
-            pasteButton,
-            qrButton,
-        ])
+        let recipientRightView = [pasteButton, qrButton].asStackView(distribution: .equalSpacing, spacing: 2)
         recipientRightView.translatesAutoresizingMaskIntoConstraints = false
-        recipientRightView.distribution = .equalSpacing
-        recipientRightView.spacing = 2
-        recipientRightView.axis = .horizontal
         return recipientRightView
     }
 }

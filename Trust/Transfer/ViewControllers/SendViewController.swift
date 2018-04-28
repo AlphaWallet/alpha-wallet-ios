@@ -120,42 +120,26 @@ class SendViewController: UIViewController {
 
         myAddressContainer.translatesAutoresizingMaskIntoConstraints = false
 
-        let myAddressContainerCol0 = UIStackView(arrangedSubviews: [
+        let myAddressContainerCol0 = [
             myAddressLabelLabel,
             .spacer(height: 10),
             myAddressLabel,
             .spacer(height: 10),
             copyButton,
-        ])
+        ].asStackView(axis: .vertical, alignment: .center)
         myAddressContainerCol0.translatesAutoresizingMaskIntoConstraints = false
-        myAddressContainerCol0.axis = .vertical
-        myAddressContainerCol0.spacing = 0
-        myAddressContainerCol0.distribution = .fill
-        myAddressContainerCol0.alignment = .center
 
-        let myAddressContainerStackView = UIStackView(arrangedSubviews: [
-            myAddressContainerCol0,
-            .spacerWidth(20),
-            imageView,
-        ])
+        let myAddressContainerStackView = [myAddressContainerCol0, .spacerWidth(20), imageView].asStackView(alignment: .center)
         myAddressContainerStackView.translatesAutoresizingMaskIntoConstraints = false
-        myAddressContainerStackView.axis = .horizontal
-        myAddressContainerStackView.spacing = 0
-        myAddressContainerStackView.distribution = .fill
-        myAddressContainerStackView.alignment = .center
         myAddressContainer.addSubview(myAddressContainerStackView)
 
         nextButton.setTitle(R.string.localizable.aWalletTicketTokenTransferButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
 
-        let buttonsStackView = UIStackView(arrangedSubviews: [nextButton])
+        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        buttonsStackView.axis = .horizontal
-        buttonsStackView.spacing = 0
-        buttonsStackView.distribution = .fillEqually
-        buttonsStackView.setContentHuggingPriority(.required, for: .horizontal)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             header,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 7: 20),
             targetAddressLabel,
@@ -168,12 +152,8 @@ class SendViewController: UIViewController {
             alternativeAmountLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 10: 20),
             myAddressContainer,
-        ])
+        ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
-        stackView.alignment = .center
         roundedBackground.addSubview(stackView)
 
 
@@ -554,14 +534,8 @@ class SendViewController: UIViewController {
         scanQRCodeButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
 
-        let targetAddressRightView = UIStackView(arrangedSubviews: [
-            pasteButton,
-            scanQRCodeButton,
-        ])
+        let targetAddressRightView = [pasteButton, scanQRCodeButton].asStackView(distribution: .equalSpacing)
         targetAddressRightView.translatesAutoresizingMaskIntoConstraints = false
-        targetAddressRightView.distribution = .equalSpacing
-        targetAddressRightView.spacing = 0
-        targetAddressRightView.axis = .horizontal
 
         return targetAddressRightView
     }
@@ -574,14 +548,8 @@ class SendViewController: UIViewController {
         fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
         fiatButton.isHidden = !viewModel.showAlternativeAmount
 
-        let amountRightView = UIStackView(arrangedSubviews: [
-            fiatButton,
-        ])
-
+        let amountRightView = [fiatButton].asStackView(distribution: .equalSpacing, spacing: 1)
         amountRightView.translatesAutoresizingMaskIntoConstraints = false
-        amountRightView.distribution = .equalSpacing
-        amountRightView.spacing = 1
-        amountRightView.axis = .horizontal
 
         return amountRightView
     }

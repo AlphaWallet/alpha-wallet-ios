@@ -86,40 +86,27 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         quantityStepper.value = 1
         quantityStepper.addTarget(self, action: #selector(quantityChanged), for: .valueChanged)
 
-        let col0 = UIStackView(arrangedSubviews: [
+        let col0 = [
             pricePerTicketLabel,
             .spacer(height: 4),
             pricePerTicketField,
             pricePerTicketField.alternativeAmountLabel,
-        ])
+        ].asStackView(axis: .vertical)
         col0.translatesAutoresizingMaskIntoConstraints = false
-        col0.axis = .vertical
-        col0.spacing = 0
-        col0.distribution = .fill
 
         let sameHeightAsPricePerTicketAlternativeAmountLabelPlaceholder = UIView()
         sameHeightAsPricePerTicketAlternativeAmountLabelPlaceholder.translatesAutoresizingMaskIntoConstraints = false
 
-        let col1 = UIStackView(arrangedSubviews: [
+        let col1 = [
             quantityLabel,
             .spacer(height: 4),
             quantityStepper,
             sameHeightAsPricePerTicketAlternativeAmountLabelPlaceholder,
-        ])
+        ].asStackView(axis: .vertical)
         col1.translatesAutoresizingMaskIntoConstraints = false
-        col1.axis = .vertical
-        col1.spacing = 0
-        col1.distribution = .fill
 
-        let choicesStackView = UIStackView(arrangedSubviews: [
-            col0,
-            .spacerWidth(10),
-            col1,
-        ])
+        let choicesStackView = [col0, .spacerWidth(10), col1].asStackView()
         choicesStackView.translatesAutoresizingMaskIntoConstraints = false
-        choicesStackView.axis = .horizontal
-        choicesStackView.spacing = 0
-        choicesStackView.distribution = .fill
 
         let separator1 = UIView()
         separator1.backgroundColor = UIColor(red: 230, green: 230, blue: 230)
@@ -127,7 +114,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         let separator2 = UIView()
         separator2.backgroundColor = UIColor(red: 230, green: 230, blue: 230)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             header,
             ticketView,
             .spacer(height: 20),
@@ -144,20 +131,12 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
             dollarCostLabelLabel,
             .spacer(height: 10),
             dollarCostLabel,
-        ])
+        ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
-		stackView.alignment = .center
         scrollView.addSubview(stackView)
 
-        let buttonsStackView = UIStackView(arrangedSubviews: [nextButton])
+        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        buttonsStackView.axis = .horizontal
-        buttonsStackView.spacing = 0
-        buttonsStackView.distribution = .fillEqually
-        buttonsStackView.setContentHuggingPriority(.required, for: .horizontal)
 
         let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()
