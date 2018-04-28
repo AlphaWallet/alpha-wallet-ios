@@ -13,12 +13,12 @@ extension WKWebViewConfiguration {
         if let filepath = Bundle.main.path(forResource: "trust-min", ofType: "js") {
             do {
                 js += try String(contentsOfFile: filepath)
-                NSLog("Loaded Trust in page provider")
+                NSLog("Loaded AlphaWallet in page provider")
             } catch {
-                NSLog("Failed to load Trust in page provider")
+                NSLog("Failed to load AlphaWallet in page provider")
             }
         } else {
-            NSLog("Trust in page provider not found in bundle")
+            NSLog("AlphaWallet in page provider not found in bundle")
         }
 
         js +=
@@ -59,7 +59,7 @@ extension WKWebViewConfiguration {
         })
 
         web3.setProvider = function () {
-          console.debug('Trust Wallet - overrode web3.setProvider')
+          console.debug('AlphaWallet - overrode web3.setProvider')
         }
 
         web3.eth.defaultAccount = addressHex
