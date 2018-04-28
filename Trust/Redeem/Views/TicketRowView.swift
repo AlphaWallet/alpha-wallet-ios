@@ -18,11 +18,11 @@ class TicketRowView: UIView {
 	let cityLabel = UILabel()
 	let timeLabel = UILabel()
 	let teamsLabel = UILabel()
-	let detailsRowStack = UIStackView()
+	var detailsRowStack: UIStackView? = nil
     let showCheckbox: Bool
 	var areDetailsVisible = false {
 		didSet {
-			detailsRowStack.isHidden = !areDetailsVisible
+			detailsRowStack?.isHidden = !areDetailsVisible
 		}
 	}
 
@@ -39,64 +39,28 @@ class TicketRowView: UIView {
 		background.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(background)
 
-		let topRowStack = UIStackView(arrangedSubviews: [
-			ticketCountLabel,
-			titleLabel,
-		])
-		topRowStack.axis = .horizontal
-		topRowStack.spacing = 15
-		topRowStack.distribution = .fill
-		topRowStack.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
+		let topRowStack = [ticketCountLabel, titleLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
+		let bottomRowStack = [dateImageView, dateLabel, .spacerWidth(7), seatRangeImageView, seatRangeLabel, .spacerWidth(7), categoryImageView, categoryLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
+		let detailsRow0 = [timeLabel, .spacerWidth(10), cityLabel].asStackView(contentHuggingPriority: .required)
 
-		let bottomRowStack = UIStackView(arrangedSubviews: [
-			dateImageView,
-			dateLabel,
-			.spacerWidth(7),
-			seatRangeImageView,
-			seatRangeLabel,
-			.spacerWidth(7),
-			categoryImageView,
-            categoryLabel,
-		])
-		bottomRowStack.axis = .horizontal
-		bottomRowStack.spacing = 7
-		bottomRowStack.distribution = .fill
-		bottomRowStack.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
-
-		let detailsRow0 = UIStackView(arrangedSubviews: [
-			timeLabel,
-			.spacerWidth(10),
-			cityLabel,
-		])
-		detailsRow0.axis = .horizontal
-		detailsRow0.spacing = 0
-		detailsRow0.distribution = .fill
-		detailsRow0.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
-
-		detailsRowStack.addArrangedSubview(.spacer(height: 10))
-		detailsRowStack.addArrangedSubview(detailsRow0)
-		detailsRowStack.addArrangedSubview(teamsLabel)
-		detailsRowStack.axis = .vertical
-		detailsRowStack.spacing = 0
-		detailsRowStack.distribution = .fill
-		detailsRowStack.setContentHuggingPriority(UILayoutPriority.required, for: .vertical)
-		detailsRowStack.isHidden = true
+		detailsRowStack = [
+			.spacer(height: 10),
+			detailsRow0,
+			teamsLabel,
+		].asStackView(axis: .vertical, contentHuggingPriority: .required)
+		detailsRowStack?.isHidden = true
 
 		//TODO variable names are unwieldy after several rounds of changes, fix them
-		let stackView = UIStackView(arrangedSubviews: [
+		let stackView = [
 			stateLabel,
 			topRowStack,
 			venueLabel,
 			.spacer(height: 10),
 			bottomRowStack,
-			detailsRowStack,
-		])
+			detailsRowStack!,
+		].asStackView(axis: .vertical, contentHuggingPriority: .required)
 		stackView.translatesAutoresizingMaskIntoConstraints = false
-		stackView.axis = .vertical
 		stackView.alignment = .leading
-		stackView.spacing = 0
-		stackView.distribution = .fill
-		stackView.setContentHuggingPriority(UILayoutPriority.required, for: .vertical)
 		background.addSubview(stackView)
 
 		// TODO extract constant. Maybe StyleLayout.sideMargin

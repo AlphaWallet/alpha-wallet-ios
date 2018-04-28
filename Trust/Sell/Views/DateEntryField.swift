@@ -24,16 +24,8 @@ class DateEntryField: UIControl {
         displayDateString()
 
         let rightView = makeRightView()
-        let stackView = UIStackView(arrangedSubviews: [
-            .spacerWidth(22),
-            leftButton,
-            rightView,
-        ])
+        let stackView = [.spacerWidth(22), leftButton, rightView].asStackView(alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.spacing = 0
-        stackView.distribution = .fill
-        stackView.alignment = .center
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
@@ -62,14 +54,8 @@ class DateEntryField: UIControl {
         rightButton.setImage(R.image.calendar(), for: .normal)
         rightButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
 
-        let rightView = UIStackView(arrangedSubviews: [
-            rightButton,
-        ])
-
+        let rightView = [rightButton].asStackView(distribution: .equalSpacing, spacing: 1)
         rightView.translatesAutoresizingMaskIntoConstraints = false
-        rightView.distribution = .equalSpacing
-        rightView.spacing = 1
-        rightView.axis = .horizontal
 
         return rightView
     }

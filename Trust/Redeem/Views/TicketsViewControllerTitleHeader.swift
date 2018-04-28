@@ -15,11 +15,8 @@ class TicketsViewControllerTitleHeader: UIView {
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let stackView = UIStackView(arrangedSubviews: [titleLabel])
+        let stackView = [titleLabel].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
         background.addSubview(stackView)
 
         let backgroundWidthConstraint = background.widthAnchor.constraint(equalTo: widthAnchor)

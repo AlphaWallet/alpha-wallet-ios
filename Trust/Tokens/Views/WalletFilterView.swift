@@ -40,11 +40,8 @@ class WalletFilterView: UIView {
 		assetsButton.titleLabel?.font = viewModel.font
 		assetsButton.addTarget(self, action: #selector(showAssetsOnly), for: .touchUpInside)
 
-		let buttonsStackView = UIStackView(arrangedSubviews: [allButton, currencyButton, assetsButton])
+		let buttonsStackView = [allButton, currencyButton, assetsButton].asStackView(spacing: 20)
 		buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-		buttonsStackView.axis = .horizontal
-		buttonsStackView.spacing = 20
-		buttonsStackView.distribution = .fill
 		addSubview(buttonsStackView)
 
 		let fullWidthBar = UIView()

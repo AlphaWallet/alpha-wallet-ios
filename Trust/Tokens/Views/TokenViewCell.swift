@@ -19,17 +19,13 @@ class TokenViewCell: UITableViewCell {
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
-        let bottomRowStack = UIStackView(arrangedSubviews: [blockchainLabel, separator, issuerLabel])
-        bottomRowStack.axis = .horizontal
-        bottomRowStack.spacing = 15
-        bottomRowStack.distribution = .fill
+        let bottomRowStack = [blockchainLabel, separator, issuerLabel].asStackView(spacing: 15)
 
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, bottomRowStack])
+        let stackView = [
+            titleLabel,
+            bottomRowStack
+        ].asStackView(axis: .vertical, spacing: 15, alignment: .leading)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 15
-        stackView.distribution = .fill
-        stackView.alignment = .leading
         background.addSubview(stackView)
 
         // TODO extract constant. Maybe StyleLayout.sideMargin

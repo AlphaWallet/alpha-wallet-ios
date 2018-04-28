@@ -17,12 +17,8 @@ class ContactUsBannerView: UIView {
     override init(frame: CGRect) {
         super.init(frame: CGRect())
 
-        let stackView = UIStackView(arrangedSubviews: [imageView, label])
+        let stackView = [imageView, label].asStackView(spacing: 14, contentHuggingPriority: .required)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.spacing = 14
-        stackView.distribution = .fill
-        stackView.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
         addSubview(stackView)
 
         button.translatesAutoresizingMaskIntoConstraints = false

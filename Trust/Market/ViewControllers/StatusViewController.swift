@@ -38,7 +38,7 @@ class StatusViewController: UIViewController {
 
 		actionButton.addTarget(self, action: #selector(done), for: .touchUpInside)
 
-		let stackView = UIStackView(arrangedSubviews: [
+		let stackView = [
 			.spacer(height: 20),
 			imageHolder,
 			.spacer(height: 20),
@@ -46,11 +46,8 @@ class StatusViewController: UIViewController {
 			.spacer(height: 20),
 			actionButton,
 			.spacer(height: 18)
-		])
+		].asStackView(axis: .vertical)
 		stackView.translatesAutoresizingMaskIntoConstraints = false
-		stackView.axis = .vertical
-		stackView.spacing = 0
-		stackView.distribution = .fill
 		background.addSubview(stackView)
 
 		NSLayoutConstraint.activate([
