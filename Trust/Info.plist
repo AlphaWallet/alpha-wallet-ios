@@ -23,7 +23,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>trust</string>
+				<string>awallet</string>
 			</array>
 		</dict>
 	</array>

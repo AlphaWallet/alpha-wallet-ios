@@ -86,14 +86,6 @@ class TicketAdaptor {
     private func getTicketHolder(for tickets: [Ticket]) -> TicketHolder {
         return TicketHolder(
                 tickets: tickets,
-                city: tickets[0].city,
-                name: tickets[0].name,
-                venue: tickets[0].venue,
-                match: tickets[0].match,
-                date: tickets[0].date,
-                category: tickets[0].category,
-                countryA: tickets[0].countryA,
-                countryB: tickets[0].countryB,
                 status: .available
         )
     }
