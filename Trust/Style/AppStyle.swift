@@ -33,7 +33,6 @@ func applyStyle() {
     UIRefreshControl.appearance().tintColor = Colors.appWhite
 
     UIImageView.appearance().tintColor = Colors.lightBlue
-    UIImageView.appearance(whenContainedInInstancesOf: [BrowserNavigationBar.self]).tintColor = .white
 
     BalanceTitleView.appearance().titleTextColor = UIColor.white
     BalanceTitleView.appearance().subTitleTextColor = UIColor(white: 0.9, alpha: 1)
