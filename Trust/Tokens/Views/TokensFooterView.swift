@@ -16,11 +16,8 @@ class TokensFooterView: UIView {
 
         textLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let stackView = UIStackView(arrangedSubviews: [
-            textLabel,
-        ])
+        let stackView = [textLabel].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
         addSubview(stackView)
 
         NSLayoutConstraint.activate([

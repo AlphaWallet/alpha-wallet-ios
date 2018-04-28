@@ -34,15 +34,12 @@ class LoadingView: UIView {
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
         loadingIndicator.startAnimating()
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             loadingIndicator,
             label,
             imageView,
-        ])
+        ].asStackView(axis: .vertical, spacing: viewModel.stackSpacing, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.alignment = .center
-        stackView.axis = .vertical
-        stackView.spacing = viewModel.stackSpacing
 
         addSubview(stackView)
 

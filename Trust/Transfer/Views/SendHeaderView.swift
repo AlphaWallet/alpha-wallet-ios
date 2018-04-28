@@ -30,38 +30,27 @@ class SendHeaderView: UIView {
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
 
-        let bottomRowStack = UIStackView(arrangedSubviews: [blockchainLabel, issuerLabel])
-        bottomRowStack.axis = .horizontal
-        bottomRowStack.spacing = 15
-        bottomRowStack.distribution = .fill
+        let bottomRowStack = [blockchainLabel, issuerLabel].asStackView(spacing: 15)
 
-        let footerValuesStack = UIStackView(arrangedSubviews: [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel])
-        footerValuesStack.axis = .horizontal
-        footerValuesStack.spacing = 15
-        footerValuesStack.distribution = .fillEqually
+        let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .fillEqually, spacing: 15)
 
-        let footerNamesStack = UIStackView(arrangedSubviews: [valuePercentageChangePeriodLabel, valueChangeNameLabel, valueNameLabel])
-        footerNamesStack.axis = .horizontal
-        footerNamesStack.spacing = 15
-        footerNamesStack.distribution = .fillEqually
+        let footerNamesStack = [valuePercentageChangePeriodLabel, valueChangeNameLabel, valueNameLabel].asStackView(distribution: .fillEqually, spacing: 15)
 
-        let footerStackView = UIStackView(arrangedSubviews: [middleBorder, .spacer(height: 14), footerValuesStack, footerNamesStack])
+        let footerStackView = [
+            middleBorder,
+            .spacer(height: 14),
+            footerValuesStack,
+            footerNamesStack,
+        ].asStackView(axis: .vertical, perpendicularContentHuggingPriority: .defaultLow)
         footerStackView.translatesAutoresizingMaskIntoConstraints = false
-        footerStackView.axis = .vertical
-        footerStackView.spacing = 0
-        footerStackView.distribution = .fill
-        footerValuesStack.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             titleLabel,
             bottomRowStack,
             .spacer(height: 7),
             footerStackView,
-        ])
+        ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
         background.addSubview(stackView)
 
         let backgroundWidthConstraint = background.widthAnchor.constraint(equalTo: widthAnchor)

@@ -34,33 +34,21 @@ class EthTokenViewCell: UITableViewCell {
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
 
-        let bottomRowStack = UIStackView(arrangedSubviews: [blockchainLabel, separator, issuerLabel])
-        bottomRowStack.axis = .horizontal
-        bottomRowStack.spacing = 15
-        bottomRowStack.distribution = .fill
-
-        let footerValuesStack = UIStackView(arrangedSubviews: [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel])
-        footerValuesStack.axis = .horizontal
-        footerValuesStack.spacing = 15
-        footerValuesStack.distribution = .fillEqually
-
-        let footerNamesStack = UIStackView(arrangedSubviews: [valuePercentageChangePeriodLabel, valueChangeNameLabel, valueNameLabel])
-        footerNamesStack.axis = .horizontal
-        footerNamesStack.spacing = 15
-        footerNamesStack.distribution = .fillEqually
-
-        let footerStackView = UIStackView(arrangedSubviews: [middleBorder, .spacer(height: 14), footerValuesStack, footerNamesStack])
-        footerStackView.translatesAutoresizingMaskIntoConstraints = false
-        footerStackView.axis = .vertical
-        footerStackView.spacing = 0
-        footerStackView.distribution = .fill
-        footerValuesStack.setContentHuggingPriority(.defaultLow, for: .horizontal)
-
-        let stackView = UIStackView(arrangedSubviews: [titleLabel, bottomRowStack, footerStackView])
+        let bottomRowStack = [blockchainLabel, separator, issuerLabel].asStackView(spacing: 15)
+        let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .fillEqually, spacing: 15)
+        let footerNamesStack = [valuePercentageChangePeriodLabel, valueChangeNameLabel, valueNameLabel].asStackView(distribution: .fillEqually, spacing: 15)
+        let footerStackView = [
+            middleBorder,
+            .spacer(height: 14),
+            footerValuesStack,
+            footerNamesStack,
+        ].asStackView(axis: .vertical, perpendicularContentHuggingPriority: .defaultLow)
+        let stackView = [
+            titleLabel,
+            bottomRowStack,
+            footerStackView
+        ].asStackView(axis: .vertical, spacing: 15)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 15
-        stackView.distribution = .fill
         background.addSubview(stackView)
 
         // TODO extract constant. Maybe StyleLayout.sideMargin

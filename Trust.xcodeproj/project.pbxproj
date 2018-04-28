@@ -299,6 +299,7 @@
 		5E7C72B0A10A92E591696E48 /* ContactUsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7AE6FAE0DF969B4F52E9 /* ContactUsBannerView.swift */; };
 		5E7C72C8A15397C5A40BFE76 /* WhatIsEthereumInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C774BCA281E4B077DBBFA /* WhatIsEthereumInfoViewController.swift */; };
 		5E7C72E1D4B4B4C8443F3DA1 /* SendHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7828BD821B6F04B71C00 /* SendHeaderView.swift */; };
+		5E7C7317533D24B6A292F88D /* UIStackView+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73ED9226646D562B5A3C /* UIStackView+Array.swift */; };
 		5E7C731B88842C036A74A039 /* AlphaWalletSettingsButtonRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C71EBD4C95AD4E11F3352 /* AlphaWalletSettingsButtonRow.swift */; };
 		5E7C733638D7596F93DEE2A9 /* OnboardingCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75CE3F1D6B7993E7A840 /* OnboardingCollectionViewController.swift */; };
 		5E7C7376B566E5A59CC8F463 /* ImportTicketViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72D0E7CA03ADE5CFAE7A /* ImportTicketViewControllerViewModel.swift */; };
@@ -351,6 +352,7 @@
 		5E7C7C658D619C70F1E3DE59 /* AdvancedSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C719B717E002583B1E2E9 /* AdvancedSettingsViewModel.swift */; };
 		5E7C7C98EAF40E8110241DBD /* TicketTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C783E3ADA4CF9554A0E7D /* TicketTokenViewCell.swift */; };
 		5E7C7C9E89056069C8FEFA76 /* AlphaWalletSettingsSwitchRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7534FB6BF4D199643246 /* AlphaWalletSettingsSwitchRow.swift */; };
+		5E7C7CCA357CB7BF12E1F2B4 /* UIStackView+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73ED9226646D562B5A3C /* UIStackView+Array.swift */; };
 		5E7C7CCC8D376C6E5C245715 /* EthCurrencyHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73DF5FBFE756097D32B1 /* EthCurrencyHelper.swift */; };
 		5E7C7CDB837DCD57E0594CBA /* TicketsViewControllerTitleHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7821694C489D5114DB18 /* TicketsViewControllerTitleHeader.swift */; };
 		5E7C7CE5CA19183FCED8C907 /* TokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EE467A7F5F2E5B1F660 /* TokensViewModel.swift */; };
@@ -814,6 +816,7 @@
 		5E7C73495E0C0A207152EC25 /* LockEnterPasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LockEnterPasscodeViewController.swift; path = Trust/AlphaWalletLock/ViewControllers/LockEnterPasscodeViewController.swift; sourceTree = SOURCE_ROOT; };
 		5E7C73617E3A4C0B9A90A5F8 /* AmountTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountTextField.swift; sourceTree = "<group>"; };
 		5E7C73DF5FBFE756097D32B1 /* EthCurrencyHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthCurrencyHelper.swift; sourceTree = "<group>"; };
+		5E7C73ED9226646D562B5A3C /* UIStackView+Array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIStackView+Array.swift"; sourceTree = "<group>"; };
 		5E7C741196D9D9C9C3EE5E30 /* LockCreatePasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeViewController.swift; sourceTree = "<group>"; };
 		5E7C7419F47CC8B2996AA8F9 /* TransferTicketsQuantitySelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTicketsQuantitySelectionViewController.swift; sourceTree = "<group>"; };
 		5E7C74A2C738BF2412D412A7 /* TicketSellInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketSellInfoViewController.swift; sourceTree = "<group>"; };
@@ -1787,6 +1790,7 @@
 				AA26C62220412A4100318B9B /* Double.swift */,
 				AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */,
 				AA4E531720425A9500143A09 /* Date.swift */,
+				5E7C73ED9226646D562B5A3C /* UIStackView+Array.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3615,6 +3619,7 @@
 				5E7C7EAEBB435F3909DA36FB /* TransferTicketsViaWalletAddressViewControllerViewModel.swift in Sources */,
 				5E7C7CCC8D376C6E5C245715 /* EthCurrencyHelper.swift in Sources */,
 				5E7C77A8425E0AFAB11F1FCD /* PromptBackupCoordinator.swift in Sources */,
+				5E7C7317533D24B6A292F88D /* UIStackView+Array.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3690,6 +3695,7 @@
 				76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */,
 				76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */,
 				5E7C786AD8E4877C36D3B14A /* TicketAdaptorTest.swift in Sources */,
+				5E7C7CCA357CB7BF12E1F2B4 /* UIStackView+Array.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

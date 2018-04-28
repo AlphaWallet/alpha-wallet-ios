@@ -51,15 +51,12 @@ class TransactionsEmptyView: UIView {
         depositButton.setTitle(NSLocalizedString("transactions.deposit.button.title", value: "Buy", comment: ""), for: .normal)
         depositButton.addTarget(self, action: #selector(deposit(_:)), for: .touchUpInside)
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             imageView,
             titleLabel,
             //depositButton,
-        ])
+        ].asStackView(axis: .vertical, spacing: 30, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.alignment = .center
-        stackView.axis = .vertical
-        stackView.spacing = 30
 
         if let _ = onRetry {
             stackView.addArrangedSubview(button)

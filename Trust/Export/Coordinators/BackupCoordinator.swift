@@ -55,7 +55,7 @@ class BackupCoordinator: Coordinator {
     private func handleExport(result: (Result<String, KeystoreError>), completion: @escaping (Result<Bool, AnyError>) -> Void) {
         switch result {
         case .success(let value):
-            let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("trust_backup_\(account.address.description).json"))
+            let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("alphawallet_backup_\(account.address.description).json"))
             do {
                 try value.data(using: .utf8)!.write(to: url)
             } catch {

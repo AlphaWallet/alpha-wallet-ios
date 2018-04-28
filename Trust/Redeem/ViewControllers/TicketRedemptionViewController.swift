@@ -37,18 +37,14 @@ class TicketRedemptionViewController: UIViewController {
 
         ticketView.translatesAutoresizingMaskIntoConstraints = false
 
-        let stackView = UIStackView(arrangedSubviews: [
+        let stackView = [
             titleLabel,
             .spacer(height: 10),
             imageHolder,
-			.spacer(height: 4),
-			ticketView,
-        ])
+            .spacer(height: 4),
+            ticketView,
+        ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
-		stackView.alignment = .center
         view.addSubview(stackView)
 
         let xMargin  = CGFloat(16)
@@ -100,7 +96,7 @@ class TicketRedemptionViewController: UIViewController {
 
     @objc
     private func configureUI() {
-        let redeemData = redeem.redeemMessage(ticketIndices: viewModel.ticketHolder.ticketIndices)
+        let redeemData = redeem.redeemMessage(ticketIndices: viewModel.ticketHolder.indices)
         switch session.account.type {
         case .real(let account):
             let decimalSignature = SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account)!

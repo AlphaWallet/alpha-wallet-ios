@@ -66,12 +66,8 @@ class TicketsViewController: UIViewController {
         transferButton.setTitle(R.string.localizable.aWalletTicketTokenTransferButtonTitle(), for: .normal)
         transferButton.addTarget(self, action: #selector(transfer), for: .touchUpInside)
 
-        let buttonsStackView = UIStackView(arrangedSubviews: [redeemButton, sellButton, transferButton])
+        let buttonsStackView = [redeemButton, sellButton, transferButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        buttonsStackView.axis = .horizontal
-        buttonsStackView.spacing = 0
-        buttonsStackView.distribution = .fillEqually
-        buttonsStackView.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
 
         let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()

@@ -29,21 +29,17 @@ class TransactionViewCell: UITableViewCell {
         amountLabel.textAlignment = .right
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let leftStackView = UIStackView(arrangedSubviews: [titleLabel, subTitleLabel])
+        let leftStackView = [
+            titleLabel,
+            subTitleLabel,
+        ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 6)
         leftStackView.translatesAutoresizingMaskIntoConstraints = false
-        leftStackView.axis = .vertical
-        leftStackView.distribution = .fillProportionally
-        leftStackView.spacing = 6
 
-        let rightStackView = UIStackView(arrangedSubviews: [amountLabel])
+        let rightStackView = [amountLabel].asStackView(axis: .vertical)
         rightStackView.translatesAutoresizingMaskIntoConstraints = false
-        rightStackView.axis = .vertical
 
-        let stackView = UIStackView(arrangedSubviews: [statusImageView, leftStackView, rightStackView])
+        let stackView = [statusImageView, leftStackView, rightStackView].asStackView(spacing: 15)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.spacing = 15
-        stackView.distribution = .fill
 
         statusImageView.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
         subTitleLabel.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
