@@ -66,13 +66,13 @@ struct GenerateSellMagicLinkViewControllerViewModel {
         if ticketCount == 1 {
             return R.string.localizable.aWalletTicketTokenSellConfirmSingleTicketSelectedTitle()
         } else {
-            return R.string.localizable.aWalletTicketTokenSellConfirmMultipleTicketSelectedTitle(String(ticketHolder.count))
+            return R.string.localizable.aWalletTicketTokenSellConfirmMultipleTicketSelectedTitle(ticketHolder.count)
         }
     }
 
     var perTicketPriceLabelText: String {
         let amount = Double(ethCost)! / Double(ticketCount)
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(String(amount))
+        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount)
     }
 
     var totalEthLabelText: String {
