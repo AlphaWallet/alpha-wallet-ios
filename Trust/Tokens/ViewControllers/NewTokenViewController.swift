@@ -58,7 +58,7 @@ class NewTokenViewController: FormViewController {
             <<< AppFormAppearance.textFieldFloat(tag: Values.contract) {
                 $0.add(rule: EthereumAddressRule())
                 $0.validationOptions = .validatesOnDemand
-                $0.title = NSLocalizedString("Contract Address", value: "Contract Address", comment: "")
+                $0.title = R.string.localizable.contractAddress()
             }.cellUpdate { cell, _ in
                 cell.textField.textAlignment = .left
                 cell.textField.rightView = recipientRightView
@@ -72,13 +72,13 @@ class NewTokenViewController: FormViewController {
             <<< AppFormAppearance.textFieldFloat(tag: Values.name) {
                 $0.add(rule: RuleRequired())
                 $0.validationOptions = .validatesOnDemand
-                $0.title = NSLocalizedString("Name", value: "Name", comment: "")
+                $0.title = R.string.localizable.name()
             }
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.symbol) {
                 $0.add(rule: RuleRequired())
                 $0.validationOptions = .validatesOnDemand
-                $0.title = NSLocalizedString("Symbol", value: "Symbol", comment: "")
+                $0.title = R.string.localizable.symbol()
             }
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.decimals) {
@@ -86,7 +86,7 @@ class NewTokenViewController: FormViewController {
                     return (rowValue == nil || rowValue!.isEmpty) && !self.isStormBirdToken ? ValidationError(msg: "Field required!") : nil
                 })
                 $0.validationOptions = .validatesOnDemand
-                $0.title = NSLocalizedString("Decimals", value: "Decimals", comment: "")
+                $0.title = R.string.localizable.decimals()
                 $0.cell.textField.keyboardType = .decimalPad
             }
 

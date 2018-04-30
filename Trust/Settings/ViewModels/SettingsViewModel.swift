@@ -32,20 +32,17 @@ struct SettingsViewModel {
     var passcodeTitle: String {
         switch BiometryAuthenticationType.current {
         case .faceID, .touchID:
-            return String(
-                format: NSLocalizedString("settings.biometricsEnabled.label.title", value: "Passcode / %@", comment: ""),
-                BiometryAuthenticationType.current.title
-            )
+            return R.string.localizable.settingsBiometricsEnabledLabelTitle(BiometryAuthenticationType.current.title)
         case .none:
-            return NSLocalizedString("settings.biometricsDisabled.label.title", value: "Passcode", comment: "")
+            return R.string.localizable.settingsBiometricsDisabledLabelTitle()
         }
     }
 
     var networkTitle: String {
-        return NSLocalizedString("settings.network.button.title", value: "Network", comment: "")
+        return R.string.localizable.settingsNetworkButtonTitle()
     }
 
     var currencyTitle: String {
-        return NSLocalizedString("settings.currency.button.title", value: "Currency", comment: "")
+        return R.string.localizable.settingsCurrencyButtonTitle()
     }
 }

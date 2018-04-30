@@ -72,10 +72,10 @@ struct TransactionsViewModel {
         let value = items[section].date
         let date = TransactionsViewModel.formatter.date(from: value)!
         if NSCalendar.current.isDateInToday(date) {
-            return NSLocalizedString("Today", value: "Today", comment: "")
+            return R.string.localizable.today()
         }
         if NSCalendar.current.isDateInYesterday(date) {
-            return NSLocalizedString("Yesterday", value: "Yesterday", comment: "")
+            return R.string.localizable.yesterday()
         }
         return value
     }

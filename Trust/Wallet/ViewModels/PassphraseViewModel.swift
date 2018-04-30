@@ -6,11 +6,7 @@ import UIKit
 struct PassphraseViewModel {
 
     var title: String {
-        return NSLocalizedString(
-            "recoveryPhrase.navigation.title",
-            value: "Recovery Phrase",
-            comment: ""
-        )
+        return R.string.localizable.recoveryPhraseNavigationTitle()
     }
 
     var backgroundColor: UIColor {
@@ -18,11 +14,7 @@ struct PassphraseViewModel {
     }
 
     var rememberPassphraseText: String {
-        return NSLocalizedString(
-            "passphrase.remember.label.title",
-            value: "Write this down, and keep it private and secure. You won't be able to restore your wallet if you lose this!",
-            comment: ""
-        )
+        return R.string.localizable.passphraseRememberLabelTitle()
     }
 
     var phraseFont: UIFont {

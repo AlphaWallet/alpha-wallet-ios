@@ -4,7 +4,7 @@ import Foundation
 
 struct NewTokenViewModel {
     var title: String {
-        return NSLocalizedString("tokens.newtoken.navigation.title", value: "Add Custom Token", comment: "")
+        return R.string.localizable.tokensNewtokenNavigationTitle()
     }
 
     var stormBirdBalance: [String] = []

@@ -12,6 +12,6 @@ struct AccountsViewModel {
     }
 
     var title: String {
-        return NSLocalizedString("wallet.navigation.title", value: "Wallets", comment: "")
+        return R.string.localizable.walletNavigationTitle()
     }
 }
