@@ -244,3 +244,5 @@
 "settings.preferences.button.title" = "Show Tokens on Launch";
 "Balance" = "Balance";
 "confirmSignMessage" = "Confirm signing this message:";
+"blockchain.ethereum" = "Ethereum Blockchain";
+"ticket.issuer" = "Shengkai";
