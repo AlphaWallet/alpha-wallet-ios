@@ -9,7 +9,7 @@ struct AdvancedSettingsViewModel {
     }
 
     var showTokensTabTitle: String {
-        return NSLocalizedString("settings.preferences.button.title", value: "Show Tokens on Launch", comment: "")
+        return R.string.localizable.settingsPreferencesButtonTitle()
     }
 
     var showTokensTabOnStart: Bool {

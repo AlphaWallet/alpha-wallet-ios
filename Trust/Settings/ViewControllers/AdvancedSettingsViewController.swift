@@ -54,8 +54,7 @@ class AdvancedSettingsViewController: FormViewController {
                 switch option {
                 case .main, .classic, .callisto, .poa: return ""
                 case .kovan, .ropsten, .rinkeby, .sokol: return R.string.localizable.settingsNetworkTestLabelTitle()
-                case .custom:
-                    return NSLocalizedString("settings.network.custom.label.title", value: "Custom", comment: "")
+                case .custom: return R.string.localizable.settingsNetworkCustomLabelTitle()
                 }
             }
         }.cellSetup { cell, _ in

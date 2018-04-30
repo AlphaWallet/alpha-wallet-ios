@@ -95,7 +95,7 @@ class NewTokenViewController: FormViewController {
                     return (rowValue == nil || rowValue!.isEmpty) && self.isStormBirdToken ? ValidationError(msg: "Field required!") : nil
                 })
                 $0.validationOptions = .validatesOnDemand
-                $0.title = NSLocalizedString("Balance", value: "Balance", comment: "")
+                $0.title = R.string.localizable.balance()
                 $0.hidden = true
                 $0.cell.textField.keyboardType = .numbersAndPunctuation
             }

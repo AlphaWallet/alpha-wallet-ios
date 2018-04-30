@@ -58,6 +58,7 @@
 "send.amount.textField.placeholder" = "Amount";
 "send.error.emptyClipBoard" = "Empty ClipBoard";
 "send.error.invalidAddress" = "Invalid Address";
+"send.error.invalidAmount" = "Invalid Amount";
 "send.error.wrongInput" = "Wrong Input";
 "send.max.button.title" = "Max";
 "send.paste.button.title" = "Paste";
@@ -314,3 +315,15 @@
 "a.send.recipient.address.title" = "ADDRESS";
 "a.send.recipient.amount.title" = "AMOUNT TO TRANSFER";
 "a.send.sender.address.title" = "MY ADDRESS";
+"accounts.confirm.delete.title" = "Are you sure you would like to delete this wallet?";
+"accounts.confirm.delete.message" = "Make sure you have backup of your wallet.";
+"accounts.confirm.delete.okTitle" = "Delete";
+"Chain ID" = "Chain ID";
+"Endpoint" = "Endpoint";
+"settings.network.custom.label.title" = "Custom";
+"settings.customNetwork.navigation.title" = "Custom Network";
+"settings.preferences.button.title" = "Show Tokens on Launch";
+"settings.preferences.title" = "Preferences";
+"settings.preferences.button.title" = "Show Tokens on Launch";
+"Balance" = "Balance";
+"confirmSignMessage" = "Confirm signing this message:";
