@@ -3,7 +3,7 @@
 "app.device.jailbreak.title" = "SÉCURITÉ DU DISPOSITIF COMPROMIS";
 "Cancel" = "Annuler";
 "configureTransaction.error.gasFeeTooHigh" = "Les frais de gaz sont trop élevés. Max disponible: %@";
-"configureTransaction.error.gasLimitTooHigh" = "Les frais de gaz sont trop élevés. Max disponible: %@";
+"configureTransaction.error.gasLimitTooHigh" = "Les frais de gaz sont trop élevés. Max disponible: %d";
 "configureTransaction.gasLimit.label.description" = "La limite de gaz empêche les contrats intelligents de consommer tous vos %@ . Nous essaierons de calculer la limite de gaz automatiquement pour vous, mais certains contrats intelligents peuvent nécessiter une limite de gaz personnalisée.";
 "configureTransaction.gasLimit.label.title" = "Limite de gaz";
 "configureTransaction.gasPrice.label.description" = "Plus le prix du gaz est élevé, plus vos frais de transaction seront élevés, mais plus votre transaction sera rapide, plus le réseau %@ traitera.";
