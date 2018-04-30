@@ -43,7 +43,7 @@ class SignMessageCoordinator: Coordinator {
 
     private func makeAlertController(with type: SignMesageType) -> UIAlertController {
         let alertController = UIAlertController(
-            title: NSLocalizedString("", value: "Confirm signing this message:", comment: ""),
+            title: R.string.localizable.confirmSignMessage(),
             message: message(for: type),
             preferredStyle: .alert
         )

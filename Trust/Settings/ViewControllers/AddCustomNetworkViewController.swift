@@ -41,7 +41,7 @@ class AddCustomNetworkViewController: FormViewController {
             <<< AppFormAppearance.textFieldFloat(tag: Values.chainID) {
                 $0.add(rule: EthereumAddressRule())
                 $0.validationOptions = .validatesOnDemand
-                $0.title = NSLocalizedString("Chain ID", value: "Chain ID", comment: "")
+                $0.title = R.string.localizable.chainID()
             }.cellUpdate { cell, _ in
                 cell.textField.keyboardType = .decimalPad
             }
@@ -61,7 +61,7 @@ class AddCustomNetworkViewController: FormViewController {
             <<< AppFormAppearance.textFieldFloat(tag: Values.endpoint) {
                 $0.add(rule: RuleRequired())
                 $0.validationOptions = .validatesOnDemand
-                $0.title = NSLocalizedString("Endpoint", value: "Endpoint", comment: "")
+                $0.title = R.string.localizable.endpoint()
             }
     }
 

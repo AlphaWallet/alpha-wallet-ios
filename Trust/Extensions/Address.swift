@@ -12,7 +12,7 @@ enum Errors: LocalizedError {
         case .invalidAddress:
             return R.string.localizable.sendErrorInvalidAddress()
         case .invalidAmount:
-            return NSLocalizedString("send.error.invalidAmount", value: "Invalid Amount", comment: "")
+            return R.string.localizable.sendErrorInvalidAmount()
         }
     }
 }
