@@ -196,8 +196,8 @@
 "a.wallet.ticketToken.sell.quantity.title" = "QUANTITY OF TICKETS";
 "a.wallet.ticketToken.sell.enterLinkExpiryDate.title" = "Set MagicLink Expiry";
 "a.wallet.ticketToken.sell.singleTicketSelected.title" = "1 Ticket Selected";
-"a.wallet.ticketToken.sell.multipleTicketSelected.title" = "%@ Tickets Selected";
-"a.wallet.ticketToken.sell.perTicketEthPrice.title" = "%@ ETH/Ticket";
+"a.wallet.ticketToken.sell.multipleTicketSelected.title" = "%d Tickets Selected";
+"a.wallet.ticketToken.sell.perTicketEthPrice.title" = "%f ETH/Ticket";
 "a.wallet.ticketToken.sell.totalEthPrice.title" = "Total: %@ ETH";
 "a.wallet.ticketToken.sell.magicLinkDescription.title" = "A MagicLink will be created to allow buyers to purchase your tickets.";
 "a.wallet.ticketToken.sell.noteTitleLabel.title" = "IMPORTANT";
@@ -212,7 +212,7 @@
 "a.wallet.ticketToken.sell.confirm.button.title" = "Share MagicLink";
 "a.wallet.ticketToken.sell.confirm.expiryDateDescription" = "MagicLink expires on: %@";
 "a.wallet.ticketToken.sell.confirm.singleTicketSelected.title" = "1 Ticket";
-"a.wallet.ticketToken.sell.confirm.multipleTicketSelected.title" = "%@ Tickets";
+"a.wallet.ticketToken.sell.confirm.multipleTicketSelected.title" = "%d Tickets";
 "a.wallet.ticketToken.sell.showQRCode.title" = "Show QR Code to Redemption Booth";
 "a.wallet.ticketToken.sell.mode.choose.title" = "Send your sell link";
 "a.wallet.ticketToken.sell.mode.choose.text.title" = "Send SMS/iMessage";
