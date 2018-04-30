@@ -53,7 +53,7 @@ class AdvancedSettingsViewController: FormViewController {
             selectorController.sectionKeyForValue = { option in
                 switch option {
                 case .main, .classic, .callisto, .poa: return ""
-                case .kovan, .ropsten, .rinkeby, .sokol: return NSLocalizedString("settings.network.test.label.title", value: "Test", comment: "")
+                case .kovan, .ropsten, .rinkeby, .sokol: return R.string.localizable.settingsNetworkTestLabelTitle()
                 case .custom:
                     return NSLocalizedString("settings.network.custom.label.title", value: "Custom", comment: "")
                 }
@@ -71,7 +71,7 @@ class AdvancedSettingsViewController: FormViewController {
             cell.imageView?.tintColor = Colors.appBackground
         }.cellUpdate { cell, _ in
             cell.imageView?.image = R.image.settings_wallet()?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = NSLocalizedString("settings.wallets.button.title", value: "Wallets", comment: "")
+            cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
             cell.detailTextLabel?.text = String(self.account.address.description.prefix(10)) + "..."
             cell.accessoryType = .disclosureIndicator
         }

@@ -49,13 +49,13 @@ class AddCustomNetworkViewController: FormViewController {
             <<< AppFormAppearance.textFieldFloat(tag: Values.name) {
                 $0.add(rule: RuleRequired())
                 $0.validationOptions = .validatesOnDemand
-                $0.title = NSLocalizedString("Name", value: "Name", comment: "")
+                $0.title = R.string.localizable.name()
             }
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.symbol) {
                 $0.add(rule: RuleRequired())
                 $0.validationOptions = .validatesOnDemand
-                $0.title = NSLocalizedString("Symbol", value: "Symbol", comment: "")
+                $0.title = R.string.localizable.symbol()
             }
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.endpoint) {

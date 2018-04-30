@@ -76,7 +76,7 @@ class TokensViewController: UIViewController {
         })
         loadingView = LoadingView()
         emptyView = EmptyView(
-            title: NSLocalizedString("emptyView.noTokens.label.title", value: "You haven't received any tokens yet!", comment: ""),
+            title: R.string.localizable.emptyViewNoTokensLabelTitle(),
             onRetry: { [weak self] in
                 self?.startLoading()
                 self?.dataStore.fetch()

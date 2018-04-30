@@ -16,29 +16,15 @@ struct ConfigureTransactionViewModel {
     }
 
     var title: String {
-        return NSLocalizedString("Advanced", value: "Advanced", comment: "")
+        return R.string.localizable.advanced()
     }
 
     var gasPriceFooterText: String {
-        return String(
-            format: NSLocalizedString(
-                "configureTransaction.gasPrice.label.description",
-                value: "The higher the gas price, the more expensive your transaction fee will be, but the quicker your tranasction will be processed by the %@ network.",
-                comment: ""
-            ),
-            config.server.name
-        )
+        return R.string.localizable.configureTransactionGasPriceLabelDescription(config.server.name)
     }
 
     var gasLimitFooterText: String {
-        return String(
-            format: NSLocalizedString(
-                "configureTransaction.gasLimit.label.description",
-                value: "The gas limit prevents smart contracts from consuming all your %@. We will try to calculate the gas limit automatically for you, but some smart contracts may require a custom gas limit.",
-                comment: ""
-            ),
-            config.server.name
-        )
+        return R.string.localizable.configureTransactionGasLimitLabelDescription(config.server.name)
     }
 
     var isDataInputHidden: Bool {

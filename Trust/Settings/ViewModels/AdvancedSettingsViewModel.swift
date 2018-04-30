@@ -17,7 +17,7 @@ struct AdvancedSettingsViewModel {
     }
 
     var networkTitle: String {
-        return NSLocalizedString("settings.network.button.title", value: "Network", comment: "")
+        return R.string.localizable.settingsNetworkButtonTitle()
     }
 
     var servers: [RPCServer] {

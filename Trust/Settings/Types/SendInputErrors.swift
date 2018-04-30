@@ -9,9 +9,9 @@ enum SendInputErrors: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .emptyClipBoard:
-            return NSLocalizedString("send.error.emptyClipBoard", value: "Empty ClipBoard", comment: "")
+            return R.string.localizable.sendErrorEmptyClipBoard()
         case .wrongInput:
-            return NSLocalizedString("send.error.wrongInput", value: "Wrong Input", comment: "")
+            return R.string.localizable.sendErrorWrongInput()
         }
     }
 }
