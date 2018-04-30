@@ -44,7 +44,7 @@ extension UIViewController {
     }
 
     func displayLoading(
-        text: String = R.string.localizable.loadingDots("..."),
+        text: String = R.string.localizable.loadingDots(),
         animated: Bool = true
     ) {
         let hud = MBProgressHUD.showAdded(to: self.view, animated: animated)

@@ -33,7 +33,7 @@
 "export.skip.button.title" = "Làm điều đó sau";
 "importWallet.importingIndicator.label.title" = "Đang nhập ví ...";
 "Loading" = "Đang nạp";
-"Loading..." = "Đang tải...";
+"LoadingDots" = "Đang tải...";
 "Next" = "Tiếp theo";
 "OK" = "Đồng ý";
 "Password" = "Mật khẩu";
@@ -100,7 +100,6 @@
 "importWallet.import.alertSheet.title" = "Các tùy chọn khi nhập ví";
 "importWallet.import.button.title" = "Nhập vào";
 "Keystore JSON" = "Keystore dạng JSON";
-"loading.dots" = "Đang tải %@";
 "More Details" = "Thêm các chi tiết";
 "Private Key" = "Khóa cá nhân";
 "settings.currency.all.label.title" = "Tất cả";

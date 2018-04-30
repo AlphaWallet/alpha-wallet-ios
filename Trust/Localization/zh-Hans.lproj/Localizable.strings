@@ -33,7 +33,7 @@
 "export.skip.button.title" = "之后再导出";
 "importWallet.importingIndicator.label.title" = "导入钱包...";
 "Loading" = "加载";
-"Loading..." = "正在加载...";
+"LoadingDots" = "正在加载...";
 "Next" = "下一步";
 "OK" = "OK";
 "Password" = "密码";
@@ -100,7 +100,6 @@
 "importWallet.import.alertSheet.title" = "导入钱包选项";
 "importWallet.import.button.title" = "导入";
 "Keystore JSON" = "Keystore JSON";
-"loading.dots" = "正在加载 %@";
 "More Details" = "更多详情";
 "Private Key" = "私钥";
 "settings.currency.all.label.title" = "全部";

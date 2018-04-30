@@ -44,7 +44,7 @@
 "export.skip.button.title" = "Do it later";
 "importWallet.importingIndicator.label.title" = "Importing wallet...";
 "Loading" = "Loading";
-"Loading..." = "Loading...";
+"LoadingDots" = "Loading...";
 "Next" = "Next";
 "OK" = "OK";
 "Password" = "Password";
@@ -114,7 +114,6 @@
 "importWallet.import.alertSheet.title" = "Import Wallet Options";
 "importWallet.import.button.title" = "Import";
 "Keystore JSON" = "Keystore JSON";
-"loading.dots" = "Loading %@";
 "More Details" = "More Details";
 "Private Key" = "Private Key";
 "settings.currency.all.label.title" = "All";
