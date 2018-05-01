@@ -39,13 +39,23 @@ public class UniversalLinkHandler {
         let binaryData = Data(bytes: link)
         let base64String = binaryData.base64EncodedString()
 
-        return urlPrefix + base64String
+        return urlPrefix + b64SafeEncoding(base64String)
+    }
+
+    func b64SafeEncoding(_ b64String: String) -> String {
+        let safeEncodingB64 = b64String.replacingOccurrences(of: "+", with: "-")
+        return safeEncodingB64.replacingOccurrences(of: "/", with: "_")
+    }
+
+    func b64SafeEncodingToRegularEncoding(_ b64SafeEncodedString: String) -> String {
+        let regularEncodingb64 = b64SafeEncodedString.replacingOccurrences(of: "-", with: "+")
+        return regularEncodingb64.replacingOccurrences(of: "_", with: "/")
     }
     
     //TODO add exception handling
     //link has shortened price and expiry and must be expanded
     func parseUniversalLink(url: String) -> SignedOrder {
-        let linkInfo = url.substring(from: urlPrefix.count)
+        let linkInfo = b64SafeEncodingToRegularEncoding(url.substring(from: urlPrefix.count))
         let linkBytes = Data(base64Encoded: linkInfo)?.array
         let price = getPriceFromLinkBytes(linkBytes: linkBytes!)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes!)
