@@ -53,6 +53,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
             quantityStepper,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.addSubview(stackView)
 
         let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
