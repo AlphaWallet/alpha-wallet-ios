@@ -3,7 +3,7 @@
 import UIKit
 
 protocol EnterSellTicketsPriceQuantityViewControllerDelegate: class {
-    func didEnterSellTicketsPriceQuantity(ticketHolder: TicketHolder, ethCost: String, dollarCost: String, in viewController: EnterSellTicketsPriceQuantityViewController)
+    func didEnterSellTicketsPriceQuantity(ticketHolder: TicketHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController)
     func didPressViewInfo(in viewController: EnterSellTicketsPriceQuantityViewController)
 }
 
@@ -234,7 +234,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
             return
         }
 
-        delegate?.didEnterSellTicketsPriceQuantity(ticketHolder: getTicketHolderFromQuantity(), ethCost: String(totalEthCost), dollarCost: String(totalDollarCost), in: self)
+        delegate?.didEnterSellTicketsPriceQuantity(ticketHolder: getTicketHolderFromQuantity(), ethCost: String(totalEthCost), in: self)
     }
 
     @objc func quantityChanged() {
