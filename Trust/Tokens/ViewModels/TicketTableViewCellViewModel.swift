@@ -31,11 +31,6 @@ struct TicketTableViewCellViewModel {
         return ticketHolder.venue
     }
 
-    var date: String {
-        //TODO Should format be localized?
-        return ticketHolder.date.format("dd MMM yyyy")
-    }
-
     var backgroundColor: UIColor {
         return Colors.appWhite
     }
