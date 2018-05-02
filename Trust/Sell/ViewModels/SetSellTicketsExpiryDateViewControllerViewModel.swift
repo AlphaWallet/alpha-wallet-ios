@@ -7,7 +7,6 @@ struct SetSellTicketsExpiryDateViewControllerViewModel {
 
     var ticketHolder: TicketHolder
     var ethCost: String = "0"
-    var dollarCost: String = "0"
 
     var headerTitle: String {
 		return R.string.localizable.aWalletTicketTokenSellEnterLinkExpiryDateTitle()
@@ -142,9 +141,8 @@ struct SetSellTicketsExpiryDateViewControllerViewModel {
         return ticketHolder.count
     }
 
-    init(ticketHolder: TicketHolder, ethCost: String, dollarCost: String) {
+    init(ticketHolder: TicketHolder, ethCost: String) {
         self.ticketHolder = ticketHolder
         self.ethCost = ethCost
-        self.dollarCost = dollarCost
     }
 }
