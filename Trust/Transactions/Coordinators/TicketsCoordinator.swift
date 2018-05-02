@@ -150,14 +150,14 @@ class TicketsCoordinator: NSObject, Coordinator {
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
-    private func showQuantityViewController(for ticketHolder: TicketHolder,
-                                            in viewController: RedeemTicketsViewController) {
+    private func showEnterQuantityViewController(for ticketHolder: TicketHolder,
+                                                 in viewController: RedeemTicketsViewController) {
         let quantityViewController = makeRedeemTicketsQuantitySelectionViewController(for: ticketHolder)
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
 
-    private func showQuantityViewController(for ticketHolder: TicketHolder,
-                                            in viewController: SellTicketsViewController) {
+    private func showEnterPriceQuantityViewController(for ticketHolder: TicketHolder,
+                                                      in viewController: SellTicketsViewController) {
         let vc = makeEnterSellTicketsPriceQuantityViewController(for: ticketHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
@@ -239,8 +239,8 @@ class TicketsCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func showQuantityViewController(for ticketHolder: TicketHolder,
-                                            in viewController: TransferTicketsViewController) {
+    private func showEnterQuantityViewController(for ticketHolder: TicketHolder,
+                                                 in viewController: TransferTicketsViewController) {
         let quantityViewController = makeTransferTicketsQuantitySelectionViewController(for: ticketHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
@@ -354,7 +354,7 @@ extension TicketsCoordinator: TicketsViewControllerDelegate {
 
 extension TicketsCoordinator: RedeemTicketsViewControllerDelegate {
     func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: RedeemTicketsViewController) {
-        showQuantityViewController(for: ticketHolder, in: viewController)
+        showEnterQuantityViewController(for: ticketHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: RedeemTicketsViewController) {
@@ -374,7 +374,7 @@ extension TicketsCoordinator: RedeemTicketsQuantitySelectionViewControllerDelega
 
 extension TicketsCoordinator: SellTicketsViewControllerDelegate {
     func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: SellTicketsViewController) {
-        showQuantityViewController(for: ticketHolder, in: viewController)
+        showEnterPriceQuantityViewController(for: ticketHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: SellTicketsViewController) {
@@ -414,7 +414,7 @@ extension TicketsCoordinator: SetSellTicketsExpiryDateViewControllerDelegate {
 
 extension TicketsCoordinator: TransferTicketsViewControllerDelegate {
     func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: TransferTicketsViewController) {
-        showQuantityViewController(for: ticketHolder, in: viewController)
+        showEnterQuantityViewController(for: ticketHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: TransferTicketsViewController) {
