@@ -5,11 +5,11 @@ import Foundation
 struct PreferencesViewModel {
 
     var title: String {
-        return NSLocalizedString("settings.preferences.title", value: "Preferences", comment: "")
+        return R.string.localizable.settingsPreferencesTitle()
     }
 
     var showTokensTabTitle: String {
-        return NSLocalizedString("settings.preferences.button.title", value: "Show Tokens on Launch", comment: "")
+        return R.string.localizable.settingsPreferencesButtonTitle()
     }
 
     var showTokensTabOnStart: Bool {

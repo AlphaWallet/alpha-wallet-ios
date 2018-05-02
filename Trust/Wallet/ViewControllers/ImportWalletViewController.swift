@@ -104,7 +104,7 @@ class ImportWalletViewController: FormViewController {
             }
 
             <<< AppFormAppearance.textArea(tag: Values.mnemonic) {
-                $0.placeholder = NSLocalizedString("Mnemonic", value: "Mnemonic", comment: "")
+                $0.placeholder = R.string.localizable.mnemonic()
                 $0.textAreaHeight = .fixed(cellHeight: 140)
                 $0.add(rule: RuleRequired())
 
@@ -114,7 +114,7 @@ class ImportWalletViewController: FormViewController {
             }
 
             <<< AppFormAppearance.textArea(tag: Values.keystore) {
-                $0.placeholder = NSLocalizedString("Keystore JSON", value: "Keystore JSON", comment: "")
+                $0.placeholder = R.string.localizable.keystoreJSON()
                 $0.textAreaHeight = .fixed(cellHeight: 140)
                 $0.add(rule: RuleRequired())
 
@@ -124,7 +124,7 @@ class ImportWalletViewController: FormViewController {
             }
 
             <<< AppFormAppearance.textArea(tag: Values.privateKey) {
-                $0.placeholder = NSLocalizedString("Private Key", value: "Private Key", comment: "")
+                $0.placeholder = R.string.localizable.privateKey()
                 $0.textAreaHeight = .fixed(cellHeight: 140)
                 $0.add(rule: RuleRequired())
                 $0.add(rule: PrivateKeyRule())
@@ -140,7 +140,7 @@ class ImportWalletViewController: FormViewController {
                  return self.segmentRow?.value != ImportSelectionType.watch.title
             })
             }.cellUpdate { cell, _ in
-                cell.textField.placeholder = NSLocalizedString("Ethereum Address", value: "Ethereum Address", comment: "")
+                cell.textField.placeholder = R.string.localizable.ethereumAddress()
                 cell.textField.rightView = recipientRightView
                 cell.textField.rightViewMode = .always
             }
@@ -153,12 +153,12 @@ class ImportWalletViewController: FormViewController {
             }.cellUpdate { cell, _ in
                 cell.textField.isSecureTextEntry = true
                 cell.textField.textAlignment = .left
-                cell.textField.placeholder = NSLocalizedString("Password", value: "Password", comment: "")
+                cell.textField.placeholder = R.string.localizable.password()
             }
 
             +++ Section("")
 
-            <<< ButtonRow(NSLocalizedString("importWallet.import.button.title", value: "Import", comment: "")) {
+            <<< ButtonRow(R.string.localizable.importWalletImportButtonTitle()) {
                 $0.title = $0.tag
             }.onCellSelection { [unowned self] _, _ in
                 self.importWallet()
@@ -180,7 +180,7 @@ class ImportWalletViewController: FormViewController {
         let mnemonicInput = mnemonicRow?.value?.trimmed ?? ""
         let words = mnemonicInput.components(separatedBy: " ").map { $0.trimmed }
 
-        displayLoading(text: NSLocalizedString("importWallet.importingIndicator.label.title", value: "Importing wallet...", comment: ""), animated: false)
+        displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(), animated: false)
 
         let type = ImportSelectionType(title: segmentRow?.value)
         let importType: ImportType = {
@@ -216,18 +216,18 @@ class ImportWalletViewController: FormViewController {
 
     @objc func importOptions(sender: UIBarButtonItem) {
         let alertController = UIAlertController(
-            title: NSLocalizedString("importWallet.import.alertSheet.title", value: "Import Wallet Options", comment: ""),
+            title: R.string.localizable.importWalletImportAlertSheetTitle(),
             message: .none,
             preferredStyle: .actionSheet
         )
         alertController.popoverPresentationController?.barButtonItem = sender
         alertController.addAction(UIAlertAction(
-            title: NSLocalizedString("importWallet.import.alertSheet.option.title", value: "iCloud/Dropbox/Google Drive", comment: ""),
+            title: R.string.localizable.importWalletImportAlertSheetOptionTitle(),
             style: .default
         ) { _ in
             self.showDocumentPicker()
         })
-        alertController.addAction(UIAlertAction(title: NSLocalizedString("Cancel", value: "Cancel", comment: ""), style: .cancel) { _ in })
+        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in })
         present(alertController, animated: true)
     }
 

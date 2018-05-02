@@ -30,7 +30,7 @@ class EditTokensViewController: UITableViewController {
         navigationItem.title = viewModel.title
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = NSLocalizedString("editTokens.searchBar.placeholder.title", value: "Search tokens", comment: "")
+        searchController.searchBar.placeholder = R.string.localizable.editTokensSearchBarPlaceholderTitle()
         definesPresentationContext = true
         searchController.searchBar.delegate = self
         tableView.register(R.nib.editTokenTableViewCell(), forCellReuseIdentifier: R.nib.editTokenTableViewCell.name)
