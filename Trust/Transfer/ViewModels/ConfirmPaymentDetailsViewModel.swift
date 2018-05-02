@@ -40,18 +40,18 @@ struct ConfirmPaymentDetailsViewModel {
     }
 
     var paymentFromTitle: String {
-        return NSLocalizedString("confirmPayment.from.label.title", value: "From", comment: "")
+        return R.string.localizable.confirmPaymentFromLabelTitle()
     }
 
     var paymentToTitle: String {
-        return NSLocalizedString("confirmPayment.to.label.title", value: "To", comment: "")
+        return R.string.localizable.confirmPaymentToLabelTitle()
     }
     var paymentToText: String {
         return transaction.address?.description ?? "--"
     }
 
     var gasPriceTitle: String {
-        return NSLocalizedString("confirmPayment.gasPrice.label.title", value: "Gas Price", comment: "")
+        return R.string.localizable.confirmPaymentGasPriceLabelTitle()
     }
 
     var gasPriceText: String {
@@ -65,7 +65,7 @@ struct ConfirmPaymentDetailsViewModel {
     }
 
     var feeTitle: String {
-        return NSLocalizedString("confirmPayment.gasFee.label.title", value: "Network Fee", comment: "")
+        return R.string.localizable.confirmPaymentGasFeeLabelTitle()
     }
 
     var feeText: String {
@@ -78,7 +78,7 @@ struct ConfirmPaymentDetailsViewModel {
     }
 
     var gasLimitTitle: String {
-        return NSLocalizedString("confirmPayment.gasLimit.label.title", value: "Gas Limit", comment: "")
+        return R.string.localizable.confirmPaymentGasLimitLabelTitle()
     }
 
     var gasLimitText: String {
@@ -90,7 +90,7 @@ struct ConfirmPaymentDetailsViewModel {
     }
 
     var dataTitle: String {
-        return NSLocalizedString("confirmPayment.data.label.title", value: "Data", comment: "")
+        return R.string.localizable.confirmPaymentDataLabelTitle()
     }
 
     var dataText: String {

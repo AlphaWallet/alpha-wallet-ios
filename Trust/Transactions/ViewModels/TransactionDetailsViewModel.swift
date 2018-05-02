@@ -55,7 +55,7 @@ struct TransactionDetailsViewModel {
     }
 
     var createdAtLabelTitle: String {
-        return NSLocalizedString("transaction.time.label.title", value: "Transaction time", comment: "")
+        return R.string.localizable.transactionTimeLabelTitle()
     }
 
     var detailsAvailable: Bool {
@@ -75,7 +75,7 @@ struct TransactionDetailsViewModel {
     }
 
     var transactionIDLabelTitle: String {
-        return NSLocalizedString("transaction.id.label.title", value: "Transaction #", comment: "")
+        return R.string.localizable.transactionIdLabelTitle()
     }
 
     var to: String {
@@ -86,7 +86,7 @@ struct TransactionDetailsViewModel {
     }
 
     var toLabelTitle: String {
-        return NSLocalizedString("transaction.to.label.title", value: "To", comment: "")
+        return R.string.localizable.transactionToLabelTitle()
     }
 
     var from: String {
@@ -94,7 +94,7 @@ struct TransactionDetailsViewModel {
     }
 
     var fromLabelTitle: String {
-        return NSLocalizedString("transaction.from.label.title", value: "From", comment: "")
+        return R.string.localizable.transactionFromLabelTitle()
     }
 
     var gasViewModel: GasViewModel {
@@ -117,7 +117,7 @@ struct TransactionDetailsViewModel {
     }
 
     var gasFeeLabelTitle: String {
-        return NSLocalizedString("transaction.gasFee.label.title", value: "Gas Fee", comment: "")
+        return R.string.localizable.transactionGasFeeLabelTitle()
     }
 
     var confirmation: String {
@@ -128,7 +128,7 @@ struct TransactionDetailsViewModel {
     }
 
     var confirmationLabelTitle: String {
-        return NSLocalizedString("transaction.confirmation.label.title", value: "Confirmation", comment: "")
+        return R.string.localizable.transactionConfirmationLabelTitle()
     }
 
     var blockNumber: String {
@@ -136,7 +136,7 @@ struct TransactionDetailsViewModel {
     }
 
     var blockNumberLabelTitle: String {
-        return NSLocalizedString("transaction.blockNumber.label.title", value: "Block #", comment: "")
+        return R.string.localizable.transactionBlockNumberLabelTitle()
     }
 
     var amountAttributedString: NSAttributedString {

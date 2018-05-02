@@ -30,7 +30,7 @@ struct TokenViewCellViewModel {
     }
 
     var blockChainName: String {
-        return "Ethereum Blockchain"
+        return R.string.localizable.blockchainEthereum()
     }
 
     var backgroundColor: UIColor {

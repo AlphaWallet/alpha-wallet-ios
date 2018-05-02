@@ -56,7 +56,6 @@ struct ChooseTicketTransferModeViewControllerViewModel {
     }
 
     var date: String {
-        //TODO Should format be localized?
-        return ticketHolder.date.format("dd MMM yyyy")
+        return ticketHolder.date.formatAsShortDateString()
     }
 }

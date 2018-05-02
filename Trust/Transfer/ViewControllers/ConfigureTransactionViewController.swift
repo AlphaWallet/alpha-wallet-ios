@@ -95,7 +95,7 @@ class ConfigureTransactionViewController: FormViewController {
         )
 
         <<< SliderTextFieldRow(Values.gasPrice) {
-            $0.title = NSLocalizedString("configureTransaction.gasPriceGwei.label.title", value: "Gas Price (Gwei)", comment: "")
+            $0.title = R.string.localizable.configureTransactionGasPriceGweiLabelTitle()
             $0.value = Float(gasPriceGwei) ?? 1
             $0.minimumValue = Float(GasPriceConfiguration.min / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
             $0.maximumValue = Float(GasPriceConfiguration.max / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
@@ -113,7 +113,7 @@ class ConfigureTransactionViewController: FormViewController {
         )
 
         <<< SliderTextFieldRow(Values.gasLimit) {
-            $0.title = NSLocalizedString("configureTransaction.gasLimit.label.title", value: "Gas Limit", comment: "")
+            $0.title = R.string.localizable.configureTransactionGasLimitLabelTitle()
             $0.value = Float(configuration.gasLimit.description) ?? 21000
             $0.minimumValue = Float(GasLimitConfiguration.min)
             $0.maximumValue = Float(GasLimitConfiguration.max)
@@ -132,14 +132,14 @@ class ConfigureTransactionViewController: FormViewController {
             })
         }
         <<< AppFormAppearance.textFieldFloat(tag: Values.data) {
-            $0.title = NSLocalizedString("configureTransaction.data.label.title", value: "Transaction Data (Optional)", comment: "")
+            $0.title = R.string.localizable.configureTransactionDataLabelTitle()
             $0.value = self.configuration.data.hexEncoded
         }
 
         +++ Section()
 
         <<< TextRow(Values.totalFee) {
-            $0.title = NSLocalizedString("configureTransaction.totalNetworkFee.label.title", value: "Total network fee", comment: "")
+            $0.title = R.string.localizable.configureTransactionTotalNetworkFeeLabelTitle()
             $0.disabled = true
         }
 

@@ -9,7 +9,7 @@ struct AdvancedSettingsViewModel {
     }
 
     var showTokensTabTitle: String {
-        return NSLocalizedString("settings.preferences.button.title", value: "Show Tokens on Launch", comment: "")
+        return R.string.localizable.settingsPreferencesButtonTitle()
     }
 
     var showTokensTabOnStart: Bool {
@@ -17,7 +17,7 @@ struct AdvancedSettingsViewModel {
     }
 
     var networkTitle: String {
-        return NSLocalizedString("settings.network.button.title", value: "Network", comment: "")
+        return R.string.localizable.settingsNetworkButtonTitle()
     }
 
     var servers: [RPCServer] {

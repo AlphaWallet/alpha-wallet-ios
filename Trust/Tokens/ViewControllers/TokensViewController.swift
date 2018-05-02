@@ -41,7 +41,7 @@ class TokensViewController: UIViewController {
         tableView = UITableView(frame: .zero, style: .plain)
         super.init(nibName: nil, bundle: nil)
         dataStore.delegate = self
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(missingToken))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addToken))
 
         view.backgroundColor = Colors.appBackground
 
@@ -76,7 +76,7 @@ class TokensViewController: UIViewController {
         })
         loadingView = LoadingView()
         emptyView = EmptyView(
-            title: NSLocalizedString("emptyView.noTokens.label.title", value: "You haven't received any tokens yet!", comment: ""),
+            title: R.string.localizable.emptyViewNoTokensLabelTitle(),
             onRetry: { [weak self] in
                 self?.startLoading()
                 self?.dataStore.fetch()
@@ -182,7 +182,7 @@ class TokensViewController: UIViewController {
         view.backgroundColor = viewModel.backgroundColor
     }
 
-    @objc func missingToken() {
+    @objc func addToken() {
         delegate?.didPressAddToken(in: self)
     }
 

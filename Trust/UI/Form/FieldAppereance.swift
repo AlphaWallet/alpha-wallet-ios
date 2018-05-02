@@ -11,7 +11,7 @@ class FieldAppereance {
     ) -> UIView {
         let pasteButton = Button(size: .normal, style: .borderless)
         pasteButton.translatesAutoresizingMaskIntoConstraints = false
-        pasteButton.setTitle(NSLocalizedString("send.paste.button.title", value: "Paste", comment: ""), for: .normal)
+        pasteButton.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
         UITapGestureRecognizer(addToView: pasteButton) {
             pasteAction()
         }

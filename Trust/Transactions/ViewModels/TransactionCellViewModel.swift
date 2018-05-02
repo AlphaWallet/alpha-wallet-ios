@@ -40,14 +40,7 @@ struct TransactionCellViewModel {
         guard let operation = transaction.operation else { return .none }
         switch operation.operationType {
         case .tokenTransfer:
-            return String(
-                format: NSLocalizedString(
-                    "transaction.cell.tokenTransfer.title",
-                    value: "Transfer %@",
-                    comment: "Transfer token title. Example: Transfer OMG"
-                ),
-                operation.symbol ?? ""
-            )
+            return R.string.localizable.transactionCellTokenTransferTitle(operation.symbol ?? "")
         case .unknown:
             return .none
         }
@@ -60,17 +53,17 @@ struct TransactionCellViewModel {
         switch transaction.state {
         case .completed:
             switch transactionViewModel.direction {
-            case .incoming: return NSLocalizedString("transaction.cell.received.title", value: "Received", comment: "")
-            case .outgoing: return NSLocalizedString("transaction.cell.sent.title", value: "Sent", comment: "")
+            case .incoming: return R.string.localizable.transactionCellReceivedTitle()
+            case .outgoing: return R.string.localizable.transactionCellSentTitle()
             }
         case .error:
-            return NSLocalizedString("transaction.cell.error.title", value: "Error", comment: "")
+            return R.string.localizable.transactionCellErrorTitle()
         case .failed:
-            return NSLocalizedString("transaction.cell.failed.title", value: "Failed", comment: "")
+            return R.string.localizable.transactionCellFailedTitle()
         case .unknown:
-            return NSLocalizedString("transaction.cell.unknown.title", value: "Unknown", comment: "")
+            return R.string.localizable.transactionCellUnknownTitle()
         case .pending:
-            return NSLocalizedString("transaction.cell.pending.title", value: "Pending", comment: "")
+            return R.string.localizable.transactionCellPendingTitle()
         }
     }
 

@@ -34,7 +34,7 @@
 "export.skip.button.title" = "Сделайте это позже";
 "importWallet.importingIndicator.label.title" = "Импорт кошелька ...";
 "Loading" = "Загрузка";
-"Loading..." = "Загрузка...";
+"LoadingDots" = "Загрузка...";
 "Next" = "Далее";
 "OK" = "ОК";
 "Password" = "Пароль";
@@ -101,7 +101,6 @@
 "importWallet.import.alertSheet.title" = "Опции импорта кошелька";
 "importWallet.import.button.title" = "Импортировать";
 "Keystore JSON" = "Keystore JSON";
-"loading.dots" = "Загрузка %@";
 "More Details" = "Подробнее";
 "Private Key" = "Приватный ключ";
 "settings.currency.all.label.title" = "Все";
