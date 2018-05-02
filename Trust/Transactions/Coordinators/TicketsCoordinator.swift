@@ -40,17 +40,20 @@ class TicketsCoordinator: NSObject, Coordinator {
     let tokensStorage: TokensDataStore
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
+    var ethPrice: Subscribable<Double>
 
     init(
         session: WalletSession,
         navigationController: UINavigationController = NavigationController(),
         keystore: Keystore,
-        tokensStorage: TokensDataStore
+        tokensStorage: TokensDataStore,
+        ethPrice: Subscribable<Double>
     ) {
         self.session = session
         self.keystore = keystore
         self.navigationController = navigationController
         self.tokensStorage = tokensStorage
+        self.ethPrice = ethPrice
     }
 
     func start() {
@@ -193,7 +196,7 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func makeEnterSellTicketsPriceQuantityViewController(for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> EnterSellTicketsPriceQuantityViewController {
-        let controller = EnterSellTicketsPriceQuantityViewController(storage: tokensStorage, paymentFlow: paymentFlow)
+        let controller = EnterSellTicketsPriceQuantityViewController(storage: tokensStorage, paymentFlow: paymentFlow, ethPrice: ethPrice)
         let viewModel = EnterSellTicketsPriceQuantityViewControllerViewModel(ticketHolder: ticketHolder)
         controller.configure(viewModel: viewModel)
         controller.delegate = self

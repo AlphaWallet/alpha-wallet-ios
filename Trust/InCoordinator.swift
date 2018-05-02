@@ -342,7 +342,8 @@ class InCoordinator: Coordinator {
         let ticketsCoordinator = TicketsCoordinator(
             session: session,
             keystore: keystore,
-            tokensStorage: tokenStorage
+            tokensStorage: tokenStorage,
+            ethPrice: ethPrice
         )
         addCoordinator(ticketsCoordinator)
         ticketsCoordinator.token = token
