@@ -33,7 +33,7 @@
 "export.skip.button.title" = "Fallo più tardi";
 "importWallet.importingIndicator.label.title" = "Importazione portafoglio...";
 "Loading" = "Caricamento";
-"Loading..." = "Caricamento...";
+"LoadingDots" = "Caricamento...";
 "Next" = "Successivo";
 "OK" = "OK";
 "Password" = "Password";
@@ -100,7 +100,6 @@
 "importWallet.import.alertSheet.title" = "Opzioni per importare portafoglio";
 "importWallet.import.button.title" = "Importa";
 "Keystore JSON" = "Keystore JSON";
-"loading.dots" = "Caricamento %@";
 "More Details" = "Più dettagli";
 "Private Key" = "Chiave privata";
 "settings.currency.all.label.title" = "Tutto";

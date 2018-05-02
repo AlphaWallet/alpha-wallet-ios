@@ -32,21 +32,21 @@ class BackupViewController: UIViewController {
 
         let controlMoneyLabel = UILabel()
         controlMoneyLabel.translatesAutoresizingMaskIntoConstraints = false
-        controlMoneyLabel.text = NSLocalizedString("export.controlYourMoney.label.title", value: "Since only you control your money, you'll need to save your backup keystore in case this app is deleted.", comment: "")
+        controlMoneyLabel.text = R.string.localizable.exportControlYourMoneyLabelTitle()
         controlMoneyLabel.numberOfLines = 0
         controlMoneyLabel.textAlignment = .center
         controlMoneyLabel.textColor = Colors.darkGray
 
         let neverStoredLabel = UILabel()
         neverStoredLabel.translatesAutoresizingMaskIntoConstraints = false
-        neverStoredLabel.text = NSLocalizedString("export.neverStored.label.title", value: "Your wallet is never saved to cloud storage or standard device backups.", comment: "")
+        neverStoredLabel.text = R.string.localizable.exportNeverStoredLabelTitle()
         neverStoredLabel.numberOfLines = 0
         neverStoredLabel.textAlignment = .center
         neverStoredLabel.textColor = Colors.darkGray
 
         let backupButton = Button(size: .large, style: .solid)
         backupButton.translatesAutoresizingMaskIntoConstraints = false
-        backupButton.setTitle(NSLocalizedString("export.backup.button.title", value: "Backup Wallet", comment: ""), for: .normal)
+        backupButton.setTitle(R.string.localizable.exportBackupButtonTitle(), for: .normal)
         backupButton.addTarget(self, action: #selector(backup), for: .touchUpInside)
 
         let stackView = [

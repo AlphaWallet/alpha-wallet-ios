@@ -89,7 +89,7 @@ class AccountsCoordinator: Coordinator {
 
         switch account.type {
         case .real(let account):
-            let actionTitle = NSLocalizedString("wallets.backup.alertSheet.title", value: "Backup Keystore", comment: "The title of the backup button in the wallet's action sheet")
+            let actionTitle = R.string.localizable.walletsBackupAlertSheetTitle()
             let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { _ in
                 let coordinator = BackupCoordinator(
                     navigationController: self.navigationController,
@@ -106,12 +106,12 @@ class AccountsCoordinator: Coordinator {
         }
 
         let copyAction = UIAlertAction(
-            title: NSLocalizedString("Copy Address", value: "Copy Address", comment: ""),
+            title: R.string.localizable.copyAddress(),
             style: .default
         ) { _ in
             UIPasteboard.general.string = account.address.description
         }
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", value: "Cancel", comment: ""), style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
 
         controller.addAction(copyAction)
         controller.addAction(cancelAction)

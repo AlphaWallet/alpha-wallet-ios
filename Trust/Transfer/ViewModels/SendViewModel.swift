@@ -105,7 +105,7 @@ struct SendViewModel {
         return Fonts.semibold(size: 14)!
     }
     var addressCopiedText: String {
-        return NSLocalizedString("request.addressCopied.title", value: "Address copied", comment: "")
+        return R.string.localizable.requestAddressCopiedTitle()
     }
 
     var copyAddressButtonBackgroundColor: UIColor {

@@ -3,7 +3,7 @@
 "app.device.jailbreak.title" = "SÉCURITÉ DU DISPOSITIF COMPROMIS";
 "Cancel" = "Annuler";
 "configureTransaction.error.gasFeeTooHigh" = "Les frais de gaz sont trop élevés. Max disponible: %@";
-"configureTransaction.error.gasLimitTooHigh" = "Les frais de gaz sont trop élevés. Max disponible: %@";
+"configureTransaction.error.gasLimitTooHigh" = "Les frais de gaz sont trop élevés. Max disponible: %d";
 "configureTransaction.gasLimit.label.description" = "La limite de gaz empêche les contrats intelligents de consommer tous vos %@ . Nous essaierons de calculer la limite de gaz automatiquement pour vous, mais certains contrats intelligents peuvent nécessiter une limite de gaz personnalisée.";
 "configureTransaction.gasLimit.label.title" = "Limite de gaz";
 "configureTransaction.gasPrice.label.description" = "Plus le prix du gaz est élevé, plus vos frais de transaction seront élevés, mais plus votre transaction sera rapide, plus le réseau %@ traitera.";
@@ -33,7 +33,7 @@
 "export.skip.button.title" = "Fais-le plus tard";
 "importWallet.importingIndicator.label.title" = "Importer un portefeuille ...";
 "Loading" = "Chargement";
-"Loading..." = "Chargement...";
+"LoadingDots" = "Chargement...";
 "Next" = "Prochain";
 "OK" = "D'accord";
 "Password" = "Mot de passe";
@@ -100,7 +100,6 @@
 "importWallet.import.alertSheet.title" = "Importer les options du portefeuille";
 "importWallet.import.button.title" = "Importer";
 "Keystore JSON" = "Keystore JSON";
-"loading.dots" = "Chargement %@";
 "More Details" = "Plus de détails";
 "Private Key" = "Clé privée";
 "settings.currency.all.label.title" = "Tout";

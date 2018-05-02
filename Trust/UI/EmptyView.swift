@@ -15,7 +15,7 @@ class EmptyView: UIView {
 
     init(
         frame: CGRect = .zero,
-        title: String = NSLocalizedString("Empty", value: "Empty", comment: ""),
+        title: String = R.string.localizable.empty(),
         image: UIImage? = R.image.no_transactions_mascot(),
         insets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
         onRetry: (() -> Void)? = .none
@@ -35,7 +35,7 @@ class EmptyView: UIView {
         imageView.image = image
 
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString("Refresh", value: "Refresh", comment: ""), for: .normal)
+        button.setTitle(R.string.localizable.refresh(), for: .normal)
         button.addTarget(self, action: #selector(retry), for: .touchUpInside)
 
         let stackView = [

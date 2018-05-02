@@ -33,7 +33,7 @@
 "export.skip.button.title" = "Fazer depois";
 "importWallet.importingIndicator.label.title" = "Importando carteira ...";
 "Loading" = "Carregando";
-"Loading..." = "Carregando...";
+"LoadingDots" = "Carregando...";
 "Next" = "Seguinte";
 "OK" = "OK";
 "Password" = "Senha";
@@ -100,7 +100,6 @@
 "importWallet.import.alertSheet.title" = "Opções ao importar carteira";
 "importWallet.import.button.title" = "Importar";
 "Keystore JSON" = "Keystore JSON";
-"loading.dots" = "Carregando %@";
 "More Details" = "Mais detalhes";
 "Private Key" = "Chave privada";
 "settings.currency.all.label.title" = "Todos";
@@ -131,7 +130,4 @@
 "welldone.description.label.text" = "Ajude-nos a crescer compartilhando este aplicativo com seus amigos!";
 "welldone.navigation.title" = "Obrigado!";
 "welldone.share.label.text" = "Compartilhar";
-"welldone.viewmodel.sharing.text1" = "Aqui está o aplicativo que eu uso para armazenar meus tokens ETH e ERC20.";
 "welldone.viewmodel.sharing.text2" = "Dê uma olhada no AlphaWallet - a carteira que me permite armazenar de forma segura meus tokens Ethereum e ERC20.";
-"welldone.viewmodel.sharing.text3" = "Eu armazeno de forma segura tokens Ethereum e ERC20 na carteira AlphaWallet.";
-"welldone.viewmodel.sharing.text4" = "Os meus tokens Ethereum e ERC20 estão seguros na carteira AlphaWallet.";
