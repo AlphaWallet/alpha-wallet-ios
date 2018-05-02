@@ -15,7 +15,7 @@ class ErrorView: UIView {
 
     init(
         frame: CGRect = .zero,
-        description: String = NSLocalizedString("errorView.description.label.title", value: "Something went wrong... Try again.", comment: ""),
+        description: String = R.string.localizable.errorViewDescriptionLabelTitle(),
         image: UIImage? = R.image.error(),
         insets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
         onRetry: (() -> Void)? = .none
@@ -35,7 +35,7 @@ class ErrorView: UIView {
         imageView.image = image
 
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString("Retry", value: "Retry", comment: ""), for: .normal)
+        button.setTitle(R.string.localizable.retry(), for: .normal)
         button.addTarget(self, action: #selector(retry), for: .touchUpInside)
 
         let stackView = [

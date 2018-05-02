@@ -28,11 +28,11 @@ struct TicketTokenViewCellViewModel {
     }
 
     var issuer: String {
-        return "\(R.string.localizable.aWalletContentsIssuerTitle()): Shengkai"
+        return "\(R.string.localizable.aWalletContentsIssuerTitle()): \(R.string.localizable.ticketIssuer())"
     }
 
     var blockChainName: String {
-        return "Ethereum Blockchain"
+        return R.string.localizable.blockchainEthereum()
     }
 
     var backgroundColor: UIColor {

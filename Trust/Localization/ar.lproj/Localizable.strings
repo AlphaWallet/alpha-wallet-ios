@@ -32,8 +32,8 @@
 "export.presentBackupOptions.label.title" = "جار إعداد خيارات النسخ الاحتياطي ...";
 "export.skip.button.title" = "القيام بذلك في وقت لاحق";
 "importWallet.importingIndicator.label.title" = "جار استيراد المحفظة ...";
-"Loading" = "جار التحميل %@";
-"Loading..." = "جار التحميل %@";
+"Loading" = "جار التحميل";
+"LoadingDots" = "جار التحميل...";
 "Next" = "التالى";
 "OK" = "موافق";
 "Password" = "كلمه السر";
@@ -100,7 +100,6 @@
 "importWallet.import.alertSheet.title" = "ادخال خيارات المحفظة";
 "importWallet.import.button.title" = "ادخال";
 "Keystore JSON" = "كيستور جسون";
-"loading.dots" = "جار التحميل %@";
 "More Details" = "المزيد من التفاصيل";
 "Private Key" = "المفتاح الخاص";
 "settings.currency.all.label.title" = "الكل";

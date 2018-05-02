@@ -23,10 +23,7 @@ struct RequestViewModel {
 	}
 
 	var shareMyAddressText: String {
-		return String(
-				format: NSLocalizedString("request.myAddressIs.label.title", value: "My %@ address is: %@", comment: ""),
-				config.server.name, myAddressText
-		)
+		return R.string.localizable.requestMyAddressIsLabelTitle(config.server.name, myAddressText)
 	}
 
 	var headlineText: String {
@@ -34,11 +31,11 @@ struct RequestViewModel {
 	}
 
 	var copyWalletText: String {
-		return NSLocalizedString("request.copyWallet.button.title", value: "Copy wallet address", comment: "")
+		return R.string.localizable.requestCopyWalletButtonTitle()
 	}
 
 	var addressCopiedText: String {
-		return NSLocalizedString("request.addressCopied.title", value: "Address copied", comment: "")
+		return R.string.localizable.requestAddressCopiedTitle()
 	}
 
 	var backgroundColor: UIColor {
