@@ -29,8 +29,7 @@ class TicketsViewController: UIViewController {
     var session: WalletSession!
     weak var delegate: TicketsViewControllerDelegate?
     let header = TicketsViewControllerHeader()
-    //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
-    let roundedBackground = UIView()
+    let roundedBackground = RoundedBackground()
     let tableView = UITableView(frame: .zero, style: .plain)
 
     let redeemButton = UIButton(type: .system)
@@ -45,8 +44,6 @@ class TicketsViewController: UIViewController {
         view.backgroundColor = Colors.appBackground
 		
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.backgroundColor = Colors.appWhite
-        roundedBackground.cornerRadius = 20
         view.addSubview(roundedBackground)
 
         tableView.register(TicketTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TicketTableViewCellWithoutCheckbox.identifier)
@@ -69,7 +66,6 @@ class TicketsViewController: UIViewController {
         let buttonsStackView = [redeemButton, sellButton, transferButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
-        let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = Colors.appHighlightGreen
@@ -90,11 +86,6 @@ class TicketsViewController: UIViewController {
 
 		let separatorThickness = CGFloat(1)
         NSLayoutConstraint.activate([
-            roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            roundedBackground.topAnchor.constraint(equalTo: view.topAnchor),
-            roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
-
             tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
@@ -119,7 +110,7 @@ class TicketsViewController: UIViewController {
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
     required init?(coder aDecoder: NSCoder) {

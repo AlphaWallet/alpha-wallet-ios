@@ -9,8 +9,7 @@ protocol TransferTicketsQuantitySelectionViewControllerDelegate: class {
 
 class TransferTicketsQuantitySelectionViewController: UIViewController {
 
-    //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
-    let roundedBackground = UIView()
+    let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
 	let subtitleLabel = UILabel()
     var quantityStepper = NumberStepper()
@@ -27,8 +26,6 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.backgroundColor = Colors.appWhite
-        roundedBackground.cornerRadius = 20
         view.addSubview(roundedBackground)
 
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -58,7 +55,6 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
         let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
-        let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = Colors.appHighlightGreen
@@ -75,11 +71,6 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
             ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            roundedBackground.topAnchor.constraint(equalTo: view.topAnchor),
-            roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
-
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
@@ -93,7 +84,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
     required init?(coder aDecoder: NSCoder) {
