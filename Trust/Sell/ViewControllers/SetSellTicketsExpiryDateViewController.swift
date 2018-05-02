@@ -3,7 +3,7 @@
 import UIKit
 
 protocol SetSellTicketsExpiryDateViewControllerDelegate: class {
-    func didSetSellTicketsExpiryDate(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, dollarCost: String, in viewController: SetSellTicketsExpiryDateViewController)
+    func didSetSellTicketsExpiryDate(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, in viewController: SetSellTicketsExpiryDateViewController)
     func didPressViewInfo(in viewController: SetSellTicketsExpiryDateViewController)
 }
 
@@ -33,15 +33,13 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
     var paymentFlow: PaymentFlow
     var ticketHolder: TicketHolder
     var ethCost: String
-    var dollarCost: String
     weak var delegate: SetSellTicketsExpiryDateViewControllerDelegate?
 
-    init(storage: TokensDataStore, paymentFlow: PaymentFlow, ticketHolder: TicketHolder, ethCost: String, dollarCost: String) {
+    init(storage: TokensDataStore, paymentFlow: PaymentFlow, ticketHolder: TicketHolder, ethCost: String) {
         self.storage = storage
         self.paymentFlow = paymentFlow
         self.ticketHolder = ticketHolder
         self.ethCost = ethCost
-        self.dollarCost = dollarCost
         super.init(nibName: nil, bundle: nil)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
@@ -218,7 +216,7 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
         }
 
         //TODO be good if we check if date chosen is not too far into the future. Example 1 year ahead. Common error?
-        delegate?.didSetSellTicketsExpiryDate(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate(), ethCost: ethCost, dollarCost: dollarCost, in: self)
+        delegate?.didSetSellTicketsExpiryDate(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate(), ethCost: ethCost, in: self)
     }
 
     private func linkExpiryDate() -> Date {
