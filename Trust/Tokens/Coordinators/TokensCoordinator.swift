@@ -84,12 +84,13 @@ class TokensCoordinator: Coordinator {
 
     //FIFA add the FIFA token with a hardcoded address if not already present
     private func addFIFAToken() {
-        let fifaTokenPresent = storage.enabledObject.contains{ $0.address.eip55String == Constants.fifaContractAddress }
+        let fifaTokenPresent = storage.enabledObject.contains{ $0.address.eip55String == Constants.ticketContractAddress
+        }
         if fifaTokenPresent {
 			return
         }
         let token = ERC20Token(
-                contract: Address(string: Constants.fifaContractAddress)!,
+                contract: Address(string: Constants.ticketContractAddress)!,
                 name: "AlphaWallet Test Tickets",
                 symbol: "AWTT",
                 decimals: 0,
