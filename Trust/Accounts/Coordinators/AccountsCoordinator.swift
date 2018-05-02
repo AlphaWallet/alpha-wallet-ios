@@ -68,10 +68,15 @@ class AccountsCoordinator: Coordinator {
 
     func importOrCreateWallet(entryPoint: WalletEntryPoint) {
         let coordinator = WalletCoordinator(keystore: keystore)
+        if entryPoint == .createInstantWallet {
+            coordinator.navigationController = navigationController
+        }
         coordinator.delegate = self
         addCoordinator(coordinator)
-        coordinator.start(entryPoint)
-        navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+        let showUI = coordinator.start(entryPoint)
+        if showUI {
+            navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+        }
     }
 
 	func showCreateWallet() {
@@ -136,9 +141,14 @@ extension AccountsCoordinator: AccountsViewControllerDelegate {
 extension AccountsCoordinator: WalletCoordinatorDelegate {
     func didFinish(with account: Wallet, in coordinator: WalletCoordinator) {
         delegate?.didAddAccount(account: account, in: self)
-        accountsViewController.fetch()
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
-        removeCoordinator(coordinator)
+        if let delegate = delegate {
+            self.removeCoordinator(coordinator)
+            self.delegate?.didSelectAccount(account: account, in: self)
+        } else {
+            accountsViewController.fetch()
+            coordinator.navigationController.dismiss(animated: true, completion: nil)
+            self.removeCoordinator(coordinator)
+        }
     }
 
     func didFail(with error: Error, in coordinator: WalletCoordinator) {
