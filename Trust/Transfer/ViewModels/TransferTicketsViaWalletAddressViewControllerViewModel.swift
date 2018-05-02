@@ -52,8 +52,7 @@ struct TransferTicketsViaWalletAddressViewControllerViewModel {
     }
 
     var date: String {
-        //TODO Should format be localized?
-        return ticketHolder.date.format("dd MMM yyyy")
+        return ticketHolder.date.formatAsShortDateString()
     }
     var textFieldTextColor: UIColor {
         return Colors.appText
