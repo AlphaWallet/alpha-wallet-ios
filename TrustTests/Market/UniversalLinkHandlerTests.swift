@@ -25,7 +25,7 @@ class UniversalLinkHandlerTests: XCTestCase {
         let testOrder1 = Order(price: BigUInt("1000000000")!,
                                indices: indices,
                                expiry: BigUInt("0")!,
-                               contractAddress: Constants.fifaContractAddress,
+                               contractAddress: Constants.ticketContractAddress,
                                start: BigUInt("91239231313")!,
                                count: 3
         )
