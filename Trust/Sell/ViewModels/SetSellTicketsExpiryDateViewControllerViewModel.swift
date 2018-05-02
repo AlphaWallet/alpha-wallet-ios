@@ -97,13 +97,13 @@ struct SetSellTicketsExpiryDateViewControllerViewModel {
         if ticketCount == 1 {
             return R.string.localizable.aWalletTicketTokenSellSingleTicketSelectedTitle()
         } else {
-            return R.string.localizable.aWalletTicketTokenSellMultipleTicketSelectedTitle(String(ticketHolder.count))
+            return R.string.localizable.aWalletTicketTokenSellMultipleTicketSelectedTitle(ticketHolder.count)
         }
     }
 
     var perTicketPriceLabelText: String {
         let amount = Double(ethCost)! / Double(ticketCount)
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(String(amount))
+        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount)
     }
 
     var totalEthLabelText: String {

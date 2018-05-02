@@ -81,7 +81,7 @@ class TransactionViewController: UIViewController {
 
     private func moreDetails() -> UIView {
         let button = Button(size: .large, style: .border)
-        button.setTitle(NSLocalizedString("More Details", value: "More Details", comment: ""), for: .normal)
+        button.setTitle(R.string.localizable.moreDetails(), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(more), for: .touchUpInside)
 
@@ -101,10 +101,10 @@ class TransactionViewController: UIViewController {
         )
         alertController.popoverPresentationController?.sourceView = sourceView
         alertController.popoverPresentationController?.sourceRect = sourceView.bounds
-        let copyAction = UIAlertAction(title: NSLocalizedString("Copy", value: "Copy", comment: ""), style: .default) { _ in
+        let copyAction = UIAlertAction(title: R.string.localizable.copy(), style: .default) { _ in
             UIPasteboard.general.string = value
         }
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", value: "Cancel", comment: ""), style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
         alertController.addAction(copyAction)
         alertController.addAction(cancelAction)
         present(alertController, animated: true, completion: nil)

@@ -140,7 +140,7 @@ class InCoordinator: Coordinator {
                 keystore: keystore,
                 tokensStorage: tokensStorage
         )
-        transactionCoordinator.rootViewController.tabBarItem = UITabBarItem(title: NSLocalizedString("transactions.tabbar.item.title", value: "Transactions", comment: ""), image: R.image.feed()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.feed())
+        transactionCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.transactionsTabbarItemTitle(), image: R.image.feed()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.feed())
         transactionCoordinator.delegate = self
         transactionCoordinator.start()
         addCoordinator(transactionCoordinator)
@@ -374,11 +374,11 @@ class InCoordinator: Coordinator {
 
     private func showTransactionSent(transaction: SentTransaction) {
         let alertController = UIAlertController(title: "Transaction Sent!", message: "Wait for the transaction to be mined on the network to see details.", preferredStyle: UIAlertControllerStyle.alert)
-        let copyAction = UIAlertAction(title: NSLocalizedString("send.action.copy.transaction.title", value: "Copy Transaction ID", comment: ""), style: UIAlertActionStyle.default, handler: { _ in
+        let copyAction = UIAlertAction(title: R.string.localizable.sendActionCopyTransactionTitle(), style: UIAlertActionStyle.default, handler: { _ in
             UIPasteboard.general.string = transaction.id
         })
         alertController.addAction(copyAction)
-        alertController.addAction(UIAlertAction(title: NSLocalizedString("OK", value: "OK", comment: ""), style: UIAlertActionStyle.default, handler: nil))
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: UIAlertActionStyle.default, handler: nil))
         navigationController.present(alertController, animated: true, completion: nil)
     }
 }

@@ -6,6 +6,6 @@ import UIKit
 struct EditTokenViewModel {
 
     var title: String {
-        return NSLocalizedString("Tokens", value: "Tokens", comment: "")
+        return R.string.localizable.tokens()
     }
 }

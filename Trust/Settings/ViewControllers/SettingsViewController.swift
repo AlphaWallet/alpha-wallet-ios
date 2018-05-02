@@ -82,7 +82,7 @@ class SettingsViewController: FormViewController {
         }
 
         <<< AlphaWalletSettingsSwitchRow {
-            $0.title = NSLocalizedString("settings.pushNotifications.button.title", value: "Push Notifications", comment: "")
+            $0.title = R.string.localizable.settingsPushNotificationsButtonTitle()
             $0.value = SettingsViewController.isPushNotificationEnabled
         }.onChange { [unowned self] row in
             let enabled = row.value ?? false
@@ -130,7 +130,7 @@ class SettingsViewController: FormViewController {
         <<< AlphaWalletSettingsTextRow {
             $0.disabled = true
         }.cellSetup { cell, _ in
-            cell.mainLabel.text = NSLocalizedString("settings.version.label.title", value: "Version", comment: "")
+            cell.mainLabel.text = R.string.localizable.settingsVersionLabelTitle()
             cell.subLabel.text = Bundle.main.fullVersion
         }
     }

@@ -32,19 +32,19 @@ class DepositCoordinator: Coordinator {
     private func makeAlertSheet() -> UIAlertController {
         let alertController = UIAlertController(
             title: nil,
-            message: NSLocalizedString("deposit.buy.label.title", value: "How would you like to buy?", comment: ""),
+            message: R.string.localizable.depositBuyLabelTitle(),
             preferredStyle: .actionSheet
         )
-        let coinbaseAction = UIAlertAction(title: NSLocalizedString("deposit.buy.button.coinbase.title", value: "via Coinbase", comment: ""), style: .default) { _ in
+        let coinbaseAction = UIAlertAction(title: R.string.localizable.depositBuyButtonCoinbaseTitle(), style: .default) { _ in
             self.showCoinbase()
         }
-        let shapeShiftAction = UIAlertAction(title: NSLocalizedString("deposit.buy.button.shapeShift.title", value: "via ShapeShift (Crypto only)", comment: ""), style: .default) { _ in
+        let shapeShiftAction = UIAlertAction(title: R.string.localizable.depositBuyButtonShapeShiftTitle(), style: .default) { _ in
             self.showShapeShift()
         }
-        let changellyAction = UIAlertAction(title: NSLocalizedString("deposit.buy.button.changelly.title", value: "via Changelly", comment: ""), style: .default) { _ in
+        let changellyAction = UIAlertAction(title: R.string.localizable.depositBuyButtonChangellyTitle(), style: .default) { _ in
             self.showChangelly()
         }
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", value: "Cancel", comment: ""), style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
 
         alertController.addAction(coinbaseAction)
         alertController.addAction(shapeShiftAction)

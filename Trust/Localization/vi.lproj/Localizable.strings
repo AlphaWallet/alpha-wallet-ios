@@ -33,7 +33,7 @@
 "export.skip.button.title" = "Làm điều đó sau";
 "importWallet.importingIndicator.label.title" = "Đang nhập ví ...";
 "Loading" = "Đang nạp";
-"Loading..." = "Đang tải...";
+"LoadingDots" = "Đang tải...";
 "Next" = "Tiếp theo";
 "OK" = "Đồng ý";
 "Password" = "Mật khẩu";
@@ -100,7 +100,6 @@
 "importWallet.import.alertSheet.title" = "Các tùy chọn khi nhập ví";
 "importWallet.import.button.title" = "Nhập vào";
 "Keystore JSON" = "Keystore dạng JSON";
-"loading.dots" = "Đang tải %@";
 "More Details" = "Thêm các chi tiết";
 "Private Key" = "Khóa cá nhân";
 "settings.currency.all.label.title" = "Tất cả";
@@ -131,7 +130,4 @@
 "welldone.description.label.text" = "Giúp chúng tôi lớn mạnh bằng cách chia sẻ ứng dụng này với bạn bè của bạn.";
 "welldone.navigation.title" = "Cám ơn!";
 "welldone.share.label.text" = "Chia sẻ";
-"welldone.viewmodel.sharing.text1" = "Đây là ứng dụng tôi dùng để quản lý ETH và các loại tiền mã hóa tương thích chuẩn ERC20";
-"welldone.viewmodel.sharing.text2" = "Khám phá AlphaWallet - Một ví cho phép lưu trữ an toàn Ethereum và các loại tiền tương thích với ERC20.";
-"welldone.viewmodel.sharing.text3" = "Ethereum và các loại tiền mã hóa tương thích ERC20 của tôi được quản lý an toàn bởi ví AlphaWallet.";
-"welldone.viewmodel.sharing.text4" = "Tôi quản lý Ethereum và các loại tiền mã hóa tương thích ERC20 bằng ví AlphaWallet.";
+"welldone.viewmodel.sharing.text" = "Khám phá AlphaWallet - Một ví cho phép lưu trữ an toàn Ethereum và các loại tiền tương thích với ERC20.";
