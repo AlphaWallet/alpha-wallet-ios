@@ -20,8 +20,7 @@ protocol SendViewControllerDelegate: class {
 }
 
 class SendViewController: UIViewController {
-    //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
-    let roundedBackground = UIView()
+    let roundedBackground = RoundedBackground()
     let header = SendHeaderView()
     let targetAddressTextField = UITextField()
     let amountTextField = UITextField()
@@ -101,8 +100,6 @@ class SendViewController: UIViewController {
         configureBalanceViewModel()
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.backgroundColor = Colors.appWhite
-        roundedBackground.cornerRadius = 20
         view.addSubview(roundedBackground)
 
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -156,8 +153,6 @@ class SendViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
-
-        let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = Colors.appHighlightGreen
@@ -186,11 +181,6 @@ class SendViewController: UIViewController {
             myAddressContainer.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             myAddressContainer.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
 
-            roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            roundedBackground.topAnchor.constraint(equalTo: view.topAnchor),
-            roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
-
             imageView.widthAnchor.constraint(equalTo: myAddressContainerStackView.widthAnchor, multiplier: 0.5, constant: 10),
             imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor),
 
@@ -207,7 +197,7 @@ class SendViewController: UIViewController {
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         storage.updatePrices()
         getGasPrice()

@@ -9,8 +9,7 @@ protocol SetTransferTicketsExpiryDateViewControllerDelegate: class {
 
 class SetTransferTicketsExpiryDateViewController: UIViewController {
 
-    //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
-    let roundedBackground = UIView()
+    let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
     let header = TicketsViewControllerTitleHeader()
     let ticketView = TicketRowView()
@@ -38,8 +37,6 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.backgroundColor = Colors.appWhite
-        roundedBackground.cornerRadius = 20
         view.addSubview(roundedBackground)
 
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -121,7 +118,6 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
         let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
-        let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = Colors.appHighlightGreen
@@ -135,11 +131,6 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
 
             ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            roundedBackground.topAnchor.constraint(equalTo: view.topAnchor),
-            roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
 
             linkExpiryDateField.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
             linkExpiryTimeField.rightAnchor.constraint(equalTo: ticketView.background.rightAnchor),
@@ -180,7 +171,7 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-        ])
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
     required init?(coder aDecoder: NSCoder) {
