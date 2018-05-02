@@ -88,7 +88,7 @@ class TokensViewModel {
 
     func canDelete(for row: Int, section: Int) -> Bool {
         let token = item(for: row, section: section)
-        return token.isCustom && token.contract.lowercased() != Constants.fifaContractAddress.lowercased()
+        return token.isCustom && token.contract.lowercased() != Constants.ticketContractAddress.lowercased()
     }
 
     var footerTextColor: UIColor {
@@ -109,7 +109,8 @@ class TokensViewModel {
 
     //FIFA make the FIFA token be index 1. Can remove the function and replace with the argument when we no longer need this
     private func reorderTokensSoFIFAAtIndex1(tokens: [TokenObject]) -> [TokenObject] {
-        let index = tokens.index { $0.address.eip55String == Constants.fifaContractAddress }
+        let index = tokens.index { $0.address.eip55String == Constants.ticketContractAddress
+        }
         if let index = index, tokens.count >= 2 {
             var reorderedTokens = tokens
             let target = reorderedTokens[index]
