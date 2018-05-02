@@ -5,7 +5,7 @@ import UIKit
 struct HelpUsViewModel {
 
     var title: String {
-        return NSLocalizedString("welldone.navigation.title", value: "Thank you!", comment: "")
+        return R.string.localizable.welldoneNavigationTitle()
     }
 
     var activityItems: [Any] {

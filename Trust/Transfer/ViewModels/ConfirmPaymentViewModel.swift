@@ -6,11 +6,11 @@ import UIKit
 struct ConfirmPaymentViewModel {
 
     var title: String {
-        return NSLocalizedString("confirmPayment.confirm.button.title", value: "Confirm", comment: "")
+        return R.string.localizable.confirmPaymentConfirmButtonTitle()
     }
 
     var sendButtonText: String {
-        return NSLocalizedString("Send", value: "Send", comment: "")
+        return R.string.localizable.send()
     }
 
     var backgroundColor: UIColor {

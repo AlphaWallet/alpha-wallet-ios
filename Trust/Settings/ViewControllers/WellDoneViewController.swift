@@ -21,7 +21,7 @@ class WellDoneViewController: UIViewController {
 
         let descriptionLabel = UILabel()
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
-        descriptionLabel.text = NSLocalizedString("welldone.description.label.text", value: "Help us grow by sharing this app with your friends!", comment: "")
+        descriptionLabel.text = R.string.localizable.welldoneDescriptionLabelText()
         descriptionLabel.font = Fonts.regular(size: Fonts.labelSize)
         descriptionLabel.textColor = Colors.darkBlue
         descriptionLabel.numberOfLines = 0
@@ -29,7 +29,7 @@ class WellDoneViewController: UIViewController {
 
         let otherButton = Button(size: .normal, style: .solid)
         otherButton.translatesAutoresizingMaskIntoConstraints = false
-        otherButton.setTitle(NSLocalizedString("welldone.share.label.text", value: "Share", comment: ""), for: .normal)
+        otherButton.setTitle(R.string.localizable.welldoneShareLabelText(), for: .normal)
         otherButton.addTarget(self, action: #selector(other(_:)), for: .touchUpInside)
 
         let stackView = [

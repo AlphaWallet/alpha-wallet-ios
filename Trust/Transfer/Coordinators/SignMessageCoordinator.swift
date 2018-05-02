@@ -43,18 +43,18 @@ class SignMessageCoordinator: Coordinator {
 
     private func makeAlertController(with type: SignMesageType) -> UIAlertController {
         let alertController = UIAlertController(
-            title: NSLocalizedString("", value: "Confirm signing this message:", comment: ""),
+            title: R.string.localizable.confirmSignMessage(),
             message: message(for: type),
             preferredStyle: .alert
         )
         let signAction = UIAlertAction(
-            title: NSLocalizedString("OK", value: "OK", comment: ""),
+            title: R.string.localizable.oK(),
             style: .default
         ) { [weak self] _ in
             guard let `self` = self else { return }
             self.handleSignedMessage(with: type)
         }
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", value: "Cancel", comment: ""), style: .cancel) { [weak self] _ in
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { [weak self] _ in
             guard let `self` = self else { return }
             self.didComplete?(.failure(AnyError(DAppError.cancelled)))
             self.delegate?.didCancel(in: self)

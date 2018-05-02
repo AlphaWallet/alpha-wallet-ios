@@ -24,7 +24,7 @@ class PassphraseViewController: UIViewController {
         label.font = Fonts.semibold(size: 14)
 
         let copyButton = Button(size: .small, style: .borderless)
-        copyButton.setTitle(NSLocalizedString("Copy", value: "Copy", comment: ""), for: .normal)
+        copyButton.setTitle(R.string.localizable.copy(), for: .normal)
         copyButton.translatesAutoresizingMaskIntoConstraints = false
         copyButton.addTarget(self, action: #selector(copyAction), for: .touchUpInside)
 

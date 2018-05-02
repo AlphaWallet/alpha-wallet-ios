@@ -153,13 +153,13 @@ class BrowserViewController: UIViewController {
         )
         alertController.popoverPresentationController?.sourceView = sender
         alertController.popoverPresentationController?.sourceRect = sender.centerRect
-        let homeAction = UIAlertAction(title: NSLocalizedString("browser.home.button.title", value: "Home", comment: ""), style: .default) { [unowned self] _ in
+        let homeAction = UIAlertAction(title: R.string.localizable.browserHomeButtonTitle(), style: .default) { [unowned self] _ in
             self.goHome()
         }
-        let reloadAction = UIAlertAction(title: NSLocalizedString("browser.reload.button.title", value: "Reload", comment: ""), style: .default) { [unowned self] _ in
+        let reloadAction = UIAlertAction(title: R.string.localizable.browserReloadButtonTitle(), style: .default) { [unowned self] _ in
             self.reload()
         }
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", value: "Cancel", comment: ""), style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
 
         alertController.addAction(homeAction)
         alertController.addAction(reloadAction)
