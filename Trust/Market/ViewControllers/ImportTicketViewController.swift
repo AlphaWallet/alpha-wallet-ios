@@ -10,8 +10,7 @@ protocol ImportTicketViewControllerDelegate: class {
 
 class ImportTicketViewController: UIViewController {
     weak var delegate: ImportTicketViewControllerDelegate?
-    //roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
-    let roundedBackground = UIView()
+    let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let ticketView = TicketRowView()
     let statusLabel = UILabel()
@@ -41,8 +40,6 @@ class ImportTicketViewController: UIViewController {
         activityIndicator.hidesWhenStopped = true
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.backgroundColor = Colors.appWhite
-        roundedBackground.cornerRadius = 20
         view.addSubview(roundedBackground)
 
         ethCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -92,7 +89,6 @@ class ImportTicketViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
-        let marginToHideBottomRoundedCorners = CGFloat(30)
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = Colors.appHighlightGreen
@@ -141,12 +137,7 @@ class ImportTicketViewController: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-
-            roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            roundedBackground.topAnchor.constraint(equalTo: view.topAnchor),
-            roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
-        ])
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
     required init?(coder aDecoder: NSCoder) {

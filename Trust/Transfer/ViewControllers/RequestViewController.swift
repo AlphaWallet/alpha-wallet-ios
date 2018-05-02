@@ -9,12 +9,9 @@ import StackViewController
 
 //Careful to fit in shorter phone like iPhone 5s without needing to scroll
 class RequestViewController: UIViewController {
-	//roundedBackground is used to achieve the top 2 rounded corners-only effect since maskedCorners to not round bottom corners is not available in iOS 10
-	let roundedBackground: UIView = {
-		let roundedBackground = UIView()
+	let roundedBackground: RoundedBackground = {
+		let roundedBackground = RoundedBackground()
 		roundedBackground.translatesAutoresizingMaskIntoConstraints = false
-		roundedBackground.backgroundColor = Colors.appWhite
-		roundedBackground.cornerRadius = 20
 		return roundedBackground
 	}()
 
@@ -107,13 +104,7 @@ class RequestViewController: UIViewController {
 		addressContainerLeadingAnchorConstraint.priority = .defaultLow
 		let addressContainerTrailingAnchorConstraint = addressContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 10)
 		addressContainerTrailingAnchorConstraint.priority = .defaultLow
-		let marginToHideBottomRoundedCorners = CGFloat(30)
 		NSLayoutConstraint.activate([
-			roundedBackground.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-			roundedBackground.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			roundedBackground.topAnchor.constraint(equalTo: view.topAnchor),
-			roundedBackground.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: marginToHideBottomRoundedCorners),
-
 			addressContainerLeadingAnchorConstraint,
 			addressContainerTrailingAnchorConstraint,
 
@@ -126,7 +117,7 @@ class RequestViewController: UIViewController {
 
 			imageView.widthAnchor.constraint(equalToConstant: 260),
 			imageView.heightAnchor.constraint(equalToConstant: 260),
-		])
+		] + roundedBackground.createConstraintsWithContainer(view: view))
 
 		changeQRCode(value: 0)
 	}
