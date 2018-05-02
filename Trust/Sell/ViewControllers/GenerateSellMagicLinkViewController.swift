@@ -23,15 +23,13 @@ class GenerateSellMagicLinkViewController: UIViewController {
     var paymentFlow: PaymentFlow
     var ticketHolder: TicketHolder
     var ethCost: String
-    var dollarCost: String
     var linkExpiryDate: Date
     var viewModel: GenerateSellMagicLinkViewControllerViewModel?
 
-    init(paymentFlow: PaymentFlow, ticketHolder: TicketHolder, ethCost: String, dollarCost: String, linkExpiryDate: Date) {
+    init(paymentFlow: PaymentFlow, ticketHolder: TicketHolder, ethCost: String, linkExpiryDate: Date) {
         self.paymentFlow = paymentFlow
         self.ticketHolder = ticketHolder
         self.ethCost = ethCost
-        self.dollarCost = dollarCost
         self.linkExpiryDate = linkExpiryDate
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = .clear
