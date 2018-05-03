@@ -80,7 +80,7 @@ struct SetTransferTicketsExpiryDateViewControllerViewModel {
     }
 
     var noteLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellNoteLabelTitle()
+        return R.string.localizable.aWalletTicketTokenTransferNoteLabelTitle()
     }
 
     var noteLabelFont: UIFont {
