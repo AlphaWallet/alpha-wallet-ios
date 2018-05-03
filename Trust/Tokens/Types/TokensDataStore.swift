@@ -179,8 +179,8 @@ class TokensDataStore {
     }
 
     func refreshBalance() {
+        updateDelegate()
         guard !enabledObject.isEmpty else {
-            updateDelegate()
             return
         }
         let etherToken = TokensDataStore.etherToken(for: config)
