@@ -95,6 +95,7 @@ class AmountTextField: UIControl {
     }
 
     @objc func fiatAction(button: UIButton) {
+        guard ethToDollarRate != nil else { return }
         let swappedPair = currentPair.swapPair()
         //New pair for future calculation we should swap pair each time we press fiat button.
         self.currentPair = swappedPair
