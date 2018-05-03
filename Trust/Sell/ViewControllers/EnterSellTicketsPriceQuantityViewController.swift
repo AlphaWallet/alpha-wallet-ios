@@ -25,6 +25,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
     let nextButton = UIButton(type: .system)
     var viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel!
     var paymentFlow: PaymentFlow
+    var ethPrice: Subscribable<Double>
     var totalEthCost: Double {
         if let ethCostPerTicket = Double(pricePerTicketField.ethCost) {
             let quantity = Double(quantityStepper.value)
@@ -44,9 +45,10 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
     }
     weak var delegate: EnterSellTicketsPriceQuantityViewControllerDelegate?
 
-    init(storage: TokensDataStore, paymentFlow: PaymentFlow) {
+    init(storage: TokensDataStore, paymentFlow: PaymentFlow, ethPrice: Subscribable<Double>) {
         self.storage = storage
         self.paymentFlow = paymentFlow
+        self.ethPrice = ethPrice
         super.init(nibName: nil, bundle: nil)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
@@ -70,9 +72,15 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
 
         pricePerTicketField.translatesAutoresizingMaskIntoConstraints = false
-        //TODO is there a better way to get the price?
-        if let rates = storage.tickers, let ticker = rates.values.first(where: { $0.symbol == "ETH" }), let price = Double(ticker.price) {
-            pricePerTicketField.ethToDollarRate = price
+        if let value = ethPrice.value {
+            pricePerTicketField.ethToDollarRate = value
+        } else {
+            ethPrice.subscribe { value in
+                //TODO good to test if there's a leak here if user has already cancelled before this
+                if let value = value {
+                    self.pricePerTicketField.ethToDollarRate = value
+                }
+            }
         }
         pricePerTicketField.delegate = self
 
