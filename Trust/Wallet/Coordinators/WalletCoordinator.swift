@@ -11,7 +11,7 @@ protocol WalletCoordinatorDelegate: class {
 
 class WalletCoordinator: Coordinator {
 
-    let navigationController: UINavigationController
+    var navigationController: UINavigationController
     weak var delegate: WalletCoordinatorDelegate?
     var entryPoint: WalletEntryPoint?
     let keystore: Keystore
@@ -26,7 +26,7 @@ class WalletCoordinator: Coordinator {
         self.keystore = keystore
     }
 
-    //Return true if proceed
+    ///Return true if caller should proceed to show UI (`navigationController`)
     func start(_ entryPoint: WalletEntryPoint) -> Bool {
         self.entryPoint = entryPoint
         switch entryPoint {
@@ -42,6 +42,7 @@ class WalletCoordinator: Coordinator {
             navigationController.viewControllers = [controller]
         case .createInstantWallet:
             createInstantWallet()
+            return false
         case .backupWallet:
             if let type = keystore.recentlyUsedWallet?.type, case let .real(account) = type {
                 guard !Config().isWalletAddresseAlreadyPromptedForBackUp(address: account.address.eip55String) else { return false }
@@ -69,6 +70,7 @@ class WalletCoordinator: Coordinator {
                 let wallet = Wallet(type: WalletType.real(account))
                 self.delegate?.didFinish(with: wallet, in: self)
             case .failure(let error):
+                //TODO this wouldn't work since navigationController isn't shown anymore
                 self.navigationController.displayError(error: error)
             }
             self.navigationController.hideLoading(animated: false)
