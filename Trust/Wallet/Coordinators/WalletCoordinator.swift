@@ -123,6 +123,7 @@ extension WalletCoordinator: WelcomeViewControllerDelegate {
 
 extension WalletCoordinator: ImportWalletViewControllerDelegate {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController) {
+        Config().addToWalletAddressesAlreadyPromptedForBackup(address: account.address.eip55String)
         didCreateAccount(account: account)
     }
 }
