@@ -255,6 +255,10 @@ class TokensDataStore {
         add(tokens: [newToken])
     }
 
+    func updatePricesAfterComingOnline() {
+        updatePrices()
+    }
+
     func updatePrices() {
         let tokens = objects.map { TokenPrice(contract: $0.contract, symbol: $0.symbol) }
         let tokensPrice = TokensPrice(

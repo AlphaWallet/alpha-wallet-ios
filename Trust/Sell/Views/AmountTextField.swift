@@ -16,17 +16,23 @@ class AmountTextField: UIControl {
             return Pair(left: right, right: left)
         }
     }
-    var ethToDollarRate: Double? = nil
+    var ethToDollarRate: Double? = nil {
+        didSet {
+            if let ethToDollarRate = ethToDollarRate {
+                updateAlternatePricingDisplay()
+            }
+        }
+    }
     var ethCost: String {
         if currentPair.left == "ETH" {
             return textField.text ?? "0"
         } else {
-            return String(convertToAlternateAmount())
+            return convertToAlternateAmount()
         }
     }
     var dollarCost: String {
         if currentPair.left == "ETH" {
-            return String(convertToAlternateAmount())
+            return convertToAlternateAmount()
         } else {
             return textField.text ?? "0"
         }
@@ -152,10 +158,16 @@ class AmountTextField: UIControl {
     }
 
     private func computeAlternateAmount() {
-        if currentPair.left == "ETH" {
-            alternativeAmountLabel.text = "~ \(convertToAlternateAmount()) USD"
+        let amount = convertToAlternateAmount()
+        if amount.isEmpty {
+            let atLeastOneWhiteSpaceToKeepTextFieldHeight = " "
+            alternativeAmountLabel.text = atLeastOneWhiteSpaceToKeepTextFieldHeight
         } else {
-            alternativeAmountLabel.text = "~ \(convertToAlternateAmount()) ETH"
+            if currentPair.left == "ETH" {
+                alternativeAmountLabel.text = "~ \(amount) USD"
+            } else {
+                alternativeAmountLabel.text = "~ \(amount) ETH"
+            }
         }
     }
 
@@ -167,12 +179,13 @@ class AmountTextField: UIControl {
                 return String(amount / ethToDollarRate)
             }
         } else {
-            if currentPair.left == "ETH" {
-                return "0.000000"
-            } else {
-                return "0.00"
-            }
+            return ""
         }
+    }
+
+    private func updateAlternatePricingDisplay() {
+        self.computeAlternateAmount()
+        self.delegate?.changeAmount(in: self)
     }
 }
 
@@ -182,8 +195,7 @@ extension AmountTextField: UITextFieldDelegate {
         if allowChange {
             //We have to allow the text field the chance to update, so we have to use asyncAfter..
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.computeAlternateAmount()
-                self.delegate?.changeAmount(in: self)
+                self.updateAlternatePricingDisplay()
             }
 
         }
