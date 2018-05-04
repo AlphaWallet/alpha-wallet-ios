@@ -64,28 +64,19 @@ class UniversalLinkCoordinator: Coordinator {
                                                 isStormBird: true
                 )
             }
-            //nil or "" implies free, if using payment server it is always free
-            let etherprice = signedOrder.order.price /// 1000000000000000000
-            let divideAmount = Decimal(string: "1000000000000000000")!
-            let etherPriceDecimal = Decimal(string: etherprice.description)! / divideAmount
             if let price = ethPrice {
-                if let s = price.value {
-                    let dollarCost = Decimal(s) * etherPriceDecimal
-                    self.promptImportUniversalLink(
-                            ticketHolder: ticketHolder,
-                            ethCost: etherPriceDecimal.description,
-                            dollarCost: dollarCost.description
-                    )
-                }
-                else
-                {
-                    price.subscribe { value in
-                        //TODO good to test if there's a leak here if user has already cancelled before this
-                        if let s = price.value {
-                            let dollarCost = Decimal(s) * etherPriceDecimal
-                            self.promptImportUniversalLink(
+                let ethCost = self.convert(ethCost: signedOrder.order.price)
+                self.promptImportUniversalLink(
+                        ticketHolder: ticketHolder,
+                        ethCost: ethCost.description
+                )
+                price.subscribe { [weak self] value in
+                    if let price = price.value {
+                        if let celf = self {
+                            let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
+                            celf.promptImportUniversalLink(
                                     ticketHolder: ticketHolder,
-                                    ethCost: etherPriceDecimal.description,
+                                    ethCost: ethCost.description,
                                     dollarCost: dollarCost.description
                             )
                         }
@@ -145,7 +136,20 @@ class UniversalLinkCoordinator: Coordinator {
                             if value > signedOrder.order.price {
                                 let success = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: goodResult)
                             } else {
-                                self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle())
+                                if let price = self.ethPrice {
+                                    if price.value == nil {
+                                        let ethCost = self.convert(ethCost: signedOrder.order.price)
+                                        self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(), ticketHolder: goodResult, ethCost: ethCost.description)
+                                    }
+                                    price.subscribe { [weak self] value in
+                                        if let celf = self {
+                                            if let price = price.value {
+                                                let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
+                                                celf.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(), ticketHolder: goodResult, ethCost: ethCost.description, dollarCost: dollarCost.description)
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -252,16 +256,20 @@ class UniversalLinkCoordinator: Coordinator {
 	private func updateImportTicketController(with state: ImportTicketViewControllerViewModel.State, ticketHolder: TicketHolder? = nil, ethCost: String? = nil, dollarCost: String? = nil) {
 		if let vc = importTicketViewController, var viewModel = vc.viewModel {
 			viewModel.state = state
-            if let ticketHolder = ticketHolder, let ethCost = ethCost, let dollarCost = dollarCost {
-				viewModel.ticketHolder = ticketHolder
-				viewModel.ethCost = ethCost
-				viewModel.dollarCost = dollarCost
-			}
+            if let ticketHolder = ticketHolder {
+                viewModel.ticketHolder = ticketHolder
+            }
+            if let ethCost = ethCost {
+                viewModel.ethCost = ethCost
+            }
+            if let dollarCost = dollarCost {
+                viewModel.dollarCost = dollarCost
+            }
 			vc.configure(viewModel: viewModel)
 		}
 	}
 
-	private func promptImportUniversalLink(ticketHolder: TicketHolder, ethCost: String, dollarCost: String) {
+	private func promptImportUniversalLink(ticketHolder: TicketHolder, ethCost: String, dollarCost: String? = nil) {
 		updateImportTicketController(with: .promptImport, ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
     }
 
@@ -277,8 +285,8 @@ class UniversalLinkCoordinator: Coordinator {
 		coordinator.start()
 	}
 
-	private func showImportError(errorMessage: String) {
-        updateImportTicketController(with: .failed(errorMessage: errorMessage))
+    private func showImportError(errorMessage: String, ticketHolder: TicketHolder? = nil, ethCost: String? = nil, dollarCost: String? = nil) {
+        updateImportTicketController(with: .failed(errorMessage: errorMessage), ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
 	}
 
     //handling free transfers, sell links cannot be handled here
@@ -312,6 +320,18 @@ class UniversalLinkCoordinator: Coordinator {
                 }
             }
         }
+    }
+
+    private func convert(ethCost: BigUInt, rate: Double) -> (ethCost: Decimal, dollarCost: Decimal) {
+        let etherCostDecimal = convert(ethCost: ethCost)
+        let dollarCost = Decimal(rate) * etherCostDecimal
+        return (etherCostDecimal, dollarCost)
+    }
+
+    private func convert(ethCost: BigUInt) -> Decimal {
+        let divideAmount = Decimal(string: "1000000000000000000")!
+        let etherCostDecimal = Decimal(string: ethCost.description)! / divideAmount
+        return etherCostDecimal
     }
 }
 
