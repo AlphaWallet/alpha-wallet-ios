@@ -7,7 +7,7 @@ struct EnterSellTicketsPriceQuantityViewControllerViewModel {
 
     var ticketHolder: TicketHolder
     var ethCost: String = "0"
-    var dollarCost: String = "0"
+    var dollarCost: String = ""
 
     var headerTitle: String {
 		return R.string.localizable.aWalletTicketTokenSellSelectQuantityTitle()
@@ -135,6 +135,10 @@ struct EnterSellTicketsPriceQuantityViewControllerViewModel {
 
     var dollarCostLabelBackgroundColor: UIColor {
         return UIColor(red: 236, green: 236, blue: 236)
+    }
+
+    var hideDollarCost: Bool {
+        return dollarCost.trimmed.isEmpty
     }
 
     init(ticketHolder: TicketHolder) {
