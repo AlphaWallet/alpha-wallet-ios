@@ -35,12 +35,12 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         }
     }
 
-    var totalDollarCost: Double {
+    var totalDollarCost: String {
         if let dollarCostPerTicket = Double(pricePerTicketField.dollarCost) {
             let quantity = Double(quantityStepper.value)
-            return dollarCostPerTicket * quantity
+            return String(dollarCostPerTicket * quantity)
         } else {
-            return 0
+            return ""
         }
     }
     weak var delegate: EnterSellTicketsPriceQuantityViewControllerDelegate?
@@ -72,14 +72,9 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
 
         pricePerTicketField.translatesAutoresizingMaskIntoConstraints = false
-        if let value = ethPrice.value {
-            pricePerTicketField.ethToDollarRate = value
-        } else {
-            ethPrice.subscribe { value in
-                //TODO good to test if there's a leak here if user has already cancelled before this
-                if let value = value {
-                    self.pricePerTicketField.ethToDollarRate = value
-                }
+        ethPrice.subscribe { [weak self] value in
+            if let value = value {
+                self?.pricePerTicketField.ethToDollarRate = value
             }
         }
         pricePerTicketField.delegate = self
@@ -278,6 +273,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         dollarCostLabelLabel.textColor = viewModel.dollarCostLabelLabelColor
         dollarCostLabelLabel.font = viewModel.dollarCostLabelLabelFont
         dollarCostLabelLabel.text = R.string.localizable.aWalletTicketTokenSellDollarCostLabelTitle()
+        dollarCostLabelLabel.isHidden = viewModel.hideDollarCost
 
         dollarCostLabel.textAlignment = .center
         dollarCostLabel.textColor = viewModel.dollarCostLabelColor
@@ -285,6 +281,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         dollarCostLabel.text = viewModel.dollarCostLabelText
         dollarCostLabel.backgroundColor = viewModel.dollarCostLabelBackgroundColor
         dollarCostLabel.layer.masksToBounds = true
+        dollarCostLabel.isHidden = viewModel.hideDollarCost
 
         quantityLabel.textAlignment = .center
         quantityLabel.textColor = viewModel.choiceLabelColor

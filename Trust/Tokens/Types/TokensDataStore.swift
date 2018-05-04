@@ -179,8 +179,8 @@ class TokensDataStore {
     }
 
     func refreshBalance() {
+        updateDelegate()
         guard !enabledObject.isEmpty else {
-            updateDelegate()
             return
         }
         let etherToken = TokensDataStore.etherToken(for: config)
@@ -253,6 +253,10 @@ class TokensDataStore {
             newToken.balance.append(TokenBalance(balance: balance))
         }
         add(tokens: [newToken])
+    }
+
+    func updatePricesAfterComingOnline() {
+        updatePrices()
     }
 
     func updatePrices() {
