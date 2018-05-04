@@ -473,17 +473,17 @@ class SendViewController: UIViewController {
     private func configureBalanceViewModel() {
         switch transferType {
         case .ether:
-            session.balanceViewModel.subscribe { viewModel in
-                guard let viewModel = viewModel else { return }
+            session.balanceViewModel.subscribe { [weak self] viewModel in
+                guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
-                self.headerViewModel.title = "\(amount) \(self.session.config.server.name) (\(viewModel.symbol))"
-                let etherToken = TokensDataStore.etherToken(for: self.session.config)
-                let ticker = self.storage.coinTicker(for: etherToken)
-                self.headerViewModel.ticker = ticker
-                self.headerViewModel.currencyAmount = self.session.balanceCoordinator.viewModel.currencyAmount
-                self.headerViewModel.currencyAmountWithoutSymbol = self.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
-                if let viewModel = self.viewModel {
-                    self.configure(viewModel: viewModel)
+                celf.headerViewModel.title = "\(amount) \(celf.session.config.server.name) (\(viewModel.symbol))"
+                let etherToken = TokensDataStore.etherToken(for: celf.session.config)
+                let ticker = celf.storage.coinTicker(for: etherToken)
+                celf.headerViewModel.ticker = ticker
+                celf.headerViewModel.currencyAmount = celf.session.balanceCoordinator.viewModel.currencyAmount
+                celf.headerViewModel.currencyAmountWithoutSymbol = celf.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
+                if let viewModel = celf.viewModel {
+                    celf.configure(viewModel: viewModel)
                 }
             }
             session.refresh(.ethBalance)
