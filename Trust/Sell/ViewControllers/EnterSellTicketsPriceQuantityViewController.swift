@@ -275,6 +275,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         dollarCostLabelLabel.textColor = viewModel.dollarCostLabelLabelColor
         dollarCostLabelLabel.font = viewModel.dollarCostLabelLabelFont
         dollarCostLabelLabel.text = R.string.localizable.aWalletTicketTokenSellDollarCostLabelTitle()
+        dollarCostLabelLabel.isHidden = viewModel.hideDollarCost
 
         dollarCostLabel.textAlignment = .center
         dollarCostLabel.textColor = viewModel.dollarCostLabelColor
@@ -282,6 +283,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         dollarCostLabel.text = viewModel.dollarCostLabelText
         dollarCostLabel.backgroundColor = viewModel.dollarCostLabelBackgroundColor
         dollarCostLabel.layer.masksToBounds = true
+        dollarCostLabel.isHidden = viewModel.hideDollarCost
 
         quantityLabel.textAlignment = .center
         quantityLabel.textColor = viewModel.choiceLabelColor

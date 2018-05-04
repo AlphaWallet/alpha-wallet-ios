@@ -137,6 +137,10 @@ struct EnterSellTicketsPriceQuantityViewControllerViewModel {
         return UIColor(red: 236, green: 236, blue: 236)
     }
 
+    var hideDollarCost: Bool {
+        return dollarCost.trimmed.isEmpty
+    }
+
     init(ticketHolder: TicketHolder) {
         self.ticketHolder = ticketHolder
     }
