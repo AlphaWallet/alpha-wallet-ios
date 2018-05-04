@@ -106,6 +106,8 @@ class InCoordinator: Coordinator {
             var ticker = tokensStorage.coinTicker(for: eth)
             if let ticker = ticker {
                 self?.ethPrice.value = Double(ticker.price)
+            } else {
+                tokensStorage.updatePricesAfterComingOnline()
             }
         }
     }

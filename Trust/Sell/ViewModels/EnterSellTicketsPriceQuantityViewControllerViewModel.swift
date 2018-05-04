@@ -7,7 +7,7 @@ struct EnterSellTicketsPriceQuantityViewControllerViewModel {
 
     var ticketHolder: TicketHolder
     var ethCost: String = "0"
-    var dollarCost: String = "0"
+    var dollarCost: String = ""
 
     var headerTitle: String {
 		return R.string.localizable.aWalletTicketTokenSellSelectQuantityTitle()

@@ -35,12 +35,12 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         }
     }
 
-    var totalDollarCost: Double {
+    var totalDollarCost: String {
         if let dollarCostPerTicket = Double(pricePerTicketField.dollarCost) {
             let quantity = Double(quantityStepper.value)
-            return dollarCostPerTicket * quantity
+            return String(dollarCostPerTicket * quantity)
         } else {
-            return 0
+            return ""
         }
     }
     weak var delegate: EnterSellTicketsPriceQuantityViewControllerDelegate?
@@ -72,14 +72,11 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
 
         pricePerTicketField.translatesAutoresizingMaskIntoConstraints = false
-        if let value = ethPrice.value {
-            pricePerTicketField.ethToDollarRate = value
-        } else {
-            ethPrice.subscribe { value in
-                //TODO good to test if there's a leak here if user has already cancelled before this
-                if let value = value {
-                    self.pricePerTicketField.ethToDollarRate = value
-                }
+        ethPrice.subscribe { value in
+            //TODO test if there's a leak here if user has already cancelled before this
+            //TODO test if there's a leak here if user closes this view controller
+            if let value = value {
+                self.pricePerTicketField.ethToDollarRate = value
             }
         }
         pricePerTicketField.delegate = self
