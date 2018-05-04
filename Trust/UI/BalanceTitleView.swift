@@ -98,9 +98,9 @@ extension BalanceTitleView {
         view.translatesAutoresizingMaskIntoConstraints = false
         switch transferType {
         case .ether:
-            session.balanceViewModel.subscribe { viewModel in
+            session.balanceViewModel.subscribe { [weak view] viewModel in
                 guard let viewModel = viewModel else { return }
-                view.viewModel = viewModel
+                view?.viewModel = viewModel
             }
         case .token(let token):
             view.viewModel = BalanceTokenViewModel(token: token)
