@@ -72,11 +72,9 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
 
         pricePerTicketField.translatesAutoresizingMaskIntoConstraints = false
-        ethPrice.subscribe { value in
-            //TODO test if there's a leak here if user has already cancelled before this
-            //TODO test if there's a leak here if user closes this view controller
+        ethPrice.subscribe { [weak self] value in
             if let value = value {
-                self.pricePerTicketField.ethToDollarRate = value
+                self?.pricePerTicketField.ethToDollarRate = value
             }
         }
         pricePerTicketField.delegate = self
