@@ -220,10 +220,6 @@ struct ImportTicketViewControllerViewModel {
         }
     }
 
-    var showDollarCostLabel: Bool {
-        return !transactionIsFree
-    }
-
     var dollarCostLabelBackgroundColor: UIColor {
         return UIColor(red: 236, green: 236, blue: 236)
     }
@@ -288,6 +284,14 @@ struct ImportTicketViewControllerViewModel {
     var transactionIsFree: Bool {
         guard let ethCost = ethCost else { return true }
         return ethCost.isEmpty
+    }
+
+    var hideDollarCost: Bool {
+        if transactionIsFree {
+            return true
+        }
+        guard let dollarCost = dollarCost else { return true }
+        return dollarCost.trimmed.isEmpty
     }
 
     init(state: State) {

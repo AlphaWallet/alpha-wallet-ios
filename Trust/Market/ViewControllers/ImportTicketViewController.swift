@@ -193,6 +193,7 @@ class ImportTicketViewController: UIViewController {
             dollarCostLabelLabel.font = viewModel.dollarCostLabelLabelFont
             dollarCostLabelLabel.textAlignment = .center
             dollarCostLabelLabel.text = viewModel.dollarCostLabelLabelText
+            dollarCostLabelLabel.isHidden = viewModel.hideDollarCost
 
             dollarCostLabel.textColor = viewModel.dollarCostLabelColor
             dollarCostLabel.font = viewModel.dollarCostLabelFont
@@ -200,7 +201,7 @@ class ImportTicketViewController: UIViewController {
             dollarCostLabel.text = viewModel.dollarCostLabelText
             dollarCostLabel.backgroundColor = viewModel.dollarCostLabelBackgroundColor
             dollarCostLabel.layer.masksToBounds = true
-            dollarCostLabel.isHidden = !viewModel.showDollarCostLabel
+            dollarCostLabel.isHidden = viewModel.hideDollarCost
 
             activityIndicator.color = viewModel.activityIndicatorColor
 
