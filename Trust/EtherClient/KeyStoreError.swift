@@ -19,29 +19,29 @@ public enum KeystoreError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .failedToDeleteAccount:
-            return "Failed to delete account"
+            return R.string.localizable.accountsDeleteErrorFailedToDeleteAccount()
         case .failedToDecryptKey:
-            return "Could not decrypt key with given passphrase"
+            return R.string.localizable.accountsDeleteErrorFailedToDecryptKey()
         case .failedToImport(let error):
             return error.localizedDescription
         case .duplicateAccount:
-            return "You already added this address to wallets"
+            return R.string.localizable.accountsDeleteErrorDuplicateAccount()
         case .failedToSignTransaction:
-            return "Failed to sign transaction"
+            return R.string.localizable.accountsDeleteErrorFailedToSignTransaction()
         case .failedToUpdatePassword:
-            return "Failed to update password"
+            return R.string.localizable.accountsDeleteErrorFailedToUpdatePassword()
         case .failedToCreateWallet:
-            return "Failed to create wallet"
+            return R.string.localizable.accountsDeleteErrorFailedToCreateWallet()
         case .failedToImportPrivateKey:
-            return "Failed to import private key"
+            return R.string.localizable.accountsDeleteErrorFailedToImportPrivateKey()
         case .failedToParseJSON:
-            return "Failed to parse key JSON"
+            return R.string.localizable.accountsDeleteErrorFailedToParseJSON()
         case .accountNotFound:
-            return "Account not found"
+            return R.string.localizable.accountsDeleteErrorAccountNotFound()
         case .failedToSignMessage:
-            return "Failed to sign message"
+            return R.string.localizable.accountsDeleteErrorFailedToSignMessage()
         case .failedToExportPrivateKey:
-            return "Failed to export private key"
+            return R.string.localizable.accountsDeleteErrorFailedToExportPrivateKey()
         }
     }
 }

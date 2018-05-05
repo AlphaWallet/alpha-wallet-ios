@@ -34,6 +34,7 @@ public class MarketQueueHandler {
                     let orderObj: JSON = parsedJSON["orders"][i]
                     if(orderObj == nil)
                     {
+                        //String not used in UI
                         callback("no orders")
                         return
                     }

@@ -5,7 +5,8 @@ import Eureka
 
 public struct EthereumAddressRule<T: Equatable>: RuleType {
 
-    public init(msg: String = "Invalid Ethereum Address") {
+    public init(msg: String = "") {
+        let msg = msg.isEmpty ? R.string.localizable.importWalletImportInvalidAddress() : msg
         self.validationError = ValidationError(msg: msg)
     }
 

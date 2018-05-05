@@ -72,7 +72,7 @@ struct ConfirmPaymentDetailsViewModel {
         let feeAndSymbol = gasViewModel.feeText
         let warningFee = BigInt(EthereumUnit.ether.rawValue) / BigInt(20)
         guard totalFee <= warningFee else {
-            return feeAndSymbol + " - WARNING. HIGH FEE."
+            return R.string.localizable.confirmPaymentHighFeeWarning(feeAndSymbol)
         }
         return feeAndSymbol
     }

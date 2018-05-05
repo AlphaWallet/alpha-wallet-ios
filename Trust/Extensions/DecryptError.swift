@@ -7,6 +7,7 @@ extension DecryptError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .invalidPassword:
+            //Strings don't appear to be shown in the UI
             return "Invalid Password"
         case .invalidCipher:
             return "Invalid Cipher"
