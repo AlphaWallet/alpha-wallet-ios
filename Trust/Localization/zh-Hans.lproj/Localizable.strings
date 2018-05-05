@@ -26,7 +26,7 @@
 "export.backup.button.title" = "备份钱包";
 "export.controlYourMoney.label.title" = "因为只有你能控制你的货币，为了防止应用被删而丢失，你需要备份你的备份 Keystore。";
 "export.neverStored.label.title" = "你的钱包永远不会被保存到云存储或者系统的标准设备备份里。";
-"export.noBackup.label.title" = "无备份，不 %@";
+"export.noBackup.label.title" = "无备份，没%@";
 "export.presentBackupOptions.label.title" = "正在准备备份选项..。";
 "importWallet.importingIndicator.label.title" = "导入钱包...";
 "Loading" = "加载";
@@ -89,7 +89,7 @@
 "Ethereum Address" = "以太坊地址";
 "InCoordinatorError.onlyWatchAccount" = "这个钱包只能观察，导入私钥 / Keystore 来签署交易";
 "Mnemonic" = "助记词";
-"Watch" = "Watch";
+"Watch" = "观察";
 "passphrase.remember.label.title" = "把这个写下来，并保持隐私和安全。如果你失了这个，你将不可能恢复你的钱包！";
 "recoveryPhrase.navigation.title" = "恢复短语";
 "transaction.cell.unknown.title" = "未知";
@@ -98,9 +98,9 @@
 "welldone.share.label.text" = "分享";
 "welldone.viewmodel.sharing.text" = "请看看 AlphaWallet - 让我安全地存储以太币和 ERC20 通证的钱包。";
 "transaction.confirmation.label.title" = "确认";
-"transaction.from.label.title" = "From";
+"transaction.from.label.title" = "来自";
 "transaction.gasFee.label.title" = "Gas费用";
-"transaction.to.label.title" = "To";
+"transaction.to.label.title" = "去到";
 "transaction.time.label.title" = "交易时间";
 "transaction.id.label.title" = "交易#";
 "transaction.blockNumber.label.title" = "区块#";
@@ -121,7 +121,7 @@
 "lock.create.passcode.view.model.title" = "Set 密码";
 "lock.enter.passcode.view.model.incorrect.passcode" = "错误 密码. 你还可以尝试 %d 次.";
 "lock.enter.passcode.view.model.initial" = "输入密码.";
-"lock.enter.passcode.view.model.touch.id" = "使用Touch ID登陆";
+"lock.enter.passcode.view.model.touch.id" = "使用触控ID登陆";
 "lock.enter.passcode.view.model.try.after.one.minute" = "请一分钟之后再试.";
 "Name" = "名称";
 "send.action.copy.transaction.title" = "复制交易ID";
@@ -133,7 +133,7 @@
 "a.wallet.import.wallet.title" = "导入";
 "a.wallet.import.wallet.bubble.title" = "门票导入?";
 "a.wallet.import.wallet.bubble.description" = "请检查你邮箱内的导入链接. 点击链接自动导入!";
-"a.wallet.ticketToken.match.vs" = "%@ vs %@";
+"a.wallet.ticketToken.match.vs" = "%@ 对 %@";
 "a.wallet.ticketToken.redeem.button.title" = "兑换";
 "a.wallet.ticketToken.redeem.selectTickets.title" = "选择要兑换的门票:";
 "a.wallet.ticketToken.redeem.selectTicketQuantity.atLeastOne.title" = "选择门票数量";
@@ -223,7 +223,7 @@
 "a.welcome.onboarding.1" = "支持调用各种数字资产";
 "a.welcome.onboarding.2" = "基于区块链技术，智能门票，杜绝欺诈";
 "a.welcome.onboarding.3" = "买，卖，转让各种token";
-"a.welcome.onboarding.createwallet.button.title" = "开始使用D";
+"a.welcome.onboarding.createwallet.button.title" = "开始使用";
 "a.settings.advanced.label.title" = "高级设置";
 "a.marketplace.tabbar.item.title" = "去中心化市场";
 "a.claim.ticket.title" = "导入门票";
@@ -253,12 +253,12 @@
 "accounts.delete.error.failedToUpdatePassword" = "更新密码失败";
 "accounts.delete.error.failedToCreateWallet" = "创建钱包失败";
 "accounts.delete.error.failedToImportPrivateKey" = "倒入私钥失败";
-"accounts.delete.error.failedToParseJSON" = "解析key JSON失败";
+"accounts.delete.error.failedToParseJSON" = "解析JSON失败";
 "accounts.delete.error.accountNotFound" = "找不到账户";
 "accounts.delete.error.failedToSignMessage" = "签署消息失败";
 "accounts.delete.error.failedToExportPrivateKey" = "导出私钥失败";
 "Chain ID" = "Chain ID";
-"Endpoint" = "Endpoint";
+"Endpoint" = "端点";
 "settings.network.custom.label.title" = "自定义";
 "settings.customNetwork.navigation.title" = "自定义网络";
 "settings.preferences.button.title" = "在开始页面显示Token";
