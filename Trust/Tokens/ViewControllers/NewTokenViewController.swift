@@ -83,7 +83,7 @@ class NewTokenViewController: FormViewController {
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.decimals) {
                 $0.add(rule: RuleClosure<String> { rowValue in
-                    return (rowValue == nil || rowValue!.isEmpty) && !self.isStormBirdToken ? ValidationError(msg: "Field required!") : nil
+                    return (rowValue == nil || rowValue!.isEmpty) && !self.isStormBirdToken ? ValidationError(msg: R.string.localizable.warningFieldRequired()) : nil
                 })
                 $0.validationOptions = .validatesOnDemand
                 $0.title = R.string.localizable.decimals()
@@ -92,7 +92,7 @@ class NewTokenViewController: FormViewController {
 
             <<< AppFormAppearance.textFieldFloat(tag: Values.balance) {
                 $0.add(rule: RuleClosure<String> { rowValue in
-                    return (rowValue == nil || rowValue!.isEmpty) && self.isStormBirdToken ? ValidationError(msg: "Field required!") : nil
+                    return (rowValue == nil || rowValue!.isEmpty) && self.isStormBirdToken ? ValidationError(msg: R.string.localizable.warningFieldRequired()) : nil
                 })
                 $0.validationOptions = .validatesOnDemand
                 $0.title = R.string.localizable.balance()

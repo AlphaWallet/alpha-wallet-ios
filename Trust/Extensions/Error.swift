@@ -23,18 +23,18 @@ extension Error {
                     switch JSONError {
                     case .responseError(_, let message, _):
                         return message
-                    default: return "Undefined error"
+                    default: return R.string.localizable.undefinedError()
                     }
                 }
             default:
                 return error.errorDescription ?? error.description
             }
         case let error as LocalizedError:
-            return error.errorDescription ?? "An unknown error occurred."
+            return error.errorDescription ?? R.string.localizable.unknownError()
         case let error as NSError:
             return error.localizedDescription
         default:
-            return "Undefined Error"
+            return R.string.localizable.undefinedError()
         }
     }
 
