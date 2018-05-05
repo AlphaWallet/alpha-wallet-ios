@@ -33,7 +33,7 @@ public class XMLHandler {
                 id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
                 index: index,
                 city: location,
-                name: "FIFA WC",
+                name: getName(lang: lang),
                 venue: venue,
                 match: match,
                 date: Date(timeIntervalSince1970: TimeInterval(time)),
@@ -44,6 +44,13 @@ public class XMLHandler {
         )
     }
 
+    func getName(lang: Int) -> String {
+        if let name = xml["asset"]["contract"]["name"][lang].text {
+            return name
+        }
+        return "N/A"
+    }
+    
     func getLang() -> Int {
         let lang = Locale.preferredLanguages[0]
         var langNum = 0
