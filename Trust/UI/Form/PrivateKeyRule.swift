@@ -5,7 +5,8 @@ import Eureka
 
 public struct PrivateKeyRule<T: Equatable>: RuleType {
 
-    public init(msg: String = "Private Key has to be 64 characters long") {
+    public init(msg: String = "") {
+        let msg = msg.isEmpty ? R.string.localizable.importWalletImportInvalidPrivateKey() : msg
         self.validationError = ValidationError(msg: msg)
     }
 

@@ -82,7 +82,7 @@ class ImportWalletViewController: FormViewController {
                 var header = HeaderFooterView<InfoHeaderView>(.class)
                 header.height = { 90 }
                 header.onSetupView = { (view, section) -> Void in
-                    view.label.attributedText = "Importing wallet as easy as creating".styled(
+                    view.label.attributedText = R.string.localizable.walletImportSubtitle().styled(
                         with:
                         .color(UIColor(hex: "6e6e72")),
                         .font(Fonts.regular(size: 16)!),

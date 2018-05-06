@@ -25,7 +25,6 @@ public class ActionButtonCell<T: Equatable> : Cell<T>, CellType {
         logoView.contentMode = .scaleAspectFit
 
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Hello"
         label.numberOfLines = 2
 
         contentView.addSubview(logoView)

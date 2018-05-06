@@ -11,13 +11,13 @@ enum ImportSelectionType {
     var title: String {
         switch self {
         case .keystore:
-            return "Keystore"
+            return R.string.localizable.keystore()
         case .privateKey:
-            return "Private Key"
+            return R.string.localizable.privateKey()
         case .mnemonic:
-            return "Mnemonic"
+            return R.string.localizable.mnemonic()
         case .watch:
-            return "Watch"
+            return R.string.localizable.watch()
         }
     }
 

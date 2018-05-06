@@ -376,7 +376,7 @@ class InCoordinator: Coordinator {
     }
 
     private func showTransactionSent(transaction: SentTransaction) {
-        let alertController = UIAlertController(title: "Transaction Sent!", message: "Wait for the transaction to be mined on the network to see details.", preferredStyle: UIAlertControllerStyle.alert)
+        let alertController = UIAlertController(title: R.string.localizable.sendActionTransactionSent(), message: R.string.localizable.sendActionTransactionSentWait(), preferredStyle: UIAlertControllerStyle.alert)
         let copyAction = UIAlertAction(title: R.string.localizable.sendActionCopyTransactionTitle(), style: UIAlertActionStyle.default, handler: { _ in
             UIPasteboard.general.string = transaction.id
         })
