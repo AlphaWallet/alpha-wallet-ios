@@ -32,9 +32,6 @@ open class AlphaWalletSettingsTextCell: _FieldCell<String>, CellType {
 		subLabel.translatesAutoresizingMaskIntoConstraints = false
 		background.addSubview(subLabel)
 
-		mainLabel.text = "xxx"
-		subLabel.text = "yyy"
-
 		let xMargin  = CGFloat(7)
 		let yMargin  = CGFloat(4)
 		NSLayoutConstraint.activate([

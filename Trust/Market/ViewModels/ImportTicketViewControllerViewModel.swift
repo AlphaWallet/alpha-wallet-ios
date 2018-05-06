@@ -108,7 +108,7 @@ struct ImportTicketViewControllerViewModel {
         if case let .validating = state {
             return ""
         } else {
-            return "\(ticketHolder.countryA) vs \(ticketHolder.countryB)"
+            return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
         }
     }
 

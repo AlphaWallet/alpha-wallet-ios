@@ -26,6 +26,7 @@ public class EventsRest {
             if 200...299 ~= statusCode { // success
                 completion(.success([]))
             } else {
+                //String not displayed to user
                 completion(.failure(AnyError(RestError.invalidResponse("Could not parse data"))))
             }
         })
