@@ -43,7 +43,7 @@ struct TransactionDetailsViewModel {
     }
 
     var title: String {
-        return "Transaction"
+        return R.string.localizable.transactionNavigationTitle()
     }
 
     var backgroundColor: UIColor {

@@ -4,6 +4,6 @@ import Foundation
 
 struct MarketplaceViewModel {
     var title: String {
-        return "Marketplace"
+        return R.string.localizable.aMarketplaceTabbarItemTitle()
     }
 }

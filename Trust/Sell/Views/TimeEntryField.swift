@@ -70,7 +70,7 @@ class TimeEntryField: UIControl {
         toolbar.barStyle = .default
 
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(closeKeyboard))
+        let done = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(closeKeyboard))
 
         toolbar.items = [flexSpace, done]
         toolbar.sizeToFit()
