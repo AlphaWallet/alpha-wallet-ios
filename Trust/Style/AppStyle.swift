@@ -7,6 +7,9 @@ import Eureka
 func applyStyle() {
 
     if #available(iOS 11, *) {
+        if #available(iOS 11, *) {
+            UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.appBackground
+        }
     } else {
         UINavigationBar.appearance().isTranslucent = false
     }
