@@ -252,7 +252,7 @@
 "accounts.delete.error.failedToSignTransaction" = "签署交易失败";
 "accounts.delete.error.failedToUpdatePassword" = "更新密码失败";
 "accounts.delete.error.failedToCreateWallet" = "创建钱包失败";
-"accounts.delete.error.failedToImportPrivateKey" = "倒入私钥失败";
+"accounts.delete.error.failedToImportPrivateKey" = "导入私钥失败";
 "accounts.delete.error.failedToParseJSON" = "解析JSON失败";
 "accounts.delete.error.accountNotFound" = "找不到账户";
 "accounts.delete.error.failedToSignMessage" = "签署消息失败";
