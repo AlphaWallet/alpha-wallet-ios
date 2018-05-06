@@ -94,9 +94,8 @@ class UniversalLinkCoordinator: Coordinator {
     func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
         let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: true)
         let query = Constants.paymentServer
-        //TODO localize
         if let viewController = delegate?.viewControllerForPresenting(in: self) {
-            UIAlertController.alert(title: nil, message: "Import Link?",
+            UIAlertController.alert(title: nil, message: R.string.localizable.aClaimTicketPrompt(),
                                     alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()],
                                     alertButtonStyles: [.default, .cancel], viewController: viewController) {
                 //ok else cancel
@@ -163,8 +162,7 @@ class UniversalLinkCoordinator: Coordinator {
                 }
             }
             else {
-                //TODO localize
-                self.showImportError(errorMessage: "Invalid Link, please try again")
+                self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
             }
 
         }

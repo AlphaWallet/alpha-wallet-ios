@@ -10,8 +10,8 @@ enum BiometryAuthenticationType {
 
     var title: String {
         switch self {
-        case .faceID: return "FaceID"
-        case .touchID: return "Touch ID"
+        case .faceID: return R.string.localizable.faceId()
+        case .touchID: return R.string.localizable.touchId()
         case .none: return ""
         }
     }
