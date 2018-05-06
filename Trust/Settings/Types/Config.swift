@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import ObjectiveC
 
 struct Config {
 
@@ -11,6 +12,7 @@ struct Config {
         static let currencyID = "currencyID"
         static let dAppBrowser = "dAppBrowser"
         static let walletAddressesAlreadyPromptedForBackUp = "walletAddressesAlreadyPromptedForBackUp "
+        static let language = "language"
     }
 
     let defaults: UserDefaults
@@ -47,6 +49,21 @@ struct Config {
             return id
         }
         set { defaults.set(newValue, forKey: Keys.chainID) }
+    }
+
+    var language: String? {
+        get { return defaults.string(forKey: Keys.language) }
+        set {
+            let preferenceKeyForOverridingInAppLanguage = "AppleLanguages"
+            if let language = newValue {
+                defaults.set(newValue, forKey: Keys.language)
+                defaults.set([language], forKey: preferenceKeyForOverridingInAppLanguage)
+            } else {
+                defaults.removeObject(forKey: Keys.language)
+                defaults.removeObject(forKey: preferenceKeyForOverridingInAppLanguage)
+            }
+            LiveLanguageSwitcherBundle.switchLanguage(to: newValue)
+        }
     }
 
     var isCryptoPrimaryCurrency: Bool {
