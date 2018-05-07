@@ -14,7 +14,17 @@ class LiveLanguageSwitcherBundle: Bundle {
         }
     }
 
+    override func url(forResource name: String?, withExtension ext: String?) -> URL? {
+        if let languageBundle = objc_getAssociatedObject(self, &liveLanguageSwitcherBundleKey) as? Bundle {
+            return languageBundle.url(forResource: name, withExtension: ext)
+        } else {
+            return super.url(forResource: name, withExtension: ext)
+        }
+    }
+
+    //Important to switch to Bundle.self before we do anything, otherwise we wouldn't be able to find the other languages, because we override url(forResource:withExtension:) above
     static func switchLanguage(to language: String?) {
+        object_setClass(Bundle.main, Bundle.self)
         if let language = language, let languageBundlePath = Bundle.main.path(forResource: language, ofType: "lproj") {
             let bundle = Bundle(path: languageBundlePath)
             object_setClass(Bundle.main, LiveLanguageSwitcherBundle.self)
