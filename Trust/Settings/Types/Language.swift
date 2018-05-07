@@ -39,16 +39,15 @@ enum Language {
     init(id: String?) {
         self = {
             guard let id = id else { return .system }
-            switch id {
-            case Language.system.id:
+            if id == Language.system.id {
                 return .system
-            case Language.english.id:
+            } else if id == Language.english.id {
                 return .english
-            case Language.simplifiedChinese.id:
+            } else if id == Language.simplifiedChinese.id {
                 return .simplifiedChinese
-            case Language.spanish.id:
+            } else if id == Language.spanish.id {
                 return .spanish
-            default:
+            } else {
                 return .system
             }
         }()
