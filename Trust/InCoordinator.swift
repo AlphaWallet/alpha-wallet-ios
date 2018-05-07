@@ -147,9 +147,13 @@ class InCoordinator: Coordinator {
         transactionCoordinator.start()
         addCoordinator(transactionCoordinator)
 
+        let marketplaceController = MarketplaceViewController()
+        let marketplaceNavigationController = UINavigationController(rootViewController: marketplaceController)
+        marketplaceController.tabBarItem = UITabBarItem(title: R.string.localizable.aMarketplaceTabbarItemTitle(), image: R.image.tab_marketplace()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_marketplace())
+
         let tabBarController = TabBarController()
         tabBarController.viewControllers = [
-            transactionCoordinator.navigationController,
+            marketplaceNavigationController,
         ]
         tabBarController.tabBar.isTranslucent = false
         tabBarController.didShake = { [weak self] in
@@ -170,11 +174,7 @@ class InCoordinator: Coordinator {
             addCoordinator(tokensCoordinator)
             tabBarController.viewControllers?.append(tokensCoordinator.navigationController)
         }
-
-        let marketplaceController = MarketplaceViewController()
-        let marketplaceNavigationController = UINavigationController(rootViewController: marketplaceController)
-        marketplaceController.tabBarItem = UITabBarItem(title: R.string.localizable.aMarketplaceTabbarItemTitle(), image: R.image.tab_marketplace()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_marketplace())
-        tabBarController.viewControllers?.append(marketplaceNavigationController)
+        tabBarController.viewControllers?.append(transactionCoordinator.navigationController)
 
         let alphaSettingsCoordinator = SettingsCoordinator(
                 keystore: keystore,
