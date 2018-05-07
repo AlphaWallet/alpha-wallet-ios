@@ -62,6 +62,7 @@ struct Config {
                 defaults.removeObject(forKey: Keys.language)
                 defaults.removeObject(forKey: preferenceKeyForOverridingInAppLanguage)
             }
+            defaults.synchronize()
             LiveLanguageSwitcherBundle.switchLanguage(to: newValue)
         }
     }
