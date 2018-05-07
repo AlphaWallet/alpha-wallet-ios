@@ -23,15 +23,19 @@ class LiveLanguageSwitcherBundle: Bundle {
     }
 
     //Important to switch to Bundle.self before we do anything, otherwise we wouldn't be able to find the other languages, because we override url(forResource:withExtension:) above
-    static func switchLanguage(to language: String?) {
+    static func switchLanguage(to language: String?, fallbackToPreferredLanguage: Bool = true) {
         object_setClass(Bundle.main, Bundle.self)
         if let language = language, let languageBundlePath = Bundle.main.path(forResource: language, ofType: "lproj") {
             let bundle = Bundle(path: languageBundlePath)
             object_setClass(Bundle.main, LiveLanguageSwitcherBundle.self)
             objc_setAssociatedObject(Bundle.main, &liveLanguageSwitcherBundleKey, bundle, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         } else {
-            //Switch to the system defined language until app is restarted, at which point app will use the system language anyway
-            switchLanguage(to: Locale.preferredLanguages[0])
+            //Switch to the system defined language until app is restarted, at which point app will use the system language anyway. If our app doesn't support the system-defined language, we will fallback to "en" (which we do support) instead
+            if fallbackToPreferredLanguage {
+                switchLanguage(to: Locale.preferredLanguages[0], fallbackToPreferredLanguage: false)
+            } else {
+                switchLanguage(to: "en", fallbackToPreferredLanguage: false)
+            }
         }
     }
 }
