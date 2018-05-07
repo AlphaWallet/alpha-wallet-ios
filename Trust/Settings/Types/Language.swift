@@ -38,6 +38,7 @@ enum Language {
 
     init(id: String?) {
         self = {
+            guard let id = id else { return .system }
             switch id {
             case Language.system.id:
                 return .system
