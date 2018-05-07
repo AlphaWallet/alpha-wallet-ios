@@ -20,7 +20,8 @@ class LiveLanguageSwitcherBundle: Bundle {
             object_setClass(Bundle.main, LiveLanguageSwitcherBundle.self)
             objc_setAssociatedObject(Bundle.main, &liveLanguageSwitcherBundleKey, bundle, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         } else {
-            object_setClass(Bundle.main, Bundle.self)
+            //Switch to the system defined language until app is restarted, at which point app will use the system language anyway
+            switchLanguage(to: Locale.preferredLanguages[0])
         }
     }
 }
