@@ -53,7 +53,7 @@
 "settings.language.useSystem.title" = "使用系统设置";
 "settings.version.label.title" = "版本";
 "transactions.deposit.button.title" = "购买";
-"transactions.noTransactions.label.title" = "暂无交易";
+"transactions.noTransactions.label.title" = "暂无记录";
 "wallet.navigation.title" = "钱包";
 "wallets.backup.alertSheet.title" = "备份 Keystore";
 "transactions.tabbar.item.title" = "交易";
@@ -76,7 +76,7 @@
 "Keystore" = "Keystore";
 "Private Key" = "私有密钥";
 "settings.currency.button.title" = "货币";
-"settings.network.test.label.title" = "测试";
+"settings.network.test.label.title" = "测试网络";
 "settings.wallets.button.title" = "钱包";
 "Symbol" = "符号";
 "Today" = "今天";
@@ -227,7 +227,7 @@
 "a.welcome.onboarding.3" = "买，卖，转让各种token";
 "a.welcome.onboarding.createwallet.button.title" = "开始使用";
 "a.settings.advanced.label.title" = "高级设置";
-"a.marketplace.tabbar.item.title" = "去中心化市场";
+"a.marketplace.tabbar.item.title" = "公共市场";
 "a.claim.ticket.title" = "导入门票";
 "a.claim.ticket.prompt" = "导入门票?";
 "a.claim.ticket.success.title" = "你的门票已经被转让，你的剩余门票数量稍后会被更新";
