@@ -94,6 +94,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 			case false:
 				pushNotificationsRegistrar.unregister()
 			}
+		case .language:
+			restart(for: session.account)
 		}
 	}
 }

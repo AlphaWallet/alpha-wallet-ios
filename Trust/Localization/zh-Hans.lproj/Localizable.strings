@@ -49,6 +49,8 @@
 "settings.error.failedToSendEmail" = "无法发送邮件。请确保你已经安装了邮件应用。";
 "settings.network.button.title" = "网络";
 "settings.pushNotifications.button.title" = "推送通知";
+"settings.language.button.title" = "语言";
+"settings.language.useSystem.title" = "使用系统设置";
 "settings.version.label.title" = "版本";
 "transactions.deposit.button.title" = "购买";
 "transactions.noTransactions.label.title" = "暂无交易";

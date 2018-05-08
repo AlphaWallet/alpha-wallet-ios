@@ -74,6 +74,24 @@ class AdvancedSettingsViewController: FormViewController {
             cell.detailTextLabel?.text = String(self.account.address.description.prefix(10)) + "..."
             cell.accessoryType = .disclosureIndicator
         }
+                <<< AlphaWalletSettingPushRow<Language> { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
+            $0.title = strongSelf.viewModel.languageTitle
+            $0.options = strongSelf.viewModel.languages
+            $0.value = Language(id: strongSelf.config.language)
+            $0.selectorTitle = strongSelf.viewModel.languageTitle
+            $0.displayValueFor = { value in
+                return value?.displayName
+            }
+        }.onChange {[weak self] row in
+            self?.config.language = row.value?.id
+            self?.run(action: .RPCServer)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+            cell.imageView?.image = R.image.settings_language()?.withRenderingMode(.alwaysTemplate)
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
