@@ -32,4 +32,17 @@ struct AdvancedSettingsViewModel {
             RPCServer.sokol,
         ]
     }
+
+    var languageTitle: String {
+        return R.string.localizable.settingsLanguageButtonTitle()
+    }
+
+    var languages: [Language] {
+        return [
+            .system,
+            .english,
+            .simplifiedChinese,
+            .spanish,
+        ]
+    }
 }
