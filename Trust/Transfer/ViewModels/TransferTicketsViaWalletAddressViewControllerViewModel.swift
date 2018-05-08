@@ -54,29 +54,4 @@ struct TransferTicketsViaWalletAddressViewControllerViewModel {
     var date: String {
         return ticketHolder.date.formatAsShortDateString()
     }
-    var textFieldTextColor: UIColor {
-        return Colors.appText
-    }
-    var textFieldFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
-            return Fonts.light(size: 11)!
-        } else {
-            return Fonts.light(size: 15)!
-        }
-    }
-    var textFieldBorderColor: UIColor {
-        return Colors.appBackground
-    }
-    var textFieldBorderWidth: CGFloat {
-        return 1
-    }
-    var textFieldHorizontalPadding: CGFloat {
-        return 22
-    }
-    var textFieldsLabelTextColor: UIColor {
-        return Colors.appGrayLabelColor
-    }
-    var textFieldsLabelFont: UIFont {
-        return Fonts.regular(size: 10)!
-    }
 }
