@@ -17,8 +17,7 @@ class CreateRedeem {
 
     func redeemMessage(ticketIndices: [UInt16]) -> (message: String, qrCode: String) {
         let messageForSigning = formIndicesSelection(indices: ticketIndices)
-                + "," + generateTimeStamp() + "," +
-                Constants.ticketContractAddress.lowercased()
+                + "," + generateTimeStamp() + "," + TicketsCoordinator.getContractAddressForLinks()
         let qrCodeData = formIndicesSelection(indices: ticketIndices)
         return (messageForSigning, qrCodeData)
     }
