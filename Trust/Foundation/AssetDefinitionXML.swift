@@ -13,7 +13,7 @@ class AssetDefinitionXML {
     public static let assetDefinition = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<asset>\n" +
     "  <contract>\n" +
-    "    <address type=\"issuing\">0xB032532c03ce9212749193e12E03bA8062808faD</address>\n" +
+    "    <address type=\"issuing\">0x277b1318965030C62E1dAc9671a6F8dF77F855Cf</address>\n" +
     "    <name lang=\"ru\">2018 Билеты</name>\n" +
     "    <name lang=\"en\">2018 Tickets</name>\n" +
     "    <name lang=\"zh\">2018承兑票</name>\n" +
