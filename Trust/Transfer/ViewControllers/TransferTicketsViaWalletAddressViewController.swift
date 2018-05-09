@@ -13,8 +13,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let ticketView = TicketRowView()
-    let targetAddressLabel = UILabel()
-    let targetAddressTextField = UITextField()
+    let targetAddressTextField = AddressTextField()
     let nextButton = UIButton(type: .system)
     var viewModel: TransferTicketsViaWalletAddressViewControllerViewModel!
     var ticketHolder: TicketHolder
@@ -31,11 +30,11 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
+        targetAddressTextField.label.translatesAutoresizingMaskIntoConstraints = false
+
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
-        targetAddressTextField.returnKeyType = .done
-        targetAddressTextField.leftViewMode = .always
-        targetAddressTextField.rightViewMode = .always
+        targetAddressTextField.textField.returnKeyType = .done
 
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
@@ -47,7 +46,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
             header,
             ticketView,
             .spacer(height: 10),
-            targetAddressLabel,
+            targetAddressTextField.label,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
             targetAddressTextField,
         ].asStackView(axis: .vertical, alignment: .center)
@@ -73,7 +72,6 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
 
             targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
-            targetAddressTextField.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen() ? 30 : 50),
 
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
@@ -96,7 +94,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
     }
 
     @objc func nextButtonTapped() {
-        let address = targetAddressTextField.text?.trimmed ?? ""
+        let address = targetAddressTextField.value.trimmed
         delegate?.didEnterWalletAddress(ticketHolder: ticketHolder, to: address, paymentFlow: paymentFlow, in: self)
     }
 
@@ -105,13 +103,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
     }
 
     func configure(viewModel: TransferTicketsViaWalletAddressViewControllerViewModel) {
-        let firstConfigure = self.viewModel == nil
         self.viewModel = viewModel
-
-        if firstConfigure {
-            targetAddressTextField.leftView = .spacerWidth(viewModel.textFieldHorizontalPadding)
-            targetAddressTextField.rightView = makeTargetAddressRightView()
-        }
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -135,65 +127,15 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
 
         ticketView.categoryLabel.text = viewModel.category
 
-        targetAddressTextField.textColor = viewModel.textFieldTextColor
-        targetAddressTextField.font = viewModel.textFieldFont
-        targetAddressTextField.layer.borderColor = viewModel.textFieldBorderColor.cgColor
-        targetAddressTextField.layer.borderWidth = viewModel.textFieldBorderWidth
+        targetAddressTextField.label.text = R.string.localizable.aSendRecipientAddressTitle()
 
-        targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
-        targetAddressLabel.font = viewModel.textFieldsLabelFont
-        targetAddressLabel.textColor = viewModel.textFieldsLabelTextColor
+        targetAddressTextField.configureOnce()
 
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor
         nextButton.titleLabel?.font = viewModel.buttonFont
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        roundCornersBasedOnHeight()
-    }
-
-    private func roundCornersBasedOnHeight() {
-        targetAddressTextField.layer.cornerRadius = targetAddressTextField.frame.size.height / 2
-    }
-
-    @objc func openReader() {
-        let controller = QRCodeReaderViewController()
-        controller.delegate = self
-        present(controller, animated: true, completion: nil)
-    }
-
-    @objc func pasteAction() {
-        guard let value = UIPasteboard.general.string?.trimmed else {
-            return displayError(error: SendInputErrors.emptyClipBoard)
-        }
-
-        guard CryptoAddressValidator.isValidAddress(value) else {
-            return displayError(error: Errors.invalidAddress)
-        }
-        targetAddressTextField.text = value
-    }
-
-    private func makeTargetAddressRightView() -> UIView {
-        let pasteButton = Button(size: .normal, style: .borderless)
-        pasteButton.translatesAutoresizingMaskIntoConstraints = false
-        pasteButton.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
-        pasteButton.titleLabel?.font = Fonts.regular(size: 14)!
-        pasteButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
-        pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
-
-        let scanQRCodeButton = Button(size: .normal, style: .borderless)
-        scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
-        scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
-        scanQRCodeButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
-        scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
-
-        let targetAddressRightView = [pasteButton, scanQRCodeButton].asStackView(distribution: .equalSpacing)
-        targetAddressRightView.translatesAutoresizingMaskIntoConstraints = false
-
-        return targetAddressRightView
-    }
 }
 
 extension TransferTicketsViaWalletAddressViewController: QRCodeReaderDelegate {
@@ -209,12 +151,26 @@ extension TransferTicketsViaWalletAddressViewController: QRCodeReaderDelegate {
         guard let result = QRURLParser.from(string: result) else {
             return
         }
-        targetAddressTextField.text = result.address
+        targetAddressTextField.value = result.address
     }
 }
 
-extension TransferTicketsViaWalletAddressViewController: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+extension TransferTicketsViaWalletAddressViewController: AddressTextFieldDelegate {
+    func displayError(error: Error, for: AddressTextField) {
+        displayError(error: error)
+    }
+
+    func openQRCodeReader(for: AddressTextField) {
+        let controller = QRCodeReaderViewController()
+        controller.delegate = self
+        present(controller, animated: true, completion: nil)
+    }
+
+    func didPaste(in: AddressTextField) {
+        //Do nothing
+    }
+
+    func shouldReturn(in: AddressTextField) -> Bool{
         view.endEditing(true)
         return true
     }
