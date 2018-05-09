@@ -29,7 +29,7 @@ class AssetDefinitionXML {
     "      <trade method=\"universal-link\" version=\"9\">\n" +
     "        <prefix>https://app.awallet.io/</prefix>\n" +
     "      </trade>\n" +
-    "      <feemaster>http://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken</feemaster>\n" +
+    "      <feemaster>" + Constants.paymentServer + "</feemaster>\n" +
     "      <redeem>\n" +
     "        <method name=\"QR\"/>\n" +
     "        <!--\n" +
