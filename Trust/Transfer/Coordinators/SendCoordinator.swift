@@ -78,7 +78,7 @@ class SendCoordinator: Coordinator {
         }
         switch transferType {
         case .ether(let destination):
-            controller.targetAddressTextField.text = destination?.description
+            controller.targetAddressTextField.value = destination?.description ?? ""
         case .token: break
         case .stormBird: break
         case .stormBirdOrder: break
