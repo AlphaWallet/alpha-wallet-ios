@@ -122,7 +122,7 @@ class TicketsViewController: UIViewController {
         tableView.dataSource = self
 
         if let tokenObject = tokenObject {
-            header.configure(viewModel: .init(tokenObject: tokenObject))
+            header.configure(viewModel: .init(config: tokensStorage.config, tokenObject: tokenObject))
             tableView.tableHeaderView = header
         }
 

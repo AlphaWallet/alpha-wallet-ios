@@ -4,9 +4,11 @@ import UIKit
 import BigInt
 
 struct TicketsViewControllerHeaderViewModel {
+    let config: Config
     private let tokenObject: TokenObject
 
-    init(tokenObject: TokenObject) {
+    init(config: Config, tokenObject: TokenObject) {
+        self.config = config
         self.tokenObject = tokenObject
     }
 
@@ -15,7 +17,19 @@ struct TicketsViewControllerHeaderViewModel {
     }
 
     var issuer: String {
-        return "\(R.string.localizable.aWalletContentsIssuerTitle()): \(R.string.localizable.ticketIssuer())"
+        if config.server == .main {
+            return "\(R.string.localizable.aWalletContentsIssuerTitle()): \(R.string.localizable.ticketIssuer())"
+        } else {
+            return ""
+        }
+    }
+
+    var issuerSeparator: String {
+        if issuer.isEmpty {
+            return ""
+        } else {
+            return "|"
+        }
     }
 
     var blockChainName: String {
