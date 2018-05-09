@@ -83,21 +83,34 @@ class TokensCoordinator: Coordinator {
     }
 
     //FIFA add the FIFA token with a hardcoded address if not already present
+    //TODO Handle ropsten hardcoding as well as the one for real tickets
     private func addFIFAToken() {
         let fifaTokenPresent = storage.enabledObject.contains{ $0.address.eip55String == Constants.ticketContractAddress
         }
         if fifaTokenPresent {
 			return
         }
+        //for now just add both
         let token = ERC20Token(
                 contract: Address(string: Constants.ticketContractAddress)!,
-                name: "AlphaWallet Test Tickets",
-                symbol: "AWTT",
+                name: "Tickets",
+                symbol: "TICK",
                 decimals: 0,
                 isStormBird: true,
                 balance: []
         )
+        
+        let testToken = ERC20Token(
+            contract: Address(string: Constants.ticketContractAddressRopsten)!,
+            name: "Test Tickets",
+            symbol: "AWTT",
+            decimals: 0,
+            isStormBird: true,
+            balance: []
+        )
+        
         storage.addCustom(token: token)
+        storage.addCustom(token: testToken)
         tokensViewController.fetch()
     }
 }
