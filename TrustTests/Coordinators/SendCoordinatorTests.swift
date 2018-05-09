@@ -33,7 +33,7 @@ class SendCoordinatorTests: XCTestCase {
         )
         coordinator.start()
 
-        XCTAssertEqual(address.description, coordinator.sendViewController.targetAddressTextField.text)
+        XCTAssertEqual(address.description, coordinator.sendViewController.targetAddressTextField.value)
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is SendViewController)
     }
 
