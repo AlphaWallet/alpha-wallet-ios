@@ -22,7 +22,7 @@ protocol SendViewControllerDelegate: class {
 class SendViewController: UIViewController {
     let roundedBackground = RoundedBackground()
     let header = SendHeaderView()
-    let targetAddressTextField = UITextField()
+    let targetAddressTextField = AddressTextField()
     let amountTextField = UITextField()
     let alternativeAmountLabel = UILabel()
     let targetAddressLabel = UILabel()
@@ -104,9 +104,7 @@ class SendViewController: UIViewController {
 
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
-        targetAddressTextField.returnKeyType = .next
-        targetAddressTextField.leftViewMode = .always
-        targetAddressTextField.rightViewMode = .always
+        targetAddressTextField.textField.returnKeyType = .next
 
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
@@ -167,7 +165,6 @@ class SendViewController: UIViewController {
 
             targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
-            targetAddressTextField.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen() ? 30 : 50),
 
             amountTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             amountTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
@@ -215,9 +212,8 @@ class SendViewController: UIViewController {
             //Not good to rely on viewModel here on firstConfigure, which means if we change the padding on subsequent calls (which will probably never happen), it wouldn't be reflected. Unfortunately this needs to be here, otherwise while typing in the amount text field, the left and right views will move out of the text field momentarily
             amountTextField.leftView = .spacerWidth(viewModel.textFieldHorizontalPadding)
             amountTextField.rightView = makeAmountRightView()
-            targetAddressTextField.leftView = .spacerWidth(viewModel.textFieldHorizontalPadding)
-            targetAddressTextField.rightView = makeTargetAddressRightView()
         }
+        targetAddressTextField.configureOnce()
 
         changeQRCode(value: 0)
 
@@ -225,11 +221,6 @@ class SendViewController: UIViewController {
 
         headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
         header.configure(viewModel: headerViewModel)
-
-        targetAddressTextField.textColor = viewModel.textFieldTextColor
-        targetAddressTextField.font = viewModel.textFieldFont
-        targetAddressTextField.layer.borderColor = viewModel.textFieldBorderColor.cgColor
-        targetAddressTextField.layer.borderWidth = viewModel.textFieldBorderWidth
 
         //targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
         targetAddressLabel.font = viewModel.textFieldsLabelFont
@@ -279,7 +270,6 @@ class SendViewController: UIViewController {
     }
 
     private func roundCornersBasedOnHeight() {
-        targetAddressTextField.layer.cornerRadius = targetAddressTextField.frame.size.height / 2
         amountTextField.layer.cornerRadius = amountTextField.frame.size.height / 2
         copyButton.cornerRadius = copyButton.frame.size.height / 2
     }
@@ -296,7 +286,7 @@ class SendViewController: UIViewController {
     }
 
     @objc func send() {
-        let addressString = targetAddressTextField.text?.trimmed ?? ""
+        let addressString = targetAddressTextField.value
         var amountString = ""
         if self.currentPair.left == viewModel.symbol {
             amountString = amountTextField.text?.trimmed ?? ""
@@ -340,24 +330,6 @@ class SendViewController: UIViewController {
                 indices: .none
         )
         self.delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
-    }
-
-    @objc func openReader() {
-        let controller = QRCodeReaderViewController()
-        controller.delegate = self
-        present(controller, animated: true, completion: nil)
-    }
-
-    @objc func pasteAction() {
-        guard let value = UIPasteboard.general.string?.trimmed else {
-            return displayError(error: SendInputErrors.emptyClipBoard)
-        }
-
-        guard CryptoAddressValidator.isValidAddress(value) else {
-            return displayError(error: Errors.invalidAddress)
-        }
-        targetAddressTextField.text = value
-        activateAmountView()
     }
 
     @objc func fiatAction(sender: UIButton) {
@@ -420,10 +392,6 @@ class SendViewController: UIViewController {
             pairValue = amount / price
         }
         updatePriceSection()
-    }
-
-    private func addressTextFieldChanged(in range: NSRange, to string: String) -> Bool {
-        return true
     }
 
     private func amountTextFieldChanged(in range: NSRange, to string: String) -> Bool {
@@ -504,26 +472,6 @@ class SendViewController: UIViewController {
         }
     }
 
-    private func makeTargetAddressRightView() -> UIView {
-        let pasteButton = Button(size: .normal, style: .borderless)
-        pasteButton.translatesAutoresizingMaskIntoConstraints = false
-        pasteButton.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
-        pasteButton.titleLabel?.font = Fonts.regular(size: 14)!
-        pasteButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
-        pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
-
-        let scanQRCodeButton = Button(size: .normal, style: .borderless)
-        scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
-        scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
-        scanQRCodeButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
-        scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
-
-        let targetAddressRightView = [pasteButton, scanQRCodeButton].asStackView(distribution: .equalSpacing)
-        targetAddressRightView.translatesAutoresizingMaskIntoConstraints = false
-
-        return targetAddressRightView
-    }
-
     private func makeAmountRightView() -> UIView {
         let fiatButton = Button(size: .normal, style: .borderless)
         fiatButton.translatesAutoresizingMaskIntoConstraints = false
@@ -568,7 +516,7 @@ extension SendViewController: QRCodeReaderDelegate {
         guard let result = QRURLParser.from(string: result) else {
             return
         }
-        targetAddressTextField.text = result.address
+        targetAddressTextField.value = result.address
 
         if let dataString = result.params["data"] {
             data = Data(hex: dataString.drop0x)
@@ -588,9 +536,7 @@ extension SendViewController: QRCodeReaderDelegate {
 
 extension SendViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == targetAddressTextField {
-            return addressTextFieldChanged(in: range, to: string)
-        } else if textField == amountTextField {
+        if textField == amountTextField {
             return amountTextFieldChanged(in: range, to: string)
         } else {
             return true
@@ -598,11 +544,30 @@ extension SendViewController: UITextFieldDelegate {
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField == targetAddressTextField {
-            activateAmountView()
-        } else if textField == amountTextField {
+        if textField == amountTextField {
             view.endEditing(true)
         }
+        return true
+    }
+}
+
+extension SendViewController: AddressTextFieldDelegate {
+    func displayError(error: Error, for: AddressTextField) {
+        displayError(error: error)
+    }
+
+    func openQRCodeReader(for: AddressTextField) {
+        let controller = QRCodeReaderViewController()
+        controller.delegate = self
+        present(controller, animated: true, completion: nil)
+    }
+
+    func didPaste(in: AddressTextField) {
+        activateAmountView()
+    }
+
+    func shouldReturn(in: AddressTextField) -> Bool {
+        activateAmountView()
         return true
     }
 }
