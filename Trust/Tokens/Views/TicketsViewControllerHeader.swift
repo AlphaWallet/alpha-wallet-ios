@@ -59,8 +59,12 @@ class TicketsViewControllerHeader: UIView {
 
         issuerLabel.textColor = viewModel.subtitleColor
         issuerLabel.font = viewModel.subtitleFont
-        issuerLabel.text = viewModel.issuer
-
+        let issuer = viewModel.issuer
+        if issuer.isEmpty {
+            issuerLabel.text = ""
+        } else {
+            issuerLabel.text = issuer
+        }
         separator.textColor = viewModel.subtitleColor
         separator.font = viewModel.subtitleFont
         separator.text = viewModel.issuerSeparator
