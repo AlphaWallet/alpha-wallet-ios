@@ -3,10 +3,11 @@
 import UIKit
 
 protocol AddressTextFieldDelegate: class {
-    func displayError(error: Error, for: AddressTextField)
-    func openQRCodeReader(for: AddressTextField)
-    func didPaste(in: AddressTextField)
-    func shouldReturn(in: AddressTextField) -> Bool
+    func displayError(error: Error, for textField: AddressTextField)
+    func openQRCodeReader(for textField: AddressTextField)
+    func didPaste(in textField: AddressTextField)
+    func shouldReturn(in textField: AddressTextField) -> Bool
+    func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool
 }
 
 class AddressTextField: UIControl {
@@ -20,7 +21,7 @@ class AddressTextField: UIControl {
             textField.text = newValue
         }
     }
-    var isConfigured = false
+    private var isConfigured = false
     weak var delegate: AddressTextFieldDelegate?
 
     override init(frame: CGRect) {
@@ -112,5 +113,10 @@ extension AddressTextField: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let delegate = delegate else { return true }
         return delegate.shouldReturn(in: self)
+    }
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        guard let delegate = delegate else { return true }
+        return delegate.shouldChange(in: range, to: string, in: self)
     }
 }
