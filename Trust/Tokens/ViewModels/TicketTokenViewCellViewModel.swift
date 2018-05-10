@@ -8,12 +8,15 @@ struct TicketTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
 
+    let config: Config
     let ticker: CoinTicker?
 
     init(
+        config: Config,
         token: TokenObject,
         ticker: CoinTicker?
     ) {
+        self.config = config
         self.token = token
         self.ticker = ticker
     }
@@ -28,7 +31,19 @@ struct TicketTokenViewCellViewModel {
     }
 
     var issuer: String {
-        return "\(R.string.localizable.aWalletContentsIssuerTitle()): \(R.string.localizable.ticketIssuer())"
+        if config.server == .main {
+            return "\(R.string.localizable.aWalletContentsIssuerTitle()): \(R.string.localizable.ticketIssuer())"
+        } else {
+            return ""
+        }
+    }
+
+    var issuerSeparator: String {
+        if issuer.isEmpty {
+            return ""
+        } else {
+            return "|"
+        }
     }
 
     var blockChainName: String {
