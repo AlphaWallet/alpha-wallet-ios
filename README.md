@@ -4,7 +4,7 @@
 [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/TrustWallet/trust-wallet-ios/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/TrustWallet/trust-wallet-ios/branches/master)
 [![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
 
-[<img src="https://raw.githubusercontent.com/TrustWallet/trust-wallet-ios/master/resources/screens.png">]
+[<img src="https://github.com/James-Sangalli/alpha-wallet-ios/blob/master/resources/screens.png">]
 
 [<img src=resources/app-store-badge.png height="88">](https://itunes.apple.com/us/app/alphawallet/id1358230430?ls=1&mt=8)
 
