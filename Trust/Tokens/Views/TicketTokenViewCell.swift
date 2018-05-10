@@ -72,6 +72,6 @@ class TicketTokenViewCell: UITableViewCell {
 
         separator.textColor = viewModel.subtitleColor
         separator.font = viewModel.subtitleFont
-        separator.text = "|"
+        separator.text = viewModel.issuerSeparator
     }
 }

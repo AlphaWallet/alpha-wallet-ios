@@ -247,12 +247,14 @@ extension TokensViewController: UITableViewDelegate {
             return cellViewModel.cellHeight
         case .stormBird:
             let cellViewModel = TicketTokenViewCellViewModel(
+                    config: dataStore.config,
                     token: token,
                     ticker: viewModel.ticker(for: token)
             )
             return cellViewModel.cellHeight
         case .stormBirdOrder:
             let cellViewModel = TicketTokenViewCellViewModel(
+                config: dataStore.config,
                 token: token,
                 ticker: viewModel.ticker(for: token)
             )
@@ -319,6 +321,7 @@ extension TokensViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
             cell.configure(
                     viewModel: .init(
+                            config: dataStore.config,
                             token: token,
                             ticker: viewModel.ticker(for: token)
                     )
@@ -329,6 +332,7 @@ extension TokensViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
             cell.configure(
                 viewModel: .init(
+                    config: dataStore.config,
                     token: token,
                     ticker: viewModel.ticker(for: token)
                 )
