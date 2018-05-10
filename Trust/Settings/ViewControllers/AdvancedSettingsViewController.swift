@@ -74,19 +74,19 @@ class AdvancedSettingsViewController: FormViewController {
             cell.detailTextLabel?.text = String(self.account.address.description.prefix(10)) + "..."
             cell.accessoryType = .disclosureIndicator
         }
-                <<< AlphaWalletSettingPushRow<Language> { [weak self] in
+                <<< AlphaWalletSettingPushRow<AppLocale> { [weak self] in
             guard let strongSelf = self else {
                 return
             }
-            $0.title = strongSelf.viewModel.languageTitle
-            $0.options = strongSelf.viewModel.languages
-            $0.value = Language(id: strongSelf.config.language)
-            $0.selectorTitle = strongSelf.viewModel.languageTitle
+            $0.title = strongSelf.viewModel.localeTitle
+            $0.options = strongSelf.viewModel.locales
+            $0.value = AppLocale(id: strongSelf.config.locale)
+            $0.selectorTitle = strongSelf.viewModel.localeTitle
             $0.displayValueFor = { value in
                 return value?.displayName
             }
         }.onChange {[weak self] row in
-            self?.config.language = row.value?.id
+            self?.config.locale = row.value?.id
             self?.run(action: .RPCServer)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
