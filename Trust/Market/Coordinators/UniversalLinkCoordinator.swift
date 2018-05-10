@@ -39,7 +39,8 @@ class UniversalLinkCoordinator: Coordinator {
             "expiry": signedOrder.order.expiry.description,
             "v": signature.substring(from: 128),
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
-            "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
+            "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
+            "networkId": Config.init().chainID.description
         ]
         
         if isForTransfer {
