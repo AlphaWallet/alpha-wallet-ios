@@ -13,6 +13,7 @@ protocol TokensCoordinatorDelegate: class {
 class TokensCoordinator: Coordinator {
 
     let navigationController: UINavigationController
+    let config: Config
     let session: WalletSession
     let keystore: Keystore
     var coordinators: [Coordinator] = []
@@ -35,12 +36,14 @@ class TokensCoordinator: Coordinator {
 
     init(
         navigationController: UINavigationController = NavigationController(),
+        config: Config,
         session: WalletSession,
         keystore: Keystore,
         tokensStorage: TokensDataStore
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
+        self.config = config
         self.session = session
         self.keystore = keystore
         self.storage = tokensStorage
@@ -82,35 +85,11 @@ class TokensCoordinator: Coordinator {
 //        navigationController.pushViewController(controller, animated: true)
     }
 
-    //FIFA add the FIFA token with a hardcoded address if not already present
-    //TODO Handle ropsten hardcoding as well as the one for real tickets
+    //FIFA add the FIFA token with a hardcoded address for appropriate network if not already present
     private func addFIFAToken() {
-        let fifaTokenPresent = storage.enabledObject.contains{ $0.address.eip55String == Constants.ticketContractAddress
+        if let token = config.createDefaultTicketToken(), !storage.enabledObject.contains { $0.address.eip55String == token.contract.eip55String } {
+            storage.addCustom(token: token)
         }
-        if fifaTokenPresent {
-			return
-        }
-        //for now just add both
-        let token = ERC20Token(
-                contract: Address(string: Constants.ticketContractAddress)!,
-                name: "Tickets",
-                symbol: "TICK",
-                decimals: 0,
-                isStormBird: true,
-                balance: []
-        )
-        
-        let testToken = ERC20Token(
-            contract: Address(string: Constants.ticketContractAddressRopsten)!,
-            name: "Test Tickets",
-            symbol: "AWTT",
-            decimals: 0,
-            isStormBird: true,
-            balance: []
-        )
-        
-        storage.addCustom(token: token)
-        storage.addCustom(token: testToken)
         tokensViewController.fetch()
     }
 }

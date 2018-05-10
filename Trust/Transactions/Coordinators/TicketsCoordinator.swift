@@ -263,12 +263,14 @@ class TicketsCoordinator: NSObject, Coordinator {
         controller.delegate = self
         return controller
     }
-    
+
+    //TODO should be returning `String?` instead by only calling `Config().ticketContractAddress`
     public static func getContractAddressForLinks() -> String {
-        if Config().chainID == 1 {
-            return Constants.ticketContractAddress
+        if let address = Config().ticketContractAddress {
+            return address
+        } else {
+            return Constants.ticketContractAddressRopsten
         }
-        return Constants.ticketContractAddressRopsten
     }
 
     private func generateTransferLink(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> String {

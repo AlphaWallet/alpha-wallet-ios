@@ -227,7 +227,7 @@ class TokensDataStore {
     }
     func updateDelegate() {
         tokensModel.value = enabledObject
-        let tokensViewModel = TokensViewModel( tokens: enabledObject, tickers: tickers )
+        let tokensViewModel = TokensViewModel(config: config, tokens: enabledObject, tickers: tickers)
         delegate?.didUpdate(result: .success( tokensViewModel ))
     }
 
