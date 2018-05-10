@@ -1,4 +1,4 @@
-# AlphaWallet - the wallet to rule them all 
+# AlphaWallet - Your gateway to blockchain technology
 
 [![Build Status](https://travis-ci.com/James-Sangalli/alpha-wallet-ios.svg?token=J2hT1s5bGKT1npuPugWb&branch=master)](https://travis-ci.com/James-Sangalli/alpha-wallet-ios.svg?token=J2hT1s5bGKT1npuPugWb&branch=master)
 [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/TrustWallet/trust-wallet-ios/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/TrustWallet/trust-wallet-ios/branches/master)
