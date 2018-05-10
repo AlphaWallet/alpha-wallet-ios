@@ -1,12 +1,12 @@
-# AlphaWallet - the wallet to rule them all 
+# AlphaWallet - Your gateway to blockchain technology
 
 [![Build Status](https://travis-ci.com/James-Sangalli/alpha-wallet-ios.svg?token=J2hT1s5bGKT1npuPugWb&branch=master)](https://travis-ci.com/James-Sangalli/alpha-wallet-ios.svg?token=J2hT1s5bGKT1npuPugWb&branch=master)
 [![Black Duck Security Risk](https://copilot.blackducksoftware.com/github/repos/TrustWallet/trust-wallet-ios/branches/master/badge-risk.svg)](https://copilot.blackducksoftware.com/github/repos/TrustWallet/trust-wallet-ios/branches/master)
 [![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
 
-[<img src="https://raw.githubusercontent.com/TrustWallet/trust-wallet-ios/master/resources/iphone_cover.png">](https://itunes.apple.com/us/app/trust-ethereum-wallet/id1288339409)
+[<img src="https://github.com/James-Sangalli/alpha-wallet-ios/blob/master/resources/screens.png">](https://awallet.io/)
 
-[<img src=resources/app-store-badge.png height="88">](https://itunes.apple.com/us/app/trust-ethereum-wallet/id1288339409)
+[<img src=resources/app-store-badge.png height="88">](https://itunes.apple.com/us/app/alphawallet/id1358230430?ls=1&mt=8)
 
 ## Getting Started
 
