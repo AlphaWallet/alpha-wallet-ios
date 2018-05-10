@@ -96,14 +96,6 @@ class UniversalLinkCoordinator: Coordinator {
         let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: true)
         let query = Constants.paymentServer
         if let viewController = delegate?.viewControllerForPresenting(in: self) {
-            UIAlertController.alert(title: nil, message: R.string.localizable.aClaimTicketPrompt(),
-                                    alertButtonTitles: [R.string.localizable.aClaimTicketImportButtonTitle(), R.string.localizable.cancel()],
-                                    alertButtonStyles: [.default, .cancel], viewController: viewController) {
-                //ok else cancel
-                if $0 == 0 {
-                    self.importUniversalLink(query: query, parameters: parameters)
-                }
-            }
             if let vc = importTicketViewController {
                 vc.query = query
                 vc.parameters = parameters
