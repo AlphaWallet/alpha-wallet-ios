@@ -2,14 +2,14 @@
 
 import Foundation
 
-enum Language {
+enum AppLocale {
     case system
     case english
     case simplifiedChinese
     case spanish
 
     var id: String? {
-        //Other than .system, the returned values must match the language bundle names — eg. zh-Hans.lproj — included in the app
+        //Other than .system, the returned values must match the locale bundle names — eg. zh-Hans.lproj — included in the app
         switch self {
         case .system:
             return nil
@@ -39,13 +39,13 @@ enum Language {
     init(id: String?) {
         self = {
             guard let id = id else { return .system }
-            if id == Language.system.id {
+            if id == AppLocale.system.id {
                 return .system
-            } else if id == Language.english.id {
+            } else if id == AppLocale.english.id {
                 return .english
-            } else if id == Language.simplifiedChinese.id {
+            } else if id == AppLocale.simplifiedChinese.id {
                 return .simplifiedChinese
-            } else if id == Language.spanish.id {
+            } else if id == AppLocale.spanish.id {
                 return .spanish
             } else {
                 return .system
