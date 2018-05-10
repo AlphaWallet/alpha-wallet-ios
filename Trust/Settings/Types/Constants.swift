@@ -20,8 +20,7 @@ public struct Constants {
     public static let twitterUsername = "Alpha_wallet"
     public static let redditGroupName = "r/AlphaWallet/"
     public static let facebookUsername = "AlphaWallet"
-    //TODO need to change this for launch
-    public static let appstoreURL = "itms-apps://itunes.apple.com/app/id1288339409"
+    public static let appstoreURL = "itms-apps://itunes.apple.com/app/id1358230430"
 
     // support
     public static let supportEmail = "support@awallet.io"
