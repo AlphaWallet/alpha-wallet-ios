@@ -164,6 +164,7 @@ class InCoordinator: Coordinator {
 
         if inCoordinatorViewModel.tokensAvailable {
             let tokensCoordinator = TokensCoordinator(
+                    config: config,
                     session: session,
                     keystore: keystore,
                     tokensStorage: alphaWalletTokensStorage
