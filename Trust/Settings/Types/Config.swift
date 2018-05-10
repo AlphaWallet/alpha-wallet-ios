@@ -2,6 +2,7 @@
 
 import Foundation
 import ObjectiveC
+import TrustKeystore
 
 struct Config {
 
@@ -122,6 +123,36 @@ struct Config {
             return addresses as! [String]
         } else {
             return []
+        }
+    }
+
+    var ticketContractAddress: String? {
+        return createDefaultTicketToken()?.contract.eip55String
+    }
+
+    //TODO better to have a ERC875Token type instead
+    func createDefaultTicketToken() -> ERC20Token? {
+        switch server {
+        case .main:
+            return ERC20Token(
+                    contract: Address(string: Constants.ticketContractAddress)!,
+                    name: "Tickets",
+                    symbol: "TICK",
+                    decimals: 0,
+                    isStormBird: true,
+                    balance: []
+            )
+        case .ropsten:
+            return ERC20Token(
+                    contract: Address(string: Constants.ticketContractAddressRopsten)!,
+                    name: "Test Tickets",
+                    symbol: "AWTT",
+                    decimals: 0,
+                    isStormBird: true,
+                    balance: []
+            )
+        case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+            return nil
         }
     }
 
