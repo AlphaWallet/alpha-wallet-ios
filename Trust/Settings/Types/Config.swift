@@ -13,7 +13,7 @@ struct Config {
         static let currencyID = "currencyID"
         static let dAppBrowser = "dAppBrowser"
         static let walletAddressesAlreadyPromptedForBackUp = "walletAddressesAlreadyPromptedForBackUp "
-        static let language = "language"
+        static let locale = "locale"
     }
 
     let defaults: UserDefaults
@@ -52,19 +52,19 @@ struct Config {
         set { defaults.set(newValue, forKey: Keys.chainID) }
     }
 
-    var language: String? {
-        get { return defaults.string(forKey: Keys.language) }
+    var locale: String? {
+        get { return defaults.string(forKey: Keys.locale) }
         set {
             let preferenceKeyForOverridingInAppLanguage = "AppleLanguages"
-            if let language = newValue {
-                defaults.set(newValue, forKey: Keys.language)
-                defaults.set([language], forKey: preferenceKeyForOverridingInAppLanguage)
+            if let locale = newValue {
+                defaults.set(newValue, forKey: Keys.locale)
+                defaults.set([locale], forKey: preferenceKeyForOverridingInAppLanguage)
             } else {
-                defaults.removeObject(forKey: Keys.language)
+                defaults.removeObject(forKey: Keys.locale)
                 defaults.removeObject(forKey: preferenceKeyForOverridingInAppLanguage)
             }
             defaults.synchronize()
-            LiveLanguageSwitcherBundle.switchLanguage(to: newValue)
+            LiveLocaleSwitcherBundle.switchLocale(to: newValue)
         }
     }
 
