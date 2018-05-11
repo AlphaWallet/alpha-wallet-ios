@@ -552,22 +552,26 @@ extension SendViewController: UITextFieldDelegate {
 }
 
 extension SendViewController: AddressTextFieldDelegate {
-    func displayError(error: Error, for: AddressTextField) {
+    func displayError(error: Error, for textField: AddressTextField) {
         displayError(error: error)
     }
 
-    func openQRCodeReader(for: AddressTextField) {
+    func openQRCodeReader(for textField: AddressTextField) {
         let controller = QRCodeReaderViewController()
         controller.delegate = self
         present(controller, animated: true, completion: nil)
     }
 
-    func didPaste(in: AddressTextField) {
+    func didPaste(in textField: AddressTextField) {
         activateAmountView()
     }
 
-    func shouldReturn(in: AddressTextField) -> Bool {
+    func shouldReturn(in textField: AddressTextField) -> Bool {
         activateAmountView()
+        return true
+    }
+
+    func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
         return true
     }
 }
