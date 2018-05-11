@@ -7,19 +7,20 @@
 
 import Foundation
 
-class AssetDefinitionXML {
-    
+class AssetDefinitionXML
+{
     // swiftlint:disable:next line_length
+    private static let xmlInputStream = InputStream(fileAtPath: "./contracts/AssetDefinition.xml")
     public static let assetDefinition = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<asset>\n" +
-    "  <contract>\n" +
-    "    <address type=\"issuing\">0x277b1318965030C62E1dAc9671a6F8dF77F855Cf</address>\n" +
-    "    <name lang=\"ru\">2018 Билеты</name>\n" +
-    "    <name lang=\"en\">2018 Tickets</name>\n" +
-    "    <name lang=\"zh\">2018承兑票</name>\n" +
-    "    <name lang=\"es\">Entradas de 2018</name>\n" +
-    "    <network>1</network> <!-- MAINNET -->\n" +
-    "  </contract>\n" +
+    "\t<contract type=\"issuing\">\n" +
+    "\t\t<address network=\"1\">0x277b1318965030C62E1dAc9671a6F8dF77F855Cf</address>\n" +
+    "\t\t<address network=\"3\">0x2cd6cbc60219b33161f1bf69fbd6c741ad980bba</address>\n" +
+    "\t\t<name lang=\"ru\">Билеты</name>\t  \n" +
+    "\t\t<name lang=\"en\">Tickets</name>\n" +
+    "\t\t<name lang=\"zh\">票</name>\n" +
+    "\t\t<name lang=\"es\">Entradas</name>\n" +
+    "\t</contract>\n" +
     "  <!-- consider metadata of tokens, e.g. quantifier in each languages -->\n" +
     "  <features>\n" +
     "    <feature bitmask=\"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF\">\n" +
@@ -29,7 +30,8 @@ class AssetDefinitionXML {
     "      <trade method=\"universal-link\" version=\"9\">\n" +
     "        <prefix>https://app.awallet.io/</prefix>\n" +
     "      </trade>\n" +
-    "      <feemaster>" + Constants.paymentServer + "</feemaster>\n" +
+    "      <!--<feemaster>http://feemaster.eastasia.cloudapp.azure.com:8080/api/claimToken</feemaster> http://stormbird.duckdns.org:8080/api/claimToken-->\n" +
+    "      <feemaster>http://stormbird.duckdns.org:8080/api/claimToken</feemaster>\n" +
     "      <redeem>\n" +
     "        <method name=\"QR\"/>\n" +
     "        <!--\n" +
@@ -161,6 +163,18 @@ class AssetDefinitionXML {
     "          <name lang=\"zh\">加里宁格勒</name>\n" +
     "          <name lang=\"es\">Kaliningrad</name>\n" +
     "        </entity>\n" +
+    "        <entity key=\"255\">\n" +
+    "          <name lang=\"ru\">Сидней</name>\n" +
+    "          <name lang=\"en\">Sydney</name>\n" +
+    "          <name lang=\"zh\">悉尼</name>\n" +
+    "          <name lang=\"es\">Sídney</name>\n" +
+    "        </entity>\n" +
+    "        <entity key=\"254\">\n" +
+    "          <name lang=\"ru\">Сингапур</name>\n" +
+    "          <name lang=\"en\">Singapore</name>\n" +
+    "          <name lang=\"zh\">新加坡</name>\n" +
+    "          <name lang=\"es\">Singapur</name>\n" +
+    "        </entity>\n" +
     "      </mapping>\n" +
     "    </field>\n" +
     "    <field bitmask=\"0000000000000000000000000000000000FF0000000000000000000000000000\" id=\"venue\"\n" +
@@ -242,6 +256,11 @@ class AssetDefinitionXML {
     "          <name lang=\"zh\">莫爾多維亞體育場</name>\n" +
     "          <name lang=\"es\">Mordovia Arena</name>\n" +
     "        </entity>\n" +
+    "        <entity key=\"255\">\n" +
+    "          <name lang=\"en\">UNSW Michael Crouch Innovation Center</name>\n" +
+    "          <name lang=\"zh\">新南威尔大学Michael Crouch创新中心</name>\n" +
+    "          <name lang=\"es\">Centro de Innovación de Michael Crouch UNSW</name>\n" +
+    "        </entity>\n" +
     "      </mapping>\n" +
     "    </field>\n" +
     "    <field bitmask=\"000000000000000000000000000000000000FFFFFFFF00000000000000000000\" id=\"time\"\n" +
@@ -253,6 +272,10 @@ class AssetDefinitionXML {
     "    </field>\n" +
     "    <field bitmask=\"00000000000000000000000000000000000000000000FFFFFF00000000000000\" id=\"countryA\"\n" +
     "\t   type=\"IA5String\">\n" +
+    "      <!-- Intentionally avoid using countryName\n" +
+    "\t   (SYNTAX 1.3.6.1.4.1.1466.115.121.1.11) per RFC 4519\n" +
+    "           CountryName is two-characters long, not 3-characters.\n" +
+    "\t   -->\n" +
     "      <name lang=\"en\">Team A</name>\n" +
     "      <name lang=\"zh\">甲队</name>\n" +
     "      <name lang=\"es\">Equipo A</name>\n" +
@@ -270,10 +293,32 @@ class AssetDefinitionXML {
     "      <name lang=\"es\">Evento</name>\n" +
     "    </field>\n" +
     "    <field bitmask=\"0000000000000000000000000000000000000000000000000000000000FF0000\" id=\"category\"\n" +
-    "\t   type=\"Integer\">\n" +
+    "\t   type=\"Enumeration\">\n" +
     "      <name lang=\"en\">Cat</name>\n" +
     "      <name lang=\"zh\">等级</name>\n" +
     "      <name lang=\"es\">Cat</name>\n" +
+    "      <mapping>\n" +
+    "        <entity key=\"1\">\n" +
+    "          <name lang=\"en\">FIFA VIP</name>\n" +
+    "          <name lang=\"zh\">世界杯VIP</name>\n" +
+    "        </entity>\n" +
+    "        <entity key=\"2\">\n" +
+    "          <name lang=\"en\">FIFA Group VIP</name>\n" +
+    "          <name lang=\"zh\">世界杯团票VIP</name>\n" +
+    "        </entity>\n" +
+    "        <entity key=\"3\">\n" +
+    "          <name lang=\"en\">FIFA 2018</name>\n" +
+    "          <name lang=\"zh\">2018世界杯</name>\n" +
+    "        </entity>\n" +
+    "        <entity key=\"255\">\n" +
+    "          <name lang=\"en\">Singapore Unnamed Workshop</name>\n" +
+    "          <name lang=\"zh\">新加坡一个还没取名字的活动</name>\n" +
+    "        </entity>\n" +
+    "\t<entity key=\"254\">\n" +
+    "          <name lang=\"en\">Beijing Unnamed Workshop</name>\n" +
+    "          <name lang=\"zh\">北京一个还没取名字的活动</name>\n" +
+    "        </entity>\n" +
+    "      </mapping>\n" +
     "    </field>\n" +
     "    <field bitmask=\"000000000000000000000000000000000000000000000000000000000000FFFF\" id=\"number\"\n" +
     "\t   type=\"Integer\">\n" +
@@ -283,5 +328,4 @@ class AssetDefinitionXML {
     "    </field>\n" +
     "  </fields>\n" +
     "</asset>"
-    
 }

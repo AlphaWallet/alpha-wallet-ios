@@ -8,6 +8,7 @@
 import Foundation
 import SwiftyXMLParser
 import BigInt
+import TrustKeystore
 
 public class XMLHandler {
 
@@ -42,6 +43,17 @@ public class XMLHandler {
                 countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
                 countryB: String(data: Data(bytes: countryB), encoding: .utf8)!
         )
+    }
+
+    func getAddressFromXML(chainId: Int) -> Address {
+        var contract = 0
+        if chainId != 1 {
+            contract = 1 //ropsten
+        }
+        if let address = xml["asset"]["contract"]["address"][contract].text {
+            return Address(string: address)!
+        }
+        return Address(string: "0x000000000000000000000000000000000000dEaD")!
     }
 
     func getName(lang: Int) -> String {
