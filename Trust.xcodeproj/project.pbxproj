@@ -340,6 +340,7 @@
 		5E7C78F1D29280E3FF4EAF5E /* RoundedBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75918317E13AD540DCA7 /* RoundedBackground.swift */; };
 		5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7103135DCCCAB96EE5FC /* OnboardingPage.swift */; };
 		5E7C798E5F5EE00D405B91AE /* TicketRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7ACB94CEE493AC37487F /* TicketRowView.swift */; };
+		5E7C79D78AA5E774119BE49B /* TextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CFDE7DEA8C06C4100AF /* TextField.swift */; };
 		5E7C79F30A324D75DF42DDDE /* SellTicketsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EB14E787BC019660389 /* SellTicketsViewModel.swift */; };
 		5E7C7A4384A8E3F22D3F8249 /* SetSellTicketsExpiryDateViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C700CD3E43689E88FBE9B /* SetSellTicketsExpiryDateViewControllerViewModel.swift */; };
 		5E7C7AB2ECFB589632F2A26C /* WalletFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E2DCCE0D775ECF83088 /* WalletFilter.swift */; };
@@ -875,6 +876,7 @@
 		5E7C7C077372C3F2A4349FA1 /* TokenViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenViewCell.swift; sourceTree = "<group>"; };
 		5E7C7C58586099F082973073 /* WalletFilterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletFilterView.swift; sourceTree = "<group>"; };
 		5E7C7CD7ABB18C1121D5776F /* LiveLocaleSwitcherBundle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiveLocaleSwitcherBundle.swift; sourceTree = "<group>"; };
+		5E7C7CFDE7DEA8C06C4100AF /* TextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
 		5E7C7D2AAB777BF35B8B56BD /* AlphaWalletSettingPushRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AlphaWalletSettingPushRow.swift; path = Views/AlphaWalletSettingPushRow.swift; sourceTree = "<group>"; };
 		5E7C7D46C7CABC31A7477F37 /* GenerateTransferMagicLinkViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenerateTransferMagicLinkViewController.swift; sourceTree = "<group>"; };
 		5E7C7D4F7C566EDD30EF1C19 /* HowDoITransferETHIntoMyWalletInfoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HowDoITransferETHIntoMyWalletInfoViewController.swift; sourceTree = "<group>"; };
@@ -1638,6 +1640,7 @@
 				5E7C7EE374A74F2B00013C18 /* EthTokenViewCell.swift */,
 				5E7C70CC85B337061151724E /* ImportWalletHelpBubbleView.swift */,
 				5E7C7F5C10E3895E805EA7E0 /* BaseTicketTableViewCell.swift */,
+				5E7C7CFDE7DEA8C06C4100AF /* TextField.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3627,6 +3630,7 @@
 				5E7C78F1D29280E3FF4EAF5E /* RoundedBackground.swift in Sources */,
 				5E7C7E68425E20834B898D06 /* AppLocale.swift in Sources */,
 				5E7C7488D5CAE24B7462815A /* LiveLocaleSwitcherBundle.swift in Sources */,
+				5E7C79D78AA5E774119BE49B /* TextField.swift in Sources */,
 				5E7C7788984F7ADCFE5B4DE0 /* AddressTextField.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

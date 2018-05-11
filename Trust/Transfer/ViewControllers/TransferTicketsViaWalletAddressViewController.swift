@@ -156,22 +156,26 @@ extension TransferTicketsViaWalletAddressViewController: QRCodeReaderDelegate {
 }
 
 extension TransferTicketsViaWalletAddressViewController: AddressTextFieldDelegate {
-    func displayError(error: Error, for: AddressTextField) {
+    func displayError(error: Error, for textField: AddressTextField) {
         displayError(error: error)
     }
 
-    func openQRCodeReader(for: AddressTextField) {
+    func openQRCodeReader(for textField: AddressTextField) {
         let controller = QRCodeReaderViewController()
         controller.delegate = self
         present(controller, animated: true, completion: nil)
     }
 
-    func didPaste(in: AddressTextField) {
+    func didPaste(in textField: AddressTextField) {
         //Do nothing
     }
 
-    func shouldReturn(in: AddressTextField) -> Bool{
+    func shouldReturn(in textField: AddressTextField) -> Bool{
         view.endEditing(true)
+        return true
+    }
+
+    func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
         return true
     }
 }

@@ -18,8 +18,16 @@ extension UIViewController {
         present(alertController, animated: true, completion: nil)
     }
 
-    func displayError(error: Error) {
-        let alertController = UIAlertController(title: error.prettyError, message: "", preferredStyle: UIAlertControllerStyle.alert)
+    func displayError(title: String = "", error: Error) {
+        var title = title
+        let message: String
+        if title.isEmpty {
+            title = error.prettyError
+            message = ""
+        } else {
+            message = error.prettyError
+        }
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
         alertController.popoverPresentationController?.sourceView = self.view
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: UIAlertActionStyle.default, handler: nil))
         present(alertController, animated: true, completion: nil)
