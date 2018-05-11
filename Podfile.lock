@@ -5,9 +5,6 @@ PODS:
   - BigInt (3.0.1):
     - SipHash (~> 1.2)
   - BonMot (5.0)
-  - Branch (0.22.5):
-    - Branch/Core (= 0.22.5)
-  - Branch/Core (0.22.5)
   - Crashlytics (3.9.3):
     - Fabric (~> 1.7.2)
   - CryptoSwift (0.8.0)
@@ -55,7 +52,6 @@ DEPENDENCIES:
   - APIKit
   - BigInt (~> 3.0)
   - BonMot (~> 5.0)
-  - Branch
   - Crashlytics
   - CryptoSwift (from `https://github.com/krzyzanowskim/CryptoSwift`, branch `master`)
   - Eureka (~> 4.0.1)
@@ -115,7 +111,6 @@ SPEC CHECKSUMS:
   APIKit: 7460983f490d3bde6aaaaa4164d18c9865a6f91d
   BigInt: 8e8a52161c745cd3ab78e3dc346a9fbee51e6cf6
   BonMot: 3ff354572f2aa9295d3760947f7578490cb810be
-  Branch: 4f0482418d99e77d15b0e6065ef216c10e24797b
   Crashlytics: dbb07d01876c171c5ccbdf7826410380189e452c
   CryptoSwift: 475ae2a25439f52412686d68b854c0ca724c8dfd
   Eureka: c8bd5cc07143b6f66268c208d28a246c99b41955
@@ -144,6 +139,6 @@ SPEC CHECKSUMS:
   TrezorCrypto: 7f87a2296cf13872b21565c29fd9f7882dd00803
   TrustKeystore: 381590c561f58fe0948abbd9cb626cbc08d75ff8
 
-PODFILE CHECKSUM: caca540a69e277efe6ea84cc65721152f15ab2cd
+PODFILE CHECKSUM: 2916ffb41916af3ff3821d88b959c1d6c417623c
 
 COCOAPODS: 1.3.1
