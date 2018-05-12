@@ -22,8 +22,6 @@ target 'AlphaWallet' do
   pod 'Moya', '~> 10.0.1'
   pod 'JavaScriptKit'
   pod 'CryptoSwift', :git=>'https://github.com/krzyzanowskim/CryptoSwift', :branch=>'master'
-  pod 'Fabric'
-  pod 'Crashlytics'
   pod 'SwiftyXMLParser', :git => 'https://github.com/yahoojapan/SwiftyXMLParser.git'
   pod 'Kingfisher', '~> 4.0'
   pod 'TrustKeystore', :git=>'https://github.com/alpha-wallet/trust-keystore-snapshot', :branch=>'master'
