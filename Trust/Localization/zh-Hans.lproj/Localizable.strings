@@ -56,7 +56,7 @@
 "transactions.noTransactions.label.title" = "暂无记录";
 "wallet.navigation.title" = "钱包";
 "wallets.backup.alertSheet.title" = "备份 Keystore";
-"transactions.tabbar.item.title" = "交易";
+"transactions.tabbar.item.title" = "我的账单";
 "transaction.navigation.title" = "交易";
 "import.navigation.title" = "导入钱包";
 "configureTransaction.data.label.title" = "交易数据(可选)";

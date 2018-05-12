@@ -24,10 +24,6 @@ class TransactionsViewController: UIViewController {
     let tableView = UITableView(frame: .zero, style: .plain)
     let refreshControl = UIRefreshControl()
 
-    lazy var titleView: BalanceTitleView = {
-        return BalanceTitleView.make(from: self.session, .ether(destination: .none))
-    }()
-
     weak var delegate: TransactionsViewControllerDelegate?
     let dataCoordinator: TransactionDataCoordinator
     let session: WalletSession
@@ -65,6 +61,8 @@ class TransactionsViewController: UIViewController {
         self.viewModel = viewModel
         self.tokensStorage = tokensStorage
         super.init(nibName: nil, bundle: nil)
+
+        title = R.string.localizable.transactionsTabbarItemTitle()
 
         tokensStorage.updatePrices()
         view.backgroundColor = viewModel.backgroundColor
@@ -130,9 +128,6 @@ class TransactionsViewController: UIViewController {
             view.isDepositAvailable = viewModel.isBuyActionAvailable
             return view
         }()
-
-        navigationItem.titleView = titleView
-        titleView.viewModel = BalanceViewModel()
     }
 
     override func viewWillAppear(_ animated: Bool) {
