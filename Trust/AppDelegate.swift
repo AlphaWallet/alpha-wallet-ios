@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 import UIKit
 import Lokalise
-import Branch
 import RealmSwift
 
 @UIApplicationMain
@@ -28,11 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         }
         protectionCoordinator.didFinishLaunchingWithOptions()
 
-        Branch.getInstance().initSession(launchOptions: launchOptions, andRegisterDeepLinkHandler: {params, error in
-            if error == nil {
-                print("params: %@", params as? [String: AnyObject] ?? {})
-            }
-        })
         return true
     }
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
@@ -63,16 +57,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     // Respond to URI scheme links
     func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
-        let branchHandled = Branch.getInstance().application(application,
-                                                             open: url,
-                                                             sourceApplication: sourceApplication,
-                                                             annotation: annotation
-        )
-        if !branchHandled {
-            // If not handled by Branch, do other deep link routing for the Facebook SDK, Pinterest SDK, etc
-
-        }
-        // do other deep link routing for the Facebook SDK, Pinterest SDK, etc
         return true
     }
 
@@ -81,8 +65,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                      continue userActivity: NSUserActivity,
                      restorationHandler: @escaping ([Any]?) -> Void) -> Bool
     {
-        Branch.getInstance().continue(userActivity)
-
         let url = userActivity.webpageURL
 		universalLinkCoordinator = UniversalLinkCoordinator()
         universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
