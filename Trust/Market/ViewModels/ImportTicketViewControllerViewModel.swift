@@ -98,7 +98,6 @@ struct ImportTicketViewControllerViewModel {
         if case let .validating = state {
             return ""
         } else {
-            //TODO Should format be localized?
             return ticketHolder.date.format("hh:mm")
         }
     }
@@ -126,7 +125,6 @@ struct ImportTicketViewControllerViewModel {
         if case let .validating = state {
             return ""
         } else {
-            //TODO Should format be localized?
             return ticketHolder.date.format("dd MMM yyyy")
         }
     }
