@@ -131,17 +131,16 @@ struct Config {
     }
 
     //TODO better to have a ERC875Token type instead
-    func createDefaultTicketToken() -> ERC20Token? {
+    func createDefaultTicketToken() -> ERCToken? {
         let xmlHandler = XMLHandler()
         let lang = xmlHandler.getLang()
         let contractAddress = xmlHandler.getAddressFromXML(chainId: Config().chainID)
         let name = xmlHandler.getName(lang: lang)
-        //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in
-        //}
+        //TODO get symbol from RPC node
+        //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
         switch server {
         case .main:
-            //TODO get contract details for placeholder boxes from the contract
-            return ERC20Token(
+            return ERCToken(
                     contract: contractAddress,
                     name: name,
                     symbol: "TICK",
@@ -150,7 +149,7 @@ struct Config {
                     balance: []
             )
         case .ropsten:
-            return ERC20Token(
+            return ERCToken(
                     contract: contractAddress,
                     name: name,
                     symbol: "TICK",
