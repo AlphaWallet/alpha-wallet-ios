@@ -40,8 +40,8 @@ public class XMLHandler {
                 date: Date(timeIntervalSince1970: TimeInterval(time)),
                 seatId: number,
                 category: category,
-                countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
-                countryB: String(data: Data(bytes: countryB), encoding: .utf8)!
+                countryA: String(data: Data(bytes: countryA), encoding: .utf8) ?? "TBD",
+                countryB: String(data: Data(bytes: countryB), encoding: .utf8) ?? "TBD"
         )
     }
 
