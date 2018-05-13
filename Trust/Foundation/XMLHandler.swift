@@ -14,18 +14,6 @@ public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML().assetDefinitionString)
 
-    private func formatDateToMoscow(_ timestamp: Int) -> Date {
-        let formatter = DateFormatter()
-        formatter.timeZone = TimeZone(secondsFromGMT: 10800)
-        formatter.dateFormat = "dd/MM/yyyy hh:mm:ss a"
-        let unFormattedDate = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        let dateString = formatter.string(from: unFormattedDate)
-        if let date = Date(string: dateString, format: "dd/MM/yyyy hh:mm:ss a") {
-            return date
-        }
-        return unFormattedDate
-    }
-
     //TODO remove once parser is properly dynamic
     public static func parseTicket(ticket: String) -> String
     {
@@ -58,6 +46,8 @@ public class XMLHandler {
         let match = Int(tokenHex.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16) ?? 0
         let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16) ?? 0
         let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16) ?? 0
+        //TODO derive/extract from XML
+        let timeZoneIdentifier = Constants.eventTimeZone
 
         return Ticket(
                 id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
@@ -66,11 +56,12 @@ public class XMLHandler {
                 name: getName(lang: lang),
                 venue: venue,
                 match: match,
-                date: formatDateToMoscow(time),
+                date: Date(timeIntervalSince1970: TimeInterval(time)),
                 seatId: number,
                 category: getCategory(category, lang: lang),
                 countryA: countryAString,
-                countryB: countryBString
+                countryB: countryBString,
+                timeZoneIdentifier: timeZoneIdentifier
         )
     }
 
