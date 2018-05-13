@@ -89,8 +89,8 @@ class GenerateSellMagicLinkViewController: UIViewController {
             actionButton.heightAnchor.constraint(equalToConstant: 47),
             cancelButton.heightAnchor.constraint(equalTo: actionButton.heightAnchor),
 
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 40),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -40),
+            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 30),
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -30),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -16),
 
