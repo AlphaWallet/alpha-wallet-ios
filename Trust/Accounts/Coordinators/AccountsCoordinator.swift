@@ -57,7 +57,8 @@ class AccountsCoordinator: Coordinator {
                 message: nil,
                 alertButtonTitles: [R.string.localizable.walletCreateButtonTitle(), R.string.localizable.walletImportButtonTitle(), R.string.localizable.cancel()],
                 alertButtonStyles: [.default, .default, .cancel],
-                viewController: navigationController) { index in
+                viewController: navigationController,
+                preferredStyle: .actionSheet) { index in
 			        if index == 0 {
                         self.showCreateWallet()
                     } else if index == 1 {
