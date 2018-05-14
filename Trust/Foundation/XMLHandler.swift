@@ -40,6 +40,8 @@ public class XMLHandler {
         //translatable to ascii
         let countryA = tokenHex.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
         let countryB = tokenHex.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
+        let countryAString = String(data: Data(bytes: countryA), encoding: .utf8) ?? "TBD"
+        let countryBString = String(data: Data(bytes: countryB), encoding: .utf8) ?? "TBD"
         let match = Int(tokenHex.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16) ?? 0
         let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16) ?? 0
         let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16) ?? 0
@@ -54,20 +56,24 @@ public class XMLHandler {
                 date: formatDateToMoscow(time),
                 seatId: number,
                 category: category,
-                countryA: String(data: Data(bytes: countryA), encoding: .utf8) ?? "TBD",
-                countryB: String(data: Data(bytes: countryB), encoding: .utf8) ?? "TBD"
+                countryA: countryAString,
+                countryB: countryBString
         )
     }
 
-    func getAddressFromXML(chainId: Int) -> Address {
-        var contract = 0
-        if chainId != 1 {
-            contract = 1 //ropsten
+    func getAddressFromXML(server: RPCServer) -> Address {
+        if server == .ropsten {
+            if let address = xml["asset"]["contract"]["address"][1].text {
+                return Address(string: address)!
+            }
         }
-        if let address = xml["asset"]["contract"]["address"][contract].text {
-            return Address(string: address)!
+        else
+        {
+            if let address = xml["asset"]["contract"]["address"][0].text {
+                return Address(string: address)!
+            }
         }
-        return Address(string: "0x000000000000000000000000000000000000dEaD")!
+        return Address(string: Constants.burnAddressString)!
     }
 
     func getName(lang: Int) -> String {
