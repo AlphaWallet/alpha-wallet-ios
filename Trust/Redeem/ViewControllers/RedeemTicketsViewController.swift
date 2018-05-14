@@ -108,9 +108,7 @@ class RedeemTicketsViewController: UIViewController {
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
-        tableView.reloadRows(at: indexPaths, with: .automatic)
-        tableView.beginUpdates()
-        tableView.endUpdates()
+        tableView.reloadData()
     }
 }
 
