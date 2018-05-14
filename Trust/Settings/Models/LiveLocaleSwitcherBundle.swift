@@ -15,7 +15,8 @@ class LiveLocaleSwitcherBundle: Bundle {
     }
 
     override func url(forResource name: String?, withExtension ext: String?) -> URL? {
-        if let languageBundle = objc_getAssociatedObject(self, &liveLocaleSwitcherBundleKey) as? Bundle {
+        //We want to match "html", but exclude "nib" (for "xib"). Safe to whitelist instead of blacklist
+        if ext == "html", let languageBundle = objc_getAssociatedObject(self, &liveLocaleSwitcherBundleKey) as? Bundle {
             return languageBundle.url(forResource: name, withExtension: ext)
         } else {
             return super.url(forResource: name, withExtension: ext)
