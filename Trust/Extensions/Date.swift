@@ -44,6 +44,6 @@ public extension Date {
     }
 
     public func formatAsShortDateString() -> String {
-        return format("dd MMM")
+        return format("dd MMM yyyy")
     }
 }
