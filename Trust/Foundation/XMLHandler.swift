@@ -22,7 +22,7 @@ public class XMLHandler {
         let unFormattedDate = Date(timeIntervalSince1970: TimeInterval(timestamp))
         let dateString = formatter.string(from: unFormattedDate)
         if let date = Date(string: dateString, format: "dd/MM/yyyy hh:mm:ss a") {
-            return date;
+            return date
         }
         return unFormattedDate
     }
