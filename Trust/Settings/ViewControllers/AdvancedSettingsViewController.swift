@@ -87,7 +87,7 @@ class AdvancedSettingsViewController: FormViewController {
             }
         }.onChange {[weak self] row in
             self?.config.locale = row.value?.id
-            self?.run(action: .RPCServer)
+            self?.run(action: .locale)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
             cell.imageView?.image = R.image.settings_language()?.withRenderingMode(.alwaysTemplate)

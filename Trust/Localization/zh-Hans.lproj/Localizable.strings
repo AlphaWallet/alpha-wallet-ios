@@ -56,7 +56,7 @@
 "transactions.noTransactions.label.title" = "暂无记录";
 "wallet.navigation.title" = "钱包";
 "wallets.backup.alertSheet.title" = "备份 Keystore";
-"transactions.tabbar.item.title" = "交易";
+"transactions.tabbar.item.title" = "我的账单";
 "transaction.navigation.title" = "交易";
 "import.navigation.title" = "导入钱包";
 "configureTransaction.data.label.title" = "交易数据(可选)";
@@ -112,7 +112,6 @@
 "wallet.import.button.title" = "导入钱包";
 "browser.home.button.title" = "主页";
 "browser.reload.button.title" = "刷新";
-"wallet.import.subtitle" = "导入钱包与创建一样简单";
 "configureTransaction.gasPriceGwei.label.title" = "Gas费用 (Gwei)";
 "enterPassword.confirmPassword.textField.placeholder" = "确认密码";
 "enterPassword.navigation.title" = "备份密码";
