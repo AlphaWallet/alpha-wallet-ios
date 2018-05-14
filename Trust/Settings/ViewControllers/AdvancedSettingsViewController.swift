@@ -28,6 +28,7 @@ class AdvancedSettingsViewController: FormViewController {
         super.viewDidLoad()
 
         view.backgroundColor = Colors.appBackground
+        tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appBackground
 
         navigationItem.title = viewModel.title
