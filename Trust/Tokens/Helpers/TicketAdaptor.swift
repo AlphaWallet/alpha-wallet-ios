@@ -25,7 +25,9 @@ class TicketAdaptor {
             if id == "0x0000000000000000000000000000000000000000000000000000000000000000" { // if balance is 0, then skip
                 continue
             }
-            let ticket = getTicket(for: BigUInt(id.substring(from: 2), radix: 16)!, index: UInt16(index), in: token)
+            //TODO shouldn't have to do this when parser is dynamic
+            let ticketData = id.substring(from: 2)
+            let ticket = getTicket(for: BigUInt(ticketData.substring(from: 32), radix: 16)!, index: UInt16(index), in: token)
             tickets.append(ticket)
         }
 

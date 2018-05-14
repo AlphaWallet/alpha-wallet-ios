@@ -6,7 +6,7 @@ import Eureka
 import QRCodeReaderViewController
 
 protocol NewTokenViewControllerDelegate: class {
-    func didAddToken(token: ERC20Token, in viewController: NewTokenViewController)
+    func didAddToken(token: ERCToken, in viewController: NewTokenViewController)
     func didAddAddress(address: String, in viewController: NewTokenViewController)
 }
 
@@ -253,7 +253,7 @@ class NewTokenViewController: UIViewController {
             balance.append("0")
         }
 
-        let erc20Token = ERC20Token(
+        let erc20Token = ERCToken(
             contract: address,
             name: name,
             symbol: symbol,
