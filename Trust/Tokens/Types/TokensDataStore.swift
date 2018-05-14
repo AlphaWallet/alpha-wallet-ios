@@ -239,7 +239,7 @@ class TokensDataStore {
         delegate?.didUpdate(result: .failure(TokenError.failedToFetch))
     }
 
-    func addCustom(token: ERC20Token) {
+    func addCustom(token: ERCToken) {
         let newToken = TokenObject(
             contract: token.contract.description,
             name: token.name,

@@ -149,7 +149,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 }
 
 extension TokensCoordinator: NewTokenViewControllerDelegate {
-    func didAddToken(token: ERC20Token, in viewController: NewTokenViewController) {
+    func didAddToken(token: ERCToken, in viewController: NewTokenViewController) {
         storage.addCustom(token: token)
         tokensViewController.fetch()
         dismiss()
