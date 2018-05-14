@@ -9,10 +9,13 @@ protocol AccountsViewControllerDelegate: class {
     func didSelectInfoForAccount(account: Wallet, sender: UIView, in viewController: AccountsViewController)
 }
 
-class AccountsViewController: UITableViewController {
+class AccountsViewController: UIViewController {
+    let headerHeight = CGFloat(70)
     weak var delegate: AccountsViewControllerDelegate?
     var allowsAccountDeletion: Bool = false
-    var headerTitle: String?
+    let roundedBackground = RoundedBackground()
+    let header = TicketsViewControllerTitleHeader()
+    let tableView = UITableView(frame: .zero, style: .plain)
     var viewModel: AccountsViewModel {
         return AccountsViewModel(
             wallets: wallets
@@ -30,21 +33,41 @@ class AccountsViewController: UITableViewController {
     private var balances: [Address: Balance?] = [:]
     private let keystore: Keystore
     private let balanceCoordinator: GetBalanceCoordinator
+
     init(
         keystore: Keystore,
         balanceCoordinator: GetBalanceCoordinator
     ) {
         self.keystore = keystore
         self.balanceCoordinator = balanceCoordinator
-        super.init(style: .grouped)
+        super.init(nibName: nil, bundle: nil)
+
+        view.backgroundColor = Colors.appBackground
+
+        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(roundedBackground)
+
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.delegate = self
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = Colors.appWhite
+        tableView.rowHeight = 80
+        tableView.tableHeaderView = header
+        tableView.register(AccountViewCell.self, forCellReuseIdentifier: AccountViewCell.identifier)
+        roundedBackground.addSubview(tableView)
+
+        NSLayoutConstraint.activate([
+            header.heightAnchor.constraint(equalToConstant: headerHeight),
+
+            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
+
         fetch()
     }
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.estimatedRowHeight = 55
-        tableView.register(R.nib.accountViewCell(), forCellReuseIdentifier: R.nib.accountViewCell.name)
-    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         fetch()
@@ -54,36 +77,13 @@ class AccountsViewController: UITableViewController {
         wallets = keystore.wallets
     }
     func configure(viewModel: AccountsViewModel) {
-        title = headerTitle ?? viewModel.title
+        tableView.dataSource = self
+        header.configure(title: viewModel.title)
+        header.frame.size.height = headerHeight
+        tableView.tableHeaderView = header
     }
     func account(for indexPath: IndexPath) -> Wallet {
         return viewModel.wallets[indexPath.row]
-    }
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.wallets.count
-    }
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = self.tableView.dequeueReusableCell(withIdentifier: R.nib.accountViewCell.name, for: indexPath) as! AccountViewCell
-        cell.viewModel = getAccountViewModels(for: indexPath)
-        cell.delegate = self
-        return cell
-    }
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return allowsAccountDeletion && (EtherKeystore.current != viewModel.wallets[indexPath.row] || viewModel.wallets.count == 1)
-    }
-    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == UITableViewCellEditingStyle.delete {
-            let account = self.account(for: indexPath)
-            confirmDelete(account: account)
-        }
-    }
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let account = self.account(for: indexPath)
-        delegate?.didSelectAccount(account: account, in: self)
     }
     func confirmDelete(account: Wallet) {
         confirm(
@@ -136,6 +136,43 @@ class AccountsViewController: UITableViewController {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
+extension AccountsViewController: UITableViewDelegate, UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return viewModel.wallets.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: AccountViewCell.identifier, for: indexPath) as! AccountViewCell
+        let cellViewModel = getAccountViewModels(for: indexPath)
+        cell.configure(viewModel: cellViewModel)
+        cell.account = cellViewModel.wallet
+        cell.delegate = self
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return allowsAccountDeletion && (EtherKeystore.current != viewModel.wallets[indexPath.row] || viewModel.wallets.count == 1)
+    }
+
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == UITableViewCellEditingStyle.delete {
+            let account = self.account(for: indexPath)
+            confirmDelete(account: account)
+        }
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        let account = self.account(for: indexPath)
+        delegate?.didSelectAccount(account: account, in: self)
+    }
+}
+
 extension AccountsViewController: AccountViewCellDelegate {
     func accountViewCell(_ cell: AccountViewCell, didTapInfoViewForAccount account: Wallet) {
         self.delegate?.didSelectInfoForAccount(account: account, sender: cell.infoButton, in: self)
