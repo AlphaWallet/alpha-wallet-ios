@@ -11,7 +11,7 @@ import Foundation
 class AssetDefinitionXML {
     private static let xmlInputStream = InputStream(fileAtPath: "./contracts/AssetDefinition.xml")
     // swiftlint:disable:this
-    public static let assetDefinition =     "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><asset><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
+    public static let assetDefinition = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><asset><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
     "<ds:SignedInfo>\n" +
     "<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>\n" +
     "<ds:SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256\"/>\n" +

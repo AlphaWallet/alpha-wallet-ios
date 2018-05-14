@@ -22,13 +22,14 @@ public class XMLHandler {
         let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
         let location = getLocality(attribute: tokenHex.substring(to: 2), lang: lang)
         let venue = getVenue(attribute: tokenHex.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
-        let time = Int(tokenHex.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)!
+        let time = Int(tokenHex.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)
+                ?? Int(Date.tomorrow.timeIntervalSince1970.rounded(to: 0))
         //translatable to ascii
         let countryA = tokenHex.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
         let countryB = tokenHex.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
-        let match = Int(tokenHex.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16)!
-        let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16)!
-        let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16)!
+        let match = Int(tokenHex.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16) ?? 0
+        let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16) ?? 0
+        let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16) ?? 0
 
         return Ticket(
                 id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
@@ -78,7 +79,7 @@ public class XMLHandler {
     }
 
     func getLocality(attribute: String, lang: Int) -> String {
-        //TODO find out why - 1
+        //entity keys start at 1 but xml finder starts at 0, hence -1
         let locality = Int(attribute, radix: 16)! - 1
         if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][locality]["name"][lang].text {
             return parsedLocality
@@ -87,7 +88,7 @@ public class XMLHandler {
     }
 
     func getVenue(attribute: String, lang: Int) -> String {
-        let venueNumber = Int(attribute, radix: 16)!
+        let venueNumber = Int(attribute, radix: 16)! - 1
         if let parsedVenue = xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber]["name"][lang].text {
             return parsedVenue
         }
