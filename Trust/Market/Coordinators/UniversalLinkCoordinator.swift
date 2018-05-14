@@ -221,7 +221,8 @@ class UniversalLinkCoordinator: Coordinator {
         var tickets = [Ticket]()
         let xmlHandler = XMLHandler()
         for i in 0...bytes32Tickets.count - 1 {
-            if let tokenId = BigUInt(bytes32Tickets[i], radix: 16) {
+            let ticket = bytes32Tickets[i]
+            if let tokenId = BigUInt(ticket, radix: 16) {
                 let ticket = xmlHandler.getFifaInfoForTicket(tokenId: tokenId, index: UInt16(i))
                 tickets.append(ticket)
             }

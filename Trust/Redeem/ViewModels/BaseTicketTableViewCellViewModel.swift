@@ -33,7 +33,7 @@ struct BaseTicketTableViewCellViewModel {
 
     var time: String {
         //TODO Should format be localized?
-        return ticketHolder.date.format("hh:mm")
+        return ticketHolder.date.format("h:mm a")
     }
 
     var teams: String {
