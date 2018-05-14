@@ -14,6 +14,19 @@ public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
 
+    private func formatDateToMoscow(_ timestamp: Int) -> Date
+    {
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone(secondsFromGMT: 10800)
+        formatter.dateFormat = "dd/MM/yyyy hh:mm:ss a"
+        let unFormattedDate = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let dateString = formatter.string(from: unFormattedDate)
+        if let date = Date(string: dateString, format: "dd/MM/yyyy hh:mm:ss a") {
+            return date;
+        }
+        return unFormattedDate
+    }
+
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
         //check if leading or trailing zeros
         let tokenId = tokenBytes32
@@ -38,7 +51,7 @@ public class XMLHandler {
                 name: getName(lang: lang),
                 venue: venue,
                 match: match,
-                date: Date(timeIntervalSince1970: TimeInterval(time)),
+                date: formatDateToMoscow(time),
                 seatId: number,
                 category: category,
                 countryA: String(data: Data(bytes: countryA), encoding: .utf8) ?? "TBD",
