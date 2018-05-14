@@ -52,6 +52,6 @@ struct TransferTicketsViaWalletAddressViewControllerViewModel {
     }
 
     var date: String {
-        return ticketHolder.date.formatAsShortDateString()
+        return ticketHolder.date.format("dd MMM YYYY")
     }
 }
