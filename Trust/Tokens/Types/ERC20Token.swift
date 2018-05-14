@@ -2,7 +2,7 @@
 
 import TrustKeystore
 
-struct ERC20Token {
+struct ERCToken {
     let contract: Address
     let name: String
     let symbol: String
