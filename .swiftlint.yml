@@ -30,9 +30,6 @@ line_length:
   error: 450
 large_tuple:
   warning: 4
-type_body_length:
-  warning: 450
-  error: 650
 function_body_length: 80
 file_length:
   warning: 600

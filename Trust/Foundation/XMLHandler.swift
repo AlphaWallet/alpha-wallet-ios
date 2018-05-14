@@ -8,10 +8,24 @@
 import Foundation
 import SwiftyXMLParser
 import BigInt
+import TrustKeystore
 
 public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
+
+    private func formatDateToMoscow(_ timestamp: Int) -> Date
+    {
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone(secondsFromGMT: 10800)
+        formatter.dateFormat = "dd/MM/yyyy hh:mm:ss a"
+        let unFormattedDate = Date(timeIntervalSince1970: TimeInterval(timestamp))
+        let dateString = formatter.string(from: unFormattedDate)
+        if let date = Date(string: dateString, format: "dd/MM/yyyy hh:mm:ss a") {
+            return date;
+        }
+        return unFormattedDate
+    }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
         //check if leading or trailing zeros
@@ -21,13 +35,16 @@ public class XMLHandler {
         let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
         let location = getLocality(attribute: tokenHex.substring(to: 2), lang: lang)
         let venue = getVenue(attribute: tokenHex.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
-        let time = Int(tokenHex.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)!
+        let time = Int(tokenHex.substring(with: Range(uncheckedBounds: (4, 12))), radix: 16)
+                ?? Int(Date.tomorrow.timeIntervalSince1970.rounded(to: 0))
         //translatable to ascii
         let countryA = tokenHex.substring(with: Range(uncheckedBounds: (12, 18))).hexa2Bytes
         let countryB = tokenHex.substring(with: Range(uncheckedBounds: (18, 24))).hexa2Bytes
-        let match = Int(tokenHex.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16)!
-        let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16)!
-        let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16)!
+        let countryAString = String(data: Data(bytes: countryA), encoding: .utf8) ?? "TBD"
+        let countryBString = String(data: Data(bytes: countryB), encoding: .utf8) ?? "TBD"
+        let match = Int(tokenHex.substring(with: Range(uncheckedBounds: (24, 26))), radix: 16) ?? 0
+        let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16) ?? 0
+        let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16) ?? 0
 
         return Ticket(
                 id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
@@ -36,12 +53,27 @@ public class XMLHandler {
                 name: getName(lang: lang),
                 venue: venue,
                 match: match,
-                date: Date(timeIntervalSince1970: TimeInterval(time)),
+                date: formatDateToMoscow(time),
                 seatId: number,
                 category: category,
-                countryA: String(data: Data(bytes: countryA), encoding: .utf8)!,
-                countryB: String(data: Data(bytes: countryB), encoding: .utf8)!
+                countryA: countryAString,
+                countryB: countryBString
         )
+    }
+
+    func getAddressFromXML(server: RPCServer) -> Address {
+        if server == .ropsten {
+            if let address = xml["asset"]["contract"]["address"][1].text {
+                return Address(string: address)!
+            }
+        }
+        else
+        {
+            if let address = xml["asset"]["contract"]["address"][0].text {
+                return Address(string: address)!
+            }
+        }
+        return Address(string: Constants.burnAddressString)!
     }
 
     func getName(lang: Int) -> String {
@@ -66,7 +98,7 @@ public class XMLHandler {
     }
 
     func getLocality(attribute: String, lang: Int) -> String {
-        //TODO find out why - 1
+        //entity keys start at 1 but xml finder starts at 0, hence -1
         let locality = Int(attribute, radix: 16)! - 1
         if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][locality]["name"][lang].text {
             return parsedLocality
@@ -75,7 +107,7 @@ public class XMLHandler {
     }
 
     func getVenue(attribute: String, lang: Int) -> String {
-        let venueNumber = Int(attribute, radix: 16)!
+        let venueNumber = Int(attribute, radix: 16)! - 1
         if let parsedVenue = xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber]["name"][lang].text {
             return parsedVenue
         }
