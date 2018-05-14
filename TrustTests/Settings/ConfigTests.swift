@@ -51,5 +51,17 @@ class ConfigTests: XCTestCase {
         //Must change this back to system, otherwise other tests will break either immediately or the next run
         config.locale = AppLocale.system.id
     }
-}
 
+    func testNibsAccessAfterSwitchingLocale() {
+        var config: Config = .make()
+
+        config.locale = AppLocale.english.id
+        config.locale = AppLocale.simplifiedChinese.id
+        let controller = AccountsViewController(keystore: FakeKeystore(), balanceCoordinator: FakeGetBalanceCoordinator())
+        let _ = controller.view
+        XCTAssertNoThrow(controller.tableView.dequeueReusableCell(withIdentifier: R.nib.accountViewCell.name, for: .init(row: 0, section: 0)))
+
+        //Must change this back to system, otherwise other tests will break either immediately or the next run
+        config.locale = AppLocale.system.id
+    }
+}
