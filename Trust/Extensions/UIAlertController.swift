@@ -36,12 +36,13 @@ extension UIAlertController {
                       alertButtonTitles: [String],
                       alertButtonStyles: [UIAlertActionStyle],
                       viewController: UIViewController,
+                      preferredStyle: UIAlertControllerStyle = .alert,
                       completion: ((Int) -> Void)?) {
 
         let alertController = UIAlertController(
                 title: title,
                 message: message,
-                preferredStyle: UIAlertControllerStyle.alert)
+                preferredStyle: preferredStyle)
 
         alertButtonTitles.forEach { title in
             let alertStyle: UIAlertActionStyle = alertButtonStyles[alertButtonTitles.index(of: title)!]
