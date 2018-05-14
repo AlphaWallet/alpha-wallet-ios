@@ -29,7 +29,7 @@ public struct Constants {
 
     // FIFA hardcoded FIFA token address. Look for "//FIFA" for relevant changes
     public static let ticketContractAddress = "0xDBc5934463Effb93a770C62EfeE4FeaeaF462ede"
-    public static let ticketContractAddressRopsten = "0x93C66a7D9DBBfbA24BfeaD49913Fcf444c3F52e5"
+    public static let ticketContractAddressRopsten = "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3"
     public static let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
     public static let event = "FIFA WC 2018"
