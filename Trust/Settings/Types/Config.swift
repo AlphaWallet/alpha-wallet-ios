@@ -130,11 +130,10 @@ struct Config {
         return createDefaultTicketToken()?.contract.eip55String
     }
 
-    //TODO better to have a ERC875Token type instead
     func createDefaultTicketToken() -> ERCToken? {
         let xmlHandler = XMLHandler()
         let lang = xmlHandler.getLang()
-        let contractAddress = xmlHandler.getAddressFromXML(chainId: Config().chainID)
+        let contractAddress = xmlHandler.getAddressFromXML(server: self.server)
         let name = xmlHandler.getName(lang: lang)
         //TODO get symbol from RPC node
         //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
