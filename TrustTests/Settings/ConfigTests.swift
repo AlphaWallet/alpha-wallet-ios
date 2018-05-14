@@ -28,5 +28,40 @@ class ConfigTests: XCTestCase {
 
         XCTAssertEqual(false, config.isCryptoPrimaryCurrency)
     }
-}
 
+    func testSwitchLocale() {
+        var config: Config = .make()
+
+        config.locale = AppLocale.english.id
+        let vc1 = TokensViewController(
+                session: .make(),
+                account: .make(),
+                dataStore: FakeTokensDataStore()
+        )
+        XCTAssertEqual(vc1.title, "Wallet")
+
+        config.locale = AppLocale.simplifiedChinese.id
+        let vc2 = TokensViewController(
+                session: .make(),
+                account: .make(),
+                dataStore: FakeTokensDataStore()
+        )
+        XCTAssertEqual(vc2.title, "我的钱包")
+
+        //Must change this back to system, otherwise other tests will break either immediately or the next run
+        config.locale = AppLocale.system.id
+    }
+
+    func testNibsAccessAfterSwitchingLocale() {
+        var config: Config = .make()
+
+        config.locale = AppLocale.english.id
+        config.locale = AppLocale.simplifiedChinese.id
+        let controller = AccountsViewController(keystore: FakeKeystore(), balanceCoordinator: FakeGetBalanceCoordinator())
+        let _ = controller.view
+        XCTAssertNoThrow(controller.tableView.dequeueReusableCell(withIdentifier: R.nib.accountViewCell.name, for: .init(row: 0, section: 0)))
+
+        //Must change this back to system, otherwise other tests will break either immediately or the next run
+        config.locale = AppLocale.system.id
+    }
+}
