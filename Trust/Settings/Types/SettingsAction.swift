@@ -8,6 +8,7 @@ enum AlphaWalletSettingsAction {
 	case notificationsSettings
 	case wallets
 	case RPCServer
+	case servers
 	case currency
 	case DAppsBrowser
 	case pushNotifications(enabled: Bool)

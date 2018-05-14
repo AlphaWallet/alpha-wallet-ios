@@ -178,6 +178,7 @@ class InCoordinator: Coordinator {
         tabBarController.viewControllers?.append(transactionCoordinator.navigationController)
 
         let alphaSettingsCoordinator = SettingsCoordinator(
+                config: config,
                 keystore: keystore,
                 session: session,
                 storage: transactionsStorage,
