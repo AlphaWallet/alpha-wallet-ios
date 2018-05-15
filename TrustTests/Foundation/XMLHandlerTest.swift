@@ -12,7 +12,7 @@ import BigInt
 
 class XMLHandlerTest: XCTestCase {
 
-    let tokenHex = "0x20b5b23fea00bd9860b43e604000000000000000000000000000000000000".substring(from: 2)
+    let tokenHex = "0x00000000000000000000000000000000fefe5ae99a3000000000000000010001".substring(from: 2)
     
     func testParser() {
         let fifaDetails = XMLHandler().getFifaInfoForTicket(
