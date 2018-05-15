@@ -105,6 +105,10 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
     func configure(viewModel: TransferTicketsViaWalletAddressViewControllerViewModel) {
         self.viewModel = viewModel
 
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
+
         view.backgroundColor = viewModel.backgroundColor
 
         header.configure(title: viewModel.headerTitle)

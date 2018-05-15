@@ -3,7 +3,7 @@
 import UIKit
 
 protocol TransferTicketsViewControllerDelegate: class {
-    func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: TransferTicketsViewController)
+    func didSelectTicketHolder(token: TokenObject, ticketHolder: TicketHolder, in viewController: TransferTicketsViewController)
     func didPressViewInfo(in viewController: TransferTicketsViewController)
 }
 
@@ -76,6 +76,10 @@ class TransferTicketsViewController: UIViewController {
         self.viewModel = viewModel
         tableView.dataSource = self
 
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
+
         header.configure(title: viewModel.title)
         tableView.tableHeaderView = header
 
@@ -95,7 +99,7 @@ class TransferTicketsViewController: UIViewController {
                                     viewController: self,
                                     completion: nil)
         } else {
-            self.delegate?.didSelectTicketHolder(ticketHolder: selectedTicketHolders!.first!, in: self)
+            self.delegate?.didSelectTicketHolder(token: viewModel.token, ticketHolder: selectedTicketHolders!.first!, in: self)
         }
     }
 

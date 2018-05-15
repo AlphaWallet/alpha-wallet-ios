@@ -5,6 +5,7 @@ import UIKit
 
 struct EnterSellTicketsPriceQuantityViewControllerViewModel {
 
+    var token: TokenObject
     var ticketHolder: TicketHolder
     var ethCost: String = "0"
     var dollarCost: String = ""
@@ -141,7 +142,8 @@ struct EnterSellTicketsPriceQuantityViewControllerViewModel {
         return dollarCost.trimmed.isEmpty
     }
 
-    init(ticketHolder: TicketHolder) {
+    init(token: TokenObject, ticketHolder: TicketHolder) {
+        self.token = token
         self.ticketHolder = ticketHolder
     }
 }

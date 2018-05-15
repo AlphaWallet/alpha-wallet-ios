@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 
 struct TicketRedemptionViewModel {
+    var token: TokenObject
     var ticketHolder: TicketHolder
 
     var headerTitle: String {

@@ -3,7 +3,7 @@
 import UIKit
 
 protocol TransferTicketsQuantitySelectionViewControllerDelegate: class {
-    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: TransferTicketsQuantitySelectionViewController)
+    func didSelectQuantity(token: TokenObject, ticketHolder: TicketHolder, in viewController: TransferTicketsQuantitySelectionViewController)
     func didPressViewInfo(in viewController: TransferTicketsQuantitySelectionViewController)
 }
 
@@ -101,7 +101,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
                                     viewController: self,
                                     completion: nil)
         } else {
-            delegate?.didSelectQuantity(ticketHolder: getTicketHolderFromQuantity(), in: self)
+            delegate?.didSelectQuantity(token: viewModel.token, ticketHolder: getTicketHolderFromQuantity(), in: self)
         }
     }
 
@@ -111,6 +111,10 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
 
     func configure(viewModel: TransferTicketsQuantitySelectionViewModel) {
         self.viewModel = viewModel
+
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
 
         view.backgroundColor = viewModel.backgroundColor
 
