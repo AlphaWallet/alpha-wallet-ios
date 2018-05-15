@@ -261,6 +261,10 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
 
         ticketView.categoryLabel.text = viewModel.category
 
+        ticketView.teamsLabel.text = viewModel.teams
+
+        ticketView.matchLabel.text = viewModel.match
+
         descriptionLabel.textAlignment = .center
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textColor = viewModel.descriptionLabelColor
