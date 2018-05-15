@@ -11,7 +11,7 @@ import Foundation
 class AssetDefinitionXML {
     private static let xmlInputStream = InputStream(fileAtPath: "./contracts/AssetDefinition.xml")
     // swiftlint:disable:this
-    public static let assetDefinition = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><asset><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
+    public static let assetDefinition =     "<?xml version=\"1.0\" encoding=\"UTF-8\"  standalone=\"no\"?><asset><ds:Signature xmlns:ds=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
     "<ds:SignedInfo>\n" +
     "<ds:CanonicalizationMethod Algorithm=\"http://www.w3.org/2001/10/xml-exc-c14n#\"/>\n" +
     "<ds:SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256\"/>\n" +
@@ -428,86 +428,103 @@ class AssetDefinitionXML {
     "          <name lang=\"es\">Mordovia Arena</name>\n" +
     "        </entity>\n" +
     "        <entity key=\"255\">\n" +
+    "\t  <name lang=\"ru\">UNSW Michael Crouch Innovation Center</name>\t\n" +
     "          <name lang=\"en\">UNSW Michael Crouch Innovation Center</name>\n" +
     "          <name lang=\"zh\">新南威尔大学Michael Crouch创新中心</name>\n" +
     "          <name lang=\"es\">Centro de Innovación de Michael Crouch UNSW</name>\n" +
     "        </entity>\n" +
     "\t  <entity key=\"254\">\n" +
+    "\t  <name lang=\"ru\">FOUR SEASONS HOTEL SHENZHEN</name>\t  \n" +
     "          <name lang=\"en\">FOUR SEASONS HOTEL SHENZHEN</name>\n" +
     "          <name lang=\"zh\">深圳四季酒店</name>\n" +
     "          <name lang=\"es\">FOUR SEASONS HOTEL SHENZHEN</name>\n" +
     "        </entity>\n" +
     "\t  <entity key=\"253\">\n" +
+    "\t  <name lang=\"ru\">Paypal Innovation Lab</name>\t\t  \n" +
     "          <name lang=\"en\">Paypal Innovation Lab</name>\n" +
     "          <name lang=\"zh\">Paypal Innovation Lab</name>\n" +
     "          <name lang=\"es\">Paypal Innovation Lab</name>\n" +
     "        </entity>\n" +
     "\t  <entity key=\"252\">\n" +
+    "\t  <name lang=\"ru\">The Centrepoint</name>\t  \n" +
     "          <name lang=\"en\">The Centrepoint</name>\n" +
     "          <name lang=\"zh\">The Centrepoint</name>\n" +
     "          <name lang=\"es\">The Centrepoint</name>\n" +
     "        </entity>      \n" +
     "\t  <entity key=\"251\">\n" +
+    "\t  <name lang=\"ru\">The Centrepoint</name>\t  \n" +
     "          <name lang=\"en\">TBC</name>\n" +
     "          <name lang=\"zh\">待定</name>\n" +
     "          <name lang=\"es\">Por determinar</name>\n" +
     "        </entity>      \n" +
     "\t  <entity key=\"250\">\n" +
+    "\t  <name lang=\"ru\">thebridge</name>\t  \n" +
     "          <name lang=\"en\">thebridge</name>\n" +
     "          <name lang=\"zh\">thebridge</name>\n" +
     "          <name lang=\"es\">thebridge</name>\n" +
     "        </entity>      \n" +
     "\t  <entity key=\"249\">\n" +
+    "\t  <name lang=\"ru\">BASH</name>\t  \n" +
     "          <name lang=\"en\">BASH</name>\n" +
     "          <name lang=\"zh\">BASH</name>\n" +
     "          <name lang=\"es\">BASH</name>\n" +
     "        </entity>      \n" +
     "\t  <entity key=\"248\">\n" +
+    "\t  <name lang=\"ru\">Spacemob</name>\t  \n" +
     "          <name lang=\"en\">Spacemob</name>\n" +
     "          <name lang=\"zh\">Spacemob</name>\n" +
     "          <name lang=\"es\">Spacemob</name>\n" +
     "        </entity>      \n" +
     "\t  <entity key=\"247\">\n" +
+    "\t  <name lang=\"ru\">32 Carpenter Street</name>\n" +
     "          <name lang=\"en\">32 Carpenter Street</name>\n" +
     "          <name lang=\"zh\">32 Carpenter Street</name>\n" +
     "          <name lang=\"es\">32 Carpenter Street</name>\n" +
     "        </entity>\n" +
     "\t  <entity key=\"246\">\n" +
+    "\t  <name lang=\"ru\">Block 71</name>\t  \n" +
     "          <name lang=\"en\">Block 71</name>\n" +
     "          <name lang=\"zh\">Block 71</name>\n" +
     "          <name lang=\"es\">Block 71</name>\n" +
     "        </entity>\n" +
     "\t  <entity key=\"245\">\n" +
+    "\t  <name lang=\"ru\">Microsoft Singapore</name>\n" +
     "          <name lang=\"en\">Microsoft Singapore</name>\n" +
     "          <name lang=\"zh\">Microsoft Singapore</name>\n" +
     "          <name lang=\"es\">Microsoft Singapore</name>\n" +
     "        </entity>      \n" +
     "\t  <entity key=\"243\">\n" +
+    "\t  <name lang=\"ru\">Google Singapore</name>\t  \n" +
     "          <name lang=\"en\">Google Singapore</name>\n" +
     "          <name lang=\"zh\">Google Singapore</name>\n" +
     "          <name lang=\"es\">Google Singapore</name>\n" +
     "        </entity>\t      \n" +
     "\t  <entity key=\"242\">\n" +
+    "\t  <name lang=\"ru\">The Blockchain Hub</name>\t  \n" +
     "          <name lang=\"en\">The Blockchain Hub</name>\n" +
     "          <name lang=\"zh\">The Blockchain Hub</name>\n" +
     "          <name lang=\"es\">The Blockchain Hub</name>\n" +
     "        </entity>\t      \n" +
     "\t  <entity key=\"241\">\n" +
+    "\t  <name lang=\"ru\">BitTemple</name>\t  \n" +
     "          <name lang=\"en\">BitTemple</name>\n" +
     "          <name lang=\"zh\">BitTemple</name>\n" +
     "          <name lang=\"es\">BitTemple</name>\n" +
     "        </entity>\n" +
     "\t  <entity key=\"240\">\n" +
+    "\t  <name lang=\"ru\">ADD BLOCKCHAIN STUDIO</name>\t  \n" +
     "          <name lang=\"en\">ADD BLOCKCHAIN STUDIO</name>\n" +
     "          <name lang=\"zh\">ADD BLOCKCHAIN STUDIO</name>\n" +
     "          <name lang=\"es\">ADD BLOCKCHAIN STUDIO</name>\n" +
     "        </entity>\n" +
     "\t  <entity key=\"239\">\n" +
+    "\t  <name lang=\"ru\">Rosewood Beijing</name>\t  \n" +
     "          <name lang=\"en\">Rosewood Beijing</name>\n" +
     "          <name lang=\"zh\">北京瑰丽酒店</name>\n" +
     "          <name lang=\"es\">Rosewood Beijing</name>\n" +
     "        </entity>\n" +
     "\t  <entity key=\"238\">\n" +
+    "\t  <name lang=\"ru\">Stratum</name>\n" +
     "          <name lang=\"en\">Stratum</name>\n" +
     "          <name lang=\"zh\">Stratum</name>\n" +
     "          <name lang=\"es\">Stratum</name>\n" +
@@ -515,7 +532,7 @@ class AssetDefinitionXML {
     "      </mapping>\n" +
     "    </field>\n" +
     "    <field bitmask=\"000000000000000000000000000000000000FFFFFFFF00000000000000000000\" id=\"time\" type=\"BinaryTime\">\n" +
-    "      <name lang=\"es\">время</name>\n" +
+    "      <name lang=\"ru\">время</name>\n" +
     "      <name lang=\"en\">Time</name>\n" +
     "      <name lang=\"zh\">时间</name>\n" +
     "      <name lang=\"es\">Tiempo</name>\n" +
@@ -545,125 +562,185 @@ class AssetDefinitionXML {
     "      <name lang=\"es\">Cat</name>\n" +
     "      <mapping>\n" +
     "        <entity key=\"1\">\n" +
+    "\t  <name lang=\"ru\">Category 1</name>\n" +
     "          <name lang=\"en\">Category 1</name>\n" +
     "          <name lang=\"zh\">一类票</name>\n" +
+    "\t  <name lang=\"es\">Category 1</name>\n" +
     "        </entity>\n" +
     "        <entity key=\"2\">\n" +
+    "\t  <name lang=\"ru\">Category 2</name>\n" +
     "          <name lang=\"en\">Category 2</name>\n" +
     "          <name lang=\"zh\">二类票</name>\n" +
+    "\t  <name lang=\"es\">Category 2</name>\n" +
     "        </entity>\n" +
-    "\t       <entity key=\"3\">\n" +
+    "\t  <entity key=\"3\">\n" +
+    "\t  <name lang=\"ru\">Category 3</name>\n" +
     "          <name lang=\"en\">Category 3</name>\n" +
     "          <name lang=\"zh\">三类票</name>\n" +
+    "\t  <name lang=\"es\">Category 3</name> \t  \n" +
     "        </entity>\n" +
     "\t       <entity key=\"4\">\n" +
+    "\t  <name lang=\"ru\">Category 4</name>\t       \n" +
     "          <name lang=\"en\">Category 4</name>\n" +
     "          <name lang=\"zh\">四类票</name>\n" +
+    "\t  <name lang=\"es\">Category 4</name>\t       \n" +
     "        </entity>\n" +
     "        <entity key=\"5\">\n" +
+    "\t  <name lang=\"ru\">Match Club</name>\t\n" +
     "          <name lang=\"en\">Match Club</name>\n" +
     "          <name lang=\"zh\">俱乐部坐席</name>\n" +
+    "\t  <name lang=\"es\">Match Club</name>\t\n" +
     "        </entity>\n" +
     "\t<entity key=\"6\">\n" +
+    "\t\t<name lang=\"ru\">Match House Premier</name>\n" +
     "\t\t<name lang=\"en\">Match House Premier</name>\n" +
     "\t\t<name lang=\"zh\">比赛之家坐席</name>\n" +
+    "\t\t<name lang=\"es\">Match House Premier</name>\n" +
     "\t</entity>\n" +
     "\t       <entity key=\"7\">\n" +
+    "          <name lang=\"ru\">MATCH PAVILION</name>\n" +
     "          <name lang=\"en\">MATCH PAVILION</name>\n" +
     "          <name lang=\"zh\">款待大厅坐席</name>\n" +
+    "       \t  <name lang=\"es\">MATCH PAVILION</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"8\">\n" +
+    "\t  <name lang=\"ru\">MATCH BUSINESS SEAT</name>\t       \n" +
     "          <name lang=\"en\">MATCH BUSINESS SEAT</name>\n" +
     "          <name lang=\"zh\">商务坐席</name>\n" +
+    "\t  <name lang=\"es\">MATCH BUSINESS SEAT</name>\t       \n" +
     "        </entity>\n" +
     "\t       <entity key=\"9\">\n" +
+    "\t  <name lang=\"ru\">MATCH SHARED SUITE</name>\n" +
     "          <name lang=\"en\">MATCH SHARED SUITE</name>\n" +
     "          <name lang=\"zh\">公共包厢</name>\n" +
+    "\t  <name lang=\"es\">MATCH SHARED SUITE</name>\t       \n" +
     "        </entity>\n" +
     "\t       <entity key=\"10\">\n" +
+    "          <name lang=\"ru\">TSARSKY LOUNGE</name>\n" +
     "          <name lang=\"en\">TSARSKY LOUNGE</name>\n" +
     "          <name lang=\"zh\">特拉斯基豪华包厢</name>\n" +
+    "\t  <name lang=\"es\">TSARSKY LOUNGE</name>\t       \n" +
     "        </entity>\n" +
     "\t         <entity key=\"11\">\n" +
+    "\t  <name lang=\"ru\"> MATCH PRIVATE SUITE</name>\t\t \n" +
     "          <name lang=\"en\"> MATCH PRIVATE SUITE</name>\n" +
     "          <name lang=\"zh\">私人包厢</name>\n" +
+    "\t  <name lang=\"es\"> MATCH PRIVATE SUITE</name>\n" +
     "        </entity>    \n" +
     "  \n" +
     "        <entity key=\"255\">\n" +
+    "\t  <name lang=\"ru\">Singapore Blockchain Event</name>\n" +
     "          <name lang=\"en\">Singapore Blockchain Event</name>\n" +
     "          <name lang=\"zh\">新加坡区块链活动</name>\n" +
+    "\t  <name lang=\"es\">Singapore Blockchain Event</name>\n" +
     "        </entity>\n" +
     "\t<entity key=\"254\">\n" +
+    "\t  <name lang=\"ru\">Singapore Blockchain Event</name>\t\n" +
     "          <name lang=\"en\">TECHNOLOGY RADAR SUMMIT 2018</name>\n" +
     "          <name lang=\"zh\">技术雷达峰会2018</name>\n" +
+    "\t  <name lang=\"es\">Singapore Blockchain Event</name>\t\n" +
     "        </entity>\n" +
     "\t       <entity key=\"253\">\n" +
+    "          <name lang=\"ru\">Sydney Blockchain Event</name>\n" +
     "          <name lang=\"en\">Sydney Blockchain Event</name>\n" +
     "          <name lang=\"zh\">悉尼区块链活动</name>\n" +
+    "\t  <name lang=\"es\">Sydney Blockchain Event</name>\t       \n" +
     "        </entity>\n" +
     "\t       <entity key=\"252\">\n" +
+    "          <name lang=\"ru\">Beijing Blockchain Event</name>\n" +
     "          <name lang=\"en\">Beijing Blockchain Event</name>\n" +
     "          <name lang=\"zh\">北京区块链活动</name>\n" +
+    "          <name lang=\"es\">Beijing Blockchain Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"251\">\n" +
+    "          <name lang=\"ru\">Shanghai Blockchain Event</name>\n" +
     "          <name lang=\"en\">Shanghai Blockchain Event</name>\n" +
     "          <name lang=\"zh\">上海区块链活动</name>\n" +
+    "          <name lang=\"es\">Shanghai Blockchain Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"250\">\n" +
+    "          <name lang=\"ru\">Tokyo Blockchain Event</name>\n" +
     "          <name lang=\"en\">Tokyo Blockchain Event</name>\n" +
     "          <name lang=\"zh\">东京区块链活动</name>\n" +
+    "          <name lang=\"es\">Tokyo Blockchain Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"249\">\n" +
+    "\t  <name lang=\"ru\">Blockchain Event</name>\n" +
     "          <name lang=\"en\">Blockchain Event</name>\n" +
     "          <name lang=\"zh\">区块链活动</name>\n" +
+    "\t  <name lang=\"es\">Blockchain Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"248\">\n" +
+    "          <name lang=\"ru\">Other Events</name>\n" +
     "          <name lang=\"en\">Other Events</name>\n" +
     "          <name lang=\"zh\">其他活动</name>\n" +
+    "\t  <name lang=\"es\">Other Events</name>\t       \n" +
     "        </entity>\n" +
     "\t       <entity key=\"247\">\n" +
+    "          <name lang=\"ru\">Seoul Blockchain Event</name>\n" +
     "          <name lang=\"en\">Seoul Blockchain Event</name>\n" +
     "          <name lang=\"zh\">首尔区块链活动</name>\n" +
+    "          <name lang=\"es\">Seoul Blockchain Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"246\">\n" +
+    "          <name lang=\"ru\">Bangkok Blockchain Event</name>\n" +
     "          <name lang=\"en\">Bangkok Blockchain Event</name>\n" +
     "          <name lang=\"zh\">曼谷区块链活动</name>\n" +
+    "          <name lang=\"es\">Bangkok Blockchain Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"245\">\n" +
+    "          <name lang=\"ru\">AlphaWallet Event</name>\n" +
     "          <name lang=\"en\">AlphaWallet Event</name>\n" +
     "          <name lang=\"zh\">AlphaWallet活动</name>\n" +
+    "          <name lang=\"es\">AlphaWallet Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"254\">\n" +
+    "\t  <name lang=\"ru\">Stormbird Event</name>\t       \n" +
     "          <name lang=\"en\">Stormbird Event</name>\n" +
     "          <name lang=\"zh\">Stormbird活动</name>\n" +
+    "\t  <name lang=\"es\">Stormbird Event</name>\t       \n" +
     "        </entity>\n" +
     "\t       <entity key=\"253\">\n" +
+    "          <name lang=\"ru\">UNITY VENTURES Event</name>\n" +
     "          <name lang=\"en\">UNITY VENTURES Event</name>\n" +
     "          <name lang=\"zh\">九合创投活动</name>\n" +
+    "          <name lang=\"es\">UNITY VENTURES Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"252\">\n" +
+    "\t  <name lang=\"ru\">Max's Event</name>\t       \n" +
     "          <name lang=\"en\">Max's Event</name>\n" +
     "          <name lang=\"zh\">Max的活动</name>\n" +
+    "          <name lang=\"es\">Max's Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"251\">\n" +
+    "          <name lang=\"ru\">Chongqing Blockchain Event</name>\n" +
     "          <name lang=\"en\">Chongqing Blockchain Event</name>\n" +
     "          <name lang=\"zh\">重庆区块链活动</name>\n" +
+    "          <name lang=\"es\">Chongqing Blockchain Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"250\">\n" +
+    "          <name lang=\"ru\">Dubai Blockchain Event</name>\n" +
     "          <name lang=\"en\">Dubai Blockchain Event</name>\n" +
     "          <name lang=\"zh\">迪拜区块链活动</name>\n" +
+    "\t  <name lang=\"es\">Dubai Blockchain Event</name>\t       \n" +
     "        </entity>\n" +
     "\t       <entity key=\"249\">\n" +
+    "          <name lang=\"ru\">Silicon Valley Blockchain Event</name>\n" +
     "          <name lang=\"en\">Silicon Valley Blockchain Event</name>\n" +
     "          <name lang=\"zh\">硅谷区块链活动</name>\n" +
+    "          <name lang=\"es\">Silicon Valley Blockchain Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"248\">\n" +
+    "          <name lang=\"ru\">Melbourne Blockchain Event</name>\n" +
     "          <name lang=\"en\">Melbourne Blockchain Event</name>\n" +
     "          <name lang=\"zh\">墨尔本区块链活动</name>\n" +
+    "\t  <name lang=\"es\">Melbourne Blockchain Event</name>\n" +
     "        </entity>\n" +
     "\t       <entity key=\"247\">\n" +
+    "          <name lang=\"ru\">General Event</name>\n" +
     "          <name lang=\"en\">General Event</name>\n" +
     "          <name lang=\"zh\">通用活动</name>\n" +
+    "\t  <name lang=\"es\">General Event</name>\t       \n" +
     "        </entity>\n" +
     "      \n" +
     "      </mapping>\n" +
@@ -672,5 +749,5 @@ class AssetDefinitionXML {
     "      <name>№</name>\n" +
     "    </field>\n" +
     "  </fields>\n" +
-    "</asset>"
+    "</asset>\n"
 }
