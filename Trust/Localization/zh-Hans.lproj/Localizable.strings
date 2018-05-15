@@ -134,7 +134,7 @@
 "a.wallet.import.wallet.title" = "导入";
 "a.wallet.import.wallet.bubble.title" = "门票导入?";
 "a.wallet.import.wallet.bubble.description" = "请检查你邮箱内的导入链接. 点击链接自动导入!";
-"a.wallet.ticketToken.match.vs" = "%@ 对 %@";
+"a.wallet.ticketToken.match.vs" = "%@-%@";
 "a.wallet.ticketToken.redeem.button.title" = "兑换";
 "a.wallet.ticketToken.redeem.selectTickets.title" = "选择要兑换的门票:";
 "a.wallet.ticketToken.redeem.selectTicketQuantity.atLeastOne.title" = "选择门票数量";

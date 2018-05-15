@@ -7,11 +7,14 @@ class TicketRowView: UIView {
 	let background = UIView()
 	let stateLabel = UILabel()
 	let ticketCountLabel = UILabel()
+	//TODO not used anymore?
 	let titleLabel = UILabel()
 	let venueLabel = UILabel()
 	let dateLabel = UILabel()
+    //TODO not used anymore?
 	let seatRangeLabel = UILabel()
 	let categoryLabel = UILabel()
+	let matchLabel = UILabel()
 	let dateImageView = UIImageView()
 	let seatRangeImageView = UIImageView()
 	let categoryImageView = UIImageView()
@@ -20,11 +23,11 @@ class TicketRowView: UIView {
 	let teamsLabel = UILabel()
 	var detailsRowStack: UIStackView? = nil
     let showCheckbox: Bool
-	var areDetailsVisible = false {
+    var areDetailsVisible = false {
 		didSet {
 			detailsRowStack?.isHidden = !areDetailsVisible
 		}
-	}
+    }
 
 	init(showCheckbox: Bool = false) {
         self.showCheckbox = showCheckbox
@@ -39,14 +42,13 @@ class TicketRowView: UIView {
 		background.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(background)
 
-		let topRowStack = [ticketCountLabel, titleLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
-		let bottomRowStack = [dateImageView, dateLabel, .spacerWidth(7), seatRangeImageView, seatRangeLabel, .spacerWidth(7), categoryImageView, categoryLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
-		let detailsRow0 = [timeLabel, .spacerWidth(10), cityLabel].asStackView(contentHuggingPriority: .required)
+		let topRowStack = [ticketCountLabel, categoryLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
+		let bottomRowStack = [dateImageView, dateLabel, seatRangeImageView, teamsLabel, .spacerWidth(7), categoryImageView, matchLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
+		let detailsRow0 = [timeLabel, cityLabel].asStackView(contentHuggingPriority: .required)
 
 		detailsRowStack = [
 			.spacer(height: 10),
 			detailsRow0,
-			teamsLabel,
 		].asStackView(axis: .vertical, contentHuggingPriority: .required)
 		detailsRowStack?.isHidden = true
 
@@ -131,8 +133,11 @@ class TicketRowView: UIView {
 		seatRangeLabel.textColor = viewModel.subtitleColor
 		seatRangeLabel.font = viewModel.subtitleFont
 
-		categoryLabel.textColor = viewModel.subtitleColor
-		categoryLabel.font = viewModel.subtitleFont
+		categoryLabel.textColor = viewModel.titleColor
+		categoryLabel.font = viewModel.titleFont
+
+		matchLabel.textColor = viewModel.subtitleColor
+		matchLabel.font = viewModel.subtitleFont
 
 		dateImageView.image = R.image.calendar()?.withRenderingMode(.alwaysTemplate)
 		seatRangeImageView.image = R.image.ticket()?.withRenderingMode(.alwaysTemplate)
@@ -149,6 +154,6 @@ class TicketRowView: UIView {
 		timeLabel.font = viewModel.detailsFont
 
 		teamsLabel.textColor = viewModel.subtitleColor
-		teamsLabel.font = viewModel.detailsFont
+		teamsLabel.font = viewModel.subtitleFont
 	}
 }

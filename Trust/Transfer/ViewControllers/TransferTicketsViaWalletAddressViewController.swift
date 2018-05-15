@@ -127,6 +127,10 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
 
         ticketView.categoryLabel.text = viewModel.category
 
+        ticketView.teamsLabel.text = viewModel.teams
+
+        ticketView.matchLabel.text = viewModel.match
+
         targetAddressTextField.label.text = R.string.localizable.aSendRecipientAddressTitle()
 
         targetAddressTextField.configureOnce()

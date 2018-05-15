@@ -132,6 +132,10 @@ class ChooseTicketTransferModeViewController: UIViewController {
 
         ticketView.categoryLabel.text = viewModel.category
 
+        ticketView.teamsLabel.text = viewModel.teams
+
+        ticketView.matchLabel.text = viewModel.match
+
         generateMagicLinkButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		generateMagicLinkButton.backgroundColor = viewModel.buttonBackgroundColor
         generateMagicLinkButton.titleLabel?.font = viewModel.buttonFont
