@@ -40,6 +40,10 @@ class TicketsViewControllerTitleHeader: UIView {
     }
 
     func configure(title: String) {
+        //Important to specify a non-zero rect the first time. Cannot (and don't need to) set subsequently because that will move the origin to 0,0
+        if frame.size.width == 0 {
+            frame = CGRect(x: 0, y: 0, width: 300, height: 90)
+        }
         backgroundColor = Colors.appWhite
 
         titleLabel.textColor = Colors.appText
