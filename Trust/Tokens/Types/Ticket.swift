@@ -17,7 +17,7 @@ struct Ticket {
     let match: Int
     let date: Date
     let seatId: Int
-    let category: Int
+    let category: String
     let countryA: String
     let countryB: String
     static var empty: Ticket {
@@ -30,7 +30,7 @@ struct Ticket {
                 match: 0,
                 date: Date(),
                 seatId: 0,
-                category: 0,
+                category: "N/A",
                 countryA: "N/A",
                 countryB: "N/A"
         )
