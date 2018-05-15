@@ -44,7 +44,11 @@ enum RPCServer {
     }
 
     var displayName: String {
-        return "\(self.name) (\(self.symbol))"
+        if isTestNetwork {
+            return "\(name) (\(R.string.localizable.settingsNetworkTestLabelTitle()))"
+        } else {
+            return name
+        }
     }
 
     var isTestNetwork: Bool {
