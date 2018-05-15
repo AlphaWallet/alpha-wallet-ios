@@ -51,7 +51,7 @@ struct TicketTableViewCellViewModel {
     }
 
     var cellHeight: CGFloat {
-        let detailsHeight = CGFloat(40)
+        let detailsHeight = CGFloat(34)
         if status.isEmpty {
             if ticketHolder.areDetailsVisible {
                 return 120 + detailsHeight

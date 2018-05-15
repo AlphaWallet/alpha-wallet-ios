@@ -310,6 +310,10 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
 
         ticketView.categoryLabel.text = viewModel.category
 
+        ticketView.teamsLabel.text = viewModel.teams
+
+        ticketView.matchLabel.text = viewModel.match
+
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor
         nextButton.titleLabel?.font = viewModel.buttonFont

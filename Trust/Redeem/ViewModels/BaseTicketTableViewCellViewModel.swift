@@ -40,6 +40,10 @@ struct BaseTicketTableViewCellViewModel {
         return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
     }
 
+    var match: String {
+        return "M\(ticketHolder.match)"
+    }
+
 	var venue: String {
         return ticketHolder.venue
     }
@@ -57,7 +61,7 @@ struct BaseTicketTableViewCellViewModel {
     }
 
     var cellHeight: CGFloat {
-        let detailsHeight = CGFloat(40)
+        let detailsHeight = CGFloat(34)
         if ticketHolder.areDetailsVisible {
             return 120 + detailsHeight
         } else {
