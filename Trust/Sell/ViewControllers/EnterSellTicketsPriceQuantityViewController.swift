@@ -3,7 +3,7 @@
 import UIKit
 
 protocol EnterSellTicketsPriceQuantityViewControllerDelegate: class {
-    func didEnterSellTicketsPriceQuantity(ticketHolder: TicketHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController)
+    func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TicketHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController)
     func didPressViewInfo(in viewController: EnterSellTicketsPriceQuantityViewController)
 }
 
@@ -225,7 +225,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
             return
         }
 
-        delegate?.didEnterSellTicketsPriceQuantity(ticketHolder: getTicketHolderFromQuantity(), ethCost: String(totalEthCost), in: self)
+        delegate?.didEnterSellTicketsPriceQuantity(token: viewModel.token, ticketHolder: getTicketHolderFromQuantity(), ethCost: String(totalEthCost), in: self)
     }
 
     @objc func quantityChanged() {
@@ -244,6 +244,10 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
 
     func configure(viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel) {
         self.viewModel = viewModel
+
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
 
         view.backgroundColor = viewModel.backgroundColor
 

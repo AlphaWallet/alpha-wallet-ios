@@ -93,9 +93,10 @@ class TicketsCoordinator: NSObject, Coordinator {
         navigationController.pushViewController(transferViewController, animated: true)
     }
 
-    private func showChooseTicketTransferModeViewController(for ticketHolder: TicketHolder,
+    private func showChooseTicketTransferModeViewController(token: TokenObject,
+                                                            for ticketHolder: TicketHolder,
                                                             in viewController: TransferTicketsQuantitySelectionViewController) {
-        let vc = makeChooseTicketTransferModeViewController(for: ticketHolder, paymentFlow: viewController.paymentFlow)
+        let vc = makeChooseTicketTransferModeViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -146,28 +147,31 @@ class TicketsCoordinator: NSObject, Coordinator {
         return vc
     }
 
-    private func showEnterSellTicketsExpiryDateViewController(for ticketHolder: TicketHolder,
-                                                        ethCost: String,
-                                                        in viewController: EnterSellTicketsPriceQuantityViewController) {
-        let vc = makeEnterSellTicketsExpiryDateViewController(for: ticketHolder, ethCost: ethCost, paymentFlow: viewController.paymentFlow)
+    private func showEnterSellTicketsExpiryDateViewController(token: TokenObject,
+                                                              for ticketHolder: TicketHolder,
+                                                              ethCost: String,
+                                                              in viewController: EnterSellTicketsPriceQuantityViewController) {
+        let vc = makeEnterSellTicketsExpiryDateViewController(token: token, for: ticketHolder, ethCost: ethCost, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
-    private func showEnterQuantityViewController(for ticketHolder: TicketHolder,
+    private func showEnterQuantityViewController(token: TokenObject,
+                                                 for ticketHolder: TicketHolder,
                                                  in viewController: RedeemTicketsViewController) {
-        let quantityViewController = makeRedeemTicketsQuantitySelectionViewController(for: ticketHolder)
+        let quantityViewController = makeRedeemTicketsQuantitySelectionViewController(token: token, for: ticketHolder)
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
 
     private func showEnterPriceQuantityViewController(for ticketHolder: TicketHolder,
                                                       in viewController: SellTicketsViewController) {
-        let vc = makeEnterSellTicketsPriceQuantityViewController(for: ticketHolder, paymentFlow: viewController.paymentFlow)
+        let vc = makeEnterSellTicketsPriceQuantityViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
-    private func showTicketRedemptionViewController(for ticketHolder: TicketHolder,
+    private func showTicketRedemptionViewController(token: TokenObject,
+                                                    for ticketHolder: TicketHolder,
                                                     in viewController: UIViewController) {
-        let quantityViewController = makeTicketRedemptionViewController(for: ticketHolder)
+        let quantityViewController = makeTicketRedemptionViewController(token: token, for: ticketHolder)
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
 
@@ -187,49 +191,49 @@ class TicketsCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func makeRedeemTicketsQuantitySelectionViewController(for ticketHolder: TicketHolder) -> RedeemTicketsQuantitySelectionViewController {
+    private func makeRedeemTicketsQuantitySelectionViewController(token: TokenObject, for ticketHolder: TicketHolder) -> RedeemTicketsQuantitySelectionViewController {
         let controller = RedeemTicketsQuantitySelectionViewController()
-        let viewModel = RedeemTicketsQuantitySelectionViewModel(ticketHolder: ticketHolder)
+        let viewModel = RedeemTicketsQuantitySelectionViewModel(token: token, ticketHolder: ticketHolder)
 		controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
     }
 
-    private func makeEnterSellTicketsPriceQuantityViewController(for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> EnterSellTicketsPriceQuantityViewController {
+    private func makeEnterSellTicketsPriceQuantityViewController(token: TokenObject, for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> EnterSellTicketsPriceQuantityViewController {
         let controller = EnterSellTicketsPriceQuantityViewController(storage: tokensStorage, paymentFlow: paymentFlow, ethPrice: ethPrice)
-        let viewModel = EnterSellTicketsPriceQuantityViewControllerViewModel(ticketHolder: ticketHolder)
+        let viewModel = EnterSellTicketsPriceQuantityViewControllerViewModel(token: token, ticketHolder: ticketHolder)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
     }
 
-    private func makeEnterTransferTicketsExpiryDateViewController(for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> SetTransferTicketsExpiryDateViewController {
+    private func makeEnterTransferTicketsExpiryDateViewController(token: TokenObject, for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> SetTransferTicketsExpiryDateViewController {
         let controller = SetTransferTicketsExpiryDateViewController(ticketHolder: ticketHolder, paymentFlow: paymentFlow)
-        let viewModel = SetTransferTicketsExpiryDateViewControllerViewModel(ticketHolder: ticketHolder)
+        let viewModel = SetTransferTicketsExpiryDateViewControllerViewModel(token: token, ticketHolder: ticketHolder)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
     }
 
-    private func makeTransferTicketsViaWalletAddressViewController(for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> TransferTicketsViaWalletAddressViewController {
+    private func makeTransferTicketsViaWalletAddressViewController(token: TokenObject, for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> TransferTicketsViaWalletAddressViewController {
         let controller = TransferTicketsViaWalletAddressViewController(ticketHolder: ticketHolder, paymentFlow: paymentFlow)
-        let viewModel = TransferTicketsViaWalletAddressViewControllerViewModel(ticketHolder: ticketHolder)
+        let viewModel = TransferTicketsViaWalletAddressViewControllerViewModel(token: token, ticketHolder: ticketHolder)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
     }
 
-    private func makeEnterSellTicketsExpiryDateViewController(for ticketHolder: TicketHolder, ethCost: String, paymentFlow: PaymentFlow) -> SetSellTicketsExpiryDateViewController {
+    private func makeEnterSellTicketsExpiryDateViewController(token: TokenObject, for ticketHolder: TicketHolder, ethCost: String, paymentFlow: PaymentFlow) -> SetSellTicketsExpiryDateViewController {
         let controller = SetSellTicketsExpiryDateViewController(storage: tokensStorage, paymentFlow: paymentFlow, ticketHolder: ticketHolder, ethCost: ethCost)
-        let viewModel = SetSellTicketsExpiryDateViewControllerViewModel(ticketHolder: ticketHolder, ethCost: ethCost)
+        let viewModel = SetSellTicketsExpiryDateViewControllerViewModel(token: token, ticketHolder: ticketHolder, ethCost: ethCost)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
     }
 
-    private func makeTicketRedemptionViewController(for ticketHolder: TicketHolder) -> TicketRedemptionViewController {
+    private func makeTicketRedemptionViewController(token: TokenObject, for ticketHolder: TicketHolder) -> TicketRedemptionViewController {
         let controller = TicketRedemptionViewController(session: session)
-        let viewModel = TicketRedemptionViewModel(ticketHolder: ticketHolder)
+        let viewModel = TicketRedemptionViewModel(token: token, ticketHolder: ticketHolder)
 		controller.configure(viewModel: viewModel)
         return controller
     }
@@ -242,23 +246,24 @@ class TicketsCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func showEnterQuantityViewController(for ticketHolder: TicketHolder,
+    private func showEnterQuantityViewController(token: TokenObject,
+                                                 for ticketHolder: TicketHolder,
                                                  in viewController: TransferTicketsViewController) {
-        let quantityViewController = makeTransferTicketsQuantitySelectionViewController(for: ticketHolder, paymentFlow: viewController.paymentFlow)
+        let quantityViewController = makeTransferTicketsQuantitySelectionViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
 
-    private func makeTransferTicketsQuantitySelectionViewController(for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> TransferTicketsQuantitySelectionViewController {
+    private func makeTransferTicketsQuantitySelectionViewController(token: TokenObject, for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> TransferTicketsQuantitySelectionViewController {
         let controller = TransferTicketsQuantitySelectionViewController(paymentFlow: paymentFlow)
-        let viewModel = TransferTicketsQuantitySelectionViewModel(ticketHolder: ticketHolder)
+        let viewModel = TransferTicketsQuantitySelectionViewModel(token: token, ticketHolder: ticketHolder)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
     }
 
-    private func makeChooseTicketTransferModeViewController(for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> ChooseTicketTransferModeViewController {
+    private func makeChooseTicketTransferModeViewController(token: TokenObject, for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> ChooseTicketTransferModeViewController {
         let controller = ChooseTicketTransferModeViewController(ticketHolder: ticketHolder, paymentFlow: paymentFlow)
-        let viewModel = ChooseTicketTransferModeViewControllerViewModel(ticketHolder: ticketHolder)
+        let viewModel = ChooseTicketTransferModeViewControllerViewModel(token: token, ticketHolder: ticketHolder)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
         return controller
@@ -365,8 +370,8 @@ extension TicketsCoordinator: TicketsViewControllerDelegate {
 }
 
 extension TicketsCoordinator: RedeemTicketsViewControllerDelegate {
-    func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: RedeemTicketsViewController) {
-        showEnterQuantityViewController(for: ticketHolder, in: viewController)
+    func didSelectTicketHolder(token: TokenObject, ticketHolder: TicketHolder, in viewController: RedeemTicketsViewController) {
+        showEnterQuantityViewController(token: token, for: ticketHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: RedeemTicketsViewController) {
@@ -375,8 +380,8 @@ extension TicketsCoordinator: RedeemTicketsViewControllerDelegate {
 }
 
 extension TicketsCoordinator: RedeemTicketsQuantitySelectionViewControllerDelegate {
-    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: RedeemTicketsQuantitySelectionViewController) {
-        showTicketRedemptionViewController(for: ticketHolder, in: viewController)
+    func didSelectQuantity(token: TokenObject, ticketHolder: TicketHolder, in viewController: RedeemTicketsQuantitySelectionViewController) {
+        showTicketRedemptionViewController(token: token, for: ticketHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: RedeemTicketsQuantitySelectionViewController) {
@@ -395,8 +400,8 @@ extension TicketsCoordinator: SellTicketsViewControllerDelegate {
 }
 
 extension TicketsCoordinator: TransferTicketsQuantitySelectionViewControllerDelegate {
-    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: TransferTicketsQuantitySelectionViewController) {
-        showChooseTicketTransferModeViewController(for: ticketHolder, in: viewController)
+    func didSelectQuantity(token: TokenObject, ticketHolder: TicketHolder, in viewController: TransferTicketsQuantitySelectionViewController) {
+        showChooseTicketTransferModeViewController(token: token, for: ticketHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: TransferTicketsQuantitySelectionViewController) {
@@ -405,8 +410,8 @@ extension TicketsCoordinator: TransferTicketsQuantitySelectionViewControllerDele
 }
 
 extension TicketsCoordinator: EnterSellTicketsPriceQuantityViewControllerDelegate {
-    func didEnterSellTicketsPriceQuantity(ticketHolder: TicketHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController) {
-        showEnterSellTicketsExpiryDateViewController(for: ticketHolder, ethCost: ethCost, in: viewController)
+    func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TicketHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController) {
+        showEnterSellTicketsExpiryDateViewController(token: token, for: ticketHolder, ethCost: ethCost, in: viewController)
     }
 
     func didPressViewInfo(in viewController: EnterSellTicketsPriceQuantityViewController) {
@@ -425,8 +430,8 @@ extension TicketsCoordinator: SetSellTicketsExpiryDateViewControllerDelegate {
 }
 
 extension TicketsCoordinator: TransferTicketsViewControllerDelegate {
-    func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: TransferTicketsViewController) {
-        showEnterQuantityViewController(for: ticketHolder, in: viewController)
+    func didSelectTicketHolder(token: TokenObject, ticketHolder: TicketHolder, in viewController: TransferTicketsViewController) {
+        showEnterQuantityViewController(token: token, for: ticketHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: TransferTicketsViewController) {
@@ -464,13 +469,13 @@ extension TicketsCoordinator: GenerateSellMagicLinkViewControllerDelegate {
 }
 
 extension TicketsCoordinator: ChooseTicketTransferModeViewControllerDelegate {
-    func didChooseTransferViaMagicLink(ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController) {
-        let vc = makeEnterTransferTicketsExpiryDateViewController(for: ticketHolder, paymentFlow: viewController.paymentFlow)
+    func didChooseTransferViaMagicLink(token: TokenObject, ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController) {
+        let vc = makeEnterTransferTicketsExpiryDateViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
-    func didChooseTransferNow(ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController) {
-        let vc = makeTransferTicketsViaWalletAddressViewController(for: ticketHolder, paymentFlow: viewController.paymentFlow)
+    func didChooseTransferNow(token: TokenObject, ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController) {
+        let vc = makeTransferTicketsViaWalletAddressViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 

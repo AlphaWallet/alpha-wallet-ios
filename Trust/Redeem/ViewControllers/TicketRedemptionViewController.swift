@@ -135,6 +135,10 @@ class TicketRedemptionViewController: UIViewController {
     func configure(viewModel: TicketRedemptionViewModel) {
         self.viewModel = viewModel
 
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
+
         view.backgroundColor = viewModel.backgroundColor
 
         titleLabel.textAlignment = .center
