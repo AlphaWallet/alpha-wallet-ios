@@ -28,8 +28,8 @@ public struct Constants {
     public static let dappsBrowserURL = "https://dapps.trustwalletapp.com"
 
     // FIFA hardcoded FIFA token address. Look for "//FIFA" for relevant changes
-    public static let ticketContractAddress = "0x277b1318965030C62E1dAc9671a6F8dF77F855Cf"
-    public static let ticketContractAddressRopsten = "0x2Cd6CbC60219B33161F1BF69fbd6c741aD980BBa"
+    public static let ticketContractAddress = "0xDBc5934463Effb93a770C62EfeE4FeaeaF462ede"
+    public static let ticketContractAddressRopsten = "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3"
     public static let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
     public static let event = "FIFA WC 2018"
