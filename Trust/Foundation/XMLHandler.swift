@@ -55,7 +55,7 @@ public class XMLHandler {
                 match: match,
                 date: formatDateToMoscow(time),
                 seatId: number,
-                category: category,
+                category: getCategory(category, lang: lang),
                 countryA: countryAString,
                 countryB: countryBString
         )
@@ -102,6 +102,13 @@ public class XMLHandler {
         let locality = Int(attribute, radix: 16)! - 1
         if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][locality]["name"][lang].text {
             return parsedLocality
+        }
+        return "N/A"
+    }
+    
+    func getCategory(_ cat: Int, lang: Int) -> String {
+        if let category = xml["asset"]["fields"]["field"][6][0]["mapping"]["entity"][cat - 1]["name"][lang].text {
+            return category
         }
         return "N/A"
     }
