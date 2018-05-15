@@ -36,13 +36,4 @@ struct AdvancedSettingsViewModel {
     var localeTitle: String {
         return R.string.localizable.settingsLanguageButtonTitle()
     }
-
-    var locales: [AppLocale] {
-        return [
-            .system,
-            .english,
-            .simplifiedChinese,
-            .spanish,
-        ]
-    }
 }
