@@ -40,7 +40,6 @@ class TicketsViewControllerTitleHeader: UIView {
     }
 
     func configure(title: String) {
-        frame = CGRect(x: 0, y: 0, width: 300, height: 90)
         backgroundColor = Colors.appWhite
 
         titleLabel.textColor = Colors.appText
