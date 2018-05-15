@@ -11,6 +11,7 @@ import Foundation
 public extension Date {
 
     private static var formatsMap: [String: DateFormatter] = [:]
+    private static var formatsMapLocale: String?
 
     public init?(string: String, format: String) {
         let date = Date.formatter(with: format).date(from: string)
@@ -26,11 +27,20 @@ public extension Date {
     }
     
     public static func formatter(with format: String) -> DateFormatter {
-        var foundFormatter = Date.formatsMap[format]
+        let config = Config()
+        if config.locale != formatsMapLocale {
+            formatsMapLocale = config.locale
+            formatsMap = Dictionary()
+        }
+
+        var foundFormatter = formatsMap[format]
         if foundFormatter == nil {
             foundFormatter = DateFormatter()
-            foundFormatter?.dateFormat = format
-            Date.formatsMap[format] = foundFormatter!
+            if let locale = config.locale {
+                foundFormatter?.locale = Locale(identifier: locale)
+            }
+            foundFormatter?.setLocalizedDateFormatFromTemplate(format)
+            formatsMap[format] = foundFormatter!
         }
         return foundFormatter!
     }
