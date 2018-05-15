@@ -142,7 +142,7 @@ struct Config {
             return ERCToken(
                     contract: contractAddress,
                     name: name,
-                    symbol: "TICK",
+                    symbol: "SHANKAI",
                     decimals: 0,
                     isStormBird: true,
                     balance: []
