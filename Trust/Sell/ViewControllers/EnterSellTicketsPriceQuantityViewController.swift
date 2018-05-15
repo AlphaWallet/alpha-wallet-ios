@@ -148,9 +148,6 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
 
         NSLayoutConstraint.activate([
 			header.heightAnchor.constraint(equalToConstant: 90),
-            //Strange repositioning of header horizontally while typing without this
-            header.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            header.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
 
 			quantityStepper.heightAnchor.constraint(equalToConstant: 50),
 
