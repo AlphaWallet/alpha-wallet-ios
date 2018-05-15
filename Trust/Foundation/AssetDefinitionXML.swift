@@ -99,8 +99,8 @@ class AssetDefinitionXML {
     "</ds:KeyInfo>\n" +
     "</ds:Signature>\n" +
     "\t<contract type=\"issuing\">\n" +
-    "\t\t<address network=\"1\">0x277b1318965030C62E1dAc9671a6F8dF77F855Cf</address>\n" +
-    "\t\t<address network=\"3\">0x2Cd6CbC60219B33161F1BF69fbd6c741aD980BBa</address>\n" +
+    "\t\t<address network=\"1\">0xDBc5934463Effb93a770C62EfeE4FeaeaF462ede</address>\n" +
+    "\t\t<address network=\"3\">0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3</address>\n" +
     "\t\t<name lang=\"ru\">Билеты</name>\n" +
     "\t\t<name lang=\"en\">Tickets</name>\n" +
     "\t\t<name lang=\"zh\">票</name>\n" +
