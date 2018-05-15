@@ -231,7 +231,7 @@ class ImportWalletViewController: UIViewController {
 
     ///Returns true only if valid
     private func validatePrivateKey() -> Bool {
-        if let validationError = PrivateKeyRule().isValid(value: passwordTextField.value) {
+        if let validationError = PrivateKeyRule().isValid(value: privateKeyTextView.value) {
             displayError(error: ValidationError(msg: validationError.msg))
             return false
         }
