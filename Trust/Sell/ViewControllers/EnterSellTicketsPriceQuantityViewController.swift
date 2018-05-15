@@ -3,7 +3,7 @@
 import UIKit
 
 protocol EnterSellTicketsPriceQuantityViewControllerDelegate: class {
-    func didEnterSellTicketsPriceQuantity(ticketHolder: TicketHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController)
+    func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TicketHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController)
     func didPressViewInfo(in viewController: EnterSellTicketsPriceQuantityViewController)
 }
 
@@ -148,9 +148,6 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
 
         NSLayoutConstraint.activate([
 			header.heightAnchor.constraint(equalToConstant: 90),
-            //Strange repositioning of header horizontally while typing without this
-            header.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
-            header.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
 
 			quantityStepper.heightAnchor.constraint(equalToConstant: 50),
 
@@ -228,7 +225,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
             return
         }
 
-        delegate?.didEnterSellTicketsPriceQuantity(ticketHolder: getTicketHolderFromQuantity(), ethCost: String(totalEthCost), in: self)
+        delegate?.didEnterSellTicketsPriceQuantity(token: viewModel.token, ticketHolder: getTicketHolderFromQuantity(), ethCost: String(totalEthCost), in: self)
     }
 
     @objc func quantityChanged() {
@@ -247,6 +244,10 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
 
     func configure(viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel) {
         self.viewModel = viewModel
+
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -308,6 +309,10 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         ticketView.cityLabel.text = viewModel.city
 
         ticketView.categoryLabel.text = viewModel.category
+
+        ticketView.teamsLabel.text = viewModel.teams
+
+        ticketView.matchLabel.text = viewModel.match
 
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor

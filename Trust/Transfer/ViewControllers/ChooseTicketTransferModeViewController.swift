@@ -3,8 +3,8 @@
 import UIKit
 
 protocol ChooseTicketTransferModeViewControllerDelegate: class {
-    func didChooseTransferViaMagicLink(ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController)
-    func didChooseTransferNow(ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController)
+    func didChooseTransferViaMagicLink(token: TokenObject, ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController)
+    func didChooseTransferNow(token: TokenObject, ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController)
     func didPressViewInfo(in viewController: ChooseTicketTransferModeViewController)
 }
 
@@ -96,11 +96,11 @@ class ChooseTicketTransferModeViewController: UIViewController {
     }
 
     @objc func generateMagicLinkTapped() {
-        delegate?.didChooseTransferViaMagicLink(ticketHolder: ticketHolder, in: self)
+        delegate?.didChooseTransferViaMagicLink(token: viewModel.token, ticketHolder: ticketHolder, in: self)
     }
 
     @objc func transferNowTapped() {
-        delegate?.didChooseTransferNow(ticketHolder: ticketHolder, in: self)
+        delegate?.didChooseTransferNow(token: viewModel.token, ticketHolder: ticketHolder, in: self)
     }
 
     @objc func showInfo() {
@@ -109,6 +109,10 @@ class ChooseTicketTransferModeViewController: UIViewController {
 
     func configure(viewModel: ChooseTicketTransferModeViewControllerViewModel) {
         self.viewModel = viewModel
+
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -131,6 +135,10 @@ class ChooseTicketTransferModeViewController: UIViewController {
         ticketView.cityLabel.text = viewModel.city
 
         ticketView.categoryLabel.text = viewModel.category
+
+        ticketView.teamsLabel.text = viewModel.teams
+
+        ticketView.matchLabel.text = viewModel.match
 
         generateMagicLinkButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		generateMagicLinkButton.backgroundColor = viewModel.buttonBackgroundColor

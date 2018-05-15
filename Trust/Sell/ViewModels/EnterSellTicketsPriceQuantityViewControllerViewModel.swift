@@ -5,6 +5,7 @@ import UIKit
 
 struct EnterSellTicketsPriceQuantityViewControllerViewModel {
 
+    var token: TokenObject
     var ticketHolder: TicketHolder
     var ethCost: String = "0"
     var dollarCost: String = ""
@@ -63,6 +64,14 @@ struct EnterSellTicketsPriceQuantityViewControllerViewModel {
 
     var category: String {
         return String(ticketHolder.category)
+    }
+
+    var teams: String {
+        return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
+    }
+
+    var match: String {
+        return "M\(ticketHolder.match)"
     }
 
 	var venue: String {
@@ -141,7 +150,8 @@ struct EnterSellTicketsPriceQuantityViewControllerViewModel {
         return dollarCost.trimmed.isEmpty
     }
 
-    init(ticketHolder: TicketHolder) {
+    init(token: TokenObject, ticketHolder: TicketHolder) {
+        self.token = token
         self.ticketHolder = ticketHolder
     }
 }
