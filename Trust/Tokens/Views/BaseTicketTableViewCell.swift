@@ -51,13 +51,15 @@ class BaseTicketTableViewCell: UITableViewCell {
 
         rowView.seatRangeLabel.text = viewModel.seatRange
 
-        rowView.cityLabel.text = viewModel.city
+        rowView.cityLabel.text = ", \(viewModel.city)"
 
         rowView.categoryLabel.text = viewModel.category
 
         rowView.timeLabel.text = viewModel.time
 
         rowView.teamsLabel.text = viewModel.teams
+
+        rowView.matchLabel.text = viewModel.match
 
         rowView.areDetailsVisible = viewModel.areDetailsVisible
     }
