@@ -105,6 +105,10 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
     func configure(viewModel: TransferTicketsViaWalletAddressViewControllerViewModel) {
         self.viewModel = viewModel
 
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
+
         view.backgroundColor = viewModel.backgroundColor
 
         header.configure(title: viewModel.headerTitle)
@@ -126,6 +130,10 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
         ticketView.cityLabel.text = viewModel.city
 
         ticketView.categoryLabel.text = viewModel.category
+
+        ticketView.teamsLabel.text = viewModel.teams
+
+        ticketView.matchLabel.text = viewModel.match
 
         targetAddressTextField.label.text = R.string.localizable.aSendRecipientAddressTitle()
 

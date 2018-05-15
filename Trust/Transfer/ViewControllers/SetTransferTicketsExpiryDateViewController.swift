@@ -225,6 +225,10 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
     func configure(viewModel: SetTransferTicketsExpiryDateViewControllerViewModel) {
         self.viewModel = viewModel
 
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
+
         view.backgroundColor = viewModel.backgroundColor
 
         header.configure(title: viewModel.headerTitle)
@@ -256,6 +260,10 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
         ticketView.cityLabel.text = viewModel.city
 
         ticketView.categoryLabel.text = viewModel.category
+
+        ticketView.teamsLabel.text = viewModel.teams
+
+        ticketView.matchLabel.text = viewModel.match
 
         descriptionLabel.textAlignment = .center
         descriptionLabel.numberOfLines = 0

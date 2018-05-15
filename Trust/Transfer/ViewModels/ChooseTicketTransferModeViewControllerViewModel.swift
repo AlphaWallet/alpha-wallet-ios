@@ -5,6 +5,7 @@ import UIKit
 
 struct ChooseTicketTransferModeViewControllerViewModel {
 
+    var token: TokenObject
     var ticketHolder: TicketHolder
 
     var headerTitle: String {
@@ -49,6 +50,14 @@ struct ChooseTicketTransferModeViewControllerViewModel {
 
     var category: String {
         return String(ticketHolder.category)
+    }
+
+    var teams: String {
+        return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
+    }
+
+    var match: String {
+        return "M\(ticketHolder.match)"
     }
 
 	var venue: String {

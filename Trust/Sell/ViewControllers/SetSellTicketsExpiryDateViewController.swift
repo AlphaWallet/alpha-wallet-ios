@@ -228,6 +228,10 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
     func configure(viewModel: SetSellTicketsExpiryDateViewControllerViewModel) {
         self.viewModel = viewModel
 
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
+
         view.backgroundColor = viewModel.backgroundColor
 
         header.configure(title: viewModel.headerTitle)
@@ -295,6 +299,10 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
         ticketView.cityLabel.text = viewModel.city
 
         ticketView.categoryLabel.text = viewModel.category
+
+        ticketView.teamsLabel.text = viewModel.teams
+
+        ticketView.matchLabel.text = viewModel.match
 
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor

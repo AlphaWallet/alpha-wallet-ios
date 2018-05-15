@@ -76,6 +76,10 @@ class SellTicketsViewController: UIViewController {
         self.viewModel = viewModel
         tableView.dataSource = self
 
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
+
         header.configure(title: viewModel.title)
         tableView.tableHeaderView = header
 
