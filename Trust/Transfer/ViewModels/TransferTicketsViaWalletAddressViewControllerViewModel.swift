@@ -5,6 +5,7 @@ import UIKit
 
 struct TransferTicketsViaWalletAddressViewControllerViewModel {
 
+    var token: TokenObject
     var ticketHolder: TicketHolder
 
     var headerTitle: String {

@@ -11,6 +11,7 @@ import UIKit
 
 struct RedeemTicketsQuantitySelectionViewModel {
 
+    var token: TokenObject
     var ticketHolder: TicketHolder
 
     var headerTitle: String {

@@ -121,6 +121,10 @@ class TicketsViewController: UIViewController {
         self.viewModel = viewModel
         tableView.dataSource = self
 
+        if let tokenObject = tokenObject, tokenObject.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
+
         if let tokenObject = tokenObject {
             header.configure(viewModel: .init(config: tokensStorage.config, tokenObject: tokenObject))
             tableView.tableHeaderView = header

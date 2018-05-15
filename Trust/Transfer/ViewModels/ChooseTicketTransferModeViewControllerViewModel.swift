@@ -5,6 +5,7 @@ import UIKit
 
 struct ChooseTicketTransferModeViewControllerViewModel {
 
+    var token: TokenObject
     var ticketHolder: TicketHolder
 
     var headerTitle: String {

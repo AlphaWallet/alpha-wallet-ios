@@ -9,7 +9,7 @@
 import UIKit
 
 protocol RedeemTicketsQuantitySelectionViewControllerDelegate: class {
-    func didSelectQuantity(ticketHolder: TicketHolder, in viewController: RedeemTicketsQuantitySelectionViewController)
+    func didSelectQuantity(token: TokenObject, ticketHolder: TicketHolder, in viewController: RedeemTicketsQuantitySelectionViewController)
     func didPressViewInfo(in viewController: RedeemTicketsQuantitySelectionViewController)
 }
 
@@ -105,7 +105,7 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController {
                                     viewController: self,
                                     completion: nil)
         } else {
-            delegate?.didSelectQuantity(ticketHolder: getTicketHolderFromQuantity(), in: self)
+            delegate?.didSelectQuantity(token: viewModel.token, ticketHolder: getTicketHolderFromQuantity(), in: self)
         }
     }
 
@@ -115,6 +115,10 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController {
 
     func configure(viewModel: RedeemTicketsQuantitySelectionViewModel) {
         self.viewModel = viewModel
+
+        if viewModel.token.contract != Constants.ticketContractAddress {
+            navigationItem.rightBarButtonItem = nil
+        }
 
         view.backgroundColor = viewModel.backgroundColor
 
