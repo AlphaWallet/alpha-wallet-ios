@@ -19,7 +19,7 @@ class TicketHolder {
     var venue: String { return tickets[0].venue }
     var match: Int { return tickets[0].match }
     var date: Date { return tickets[0].date }
-    var category: Int { return tickets[0].category }
+    var category: String { return tickets[0].category }
     var countryA: String { return tickets[0].countryA }
     var countryB: String { return tickets[0].countryB }
     var status: TicketHolderStatus
