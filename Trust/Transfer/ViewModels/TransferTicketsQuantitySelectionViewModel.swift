@@ -63,6 +63,14 @@ struct TransferTicketsQuantitySelectionViewModel {
         return String(ticketHolder.category)
     }
 
+    var teams: String {
+        return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
+    }
+
+    var match: String {
+        return "M\(ticketHolder.match)"
+    }
+
 	var venue: String {
         return ticketHolder.venue
     }
