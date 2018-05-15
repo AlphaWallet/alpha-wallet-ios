@@ -82,6 +82,14 @@ class SettingsCoordinator: Coordinator {
 		navigationController.pushViewController(coordinator.serversViewController, animated: true)
 	}
 
+	@objc func showLocales() {
+		let coordinator = LocalesCoordinator(config: config)
+		coordinator.delegate = self
+		coordinator.start()
+		addCoordinator(coordinator)
+		navigationController.pushViewController(coordinator.localesViewController, animated: true)
+	}
+
 	func restart(for wallet: Wallet) {
 		delegate?.didRestart(with: wallet, in: self)
 	}
@@ -98,6 +106,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 			showAccounts()
 		case .servers:
 			showServers()
+		case .locales:
+			showLocales()
 		case .RPCServer, .currency, .DAppsBrowser:
 			restart(for: session.account)
 		case .pushNotifications(let enabled):
@@ -141,6 +151,14 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 extension SettingsCoordinator: ServersCoordinatorDelegate {
 	func didSelectServer(server: RPCServer, in coordinator: ServersCoordinator) {
 		coordinator.serversViewController.navigationController?.popViewController(animated: true)
+		removeCoordinator(coordinator)
+		restart(for: session.account)
+	}
+}
+
+extension SettingsCoordinator: LocalesCoordinatorDelegate {
+    func didSelect(locale: AppLocale, in coordinator: LocalesCoordinator) {
+		coordinator.localesViewController.navigationController?.popViewController(animated: true)
 		removeCoordinator(coordinator)
 		restart(for: session.account)
 	}
