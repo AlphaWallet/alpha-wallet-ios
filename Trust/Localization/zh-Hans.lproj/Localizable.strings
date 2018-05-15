@@ -112,7 +112,6 @@
 "wallet.import.button.title" = "导入钱包";
 "browser.home.button.title" = "主页";
 "browser.reload.button.title" = "刷新";
-"wallet.import.subtitle" = "导入钱包与创建一样简单";
 "configureTransaction.gasPriceGwei.label.title" = "Gas费用 (Gwei)";
 "enterPassword.confirmPassword.textField.placeholder" = "确认密码";
 "enterPassword.navigation.title" = "备份密码";
@@ -273,3 +272,4 @@
 "face.id" = "面容ID";
 "undefined.error" = "未知错误";
 "unknown.error" = "出现未知错误.";
+"coming.soon" = "Coming soon";

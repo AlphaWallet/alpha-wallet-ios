@@ -43,7 +43,7 @@ class TimeEntryField: UIControl {
         layer.borderWidth = 1
 
         leftButton.setTitleColor(Colors.appBackground, for: .normal)
-        leftButton.titleLabel?.font = Fonts.bold(size: 21)
+        leftButton.titleLabel?.font = Fonts.bold(size: ScreenChecker().isNarrowScreen() ? 12: 18)
     }
 
     private func makeRightView() -> UIView {

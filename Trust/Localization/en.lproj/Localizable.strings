@@ -66,7 +66,6 @@
 "wallet.create.button.title" = "Create Wallet";
 "wallet.create.inProgress" = "Creating wallet...";
 "wallet.import.button.title" = "Import Wallet";
-"wallet.import.subtitle" = "Importing wallet as easy as creating";
 "wallets.backup.alertSheet.title" = "Backup Keystore";
 "transactions.tabbar.item.title" = "My Transactions";
 "transaction.navigation.title" = "Transaction";
@@ -273,3 +272,4 @@
 "face.id" = "Face ID";
 "undefined.error" = "Undefined error";
 "unknown.error" = "An unknown error occurred.";
+"coming.soon" = "Coming soon";

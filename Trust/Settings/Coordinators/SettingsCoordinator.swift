@@ -15,6 +15,7 @@ protocol SettingsCoordinatorDelegate: class {
 class SettingsCoordinator: Coordinator {
 
 	let navigationController: UINavigationController
+	var config: Config
 	let keystore: Keystore
 	let session: WalletSession
 	let storage: TransactionsStorage
@@ -32,12 +33,14 @@ class SettingsCoordinator: Coordinator {
 
 	init(
 			navigationController: UINavigationController = NavigationController(),
+            config: Config,
 			keystore: Keystore,
 			session: WalletSession,
 			storage: TransactionsStorage,
 			balanceCoordinator: GetBalanceCoordinator
 	) {
 		self.navigationController = navigationController
+		self.config = config
 		self.navigationController.modalPresentationStyle = .formSheet
 		self.keystore = keystore
 		self.session = session
@@ -71,6 +74,14 @@ class SettingsCoordinator: Coordinator {
 		navigationController.present(coordinator.navigationController, animated: true, completion: nil)
 	}
 
+	@objc func showServers() {
+		let coordinator = ServersCoordinator(config: config)
+		coordinator.delegate = self
+		coordinator.start()
+		addCoordinator(coordinator)
+		navigationController.pushViewController(coordinator.serversViewController, animated: true)
+	}
+
 	func restart(for wallet: Wallet) {
 		delegate?.didRestart(with: wallet, in: self)
 	}
@@ -85,6 +96,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 			showNotificationsSettings()
 		case .wallets:
 			showAccounts()
+		case .servers:
+			showServers()
 		case .RPCServer, .currency, .DAppsBrowser:
 			restart(for: session.account)
 		case .pushNotifications(let enabled):
@@ -122,5 +135,13 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 		coordinator.navigationController.dismiss(animated: true, completion: nil)
 		removeCoordinator(coordinator)
 		restart(for: account)
+	}
+}
+
+extension SettingsCoordinator: ServersCoordinatorDelegate {
+	func didSelectServer(server: RPCServer, in coordinator: ServersCoordinator) {
+		coordinator.serversViewController.navigationController?.popViewController(animated: true)
+		removeCoordinator(coordinator)
+		restart(for: session.account)
 	}
 }

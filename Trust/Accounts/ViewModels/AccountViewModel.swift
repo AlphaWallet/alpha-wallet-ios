@@ -13,16 +13,45 @@ struct AccountViewModel {
         self.current = current
         self.walletBalance = walletBalance
     }
-    var isWatch: Bool {
+    var showWatchIcon: Bool {
         return wallet.type == .watch(wallet.address)
     }
     var balance: String {
-        return walletBalance?.amountFull ?? "--"
+        let amount = walletBalance?.amountFull ?? "--"
+        return "\(amount) ETH"
     }
-    var title: String {
+    var address: String {
         return wallet.address.description
     }
-    var isActive: Bool {
+    var showActiveIcon: Bool {
         return wallet == current
+    }
+
+    var backgroundColor: UIColor {
+        return Colors.appWhite
+    }
+
+    var contentsBackgroundColor: UIColor {
+        return backgroundColor
+    }
+
+    var contentsBorderColor: UIColor {
+        return Colors.appHighlightGreen
+    }
+
+    var contentsBorderWidth: CGFloat {
+        return 1
+    }
+
+    var balanceFont: UIFont {
+        return Fonts.light(size: 20)!
+    }
+
+    var addressFont: UIFont {
+        return Fonts.semibold(size: 12)!
+    }
+
+    var addressTextColor: UIColor {
+        return Colors.gray
     }
 }

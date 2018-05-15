@@ -28,38 +28,27 @@ class AdvancedSettingsViewController: FormViewController {
         super.viewDidLoad()
 
         view.backgroundColor = Colors.appBackground
+        tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appBackground
 
         navigationItem.title = viewModel.title
 
         form +++ Section()
 
-                <<< AlphaWalletSettingPushRow<RPCServer> { [weak self] in
+                <<< AppFormAppearance.alphaWalletSettingsButton { button in
+            button.cellStyle = .value1
+        }.onCellSelection { [unowned self] _, _ in
+            self.run(action: .servers)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { [weak self] cell, _ in
             guard let strongSelf = self else {
                 return
             }
-            $0.title = strongSelf.viewModel.networkTitle
-            $0.options = strongSelf.viewModel.servers
-            $0.value = RPCServer(chainID: strongSelf.config.chainID)
-            $0.selectorTitle = strongSelf.viewModel.networkTitle
-            $0.displayValueFor = { value in
-                return value?.displayName
-            }
-        }.onChange {[weak self] row in
-            self?.config.chainID = row.value?.chainID ?? RPCServer.main.chainID
-            self?.run(action: .RPCServer)
-        }.onPresent { _, selectorController in
-            selectorController.enableDeselection = false
-            selectorController.sectionKeyForValue = { option in
-                switch option {
-                case .main, .classic, .callisto, .poa: return ""
-                case .kovan, .ropsten, .rinkeby, .sokol: return R.string.localizable.settingsNetworkTestLabelTitle()
-                case .custom: return R.string.localizable.settingsNetworkCustomLabelTitle()
-                }
-            }
-        }.cellSetup { cell, _ in
-            cell.imageView?.tintColor = Colors.appBackground
             cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = R.string.localizable.settingsNetworkButtonTitle()
+            cell.detailTextLabel?.text = RPCServer(chainID: strongSelf.config.chainID).displayName
+            cell.accessoryType = .disclosureIndicator
         }
 
                 <<< AppFormAppearance.alphaWalletSettingsButton { button in

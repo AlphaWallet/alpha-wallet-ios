@@ -31,11 +31,11 @@ struct Config {
                 return Currency(rawValue: currency)!
             }
             //If ther is not saved currency try to use user local currency if it is supported.
-            let avaliableCurrency = Currency.allValues.first { currency in
+            let availableCurrency = Currency.allValues.first { currency in
                 return currency.rawValue == Locale.current.currencySymbol
             }
-            if let isAvaliableCurrency = avaliableCurrency {
-                return isAvaliableCurrency
+            if let isAvailableCurrency = availableCurrency {
+                return isAvailableCurrency
             }
             //If non of the previous is not working return USD.
             return Currency.USD
@@ -130,23 +130,28 @@ struct Config {
         return createDefaultTicketToken()?.contract.eip55String
     }
 
-    //TODO better to have a ERC875Token type instead
-    func createDefaultTicketToken() -> ERC20Token? {
+    func createDefaultTicketToken() -> ERCToken? {
+        let xmlHandler = XMLHandler()
+        let lang = xmlHandler.getLang()
+        let contractAddress = xmlHandler.getAddressFromXML(server: self.server)
+        let name = xmlHandler.getName(lang: lang)
+        //TODO get symbol from RPC node
+        //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
         switch server {
         case .main:
-            return ERC20Token(
-                    contract: Address(string: Constants.ticketContractAddress)!,
-                    name: "Tickets",
-                    symbol: "TICK",
+            return ERCToken(
+                    contract: contractAddress,
+                    name: name,
+                    symbol: "SHANKAI",
                     decimals: 0,
                     isStormBird: true,
                     balance: []
             )
         case .ropsten:
-            return ERC20Token(
-                    contract: Address(string: Constants.ticketContractAddressRopsten)!,
-                    name: "Test Tickets",
-                    symbol: "AWTT",
+            return ERCToken(
+                    contract: contractAddress,
+                    name: name,
+                    symbol: "TICK",
                     decimals: 0,
                     isStormBird: true,
                     balance: []
@@ -167,7 +172,7 @@ struct Config {
         defaults.setValue(addresses, forKey: Keys.walletAddressesAlreadyPromptedForBackUp)
     }
 
-    func isWalletAddresseAlreadyPromptedForBackUp(address: String) -> Bool {
+    func isWalletAddressAlreadyPromptedForBackUp(address: String) -> Bool {
         if let value = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
             let addresses = value as! [String]
             return addresses.contains(address)
