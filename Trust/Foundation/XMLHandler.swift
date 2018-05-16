@@ -12,10 +12,9 @@ import TrustKeystore
 
 public class XMLHandler {
 
-    private let xml = try! XML.parse(AssetDefinitionXML.assetDefinition)
+    private let xml = try! XML.parse(AssetDefinitionXML().assetDefinitionString)
 
-    private func formatDateToMoscow(_ timestamp: Int) -> Date
-    {
+    private func formatDateToMoscow(_ timestamp: Int) -> Date {
         let formatter = DateFormatter()
         formatter.timeZone = TimeZone(secondsFromGMT: 10800)
         formatter.dateFormat = "dd/MM/yyyy hh:mm:ss a"
