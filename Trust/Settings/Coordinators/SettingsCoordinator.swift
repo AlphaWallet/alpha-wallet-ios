@@ -21,7 +21,6 @@ class SettingsCoordinator: Coordinator {
 	let storage: TransactionsStorage
 	let balanceCoordinator: GetBalanceCoordinator
 	weak var delegate: SettingsCoordinatorDelegate?
-	let pushNotificationsRegistrar = PushNotificationsRegistrar()
 	var coordinators: [Coordinator] = []
 
 	lazy var rootViewController: SettingsViewController = {
@@ -110,13 +109,6 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 			showLocales()
 		case .RPCServer, .currency, .DAppsBrowser:
 			restart(for: session.account)
-		case .pushNotifications(let enabled):
-			switch enabled {
-			case true:
-				pushNotificationsRegistrar.register()
-			case false:
-				pushNotificationsRegistrar.unregister()
-			}
 		case .locale:
 			restart(for: session.account)
 		}
