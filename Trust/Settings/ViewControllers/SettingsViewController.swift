@@ -17,13 +17,6 @@ class SettingsViewController: FormViewController {
     var isPasscodeEnabled: Bool {
         return lock.isPasscodeSet()
     }
-    static var isPushNotificationEnabled: Bool {
-        guard let settings = UIApplication.shared.currentUserNotificationSettings
-                else {
-            return false
-        }
-        return UIApplication.shared.isRegisteredForRemoteNotifications && !settings.types.isEmpty
-    }
     lazy var viewModel: SettingsViewModel = {
         return SettingsViewModel(isDebug: isDebug)
     }()
@@ -80,18 +73,6 @@ class SettingsViewController: FormViewController {
             cell.imageView?.tintColor = Colors.appBackground
             cell.imageView?.image = R.image.settings_lock()?.withRenderingMode(.alwaysTemplate)
         }
-
-        <<< AlphaWalletSettingsSwitchRow {
-            $0.title = R.string.localizable.settingsPushNotificationsButtonTitle()
-            $0.value = SettingsViewController.isPushNotificationEnabled
-        }.onChange { [unowned self] row in
-            let enabled = row.value ?? false
-            self.run(action: .pushNotifications(enabled: enabled))
-        }.cellSetup { cell, _ in
-            cell.imageView?.tintColor = Colors.appBackground
-            cell.imageView?.image = R.image.settings_push_notifications()?.withRenderingMode(.alwaysTemplate)
-        }
-
 
         <<< linkProvider(type: .twitter)
         <<< linkProvider(type: .reddit)

@@ -63,7 +63,6 @@
 "settings.biometricsEnabled.label.title" = "Código de acceso / %@";
 "settings.error.failedToSendEmail" = "Error al enviar el correo electrónico Asegúrate de tener instalada la aplicación Mail.";
 "settings.network.button.title" = "Red";
-"settings.pushNotifications.button.title" = "Notificaciones Push";
 "settings.language.button.title" = "Language";
 "settings.language.useSystem.title" = "Use System Setting";
 "settings.version.label.title" = "Versión";
