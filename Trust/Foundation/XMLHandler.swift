@@ -76,21 +76,19 @@ public class XMLHandler {
 
     func getAddressFromXML(server: RPCServer) -> Address {
         if server == .ropsten {
-            if let address = xml["asset"]["contract"]["address"][1].text {
+            if let address = xml["asset"]["contract"][0]["address"][1].text {
+                return Address(string: address)!
+            }
+        } else {
+            if let address = xml["asset"]["contract"][0]["address"][0].text {
                 return Address(string: address)!
             }
         }
-        else
-        {
-            if let address = xml["asset"]["contract"]["address"][0].text {
-                return Address(string: address)!
-            }
-        }
-        return Address(string: Constants.burnAddressString)!
+        return Address(string: Constants.ticketContractAddressRopsten)!
     }
 
     func getName(lang: Int) -> String {
-        if let name = xml["asset"]["contract"]["name"][lang].text {
+        if let name = xml["asset"]["contract"][0]["name"][lang].text {
             return name
         }
         return "N/A"
