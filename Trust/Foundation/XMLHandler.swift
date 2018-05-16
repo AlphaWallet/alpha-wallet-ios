@@ -26,6 +26,20 @@ public class XMLHandler {
         return unFormattedDate
     }
 
+    //TODO remove once parser is properly dynamic
+    public static func parseTicket(ticket: String) -> String
+    {
+        let no0xTicket = ticket.substring(from: 2)
+        let firstHalfOfTicket = no0xTicket.substring(to: 32)
+        let bigUIntFirstHalf = BigUInt(firstHalfOfTicket, radix: 16)
+        if bigUIntFirstHalf == 0 {
+            return no0xTicket
+        }
+        //if first 16 bytes are not empty then cut it in half
+        //else return with padded 0's
+        return no0xTicket.substring(from: 32)
+    }
+
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
         //check if leading or trailing zeros
         let tokenId = tokenBytes32
@@ -98,14 +112,17 @@ public class XMLHandler {
 
     func getLocality(attribute: String, lang: Int) -> String {
         //entity keys start at 1 but xml finder starts at 0, hence -1
-        let locality = Int(attribute, radix: 16)! - 1
-        if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][locality]["name"][lang].text {
-            return parsedLocality
+        if let locality = Int(attribute, radix: 16) {
+            guard locality != 0 else { return "N/A" }
+            if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][locality - 1]["name"][lang].text {
+                return parsedLocality
+            }
         }
         return "N/A"
     }
     
     func getCategory(_ cat: Int, lang: Int) -> String {
+        guard cat != 0 else { return "N/A" }
         if let category = xml["asset"]["fields"]["field"][6][0]["mapping"]["entity"][cat - 1]["name"][lang].text {
             return category
         }
@@ -113,9 +130,11 @@ public class XMLHandler {
     }
 
     func getVenue(attribute: String, lang: Int) -> String {
-        let venueNumber = Int(attribute, radix: 16)! - 1
-        if let parsedVenue = xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber]["name"][lang].text {
-            return parsedVenue
+        if let venueNumber = Int(attribute, radix: 16) {
+            guard venueNumber != 0 else { return "N/A" }
+            if let parsedVenue = xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber - 1]["name"][lang].text {
+                return parsedVenue
+            }
         }
         return "N/A"
     }
