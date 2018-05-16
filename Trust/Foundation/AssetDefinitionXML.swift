@@ -99,12 +99,12 @@ class AssetDefinitionXML {
     "</ds:KeyInfo>\n" +
     "</ds:Signature>\n" +
     "\t<contract type=\"issuing\">\n" +
-    "\t\t<address network=\"1\">0xDBc5934463Effb93a770C62EfeE4FeaeaF462ede</address>\n" +
+    "\t\t<address network=\"1\">0xA66A3F08068174e8F005112A8b2c7A507a822335</address>\n" +
     "\t\t<address network=\"3\">0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3</address>\n" +
-    "\t\t<name lang=\"ru\">Билеты</name>\n" +
-    "\t\t<name lang=\"en\">Tickets</name>\n" +
-    "\t\t<name lang=\"zh\">票</name>\n" +
-    "\t\t<name lang=\"es\">Entradas</name>\n" +
+    "\t\t<name lang=\"ru\">FIFA WC2018</name>\n" +
+    "\t\t<name lang=\"en\">FIFA WC2018</name>\n" +
+    "\t\t<name lang=\"zh\">FIFA WC2018</name>\n" +
+    "\t\t<name lang=\"es\">FIFA WC2018</name>\n" +
     "\t</contract>\n" +
     "  <!-- consider metadata of tokens, e.g. quantifier in each languages -->\n" +
     "  <features>\n" +
