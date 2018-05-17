@@ -220,13 +220,13 @@ class InCoordinator: Coordinator {
             if let balance = BigInt(eth.value) {
                 self?.ethBalance.value = BigInt(eth.value)
                 guard !(balance.isZero) else { return }
-                self?.promptBackupWallet()
+                self?.promptBackupWallet(withAddress: account.address.description)
             }
         }
     }
 
-    private func promptBackupWallet() {
-        let coordinator = PromptBackupCoordinator()
+    private func promptBackupWallet(withAddress address: String) {
+        let coordinator = PromptBackupCoordinator(walletAddress: address)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
