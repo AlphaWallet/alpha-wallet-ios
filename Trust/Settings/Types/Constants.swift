@@ -32,7 +32,7 @@ public struct Constants {
     public static let ticketContractAddressRopsten = "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3"
     public static let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
-    public static let event = "FIFA WC 2018"
+    public static let event = "FIFA WC2018"
 }
 
 public struct UnitConfiguration {

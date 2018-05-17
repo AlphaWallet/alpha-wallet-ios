@@ -142,7 +142,7 @@ struct Config {
         case .main:
             return ERCToken(
                     contract: contractAddress,
-                    name: "FIFA WC2018 " + name,
+                    name: Constants.event + " " + name,
                     symbol: "SHANKAI",
                     decimals: 0,
                     isStormBird: true,
