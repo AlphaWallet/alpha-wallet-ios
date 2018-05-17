@@ -29,9 +29,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
         return true
     }
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        appCoordinator.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: deviceToken)
-    }
     func applicationWillResignActive(_ application: UIApplication) {
         protectionCoordinator.applicationWillResignActive()
     }

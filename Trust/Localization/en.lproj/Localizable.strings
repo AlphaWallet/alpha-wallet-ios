@@ -56,7 +56,6 @@
 "settings.biometricsEnabled.label.title" = "Passcode / %@";
 "settings.error.failedToSendEmail" = "Failed to send email. Make sure you have Mail app installed.";
 "settings.network.button.title" = "Network";
-"settings.pushNotifications.button.title" = "Push Notifications";
 "settings.language.button.title" = "Language";
 "settings.language.useSystem.title" = "Use System Setting";
 "settings.version.label.title" = "Version";
