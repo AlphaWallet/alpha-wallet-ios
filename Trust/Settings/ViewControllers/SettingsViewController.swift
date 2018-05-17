@@ -47,16 +47,6 @@ class SettingsViewController: FormViewController {
             cell.accessoryType = .disclosureIndicator
         }
 
-        <<< AppFormAppearance.alphaWalletSettingsButton {
-            $0.title = R.string.localizable.aSettingsContentsNotificationsSettings()
-        }.onCellSelection { [unowned self] _, _ in
-            self.delegate?.didAction(action: .notificationsSettings, in: self)
-        }.cellSetup { cell, _ in
-            cell.imageView?.tintColor = Colors.appBackground
-            cell.imageView?.image = R.image.settings_notifications()?.withRenderingMode(.alwaysTemplate)
-            cell.accessoryType = .disclosureIndicator
-        }
-
         <<< AlphaWalletSettingsSwitchRow { [weak self] in
             $0.title = self?.viewModel.passcodeTitle
             $0.value = self?.isPasscodeEnabled
