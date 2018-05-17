@@ -135,13 +135,14 @@ struct Config {
         let lang = xmlHandler.getLang()
         let contractAddress = xmlHandler.getAddressFromXML(server: self.server)
         let name = xmlHandler.getName(lang: lang)
-        //TODO get symbol from RPC node
+        //TODO get symbol from RPC node, but this doesn't provide much benefit as it is a hardcoded
+        //placeholder anyway
         //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
         switch server {
         case .main:
             return ERCToken(
                     contract: contractAddress,
-                    name: name,
+                    name: "FIFA WC2018 " + name,
                     symbol: "SHANKAI",
                     decimals: 0,
                     isStormBird: true,
@@ -151,7 +152,7 @@ struct Config {
             return ERCToken(
                     contract: contractAddress,
                     name: name,
-                    symbol: "TICK",
+                    symbol: "TEST",
                     decimals: 0,
                     isStormBird: true,
                     balance: []
