@@ -5,7 +5,6 @@ import Foundation
 
 enum AlphaWalletSettingsAction {
 	case myWalletAddress
-	case notificationsSettings
 	case wallets
 	case locales
 	case RPCServer
