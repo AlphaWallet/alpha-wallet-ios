@@ -112,6 +112,11 @@ struct ImportTicketViewControllerViewModel {
         }
     }
 
+    var match: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        return "M\(ticketHolder.match)"
+    }
+
     var venue: String {
         guard let ticketHolder = ticketHolder else { return "" }
         if case let .validating = state {
