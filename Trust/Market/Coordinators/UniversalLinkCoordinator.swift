@@ -273,8 +273,9 @@ class UniversalLinkCoordinator: Coordinator {
 		promptBackupWallet()
 	}
 
-	private func promptBackupWallet() {
-		let coordinator = PromptBackupCoordinator()
+    private func promptBackupWallet() {
+        guard let keystore = try? EtherKeystore(), let address = keystore.recentlyUsedWallet?.address.eip55String else { return }
+		let coordinator = PromptBackupCoordinator(walletAddress: address)
 		addCoordinator(coordinator)
 		coordinator.delegate = self
 		coordinator.start()
