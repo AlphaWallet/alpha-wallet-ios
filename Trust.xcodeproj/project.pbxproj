@@ -16,7 +16,6 @@
 		290B2B6A1F92C0440053C83E /* ConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B691F92C0440053C83E /* ConfigTests.swift */; };
 		290B2B6C1F92C35B0053C83E /* RPCServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B6B1F92C35B0053C83E /* RPCServerTests.swift */; };
 		290B2B6E1F92C3980053C83E /* UserDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B6D1F92C3980053C83E /* UserDefaults.swift */; };
-		290B2B701F930AB90053C83E /* PushNotificationsRegistrar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 290B2B6F1F930AB90053C83E /* PushNotificationsRegistrar.swift */; };
 		2912CCF91F6A830700C6CBE3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2912CCF81F6A830700C6CBE3 /* AppDelegate.swift */; };
 		2912CD021F6A830700C6CBE3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2912CD011F6A830700C6CBE3 /* Assets.xcassets */; };
 		2912CD1B1F6A830700C6CBE3 /* TrustUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2912CD1A1F6A830700C6CBE3 /* TrustUITests.swift */; };
@@ -533,7 +532,6 @@
 		290B2B691F92C0440053C83E /* ConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigTests.swift; sourceTree = "<group>"; };
 		290B2B6B1F92C35B0053C83E /* RPCServerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCServerTests.swift; sourceTree = "<group>"; };
 		290B2B6D1F92C3980053C83E /* UserDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefaults.swift; sourceTree = "<group>"; };
-		290B2B6F1F930AB90053C83E /* PushNotificationsRegistrar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationsRegistrar.swift; sourceTree = "<group>"; };
 		2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlphaWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2912CCF81F6A830700C6CBE3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2912CD011F6A830700C6CBE3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -1542,7 +1540,6 @@
 			isa = PBXGroup;
 			children = (
 				29F1C85920036968003780D8 /* HelpUsCoordinator.swift */,
-				290B2B6F1F930AB90053C83E /* PushNotificationsRegistrar.swift */,
 				7721A6CF202EFD07004DB16C /* AddCustomNetworkCoordinator.swift */,
 				5E7C7B1FB2702A2A8A4EBD76 /* SettingsCoordinator.swift */,
 				5E7C7B8FD1E2BCC325DF4EE4 /* ServersCoordinator.swift */,
@@ -3506,7 +3503,6 @@
 				293112101FC4ADCB00966EEA /* InCoordinatorViewModel.swift in Sources */,
 				293112351FC9A0D500966EEA /* CallRequest.swift in Sources */,
 				291F52A91F6B7BE100B369AB /* BlockNumber.swift in Sources */,
-				290B2B701F930AB90053C83E /* PushNotificationsRegistrar.swift in Sources */,
 				739533971FEFF5FD0084AFAB /* Currency.swift in Sources */,
 				298542F31FBD594D00CB5081 /* SettingsViewModel.swift in Sources */,
 				CCA4FE381FD428B300749AE4 /* JailbreakChecker.swift in Sources */,
