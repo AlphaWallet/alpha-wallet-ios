@@ -86,6 +86,8 @@ class TokensDataStore {
         self.addEthToken()
         self.scheduledTimerForPricesUpdate()
         self.scheduledTimerForEthBalanceUpdate()
+
+        updateTicketTokenToLocalizedName()
     }
     private func addEthToken() {
         //Check if we have previos values.
@@ -335,6 +337,23 @@ class TokensDataStore {
             self?.refreshETHBalance()
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
+
+    private func updateTicketTokenToLocalizedName() {
+        if let token = config.createDefaultTicketToken() {
+            let contract = token.contract.eip55String
+            let localizedName = token.name
+            if let storedTicketToken = enabledObject.first(where: { $0.contract == contract}) {
+                updateTicketTokenName(token: storedTicketToken, to: localizedName)
+            }
+        }
+    }
+
+    private func updateTicketTokenName(token: TokenObject, to name: String) {
+        try! realm.write {
+            token.name = name
+        }
+    }
+
     deinit {
         //We should make sure that timer is invalidate.
         pricesTimer.invalidate()
