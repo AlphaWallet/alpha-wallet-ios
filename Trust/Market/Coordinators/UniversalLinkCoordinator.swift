@@ -18,6 +18,7 @@ class UniversalLinkCoordinator: Coordinator {
 	var importTicketViewController: ImportTicketViewController?
     var ethPrice: Subscribable<Double>?
     var ethBalance: Subscribable<BigInt>?
+    var hasCompleted = false
 
 	func start()
     {
@@ -246,6 +247,7 @@ class UniversalLinkCoordinator: Coordinator {
 	}
 
 	private func updateImportTicketController(with state: ImportTicketViewControllerViewModel.State, ticketHolder: TicketHolder? = nil, ethCost: String? = nil, dollarCost: String? = nil) {
+        guard !hasCompleted else { return }
 		if let vc = importTicketViewController, var viewModel = vc.viewModel {
 			viewModel.state = state
             if let ticketHolder = ticketHolder {
@@ -259,6 +261,7 @@ class UniversalLinkCoordinator: Coordinator {
             }
 			vc.configure(viewModel: viewModel)
 		}
+        hasCompleted = state.hasCompleted
 	}
 
 	private func promptImportUniversalLink(ticketHolder: TicketHolder, ethCost: String, dollarCost: String? = nil) {
