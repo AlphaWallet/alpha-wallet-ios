@@ -12,7 +12,6 @@ class AppCoordinator: NSObject, Coordinator {
         controller.delegate = self
         return controller
     }()
-    let pushNotificationRegistrar = PushNotificationsRegistrar()
     private let lock = Lock()
     private var keystore: Keystore
     private var appTracker = AppTracker()
@@ -58,7 +57,6 @@ class AppCoordinator: NSObject, Coordinator {
         } else {
             resetToWelcomeScreen()
         }
-        pushNotificationRegistrar.reRegister()
     }
 
     func showTransactions(for wallet: Wallet) {
@@ -99,17 +97,9 @@ class AppCoordinator: NSObject, Coordinator {
 
     @objc func reset() {
         lock.deletePasscode()
-        pushNotificationRegistrar.unregister()
         coordinators.removeAll()
         navigationController.dismiss(animated: true, completion: nil)
         resetToWelcomeScreen()
-    }
-
-    func didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: Data) {
-        pushNotificationRegistrar.didRegister(
-            with: deviceToken,
-            addresses: keystore.wallets.map { $0.address }
-        )
     }
 
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
@@ -167,11 +157,9 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
 extension AppCoordinator: InCoordinatorDelegate {
     func didCancel(in coordinator: InCoordinator) {
         removeCoordinator(coordinator)
-        pushNotificationRegistrar.reRegister()
         reset()
     }
 
     func didUpdateAccounts(in coordinator: InCoordinator) {
-        pushNotificationRegistrar.reRegister()
     }
 }

@@ -12,6 +12,5 @@ enum AlphaWalletSettingsAction {
 	case servers
 	case currency
 	case DAppsBrowser
-	case pushNotifications(enabled: Bool)
 	case locale
 }
