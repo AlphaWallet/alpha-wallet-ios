@@ -69,7 +69,7 @@ class AccountsCoordinator: Coordinator {
 
     func importOrCreateWallet(entryPoint: WalletEntryPoint) {
         let coordinator = WalletCoordinator(keystore: keystore)
-        if entryPoint == .createInstantWallet {
+        if case let .createInstantWallet = entryPoint {
             coordinator.navigationController = navigationController
         }
         coordinator.delegate = self
