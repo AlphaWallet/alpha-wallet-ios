@@ -166,6 +166,7 @@ class ImportTicketViewController: UIViewController {
             ticketView.categoryLabel.text = viewModel.category
             ticketView.timeLabel.text = viewModel.time
             ticketView.teamsLabel.text = viewModel.teams
+            ticketView.matchLabel.text = viewModel.match
 
             ticketView.dateImageView.isHidden = !viewModel.showTicketRowIcons
             ticketView.seatRangeImageView.isHidden = !viewModel.showTicketRowIcons
