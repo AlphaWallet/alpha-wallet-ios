@@ -474,6 +474,7 @@
 		AAEB8DA2204BC7B700CB0B2C /* RedeemTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */; };
 		AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */; };
 		B138ABD0208C2C93000FC28A /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
+		B13E57D720AC324B001719BF /* contracts in Resources */ = {isa = PBXBuildFile; fileRef = B13E57D620AC324B001719BF /* contracts */; };
 		B1DB1A95207DBF6D00CA2B77 /* XMLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */; };
 		B1DB1A97207DCECF00CA2B77 /* AssetDefinitionXML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */; };
 		B1DB1A99207DDF9600CA2B77 /* XMLHandlerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A98207DDF9600CA2B77 /* XMLHandlerTest.swift */; };
@@ -1007,6 +1008,7 @@
 		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
 		B138ABCF208C2C93000FC28A /* MonkeyTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonkeyTest.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
+		B13E57D620AC324B001719BF /* contracts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = contracts; sourceTree = "<group>"; };
 		B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLHandler.swift; sourceTree = "<group>"; };
 		B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDefinitionXML.swift; sourceTree = "<group>"; };
 		B1DB1A98207DDF9600CA2B77 /* XMLHandlerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLHandlerTest.swift; sourceTree = "<group>"; };
@@ -1153,6 +1155,7 @@
 				29A13E311F6B1B6C00E432A2 /* Style */,
 				2996F14B1F6CA725005C33AE /* Extensions */,
 				2912CCF81F6A830700C6CBE3 /* AppDelegate.swift */,
+				B13E57D620AC324B001719BF /* contracts */,
 				29D72A291F6A8D1500CE9209 /* AppCoordinator.swift */,
 				293E626E1FA2ED1400CB0A66 /* InCoordinator.swift */,
 				29850D241F6B27A800791A49 /* R.generated.swift */,
@@ -3007,6 +3010,7 @@
 				613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */,
 				C887C53A2057B703005ACF81 /* termsOfService.html in Resources */,
 				C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */,
+				B13E57D720AC324B001719BF /* contracts in Resources */,
 				C880330D2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png in Resources */,
 				29FA00D2201CA79F002F7DC5 /* web3.min.js in Resources */,
 				771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */,
