@@ -11,6 +11,7 @@ import Foundation
 public extension Date {
 
     private static var formatsMap: [String: DateFormatter] = [:]
+    private static var formatsMapLocale: String?
 
     public init?(string: String, format: String) {
         let date = Date.formatter(with: format).date(from: string)
@@ -21,16 +22,30 @@ public extension Date {
         return nil
     }
 
-    public func format(_ format: String) -> String {
-        return Date.formatter(with: format).string(from: self)
+    public func format(_ format: String, overrideWithTimezoneIdentifier timezoneIdentifier: String? = nil) -> String {
+        return Date.formatter(with: format, overrideWithTimezoneIdentifier: timezoneIdentifier).string(from: self)
     }
-    
-    public static func formatter(with format: String) -> DateFormatter {
-        var foundFormatter = Date.formatsMap[format]
+
+    public static func formatter(with format: String, overrideWithTimezoneIdentifier timezoneIdentifier: String? = nil) -> DateFormatter {
+        let config = Config()
+        if config.locale != formatsMapLocale {
+            formatsMapLocale = config.locale
+            formatsMap = Dictionary()
+        }
+
+        var foundFormatter = formatsMap[format]
         if foundFormatter == nil {
             foundFormatter = DateFormatter()
-            foundFormatter?.dateFormat = format
-            Date.formatsMap[format] = foundFormatter!
+            if let locale = config.locale {
+                foundFormatter?.locale = Locale(identifier: locale)
+            }
+            foundFormatter?.setLocalizedDateFormatFromTemplate(format)
+            formatsMap[format] = foundFormatter!
+        }
+        if let timezoneIdentifier = timezoneIdentifier, let timeZone = TimeZone(identifier: timezoneIdentifier) {
+            foundFormatter?.timeZone = timeZone
+        } else {
+            foundFormatter?.timeZone = .current
         }
         return foundFormatter!
     }
@@ -43,7 +58,7 @@ public extension Date {
         return Calendar.current.date(byAdding: .day, value: 1, to: Date())!
     }
 
-    public func formatAsShortDateString() -> String {
-        return format("dd MMM yyyy")
+    public func formatAsShortDateString(overrideWithTimezoneIdentifier timezoneIdentifier: String? = nil) -> String {
+        return format("dd MMM yyyy", overrideWithTimezoneIdentifier: timezoneIdentifier)
     }
 }
