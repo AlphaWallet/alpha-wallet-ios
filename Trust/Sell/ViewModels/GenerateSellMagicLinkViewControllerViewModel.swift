@@ -58,7 +58,6 @@ struct GenerateSellMagicLinkViewControllerViewModel {
     }
 
     var descriptionLabelText: String {
-        //TODO Should format be localized?
         return R.string.localizable.aWalletTicketTokenSellConfirmExpiryDateDescription(linkExpiryDate.format("dd MMM yyyy  hh:mm"))
     }
 
