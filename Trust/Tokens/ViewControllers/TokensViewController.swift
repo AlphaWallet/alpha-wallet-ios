@@ -30,10 +30,9 @@ class TokensViewController: UIViewController {
     let refreshControl = UIRefreshControl()
     weak var delegate: TokensViewControllerDelegate?
 
-    init(
-		session: WalletSession,
-        account: Wallet,
-        dataStore: TokensDataStore
+    init(session: WalletSession,
+         account: Wallet,
+         dataStore: TokensDataStore
     ) {
 		self.session = session
         self.account = account

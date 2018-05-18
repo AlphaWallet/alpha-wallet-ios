@@ -17,11 +17,10 @@ public struct Order {
     var contractAddress: String?;
 }
 
-class MarketOrders
-{
-    let batch : Batch
+class MarketOrders {
+    let batch: Batch
 
-    var baseURL : URL {
+    var baseURL: URL {
         return URL(string: "https://i6pk618b7f.execute-api.ap-southeast-1.amazonaws.com/test/abc")!
     }
     

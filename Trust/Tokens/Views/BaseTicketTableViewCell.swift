@@ -18,7 +18,7 @@ class BaseTicketTableViewCell: UITableViewCell {
             rowView.leadingAnchor.constraint(equalTo: leadingAnchor),
             rowView.trailingAnchor.constraint(equalTo: trailingAnchor),
             rowView.topAnchor.constraint(equalTo: topAnchor),
-            rowView.bottomAnchor.constraint(equalTo:bottomAnchor),
+            rowView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
     }
 

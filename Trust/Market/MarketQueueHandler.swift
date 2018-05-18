@@ -24,16 +24,14 @@ public class MarketQueueHandler {
     public let baseURL = "https://482kdh4npg.execute-api.ap-southeast-1.amazonaws.com/dev/"
     public let contractAddress = "bC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4".lowercased()
 
-    public func getOrders(callback: @escaping (_ result : Any) -> Void) {
-        Alamofire.request(baseURL + "contract/" + contractAddress, method: .get).responseJSON {
-            response in
+    public func getOrders(callback: @escaping (_ result: Any) -> Void) {
+        Alamofire.request(baseURL + "contract/" + contractAddress, method: .get).responseJSON { response in
             var orders = [SignedOrder]()
             if let json = response.result.value {
                 let parsedJSON = try! JSON(data: response.data!)
                 for i in 0...parsedJSON.count - 1 {
                     let orderObj: JSON = parsedJSON["orders"][i]
-                    if(orderObj == nil)
-                    {
+                    if orderObj == nil {
                         //String not used in UI
                         callback("no orders")
                         return
