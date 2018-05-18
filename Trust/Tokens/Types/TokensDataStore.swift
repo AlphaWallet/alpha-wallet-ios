@@ -342,7 +342,7 @@ class TokensDataStore {
         if let token = config.createDefaultTicketToken() {
             let contract = token.contract.eip55String
             let localizedName = token.name
-            if let storedTicketToken = enabledObject.first(where: { $0.contract == contract}) {
+            if let storedTicketToken = enabledObject.first(where: { $0.contract == contract }) {
                 updateTicketTokenName(token: storedTicketToken, to: localizedName)
             }
         }

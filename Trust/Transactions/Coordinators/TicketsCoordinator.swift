@@ -101,21 +101,21 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func showSaleConfirmationScreen(for ticketHolder: TicketHolder,
-                                                        linkExpiryDate: Date,
-                                                        ethCost: String,
-                                                        in viewController: SetSellTicketsExpiryDateViewController) {
+                                            linkExpiryDate: Date,
+                                            ethCost: String,
+                                            in viewController: SetSellTicketsExpiryDateViewController) {
         let vc = makeGenerateSellMagicLinkViewController(paymentFlow: viewController.paymentFlow, ticketHolder: ticketHolder, ethCost: ethCost, linkExpiryDate: linkExpiryDate)
         viewController.navigationController?.present(vc, animated: true)
     }
 
     private func showTransferConfirmationScreen(for ticketHolder: TicketHolder,
-                                                        linkExpiryDate: Date,
-                                                        in viewController: SetTransferTicketsExpiryDateViewController) {
+                                                linkExpiryDate: Date,
+                                                in viewController: SetTransferTicketsExpiryDateViewController) {
         let vc = makeGenerateTransferMagicLinkViewController(paymentFlow: viewController.paymentFlow, ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate)
         viewController.navigationController?.present(vc, animated: true)
     }
 
-    private func makeGenerateSellMagicLinkViewController(paymentFlow: PaymentFlow, ticketHolder: TicketHolder, ethCost: String, linkExpiryDate: Date) -> GenerateSellMagicLinkViewController{
+    private func makeGenerateSellMagicLinkViewController(paymentFlow: PaymentFlow, ticketHolder: TicketHolder, ethCost: String, linkExpiryDate: Date) -> GenerateSellMagicLinkViewController {
         let vc = GenerateSellMagicLinkViewController(
                 paymentFlow: paymentFlow,
                 ticketHolder: ticketHolder,

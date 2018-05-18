@@ -15,8 +15,7 @@ public class XMLHandler {
     private let xml = try! XML.parse(AssetDefinitionXML().assetDefinitionString)
 
     //TODO remove once parser is properly dynamic
-    public static func parseTicket(ticket: String) -> String
-    {
+    public static func parseTicket(ticket: String) -> String {
         let no0xTicket = ticket.substring(from: 2)
         let firstHalfOfTicket = no0xTicket.substring(to: 32)
         let bigUIntFirstHalf = BigUInt(firstHalfOfTicket, radix: 16)

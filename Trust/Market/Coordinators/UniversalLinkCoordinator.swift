@@ -11,7 +11,6 @@ protocol UniversalLinkCoordinatorDelegate: class {
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
 }
 
-
 class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	weak var delegate: UniversalLinkCoordinatorDelegate?
@@ -20,8 +19,7 @@ class UniversalLinkCoordinator: Coordinator {
     var ethBalance: Subscribable<BigInt>?
     var hasCompleted = false
 
-	func start()
-    {
+	func start() {
 		preparingToImportUniversalLink()
 	}
     
@@ -119,11 +117,9 @@ class UniversalLinkCoordinator: Coordinator {
 		}
 
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
-        getTicketDetailsAndEcRecover(signedOrder: signedOrder) {
-            result in
+        getTicketDetailsAndEcRecover(signedOrder: signedOrder) { result in
             if let goodResult = result {
-                if signedOrder.order.price > 0
-                {
+                if signedOrder.order.price > 0 {
                     if let balance = self.ethBalance {
                         balance.subscribeOnce { value in
                             if value > signedOrder.order.price {
@@ -146,16 +142,13 @@ class UniversalLinkCoordinator: Coordinator {
                             }
                         }
                     }
-                }
-                else
-                {
+                } else {
                     let success = self.usePaymentServerForFreeTransferLinks(
                             signedOrder: signedOrder,
                             ticketHolder: goodResult
                     )
                 }
-            }
-            else {
+            } else {
                 self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
             }
 
@@ -191,11 +184,9 @@ class UniversalLinkCoordinator: Coordinator {
         let indices = signedOrder.order.indices
         let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: false)
         
-        Alamofire.request(Constants.getTicketInfoFromServer, method: .get, parameters: parameters).responseJSON {
-            response in
+        Alamofire.request(Constants.getTicketInfoFromServer, method: .get, parameters: parameters).responseJSON { response in
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
-                if let statusCode = response.response?.statusCode
-                {
+                if let statusCode = response.response?.statusCode {
                     if statusCode > 299 {
                         completion(nil)
                         return
@@ -209,16 +200,13 @@ class UniversalLinkCoordinator: Coordinator {
                 //start at one to slice off address
                 let bytes32Tickets = Array(array[1...])
                 completion(self.sortTickets(bytes32Tickets, indices))
-            }
-            else
-            {
+            } else {
                 completion(nil)
             }
         }
     }
     
-    private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16]) -> TicketHolder
-    {
+    private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16]) -> TicketHolder {
         var tickets = [Ticket]()
         let xmlHandler = XMLHandler()
         for i in 0...bytes32Tickets.count - 1 {
@@ -293,12 +281,11 @@ class UniversalLinkCoordinator: Coordinator {
                 query,
                 method: .post,
                 parameters: parameters
-        ).responseJSON {
-            result in
+        ).responseJSON { result in
             var successful = false //need to set this to false by default else it will allow no connections to be considered successful etc
             //401 code will be given if signature is invalid on the server
             if let response = result.response {
-                if (response.statusCode < 300) {
+                if response.statusCode < 300 {
                     successful = true
                 }
             }

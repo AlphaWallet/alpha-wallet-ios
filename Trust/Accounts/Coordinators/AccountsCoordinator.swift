@@ -64,7 +64,7 @@ class AccountsCoordinator: Coordinator {
                     } else if index == 1 {
                         self.showImportWallet()
                     }
-				}
+        }
 	}
 
     func importOrCreateWallet(entryPoint: WalletEntryPoint) {
