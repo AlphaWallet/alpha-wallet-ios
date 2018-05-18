@@ -47,6 +47,51 @@ class SettingsViewController: FormViewController {
             cell.accessoryType = .disclosureIndicator
         }
 
+        <<< AppFormAppearance.alphaWalletSettingsButton { button in
+            button.cellStyle = .value1
+        }.onCellSelection { [unowned self] _, _ in
+            self.run(action: .wallets)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { cell, _ in
+            cell.imageView?.image = R.image.settings_wallet()?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
+            cell.detailTextLabel?.text = String(self.session.account.address.description.prefix(10)) + "..."
+            cell.accessoryType = .disclosureIndicator
+        }
+
+        <<< AppFormAppearance.alphaWalletSettingsButton { button in
+            button.cellStyle = .value1
+        }.onCellSelection { [unowned self] _, _ in
+            self.run(action: .servers)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { [weak self] cell, _ in
+            guard let strongSelf = self else {
+                return
+            }
+            cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = R.string.localizable.settingsNetworkButtonTitle()
+            cell.detailTextLabel?.text = RPCServer(chainID: strongSelf.config.chainID).displayName
+            cell.accessoryType = .disclosureIndicator
+        }
+
+        <<< AppFormAppearance.alphaWalletSettingsButton { button in
+            button.cellStyle = .value1
+        }.onCellSelection { [unowned self] _, _ in
+            self.run(action: .locales)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { [weak self] cell, _ in
+            guard let strongSelf = self else {
+                return
+            }
+            cell.imageView?.image = R.image.settings_language()?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = strongSelf.viewModel.localeTitle
+            cell.detailTextLabel?.text = AppLocale(id: strongSelf.config.locale).displayName
+            cell.accessoryType = .disclosureIndicator
+        }
+
         <<< AlphaWalletSettingsSwitchRow { [weak self] in
             $0.title = self?.viewModel.passcodeTitle
             $0.value = self?.isPasscodeEnabled
@@ -82,21 +127,6 @@ class SettingsViewController: FormViewController {
         }
 
         +++ Section()
-
-        <<< AppFormAppearance.alphaWalletSettingsButton { row in
-            row.cellStyle = .value1
-            row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-                let vc = AdvancedSettingsViewController(account: account, config: self.config)
-                vc.delegate = self
-                return vc }, onDismiss: { _ in
-                })
-        }.cellSetup { cell, _ in
-            cell.imageView?.tintColor = Colors.appBackground
-        }.cellUpdate { cell, _ in
-            cell.imageView?.image = R.image.settings_preferences()?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = R.string.localizable.aSettingsAdvancedLabelTitle()
-            cell.accessoryType = .disclosureIndicator
-        }
 
         <<< AlphaWalletSettingsTextRow {
             $0.disabled = true
@@ -159,10 +189,3 @@ class SettingsViewController: FormViewController {
         return 0
     }
 }
-
-extension SettingsViewController: AdvancedSettingsViewControllerDelegate {
-    func didAction(action: AlphaWalletSettingsAction, in viewController: AdvancedSettingsViewController) {
-        run(action: action)
-    }
-}
-
