@@ -32,7 +32,7 @@ class BaseTicketTableViewCell: UITableViewCell {
 
         contentView.backgroundColor = viewModel.backgroundColor
 
-        rowView.configure(viewModel: .init())
+        rowView.configure(viewModel: .init(ticketHolder: viewModel.ticketHolder))
 
         if showCheckbox() {
             rowView.checkboxImageView.image = viewModel.checkboxImage
@@ -40,22 +40,6 @@ class BaseTicketTableViewCell: UITableViewCell {
 
         rowView.stateLabel.text = "      \(viewModel.status)      "
         rowView.stateLabel.isHidden = viewModel.status.isEmpty
-
-        rowView.ticketCountLabel.text = viewModel.ticketCount
-
-        rowView.venueLabel.text = viewModel.venue
-
-        rowView.dateLabel.text = viewModel.date
-
-        rowView.cityLabel.text = ", \(viewModel.city)"
-
-        rowView.categoryLabel.text = viewModel.category
-
-        rowView.timeLabel.text = viewModel.time
-
-        rowView.teamsLabel.text = viewModel.teams
-
-        rowView.matchLabel.text = viewModel.match
 
         rowView.areDetailsVisible = viewModel.areDetailsVisible
     }

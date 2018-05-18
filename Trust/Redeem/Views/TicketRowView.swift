@@ -145,5 +145,21 @@ class TicketRowView: UIView {
 
 		teamsLabel.textColor = viewModel.subtitleColor
 		teamsLabel.font = viewModel.subtitleFont
+
+		ticketCountLabel.text = viewModel.ticketCount
+
+		venueLabel.text = viewModel.venue
+
+		dateLabel.text = viewModel.date
+
+		timeLabel.text = viewModel.time
+
+		cityLabel.text = viewModel.city
+
+		categoryLabel.text = viewModel.category
+
+		teamsLabel.text = viewModel.teams
+
+		matchLabel.text = viewModel.match
 	}
 }
