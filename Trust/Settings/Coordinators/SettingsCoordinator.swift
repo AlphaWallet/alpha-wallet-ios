@@ -32,7 +32,7 @@ class SettingsCoordinator: Coordinator {
 
 	init(
 			navigationController: UINavigationController = NavigationController(),
-            config: Config,
+			config: Config,
 			keystore: Keystore,
 			session: WalletSession,
 			storage: TransactionsStorage,

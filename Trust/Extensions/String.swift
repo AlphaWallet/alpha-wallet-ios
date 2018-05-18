@@ -103,7 +103,6 @@ extension String {
         return String(self[startIndex..<endIndex])
     }
 
-    
     func nextLetterInAlphabet(for index: Int) -> String? {
         guard let uniCode = UnicodeScalar(self) else {
             return nil

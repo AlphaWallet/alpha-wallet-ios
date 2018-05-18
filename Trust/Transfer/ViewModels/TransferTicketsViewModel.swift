@@ -41,19 +41,17 @@ struct TransferTicketsViewModel {
         return Fonts.regular(size: 20)!
     }
 
-    func toggleSelection(for indexPath: IndexPath) ->  [IndexPath] {
+    func toggleSelection(for indexPath: IndexPath) -> [IndexPath] {
         let ticketHolder = item(for: indexPath)
         var changed = [indexPath]
         if ticketHolder.areDetailsVisible {
             ticketHolder.areDetailsVisible = false
             ticketHolder.isSelected = false
         } else {
-            for (i, each) in ticketHolders!.enumerated() {
-                if each.areDetailsVisible {
-                    each.areDetailsVisible = false
-                    each.isSelected = false
-                    changed.append(.init(row: i, section: indexPath.section))
-                }
+            for (i, each) in ticketHolders!.enumerated() where each.areDetailsVisible {
+                each.areDetailsVisible = false
+                each.isSelected = false
+                changed.append(.init(row: i, section: indexPath.section))
             }
             ticketHolder.areDetailsVisible = true
             ticketHolder.isSelected = true

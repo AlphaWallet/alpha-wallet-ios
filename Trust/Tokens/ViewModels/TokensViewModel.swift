@@ -14,15 +14,13 @@ class TokensViewModel {
     var tickers: [String: CoinTicker]?
     var filter: WalletFilter = .all
     var filteredTokens: [TokenObject] {
-        get {
-            switch filter {
-            case .all:
-                return tokens
-            case .currencyOnly:
-                return tokens.filter { !$0.isStormBird }
-            case .assetsOnly:
-                return tokens.filter { $0.isStormBird }
-            }
+        switch filter {
+        case .all:
+            return tokens
+        case .currencyOnly:
+            return tokens.filter { !$0.isStormBird }
+        case .assetsOnly:
+            return tokens.filter { $0.isStormBird }
         }
     }
 
