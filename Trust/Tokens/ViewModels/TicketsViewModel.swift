@@ -40,17 +40,15 @@ struct TicketsViewModel {
         return Fonts.regular(size: 20)!
     }
 
-    func toggleDetailsVisible(for indexPath: IndexPath) ->  [IndexPath] {
+    func toggleDetailsVisible(for indexPath: IndexPath) -> [IndexPath] {
         let ticketHolder = item(for: indexPath)
         var changed = [indexPath]
         if ticketHolder.areDetailsVisible {
             ticketHolder.areDetailsVisible = false
         } else {
-            for (i, each) in ticketHolders!.enumerated() {
-                if each.areDetailsVisible {
-                    each.areDetailsVisible = false
-                    changed.append(.init(row: i, section: indexPath.section))
-                }
+            for (i, each) in ticketHolders!.enumerated() where each.areDetailsVisible {
+                each.areDetailsVisible = false
+                changed.append(.init(row: i, section: indexPath.section))
             }
             ticketHolder.areDetailsVisible = true
         }

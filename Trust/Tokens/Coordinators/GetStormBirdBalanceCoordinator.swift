@@ -45,7 +45,7 @@ class GetStormBirdBalanceCoordinator {
                                 if err is JSErrorDomain { // TODO:
                                     switch err {
                                     case JSErrorDomain.invalidReturnType(let value):
-                                        let values:[String] = (self?.adapt(value))!
+                                        let values: [String] = (self?.adapt(value))!
                                         NSLog("result error \(values)")
                                         completion(.success(values))
                                     default:
