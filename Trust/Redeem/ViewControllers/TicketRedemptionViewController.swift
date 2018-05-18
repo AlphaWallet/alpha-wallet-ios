@@ -149,20 +149,8 @@ class TicketRedemptionViewController: UIViewController {
 
         configureUI()
 
-        ticketView.configure(viewModel: .init())
+        ticketView.configure(viewModel: .init(ticketHolder: viewModel.ticketHolder))
 
         ticketView.stateLabel.isHidden = true
-
-        ticketView.ticketCountLabel.text = viewModel.ticketCount
-
-        ticketView.dateLabel.text = viewModel.date
-
-        ticketView.cityLabel.text = viewModel.city
-
-        ticketView.categoryLabel.text = viewModel.category
-
-        ticketView.teamsLabel.text = viewModel.teams
-
-        ticketView.matchLabel.text = viewModel.match
     }
  }
