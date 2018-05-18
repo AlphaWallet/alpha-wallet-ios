@@ -45,4 +45,8 @@ struct SettingsViewModel {
     var currencyTitle: String {
         return R.string.localizable.settingsCurrencyButtonTitle()
     }
+    
+    var localeTitle: String {
+        return R.string.localizable.settingsLanguageButtonTitle()
+    }
 }
