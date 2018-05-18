@@ -327,7 +327,6 @@ extension TokensViewController: UITableViewDataSource {
                     )
             )
             return cell
-            //TODO patch
         case .stormBirdOrder:
             let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
             cell.configure(
