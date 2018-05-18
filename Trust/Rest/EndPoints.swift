@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 struct EndPoints {
     static let EventBaseUrl = "https://blockchainapis.herokuapp.com/ticketpro/checkEventsUnconfirmed"
 }

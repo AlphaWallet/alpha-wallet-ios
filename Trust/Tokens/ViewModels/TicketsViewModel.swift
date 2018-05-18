@@ -40,7 +40,7 @@ struct TicketsViewModel {
         return Fonts.regular(size: 20)!
     }
 
-    func toggleDetailsVisible(for indexPath: IndexPath) ->  [IndexPath] {
+    func toggleDetailsVisible(for indexPath: IndexPath) -> [IndexPath] {
         let ticketHolder = item(for: indexPath)
         var changed = [indexPath]
         if ticketHolder.areDetailsVisible {

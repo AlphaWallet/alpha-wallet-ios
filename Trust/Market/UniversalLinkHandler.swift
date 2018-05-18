@@ -80,7 +80,7 @@ public class UniversalLinkHandler {
         var indicesBytes = [UInt8]()
         for i in 0...indices.count - 1 {
             let index = indices[i]
-            if(index < 128) {
+            if index < 128 {
                 let byte = UInt8(index)
                 indicesBytes.append(byte)
             } else {
@@ -185,24 +185,23 @@ public class UniversalLinkHandler {
 
         for i in stride(from: ticketStart, through: ticketStart + ticketLength, by: 1) {
             let byte: UInt8 = linkBytes[i]
-            switch(state) {
-                case 1:
-                    //8th bit is equal to 128, if not set then it is only one ticket and will change the state
-                    if(byte & (128) == 128) { //should be done with masks
-                        currentIndex = UInt16((byte & 127)) << 8
-                        state = 2
-                    }
-                    else {
-                        ticketIndices.append(UInt16(byte))
-                    }
-                    break
-                case 2:
-                    currentIndex += UInt16(byte)
-                    ticketIndices.append(currentIndex)
-                    state = 1
-                    break
-                default:
-                    break
+            switch state {
+            case 1:
+                //8th bit is equal to 128, if not set then it is only one ticket and will change the state
+                if byte & (128) == 128 { //should be done with masks
+                    currentIndex = UInt16((byte & 127)) << 8
+                    state = 2
+                } else {
+                    ticketIndices.append(UInt16(byte))
+                }
+                break
+            case 2:
+                currentIndex += UInt16(byte)
+                ticketIndices.append(currentIndex)
+                state = 1
+                break
+            default:
+                break
             }
         }
         return ticketIndices
@@ -221,7 +220,7 @@ public class UniversalLinkHandler {
             sBytes.append(linkBytes[i])
         }
         let s = MarketQueueHandler.bytesToHexa(sBytes)
-        var v = String(format:"%2X", linkBytes[linkBytes.count - 1]).trimmed
+        var v = String(format: "%2X", linkBytes[linkBytes.count - 1]).trimmed
         //handle JB code if he uses non standard format
         if var vInt = Int(v) {
             if vInt < 5 {

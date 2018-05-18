@@ -41,7 +41,7 @@ struct SellTicketsViewModel {
         return Fonts.regular(size: 20)!
     }
 
-    func toggleSelection(for indexPath: IndexPath) ->  [IndexPath] {
+    func toggleSelection(for indexPath: IndexPath) -> [IndexPath] {
         let ticketHolder = item(for: indexPath)
         var changed = [indexPath]
         if ticketHolder.areDetailsVisible {
