@@ -9,6 +9,15 @@ struct ImportTicketViewControllerViewModel {
         case processing
         case succeeded
         case failed(errorMessage: String)
+
+        var hasCompleted: Bool {
+            switch self {
+            case .succeeded, .failed:
+                return true
+            case .validating, .processing, .promptImport:
+                return false
+            }
+        }
     }
     var state: State
     var ticketHolder: TicketHolder?
