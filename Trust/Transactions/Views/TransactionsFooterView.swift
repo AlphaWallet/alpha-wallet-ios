@@ -12,7 +12,6 @@ class TransactionsFooterView: UIView {
         return sendButton
     }()
 
-
     override init(frame: CGRect) {
         super.init(frame: frame)
 
