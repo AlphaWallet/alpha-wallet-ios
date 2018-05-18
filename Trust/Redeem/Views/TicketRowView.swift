@@ -7,12 +7,8 @@ class TicketRowView: UIView {
 	let background = UIView()
 	let stateLabel = UILabel()
 	let ticketCountLabel = UILabel()
-	//TODO not used anymore?
-	let titleLabel = UILabel()
 	let venueLabel = UILabel()
 	let dateLabel = UILabel()
-    //TODO not used anymore?
-	let seatRangeLabel = UILabel()
 	let categoryLabel = UILabel()
 	let matchLabel = UILabel()
 	let dateImageView = UIImageView()
@@ -121,17 +117,11 @@ class TicketRowView: UIView {
 		ticketCountLabel.textColor = viewModel.countColor
 		ticketCountLabel.font = viewModel.ticketCountFont
 
-		titleLabel.textColor = viewModel.titleColor
-		titleLabel.font = viewModel.titleFont
-
 		venueLabel.textColor = viewModel.titleColor
 		venueLabel.font = viewModel.venueFont
 
 		dateLabel.textColor = viewModel.subtitleColor
 		dateLabel.font = viewModel.subtitleFont
-
-		seatRangeLabel.textColor = viewModel.subtitleColor
-		seatRangeLabel.font = viewModel.subtitleFont
 
 		categoryLabel.textColor = viewModel.titleColor
 		categoryLabel.font = viewModel.titleFont

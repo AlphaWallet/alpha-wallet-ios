@@ -288,13 +288,9 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
 
         ticketView.ticketCountLabel.text = viewModel.ticketCountString
 
-        ticketView.titleLabel.text = viewModel.title
-
         ticketView.venueLabel.text = viewModel.venue
 
         ticketView.dateLabel.text = viewModel.date
-
-        ticketView.seatRangeLabel.text = viewModel.seatRange
 
         ticketView.cityLabel.text = viewModel.city
 
