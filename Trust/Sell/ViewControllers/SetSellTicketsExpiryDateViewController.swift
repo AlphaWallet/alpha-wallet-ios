@@ -103,11 +103,17 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
         datePicker.minimumDate = Date()
         datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
         datePicker.isHidden = true
+        if let locale = Config().locale {
+            datePicker.locale = Locale(identifier: locale)
+        }
 
         timePicker.datePickerMode = .time
         timePicker.minimumDate = Date.yesterday
         timePicker.addTarget(self, action: #selector(timePickerValueChanged), for: .valueChanged)
         timePicker.isHidden = true
+        if let locale = Config().locale {
+            timePicker.locale = Locale(identifier: locale)
+        }
 
         let stackView = [
             header,

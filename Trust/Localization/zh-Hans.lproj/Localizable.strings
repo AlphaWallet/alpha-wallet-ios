@@ -223,7 +223,6 @@
 "a.welcome.onboarding.2" = "基于区块链技术，智能门票，杜绝欺诈";
 "a.welcome.onboarding.3" = "买，卖，转让各种token";
 "a.welcome.onboarding.createwallet.button.title" = "开始使用";
-"a.settings.advanced.label.title" = "高级设置";
 "a.marketplace.tabbar.item.title" = "公共市场";
 "a.claim.ticket.title" = "导入门票";
 "a.claim.ticket.prompt" = "导入门票?";
