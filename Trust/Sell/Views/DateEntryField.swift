@@ -87,7 +87,6 @@ class DateEntryField: UIControl {
     }
 
     private func displayDateString() {
-        //TODO Should format be localized?
         let dateString = value.format("dd MMM yyyy")
         leftButton.setTitle(dateString, for: .normal)
     }
