@@ -11,10 +11,10 @@ import Foundation
 //}
 
 public struct Order {
-    var price: BigInt?;
-    var ticketIndices: [Int]?;
-    var expiryBuffer: BigInt?;
-    var contractAddress: String?;
+    var price: BigInt?
+    var ticketIndices: [Int]?
+    var expiryBuffer: BigInt?
+    var contractAddress: String?
 }
 
 class MarketOrders {
@@ -32,7 +32,7 @@ class MarketOrders {
         return batch.requestObject
     }
     
-    typealias response = Array<Order>;
+    typealias response = Array<Order>
     
     func response(from resultObject: Any) throws -> Response {
         return try batch.responses(from: object)
