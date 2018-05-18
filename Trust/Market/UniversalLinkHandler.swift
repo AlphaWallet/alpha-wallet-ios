@@ -194,12 +194,10 @@ public class UniversalLinkHandler {
                 } else {
                     ticketIndices.append(UInt16(byte))
                 }
-                break
             case 2:
                 currentIndex += UInt16(byte)
                 ticketIndices.append(currentIndex)
                 state = 1
-                break
             default:
                 break
             }
