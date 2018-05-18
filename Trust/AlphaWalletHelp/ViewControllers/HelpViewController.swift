@@ -8,9 +8,9 @@ class HelpViewController: UIViewController {
     let rows: [(title: String, controller: UIViewController)] = [
         (title: R.string.localizable.aHelpContentsWhatIsETH(), controller: WhatIsEthereumInfoViewController()),
         (title: R.string.localizable.aHelpContentsHowDoIGetMyMoney(), controller: HowDoIGetMyMoneyInfoViewController()),
-        (title: R.string.localizable.aHelpContentsHowDoITransferETHIntoMyWallet(),controller: HowDoITransferETHIntoMyWalletInfoViewController()),
-        (title: R.string.localizable.aHelpContentsPrivacyPolicy(),controller: PrivacyPolicyViewController()),
-        (title: R.string.localizable.aHelpContentsTermsOfService(),controller: TermsOfServiceViewController()),
+        (title: R.string.localizable.aHelpContentsHowDoITransferETHIntoMyWallet(), controller: HowDoITransferETHIntoMyWalletInfoViewController()),
+        (title: R.string.localizable.aHelpContentsPrivacyPolicy(), controller: PrivacyPolicyViewController()),
+        (title: R.string.localizable.aHelpContentsTermsOfService(), controller: TermsOfServiceViewController()),
     ]
 
     init() {

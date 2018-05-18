@@ -35,7 +35,7 @@ PODS:
   - SeedStackViewController (0.4.0)
   - SipHash (1.2.0)
   - StatefulViewController (3.0)
-  - SwiftLint (0.24.1)
+  - SwiftLint (0.25.1)
   - SwiftyJSON (4.0.0)
   - SwiftyXMLParser (4.1.0)
   - TrezorCrypto (0.0.4)
@@ -126,7 +126,7 @@ SPEC CHECKSUMS:
   SeedStackViewController: 45e88ca1493a610e74d661d3feced7098f72dbd3
   SipHash: c6e9e43e9c531b5bc6602545130c26194a6d31ce
   StatefulViewController: 4803bf900d44de26074344998e10e041113b5931
-  SwiftLint: 2e4b89feed5909c42c3735bbd6745f4345c4b772
+  SwiftLint: ce933681be10c3266e82576dad676fa815a602e9
   SwiftyJSON: 070dabdcb1beb81b247c65ffa3a79dbbfb3b48aa
   SwiftyXMLParser: b5a79fb8a730903703d0a92d30752a0b05158967
   TrezorCrypto: 7f87a2296cf13872b21565c29fd9f7882dd00803

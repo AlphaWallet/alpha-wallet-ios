@@ -100,65 +100,65 @@ class TransactionConfigurator {
 
     func load(completion: @escaping (Result<Void, AnyError>) -> Void) {
         switch transaction.transferType {
-            case .ether:
-                guard requestEstimateGas else {
-                    return completion(.success(()))
+        case .ether:
+            guard requestEstimateGas else {
+                return completion(.success(()))
+            }
+            estimateGasLimit()
+            self.configuration = TransactionConfiguration(
+                    gasPrice: calculatedGasPrice,
+                    gasLimit: GasLimitConfiguration.default,
+                    data: transaction.data ?? self.configuration.data
+            )
+            completion(.success(()))
+        case .token:
+            session.web3.request(request: ContractERC20Transfer(amount: transaction.value, address: transaction.to!.description)) { [unowned self] result in
+                switch result {
+                case .success(let res):
+                    let data = Data(hex: res.drop0x)
+                    self.configuration = TransactionConfiguration(
+                            gasPrice: self.calculatedGasPrice,
+                            gasLimit: Constants.gasLimit,
+                            data: data
+                    )
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
                 }
-                estimateGasLimit()
-                self.configuration = TransactionConfiguration(
-                        gasPrice: calculatedGasPrice,
-                        gasLimit: GasLimitConfiguration.default,
-                        data: transaction.data ?? self.configuration.data
-                )
-                completion(.success(()))
-            case .token:
-                session.web3.request(request: ContractERC20Transfer(amount: transaction.value, address: transaction.to!.description)) { [unowned self] result in
-                    switch result {
-                    case .success(let res):
-                        let data = Data(hex: res.drop0x)
-                        self.configuration = TransactionConfiguration(
-                                gasPrice: self.calculatedGasPrice,
-                                gasLimit: Constants.gasLimit,
-                                data: data
-                        )
-                        completion(.success(()))
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
+            }
+                //TODO clean up
+        case .stormBird:
+            session.web3.request(request: ContractStormBirdTransfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
+                switch result {
+                case .success(let res):
+                    let data = Data(hex: res.drop0x)
+                    self.configuration = TransactionConfiguration(
+                            gasPrice: self.calculatedGasPrice,
+                            gasLimit: Constants.gasLimit,
+                            data: data
+                    )
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
                 }
-            //TODO clean up
-            case .stormBird:
-                session.web3.request(request: ContractStormBirdTransfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
-                    switch result {
-                    case .success(let res):
-                        let data = Data(hex: res.drop0x)
-                        self.configuration = TransactionConfiguration(
-                                gasPrice: self.calculatedGasPrice,
-                                gasLimit: Constants.gasLimit,
-                                data: data
-                        )
-                        completion(.success(()))
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
+            }
+                //TODO put order claim tx here somehow, or maybe the same one above
+        case .stormBirdOrder:
+            session.web3.request(request: ClaimStormBirdOrder(expiry: transaction.expiry!, indices: transaction.indices!,
+                    v: transaction.v!, r: transaction.r!, s: transaction.s!)) { [unowned self] result in
+                switch result {
+                case .success(let res):
+                    let data = Data(hex: res.drop0x)
+                    self.configuration = TransactionConfiguration(
+                            gasPrice: self.calculatedGasPrice,
+                            gasLimit: Constants.gasLimit,
+                            data: data
+                    )
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
                 }
-            //TODO put order claim tx here somehow, or maybe the same one above
-            case .stormBirdOrder:
-                session.web3.request(request: ClaimStormBirdOrder(expiry: transaction.expiry!, indices: transaction.indices!,
-                        v: transaction.v!, r: transaction.r!, s: transaction.s!)) { [unowned self] result in
-                    switch result {
-                    case .success(let res):
-                        let data = Data(hex: res.drop0x)
-                        self.configuration = TransactionConfiguration(
-                                gasPrice: self.calculatedGasPrice,
-                                gasLimit: Constants.gasLimit,
-                                data: data
-                        )
-                        completion(.success(()))
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
-                }
+            }
         }
     }
 

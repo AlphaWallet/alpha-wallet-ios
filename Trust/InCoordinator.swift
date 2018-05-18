@@ -90,7 +90,7 @@ class InCoordinator: Coordinator {
 
     func fetchEthPrice() {
         let keystore = try! EtherKeystore()
-        let migration = MigrationInitializer(account: keystore.recentlyUsedWallet! , chainID: config.chainID)
+        let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()
         let web3 = self.web3(for: config.server)
         web3.start()
@@ -210,7 +210,6 @@ class InCoordinator: Coordinator {
 		hideTitlesInTabBarController(tabBarController: tabBarController)
 
         showTab(inCoordinatorViewModel.initialTab)
-
 
         let etherToken = TokensDataStore.etherToken(for: config)
         tokensStorage.tokensModel.subscribe {[weak self] tokensModel in
@@ -478,8 +477,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
 
-        ClaimOrderCoordinator(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) {
-            result in
+        ClaimOrderCoordinator(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) { result in
             switch result {
             case .success(let payload):
                 let address: Address = self.initialWallet.address

@@ -60,8 +60,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     // Respond to Universal Links
     func application(_ application: UIApplication,
                      continue userActivity: NSUserActivity,
-                     restorationHandler: @escaping ([Any]?) -> Void) -> Bool
-    {
+                     restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
         let url = userActivity.webpageURL
 		universalLinkCoordinator = UniversalLinkCoordinator()
         universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
