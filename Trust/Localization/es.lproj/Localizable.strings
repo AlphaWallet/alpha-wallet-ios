@@ -218,7 +218,6 @@
 "a.wallet.address.title" = "My %@ Wallet Address";
 "a.settings.navigation.title" = "Configuración";
 "a.settings.contents.myWalletAddress" = "My Wallet Address";
-"a.settings.contents.notificationsSettings" = "Notifications Settings";
 "a.welcome.navigation.title" = "Welcome";
 "a.welcome.onboarding.1" = "Hold all your Crypto assets in one place";
 "a.welcome.onboarding.2" = "Powered by blockchain technology, smart tickets, fraud free";

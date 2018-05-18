@@ -218,7 +218,6 @@
 "a.wallet.address.title" = "我的以太坊钱包地址";
 "a.settings.navigation.title" = "我的设置";
 "a.settings.contents.myWalletAddress" = "我的钱包地址";
-"a.settings.contents.notificationsSettings" = "通知设置";
 "a.welcome.navigation.title" = "欢迎";
 "a.welcome.onboarding.1" = "支持调用各种数字资产";
 "a.welcome.onboarding.2" = "基于区块链技术，智能门票，杜绝欺诈";
