@@ -31,32 +31,4 @@ struct ChooseTicketTransferModeViewControllerViewModel {
             return Fonts.regular(size: 16)!
         }
     }
-
-    var ticketCount: String {
-        return "x\(ticketHolder.tickets.count)"
-    }
-
-    var city: String {
-        return ticketHolder.city
-    }
-
-    var category: String {
-        return String(ticketHolder.category)
-    }
-
-    var teams: String {
-        return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
-    }
-
-    var match: String {
-        return "M\(ticketHolder.match)"
-    }
-
-	var venue: String {
-        return ticketHolder.venue
-    }
-
-    var date: String {
-        return ticketHolder.date.formatAsShortDateString(overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
-    }
 }

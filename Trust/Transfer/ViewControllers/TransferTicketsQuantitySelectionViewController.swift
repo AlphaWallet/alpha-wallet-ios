@@ -125,7 +125,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
         subtitleLabel.font = viewModel.subtitleFont
         subtitleLabel.text = viewModel.subtitleText
 
-        ticketView.configure(viewModel: .init())
+        ticketView.configure(viewModel: .init(ticketHolder: viewModel.ticketHolder))
 
         quantityStepper.borderWidth = 1
         quantityStepper.clipsToBounds = true
@@ -133,20 +133,6 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
         quantityStepper.maximumValue = viewModel.maxValue
 
         ticketView.stateLabel.isHidden = true
-
-        ticketView.ticketCountLabel.text = viewModel.ticketCount
-
-        ticketView.venueLabel.text = viewModel.venue
-
-        ticketView.dateLabel.text = viewModel.date
-
-        ticketView.cityLabel.text = viewModel.city
-
-        ticketView.categoryLabel.text = viewModel.category
-
-        ticketView.teamsLabel.text = viewModel.teams
-
-        ticketView.matchLabel.text = viewModel.match
 
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor
