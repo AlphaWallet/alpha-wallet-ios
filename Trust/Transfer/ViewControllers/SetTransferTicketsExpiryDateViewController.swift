@@ -255,13 +255,9 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
 
         ticketView.ticketCountLabel.text = viewModel.ticketCount
 
-        ticketView.titleLabel.text = viewModel.title
-
         ticketView.venueLabel.text = viewModel.venue
 
         ticketView.dateLabel.text = viewModel.date
-
-        ticketView.seatRangeLabel.text = viewModel.seatRange
 
         ticketView.cityLabel.text = viewModel.city
 

@@ -15,14 +15,6 @@ struct BaseTicketTableViewCellViewModel {
         return "x\(ticketHolder.tickets.count)"
     }
 
-    var title: String {
-        return ticketHolder.name
-    }
-
-    var seatRange: String {
-        return ticketHolder.seatRange
-    }
-
     var city: String {
         return ticketHolder.city
     }
