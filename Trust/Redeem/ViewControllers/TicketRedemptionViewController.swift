@@ -102,7 +102,7 @@ class TicketRedemptionViewController: UIViewController {
             let decimalSignature = SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account)!
             let qrCodeInfo = redeemData.qrCode + decimalSignature
             imageView.image = qrCodeInfo.toQRCode()
-        case .watch: break // TODO: What to do here?
+        case .watch: break
         }
     }
 

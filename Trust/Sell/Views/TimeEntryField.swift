@@ -87,10 +87,6 @@ class TimeEntryField: UIControl {
     }
 
     private func displayTimeString() {
-        //TODO Should format be localized?
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        let timeString = formatter.string(from: value)
-        leftButton.setTitle(timeString, for: .normal)
+        leftButton.setTitle(value.format("hh:mm"), for: .normal)
     }
 }

@@ -56,8 +56,7 @@ struct SendHeaderViewViewModel {
         case .depreciate(_):
             return Colors.appRed
         case .none:
-            //TODO use the constant in Colors
-            return UIColor(red: 155, green: 155, blue: 155)
+            return Colors.appGrayLabelColor
         }
     }
 
