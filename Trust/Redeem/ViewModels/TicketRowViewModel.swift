@@ -3,6 +3,8 @@
 import UIKit
 
 struct TicketRowViewModel {
+    var ticketHolder: TicketHolder? = nil
+
     var backgroundColor: UIColor {
         return Colors.appWhite
     }
@@ -57,5 +59,45 @@ struct TicketRowViewModel {
 
     var detailsFont: UIFont {
         return Fonts.light(size: 16)!
+    }
+
+    var ticketCount: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        return "x\(ticketHolder.tickets.count)"
+    }
+
+    var city: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        return ", \(ticketHolder.city)"
+    }
+
+    var category: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        return String(ticketHolder.category)
+    }
+
+    var teams: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
+    }
+
+    var match: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        return "M\(ticketHolder.match)"
+    }
+
+    var venue: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        return ticketHolder.venue
+    }
+
+    var date: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        return ticketHolder.date.formatAsShortDateString(overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
+    }
+
+    var time: String {
+        guard let ticketHolder = ticketHolder else { return "" }
+        return ticketHolder.date.format("h:mm a", overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
     }
 }

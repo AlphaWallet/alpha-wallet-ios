@@ -118,23 +118,9 @@ class ChooseTicketTransferModeViewController: UIViewController {
 
         header.configure(title: viewModel.headerTitle)
 
-        ticketView.configure(viewModel: .init())
+        ticketView.configure(viewModel: .init(ticketHolder: ticketHolder))
 
         ticketView.stateLabel.isHidden = true
-
-        ticketView.ticketCountLabel.text = viewModel.ticketCount
-
-        ticketView.venueLabel.text = viewModel.venue
-
-        ticketView.dateLabel.text = viewModel.date
-
-        ticketView.cityLabel.text = viewModel.city
-
-        ticketView.categoryLabel.text = viewModel.category
-
-        ticketView.teamsLabel.text = viewModel.teams
-
-        ticketView.matchLabel.text = viewModel.match
 
         generateMagicLinkButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		generateMagicLinkButton.backgroundColor = viewModel.buttonBackgroundColor
