@@ -51,9 +51,9 @@ struct SendHeaderViewViewModel {
 
     var valuePercentageChangeColor: UIColor {
         switch EthCurrencyHelper(ticker: ticker).change24h {
-        case .appreciate(_):
+        case .appreciate:
             return Colors.appHighlightGreen
-        case .depreciate(_):
+        case .depreciate:
             return Colors.appRed
         case .none:
             return Colors.appGrayLabelColor

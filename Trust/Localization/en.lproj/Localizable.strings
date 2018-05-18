@@ -270,3 +270,4 @@
 "undefined.error" = "Undefined error";
 "unknown.error" = "An unknown error occurred.";
 "coming.soon" = "Coming soon";
+"backupPassword.confirmation.mustMatch" = "You must enter the same passsword in Password and Confirm Password";
