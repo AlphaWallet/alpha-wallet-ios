@@ -32,7 +32,7 @@ class MarketOrders {
         return batch.requestObject
     }
     
-    typealias response = Array<Order>
+    typealias response = [Order]
     
     func response(from resultObject: Any) throws -> Response {
         return try batch.responses(from: object)
