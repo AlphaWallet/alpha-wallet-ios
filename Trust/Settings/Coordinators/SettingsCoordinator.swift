@@ -55,12 +55,6 @@ class SettingsCoordinator: Coordinator {
 		delegate?.didPressShowWallet(in: self)
 	}
 
-	@objc func showNotificationsSettings() {
-		if let url = URL(string: UIApplicationOpenSettingsURLString) {
-			UIApplication.shared.open(url)
-		}
-	}
-
 	@objc func showAccounts() {
 		let coordinator = AccountsCoordinator(
 				navigationController: NavigationController(),
@@ -99,8 +93,6 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 		switch action {
 		case .myWalletAddress:
 			showMyWalletAddress()
-		case .notificationsSettings:
-			showNotificationsSettings()
 		case .wallets:
 			showAccounts()
 		case .servers:
