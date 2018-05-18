@@ -43,8 +43,9 @@ class WalletCoordinator: Coordinator {
         case .createInstantWallet:
             createInstantWallet()
             return false
-        case .backupWallet:
+        case .backupWallet(let address):
             if let type = keystore.recentlyUsedWallet?.type, case let .real(account) = type {
+                guard address == account.address.eip55String else { return false }
                 guard !Config().isWalletAddressAlreadyPromptedForBackUp(address: account.address.eip55String) else { return false }
                 Config().addToWalletAddressesAlreadyPromptedForBackup(address: account.address.eip55String)
                 pushBackup(for: account)
