@@ -44,14 +44,14 @@ class CreateRedeem {
 
         let bitIntLength: Int = bitFieldLookup.description.count
         var bitString = ""
-        if(bitIntLength < 10){
+        if bitIntLength < 10 {
             bitString = "0"
         }
         bitString += String(bitIntLength)
-        if(zeroCount < 100) {
+        if zeroCount < 100 {
             bitString += "0"
         }
-        if(zeroCount < 10) {
+        if zeroCount < 10 {
             bitString += "0"
         }
 

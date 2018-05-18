@@ -16,7 +16,7 @@ struct ServersViewModel {
         self.selectedServer = selectedServer
     }
 
-    func server(for indexPath: IndexPath) -> RPCServer  {
+    func server(for indexPath: IndexPath) -> RPCServer {
         return servers[indexPath.row]
     }
 
