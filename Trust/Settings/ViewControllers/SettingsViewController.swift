@@ -63,22 +63,6 @@ class SettingsViewController: FormViewController {
         <<< AppFormAppearance.alphaWalletSettingsButton { button in
             button.cellStyle = .value1
         }.onCellSelection { [unowned self] _, _ in
-            self.run(action: .servers)
-        }.cellSetup { cell, _ in
-            cell.imageView?.tintColor = Colors.appBackground
-        }.cellUpdate { [weak self] cell, _ in
-            guard let strongSelf = self else {
-                return
-            }
-            cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = R.string.localizable.settingsNetworkButtonTitle()
-            cell.detailTextLabel?.text = RPCServer(chainID: strongSelf.config.chainID).displayName
-            cell.accessoryType = .disclosureIndicator
-        }
-
-        <<< AppFormAppearance.alphaWalletSettingsButton { button in
-            button.cellStyle = .value1
-        }.onCellSelection { [unowned self] _, _ in
             self.run(action: .locales)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
@@ -112,12 +96,13 @@ class SettingsViewController: FormViewController {
         <<< linkProvider(type: .twitter)
         <<< linkProvider(type: .reddit)
         <<< linkProvider(type: .facebook)
-		<<< AppFormAppearance.alphaWalletSettingsButton { row in
-			row.cellStyle = .value1
-			row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
+        <<< AppFormAppearance.alphaWalletSettingsButton { row in
+            row.cellStyle = .value1
+            row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
                 let vc = HelpViewController()
-				return vc }, onDismiss: { _ in
-			})
+                return vc
+            }, onDismiss: { _ in
+            })
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
         }.cellUpdate { cell, _ in
@@ -127,6 +112,22 @@ class SettingsViewController: FormViewController {
         }
 
         +++ Section()
+
+        <<< AppFormAppearance.alphaWalletSettingsButton { button in
+            button.cellStyle = .value1
+        }.onCellSelection { [unowned self] _, _ in
+            self.run(action: .servers)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { [weak self] cell, _ in
+            guard let strongSelf = self else {
+                return
+            }
+            cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = R.string.localizable.settingsNetworkButtonTitle()
+            cell.detailTextLabel?.text = RPCServer(chainID: strongSelf.config.chainID).displayName
+            cell.accessoryType = .disclosureIndicator
+        }
 
         <<< AlphaWalletSettingsTextRow {
             $0.disabled = true

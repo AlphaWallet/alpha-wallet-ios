@@ -16,7 +16,7 @@ struct LocalesViewModel {
         self.selectedLocale = selectedLocale
     }
 
-    func locale(for indexPath: IndexPath) -> AppLocale  {
+    func locale(for indexPath: IndexPath) -> AppLocale {
         return locales[indexPath.row]
     }
 

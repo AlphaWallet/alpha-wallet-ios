@@ -160,7 +160,7 @@ extension TransferTicketsViaWalletAddressViewController: AddressTextFieldDelegat
         //Do nothing
     }
 
-    func shouldReturn(in textField: AddressTextField) -> Bool{
+    func shouldReturn(in textField: AddressTextField) -> Bool {
         view.endEditing(true)
         return true
     }

@@ -9,6 +9,12 @@ protocol EnterPasswordViewControllerDelegate: class {
 }
 
 class EnterPasswordViewController: FormViewController {
+    struct ValidationError: LocalizedError {
+        var msg: String
+        var errorDescription: String? {
+            return msg
+        }
+    }
 
     struct Values {
         static var password = "password"
@@ -77,8 +83,13 @@ class EnterPasswordViewController: FormViewController {
     @objc func done() {
         guard
             form.validate().isEmpty,
-            let password = passwordRow?.value
+            let password = passwordRow?.value,
+            let confirmPassword = confirmPasswordRow?.value
         else { return }
+        guard password == confirmPassword else {
+            displayError(error: ValidationError(msg: R.string.localizable.backupPasswordConfirmationMustMatch()))
+            return
+        }
 
         delegate?.didEnterPassword(password: password, for: account, in: self)
     }

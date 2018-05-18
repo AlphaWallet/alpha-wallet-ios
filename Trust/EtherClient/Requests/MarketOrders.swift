@@ -11,17 +11,16 @@ import Foundation
 //}
 
 public struct Order {
-    var price: BigInt?;
-    var ticketIndices: [Int]?;
-    var expiryBuffer: BigInt?;
-    var contractAddress: String?;
+    var price: BigInt?
+    var ticketIndices: [Int]?
+    var expiryBuffer: BigInt?
+    var contractAddress: String?
 }
 
-class MarketOrders
-{
-    let batch : Batch
+class MarketOrders {
+    let batch: Batch
 
-    var baseURL : URL {
+    var baseURL: URL {
         return URL(string: "https://i6pk618b7f.execute-api.ap-southeast-1.amazonaws.com/test/abc")!
     }
     
@@ -33,7 +32,7 @@ class MarketOrders
         return batch.requestObject
     }
     
-    typealias response = Array<Order>;
+    typealias response = [Order]
     
     func response(from resultObject: Any) throws -> Response {
         return try batch.responses(from: object)

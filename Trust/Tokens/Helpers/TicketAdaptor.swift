@@ -70,7 +70,7 @@ class TicketAdaptor {
 
     ///Group by the properties used in the hash. We abuse a dictionary to help with grouping
     private func groupTicketsByFields(tickets: [Ticket]) -> Dictionary<String, [Ticket]>.Values {
-        var dictionary = [String:[Ticket]]()
+        var dictionary = [String: [Ticket]]()
         for each in tickets {
             let hash = "\(each.city),\(each.venue),\(each.date),\(each.countryA),\(each.countryB),\(each.match),\(each.category)"
             var group = dictionary[hash] ?? []
