@@ -18,6 +18,7 @@ class RequestViewModelTests: XCTestCase {
         let config: Config = .make()
         let viewModel = RequestViewModel(account: account, config: .make())
 
+        LiveLocaleSwitcherBundle.switchLocale(to: "en")
         XCTAssertEqual("My \(config.server.name) address is: \(account.address.description)", viewModel.shareMyAddressText)
     }
 }

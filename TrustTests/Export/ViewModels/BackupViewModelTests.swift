@@ -9,6 +9,7 @@ class BackupViewModelTests: XCTestCase {
         let config: Config = .make(defaults: .test)
         let viewModel = BackupViewModel(config: config)
 
+        LiveLocaleSwitcherBundle.switchLocale(to: "en")
         XCTAssertEqual("No backup, no \(config.server.name).", viewModel.headlineText)
     }
 }

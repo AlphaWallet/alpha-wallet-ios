@@ -73,6 +73,6 @@ struct TransferTicketsQuantitySelectionViewModel {
     }
 
     var date: String {
-        return ticketHolder.date.formatAsShortDateString()
+        return ticketHolder.date.formatAsShortDateString(overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
     }
 }

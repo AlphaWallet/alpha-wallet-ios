@@ -25,7 +25,7 @@ struct BaseTicketTableViewCellViewModel {
 
     var time: String {
         //TODO Should format be localized?
-        return ticketHolder.date.format("h:mm a")
+        return ticketHolder.date.format("h:mm a", overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
     }
 
     var teams: String {
@@ -41,7 +41,7 @@ struct BaseTicketTableViewCellViewModel {
     }
 
     var date: String {
-        return ticketHolder.date.formatAsShortDateString()
+        return ticketHolder.date.formatAsShortDateString(overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
     }
 
     var backgroundColor: UIColor {
