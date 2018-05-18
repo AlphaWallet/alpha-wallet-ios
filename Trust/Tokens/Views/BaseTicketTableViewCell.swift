@@ -43,13 +43,9 @@ class BaseTicketTableViewCell: UITableViewCell {
 
         rowView.ticketCountLabel.text = viewModel.ticketCount
 
-        rowView.titleLabel.text = viewModel.title
-
         rowView.venueLabel.text = viewModel.venue
 
         rowView.dateLabel.text = viewModel.date
-
-        rowView.seatRangeLabel.text = viewModel.seatRange
 
         rowView.cityLabel.text = ", \(viewModel.city)"
 
