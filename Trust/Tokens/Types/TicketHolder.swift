@@ -22,6 +22,7 @@ class TicketHolder {
     var category: String { return tickets[0].category }
     var countryA: String { return tickets[0].countryA }
     var countryB: String { return tickets[0].countryB }
+    var timeZoneIdentifier: String? { return tickets[0].timeZoneIdentifier }
     var status: TicketHolderStatus
     var isSelected = false
     var areDetailsVisible = false

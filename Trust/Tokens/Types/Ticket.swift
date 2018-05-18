@@ -20,6 +20,7 @@ struct Ticket {
     let category: String
     let countryA: String
     let countryB: String
+    var timeZoneIdentifier: String?
     static var empty: Ticket {
         return Ticket(
                 id: Constants.nullTicket,
@@ -32,7 +33,8 @@ struct Ticket {
                 seatId: 0,
                 category: "N/A",
                 countryA: "N/A",
-                countryB: "N/A"
+                countryB: "N/A",
+                timeZoneIdentifier: nil
         )
     }
 }
