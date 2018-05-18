@@ -7,6 +7,9 @@ disabled_rules:
   - nesting
   - redundant_discardable_let
   - todo
+  - trailing_comma
+  - trailing_newline
+  - trailing_whitespace
   - type_name
   - unused_optional_binding
   - xctfail_message
