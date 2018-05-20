@@ -269,5 +269,5 @@
 "face.id" = "面容ID";
 "undefined.error" = "未知错误";
 "unknown.error" = "出现未知错误.";
-"coming.soon" = "Coming soon";
-"backupPassword.confirmation.mustMatch" = "You must enter the same passsword in Password and Confirm Password";
+"coming.soon" = "近期开放";
+"backupPassword.confirmation.mustMatch" = "请输入相同的密码进行确认";
