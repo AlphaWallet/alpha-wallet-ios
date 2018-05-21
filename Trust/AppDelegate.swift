@@ -61,15 +61,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func application(_ application: UIApplication,
                      continue userActivity: NSUserActivity,
                      restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+        appCoordinator.createInitialWallet()
+        appCoordinator.closeWelcomeWindow()
         let url = userActivity.webpageURL
-		universalLinkCoordinator = UniversalLinkCoordinator()
+        universalLinkCoordinator = UniversalLinkCoordinator()
         universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
         universalLinkCoordinator.ethBalance = appCoordinator.ethBalance
         universalLinkCoordinator.delegate = self
         universalLinkCoordinator.start()
-		let handled = universalLinkCoordinator.handleUniversalLink(url: url)
-		//TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
-
+        let handled = universalLinkCoordinator.handleUniversalLink(url: url)
+        //TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
         return true
     }
 }
