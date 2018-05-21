@@ -512,7 +512,7 @@ extension TicketsCoordinator: TransferTicketsViaWalletAddressViewControllerDeleg
             }
 
             //Defensive. Should already be checked before this
-            guard let address = Address(string: walletAddress) else {
+            guard let _ = Address(string: walletAddress) else {
                 return self.navigationController.displayError(error: Errors.invalidAddress)
             }
 
