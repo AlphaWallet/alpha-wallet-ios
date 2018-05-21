@@ -6,7 +6,7 @@ import UIKit
 import BigInt
 
 class AppCoordinator: NSObject, Coordinator {
-    let navigationController: UINavigationController
+    let navigationController: UINavigationController 
     lazy var welcomeViewController: WelcomeViewController = {
         let controller = WelcomeViewController()
         controller.delegate = self
@@ -70,6 +70,16 @@ class AppCoordinator: NSObject, Coordinator {
         coordinator.start()
         addCoordinator(coordinator)
     }
+    
+    func closeWelcomeWindow() {
+        guard navigationController.viewControllers.contains(welcomeViewController) else {
+            return
+        }
+        navigationController.dismiss(animated: true, completion: nil)
+        if let wallet = keystore.recentlyUsedWallet {
+            showTransactions(for: wallet)
+        }
+    }
 
     func inializers() {
         var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).flatMap { URL(fileURLWithPath: $0) }
@@ -121,6 +131,10 @@ class AppCoordinator: NSObject, Coordinator {
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
+    }
+    
+    func createInitialWallet() {
+        WalletCoordinator(keystore: keystore).createInitialWallet()
     }
 }
 

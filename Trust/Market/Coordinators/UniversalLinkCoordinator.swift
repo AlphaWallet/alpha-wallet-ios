@@ -4,6 +4,7 @@ import Foundation
 import Alamofire
 import BigInt
 import Realm
+import TrustKeystore
 
 protocol UniversalLinkCoordinatorDelegate: class {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
@@ -18,6 +19,7 @@ class UniversalLinkCoordinator: Coordinator {
     var ethPrice: Subscribable<Double>?
     var ethBalance: Subscribable<BigInt>?
     var hasCompleted = false
+    var addressOfNewWallet: String?
 
 	func start() {
 		preparingToImportUniversalLink()
@@ -39,7 +41,7 @@ class UniversalLinkCoordinator: Coordinator {
             "v": signature.substring(from: 128),
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
-            "networkId": Config.init().chainID.description
+            "networkId": Config().chainID.description
         ]
         
         if isForTransfer {
@@ -112,12 +114,12 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
 	//Returns true if handled
+    
 	func handleUniversalLink(url: URL?) -> Bool {
 		let matchedPrefix = (url?.description.contains(UniversalLinkHandler().urlPrefix))!
 		guard matchedPrefix else {
 			return false
 		}
-
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) { result in
             if let goodResult = result {
