@@ -143,8 +143,8 @@ class TransactionDataCoordinator {
         Session.send(EtherServiceRequest(batch: BatchFactory().create(request))) { [weak self] result in
             guard let `self` = self else { return }
             switch result {
-            case .success(let parsedTransaction):
-                // NSLog("parsedTransaction \(parsedTransaction)")
+            case .success:
+                // NSLog("parsedTransaction \(_parsedTransaction)")
                 if transaction.date > Date().addingTimeInterval(Config.deleyedTransactionInternalSeconds) {
                     self.update(state: .completed, for: transaction)
                     self.update(items: [transaction])
@@ -156,7 +156,7 @@ class TransactionDataCoordinator {
                     // TODO: Think about the logic to handle pending transactions.
                     guard let error = error as? JSONRPCError else { return }
                     switch error {
-                    case .responseError(let code, let message, _):
+                    case .responseError:
                         // NSLog("code \(code), error: \(message)")
                         self.delete(transactions: [transaction])
                     case .resultObjectParseError:

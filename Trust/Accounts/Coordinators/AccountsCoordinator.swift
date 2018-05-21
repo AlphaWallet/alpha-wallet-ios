@@ -69,7 +69,7 @@ class AccountsCoordinator: Coordinator {
 
     func importOrCreateWallet(entryPoint: WalletEntryPoint) {
         let coordinator = WalletCoordinator(keystore: keystore)
-        if case let .createInstantWallet = entryPoint {
+        if case .createInstantWallet = entryPoint {
             coordinator.navigationController = navigationController
         }
         coordinator.delegate = self
@@ -144,7 +144,7 @@ extension AccountsCoordinator: WalletCoordinatorDelegate {
         delegate?.didAddAccount(account: account, in: self)
         if let delegate = delegate {
             self.removeCoordinator(coordinator)
-            self.delegate?.didSelectAccount(account: account, in: self)
+            delegate.didSelectAccount(account: account, in: self)
         } else {
             accountsViewController.fetch()
             coordinator.navigationController.dismiss(animated: true, completion: nil)

@@ -7,9 +7,7 @@ import Eureka
 func applyStyle() {
 
     if #available(iOS 11, *) {
-        if #available(iOS 11, *) {
-            UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.appBackground
-        }
+        UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.appBackground
     } else {
         UINavigationBar.appearance().isTranslucent = false
     }
@@ -21,7 +19,7 @@ func applyStyle() {
     UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
     UINavigationBar.appearance().titleTextAttributes = [
         .foregroundColor: Colors.appWhite,
-        .font: Fonts.light(size: 25)
+        .font: Fonts.light(size: 25) as Any
     ]
 
     //We could have set the backBarButtonItem with an empty title for every view controller, but we don't have a place to do it for Eureka view controllers. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance

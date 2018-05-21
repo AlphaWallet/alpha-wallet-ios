@@ -139,7 +139,6 @@ extension RedeemTicketsViewController: UITableViewDelegate, UITableViewDataSourc
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let ticketHolder = viewModel.item(for: indexPath)
         let changedIndexPaths = viewModel.toggleSelection(for: indexPath)
         animateRowHeightChanges(for: changedIndexPaths, in: tableView)
     }
