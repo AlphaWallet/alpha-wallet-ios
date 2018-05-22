@@ -111,7 +111,7 @@ struct Config {
             case .rinkeby: return "https://rinkeby.trustwalletapp.com"
             case .poa: return "https://poa.trustwalletapp.com"
             case .sokol: return "https://trust-sokol.herokuapp.com"
-            case .custom(let custom):
+            case .custom:
                 return "" // Enable? make optional
             }
         }()

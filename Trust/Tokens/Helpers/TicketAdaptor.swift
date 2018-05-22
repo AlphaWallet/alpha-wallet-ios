@@ -58,7 +58,7 @@ class TicketAdaptor {
             var results = results
             if var previousRange = results.last, let previousTicket = previousRange.last, previousTicket.seatId + 1 == ticket.seatId {
                 previousRange.append(ticket)
-                results.popLast()
+                let _ = results.popLast()
                 results.append(previousRange)
                 return results
             } else {
