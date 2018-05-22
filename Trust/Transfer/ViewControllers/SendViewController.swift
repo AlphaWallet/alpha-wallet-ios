@@ -465,7 +465,7 @@ class SendViewController: UIViewController {
             self.headerViewModel.currencyAmount = self.session.balanceCoordinator.viewModel.currencyAmount
             self.headerViewModel.currencyAmountWithoutSymbol = self.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
             if let viewModel = self.viewModel {
-                configure(viewModel: self.viewModel)
+                configure(viewModel: viewModel)
             }
         default:
             break

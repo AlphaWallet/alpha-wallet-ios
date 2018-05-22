@@ -64,7 +64,7 @@ struct TransactionViewModel {
         let amount = NSAttributedString(
             string: amountWithSign(for: value.amount),
             attributes: [
-                .font: Fonts.regular(size: 24),
+                .font: Fonts.regular(size: 24) as Any,
                 .foregroundColor: amountTextColor,
             ]
         )
@@ -72,7 +72,7 @@ struct TransactionViewModel {
         let currency = NSAttributedString(
             string: " " + value.symbol,
             attributes: [
-                .font: Fonts.regular(size: 16)
+                .font: Fonts.regular(size: 16) as Any
             ]
         )
 
