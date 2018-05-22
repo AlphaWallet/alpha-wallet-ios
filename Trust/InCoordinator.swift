@@ -103,8 +103,7 @@ class InCoordinator: Coordinator {
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
                 return
             }
-            var ticker = tokensStorage.coinTicker(for: eth)
-            if let ticker = ticker {
+            if let ticker = tokensStorage.coinTicker(for: eth) {
                 self?.ethPrice.value = Double(ticker.price)
             } else {
                 tokensStorage.updatePricesAfterComingOnline()
@@ -324,7 +323,6 @@ class InCoordinator: Coordinator {
         }
         //TODO do we need to pass these (especially tokenStorage) to showTransferViewController(for:ticketHolders:) to make sure storage is synchronized?
         let session = transactionCoordinator.session
-        let tokenStorage = transactionCoordinator.tokensStorage
 
         switch (paymentFlow, session.account.type) {
         case (.send, .real), (.request, _):

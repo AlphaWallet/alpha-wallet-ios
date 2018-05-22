@@ -203,7 +203,6 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let ticketHolder = viewModel.item(for: indexPath)
         let changedIndexPaths = viewModel.toggleDetailsVisible(for: indexPath)
         animateRowHeightChanges(for: changedIndexPaths, in: tableView)
     }
