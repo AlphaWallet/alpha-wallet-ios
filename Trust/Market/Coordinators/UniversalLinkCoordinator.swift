@@ -53,7 +53,8 @@ class UniversalLinkCoordinator: Coordinator {
 
     func handlePaidUniversalLink(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
         //TODO localize
-        if let viewController = delegate?.viewControllerForPresenting(in: self) {
+        //TODO improve. Not an obvious link between the variables used in the if-statement and the body
+        if delegate?.viewControllerForPresenting(in: self) != nil {
             if let vc = importTicketViewController {
                 vc.signedOrder = signedOrder
                 vc.tokenObject = TokenObject(contract: signedOrder.order.contractAddress,
@@ -96,7 +97,8 @@ class UniversalLinkCoordinator: Coordinator {
     func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
         let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: true)
         let query = Constants.paymentServer
-        if let viewController = delegate?.viewControllerForPresenting(in: self) {
+        //TODO improve. Not an obvious link between the variables used in the if-statement and the body
+        if delegate?.viewControllerForPresenting(in: self) != nil {
             if let vc = importTicketViewController {
                 vc.query = query
                 vc.parameters = parameters
@@ -125,7 +127,7 @@ class UniversalLinkCoordinator: Coordinator {
                     if let balance = self.ethBalance {
                         balance.subscribeOnce { value in
                             if value > signedOrder.order.price {
-                                let success = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: goodResult)
+                                let _ = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: goodResult)
                             } else {
                                 if let price = self.ethPrice {
                                     if price.value == nil {
@@ -145,7 +147,7 @@ class UniversalLinkCoordinator: Coordinator {
                         }
                     }
                 } else {
-                    let success = self.usePaymentServerForFreeTransferLinks(
+                    let _ = self.usePaymentServerForFreeTransferLinks(
                             signedOrder: signedOrder,
                             ticketHolder: goodResult
                     )
@@ -292,16 +294,15 @@ class UniversalLinkCoordinator: Coordinator {
                 }
             }
 
-            if let vc = self.importTicketViewController {
+            //TODO improve. Not an obvious link between the variables used in the if-statement and the body
+            if let vc = self.importTicketViewController, vc.viewModel != nil {
                 // TODO handle http response
                 print(result)
-                if let vc = self.importTicketViewController, var viewModel = vc.viewModel {
-                    if successful {
-                        self.showImportSuccessful()
-                    } else {
-                        //TODO Pass in error message
-                        self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
-                    }
+                if successful {
+                    self.showImportSuccessful()
+                } else {
+                    //TODO Pass in error message
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
                 }
             }
         }
@@ -314,6 +315,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func convert(ethCost: BigUInt) -> Decimal {
+        //TODO extract constant. Used elsewhere too
         let divideAmount = Decimal(string: "1000000000000000000")!
         let etherCostDecimal = Decimal(string: ethCost.description)! / divideAmount
         return etherCostDecimal

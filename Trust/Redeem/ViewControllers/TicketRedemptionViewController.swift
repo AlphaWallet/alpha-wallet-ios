@@ -47,7 +47,6 @@ class TicketRedemptionViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
 
-        let xMargin  = CGFloat(16)
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),

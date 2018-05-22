@@ -59,7 +59,7 @@ struct ImportTicketViewControllerViewModel {
 
     var ticketCount: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        if case let .validating = state {
+        if case .validating = state {
             return ""
         } else {
             return "x\(ticketHolder.tickets.count)"
@@ -68,7 +68,7 @@ struct ImportTicketViewControllerViewModel {
 
     var city: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        if case let .validating = state {
+        if case .validating = state {
             return ""
         } else {
             return ticketHolder.city
@@ -77,7 +77,7 @@ struct ImportTicketViewControllerViewModel {
 
     var category: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        if case let .validating = state {
+        if case .validating = state {
             return ""
         } else {
             return String(ticketHolder.category)
@@ -86,7 +86,7 @@ struct ImportTicketViewControllerViewModel {
 
     var time: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        if case let .validating = state {
+        if case .validating = state {
             return ""
         } else {
             return ticketHolder.date.format("hh:mm", overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
@@ -95,7 +95,7 @@ struct ImportTicketViewControllerViewModel {
 
     var teams: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        if case let .validating = state {
+        if case .validating = state {
             return ""
         } else {
             return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
@@ -109,7 +109,7 @@ struct ImportTicketViewControllerViewModel {
 
     var venue: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        if case let .validating = state {
+        if case .validating = state {
             return ""
         } else {
             return ticketHolder.venue
@@ -118,7 +118,7 @@ struct ImportTicketViewControllerViewModel {
 
     var date: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        if case let .validating = state {
+        if case .validating = state {
             return ""
         } else {
             return ticketHolder.date.format("dd MMM yyyy", overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
@@ -126,7 +126,7 @@ struct ImportTicketViewControllerViewModel {
     }
 
     var showTicketRowIcons: Bool {
-        if case let .validating = state {
+        if case .validating = state {
             return false
         } else {
             return true
@@ -149,7 +149,7 @@ struct ImportTicketViewControllerViewModel {
     }
 
     var statusColor: UIColor {
-        if case let .failed = state {
+        if case .failed = state {
             return Colors.appRed
         } else {
             return UIColor(red: 20, green: 20, blue: 20)

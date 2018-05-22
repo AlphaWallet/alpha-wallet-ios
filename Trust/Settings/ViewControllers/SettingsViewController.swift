@@ -29,8 +29,6 @@ class SettingsViewController: FormViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let account = session.account
-
         view.backgroundColor = Colors.appBackground
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appBackground

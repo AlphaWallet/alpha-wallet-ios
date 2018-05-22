@@ -18,7 +18,7 @@ class AmountTextField: UIControl {
     }
     var ethToDollarRate: Double? = nil {
         didSet {
-            if let ethToDollarRate = ethToDollarRate {
+            if let _ = ethToDollarRate {
                 updateAlternatePricingDisplay()
             }
         }
