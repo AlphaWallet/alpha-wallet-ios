@@ -17,7 +17,7 @@
                BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
                BuildableName = "AlphaWallet.app"
                BlueprintName = "AlphaWallet"
-               ReferencedContainer = "container:Trust.xcodeproj">
+               ReferencedContainer = "container:AlphaWallet.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -36,7 +36,7 @@
                BlueprintIdentifier = "2912CD0A1F6A830700C6CBE3"
                BuildableName = "AlphaWalletTests.xctest"
                BlueprintName = "AlphaWalletTests"
-               ReferencedContainer = "container:Trust.xcodeproj">
+               ReferencedContainer = "container:AlphaWallet.xcodeproj">
             </BuildableReference>
             <SkippedTests>
                <Test
@@ -168,7 +168,7 @@
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
             BuildableName = "AlphaWallet.app"
             BlueprintName = "AlphaWallet"
-            ReferencedContainer = "container:Trust.xcodeproj">
+            ReferencedContainer = "container:AlphaWallet.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -192,7 +192,7 @@
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
             BuildableName = "AlphaWallet.app"
             BlueprintName = "AlphaWallet"
-            ReferencedContainer = "container:Trust.xcodeproj">
+            ReferencedContainer = "container:AlphaWallet.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -210,7 +210,7 @@
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
             BuildableName = "AlphaWallet.app"
             BlueprintName = "AlphaWallet"
-            ReferencedContainer = "container:Trust.xcodeproj">
+            ReferencedContainer = "container:AlphaWallet.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>
