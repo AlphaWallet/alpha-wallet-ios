@@ -211,8 +211,6 @@ class ImportWalletViewController: UIViewController {
             return validatePrivateKey()
         case .watch:
             return validateWatch()
-        default:
-            return true
         }
     }
 
@@ -325,8 +323,6 @@ class ImportWalletViewController: UIViewController {
             privateKeyTextView.value = string
         case .watch:
             watchAddressTextField.value = string
-        default:
-            return
         }
     }
 
@@ -450,8 +446,6 @@ extension ImportWalletViewController: ImportWalletTabBarDelegate {
             showPrivateKeyControlsOnly()
         case .watch:
             showWatchControlsOnly()
-        default:
-            break
         }
     }
 }
