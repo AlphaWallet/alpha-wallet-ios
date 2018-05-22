@@ -14,7 +14,7 @@ class WalletCoordinator: Coordinator {
     var navigationController: UINavigationController
     weak var delegate: WalletCoordinatorDelegate?
     var entryPoint: WalletEntryPoint?
-    let keystore: Keystore
+    var keystore: Keystore
     var coordinators: [Coordinator] = []
 
     init(
@@ -60,6 +60,13 @@ class WalletCoordinator: Coordinator {
         let controller = ImportWalletViewController(keystore: keystore)
         controller.delegate = self
         navigationController.pushViewController(controller, animated: true)
+    }
+    
+    func createInitialWallet() {
+        if !keystore.hasWallets {
+            let account = keystore.createAccount(password: PasswordGenerator.generateRandom())
+            keystore.recentlyUsedWallet = Wallet(type: WalletType.real(account))
+        }
     }
 
     func createInstantWallet() {

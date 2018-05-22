@@ -84,7 +84,6 @@ class TransactionsViewController: UIViewController {
 
         reflectActionButtonsVisibility()
 
-        let separatorThickness = CGFloat(1)
         NSLayoutConstraint.activate([
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
