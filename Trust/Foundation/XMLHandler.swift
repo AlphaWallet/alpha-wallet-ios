@@ -10,6 +10,31 @@ import SwiftyXMLParser
 import BigInt
 import TrustKeystore
 
+//  Case by types e.g. enumeration
+//  DIctionary class for non fungible token
+//  TODO handle flexible attribute names e.g. asset, contract
+//  Handle generics for multiple asset defintions
+
+extension XML.Accessor {
+    func getElement(attributeName: String, attributeValue: String) -> XML.Element? {
+        switch self {
+        case .singleElement(let element):
+            let attributeIsCorrect = element.attributes[attributeName] == attributeValue
+            if attributeIsCorrect {
+                return element
+            } else {
+                return nil
+            }
+            case .sequence(let elements):
+                return elements.first {
+                    $0.attributes[attributeName] == attributeValue
+                }
+            case .failure:
+                return nil
+        }
+    }
+}
+
 public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML().assetDefinitionString)
@@ -77,50 +102,50 @@ public class XMLHandler {
         return Address(string: Constants.ticketContractAddressRopsten)!
     }
 
-    func getName(lang: Int) -> String {
-        if let name = xml["asset"]["contract"][0]["name"][lang].text {
+    func getName(lang: String) -> String {
+        if let name = xml["asset"]["contract"][0]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
             return name
         }
         return "N/A"
     }
     
-    func getLang() -> Int {
+    func getLang() -> String {
         let lang = Locale.preferredLanguages[0]
-        var langNum = 0
-        //english etc is often en-SG
         if lang.hasPrefix("en") {
-            langNum = 1
+            return "en"
         } else if lang.hasPrefix("zh") {
-            langNum = 2
+            return "zh"
         } else if lang.hasPrefix("es") {
-            langNum = 3
+            return "es"
+        } else if lang.hasPrefix("ru") {
+            return "ru"
         }
-        return langNum
+        return "en"
     }
 
-    func getLocality(attribute: String, lang: Int) -> String {
+    func getLocality(attribute: String, lang: String) -> String {
         //entity keys start at 1 but xml finder starts at 0, hence -1
         if let locality = Int(attribute, radix: 16) {
             guard locality != 0 else { return "N/A" }
-            if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][locality - 1]["name"][lang].text {
+            if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][locality - 1]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
                 return parsedLocality
             }
         }
         return "N/A"
     }
     
-    func getCategory(_ cat: Int, lang: Int) -> String {
+    func getCategory(_ cat: Int, lang: String) -> String {
         guard cat != 0 else { return "N/A" }
-        if let category = xml["asset"]["fields"]["field"][6][0]["mapping"]["entity"][cat - 1]["name"][lang].text {
+        if let category = xml["asset"]["fields"]["field"][6][0]["mapping"]["entity"][cat - 1]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
             return category
         }
         return "N/A"
     }
 
-    func getVenue(attribute: String, lang: Int) -> String {
+    func getVenue(attribute: String, lang: String) -> String {
         if let venueNumber = Int(attribute, radix: 16) {
             guard venueNumber != 0 else { return "N/A" }
-            if let parsedVenue = xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber - 1]["name"][lang].text {
+            if let parsedVenue = xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber - 1]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
                 return parsedVenue
             }
         }
