@@ -10,30 +10,9 @@ import SwiftyXMLParser
 import BigInt
 import TrustKeystore
 
-//  Case by types e.g. enumeration
 //  DIctionary class for non fungible token
 //  TODO handle flexible attribute names e.g. asset, contract
 //  Handle generics for multiple asset defintions
-
-extension XML.Accessor {
-    func getElement(attributeName: String, attributeValue: String) -> XML.Element? {
-        switch self {
-        case .singleElement(let element):
-            let attributeIsCorrect = element.attributes[attributeName] == attributeValue
-            if attributeIsCorrect {
-                return element
-            } else {
-                return nil
-            }
-        case .sequence(let elements):
-            return elements.first {
-                $0.attributes[attributeName] == attributeValue
-            }
-        case .failure:
-            return nil
-        }
-    }
-}
 
 public class XMLHandler {
 
@@ -58,39 +37,46 @@ public class XMLHandler {
         guard tokenId != 0 else { return .empty }
         let lang = getLang()
         let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
-        let locationField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "locality")!
-        let localityIndex = FieldType(field: locationField).parseValueAsInt(tokenValueHex: tokenHex)
-        let venue = getVenue(attribute: tokenHex.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
-        let timeField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "time")!
-        let time = FieldType(field: timeField).parseValueAsInt(tokenValueHex: tokenHex)
-        //translatable to ascii
-        let countryAField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "countryA")!
-        let countryAString = FieldType(field: countryAField).parseValueAsAscii(tokenValueHex: tokenHex)
-        let countryBField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "countryB")!
-        let countryBString = FieldType(field: countryBField).parseValueAsAscii(tokenValueHex: tokenHex)
-        let matchField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "match")!
-        let match = FieldType(field: matchField).parseValueAsInt(tokenValueHex: tokenHex)
-        let categoryField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "category")!
-        let category = FieldType(field: categoryField).parseValueAsInt(tokenValueHex: tokenHex)
-        let numeroField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "numero")!
-        let numero = FieldType(field: numeroField).parseValueAsInt(tokenValueHex: tokenHex)
+        let fields = extractFields()
+
+        //TODO should check for nil and handle rather than default to any value in this class. Or maybe the asset definition XML is missing. Otherwise, it should be returning a reasonable default already
+        let locality: String = fields["locality"]?.extract(from: tokenHex) ?? ""
+        let venue: String = fields["venue"]?.extract(from: tokenHex) ?? ""
+        let time: Date = fields["time"]?.extract(from: tokenHex) ?? Date()
+        let countryA: String = fields["countryA"]?.extract(from: tokenHex) ?? ""
+        let countryB: String = fields["countryB"]?.extract(from: tokenHex) ?? ""
+        let match: Int = fields["match"]?.extract(from: tokenHex) ?? 0
+        let category: String = fields["category"]?.extract(from: tokenHex) ?? ""
+        let numero: Int = fields["numero"]?.extract(from: tokenHex) ?? 0
+
         //TODO derive/extract from XML
         let timeZoneIdentifier = Constants.eventTimeZone
 
         return Ticket(
                 id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
                 index: index,
-                city: getLocality(localityNumber: localityIndex, lang: lang),
+                city: locality,
                 name: getName(lang: lang),
                 venue: venue,
                 match: match,
-                date: Date(timeIntervalSince1970: TimeInterval(time)),
+                date: time,
                 seatId: numero,
-                category: getCategory(cat: category, lang: lang),
-                countryA: countryAString,
-                countryB: countryBString,
+                category: category,
+                countryA: countryA,
+                countryB: countryB,
                 timeZoneIdentifier: timeZoneIdentifier
         )
+    }
+
+    private func extractFields() -> [String: AssetField] {
+        let lang = getLang()
+        var fields = [String: AssetField]()
+        for e in xml["asset"]["fields"]["field"] {
+            if let id = e.attributes["id"], case let .singleElement(element) = e {
+                fields[id] = AssetField(field: element, lang: lang)
+            }
+        }
+        return fields
     }
 
     func getAddressFromXML(server: RPCServer) -> Address {
@@ -107,7 +93,7 @@ public class XMLHandler {
     }
 
     func getName(lang: String) -> String {
-        if let name = xml["asset"]["contract"][0]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
+        if let name = xml["asset"]["contract"][0]["name"].getElementWithLangAttribute(equals: lang)?.text {
             return name
         }
         return "N/A"
@@ -126,32 +112,5 @@ public class XMLHandler {
         }
         return "en"
     }
-
-    func getLocality(localityNumber: Int, lang: String) -> String {
-        //entity keys start at 1 but xml finder starts at 0, hence -1
-        guard localityNumber != 0 else { return "N/A" }
-        if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][localityNumber - 1]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
-            return parsedLocality
-        }
-        return "N/A"
-    }
-    
-    func getCategory(cat: Int, lang: String) -> String {
-        guard cat != 0 else { return "N/A" }
-        if let category = xml["asset"]["fields"]["field"][6][0]["mapping"]["entity"][cat - 1]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
-            return category
-        }
-        return "N/A"
-    }
-
-    func getVenue(attribute: String, lang: String) -> String {
-        if let venueNumber = Int(attribute, radix: 16) {
-            guard venueNumber != 0 else { return "N/A" }
-            if let parsedVenue = xml["asset"]["fields"]["field"][1][0]["mapping"]["entity"][venueNumber - 1]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
-                return parsedVenue
-            }
-        }
-        return "N/A"
-    }
-
 }
+
