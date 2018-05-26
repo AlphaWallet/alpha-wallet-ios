@@ -10,36 +10,37 @@ import SwiftyXMLParser
 import BigInt
 import TrustKeystore
 
-//  Case by types e.g. enumeration
 //  DIctionary class for non fungible token
 //  TODO handle flexible attribute names e.g. asset, contract
 //  Handle generics for multiple asset defintions
 
-//kkk need to move?
+//TODO move to separate file?
 extension XML.Accessor {
-    func getElement(attributeName: String, attributeValue: String) -> XML.Element? {
+    func getElement(attributeName: String, attributeValue: String) -> XML.Accessor? {
         switch self {
         case .singleElement(let element):
             let attributeIsCorrect = element.attributes[attributeName] == attributeValue
             if attributeIsCorrect {
-                return element
+                return XML.Accessor(element)
             } else {
                 return nil
             }
         case .sequence(let elements):
-            return elements.first {
-                $0.attributes[attributeName] == attributeValue
+            if let element = elements.first(where: { $0.attributes[attributeName] == attributeValue }) {
+                return XML.Accessor(element)
+            } else {
+                return nil
             }
         case .failure:
             return nil
         }
     }
 
-    func getElementWithKeyAttribute(equals value: String) -> XML.Element? {
+    func getElementWithKeyAttribute(equals value: String) -> XML.Accessor? {
         return getElement(attributeName: "key", attributeValue: value)
     }
 
-    func getElementWithLangAttribute(equals value: String) -> XML.Element? {
+    func getElementWithLangAttribute(equals value: String) -> XML.Accessor? {
         return getElement(attributeName: "lang", attributeValue: value)
     }
 }
@@ -67,31 +68,17 @@ public class XMLHandler {
         guard tokenId != 0 else { return .empty }
         let lang = getLang()
         let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
+        let fields = extractFields()
 
-        let locationField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "locality")!
-        //kkk should check for nil and handle rather than default to any value in this class. It should be returning a reasonable default already
-        let locality: String = FieldType(field: locationField, lang: lang).parseValue(tokenValueHex: tokenHex) ?? ""
-
-        let venueField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "locality")!
-        let venue: String = FieldType(field: venueField, lang: lang).parseValue(tokenValueHex: tokenHex) ?? ""
-
-        let timeField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "time")!
-        let time: Date = FieldType(field: timeField, lang: lang).parseValue(tokenValueHex: tokenHex) ?? Date()
-
-        let countryAField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "countryA")!
-        let countryA: String = FieldType(field: countryAField, lang: lang).parseValue(tokenValueHex: tokenHex) ?? ""
-
-        let countryBField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "countryB")!
-        let countryB: String = FieldType(field: countryBField, lang: lang).parseValue(tokenValueHex: tokenHex) ?? ""
-
-        let matchField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "match")!
-        let match: Int = FieldType(field: matchField, lang: lang).parseValue(tokenValueHex: tokenHex) ?? 0
-
-        let categoryField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "category")!
-        let category: String = FieldType(field: categoryField, lang: lang).parseValue(tokenValueHex: tokenHex) ?? ""
-
-        let numeroField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "numero")!
-        let numero: Int = FieldType(field: numeroField, lang: lang).parseValue(tokenValueHex: tokenHex) ?? 0
+        //TODO should check for nil and handle rather than default to any value in this class. Or maybe the asset definition XML is missing. Otherwise, it should be returning a reasonable default already
+        let locality: String = fields["locality"]?.extract(from: tokenHex) ?? ""
+        let venue: String = fields["venue"]?.extract(from: tokenHex) ?? ""
+        let time: Date = fields["time"]?.extract(from: tokenHex) ?? Date()
+        let countryA: String = fields["countryA"]?.extract(from: tokenHex) ?? ""
+        let countryB: String = fields["countryB"]?.extract(from: tokenHex) ?? ""
+        let match: Int = fields["match"]?.extract(from: tokenHex) ?? 0
+        let category: String = fields["category"]?.extract(from: tokenHex) ?? ""
+        let numero: Int = fields["numero"]?.extract(from: tokenHex) ?? 0
 
         //TODO derive/extract from XML
         let timeZoneIdentifier = Constants.eventTimeZone
@@ -110,6 +97,17 @@ public class XMLHandler {
                 countryB: countryB,
                 timeZoneIdentifier: timeZoneIdentifier
         )
+    }
+
+    private func extractFields() -> [String: FieldType] {
+        let lang = getLang()
+        var fields = [String: FieldType]()
+        for e in xml["asset"]["fields"]["field"] {
+            if let id = e.attributes["id"], case let .singleElement(element) = e {
+                fields[id] = FieldType(field: element, lang: lang)
+            }
+        }
+        return fields
     }
 
     func getAddressFromXML(server: RPCServer) -> Address {

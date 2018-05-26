@@ -3,12 +3,12 @@
 import UIKit
 import SwiftyXMLParser
 
-//kkk or FieldValue?
-protocol FieldValueType {}
-extension String: FieldValueType {}
-extension Int: FieldValueType {}
-extension Date: FieldValueType {}
+protocol AssetFieldValue {}
+extension String: AssetFieldValue {}
+extension Int: AssetFieldValue {}
+extension Date: AssetFieldValue {}
 
+//TODO rename to `AssetField` ? after squashing the WIP commit (including this file's filename)
 enum FieldType {
     case Enumeration(field: XML.Element, lang: String)
     case IA5String(field: XML.Element)
@@ -36,7 +36,7 @@ enum FieldType {
         }()
     }
 
-    func parseValue<T>(tokenValueHex: String) -> T? where T: FieldValueType {
+    func extract<T>(from tokenValueHex: String) -> T? where T: AssetFieldValue {
         switch self {
         case .Enumeration(let field):
             return parseValueFromEnumeration(tokenValueHex: tokenValueHex) as? T
@@ -49,13 +49,13 @@ enum FieldType {
         }
     }
 
-    func parseValueAsAscii(tokenValueHex: String) -> String {
+    private func parseValueAsAscii(tokenValueHex: String) -> String {
         let (start, end) = getIndices()
         let value = tokenValueHex.substring(with: Range(uncheckedBounds: (start, end))).hexa2Bytes
         return String(data: Data(bytes: value), encoding: .utf8) ?? "TBD"
     }
 
-    func parseValueAsInt(tokenValueHex: String) -> Int {
+    private func parseValueAsInt(tokenValueHex: String) -> Int {
         let (start, end) = getIndices()
         let value = tokenValueHex.substring(with: Range(uncheckedBounds: (start, end))).hexa2Bytes
         if let intValue = Int(MarketQueueHandler.bytesToHexa(value), radix: 16) {
@@ -64,37 +64,29 @@ enum FieldType {
         return 1
     }
 
-    func parseValueAsDate(tokenValueHex: String) -> Date {
-        //TODO: parseValueAsInt() returns 1 if parsing was not successful. Maybe we should return a special date here instead of using `1`?
+    private func parseValueAsDate(tokenValueHex: String) -> Date {
+        //TODO: parseValueAsInt() returns 1 if parsing was not successful. Maybe we should return a special date here or an optional instead of using `1`?
         let time = parseValueAsInt(tokenValueHex: tokenValueHex)
         return Date(timeIntervalSince1970: TimeInterval(time))
     }
 
-    func parseValueFromEnumeration(tokenValueHex: String) -> String {
+    private func parseValueFromEnumeration(tokenValueHex: String) -> String? {
         switch self {
         case .Enumeration(let field, let lang):
+            let fallback = "N/A"
             //TODO better if we can parse as "raw string" instead of converting back and forth and thus assuming the value is numeric. But note that `bytesToHexa()` returns '02' instead of '2'
             let id = String(parseValueAsInt(tokenValueHex: tokenValueHex))
-            //kkk "N/A"
-            guard id != "0" else { return "N/A" }
-            //kkk use of XML.Accessor good? Maybe getElement(attributeName:attributeValue:) should return an XML.Accessor instead
-            if let value = XML.Accessor(XML.Accessor(field)["mapping"]["entity"].getElementWithKeyAttribute(equals: id)!)["name"].getElementWithLangAttribute(equals: lang)?.text {
+            guard id != "0" else { return fallback }
+            if let value = XML.Accessor(field)["mapping"]["entity"].getElementWithKeyAttribute(equals: id)!["name"].getElementWithLangAttribute(equals: lang)?.text {
                 return value
             }
-            return "N/A"
-        case .IA5String(let field):
-            //kkk how?
-            return ""
-        case .BinaryTime(let field):
-            //kkk how?
-            return ""
-        case .Integer(let field):
-            //kkk how?
-            return ""
+            return fallback
+        case .IA5String, .BinaryTime, .Integer:
+            return nil
         }
     }
 
-    func handleBitmaskIndices(bitmask: String) -> (Int, Int) {
+    private func handleBitmaskIndices(bitmask: String) -> (Int, Int) {
         var startingNumber = 0
         var endingNumber = 0
         //todo temporary
@@ -110,7 +102,7 @@ enum FieldType {
         return (startingNumber, endingNumber)
     }
 
-    func getIndices() -> (Int, Int) {
+    private func getIndices() -> (Int, Int) {
         switch self {
         case .IA5String(let field):
             if let bitmask = field.attributes["bitmask"] {
