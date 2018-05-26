@@ -77,7 +77,6 @@ enum FieldType {
         let value = tokenValueHex.substring(with: Range(uncheckedBounds: (start, end))).hexa2Bytes
         if let entityKey = Int(MarketQueueHandler.bytesToHexa(value), radix: 16) {
             //get entity key and id for corresponding value of enumeration
-            
         }
         return ""
     }
@@ -148,7 +147,8 @@ public class XMLHandler {
         guard tokenId != 0 else { return .empty }
         let lang = getLang()
         let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
-        let location = getLocality(attribute: tokenHex.substring(to: 2), lang: lang)
+        let locationField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "locality")!
+        let localityIndex = FieldType(field: locationField).parseValueAsInt(tokenValueHex: tokenHex)
         let venue = getVenue(attribute: tokenHex.substring(with: Range(uncheckedBounds: (2, 4))), lang: lang)
         let timeField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "time")!
         let time = FieldType(field: timeField).parseValueAsInt(tokenValueHex: tokenHex)
@@ -159,21 +159,23 @@ public class XMLHandler {
         let countryBString = FieldType(field: countryBField).parseValueAsAscii(tokenValueHex: tokenHex)
         let matchField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "match")!
         let match = FieldType(field: matchField).parseValueAsInt(tokenValueHex: tokenHex)
-        let category = Int(tokenHex.substring(with: Range(uncheckedBounds: (26, 28))), radix: 16) ?? 0
-        let number = Int(tokenHex.substring(with: Range(uncheckedBounds: (28, 32))), radix: 16) ?? 0
+        let categoryField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "category")!
+        let category = FieldType(field: categoryField).parseValueAsInt(tokenValueHex: tokenHex)
+        let numeroField = xml["asset"]["fields"]["field"].getElement(attributeName: "id", attributeValue: "numero")!
+        let numero = FieldType(field: numeroField).parseValueAsInt(tokenValueHex: tokenHex)
         //TODO derive/extract from XML
         let timeZoneIdentifier = Constants.eventTimeZone
 
         return Ticket(
                 id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
                 index: index,
-                city: location,
+                city: getLocality(localityNumber: localityIndex, lang: lang),
                 name: getName(lang: lang),
                 venue: venue,
                 match: match,
                 date: Date(timeIntervalSince1970: TimeInterval(time)),
-                seatId: number,
-                category: getCategory(category, lang: lang),
+                seatId: numero,
+                category: getCategory(cat: category, lang: lang),
                 countryA: countryAString,
                 countryB: countryBString,
                 timeZoneIdentifier: timeZoneIdentifier
@@ -214,18 +216,16 @@ public class XMLHandler {
         return "en"
     }
 
-    func getLocality(attribute: String, lang: String) -> String {
+    func getLocality(localityNumber: Int, lang: String) -> String {
         //entity keys start at 1 but xml finder starts at 0, hence -1
-        if let locality = Int(attribute, radix: 16) {
-            guard locality != 0 else { return "N/A" }
-            if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][locality - 1]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
-                return parsedLocality
-            }
+        guard localityNumber != 0 else { return "N/A" }
+        if let parsedLocality = xml["asset"]["fields"]["field"][0][0]["mapping"]["entity"][localityNumber - 1]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
+            return parsedLocality
         }
         return "N/A"
     }
     
-    func getCategory(_ cat: Int, lang: String) -> String {
+    func getCategory(cat: Int, lang: String) -> String {
         guard cat != 0 else { return "N/A" }
         if let category = xml["asset"]["fields"]["field"][6][0]["mapping"]["entity"][cat - 1]["name"].getElement(attributeName: "lang", attributeValue: lang)?.text {
             return category
