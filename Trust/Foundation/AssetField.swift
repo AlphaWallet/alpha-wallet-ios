@@ -8,8 +8,7 @@ extension String: AssetFieldValue {}
 extension Int: AssetFieldValue {}
 extension Date: AssetFieldValue {}
 
-//TODO rename to `AssetField` ? after squashing the WIP commit (including this file's filename)
-enum FieldType {
+enum AssetField {
     case Enumeration(field: XML.Element, lang: String)
     case IA5String(field: XML.Element)
     case BinaryTime(field: XML.Element)
@@ -57,8 +56,8 @@ enum FieldType {
 
     private func parseValueAsInt(tokenValueHex: String) -> Int {
         let (start, end) = getIndices()
-        let value = tokenValueHex.substring(with: Range(uncheckedBounds: (start, end))).hexa2Bytes
-        if let intValue = Int(MarketQueueHandler.bytesToHexa(value), radix: 16) {
+        let value = tokenValueHex.substring(with: Range(uncheckedBounds: (start, end)))
+        if let intValue = Int(value, radix: 16) {
             return intValue
         }
         return 1
@@ -74,7 +73,6 @@ enum FieldType {
         switch self {
         case .Enumeration(let field, let lang):
             let fallback = "N/A"
-            //TODO better if we can parse as "raw string" instead of converting back and forth and thus assuming the value is numeric. But note that `bytesToHexa()` returns '02' instead of '2'
             let id = String(parseValueAsInt(tokenValueHex: tokenValueHex))
             guard id != "0" else { return fallback }
             if let value = XML.Accessor(field)["mapping"]["entity"].getElementWithKeyAttribute(equals: id)!["name"].getElementWithLangAttribute(equals: lang)?.text {
@@ -89,7 +87,7 @@ enum FieldType {
     private func handleBitmaskIndices(bitmask: String) -> (Int, Int) {
         var startingNumber = 0
         var endingNumber = 0
-        //todo temporary
+        //TODO temporary fix (stripping first 16 bytes)
         let trimmedBitmask = bitmask.substring(from: 32)
         for i in 0...trimmedBitmask.count {
             if trimmedBitmask.substring(with: Range(uncheckedBounds: (i, i + 1))) == "F" {
@@ -116,7 +114,7 @@ enum FieldType {
             if let bitmask = field.attributes["bitmask"] {
                 return handleBitmaskIndices(bitmask: bitmask)
             }
-        case .Enumeration(let field, let _):
+        case .Enumeration(let field, _):
             if let bitmask = field.attributes["bitmask"] {
                 return handleBitmaskIndices(bitmask: bitmask)
             }

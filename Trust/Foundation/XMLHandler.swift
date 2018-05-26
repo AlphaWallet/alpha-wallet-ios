@@ -14,37 +14,6 @@ import TrustKeystore
 //  TODO handle flexible attribute names e.g. asset, contract
 //  Handle generics for multiple asset defintions
 
-//TODO move to separate file?
-extension XML.Accessor {
-    func getElement(attributeName: String, attributeValue: String) -> XML.Accessor? {
-        switch self {
-        case .singleElement(let element):
-            let attributeIsCorrect = element.attributes[attributeName] == attributeValue
-            if attributeIsCorrect {
-                return XML.Accessor(element)
-            } else {
-                return nil
-            }
-        case .sequence(let elements):
-            if let element = elements.first(where: { $0.attributes[attributeName] == attributeValue }) {
-                return XML.Accessor(element)
-            } else {
-                return nil
-            }
-        case .failure:
-            return nil
-        }
-    }
-
-    func getElementWithKeyAttribute(equals value: String) -> XML.Accessor? {
-        return getElement(attributeName: "key", attributeValue: value)
-    }
-
-    func getElementWithLangAttribute(equals value: String) -> XML.Accessor? {
-        return getElement(attributeName: "lang", attributeValue: value)
-    }
-}
-
 public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML().assetDefinitionString)
@@ -99,12 +68,12 @@ public class XMLHandler {
         )
     }
 
-    private func extractFields() -> [String: FieldType] {
+    private func extractFields() -> [String: AssetField] {
         let lang = getLang()
-        var fields = [String: FieldType]()
+        var fields = [String: AssetField]()
         for e in xml["asset"]["fields"]["field"] {
             if let id = e.attributes["id"], case let .singleElement(element) = e {
-                fields[id] = FieldType(field: element, lang: lang)
+                fields[id] = AssetField(field: element, lang: lang)
             }
         }
         return fields
