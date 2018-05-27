@@ -4069,7 +4069,7 @@
 				DEVELOPMENT_TEAM = LRAW5PL536;
 				INFOPLIST_FILE = TrustUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.sixdays.TrustUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.AlphaWalletUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "2869a1ac-b598-45b8-a7c4-7560774c8a2f";
 				PROVISIONING_PROFILE_SPECIFIER = new;
@@ -4088,7 +4088,7 @@
 				DEVELOPMENT_TEAM = LRAW5PL536;
 				INFOPLIST_FILE = TrustUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.sixdays.TrustUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.AlphaWalletUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "2869a1ac-b598-45b8-a7c4-7560774c8a2f";
 				PROVISIONING_PROFILE_SPECIFIER = new;
