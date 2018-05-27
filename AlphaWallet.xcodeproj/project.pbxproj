@@ -536,15 +536,15 @@
 		2912CCF51F6A830700C6CBE3 /* AlphaWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlphaWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2912CCF81F6A830700C6CBE3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2912CD011F6A830700C6CBE3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		2912CD061F6A830700C6CBE3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2912CD061F6A830700C6CBE3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
 		2912CD0B1F6A830700C6CBE3 /* AlphaWalletTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AlphaWalletTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		2912CD111F6A830700C6CBE3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2912CD111F6A830700C6CBE3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
 		2912CD161F6A830700C6CBE3 /* AlphaWalletUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AlphaWalletUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2912CD1A1F6A830700C6CBE3 /* TrustUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustUITests.swift; sourceTree = "<group>"; };
-		2912CD1C1F6A830700C6CBE3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2912CD1C1F6A830700C6CBE3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.info; path = Info.plist; sourceTree = "<group>"; };
 		2912CD2A1F6A833E00C6CBE3 /* TransactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsViewController.swift; sourceTree = "<group>"; };
 		2912CD2E1F6A83A100C6CBE3 /* ImportWalletViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportWalletViewController.swift; sourceTree = "<group>"; };
-		291794F71F95DC0200539A30 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = index.html; path = Trust/Vendors/Web3Swift/html/index.html; sourceTree = SOURCE_ROOT; };
+		291794F71F95DC0200539A30 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = index.html; path = AlphaWallet/Vendors/Web3Swift/html/index.html; sourceTree = SOURCE_ROOT; };
 		291794FA1F95DC2200539A30 /* Web3Swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Web3Swift.swift; sourceTree = "<group>"; };
 		291794FE1F95F5CE00539A30 /* Web3Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Web3Request.swift; sourceTree = "<group>"; };
 		291795001F95F5E200539A30 /* GetBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBalance.swift; sourceTree = "<group>"; };
@@ -667,7 +667,7 @@
 		29A13E321F6B1B7A00E432A2 /* AppStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStyle.swift; sourceTree = "<group>"; };
 		29AD8A031F93D6CD008E10E7 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		29AD8A051F93DC8C008E10E7 /* PushDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushDevice.swift; sourceTree = "<group>"; };
-		29AD8A071F93E1F0008E10E7 /* Trust.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Trust.entitlements; sourceTree = "<group>"; };
+		29AD8A071F93E1F0008E10E7 /* AlphaWallet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AlphaWallet.entitlements; sourceTree = "<group>"; };
 		29AD8A081F93F8B2008E10E7 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		29AD8A0B1F93FBBF008E10E7 /* Subscribable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subscribable.swift; sourceTree = "<group>"; };
 		29AD8A0D1F93FF28008E10E7 /* WalletSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSession.swift; sourceTree = "<group>"; };
@@ -751,7 +751,7 @@
 		29FA00CB201CA63C002F7DC5 /* Method.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Method.swift; sourceTree = "<group>"; };
 		29FA00CD201CA64E002F7DC5 /* DappCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappCommand.swift; sourceTree = "<group>"; };
 		29FA00CF201CA66A002F7DC5 /* DAppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAppError.swift; sourceTree = "<group>"; };
-		29FA00D1201CA79F002F7DC5 /* web3.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = web3.min.js; path = Trust/Vendors/Web3Swift/html/web3.min.js; sourceTree = SOURCE_ROOT; };
+		29FA00D1201CA79F002F7DC5 /* web3.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = web3.min.js; path = AlphaWallet/Vendors/Web3Swift/html/web3.min.js; sourceTree = SOURCE_ROOT; };
 		29FA00D3201EC662002F7DC5 /* NSObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSObject.swift; sourceTree = "<group>"; };
 		29FC0CB51F8298820036089F /* TransactionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionCoordinator.swift; sourceTree = "<group>"; };
 		29FC0CB71F8299510036089F /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
@@ -798,7 +798,7 @@
 		442FCEBC98D0A367D258D2C3 /* GetIsStormBirdCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsStormBirdCoordinator.swift; sourceTree = "<group>"; };
 		442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketHolder.swift; sourceTree = "<group>"; };
 		477899BEAA4489DA423E8857 /* Pods-TrustUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrustUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TrustUITests/Pods-TrustUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		4DB8204016307EAFC079EA48 /* Pods-Trust.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.debug.xcconfig"; sourceTree = "<group>"; };
+		4DB8204016307EAFC079EA48 /* Pods-Trust.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWallet/Pods-Trust.debug.xcconfig"; sourceTree = "<group>"; };
 		5E7C70088832B2D161EB4AAB /* SendViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendViewController.swift; sourceTree = "<group>"; };
 		5E7C700CD3E43689E88FBE9B /* SetSellTicketsExpiryDateViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetSellTicketsExpiryDateViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C7011D8E5C9FFE0E59D55 /* TransferTicketsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTicketsViewController.swift; sourceTree = "<group>"; };
@@ -815,7 +815,7 @@
 		5E7C727433F7B8E322B3C68A /* SetTransferTicketsExpiryDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTicketsExpiryDateViewController.swift; sourceTree = "<group>"; };
 		5E7C72D0E7CA03ADE5CFAE7A /* ImportTicketViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportTicketViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C731B6F01534683227123 /* TicketTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTokenViewCellViewModel.swift; sourceTree = "<group>"; };
-		5E7C73495E0C0A207152EC25 /* LockEnterPasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LockEnterPasscodeViewController.swift; path = Trust/AlphaWalletLock/ViewControllers/LockEnterPasscodeViewController.swift; sourceTree = SOURCE_ROOT; };
+		5E7C73495E0C0A207152EC25 /* LockEnterPasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LockEnterPasscodeViewController.swift; path = AlphaWallet/AlphaWalletLock/ViewControllers/LockEnterPasscodeViewController.swift; sourceTree = SOURCE_ROOT; };
 		5E7C73617E3A4C0B9A90A5F8 /* AmountTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountTextField.swift; sourceTree = "<group>"; };
 		5E7C73D26F24C4AAE981E2F2 /* ImportWalletTab.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportWalletTab.swift; sourceTree = "<group>"; };
 		5E7C73DF5FBFE756097D32B1 /* EthCurrencyHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthCurrencyHelper.swift; sourceTree = "<group>"; };
@@ -916,7 +916,7 @@
 		5E7C7FB99843529061368DA1 /* LocalesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalesViewModel.swift; sourceTree = "<group>"; };
 		5E7C7FCE2427A30ACD860DF8 /* ServerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerViewModel.swift; sourceTree = "<group>"; };
 		5E7C7FF84A4377FC395772C3 /* SellTicketsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SellTicketsViewController.swift; sourceTree = "<group>"; };
-		613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = "COMODO ECC Domain Validation Secure Server CA 2.cer"; sourceTree = "<group>"; };
+		613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */ = {isa = PBXFileReference; lastKnownFileType = file.cer; path = "COMODO ECC Domain Validation Secure Server CA 2.cer"; sourceTree = "<group>"; };
 		613D048A1FDE162B008DE72E /* TrustProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustProvider.swift; sourceTree = "<group>"; };
 		61621995A39B7730239E6112 /* Pods-AlphaWalletTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletTests/Pods-AlphaWalletTests.debug.xcconfig"; sourceTree = "<group>"; };
 		61C359DF2002AA590097B04D /* TransactionSigning.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionSigning.swift; sourceTree = "<group>"; };
@@ -985,7 +985,7 @@
 		77B3BF3B201908ED00EEC15A /* ConfirmCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmCoordinator.swift; sourceTree = "<group>"; };
 		77B3BF492019247200EEC15A /* BrowserNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserNavigationBar.swift; sourceTree = "<group>"; };
 		77E0E772201FAD05009B4B31 /* BrowserURLParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserURLParser.swift; sourceTree = "<group>"; };
-		77E0E776201FAD36009B4B31 /* BrowserURLParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BrowserURLParserTests.swift; path = TrustTests/Browser/Types/BrowserURLParserTests.swift; sourceTree = SOURCE_ROOT; };
+		77E0E776201FAD36009B4B31 /* BrowserURLParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BrowserURLParserTests.swift; path = AlphaWalletTests/Browser/Types/BrowserURLParserTests.swift; sourceTree = SOURCE_ROOT; };
 		7D173D659C678A9D41C02820 /* Pods-AlphaWalletTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletTests/Pods-AlphaWalletTests.release.xcconfig"; sourceTree = "<group>"; };
 		87FA1153388F27F599C430B8 /* Pods-TrustTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrustTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TrustTests/Pods-TrustTests.debug.xcconfig"; sourceTree = "<group>"; };
 		8878FA2A7E4E5AC421A7A814 /* Pods-AlphaWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWallet.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1007,7 +1007,7 @@
 		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
 		B138ABCF208C2C93000FC28A /* MonkeyTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonkeyTest.swift; sourceTree = "<group>"; };
 		B13994EE20B96DE10048D821 /* XMLAccessorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLAccessorExtension.swift; sourceTree = "<group>"; };
-		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
+		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWallet/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
 		B13E57D620AC324B001719BF /* contracts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = contracts; sourceTree = "<group>"; };
 		B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLHandler.swift; sourceTree = "<group>"; };
 		B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDefinitionXML.swift; sourceTree = "<group>"; };
@@ -1021,10 +1021,10 @@
 		C868C535205409160059672B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/redeemInfo.html; sourceTree = "<group>"; };
 		C876FF6B204A79D300B7D0EA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		C876FF6C204A79D300B7D0EA /* SIL Open Font License.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "SIL Open Font License.txt"; sourceTree = "<group>"; };
-		C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Bold.otf"; sourceTree = "<group>"; };
-		C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Light.otf"; sourceTree = "<group>"; };
-		C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Regular.otf"; sourceTree = "<group>"; };
-		C876FF77204A79D300B7D0EA /* SourceSansPro-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SourceSansPro-Semibold.otf"; sourceTree = "<group>"; };
+		C876FF6F204A79D300B7D0EA /* SourceSansPro-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "SourceSansPro-Bold.otf"; sourceTree = "<group>"; };
+		C876FF74204A79D300B7D0EA /* SourceSansPro-Light.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "SourceSansPro-Light.otf"; sourceTree = "<group>"; };
+		C876FF76204A79D300B7D0EA /* SourceSansPro-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "SourceSansPro-Regular.otf"; sourceTree = "<group>"; };
+		C876FF77204A79D300B7D0EA /* SourceSansPro-Semibold.otf */ = {isa = PBXFileReference; lastKnownFileType = file.otf; path = "SourceSansPro-Semibold.otf"; sourceTree = "<group>"; };
 		C88033092054371500D73D6F /* non_asset_catalog_redemption_location.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = non_asset_catalog_redemption_location.png; sourceTree = "<group>"; };
 		C880330A2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "non_asset_catalog_redemption_location@2x.png"; sourceTree = "<group>"; };
 		C880330B2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "non_asset_catalog_redemption_location@3x.png"; sourceTree = "<group>"; };
@@ -1108,9 +1108,9 @@
 		2912CCEC1F6A830700C6CBE3 = {
 			isa = PBXGroup;
 			children = (
-				2912CCF71F6A830700C6CBE3 /* Trust */,
-				2912CD0E1F6A830700C6CBE3 /* TrustTests */,
-				2912CD191F6A830700C6CBE3 /* TrustUITests */,
+				2912CCF71F6A830700C6CBE3 /* AlphaWallet */,
+				2912CD0E1F6A830700C6CBE3 /* AlphaWalletTests */,
+				2912CD191F6A830700C6CBE3 /* AlphaWalletUITests */,
 				2912CCF61F6A830700C6CBE3 /* Products */,
 				9A0F00B2D545197C8F7691C2 /* Pods */,
 				FAD3F374A5C639BD900944DB /* Frameworks */,
@@ -1127,7 +1127,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		2912CCF71F6A830700C6CBE3 /* Trust */ = {
+		2912CCF71F6A830700C6CBE3 /* AlphaWallet */ = {
 			isa = PBXGroup;
 			children = (
 				AA574E612054EC8B00F4B3AF /* Rest */,
@@ -1161,7 +1161,7 @@
 				29850D241F6B27A800791A49 /* R.generated.swift */,
 				2912CD011F6A830700C6CBE3 /* Assets.xcassets */,
 				2912CD061F6A830700C6CBE3 /* Info.plist */,
-				29AD8A071F93E1F0008E10E7 /* Trust.entitlements */,
+				29AD8A071F93E1F0008E10E7 /* AlphaWallet.entitlements */,
 				613D04881FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer */,
 				C868C5282053BDE00059672B /* LaunchScreen.storyboard */,
 				76F1D1936604D6A022E9AE90 /* Market */,
@@ -1170,10 +1170,10 @@
 				5E7C7C37B4E80BA2E0DC7FA4 /* Marketplace */,
 				5E7C71698FE1429F1AC0777D /* Sell */,
 			);
-			path = Trust;
+			path = AlphaWallet;
 			sourceTree = "<group>";
 		};
-		2912CD0E1F6A830700C6CBE3 /* TrustTests */ = {
+		2912CD0E1F6A830700C6CBE3 /* AlphaWalletTests */ = {
 			isa = PBXGroup;
 			children = (
 				77872D2A202514930032D687 /* Wallet */,
@@ -1194,10 +1194,10 @@
 				76F1D16C3A06F5B2041BCBB3 /* Redeem */,
 				5E7C78E79A2C45A2124F259D /* Tokens */,
 			);
-			path = TrustTests;
+			path = AlphaWalletTests;
 			sourceTree = "<group>";
 		};
-		2912CD191F6A830700C6CBE3 /* TrustUITests */ = {
+		2912CD191F6A830700C6CBE3 /* AlphaWalletUITests */ = {
 			isa = PBXGroup;
 			children = (
 				2912CD1A1F6A830700C6CBE3 /* TrustUITests.swift */,
@@ -1205,7 +1205,7 @@
 				2912CD1C1F6A830700C6CBE3 /* Info.plist */,
 				29358D9E1F78D5B700925D61 /* Screenshots.swift */,
 			);
-			path = TrustUITests;
+			path = AlphaWalletUITests;
 			sourceTree = "<group>";
 		};
 		2912CD281F6A831700C6CBE3 /* Wallet */ = {
@@ -2967,7 +2967,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2912CCF01F6A830700C6CBE3 /* Build configuration list for PBXProject "Trust" */;
+			buildConfigurationList = 2912CCF01F6A830700C6CBE3 /* Build configuration list for PBXProject "AlphaWallet" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -3118,7 +3118,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"$PODS_ROOT/R.swift/rswift\" generate \"$SRCROOT/Trust\"";
+			shellScript = "\"$PODS_ROOT/R.swift/rswift\" generate \"$SRCROOT/AlphaWallet\"";
 		};
 		558B94C30BF51EDC00493AF8 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -3975,14 +3975,14 @@
 			baseConfigurationReference = 8878FA2A7E4E5AC421A7A814 /* Pods-AlphaWallet.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Trust/Trust.entitlements;
+				CODE_SIGN_ENTITLEMENTS = AlphaWallet/AlphaWallet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 157;
 				DEVELOPMENT_TEAM = LRAW5PL536;
 				ENABLE_BITCODE = YES;
-				INFOPLIST_FILE = Trust/Info.plist;
+				INFOPLIST_FILE = AlphaWallet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" -D DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
@@ -4001,13 +4001,13 @@
 			baseConfigurationReference = F142C0A3ACCC936E43250187 /* Pods-AlphaWallet.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = Trust/Trust.entitlements;
+				CODE_SIGN_ENTITLEMENTS = AlphaWallet/AlphaWallet.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 157;
 				DEVELOPMENT_TEAM = LRAW5PL536;
 				ENABLE_BITCODE = YES;
-				INFOPLIST_FILE = Trust/Info.plist;
+				INFOPLIST_FILE = AlphaWallet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
 				PRODUCT_MODULE_NAME = Trust;
@@ -4029,9 +4029,9 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = LRAW5PL536;
-				INFOPLIST_FILE = TrustTests/Info.plist;
+				INFOPLIST_FILE = AlphaWalletTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.sixdays.TrustTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.AlphaWalletTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -4048,9 +4048,9 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = LRAW5PL536;
-				INFOPLIST_FILE = TrustTests/Info.plist;
+				INFOPLIST_FILE = AlphaWalletTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.sixdays.TrustTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.AlphaWalletTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -4100,7 +4100,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2912CCF01F6A830700C6CBE3 /* Build configuration list for PBXProject "Trust" */ = {
+		2912CCF01F6A830700C6CBE3 /* Build configuration list for PBXProject "AlphaWallet" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2912CD1D1F6A830700C6CBE3 /* Debug */,
