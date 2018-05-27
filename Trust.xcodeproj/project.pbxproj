@@ -352,6 +352,7 @@
 		5E7C7AB6950E43BD6E8D0CBE /* TokensViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B3302309706CA0F972A /* TokensViewController.swift */; };
 		5E7C7AE1389D3179239249F0 /* ImportWalletTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C743172FCBDCD362C03A6 /* ImportWalletTabBar.swift */; };
 		5E7C7B0367CFB413C6885474 /* GenerateSellMagicLinkViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7624D6F7EA55F6F167B3 /* GenerateSellMagicLinkViewControllerViewModel.swift */; };
+		5E7C7B348A4DB36FC2D39DDF /* AssetField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76431C8C58A7F9A057E2 /* AssetField.swift */; };
 		5E7C7B3E08EEA63C5B68B9C4 /* TicketRedemptionInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C778F20D32B70D7FF2135 /* TicketRedemptionInfoViewController.swift */; };
 		5E7C7C0FAC500A6651E663FD /* TransferTicketsQuantitySelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C703BA1D0E9ACB7399155 /* TransferTicketsQuantitySelectionViewModel.swift */; };
 		5E7C7C21E5CAF122AA4F6617 /* HowDoIGetMyMoneyInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78B001F9F95F404D5FEF /* HowDoIGetMyMoneyInfoViewController.swift */; };
@@ -472,6 +473,7 @@
 		AAEB8DA2204BC7B700CB0B2C /* RedeemTicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */; };
 		AAEF2CAB2050A68A0038BE0D /* SignatureHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */; };
 		B138ABD0208C2C93000FC28A /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
+		B13994EF20B96DE10048D821 /* XMLAccessorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = B13994EE20B96DE10048D821 /* XMLAccessorExtension.swift */; };
 		B13E57D720AC324B001719BF /* contracts in Resources */ = {isa = PBXBuildFile; fileRef = B13E57D620AC324B001719BF /* contracts */; };
 		B1DB1A95207DBF6D00CA2B77 /* XMLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */; };
 		B1DB1A97207DCECF00CA2B77 /* AssetDefinitionXML.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */; };
@@ -839,6 +841,7 @@
 		5E7C75F877B2F2E24C7EF258 /* TicketTableViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C7607B0EF9B8F1BC41073 /* TermsOfServiceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsOfServiceViewController.swift; sourceTree = "<group>"; };
 		5E7C7624D6F7EA55F6F167B3 /* GenerateSellMagicLinkViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenerateSellMagicLinkViewControllerViewModel.swift; sourceTree = "<group>"; };
+		5E7C76431C8C58A7F9A057E2 /* AssetField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetField.swift; sourceTree = "<group>"; };
 		5E7C7646352F10C96B5FC6F6 /* HelpViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HelpViewCell.swift; sourceTree = "<group>"; };
 		5E7C764B98F526271E4C2A6A /* StaticHTMLViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StaticHTMLViewController.swift; sourceTree = "<group>"; };
 		5E7C765E0DC0174E9788CCF9 /* EnterSellTicketsPriceQuantityViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnterSellTicketsPriceQuantityViewControllerViewModel.swift; sourceTree = "<group>"; };
@@ -1003,6 +1006,7 @@
 		AAEB8DA1204BC7B700CB0B2C /* RedeemTicketsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemTicketsViewController.swift; sourceTree = "<group>"; };
 		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
 		B138ABCF208C2C93000FC28A /* MonkeyTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonkeyTest.swift; sourceTree = "<group>"; };
+		B13994EE20B96DE10048D821 /* XMLAccessorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLAccessorExtension.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-Trust/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
 		B13E57D620AC324B001719BF /* contracts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = contracts; sourceTree = "<group>"; };
 		B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLHandler.swift; sourceTree = "<group>"; };
@@ -1911,6 +1915,8 @@
 				73ED85A420349BE400593BF3 /* StringFormatter.swift */,
 				B1DB1A94207DBF6D00CA2B77 /* XMLHandler.swift */,
 				B1DB1A96207DCECF00CA2B77 /* AssetDefinitionXML.swift */,
+				5E7C76431C8C58A7F9A057E2 /* AssetField.swift */,
+				B13994EE20B96DE10048D821 /* XMLAccessorExtension.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -3618,6 +3624,7 @@
 				5E7C7C0FAC500A6651E663FD /* TransferTicketsQuantitySelectionViewModel.swift in Sources */,
 				5E7C77AD9FAAC18211B6F355 /* TransferTicketsQuantitySelectionViewController.swift in Sources */,
 				5E7C7EEE563D81793CB96FA0 /* TransferTicketsCoordinator.swift in Sources */,
+				B13994EF20B96DE10048D821 /* XMLAccessorExtension.swift in Sources */,
 				5E7C7567A690B6B8F889AE83 /* SendViewController.swift in Sources */,
 				5E7C72E1D4B4B4C8443F3DA1 /* SendHeaderView.swift in Sources */,
 				5E7C713ACE8C72642B1C9F93 /* SendHeaderViewViewModel.swift in Sources */,
@@ -3664,6 +3671,7 @@
 				5E7C718043636901114BF76C /* LocalesViewModel.swift in Sources */,
 				5E7C7A91D0F6CBDA3C89DEAC /* LocaleViewCell.swift in Sources */,
 				5E7C74BD08801CABF9695853 /* LocaleViewModel.swift in Sources */,
+				5E7C7B348A4DB36FC2D39DDF /* AssetField.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
