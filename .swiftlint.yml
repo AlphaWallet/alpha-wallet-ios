@@ -21,10 +21,10 @@ opt_in_rules:
   - file_header
   - multiline_parameters
 included:
-  - Trust
+  - AlphaWallet
 excluded:
-  - Trust/Vendors
-  - Trust/R.generated.swift
+  - AlphaWallet/Vendors
+  - AlphaWallet/R.generated.swift
 function_parameter_count:
   warning: 20
   error: 25
