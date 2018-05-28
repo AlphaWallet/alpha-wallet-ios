@@ -55,7 +55,7 @@ struct StatusViewControllerViewModel {
 		}
 	}
 	var actionButtonTitle: String {
-		return R.string.localizable.aClaimTicketDoneButtonTitle()
+		return R.string.localizable.done()
 	}
 	var showActivityIndicator: Bool {
 		return state == .processing

@@ -45,7 +45,7 @@ class EnterPasswordViewController: FormViewController {
         super.viewDidLoad()
 
         title = viewModel.title
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(done))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(done))
 
         let ruleMin = RuleMinLength(minLength: 6)
 

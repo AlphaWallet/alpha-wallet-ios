@@ -85,7 +85,7 @@ class TransactionCoordinator: Coordinator {
         if UIDevice.current.userInterfaceIdiom == .pad {
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .formSheet
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
+            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             navigationController.present(nav, animated: true, completion: nil)
         } else {
             navigationController.pushViewController(controller, animated: true)

@@ -94,7 +94,7 @@ class NewTokenViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
-        saveButton.setTitle(R.string.localizable.aClaimTicketDoneButtonTitle(), for: .normal)
+        saveButton.setTitle(R.string.localizable.done(), for: .normal)
         saveButton.addTarget(self, action: #selector(addToken), for: .touchUpInside)
 
         let buttonsStackView = [saveButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
