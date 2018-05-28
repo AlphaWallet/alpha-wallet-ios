@@ -495,11 +495,25 @@ extension InCoordinator: TokensCoordinatorDelegate {
                 )
 
                 let wallet = self.keystore.recentlyUsedWallet!
-                let migration = MigrationInitializer(account: wallet, chainID: self.config.chainID)
+                let migration = MigrationInitializer(
+                    account: wallet,
+                    chainID: self.config.chainID
+                )
                 migration.perform()
                 let realm = self.realm(for: migration.config)
-                let tokensStorage = TokensDataStore(realm: realm, account: wallet, config: self.config, web3: web3)
-                let balance = BalanceCoordinator(wallet: wallet, config: self.config, storage: tokensStorage)
+                
+                let tokensStorage = TokensDataStore(
+                    realm: realm,
+                    account: wallet,
+                    config: self.config,
+                    web3: web3
+                )
+                
+                let balance = BalanceCoordinator(
+                    wallet: wallet,
+                    config: self.config,
+                    storage: tokensStorage
+                )
                 let session = WalletSession(
                         account: wallet,
                         config: self.config,
