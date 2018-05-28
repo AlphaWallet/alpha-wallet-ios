@@ -15,7 +15,7 @@ class EnterPasswordCoordinator: Coordinator {
 
     lazy var enterPasswordController: EnterPasswordViewController = {
         let controller = EnterPasswordViewController(account: account)
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
         controller.delegate = self
         return controller
     }()

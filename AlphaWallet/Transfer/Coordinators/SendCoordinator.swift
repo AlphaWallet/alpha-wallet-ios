@@ -74,7 +74,7 @@ class SendCoordinator: Coordinator {
         )
 
         if navigationController.viewControllers.isEmpty {
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
+            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
         }
         switch transferType {
         case .ether(let destination):

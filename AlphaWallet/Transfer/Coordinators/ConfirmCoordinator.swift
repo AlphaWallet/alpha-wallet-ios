@@ -53,7 +53,7 @@ class ConfirmCoordinator: Coordinator {
                 self.navigationController.displayError(error: error)
             }
         }
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
 
         navigationController.viewControllers = [controller]
     }
