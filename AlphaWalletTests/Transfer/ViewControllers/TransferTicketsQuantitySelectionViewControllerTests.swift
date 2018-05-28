@@ -1,10 +1,15 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import XCTest
+import FBSnapshotTestCase
 @testable import Trust
 import UIKit
 
-class TransferTicketsQuantitySelectionViewControllerTests: XCTestCase  {
+class TransferTicketsQuantitySelectionViewControllerTests: FBSnapshotTestCase  {
+    override func setUp() {
+        super.setUp()
+        //recordMode = true
+    }
+
     func testTransferTicketQuantitySelectionViewControllerCanBeCreated() {
         let token = TokenObject()
         let type = PaymentFlow.send(type: .stormBird(token))
@@ -14,6 +19,6 @@ class TransferTicketsQuantitySelectionViewControllerTests: XCTestCase  {
         let viewModel = TransferTicketsQuantitySelectionViewModel(token: TokenObject(), ticketHolder: ticketHolder)
         controller.configure(viewModel: viewModel)
 
-        XCTAssertNoThrow(controller.view)
+        FBSnapshotVerifyView(controller.view)
     }
 }
