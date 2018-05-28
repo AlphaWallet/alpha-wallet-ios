@@ -295,11 +295,13 @@ class TicketsCoordinator: NSObject, Coordinator {
         return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
     }
 
+    //note that the price must be in szabo for a sell link, price must be rounded
     private func generateSellLink(ticketHolder: TicketHolder,
                                   linkExpiryDate: Date,
                                   ethCost: String,
                                   paymentFlow: PaymentFlow) -> String {
-        let cost = Decimal(string: ethCost)! * Decimal(string: "1000000000000000000")!
+        let ethCostRoundedTo4dp = String(format: "%.4f", Float(string: ethCost)!)
+        let cost = Decimal(string: ethCostRoundedTo4dp)! * Decimal(string: "1000000000000000000")!
         let wei = BigUInt(cost.description)!
         let order = Order(
                 price: wei,
@@ -317,7 +319,12 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func sellViaActivitySheet(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
-        let url = generateSellLink(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, paymentFlow: paymentFlow)
+        let url = generateSellLink(
+            ticketHolder: ticketHolder,
+            linkExpiryDate: linkExpiryDate,
+            ethCost: ethCost,
+            paymentFlow: paymentFlow
+        )
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
         vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
