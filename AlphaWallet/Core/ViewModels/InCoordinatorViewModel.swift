@@ -5,14 +5,9 @@ import Foundation
 struct InCoordinatorViewModel {
 
     let config: Config
-    let preferences: PreferencesController
 
-    init(
-        config: Config,
-        preferences: PreferencesController = PreferencesController()
-    ) {
+    init(config: Config) {
         self.config = config
-        self.preferences = preferences
     }
 
     var tokensAvailable: Bool {
