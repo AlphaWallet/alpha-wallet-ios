@@ -33,12 +33,12 @@ class WalletCoordinator: Coordinator {
         case .welcome:
             let controller = WelcomeViewController()
             controller.delegate = self
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
+            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             navigationController.viewControllers = [controller]
         case .importWallet:
             let controller = ImportWalletViewController(keystore: keystore)
             controller.delegate = self
-            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
+            controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             navigationController.viewControllers = [controller]
         case .createInstantWallet:
             createInstantWallet()

@@ -76,7 +76,7 @@ class ConfigureTransactionViewController: FormViewController {
         super.init(nibName: nil, bundle: nil)
 
         navigationItem.title = viewModel.title
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .save, target: self, action: #selector(save))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: R.string.localizable.save(), style: .plain, target: self, action: #selector(save))
     }
 
     required init?(coder aDecoder: NSCoder) {
