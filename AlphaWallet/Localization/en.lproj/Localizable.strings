@@ -1,7 +1,9 @@
 "Advanced" = "Advanced";
 "app.device.jailbreak.description" = "Any 'jailbreak' app can access AlphaWallet's keychain data and steal your wallet! Wipe this wallet immediately and restore on a secure device.";
 "app.device.jailbreak.title" = "DEVICE SECURITY COMPROMISED";
+"Done" = "Done";
 "Cancel" = "Cancel";
+"Save" = "Save";
 "configureTransaction.error.gasFeeTooHigh" = "Gas Fee too high. Max available: %@";
 "configureTransaction.error.gasLimitTooHigh" = "Gas Limit too high. Max available: %d";
 "configureTransaction.gasLimit.label.description" = "The gas limit prevents smart contracts from consuming all your %@. We will try to calculate the gas limit automatically for you, but some smart contracts may require a custom gas limit.";
@@ -233,7 +235,6 @@
 "a.claim.ticket.validating.title" = "Processing...";
 "a.claim.ticket.promptImport.title" = "Import?";
 "a.claim.ticket.inProgress.title" = "Importing tickets...";
-"a.claim.ticket.done.button.title" = "Done";
 "a.claim.ticket.import.button.title" = "Import";
 "a.claim.ticket.purchase.button.title" = "Import";
 "a.claim.ticket.ethCostLabel.title" = "Total Cost";

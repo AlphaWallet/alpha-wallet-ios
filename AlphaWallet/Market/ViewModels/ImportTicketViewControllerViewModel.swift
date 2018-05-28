@@ -271,7 +271,7 @@ struct ImportTicketViewControllerViewModel {
         case .validating, .promptImport, .processing:
             return R.string.localizable.cancel()
         case .succeeded, .failed:
-            return R.string.localizable.aClaimTicketDoneButtonTitle()
+            return R.string.localizable.done()
         }
     }
 

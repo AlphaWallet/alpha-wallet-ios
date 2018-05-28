@@ -1,7 +1,9 @@
 "Advanced" = "高级设置";
 "app.device.jailbreak.description" = "任何“越狱”应用都可以访问 AlphaWallet 的钥匙串数据和窃取你的钱包！请立刻抹掉这个钱包，并在另外一台安全设备上恢复。";
 "app.device.jailbreak.title" = "设备安全受损";
+"Done" = "完成";
 "Cancel" = "取消";
+"Save" = "备份";
 "configureTransaction.error.gasFeeTooHigh" = "Gas 费用太高，最大可用：%@";
 "configureTransaction.error.gasLimitTooHigh" = "Gas 限制太高，最大可用：%d";
 "configureTransaction.gasLimit.label.description" = "Gas 限制用于防止智能合约消耗你所有的%@。我们会尽可能得为你自动计算 Gas 限制，但是一些智能合约可能需要自定义的 Gas 限制。";
@@ -233,7 +235,6 @@
 "a.claim.ticket.validating.title" = "处理中...";
 "a.claim.ticket.promptImport.title" = "导入?";
 "a.claim.ticket.inProgress.title" = "导入门票...";
-"a.claim.ticket.done.button.title" = "完成";
 "a.claim.ticket.import.button.title" = "导入";
 "a.claim.ticket.purchase.button.title" = "导入";
 "a.claim.ticket.ethCostLabel.title" = "总价";
