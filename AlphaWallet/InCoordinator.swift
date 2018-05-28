@@ -351,7 +351,12 @@ class InCoordinator: Coordinator {
         ticketsCoordinator.type = type
         ticketsCoordinator.delegate = self
         ticketsCoordinator.start()
-        navigationController.present(ticketsCoordinator.navigationController, animated: true, completion: nil)
+        switch (type, session.account.type) {
+        case (.send, .real), (.request, _):
+            navigationController.present(ticketsCoordinator.navigationController, animated: true, completion: nil)
+        case (_, _):
+            navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
+        }
     }
 
     func showTicketListToRedeem(for token: TokenObject, coordinator: TicketsCoordinator) {
