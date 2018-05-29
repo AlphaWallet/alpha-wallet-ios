@@ -7,6 +7,7 @@ import UIKit
 class TransferTicketsQuantitySelectionViewControllerTests: FBSnapshotTestCase  {
     override func setUp() {
         super.setUp()
+        isDeviceAgnostic = true
         //recordMode = true
     }
 
