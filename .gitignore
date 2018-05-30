@@ -90,5 +90,8 @@ Trust.zip
 node_modules
 JS/staging
 
+# FBSnapshotTestCase temporary output files
+AlphaWalletTests/Snapshots/FailureDiffs
+
 # Additions
 .idea/
