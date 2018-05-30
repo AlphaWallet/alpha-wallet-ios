@@ -75,6 +75,7 @@ platform :ios do
     run_tests(
       workspace: "AlphaWallet.xcworkspace",
       scheme: "AlphaWalletTests",
+      devices: ["iPhone 5s", "iPhone X", "iPad Pro (12.9-inch)"],
       clean: false
     )
   end
