@@ -278,12 +278,11 @@ class TicketsCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func generateTransferLink(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> String {
-        let timestamp = Int(NSDate().timeIntervalSince1970) + 86400
+    private func generateTransferLink(ticketHolder: TicketHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow) -> String {
         let order = Order(
             price: BigUInt("0")!,
             indices: ticketHolder.indices,
-            expiry: BigUInt(timestamp.description)!,
+            expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
             contractAddress: TicketsCoordinator.getContractAddressForLinks(),
             start: BigUInt("0")!,
             count: ticketHolder.indices.count
@@ -339,7 +338,7 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func transferViaActivitySheet(ticketHolder: TicketHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
-        let url = generateTransferLink(ticketHolder: ticketHolder, paymentFlow: paymentFlow)
+        let url = generateTransferLink(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate, paymentFlow: paymentFlow)
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
         vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
