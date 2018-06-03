@@ -28,11 +28,10 @@ target 'AlphaWallet' do
   pod 'SwiftyJSON'
   # pod 'web3swift', :git=>'https://github.com/BANKEX/web3swift', :branch=>'master'
   pod 'SAMKeychain'
-  pod 'iOSSnapshotTestCase'
-
   target 'AlphaWalletTests' do
-    inherit! :search_paths
-    # Pods for testing
+      inherit! :search_paths
+      # Pods for testing
+      pod 'iOSSnapshotTestCase'
   end
 
   target 'AlphaWalletUITests' do
