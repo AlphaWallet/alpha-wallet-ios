@@ -10,7 +10,7 @@
 ## Getting Started
 
 1. [Download](https://developer.apple.com/xcode/download/) the Xcode 9 and above release.
-1. Clone this repository.
+1. Clone this repository and get the submodules with: git submodule init && git submodule update.
 1. Run `make bootstrap` to install tools and dependencies.
 
 ## Contributing
