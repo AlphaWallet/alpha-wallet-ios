@@ -236,7 +236,7 @@
 "a.claim.ticket.promptImport.title" = "Import?";
 "a.claim.ticket.inProgress.title" = "Importing tickets...";
 "a.claim.ticket.import.button.title" = "Import";
-"a.claim.ticket.purchase.button.title" = "Import";
+"a.claim.ticket.purchase.button.title" = "Purchase";
 "a.claim.ticket.ethCostLabel.title" = "Total Cost";
 "a.claim.ticket.ethCost.free.title" = "Free Import";
 "a.claim.ticket.dollarCostLabel.title" = "EQUIVALENT IN USD";
