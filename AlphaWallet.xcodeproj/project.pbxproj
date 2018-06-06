@@ -421,6 +421,7 @@
 		76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */; };
 		76F1D13FC8A41AD967C59947 /* ClaimOrderCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */; };
 		76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */; };
+		76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */; };
 		76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */; };
 		76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
@@ -947,6 +948,7 @@
 		76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderHandler.swift; sourceTree = "<group>"; };
 		76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandler.swift; sourceTree = "<group>"; };
 		76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderSigningTests.swift; sourceTree = "<group>"; };
+		76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetContractInteractions.swift; sourceTree = "<group>"; };
 		76F1DF80932454E9F58B7830 /* CreateRedeem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeem.swift; sourceTree = "<group>"; };
 		771A847420322FD700528D28 /* PreferencesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewModel.swift; sourceTree = "<group>"; };
 		771A8484203242B400528D28 /* InCoordinatorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InCoordinatorViewModelTests.swift; sourceTree = "<group>"; };
@@ -2109,6 +2111,7 @@
 				442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */,
 				76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */,
 				5E7C7F932B48011A24C26733 /* TokensCoordinator.swift */,
+				76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -3641,6 +3644,7 @@
 				5E7C7A91D0F6CBDA3C89DEAC /* LocaleViewCell.swift in Sources */,
 				5E7C74BD08801CABF9695853 /* LocaleViewModel.swift in Sources */,
 				5E7C7B348A4DB36FC2D39DDF /* AssetField.swift in Sources */,
+				76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

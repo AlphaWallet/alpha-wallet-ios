@@ -16,4 +16,5 @@ class TicketAdaptorTest: XCTestCase {
         let bundles = TicketAdaptor(token: TokenObject()).bundle(tickets: tickets)
         XCTAssertEqual(bundles.count, 2)
     }
+
 }
