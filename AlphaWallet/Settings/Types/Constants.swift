@@ -34,6 +34,11 @@ public struct Constants {
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
     public static let event = "FIFA WC2018"
     public static let eventTimeZone = "Europe/Moscow"
+
+    //etherscan APIs
+    public static let mainnetEtherscanAPI = "https://api.etherscan.io/api?module=account&action=txlist&address="
+    public static let ropstenEtherscanAPI = "https://ropsten.etherscan.io/api?module=account&action=txlist&address="
+    public static let rinkebyEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
 }
 
 public struct UnitConfiguration {
