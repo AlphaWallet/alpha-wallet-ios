@@ -79,6 +79,7 @@ class ClaimOrderCoordinatorTests : XCTestCase {
                 let sendTransactionCoordinator = SendTransactionCoordinator(session: session,
                                                                             keystore: keystore,
                                                                             confirmType: .signThenSend)
+                expectation.fulfill()
 
             case .failure: break
             }
