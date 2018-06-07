@@ -58,7 +58,7 @@ enum RPCServer {
     }
 
     func etherscanAPIURLForTransactionList(for address: String) -> URL {
-        return URL(string: getEtherscanURL)!.appendingPathComponent(address)
+        return URL(string: getEtherscanURL + address)!
     }
 
     var displayName: String {
