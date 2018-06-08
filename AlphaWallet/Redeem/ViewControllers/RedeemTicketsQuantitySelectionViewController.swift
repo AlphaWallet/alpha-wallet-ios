@@ -149,7 +149,8 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController {
         let tickets = Array(ticketHolder.tickets[..<quantity])
         return TicketHolder(
             tickets: tickets,
-            status: ticketHolder.status
+            status: ticketHolder.status,
+            contractAddress: ticketHolder.contractAddress
         )
     }
 

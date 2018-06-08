@@ -283,7 +283,7 @@ class TicketsCoordinator: NSObject, Coordinator {
             price: BigUInt("0")!,
             indices: ticketHolder.indices,
             expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-            contractAddress: TicketsCoordinator.getContractAddressForLinks(),
+            contractAddress: ticketHolder.contractAddress,
             start: BigUInt("0")!,
             count: ticketHolder.indices.count
         )
@@ -306,7 +306,7 @@ class TicketsCoordinator: NSObject, Coordinator {
                 price: wei,
                 indices: ticketHolder.indices,
                 expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-                contractAddress: TicketsCoordinator.getContractAddressForLinks(),
+                contractAddress: ticketHolder.contractAddress,
                 start: BigUInt("0")!,
                 count: ticketHolder.indices.count
         )
