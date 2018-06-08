@@ -20,21 +20,21 @@ class GetContractInteractions {
     //as people spam via sending tokens
     func getContractList(address: String, chainId: Int, completion: @escaping ([String]) -> Void) {
         let etherscanURL = RPCServer(chainID: chainId).etherscanAPIURLForTransactionList(for: address)
-        var contracts: [String] = [String]()
         Alamofire.request(etherscanURL).validate().responseJSON { response in
             switch response.result {
                 case .success(let value):
                     let json = JSON(value)
-                    for i in 0...json["result"].count - 1 {
-                        let contractAddress = json["result"][i]["contractAddress"]
-                        if contractAddress != "" {
-                            contracts.append(contractAddress.description)
-                        }
+                    let contracts: [String] = json["result"].map { _, transactionJson in
+                        return transactionJson["contractAddress"].description
                     }
+                    let nonEmptyContracts = contracts.filter { !$0.isEmpty }
+                    completion(nonEmptyContracts)
                 case .failure(let error):
                     print(error)
+                    completion([])
+                default:
+                    completion([])
             }
-            completion(contracts)
         }
     }
 }
