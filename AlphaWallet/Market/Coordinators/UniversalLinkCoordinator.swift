@@ -203,14 +203,14 @@ class UniversalLinkCoordinator: Coordinator {
                 }
                 //start at one to slice off address
                 let bytes32Tickets = Array(array[1...])
-                completion(self.sortTickets(bytes32Tickets, indices))
+                completion(self.sortTickets(bytes32Tickets, indices, signedOrder.order.contractAddress))
             } else {
                 completion(nil)
             }
         }
     }
     
-    private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16]) -> TicketHolder {
+    private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16], _ contractAddress: String) -> TicketHolder {
         var tickets = [Ticket]()
         let xmlHandler = XMLHandler()
         for i in 0...bytes32Tickets.count - 1 {
@@ -222,7 +222,8 @@ class UniversalLinkCoordinator: Coordinator {
         }
         let ticketHolder = TicketHolder(
             tickets: tickets,
-            status: .available
+            status: .available,
+            contractAddress: contractAddress
         )
         return ticketHolder
     }

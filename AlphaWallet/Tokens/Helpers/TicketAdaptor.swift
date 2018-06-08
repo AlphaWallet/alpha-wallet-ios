@@ -88,7 +88,8 @@ class TicketAdaptor {
     private func getTicketHolder(for tickets: [Ticket]) -> TicketHolder {
         return TicketHolder(
                 tickets: tickets,
-                status: .available
+                status: .available,
+                contractAddress: token.contract
         )
     }
 
