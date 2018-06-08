@@ -10,6 +10,15 @@ protocol TokensCoordinatorDelegate: class {
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
 }
 
+private enum ContractData {
+    case name(String)
+    case symbol(String)
+    case balance([String])
+    case decimals(UInt8)
+    case stormBirdComplete(name: String, symbol: String, balance: [String])
+    case nonStormBirdComplete(name: String, symbol: String, decimals: UInt8)
+}
+
 class TokensCoordinator: Coordinator {
 
     let navigationController: UINavigationController
@@ -92,6 +101,83 @@ class TokensCoordinator: Coordinator {
         }
         tokensViewController.fetch()
     }
+
+    private func fetchContractData(for address: String, completion: @escaping (ContractData) -> Void) {
+        var completedName: String?
+        var completedSymbol: String?
+        var completedBalance: [String]?
+        var completedDecimals: UInt8?
+
+        func callCompletionOnAllData() {
+            if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance {
+                completion(.stormBirdComplete(name: completedName, symbol: completedSymbol, balance: completedBalance))
+            } else if let completedName = completedName, let completedSymbol = completedSymbol, let completedDecimals = completedDecimals {
+                completion(.nonStormBirdComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
+            }
+        }
+
+        self.storage.getContractName(for: address) { result in
+            switch result {
+            case .success(let name):
+                completedName = name
+                completion(.name(name))
+                callCompletionOnAllData()
+            case .failure:
+                break
+            }
+        }
+
+        self.storage.getContractSymbol(for: address) { result in
+            switch result {
+            case .success(let symbol):
+                completedSymbol = symbol
+                completion(.symbol(symbol))
+                callCompletionOnAllData()
+            case .failure:
+                break
+            }
+        }
+
+        self.storage.getIsStormBird(for: address) { result in
+            switch result {
+            case .success(let isStormBird):
+                if isStormBird {
+                    self.storage.getStormBirdBalance(for: address) { result in
+                        switch result {
+                        case .success(let balance):
+                            completedBalance = balance
+                            completion(.balance(balance))
+                            callCompletionOnAllData()
+                        case .failure:
+                            break
+                        }
+                    }
+                } else {
+                    self.storage.getDecimals(for: address) { result in
+                        switch result {
+                        case .success(let decimal):
+                            completedDecimals = decimal
+                            completion(.decimals(decimal))
+                            callCompletionOnAllData()
+                        case .failure:
+                            break
+                        }
+                    }
+                }
+            case .failure:
+                self.storage.getDecimals(for: address) { result in
+                    switch result {
+                    case .success(let decimal):
+                        completedDecimals = decimal
+                        completion(.decimals(decimal))
+                        callCompletionOnAllData()
+                    case .failure:
+                        break
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
@@ -124,28 +210,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didPressAddToken(in viewController: UIViewController) {
         addToken()
     }
-    private func getContractBalance(for address: String,
-                                    in viewController: NewTokenViewController) {
-        storage.getStormBirdBalance(for: address) { result in
-            switch result {
-            case .success(let balance):
-                viewController.updateBalanceValue(balance)
-            case .failure: break
-            }
-        }
-    }
-
-    private func getDecimals(for address: String,
-                             in viewController: NewTokenViewController) {
-        storage.getDecimals(for: address) { result in
-            switch result {
-            case .success(let decimal):
-                viewController.updateDecimalsValue(decimal)
-            case .failure: break
-            }
-        }
-    }
-
 }
 
 extension TokensCoordinator: NewTokenViewControllerDelegate {
@@ -155,35 +219,23 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
         dismiss()
     }
 
-    // TODO: Clean this up
     func didAddAddress(address: String, in viewController: NewTokenViewController) {
-        storage.getContractName(for: address) { result in
-            switch result {
-            case .success(let name):
+        self.fetchContractData(for: address) { data in
+            switch data {
+            case .name(let name):
                 viewController.updateNameValue(name)
-            case .failure: break
-            }
-        }
-
-        storage.getContractSymbol(for: address) { result in
-            switch result {
-            case .success(let symbol):
+            case .symbol(let symbol):
                 viewController.updateSymbolValue(symbol)
-            case .failure: break
-            }
-        }
-
-        storage.getIsStormBird(for: address) { result in
-            switch result {
-            case .success(let isStormBird):
-                viewController.updateFormForStormBirdToken(isStormBird)
-                if isStormBird {
-                    self.getContractBalance(for: address, in: viewController)
-                } else {
-                    self.getDecimals(for: address, in: viewController)
-                }
-            case .failure:
-                self.getDecimals(for: address, in: viewController)
+            case .balance(let balance):
+                viewController.updateFormForStormBirdToken(true)
+                viewController.updateBalanceValue(balance)
+            case .decimals(let decimals):
+                viewController.updateFormForStormBirdToken(false)
+                viewController.updateDecimalsValue(decimals)
+            case .stormBirdComplete:
+                break
+            case .nonStormBirdComplete:
+                break
             }
         }
     }
