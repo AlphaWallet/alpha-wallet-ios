@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import TrustKeystore
+import Alamofire
 
 protocol TokensCoordinatorDelegate: class {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
@@ -17,6 +18,7 @@ private enum ContractData {
     case decimals(UInt8)
     case stormBirdComplete(name: String, symbol: String, balance: [String])
     case nonStormBirdComplete(name: String, symbol: String, decimals: UInt8)
+    case failed(networkReachable: Bool?)
 }
 
 class TokensCoordinator: Coordinator {
@@ -79,7 +81,8 @@ class TokensCoordinator: Coordinator {
         GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: config.chainID) { contracts in
             let detectedContracts = contracts.map { $0.lowercased() }
             let alreadyAddedContracts = self.storage.enabledObject.map { $0.address.eip55String.lowercased() }
-            let contractsToAdd = detectedContracts - alreadyAddedContracts
+            let deletedContracts = self.storage.deletedContracts.map { $0.contract.lowercased() }
+            let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts
             for eachContract in contractsToAdd {
                 self.addToken(for: eachContract)
             }
@@ -114,6 +117,10 @@ class TokensCoordinator: Coordinator {
                 )
                 self.storage.add(tokens: [token])
                 self.tokensViewController.fetch()
+            case .failed(let networkReachable):
+                if let networkReachable = networkReachable, networkReachable  {
+                    self.storage.add(deadContracts: [DeletedContract(contract: contract)])
+                }
             }
         }
     }
@@ -153,11 +160,13 @@ class TokensCoordinator: Coordinator {
         tokensViewController.fetch()
     }
 
+    /// Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
     private func fetchContractData(for address: String, completion: @escaping (ContractData) -> Void) {
         var completedName: String?
         var completedSymbol: String?
         var completedBalance: [String]?
         var completedDecimals: UInt8?
+        var failed = false
 
         func callCompletionOnAllData() {
             if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance {
@@ -167,6 +176,13 @@ class TokensCoordinator: Coordinator {
             }
         }
 
+        func callCompletionFailed() {
+            guard !failed else { return }
+            failed = true
+            //TODO maybe better to share an instance of the reachability manager
+            completion(.failed(networkReachable: NetworkReachabilityManager()?.isReachable))
+        }
+
         self.storage.getContractName(for: address) { result in
             switch result {
             case .success(let name):
@@ -174,7 +190,7 @@ class TokensCoordinator: Coordinator {
                 completion(.name(name))
                 callCompletionOnAllData()
             case .failure:
-                break
+                callCompletionFailed()
             }
         }
 
@@ -185,7 +201,7 @@ class TokensCoordinator: Coordinator {
                 completion(.symbol(symbol))
                 callCompletionOnAllData()
             case .failure:
-                break
+                callCompletionFailed()
             }
         }
 
@@ -200,7 +216,7 @@ class TokensCoordinator: Coordinator {
                             completion(.balance(balance))
                             callCompletionOnAllData()
                         case .failure:
-                            break
+                            callCompletionFailed()
                         }
                     }
                 } else {
@@ -211,7 +227,7 @@ class TokensCoordinator: Coordinator {
                             completion(.decimals(decimal))
                             callCompletionOnAllData()
                         case .failure:
-                            break
+                            callCompletionFailed()
                         }
                     }
                 }
@@ -223,7 +239,7 @@ class TokensCoordinator: Coordinator {
                         completion(.decimals(decimal))
                         callCompletionOnAllData()
                     case .failure:
-                        break
+                        callCompletionFailed()
                     }
                 }
             }
@@ -286,6 +302,8 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
             case .stormBirdComplete:
                 break
             case .nonStormBirdComplete:
+                break
+            case .failed:
                 break
             }
         }
