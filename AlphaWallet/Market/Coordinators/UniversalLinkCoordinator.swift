@@ -41,7 +41,8 @@ class UniversalLinkCoordinator: Coordinator {
             "v": signature.substring(from: 128),
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
-            "networkId": Config().chainID.description
+            "networkId": Config().chainID.description,
+            "contractAddress": signedOrder.order.contractAddress
         ]
         
         if isForTransfer {
@@ -186,7 +187,10 @@ class UniversalLinkCoordinator: Coordinator {
             completion: @escaping( _ response: TicketHolder?) -> Void
     ) {
         let indices = signedOrder.order.indices
-        let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: false)
+        let parameters = createHTTPParametersForPaymentServer(
+            signedOrder: signedOrder,
+            isForTransfer: false
+        )
         
         Alamofire.request(Constants.getTicketInfoFromServer, method: .get, parameters: parameters).responseJSON { response in
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
@@ -203,7 +207,13 @@ class UniversalLinkCoordinator: Coordinator {
                 }
                 //start at one to slice off address
                 let bytes32Tickets = Array(array[1...])
-                completion(self.sortTickets(bytes32Tickets, indices, signedOrder.order.contractAddress))
+                completion(
+                    self.sortTickets(
+                        bytes32Tickets,
+                        indices,
+                        signedOrder.order.contractAddress
+                    )
+                )
             } else {
                 completion(nil)
             }
