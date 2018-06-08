@@ -60,11 +60,57 @@ class TokensCoordinator: Coordinator {
 
     func start() {
         addFIFAToken()
+        autoDetectTokens()
         showTokens()
     }
 
     func showTokens() {
         navigationController.viewControllers = [rootViewController]
+    }
+
+    private func autoDetectTokens() {
+        guard let address = keystore.recentlyUsedWallet?.address else { return }
+        let web3 = Web3Swift(url: config.rpcURL)
+        GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: config.chainID) { contracts in
+            let detectedContracts = contracts.map { $0.lowercased() }
+            let alreadyAddedContracts = self.storage.enabledObject.map { $0.address.eip55String.lowercased() }
+            let contractsToAdd = detectedContracts - alreadyAddedContracts
+            for eachContract in contractsToAdd {
+                self.addToken(for: eachContract)
+            }
+        }
+    }
+
+    private func addToken(for contract: String) {
+        fetchContractData(for: contract) { data in
+            switch data {
+            case .name, .symbol, .balance, .decimals:
+                break
+            case .stormBirdComplete(let name, let symbol, let balance):
+                if let address = Address(string: contract) {
+                    let token = ERCToken(
+                            contract: address,
+                            name: name,
+                            symbol: symbol,
+                            decimals: 0,
+                            isStormBird: true,
+                            balance: balance
+                    )
+                    self.storage.addCustom(token: token)
+                    self.tokensViewController.fetch()
+                }
+            case .nonStormBirdComplete(let name, let symbol, let decimals):
+                let token = TokenObject(
+                        contract: contract,
+                        name: name,
+                        symbol: symbol,
+                        decimals: Int(decimals),
+                        value: "0"
+                )
+                self.storage.add(tokens: [token])
+                self.tokensViewController.fetch()
+            }
+        }
     }
 
     func newTokenViewController() -> NewTokenViewController {
@@ -238,5 +284,11 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
                 break
             }
         }
+    }
+}
+
+func -<T: Equatable>(left: [T], right: [T]) -> [T] {
+    return left.filter { l in
+        !right.contains { $0 == l }
     }
 }
