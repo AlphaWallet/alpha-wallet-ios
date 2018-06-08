@@ -69,6 +69,11 @@ class TokensCoordinator: Coordinator {
     }
 
     private func autoDetectTokens() {
+        //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
+        if ProcessInfo.processInfo.environment["XCInjectBundleInto"] != nil {
+            return
+        }
+
         guard let address = keystore.recentlyUsedWallet?.address else { return }
         let web3 = Web3Swift(url: config.rpcURL)
         GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: config.chainID) { contracts in
