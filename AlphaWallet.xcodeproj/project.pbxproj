@@ -303,6 +303,7 @@
 		5E7C7376B566E5A59CC8F463 /* ImportTicketViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72D0E7CA03ADE5CFAE7A /* ImportTicketViewControllerViewModel.swift */; };
 		5E7C73FC3990D110C474C3D6 /* WalletFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75CC640BAFFE0E789F44 /* WalletFilterViewModel.swift */; };
 		5E7C73FD5BD75D90C8D0EF3C /* WalletFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C58586099F082973073 /* WalletFilterView.swift */; };
+		5E7C741353DDF87133054FCC /* DeletedContract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72BEB789700C49FF64A6 /* DeletedContract.swift */; };
 		5E7C745A423BD10CFDED9A81 /* ServersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CBEBF984CFCA29D6866 /* ServersViewModel.swift */; };
 		5E7C745C725F3F34037DCC68 /* SetTransferTicketsExpiryDateViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C754C0E2E57F32A61F9A3 /* SetTransferTicketsExpiryDateViewControllerViewModel.swift */; };
 		5E7C745DACB5FCCEBCEB49CA /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C793E23E2364B73C4D813 /* WelcomeViewController.swift */; };
@@ -421,6 +422,7 @@
 		76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */; };
 		76F1D13FC8A41AD967C59947 /* ClaimOrderCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */; };
 		76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */; };
+		76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */; };
 		76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */; };
 		76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
@@ -808,6 +810,7 @@
 		5E7C71EBD4C95AD4E11F3352 /* AlphaWalletSettingsButtonRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AlphaWalletSettingsButtonRow.swift; path = Views/AlphaWalletSettingsButtonRow.swift; sourceTree = "<group>"; };
 		5E7C72142D5817EF8FA8CADA /* PrivacyPolicyViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyViewController.swift; sourceTree = "<group>"; };
 		5E7C727433F7B8E322B3C68A /* SetTransferTicketsExpiryDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTicketsExpiryDateViewController.swift; sourceTree = "<group>"; };
+		5E7C72BEB789700C49FF64A6 /* DeletedContract.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeletedContract.swift; sourceTree = "<group>"; };
 		5E7C72D0E7CA03ADE5CFAE7A /* ImportTicketViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportTicketViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C731B6F01534683227123 /* TicketTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTokenViewCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C73495E0C0A207152EC25 /* LockEnterPasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LockEnterPasscodeViewController.swift; path = AlphaWallet/AlphaWalletLock/ViewControllers/LockEnterPasscodeViewController.swift; sourceTree = SOURCE_ROOT; };
@@ -947,6 +950,7 @@
 		76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderHandler.swift; sourceTree = "<group>"; };
 		76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandler.swift; sourceTree = "<group>"; };
 		76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderSigningTests.swift; sourceTree = "<group>"; };
+		76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetContractInteractions.swift; sourceTree = "<group>"; };
 		76F1DF80932454E9F58B7830 /* CreateRedeem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeem.swift; sourceTree = "<group>"; };
 		771A847420322FD700528D28 /* PreferencesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesViewModel.swift; sourceTree = "<group>"; };
 		771A8484203242B400528D28 /* InCoordinatorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InCoordinatorViewModelTests.swift; sourceTree = "<group>"; };
@@ -1706,6 +1710,7 @@
 				442FC90F0768C43EF903465B /* Ticket.swift */,
 				442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */,
 				5E7C74B9EB81C51E956566E7 /* TokensDataStore.swift */,
+				5E7C72BEB789700C49FF64A6 /* DeletedContract.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -2109,6 +2114,7 @@
 				442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */,
 				76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */,
 				5E7C7F932B48011A24C26733 /* TokensCoordinator.swift */,
+				76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -3641,6 +3647,8 @@
 				5E7C7A91D0F6CBDA3C89DEAC /* LocaleViewCell.swift in Sources */,
 				5E7C74BD08801CABF9695853 /* LocaleViewModel.swift in Sources */,
 				5E7C7B348A4DB36FC2D39DDF /* AssetField.swift in Sources */,
+				76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */,
+				5E7C741353DDF87133054FCC /* DeletedContract.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
