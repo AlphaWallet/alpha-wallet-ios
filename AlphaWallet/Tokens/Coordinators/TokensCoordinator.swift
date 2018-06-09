@@ -70,6 +70,7 @@ class TokensCoordinator: Coordinator {
         navigationController.viewControllers = [rootViewController]
     }
 
+    ///Implementation: We refresh once only, after all the auto detected tokens' data have been pulled because each refresh pulls every tokens' (including those that already exist before the this auto detection) price as well as balance, placing heavy and redundant load on the device. After a timeout, we refresh once just in case it took too long, so user at least gets the chance to see some auto detected tokens
     private func autoDetectTokens() {
         //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
         if ProcessInfo.processInfo.environment["XCInjectBundleInto"] != nil {
@@ -83,13 +84,26 @@ class TokensCoordinator: Coordinator {
             let alreadyAddedContracts = self.storage.enabledObject.map { $0.address.eip55String.lowercased() }
             let deletedContracts = self.storage.deletedContracts.map { $0.contract.lowercased() }
             let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts
+            var contractsPulled = 0
+            var hasRefreshedAfterAddingAllContracts = false
             for eachContract in contractsToAdd {
-                self.addToken(for: eachContract)
+                self.addToken(for: eachContract) {
+                    contractsPulled += 1
+                    if contractsPulled == contractsToAdd.count {
+                        hasRefreshedAfterAddingAllContracts = true
+                        self.tokensViewController.fetch()
+                    }
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                if !hasRefreshedAfterAddingAllContracts {
+                    self.tokensViewController.fetch()
+                }
             }
         }
     }
 
-    private func addToken(for contract: String) {
+    private func addToken(for contract: String, completion: @escaping () -> Void) {
         fetchContractData(for: contract) { data in
             switch data {
             case .name, .symbol, .balance, .decimals:
@@ -105,7 +119,7 @@ class TokensCoordinator: Coordinator {
                             balance: balance
                     )
                     self.storage.addCustom(token: token)
-                    self.tokensViewController.fetch()
+                    completion()
                 }
             case .nonStormBirdComplete(let name, let symbol, let decimals):
                 let token = TokenObject(
@@ -116,11 +130,12 @@ class TokensCoordinator: Coordinator {
                         value: "0"
                 )
                 self.storage.add(tokens: [token])
-                self.tokensViewController.fetch()
+                completion()
             case .failed(let networkReachable):
                 if let networkReachable = networkReachable, networkReachable  {
                     self.storage.add(deadContracts: [DeletedContract(contract: contract)])
                 }
+                completion()
             }
         }
     }
