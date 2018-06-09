@@ -3,11 +3,22 @@
 import Foundation
 import UIKit
 import TrustKeystore
+import Alamofire
 
 protocol TokensCoordinatorDelegate: class {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
     func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator)
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
+}
+
+private enum ContractData {
+    case name(String)
+    case symbol(String)
+    case balance([String])
+    case decimals(UInt8)
+    case stormBirdComplete(name: String, symbol: String, balance: [String])
+    case nonStormBirdComplete(name: String, symbol: String, decimals: UInt8)
+    case failed(networkReachable: Bool?)
 }
 
 class TokensCoordinator: Coordinator {
@@ -51,11 +62,67 @@ class TokensCoordinator: Coordinator {
 
     func start() {
         addFIFAToken()
+        autoDetectTokens()
         showTokens()
     }
 
     func showTokens() {
         navigationController.viewControllers = [rootViewController]
+    }
+
+    private func autoDetectTokens() {
+        //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
+        if ProcessInfo.processInfo.environment["XCInjectBundleInto"] != nil {
+            return
+        }
+
+        guard let address = keystore.recentlyUsedWallet?.address else { return }
+        let web3 = Web3Swift(url: config.rpcURL)
+        GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: config.chainID) { contracts in
+            let detectedContracts = contracts.map { $0.lowercased() }
+            let alreadyAddedContracts = self.storage.enabledObject.map { $0.address.eip55String.lowercased() }
+            let deletedContracts = self.storage.deletedContracts.map { $0.contract.lowercased() }
+            let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts
+            for eachContract in contractsToAdd {
+                self.addToken(for: eachContract)
+            }
+        }
+    }
+
+    private func addToken(for contract: String) {
+        fetchContractData(for: contract) { data in
+            switch data {
+            case .name, .symbol, .balance, .decimals:
+                break
+            case .stormBirdComplete(let name, let symbol, let balance):
+                if let address = Address(string: contract) {
+                    let token = ERCToken(
+                            contract: address,
+                            name: name,
+                            symbol: symbol,
+                            decimals: 0,
+                            isStormBird: true,
+                            balance: balance
+                    )
+                    self.storage.addCustom(token: token)
+                    self.tokensViewController.fetch()
+                }
+            case .nonStormBirdComplete(let name, let symbol, let decimals):
+                let token = TokenObject(
+                        contract: contract,
+                        name: name,
+                        symbol: symbol,
+                        decimals: Int(decimals),
+                        value: "0"
+                )
+                self.storage.add(tokens: [token])
+                self.tokensViewController.fetch()
+            case .failed(let networkReachable):
+                if let networkReachable = networkReachable, networkReachable  {
+                    self.storage.add(deadContracts: [DeletedContract(contract: contract)])
+                }
+            }
+        }
     }
 
     func newTokenViewController() -> NewTokenViewController {
@@ -92,6 +159,92 @@ class TokensCoordinator: Coordinator {
         }
         tokensViewController.fetch()
     }
+
+    /// Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
+    private func fetchContractData(for address: String, completion: @escaping (ContractData) -> Void) {
+        var completedName: String?
+        var completedSymbol: String?
+        var completedBalance: [String]?
+        var completedDecimals: UInt8?
+        var failed = false
+
+        func callCompletionOnAllData() {
+            if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance {
+                completion(.stormBirdComplete(name: completedName, symbol: completedSymbol, balance: completedBalance))
+            } else if let completedName = completedName, let completedSymbol = completedSymbol, let completedDecimals = completedDecimals {
+                completion(.nonStormBirdComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
+            }
+        }
+
+        func callCompletionFailed() {
+            guard !failed else { return }
+            failed = true
+            //TODO maybe better to share an instance of the reachability manager
+            completion(.failed(networkReachable: NetworkReachabilityManager()?.isReachable))
+        }
+
+        self.storage.getContractName(for: address) { result in
+            switch result {
+            case .success(let name):
+                completedName = name
+                completion(.name(name))
+                callCompletionOnAllData()
+            case .failure:
+                callCompletionFailed()
+            }
+        }
+
+        self.storage.getContractSymbol(for: address) { result in
+            switch result {
+            case .success(let symbol):
+                completedSymbol = symbol
+                completion(.symbol(symbol))
+                callCompletionOnAllData()
+            case .failure:
+                callCompletionFailed()
+            }
+        }
+
+        self.storage.getIsStormBird(for: address) { result in
+            switch result {
+            case .success(let isStormBird):
+                if isStormBird {
+                    self.storage.getStormBirdBalance(for: address) { result in
+                        switch result {
+                        case .success(let balance):
+                            completedBalance = balance
+                            completion(.balance(balance))
+                            callCompletionOnAllData()
+                        case .failure:
+                            callCompletionFailed()
+                        }
+                    }
+                } else {
+                    self.storage.getDecimals(for: address) { result in
+                        switch result {
+                        case .success(let decimal):
+                            completedDecimals = decimal
+                            completion(.decimals(decimal))
+                            callCompletionOnAllData()
+                        case .failure:
+                            callCompletionFailed()
+                        }
+                    }
+                }
+            case .failure:
+                self.storage.getDecimals(for: address) { result in
+                    switch result {
+                    case .success(let decimal):
+                        completedDecimals = decimal
+                        completion(.decimals(decimal))
+                        callCompletionOnAllData()
+                    case .failure:
+                        callCompletionFailed()
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
@@ -124,28 +277,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didPressAddToken(in viewController: UIViewController) {
         addToken()
     }
-    private func getContractBalance(for address: String,
-                                    in viewController: NewTokenViewController) {
-        storage.getStormBirdBalance(for: address) { result in
-            switch result {
-            case .success(let balance):
-                viewController.updateBalanceValue(balance)
-            case .failure: break
-            }
-        }
-    }
-
-    private func getDecimals(for address: String,
-                             in viewController: NewTokenViewController) {
-        storage.getDecimals(for: address) { result in
-            switch result {
-            case .success(let decimal):
-                viewController.updateDecimalsValue(decimal)
-            case .failure: break
-            }
-        }
-    }
-
 }
 
 extension TokensCoordinator: NewTokenViewControllerDelegate {
@@ -155,36 +286,32 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
         dismiss()
     }
 
-    // TODO: Clean this up
     func didAddAddress(address: String, in viewController: NewTokenViewController) {
-        storage.getContractName(for: address) { result in
-            switch result {
-            case .success(let name):
+        self.fetchContractData(for: address) { data in
+            switch data {
+            case .name(let name):
                 viewController.updateNameValue(name)
-            case .failure: break
-            }
-        }
-
-        storage.getContractSymbol(for: address) { result in
-            switch result {
-            case .success(let symbol):
+            case .symbol(let symbol):
                 viewController.updateSymbolValue(symbol)
-            case .failure: break
+            case .balance(let balance):
+                viewController.updateFormForStormBirdToken(true)
+                viewController.updateBalanceValue(balance)
+            case .decimals(let decimals):
+                viewController.updateFormForStormBirdToken(false)
+                viewController.updateDecimalsValue(decimals)
+            case .stormBirdComplete:
+                break
+            case .nonStormBirdComplete:
+                break
+            case .failed:
+                break
             }
         }
+    }
+}
 
-        storage.getIsStormBird(for: address) { result in
-            switch result {
-            case .success(let isStormBird):
-                viewController.updateFormForStormBirdToken(isStormBird)
-                if isStormBird {
-                    self.getContractBalance(for: address, in: viewController)
-                } else {
-                    self.getDecimals(for: address, in: viewController)
-                }
-            case .failure:
-                self.getDecimals(for: address, in: viewController)
-            }
-        }
+func -<T: Equatable>(left: [T], right: [T]) -> [T] {
+    return left.filter { l in
+        !right.contains { $0 == l }
     }
 }

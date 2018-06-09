@@ -109,6 +109,10 @@ class TokensDataStore {
             .filter { !$0.isDisabled }
     }
 
+    var deletedContracts: [DeletedContract] {
+        return Array(realm.objects(DeletedContract.self))
+    }
+
     static func update(in realm: Realm, tokens: [Token]) {
         realm.beginWrite()
         for token in tokens {
@@ -279,6 +283,12 @@ class TokensDataStore {
                 }
                 self.updateDelegate()
             } catch { }
+        }
+    }
+
+    func add(deadContracts: [DeletedContract]) {
+        try! realm.write {
+            realm.add(deadContracts, update: false)
         }
     }
 

@@ -43,6 +43,24 @@ enum RPCServer {
         }
     }
 
+    var getEtherscanURL: String {
+        switch self {
+            case .main: return Constants.mainnetEtherscanAPI
+            case .ropsten: return Constants.ropstenEtherscanAPI
+            case .rinkeby: return Constants.rinkebyEtherscanAPI
+            case .kovan: return Constants.mainnetEtherscanAPI
+            case .poa: return Constants.mainnetEtherscanAPI
+            case .sokol: return Constants.mainnetEtherscanAPI
+            case .classic: return Constants.mainnetEtherscanAPI
+            case .callisto: return Constants.mainnetEtherscanAPI
+            case .custom(_): return Constants.mainnetEtherscanAPI
+        }
+    }
+
+    func etherscanAPIURLForTransactionList(for address: String) -> URL {
+        return URL(string: getEtherscanURL + address)!
+    }
+
     var displayName: String {
         if isTestNetwork {
             return "\(name) (\(R.string.localizable.settingsNetworkTestLabelTitle()))"
