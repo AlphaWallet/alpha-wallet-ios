@@ -329,6 +329,7 @@ class TokensDataStore {
     }
 
     func update(token: TokenObject, action: TokenUpdate) {
+        guard !token.isInvalidated else { return }
         //let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
         try! realm.write {
             switch action {
