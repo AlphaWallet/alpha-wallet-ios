@@ -121,9 +121,12 @@ class UniversalLinkCoordinator: Coordinator {
 			return false
 		}
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
+        let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID))
+        let isStormBirdContract = xmlAddress.eip55String == signedOrder.order.contractAddress
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) { result in
             if let goodResult = result {
-                if signedOrder.order.price > 0 {
+                //user can pay gas for free import links if they are not covered by our server
+                if signedOrder.order.price > 0 || !isStormBirdContract {
                     if let balance = self.ethBalance {
                         balance.subscribeOnce { value in
                             if value > signedOrder.order.price {
@@ -146,7 +149,8 @@ class UniversalLinkCoordinator: Coordinator {
                             }
                         }
                     }
-                } else {
+                }
+                else {
                     let _ = self.usePaymentServerForFreeTransferLinks(
                             signedOrder: signedOrder,
                             ticketHolder: goodResult
