@@ -28,6 +28,12 @@ class ImportTicketViewController: UIViewController {
     var parameters: Parameters?
     var signedOrder: SignedOrder?
     var tokenObject: TokenObject?
+    var contract: String?
+    var url: URL? {
+        didSet {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+        }
+    }
 
     init() {
         super.init(nibName: nil, bundle: nil)
@@ -241,6 +247,18 @@ class ImportTicketViewController: UIViewController {
             delegate.didPressDone(in: self)
         } else {
             dismiss(animated: true)
+        }
+    }
+
+    @objc func showContractWebPage() {
+        let config = Config()
+        if case .main = config.server {
+            guard let url = url else { return }
+            openURL(url)
+        } else {
+            guard let contract = contract else { return }
+            let url =  config.server.etherscanContractDetailsWebPageURL(for: contract)
+            openURL(url)
         }
     }
 

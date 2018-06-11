@@ -123,6 +123,8 @@ class UniversalLinkCoordinator: Coordinator {
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString)
         let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID))
         let isStormBirdContract = xmlAddress.eip55String == signedOrder.order.contractAddress
+        importTicketViewController?.url = url
+        importTicketViewController?.contract = signedOrder.order.contractAddress
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) { result in
             if let goodResult = result {
                 //user can pay gas for free import links if they are not covered by our server
