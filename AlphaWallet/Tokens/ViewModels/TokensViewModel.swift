@@ -91,7 +91,8 @@ class TokensViewModel {
         if etherTokenContract == token.contract {
             return false
         }
-        if let ticketContractAddress = config.ticketContractAddress, token.contract.lowercased() == ticketContractAddress.lowercased() {
+        if let ticketContractAddress = config.ticketContractAddress,
+           token.contract.lowercased() == ticketContractAddress.lowercased() {
             return false
         }
         return true
@@ -118,7 +119,8 @@ class TokensViewModel {
 
     //FIFA make the FIFA token be index 1. Can remove the function and replace with the argument when we no longer need this
     private func reorderTokensSoFIFAAtIndex1(tokens: [TokenObject]) -> [TokenObject] {
-        let index = tokens.index { $0.address.eip55String == config.ticketContractAddress }
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let index = tokens.index { $0.address.eip55String == contractAddress }
         if let index = index, tokens.count >= 2 {
             var reorderedTokens = tokens
             let target = reorderedTokens[index]

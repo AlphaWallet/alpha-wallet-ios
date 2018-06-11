@@ -79,8 +79,8 @@ class SellTicketsViewController: UIViewController {
     func configure(viewModel: SellTicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-
-        if viewModel.token.contract != Constants.ticketContractAddress {
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        if viewModel.token.contract != contractAddress {
             navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
