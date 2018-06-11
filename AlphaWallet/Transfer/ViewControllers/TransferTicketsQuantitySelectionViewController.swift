@@ -5,6 +5,7 @@ import UIKit
 protocol TransferTicketsQuantitySelectionViewControllerDelegate: class {
     func didSelectQuantity(token: TokenObject, ticketHolder: TicketHolder, in viewController: TransferTicketsQuantitySelectionViewController)
     func didPressViewInfo(in viewController: TransferTicketsQuantitySelectionViewController)
+    func didPressViewContractWebPage(in viewController: TransferTicketsQuantitySelectionViewController)
 }
 
 class TransferTicketsQuantitySelectionViewController: UIViewController {
@@ -23,7 +24,10 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
+            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+        ]
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -109,11 +113,15 @@ class TransferTicketsQuantitySelectionViewController: UIViewController {
         delegate?.didPressViewInfo(in: self)
     }
 
+    @objc func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(in: self)
+    }
+
     func configure(viewModel: TransferTicketsQuantitySelectionViewModel) {
         self.viewModel = viewModel
 
         if viewModel.token.contract != Constants.ticketContractAddress {
-            navigationItem.rightBarButtonItem = nil
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
         view.backgroundColor = viewModel.backgroundColor
