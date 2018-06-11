@@ -11,6 +11,7 @@ import UIKit
 protocol RedeemTicketsViewControllerDelegate: class {
     func didSelectTicketHolder(token: TokenObject, ticketHolder: TicketHolder, in viewController: RedeemTicketsViewController)
     func didPressViewInfo(in viewController: RedeemTicketsViewController)
+    func didPressViewContractWebPage(in viewController: RedeemTicketsViewController)
 }
 
 class RedeemTicketsViewController: UIViewController {
@@ -25,7 +26,10 @@ class RedeemTicketsViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
+            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+        ]
 
         view.backgroundColor = Colors.appBackground
 
@@ -81,7 +85,7 @@ class RedeemTicketsViewController: UIViewController {
         tableView.dataSource = self
 
         if viewModel.token.contract != Constants.ticketContractAddress {
-            navigationItem.rightBarButtonItem = nil
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
         header.configure(title: viewModel.title)
@@ -109,6 +113,10 @@ class RedeemTicketsViewController: UIViewController {
 
     @objc func showInfo() {
         delegate?.didPressViewInfo(in: self)
+    }
+
+    @objc func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(in: self)
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
