@@ -113,7 +113,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
 
     func configure(viewModel: TransferTicketsViaWalletAddressViewControllerViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID)).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
         if viewModel.token.contract != contractAddress {
             navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
