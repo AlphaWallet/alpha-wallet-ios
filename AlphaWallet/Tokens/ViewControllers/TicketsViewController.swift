@@ -124,7 +124,7 @@ class TicketsViewController: UIViewController {
     func configure(viewModel: TicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-        let contractAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID)).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
         if let tokenObject = tokenObject, tokenObject.contract != contractAddress {
             navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }

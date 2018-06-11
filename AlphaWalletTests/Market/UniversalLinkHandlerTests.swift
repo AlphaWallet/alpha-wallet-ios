@@ -22,7 +22,7 @@ class UniversalLinkHandlerTests: XCTestCase {
     func testCreateUniversalLink() {
         var indices = [UInt16]()
         indices.append(1)
-        let contractAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID)).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
         let testOrder1 = Order(price: BigUInt("1000000000")!,
                                indices: indices,
                                expiry: BigUInt("0")!,
