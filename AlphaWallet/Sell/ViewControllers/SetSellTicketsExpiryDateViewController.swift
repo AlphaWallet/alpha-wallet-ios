@@ -5,6 +5,7 @@ import UIKit
 protocol SetSellTicketsExpiryDateViewControllerDelegate: class {
     func didSetSellTicketsExpiryDate(ticketHolder: TicketHolder, linkExpiryDate: Date, ethCost: String, in viewController: SetSellTicketsExpiryDateViewController)
     func didPressViewInfo(in viewController: SetSellTicketsExpiryDateViewController)
+    func didPressViewContractWebPage(in viewController: SetSellTicketsExpiryDateViewController)
 }
 
 class SetSellTicketsExpiryDateViewController: UIViewController {
@@ -41,7 +42,10 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
         self.ethCost = ethCost
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
+            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+        ]
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -231,11 +235,15 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
         delegate?.didPressViewInfo(in: self)
     }
 
+    @objc func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(in: self)
+    }
+
     func configure(viewModel: SetSellTicketsExpiryDateViewControllerViewModel) {
         self.viewModel = viewModel
 
         if viewModel.token.contract != Constants.ticketContractAddress {
-            navigationItem.rightBarButtonItem = nil
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
         view.backgroundColor = viewModel.backgroundColor
