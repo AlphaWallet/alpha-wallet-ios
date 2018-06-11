@@ -17,6 +17,7 @@ protocol TicketsViewControllerDelegate: class {
     func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: TicketsViewController)
     func didCancel(in viewController: TicketsViewController)
     func didPressViewRedemptionInfo(in viewController: TicketsViewController)
+    func didPressViewContractWebPage(in viewController: TicketsViewController)
 }
 
 class TicketsViewController: UIViewController {
@@ -39,7 +40,10 @@ class TicketsViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
+            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+        ]
 
         view.backgroundColor = Colors.appBackground
 		
@@ -122,7 +126,7 @@ class TicketsViewController: UIViewController {
         tableView.dataSource = self
 
         if let tokenObject = tokenObject, tokenObject.contract != Constants.ticketContractAddress {
-            navigationItem.rightBarButtonItem = nil
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
         if let tokenObject = tokenObject {
@@ -171,6 +175,10 @@ class TicketsViewController: UIViewController {
 
     @objc func showInfo() {
 		delegate?.didPressViewRedemptionInfo(in: self)
+    }
+
+    @objc func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(in: self)
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
