@@ -115,12 +115,12 @@ class UniversalLinkCoordinator: Coordinator {
 
 	//Returns true if handled
     
-	func handleUniversalLink(url: URL?) -> Bool {
-		let matchedPrefix = (url?.description.contains(UniversalLinkHandler().urlPrefix))!
+	func handleUniversalLink(url: URL) -> Bool {
+		let matchedPrefix = url.description.contains(UniversalLinkHandler().urlPrefix)
 		guard matchedPrefix else {
 			return false
 		}
-        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
+        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString)
         let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID))
         let isStormBirdContract = xmlAddress.eip55String == signedOrder.order.contractAddress
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) { result in
