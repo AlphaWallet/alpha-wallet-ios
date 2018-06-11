@@ -241,8 +241,8 @@ class SetSellTicketsExpiryDateViewController: UIViewController {
 
     func configure(viewModel: SetSellTicketsExpiryDateViewControllerViewModel) {
         self.viewModel = viewModel
-
-        if viewModel.token.contract != Constants.ticketContractAddress {
+        let contractAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID)).eip55String
+        if viewModel.token.contract != contractAddress {
             navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 

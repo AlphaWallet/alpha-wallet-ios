@@ -270,21 +270,13 @@ class TicketsCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    //TODO should be returning `String?` instead by only calling `Config().ticketContractAddress`
-    public static func getContractAddressForLinks() -> String {
-        if let address = Config().ticketContractAddress {
-            return address
-        } else {
-            return Constants.ticketContractAddressRopsten
-        }
-    }
-
     private func generateTransferLink(ticketHolder: TicketHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow) -> String {
+        let contractAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID)).eip55String
         let order = Order(
             price: BigUInt("0")!,
             indices: ticketHolder.indices,
             expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-            contractAddress: TicketsCoordinator.getContractAddressForLinks(),
+            contractAddress: contractAddress,
             start: BigUInt("0")!,
             count: ticketHolder.indices.count
         )
@@ -300,6 +292,7 @@ class TicketsCoordinator: NSObject, Coordinator {
                                   linkExpiryDate: Date,
                                   ethCost: String,
                                   paymentFlow: PaymentFlow) -> String {
+        let contractAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID)).eip55String
         let ethCostRoundedTo4dp = String(format: "%.4f", Float(string: ethCost)!)
         let cost = Decimal(string: ethCostRoundedTo4dp)! * Decimal(string: "1000000000000000000")!
         let wei = BigUInt(cost.description)!
@@ -307,7 +300,7 @@ class TicketsCoordinator: NSObject, Coordinator {
                 price: wei,
                 indices: ticketHolder.indices,
                 expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-                contractAddress: TicketsCoordinator.getContractAddressForLinks(),
+                contractAddress: contractAddress,
                 start: BigUInt("0")!,
                 count: ticketHolder.indices.count
         )

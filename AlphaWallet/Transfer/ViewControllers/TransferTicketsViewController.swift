@@ -79,8 +79,8 @@ class TransferTicketsViewController: UIViewController {
     func configure(viewModel: TransferTicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-
-        if viewModel.token.contract != Constants.ticketContractAddress {
+        let contractAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID)).eip55String
+        if viewModel.token.contract != contractAddress {
             navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
