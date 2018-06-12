@@ -12,8 +12,8 @@ public struct Constants {
     public static let gasPriceDefaultStormbird = BigInt("22000000000")!
 
     // fee master
-    public static let paymentServer = "http://localhost:8080/api/claimToken"
-    public static let getTicketInfoFromServer = "http://localhost:8080/api/ecrecoverAndGetTickets"
+    public static let paymentServer = "https://app.awallet.io:80/api/claimToken"
+    public static let getTicketInfoFromServer = "https://app.awallet.io:80/api/ecrecoverAndGetTickets"
 
     // social
     public static let website = "https://community.awallet.io/c/alphawallet-app/ios-feedback"
@@ -34,6 +34,16 @@ public struct Constants {
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
     public static let event = "FIFA WC2018"
     public static let eventTimeZone = "Europe/Moscow"
+
+    //etherscan APIs
+    public static let mainnetEtherscanAPI = "https://api.etherscan.io/api?module=account&action=txlist&address="
+    public static let ropstenEtherscanAPI = "https://ropsten.etherscan.io/api?module=account&action=txlist&address="
+    public static let rinkebyEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
+
+    //etherscan contract details web page
+    public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"
+    public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"
+    public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
 }
 
 public struct UnitConfiguration {

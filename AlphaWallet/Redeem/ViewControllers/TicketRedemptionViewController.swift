@@ -23,7 +23,10 @@ class TicketRedemptionViewController: UIViewController {
 		self.session = session
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
+            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+        ]
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -110,6 +113,11 @@ class TicketRedemptionViewController: UIViewController {
         navigationController?.pushViewController(controller, animated: true)
     }
 
+    @objc func showContractWebPage() {
+        let url = Config().server.etherscanContractDetailsWebPageURL(for: viewModel.token.contract)
+        openURL(url)
+    }
+
     private func showSuccessMessage() {
         invalidateTimer()
 
@@ -133,9 +141,9 @@ class TicketRedemptionViewController: UIViewController {
     
     func configure(viewModel: TicketRedemptionViewModel) {
         self.viewModel = viewModel
-
-        if viewModel.token.contract != Constants.ticketContractAddress {
-            navigationItem.rightBarButtonItem = nil
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        if viewModel.token.contract != contractAddress {
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
         view.backgroundColor = viewModel.backgroundColor
