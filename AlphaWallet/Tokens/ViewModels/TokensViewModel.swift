@@ -12,6 +12,7 @@ class TokensViewModel {
         }
     }
     var tickers: [String: CoinTicker]?
+    var etherTokenContract: String
     var filter: WalletFilter = .all
     var filteredTokens: [TokenObject] {
         switch filter {
@@ -87,11 +88,14 @@ class TokensViewModel {
 
     func canDelete(for row: Int, section: Int) -> Bool {
         let token = item(for: row, section: section)
-        if let ticketContractAddress = config.ticketContractAddress {
-            return token.isCustom && token.contract.lowercased() != ticketContractAddress.lowercased()
-        } else {
-            return token.isCustom
+        if etherTokenContract == token.contract {
+            return false
         }
+        if let ticketContractAddress = config.ticketContractAddress,
+           token.contract.lowercased() == ticketContractAddress.lowercased() {
+            return false
+        }
+        return true
     }
 
     var footerTextColor: UIColor {
@@ -108,13 +112,15 @@ class TokensViewModel {
         tickers: [String: CoinTicker]?
     ) {
         self.config = config
+        self.etherTokenContract = TokensDataStore.etherToken(for: config).contract
         self.tokens = reorderTokensSoFIFAAtIndex1(tokens: tokens)
         self.tickers = tickers
     }
 
     //FIFA make the FIFA token be index 1. Can remove the function and replace with the argument when we no longer need this
     private func reorderTokensSoFIFAAtIndex1(tokens: [TokenObject]) -> [TokenObject] {
-        let index = tokens.index { $0.address.eip55String == config.ticketContractAddress }
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let index = tokens.index { $0.address.eip55String == contractAddress }
         if let index = index, tokens.count >= 2 {
             var reorderedTokens = tokens
             let target = reorderedTokens[index]
