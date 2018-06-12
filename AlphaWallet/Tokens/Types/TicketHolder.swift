@@ -26,10 +26,12 @@ class TicketHolder {
     var status: TicketHolderStatus
     var isSelected = false
     var areDetailsVisible = false
+    var contractAddress: String
 
-    init(tickets: [Ticket], status: TicketHolderStatus) {
+    init(tickets: [Ticket], status: TicketHolderStatus, contractAddress: String) {
         self.tickets = tickets
         self.status = status
+        self.contractAddress = contractAddress
     }
 
     var seatRange: String {
