@@ -24,7 +24,7 @@ class TransferTicketsViewController: UIViewController {
 
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
-            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+            UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
         ]
 
         view.backgroundColor = Colors.appBackground

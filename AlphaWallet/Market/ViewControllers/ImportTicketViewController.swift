@@ -41,7 +41,7 @@ class ImportTicketViewController: UIViewController {
     }
     var url: URL? {
         didSet {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
         }
     }
 
