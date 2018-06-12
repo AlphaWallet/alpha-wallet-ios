@@ -5,6 +5,7 @@ import UIKit
 protocol SetTransferTicketsExpiryDateViewControllerDelegate: class {
     func didPressNext(ticketHolder: TicketHolder, linkExpiryDate: Date, in viewController: SetTransferTicketsExpiryDateViewController)
     func didPressViewInfo(in viewController: SetTransferTicketsExpiryDateViewController)
+    func didPressViewContractWebPage(in viewController: SetTransferTicketsExpiryDateViewController)
 }
 
 class SetTransferTicketsExpiryDateViewController: UIViewController {
@@ -34,7 +35,10 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
+            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+        ]
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -214,6 +218,10 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
         delegate?.didPressViewInfo(in: self)
     }
 
+    @objc func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(in: self)
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         linkExpiryDateField.layer.cornerRadius = linkExpiryDateField.frame.size.height / 2
@@ -230,9 +238,9 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
 
     func configure(viewModel: SetTransferTicketsExpiryDateViewControllerViewModel) {
         self.viewModel = viewModel
-
-        if viewModel.token.contract != Constants.ticketContractAddress {
-            navigationItem.rightBarButtonItem = nil
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        if viewModel.token.contract != contractAddress {
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
         view.backgroundColor = viewModel.backgroundColor

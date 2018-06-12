@@ -83,7 +83,8 @@ class TokensCoordinator: Coordinator {
             let detectedContracts = contracts.map { $0.lowercased() }
             let alreadyAddedContracts = self.storage.enabledObject.map { $0.address.eip55String.lowercased() }
             let deletedContracts = self.storage.deletedContracts.map { $0.contract.lowercased() }
-            let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts
+            let hiddenContracts = self.storage.hiddenContracts.map { $0.contract.lowercased() }
+            let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts
             var contractsPulled = 0
             var hasRefreshedAfterAddingAllContracts = false
             for eachContract in contractsToAdd {
@@ -285,6 +286,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     func didDelete(token: TokenObject, in viewController: UIViewController) {
+        storage.add(hiddenContracts: [HiddenContract(contract: token.contract)])
         storage.delete(tokens: [token])
         tokensViewController.fetch()
     }

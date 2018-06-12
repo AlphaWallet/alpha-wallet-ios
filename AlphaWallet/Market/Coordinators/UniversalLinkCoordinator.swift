@@ -41,7 +41,8 @@ class UniversalLinkCoordinator: Coordinator {
             "v": signature.substring(from: 128),
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
-            "networkId": Config().chainID.description
+            "networkId": Config().chainID.description,
+            "contractAddress": signedOrder.order.contractAddress
         ]
         
         if isForTransfer {
@@ -115,15 +116,20 @@ class UniversalLinkCoordinator: Coordinator {
 
 	//Returns true if handled
     
-	func handleUniversalLink(url: URL?) -> Bool {
-		let matchedPrefix = (url?.description.contains(UniversalLinkHandler().urlPrefix))!
+	func handleUniversalLink(url: URL) -> Bool {
+		let matchedPrefix = url.description.contains(UniversalLinkHandler().urlPrefix)
 		guard matchedPrefix else {
 			return false
 		}
-        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: (url?.absoluteString)!)
+        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString)
+        let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID))
+        let isStormBirdContract = xmlAddress.eip55String == signedOrder.order.contractAddress
+        importTicketViewController?.url = url
+        importTicketViewController?.contract = signedOrder.order.contractAddress
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) { result in
             if let goodResult = result {
-                if signedOrder.order.price > 0 {
+                //user can pay gas for free import links if they are not covered by our server
+                if signedOrder.order.price > 0 || !isStormBirdContract {
                     if let balance = self.ethBalance {
                         balance.subscribeOnce { value in
                             if value > signedOrder.order.price {
@@ -146,7 +152,8 @@ class UniversalLinkCoordinator: Coordinator {
                             }
                         }
                     }
-                } else {
+                }
+                else {
                     let _ = self.usePaymentServerForFreeTransferLinks(
                             signedOrder: signedOrder,
                             ticketHolder: goodResult
@@ -186,7 +193,10 @@ class UniversalLinkCoordinator: Coordinator {
             completion: @escaping( _ response: TicketHolder?) -> Void
     ) {
         let indices = signedOrder.order.indices
-        let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: false)
+        let parameters = createHTTPParametersForPaymentServer(
+            signedOrder: signedOrder,
+            isForTransfer: false
+        )
         
         Alamofire.request(Constants.getTicketInfoFromServer, method: .get, parameters: parameters).responseJSON { response in
             if let data = response.data, let utf8Text = String(data: data, encoding: .utf8) {
@@ -203,14 +213,20 @@ class UniversalLinkCoordinator: Coordinator {
                 }
                 //start at one to slice off address
                 let bytes32Tickets = Array(array[1...])
-                completion(self.sortTickets(bytes32Tickets, indices))
+                completion(
+                    self.sortTickets(
+                        bytes32Tickets,
+                        indices,
+                        signedOrder.order.contractAddress
+                    )
+                )
             } else {
                 completion(nil)
             }
         }
     }
     
-    private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16]) -> TicketHolder {
+    private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16], _ contractAddress: String) -> TicketHolder {
         var tickets = [Ticket]()
         let xmlHandler = XMLHandler()
         for i in 0...bytes32Tickets.count - 1 {
@@ -222,7 +238,8 @@ class UniversalLinkCoordinator: Coordinator {
         }
         let ticketHolder = TicketHolder(
             tickets: tickets,
-            status: .available
+            status: .available,
+            contractAddress: contractAddress
         )
         return ticketHolder
     }
