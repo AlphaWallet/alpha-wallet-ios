@@ -80,6 +80,10 @@ extension String {
         return !isNumeric()
     }
 
+    func sameContract(as contract: String) -> Bool {
+        return drop0x.lowercased() == contract.drop0x.lowercased()
+    }
+
 }
 
 extension String {
