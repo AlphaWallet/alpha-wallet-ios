@@ -414,6 +414,11 @@ extension InCoordinator: TicketsCoordinatorDelegate {
 		viewController.navigationController?.pushViewController(controller, animated: true)
     }
 
+    func didPressViewContractWebPage(for token: TokenObject, in viewController: UIViewController) {
+        let url =  config.server.etherscanContractDetailsWebPageURL(for: token.contract)
+        viewController.openURL(url)
+    }
+
     func didPressViewEthereumInfo(in viewController: UIViewController) {
         let controller = WhatIsEthereumInfoViewController()
         viewController.navigationController?.pushViewController(controller, animated: true)

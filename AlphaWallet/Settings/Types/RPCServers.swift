@@ -57,8 +57,21 @@ enum RPCServer {
         }
     }
 
+    var etherscanContractDetailsWebPageURL: String {
+        switch self {
+        case .main: return Constants.mainnetEtherscanContractDetailsWebPageURL
+        case .ropsten: return Constants.ropstenEtherscanContractDetailsWebPageURL
+        case .rinkeby: return Constants.rinkebyEtherscanContractDetailsWebPageURL
+        case .kovan, .poa, .sokol, .classic, .callisto, .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
+        }
+    }
+
     func etherscanAPIURLForTransactionList(for address: String) -> URL {
         return URL(string: getEtherscanURL + address)!
+    }
+
+    func etherscanContractDetailsWebPageURL(for address: String) -> URL {
+        return URL(string: etherscanContractDetailsWebPageURL + address)!
     }
 
     var displayName: String {

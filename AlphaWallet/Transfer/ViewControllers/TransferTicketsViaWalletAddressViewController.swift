@@ -6,6 +6,7 @@ import QRCodeReaderViewController
 protocol TransferTicketsViaWalletAddressViewControllerDelegate: class {
     func didEnterWalletAddress(ticketHolder: TicketHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTicketsViaWalletAddressViewController)
     func didPressViewInfo(in viewController: TransferTicketsViaWalletAddressViewController)
+    func didPressViewContractWebPage(in viewController: TransferTicketsViaWalletAddressViewController)
 }
 
 class TransferTicketsViaWalletAddressViewController: UIViewController {
@@ -25,7 +26,10 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
+            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+        ]
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -102,11 +106,16 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
         delegate?.didPressViewInfo(in: self)
     }
 
+    @objc func showContractWebPage() {
+        let url = Config().server.etherscanContractDetailsWebPageURL(for: viewModel.token.contract)
+        openURL(url)
+    }
+
     func configure(viewModel: TransferTicketsViaWalletAddressViewControllerViewModel) {
         self.viewModel = viewModel
-
-        if viewModel.token.contract != Constants.ticketContractAddress {
-            navigationItem.rightBarButtonItem = nil
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        if viewModel.token.contract != contractAddress {
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
         view.backgroundColor = viewModel.backgroundColor
