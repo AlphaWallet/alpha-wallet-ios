@@ -35,6 +35,7 @@ class UniversalLinkCoordinator: Coordinator {
         let address = (keystore.recentlyUsedWallet?.address.eip55String)!
         var parameters: Parameters = [
             "address": address,
+            "contractAddress": signedOrder.order.contractAddress,
             "indices": indicesStringEncoded,
             "price": signedOrder.order.price.description,
             "expiry": signedOrder.order.expiry.description,
@@ -42,7 +43,6 @@ class UniversalLinkCoordinator: Coordinator {
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
             "networkId": Config().chainID.description,
-            "contractAddress": signedOrder.order.contractAddress
         ]
         
         if isForTransfer {
