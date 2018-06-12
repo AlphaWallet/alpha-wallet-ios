@@ -125,8 +125,10 @@ class TicketsViewController: UIViewController {
         self.viewModel = viewModel
         tableView.dataSource = self
         let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
-        if let tokenObject = tokenObject, tokenObject.contract != contractAddress {
-            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
+        if let tokenObject = tokenObject, !tokenObject.contract.sameContract(as: contractAddress) {
+            let button = UIBarButtonItem(image: R.image.unverified(), style: .plain, target: self, action: #selector(showContractWebPage))
+            button.tintColor = Colors.appRed
+            navigationItem.rightBarButtonItems = [button]
         }
 
         if let tokenObject = tokenObject {
