@@ -49,13 +49,13 @@ enum AssetField {
     }
 
     private func parseValueAsAscii(tokenValueHex: String) -> String {
-        let (start, end) = getIndices()
+        let (start, end) = getIndices(forTokenValueHexLength: tokenValueHex.count)
         let value = tokenValueHex.substring(with: Range(uncheckedBounds: (start, end))).hexa2Bytes
         return String(data: Data(bytes: value), encoding: .utf8) ?? "TBD"
     }
 
     private func parseValueAsInt(tokenValueHex: String) -> Int {
-        let (start, end) = getIndices()
+        let (start, end) = getIndices(forTokenValueHexLength: tokenValueHex.count)
         let value = tokenValueHex.substring(with: Range(uncheckedBounds: (start, end)))
         if let intValue = Int(value, radix: 16) {
             return intValue
@@ -84,11 +84,11 @@ enum AssetField {
         }
     }
 
-    private func handleBitmaskIndices(bitmask: String) -> (Int, Int) {
+    private func handleBitmaskIndices(bitmask: String, forTokenValueHexLength length: Int) -> (Int, Int) {
         var startingNumber = 0
         var endingNumber = 0
-        //TODO temporary fix (stripping first 16 bytes)
-        let trimmedBitmask = bitmask.substring(from: 32)
+        let diff = bitmask.count - length
+        let trimmedBitmask = bitmask.substring(from: diff)
         for i in 0...trimmedBitmask.count {
             if trimmedBitmask.substring(with: Range(uncheckedBounds: (i, i + 1))) == "F" {
                 startingNumber = i
@@ -100,23 +100,23 @@ enum AssetField {
         return (startingNumber, endingNumber)
     }
 
-    private func getIndices() -> (Int, Int) {
+    private func getIndices(forTokenValueHexLength length: Int) -> (Int, Int) {
         switch self {
         case .IA5String(let field):
             if let bitmask = field.attributes["bitmask"] {
-                return handleBitmaskIndices(bitmask: bitmask)
+                return handleBitmaskIndices(bitmask: bitmask, forTokenValueHexLength: length)
             }
         case .BinaryTime(let field):
             if let bitmask = field.attributes["bitmask"] {
-                return handleBitmaskIndices(bitmask: bitmask)
+                return handleBitmaskIndices(bitmask: bitmask, forTokenValueHexLength: length)
             }
         case .Integer(let field):
             if let bitmask = field.attributes["bitmask"] {
-                return handleBitmaskIndices(bitmask: bitmask)
+                return handleBitmaskIndices(bitmask: bitmask, forTokenValueHexLength: length)
             }
         case .Enumeration(let field, _):
             if let bitmask = field.attributes["bitmask"] {
-                return handleBitmaskIndices(bitmask: bitmask)
+                return handleBitmaskIndices(bitmask: bitmask, forTokenValueHexLength: length)
             }
         }
         return (0, 0)
