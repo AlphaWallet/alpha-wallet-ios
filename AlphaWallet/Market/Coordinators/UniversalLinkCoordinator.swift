@@ -43,7 +43,6 @@ class UniversalLinkCoordinator: Coordinator {
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
             "networkId": Config().chainID.description,
-            "contractAddress": signedOrder.order.contractAddress
         ]
         
         if isForTransfer {
