@@ -252,10 +252,11 @@ class ImportTicketViewController: UIViewController {
 
     @objc func showContractWebPage() {
         let config = Config()
-        if case .main = config.server {
+        switch config.server {
+        case .main, .ropsten:
             guard let url = url else { return }
             openURL(url)
-        } else {
+        case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
             guard let contract = contract else { return }
             let url =  config.server.etherscanContractDetailsWebPageURL(for: contract)
             openURL(url)
