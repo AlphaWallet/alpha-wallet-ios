@@ -23,6 +23,7 @@ protocol TicketsCoordinatorDelegate: class {
     func didCancel(in coordinator: TicketsCoordinator)
     func didPressViewRedemptionInfo(in: UIViewController)
     func didPressViewEthereumInfo(in: UIViewController)
+    func didPressViewContractWebPage(for token: TokenObject, in viewController: UIViewController)
 }
 
 class TicketsCoordinator: NSObject, Coordinator {
@@ -269,21 +270,13 @@ class TicketsCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    //TODO should be returning `String?` instead by only calling `Config().ticketContractAddress`
-    public static func getContractAddressForLinks() -> String {
-        if let address = Config().ticketContractAddress {
-            return address
-        } else {
-            return Constants.ticketContractAddressRopsten
-        }
-    }
-
     private func generateTransferLink(ticketHolder: TicketHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow) -> String {
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
         let order = Order(
             price: BigUInt("0")!,
             indices: ticketHolder.indices,
             expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-            contractAddress: TicketsCoordinator.getContractAddressForLinks(),
+            contractAddress: ticketHolder.contractAddress,
             start: BigUInt("0")!,
             count: ticketHolder.indices.count
         )
@@ -306,7 +299,7 @@ class TicketsCoordinator: NSObject, Coordinator {
                 price: wei,
                 indices: ticketHolder.indices,
                 expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-                contractAddress: TicketsCoordinator.getContractAddressForLinks(),
+                contractAddress: ticketHolder.contractAddress,
                 start: BigUInt("0")!,
                 count: ticketHolder.indices.count
         )
@@ -373,6 +366,10 @@ extension TicketsCoordinator: TicketsViewControllerDelegate {
     func didPressViewRedemptionInfo(in viewController: TicketsViewController) {
        delegate?.didPressViewRedemptionInfo(in: viewController)
     }
+
+    func didPressViewContractWebPage(in viewController: TicketsViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
+    }
 }
 
 extension TicketsCoordinator: RedeemTicketsViewControllerDelegate {
@@ -382,6 +379,10 @@ extension TicketsCoordinator: RedeemTicketsViewControllerDelegate {
 
     func didPressViewInfo(in viewController: RedeemTicketsViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
+    }
+
+    func didPressViewContractWebPage(in viewController: RedeemTicketsViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 }
 
@@ -393,6 +394,10 @@ extension TicketsCoordinator: RedeemTicketsQuantitySelectionViewControllerDelega
     func didPressViewInfo(in viewController: RedeemTicketsQuantitySelectionViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
     }
+
+    func didPressViewContractWebPage(in viewController: RedeemTicketsQuantitySelectionViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
+    }
 }
 
 extension TicketsCoordinator: SellTicketsViewControllerDelegate {
@@ -402,6 +407,10 @@ extension TicketsCoordinator: SellTicketsViewControllerDelegate {
 
     func didPressViewInfo(in viewController: SellTicketsViewController) {
         delegate?.didPressViewEthereumInfo(in: viewController)
+    }
+
+    func didPressViewContractWebPage(in viewController: SellTicketsViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 }
 
@@ -413,6 +422,10 @@ extension TicketsCoordinator: TransferTicketsQuantitySelectionViewControllerDele
     func didPressViewInfo(in viewController: TransferTicketsQuantitySelectionViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
     }
+
+    func didPressViewContractWebPage(in viewController: TransferTicketsQuantitySelectionViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
+    }
 }
 
 extension TicketsCoordinator: EnterSellTicketsPriceQuantityViewControllerDelegate {
@@ -422,6 +435,10 @@ extension TicketsCoordinator: EnterSellTicketsPriceQuantityViewControllerDelegat
 
     func didPressViewInfo(in viewController: EnterSellTicketsPriceQuantityViewController) {
         delegate?.didPressViewEthereumInfo(in: viewController)
+    }
+
+    func didPressViewContractWebPage(in viewController: EnterSellTicketsPriceQuantityViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 }
 
@@ -433,6 +450,10 @@ extension TicketsCoordinator: SetSellTicketsExpiryDateViewControllerDelegate {
     func didPressViewInfo(in viewController: SetSellTicketsExpiryDateViewController) {
         delegate?.didPressViewEthereumInfo(in: viewController)
     }
+
+    func didPressViewContractWebPage(in viewController: SetSellTicketsExpiryDateViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
+    }
 }
 
 extension TicketsCoordinator: TransferTicketsViewControllerDelegate {
@@ -442,6 +463,10 @@ extension TicketsCoordinator: TransferTicketsViewControllerDelegate {
 
     func didPressViewInfo(in viewController: TransferTicketsViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
+    }
+
+    func didPressViewContractWebPage(in viewController: TransferTicketsViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 }
 
@@ -488,6 +513,10 @@ extension TicketsCoordinator: ChooseTicketTransferModeViewControllerDelegate {
     func didPressViewInfo(in viewController: ChooseTicketTransferModeViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
     }
+
+    func didPressViewContractWebPage(in viewController: ChooseTicketTransferModeViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
+    }
 }
 
 extension TicketsCoordinator: SetTransferTicketsExpiryDateViewControllerDelegate {
@@ -497,6 +526,10 @@ extension TicketsCoordinator: SetTransferTicketsExpiryDateViewControllerDelegate
 
     func didPressViewInfo(in viewController: SetTransferTicketsExpiryDateViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
+    }
+
+    func didPressViewContractWebPage(in viewController: SetTransferTicketsExpiryDateViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 }
 
@@ -533,5 +566,9 @@ extension TicketsCoordinator: TransferTicketsViaWalletAddressViewControllerDeleg
 
     func didPressViewInfo(in viewController: TransferTicketsViaWalletAddressViewController) {
         delegate?.didPressViewEthereumInfo(in: viewController)
+    }
+
+    func didPressViewContractWebPage(in viewController: TransferTicketsViaWalletAddressViewController) {
+        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 }

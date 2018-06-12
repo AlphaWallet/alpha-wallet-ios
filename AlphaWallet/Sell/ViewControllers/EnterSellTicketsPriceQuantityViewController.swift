@@ -5,6 +5,7 @@ import UIKit
 protocol EnterSellTicketsPriceQuantityViewControllerDelegate: class {
     func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TicketHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController)
     func didPressViewInfo(in viewController: EnterSellTicketsPriceQuantityViewController)
+    func didPressViewContractWebPage(in viewController: EnterSellTicketsPriceQuantityViewController)
 }
 
 class EnterSellTicketsPriceQuantityViewController: UIViewController {
@@ -51,7 +52,10 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         self.ethPrice = ethPrice
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
+            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+        ]
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -242,11 +246,15 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         delegate?.didPressViewInfo(in: self)
     }
 
+    @objc func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(in: self)
+    }
+
     func configure(viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel) {
         self.viewModel = viewModel
-
-        if viewModel.token.contract != Constants.ticketContractAddress {
-            navigationItem.rightBarButtonItem = nil
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        if viewModel.token.contract != contractAddress {
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
         view.backgroundColor = viewModel.backgroundColor
@@ -307,7 +315,8 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController {
         let tickets = Array(ticketHolder.tickets[..<quantity])
         return TicketHolder(
             tickets: tickets,
-            status: ticketHolder.status
+            status: ticketHolder.status,
+            contractAddress: ticketHolder.contractAddress
         )
     }
 
