@@ -63,13 +63,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                      restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
         appCoordinator.createInitialWallet()
         appCoordinator.closeWelcomeWindow()
-        let url = userActivity.webpageURL
-        universalLinkCoordinator = UniversalLinkCoordinator()
-        universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
-        universalLinkCoordinator.ethBalance = appCoordinator.ethBalance
-        universalLinkCoordinator.delegate = self
-        universalLinkCoordinator.start()
-        let handled = universalLinkCoordinator.handleUniversalLink(url: url)
+        var handled = false
+        if let url = userActivity.webpageURL {
+            universalLinkCoordinator = UniversalLinkCoordinator()
+            universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
+            universalLinkCoordinator.ethBalance = appCoordinator.ethBalance
+            universalLinkCoordinator.delegate = self
+            universalLinkCoordinator.start()
+            handled = universalLinkCoordinator.handleUniversalLink(url: url)
+        }
         //TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
         return true
     }

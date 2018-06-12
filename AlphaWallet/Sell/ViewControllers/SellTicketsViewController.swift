@@ -5,6 +5,7 @@ import UIKit
 protocol SellTicketsViewControllerDelegate: class {
     func didSelectTicketHolder(ticketHolder: TicketHolder, in viewController: SellTicketsViewController)
     func didPressViewInfo(in viewController: SellTicketsViewController)
+    func didPressViewContractWebPage(in viewController: SellTicketsViewController)
 }
 
 class SellTicketsViewController: UIViewController {
@@ -21,7 +22,10 @@ class SellTicketsViewController: UIViewController {
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+        navigationItem.rightBarButtonItems = [
+            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
+            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+        ]
 
         view.backgroundColor = Colors.appBackground
 
@@ -75,9 +79,9 @@ class SellTicketsViewController: UIViewController {
     func configure(viewModel: SellTicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-
-        if viewModel.token.contract != Constants.ticketContractAddress {
-            navigationItem.rightBarButtonItem = nil
+        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        if viewModel.token.contract != contractAddress {
+            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
         }
 
         header.configure(title: viewModel.title)
@@ -105,6 +109,10 @@ class SellTicketsViewController: UIViewController {
 
     @objc func showInfo() {
         delegate?.didPressViewInfo(in: self)
+    }
+
+    @objc func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(in: self)
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {

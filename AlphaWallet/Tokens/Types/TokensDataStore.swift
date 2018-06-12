@@ -109,6 +109,14 @@ class TokensDataStore {
             .filter { !$0.isDisabled }
     }
 
+    var deletedContracts: [DeletedContract] {
+        return Array(realm.objects(DeletedContract.self))
+    }
+
+    var hiddenContracts: [HiddenContract] {
+        return Array(realm.objects(HiddenContract.self))
+    }
+
     static func update(in realm: Realm, tokens: [Token]) {
         realm.beginWrite()
         for token in tokens {
@@ -282,6 +290,18 @@ class TokensDataStore {
         }
     }
 
+    func add(deadContracts: [DeletedContract]) {
+        try! realm.write {
+            realm.add(deadContracts, update: false)
+        }
+    }
+
+    func add(hiddenContracts: [HiddenContract]) {
+        try! realm.write {
+            realm.add(hiddenContracts, update: false)
+        }
+    }
+
     @discardableResult
     func add(tokens: [TokenObject]) -> [TokenObject] {
         realm.beginWrite()
@@ -309,6 +329,7 @@ class TokensDataStore {
     }
 
     func update(token: TokenObject, action: TokenUpdate) {
+        guard !token.isInvalidated else { return }
         //let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
         try! realm.write {
             switch action {
