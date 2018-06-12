@@ -28,7 +28,17 @@ class ImportTicketViewController: UIViewController {
     var parameters: Parameters?
     var signedOrder: SignedOrder?
     var tokenObject: TokenObject?
-    var contract: String?
+    var contract: String? {
+        didSet {
+            guard url != nil else { return }
+            let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+            if let contract = contract, !contract.sameContract(as: contractAddress) {
+                let button = UIBarButtonItem(image: R.image.unverified(), style: .plain, target: self, action: #selector(showContractWebPage))
+                button.tintColor = Colors.appRed
+                navigationItem.rightBarButtonItems = [button]
+            }
+        }
+    }
     var url: URL? {
         didSet {
             navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
