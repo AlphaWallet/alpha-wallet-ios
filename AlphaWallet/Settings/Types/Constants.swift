@@ -12,8 +12,8 @@ public struct Constants {
     public static let gasPriceDefaultStormbird = BigInt("22000000000")!
 
     // fee master
-    public static let paymentServer = "https://app.awallet.io:443/api/claimToken"
-    public static let getTicketInfoFromServer = "https://app.awallet.io:443/api/ecrecoverAndGetTickets"
+    public static let paymentServer = "https://app.awallet.io:80/api/claimToken"
+    public static let getTicketInfoFromServer = "https://app.awallet.io:80/api/ecrecoverAndGetTickets"
 
     // social
     public static let website = "https://community.awallet.io/c/alphawallet-app/ios-feedback"
