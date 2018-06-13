@@ -41,7 +41,9 @@ class ImportTicketViewController: UIViewController {
     }
     var url: URL? {
         didSet {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
+            let button = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
+            button.tintColor = Colors.appGreenContrastBackground
+            navigationItem.rightBarButtonItem = button
         }
     }
 
