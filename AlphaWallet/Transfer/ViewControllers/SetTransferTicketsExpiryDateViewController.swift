@@ -35,9 +35,11 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
 
+        let button = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
+        button.tintColor = Colors.appGreenContrastBackground
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
-            UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))
+            button
         ]
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
@@ -240,7 +242,9 @@ class SetTransferTicketsExpiryDateViewController: UIViewController {
         self.viewModel = viewModel
         let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
         if viewModel.token.contract != contractAddress {
-            navigationItem.rightBarButtonItems = [UIBarButtonItem(image: R.image.settings_lock(), style: .plain, target: self, action: #selector(showContractWebPage))]
+            let button = UIBarButtonItem(image: R.image.unverified(), style: .plain, target: self, action: #selector(showContractWebPage))
+            button.tintColor = Colors.appRed
+            navigationItem.rightBarButtonItems = [button]
         }
 
         view.backgroundColor = viewModel.backgroundColor
