@@ -23,9 +23,11 @@ class TicketRedemptionViewController: UIViewController {
 		self.session = session
         super.init(nibName: nil, bundle: nil)
 
+        let button = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
+        button.tintColor = Colors.appGreenContrastBackground
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
-            UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
+            button
         ]
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
