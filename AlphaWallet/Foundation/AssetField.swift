@@ -75,7 +75,7 @@ enum AssetField {
             let fallback = "N/A"
             let id = String(parseValueAsInt(tokenValueHex: tokenValueHex))
             guard id != "0" else { return fallback }
-            if let value = XML.Accessor(field)["mapping"]["entity"].getElementWithKeyAttribute(equals: id)!["name"].getElementWithLangAttribute(equals: lang)?.text {
+            if let value = XML.Accessor(field)["mapping"]["entity"].getElementWithKeyAttribute(equals: id)?["name"].getElementWithLangAttribute(equals: lang)?.text {
                 return value
             }
             return fallback
