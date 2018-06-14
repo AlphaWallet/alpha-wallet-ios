@@ -86,7 +86,6 @@ class AppCoordinator: NSObject, Coordinator {
         paths.append(keystore.keystoreDirectory)
 
         let initializers: [Initializer] = [
-            LokaliseInitializer(),
             SkipBackupFilesInitializer(paths: paths),
         ]
         initializers.forEach { $0.perform() }
