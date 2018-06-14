@@ -123,10 +123,7 @@ class UniversalLinkCoordinator: Coordinator {
 		}
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString)
         let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID))
-        let isStormBirdContract = compareAddresses(
-            firstAddress: xmlAddress.eip55String,
-            secondAddress: signedOrder.order.contractAddress
-        )
+        let isStormBirdContract = xmlAddress.eip55String.sameContract(as: signedOrder.order.contractAddress)
         importTicketViewController?.url = url
         importTicketViewController?.contract = signedOrder.order.contractAddress
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) { result in
@@ -169,18 +166,6 @@ class UniversalLinkCoordinator: Coordinator {
         }
         return true
 	}
-    
-    public func compareAddresses(firstAddress: String, secondAddress: String) -> Bool {
-        var first = firstAddress.uppercased()
-        var second = secondAddress.uppercased()
-        if first.substring(to: 2) == "0X" {
-            first = first.substring(from: 2)
-        }
-        if second.substring(to: 2) == "0X" {
-            second = second.substring(from: 2)
-        }
-        return first == second
-    }
 
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
         updateImportTicketController(with: .processing)
