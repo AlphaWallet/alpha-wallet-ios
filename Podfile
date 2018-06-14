@@ -18,7 +18,6 @@ target 'AlphaWallet' do
   pod 'SeedStackViewController'
   pod 'RealmSwift'
   pod 'BonMot', '~> 5.0'
-  pod 'Lokalise'
   pod 'Moya', '~> 10.0.1'
   pod 'JavaScriptKit'
   pod 'CryptoSwift', :git=>'https://github.com/krzyzanowskim/CryptoSwift', :branch=>'master'
