@@ -133,6 +133,7 @@ class InCoordinator: Coordinator {
                 realm: realm
         )
         transactionsStorage.removeTransactions(for: [.failed, .pending, .unknown])
+        keystore.recentlyUsedWallet = account
 
         let inCoordinatorViewModel = InCoordinatorViewModel(config: config)
         let transactionCoordinator = TransactionCoordinator(
@@ -203,8 +204,6 @@ class InCoordinator: Coordinator {
         )
         navigationController.setNavigationBarHidden(true, animated: false)
         addCoordinator(transactionCoordinator)
-
-        keystore.recentlyUsedWallet = account
 
 		hideTitlesInTabBarController(tabBarController: tabBarController)
 
