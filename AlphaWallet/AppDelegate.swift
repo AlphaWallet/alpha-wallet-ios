@@ -1,6 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
 import UIKit
-import Lokalise
 import RealmSwift
 
 @UIApplicationMain
@@ -33,7 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         protectionCoordinator.applicationWillResignActive()
     }
     func applicationDidBecomeActive(_ application: UIApplication) {
-        Lokalise.shared.checkForUpdates { _, _ in }
+        //Lokalise.shared.checkForUpdates { _, _ in }
         protectionCoordinator.applicationDidBecomeActive()
     }
 
