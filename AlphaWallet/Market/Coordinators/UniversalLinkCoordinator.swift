@@ -123,7 +123,7 @@ class UniversalLinkCoordinator: Coordinator {
 		}
         let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString)
         let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID))
-        let isStormBirdContract = xmlAddress.eip55String == signedOrder.order.contractAddress
+        let isStormBirdContract = xmlAddress.eip55String.sameContract(as: signedOrder.order.contractAddress)
         importTicketViewController?.url = url
         importTicketViewController?.contract = signedOrder.order.contractAddress
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) { result in
