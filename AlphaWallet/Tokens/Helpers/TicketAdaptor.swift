@@ -25,10 +25,10 @@ class TicketAdaptor {
             if id == Constants.nullTicket { // if balance is 0, then skip
                 continue
             }
-            //TODO shouldn't have to do this when parser is dynamic
-            let ticketData = XMLHandler.parseTicket(ticket: id)
-            let ticket = getTicket(for: BigUInt(ticketData, radix: 16)!, index: UInt16(index), in: token)
-            tickets.append(ticket)
+            if let ticketInt = BigUInt(id.drop0x, radix: 16) {
+                let ticket = getTicket(for: ticketInt, index: UInt16(index), in: token)
+                tickets.append(ticket)
+            }
         }
 
         return bundle(tickets: tickets)
