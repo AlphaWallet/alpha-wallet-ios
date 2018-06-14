@@ -80,6 +80,7 @@ class TokensCoordinator: Coordinator {
         guard let address = keystore.recentlyUsedWallet?.address else { return }
         let web3 = Web3Swift(url: config.rpcURL)
         GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: config.chainID) { contracts in
+            guard let currentAddress = self.keystore.recentlyUsedWallet?.address, currentAddress.eip55String.sameContract(as: address.eip55String) else { return }
             let detectedContracts = contracts.map { $0.lowercased() }
             let alreadyAddedContracts = self.storage.enabledObject.map { $0.address.eip55String.lowercased() }
             let deletedContracts = self.storage.deletedContracts.map { $0.contract.lowercased() }
