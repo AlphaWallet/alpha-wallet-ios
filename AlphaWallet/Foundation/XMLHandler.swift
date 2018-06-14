@@ -10,26 +10,13 @@ import SwiftyXMLParser
 import BigInt
 import TrustKeystore
 
-//  DIctionary class for non fungible token
+//  Dictionary class for non fungible token
 //  TODO handle flexible attribute names e.g. asset, contract
 //  Handle generics for multiple asset defintions
 
 public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML().assetDefinitionString)
-
-    //TODO remove once parser is properly dynamic
-    public static func parseTicket(ticket: String) -> String {
-        let no0xTicket = ticket.substring(from: 2)
-        let firstHalfOfTicket = no0xTicket.substring(to: 32)
-        let bigUIntFirstHalf = BigUInt(firstHalfOfTicket, radix: 16)
-        if bigUIntFirstHalf == 0 {
-            return no0xTicket
-        }
-        //if first 16 bytes are not empty then cut it in half
-        //else return with padded 0's
-        return no0xTicket.substring(from: 32)
-    }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
         //check if leading or trailing zeros
