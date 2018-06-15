@@ -34,6 +34,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func applicationDidBecomeActive(_ application: UIApplication) {
         //Lokalise.shared.checkForUpdates { _, _ in }
         protectionCoordinator.applicationDidBecomeActive()
+        //TODO better to move into AppCoordinator or InCoordinator. Ditto for tap to import universal link.
+        let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator()
+        universalLinkPasteboardCoordinator.delegate = self
+        universalLinkPasteboardCoordinator.start()
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
@@ -60,19 +64,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func application(_ application: UIApplication,
                      continue userActivity: NSUserActivity,
                      restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
-        appCoordinator.createInitialWallet()
-        appCoordinator.closeWelcomeWindow()
         var handled = false
         if let url = userActivity.webpageURL {
-            universalLinkCoordinator = UniversalLinkCoordinator()
-            universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
-            universalLinkCoordinator.ethBalance = appCoordinator.ethBalance
-            universalLinkCoordinator.delegate = self
-            universalLinkCoordinator.start()
-            handled = universalLinkCoordinator.handleUniversalLink(url: url)
+            handled = handleUniversalLink(url: url)
         }
         //TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
         return true
+    }
+
+    private func handleUniversalLink(url: URL) -> Bool {
+        appCoordinator.createInitialWallet()
+        appCoordinator.closeWelcomeWindow()
+        universalLinkCoordinator = UniversalLinkCoordinator()
+        universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
+        universalLinkCoordinator.ethBalance = appCoordinator.ethBalance
+        universalLinkCoordinator.delegate = self
+        universalLinkCoordinator.start()
+        let handled = universalLinkCoordinator.handleUniversalLink(url: url)
+        if !handled {
+            universalLinkCoordinator = nil
+        }
+        return handled
     }
 }
 
@@ -95,5 +107,12 @@ extension AppDelegate: UniversalLinkCoordinatorDelegate {
 
     func completed(in coordinator: UniversalLinkCoordinator) {
         universalLinkCoordinator = nil
+    }
+}
+
+extension AppDelegate: UniversalLinkInPasteboardCoordinatorDelegate {
+    func importUniversalLink(url: URL, for coordinator: UniversalLinkInPasteboardCoordinator) {
+        guard universalLinkCoordinator == nil else { return }
+        handleUniversalLink(url: url)
     }
 }
