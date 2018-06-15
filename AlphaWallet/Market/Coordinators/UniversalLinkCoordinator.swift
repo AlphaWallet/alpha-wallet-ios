@@ -118,11 +118,15 @@ class UniversalLinkCoordinator: Coordinator {
     func handleUniversalLink(url: URL) -> Bool {
         let prefix = UniversalLinkHandler().urlPrefix
         let matchedPrefix = url.description.hasPrefix(prefix)
+        preparingToImportUniversalLink()
         guard matchedPrefix, url.absoluteString.count > prefix.count else {
+            self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
             return false
         }
-        guard let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString) else { return false }
-        preparingToImportUniversalLink()
+        guard let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString) else {
+            self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+            return false
+        }
         let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID))
         let isStormBirdContract = xmlAddress.eip55String.sameContract(as: signedOrder.order.contractAddress)
         importTicketViewController?.url = url
