@@ -52,6 +52,7 @@ class TokensViewController: UIViewController {
         tableView.register(EthTokenViewCell.self, forCellReuseIdentifier: EthTokenViewCell.identifier)
         tableView.register(TicketTokenViewCell.self, forCellReuseIdentifier: TicketTokenViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.estimatedRowHeight = 0
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
