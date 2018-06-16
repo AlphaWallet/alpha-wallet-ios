@@ -20,7 +20,7 @@ protocol TicketsViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: TicketsViewController)
 }
 
-class TicketsViewController: UIViewController {
+class TicketsViewController: UIViewController, VerifiableStatusViewController {
 
     var tokenObject: TokenObject?
     //TODO forced unwraps aren't good
@@ -40,12 +40,7 @@ class TicketsViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
 
-        let button = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
-        button.tintColor = Colors.appGreenContrastBackground
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
-            button
-        ]
+        updateNavigationRightBarButtons(isVerified: true)
 
         view.backgroundColor = Colors.appBackground
 		
@@ -128,9 +123,7 @@ class TicketsViewController: UIViewController {
         tableView.dataSource = self
         let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
         if let tokenObject = tokenObject, !tokenObject.contract.sameContract(as: contractAddress) {
-            let button = UIBarButtonItem(image: R.image.unverified(), style: .plain, target: self, action: #selector(showContractWebPage))
-            button.tintColor = Colors.appRed
-            navigationItem.rightBarButtonItems = [button]
+            updateNavigationRightBarButtons(isVerified: false)
         }
 
         if let tokenObject = tokenObject {
@@ -177,11 +170,11 @@ class TicketsViewController: UIViewController {
                                    in: self)
     }
 
-    @objc func showInfo() {
+    func showInfo() {
 		delegate?.didPressViewRedemptionInfo(in: self)
     }
 
-    @objc func showContractWebPage() {
+    func showContractWebPage() {
         delegate?.didPressViewContractWebPage(in: self)
     }
 
@@ -217,3 +210,4 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
         animateRowHeightChanges(for: changedIndexPaths, in: tableView)
     }
 }
+

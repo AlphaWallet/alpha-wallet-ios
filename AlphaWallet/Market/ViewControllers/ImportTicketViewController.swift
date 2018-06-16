@@ -8,7 +8,7 @@ protocol ImportTicketViewControllerDelegate: class {
     func didPressImport(in viewController: ImportTicketViewController)
 }
 
-class ImportTicketViewController: UIViewController {
+class ImportTicketViewController: UIViewController, VerifiableStatusViewController {
     weak var delegate: ImportTicketViewControllerDelegate?
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
@@ -33,17 +33,13 @@ class ImportTicketViewController: UIViewController {
             guard url != nil else { return }
             let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
             if let contract = contract, !contract.sameContract(as: contractAddress) {
-                let button = UIBarButtonItem(image: R.image.unverified(), style: .plain, target: self, action: #selector(showContractWebPage))
-                button.tintColor = Colors.appRed
-                navigationItem.rightBarButtonItems = [button]
+                updateNavigationRightBarButtons(isVerified: false, hasShowInfoButton: false)
             }
         }
     }
     var url: URL? {
         didSet {
-            let button = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
-            button.tintColor = Colors.appGreenContrastBackground
-            navigationItem.rightBarButtonItem = button
+            updateNavigationRightBarButtons(isVerified: true, hasShowInfoButton: false)
         }
     }
 
@@ -262,7 +258,7 @@ class ImportTicketViewController: UIViewController {
         }
     }
 
-    @objc func showContractWebPage() {
+    func showContractWebPage() {
         let config = Config()
         if case .main = config.server {
             guard let url = url else { return }
@@ -272,6 +268,10 @@ class ImportTicketViewController: UIViewController {
             let url =  config.server.etherscanContractDetailsWebPageURL(for: contract)
             openURL(url)
         }
+    }
+
+    //Just for protocol conformance. Do nothing
+    func showInfo() {
     }
 
     class PaddedLabel: UILabel {
