@@ -14,6 +14,7 @@ struct Config {
         static let dAppBrowser = "dAppBrowser"
         static let walletAddressesAlreadyPromptedForBackUp = "walletAddressesAlreadyPromptedForBackUp "
         static let locale = "locale"
+        static let lastImportURLOnClipboard = "lastImportURLOnClipboard"
     }
 
     let defaults: UserDefaults
@@ -128,6 +129,11 @@ struct Config {
 
     var ticketContractAddress: String? {
         return createDefaultTicketToken()?.contract.eip55String
+    }
+
+    var lastImportURLOnClipboard: String? {
+        get { return defaults.string(forKey: Keys.lastImportURLOnClipboard) }
+        set { defaults.set(newValue, forKey: Keys.lastImportURLOnClipboard) }
     }
 
     func createDefaultTicketToken() -> ERCToken? {
