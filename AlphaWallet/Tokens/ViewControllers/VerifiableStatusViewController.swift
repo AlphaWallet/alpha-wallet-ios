@@ -9,21 +9,42 @@ import UIKit
 
 extension VerifiableStatusViewController where Self: UIViewController {
     func updateNavigationRightBarButtons(isVerified: Bool, hasShowInfoButton: Bool = true) {
+        let verifiedStatusButton = UIBarButtonItem(customView: createVerifiedStatusButton(isVerified: isVerified))
         if isVerified {
-            let button = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
-            button.tintColor = Colors.appGreenContrastBackground
             if hasShowInfoButton {
+                let infoButton = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
                 navigationItem.rightBarButtonItems = [
-                    UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
-                    button
+                    infoButton,
+                    verifiedStatusButton
                 ]
             } else {
-                navigationItem.rightBarButtonItems = [button]
+                navigationItem.rightBarButtonItems = [verifiedStatusButton]
             }
         } else {
-            let button = UIBarButtonItem(image: R.image.unverified(), style: .plain, target: self, action: #selector(showContractWebPage))
-            button.tintColor = Colors.appRed
-            navigationItem.rightBarButtonItems = [button]
+            navigationItem.rightBarButtonItems = [verifiedStatusButton]
         }
+    }
+
+    private func createVerifiedStatusButton(isVerified: Bool) -> UIButton {
+        let title: String
+        let image: UIImage?
+        let tintColor: UIColor
+        if isVerified {
+            title = R.string.localizable.aWalletTicketTokenVerifiedContract()
+            image = R.image.verified()
+            tintColor = Colors.appGreenContrastBackground
+        } else {
+            title = R.string.localizable.aWalletTicketTokenUnverifiedContract()
+            image = R.image.unverified()
+            tintColor = Colors.appRed
+        }
+        let button = UIButton(type: .custom)
+        button.setTitle(title, for: .normal)
+        button.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.imageView?.tintColor = tintColor
+        button.titleLabel?.font = Fonts.regular(size: 11)
+        button.setTitleColor(tintColor, for: .normal)
+        button.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
+        return button
     }
 }
