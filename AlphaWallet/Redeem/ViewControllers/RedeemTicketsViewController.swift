@@ -14,7 +14,7 @@ protocol RedeemTicketsViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: RedeemTicketsViewController)
 }
 
-class RedeemTicketsViewController: UIViewController {
+class RedeemTicketsViewController: UIViewController, VerifiableStatusViewController {
 
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
@@ -26,12 +26,7 @@ class RedeemTicketsViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
 
-        let button = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
-        button.tintColor = Colors.appGreenContrastBackground
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
-            button
-        ]
+        updateNavigationRightBarButtons(isVerified: true)
 
         view.backgroundColor = Colors.appBackground
 
@@ -87,9 +82,7 @@ class RedeemTicketsViewController: UIViewController {
         tableView.dataSource = self
         let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
         if viewModel.token.contract != contractAddress {
-            let button = UIBarButtonItem(image: R.image.unverified(), style: .plain, target: self, action: #selector(showContractWebPage))
-            button.tintColor = Colors.appRed
-            navigationItem.rightBarButtonItems = [button]
+            updateNavigationRightBarButtons(isVerified: false)
         }
 
         header.configure(title: viewModel.title)
@@ -115,11 +108,11 @@ class RedeemTicketsViewController: UIViewController {
         }
     }
 
-    @objc func showInfo() {
+    func showInfo() {
         delegate?.didPressViewInfo(in: self)
     }
 
-    @objc func showContractWebPage() {
+    func showContractWebPage() {
         delegate?.didPressViewContractWebPage(in: self)
     }
 
