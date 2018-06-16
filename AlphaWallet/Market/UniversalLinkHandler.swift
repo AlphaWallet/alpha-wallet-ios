@@ -51,17 +51,16 @@ public class UniversalLinkHandler {
         let regularEncodingb64 = b64SafeEncodedString.replacingOccurrences(of: "-", with: "+")
         return regularEncodingb64.replacingOccurrences(of: "_", with: "/")
     }
-    
-    //TODO add exception handling
+
     //link has shortened price and expiry and must be expanded
-    func parseUniversalLink(url: String) -> SignedOrder {
+    func parseUniversalLink(url: String) -> SignedOrder? {
         let linkInfo = b64SafeEncodingToRegularEncoding(url.substring(from: urlPrefix.count))
-        let linkBytes = Data(base64Encoded: linkInfo)?.array
-        let price = getPriceFromLinkBytes(linkBytes: linkBytes!)
-        let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes!)
-        let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes!)
-        let ticketIndices = getTicketIndicesFromLinkBytes(linkBytes: linkBytes!)
-        let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes!)
+        guard let linkBytes = Data(base64Encoded: linkInfo)?.array else { return nil }
+        let price = getPriceFromLinkBytes(linkBytes: linkBytes)
+        let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
+        let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
+        let ticketIndices = getTicketIndicesFromLinkBytes(linkBytes: linkBytes)
+        let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes)
         let order = Order(
             price: price,
             indices: ticketIndices,
