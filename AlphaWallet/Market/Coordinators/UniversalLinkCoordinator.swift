@@ -22,7 +22,6 @@ class UniversalLinkCoordinator: Coordinator {
     var addressOfNewWallet: String?
 
 	func start() {
-		preparingToImportUniversalLink()
 	}
     
     func createHTTPParametersForPaymentServer(signedOrder: SignedOrder, isForTransfer: Bool) -> Parameters {
@@ -115,13 +114,19 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
 	//Returns true if handled
-    
-	func handleUniversalLink(url: URL) -> Bool {
-		let matchedPrefix = url.description.contains(UniversalLinkHandler().urlPrefix)
-		guard matchedPrefix else {
-			return false
-		}
-        let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString)
+
+    func handleUniversalLink(url: URL) -> Bool {
+        let prefix = UniversalLinkHandler().urlPrefix
+        let matchedPrefix = url.description.hasPrefix(prefix)
+        preparingToImportUniversalLink()
+        guard matchedPrefix, url.absoluteString.count > prefix.count else {
+            self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+            return false
+        }
+        guard let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString) else {
+            self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+            return false
+        }
         let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID))
         let isStormBirdContract = xmlAddress.eip55String.sameContract(as: signedOrder.order.contractAddress)
         importTicketViewController?.url = url
