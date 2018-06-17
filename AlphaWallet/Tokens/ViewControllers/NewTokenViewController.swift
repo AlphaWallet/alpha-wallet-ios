@@ -186,7 +186,8 @@ class NewTokenViewController: UIViewController {
 
     //int is 64 bits, if this proves not enough later we can convert to BigUInt
     public func updateBalanceValue(_ balance: [String]) {
-        viewModel.stormBirdBalance = balance
+        let filteredTokens = balance.filter { $0 != Constants.nullTicket }
+        viewModel.stormBirdBalance = filteredTokens
         balanceTextField.value = viewModel.stormBirdBalanceAsInt.description
     }
 
@@ -237,14 +238,13 @@ class NewTokenViewController: UIViewController {
         guard validate() else {
             return
         }
-
         let contract = addressTextField.value
         let name = nameTextField.value
         let symbol = symbolTextField.value
         let decimals = Int(decimalsTextField.value) ?? 0
         let isStormBird = self.isStormBirdToken
         var balance: [String] = viewModel.stormBirdBalance
-
+        
         guard let address = Address(string: contract) else {
             return displayError(error: Errors.invalidAddress)
         }
