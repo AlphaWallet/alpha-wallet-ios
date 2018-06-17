@@ -135,6 +135,8 @@
 "a.wallet.import.wallet.title" = "导入";
 "a.wallet.import.wallet.bubble.title" = "门票导入?";
 "a.wallet.import.wallet.bubble.description" = "请检查你邮箱内的导入链接. 点击链接自动导入!";
+"a.wallet.ticketToken.verifiedContract" = "已通过Stormbird验证";
+"a.wallet.ticketToken.unverifiedContract" = "没有验证";
 "a.wallet.ticketToken.match.vs" = "%@-%@";
 "a.wallet.ticketToken.redeem.button.title" = "兑换";
 "a.wallet.ticketToken.redeem.selectTickets.title" = "选择要兑换的门票:";

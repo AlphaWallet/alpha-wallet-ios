@@ -9,7 +9,7 @@ protocol TransferTicketsViaWalletAddressViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: TransferTicketsViaWalletAddressViewController)
 }
 
-class TransferTicketsViaWalletAddressViewController: UIViewController {
+class TransferTicketsViaWalletAddressViewController: UIViewController, VerifiableStatusViewController {
 
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
@@ -26,12 +26,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
 
-        let button = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
-        button.tintColor = Colors.appGreenContrastBackground
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
-            button
-        ]
+        updateNavigationRightBarButtons(isVerified: true)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -104,11 +99,11 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
         delegate?.didEnterWalletAddress(ticketHolder: ticketHolder, to: address, paymentFlow: paymentFlow, in: self)
     }
 
-    @objc func showInfo() {
+    func showInfo() {
         delegate?.didPressViewInfo(in: self)
     }
 
-    @objc func showContractWebPage() {
+    func showContractWebPage() {
         let url = Config().server.etherscanContractDetailsWebPageURL(for: viewModel.token.contract)
         openURL(url)
     }
@@ -117,9 +112,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController {
         self.viewModel = viewModel
         let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
         if !viewModel.token.contract.sameContract(as: contractAddress) {
-            let button = UIBarButtonItem(image: R.image.unverified(), style: .plain, target: self, action: #selector(showContractWebPage))
-            button.tintColor = Colors.appRed
-            navigationItem.rightBarButtonItems = [button]
+            updateNavigationRightBarButtons(isVerified: false)
         }
 
         view.backgroundColor = viewModel.backgroundColor
