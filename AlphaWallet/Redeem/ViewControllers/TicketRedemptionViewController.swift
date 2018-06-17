@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TicketRedemptionViewController: UIViewController {
+class TicketRedemptionViewController: UIViewController, VerifiableStatusViewController {
 
     var viewModel: TicketRedemptionViewModel!
     var titleLabel = UILabel()
@@ -23,12 +23,7 @@ class TicketRedemptionViewController: UIViewController {
 		self.session = session
         super.init(nibName: nil, bundle: nil)
 
-        let button = UIBarButtonItem(image: R.image.verified(), style: .plain, target: self, action: #selector(showContractWebPage))
-        button.tintColor = Colors.appGreenContrastBackground
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo)),
-            button
-        ]
+        updateNavigationRightBarButtons(isVerified: true)
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -110,12 +105,12 @@ class TicketRedemptionViewController: UIViewController {
         }
     }
 
-    @objc func showInfo() {
+    func showInfo() {
         let controller = TicketRedemptionInfoViewController()
         navigationController?.pushViewController(controller, animated: true)
     }
 
-    @objc func showContractWebPage() {
+    func showContractWebPage() {
         let url = Config().server.etherscanContractDetailsWebPageURL(for: viewModel.token.contract)
         openURL(url)
     }
@@ -145,9 +140,7 @@ class TicketRedemptionViewController: UIViewController {
         self.viewModel = viewModel
         let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
         if !viewModel.token.contract.sameContract(as: contractAddress) {
-            let button = UIBarButtonItem(image: R.image.unverified(), style: .plain, target: self, action: #selector(showContractWebPage))
-            button.tintColor = Colors.appRed
-            navigationItem.rightBarButtonItems = [button]
+            updateNavigationRightBarButtons(isVerified: false)
         }
 
         view.backgroundColor = viewModel.backgroundColor
