@@ -18,7 +18,7 @@ before_install:
 
 script:
   - set -o pipefail
-  - fastlane tests
+  - fastlane travis_tests
 
 after_success:
   - bash <(curl -s https://copilot.blackducksoftware.com/ci/travis/scripts/upload)
