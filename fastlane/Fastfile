@@ -70,6 +70,16 @@ platform :ios do
    )
   end
 
+  lane :travis_tests do
+    cocoapods(use_bundle_exec: false)
+    run_tests(
+      workspace: "AlphaWallet.xcworkspace",
+      scheme: "AlphaWalletTests",
+      device: "iPhone X",
+      clean: false
+    )
+  end
+
   lane :tests do
     cocoapods(use_bundle_exec: false)
     run_tests(
