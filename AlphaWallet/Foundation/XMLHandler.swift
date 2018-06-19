@@ -17,6 +17,10 @@ import TrustKeystore
 public class XMLHandler {
 
     private let xml = try! XML.parse(AssetDefinitionXML().assetDefinitionString)
+    var contract: XML.Accessor {
+        //TODO do we always want the first one?
+        return xml["token"]["contract"][0]
+    }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
         //check if leading or trailing zeros
@@ -64,11 +68,11 @@ public class XMLHandler {
 
     func getAddressFromXML(server: RPCServer) -> Address {
         if server == .ropsten {
-            if let address = xml["token"]["contract"][0]["address"][1].text {
+            if let address = contract["address"][1].text {
                 return Address(string: address)!
             }
         } else {
-            if let address = xml["token"]["contract"][0]["address"][0].text {
+            if let address = contract["address"][0].text {
                 return Address(string: address)!
             }
         }
@@ -76,8 +80,7 @@ public class XMLHandler {
     }
 
     func getName(lang: String) -> String {
-        //TODO do we always want the first one?
-        if let name = xml["token"]["contract"][0]["name"].getElementWithLangAttribute(equals: lang)?.text {
+        if let name = contract["name"].getElementWithLangAttribute(equals: lang)?.text {
             return name
         }
         return "N/A"
