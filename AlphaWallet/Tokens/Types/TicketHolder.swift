@@ -18,11 +18,10 @@ class TicketHolder {
     var name: String { return tickets[0].name }
     var venue: String { return tickets[0].venue }
     var match: Int { return tickets[0].match }
-    var date: Date { return tickets[0].date }
+    var date: GeneralisedTime { return tickets[0].date }
     var category: String { return tickets[0].category }
     var countryA: String { return tickets[0].countryA }
     var countryB: String { return tickets[0].countryB }
-    var timeZoneIdentifier: String? { return tickets[0].timeZoneIdentifier }
     var status: TicketHolderStatus
     var isSelected = false
     var areDetailsVisible = false

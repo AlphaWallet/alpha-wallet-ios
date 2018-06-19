@@ -93,11 +93,11 @@ struct TicketRowViewModel {
 
     var date: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        return ticketHolder.date.formatAsShortDateString(overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
+        return ticketHolder.date.formatAsShortDateString()
     }
 
     var time: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        return ticketHolder.date.format("h:mm a", overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
+        return ticketHolder.date.format("h:mm a")
     }
 }
