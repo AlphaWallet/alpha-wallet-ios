@@ -33,7 +33,6 @@ public struct Constants {
     public static let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
     public static let event = "FIFA WC2018"
-    public static let eventTimeZone = "Europe/Moscow"
 
     //etherscan APIs
     public static let mainnetEtherscanAPI = "https://api.etherscan.io/api?module=account&action=txlist&address="
