@@ -62,7 +62,7 @@ struct SetSellTicketsExpiryDateViewControllerViewModel {
     }
 
     var date: String {
-        return ticketHolder.date.formatAsShortDateString(overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
+        return ticketHolder.date.formatAsShortDateString()
     }
 
     var linkExpiryDateLabelText: String {

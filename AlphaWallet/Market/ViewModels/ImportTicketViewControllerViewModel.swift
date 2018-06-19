@@ -89,7 +89,7 @@ struct ImportTicketViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return ticketHolder.date.format("hh:mm", overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
+            return ticketHolder.date.format("hh:mm")
         }
     }
 
@@ -121,7 +121,7 @@ struct ImportTicketViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return ticketHolder.date.format("dd MMM yyyy", overrideWithTimezoneIdentifier: ticketHolder.timeZoneIdentifier)
+            return ticketHolder.date.format("dd MMM yyyy")
         }
     }
 
