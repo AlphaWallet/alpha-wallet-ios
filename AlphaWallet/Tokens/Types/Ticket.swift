@@ -15,12 +15,11 @@ struct Ticket {
     let name: String
     let venue: String
     let match: Int
-    let date: Date
+    let date: GeneralisedTime
     let seatId: Int
     let category: String
     let countryA: String
     let countryB: String
-    var timeZoneIdentifier: String?
     static var empty: Ticket {
         return Ticket(
                 id: Constants.nullTicket,
@@ -29,12 +28,11 @@ struct Ticket {
                 name: "FIFA WC",
                 venue: "N/A",
                 match: 0,
-                date: Date(),
+                date: .init(),
                 seatId: 0,
                 category: "N/A",
                 countryA: "N/A",
-                countryB: "N/A",
-                timeZoneIdentifier: nil
+                countryB: "N/A"
         )
     }
 }
