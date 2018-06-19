@@ -25,7 +25,11 @@ class GetContractInteractions {
                 case .success(let value):
                     let json = JSON(value)
                     let contracts: [String] = json["result"].map { _, transactionJson in
-                        return transactionJson["contractAddress"].description
+                        if transactionJson["input"] != "0x" {
+                            //every transaction that has input is by default a transaction to a contract
+                            return transactionJson["to"].description
+                        }
+                        return ""
                     }
                     let nonEmptyContracts = contracts.filter { !$0.isEmpty }
                     completion(nonEmptyContracts)
