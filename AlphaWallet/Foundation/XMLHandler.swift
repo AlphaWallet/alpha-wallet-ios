@@ -14,13 +14,11 @@ import TrustKeystore
 //  TODO handle flexible attribute names e.g. asset, contract
 //  Handle generics for multiple asset defintions
 
-public class XMLHandler {
-
+private class PrivateXMLHandler {
     private let xml = try! XML.parse(AssetDefinitionXML().assetDefinitionString)
-    var contract: XML.Accessor {
-        //TODO do we always want the first one?
-        return xml["token"]["contract"][0]
-    }
+    //TODO do we always want the first one?
+    lazy var contract = xml["token"]["contract"][0]
+    lazy var fields = extractFields()
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
         //check if leading or trailing zeros
@@ -28,7 +26,6 @@ public class XMLHandler {
         guard tokenId != 0 else { return .empty }
         let lang = getLang()
         let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
-        let fields = extractFields()
 
         //TODO should check for nil and handle rather than default to any value in this class. Or maybe the asset definition XML is missing. Otherwise, it should be returning a reasonable default already
         let locality: String = fields["locality"]?.extract(from: tokenHex) ?? "N/A"
@@ -101,3 +98,26 @@ public class XMLHandler {
     }
 }
 
+/// This class delegates all the functionality to a singleton of the actual XML parser, so we just parse the XML file 1 time only
+public class XMLHandler {
+    fileprivate static var privateXMLHandler = PrivateXMLHandler()
+    var contract: XML.Accessor {
+        return XMLHandler.privateXMLHandler.contract
+    }
+
+    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
+        return XMLHandler.privateXMLHandler.getFifaInfoForTicket(tokenId: tokenBytes32, index: index)
+    }
+
+    func getAddressFromXML(server: RPCServer) -> Address {
+        return XMLHandler.privateXMLHandler.getAddressFromXML(server: server)
+    }
+
+    func getName(lang: String) -> String {
+        return XMLHandler.privateXMLHandler.getName(lang: lang)
+    }
+
+    func getLang() -> String {
+        return XMLHandler.privateXMLHandler.getLang()
+    }
+}
