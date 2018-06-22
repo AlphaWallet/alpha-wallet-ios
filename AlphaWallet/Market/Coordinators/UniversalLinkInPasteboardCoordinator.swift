@@ -15,9 +15,7 @@ class UniversalLinkInPasteboardCoordinator: Coordinator {
         guard contents.hasPrefix(UniversalLinkHandler().urlPrefix) else { return }
         guard contents.count > UniversalLinkHandler().urlPrefix.count else { return }
         guard let url = URL(string: contents) else { return }
-        var config = Config()
-        guard config.lastImportURLOnClipboard != url.absoluteString else { return }
-        config.lastImportURLOnClipboard = url.absoluteString
+        UIPasteboard.general.string = ""
         delegate?.importUniversalLink(url: url, for: self)
     }
 }
