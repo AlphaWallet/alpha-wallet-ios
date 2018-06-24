@@ -98,7 +98,7 @@ enum AssetAttribute {
         var endingNumber = 0
         let diff = bitmask.count - length
         let trimmedBitmask = bitmask.substring(from: diff)
-        for i in 0...trimmedBitmask.count {
+        for i in 0..<trimmedBitmask.count {
             if trimmedBitmask.substring(with: Range(uncheckedBounds: (i, i + 1))) == "F" {
                 startingNumber = i
                 break
