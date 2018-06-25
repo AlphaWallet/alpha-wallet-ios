@@ -1,4 +1,4 @@
-platform :ios, '9.0'
+platform :ios, '9'
 inhibit_all_warnings!
 source 'https://github.com/CocoaPods/Specs.git'
 
@@ -25,7 +25,7 @@ target 'AlphaWallet' do
   pod 'Kingfisher', '~> 4.0'
   pod 'TrustKeystore', :git=>'https://github.com/alpha-wallet/trust-keystore-snapshot', :branch=>'master'
   pod 'SwiftyJSON'
-  # pod 'web3swift', :git=>'https://github.com/BANKEX/web3swift', :branch=>'master'
+  pod 'web3swift', '~> 0.8.0'
   pod 'SAMKeychain'
   target 'AlphaWalletTests' do
       inherit! :search_paths
