@@ -98,11 +98,8 @@ enum AssetAttribute {
         var endingNumber = 0
         let diff = bitmask.count - length
         let trimmedBitmask = bitmask.substring(from: diff)
-        for i in 0...trimmedBitmask.count {
-            if trimmedBitmask.substring(with: Range(uncheckedBounds: (i, i + 1))) == "F" {
-                startingNumber = i
-                break
-            }
+        if let index = trimmedBitmask.index(of: "F") {
+            startingNumber = trimmedBitmask.distance(from: trimmedBitmask.startIndex, to: index)
         }
         let strippedBitmask = trimmedBitmask.replacingOccurrences(of: "0", with: "")
         endingNumber = strippedBitmask.count + startingNumber
