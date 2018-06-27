@@ -335,7 +335,7 @@ open class EtherKeystore: Keystore {
                 let hash = data[i].sha3(.keccak256)
                 messageHashes.append(hash)
             }
-            var data = try keyStore.signBatch(messageHashes, account: account, password: password)
+            var data = try keyStore.signHashes(messageHashes, account: account, password: password)
             // TODO: Make it configurable, instead of overriding last byte.
             for i in 0...data.count - 1 {
                 data[i][64] += 27
@@ -413,7 +413,7 @@ open class EtherKeystore: Keystore {
             return .failure(KeystoreError.failedToImportPrivateKey)
         }
         do {
-            let key = try Key(password: passphrase, key: data)
+            let key = try KeystoreKey(password: passphrase, key: data)
             let data = try JSONEncoder().encode(key)
             let dict = try JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
             return .success(dict)

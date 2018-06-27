@@ -1,4 +1,4 @@
-platform :ios, '9'
+platform :ios, '10.0'
 inhibit_all_warnings!
 source 'https://github.com/CocoaPods/Specs.git'
 
@@ -7,9 +7,9 @@ target 'AlphaWallet' do
 
   pod 'BigInt', '~> 3.0'
   pod 'R.swift'
-  pod 'JSONRPCKit', :git=> 'https://github.com/bricklife/JSONRPCKit.git'
+  pod 'JSONRPCKit', '~> 2.0.0'
   pod 'APIKit'
-  pod 'Eureka', '~> 4.0.1'
+  pod 'Eureka', '~> 4.1'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
   pod 'QRCodeReaderViewController', :git=>'https://github.com/yannickl/QRCodeReaderViewController.git', :branch=>'master'
@@ -20,12 +20,12 @@ target 'AlphaWallet' do
   pod 'BonMot', '~> 5.0'
   pod 'Moya', '~> 10.0.1'
   pod 'JavaScriptKit'
-  pod 'CryptoSwift', :git=>'https://github.com/krzyzanowskim/CryptoSwift', :branch=>'master'
+  pod 'CryptoSwift'
   pod 'SwiftyXMLParser', :git => 'https://github.com/yahoojapan/SwiftyXMLParser.git'
   pod 'Kingfisher', '~> 4.0'
-  pod 'TrustKeystore', :git=>'https://github.com/alpha-wallet/trust-keystore-snapshot', :branch=>'master'
+  pod 'TrustKeystore', :git => 'https://github.com/hboon/trust-keystore.git', :branch => 'alphawallet'
   pod 'SwiftyJSON'
-  pod 'web3swift', '~> 0.8.0'
+  pod 'web3swift', :git => 'https://github.com/hboon/web3swift.git', :branch => 'alphawallet'
   pod 'SAMKeychain'
   target 'AlphaWalletTests' do
       inherit! :search_paths
