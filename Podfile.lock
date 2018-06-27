@@ -91,8 +91,8 @@ DEPENDENCIES:
   - SwiftLint
   - SwiftyJSON
   - SwiftyXMLParser (from `https://github.com/yahoojapan/SwiftyXMLParser.git`)
-  - TrustKeystore (from `https://github.com/hboon/trust-keystore.git`, branch `alphawallet`)
-  - web3swift (from `https://github.com/hboon/web3swift.git`, branch `alphawallet`)
+  - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, branch `alphawallet`)
+  - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, branch `alphawallet`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -134,10 +134,10 @@ EXTERNAL SOURCES:
     :git: https://github.com/yahoojapan/SwiftyXMLParser.git
   TrustKeystore:
     :branch: alphawallet
-    :git: https://github.com/hboon/trust-keystore.git
+    :git: https://github.com/alpha-wallet/trust-keystore.git
   web3swift:
     :branch: alphawallet
-    :git: https://github.com/hboon/web3swift.git
+    :git: https://github.com/alpha-wallet/web3swift.git
 
 CHECKOUT OPTIONS:
   QRCodeReaderViewController:
@@ -148,10 +148,10 @@ CHECKOUT OPTIONS:
     :git: https://github.com/yahoojapan/SwiftyXMLParser.git
   TrustKeystore:
     :commit: c819647f4b3c5b149b61268eecd5a0805fbf6498
-    :git: https://github.com/hboon/trust-keystore.git
+    :git: https://github.com/alpha-wallet/trust-keystore.git
   web3swift:
     :commit: e158b947f0f541ddf09461f4b73d960bde1dadcd
-    :git: https://github.com/hboon/web3swift.git
+    :git: https://github.com/alpha-wallet/web3swift.git
 
 SPEC CHECKSUMS:
   Alamofire: e4fa87002c137ba2d8d634d2c51fabcda0d5c223
@@ -188,6 +188,6 @@ SPEC CHECKSUMS:
   TrustKeystore: 26efa8079f6451d02ce64b906d3ff240fd71d7ca
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: 7c580cebfdd5466e9f3f650b97dc7331da9709c8
+PODFILE CHECKSUM: 285b760e4ff2671757406b0a2c80509c3997acc7
 
 COCOAPODS: 1.5.3
