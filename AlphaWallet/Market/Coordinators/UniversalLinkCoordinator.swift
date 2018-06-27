@@ -5,6 +5,7 @@ import Alamofire
 import BigInt
 import Realm
 import TrustKeystore
+//import web3swift
 
 protocol UniversalLinkCoordinatorDelegate: class {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
@@ -131,6 +132,7 @@ class UniversalLinkCoordinator: Coordinator {
         let isStormBirdContract = xmlAddress.eip55String.sameContract(as: signedOrder.order.contractAddress)
         importTicketViewController?.url = url
         importTicketViewController?.contract = signedOrder.order.contractAddress
+        //let recoveredSigner = web3.personal.ecrecover(personalMessage: Data(bytes: signedOrder.message), signature: signature)
         getTicketDetailsAndEcRecover(signedOrder: signedOrder) { result in
             if let goodResult = result {
                 //user can pay gas for free import links if they are not covered by our server
