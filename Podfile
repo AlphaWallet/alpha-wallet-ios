@@ -23,9 +23,9 @@ target 'AlphaWallet' do
   pod 'CryptoSwift'
   pod 'SwiftyXMLParser', :git => 'https://github.com/yahoojapan/SwiftyXMLParser.git'
   pod 'Kingfisher', '~> 4.0'
-  pod 'TrustKeystore', :git => 'https://github.com/hboon/trust-keystore.git', :branch => 'alphawallet'
+  pod 'TrustKeystore', :git => 'https://github.com/alpha-wallet/trust-keystore.git', :branch => 'alphawallet'
   pod 'SwiftyJSON'
-  pod 'web3swift', :git => 'https://github.com/hboon/web3swift.git', :branch => 'alphawallet'
+  pod 'web3swift', :git => 'https://github.com/alpha-wallet/web3swift.git', :branch => 'alphawallet'
   pod 'SAMKeychain'
   target 'AlphaWalletTests' do
       inherit! :search_paths
