@@ -8,7 +8,6 @@ class SettingsCoordinatorTests: XCTestCase {
     func testShowAccounts() {
         let coordinator = SettingsCoordinator(
             navigationController: FakeNavigationController(),
-            config: .make(),
             keystore: FakeEtherKeystore(),
             session: .make(),
             storage: FakeTransactionsStorage(),
@@ -25,7 +24,6 @@ class SettingsCoordinatorTests: XCTestCase {
         let storage = FakeTransactionsStorage()
         let coordinator = SettingsCoordinator(
             navigationController: FakeNavigationController(),
-            config: .make(),
             keystore: FakeEtherKeystore(),
             session: .make(),
             storage: FakeTransactionsStorage(),

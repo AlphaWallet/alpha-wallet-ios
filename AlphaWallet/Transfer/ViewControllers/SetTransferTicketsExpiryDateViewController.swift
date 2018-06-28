@@ -10,6 +10,7 @@ protocol SetTransferTicketsExpiryDateViewControllerDelegate: class {
 
 class SetTransferTicketsExpiryDateViewController: UIViewController, VerifiableStatusViewController {
 
+    private let config: Config
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
     let header = TicketsViewControllerTitleHeader()
@@ -30,7 +31,8 @@ class SetTransferTicketsExpiryDateViewController: UIViewController, VerifiableSt
     var paymentFlow: PaymentFlow
     weak var delegate: SetTransferTicketsExpiryDateViewControllerDelegate?
 
-    init(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+    init(config: Config, ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+        self.config = config
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
@@ -88,7 +90,7 @@ class SetTransferTicketsExpiryDateViewController: UIViewController, VerifiableSt
         datePicker.minimumDate = Date()
         datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
         datePicker.isHidden = true
-        if let locale = Config().locale {
+        if let locale = config.locale {
             datePicker.locale = Locale(identifier: locale)
         }
 
@@ -96,7 +98,7 @@ class SetTransferTicketsExpiryDateViewController: UIViewController, VerifiableSt
         timePicker.minimumDate = Date.yesterday
         timePicker.addTarget(self, action: #selector(timePickerValueChanged), for: .valueChanged)
         timePicker.isHidden = true
-        if let locale = Config().locale {
+        if let locale = config.locale {
             timePicker.locale = Locale(identifier: locale)
         }
 
@@ -235,7 +237,7 @@ class SetTransferTicketsExpiryDateViewController: UIViewController, VerifiableSt
 
     func configure(viewModel: SetTransferTicketsExpiryDateViewControllerViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
         if viewModel.token.contract != contractAddress {
             updateNavigationRightBarButtons(isVerified: false)
         }

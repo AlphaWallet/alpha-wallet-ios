@@ -21,9 +21,10 @@ class BrowserViewController: UIViewController {
     }
 
     lazy var webView: WKWebView = {
+        let webViewConfig = WKWebViewConfiguration.make(for: session, in: self)
         let webView = WKWebView(
             frame: .zero,
-            configuration: self.config
+            configuration: webViewConfig
         )
         webView.allowsBackForwardNavigationGestures = true
         webView.navigationDelegate = self
@@ -40,10 +41,6 @@ class BrowserViewController: UIViewController {
         return navigationController?.navigationBar as? BrowserNavigationBar
     }
     let progressView = UIProgressView(progressViewStyle: .default)
-
-    lazy var config: WKWebViewConfiguration = {
-        return WKWebViewConfiguration.make(for: session, in: self)
-    }()
 
     init(
         session: WalletSession
@@ -213,7 +210,7 @@ extension BrowserViewController: WKScriptMessageHandler {
             let command = try? decoder.decode(DappCommand.self, from: jsonString.data(using: .utf8)!) else {
                 return
         }
-        let action = DappAction.fromCommand(command)
+        let action = DappAction.fromCommand(command, config: session.config)
 
         delegate?.didCall(action: action, callbackID: command.id)
     }

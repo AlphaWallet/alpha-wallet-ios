@@ -16,6 +16,7 @@ protocol RedeemTicketsQuantitySelectionViewControllerDelegate: class {
 
 class RedeemTicketsQuantitySelectionViewController: UIViewController, VerifiableStatusViewController {
 
+    private let config: Config
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
 	let subtitleLabel = UILabel()
@@ -25,7 +26,8 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController, Verifiable
     var viewModel: RedeemTicketsQuantitySelectionViewModel!
     weak var delegate: RedeemTicketsQuantitySelectionViewControllerDelegate?
 
-    init() {
+    init(config: Config) {
+        self.config = config
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -121,7 +123,7 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController, Verifiable
     func configure(viewModel: RedeemTicketsQuantitySelectionViewModel) {
         self.viewModel = viewModel
 
-        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
 
         if viewModel.token.contract != contractAddress {
             updateNavigationRightBarButtons(isVerified: false)

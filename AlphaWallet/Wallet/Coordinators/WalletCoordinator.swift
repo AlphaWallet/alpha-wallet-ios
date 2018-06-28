@@ -11,6 +11,7 @@ protocol WalletCoordinatorDelegate: class {
 
 class WalletCoordinator: Coordinator {
 
+    private let config: Config
     var navigationController: UINavigationController
     weak var delegate: WalletCoordinatorDelegate?
     var entryPoint: WalletEntryPoint?
@@ -18,9 +19,11 @@ class WalletCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     init(
+        config: Config = Config(),
         navigationController: UINavigationController = NavigationController(),
         keystore: Keystore
     ) {
+        self.config = config
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
@@ -46,8 +49,8 @@ class WalletCoordinator: Coordinator {
         case .backupWallet(let address):
             if let type = keystore.recentlyUsedWallet?.type, case let .real(account) = type {
                 guard address == account.address.eip55String else { return false }
-                guard !Config().isWalletAddressAlreadyPromptedForBackUp(address: account.address.eip55String) else { return false }
-                Config().addToWalletAddressesAlreadyPromptedForBackup(address: account.address.eip55String)
+                guard !config.isWalletAddressAlreadyPromptedForBackUp(address: account.address.eip55String) else { return false }
+                config.addToWalletAddressesAlreadyPromptedForBackup(address: account.address.eip55String)
                 pushBackup(for: account)
             } else {
                 return false
@@ -133,7 +136,7 @@ extension WalletCoordinator: WelcomeViewControllerDelegate {
 
 extension WalletCoordinator: ImportWalletViewControllerDelegate {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController) {
-        Config().addToWalletAddressesAlreadyPromptedForBackup(address: account.address.eip55String)
+        config.addToWalletAddressesAlreadyPromptedForBackup(address: account.address.eip55String)
         didCreateAccount(account: account)
     }
 }
