@@ -128,7 +128,7 @@ class UniversalLinkCoordinator: Coordinator {
             self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
             return false
         }
-        let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: Config().chainID))
+        let xmlAddress = XMLHandler().getAddressFromXML(server: Config().server)
         let isStormBirdContract = xmlAddress.eip55String.sameContract(as: signedOrder.order.contractAddress)
         importTicketViewController?.url = url
         importTicketViewController?.contract = signedOrder.order.contractAddress
