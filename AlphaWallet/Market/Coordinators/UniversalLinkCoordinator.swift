@@ -143,45 +143,50 @@ class UniversalLinkCoordinator: Coordinator {
             hash: messageHash,
             signature: Data(bytes: signature.hexa2Bytes)
         )
-        let recoverAddress = Address(string: try! recoveredSigner.dematerialize().address)!
-        let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
-        //gather signer address balance
-        GetStormBirdBalanceCoordinator(web3: Web3Swift()).getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
-            //filter null tickets
-            let filteredTokens = self.checkERC875TokensAreAvailable(
-                    indices: signedOrder.order.indices,
-                    balance: try! result.dematerialize()
-            )
-            if filteredTokens.isEmpty {
-                self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
-            }
+        switch recoveredSigner {
+        case .success(let ethereumAddress):
+            //TODO extract method for the whole .success? Quite long
+            //TODO return false?
+            guard let recoverAddress = Address(string: ethereumAddress.address) else { return false }
+            let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
+            //gather signer address balance
+            GetStormBirdBalanceCoordinator(web3: Web3Swift()).getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
+                //filter null tickets
+                let filteredTokens = self.checkERC875TokensAreAvailable(
+                        indices: signedOrder.order.indices,
+                        balance: try! result.dematerialize()
+                )
+                if filteredTokens.isEmpty {
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+                }
 
-            let ticketHolder = self.sortTickets(
-                    filteredTokens,
-                    signedOrder.order.indices,
-                    signedOrder.order.contractAddress
-            )
+                let ticketHolder = self.sortTickets(
+                        filteredTokens,
+                        signedOrder.order.indices,
+                        signedOrder.order.contractAddress
+                )
 
-            if signedOrder.order.price > 0 || !isStormBirdContract {
-                if let balance = self.ethBalance {
-                    balance.subscribeOnce { value in
-                        if value > signedOrder.order.price {
-                            let _ = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: ticketHolder)
-                        } else {
-                            if let price = self.ethPrice {
-                                if price.value == nil {
-                                    let ethCost = self.convert(ethCost: signedOrder.order.price)
-                                    self.showImportError(
-                                            errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(),
-                                            ticketHolder: ticketHolder,
-                                            ethCost: ethCost.description
-                                    )
-                                }
-                                price.subscribe { [weak self] value in
-                                    if let celf = self {
-                                        if let price = price.value {
-                                            let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
-                                            celf.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(), ticketHolder: ticketHolder, ethCost: ethCost.description, dollarCost: dollarCost.description)
+                if signedOrder.order.price > 0 || !isStormBirdContract {
+                    if let balance = self.ethBalance {
+                        balance.subscribeOnce { value in
+                            if value > signedOrder.order.price {
+                                let _ = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: ticketHolder)
+                            } else {
+                                if let price = self.ethPrice {
+                                    if price.value == nil {
+                                        let ethCost = self.convert(ethCost: signedOrder.order.price)
+                                        self.showImportError(
+                                                errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(),
+                                                ticketHolder: ticketHolder,
+                                                ethCost: ethCost.description
+                                        )
+                                    }
+                                    price.subscribe { [weak self] value in
+                                        if let celf = self {
+                                            if let price = price.value {
+                                                let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
+                                                celf.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(), ticketHolder: ticketHolder, ethCost: ethCost.description, dollarCost: dollarCost.description)
+                                            }
                                         }
                                     }
                                 }
@@ -189,15 +194,20 @@ class UniversalLinkCoordinator: Coordinator {
                         }
                     }
                 }
-            }
-            else {
-                //free transfer
-                let _ = self.usePaymentServerForFreeTransferLinks(
-                        signedOrder: signedOrder,
-                        ticketHolder: ticketHolder
-                )
-            }
+                else {
+                    //free transfer
+                    let _ = self.usePaymentServerForFreeTransferLinks(
+                            signedOrder: signedOrder,
+                            ticketHolder: ticketHolder
+                    )
+                }
 
+            }
+        case .failure(let error):
+            //TODO handle. Show error maybe?
+            NSLog("xxx error during ecrecover: \(error.localizedDescription)")
+            //TODO return true or false?
+            return false
         }
         return true
     }
