@@ -150,7 +150,9 @@ class UniversalLinkCoordinator: Coordinator {
             guard let recoverAddress = Address(string: ethereumAddress.address) else { return false }
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             //gather signer address balance
-            GetStormBirdBalanceCoordinator(web3: Web3Swift()).getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
+            let web3Swift = Web3Swift()
+            web3Swift.start()
+            GetStormBirdBalanceCoordinator(web3: web3Swift).getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
                 //filter null tickets
                 let filteredTokens = self.checkERC875TokensAreAvailable(
                         indices: signedOrder.order.indices,
@@ -221,7 +223,7 @@ class UniversalLinkCoordinator: Coordinator {
         if balance.count < indices.count {
             return [String]()
         }
-        for i in 0..<balance.count {
+        for i in 0..<indices.count {
             let token: String = balance[Int(indices[i])]
             //all of the indices provided should map to a valid non null ticket
             if let tokenValue = BigUInt(token, radix: 16) {
@@ -240,7 +242,7 @@ class UniversalLinkCoordinator: Coordinator {
         let xmlHandler = XMLHandler()
         for i in 0...bytes32Tickets.count - 1 {
             let ticket = bytes32Tickets[i]
-            if let tokenId = BigUInt(ticket, radix: 16) {
+            if let tokenId = BigUInt(ticket.drop0x, radix: 16) {
                 let ticket = xmlHandler.getFifaInfoForTicket(tokenId: tokenId, index: UInt16(i))
                 tickets.append(ticket)
             }
