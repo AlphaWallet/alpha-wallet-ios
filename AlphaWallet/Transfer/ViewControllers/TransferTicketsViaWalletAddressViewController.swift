@@ -11,6 +11,7 @@ protocol TransferTicketsViaWalletAddressViewControllerDelegate: class {
 
 class TransferTicketsViaWalletAddressViewController: UIViewController, VerifiableStatusViewController {
 
+    private let config: Config
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let ticketView = TicketRowView()
@@ -21,7 +22,8 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, Verifiabl
     var paymentFlow: PaymentFlow
     weak var delegate: TransferTicketsViaWalletAddressViewControllerDelegate?
 
-    init(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+    init(config: Config, ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+        self.config = config
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
@@ -104,13 +106,13 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, Verifiabl
     }
 
     func showContractWebPage() {
-        let url = Config().server.etherscanContractDetailsWebPageURL(for: viewModel.token.contract)
+        let url = config.server.etherscanContractDetailsWebPageURL(for: viewModel.token.contract)
         openURL(url)
     }
 
     func configure(viewModel: TransferTicketsViaWalletAddressViewControllerViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
         if !viewModel.token.contract.sameContract(as: contractAddress) {
             updateNavigationRightBarButtons(isVerified: false)
         }

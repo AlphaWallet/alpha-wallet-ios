@@ -10,21 +10,19 @@ struct SendViewModel {
     let transferType: TransferType
     let session: WalletSession
     let storage: TokensDataStore
-    let config: Config
     var currentPair: Pair
     let stringFormatter = StringFormatter()
     var pairValue = 0.0
 
-    init(transferType: TransferType, session: WalletSession, storage: TokensDataStore, config: Config, currentPair: Pair) {
+    init(transferType: TransferType, session: WalletSession, storage: TokensDataStore, currentPair: Pair) {
         self.transferType = transferType
         self.session = session
         self.storage = storage
-        self.config = config
         self.currentPair = currentPair
     }
 
     var symbol: String {
-        return transferType.symbol(server: config.server)
+        return transferType.symbol(server: session.config.server)
     }
 
     var destinationAddress: Address {

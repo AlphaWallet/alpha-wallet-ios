@@ -10,6 +10,7 @@ protocol TransferTicketsViewControllerDelegate: class {
 
 class TransferTicketsViewController: UIViewController, VerifiableStatusViewController {
 
+    private let config: Config
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
@@ -18,7 +19,8 @@ class TransferTicketsViewController: UIViewController, VerifiableStatusViewContr
     var paymentFlow: PaymentFlow
     weak var delegate: TransferTicketsViewControllerDelegate?
 
-    init(paymentFlow: PaymentFlow) {
+    init(config: Config, paymentFlow: PaymentFlow) {
+        self.config = config
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
 
@@ -76,7 +78,7 @@ class TransferTicketsViewController: UIViewController, VerifiableStatusViewContr
     func configure(viewModel: TransferTicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
         if !viewModel.token.contract.sameContract(as: contractAddress) {
             updateNavigationRightBarButtons(isVerified: false)
         }
