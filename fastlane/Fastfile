@@ -19,10 +19,6 @@ platform :ios do
   before_all do
   end
 
-  def run_localizer
-    sh "cd .. && sh scripts/localizer.sh Trust " << ENV['LOKALISE_API_TOKEN']
-  end
-
   def screenshots
     snapshot
     frameit(white: true)
@@ -45,29 +41,6 @@ platform :ios do
   desc "Screenshots"
   lane :screenshots do
     screenshots
-  end
-
-  desc "Localize"
-  lane :localize do
-    run_localizer
-  end
-
-  lane :update_lokalise do
-    lokalise_metadata(
-      api_token: ENV['LOKALISE_API_TOKEN'],
-      project_identifier: ENV['LOKALISE_STORE_PROJECT_ID'],
-      action: "update_lokalise",
-      add_languages: true,
-      override_translation: false
-    )
-  end
-
-  lane :update_itunes do
-   lokalise_metadata(
-      api_token: ENV['LOKALISE_API_TOKEN'],
-      project_identifier: ENV['LOKALISE_STORE_PROJECT_ID'],
-      action: "update_itunes"
-   )
   end
 
   lane :travis_tests do
