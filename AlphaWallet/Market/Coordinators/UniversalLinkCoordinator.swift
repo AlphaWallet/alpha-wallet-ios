@@ -15,12 +15,17 @@ protocol UniversalLinkCoordinatorDelegate: class {
 
 class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
+    let config: Config
 	weak var delegate: UniversalLinkCoordinatorDelegate?
 	var importTicketViewController: ImportTicketViewController?
     var ethPrice: Subscribable<Double>?
     var ethBalance: Subscribable<BigInt>?
     var hasCompleted = false
     var addressOfNewWallet: String?
+
+    init(config: Config) {
+        self.config = config
+    }
 
 	func start() {
 	}
@@ -42,7 +47,7 @@ class UniversalLinkCoordinator: Coordinator {
             "v": signature.substring(from: 128),
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
-            "networkId": Config().chainID.description,
+            "networkId": config.chainID.description,
         ]
         
         if isForTransfer {
@@ -128,7 +133,7 @@ class UniversalLinkCoordinator: Coordinator {
             self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
             return false
         }
-        let xmlAddress = XMLHandler().getAddressFromXML(server: Config().server)
+        let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: config.chainID))
         let isStormBirdContract = xmlAddress.eip55String.sameContract(as: signedOrder.order.contractAddress)
         importTicketViewController?.url = url
         importTicketViewController?.contract = signedOrder.order.contractAddress
@@ -253,7 +258,7 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func preparingToImportUniversalLink() {
 		if let viewController = delegate?.viewControllerForPresenting(in: self) {
-			importTicketViewController = ImportTicketViewController()
+			importTicketViewController = ImportTicketViewController(config: config)
 			if let vc = importTicketViewController {
 				vc.delegate = self
 				vc.configure(viewModel: .init(state: .validating))

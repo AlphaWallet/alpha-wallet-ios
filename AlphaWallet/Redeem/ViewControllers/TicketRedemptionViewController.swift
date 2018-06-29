@@ -14,7 +14,6 @@ class TicketRedemptionViewController: UIViewController, VerifiableStatusViewCont
     var titleLabel = UILabel()
     let imageView =  UIImageView()
     let ticketView = TicketRowView()
-    let redeem = CreateRedeem()
     var timer: Timer!
     var session: WalletSession
     let redeemListener = RedeemEventListener()
@@ -95,6 +94,7 @@ class TicketRedemptionViewController: UIViewController, VerifiableStatusViewCont
 
     @objc
     private func configureUI() {
+        let redeem = CreateRedeem(config: session.config)
         let redeemData = redeem.redeemMessage(ticketIndices: viewModel.ticketHolder.indices)
         switch session.account.type {
         case .real(let account):
@@ -111,7 +111,7 @@ class TicketRedemptionViewController: UIViewController, VerifiableStatusViewCont
     }
 
     func showContractWebPage() {
-        let url = Config().server.etherscanContractDetailsWebPageURL(for: viewModel.token.contract)
+        let url = session.config.server.etherscanContractDetailsWebPageURL(for: viewModel.token.contract)
         openURL(url)
     }
 
@@ -138,7 +138,7 @@ class TicketRedemptionViewController: UIViewController, VerifiableStatusViewCont
     
     func configure(viewModel: TicketRedemptionViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: session.config.server).eip55String
         if !viewModel.token.contract.sameContract(as: contractAddress) {
             updateNavigationRightBarButtons(isVerified: false)
         }

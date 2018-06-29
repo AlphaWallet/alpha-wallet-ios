@@ -75,7 +75,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     private func handleUniversalLink(url: URL) -> Bool {
         appCoordinator.createInitialWallet()
         appCoordinator.closeWelcomeWindow()
-        universalLinkCoordinator = UniversalLinkCoordinator()
+        universalLinkCoordinator = UniversalLinkCoordinator(config: Config())
         universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
         universalLinkCoordinator.ethBalance = appCoordinator.ethBalance
         universalLinkCoordinator.delegate = self

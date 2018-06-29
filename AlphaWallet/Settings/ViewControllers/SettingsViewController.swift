@@ -11,7 +11,6 @@ protocol SettingsViewControllerDelegate: class {
 }
 
 class SettingsViewController: FormViewController {
-    private var config = Config()
     private var lock = Lock()
     weak var delegate: SettingsViewControllerDelegate?
     var isPasscodeEnabled: Bool {
@@ -70,7 +69,7 @@ class SettingsViewController: FormViewController {
             }
             cell.imageView?.image = R.image.settings_language()?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = strongSelf.viewModel.localeTitle
-            cell.detailTextLabel?.text = AppLocale(id: strongSelf.config.locale).displayName
+            cell.detailTextLabel?.text = AppLocale(id: strongSelf.session.config.locale).displayName
             cell.accessoryType = .disclosureIndicator
         }
 
@@ -123,7 +122,7 @@ class SettingsViewController: FormViewController {
             }
             cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.settingsNetworkButtonTitle()
-            cell.detailTextLabel?.text = RPCServer(chainID: strongSelf.config.chainID).displayName
+            cell.detailTextLabel?.text = RPCServer(chainID: strongSelf.session.config.chainID).displayName
             cell.accessoryType = .disclosureIndicator
         }
 

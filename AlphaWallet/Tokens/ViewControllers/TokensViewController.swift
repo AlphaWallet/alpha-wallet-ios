@@ -14,7 +14,7 @@ class TokensViewController: UIViewController {
 
     private let dataStore: TokensDataStore
 
-    var viewModel: TokensViewModel = TokensViewModel(config: Config(), tokens: [], tickers: .none) {
+    var viewModel: TokensViewModel {
         didSet {
             viewModel.filter = oldValue.filter
             refreshView(viewModel: viewModel)
@@ -37,6 +37,7 @@ class TokensViewController: UIViewController {
 		self.session = session
         self.account = account
         self.dataStore = dataStore
+        self.viewModel = TokensViewModel(config: session.config, tokens: [], tickers: .none)
         tableView = UITableView(frame: .zero, style: .plain)
         super.init(nibName: nil, bundle: nil)
         dataStore.delegate = self

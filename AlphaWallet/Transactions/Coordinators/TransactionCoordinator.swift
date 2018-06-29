@@ -127,7 +127,7 @@ extension TransactionCoordinator: TransactionsViewControllerDelegate {
         if let type = viewController.paymentType {
             delegate?.didPress(for: type, in: self)
         } else {
-            delegate?.didPress(for: .send(type: .ether(destination: .none)), in: self)
+            delegate?.didPress(for: .send(type: .ether(config: session.config, destination: .none)), in: self)
         }
     }
 

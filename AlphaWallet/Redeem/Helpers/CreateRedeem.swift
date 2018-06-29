@@ -7,6 +7,11 @@ import BigInt
 import TrustKeystore
 
 class CreateRedeem {
+    private let config: Config
+
+    init(config: Config) {
+        self.config = config
+    }
 
     func generateTimeStamp() -> String {
         let time = NSDate().timeIntervalSince1970
@@ -16,7 +21,7 @@ class CreateRedeem {
     }
 
     func redeemMessage(ticketIndices: [UInt16]) -> (message: String, qrCode: String) {
-        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
         let messageForSigning = formIndicesSelection(indices: ticketIndices)
                 + "," + generateTimeStamp() + "," + contractAddress.lowercased()
         let qrCodeData = formIndicesSelection(indices: ticketIndices)
