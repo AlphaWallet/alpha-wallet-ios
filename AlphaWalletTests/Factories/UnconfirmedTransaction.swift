@@ -7,7 +7,7 @@ import BigInt
 
 extension UnconfirmedTransaction {
     static func make(
-        transferType: TransferType = .ether(destination: .none),
+        transferType: TransferType = .ether(config: Config(), destination: .none),
         value: BigInt = BigInt(1),
         to: Address = .make(),
         data: Data = Data(),

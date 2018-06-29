@@ -10,7 +10,7 @@ class TransactionViewController: UIViewController {
     private lazy var viewModel: TransactionDetailsViewModel = {
         return .init(
             transaction: self.transaction,
-            config: self.config,
+            config: session.config,
             chainState: self.session.chainState,
             currentWallet: self.session.account,
             currencyRate: self.session.balanceCoordinator.currencyRate
@@ -20,7 +20,6 @@ class TransactionViewController: UIViewController {
 
     let session: WalletSession
     let transaction: Transaction
-    let config = Config()
 
     init(
         session: WalletSession,

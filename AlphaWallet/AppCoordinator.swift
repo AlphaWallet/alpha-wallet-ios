@@ -6,7 +6,8 @@ import UIKit
 import BigInt
 
 class AppCoordinator: NSObject, Coordinator {
-    let navigationController: UINavigationController 
+    private let config: Config
+    let navigationController: UINavigationController
     lazy var welcomeViewController: WelcomeViewController = {
         let controller = WelcomeViewController()
         controller.delegate = self
@@ -34,10 +35,12 @@ class AppCoordinator: NSObject, Coordinator {
         }
     }
     init(
+        config: Config = Config(),
         window: UIWindow,
         keystore: Keystore,
         navigationController: UINavigationController = NavigationController()
     ) {
+        self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
         super.init()

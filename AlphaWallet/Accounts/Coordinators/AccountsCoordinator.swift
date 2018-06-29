@@ -13,6 +13,7 @@ protocol AccountsCoordinatorDelegate: class {
 
 class AccountsCoordinator: Coordinator {
 
+    private let config: Config
     let navigationController: UINavigationController
     let keystore: Keystore
     let balanceCoordinator: GetBalanceCoordinator
@@ -30,10 +31,12 @@ class AccountsCoordinator: Coordinator {
     weak var delegate: AccountsCoordinatorDelegate?
 
     init(
+        config: Config = Config(),
         navigationController: UINavigationController,
         keystore: Keystore,
         balanceCoordinator: GetBalanceCoordinator
     ) {
+        self.config = config
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore

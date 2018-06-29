@@ -16,7 +16,7 @@ class CreateRedeemTests: XCTestCase {
         indices.append(1)
         indices.append(2)
         let account = keyStore.createAccount(password: "test")
-        let message = CreateRedeem.init().redeemMessage(ticketIndices: indices).0
+        let message = CreateRedeem(config: Config()).redeemMessage(ticketIndices: indices).0
         print(message)
         let data = message.data(using: String.Encoding.utf8)
 

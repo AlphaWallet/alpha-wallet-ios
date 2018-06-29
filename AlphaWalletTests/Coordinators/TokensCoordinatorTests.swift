@@ -8,7 +8,6 @@ class TokensCoordinatorTests: XCTestCase {
     func testRootViewController() {
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
-            config: .make(),
             session: .make(),
             keystore: FakeKeystore(),
             tokensStorage: FakeTokensDataStore()
