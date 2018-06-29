@@ -28,21 +28,6 @@ Deploy a new version to the App Store
 fastlane ios screenshots
 ```
 Screenshots
-### ios localize
-```
-fastlane ios localize
-```
-Localize
-### ios update_lokalise
-```
-fastlane ios update_lokalise
-```
-
-### ios update_itunes
-```
-fastlane ios update_itunes
-```
-
 ### ios travis_tests
 ```
 fastlane ios travis_tests

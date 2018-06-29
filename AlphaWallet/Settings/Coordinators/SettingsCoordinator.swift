@@ -15,7 +15,6 @@ protocol SettingsCoordinatorDelegate: class {
 class SettingsCoordinator: Coordinator {
 
 	let navigationController: UINavigationController
-	var config: Config
 	let keystore: Keystore
 	let session: WalletSession
 	let storage: TransactionsStorage
@@ -32,14 +31,12 @@ class SettingsCoordinator: Coordinator {
 
 	init(
 			navigationController: UINavigationController = NavigationController(),
-			config: Config,
 			keystore: Keystore,
 			session: WalletSession,
 			storage: TransactionsStorage,
 			balanceCoordinator: GetBalanceCoordinator
 	) {
 		self.navigationController = navigationController
-		self.config = config
 		self.navigationController.modalPresentationStyle = .formSheet
 		self.keystore = keystore
 		self.session = session
@@ -68,7 +65,7 @@ class SettingsCoordinator: Coordinator {
 	}
 
 	@objc func showServers() {
-		let coordinator = ServersCoordinator(config: config)
+		let coordinator = ServersCoordinator(config: session.config)
 		coordinator.delegate = self
 		coordinator.start()
 		addCoordinator(coordinator)
@@ -76,7 +73,7 @@ class SettingsCoordinator: Coordinator {
 	}
 
 	@objc func showLocales() {
-		let coordinator = LocalesCoordinator(config: config)
+		let coordinator = LocalesCoordinator(config: session.config)
 		coordinator.delegate = self
 		coordinator.start()
 		addCoordinator(coordinator)

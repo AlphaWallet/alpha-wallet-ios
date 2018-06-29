@@ -121,13 +121,13 @@ class TicketsViewController: UIViewController, VerifiableStatusViewController {
     func configure(viewModel: TicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: session.config.server).eip55String
         if let tokenObject = tokenObject, !tokenObject.contract.sameContract(as: contractAddress) {
             updateNavigationRightBarButtons(isVerified: false)
         }
 
         if let tokenObject = tokenObject {
-            header.configure(viewModel: .init(config: tokensStorage.config, tokenObject: tokenObject))
+            header.configure(viewModel: .init(config: session.config, tokenObject: tokenObject))
             tableView.tableHeaderView = header
         }
 

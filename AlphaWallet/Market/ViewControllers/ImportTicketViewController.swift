@@ -9,6 +9,7 @@ protocol ImportTicketViewControllerDelegate: class {
 }
 
 class ImportTicketViewController: UIViewController, VerifiableStatusViewController {
+    private let config: Config
     weak var delegate: ImportTicketViewControllerDelegate?
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
@@ -31,7 +32,7 @@ class ImportTicketViewController: UIViewController, VerifiableStatusViewControll
     var contract: String? {
         didSet {
             guard url != nil else { return }
-            let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+            let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
             if let contract = contract, !contract.sameContract(as: contractAddress) {
                 updateNavigationRightBarButtons(isVerified: false, hasShowInfoButton: false)
             }
@@ -43,7 +44,8 @@ class ImportTicketViewController: UIViewController, VerifiableStatusViewControll
         }
     }
 
-    init() {
+    init(config: Config) {
+        self.config = config
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = .clear
 
@@ -259,7 +261,6 @@ class ImportTicketViewController: UIViewController, VerifiableStatusViewControll
     }
 
     func showContractWebPage() {
-        let config = Config()
         if case .main = config.server {
             guard let url = url else { return }
             openURL(url)

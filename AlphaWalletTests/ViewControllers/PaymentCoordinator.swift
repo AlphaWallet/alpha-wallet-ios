@@ -10,7 +10,7 @@ class PaymentCoordinatorTests: XCTestCase {
         let address: Address = .make()
         let coordinator = PaymentCoordinator(
             navigationController: FakeNavigationController(),
-            flow: .send(type: .ether(destination: address)),
+            flow: .send(type: .ether(config: Config(), destination: address)),
             session: .make(),
             keystore: FakeKeystore(),
             storage: FakeTokensDataStore()
