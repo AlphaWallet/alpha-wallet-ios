@@ -4,7 +4,7 @@ import Foundation
 import TrustKeystore
 
 enum TransferType {
-    case ether(destination: Address?)
+    case ether(config: Config, destination: Address?)
     case token(TokenObject)
     case stormBird(TokenObject)
     case stormBirdOrder(TokenObject)
@@ -26,8 +26,8 @@ extension TransferType {
 
     func contract() -> Address {
         switch self {
-        case .ether:
-            return Address(string: TokensDataStore.etherToken(for: Config()).contract)!
+        case .ether(let config, _):
+            return Address(string: TokensDataStore.etherToken(for: config).contract)!
         case .token(let token):
             return Address(string: token.contract)!
         case .stormBird(let token):

@@ -12,6 +12,7 @@ protocol ChooseTicketTransferModeViewControllerDelegate: class {
 class ChooseTicketTransferModeViewController: UIViewController, VerifiableStatusViewController {
     let horizontalAdjustmentForLongMagicLinkButtonTitle = CGFloat(20)
 
+    private let config: Config
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let ticketView = TicketRowView()
@@ -22,7 +23,8 @@ class ChooseTicketTransferModeViewController: UIViewController, VerifiableStatus
     var paymentFlow: PaymentFlow
     weak var delegate: ChooseTicketTransferModeViewControllerDelegate?
 
-    init(ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+    init(config: Config, ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+        self.config = config
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
@@ -114,7 +116,7 @@ class ChooseTicketTransferModeViewController: UIViewController, VerifiableStatus
 
     func configure(viewModel: ChooseTicketTransferModeViewControllerViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
         if !viewModel.token.contract.sameContract(as: contractAddress) {
             updateNavigationRightBarButtons(isVerified: false)
         }

@@ -34,7 +34,7 @@ class InCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     let initialWallet: Wallet
     var keystore: Keystore
-    var config: Config
+    private var config: Config
     let appTracker: AppTracker
     lazy var ethPrice: Subscribable<Double> = {
         var value = Subscribable<Double>(nil)
@@ -164,7 +164,6 @@ class InCoordinator: Coordinator {
 
         if inCoordinatorViewModel.tokensAvailable {
             let tokensCoordinator = TokensCoordinator(
-                    config: config,
                     session: session,
                     keystore: keystore,
                     tokensStorage: alphaWalletTokensStorage
@@ -178,7 +177,6 @@ class InCoordinator: Coordinator {
         tabBarController.viewControllers?.append(transactionCoordinator.navigationController)
 
         let alphaSettingsCoordinator = SettingsCoordinator(
-                config: config,
                 keystore: keystore,
                 session: session,
                 storage: transactionsStorage,

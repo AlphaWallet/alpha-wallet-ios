@@ -10,6 +10,7 @@ protocol EnterSellTicketsPriceQuantityViewControllerDelegate: class {
 
 class EnterSellTicketsPriceQuantityViewController: UIViewController, VerifiableStatusViewController {
 
+    private let config: Config
     let storage: TokensDataStore
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
@@ -46,7 +47,8 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, VerifiableS
     }
     weak var delegate: EnterSellTicketsPriceQuantityViewControllerDelegate?
 
-    init(storage: TokensDataStore, paymentFlow: PaymentFlow, ethPrice: Subscribable<Double>) {
+    init(config: Config, storage: TokensDataStore, paymentFlow: PaymentFlow, ethPrice: Subscribable<Double>) {
+        self.config = config
         self.storage = storage
         self.paymentFlow = paymentFlow
         self.ethPrice = ethPrice
@@ -249,7 +251,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, VerifiableS
 
     func configure(viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: Config().server).eip55String
+        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
         if !viewModel.token.contract.sameContract(as: contractAddress) {
             updateNavigationRightBarButtons(isVerified: false)
         }

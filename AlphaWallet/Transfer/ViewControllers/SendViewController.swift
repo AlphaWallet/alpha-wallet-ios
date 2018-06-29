@@ -88,7 +88,7 @@ class SendViewController: UIViewController {
             session: WalletSession,
             storage: TokensDataStore,
             account: Account,
-            transferType: TransferType = .ether(destination: .none)
+            transferType: TransferType = .ether(config: Config(), destination: .none)
     ) {
         self.session = session
         self.account = account

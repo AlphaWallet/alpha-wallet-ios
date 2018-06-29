@@ -24,7 +24,6 @@ private enum ContractData {
 class TokensCoordinator: Coordinator {
 
     let navigationController: UINavigationController
-    let config: Config
     let session: WalletSession
     let keystore: Keystore
     var coordinators: [Coordinator] = []
@@ -47,14 +46,12 @@ class TokensCoordinator: Coordinator {
 
     init(
         navigationController: UINavigationController = NavigationController(),
-        config: Config,
         session: WalletSession,
         keystore: Keystore,
         tokensStorage: TokensDataStore
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
-        self.config = config
         self.session = session
         self.keystore = keystore
         self.storage = tokensStorage
@@ -78,8 +75,8 @@ class TokensCoordinator: Coordinator {
         }
 
         guard let address = keystore.recentlyUsedWallet?.address else { return }
-        let web3 = Web3Swift(url: config.rpcURL)
-        GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: config.chainID) { contracts in
+        let web3 = Web3Swift(url: session.config.rpcURL)
+        GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: session.config.chainID) { contracts in
             guard let currentAddress = self.keystore.recentlyUsedWallet?.address, currentAddress.eip55String.sameContract(as: address.eip55String) else { return }
             let detectedContracts = contracts.map { $0.lowercased() }
             let alreadyAddedContracts = self.storage.enabledObject.map { $0.address.eip55String.lowercased() }
@@ -171,7 +168,7 @@ class TokensCoordinator: Coordinator {
 
     //FIFA add the FIFA token with a hardcoded address for appropriate network if not already present
     private func addFIFAToken() {
-        if let token = config.createDefaultTicketToken(), !storage.enabledObject.contains { $0.address.eip55String == token.contract.eip55String } {
+        if let token = session.config.createDefaultTicketToken(), !storage.enabledObject.contains { $0.address.eip55String == token.contract.eip55String } {
             storage.addCustom(token: token)
         }
         tokensViewController.fetch()
@@ -276,7 +273,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
         switch type {
         case .ether:
-            delegate?.didPress(for: .send(type: .ether(destination: .none)), in: self)
+            delegate?.didPress(for: .send(type: .ether(config: session.config, destination: .none)), in: self)
         case .token:
             delegate?.didPress(for: .send(type: .token(token)), in: self)
         case .stormBird:

@@ -8,7 +8,7 @@ class SendCoordinatorTests: XCTestCase {
     
     func testRootViewController() {
         let coordinator = SendCoordinator(
-            transferType: .ether(destination: .none),
+            transferType: .ether(config: Config(), destination: .none),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),
@@ -24,7 +24,7 @@ class SendCoordinatorTests: XCTestCase {
     func testDestination() {
         let address: Address = .make()
         let coordinator = SendCoordinator(
-            transferType: .ether(destination: address),
+            transferType: .ether(config: Config(), destination: address),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),

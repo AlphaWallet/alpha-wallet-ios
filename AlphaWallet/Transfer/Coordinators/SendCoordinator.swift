@@ -46,13 +46,11 @@ class SendCoordinator: Coordinator {
     }
 
     func start() {
-        let config = Config()
-        let symbol = sendViewController.transferType.symbol(server: config.server)
+        let symbol = sendViewController.transferType.symbol(server: session.config.server)
         sendViewController.configure(viewModel:
                 .init(transferType: sendViewController.transferType,
                         session: session,
                         storage: sendViewController.storage,
-                        config: config,
                         currentPair: SendViewController.Pair(left: symbol, right: session.config.currency.rawValue)
                         )
         )
@@ -77,7 +75,7 @@ class SendCoordinator: Coordinator {
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
         }
         switch transferType {
-        case .ether(let destination):
+        case .ether(_, let destination):
             controller.targetAddressTextField.value = destination?.description ?? ""
         case .token: break
         case .stormBird: break
