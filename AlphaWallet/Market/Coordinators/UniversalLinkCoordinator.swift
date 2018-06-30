@@ -22,6 +22,7 @@ class UniversalLinkCoordinator: Coordinator {
     var ethBalance: Subscribable<BigInt>?
     var hasCompleted = false
     var addressOfNewWallet: String?
+    private var getStormbirdBalanceCoordinator: GetStormBirdBalanceCoordinator?
 
     init(config: Config) {
         self.config = config
@@ -157,7 +158,13 @@ class UniversalLinkCoordinator: Coordinator {
             //gather signer address balance
             let web3Swift = Web3Swift()
             web3Swift.start()
-            GetStormBirdBalanceCoordinator(web3: web3Swift).getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
+            //TODO Need to store strong reference like this:
+//            getStormbirdBalanceCoordinator = GetStormBirdBalanceCoordinator(web3: web3Swift)
+//            getStormbirdBalanceCoordinator?.tag = "foo"
+//            getStormbirdBalanceCoordinator?.getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
+            let coordinator = GetStormBirdBalanceCoordinator(web3: web3Swift)
+            coordinator.tag = "foo"
+            coordinator.getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
                 //filter null tickets
                 let filteredTokens = self.checkERC875TokensAreAvailable(
                         indices: signedOrder.order.indices,
