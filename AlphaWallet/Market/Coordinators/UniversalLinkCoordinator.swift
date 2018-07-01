@@ -236,11 +236,9 @@ class UniversalLinkCoordinator: Coordinator {
         for i in 0..<indices.count {
             let token: String = balance[Int(indices[i])]
             //all of the indices provided should map to a valid non null ticket
-            if let tokenValue = BigUInt(token, radix: 16) {
-                if tokenValue == 0 {
-                    //if null ticket at any index then the deal cannot happen
-                    return [String]()
-                }
+            if token == Constants.nullTicket {
+                //if null ticket at any index then the deal cannot happen
+                return [String]()
             }
             filteredTokens.append(token)
         }
@@ -250,7 +248,7 @@ class UniversalLinkCoordinator: Coordinator {
     private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16], _ contractAddress: String) -> TicketHolder {
         var tickets = [Ticket]()
         let xmlHandler = XMLHandler()
-        for i in 0...bytes32Tickets.count - 1 {
+        for i in 0..<bytes32Tickets.count {
             let ticket = bytes32Tickets[i]
             if let tokenId = BigUInt(ticket.drop0x, radix: 16) {
                 let ticket = xmlHandler.getFifaInfoForTicket(tokenId: tokenId, index: UInt16(i))
