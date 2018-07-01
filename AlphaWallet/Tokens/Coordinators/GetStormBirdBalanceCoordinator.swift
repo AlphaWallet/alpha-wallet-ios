@@ -11,7 +11,6 @@ import JavaScriptKit
 class GetStormBirdBalanceCoordinator {
 
     private let web3: Web3Swift
-
     init(
         web3: Web3Swift
     ) {
