@@ -21,7 +21,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, Verifiab
     var paymentFlow: PaymentFlow
     weak var delegate: TransferTicketsQuantitySelectionViewControllerDelegate?
 
-    init(config: Config, paymentFlow: PaymentFlow) {
+    init(config: Config = Config(), paymentFlow: PaymentFlow) {
         self.config = config
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
@@ -91,8 +91,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, Verifiab
     }
     
     required init?(coder aDecoder: NSCoder) {
-        self.config = Config()
-        self.paymentFlow = PaymentFlow.request
+        fatalError("init(coder:) has not been implemented")
         super.init(coder: aDecoder)
     }
 
