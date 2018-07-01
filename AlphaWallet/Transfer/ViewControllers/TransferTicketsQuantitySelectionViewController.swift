@@ -89,9 +89,11 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, Verifiab
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
-
+    
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        self.config = Config()
+        self.paymentFlow = PaymentFlow.request
+        super.init(coder: aDecoder)
     }
 
     @objc
