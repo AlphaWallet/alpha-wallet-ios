@@ -158,13 +158,8 @@ class UniversalLinkCoordinator: Coordinator {
             //gather signer address balance
             let web3Swift = Web3Swift()
             web3Swift.start()
-            //TODO Need to store strong reference like this:
-//            getStormbirdBalanceCoordinator = GetStormBirdBalanceCoordinator(web3: web3Swift)
-//            getStormbirdBalanceCoordinator?.tag = "foo"
-//            getStormbirdBalanceCoordinator?.getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
-            let coordinator = GetStormBirdBalanceCoordinator(web3: web3Swift)
-            coordinator.tag = "foo"
-            coordinator.getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
+            getStormbirdBalanceCoordinator = GetStormBirdBalanceCoordinator(web3: web3Swift)
+            getStormbirdBalanceCoordinator?.getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
                 //filter null tickets
                 let filteredTokens = self.checkERC875TokensAreAvailable(
                         indices: signedOrder.order.indices,
@@ -181,34 +176,8 @@ class UniversalLinkCoordinator: Coordinator {
                 )
 
                 if signedOrder.order.price > 0 || !isStormBirdContract {
-                    if let balance = self.ethBalance {
-                        balance.subscribeOnce { value in
-                            if value > signedOrder.order.price {
-                                let _ = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: ticketHolder)
-                            } else {
-                                if let price = self.ethPrice {
-                                    if price.value == nil {
-                                        let ethCost = self.convert(ethCost: signedOrder.order.price)
-                                        self.showImportError(
-                                                errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(),
-                                                ticketHolder: ticketHolder,
-                                                ethCost: ethCost.description
-                                        )
-                                    }
-                                    price.subscribe { [weak self] value in
-                                        if let celf = self {
-                                            if let price = price.value {
-                                                let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
-                                                celf.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(), ticketHolder: ticketHolder, ethCost: ethCost.description, dollarCost: dollarCost.description)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
+                    self.handlePaidImports(signedOrder: signedOrder, ticketHolder: ticketHolder)
+                } else {
                     //free transfer
                     let _ = self.usePaymentServerForFreeTransferLinks(
                             signedOrder: signedOrder,
@@ -224,6 +193,35 @@ class UniversalLinkCoordinator: Coordinator {
             return false
         }
         return true
+    }
+    
+    private func handlePaidImports(signedOrder: SignedOrder, ticketHolder: TicketHolder) {
+        if let balance = self.ethBalance {
+            balance.subscribeOnce { value in
+                if value > signedOrder.order.price {
+                    let _ = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: ticketHolder)
+                } else {
+                    if let price = self.ethPrice {
+                        if price.value == nil {
+                            let ethCost = self.convert(ethCost: signedOrder.order.price)
+                            self.showImportError(
+                                errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(),
+                                ticketHolder: ticketHolder,
+                                ethCost: ethCost.description
+                            )
+                        }
+                        price.subscribe { [weak self] value in
+                            if let celf = self {
+                                if let price = price.value {
+                                    let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
+                                    celf.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(), ticketHolder: ticketHolder, ethCost: ethCost.description, dollarCost: dollarCost.description)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private func stringEncodeIndices(_ indices: [UInt16]) -> String {
