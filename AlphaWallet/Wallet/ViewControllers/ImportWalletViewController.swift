@@ -249,7 +249,7 @@ class ImportWalletViewController: UIViewController {
         guard validate() else { return }
 
         let keystoreInput = keystoreJSONTextView.value.trimmed
-        let privateKeyInput = privateKeyTextView.value.trimmed
+        let privateKeyInput = privateKeyTextView.value.trimmed.drop0x
         let password = passwordTextField.value.trimmed
         let watchInput = watchAddressTextField.value.trimmed
 
