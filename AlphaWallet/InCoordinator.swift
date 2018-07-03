@@ -341,10 +341,10 @@ class InCoordinator: Coordinator {
             session: session,
             keystore: keystore,
             tokensStorage: tokenStorage,
-            ethPrice: ethPrice
+            ethPrice: ethPrice,
+            token: token
         )
         addCoordinator(ticketsCoordinator)
-        ticketsCoordinator.token = token
         ticketsCoordinator.type = type
         ticketsCoordinator.delegate = self
         ticketsCoordinator.start()
