@@ -55,7 +55,11 @@ extension String {
     }
 
     var add0x: String {
-        return "0x" + self
+        if hasPrefix("0x") {
+            return self
+        } else {
+            return "0x" + self
+        }
     }
 
     func toInt() -> Int? {
