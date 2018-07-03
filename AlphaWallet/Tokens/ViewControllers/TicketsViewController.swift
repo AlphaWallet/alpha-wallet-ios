@@ -22,7 +22,7 @@ protocol TicketsViewControllerDelegate: class {
 
 class TicketsViewController: UIViewController, VerifiableStatusViewController {
 
-    var tokenObject: TokenObject?
+    var tokenObject: TokenObject
     //TODO forced unwraps aren't good
     var viewModel: TicketsViewModel!
     var tokensStorage: TokensDataStore!
@@ -37,7 +37,8 @@ class TicketsViewController: UIViewController, VerifiableStatusViewController {
     let sellButton = UIButton(type: .system)
     let transferButton = UIButton(type: .system)
 
-    init() {
+    init(tokenObject: TokenObject) {
+        self.tokenObject = tokenObject
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -122,14 +123,12 @@ class TicketsViewController: UIViewController, VerifiableStatusViewController {
         self.viewModel = viewModel
         tableView.dataSource = self
         let contractAddress = XMLHandler().getAddressFromXML(server: session.config.server).eip55String
-        if let tokenObject = tokenObject, !tokenObject.contract.sameContract(as: contractAddress) {
+        if !tokenObject.contract.sameContract(as: contractAddress) {
             updateNavigationRightBarButtons(isVerified: false)
         }
 
-        if let tokenObject = tokenObject {
-            header.configure(viewModel: .init(config: session.config, tokenObject: tokenObject))
-            tableView.tableHeaderView = header
-        }
+        header.configure(viewModel: .init(config: session.config, tokenObject: tokenObject))
+        tableView.tableHeaderView = header
 
         redeemButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		redeemButton.backgroundColor = viewModel.buttonBackgroundColor

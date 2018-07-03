@@ -29,7 +29,7 @@ protocol TicketsCoordinatorDelegate: class {
 class TicketsCoordinator: NSObject, Coordinator {
 
     private let keystore: Keystore
-    var token: TokenObject!
+    var token: TokenObject
     var type: PaymentFlow!
     lazy var rootViewController: TicketsViewController = {
         return self.makeTicketsViewController(with: self.session.account)
@@ -48,13 +48,15 @@ class TicketsCoordinator: NSObject, Coordinator {
         navigationController: UINavigationController = NavigationController(),
         keystore: Keystore,
         tokensStorage: TokensDataStore,
-        ethPrice: Subscribable<Double>
+        ethPrice: Subscribable<Double>,
+        token: TokenObject
     ) {
         self.session = session
         self.keystore = keystore
         self.navigationController = navigationController
         self.tokensStorage = tokensStorage
         self.ethPrice = ethPrice
+        self.token = token
     }
 
     func start() {
@@ -67,7 +69,7 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func makeTicketsViewController(with account: Wallet) -> TicketsViewController {
-        let controller = TicketsViewController()
+        let controller = TicketsViewController(tokenObject: token)
         controller.account = account
         controller.session = session
         controller.tokensStorage = tokensStorage
