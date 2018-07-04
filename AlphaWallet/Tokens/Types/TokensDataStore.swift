@@ -322,6 +322,12 @@ class TokensDataStore {
         }
     }
 
+    func delete(hiddenContracts: [HiddenContract]) {
+        realm.beginWrite()
+        realm.delete(hiddenContracts)
+        try! realm.commitWrite()
+    }
+
     enum TokenUpdate {
         case value(BigInt)
         case isDisabled(Bool)
