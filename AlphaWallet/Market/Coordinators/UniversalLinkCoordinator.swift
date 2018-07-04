@@ -146,7 +146,7 @@ class UniversalLinkCoordinator: Coordinator {
         let vString = "0" + String(vInt)
         let signature = "0x" + signedOrder.signature.drop0x.substring(to: 128) + vString
         let nodeURL = Config().rpcURL
-        let recoveredSigner = web3(provider: Web3HttpProvider(nodeURL)!).personal.ecrecover(
+        let recoveredSigner = web3(provider: Web3HttpProvider(nodeURL, network: config.server.web3Network)!).personal.ecrecover(
             hash: messageHash,
             signature: Data(bytes: signature.hexa2Bytes)
         )
