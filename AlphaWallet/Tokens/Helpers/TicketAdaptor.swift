@@ -51,21 +51,19 @@ class TicketAdaptor {
         return bundles.sorted { $0.date < $1.date }
     }
 
+    //If sequential or have the same seat number, add them together
     ///e.g 21, 22, 25 is broken up into 2 bundles: 21-22 and 25.
+    ///e.g 21, 21, 22, 25 is broken up into 2 bundles: (21,21-22) and 25.
     private func breakBundlesFurtherToHaveContinuousSeatRange(tickets: [Ticket]) -> [[Ticket]] {
         let tickets = tickets.sorted { $0.seatId <= $1.seatId }
         return tickets.reduce([[Ticket]]()) { results, ticket in
             var results = results
-            if var previousRange = results.last, let previousTicket = previousRange.last {
-                if previousTicket.seatId + 1 == ticket.seatId || previousTicket.seatId == ticket.seatId {
-                    //if sequential or have the same seat number, add them together
-                    previousRange.append(ticket)
-                    let _ = results.popLast()
-                    results.append(previousRange)
-                }
+            if var previousRange = results.last, let previousTicket = previousRange.last, (previousTicket.seatId + 1 == ticket.seatId || previousTicket.seatId == ticket.seatId) {
+                previousRange.append(ticket)
+                let _ = results.popLast()
+                results.append(previousRange)
             } else {
                 results.append([ticket])
-                return results
             }
             return results
         }
