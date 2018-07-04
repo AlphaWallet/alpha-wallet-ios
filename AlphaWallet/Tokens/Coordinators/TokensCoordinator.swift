@@ -139,6 +139,12 @@ class TokensCoordinator: Coordinator {
         }
     }
 
+    func addToken(for contract: String) {
+        addToken(for: contract) {
+            self.tokensViewController.fetch()
+        }
+    }
+
     func newTokenViewController() -> NewTokenViewController {
         let controller = NewTokenViewController()
         controller.delegate = self
