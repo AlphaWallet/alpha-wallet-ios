@@ -108,6 +108,10 @@ extension AppDelegate: UniversalLinkCoordinatorDelegate {
     func completed(in coordinator: UniversalLinkCoordinator) {
         universalLinkCoordinator = nil
     }
+
+    func didImported(contract: String, in coordinator: UniversalLinkCoordinator) {
+        appCoordinator.addImported(contract: contract)
+    }
 }
 
 extension AppDelegate: UniversalLinkInPasteboardCoordinatorDelegate {

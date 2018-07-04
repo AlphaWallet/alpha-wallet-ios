@@ -569,6 +569,11 @@ extension InCoordinator: TokensCoordinatorDelegate {
             }
         }
     }
+
+    func addImported(contract: String) {
+        let tokensCoordinator = coordinators.first { $0 is TokensCoordinator } as? TokensCoordinator
+        tokensCoordinator?.addToken(for: contract)
+    }
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
