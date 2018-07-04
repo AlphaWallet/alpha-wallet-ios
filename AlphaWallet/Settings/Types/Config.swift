@@ -130,6 +130,9 @@ struct Config {
         return createDefaultTicketToken()?.contract.eip55String
     }
 
+    ///Debugging flag. Set to false to disable auto fetching prices, etc to cut down on network calls
+    let isAutoFetchingDisabled = false
+
     func createDefaultTicketToken() -> ERCToken? {
         let xmlHandler = XMLHandler()
         let lang = xmlHandler.getLang()

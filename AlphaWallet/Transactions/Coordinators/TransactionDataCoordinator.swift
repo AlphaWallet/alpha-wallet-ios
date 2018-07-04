@@ -69,6 +69,7 @@ class TransactionDataCoordinator {
     }
 
     private func runScheduledTimers() {
+        guard !Trust.Config().isAutoFetchingDisabled else { return }
         guard timer == nil, updateTransactionsTimer == nil else {
             return
         }
