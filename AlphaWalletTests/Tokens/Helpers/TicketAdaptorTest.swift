@@ -6,7 +6,7 @@ import Foundation
 
 class TicketAdaptorTest: XCTestCase {
 
-    func testBundlesAreBrokenIntoContinousSeatRanges() {
+    func testBundlesAreBrokenIntoContinuousSeatRanges() {
         let date = GeneralisedTime()
         let tickets = [
             Ticket(id: "1", index: 1, city: "City", name: "Name", venue: "Venue", match: 1, date: date, seatId: 1, category: "1", countryA: "Team A", countryB: "Team B"),
