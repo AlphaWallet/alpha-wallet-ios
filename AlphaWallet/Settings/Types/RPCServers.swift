@@ -1,6 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import web3swift
+import BigInt
 
 enum RPCServer {
     case main
@@ -103,6 +105,19 @@ enum RPCServer {
 
     var decimals: Int {
         return 18
+    }
+
+    var web3Network: Networks {
+        switch self {
+        case .main: return .Mainnet
+        case .kovan: return .Kovan
+        case .ropsten: return .Ropsten
+        case .rinkeby: return .Rinkeby
+        case .poa, .sokol, .classic, .callisto:
+            return .Custom(networkID: BigUInt(chainID))
+        case .custom:
+            return .Custom(networkID: BigUInt(chainID))
+        }
     }
 
     init(name: String) {
