@@ -124,6 +124,10 @@ class AppCoordinator: NSObject, Coordinator {
         }
     }
 
+    func addImported(contract: String) {
+        inCoordinator?.addImported(contract: contract)
+    }
+
     func showInitialWalletCoordinator(entryPoint: WalletEntryPoint) {
         let coordinator = InitialWalletCreationCoordinator(
             navigationController: navigationController,

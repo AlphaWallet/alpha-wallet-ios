@@ -11,6 +11,7 @@ protocol UniversalLinkCoordinatorDelegate: class {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
 	func completed(in coordinator: UniversalLinkCoordinator)
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
+    func didImported(contract: String, in coordinator: UniversalLinkCoordinator)
 }
 
 class UniversalLinkCoordinator: Coordinator {
@@ -319,6 +320,7 @@ class UniversalLinkCoordinator: Coordinator {
             if self.importTicketViewController != nil {
                 if let vc = self.importTicketViewController, var _ = vc.viewModel {
                     if successful {
+                        self.delegate?.didImported(contract: signedOrder.order.contractAddress, in: self)
                         self.showImportSuccessful()
                     } else {
                         //TODO Pass in error message
@@ -344,6 +346,9 @@ class UniversalLinkCoordinator: Coordinator {
             if let response = result.response {
                 if response.statusCode < 300 {
                     successful = true
+                    if let contract = parameters["contractAddress"] as? String {
+                        self.delegate?.didImported(contract: contract, in: self)
+                    }
                 }
             }
 
@@ -382,6 +387,10 @@ extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
 	}
 
 	func didPressImport(in viewController: ImportTicketViewController) {
+        if let signedOrder = viewController.signedOrder, let tokenObj = viewController.tokenObject {
+            self.delegate?.didImported(contract: signedOrder.order.contractAddress, in: self)
+        }
+
         if let query = viewController.query, let parameters = viewController.parameters {
             importUniversalLink(query: query, parameters: parameters)
         } else {
