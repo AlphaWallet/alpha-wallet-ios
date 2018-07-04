@@ -15,7 +15,9 @@ public struct PrivateKeyRule<T: Equatable>: RuleType {
 
     public func isValid(value: T?) -> ValidationError? {
         if let str = value as? String {
-            return (str.count != 64) ? validationError : nil
+            //allows for private key import to have 0x or not
+            let drop0xKey = str.drop0x
+            return (drop0xKey.count != 64) ? validationError : nil
         }
         return value != nil ? nil : validationError
     }
