@@ -139,10 +139,18 @@ class TokensCoordinator: Coordinator {
         }
     }
 
-    func addToken(for contract: String) {
+    //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
+    func addImportedToken(for contract: String) {
+        delete(hiddenContract: contract)
         addToken(for: contract) {
             self.tokensViewController.fetch()
         }
+    }
+
+    private func delete(hiddenContract contract: String) {
+        guard let hiddenContract = storage.hiddenContracts.first(where: { $0.contract.sameContract(as: contract) }) else { return }
+        //TODO we need to make sure it's all uppercase?
+        storage.delete(hiddenContracts: [hiddenContract])
     }
 
     func newTokenViewController() -> NewTokenViewController {
