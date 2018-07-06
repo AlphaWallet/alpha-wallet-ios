@@ -20,7 +20,7 @@ class MarketQueueHandlerTests: XCTestCase  {
         wait(for: expectations, timeout: 10)
     }
 
-    //TODO reuse when test account works
+    //TODO reuse when market queue is working
     func testPuttingOrderToQueue() {
 //        let expectation = self.expectation(description: "wait til callback")
 //        expectations.append(expectation)
