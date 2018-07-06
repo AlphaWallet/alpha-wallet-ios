@@ -27,9 +27,15 @@ class OrderSigningTests : XCTestCase  {
                 testOrdersList.append(testOrder1)
             }
             let signOrders = OrderHandler()
-            let signedOrders = try! signOrders.signOrders(orders: testOrdersList, account: account)
-            XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
-            keystore.delete(wallet: Wallet(type: WalletType.real(account)))
+            do {
+                let signedOrders = try! signOrders.signOrders(orders: testOrdersList, account: account)
+                XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
+                keystore.delete(wallet: Wallet(type: WalletType.real(account)))
+            }
+            catch {
+                keystore.delete(wallet: Wallet(type: WalletType.real(account)))
+                XCTFail()
+            }
         }
     }
     
