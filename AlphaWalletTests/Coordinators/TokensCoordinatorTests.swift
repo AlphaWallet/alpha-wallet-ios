@@ -10,7 +10,8 @@ class TokensCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),
-            tokensStorage: FakeTokensDataStore()
+            tokensStorage: FakeTokensDataStore(),
+            assetDefinitionStore: AssetDefinitionStore()
         )
         coordinator.start()
 

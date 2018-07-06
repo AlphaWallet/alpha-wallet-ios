@@ -10,15 +10,19 @@ import SwiftyXMLParser
 import BigInt
 import TrustKeystore
 
-//  Dictionary class for non fungible token
-//  TODO handle flexible attribute names e.g. asset, contract
-//  Handle generics for multiple asset defintions
+//  Interface to extract data from non fungible token
 
 private class PrivateXMLHandler {
-    private let xml = try! XML.parse(AssetDefinitionXML().assetDefinitionString)
+    private let xml: XML.Accessor
+    let contractAddress: String
     //TODO do we always want the first one?
     lazy var contract = xml["token"]["contract"][0]
     lazy var fields = extractFields()
+
+    init(contract: String) {
+        contractAddress = contract.add0x.lowercased()
+        xml = try! XML.parse(AssetDefinitionStore()[contract] ?? "")
+    }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
         //check if leading or trailing zeros
@@ -52,6 +56,13 @@ private class PrivateXMLHandler {
         )
     }
 
+    func isVerified(for server: RPCServer) -> Bool {
+        let contractElement = xml["token"]["contract"].getElement(attributeName: "id", attributeValue: "holding_contract")
+        let addressElement = contractElement?["address"].getElement(attributeName: "network", attributeValue: String(server.chainID))
+        guard let contractInXML = addressElement?.text else { return false }
+        return contractInXML.sameContract(as: contractAddress)
+    }
+
     private func extractFields() -> [String: AssetAttribute] {
         let lang = getLang()
         var fields = [String: AssetAttribute]()
@@ -61,19 +72,6 @@ private class PrivateXMLHandler {
             }
         }
         return fields
-    }
-
-    func getAddressFromXML(server: RPCServer) -> Address {
-        if server == .ropsten {
-            if let address = contract["address"][1].text {
-                return Address(string: address)!
-            }
-        } else {
-            if let address = contract["address"][0].text {
-                return Address(string: address)!
-            }
-        }
-        return Address(string: Constants.ticketContractAddressRopsten)!
     }
 
     func getName(lang: String) -> String {
@@ -98,26 +96,38 @@ private class PrivateXMLHandler {
     }
 }
 
-/// This class delegates all the functionality to a singleton of the actual XML parser, so we just parse the XML file 1 time only
+/// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public class XMLHandler {
-    fileprivate static var privateXMLHandler = PrivateXMLHandler()
-    var contract: XML.Accessor {
-        return XMLHandler.privateXMLHandler.contract
+    fileprivate static var xmlHandlers: [String: PrivateXMLHandler] = [:]
+    private let privateXMLHandler: PrivateXMLHandler
+
+    init(contract: String) {
+        let contract = contract.add0x.lowercased()
+        if let handler = XMLHandler.xmlHandlers[contract] {
+            privateXMLHandler = handler
+        } else {
+            privateXMLHandler = PrivateXMLHandler(contract: contract)
+            XMLHandler.xmlHandlers[contract] = privateXMLHandler
+        }
+    }
+
+    public static func invalidate(forContract contract: String) {
+        xmlHandlers[contract.add0x.lowercased()] = nil
     }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
-        return XMLHandler.privateXMLHandler.getFifaInfoForTicket(tokenId: tokenBytes32, index: index)
-    }
-
-    func getAddressFromXML(server: RPCServer) -> Address {
-        return XMLHandler.privateXMLHandler.getAddressFromXML(server: server)
+        return privateXMLHandler.getFifaInfoForTicket(tokenId: tokenBytes32, index: index)
     }
 
     func getName(lang: String) -> String {
-        return XMLHandler.privateXMLHandler.getName(lang: lang)
+        return privateXMLHandler.getName(lang: lang)
     }
 
     func getLang() -> String {
-        return XMLHandler.privateXMLHandler.getLang()
+        return privateXMLHandler.getLang()
+    }
+
+    func isVerified(for server: RPCServer) -> Bool {
+        return privateXMLHandler.isVerified(for: server)
     }
 }

@@ -8,9 +8,12 @@ protocol SetSellTicketsExpiryDateViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: SetSellTicketsExpiryDateViewController)
 }
 
-class SetSellTicketsExpiryDateViewController: UIViewController, VerifiableStatusViewController {
+class SetSellTicketsExpiryDateViewController: UIViewController, TicketVerifiableStatusViewController {
 
-    private let config: Config
+    let config: Config
+    var contract: String? {
+        return viewModel.token.contract
+    }
     let storage: TokensDataStore
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
@@ -240,10 +243,7 @@ class SetSellTicketsExpiryDateViewController: UIViewController, VerifiableStatus
 
     func configure(viewModel: SetSellTicketsExpiryDateViewControllerViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-        if !viewModel.token.contract.sameContract(as: contractAddress) {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor
 

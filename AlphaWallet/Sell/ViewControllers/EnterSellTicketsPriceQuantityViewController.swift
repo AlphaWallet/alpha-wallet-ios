@@ -8,9 +8,12 @@ protocol EnterSellTicketsPriceQuantityViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: EnterSellTicketsPriceQuantityViewController)
 }
 
-class EnterSellTicketsPriceQuantityViewController: UIViewController, VerifiableStatusViewController {
+class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerifiableStatusViewController {
 
-    private let config: Config
+    let config: Config
+    var contract: String? {
+        return viewModel.token.contract
+    }
     let storage: TokensDataStore
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
@@ -251,10 +254,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, VerifiableS
 
     func configure(viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-        if !viewModel.token.contract.sameContract(as: contractAddress) {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor
 

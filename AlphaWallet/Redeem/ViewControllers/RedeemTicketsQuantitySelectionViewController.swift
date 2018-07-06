@@ -14,9 +14,13 @@ protocol RedeemTicketsQuantitySelectionViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: RedeemTicketsQuantitySelectionViewController)
 }
 
-class RedeemTicketsQuantitySelectionViewController: UIViewController, VerifiableStatusViewController {
+class RedeemTicketsQuantitySelectionViewController: UIViewController, TicketVerifiableStatusViewController {
 
-    private let config: Config
+    let config: Config
+    var contract: String? {
+        return token.contract
+    }
+    private let token: TokenObject
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
 	let subtitleLabel = UILabel()
@@ -26,8 +30,9 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController, Verifiable
     var viewModel: RedeemTicketsQuantitySelectionViewModel!
     weak var delegate: RedeemTicketsQuantitySelectionViewControllerDelegate?
 
-    init(config: Config) {
+    init(config: Config, token: TokenObject) {
         self.config = config
+        self.token = token
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -123,11 +128,7 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController, Verifiable
     func configure(viewModel: RedeemTicketsQuantitySelectionViewModel) {
         self.viewModel = viewModel
 
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-
-        if viewModel.token.contract != contractAddress {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor
 

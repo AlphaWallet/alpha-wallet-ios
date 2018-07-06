@@ -28,6 +28,7 @@ class TokensCoordinator: Coordinator {
     let keystore: Keystore
     var coordinators: [Coordinator] = []
     let storage: TokensDataStore
+    private let assetDefinitionStore: AssetDefinitionStore
 
     lazy var tokensViewController: TokensViewController = {
         let controller = TokensViewController(
@@ -45,26 +46,35 @@ class TokensCoordinator: Coordinator {
     }()
 
     init(
-        navigationController: UINavigationController = NavigationController(),
-        session: WalletSession,
-        keystore: Keystore,
-        tokensStorage: TokensDataStore
+            navigationController: UINavigationController = NavigationController(),
+            session: WalletSession,
+            keystore: Keystore,
+            tokensStorage: TokensDataStore,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.session = session
         self.keystore = keystore
         self.storage = tokensStorage
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     func start() {
         addFIFAToken()
         autoDetectTokens()
         showTokens()
+        refreshUponAssetDefinitionChanges()
     }
 
     func showTokens() {
         navigationController.viewControllers = [rootViewController]
+    }
+    
+    private func refreshUponAssetDefinitionChanges() {
+        assetDefinitionStore.subscribe { [weak self] xml, contract in
+            self?.storage.updateERC875TokensToLocalizedName()
+        }
     }
 
     ///Implementation: We refresh once only, after all the auto detected tokens' data have been pulled because each refresh pulls every tokens' (including those that already exist before the this auto detection) price as well as balance, placing heavy and redundant load on the device. After a timeout, we refresh once just in case it took too long, so user at least gets the chance to see some auto detected tokens
@@ -210,6 +220,8 @@ class TokensCoordinator: Coordinator {
             //TODO maybe better to share an instance of the reachability manager
             completion(.failed(networkReachable: NetworkReachabilityManager()?.isReachable))
         }
+
+        assetDefinitionStore.fetchXML(forContract: address)
 
         self.storage.getContractName(for: address) { result in
             switch result {

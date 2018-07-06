@@ -24,6 +24,8 @@ class UniversalLinkCoordinator: Coordinator {
     var hasCompleted = false
     var addressOfNewWallet: String?
     private var getStormbirdBalanceCoordinator: GetStormBirdBalanceCoordinator?
+    //TODO better to make sure ticketHolder is non-optional. But be careful that ImportTicketViewController also handles when viewModel always has a TicketHolder. Needs good defaults in TicketHolder that can be displayed
+    var ticketHolder: TicketHolder?
 
     init(config: Config) {
         self.config = config
@@ -59,7 +61,7 @@ class UniversalLinkCoordinator: Coordinator {
         return parameters
     }
 
-    func handlePaidUniversalLink(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
+    func handlePaidUniversalLink(signedOrder: SignedOrder) -> Bool {
         //TODO localize
         //TODO improve. Not an obvious link between the variables used in the if-statement and the body
         if delegate?.viewControllerForPresenting(in: self) != nil {
@@ -77,16 +79,12 @@ class UniversalLinkCoordinator: Coordinator {
             }
             if let price = ethPrice {
                 let ethCost = self.convert(ethCost: signedOrder.order.price)
-                self.promptImportUniversalLink(
-                        ticketHolder: ticketHolder,
-                        ethCost: ethCost.description
-                )
+                self.promptImportUniversalLink(ethCost: ethCost.description)
                 price.subscribe { [weak self] value in
                     if let price = price.value {
                         if let celf = self {
                             let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
                             celf.promptImportUniversalLink(
-                                    ticketHolder: ticketHolder,
                                     ethCost: ethCost.description,
                                     dollarCost: dollarCost.description
                             )
@@ -102,7 +100,7 @@ class UniversalLinkCoordinator: Coordinator {
         return true
     }
 
-    func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder, ticketHolder: TicketHolder) -> Bool {
+    func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder) -> Bool {
         let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: true)
         let query = Constants.paymentServer
         //TODO improve. Not an obvious link between the variables used in the if-statement and the body
@@ -113,7 +111,6 @@ class UniversalLinkCoordinator: Coordinator {
             }
             //nil or "" implies free, if using payment server it is always free
             self.promptImportUniversalLink(
-                    ticketHolder: ticketHolder,
                     ethCost: "",
                     dollarCost: ""
             )
@@ -134,8 +131,8 @@ class UniversalLinkCoordinator: Coordinator {
             self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
             return false
         }
-        let xmlAddress = XMLHandler().getAddressFromXML(server: RPCServer(chainID: config.chainID))
-        let isStormBirdContract = xmlAddress.eip55String.sameContract(as: signedOrder.order.contractAddress)
+        let isVerified = XMLHandler(contract: signedOrder.order.contractAddress).isVerified(for: config.server)
+        let isStormBirdContract = isVerified
         importTicketViewController?.url = url
         importTicketViewController?.contract = signedOrder.order.contractAddress
         //need to hash message here because the web3swift implementation adds prefix
@@ -170,22 +167,18 @@ class UniversalLinkCoordinator: Coordinator {
                     self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
                 }
 
-                let ticketHolder = self.sortTickets(
+                self.makeTicketHolder(
                         filteredTokens,
                         signedOrder.order.indices,
                         signedOrder.order.contractAddress
                 )
 
                 if signedOrder.order.price > 0 || !isStormBirdContract {
-                    self.handlePaidImports(signedOrder: signedOrder, ticketHolder: ticketHolder)
+                    self.handlePaidImports(signedOrder: signedOrder)
                 } else {
                     //free transfer
-                    let _ = self.usePaymentServerForFreeTransferLinks(
-                            signedOrder: signedOrder,
-                            ticketHolder: ticketHolder
-                    )
+                    let _ = self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
                 }
-
             }
         case .failure(let error):
             //TODO handle. Show error maybe?
@@ -196,18 +189,17 @@ class UniversalLinkCoordinator: Coordinator {
         return true
     }
     
-    private func handlePaidImports(signedOrder: SignedOrder, ticketHolder: TicketHolder) {
+    private func handlePaidImports(signedOrder: SignedOrder) {
         if let balance = self.ethBalance {
             balance.subscribeOnce { value in
                 if value > signedOrder.order.price {
-                    let _ = self.handlePaidUniversalLink(signedOrder: signedOrder, ticketHolder: ticketHolder)
+                    let _ = self.handlePaidUniversalLink(signedOrder: signedOrder)
                 } else {
                     if let price = self.ethPrice {
                         if price.value == nil {
                             let ethCost = self.convert(ethCost: signedOrder.order.price)
                             self.showImportError(
                                 errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(),
-                                ticketHolder: ticketHolder,
                                 ethCost: ethCost.description
                             )
                         }
@@ -215,7 +207,7 @@ class UniversalLinkCoordinator: Coordinator {
                             if let celf = self {
                                 if let price = price.value {
                                     let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
-                                    celf.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(), ticketHolder: ticketHolder, ethCost: ethCost.description, dollarCost: dollarCost.description)
+                                    celf.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(), ethCost: ethCost.description, dollarCost: dollarCost.description)
                                 }
                             }
                         }
@@ -246,9 +238,26 @@ class UniversalLinkCoordinator: Coordinator {
         return filteredTokens
     }
 
-    private func sortTickets(_ bytes32Tickets: [String], _ indices: [UInt16], _ contractAddress: String) -> TicketHolder {
+    private func makeTicketHolder(_ bytes32Tickets: [String], _ indices: [UInt16], _ contractAddress: String) {
+        //TODO better to pass in the store instance once UniversalLinkCoordinator is owned by InCoordinator
+        AssetDefinitionStore().fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .cached:
+                strongSelf.makeTicketHolderImpl(bytes32Tickets: bytes32Tickets, contractAddress: contractAddress)
+            case .updated:
+                strongSelf.makeTicketHolderImpl(bytes32Tickets: bytes32Tickets, contractAddress: contractAddress)
+                strongSelf.updateTicketFields()
+                break
+            case .unmodified, .error:
+                break
+            }
+        }
+    }
+
+    private func makeTicketHolderImpl(bytes32Tickets: [String], contractAddress: String) {
         var tickets = [Ticket]()
-        let xmlHandler = XMLHandler()
+        let xmlHandler = XMLHandler(contract: contractAddress)
         for i in 0..<bytes32Tickets.count {
             let ticket = bytes32Tickets[i]
             if let tokenId = BigUInt(ticket.drop0x, radix: 16) {
@@ -256,12 +265,11 @@ class UniversalLinkCoordinator: Coordinator {
                 tickets.append(ticket)
             }
         }
-        let ticketHolder = TicketHolder(
-            tickets: tickets,
-            status: .available,
-            contractAddress: contractAddress
+        self.ticketHolder = TicketHolder(
+                tickets: tickets,
+                status: .available,
+                contractAddress: contractAddress
         )
-        return ticketHolder
     }
 
 	private func preparingToImportUniversalLink() {
@@ -275,7 +283,15 @@ class UniversalLinkCoordinator: Coordinator {
 		}
 	}
 
-	private func updateImportTicketController(with state: ImportTicketViewControllerViewModel.State, ticketHolder: TicketHolder? = nil, ethCost: String? = nil, dollarCost: String? = nil) {
+    private func updateTicketFields() {
+        guard let ticketHolder = ticketHolder else { return }
+        if let vc = importTicketViewController, var viewModel = vc.viewModel {
+            viewModel.ticketHolder = ticketHolder
+            vc.configure(viewModel: viewModel)
+        }
+    }
+
+	private func updateImportTicketController(with state: ImportTicketViewControllerViewModel.State, ethCost: String? = nil, dollarCost: String? = nil) {
         guard !hasCompleted else { return }
 		if let vc = importTicketViewController, var viewModel = vc.viewModel {
 			viewModel.state = state
@@ -293,8 +309,8 @@ class UniversalLinkCoordinator: Coordinator {
         hasCompleted = state.hasCompleted
 	}
 
-	private func promptImportUniversalLink(ticketHolder: TicketHolder, ethCost: String, dollarCost: String? = nil) {
-		updateImportTicketController(with: .promptImport, ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
+	private func promptImportUniversalLink(ethCost: String, dollarCost: String? = nil) {
+		updateImportTicketController(with: .promptImport, ethCost: ethCost, dollarCost: dollarCost)
     }
 
 	private func showImportSuccessful() {
@@ -310,8 +326,8 @@ class UniversalLinkCoordinator: Coordinator {
 		coordinator.start()
 	}
 
-    private func showImportError(errorMessage: String, ticketHolder: TicketHolder? = nil, ethCost: String? = nil, dollarCost: String? = nil) {
-        updateImportTicketController(with: .failed(errorMessage: errorMessage), ticketHolder: ticketHolder, ethCost: ethCost, dollarCost: dollarCost)
+    private func showImportError(errorMessage: String, ethCost: String? = nil, dollarCost: String? = nil) {
+        updateImportTicketController(with: .failed(errorMessage: errorMessage), ethCost: ethCost, dollarCost: dollarCost)
 	}
     
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {

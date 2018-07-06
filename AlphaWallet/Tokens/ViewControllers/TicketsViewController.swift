@@ -20,8 +20,12 @@ protocol TicketsViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: TicketsViewController)
 }
 
-class TicketsViewController: UIViewController, VerifiableStatusViewController {
+class TicketsViewController: UIViewController, TicketVerifiableStatusViewController {
 
+    let config: Config
+    var contract: String? {
+        return tokenObject.contract
+    }
     var tokenObject: TokenObject
     //TODO forced unwraps aren't good
     var viewModel: TicketsViewModel!
@@ -37,7 +41,8 @@ class TicketsViewController: UIViewController, VerifiableStatusViewController {
     let sellButton = UIButton(type: .system)
     let transferButton = UIButton(type: .system)
 
-    init(tokenObject: TokenObject) {
+    init(config: Config, tokenObject: TokenObject) {
+        self.config = config
         self.tokenObject = tokenObject
         super.init(nibName: nil, bundle: nil)
 
@@ -122,10 +127,7 @@ class TicketsViewController: UIViewController, VerifiableStatusViewController {
     func configure(viewModel: TicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-        let contractAddress = XMLHandler().getAddressFromXML(server: session.config.server).eip55String
-        if !tokenObject.contract.sameContract(as: contractAddress) {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         header.configure(viewModel: .init(config: session.config, tokenObject: tokenObject))
         tableView.tableHeaderView = header
@@ -141,6 +143,8 @@ class TicketsViewController: UIViewController, VerifiableStatusViewController {
         transferButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         transferButton.backgroundColor = viewModel.buttonBackgroundColor
         transferButton.titleLabel?.font = viewModel.buttonFont
+
+        tableView.reloadData()
     }
 
     override

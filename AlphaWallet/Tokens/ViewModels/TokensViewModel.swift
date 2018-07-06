@@ -119,8 +119,8 @@ class TokensViewModel {
 
     //FIFA make the FIFA token be index 1. Can remove the function and replace with the argument when we no longer need this
     private func reorderTokensSoFIFAAtIndex1(tokens: [TokenObject]) -> [TokenObject] {
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-        let index = tokens.index { $0.address.eip55String == contractAddress }
+        guard let contract = config.ticketContractAddress else { return tokens }
+        let index = tokens.index { $0.address.eip55String.sameContract(as: contract) }
         if let index = index, tokens.count >= 2 {
             var reorderedTokens = tokens
             let target = reorderedTokens[index]
