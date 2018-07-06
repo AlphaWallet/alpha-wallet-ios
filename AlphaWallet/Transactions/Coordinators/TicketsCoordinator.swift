@@ -42,14 +42,16 @@ class TicketsCoordinator: NSObject, Coordinator {
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var ethPrice: Subscribable<Double>
+    let assetDefinitionStore: AssetDefinitionStore
 
     init(
-        session: WalletSession,
-        navigationController: UINavigationController = NavigationController(),
-        keystore: Keystore,
-        tokensStorage: TokensDataStore,
-        ethPrice: Subscribable<Double>,
-        token: TokenObject
+            session: WalletSession,
+            navigationController: UINavigationController = NavigationController(),
+            keystore: Keystore,
+            tokensStorage: TokensDataStore,
+            ethPrice: Subscribable<Double>,
+            token: TokenObject,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.session = session
         self.keystore = keystore
@@ -57,6 +59,7 @@ class TicketsCoordinator: NSObject, Coordinator {
         self.tokensStorage = tokensStorage
         self.ethPrice = ethPrice
         self.token = token
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     func start() {
@@ -66,10 +69,20 @@ class TicketsCoordinator: NSObject, Coordinator {
         rootViewController.tokenObject = token
         rootViewController.configure(viewModel: viewModel)
         navigationController.viewControllers = [rootViewController]
+        refreshUponAssetDefinitionChanges()
+    }
+
+    private func refreshUponAssetDefinitionChanges() {
+        assetDefinitionStore.subscribe { [weak self] xml, contract in
+            guard let strongSelf = self else { return }
+            guard contract.sameContract(as: strongSelf.token.contract) else { return }
+            let viewModel = TicketsViewModel(token: strongSelf.token)
+            strongSelf.rootViewController.configure(viewModel: viewModel)
+        }
     }
 
     private func makeTicketsViewController(with account: Wallet) -> TicketsViewController {
-        let controller = TicketsViewController(tokenObject: token)
+        let controller = TicketsViewController(config: session.config, tokenObject: token)
         controller.account = account
         controller.session = session
         controller.tokensStorage = tokensStorage
@@ -150,10 +163,11 @@ class TicketsCoordinator: NSObject, Coordinator {
         return vc
     }
 
-    private func showEnterSellTicketsExpiryDateViewController(token: TokenObject,
-                                                              for ticketHolder: TicketHolder,
-                                                              ethCost: String,
-                                                              in viewController: EnterSellTicketsPriceQuantityViewController) {
+    private func showEnterSellTicketsExpiryDateViewController(
+            token: TokenObject,
+            for ticketHolder: TicketHolder,
+            ethCost: String,
+            in viewController: EnterSellTicketsPriceQuantityViewController) {
         let vc = makeEnterSellTicketsExpiryDateViewController(token: token, for: ticketHolder, ethCost: ethCost, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
@@ -179,7 +193,7 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func makeRedeemTicketsViewController() -> RedeemTicketsViewController {
-        let controller = RedeemTicketsViewController(config: session.config)
+        let controller = RedeemTicketsViewController(config: session.config, token: token)
         let viewModel = RedeemTicketsViewModel(token: token)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
@@ -195,7 +209,7 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func makeRedeemTicketsQuantitySelectionViewController(token: TokenObject, for ticketHolder: TicketHolder) -> RedeemTicketsQuantitySelectionViewController {
-        let controller = RedeemTicketsQuantitySelectionViewController(config: session.config)
+        let controller = RedeemTicketsQuantitySelectionViewController(config: session.config, token: token)
         let viewModel = RedeemTicketsQuantitySelectionViewModel(token: token, ticketHolder: ticketHolder)
 		controller.configure(viewModel: viewModel)
         controller.delegate = self
@@ -219,7 +233,7 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func makeTransferTicketsViaWalletAddressViewController(token: TokenObject, for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> TransferTicketsViaWalletAddressViewController {
-        let controller = TransferTicketsViaWalletAddressViewController(config: session.config, ticketHolder: ticketHolder, paymentFlow: paymentFlow)
+        let controller = TransferTicketsViaWalletAddressViewController(config: session.config, token: token, ticketHolder: ticketHolder, paymentFlow: paymentFlow)
         let viewModel = TransferTicketsViaWalletAddressViewControllerViewModel(token: token, ticketHolder: ticketHolder)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
@@ -235,14 +249,14 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func makeTicketRedemptionViewController(token: TokenObject, for ticketHolder: TicketHolder) -> TicketRedemptionViewController {
-        let controller = TicketRedemptionViewController(session: session)
+        let controller = TicketRedemptionViewController(config: session.config, session: session, token: token)
         let viewModel = TicketRedemptionViewModel(token: token, ticketHolder: ticketHolder)
 		controller.configure(viewModel: viewModel)
         return controller
     }
 
     private func makeTransferTicketsViewController(paymentFlow: PaymentFlow) -> TransferTicketsViewController {
-        let controller = TransferTicketsViewController(config: session.config, paymentFlow: paymentFlow)
+        let controller = TransferTicketsViewController(config: session.config, paymentFlow: paymentFlow, token: token)
         let viewModel = TransferTicketsViewModel(token: token)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
@@ -257,7 +271,7 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func makeTransferTicketsQuantitySelectionViewController(token: TokenObject, for ticketHolder: TicketHolder, paymentFlow: PaymentFlow) -> TransferTicketsQuantitySelectionViewController {
-        let controller = TransferTicketsQuantitySelectionViewController(config: session.config, paymentFlow: paymentFlow)
+        let controller = TransferTicketsQuantitySelectionViewController(config: session.config, paymentFlow: paymentFlow, token: token)
         let viewModel = TransferTicketsQuantitySelectionViewModel(token: token, ticketHolder: ticketHolder)
         controller.configure(viewModel: viewModel)
         controller.delegate = self
@@ -273,7 +287,6 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func generateTransferLink(ticketHolder: TicketHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow) -> String {
-        let contractAddress = XMLHandler().getAddressFromXML(server: session.config.server).eip55String
         let order = Order(
             price: BigUInt("0")!,
             indices: ticketHolder.indices,

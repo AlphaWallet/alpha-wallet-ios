@@ -11,6 +11,11 @@ public struct Constants {
     public static let gasLimit = BigInt(300000)
     public static let gasPriceDefaultStormbird = BigInt("22000000000")!
 
+    // XML repo
+    public static let repoServer = "https://repo.awallet.io"
+    public static let repoClientName = "AlphaWallet"
+    public static let repoPlatformName = "iOS"
+
     // fee master
     public static let paymentServer = "https://app.awallet.io:80/api/claimToken"
     public static let getTicketInfoFromServer = "https://app.awallet.io:80/api/ecrecoverAndGetTickets"

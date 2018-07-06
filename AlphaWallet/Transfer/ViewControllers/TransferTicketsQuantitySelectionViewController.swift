@@ -8,9 +8,12 @@ protocol TransferTicketsQuantitySelectionViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: TransferTicketsQuantitySelectionViewController)
 }
 
-class TransferTicketsQuantitySelectionViewController: UIViewController, VerifiableStatusViewController {
+class TransferTicketsQuantitySelectionViewController: UIViewController, TicketVerifiableStatusViewController {
 
-    private let config: Config
+    let config: Config
+    var contract: String? {
+        return token.contract
+    }
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
 	let subtitleLabel = UILabel()
@@ -19,11 +22,13 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, Verifiab
     let nextButton = UIButton(type: .system)
     var viewModel: TransferTicketsQuantitySelectionViewModel!
     var paymentFlow: PaymentFlow
+    private let token: TokenObject
     weak var delegate: TransferTicketsQuantitySelectionViewControllerDelegate?
 
-    init(config: Config = Config(), paymentFlow: PaymentFlow) {
+    init(config: Config = Config(), paymentFlow: PaymentFlow, token: TokenObject) {
         self.config = config
         self.paymentFlow = paymentFlow
+        self.token = token
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -119,10 +124,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, Verifiab
 
     func configure(viewModel: TransferTicketsQuantitySelectionViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-        if viewModel.token.contract != contractAddress {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor
 

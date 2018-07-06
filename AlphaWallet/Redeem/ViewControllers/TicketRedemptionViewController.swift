@@ -8,18 +8,25 @@
 
 import UIKit
 
-class TicketRedemptionViewController: UIViewController, VerifiableStatusViewController {
+class TicketRedemptionViewController: UIViewController, TicketVerifiableStatusViewController {
 
+    let config: Config
+    var contract: String? {
+        return token.contract
+    }
     var viewModel: TicketRedemptionViewModel!
     var titleLabel = UILabel()
     let imageView =  UIImageView()
     let ticketView = TicketRowView()
     var timer: Timer!
     var session: WalletSession
+    private let token: TokenObject
     let redeemListener = RedeemEventListener()
 
-    init(session: WalletSession) {
+    init(config: Config, session: WalletSession, token: TokenObject) {
+        self.config = config
 		self.session = session
+        self.token = token
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -94,7 +101,7 @@ class TicketRedemptionViewController: UIViewController, VerifiableStatusViewCont
 
     @objc
     private func configureUI() {
-        let redeem = CreateRedeem(config: session.config)
+        let redeem = CreateRedeem(config: session.config, token: token)
         let redeemData = redeem.redeemMessage(ticketIndices: viewModel.ticketHolder.indices)
         switch session.account.type {
         case .real(let account):
@@ -138,10 +145,7 @@ class TicketRedemptionViewController: UIViewController, VerifiableStatusViewCont
     
     func configure(viewModel: TicketRedemptionViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: session.config.server).eip55String
-        if !viewModel.token.contract.sameContract(as: contractAddress) {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor
 

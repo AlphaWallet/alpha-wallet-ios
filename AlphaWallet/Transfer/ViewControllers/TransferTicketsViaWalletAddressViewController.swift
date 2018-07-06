@@ -9,9 +9,12 @@ protocol TransferTicketsViaWalletAddressViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: TransferTicketsViaWalletAddressViewController)
 }
 
-class TransferTicketsViaWalletAddressViewController: UIViewController, VerifiableStatusViewController {
-
-    private let config: Config
+class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVerifiableStatusViewController {
+    let config: Config
+    var contract: String? {
+        return token.contract
+    }
+    private let token: TokenObject
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let ticketView = TicketRowView()
@@ -22,8 +25,9 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, Verifiabl
     var paymentFlow: PaymentFlow
     weak var delegate: TransferTicketsViaWalletAddressViewControllerDelegate?
 
-    init(config: Config, ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+    init(config: Config, token: TokenObject, ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
         self.config = config
+        self.token = token
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
         super.init(nibName: nil, bundle: nil)
@@ -112,10 +116,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, Verifiabl
 
     func configure(viewModel: TransferTicketsViaWalletAddressViewControllerViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-        if !viewModel.token.contract.sameContract(as: contractAddress) {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor
 

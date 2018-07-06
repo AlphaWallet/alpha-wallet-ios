@@ -35,6 +35,7 @@ class InCoordinator: Coordinator {
     let initialWallet: Wallet
     var keystore: Keystore
     private var config: Config
+    private let assetDefinitionStore: AssetDefinitionStore
     let appTracker: AppTracker
     lazy var ethPrice: Subscribable<Double> = {
         var value = Subscribable<Double>(nil)
@@ -78,6 +79,8 @@ class InCoordinator: Coordinator {
         self.keystore = keystore
         self.config = config
         self.appTracker = appTracker
+        self.assetDefinitionStore = AssetDefinitionStore()
+        self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
     }
 
     func start() {
@@ -86,6 +89,7 @@ class InCoordinator: Coordinator {
 
         helpUsCoordinator.start()
         addCoordinator(helpUsCoordinator)
+        fetchXMLAssetDefinitions()
     }
 
     func fetchEthPrice() {
@@ -95,7 +99,7 @@ class InCoordinator: Coordinator {
         let web3 = self.web3(for: config.server)
         web3.start()
         let realm = self.realm(for: migration.config)
-        let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, web3: web3)
+        let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
         tokensStorage.updatePrices()
 
         let etherToken = TokensDataStore.etherToken(for: config)
@@ -119,8 +123,8 @@ class InCoordinator: Coordinator {
         let web3 = self.web3(for: config.server)
         web3.start()
         let realm = self.realm(for: migration.config)
-        let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
-        let alphaWalletTokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3)
+        let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
+        let alphaWalletTokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
         let balanceCoordinator = GetBalanceCoordinator(web3: web3)
         let balance = BalanceCoordinator(wallet: account, config: config, storage: tokensStorage)
         let session = WalletSession(
@@ -166,7 +170,8 @@ class InCoordinator: Coordinator {
             let tokensCoordinator = TokensCoordinator(
                     session: session,
                     keystore: keystore,
-                    tokensStorage: alphaWalletTokensStorage
+                    tokensStorage: alphaWalletTokensStorage,
+                    assetDefinitionStore: assetDefinitionStore
             )
             tokensCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_wallet())
             tokensCoordinator.delegate = self
@@ -269,6 +274,7 @@ class InCoordinator: Coordinator {
         coordinator.stop()
         removeAllCoordinators()
         showTabBar(for: account)
+        fetchXMLAssetDefinitions()
     }
 
     func removeAllCoordinators() {
@@ -342,7 +348,8 @@ class InCoordinator: Coordinator {
             keystore: keystore,
             tokensStorage: tokenStorage,
             ethPrice: ethPrice,
-            token: token
+            token: token,
+            assetDefinitionStore: assetDefinitionStore
         )
         addCoordinator(ticketsCoordinator)
         ticketsCoordinator.type = type
@@ -384,6 +391,20 @@ class InCoordinator: Coordinator {
         alertController.addAction(copyAction)
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: UIAlertActionStyle.default, handler: nil))
         navigationController.present(alertController, animated: true, completion: nil)
+    }
+
+    private func fetchXMLAssetDefinitions() {
+        let keystore = try! EtherKeystore()
+        let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
+        migration.perform()
+        let web3 = self.web3(for: config.server)
+        web3.start()
+        let realm = self.realm(for: migration.config)
+        let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
+
+        let coordinator = FetchAssetDefinitionsCoordinator(assetDefinitionStore: assetDefinitionStore, tokensDataStore: tokensStorage)
+        coordinator.start()
+        addCoordinator(coordinator)
     }
 }
 
@@ -513,7 +534,8 @@ extension InCoordinator: TokensCoordinatorDelegate {
                     realm: realm,
                     account: wallet,
                     config: self.config,
-                    web3: web3
+                    web3: web3,
+                    assetDefinitionStore: self.assetDefinitionStore
                 )
                 
                 let balance = BalanceCoordinator(

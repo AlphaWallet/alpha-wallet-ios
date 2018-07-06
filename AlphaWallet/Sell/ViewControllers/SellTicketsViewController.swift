@@ -8,9 +8,12 @@ protocol SellTicketsViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: SellTicketsViewController)
 }
 
-class SellTicketsViewController: UIViewController, VerifiableStatusViewController {
+class SellTicketsViewController: UIViewController, TicketVerifiableStatusViewController {
 
-    private let config: Config
+    let config: Config
+    var contract: String? {
+        return viewModel.token.contract
+    }
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
@@ -78,10 +81,7 @@ class SellTicketsViewController: UIViewController, VerifiableStatusViewControlle
     func configure(viewModel: SellTicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-        if !viewModel.token.contract.sameContract(as: contractAddress) {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         header.configure(title: viewModel.title)
         tableView.tableHeaderView = header

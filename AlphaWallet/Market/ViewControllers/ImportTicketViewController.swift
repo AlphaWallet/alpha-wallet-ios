@@ -8,8 +8,9 @@ protocol ImportTicketViewControllerDelegate: class {
     func didPressImport(in viewController: ImportTicketViewController)
 }
 
-class ImportTicketViewController: UIViewController, VerifiableStatusViewController {
-    private let config: Config
+//class ImportTicketViewController: UIViewController, VerifiableStatusViewController {
+class ImportTicketViewController: UIViewController, TicketVerifiableStatusViewController {
+    let config: Config
     weak var delegate: ImportTicketViewControllerDelegate?
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
@@ -32,10 +33,7 @@ class ImportTicketViewController: UIViewController, VerifiableStatusViewControll
     var contract: String? {
         didSet {
             guard url != nil else { return }
-            let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-            if let contract = contract, !contract.sameContract(as: contractAddress) {
-                updateNavigationRightBarButtons(isVerified: false, hasShowInfoButton: false)
-            }
+            updateNavigationRightBarButtons(isVerified: isContractVerified, hasShowInfoButton: false)
         }
     }
     var url: URL? {
@@ -238,6 +236,8 @@ class ImportTicketViewController: UIViewController, VerifiableStatusViewControll
 
             actionButton.isHidden = !viewModel.showActionButton
             buttonSeparator.isHidden = !viewModel.showActionButton
+
+            updateNavigationRightBarButtons(isVerified: isContractVerified, hasShowInfoButton: false)
         }
     }
 

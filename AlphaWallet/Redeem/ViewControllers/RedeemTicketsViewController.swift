@@ -14,9 +14,13 @@ protocol RedeemTicketsViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: RedeemTicketsViewController)
 }
 
-class RedeemTicketsViewController: UIViewController, VerifiableStatusViewController {
+class RedeemTicketsViewController: UIViewController, TicketVerifiableStatusViewController {
 
-    private let config: Config
+    let config: Config
+    var contract: String? {
+        return token.contract
+    }
+    private let token: TokenObject
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
@@ -24,8 +28,9 @@ class RedeemTicketsViewController: UIViewController, VerifiableStatusViewControl
     var viewModel: RedeemTicketsViewModel!
     weak var delegate: RedeemTicketsViewControllerDelegate?
 
-    init(config: Config) {
+    init(config: Config, token: TokenObject) {
         self.config = config
+        self.token = token
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -82,10 +87,7 @@ class RedeemTicketsViewController: UIViewController, VerifiableStatusViewControl
     func configure(viewModel: RedeemTicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-        if viewModel.token.contract != contractAddress {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         header.configure(title: viewModel.title)
         tableView.tableHeaderView = header

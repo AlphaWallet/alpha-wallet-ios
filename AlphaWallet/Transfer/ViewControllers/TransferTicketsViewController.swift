@@ -8,20 +8,25 @@ protocol TransferTicketsViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: TransferTicketsViewController)
 }
 
-class TransferTicketsViewController: UIViewController, VerifiableStatusViewController {
+class TransferTicketsViewController: UIViewController, TicketVerifiableStatusViewController {
 
-    private let config: Config
+    let config: Config
+    var contract: String? {
+        return viewModel.token.contract
+    }
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
 	let nextButton = UIButton(type: .system)
     var viewModel: TransferTicketsViewModel!
     var paymentFlow: PaymentFlow
+    private let token: TokenObject
     weak var delegate: TransferTicketsViewControllerDelegate?
 
-    init(config: Config, paymentFlow: PaymentFlow) {
+    init(config: Config, paymentFlow: PaymentFlow, token: TokenObject) {
         self.config = config
         self.paymentFlow = paymentFlow
+        self.token = token
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -78,10 +83,7 @@ class TransferTicketsViewController: UIViewController, VerifiableStatusViewContr
     func configure(viewModel: TransferTicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-        if !viewModel.token.contract.sameContract(as: contractAddress) {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         header.configure(title: viewModel.title)
         tableView.tableHeaderView = header
