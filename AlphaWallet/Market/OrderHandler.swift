@@ -57,7 +57,7 @@ public class OrderHandler {
             messages.append(Data(bytes: message))
         }
 
-        let signatures: [Data] = try! keyStore.signMessageBulk(messages, for: account).dematerialize()
+        let signatures = try! keyStore.signMessageBulk(messages, for: account).dematerialize()
 
         for i in 0...signatures.count - 1 {
             let signedOrder = SignedOrder(
