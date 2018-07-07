@@ -18,10 +18,13 @@ private class PrivateXMLHandler {
     //TODO do we always want the first one?
     lazy var contract = xml["token"]["contract"][0]
     lazy var fields = extractFields()
+    private let isOfficial: Bool
 
     init(contract: String) {
         contractAddress = contract.add0x.lowercased()
-        xml = try! XML.parse(AssetDefinitionStore()[contract] ?? "")
+        let assetDefinitionStore = AssetDefinitionStore()
+        xml = try! XML.parse(assetDefinitionStore[contract] ?? "")
+        isOfficial = assetDefinitionStore.isOfficial(contract: contract)
     }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
@@ -57,6 +60,7 @@ private class PrivateXMLHandler {
     }
 
     func isVerified(for server: RPCServer) -> Bool {
+        guard isOfficial else { return false }
         let contractElement = xml["token"]["contract"].getElement(attributeName: "id", attributeValue: "holding_contract")
         let addressElement = contractElement?["address"].getElement(attributeName: "network", attributeValue: String(server.chainID))
         guard let contractInXML = addressElement?.text else { return false }

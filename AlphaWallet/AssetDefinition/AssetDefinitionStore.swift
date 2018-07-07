@@ -28,11 +28,12 @@ class AssetDefinitionStore {
         return df
     }()
     private var lastContractInPasteboard: String?
-    private var subscribers: [(String, String) -> Void] = []
+    private var subscribers: [(String) -> Void] = []
     private var backingStore: AssetDefinitionBackingStore
 
-    init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStore()) {
+    init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides()) {
         self.backingStore = backingStore
+        self.backingStore.delegate = self
     }
 
     func enableFetchXMLForContractInPasteboard() {
@@ -54,7 +55,11 @@ class AssetDefinitionStore {
         }
     }
 
-    func subscribe(_ subscribe: @escaping (_ xml: String, _ contract: String) -> Void) {
+    func isOfficial(contract: String) -> Bool {
+        return backingStore.isOfficial(contract: contract)
+    }
+
+    func subscribe(_ subscribe: @escaping (_ contract: String) -> Void) {
         subscribers.append(subscribe)
     }
 
@@ -79,7 +84,7 @@ class AssetDefinitionStore {
                     self[contract] = xml
                     XMLHandler.invalidate(forContract: contract)
                     completionHandler?(.updated)
-                    self.subscribers.forEach { $0(xml, contract) }
+                    self.subscribers.forEach { $0(contract) }
                 } else {
                     completionHandler?(.error)
                 }
@@ -123,3 +128,10 @@ class AssetDefinitionStore {
     }
 }
 
+extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
+    func invalidateAssetDefinition(forContract contract: String) {
+        XMLHandler.invalidate(forContract: contract)
+        subscribers.forEach { $0(contract) }
+        fetchXML(forContract: contract)
+    }
+}
