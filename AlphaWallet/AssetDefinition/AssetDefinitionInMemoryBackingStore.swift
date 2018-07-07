@@ -4,13 +4,13 @@ import Foundation
 
 class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
     private var xmls = [String: String]()
+    var delegate: AssetDefinitionBackingStoreDelegate?
 
     subscript(contract: String) -> String? {
         get {
             return xmls[contract]
         }
         set(xml) {
-            guard let xml = xml else { return }
             //TODO validate XML signature first
             xmls[contract] = xml
         }
@@ -24,5 +24,9 @@ class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
         xmls.forEach { contract, _ in
             body(contract)
         }
+    }
+
+    func isOfficial(contract: String) -> Bool {
+        return false
     }
 }

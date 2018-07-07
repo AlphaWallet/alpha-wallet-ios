@@ -73,7 +73,7 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func refreshUponAssetDefinitionChanges() {
-        assetDefinitionStore.subscribe { [weak self] xml, contract in
+        assetDefinitionStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
             guard contract.sameContract(as: strongSelf.token.contract) else { return }
             let viewModel = TicketsViewModel(token: strongSelf.token)

@@ -72,7 +72,7 @@ class TokensCoordinator: Coordinator {
     }
     
     private func refreshUponAssetDefinitionChanges() {
-        assetDefinitionStore.subscribe { [weak self] xml, contract in
+        assetDefinitionStore.subscribe { [weak self] contract in
             self?.storage.updateERC875TokensToLocalizedName()
         }
     }
