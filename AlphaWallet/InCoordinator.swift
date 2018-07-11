@@ -44,13 +44,13 @@ class InCoordinator: Coordinator {
     var ethBalance = Subscribable<BigInt>(nil)
     weak var delegate: InCoordinatorDelegate?
     var transactionCoordinator: TransactionCoordinator? {
-        return self.coordinators.flatMap {
+        return self.coordinators.compactMap {
             $0 as? TransactionCoordinator
         }.first
     }
 
     var ticketsCoordinator: TicketsCoordinator? {
-        return self.coordinators.flatMap {
+        return self.coordinators.compactMap {
             $0 as? TicketsCoordinator
         }.first
     }
