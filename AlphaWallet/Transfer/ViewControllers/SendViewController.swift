@@ -315,6 +315,10 @@ class SendViewController: UIViewController {
             return displayError(error: SendInputErrors.wrongInput)
         }
 
+        if case .ether = transferType, let balance = session.balance, balance.value < value {
+            return displayError(title: R.string.localizable.aSendBalanceInsufficient(), error: Errors.invalidAmount)
+        }
+
         let transaction = UnconfirmedTransaction(
                 transferType: transferType,
                 value: value,
