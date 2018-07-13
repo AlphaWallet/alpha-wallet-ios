@@ -20,7 +20,7 @@ class MigrationInitializer: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 43
+        config.schemaVersion = 44
         config.migrationBlock = { migration, oldSchemaVersion in
             switch oldSchemaVersion {
             case 0...32:
@@ -34,6 +34,13 @@ class MigrationInitializer: Initializer {
                     newObject["contract"] = address.description
                 }
             default: break
+            }
+            if oldSchemaVersion < 44 {
+                migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
+                    guard let oldObject = oldObject else { return }
+                    guard let newObject = newObject else { return }
+                    newObject["isERC875"] = oldObject["isStormBird"]
+                }
             }
         }
     }
