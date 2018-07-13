@@ -1,3 +1,0 @@
-[submodule "contracts"]
-	path = AlphaWallet/contracts
-	url = https://github.com/alpha-wallet/contracts.git

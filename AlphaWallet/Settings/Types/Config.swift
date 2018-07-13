@@ -127,13 +127,56 @@ struct Config {
     }
 
     var ticketContractAddress: String? {
-        return createDefaultTicketToken()?.contract.eip55String
+        switch server {
+        case .main:
+            return "0xA66A3F08068174e8F005112A8b2c7A507a822335"
+        case .ropsten:
+            return "0xd8e5f58de3933e1e35f9c65eb72cb188674624f3"
+        default:
+            return nil
+        }
     }
 
+    ///Debugging flag. Set to false to disable auto fetching prices, etc to cut down on network calls
+    let isAutoFetchingDisabled = false
+
     func createDefaultTicketToken() -> ERCToken? {
-        let xmlHandler = XMLHandler()
+        guard let contract = ticketContractAddress else { return nil }
+        guard let contractAddress = Address(string: contract) else { return nil}
+        let xmlHandler = XMLHandler(contract: contract)
         let lang = xmlHandler.getLang()
-        let contractAddress = xmlHandler.getAddressFromXML(server: self.server)
+        let name = xmlHandler.getName(lang: lang)
+        //TODO get symbol from RPC node, but this doesn't provide much benefit as it is a hardcoded
+        //placeholder anyway
+        //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
+        switch server {
+        case .main:
+            return ERCToken(
+                    contract: contractAddress,
+                    name: Constants.event + " " + name,
+                    symbol: "SHANKAI",
+                    decimals: 0,
+                    isStormBird: true,
+                    balance: []
+            )
+        case .ropsten:
+            return ERCToken(
+                    contract: contractAddress,
+                    name: name,
+                    symbol: "TEST",
+                    decimals: 0,
+                    isStormBird: true,
+                    balance: []
+            )
+        case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+            return nil
+        }
+    }
+
+    func createDefaultTicketToken(forContract contract: String) -> ERCToken? {
+        guard let contractAddress = Address(string: contract) else { return nil }
+        let xmlHandler = XMLHandler(contract: contract)
+        let lang = xmlHandler.getLang()
         let name = xmlHandler.getName(lang: lang)
         //TODO get symbol from RPC node, but this doesn't provide much benefit as it is a hardcoded
         //placeholder anyway

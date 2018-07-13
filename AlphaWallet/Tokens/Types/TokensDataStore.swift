@@ -51,6 +51,7 @@ class TokensDataStore {
     let account: Wallet
     let config: Config
     let web3: Web3Swift
+    let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokensDataStoreDelegate?
     let realm: Realm
     var tickers: [String: CoinTicker]? = .none
@@ -74,20 +75,22 @@ class TokensDataStore {
     }
 
     init(
-        realm: Realm,
-        account: Wallet,
-        config: Config,
-        web3: Web3Swift
+            realm: Realm,
+            account: Wallet,
+            config: Config,
+            web3: Web3Swift,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.account = account
         self.config = config
         self.web3 = web3
+        self.assetDefinitionStore = assetDefinitionStore
         self.realm = realm
         self.addEthToken()
         self.scheduledTimerForPricesUpdate()
         self.scheduledTimerForEthBalanceUpdate()
 
-        updateTicketTokenToLocalizedName()
+        updateERC875TokensToLocalizedName()
     }
     private func addEthToken() {
         //Check if we have previos values.
@@ -355,22 +358,27 @@ class TokensDataStore {
     }
 
     private func scheduledTimerForPricesUpdate() {
+        guard !config.isAutoFetchingDisabled else { return }
         pricesTimer = Timer.scheduledTimer(timeInterval: intervalToRefreshPrices, target: BlockOperation { [weak self] in
             self?.updatePrices()
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
     private func scheduledTimerForEthBalanceUpdate() {
+        guard !config.isAutoFetchingDisabled else { return }
         ethTimer = Timer.scheduledTimer(timeInterval: intervalToETHRefresh, target: BlockOperation { [weak self] in
             self?.refreshETHBalance()
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
-    private func updateTicketTokenToLocalizedName() {
-        if let token = config.createDefaultTicketToken() {
-            let contract = token.contract.eip55String
-            let localizedName = token.name
-            if let storedTicketToken = enabledObject.first(where: { $0.contract == contract }) {
-                updateTicketTokenName(token: storedTicketToken, to: localizedName)
+    public func updateERC875TokensToLocalizedName() {
+        assetDefinitionStore.forEachContractWithXML { contract in
+            if let token = config.createDefaultTicketToken(forContract: contract) {
+                let contract = token.contract.eip55String
+                let localizedName = token.name
+                if let storedTicketToken = enabledObject.first(where: { $0.contract == contract }) {
+                    //TODO multiple realm writes in a loop. Should we group them together?
+                    updateTicketTokenName(token: storedTicketToken, to: localizedName)
+                }
             }
         }
     }
