@@ -85,7 +85,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func inializers() {
-        var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).flatMap { URL(fileURLWithPath: $0) }
+        var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).compactMap { URL(fileURLWithPath: $0) }
         paths.append(keystore.keystoreDirectory)
 
         let initializers: [Initializer] = [

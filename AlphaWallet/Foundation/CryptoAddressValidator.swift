@@ -14,7 +14,7 @@ enum AddressValidatorType {
 
 struct CryptoAddressValidator {
     static func isValidAddress(_ value: String?, type: AddressValidatorType = .ethereum) -> Bool {
-        guard value?.count == 42 else {
+        guard value?.count == type.addressLength else {
             return false
         }
         return true

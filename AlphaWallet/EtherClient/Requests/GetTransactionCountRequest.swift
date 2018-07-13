@@ -23,7 +23,7 @@ struct GetTransactionCountRequest: JSONRPCKit.Request {
 
     func response(from resultObject: Any) throws -> Response {
         if let response = resultObject as? String {
-            return BigInt(response.drop0x, radix: 16).flatMap({ numericCast($0) }) ?? 0
+            return BigInt(response.drop0x, radix: 16).map({ numericCast($0) }) ?? 0
         } else {
             throw CastError(actualValue: resultObject, expectedType: Response.self)
         }
