@@ -34,8 +34,8 @@ class TokensDataStore {
         return GetSymbolCoordinator(web3: self.web3)
     }()
 
-    private lazy var getStormBirdBalanceCoordinator: GetStormBirdBalanceCoordinator = {
-        return GetStormBirdBalanceCoordinator(web3: self.web3)
+    private lazy var getStormBirdBalanceCoordinator: GetERC875TokenBalanceCoordinator = {
+        return GetERC875TokenBalanceCoordinator(web3: self.web3)
     }()
 
     private lazy var getIsStormBirdCoordinator: GetIsStormBirdCoordinator = {
@@ -165,7 +165,7 @@ class TokensDataStore {
     func getStormBirdBalance(for addressString: String,
                              completion: @escaping (Result<[String], AnyError>) -> Void) {
         let address = Address(string: addressString)
-        getStormBirdBalanceCoordinator.getStormBirdBalance(for: account.address, contract: address!) { result in
+        getStormBirdBalanceCoordinator.getERC875TokenBalance(for: account.address, contract: address!) { result in
             completion(result)
         }
     }
@@ -200,7 +200,7 @@ class TokensDataStore {
         let updateTokens = enabledObject.filter { $0 != etherToken }
         var count = 0
         for tokenObject in updateTokens {
-            if tokenObject.isStormBird {
+            if tokenObject.isERC875 {
                 getStormBirdBalance(for: tokenObject.contract, completion: { result in
                     switch result {
                     case .success(let balance):
@@ -260,7 +260,7 @@ class TokensDataStore {
             decimals: token.decimals,
             value: "0",
             isCustom: true,
-            isStormBird: token.isStormBird
+            isERC875: token.isERC875
         )
         token.balance.forEach { balance in
             newToken.balance.append(TokenBalance(balance: balance))

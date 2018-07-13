@@ -65,9 +65,9 @@ class TransactionConfigurator {
             case .ether: return transaction.to
             case .token(let token):
                 return Address(string: token.contract)
-            case .stormBird(let token):
+            case .ERC875Token(let token):
                 return Address(string: token.contract)
-            case .stormBirdOrder(let token):
+            case .ERC875TokenOrder(let token):
                 return Address(string: token.contract)
             }
         }()
@@ -127,7 +127,7 @@ class TransactionConfigurator {
                 }
             }
                 //TODO clean up
-        case .stormBird:
+        case .ERC875Token:
             session.web3.request(request: ContractStormBirdTransfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
                 switch result {
                 case .success(let res):
@@ -143,8 +143,8 @@ class TransactionConfigurator {
                 }
             }
                 //TODO put order claim tx here somehow, or maybe the same one above
-        case .stormBirdOrder:
-            session.web3.request(request: ClaimStormBirdOrder(expiry: transaction.expiry!, indices: transaction.indices!,
+        case .ERC875TokenOrder:
+            session.web3.request(request: ClaimERC875Order(expiry: transaction.expiry!, indices: transaction.indices!,
                     v: transaction.v!, r: transaction.r!, s: transaction.s!)) { [unowned self] result in
                 switch result {
                 case .success(let res):
@@ -181,16 +181,16 @@ class TransactionConfigurator {
             switch transaction.transferType {
             case .ether: return transaction.value
             case .token: return 0
-            case .stormBird: return 0
-            case .stormBirdOrder: return transaction.value
+            case .ERC875Token: return 0
+            case .ERC875TokenOrder: return transaction.value
             }
         }()
         let address: Address? = {
             switch transaction.transferType {
             case .ether: return transaction.to
             case .token(let token): return token.address
-            case .stormBird(let token): return token.address
-            case .stormBirdOrder(let token): return token.address
+            case .ERC875Token(let token): return token.address
+            case .ERC875TokenOrder(let token): return token.address
             }
         }()
         let signTransaction = UnsignedTransaction(

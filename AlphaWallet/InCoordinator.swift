@@ -485,7 +485,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
         showPaymentFlow(for: type)
     }
 
-    func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
+    func didPressERC875(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
         showTicketList(for: type, token: token)
     }
 
@@ -508,12 +508,12 @@ extension InCoordinator: TokensCoordinatorDelegate {
             case .success(let payload):
                 let address: Address = self.initialWallet.address
                 let transaction = UnconfirmedTransaction(
-                        transferType: .stormBirdOrder(tokenObject),
+                        transferType: .ERC875TokenOrder(tokenObject),
                         value: BigInt(signedOrder.order.price),
                         to: address,
                         data: Data(bytes: payload.hexa2Bytes),
                         gasLimit: Constants.gasLimit,
-                        gasPrice: Constants.gasPriceDefaultStormbird,
+                        gasPrice: Constants.gasPriceDefaultERC875,
                         nonce: .none,
                         v: v,
                         r: r,
@@ -567,7 +567,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         to: signTransaction.to,
                         nonce: signTransaction.nonce,
                         data: signTransaction.data,
-                        gasPrice: Constants.gasPriceDefaultStormbird,
+                        gasPrice: Constants.gasPriceDefaultERC875,
                         gasLimit: signTransaction.gasLimit,
                         chainID: self.config.chainID
                 )
