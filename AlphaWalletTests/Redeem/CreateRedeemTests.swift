@@ -16,7 +16,7 @@ class CreateRedeemTests: XCTestCase {
         indices.append(1)
         indices.append(2)
         let account = keyStore.createAccount(password: "test")
-        let message = CreateRedeem(config: Config()).redeemMessage(ticketIndices: indices).0
+        let message = CreateRedeem(config: Config(), token: TokenObject()).redeemMessage(ticketIndices: indices).0
         print(message)
         let data = message.data(using: String.Encoding.utf8)
 
@@ -24,6 +24,7 @@ class CreateRedeemTests: XCTestCase {
         //message and signature is to go in qr code
         print("message: " + message)
         print(try! "signature: " + signature.dematerialize().hexString)
+        //TODO no test?
     }
 
 }

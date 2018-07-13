@@ -20,9 +20,13 @@ protocol TicketsViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: TicketsViewController)
 }
 
-class TicketsViewController: UIViewController, VerifiableStatusViewController {
+class TicketsViewController: UIViewController, TicketVerifiableStatusViewController {
 
-    var tokenObject: TokenObject?
+    let config: Config
+    var contract: String? {
+        return tokenObject.contract
+    }
+    var tokenObject: TokenObject
     //TODO forced unwraps aren't good
     var viewModel: TicketsViewModel!
     var tokensStorage: TokensDataStore!
@@ -37,7 +41,9 @@ class TicketsViewController: UIViewController, VerifiableStatusViewController {
     let sellButton = UIButton(type: .system)
     let transferButton = UIButton(type: .system)
 
-    init() {
+    init(config: Config, tokenObject: TokenObject) {
+        self.config = config
+        self.tokenObject = tokenObject
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -121,15 +127,10 @@ class TicketsViewController: UIViewController, VerifiableStatusViewController {
     func configure(viewModel: TicketsViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-        let contractAddress = XMLHandler().getAddressFromXML(server: session.config.server).eip55String
-        if let tokenObject = tokenObject, !tokenObject.contract.sameContract(as: contractAddress) {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
-        if let tokenObject = tokenObject {
-            header.configure(viewModel: .init(config: session.config, tokenObject: tokenObject))
-            tableView.tableHeaderView = header
-        }
+        header.configure(viewModel: .init(config: session.config, tokenObject: tokenObject))
+        tableView.tableHeaderView = header
 
         redeemButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		redeemButton.backgroundColor = viewModel.buttonBackgroundColor
@@ -142,6 +143,8 @@ class TicketsViewController: UIViewController, VerifiableStatusViewController {
         transferButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         transferButton.backgroundColor = viewModel.buttonBackgroundColor
         transferButton.titleLabel?.font = viewModel.buttonFont
+
+        tableView.reloadData()
     }
 
     override

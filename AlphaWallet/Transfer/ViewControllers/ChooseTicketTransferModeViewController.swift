@@ -9,10 +9,13 @@ protocol ChooseTicketTransferModeViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: ChooseTicketTransferModeViewController)
 }
 
-class ChooseTicketTransferModeViewController: UIViewController, VerifiableStatusViewController {
+class ChooseTicketTransferModeViewController: UIViewController, TicketVerifiableStatusViewController {
     let horizontalAdjustmentForLongMagicLinkButtonTitle = CGFloat(20)
 
-    private let config: Config
+    let config: Config
+    var contract: String? {
+        return viewModel.token.contract
+    }
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let ticketView = TicketRowView()
@@ -116,10 +119,7 @@ class ChooseTicketTransferModeViewController: UIViewController, VerifiableStatus
 
     func configure(viewModel: ChooseTicketTransferModeViewControllerViewModel) {
         self.viewModel = viewModel
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
-        if !viewModel.token.contract.sameContract(as: contractAddress) {
-            updateNavigationRightBarButtons(isVerified: false)
-        }
+        updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor
 

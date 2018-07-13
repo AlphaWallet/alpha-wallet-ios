@@ -10,6 +10,6 @@ class FakeTokensDataStore: TokensDataStore {
         let account: Wallet = .make()
         let config: Config = .make()
         let web3: Web3Swift = Web3Swift()
-        self.init(realm: realm, account: account, config: config, web3: web3)
+        self.init(realm: realm, account: account, config: config, web3: web3, assetDefinitionStore: AssetDefinitionStore())
     }
 }

@@ -8,9 +8,11 @@ import TrustKeystore
 
 class CreateRedeem {
     private let config: Config
+    private let token: TokenObject
 
-    init(config: Config) {
+    init(config: Config, token: TokenObject) {
         self.config = config
+        self.token = token
     }
 
     func generateTimeStamp() -> String {
@@ -21,9 +23,9 @@ class CreateRedeem {
     }
 
     func redeemMessage(ticketIndices: [UInt16]) -> (message: String, qrCode: String) {
-        let contractAddress = XMLHandler().getAddressFromXML(server: config.server).eip55String
+        let contractAddress = token.contract.add0x.lowercased()
         let messageForSigning = formIndicesSelection(indices: ticketIndices)
-                + "," + generateTimeStamp() + "," + contractAddress.lowercased()
+                + "," + generateTimeStamp() + "," + contractAddress
         let qrCodeData = formIndicesSelection(indices: ticketIndices)
         return (messageForSigning, qrCodeData)
     }

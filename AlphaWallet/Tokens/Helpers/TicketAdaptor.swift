@@ -83,7 +83,7 @@ class TicketAdaptor {
 
     //TODO pass lang into here
     private func getTicket(for id: BigUInt, index: UInt16, in token: TokenObject) -> Ticket {
-        return XMLHandler().getFifaInfoForTicket(tokenId: id, index: index)
+        return XMLHandler(contract: token.contract).getFifaInfoForTicket(tokenId: id, index: index)
     }
 
     private func getTicketHolder(for tickets: [Ticket]) -> TicketHolder {

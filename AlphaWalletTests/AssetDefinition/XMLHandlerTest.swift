@@ -15,7 +15,7 @@ class XMLHandlerTest: XCTestCase {
     let tokenHex = "0x00000000000000000000000000000000fefe5ae99a3000000000000000010001".substring(from: 2)
     
     func testParser() {
-        let fifaDetails = XMLHandler().getFifaInfoForTicket(
+        let fifaDetails = XMLHandler(contract: "0x").getFifaInfoForTicket(
             tokenId: BigUInt(tokenHex, radix: 16)!, index: UInt16(1)
         )
         XCTAssertNotNil(fifaDetails)
