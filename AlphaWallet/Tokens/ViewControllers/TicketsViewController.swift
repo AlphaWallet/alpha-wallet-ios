@@ -164,11 +164,11 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
     }
 
     @objc func sell() {
-        delegate?.didPressSell(for: .send(type: .stormBird(viewModel.token)), in: self)
+        delegate?.didPressSell(for: .send(type: .ERC875Token(viewModel.token)), in: self)
     }
 
     @objc func transfer() {
-        delegate?.didPressTransfer(for: .send(type: .stormBird(viewModel.token)),
+        delegate?.didPressTransfer(for: .send(type: .ERC875Token(viewModel.token)),
                                    ticketHolders: viewModel.ticketHolders!,
                                    in: self)
     }

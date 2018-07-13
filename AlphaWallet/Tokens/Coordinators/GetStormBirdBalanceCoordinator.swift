@@ -8,7 +8,7 @@ import Result
 import TrustKeystore
 import JavaScriptKit
 
-class GetStormBirdBalanceCoordinator {
+class GetERC875TokenBalanceCoordinator {
 
     private let web3: Web3Swift
     init(
@@ -17,7 +17,7 @@ class GetStormBirdBalanceCoordinator {
         self.web3 = web3
     }
 
-    func getStormBirdBalance(
+    func getERC875TokenBalance(
         for address: Address,
         contract: Address,
         completion: @escaping (Result<[String], AnyError>) -> Void
@@ -69,7 +69,7 @@ class GetStormBirdBalanceCoordinator {
     }
 }
 
-extension GetStormBirdBalanceCoordinator {
+extension GetERC875TokenBalanceCoordinator {
     private func adapt(_ values: Any) -> [String] {
         if let array = values as? [Any] {
             return array.map { String(describing: $0) }

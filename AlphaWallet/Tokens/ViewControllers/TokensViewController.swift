@@ -225,7 +225,7 @@ extension TokensViewController: UITableViewDelegate {
 
         //TODO extract getting type of token/config from TokensDatastore class side and instance side
         let type: TokenType = {
-            if token.isStormBird {
+            if token.isERC875 {
                 return .stormBird
             }
             return TokensDataStore.etherToken(for: dataStore.config) == token ? .ether : .token
@@ -291,7 +291,7 @@ extension TokensViewController: UITableViewDataSource {
 
         //TODO extract getting type of token/config from TokensDatastore class side and instance side
         let type: TokenType = {
-            if token.isStormBird {
+            if token.isERC875 {
                 return .stormBird
             }
             return TokensDataStore.etherToken(for: dataStore.config) == token ? .ether : .token

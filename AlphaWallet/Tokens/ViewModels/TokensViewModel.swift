@@ -19,9 +19,11 @@ class TokensViewModel {
         case .all:
             return tokens
         case .currencyOnly:
-            return tokens.filter { !$0.isStormBird }
+            return tokens.filter { !$0.isERC875
+            }
         case .assetsOnly:
-            return tokens.filter { $0.isStormBird }
+            return tokens.filter { $0.isERC875
+            }
         }
     }
 

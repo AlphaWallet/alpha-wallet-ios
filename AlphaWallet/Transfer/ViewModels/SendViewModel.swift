@@ -39,9 +39,9 @@ struct SendViewModel {
             return nil
         case .token(let token):
             return token
-        case .stormBird(let token):
+        case .ERC875Token(let token):
             return token
-        case .stormBirdOrder(let token):
+        case .ERC875TokenOrder(let token):
             return token
         }
     }

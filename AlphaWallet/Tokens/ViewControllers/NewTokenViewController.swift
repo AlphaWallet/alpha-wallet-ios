@@ -16,7 +16,7 @@ class NewTokenViewController: UIViewController {
     let footerBar = UIView()
     let header = TicketsViewControllerTitleHeader()
     var viewModel = NewTokenViewModel()
-    var isStormBirdToken: Bool = false
+    var isERC875Token: Bool = false
 
     let addressTextField = AddressTextField()
     let symbolTextField = TextField()
@@ -187,13 +187,13 @@ class NewTokenViewController: UIViewController {
     //int is 64 bits, if this proves not enough later we can convert to BigUInt
     public func updateBalanceValue(_ balance: [String]) {
         let filteredTokens = balance.filter { $0 != Constants.nullTicket }
-        viewModel.stormBirdBalance = filteredTokens
-        balanceTextField.value = viewModel.stormBirdBalanceAsInt.description
+        viewModel.ERC875TokenBalance = filteredTokens
+        balanceTextField.value = viewModel.ERC875TokenBalanceAmount.description
     }
 
-    public func updateFormForStormBirdToken(_ isStormBirdToken: Bool) {
-        self.isStormBirdToken = isStormBirdToken
-        if isStormBirdToken {
+    public func updateFormForERC875Token(_ isERC875Token: Bool) {
+        self.isERC875Token = isERC875Token
+        if isERC875Token {
             decimalsTextField.isHidden = true
             balanceTextField.isHidden = false
             decimalsTextField.label.isHidden = true
@@ -219,7 +219,7 @@ class NewTokenViewController: UIViewController {
             displayError(title: R.string.localizable.symbol(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
             return false
         }
-        if isStormBirdToken {
+        if isERC875Token {
             guard !balanceTextField.value.trimmed.isEmpty else {
                 displayError(title: R.string.localizable.balance(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
                 return false
@@ -242,8 +242,8 @@ class NewTokenViewController: UIViewController {
         let name = nameTextField.value
         let symbol = symbolTextField.value
         let decimals = Int(decimalsTextField.value) ?? 0
-        let isStormBird = self.isStormBirdToken
-        var balance: [String] = viewModel.stormBirdBalance
+        let isERC875 = self.isERC875Token
+        var balance: [String] = viewModel.ERC875TokenBalance
         
         guard let address = Address(string: contract) else {
             return displayError(error: Errors.invalidAddress)
@@ -253,16 +253,16 @@ class NewTokenViewController: UIViewController {
             balance.append("0")
         }
 
-        let erc20Token = ERCToken(
+        let ercToken = ERCToken(
             contract: address,
             name: name,
             symbol: symbol,
             decimals: decimals,
-            isStormBird: isStormBird,
+            isERC875: isERC875,
             balance: balance
         )
 
-        delegate?.didAddToken(token: erc20Token, in: self)
+        delegate?.didAddToken(token: ercToken, in: self)
     }
 
     private func updateContractValue(value: String) {
