@@ -73,8 +73,7 @@ class UniversalLinkCoordinator: Coordinator {
                                                 decimals: 0,
                                                 value: signedOrder.order.price.description,
                                                 isCustom: true,
-                                                isDisabled: false,
-                                                isERC875: true
+                                                isDisabled: false
                 )
             }
             if let price = ethPrice {
