@@ -259,8 +259,7 @@ class TokensDataStore {
             symbol: token.symbol,
             decimals: token.decimals,
             value: "0",
-            isCustom: true,
-            isERC875: token.isERC875
+            isCustom: true
         )
         token.balance.forEach { balance in
             newToken.balance.append(TokenBalance(balance: balance))
