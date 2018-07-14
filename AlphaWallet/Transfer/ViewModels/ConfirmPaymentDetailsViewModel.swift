@@ -99,7 +99,7 @@ struct ConfirmPaymentDetailsViewModel {
 
     var amountAttributedString: NSAttributedString {
         switch transaction.transferType {
-        case .token(let token):
+        case .ERC20Token(let token):
             return amountAttributedText(
                 string: fullFormatter.string(from: transaction.value, decimals: token.decimals)
             )
@@ -114,6 +114,10 @@ struct ConfirmPaymentDetailsViewModel {
         case .ERC875TokenOrder(let token):
             return amountAttributedText(
                     string: fullFormatter.string(from: transaction.value, decimals: token.decimals)
+            )
+        case .ERC721Token(let token):
+            return amountAttributedText(
+                string: fullFormatter.string(from: transaction.value, decimals: token.decimals)
             )
         }
     }

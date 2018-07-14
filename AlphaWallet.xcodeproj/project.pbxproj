@@ -438,6 +438,7 @@
 		73ED85A92034C42D00593BF3 /* StringFormatterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */; };
 		76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */; };
 		76F1D13FC8A41AD967C59947 /* ClaimOrderCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */; };
+		76F1D439D545AA9B7E686DCC /* ContractERC721Transfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D6838F0069D06414009D /* ContractERC721Transfer.swift */; };
 		76F1D51EFA6255E0D0381E06 /* GetERC721BalanceEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DC947821847220DE2B97 /* GetERC721BalanceEncode.swift */; };
 		76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */; };
 		76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */; };
@@ -482,7 +483,7 @@
 		AA26C61F20412A1E00318B9B /* TicketsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C61D20412A1D00318B9B /* TicketsViewController.swift */; };
 		AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */; };
 		AA26C62420412A4100318B9B /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62220412A4100318B9B /* Double.swift */; };
-		AA26C62620412C9A00318B9B /* ContractStormBirdTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62520412C9A00318B9B /* ContractStormBirdTransfer.swift */; };
+		AA26C62620412C9A00318B9B /* ContractERC875Transfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62520412C9A00318B9B /* ContractERC875Transfer.swift */; };
 		AA26C628204134C500318B9B /* TicketTableViewCellWithoutCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C627204134C500318B9B /* TicketTableViewCellWithoutCheckbox.swift */; };
 		AA4E531820425A9500143A09 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4E531720425A9500143A09 /* Date.swift */; };
 		AA574E632054ECA400F4B3AF /* RestClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA574E622054ECA400F4B3AF /* RestClient.swift */; };
@@ -979,6 +980,7 @@
 		76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimOrderCoordinator.swift; sourceTree = "<group>"; };
 		76F1D473FF303828D93C95EB /* GetERC721BalanceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721BalanceCoordinator.swift; sourceTree = "<group>"; };
 		76F1D4F77311FBF3A442E4B5 /* GetIsERC721Contract.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC721Contract.swift; sourceTree = "<group>"; };
+		76F1D6838F0069D06414009D /* ContractERC721Transfer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContractERC721Transfer.swift; sourceTree = "<group>"; };
 		76F1D8877226D5DD086B135D /* CreateRedeemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeemTests.swift; sourceTree = "<group>"; };
 		76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandlerTests.swift; sourceTree = "<group>"; };
 		76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimOrderCoordinatorTests.swift; sourceTree = "<group>"; };
@@ -1028,7 +1030,7 @@
 		AA26C61D20412A1D00318B9B /* TicketsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewController.swift; sourceTree = "<group>"; };
 		AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewInspectableEnhancements.swift; sourceTree = "<group>"; };
 		AA26C62220412A4100318B9B /* Double.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
-		AA26C62520412C9A00318B9B /* ContractStormBirdTransfer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContractStormBirdTransfer.swift; sourceTree = "<group>"; };
+		AA26C62520412C9A00318B9B /* ContractERC875Transfer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContractERC875Transfer.swift; sourceTree = "<group>"; };
 		AA26C627204134C500318B9B /* TicketTableViewCellWithoutCheckbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTableViewCellWithoutCheckbox.swift; sourceTree = "<group>"; };
 		AA4E531720425A9500143A09 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		AA574E622054ECA400F4B3AF /* RestClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestClient.swift; sourceTree = "<group>"; };
@@ -1299,7 +1301,7 @@
 			children = (
 				291795001F95F5E200539A30 /* GetBalance.swift */,
 				2963B6BE1F9AB9A2003063C1 /* ContractERC20Transfer.swift */,
-				AA26C62520412C9A00318B9B /* ContractStormBirdTransfer.swift */,
+				AA26C62520412C9A00318B9B /* ContractERC875Transfer.swift */,
 				299B5E281FCA8F040051361C /* GetERC20Balance.swift */,
 				AA893ED02037E93000CDCED1 /* GetERC20Name.swift */,
 				299B5E2A1FCA9A640051361C /* ApproveERC20.swift */,
@@ -1310,6 +1312,7 @@
 				76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */,
 				76F1DC947821847220DE2B97 /* GetERC721BalanceEncode.swift */,
 				76F1DC1E229431AA75EF94C3 /* GetIsERC721.swift */,
+				76F1D6838F0069D06414009D /* ContractERC721Transfer.swift */,
 			);
 			path = Commands;
 			sourceTree = "<group>";
@@ -3378,7 +3381,7 @@
 				77B3BF3C201908ED00EEC15A /* ConfirmCoordinator.swift in Sources */,
 				298542F91FBE9A0100CB5081 /* CryptoAddressValidator.swift in Sources */,
 				291F52C11F6C8A1F00B369AB /* AccountsViewModel.swift in Sources */,
-				AA26C62620412C9A00318B9B /* ContractStormBirdTransfer.swift in Sources */,
+				AA26C62620412C9A00318B9B /* ContractERC875Transfer.swift in Sources */,
 				7721A6CC202EFBC5004DB16C /* AddCustomNetworkViewController.swift in Sources */,
 				77872D322027AA4A0032D687 /* SliderTextFieldRow.swift in Sources */,
 				298542E31FBA722F00CB5081 /* ContainerView.swift in Sources */,
@@ -3677,6 +3680,7 @@
 				76F1D51EFA6255E0D0381E06 /* GetERC721BalanceEncode.swift in Sources */,
 				76F1D7F08263A663C3A67926 /* GetIsERC721Contract.swift in Sources */,
 				76F1DF0A4667F618D2BAE78C /* GetIsERC721.swift in Sources */,
+				76F1D439D545AA9B7E686DCC /* ContractERC721Transfer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

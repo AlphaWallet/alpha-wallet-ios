@@ -301,7 +301,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         case .ether:
             delegate?.didPress(for: .send(type: .ether(config: session.config, destination: .none)), in: self)
         case .token:
-            delegate?.didPress(for: .send(type: .token(token)), in: self)
+            delegate?.didPress(for: .send(type: .ERC20Token(token)), in: self)
         case .stormBird:
             delegate?.didPressERC875(for: .send(type: .ERC875Token(token)), token: token, in: self)
         case .stormBirdOrder:

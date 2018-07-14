@@ -63,11 +63,13 @@ class TransactionConfigurator {
         let to: Address? = {
             switch transaction.transferType {
             case .ether: return transaction.to
-            case .token(let token):
+            case .ERC20Token(let token):
                 return Address(string: token.contract)
             case .ERC875Token(let token):
                 return Address(string: token.contract)
             case .ERC875TokenOrder(let token):
+                return Address(string: token.contract)
+            case .ERC721Token(let token):
                 return Address(string: token.contract)
             }
         }()
@@ -111,7 +113,7 @@ class TransactionConfigurator {
                     data: transaction.data ?? self.configuration.data
             )
             completion(.success(()))
-        case .token:
+        case .ERC20Token:
             session.web3.request(request: ContractERC20Transfer(amount: transaction.value, address: transaction.to!.description)) { [unowned self] result in
                 switch result {
                 case .success(let res):
@@ -128,7 +130,7 @@ class TransactionConfigurator {
             }
                 //TODO clean up
         case .ERC875Token:
-            session.web3.request(request: ContractStormBirdTransfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
+            session.web3.request(request: ContractERC875Transfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
                 switch result {
                 case .success(let res):
                     let data = Data(hex: res.drop0x)
@@ -159,8 +161,28 @@ class TransactionConfigurator {
                     completion(.failure(error))
                 }
             }
+
+        case .ERC721Token:
+            session.web3.request(request: ContractERC721Transfer(address: transaction.to!.description,
+                    tokenId: transaction.tokenId!))
+            { [unowned self] result in
+                    switch result {
+                    case .success(let res):
+                        let data = Data(hex: res.drop0x)
+                        self.configuration = TransactionConfiguration(
+                                gasPrice: self.calculatedGasPrice,
+                                gasLimit: Constants.gasLimit,
+                                data: data
+                        )
+                        completion(.success(()))
+                    case .failure(let error):
+                        completion(.failure(error))
+                    }
+                }
+            }
+
         }
-    }
+
 
     func previewTransaction() -> PreviewTransaction {
         return PreviewTransaction(
@@ -180,17 +202,19 @@ class TransactionConfigurator {
         let value: BigInt = {
             switch transaction.transferType {
             case .ether: return transaction.value
-            case .token: return 0
+            case .ERC20Token: return 0
             case .ERC875Token: return 0
             case .ERC875TokenOrder: return transaction.value
+            case .ERC721Token: return 0
             }
         }()
         let address: Address? = {
             switch transaction.transferType {
             case .ether: return transaction.to
-            case .token(let token): return token.address
+            case .ERC20Token(let token): return token.address
             case .ERC875Token(let token): return token.address
             case .ERC875TokenOrder(let token): return token.address
+            case .ERC721Token(let token): return token.address
             }
         }()
         let signTransaction = UnsignedTransaction(
