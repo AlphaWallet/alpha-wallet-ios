@@ -77,9 +77,10 @@ class SendCoordinator: Coordinator {
         switch transferType {
         case .ether(_, let destination):
             controller.targetAddressTextField.value = destination?.description ?? ""
-        case .token: break
+        case .ERC20Token: break
         case .ERC875Token: break
         case .ERC875TokenOrder: break
+        case .ERC721Token: break
         }
         controller.delegate = self
         return controller

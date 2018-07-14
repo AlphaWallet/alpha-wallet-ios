@@ -513,6 +513,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         to: address,
                         data: Data(bytes: payload.hexa2Bytes),
                         gasLimit: Constants.gasLimit,
+                        tokenId: .none,
                         gasPrice: Constants.gasPriceDefaultERC875,
                         nonce: .none,
                         v: v,

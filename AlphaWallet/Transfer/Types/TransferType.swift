@@ -5,9 +5,10 @@ import TrustKeystore
 
 enum TransferType {
     case ether(config: Config, destination: Address?)
-    case token(TokenObject)
+    case ERC20Token(TokenObject)
     case ERC875Token(TokenObject)
     case ERC875TokenOrder(TokenObject)
+    case ERC721Token(TokenObject)
 }
 
 extension TransferType {
@@ -15,11 +16,13 @@ extension TransferType {
         switch self {
         case .ether:
             return server.symbol
-        case .token(let token):
+        case .ERC20Token(let token):
             return token.symbol
         case .ERC875Token(let token):
             return token.symbol
         case .ERC875TokenOrder(let token):
+            return token.symbol
+        case .ERC721Token(let token):
             return token.symbol
         }
     }
@@ -28,11 +31,13 @@ extension TransferType {
         switch self {
         case .ether(let config, _):
             return Address(string: TokensDataStore.etherToken(for: config).contract)!
-        case .token(let token):
+        case .ERC20Token(let token):
             return Address(string: token.contract)!
         case .ERC875Token(let token):
             return Address(string: token.contract)!
         case .ERC875TokenOrder(let token):
+            return Address(string: token.contract)!
+        case .ERC721Token(let token):
             return Address(string: token.contract)!
         }
     }

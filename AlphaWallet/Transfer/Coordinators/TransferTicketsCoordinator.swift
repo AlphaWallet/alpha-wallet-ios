@@ -71,6 +71,7 @@ class TransferTicketsCoordinator: Coordinator {
                     to: address,
                     data: Data(),
                     gasLimit: .none,
+                    tokenId: .none,
                     gasPrice: nil,
                     nonce: .none,
                     v: .none,

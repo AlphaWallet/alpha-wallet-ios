@@ -303,11 +303,13 @@ class SendViewController: UIViewController {
             switch transferType {
             case .ether:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
-            case .token(let token):
+            case .ERC20Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             case .ERC875Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             case .ERC875TokenOrder(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC721Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             }
         }()
@@ -325,6 +327,7 @@ class SendViewController: UIViewController {
                 to: address,
                 data: data,
                 gasLimit: .none,
+                tokenId: .none,
                 gasPrice: gasPrice,
                 nonce: .none,
                 v: .none,
@@ -459,7 +462,7 @@ class SendViewController: UIViewController {
                 }
             }
             session.refresh(.ethBalance)
-        case .token(let token):
+        case .ERC20Token(let token):
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
             headerViewModel.title = "\(amount) \(viewModel.symbol)"
