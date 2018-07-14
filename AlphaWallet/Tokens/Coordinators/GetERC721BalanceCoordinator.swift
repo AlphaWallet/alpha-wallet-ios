@@ -24,7 +24,7 @@ class GetERC721BalanceCoordinator {
             contract: Address,
             completion: @escaping (Result<[BigUInt], AnyError>) -> Void
     ) {
-        let request = GetStormBirdBalanceEncode(address: address)
+        let request = GetERC721BalanceEncode(address: address)
         web3.request(request: request) { result in
             switch result {
             case .success(let res):
@@ -34,7 +34,7 @@ class GetERC721BalanceCoordinator {
                 Session.send(request2) { [weak self] result2 in
                     switch result2 {
                     case .success(let balance):
-                        let request = GetStormBirdBalanceDecode(data: balance)
+                        let request = GetERC721BalanceDecode(data: balance)
                         self?.web3.request(request: request) { result in
                             switch result {
                             case .success(let res):
