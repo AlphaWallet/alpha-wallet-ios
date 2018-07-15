@@ -9,7 +9,7 @@
 import UIKit
 
 protocol RedeemTicketsQuantitySelectionViewControllerDelegate: class {
-    func didSelectQuantity(token: TokenObject, ticketHolder: TicketHolder, in viewController: RedeemTicketsQuantitySelectionViewController)
+    func didSelectQuantity(token: TokenObject, ticketHolder: TokenHolder, in viewController: RedeemTicketsQuantitySelectionViewController)
     func didPressViewInfo(in viewController: RedeemTicketsQuantitySelectionViewController)
     func didPressViewContractWebPage(in viewController: RedeemTicketsQuantitySelectionViewController)
 }
@@ -153,11 +153,11 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController, TicketVeri
         nextButton.titleLabel?.font = viewModel.buttonFont
     }
 
-    private func getTicketHolderFromQuantity() -> TicketHolder {
+    private func getTicketHolderFromQuantity() -> TokenHolder {
         let quantity = quantityStepper.value
         let ticketHolder = viewModel.ticketHolder
         let tickets = Array(ticketHolder.tickets[..<quantity])
-        return TicketHolder(
+        return TokenHolder(
             tickets: tickets,
             status: ticketHolder.status,
             contractAddress: ticketHolder.contractAddress

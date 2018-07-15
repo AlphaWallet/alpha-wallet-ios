@@ -34,12 +34,20 @@ class TokensDataStore {
         return GetSymbolCoordinator(web3: self.web3)
     }()
 
-    private lazy var getERC875BalanceCoordinator: GetERC875TokenBalanceCoordinator = {
-        return GetERC875TokenBalanceCoordinator(web3: self.web3)
+    private lazy var getERC875BalanceCoordinator: GetERC875BalanceCoordinator = {
+        return GetERC875BalanceCoordinator(web3: self.web3)
     }()
 
     private lazy var getIsERC875ContractCoordinator: GetIsERC875ContractCoordinator = {
         return GetIsERC875ContractCoordinator(web3: self.web3)
+    }()
+
+    private lazy var getERC721BalanceCoordinator: GetERC721BalanceCoordinator = {
+        return GetERC721BalanceCoordinator(web3: self.web3)
+    }()
+
+    private lazy var getIsERC721ContractCoordinator: GetIsERC721ContractCoordinator = {
+        return GetIsERC721ContractCoordinator(web3: self.web3)
     }()
 
     private lazy var getDecimalsCoordinator: GetDecimalsCoordinator = {
@@ -70,7 +78,8 @@ class TokensDataStore {
             symbol: config.server.symbol,
             decimals: config.server.decimals,
             value: "0",
-            isCustom: false
+            isCustom: false,
+            type: .ether
         )
     }
 
@@ -178,6 +187,64 @@ class TokensDataStore {
         }
     }
 
+    func getERC721Balance(for addressString: String,
+                          completion: @escaping (Result<[String], AnyError>) -> Void) {
+        let address = Address(string: addressString)
+        getERC721BalanceCoordinator.getERC721TokenBalance(for: account.address, contract: address!) { result in
+            switch result {
+            case .success(let ints):
+                completion(.success(ints.map { MarketQueueHandler.bytesToHexa($0.data.array) }))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func getTokenType(for addressString: String,
+                      completion: @escaping (TokenType) -> Void) {
+        let address = Address(string: addressString)
+        getIsERC875ContractCoordinator.getIsERC875Contract(for: address!) { result in
+            switch result {
+            case .success(let isERC875):
+                if isERC875 {
+                    completion(.erc875)
+                } else {
+                    self.getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { result in
+                        switch result {
+                        case .success(let isERC721):
+                            if isERC721 {
+                                completion(.erc721)
+                            } else {
+                                completion(.erc20)
+                            }
+                            break
+                        case .failure:
+                            completion(.erc20)
+                            break
+                        }
+                    }
+                }
+                break
+            case .failure:
+                self.getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { result in
+                    switch result {
+                    case .success(let isERC721):
+                        if isERC721 {
+                            completion(.erc721)
+                        } else {
+                            completion(.erc20)
+                        }
+                        break
+                    case .failure:
+                        completion(.erc20)
+                        break
+                    }
+                }
+                break
+            }
+        }
+    }
+
     //Result<Void, AnyError>
     //claim order continues to use indices to do the transaction, not the bytes32 variables
     func claimOrder(ticketIndices: [UInt16],
@@ -200,16 +267,10 @@ class TokensDataStore {
         let updateTokens = enabledObject.filter { $0 != etherToken }
         var count = 0
         for tokenObject in updateTokens {
-            if tokenObject.isERC875 {
-                getERC875Balance(for: tokenObject.contract, completion: { result in
-                    switch result {
-                    case .success(let balance):
-                        self.update(token: tokenObject, action: .stormBirdBalance(balance))
-                    case .failure: break
-                    }
-
-                })
-            } else {
+            switch tokenObject.type {
+            case .ether:
+                break
+            case .erc20:
                 guard let contract = Address(string: tokenObject.contract) else { return }
                 getBalanceCoordinator.getBalance(for: account.address, contract: contract) { [weak self] result in
                     guard let `self` = self else { return }
@@ -223,6 +284,24 @@ class TokensDataStore {
                         self.refreshETHBalance()
                     }
                 }
+            case .erc875:
+                getERC875Balance(for: tokenObject.contract, completion: { result in
+                    switch result {
+                    case .success(let balance):
+                        self.update(token: tokenObject, action: .stormBirdBalance(balance))
+                    case .failure: break
+                    }
+
+                })
+            case .erc721:
+                getERC721Balance(for: tokenObject.contract, completion: { result in
+                    switch result {
+                    case .success(let balance):
+                        self.update(token: tokenObject, action: .stormBirdBalance(balance))
+                    case .failure: break
+                    }
+
+                })
             }
         }
     }
@@ -259,7 +338,8 @@ class TokensDataStore {
             symbol: token.symbol,
             decimals: token.decimals,
             value: "0",
-            isCustom: true
+            isCustom: true,
+            type: token.type
         )
         token.balance.forEach { balance in
             newToken.balance.append(TokenBalance(balance: balance))
@@ -338,7 +418,6 @@ class TokensDataStore {
 
     func update(token: TokenObject, action: TokenUpdate) {
         guard !token.isInvalidated else { return }
-        //let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
         try! realm.write {
             switch action {
             case .value(let value):

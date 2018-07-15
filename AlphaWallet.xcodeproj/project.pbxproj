@@ -197,7 +197,7 @@
 		29E6E0721FEA200D0079265A /* ConfirmPaymentDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E6E0711FEA200D0079265A /* ConfirmPaymentDetailsViewModel.swift */; };
 		29E9CFCB1FE70D5B00017744 /* GetBalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E9CFCA1FE70D5B00017744 /* GetBalanceCoordinator.swift */; };
 		29E9CFCD1FE7343C00017744 /* NewTokenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E9CFCC1FE7343C00017744 /* NewTokenViewModel.swift */; };
-		29E9CFCF1FE7347200017744 /* ERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E9CFCE1FE7347200017744 /* ERC20Token.swift */; };
+		29E9CFCF1FE7347200017744 /* ERCToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E9CFCE1FE7347200017744 /* ERCToken.swift */; };
 		29E9CFD21FE737FE00017744 /* TrustRealmConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29E9CFD11FE737FE00017744 /* TrustRealmConfiguration.swift */; };
 		29EB102A1F6CBD23000907A4 /* UIAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29EB10291F6CBD23000907A4 /* UIAlertController.swift */; };
 		29F114E91FA3EC9E00114A29 /* InCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29F114E81FA3EC9E00114A29 /* InCoordinatorTests.swift */; };
@@ -254,12 +254,12 @@
 		442FC5F70AF003F331F7C841 /* GetSymbolCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCB2726DB345481C1FDA1 /* GetSymbolCoordinator.swift */; };
 		442FC65BFA2D42879648EC06 /* Int.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCCAC6A172506637A2FF6 /* Int.swift */; };
 		442FC7777D495D3095836CA6 /* RedeemTicketsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCB2915417EB871E40D6C /* RedeemTicketsViewModel.swift */; };
-		442FC81F38F80EEF54C69C5B /* TicketAdaptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC20E6470B92A46479342 /* TicketAdaptor.swift */; };
+		442FC81F38F80EEF54C69C5B /* TokenAdaptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC20E6470B92A46479342 /* TokenAdaptor.swift */; };
 		442FC8E82231273273B95D85 /* FakeClaimOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCE526E2089CAE88D5602 /* FakeClaimOrderCoordinator.swift */; };
 		442FC9C4FAC64192FF5DCC40 /* GetERC20Decimals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC72F9D22CC36AC015274 /* GetERC20Decimals.swift */; };
 		442FCA2F6C6A21C27B628AA4 /* TicketTableViewCellWithCheckbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCD4311FCAFE6FB288A5E /* TicketTableViewCellWithCheckbox.swift */; };
 		442FCACD46848927C84DE66E /* EndPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC203B8266AB92D8F4032 /* EndPoints.swift */; };
-		442FCAD7292D93C261B97D09 /* TicketHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */; };
+		442FCAD7292D93C261B97D09 /* TokenHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCFEB2D7443C4E0B889B0 /* TokenHolder.swift */; };
 		442FCB2B0DD39EB2D9233A2F /* GetERC875Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC8B1D5B4317DE7D68325 /* GetERC875Balance.swift */; };
 		442FCB593844F3B8F74BC8C5 /* EventsRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC94DC1CA79FE4F3360E2 /* EventsRest.swift */; };
 		442FCB9850FC6F2D28978199 /* GetERC20Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCBDD3A69DF75551B10AC /* GetERC20Symbol.swift */; };
@@ -735,7 +735,7 @@
 		29E6E0711FEA200D0079265A /* ConfirmPaymentDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmPaymentDetailsViewModel.swift; sourceTree = "<group>"; };
 		29E9CFCA1FE70D5B00017744 /* GetBalanceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetBalanceCoordinator.swift; sourceTree = "<group>"; };
 		29E9CFCC1FE7343C00017744 /* NewTokenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenViewModel.swift; sourceTree = "<group>"; };
-		29E9CFCE1FE7347200017744 /* ERC20Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ERC20Token.swift; sourceTree = "<group>"; };
+		29E9CFCE1FE7347200017744 /* ERCToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ERCToken.swift; sourceTree = "<group>"; };
 		29E9CFD11FE737FE00017744 /* TrustRealmConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrustRealmConfiguration.swift; sourceTree = "<group>"; };
 		29EB10291F6CBD23000907A4 /* UIAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAlertController.swift; sourceTree = "<group>"; };
 		29F114E81FA3EC9E00114A29 /* InCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InCoordinatorTests.swift; sourceTree = "<group>"; };
@@ -785,7 +785,7 @@
 		442FC084706C14853B4A7B31 /* Event.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Event.swift; sourceTree = "<group>"; };
 		442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetDecimalsCoordinator.swift; sourceTree = "<group>"; };
 		442FC203B8266AB92D8F4032 /* EndPoints.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EndPoints.swift; sourceTree = "<group>"; };
-		442FC20E6470B92A46479342 /* TicketAdaptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketAdaptor.swift; sourceTree = "<group>"; };
+		442FC20E6470B92A46479342 /* TokenAdaptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenAdaptor.swift; sourceTree = "<group>"; };
 		442FC54DA900FA2F9BB73A63 /* RedeemTicketsQuantitySelectionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemTicketsQuantitySelectionViewModel.swift; sourceTree = "<group>"; };
 		442FC575B6A4A50B0555E1B0 /* NumberStepper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumberStepper.swift; sourceTree = "<group>"; };
 		442FC57AD0C04FAB66FB834D /* RedeemEventListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemEventListener.swift; sourceTree = "<group>"; };
@@ -809,7 +809,7 @@
 		442FCD4311FCAFE6FB288A5E /* TicketTableViewCellWithCheckbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTableViewCellWithCheckbox.swift; sourceTree = "<group>"; };
 		442FCE526E2089CAE88D5602 /* FakeClaimOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeClaimOrderCoordinator.swift; sourceTree = "<group>"; };
 		442FCEBC98D0A367D258D2C3 /* GetIsERC875ContractCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC875ContractCoordinator.swift; sourceTree = "<group>"; };
-		442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketHolder.swift; sourceTree = "<group>"; };
+		442FCFEB2D7443C4E0B889B0 /* TokenHolder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenHolder.swift; sourceTree = "<group>"; };
 		477899BEAA4489DA423E8857 /* Pods-TrustUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrustUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TrustUITests/Pods-TrustUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		4DB8204016307EAFC079EA48 /* Pods-Trust.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWallet/Pods-Trust.debug.xcconfig"; sourceTree = "<group>"; };
 		5E7C70088832B2D161EB4AAB /* SendViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendViewController.swift; sourceTree = "<group>"; };
@@ -1747,11 +1747,11 @@
 			isa = PBXGroup;
 			children = (
 				294DFBAD1FE6F254004CEB56 /* TokenObject.swift */,
-				29E9CFCE1FE7347200017744 /* ERC20Token.swift */,
+				29E9CFCE1FE7347200017744 /* ERCToken.swift */,
 				29C0FCE4200EBAF6004A13CB /* TokenType.swift */,
 				AA893ED4203C3E5400CDCED1 /* TokenBalance.swift */,
 				442FC90F0768C43EF903465B /* Ticket.swift */,
-				442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */,
+				442FCFEB2D7443C4E0B889B0 /* TokenHolder.swift */,
 				5E7C74B9EB81C51E956566E7 /* TokensDataStore.swift */,
 				5E7C72BEB789700C49FF64A6 /* DeletedContract.swift */,
 			);
@@ -2342,7 +2342,7 @@
 		442FCB1A0F74A68425907AC9 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				442FC20E6470B92A46479342 /* TicketAdaptor.swift */,
+				442FC20E6470B92A46479342 /* TokenAdaptor.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -3347,7 +3347,7 @@
 				29FC0CB81F8299510036089F /* Coordinator.swift in Sources */,
 				29282B531F7630970067F88D /* Token.swift in Sources */,
 				29F1C85D2003698A003780D8 /* WellDoneViewController.swift in Sources */,
-				29E9CFCF1FE7347200017744 /* ERC20Token.swift in Sources */,
+				29E9CFCF1FE7347200017744 /* ERCToken.swift in Sources */,
 				29FF6D73201200D500A3011C /* FieldAppereance.swift in Sources */,
 				29C9F5FB1F720C050025C494 /* FloatLabelTextField.swift in Sources */,
 				296421951F70C1EC00EB363B /* LoadingView.swift in Sources */,
@@ -3527,8 +3527,8 @@
 				76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */,
 				442FCD76B5C25C9FB7FE7479 /* TicketsViewModel.swift in Sources */,
 				442FC2CC21FFFC4FAB33A300 /* Ticket.swift in Sources */,
-				442FCAD7292D93C261B97D09 /* TicketHolder.swift in Sources */,
-				442FC81F38F80EEF54C69C5B /* TicketAdaptor.swift in Sources */,
+				442FCAD7292D93C261B97D09 /* TokenHolder.swift in Sources */,
+				442FC81F38F80EEF54C69C5B /* TokenAdaptor.swift in Sources */,
 				442FC258BAEFDE2D64E48D0D /* TicketsCoordinator.swift in Sources */,
 				76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */,
 				76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */,

@@ -3,7 +3,7 @@
 import UIKit
 
 struct TicketRowViewModel {
-    var ticketHolder: TicketHolder? = nil
+    var ticketHolder: TokenHolder? = nil
 
     var backgroundColor: UIColor {
         return Colors.appWhite

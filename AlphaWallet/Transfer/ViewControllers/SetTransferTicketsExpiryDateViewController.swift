@@ -3,7 +3,7 @@
 import UIKit
 
 protocol SetTransferTicketsExpiryDateViewControllerDelegate: class {
-    func didPressNext(ticketHolder: TicketHolder, linkExpiryDate: Date, in viewController: SetTransferTicketsExpiryDateViewController)
+    func didPressNext(ticketHolder: TokenHolder, linkExpiryDate: Date, in viewController: SetTransferTicketsExpiryDateViewController)
     func didPressViewInfo(in viewController: SetTransferTicketsExpiryDateViewController)
     func didPressViewContractWebPage(in viewController: SetTransferTicketsExpiryDateViewController)
 }
@@ -30,11 +30,11 @@ class SetTransferTicketsExpiryDateViewController: UIViewController, TicketVerifi
     let noteBorderView = UIView()
     let nextButton = UIButton(type: .system)
     var viewModel: SetTransferTicketsExpiryDateViewControllerViewModel!
-    var ticketHolder: TicketHolder
+    var ticketHolder: TokenHolder
     var paymentFlow: PaymentFlow
     weak var delegate: SetTransferTicketsExpiryDateViewControllerDelegate?
 
-    init(config: Config, ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+    init(config: Config, ticketHolder: TokenHolder, paymentFlow: PaymentFlow) {
         self.config = config
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow

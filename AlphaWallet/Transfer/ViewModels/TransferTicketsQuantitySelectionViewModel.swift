@@ -6,7 +6,7 @@ import UIKit
 struct TransferTicketsQuantitySelectionViewModel {
 
     var token: TokenObject
-    var ticketHolder: TicketHolder
+    var ticketHolder: TokenHolder
 
     var headerTitle: String {
 		return R.string.localizable.aWalletTicketTokenTransferSelectQuantityTitle()

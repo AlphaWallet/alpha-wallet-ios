@@ -14,7 +14,7 @@ import TrustKeystore
 protocol TicketsViewControllerDelegate: class {
     func didPressRedeem(token: TokenObject, in viewController: TicketsViewController)
     func didPressSell(for type: PaymentFlow, in viewController: TicketsViewController)
-    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in viewController: TicketsViewController)
+    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TokenHolder], in viewController: TicketsViewController)
     func didCancel(in viewController: TicketsViewController)
     func didPressViewRedemptionInfo(in viewController: TicketsViewController)
     func didPressViewContractWebPage(in viewController: TicketsViewController)
@@ -143,6 +143,19 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
         transferButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         transferButton.backgroundColor = viewModel.buttonBackgroundColor
         transferButton.titleLabel?.font = viewModel.buttonFont
+
+        switch tokenObject.type {
+        case .ether:
+            break
+        case .erc20:
+            break
+        case .erc875:
+            redeemButton.isHidden = false
+            sellButton.isHidden = false
+        case .erc721:
+            redeemButton.isHidden = true
+            sellButton.isHidden = true
+        }
 
         tableView.reloadData()
     }

@@ -3,7 +3,7 @@
 import UIKit
 
 protocol EnterSellTicketsPriceQuantityViewControllerDelegate: class {
-    func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TicketHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController)
+    func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TokenHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController)
     func didPressViewInfo(in viewController: EnterSellTicketsPriceQuantityViewController)
     func didPressViewContractWebPage(in viewController: EnterSellTicketsPriceQuantityViewController)
 }
@@ -308,11 +308,11 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
         nextButton.titleLabel?.font = viewModel.buttonFont
     }
 
-    private func getTicketHolderFromQuantity() -> TicketHolder {
+    private func getTicketHolderFromQuantity() -> TokenHolder {
         let quantity = quantityStepper.value
         let ticketHolder = viewModel.ticketHolder
         let tickets = Array(ticketHolder.tickets[..<quantity])
-        return TicketHolder(
+        return TokenHolder(
             tickets: tickets,
             status: ticketHolder.status,
             contractAddress: ticketHolder.contractAddress
