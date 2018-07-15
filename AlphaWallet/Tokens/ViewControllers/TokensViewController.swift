@@ -223,15 +223,7 @@ extension TokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
 
-        //TODO extract getting type of token/config from TokensDatastore class side and instance side
-        let type: TokenType = {
-            if token.isERC875 {
-                return .erc875
-            }
-            return TokensDataStore.etherToken(for: dataStore.config) == token ? .ether : .erc20
-        }()
-
-        switch type {
+        switch token.type {
         case .ether:
             let cellViewModel = EthTokenViewCellViewModel(
                     token: token,
@@ -242,6 +234,14 @@ extension TokensViewController: UITableViewDelegate {
             return cellViewModel.cellHeight
         case .erc20:
             let cellViewModel = TokenViewCellViewModel(
+                    token: token,
+                    ticker: viewModel.ticker(for: token)
+            )
+            return cellViewModel.cellHeight
+                //kkk fix
+        case .erc721:
+            let cellViewModel = TicketTokenViewCellViewModel(
+                    config: dataStore.config,
                     token: token,
                     ticker: viewModel.ticker(for: token)
             )
@@ -306,6 +306,17 @@ extension TokensViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewCell.identifier, for: indexPath) as! TokenViewCell
             cell.configure(
                     viewModel: .init(
+                            token: token,
+                            ticker: viewModel.ticker(for: token)
+                    )
+            )
+            return cell
+                //kkk fix
+        case .erc721:
+            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
+            cell.configure(
+                    viewModel: .init(
+                            config: dataStore.config,
                             token: token,
                             ticker: viewModel.ticker(for: token)
                     )

@@ -34,12 +34,12 @@ class TokensDataStore {
         return GetSymbolCoordinator(web3: self.web3)
     }()
 
-    private lazy var getStormBirdBalanceCoordinator: GetERC875TokenBalanceCoordinator = {
+    private lazy var getERC875BalanceCoordinator: GetERC875TokenBalanceCoordinator = {
         return GetERC875TokenBalanceCoordinator(web3: self.web3)
     }()
 
-    private lazy var getIsStormBirdCoordinator: GetIsStormBirdCoordinator = {
-        return GetIsStormBirdCoordinator(web3: self.web3)
+    private lazy var getIsERC875ContractCoordinator: GetIsERC875ContractCoordinator = {
+        return GetIsERC875ContractCoordinator(web3: self.web3)
     }()
 
     private lazy var getDecimalsCoordinator: GetDecimalsCoordinator = {
@@ -162,18 +162,18 @@ class TokensDataStore {
         }
     }
 
-    func getStormBirdBalance(for addressString: String,
-                             completion: @escaping (Result<[String], AnyError>) -> Void) {
+    func getERC875Balance(for addressString: String,
+                          completion: @escaping (Result<[String], AnyError>) -> Void) {
         let address = Address(string: addressString)
-        getStormBirdBalanceCoordinator.getERC875TokenBalance(for: account.address, contract: address!) { result in
+        getERC875BalanceCoordinator.getERC875TokenBalance(for: account.address, contract: address!) { result in
             completion(result)
         }
     }
 
-    func getIsStormBird(for addressString: String,
-                        completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    func getIsERC875Contract(for addressString: String,
+                             completion: @escaping (Result<Bool, AnyError>) -> Void) {
         let address = Address(string: addressString)
-        getIsStormBirdCoordinator.getIsStormBirdContract(for: address!) { result in
+        getIsERC875ContractCoordinator.getIsERC875Contract(for: address!) { result in
             completion(result)
         }
     }
@@ -201,7 +201,7 @@ class TokensDataStore {
         var count = 0
         for tokenObject in updateTokens {
             if tokenObject.isERC875 {
-                getStormBirdBalance(for: tokenObject.contract, completion: { result in
+                getERC875Balance(for: tokenObject.contract, completion: { result in
                     switch result {
                     case .success(let balance):
                         self.update(token: tokenObject, action: .stormBirdBalance(balance))

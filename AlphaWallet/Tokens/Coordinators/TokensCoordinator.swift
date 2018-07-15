@@ -245,11 +245,11 @@ class TokensCoordinator: Coordinator {
             }
         }
 
-        self.storage.getIsStormBird(for: address) { result in
+        self.storage.getIsERC875Contract(for: address) { result in
             switch result {
-            case .success(let isStormBird):
-                if isStormBird {
-                    self.storage.getStormBirdBalance(for: address) { result in
+            case .success(let isERC875):
+                if isERC875 {
+                    self.storage.getERC875Balance(for: address) { result in
                         switch result {
                         case .success(let balance):
                             completedBalance = balance
@@ -291,6 +291,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didSelect(token: TokenObject, in viewController: UIViewController) {
 
         let type: TokenType = {
+            //kkk can just return token.type if not ether?
             if token.isERC875 {
                 return .erc875
             }
@@ -302,6 +303,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             delegate?.didPress(for: .send(type: .ether(config: session.config, destination: .none)), in: self)
         case .erc20:
             delegate?.didPress(for: .send(type: .ERC20Token(token)), in: self)
+        case .erc721:
+            //kkk how?
+            delegate?.didPressERC875(for: .send(type: .ERC875Token(token)), token: token, in: self)
         case .erc875:
             delegate?.didPressERC875(for: .send(type: .ERC875Token(token)), token: token, in: self)
         }

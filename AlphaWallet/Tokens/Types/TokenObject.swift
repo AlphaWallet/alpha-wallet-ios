@@ -22,7 +22,11 @@ class TokenObject: Object {
             rawType = newValue.rawValue
         }
     }
-    
+
+    var isERC721: Bool {
+        return type == .erc721
+    }
+
     var isERC875: Bool {
         return type == .erc875
     }

@@ -1,24 +1,24 @@
 import Foundation
 import TrustKeystore
 
-struct GetIsStormBirdEncode: Web3Request {
+struct GetIsERC875Encode: Web3Request {
     typealias Response = String
     
     static let abi = "{\"constant\":true,\"inputs\":[],\"name\":\"isStormBirdContract\",\"outputs\":[{\"name\":\"\",\"type\":\"bool\"}],\"payable\":false,\"stateMutability\":\"view\",\"type\":\"function\"}"
 
     var type: Web3RequestType {
-        let run = "web3.eth.abi.encodeFunctionCall(\(GetIsStormBirdEncode.abi), [])"
+        let run = "web3.eth.abi.encodeFunctionCall(\(GetIsERC875Encode.abi), [])"
         return .script(command: run)
     }
 }
 
-struct GetIsStormBirdDecode: Web3Request {
+struct GetIsERC875Decode: Web3Request {
     typealias Response = String
 
     let data: String
 
     var type: Web3RequestType {
-        let run = "web3.eth.abi.decodeParameter('uint256', '\(data)')"
+        let run = "web3.eth.abi.decodeParameter('bool', '\(data)')"
         return .script(command: run)
     }
 }
