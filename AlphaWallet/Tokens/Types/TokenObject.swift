@@ -13,10 +13,6 @@ class TokenObject: Object {
     @objc dynamic var value: String = ""
     @objc dynamic var isDisabled: Bool = false
     var balance = List<TokenBalance>()
-    enum TokenType: String {
-        case erc20 = "ERC20"
-        case erc875 = "ERC875"
-    }
     @objc dynamic var rawType: String = TokenType.erc20.rawValue
     var type: TokenType {
         get {

@@ -226,9 +226,9 @@ extension TokensViewController: UITableViewDelegate {
         //TODO extract getting type of token/config from TokensDatastore class side and instance side
         let type: TokenType = {
             if token.isERC875 {
-                return .stormBird
+                return .erc875
             }
-            return TokensDataStore.etherToken(for: dataStore.config) == token ? .ether : .token
+            return TokensDataStore.etherToken(for: dataStore.config) == token ? .ether : .erc20
         }()
 
         switch type {
@@ -240,24 +240,17 @@ extension TokensViewController: UITableViewDelegate {
                     currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
             )
             return cellViewModel.cellHeight
-        case .token:
+        case .erc20:
             let cellViewModel = TokenViewCellViewModel(
                     token: token,
                     ticker: viewModel.ticker(for: token)
             )
             return cellViewModel.cellHeight
-        case .stormBird:
+        case .erc875:
             let cellViewModel = TicketTokenViewCellViewModel(
                     config: dataStore.config,
                     token: token,
                     ticker: viewModel.ticker(for: token)
-            )
-            return cellViewModel.cellHeight
-        case .stormBirdOrder:
-            let cellViewModel = TicketTokenViewCellViewModel(
-                config: dataStore.config,
-                token: token,
-                ticker: viewModel.ticker(for: token)
             )
             return cellViewModel.cellHeight
         }
@@ -292,9 +285,9 @@ extension TokensViewController: UITableViewDataSource {
         //TODO extract getting type of token/config from TokensDatastore class side and instance side
         let type: TokenType = {
             if token.isERC875 {
-                return .stormBird
+                return .erc875
             }
-            return TokensDataStore.etherToken(for: dataStore.config) == token ? .ether : .token
+            return TokensDataStore.etherToken(for: dataStore.config) == token ? .ether : .erc20
         }()
 
         switch type {
@@ -309,7 +302,7 @@ extension TokensViewController: UITableViewDataSource {
                     )
             )
             return cell
-        case .token:
+        case .erc20:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewCell.identifier, for: indexPath) as! TokenViewCell
             cell.configure(
                     viewModel: .init(
@@ -318,7 +311,7 @@ extension TokensViewController: UITableViewDataSource {
                     )
             )
             return cell
-        case .stormBird:
+        case .erc875:
             let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
             cell.configure(
                     viewModel: .init(
@@ -326,16 +319,6 @@ extension TokensViewController: UITableViewDataSource {
                             token: token,
                             ticker: viewModel.ticker(for: token)
                     )
-            )
-            return cell
-        case .stormBirdOrder:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
-            cell.configure(
-                viewModel: .init(
-                    config: dataStore.config,
-                    token: token,
-                    ticker: viewModel.ticker(for: token)
-                )
             )
             return cell
         }

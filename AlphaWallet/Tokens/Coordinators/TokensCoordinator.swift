@@ -292,20 +292,18 @@ extension TokensCoordinator: TokensViewControllerDelegate {
 
         let type: TokenType = {
             if token.isERC875 {
-                return .stormBird
+                return .erc875
             }
-            return TokensDataStore.etherToken(for: session.config) == token ? .ether : .token
+            return TokensDataStore.etherToken(for: session.config) == token ? .ether : .erc20
         }()
 
         switch type {
         case .ether:
             delegate?.didPress(for: .send(type: .ether(config: session.config, destination: .none)), in: self)
-        case .token:
+        case .erc20:
             delegate?.didPress(for: .send(type: .ERC20Token(token)), in: self)
-        case .stormBird:
+        case .erc875:
             delegate?.didPressERC875(for: .send(type: .ERC875Token(token)), token: token, in: self)
-        case .stormBirdOrder:
-            break
         }
     }
 
