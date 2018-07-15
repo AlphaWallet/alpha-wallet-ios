@@ -12,7 +12,6 @@ class TokenObject: Object {
     @objc dynamic var decimals: Int = 0
     @objc dynamic var value: String = ""
     @objc dynamic var isDisabled: Bool = false
-    @objc dynamic var isERC875: Bool = false
     var balance = List<TokenBalance>()
     enum TokenType: String {
         case erc20 = "ERC20"
@@ -28,7 +27,7 @@ class TokenObject: Object {
         }
     }
     
-    var checkIfERC875: Bool {
+    var isERC875: Bool {
         return type == .erc875
     }
     
@@ -43,8 +42,7 @@ class TokenObject: Object {
             decimals: Int = 0,
             value: String,
             isCustom: Bool = false,
-            isDisabled: Bool = false,
-            isERC875: Bool = false
+            isDisabled: Bool = false
     ) {
         self.init()
         self.contract = contract
@@ -53,7 +51,6 @@ class TokenObject: Object {
         self.decimals = decimals
         self.value = value
         self.isDisabled = isDisabled
-        self.isERC875 = isERC875
     }
 
     var address: Address {
