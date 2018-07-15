@@ -7,12 +7,12 @@ struct NewTokenViewModel {
         return R.string.localizable.tokensNewtokenNavigationTitle()
     }
 
-    var stormBirdBalance: [String] = []
+    var ERC875TokenBalance: [String] = []
 
-    var stormBirdBalanceAsInt: Int {
+    var ERC875TokenBalanceAmount: Int {
         var balance = 0
-        if !stormBirdBalance.isEmpty {
-            for _ in 0...stormBirdBalance.count - 1 {
+        if !ERC875TokenBalance.isEmpty {
+            for _ in 0...ERC875TokenBalance.count - 1 {
                 balance += 1
             }
         }

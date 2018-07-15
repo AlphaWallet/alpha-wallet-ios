@@ -23,7 +23,7 @@ class UniversalLinkCoordinator: Coordinator {
     var ethBalance: Subscribable<BigInt>?
     var hasCompleted = false
     var addressOfNewWallet: String?
-    private var getStormbirdBalanceCoordinator: GetStormBirdBalanceCoordinator?
+    private var getERC875TokenBalanceCoordinator: GetERC875TokenBalanceCoordinator?
     //TODO better to make sure ticketHolder is non-optional. But be careful that ImportTicketViewController also handles when viewModel always has a TicketHolder. Needs good defaults in TicketHolder that can be displayed
     var ticketHolder: TicketHolder?
 
@@ -73,8 +73,7 @@ class UniversalLinkCoordinator: Coordinator {
                                                 decimals: 0,
                                                 value: signedOrder.order.price.description,
                                                 isCustom: true,
-                                                isDisabled: false,
-                                                isStormBird: true
+                                                isDisabled: false
                 )
             }
             if let price = ethPrice {
@@ -156,8 +155,8 @@ class UniversalLinkCoordinator: Coordinator {
             //gather signer address balance
             let web3Swift = Web3Swift()
             web3Swift.start()
-            getStormbirdBalanceCoordinator = GetStormBirdBalanceCoordinator(web3: web3Swift)
-            getStormbirdBalanceCoordinator?.getStormBirdBalance(for: recoverAddress, contract: contractAsAddress) { result in
+            getERC875TokenBalanceCoordinator = GetERC875TokenBalanceCoordinator(web3: web3Swift)
+            getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { result in
                 //filter null tickets
                 let filteredTokens = self.checkERC875TokensAreAvailable(
                         indices: signedOrder.order.indices,

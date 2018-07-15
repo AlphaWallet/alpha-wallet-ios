@@ -305,9 +305,9 @@ class SendViewController: UIViewController {
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .stormBird(let token):
+            case .ERC875Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .stormBirdOrder(let token):
+            case .ERC875TokenOrder(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             }
         }()

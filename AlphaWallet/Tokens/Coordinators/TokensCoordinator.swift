@@ -7,7 +7,7 @@ import Alamofire
 
 protocol TokensCoordinatorDelegate: class {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
-    func didPressStormBird(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator)
+    func didPressERC875(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator)
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
 }
 
@@ -124,7 +124,7 @@ class TokensCoordinator: Coordinator {
                             name: name,
                             symbol: symbol,
                             decimals: 0,
-                            isStormBird: true,
+                            isERC875: true,
                             balance: balance
                     )
                     self.storage.addCustom(token: token)
@@ -291,7 +291,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didSelect(token: TokenObject, in viewController: UIViewController) {
 
         let type: TokenType = {
-            if token.isStormBird {
+            if token.isERC875 {
                 return .stormBird
             }
             return TokensDataStore.etherToken(for: session.config) == token ? .ether : .token
@@ -303,7 +303,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         case .token:
             delegate?.didPress(for: .send(type: .token(token)), in: self)
         case .stormBird:
-            delegate?.didPressStormBird(for: .send(type: .stormBird(token)), token: token, in: self)
+            delegate?.didPressERC875(for: .send(type: .ERC875Token(token)), token: token, in: self)
         case .stormBirdOrder:
             break
         }
@@ -335,10 +335,10 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
             case .symbol(let symbol):
                 viewController.updateSymbolValue(symbol)
             case .balance(let balance):
-                viewController.updateFormForStormBirdToken(true)
+                viewController.updateFormForERC875Token(true)
                 viewController.updateBalanceValue(balance)
             case .decimals(let decimals):
-                viewController.updateFormForStormBirdToken(false)
+                viewController.updateFormForERC875Token(false)
                 viewController.updateDecimalsValue(decimals)
             case .stormBirdComplete:
                 break

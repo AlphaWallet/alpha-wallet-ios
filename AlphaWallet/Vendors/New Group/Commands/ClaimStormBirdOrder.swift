@@ -16,7 +16,7 @@ import TrustKeystore
 import BigInt
 
 
-struct ClaimStormBirdOrder: Web3Request {
+struct ClaimERC875Order: Web3Request {
     typealias Response = String
 
     let expiry: BigUInt

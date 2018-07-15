@@ -78,8 +78,8 @@ class SendCoordinator: Coordinator {
         case .ether(_, let destination):
             controller.targetAddressTextField.value = destination?.description ?? ""
         case .token: break
-        case .stormBird: break
-        case .stormBirdOrder: break
+        case .ERC875Token: break
+        case .ERC875TokenOrder: break
         }
         controller.delegate = self
         return controller

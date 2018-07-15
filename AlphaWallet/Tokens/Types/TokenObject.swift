@@ -11,20 +11,38 @@ class TokenObject: Object {
     @objc dynamic var symbol: String = ""
     @objc dynamic var decimals: Int = 0
     @objc dynamic var value: String = ""
-    @objc dynamic var isCustom: Bool = false
     @objc dynamic var isDisabled: Bool = false
-    @objc dynamic var isStormBird: Bool = false
     var balance = List<TokenBalance>()
+    enum TokenType: String {
+        case erc20 = "ERC20"
+        case erc875 = "ERC875"
+    }
+    @objc dynamic var rawType: String = TokenType.erc20.rawValue
+    var type: TokenType {
+        get {
+            return TokenType(rawValue: rawType)!
+        }
+        set {
+            rawType = newValue.rawValue
+        }
+    }
+    
+    var isERC875: Bool {
+        return type == .erc875
+    }
+    
+    var isERC20: Bool {
+        return type == .erc20
+    }
 
     convenience init(
-        contract: String = "",
-        name: String = "",
-        symbol: String = "",
-        decimals: Int = 0,
-        value: String,
-        isCustom: Bool = false,
-        isDisabled: Bool = false,
-        isStormBird: Bool = false
+            contract: String = "",
+            name: String = "",
+            symbol: String = "",
+            decimals: Int = 0,
+            value: String,
+            isCustom: Bool = false,
+            isDisabled: Bool = false
     ) {
         self.init()
         self.contract = contract
@@ -32,9 +50,7 @@ class TokenObject: Object {
         self.symbol = symbol
         self.decimals = decimals
         self.value = value
-        self.isCustom = isCustom
         self.isDisabled = isDisabled
-        self.isStormBird = isStormBird
     }
 
     var address: Address {
