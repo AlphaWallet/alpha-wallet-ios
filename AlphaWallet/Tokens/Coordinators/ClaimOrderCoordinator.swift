@@ -28,7 +28,7 @@ class ClaimOrderCoordinator {
                     s: String,
                     completion: @escaping (Result<String, AnyError>) -> Void
         ) {
-        let request = ClaimStormBirdOrder(expiry: expiry, indices: indices, v: v, r: r, s: s)
+        let request = ClaimERC875Order(expiry: expiry, indices: indices, v: v, r: r, s: s)
         web3.request(request: request) { result in
             switch result {
             //TODO handle cases for UI

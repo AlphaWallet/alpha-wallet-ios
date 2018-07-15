@@ -9,7 +9,7 @@ public struct Constants {
     public static let changellyRefferalID = "968d4f0f0bf9"
     public static let keychainKeyPrefix = "alphawallet"
     public static let gasLimit = BigInt(300000)
-    public static let gasPriceDefaultStormbird = BigInt("22000000000")!
+    public static let gasPriceDefaultERC875 = BigInt("22000000000")!
 
     // XML repo
     public static let repoServer = "https://repo.awallet.io"

@@ -31,8 +31,8 @@ struct ConfigureTransactionViewModel {
         switch transferType {
         case .ether: return false
         case .token: return true
-        case .stormBird: return true
-        case .stormBirdOrder: return true
+        case .ERC875Token: return true
+        case .ERC875TokenOrder: return true
         }
     }
 }

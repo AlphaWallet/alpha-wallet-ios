@@ -32,7 +32,7 @@ class ClaimOrderCoordinatorTests : XCTestCase {
             value: "0",
             isCustom: true,
             isDisabled: false,
-            isStormBird: true
+            isERC875: true
         )
 
         claimOrderCoordinator.claimOrder(indices: indices, expiry: expiry!, v: v, r: r, s: s) { result in
@@ -40,7 +40,7 @@ class ClaimOrderCoordinatorTests : XCTestCase {
             case .success(let payload):
                 let address: Address = .makeStormBird()
                 let transaction = UnconfirmedTransaction(
-                    transferType: .stormBirdOrder(token),
+                    transferType: .ERC875TokenOrder(token),
                     value: BigInt("0"),
                     to: address,
                     data: Data(bytes: payload.hexa2Bytes),
