@@ -250,7 +250,7 @@
 		442FC2CC21FFFC4FAB33A300 /* Ticket.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC90F0768C43EF903465B /* Ticket.swift */; };
 		442FC546ED56F5C9D3D35471 /* TicketRedemptionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCBDB86579889BC773540 /* TicketRedemptionViewModel.swift */; };
 		442FC54FB6CADF0461F6C95F /* RedeemEventListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC57AD0C04FAB66FB834D /* RedeemEventListener.swift */; };
-		442FC58B7558F28F9452D383 /* GetIsStormBirdCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCEBC98D0A367D258D2C3 /* GetIsStormBirdCoordinator.swift */; };
+		442FC58B7558F28F9452D383 /* GetIsERC875ContractCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCEBC98D0A367D258D2C3 /* GetIsERC875ContractCoordinator.swift */; };
 		442FC5F70AF003F331F7C841 /* GetSymbolCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCB2726DB345481C1FDA1 /* GetSymbolCoordinator.swift */; };
 		442FC65BFA2D42879648EC06 /* Int.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCCAC6A172506637A2FF6 /* Int.swift */; };
 		442FC7777D495D3095836CA6 /* RedeemTicketsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCB2915417EB871E40D6C /* RedeemTicketsViewModel.swift */; };
@@ -271,7 +271,7 @@
 		442FCE0709E29BF233F32CAB /* GetERC875BalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC002CDEA792B8ECD3E13 /* GetERC875BalanceCoordinator.swift */; };
 		442FCE0DAE5527A93F54022C /* RedeemTicketsQuantitySelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCC17EAB857C58732831E /* RedeemTicketsQuantitySelectionViewController.swift */; };
 		442FCE2BEE8D475C7DEB39C1 /* RedeemTicketsQuantitySelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC54DA900FA2F9BB73A63 /* RedeemTicketsQuantitySelectionViewModel.swift */; };
-		442FCED8B618930EFD1F7BA8 /* GetIsStormBird.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCA1F19B6293FE5FAD494 /* GetIsStormBird.swift */; };
+		442FCED8B618930EFD1F7BA8 /* GetIsERC875Encode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCA1F19B6293FE5FAD494 /* GetIsERC875Encode.swift */; };
 		4AEDE35A1DC3B1F4B885A073 /* Pods_AlphaWallet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BD60178B937124277D81CCD /* Pods_AlphaWallet.framework */; };
 		5E7C701BFF4469B35A074EB9 /* RequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C767497AD8DEE83F384D7 /* RequestViewModel.swift */; };
 		5E7C70AE62DBB193399C7F5E /* ServerViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CDB0BAD5D27D2F24F57 /* ServerViewCell.swift */; };
@@ -443,7 +443,7 @@
 		76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */; };
 		76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */; };
 		76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */; };
-		76F1D7F08263A663C3A67926 /* GetIsERC721Contract.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D4F77311FBF3A442E4B5 /* GetIsERC721Contract.swift */; };
+		76F1D7F08263A663C3A67926 /* GetIsERC721ContractCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D4F77311FBF3A442E4B5 /* GetIsERC721ContractCoordinator.swift */; };
 		76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
 		76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */; };
@@ -451,7 +451,7 @@
 		76F1DC92CDEB695115DBC47C /* UniversalLinkHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */; };
 		76F1DD10DF9A6C844E5F57D6 /* CreateRedeemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D8877226D5DD086B135D /* CreateRedeemTests.swift */; };
 		76F1DEFF94F9A1F67BDF2735 /* UniversalLinkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */; };
-		76F1DF0A4667F618D2BAE78C /* GetIsERC721.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DC1E229431AA75EF94C3 /* GetIsERC721.swift */; };
+		76F1DF0A4667F618D2BAE78C /* GetIsERC721Encode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DC1E229431AA75EF94C3 /* GetIsERC721Encode.swift */; };
 		771A847520322FD700528D28 /* PreferencesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771A847420322FD700528D28 /* PreferencesViewModel.swift */; };
 		771A8485203242B400528D28 /* InCoordinatorViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771A8484203242B400528D28 /* InCoordinatorViewModelTests.swift */; };
 		771AA94E1FF971CD00D25403 /* DappAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771AA94D1FF971CD00D25403 /* DappAction.swift */; };
@@ -794,7 +794,7 @@
 		442FC8B1D5B4317DE7D68325 /* GetERC875Balance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC875Balance.swift; sourceTree = "<group>"; };
 		442FC90F0768C43EF903465B /* Ticket.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Ticket.swift; sourceTree = "<group>"; };
 		442FC94DC1CA79FE4F3360E2 /* EventsRest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventsRest.swift; sourceTree = "<group>"; };
-		442FCA1F19B6293FE5FAD494 /* GetIsStormBird.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsStormBird.swift; sourceTree = "<group>"; };
+		442FCA1F19B6293FE5FAD494 /* GetIsERC875Encode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC875Encode.swift; sourceTree = "<group>"; };
 		442FCACD2BF4DD90BD9C6DBC /* TicketRedemptionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketRedemptionViewController.swift; sourceTree = "<group>"; };
 		442FCB182F854B307761CD82 /* TicketsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketsViewModel.swift; sourceTree = "<group>"; };
 		442FCB2726DB345481C1FDA1 /* GetSymbolCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetSymbolCoordinator.swift; sourceTree = "<group>"; };
@@ -808,7 +808,7 @@
 		442FCCAC6A172506637A2FF6 /* Int.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Int.swift; sourceTree = "<group>"; };
 		442FCD4311FCAFE6FB288A5E /* TicketTableViewCellWithCheckbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketTableViewCellWithCheckbox.swift; sourceTree = "<group>"; };
 		442FCE526E2089CAE88D5602 /* FakeClaimOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FakeClaimOrderCoordinator.swift; sourceTree = "<group>"; };
-		442FCEBC98D0A367D258D2C3 /* GetIsStormBirdCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsStormBirdCoordinator.swift; sourceTree = "<group>"; };
+		442FCEBC98D0A367D258D2C3 /* GetIsERC875ContractCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC875ContractCoordinator.swift; sourceTree = "<group>"; };
 		442FCFEB2D7443C4E0B889B0 /* TicketHolder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TicketHolder.swift; sourceTree = "<group>"; };
 		477899BEAA4489DA423E8857 /* Pods-TrustUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrustUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-TrustUITests/Pods-TrustUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		4DB8204016307EAFC079EA48 /* Pods-Trust.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWallet/Pods-Trust.debug.xcconfig"; sourceTree = "<group>"; };
@@ -979,13 +979,13 @@
 		76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimStormBirdOrder.swift; sourceTree = "<group>"; };
 		76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimOrderCoordinator.swift; sourceTree = "<group>"; };
 		76F1D473FF303828D93C95EB /* GetERC721BalanceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721BalanceCoordinator.swift; sourceTree = "<group>"; };
-		76F1D4F77311FBF3A442E4B5 /* GetIsERC721Contract.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC721Contract.swift; sourceTree = "<group>"; };
+		76F1D4F77311FBF3A442E4B5 /* GetIsERC721ContractCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC721ContractCoordinator.swift; sourceTree = "<group>"; };
 		76F1D6838F0069D06414009D /* ContractERC721Transfer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContractERC721Transfer.swift; sourceTree = "<group>"; };
 		76F1D8877226D5DD086B135D /* CreateRedeemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeemTests.swift; sourceTree = "<group>"; };
 		76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandlerTests.swift; sourceTree = "<group>"; };
 		76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimOrderCoordinatorTests.swift; sourceTree = "<group>"; };
 		76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderHandler.swift; sourceTree = "<group>"; };
-		76F1DC1E229431AA75EF94C3 /* GetIsERC721.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC721.swift; sourceTree = "<group>"; };
+		76F1DC1E229431AA75EF94C3 /* GetIsERC721Encode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC721Encode.swift; sourceTree = "<group>"; };
 		76F1DC947821847220DE2B97 /* GetERC721BalanceEncode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721BalanceEncode.swift; sourceTree = "<group>"; };
 		76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandler.swift; sourceTree = "<group>"; };
 		76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderSigningTests.swift; sourceTree = "<group>"; };
@@ -1307,11 +1307,11 @@
 				299B5E2A1FCA9A640051361C /* ApproveERC20.swift */,
 				442FCBDD3A69DF75551B10AC /* GetERC20Symbol.swift */,
 				442FC8B1D5B4317DE7D68325 /* GetERC875Balance.swift */,
-				442FCA1F19B6293FE5FAD494 /* GetIsStormBird.swift */,
+				442FCA1F19B6293FE5FAD494 /* GetIsERC875Encode.swift */,
 				442FC72F9D22CC36AC015274 /* GetERC20Decimals.swift */,
 				76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */,
 				76F1DC947821847220DE2B97 /* GetERC721BalanceEncode.swift */,
-				76F1DC1E229431AA75EF94C3 /* GetIsERC721.swift */,
+				76F1DC1E229431AA75EF94C3 /* GetIsERC721Encode.swift */,
 				76F1D6838F0069D06414009D /* ContractERC721Transfer.swift */,
 			);
 			path = Commands;
@@ -2148,13 +2148,13 @@
 				442FC630874D29159799EEB6 /* GetNameCoordinator.swift */,
 				442FCB2726DB345481C1FDA1 /* GetSymbolCoordinator.swift */,
 				442FC002CDEA792B8ECD3E13 /* GetERC875BalanceCoordinator.swift */,
-				442FCEBC98D0A367D258D2C3 /* GetIsStormBirdCoordinator.swift */,
+				442FCEBC98D0A367D258D2C3 /* GetIsERC875ContractCoordinator.swift */,
 				442FC0F2E3BB3EE420BC2C16 /* GetDecimalsCoordinator.swift */,
 				76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */,
 				5E7C7F932B48011A24C26733 /* TokensCoordinator.swift */,
 				76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */,
 				76F1D473FF303828D93C95EB /* GetERC721BalanceCoordinator.swift */,
-				76F1D4F77311FBF3A442E4B5 /* GetIsERC721Contract.swift */,
+				76F1D4F77311FBF3A442E4B5 /* GetIsERC721ContractCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -3519,8 +3519,8 @@
 				442FC5F70AF003F331F7C841 /* GetSymbolCoordinator.swift in Sources */,
 				442FCB2B0DD39EB2D9233A2F /* GetERC875Balance.swift in Sources */,
 				442FCE0709E29BF233F32CAB /* GetERC875BalanceCoordinator.swift in Sources */,
-				442FCED8B618930EFD1F7BA8 /* GetIsStormBird.swift in Sources */,
-				442FC58B7558F28F9452D383 /* GetIsStormBirdCoordinator.swift in Sources */,
+				442FCED8B618930EFD1F7BA8 /* GetIsERC875Encode.swift in Sources */,
+				442FC58B7558F28F9452D383 /* GetIsERC875ContractCoordinator.swift in Sources */,
 				442FC65BFA2D42879648EC06 /* Int.swift in Sources */,
 				442FC9C4FAC64192FF5DCC40 /* GetERC20Decimals.swift in Sources */,
 				442FC249C2A39F85BDBD7987 /* GetDecimalsCoordinator.swift in Sources */,
@@ -3678,8 +3678,8 @@
 				5E7C7180F07239D2132F31A4 /* DirectoryContentsWatcher.swift in Sources */,
 				76F1DBCA8BAAA42BAEB14719 /* GetERC721BalanceCoordinator.swift in Sources */,
 				76F1D51EFA6255E0D0381E06 /* GetERC721BalanceEncode.swift in Sources */,
-				76F1D7F08263A663C3A67926 /* GetIsERC721Contract.swift in Sources */,
-				76F1DF0A4667F618D2BAE78C /* GetIsERC721.swift in Sources */,
+				76F1D7F08263A663C3A67926 /* GetIsERC721ContractCoordinator.swift in Sources */,
+				76F1DF0A4667F618D2BAE78C /* GetIsERC721Encode.swift in Sources */,
 				76F1D439D545AA9B7E686DCC /* ContractERC721Transfer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
