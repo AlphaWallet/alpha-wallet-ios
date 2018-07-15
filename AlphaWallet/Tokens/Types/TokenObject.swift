@@ -42,7 +42,8 @@ class TokenObject: Object {
             decimals: Int = 0,
             value: String,
             isCustom: Bool = false,
-            isDisabled: Bool = false
+            isDisabled: Bool = false,
+            type: TokenType
     ) {
         self.init()
         self.contract = contract
@@ -51,6 +52,7 @@ class TokenObject: Object {
         self.decimals = decimals
         self.value = value
         self.isDisabled = isDisabled
+        self.type = type
     }
 
     var address: Address {

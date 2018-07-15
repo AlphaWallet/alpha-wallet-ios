@@ -8,7 +8,8 @@ class TokensDataStoreTest: XCTestCase {
     private let storage = FakeTokensDataStore()
     private let token = TokenObject(
             contract: "0x001",
-            value: "0"
+            value: "0",
+            type: .erc20
     )
 
     override func setUp() {

@@ -8,6 +8,7 @@ import Alamofire
 protocol TokensCoordinatorDelegate: class {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
     func didPressERC875(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator)
+    func didPressERC721(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator)
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
 }
 
@@ -16,8 +17,8 @@ private enum ContractData {
     case symbol(String)
     case balance([String])
     case decimals(UInt8)
-    case stormBirdComplete(name: String, symbol: String, balance: [String])
-    case nonStormBirdComplete(name: String, symbol: String, decimals: UInt8)
+    case nonFungibleTokenComplete(name: String, symbol: String, balance: [String], tokenType: TokenType)
+    case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8)
     case failed(networkReachable: Bool?)
 }
 
@@ -117,26 +118,27 @@ class TokensCoordinator: Coordinator {
             switch data {
             case .name, .symbol, .balance, .decimals:
                 break
-            case .stormBirdComplete(let name, let symbol, let balance):
+            case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
                 if let address = Address(string: contract) {
                     let token = ERCToken(
                             contract: address,
                             name: name,
                             symbol: symbol,
                             decimals: 0,
-                            isERC875: true,
+                            type: tokenType,
                             balance: balance
                     )
                     self.storage.addCustom(token: token)
                     completion()
                 }
-            case .nonStormBirdComplete(let name, let symbol, let decimals):
+            case .fungibleTokenComplete(let name, let symbol, let decimals):
                 let token = TokenObject(
                         contract: contract,
                         name: name,
                         symbol: symbol,
                         decimals: Int(decimals),
-                        value: "0"
+                        value: "0",
+                        type: .erc20
                 )
                 self.storage.add(tokens: [token])
                 completion()
@@ -204,13 +206,14 @@ class TokensCoordinator: Coordinator {
         var completedSymbol: String?
         var completedBalance: [String]?
         var completedDecimals: UInt8?
+        var completedTokenType: TokenType?
         var failed = false
 
         func callCompletionOnAllData() {
-            if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance {
-                completion(.stormBirdComplete(name: completedName, symbol: completedSymbol, balance: completedBalance))
+            if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance, let tokenType = completedTokenType {
+                completion(.nonFungibleTokenComplete(name: completedName, symbol: completedSymbol, balance: completedBalance, tokenType: tokenType))
             } else if let completedName = completedName, let completedSymbol = completedSymbol, let completedDecimals = completedDecimals {
-                completion(.nonStormBirdComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
+                completion(.fungibleTokenComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
             }
         }
 
@@ -245,33 +248,34 @@ class TokensCoordinator: Coordinator {
             }
         }
 
-        self.storage.getIsERC875Contract(for: address) { result in
-            switch result {
-            case .success(let isERC875):
-                if isERC875 {
-                    self.storage.getERC875Balance(for: address) { result in
-                        switch result {
-                        case .success(let balance):
-                            completedBalance = balance
-                            completion(.balance(balance))
-                            callCompletionOnAllData()
-                        case .failure:
-                            callCompletionFailed()
-                        }
-                    }
-                } else {
-                    self.storage.getDecimals(for: address) { result in
-                        switch result {
-                        case .success(let decimal):
-                            completedDecimals = decimal
-                            completion(.decimals(decimal))
-                            callCompletionOnAllData()
-                        case .failure:
-                            callCompletionFailed()
-                        }
+        self.storage.getTokenType(for: address) { tokenType in
+            completedTokenType = tokenType
+            switch tokenType {
+            case .erc875:
+                self.storage.getERC875Balance(for: address) { result in
+                    switch result {
+                    case .success(let balance):
+                        completedBalance = balance
+                        completion(.balance(balance))
+                        callCompletionOnAllData()
+                    case .failure:
+                        callCompletionFailed()
                     }
                 }
-            case .failure:
+                break
+            case .erc721:
+                self.storage.getERC721Balance(for: address) { result in
+                    switch result {
+                    case .success(let balance):
+                        completedBalance = balance
+                        completion(.balance(balance))
+                        callCompletionOnAllData()
+                    case .failure:
+                        callCompletionFailed()
+                    }
+                }
+                break
+            case .erc20:
                 self.storage.getDecimals(for: address) { result in
                     switch result {
                     case .success(let decimal):
@@ -282,6 +286,9 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
+                break
+            case .ether:
+                break
             }
         }
     }
@@ -289,23 +296,13 @@ class TokensCoordinator: Coordinator {
 
 extension TokensCoordinator: TokensViewControllerDelegate {
     func didSelect(token: TokenObject, in viewController: UIViewController) {
-
-        let type: TokenType = {
-            //kkk can just return token.type if not ether?
-            if token.isERC875 {
-                return .erc875
-            }
-            return TokensDataStore.etherToken(for: session.config) == token ? .ether : .erc20
-        }()
-
-        switch type {
+        switch token.type {
         case .ether:
             delegate?.didPress(for: .send(type: .ether(config: session.config, destination: .none)), in: self)
         case .erc20:
             delegate?.didPress(for: .send(type: .ERC20Token(token)), in: self)
         case .erc721:
-            //kkk how?
-            delegate?.didPressERC875(for: .send(type: .ERC875Token(token)), token: token, in: self)
+            delegate?.didPressERC721(for: .send(type: .ERC721Token(token)), token: token, in: self)
         case .erc875:
             delegate?.didPressERC875(for: .send(type: .ERC875Token(token)), token: token, in: self)
         }
@@ -337,14 +334,14 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
             case .symbol(let symbol):
                 viewController.updateSymbolValue(symbol)
             case .balance(let balance):
-                viewController.updateFormForERC875Token(true)
                 viewController.updateBalanceValue(balance)
             case .decimals(let decimals):
-                viewController.updateFormForERC875Token(false)
                 viewController.updateDecimalsValue(decimals)
-            case .stormBirdComplete:
+            case .nonFungibleTokenComplete(_, _, _, let tokenType):
+                viewController.updateFormForTokenType(tokenType)
                 break
-            case .nonStormBirdComplete:
+            case .fungibleTokenComplete:
+                viewController.updateFormForTokenType(.erc20)
                 break
             case .failed:
                 break

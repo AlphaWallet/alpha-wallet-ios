@@ -21,12 +21,12 @@ class GenerateSellMagicLinkViewController: UIViewController {
     let actionButton = UIButton()
     let cancelButton = UIButton()
     var paymentFlow: PaymentFlow
-    var ticketHolder: TicketHolder
+    var ticketHolder: TokenHolder
     var ethCost: String
     var linkExpiryDate: Date
     var viewModel: GenerateSellMagicLinkViewControllerViewModel?
 
-    init(paymentFlow: PaymentFlow, ticketHolder: TicketHolder, ethCost: String, linkExpiryDate: Date) {
+    init(paymentFlow: PaymentFlow, ticketHolder: TokenHolder, ethCost: String, linkExpiryDate: Date) {
         self.paymentFlow = paymentFlow
         self.ticketHolder = ticketHolder
         self.ethCost = ethCost

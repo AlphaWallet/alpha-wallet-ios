@@ -3,8 +3,8 @@
 import UIKit
 
 protocol ChooseTicketTransferModeViewControllerDelegate: class {
-    func didChooseTransferViaMagicLink(token: TokenObject, ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController)
-    func didChooseTransferNow(token: TokenObject, ticketHolder: TicketHolder, in viewController: ChooseTicketTransferModeViewController)
+    func didChooseTransferViaMagicLink(token: TokenObject, ticketHolder: TokenHolder, in viewController: ChooseTicketTransferModeViewController)
+    func didChooseTransferNow(token: TokenObject, ticketHolder: TokenHolder, in viewController: ChooseTicketTransferModeViewController)
     func didPressViewInfo(in viewController: ChooseTicketTransferModeViewController)
     func didPressViewContractWebPage(in viewController: ChooseTicketTransferModeViewController)
 }
@@ -22,11 +22,11 @@ class ChooseTicketTransferModeViewController: UIViewController, TicketVerifiable
     let generateMagicLinkButton = UIButton(type: .system)
     let transferNowButton = UIButton(type: .system)
     var viewModel: ChooseTicketTransferModeViewControllerViewModel!
-    var ticketHolder: TicketHolder
+    var ticketHolder: TokenHolder
     var paymentFlow: PaymentFlow
     weak var delegate: ChooseTicketTransferModeViewControllerDelegate?
 
-    init(config: Config, ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+    init(config: Config, ticketHolder: TokenHolder, paymentFlow: PaymentFlow) {
         self.config = config
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow

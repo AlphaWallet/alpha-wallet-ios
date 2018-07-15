@@ -4,7 +4,7 @@ import UIKit
 import QRCodeReaderViewController
 
 protocol TransferTicketsViaWalletAddressViewControllerDelegate: class {
-    func didEnterWalletAddress(ticketHolder: TicketHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTicketsViaWalletAddressViewController)
+    func didEnterWalletAddress(ticketHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTicketsViaWalletAddressViewController)
     func didPressViewInfo(in viewController: TransferTicketsViaWalletAddressViewController)
     func didPressViewContractWebPage(in viewController: TransferTicketsViaWalletAddressViewController)
 }
@@ -21,11 +21,11 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
     let targetAddressTextField = AddressTextField()
     let nextButton = UIButton(type: .system)
     var viewModel: TransferTicketsViaWalletAddressViewControllerViewModel!
-    var ticketHolder: TicketHolder
+    var ticketHolder: TokenHolder
     var paymentFlow: PaymentFlow
     weak var delegate: TransferTicketsViaWalletAddressViewControllerDelegate?
 
-    init(config: Config, token: TokenObject, ticketHolder: TicketHolder, paymentFlow: PaymentFlow) {
+    init(config: Config, token: TokenObject, ticketHolder: TokenHolder, paymentFlow: PaymentFlow) {
         self.config = config
         self.token = token
         self.ticketHolder = ticketHolder

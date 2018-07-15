@@ -19,7 +19,7 @@ class PaymentCoordinator: Coordinator {
     let navigationController: UINavigationController
     let keystore: Keystore
     let storage: TokensDataStore
-    let ticketHolders: [TicketHolder]!
+    let ticketHolders: [TokenHolder]!
 
     init(
         navigationController: UINavigationController = UINavigationController(),
@@ -27,7 +27,7 @@ class PaymentCoordinator: Coordinator {
         session: WalletSession,
         keystore: Keystore,
         storage: TokensDataStore,
-        ticketHolders: [TicketHolder] = []
+        ticketHolders: [TokenHolder] = []
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet

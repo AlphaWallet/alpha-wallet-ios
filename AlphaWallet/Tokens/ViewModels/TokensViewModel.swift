@@ -19,11 +19,9 @@ class TokensViewModel {
         case .all:
             return tokens
         case .currencyOnly:
-            return tokens.filter { !$0.isERC875
-            }
+            return tokens.filter { $0.type == .ether || $0.type == .erc20 }
         case .assetsOnly:
-            return tokens.filter { $0.isERC875
-            }
+            return tokens.filter { $0.type != .ether && $0.type != .erc20 }
         }
     }
 

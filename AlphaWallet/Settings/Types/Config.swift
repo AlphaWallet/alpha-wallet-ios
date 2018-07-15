@@ -156,7 +156,7 @@ struct Config {
                     name: Constants.event + " " + name,
                     symbol: "SHANKAI",
                     decimals: 0,
-                    isERC875: true,
+                    type: .erc875,
                     balance: []
             )
         case .ropsten:
@@ -165,7 +165,7 @@ struct Config {
                     name: name,
                     symbol: "TEST",
                     decimals: 0,
-                    isERC875: true,
+                    type: .erc875,
                     balance: []
             )
         case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
@@ -188,7 +188,7 @@ struct Config {
                     name: Constants.event + " " + name,
                     symbol: "SHANKAI",
                     decimals: 0,
-                    isERC875: true,
+                    type: .erc875,
                     balance: []
             )
         case .ropsten:
@@ -197,7 +197,7 @@ struct Config {
                     name: name,
                     symbol: "TEST",
                     decimals: 0,
-                    isERC875: true,
+                    type: .erc875,
                     balance: []
             )
         case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:

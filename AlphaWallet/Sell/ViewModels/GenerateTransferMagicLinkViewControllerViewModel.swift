@@ -3,7 +3,7 @@
 import UIKit
 
 struct GenerateTransferMagicLinkViewControllerViewModel {
-    var ticketHolder: TicketHolder
+    var ticketHolder: TokenHolder
     var linkExpiryDate: Date
 
     var contentsBackgroundColor: UIColor {
@@ -76,7 +76,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return ticketHolder.count
     }
 
-    init(ticketHolder: TicketHolder, linkExpiryDate: Date) {
+    init(ticketHolder: TokenHolder, linkExpiryDate: Date) {
         self.ticketHolder = ticketHolder
         self.linkExpiryDate = linkExpiryDate
     }

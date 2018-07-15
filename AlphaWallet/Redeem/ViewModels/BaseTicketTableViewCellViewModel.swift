@@ -3,10 +3,10 @@
 import UIKit
 
 struct BaseTicketTableViewCellViewModel {
-    let ticketHolder: TicketHolder
+    let ticketHolder: TokenHolder
 
     init(
-            ticketHolder: TicketHolder
+            ticketHolder: TokenHolder
     ) {
         self.ticketHolder = ticketHolder
     }

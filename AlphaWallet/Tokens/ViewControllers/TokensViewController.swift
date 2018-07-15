@@ -238,7 +238,6 @@ extension TokensViewController: UITableViewDelegate {
                     ticker: viewModel.ticker(for: token)
             )
             return cellViewModel.cellHeight
-                //kkk fix
         case .erc721:
             let cellViewModel = TicketTokenViewCellViewModel(
                     config: dataStore.config,
@@ -281,16 +280,7 @@ extension TokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
-
-        //TODO extract getting type of token/config from TokensDatastore class side and instance side
-        let type: TokenType = {
-            if token.isERC875 {
-                return .erc875
-            }
-            return TokensDataStore.etherToken(for: dataStore.config) == token ? .ether : .erc20
-        }()
-
-        switch type {
+        switch token.type {
         case .ether:
             let cell = tableView.dequeueReusableCell(withIdentifier: EthTokenViewCell.identifier, for: indexPath) as! EthTokenViewCell
             cell.configure(
@@ -311,7 +301,6 @@ extension TokensViewController: UITableViewDataSource {
                     )
             )
             return cell
-                //kkk fix
         case .erc721:
             let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
             cell.configure(

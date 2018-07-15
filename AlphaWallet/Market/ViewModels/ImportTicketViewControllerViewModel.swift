@@ -20,7 +20,7 @@ struct ImportTicketViewControllerViewModel {
         }
     }
     var state: State
-    var ticketHolder: TicketHolder?
+    var ticketHolder: TokenHolder?
     var ethCost: String?
     var dollarCost: String?
 

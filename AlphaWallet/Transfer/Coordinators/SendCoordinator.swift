@@ -18,7 +18,7 @@ class SendCoordinator: Coordinator {
     let navigationController: UINavigationController
     let keystore: Keystore
     let storage: TokensDataStore
-    let ticketHolders: [TicketHolder]!
+    let ticketHolders: [TokenHolder]!
 
     var coordinators: [Coordinator] = []
     weak var delegate: SendCoordinatorDelegate?
@@ -33,7 +33,7 @@ class SendCoordinator: Coordinator {
         keystore: Keystore,
         storage: TokensDataStore,
         account: Account,
-        ticketHolders: [TicketHolder] = []
+        ticketHolders: [TokenHolder] = []
     ) {
         self.transferType = transferType
         self.navigationController = navigationController

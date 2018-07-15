@@ -10,13 +10,13 @@ import Foundation
 import RealmSwift
 import BigInt
 
-class TicketAdaptor {
+class TokenAdaptor {
     var token: TokenObject
     init(token: TokenObject) {
         self.token = token
     }
 
-    public func getTicketHolders() -> [TicketHolder] {
+    public func getTicketHolders() -> [TokenHolder] {
         let balance = token.balance
         var tickets = [Ticket]()
         for (index, item) in balance.enumerated() {
@@ -34,8 +34,14 @@ class TicketAdaptor {
         return bundle(tickets: tickets)
     }
 
-    func bundle(tickets: [Ticket]) -> [TicketHolder] {
-        var ticketHolders: [TicketHolder] = []
+    func bundle(tickets: [Ticket]) -> [TokenHolder] {
+        switch token.type {
+        case .ether, .erc20, .erc875:
+            break
+        case .erc721:
+            return tickets.map { getTicketHolder(for: [$0]) }
+        }
+        var ticketHolders: [TokenHolder] = []
         let groups = groupTicketsByFields(tickets: tickets)
         for each in groups {
             let results = breakBundlesFurtherToHaveContinuousSeatRange(tickets: each)
@@ -47,7 +53,7 @@ class TicketAdaptor {
         return ticketHolders
     }
 
-    private func sortBundlesUpcomingFirst(bundles: [TicketHolder]) -> [TicketHolder] {
+    private func sortBundlesUpcomingFirst(bundles: [TokenHolder]) -> [TokenHolder] {
         return bundles.sorted { $0.date < $1.date }
     }
 
@@ -86,8 +92,8 @@ class TicketAdaptor {
         return XMLHandler(contract: token.contract).getFifaInfoForTicket(tokenId: id, index: index)
     }
 
-    private func getTicketHolder(for tickets: [Ticket]) -> TicketHolder {
-        return TicketHolder(
+    private func getTicketHolder(for tickets: [Ticket]) -> TokenHolder {
+        return TokenHolder(
                 tickets: tickets,
                 status: .available,
                 contractAddress: token.contract

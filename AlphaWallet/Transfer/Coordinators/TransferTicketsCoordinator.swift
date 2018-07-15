@@ -12,7 +12,7 @@ protocol TransferTicketsCoordinatorDelegate: class {
 
 class TransferTicketsCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
-    var ticketHolder: TicketHolder
+    var ticketHolder: TokenHolder
     var walletAddress: String
     var paymentFlow: PaymentFlow
     var keystore: Keystore
@@ -32,7 +32,7 @@ class TransferTicketsCoordinator: Coordinator {
         }
     }
 
-    init(ticketHolder: TicketHolder, walletAddress: String, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: Account, on viewController: UIViewController) {
+    init(ticketHolder: TokenHolder, walletAddress: String, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: Account, on viewController: UIViewController) {
         self.ticketHolder = ticketHolder
         self.walletAddress = walletAddress
         self.paymentFlow = paymentFlow

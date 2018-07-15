@@ -9,7 +9,7 @@
 import UIKit
 
 protocol RedeemTicketsViewControllerDelegate: class {
-    func didSelectTicketHolder(token: TokenObject, ticketHolder: TicketHolder, in viewController: RedeemTicketsViewController)
+    func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: RedeemTicketsViewController)
     func didPressViewInfo(in viewController: RedeemTicketsViewController)
     func didPressViewContractWebPage(in viewController: RedeemTicketsViewController)
 }

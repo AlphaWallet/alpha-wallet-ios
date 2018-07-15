@@ -1,5 +1,3 @@
-// Copyright SIX DAY LLC. All rights reserved.
-
 import Foundation
 import BigInt
 import JSONRPCKit
@@ -8,7 +6,7 @@ import Result
 import TrustKeystore
 import JavaScriptKit
 
-class GetERC875TokenBalanceCoordinator {
+class GetERC875BalanceCoordinator {
 
     private let web3: Web3Swift
     init(
@@ -69,7 +67,7 @@ class GetERC875TokenBalanceCoordinator {
     }
 }
 
-extension GetERC875TokenBalanceCoordinator {
+extension GetERC875BalanceCoordinator {
     private func adapt(_ values: Any) -> [String] {
         if let array = values as? [Any] {
             return array.map { String(describing: $0) }
