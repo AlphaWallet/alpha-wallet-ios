@@ -10,6 +10,7 @@ struct UnconfirmedTransaction {
     let to: Address?
     let data: Data?
     let gasLimit: BigInt?
+    let tokenId: String?
     let gasPrice: BigInt?
     let nonce: BigInt?
     // these are not the v, r, s value of a signed transaction

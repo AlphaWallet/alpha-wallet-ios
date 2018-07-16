@@ -6,14 +6,14 @@ import UIKit
 struct SellTicketsViewModel {
 
     var token: TokenObject
-    var ticketHolders: [TicketHolder]?
+    var ticketHolders: [TokenHolder]?
 
     init(token: TokenObject) {
         self.token = token
-        self.ticketHolders = TicketAdaptor(token: token).getTicketHolders()
+        self.ticketHolders = TokenAdaptor(token: token).getTicketHolders()
     }
 
-    func item(for indexPath: IndexPath) -> TicketHolder {
+    func item(for indexPath: IndexPath) -> TokenHolder {
         return ticketHolders![indexPath.row]
     }
 

@@ -11,7 +11,7 @@ import UIKit
 
 struct TicketRedemptionViewModel {
     var token: TokenObject
-    var ticketHolder: TicketHolder
+    var ticketHolder: TokenHolder
 
     var headerTitle: String {
         return R.string.localizable.aWalletTicketTokenRedeemShowQRCodeTitle()

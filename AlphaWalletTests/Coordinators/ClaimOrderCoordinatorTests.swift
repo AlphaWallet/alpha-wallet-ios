@@ -32,7 +32,7 @@ class ClaimOrderCoordinatorTests : XCTestCase {
             value: "0",
             isCustom: true,
             isDisabled: false,
-            isERC875: true
+            type: .erc875
         )
 
         claimOrderCoordinator.claimOrder(indices: indices, expiry: expiry!, v: v, r: r, s: s) { result in
@@ -45,6 +45,7 @@ class ClaimOrderCoordinatorTests : XCTestCase {
                     to: address,
                     data: Data(bytes: payload.hexa2Bytes),
                     gasLimit: .none,
+                    tokenId: Constants.nullTicket,
                     gasPrice: 200000,
                     nonce: .none,
                     v: v,

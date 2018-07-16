@@ -53,6 +53,7 @@ extension DappAction {
             to: to,
             data: data,
             gasLimit: gasLimit,
+            tokenId: .none,
             gasPrice: gasPrice,
             nonce: nonce,
             v: .none,

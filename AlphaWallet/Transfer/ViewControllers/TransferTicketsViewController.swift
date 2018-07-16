@@ -3,7 +3,7 @@
 import UIKit
 
 protocol TransferTicketsViewControllerDelegate: class {
-    func didSelectTicketHolder(token: TokenObject, ticketHolder: TicketHolder, in viewController: TransferTicketsViewController)
+    func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTicketsViewController)
     func didPressViewInfo(in viewController: TransferTicketsViewController)
     func didPressViewContractWebPage(in viewController: TransferTicketsViewController)
 }

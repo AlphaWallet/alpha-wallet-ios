@@ -13,8 +13,7 @@ class FetchAssetDefinitionsCoordinator: Coordinator {
     }
 
     func start() {
-        let contracts = tokensDataStore.enabledObject.filter { $0.isERC875
-        }.map { $0.contract }
+        let contracts = tokensDataStore.enabledObject.filter { $0.type == .erc875 || $0.type == .erc721 }.map { $0.contract }
         assetDefinitionStore.fetchXMLs(forContracts: contracts)
     }
 }

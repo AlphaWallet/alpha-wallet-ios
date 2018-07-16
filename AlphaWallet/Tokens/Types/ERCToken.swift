@@ -7,6 +7,6 @@ struct ERCToken {
     let name: String
     let symbol: String
     let decimals: Int
-    let isERC875: Bool
+    let type: TokenType
     let balance: [String]
 }
