@@ -16,7 +16,7 @@ class NewTokenViewController: UIViewController {
     let footerBar = UIView()
     let header = TicketsViewControllerTitleHeader()
     var viewModel = NewTokenViewModel()
-    var isERC875Token: Bool = false
+    var tokenType = TokenType.erc20
 
     let addressTextField = AddressTextField()
     let symbolTextField = TextField()
@@ -191,18 +191,19 @@ class NewTokenViewController: UIViewController {
         balanceTextField.value = viewModel.ERC875TokenBalanceAmount.description
     }
 
-    public func updateFormForERC875Token(_ isERC875Token: Bool) {
-        self.isERC875Token = isERC875Token
-        if isERC875Token {
-            decimalsTextField.isHidden = true
-            balanceTextField.isHidden = false
-            decimalsTextField.label.isHidden = true
-            balanceTextField.label.isHidden = false
-        } else {
+    public func updateFormForTokenType(_ tokenType: TokenType) {
+        self.tokenType = tokenType
+        switch tokenType {
+        case .ether, .erc20:
             decimalsTextField.isHidden = false
             balanceTextField.isHidden = true
             decimalsTextField.label.isHidden = false
             balanceTextField.label.isHidden = true
+        case .erc721, .erc875:
+            decimalsTextField.isHidden = true
+            balanceTextField.isHidden = false
+            decimalsTextField.label.isHidden = true
+            balanceTextField.label.isHidden = false
         }
     }
 
@@ -219,16 +220,17 @@ class NewTokenViewController: UIViewController {
             displayError(title: R.string.localizable.symbol(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
             return false
         }
-        if isERC875Token {
-            guard !balanceTextField.value.trimmed.isEmpty else {
-                displayError(title: R.string.localizable.balance(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-                return false
-            }
-        } else {
-            guard !decimalsTextField.value.trimmed.isEmpty else {
-                displayError(title: R.string.localizable.decimals(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-                return false
-            }
+        switch tokenType {
+            case .ether, .erc20:
+                guard !decimalsTextField.value.trimmed.isEmpty else {
+                    displayError(title: R.string.localizable.decimals(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
+                    return false
+                }
+            case .erc721, .erc875:
+                guard !balanceTextField.value.trimmed.isEmpty else {
+                    displayError(title: R.string.localizable.balance(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
+                    return false
+                }
         }
 
         return true
@@ -242,7 +244,7 @@ class NewTokenViewController: UIViewController {
         let name = nameTextField.value
         let symbol = symbolTextField.value
         let decimals = Int(decimalsTextField.value) ?? 0
-        let isERC875 = self.isERC875Token
+        let tokenType = self.tokenType
         var balance: [String] = viewModel.ERC875TokenBalance
         
         guard let address = Address(string: contract) else {
@@ -258,7 +260,7 @@ class NewTokenViewController: UIViewController {
             name: name,
             symbol: symbol,
             decimals: decimals,
-            isERC875: isERC875,
+            type: tokenType,
             balance: balance
         )
 

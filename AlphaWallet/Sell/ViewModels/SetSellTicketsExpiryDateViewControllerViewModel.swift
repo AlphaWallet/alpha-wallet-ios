@@ -6,7 +6,7 @@ import UIKit
 struct SetSellTicketsExpiryDateViewControllerViewModel {
 
     var token: TokenObject
-    var ticketHolder: TicketHolder
+    var ticketHolder: TokenHolder
     var ethCost: String = "0"
 
     var headerTitle: String {
@@ -142,7 +142,7 @@ struct SetSellTicketsExpiryDateViewControllerViewModel {
         return ticketHolder.count
     }
 
-    init(token: TokenObject, ticketHolder: TicketHolder, ethCost: String) {
+    init(token: TokenObject, ticketHolder: TokenHolder, ethCost: String) {
         self.token = token
         self.ticketHolder = ticketHolder
         self.ethCost = ethCost

@@ -37,11 +37,13 @@ struct SendViewModel {
         switch transferType {
         case .ether(destination: _):
             return nil
-        case .token(let token):
+        case .ERC20Token(let token):
             return token
         case .ERC875Token(let token):
             return token
         case .ERC875TokenOrder(let token):
+            return token
+        case .ERC721Token(let token):
             return token
         }
     }

@@ -39,9 +39,8 @@ class MigrationInitializer: Initializer {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
-                    newObject["isERC875"] = oldObject["isStormBird"]
                     if let isStormbird = oldObject["isStormBird"] as? Bool {
-                        newObject["rawType"] = isStormbird ? TokenObject.TokenType.erc875 : TokenObject.TokenType.erc20.rawValue
+                        newObject["rawType"] = isStormbird ? TokenType.erc875 : TokenType.erc20.rawValue
                     }
                 }
             }

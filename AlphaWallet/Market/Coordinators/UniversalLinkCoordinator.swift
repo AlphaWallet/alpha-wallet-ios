@@ -23,9 +23,9 @@ class UniversalLinkCoordinator: Coordinator {
     var ethBalance: Subscribable<BigInt>?
     var hasCompleted = false
     var addressOfNewWallet: String?
-    private var getERC875TokenBalanceCoordinator: GetERC875TokenBalanceCoordinator?
+    private var getERC875TokenBalanceCoordinator: GetERC875BalanceCoordinator?
     //TODO better to make sure ticketHolder is non-optional. But be careful that ImportTicketViewController also handles when viewModel always has a TicketHolder. Needs good defaults in TicketHolder that can be displayed
-    var ticketHolder: TicketHolder?
+    var ticketHolder: TokenHolder?
 
     init(config: Config) {
         self.config = config
@@ -67,13 +67,15 @@ class UniversalLinkCoordinator: Coordinator {
         if delegate?.viewControllerForPresenting(in: self) != nil {
             if let vc = importTicketViewController {
                 vc.signedOrder = signedOrder
+                //TODO: not always ERC875
                 vc.tokenObject = TokenObject(contract: signedOrder.order.contractAddress,
                                                 name: Constants.event,
                                                 symbol: "FIFA",
                                                 decimals: 0,
                                                 value: signedOrder.order.price.description,
                                                 isCustom: true,
-                                                isDisabled: false
+                                                isDisabled: false,
+                                                type: .erc875
                 )
             }
             if let price = ethPrice {
@@ -155,7 +157,7 @@ class UniversalLinkCoordinator: Coordinator {
             //gather signer address balance
             let web3Swift = Web3Swift()
             web3Swift.start()
-            getERC875TokenBalanceCoordinator = GetERC875TokenBalanceCoordinator(web3: web3Swift)
+            getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(web3: web3Swift)
             getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { result in
                 //filter null tickets
                 let filteredTokens = self.checkERC875TokensAreAvailable(
@@ -264,7 +266,7 @@ class UniversalLinkCoordinator: Coordinator {
                 tickets.append(ticket)
             }
         }
-        self.ticketHolder = TicketHolder(
+        self.ticketHolder = TokenHolder(
                 tickets: tickets,
                 status: .available,
                 contractAddress: contractAddress

@@ -18,7 +18,7 @@ class SendCoordinator: Coordinator {
     let navigationController: UINavigationController
     let keystore: Keystore
     let storage: TokensDataStore
-    let ticketHolders: [TicketHolder]!
+    let ticketHolders: [TokenHolder]!
 
     var coordinators: [Coordinator] = []
     weak var delegate: SendCoordinatorDelegate?
@@ -33,7 +33,7 @@ class SendCoordinator: Coordinator {
         keystore: Keystore,
         storage: TokensDataStore,
         account: Account,
-        ticketHolders: [TicketHolder] = []
+        ticketHolders: [TokenHolder] = []
     ) {
         self.transferType = transferType
         self.navigationController = navigationController
@@ -77,9 +77,10 @@ class SendCoordinator: Coordinator {
         switch transferType {
         case .ether(_, let destination):
             controller.targetAddressTextField.value = destination?.description ?? ""
-        case .token: break
+        case .ERC20Token: break
         case .ERC875Token: break
         case .ERC875TokenOrder: break
+        case .ERC721Token: break
         }
         controller.delegate = self
         return controller

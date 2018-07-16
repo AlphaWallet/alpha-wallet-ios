@@ -3,7 +3,7 @@
 import UIKit
 
 struct GenerateSellMagicLinkViewControllerViewModel {
-    var ticketHolder: TicketHolder
+    var ticketHolder: TokenHolder
     var ethCost: String
     var linkExpiryDate: Date
 
@@ -86,7 +86,7 @@ struct GenerateSellMagicLinkViewControllerViewModel {
         return ticketHolder.count
     }
 
-    init(ticketHolder: TicketHolder, ethCost: String, linkExpiryDate: Date) {
+    init(ticketHolder: TokenHolder, ethCost: String, linkExpiryDate: Date) {
         self.ticketHolder = ticketHolder
         self.ethCost = ethCost
         self.linkExpiryDate = linkExpiryDate

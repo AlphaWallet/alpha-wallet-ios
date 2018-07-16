@@ -2,9 +2,9 @@
 
 import Foundation
 
-enum TokenType: Int {
-    case ether
-    case token
-    case stormBird
-    case stormBirdOrder
+enum TokenType: String {
+    case ether = "ether"
+    case erc20 = "ERC20"
+    case erc875 = "ERC875"
+    case erc721 = "ERC721"
 }

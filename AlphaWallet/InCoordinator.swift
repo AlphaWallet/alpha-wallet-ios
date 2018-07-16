@@ -320,7 +320,7 @@ class InCoordinator: Coordinator {
         }
     }
 
-    func showPaymentFlow(for paymentFlow: PaymentFlow, ticketHolders: [TicketHolder] = [], in ticketsCoordinator: TicketsCoordinator) {
+    func showPaymentFlow(for paymentFlow: PaymentFlow, ticketHolders: [TokenHolder] = [], in ticketsCoordinator: TicketsCoordinator) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
@@ -410,7 +410,7 @@ class InCoordinator: Coordinator {
 
 extension InCoordinator: TicketsCoordinatorDelegate {
 
-    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TicketHolder], in coordinator: TicketsCoordinator) {
+    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TokenHolder], in coordinator: TicketsCoordinator) {
         showPaymentFlow(for: type, ticketHolders: ticketHolders, in: coordinator)
     }
 
@@ -485,6 +485,10 @@ extension InCoordinator: TokensCoordinatorDelegate {
         showPaymentFlow(for: type)
     }
 
+    func didPressERC721(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
+        showTicketList(for: type, token: token)
+    }
+
     func didPressERC875(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
         showTicketList(for: type, token: token)
     }
@@ -513,6 +517,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         to: address,
                         data: Data(bytes: payload.hexa2Bytes),
                         gasLimit: Constants.gasLimit,
+                        tokenId: .none,
                         gasPrice: Constants.gasPriceDefaultERC875,
                         nonce: .none,
                         v: v,

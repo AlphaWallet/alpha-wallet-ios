@@ -89,7 +89,7 @@ struct Config {
             case .classic: return "https://mewapi.epool.io/"
             case .callisto: return "https://callisto.network/" //TODO Add endpoint
             case .kovan: return "https://kovan.infura.io/llyrtzQ3YhkdESt2Fzrk"
-            case .ropsten: return "https://ropsten.infura.io/llyrtzQ3YhkdESt2Fzrk" //"http://stormbird.duckdns.org:8545"
+            case .ropsten: return "https://ropsten.infura.io/llyrtzQ3YhkdESt2Fzrk"
             case .rinkeby: return "https://rinkeby.infura.io/llyrtzQ3YhkdESt2Fzrk"
             case .poa: return "https://core.poa.network"
             case .sokol: return "https://sokol.poa.network"
@@ -156,7 +156,7 @@ struct Config {
                     name: Constants.event + " " + name,
                     symbol: "SHANKAI",
                     decimals: 0,
-                    isERC875: true,
+                    type: .erc875,
                     balance: []
             )
         case .ropsten:
@@ -165,7 +165,7 @@ struct Config {
                     name: name,
                     symbol: "TEST",
                     decimals: 0,
-                    isERC875: true,
+                    type: .erc875,
                     balance: []
             )
         case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
@@ -188,7 +188,7 @@ struct Config {
                     name: Constants.event + " " + name,
                     symbol: "SHANKAI",
                     decimals: 0,
-                    isERC875: true,
+                    type: .erc875,
                     balance: []
             )
         case .ropsten:
@@ -197,7 +197,7 @@ struct Config {
                     name: name,
                     symbol: "TEST",
                     decimals: 0,
-                    isERC875: true,
+                    type: .erc875,
                     balance: []
             )
         case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:

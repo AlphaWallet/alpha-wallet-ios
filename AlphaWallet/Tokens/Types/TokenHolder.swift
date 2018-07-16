@@ -8,7 +8,7 @@
 
 import Foundation
 
-class TicketHolder {
+class TokenHolder {
     enum TicketHolderStatus {
         case available, sold, redeemed, forSale, transferred
     }
