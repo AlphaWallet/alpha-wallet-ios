@@ -40,7 +40,7 @@ class MigrationInitializer: Initializer {
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
                     if let isStormbird = oldObject["isStormBird"] as? Bool {
-                        newObject["rawType"] = isStormbird ? TokenType.erc875 : TokenType.erc20.rawValue
+                        newObject["rawType"] = isStormbird ? TokenType.erc875.rawValue : TokenType.erc20.rawValue
                     }
                 }
             }
