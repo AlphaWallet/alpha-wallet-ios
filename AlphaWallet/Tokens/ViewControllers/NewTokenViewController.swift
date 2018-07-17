@@ -186,7 +186,7 @@ class NewTokenViewController: UIViewController {
 
     //int is 64 bits, if this proves not enough later we can convert to BigUInt
     public func updateBalanceValue(_ balance: [String]) {
-        let filteredTokens = balance.filter { $0 != Constants.nullTicket }
+        let filteredTokens = balance.filter { isNonZeroBalance($0) }
         viewModel.ERC875TokenBalance = filteredTokens
         balanceTextField.value = viewModel.ERC875TokenBalanceAmount.description
     }
