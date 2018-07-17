@@ -26,7 +26,7 @@ struct TicketTokenViewCellViewModel {
     }
 
     var amount: String {
-        let actualBalance = self.token.balance.filter { $0.balance != Constants.nullTicket }
+        let actualBalance = token.nonZeroBalance
         return actualBalance.count.toString()
     }
 
