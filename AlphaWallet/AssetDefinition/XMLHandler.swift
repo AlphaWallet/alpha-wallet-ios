@@ -108,6 +108,13 @@ private class PrivateXMLHandler {
         return "en"
     }
 
+    func getIssuer() -> String {
+        if let issuer = xml["token"]["\(signatureNamespacePrefix)Signature"]["\(signatureNamespacePrefix)KeyInfo"]["\(signatureNamespacePrefix)KeyName"].text {
+            return issuer
+        }
+        return ""
+    }
+
     private static func discoverSignatureNamespace(xml: XML.Accessor) -> String {
         if case let .singleElement(element) = xml["token"] {
             let children: [XML.Element] = element.childElements
@@ -152,6 +159,10 @@ public class XMLHandler {
 
     func getLang() -> String {
         return privateXMLHandler.getLang()
+    }
+
+    func getIssuer() -> String {
+        return privateXMLHandler.getIssuer()
     }
 
     func isVerified(for server: RPCServer) -> Bool {
