@@ -19,12 +19,21 @@ private class PrivateXMLHandler {
     lazy var contract = xml["token"]["contract"][0]
     lazy var fields = extractFields()
     private let isOfficial: Bool
+    private let signatureNamespace: String
+    private var signatureNamespacePrefix: String {
+        if signatureNamespace.isEmpty {
+            return ""
+        } else {
+            return "\(signatureNamespace):"
+        }
+    }
 
     init(contract: String) {
         contractAddress = contract.add0x.lowercased()
         let assetDefinitionStore = AssetDefinitionStore()
         xml = try! XML.parse(assetDefinitionStore[contract] ?? "")
         isOfficial = assetDefinitionStore.isOfficial(contract: contract)
+        signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml)
     }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
@@ -97,6 +106,20 @@ private class PrivateXMLHandler {
             return "ru"
         }
         return "en"
+    }
+
+    private static func discoverSignatureNamespace(xml: XML.Accessor) -> String {
+        if case let .singleElement(element) = xml["token"] {
+            let children: [XML.Element] = element.childElements
+            for each in children {
+                if each.name == "Signature" {
+                    return ""
+                } else if each.name.hasSuffix(":Signature") {
+                    return String(each.name.split(separator: ":")[0])
+                }
+            }
+        }
+        return ""
     }
 }
 
