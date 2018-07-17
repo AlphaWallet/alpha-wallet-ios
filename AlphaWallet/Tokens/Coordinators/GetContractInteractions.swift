@@ -32,7 +32,8 @@ class GetContractInteractions {
                         return ""
                     }
                     let nonEmptyContracts = contracts.filter { !$0.isEmpty }
-                    completion(nonEmptyContracts)
+                    let uniqueNonEmptyContracts = Array(Set(nonEmptyContracts))
+                    completion(uniqueNonEmptyContracts)
                 case .failure(let error):
                     print(error)
                     completion([])
