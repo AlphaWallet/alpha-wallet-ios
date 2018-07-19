@@ -95,8 +95,8 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
 
     @objc
     func nextButtonTapped() {
-        let selectedTicketHolders = viewModel.ticketHolders?.filter { $0.isSelected }
-        if selectedTicketHolders!.isEmpty {
+        let selectedTicketHolders = viewModel.ticketHolders.filter { $0.isSelected }
+        if selectedTicketHolders.isEmpty {
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTicketTokenTransferSelectTicketsAtLeastOneTitle(),
                                     alertButtonTitles: [R.string.localizable.oK()],
@@ -104,7 +104,7 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
                                     viewController: self,
                                     completion: nil)
         } else {
-            self.delegate?.didSelectTicketHolder(token: viewModel.token, ticketHolder: selectedTicketHolders!.first!, in: self)
+            self.delegate?.didSelectTicketHolder(token: viewModel.token, ticketHolder: selectedTicketHolders.first!, in: self)
         }
     }
 

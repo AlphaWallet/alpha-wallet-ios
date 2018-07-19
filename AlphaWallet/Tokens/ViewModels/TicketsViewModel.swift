@@ -12,8 +12,7 @@ import UIKit
 struct TicketsViewModel {
 
     var token: TokenObject
-    //TODO forced unwraps are bad
-    var ticketHolders: [TokenHolder]?
+    var ticketHolders: [TokenHolder]
 
     init(token: TokenObject) {
         self.token = token
@@ -21,11 +20,11 @@ struct TicketsViewModel {
     }
 
     func item(for indexPath: IndexPath) -> TokenHolder {
-        return ticketHolders![indexPath.row]
+        return ticketHolders[indexPath.row]
     }
 
     func numberOfItems(for section: Int) -> Int {
-        return ticketHolders!.count
+        return ticketHolders.count
     }
 
     var buttonTitleColor: UIColor {
@@ -46,7 +45,7 @@ struct TicketsViewModel {
         if ticketHolder.areDetailsVisible {
             ticketHolder.areDetailsVisible = false
         } else {
-            for (i, each) in ticketHolders!.enumerated() where each.areDetailsVisible {
+            for (i, each) in ticketHolders.enumerated() where each.areDetailsVisible {
                 each.areDetailsVisible = false
                 changed.append(.init(row: i, section: indexPath.section))
             }
