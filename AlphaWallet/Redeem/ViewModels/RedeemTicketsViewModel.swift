@@ -12,7 +12,7 @@ import UIKit
 struct RedeemTicketsViewModel {
 
     var token: TokenObject
-    var ticketHolders: [TokenHolder]?
+    var ticketHolders: [TokenHolder]
 
     init(token: TokenObject) {
         self.token = token
@@ -20,11 +20,11 @@ struct RedeemTicketsViewModel {
     }
 
     func item(for indexPath: IndexPath) -> TokenHolder {
-        return ticketHolders![indexPath.row]
+        return ticketHolders[indexPath.row]
     }
 
     func numberOfItems(for section: Int) -> Int {
-        return ticketHolders!.count
+        return ticketHolders.count
     }
 
     func height(for section: Int) -> CGFloat {
@@ -54,7 +54,7 @@ struct RedeemTicketsViewModel {
             ticketHolder.areDetailsVisible = false
             ticketHolder.isSelected = false
         } else {
-            for (i, each) in ticketHolders!.enumerated() where each.areDetailsVisible {
+            for (i, each) in ticketHolders.enumerated() where each.areDetailsVisible {
                 each.areDetailsVisible = false
                 each.isSelected = false
                 changed.append(.init(row: i, section: indexPath.section))
