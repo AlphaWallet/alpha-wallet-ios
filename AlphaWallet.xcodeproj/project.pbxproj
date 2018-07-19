@@ -443,7 +443,7 @@
 		76F1D51EFA6255E0D0381E06 /* GetERC721BalanceEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DC947821847220DE2B97 /* GetERC721BalanceEncode.swift */; };
 		76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */; };
 		76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */; };
-		76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */; };
+		76F1D76BF700FCC461B11CC0 /* ClaimERC875Order.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D1417613174D447DEE56 /* ClaimERC875Order.swift */; };
 		76F1D7F08263A663C3A67926 /* GetIsERC721ContractCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D4F77311FBF3A442E4B5 /* GetIsERC721ContractCoordinator.swift */; };
 		76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
@@ -978,7 +978,7 @@
 		73ED85A420349BE400593BF3 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
 		73ED85A62034BFEF00593BF3 /* UITextFieldAdditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextFieldAdditions.swift; sourceTree = "<group>"; };
 		73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatterTest.swift; sourceTree = "<group>"; };
-		76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimStormBirdOrder.swift; sourceTree = "<group>"; };
+		76F1D1417613174D447DEE56 /* ClaimERC875Order.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimERC875Order.swift; sourceTree = "<group>"; };
 		76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimOrderCoordinator.swift; sourceTree = "<group>"; };
 		76F1D473FF303828D93C95EB /* GetERC721BalanceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721BalanceCoordinator.swift; sourceTree = "<group>"; };
 		76F1D4F77311FBF3A442E4B5 /* GetIsERC721ContractCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC721ContractCoordinator.swift; sourceTree = "<group>"; };
@@ -1311,7 +1311,7 @@
 				442FC8B1D5B4317DE7D68325 /* GetERC875Balance.swift */,
 				442FCA1F19B6293FE5FAD494 /* GetIsERC875Encode.swift */,
 				442FC72F9D22CC36AC015274 /* GetERC20Decimals.swift */,
-				76F1D1417613174D447DEE56 /* ClaimStormBirdOrder.swift */,
+				76F1D1417613174D447DEE56 /* ClaimERC875Order.swift */,
 				76F1DC947821847220DE2B97 /* GetERC721BalanceEncode.swift */,
 				76F1DC1E229431AA75EF94C3 /* GetIsERC721Encode.swift */,
 				76F1D6838F0069D06414009D /* ContractERC721Transfer.swift */,
@@ -3534,7 +3534,7 @@
 				442FC81F38F80EEF54C69C5B /* TokenAdaptor.swift in Sources */,
 				442FC258BAEFDE2D64E48D0D /* TicketsCoordinator.swift in Sources */,
 				76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */,
-				76F1D76BF700FCC461B11CC0 /* ClaimStormBirdOrder.swift in Sources */,
+				76F1D76BF700FCC461B11CC0 /* ClaimERC875Order.swift in Sources */,
 				76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */,
 				442FCA2F6C6A21C27B628AA4 /* TicketTableViewCellWithCheckbox.swift in Sources */,
 				442FC7777D495D3095836CA6 /* RedeemTicketsViewModel.swift in Sources */,
