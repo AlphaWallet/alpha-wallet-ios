@@ -11,7 +11,7 @@ protocol TransferTicketsQuantitySelectionViewControllerDelegate: class {
 class TransferTicketsQuantitySelectionViewController: UIViewController, TicketVerifiableStatusViewController {
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return token.contract
     }
     let roundedBackground = RoundedBackground()

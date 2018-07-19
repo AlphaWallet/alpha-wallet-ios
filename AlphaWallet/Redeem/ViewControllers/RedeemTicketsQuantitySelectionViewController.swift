@@ -17,7 +17,7 @@ protocol RedeemTicketsQuantitySelectionViewControllerDelegate: class {
 class RedeemTicketsQuantitySelectionViewController: UIViewController, TicketVerifiableStatusViewController {
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return token.contract
     }
     private let token: TokenObject

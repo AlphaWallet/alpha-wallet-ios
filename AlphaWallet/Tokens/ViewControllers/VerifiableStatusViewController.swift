@@ -50,11 +50,22 @@ extension VerifiableStatusViewController where Self: UIViewController {
 }
 
 protocol TicketVerifiableStatusViewController: VerifiableStatusViewController {
-    var contract: String? { get }
+    var contract: String { get }
     var config: Config { get }
 }
 
 extension TicketVerifiableStatusViewController {
+    var isContractVerified: Bool {
+        return XMLHandler(contract: contract).isVerified(for: config.server)
+    }
+}
+
+protocol OptionalTicketVerifiableStatusViewController: VerifiableStatusViewController {
+    var contract: String? { get }
+    var config: Config { get }
+}
+
+extension OptionalTicketVerifiableStatusViewController {
     var isContractVerified: Bool {
         guard let contract = contract else { return false }
         return XMLHandler(contract: contract).isVerified(for: config.server)
