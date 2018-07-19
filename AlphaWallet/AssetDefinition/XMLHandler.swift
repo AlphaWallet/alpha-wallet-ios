@@ -15,8 +15,7 @@ import TrustKeystore
 private class PrivateXMLHandler {
     private let xml: XML.Accessor
     let contractAddress: String
-    //TODO do we always want the first one?
-    lazy var contract = xml["token"]["contract"][0]
+    lazy var contract = xml["token"]["contract"].getElement(attributeName: "type", attributeValue: "holding", fallbackToFirst: true)
     lazy var fields = extractFields()
     private let isOfficial: Bool
 
@@ -34,7 +33,6 @@ private class PrivateXMLHandler {
         let lang = getLang()
         let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
 
-        //TODO should check for nil and handle rather than default to any value in this class. Or maybe the asset definition XML is missing. Otherwise, it should be returning a reasonable default already
         let locality: String = fields["locality"]?.extract(from: tokenHex) ?? "N/A"
         let venue: String = fields["venue"]?.extract(from: tokenHex) ?? "N/A"
         let time: GeneralisedTime = fields["time"]?.extract(from: tokenHex) ?? .init()
@@ -79,7 +77,7 @@ private class PrivateXMLHandler {
     }
 
     func getName(lang: String) -> String {
-        if let name = contract["name"].getElementWithLangAttribute(equals: lang)?.text {
+        if let name = contract?["name"].getElementWithLangAttribute(equals: lang)?.text {
             return name
         }
         return "N/A"
