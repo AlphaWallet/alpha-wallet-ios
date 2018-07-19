@@ -11,7 +11,7 @@ protocol SetTransferTicketsExpiryDateViewControllerDelegate: class {
 class SetTransferTicketsExpiryDateViewController: UIViewController, TicketVerifiableStatusViewController {
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return viewModel.token.contract
     }
     let roundedBackground = RoundedBackground()
@@ -29,15 +29,21 @@ class SetTransferTicketsExpiryDateViewController: UIViewController, TicketVerifi
     let noteLabel = UILabel()
     let noteBorderView = UIView()
     let nextButton = UIButton(type: .system)
-    var viewModel: SetTransferTicketsExpiryDateViewControllerViewModel!
+    var viewModel: SetTransferTicketsExpiryDateViewControllerViewModel
     var ticketHolder: TokenHolder
     var paymentFlow: PaymentFlow
     weak var delegate: SetTransferTicketsExpiryDateViewControllerDelegate?
 
-    init(config: Config, ticketHolder: TokenHolder, paymentFlow: PaymentFlow) {
+    init(
+            config: Config,
+            ticketHolder: TokenHolder,
+            paymentFlow: PaymentFlow,
+            viewModel: SetTransferTicketsExpiryDateViewControllerViewModel
+    ) {
         self.config = config
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -238,8 +244,10 @@ class SetTransferTicketsExpiryDateViewController: UIViewController, TicketVerifi
         linkExpiryTimeField.value = timePicker.date
     }
 
-    func configure(viewModel: SetTransferTicketsExpiryDateViewControllerViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: SetTransferTicketsExpiryDateViewControllerViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor
