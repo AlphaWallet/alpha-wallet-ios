@@ -82,10 +82,7 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func makeTicketsViewController(with account: Wallet) -> TicketsViewController {
-        let controller = TicketsViewController(config: session.config, tokenObject: token)
-        controller.account = account
-        controller.session = session
-        controller.tokensStorage = tokensStorage
+        let controller = TicketsViewController(config: session.config, tokenObject: token, account: account, session: session, tokensStorage: tokensStorage)
         controller.delegate = self
         return controller
     }
