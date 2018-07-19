@@ -11,7 +11,7 @@ import UIKit
 class TicketRedemptionViewController: UIViewController, TicketVerifiableStatusViewController {
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return token.contract
     }
     var viewModel: TicketRedemptionViewModel!

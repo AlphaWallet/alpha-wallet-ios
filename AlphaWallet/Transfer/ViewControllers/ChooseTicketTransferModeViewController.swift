@@ -13,7 +13,7 @@ class ChooseTicketTransferModeViewController: UIViewController, TicketVerifiable
     let horizontalAdjustmentForLongMagicLinkButtonTitle = CGFloat(20)
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return viewModel.token.contract
     }
     let roundedBackground = RoundedBackground()

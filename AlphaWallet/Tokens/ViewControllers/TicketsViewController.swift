@@ -23,7 +23,7 @@ protocol TicketsViewControllerDelegate: class {
 class TicketsViewController: UIViewController, TicketVerifiableStatusViewController {
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return tokenObject.contract
     }
     var tokenObject: TokenObject

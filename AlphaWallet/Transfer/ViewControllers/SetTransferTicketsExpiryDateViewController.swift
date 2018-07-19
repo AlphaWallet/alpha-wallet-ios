@@ -11,7 +11,7 @@ protocol SetTransferTicketsExpiryDateViewControllerDelegate: class {
 class SetTransferTicketsExpiryDateViewController: UIViewController, TicketVerifiableStatusViewController {
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return viewModel.token.contract
     }
     let roundedBackground = RoundedBackground()

@@ -11,7 +11,7 @@ protocol TransferTicketsViaWalletAddressViewControllerDelegate: class {
 
 class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVerifiableStatusViewController {
     let config: Config
-    var contract: String? {
+    var contract: String {
         return token.contract
     }
     private let token: TokenObject
