@@ -43,7 +43,7 @@ class TokensCoordinator: Coordinator {
     weak var delegate: TokensCoordinatorDelegate?
 
     lazy var rootViewController: TokensViewController = {
-        return self.tokensViewController
+        return tokensViewController
     }()
 
     init(
@@ -226,7 +226,7 @@ class TokensCoordinator: Coordinator {
 
         assetDefinitionStore.fetchXML(forContract: address)
 
-        self.storage.getContractName(for: address) { result in
+        storage.getContractName(for: address) { result in
             switch result {
             case .success(let name):
                 completedName = name
@@ -237,7 +237,7 @@ class TokensCoordinator: Coordinator {
             }
         }
 
-        self.storage.getContractSymbol(for: address) { result in
+        storage.getContractSymbol(for: address) { result in
             switch result {
             case .success(let symbol):
                 completedSymbol = symbol
@@ -248,7 +248,7 @@ class TokensCoordinator: Coordinator {
             }
         }
 
-        self.storage.getTokenType(for: address) { tokenType in
+        storage.getTokenType(for: address) { tokenType in
             completedTokenType = tokenType
             switch tokenType {
             case .erc875:
@@ -327,7 +327,7 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
     }
 
     func didAddAddress(address: String, in viewController: NewTokenViewController) {
-        self.fetchContractData(for: address) { data in
+        fetchContractData(for: address) { data in
             switch data {
             case .name(let name):
                 viewController.updateNameValue(name)
