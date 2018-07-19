@@ -27,12 +27,13 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController, TicketVeri
     var quantityStepper = NumberStepper()
     let ticketView = TicketRowView()
     let nextButton = UIButton(type: .system)
-    var viewModel: RedeemTicketsQuantitySelectionViewModel!
+    var viewModel: RedeemTicketsQuantitySelectionViewModel
     weak var delegate: RedeemTicketsQuantitySelectionViewControllerDelegate?
 
-    init(config: Config, token: TokenObject) {
+    init(config: Config, token: TokenObject, viewModel: RedeemTicketsQuantitySelectionViewModel) {
         self.config = config
         self.token = token
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -125,8 +126,10 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController, TicketVeri
         delegate?.didPressViewContractWebPage(in: self)
     }
 
-    func configure(viewModel: RedeemTicketsQuantitySelectionViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: RedeemTicketsQuantitySelectionViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
 
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 

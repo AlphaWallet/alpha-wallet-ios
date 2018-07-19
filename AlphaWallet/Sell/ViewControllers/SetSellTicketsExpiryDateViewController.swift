@@ -33,18 +33,26 @@ class SetSellTicketsExpiryDateViewController: UIViewController, TicketVerifiable
     let nextButton = UIButton(type: .system)
     var datePicker = UIDatePicker()
     var timePicker = UIDatePicker()
-    var viewModel: SetSellTicketsExpiryDateViewControllerViewModel!
+    var viewModel: SetSellTicketsExpiryDateViewControllerViewModel
     var paymentFlow: PaymentFlow
     var ticketHolder: TokenHolder
     var ethCost: String
     weak var delegate: SetSellTicketsExpiryDateViewControllerDelegate?
 
-    init(config: Config, storage: TokensDataStore, paymentFlow: PaymentFlow, ticketHolder: TokenHolder, ethCost: String) {
+    init(
+            config: Config,
+            storage: TokensDataStore,
+            paymentFlow: PaymentFlow,
+            ticketHolder: TokenHolder,
+            ethCost: String,
+            viewModel: SetSellTicketsExpiryDateViewControllerViewModel
+    ) {
         self.config = config
         self.storage = storage
         self.paymentFlow = paymentFlow
         self.ticketHolder = ticketHolder
         self.ethCost = ethCost
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -241,8 +249,10 @@ class SetSellTicketsExpiryDateViewController: UIViewController, TicketVerifiable
         delegate?.didPressViewContractWebPage(in: self)
     }
 
-    func configure(viewModel: SetSellTicketsExpiryDateViewControllerViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: SetSellTicketsExpiryDateViewControllerViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor

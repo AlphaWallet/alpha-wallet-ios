@@ -18,15 +18,16 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
     let header = TicketsViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
 	let nextButton = UIButton(type: .system)
-    var viewModel: TransferTicketsViewModel!
+    var viewModel: TransferTicketsViewModel
     var paymentFlow: PaymentFlow
     private let token: TokenObject
     weak var delegate: TransferTicketsViewControllerDelegate?
 
-    init(config: Config, paymentFlow: PaymentFlow, token: TokenObject) {
+    init(config: Config, paymentFlow: PaymentFlow, token: TokenObject, viewModel: TransferTicketsViewModel) {
         self.config = config
         self.paymentFlow = paymentFlow
         self.token = token
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -80,8 +81,10 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: TransferTicketsViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: TransferTicketsViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         tableView.dataSource = self
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 

@@ -18,13 +18,14 @@ class SellTicketsViewController: UIViewController, TicketVerifiableStatusViewCon
     let header = TicketsViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
 	let nextButton = UIButton(type: .system)
-    var viewModel: SellTicketsViewModel!
+    var viewModel: SellTicketsViewModel
     var paymentFlow: PaymentFlow
     weak var delegate: SellTicketsViewControllerDelegate?
 
-    init(config: Config, paymentFlow: PaymentFlow) {
+    init(config: Config, paymentFlow: PaymentFlow, viewModel: SellTicketsViewModel) {
         self.config = config
         self.paymentFlow = paymentFlow
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -78,8 +79,10 @@ class SellTicketsViewController: UIViewController, TicketVerifiableStatusViewCon
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: SellTicketsViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: SellTicketsViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         tableView.dataSource = self
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
