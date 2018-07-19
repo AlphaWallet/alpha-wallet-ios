@@ -9,7 +9,7 @@ protocol ImportTicketViewControllerDelegate: class {
 }
 
 //class ImportTicketViewController: UIViewController, VerifiableStatusViewController {
-class ImportTicketViewController: UIViewController, TicketVerifiableStatusViewController {
+class ImportTicketViewController: UIViewController, OptionalTicketVerifiableStatusViewController {
     let config: Config
     weak var delegate: ImportTicketViewControllerDelegate?
     let roundedBackground = RoundedBackground()
