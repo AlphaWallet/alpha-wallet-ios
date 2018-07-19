@@ -14,7 +14,7 @@ class TicketRedemptionViewController: UIViewController, TicketVerifiableStatusVi
     var contract: String {
         return token.contract
     }
-    var viewModel: TicketRedemptionViewModel!
+    var viewModel: TicketRedemptionViewModel
     var titleLabel = UILabel()
     let imageView =  UIImageView()
     let ticketView = TicketRowView()
@@ -23,10 +23,11 @@ class TicketRedemptionViewController: UIViewController, TicketVerifiableStatusVi
     private let token: TokenObject
     let redeemListener = RedeemEventListener()
 
-    init(config: Config, session: WalletSession, token: TokenObject) {
+    init(config: Config, session: WalletSession, token: TokenObject, viewModel: TicketRedemptionViewModel) {
         self.config = config
 		self.session = session
         self.token = token
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -143,8 +144,10 @@ class TicketRedemptionViewController: UIViewController, TicketVerifiableStatusVi
         }
     }
     
-    func configure(viewModel: TicketRedemptionViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: TicketRedemptionViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor

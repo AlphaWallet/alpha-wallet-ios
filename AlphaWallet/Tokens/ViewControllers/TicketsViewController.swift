@@ -27,8 +27,7 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
         return tokenObject.contract
     }
     var tokenObject: TokenObject
-    //TODO forced unwraps aren't good
-    var viewModel: TicketsViewModel!
+    var viewModel: TicketsViewModel
     var tokensStorage: TokensDataStore
     var account: Wallet
     var session: WalletSession
@@ -41,12 +40,13 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
     let sellButton = UIButton(type: .system)
     let transferButton = UIButton(type: .system)
 
-    init(config: Config, tokenObject: TokenObject, account: Wallet, session: WalletSession, tokensStorage: TokensDataStore) {
+    init(config: Config, tokenObject: TokenObject, account: Wallet, session: WalletSession, tokensStorage: TokensDataStore, viewModel: TicketsViewModel) {
         self.config = config
         self.tokenObject = tokenObject
         self.account = account
         self.session = session
         self.tokensStorage = tokensStorage
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -127,8 +127,10 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: TicketsViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: TicketsViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         tableView.dataSource = self
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 

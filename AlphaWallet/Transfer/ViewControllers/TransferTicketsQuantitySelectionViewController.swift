@@ -20,15 +20,21 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, TicketVe
     var quantityStepper = NumberStepper()
     let ticketView = TicketRowView()
     let nextButton = UIButton(type: .system)
-    var viewModel: TransferTicketsQuantitySelectionViewModel!
+    var viewModel: TransferTicketsQuantitySelectionViewModel
     var paymentFlow: PaymentFlow
     private let token: TokenObject
     weak var delegate: TransferTicketsQuantitySelectionViewControllerDelegate?
 
-    init(config: Config = Config(), paymentFlow: PaymentFlow, token: TokenObject) {
+    init(
+            config: Config = Config(),
+            paymentFlow: PaymentFlow,
+            token: TokenObject,
+            viewModel: TransferTicketsQuantitySelectionViewModel
+    ) {
         self.config = config
         self.paymentFlow = paymentFlow
         self.token = token
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -122,8 +128,10 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, TicketVe
         delegate?.didPressViewContractWebPage(in: self)
     }
 
-    func configure(viewModel: TransferTicketsQuantitySelectionViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: TransferTicketsQuantitySelectionViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor

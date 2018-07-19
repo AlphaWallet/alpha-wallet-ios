@@ -25,12 +25,13 @@ class RedeemTicketsViewController: UIViewController, TicketVerifiableStatusViewC
     let header = TicketsViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
 	let nextButton = UIButton(type: .system)
-    var viewModel: RedeemTicketsViewModel!
+    var viewModel: RedeemTicketsViewModel
     weak var delegate: RedeemTicketsViewControllerDelegate?
 
-    init(config: Config, token: TokenObject) {
+    init(config: Config, token: TokenObject, viewModel: RedeemTicketsViewModel) {
         self.config = config
         self.token = token
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -84,8 +85,10 @@ class RedeemTicketsViewController: UIViewController, TicketVerifiableStatusViewC
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: RedeemTicketsViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: RedeemTicketsViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         tableView.dataSource = self
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
