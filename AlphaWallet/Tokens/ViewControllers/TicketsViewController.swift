@@ -29,9 +29,9 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
     var tokenObject: TokenObject
     //TODO forced unwraps aren't good
     var viewModel: TicketsViewModel!
-    var tokensStorage: TokensDataStore!
-    var account: Wallet!
-    var session: WalletSession!
+    var tokensStorage: TokensDataStore
+    var account: Wallet
+    var session: WalletSession
     weak var delegate: TicketsViewControllerDelegate?
     let header = TicketsViewControllerHeader()
     let roundedBackground = RoundedBackground()
@@ -41,9 +41,12 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
     let sellButton = UIButton(type: .system)
     let transferButton = UIButton(type: .system)
 
-    init(config: Config, tokenObject: TokenObject) {
+    init(config: Config, tokenObject: TokenObject, account: Wallet, session: WalletSession, tokensStorage: TokensDataStore) {
         self.config = config
         self.tokenObject = tokenObject
+        self.account = account
+        self.session = session
+        self.tokensStorage = tokensStorage
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
