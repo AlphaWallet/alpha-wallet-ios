@@ -74,7 +74,7 @@
 "wallet.create.button.title" = "Create Wallet";
 "wallet.create.inProgress" = "Creating wallet...";
 "wallet.import.button.title" = "Import Wallet";
-"wallets.backup.alertSheet.title" = "Backup Encrypted Wallet";
+"wallets.backup.alertSheet.title" = "Backup Encrypted Private Key";
 "transactions.tabbar.item.title" = "Actas";
 "import.navigation.title" = "Importando cartera";
 "browser.home.button.title" = "Home";
@@ -91,9 +91,9 @@
 "importWallet.import.button.title" = "Importar";
 "importWallet.import.invalidAddress" = "Invalid Ethereum Address";
 "importWallet.import.invalidPrivateKey" = "Private Key has to be 64 characters long";
-"Keystore JSON" = "Encrypted Wallet";
+"Keystore JSON" = "Encrypted Private Key";
 "More Details" = "Más Detalles";
-"Keystore" = "From Backup";
+"Keystore" = "Encrypted Private Key";
 "Private Key" = "Private Key";
 "settings.currency.button.title" = "Moneda";
 "settings.network.test.label.title" = "Prueba";
