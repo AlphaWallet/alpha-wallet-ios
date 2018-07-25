@@ -8,10 +8,12 @@ class InCoordinatorTests: XCTestCase {
     
     func testShowTabBar() {
         let config: Config = .make()
+        let wallet: Wallet = .make()
+
         let coordinator = InCoordinator(
             navigationController: FakeNavigationController(),
             wallet: .make(),
-            keystore: FakeEtherKeystore(),
+            keystore: FakeKeystore(wallets: [wallet]),
             config: config
         )
 
