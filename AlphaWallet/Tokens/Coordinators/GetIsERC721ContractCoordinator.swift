@@ -35,11 +35,8 @@ class GetIsERC721ContractCoordinator {
                         let request = GetIsERC721Decode(data: is721)
                         self?.web3.request(request: request) { result in
                             switch result {
-                            case .success(let isERC721):
-                                if isERC721 == "true" {
-                                    completion(.success(true))
-                                }
-                                completion(.success(false))
+                            case .success(let res):
+                                completion(.success(res.toBool()))
                             case .failure(let error):
                                 NSLog("getIsERC721Contract 3 error \(error)")
                                 completion(.failure(AnyError(error)))
