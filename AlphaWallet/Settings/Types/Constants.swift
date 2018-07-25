@@ -50,7 +50,7 @@ public struct Constants {
     public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
     
     //ERC specs
-    public static let erc721InterfaceHash = "0x80ac58cd"
+    public static let erc721InterfaceHash = "0x9a20483d"
 }
 
 public struct UnitConfiguration {
