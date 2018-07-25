@@ -48,6 +48,9 @@ public struct Constants {
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"
     public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"
     public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
+    
+    //ERC specs
+    public static let erc721InterfaceHash = "0x9a20483d"
 }
 
 public struct UnitConfiguration {
