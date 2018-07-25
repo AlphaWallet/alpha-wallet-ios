@@ -30,8 +30,8 @@ class GetIsERC875ContractCoordinator {
                 )
                 Session.send(request2) { [weak self] result2 in
                     switch result2 {
-                    case .success(let balance):
-                        let request = GetIsERC875Decode(data: balance)
+                    case .success(let is875):
+                        let request = GetIsERC875Decode(data: is875)
                         self?.web3.request(request: request) { result in
                             switch result {
                             case .success(let res):
