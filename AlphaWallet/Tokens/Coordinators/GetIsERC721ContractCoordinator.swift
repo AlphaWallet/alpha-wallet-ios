@@ -39,9 +39,7 @@ class GetIsERC721ContractCoordinator {
                                 if isERC721 == "true" {
                                     completion(.success(true))
                                 }
-                                else {
-                                    completion(.success(false))
-                                }
+                                completion(.success(false))
                             case .failure(let error):
                                 NSLog("getIsERC721Contract 3 error \(error)")
                                 completion(.failure(AnyError(error)))
