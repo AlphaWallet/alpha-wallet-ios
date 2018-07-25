@@ -12,7 +12,6 @@ class Web3Swift: NSObject {
     let url: URL
     var isLoaded = false
 
-   //"http://stormbird.duckdns.org:8545"
     init(url: URL = URL(string: "https://ropsten.infura.io/llyrtzQ3YhkdESt2Fzrk")!) {
         self.url = url
     }
