@@ -394,7 +394,6 @@ class InCoordinator: Coordinator {
     }
 
     private func fetchXMLAssetDefinitions() {
-        let keystore = try! EtherKeystore()
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()
         let web3 = self.web3(for: config.server)
