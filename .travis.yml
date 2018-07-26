@@ -19,7 +19,8 @@ before_install:
 
 script:
   - set -o pipefail
-  - fastlane travis_tests
+  #- fastlane travis_tests
+  - xcodebuild -workspace AlphaWallet.xcworkspace -scheme AlphaWalletTests -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone X" test | xcpretty
 
 after_success:
   - bash <(curl -s https://copilot.blackducksoftware.com/ci/travis/scripts/upload)
