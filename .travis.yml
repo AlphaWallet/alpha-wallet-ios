@@ -8,18 +8,19 @@ env:
   - LC_CTYPE=en_US.UTF-8 LANG=en_US.UTF-8
 
 cache:
-    # - cocoapods
+  - cocoapods
   - bundler
 
 before_install:
   - gem install cocoapods -v '1.5.3'
-  - pod install --repo-update
+    #- pod install --repo-update
   - brew update
   - brew install swiftlint || true
 
 script:
   - set -o pipefail
-  - fastlane travis_tests
+  #- fastlane travis_tests
+  - xcodebuild -workspace AlphaWallet.xcworkspace -scheme AlphaWalletTests -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone X" test | xcpretty
 
 after_success:
   - bash <(curl -s https://copilot.blackducksoftware.com/ci/travis/scripts/upload)
