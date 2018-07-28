@@ -230,7 +230,7 @@ class UniversalLinkCoordinator: Coordinator {
         for i in 0..<indices.count {
             let token: String = balance[Int(indices[i])]
             //all of the indices provided should map to a valid non null ticket
-            if token == Constants.nullTicket {
+            if isZeroBalance(token) {
                 //if null ticket at any index then the deal cannot happen
                 return [String]()
             }

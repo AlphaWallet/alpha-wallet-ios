@@ -85,5 +85,9 @@ class TokenObject: Object {
 }
 
 func isNonZeroBalance(_ balance: String) -> Bool {
-    return BigUInt(balance) != 0
+    return !isZeroBalance(balance)
+}
+
+func isZeroBalance(_ balance: String) -> Bool {
+    return BigUInt(balance) == 0
 }
