@@ -35,9 +35,9 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         return officialStore.isOfficial(contract: contract)
     }
 
-    func lastModifiedDataOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
         //Even with an override, we just want to fetch the latest official version. Doesn't imply we'll use the official version
-        return officialStore.lastModifiedDataOfCachedAssetDefinitionFile(forContract: contract)
+        return officialStore.lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
     }
 
     func forEachContractWithXML(_ body: (String) -> Void) {
