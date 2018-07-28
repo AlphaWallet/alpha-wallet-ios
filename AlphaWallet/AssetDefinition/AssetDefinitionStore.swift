@@ -68,7 +68,7 @@ class AssetDefinitionStore {
     /// IMPLEMENTATION NOTE: Current implementation will fetch the same XML multiple times if this function is called again before the previous attempt has completed. A check (which requires tracking completion handlers) hasn't been implemented because this doesn't usually happen in practice
     func fetchXML(forContract contract: String, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         let contract = contract.add0x.lowercased()
-        if useCacheAndFetch {
+        if useCacheAndFetch && self[contract] != nil {
             completionHandler?(.cached)
         }
         guard let url = urlToFetch(contract: contract) else { return }
