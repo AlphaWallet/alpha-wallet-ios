@@ -340,6 +340,11 @@ class InCoordinator: Coordinator {
             return
         }
 
+        guard !token.nonZeroBalance.isEmpty else {
+            navigationController.displayError(error: NoTokenError())
+            return
+        }
+
         let session = transactionCoordinator.session
         let tokenStorage = transactionCoordinator.tokensStorage
 
@@ -630,5 +635,11 @@ extension InCoordinator: PromptBackupCoordinatorDelegate {
 
     func didFinish(in coordinator: PromptBackupCoordinator) {
         removeCoordinator(coordinator)
+    }
+}
+
+struct NoTokenError: LocalizedError {
+    var errorDescription: String? {
+        return R.string.localizable.aWalletNoTokens()
     }
 }
