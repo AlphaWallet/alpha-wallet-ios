@@ -27,6 +27,16 @@ private class PrivateXMLHandler {
     }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
+        if contractAddress.sameContract(as: Constants.cryptoKittyContractAddress) {
+            //kkk we need to pass in the correct kitty tokenBytes32 instead of hardcoding it
+            let tokenBytes32 = BigUInt(Constants.kittyGenes[Constants.hardcodedKittyId]!)!
+            return getCryptoKittyInfoForTicketImpl(tokenId: tokenBytes32, index: index)
+        } else {
+            return getFifaInfoForTicketImpl(tokenId: tokenBytes32, index: index)
+        }
+    }
+
+    private func getFifaInfoForTicketImpl(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
         //check if leading or trailing zeros
         let tokenId = tokenBytes32
         guard tokenId != 0 else { return .empty }
@@ -57,12 +67,64 @@ private class PrivateXMLHandler {
         )
     }
 
+    private func getCryptoKittyInfoForTicketImpl(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
+        //check if leading or trailing zeros
+        let tokenId = tokenBytes32
+        guard tokenId != 0 else { return .empty }
+        let lang = getLang()
+        let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
+
+        let locality: String = fields["BODY"]?.extract(from: tokenHex) ?? "N/A"
+//        let venue: String = fields["PATTERN-TYPE"]?.extract(from: tokenHex) ?? "N/A"
+//        let venue: String = fields["PATTERN-COLOR"]?.extract(from: tokenHex) ?? "N/A"
+//        let venue: String = fields["MOUTH"]?.extract(from: tokenHex) ?? "N/A"
+        let venue: String = fields["EYE-COLOR"]?.extract(from: tokenHex) ?? "N/A"
+        let time: GeneralisedTime = .init()
+        let countryA: String = fields["EYE-TYPE"]?.extract(from: tokenHex) ?? ""
+        let countryB: String = fields["COLOR-1"]?.extract(from: tokenHex) ?? ""
+        let match: Int = 0
+        let category: String = fields["COLOR-2"]?.extract(from: tokenHex) ?? "N/A"
+        let numero: Int = 0
+        //kkk more fields
+        //EYE-COLOR
+        //WILD
+        //PATTERN-COLOR
+        //MOUTH
+        //FUTURE_1
+        //FUTURE_2
+        //FUTURE_3
+        //numero
+
+        return Ticket(
+                id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
+                index: index,
+                city: locality,
+                name: getName(lang: lang),
+                venue: venue,
+                match: match,
+                date: time,
+                seatId: numero,
+                category: category,
+                countryA: countryA,
+                countryB: countryB
+        )
+    }
+
     func isVerified(for server: RPCServer) -> Bool {
         guard isOfficial else { return false }
         let contractElement = xml["token"]["contract"].getElement(attributeName: "id", attributeValue: "holding_contract")
         let addressElement = contractElement?["address"].getElement(attributeName: "network", attributeValue: String(server.chainID))
         guard let contractInXML = addressElement?.text else { return false }
         return contractInXML.sameContract(as: contractAddress)
+    }
+
+    //kkk read from XML
+    func getStaticImageURLFormat() -> String? {
+        if contractAddress.sameContract(as: "0x06012c8cf97BEaD5deAe237070F9587f8E7A266d") {
+            return "https://img.cn.cryptokitties.co/#{contract_address}/#{id}.svg"
+        } else {
+            return nil
+        }
     }
 
     private func extractFields() -> [String: AssetAttribute] {
@@ -131,5 +193,17 @@ public class XMLHandler {
 
     func isVerified(for server: RPCServer) -> Bool {
         return privateXMLHandler.isVerified(for: server)
+    }
+
+    //kkk can also have supportsStaticAssetImage() ?
+    func getStaticImageURLFormat() -> String? {
+        return privateXMLHandler.getStaticImageURLFormat()
+    }
+
+    func getStaticImageURL(forId id: String) -> String? {
+        guard let format = getStaticImageURLFormat() else { return nil }
+        return format
+                .replacingOccurrences(of: "#{contract_address}", with: privateXMLHandler.contractAddress)
+                .replacingOccurrences(of: "#{id}", with: id)
     }
 }

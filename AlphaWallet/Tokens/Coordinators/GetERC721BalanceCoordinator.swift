@@ -24,6 +24,10 @@ class GetERC721BalanceCoordinator {
             contract: Address,
             completion: @escaping (Result<[BigUInt], AnyError>) -> Void
     ) {
+        //kkk remove
+        completion(.success([BigUInt(Constants.hardcodedKittyId)]))
+        return
+
         let request = GetERC721BalanceEncode(address: address)
         web3.request(request: request) { result in
             switch result {

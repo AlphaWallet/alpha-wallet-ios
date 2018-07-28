@@ -214,8 +214,26 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithoutCheckbox
         let ticketHolder = viewModel.item(for: indexPath)
+        if let imageIdentifier = ticketHolder.imageIdentifier, let imageType = ticketHolder.imageType {
+            let imageStore = AssetImageStore(contract: contract, imageType: imageType)
+            //kkk should we move this into the view model? But the view model can't refresh its view/cell easily
+            if imageStore[imageIdentifier] == nil {
+                imageStore.fetchImage(forId: imageIdentifier) { [weak self] result in
+                    guard self != nil else { return }
+                    switch result {
+                    case .cached, .unmodified, .error:
+                        break
+                    case .updated:
+                        NSLog("xxx Updated need to reload cell")
+                        tableView.reloadRows(at: [indexPath], with: .automatic)
+                        break
+                    }
+                }
+            }
+        }
+
+        let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithoutCheckbox
 		cell.configure(viewModel: .init(ticketHolder: ticketHolder))
         return cell
     }
