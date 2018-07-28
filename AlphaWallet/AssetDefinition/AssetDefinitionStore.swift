@@ -66,7 +66,7 @@ class AssetDefinitionStore {
     /// useCacheAndFetch: when true, the completionHandler will be called immediately and a second time if an updated XML is fetched. When false, the completionHandler will only be called up fetching an updated XML
     func fetchXML(forContract contract: String, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         let contract = contract.add0x.lowercased()
-        if useCacheAndFetch {
+        if useCacheAndFetch && self[contract] != nil {
             completionHandler?(.cached)
         }
         guard let url = urlToFetch(contract: contract) else { return }
