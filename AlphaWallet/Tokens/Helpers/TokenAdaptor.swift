@@ -22,9 +22,7 @@ class TokenAdaptor {
         for (index, item) in balance.enumerated() {
             //id is the value of the bytes32 ticket
             let id = item.balance
-            if id == Constants.nullTicket { // if balance is 0, then skip
-                continue
-            }
+            guard isNonZeroBalance(id) else { continue }
             if let ticketInt = BigUInt(id.drop0x, radix: 16) {
                 let ticket = getTicket(for: ticketInt, index: UInt16(index), in: token)
                 tickets.append(ticket)
