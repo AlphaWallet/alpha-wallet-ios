@@ -22,7 +22,7 @@ struct ImportWalletTabBarViewModel {
 	}
 
 	var font: UIFont {
-		return Fonts.regular(size: 14)!
+		return Fonts.regular(size: 10)!
 	}
 
 	var barUnhighlightedColor: UIColor {
