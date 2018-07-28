@@ -1,12 +1,15 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import Macaw
 
 // Override showCheckbox() to return true or false
 class BaseTicketTableViewCell: UITableViewCell {
     static let identifier = "TicketTableViewCell"
 
     lazy var rowView = TicketRowView(showCheckbox: showCheckbox())
+    //kkk should probably be in TicketRowView instead
+    let svgView = SVGView()
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -14,11 +17,19 @@ class BaseTicketTableViewCell: UITableViewCell {
         rowView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(rowView)
 
+        svgView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(svgView)
+
         NSLayoutConstraint.activate([
             rowView.leadingAnchor.constraint(equalTo: leadingAnchor),
             rowView.trailingAnchor.constraint(equalTo: trailingAnchor),
             rowView.topAnchor.constraint(equalTo: topAnchor),
             rowView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            svgView.widthAnchor.constraint(equalTo: svgView.heightAnchor),
+            svgView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            svgView.topAnchor.constraint(equalTo: topAnchor),
+            svgView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
     }
 
@@ -42,6 +53,13 @@ class BaseTicketTableViewCell: UITableViewCell {
         rowView.stateLabel.isHidden = viewModel.status.isEmpty
 
         rowView.areDetailsVisible = viewModel.areDetailsVisible
+
+        //kkk don't always show this. Only for tokens that has asset definition which say it has an image
+        svgView.backgroundColor = viewModel.backgroundColor
+        //kkk need to know if it's svg or png, etc?
+        if let node = viewModel.assetImageNode {
+            svgView.node = node
+        }
     }
 
     func showCheckbox() -> Bool {

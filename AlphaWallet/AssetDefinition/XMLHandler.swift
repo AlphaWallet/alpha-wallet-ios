@@ -65,6 +65,15 @@ private class PrivateXMLHandler {
         return contractInXML.sameContract(as: contractAddress)
     }
 
+    //kkk read from XML
+    func getStaticImageURLFormat() -> String? {
+        if contractAddress.sameContract(as: "0x06012c8cf97BEaD5deAe237070F9587f8E7A266d") {
+            return "https://img.cn.cryptokitties.co/#{contract_address}/#{id}.svg"
+        } else {
+            return nil
+        }
+    }
+
     private func extractFields() -> [String: AssetAttribute] {
         let lang = getLang()
         var fields = [String: AssetAttribute]()
@@ -131,5 +140,17 @@ public class XMLHandler {
 
     func isVerified(for server: RPCServer) -> Bool {
         return privateXMLHandler.isVerified(for: server)
+    }
+
+    //kkk can also have supportsStaticAssetImage() ?
+    func getStaticImageURLFormat() -> String? {
+        return privateXMLHandler.getStaticImageURLFormat()
+    }
+
+    func getStaticImageURL(forId id: String) -> String? {
+        guard let format = getStaticImageURLFormat() else { return nil }
+        return format
+                .replacingOccurrences(of: "#{contract_address}", with: privateXMLHandler.contractAddress)
+                .replacingOccurrences(of: "#{id}", with: id)
     }
 }
