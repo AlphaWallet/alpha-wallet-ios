@@ -16,7 +16,7 @@ class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
         }
     }
 
-    func lastModifiedDataOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
         return nil
     }
 
