@@ -16,4 +16,44 @@ class AssetDefinitionStoreTests: XCTestCase {
         store["0x1"] = "xml1"
         XCTAssertEqual(store["0x1"], "xml1")
     }
+
+    func testShouldNotCallCompletionBlockWithCacheCaseIfNotAlreadyCached() {
+        let contractAddress = "0x1"
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
+        let expectation = XCTestExpectation(description: "cached case should not be called")
+        expectation.isInverted = true
+        store.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
+            guard let strongSelf = self else {
+                return
+            }
+            switch result {
+            case .cached:
+                expectation.fulfill()
+                break
+            case .updated, .unmodified, .error:
+                break
+            }
+        }
+        wait(for: [expectation], timeout: 0)
+    }
+
+    func testShouldCallCompletionBlockWithCacheCaseIfAlreadyCached() {
+        let contractAddress = "0x1"
+        let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
+        store[contractAddress] = "something"
+        let expectation = XCTestExpectation(description: "cached case should be called")
+        store.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
+            guard let strongSelf = self else {
+                return
+            }
+            switch result {
+            case .cached:
+                expectation.fulfill()
+                break
+            case .updated, .unmodified, .error:
+                break
+            }
+        }
+        wait(for: [expectation], timeout: 0)
+    }
 }
