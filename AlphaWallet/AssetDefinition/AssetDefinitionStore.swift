@@ -107,13 +107,13 @@ class AssetDefinitionStore {
         return URL(string: Constants.repoServer)?.appendingPathComponent(name)
     }
 
-    private func lastModifiedDataOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
-        return backingStore.lastModifiedDataOfCachedAssetDefinitionFile(forContract: contract)
+    private func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+        return backingStore.lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
     }
 
     private func httpHeadersWithLastModifiedTimestamp(forContract contract: String) -> HTTPHeaders {
         var result = httpHeaders
-        if let lastModified = lastModifiedDataOfCachedAssetDefinitionFile(forContract: contract) {
+        if let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract) {
             result["IF-Modified-Since"] = string(fromLastModifiedDate: lastModified)
             return result
         } else {

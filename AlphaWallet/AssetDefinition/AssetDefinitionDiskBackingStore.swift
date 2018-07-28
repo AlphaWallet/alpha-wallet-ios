@@ -58,7 +58,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         return isOfficial
     }
 
-    func lastModifiedDataOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
         let path = localURLOfXML(for: contract)
         guard let lastModified = try? path.resourceValues(forKeys: [.contentModificationDateKey]) else {
             return nil
