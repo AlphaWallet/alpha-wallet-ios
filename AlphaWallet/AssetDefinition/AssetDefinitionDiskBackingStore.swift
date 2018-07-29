@@ -9,7 +9,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
     private let assetDefinitionsDirectoryName: String
     lazy var directory = documentsDirectory.appendingPathComponent(assetDefinitionsDirectoryName)
     private let isOfficial: Bool
-    var delegate: AssetDefinitionBackingStoreDelegate?
+    weak var delegate: AssetDefinitionBackingStoreDelegate?
     private var directoryWatcher: DirectoryContentsWatcherProtocol?
 
     init(directoryName: String = officialDirectoryName) {
