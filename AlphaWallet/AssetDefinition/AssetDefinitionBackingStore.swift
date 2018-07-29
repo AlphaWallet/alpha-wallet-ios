@@ -17,6 +17,6 @@ extension AssetDefinitionBackingStore {
     }
 }
 
-protocol AssetDefinitionBackingStoreDelegate {
+protocol AssetDefinitionBackingStoreDelegate: class {
     func invalidateAssetDefinition(forContract contract: String)
 }

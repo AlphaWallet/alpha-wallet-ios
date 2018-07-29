@@ -5,7 +5,7 @@ import Foundation
 class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore {
     private let officialStore = AssetDefinitionDiskBackingStore()
     private let overridesStore: AssetDefinitionBackingStore
-    var delegate: AssetDefinitionBackingStoreDelegate?
+    weak var delegate: AssetDefinitionBackingStoreDelegate?
 
     init(overridesStore: AssetDefinitionBackingStore? = nil) {
         if let overridesStore = overridesStore {
