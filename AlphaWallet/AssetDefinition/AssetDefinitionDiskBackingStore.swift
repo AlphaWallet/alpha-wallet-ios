@@ -63,14 +63,12 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         guard let lastModified = try? path.resourceValues(forKeys: [.contentModificationDateKey]) else {
             return nil
         }
-        return lastModified.contentModificationDate as? Date
+        return lastModified.contentModificationDate
     }
 
     func forEachContractWithXML(_ body: (String) -> Void) {
         if let files = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) {
-            let contracts = files.flatMap {
-                contract(fromPath: $0)
-            }
+            let contracts = files.compactMap { contract(fromPath: $0) }
             for each in contracts {
                 body(each)
             }
@@ -93,7 +91,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
                     }
                 }
             }
-        } catch let error {
+        } catch {
         }
     }
 }

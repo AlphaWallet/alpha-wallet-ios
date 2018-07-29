@@ -8,7 +8,7 @@ import XCTest
 import BigInt
 import TrustKeystore
 
-class ClaimOrderCoordinatorTests : XCTestCase {
+class ClaimOrderCoordinatorTests: XCTestCase {
 
     var expectations = [XCTestExpectation]()
 
@@ -75,7 +75,6 @@ class ClaimOrderCoordinatorTests : XCTestCase {
                                                         gasPrice: unsignedTransaction.gasPrice,
                                                         gasLimit: unsignedTransaction.gasLimit,
                                                         chainID: 3)
-                
                 
                 let sendTransactionCoordinator = SendTransactionCoordinator(session: session,
                                                                             keystore: keystore,

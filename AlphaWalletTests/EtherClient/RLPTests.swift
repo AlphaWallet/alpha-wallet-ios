@@ -52,7 +52,7 @@ class RLPTests: XCTestCase {
         XCTAssertEqual(RLP.encode(["cat", "dog"])!.hex(), "c88363617483646f67")
         XCTAssertEqual(RLP.encode([ [], [[]], [ [], [[]] ] ])!.hex(), "c7c0c1c0c3c0c1c0")
         XCTAssertEqual(RLP.encode([1, 0xffffff, [4, 5, 5], "abc"])!.hex(), "cd0183ffffffc304050583616263")
-        let encoded = RLP.encode(Array<Int>(repeating: 0, count: 1024))!
+        let encoded = RLP.encode([Int](repeating: 0, count: 1024))!
         print(encoded.hex())
         XCTAssert(encoded.hex().hasPrefix("f90400"))
     }
