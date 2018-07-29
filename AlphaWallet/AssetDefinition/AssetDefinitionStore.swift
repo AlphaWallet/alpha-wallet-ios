@@ -76,7 +76,7 @@ class AssetDefinitionStore {
                 url,
                 method: .get,
                 headers: httpHeadersWithLastModifiedTimestamp(forContract: contract)
-        ).response() { response in
+        ).response { response in
             if response.response?.statusCode == 304 {
                 completionHandler?(.unmodified)
             } else if response.response?.statusCode == 406 {

@@ -181,7 +181,7 @@ public extension DirectoryContentsWatcher {
 
             if let paths = try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: [.contentModificationDateKey]) {
                 for each in paths {
-                    if let lastModified = try? each.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate as? Date {
+                    if let lastModified = try? each.resourceValues(forKeys: [.contentModificationDateKey]).contentModificationDate {
                         contents[each.lastPathComponent] = lastModified
                     }
                 }
@@ -216,10 +216,8 @@ public extension DirectoryContentsWatcher {
         /// We don't check if date value is newer or older, because someone might drop an older file inside and it should be picked up
         private func keysWithDifferentValues(between dictionary1: [String: Date], and dictionary2: [String: Date]) -> [String] {
             var results = [String]()
-            for (k, v) in dictionary1 {
-                if v != dictionary2[k] {
-                    results.append(k)
-                }
+            for (k, v) in dictionary1 where v != dictionary2[k] {
+                results.append(k)
             }
             let missingKeys = Array(dictionary2.keys) - Array(dictionary1.keys)
             results.append(contentsOf: missingKeys)

@@ -58,6 +58,6 @@ struct GeneralisedTime {
     }
 }
 
-func <(lhs: GeneralisedTime, rhs: GeneralisedTime) -> Bool {
+func < (lhs: GeneralisedTime, rhs: GeneralisedTime) -> Bool {
     return lhs.date < rhs.date
 }

@@ -142,7 +142,7 @@ struct Config {
 
     func createDefaultTicketToken() -> ERCToken? {
         guard let contract = ticketContractAddress else { return nil }
-        guard let contractAddress = Address(string: contract) else { return nil}
+        guard let contractAddress = Address(string: contract) else { return nil }
         let xmlHandler = XMLHandler(contract: contract)
         let lang = xmlHandler.getLang()
         let name = xmlHandler.getName(lang: lang)

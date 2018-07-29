@@ -3,7 +3,6 @@
 import XCTest
 @testable import Trust
 
-
 class SplashCoordinatorTests: XCTestCase {
     func testStart() {
         let window = UIWindow()
