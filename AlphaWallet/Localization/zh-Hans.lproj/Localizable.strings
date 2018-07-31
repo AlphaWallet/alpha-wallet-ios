@@ -205,7 +205,7 @@
 "a.wallet.contents.filter.assetsOnly.title" = "资产类";
 "a.wallet.contents.issuer.title" = "发行方";
 "a.wallet.next.button.title" = "下一步";
-"a.wallet.no.tokens" = "You don't have any tokens";
+"a.wallet.no.tokens" = "你没有这类Token";
 "a.help.navigation.title" = "帮助";
 "a.help.contact.footer.button.title" = "需要进一步帮助? 联系我们";
 "a.help.contact.email.subject" = "帮助/建议";
