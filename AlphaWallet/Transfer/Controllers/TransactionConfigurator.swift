@@ -164,25 +164,22 @@ class TransactionConfigurator {
 
         case .ERC721Token:
             session.web3.request(request: ContractERC721Transfer(address: transaction.to!.description,
-                    tokenId: transaction.tokenId!))
-            { [unowned self] result in
-                    switch result {
-                    case .success(let res):
-                        let data = Data(hex: res.drop0x)
-                        self.configuration = TransactionConfiguration(
-                                gasPrice: self.calculatedGasPrice,
-                                gasLimit: Constants.gasLimit,
-                                data: data
-                        )
-                        completion(.success(()))
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
+                    tokenId: transaction.tokenId!)) { [unowned self] result in
+                switch result {
+                case .success(let res):
+                    let data = Data(hex: res.drop0x)
+                    self.configuration = TransactionConfiguration(
+                            gasPrice: self.calculatedGasPrice,
+                            gasLimit: Constants.gasLimit,
+                            data: data
+                    )
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
                 }
             }
-
         }
-
+    }
 
     func previewTransaction() -> PreviewTransaction {
         return PreviewTransaction(

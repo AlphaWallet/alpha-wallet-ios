@@ -8,7 +8,7 @@ import Result
 struct FakeKeystore: Keystore {
     static var current: Wallet?
     var hasWallets: Bool {
-        return wallets.count > 0
+        return !wallets.isEmpty
     }
     var keystoreDirectory: URL {
         return URL(fileURLWithPath: "file://")
@@ -64,7 +64,7 @@ struct FakeKeystore: Keystore {
         return .failure(KeystoreError.failedToSignTransaction)
     }
 
-    func delete(wallet wallet: Wallet) -> Result<Void, KeystoreError> {
+    func delete(wallet: Wallet) -> Result<Void, KeystoreError> {
         //TODO: Implement
         return .failure(KeystoreError.failedToSignTransaction)
     }
@@ -96,7 +96,7 @@ struct FakeKeystore: Keystore {
         return .none
     }
 
-    func convertPrivateKeyToKeystoreFile(privateKey: String, passphrase: String) -> Result<[String : Any], KeystoreError> {
+    func convertPrivateKeyToKeystoreFile(privateKey: String, passphrase: String) -> Result<[String: Any], KeystoreError> {
         //TODO: Implement
         return .failure(KeystoreError.failedToSignTransaction)
     }

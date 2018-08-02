@@ -40,9 +40,8 @@ enum AssetAttribute {
     init(attribute: XML.Element, lang: String) {
         self = {
             let attributeAccessor = XML.Accessor(attribute)
-            let attribute = XML.Accessor(attribute)
             //TODO show error if syntax attribute is missing
-            if case .singleElement(let origin) = attributeAccessor["origin"], let rawSyntax = attributeAccessor.attributes["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax),  let type = XML.Accessor(origin).attributes["as"] {
+            if case .singleElement(let origin) = attributeAccessor["origin"], let rawSyntax = attributeAccessor.attributes["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let type = XML.Accessor(origin).attributes["as"] {
                 switch type {
                 case "mapping":
                     return .mapping(attribute: attributeAccessor, syntax: syntax, lang: lang)
@@ -57,10 +56,10 @@ enum AssetAttribute {
 
     func extract<T>(from tokenValueHex: String) -> T? where T: AssetAttributeValue {
         switch self {
-        case .mapping(let _, let syntax, _):
+        case .mapping(_, let syntax, _):
             guard let value = parseValueFromMapping(tokenValueHex: tokenValueHex) else { return nil }
             return syntax.extract(from: value, isMapping: true) as? T
-        case .direct(let _, let syntax):
+        case .direct(_, let syntax):
             let value = parseValue(tokenValueHex: tokenValueHex)
             return syntax.extract(from: value, isMapping: false) as? T
         }

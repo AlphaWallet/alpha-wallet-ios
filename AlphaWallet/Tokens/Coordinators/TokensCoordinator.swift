@@ -73,7 +73,7 @@ class TokensCoordinator: Coordinator {
     }
     
     private func refreshUponAssetDefinitionChanges() {
-        assetDefinitionStore.subscribe { [weak self] contract in
+        assetDefinitionStore.subscribe { [weak self] _ in
             self?.storage.updateERC875TokensToLocalizedName()
         }
     }
@@ -143,7 +143,7 @@ class TokensCoordinator: Coordinator {
                 self.storage.add(tokens: [token])
                 completion()
             case .failed(let networkReachable):
-                if let networkReachable = networkReachable, networkReachable  {
+                if let networkReachable = networkReachable, networkReachable {
                     self.storage.add(deadContracts: [DeletedContract(contract: contract)])
                 }
                 completion()
@@ -262,7 +262,6 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
-                break
             case .erc721:
                 self.storage.getERC721Balance(for: address) { result in
                     switch result {
@@ -274,7 +273,6 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
-                break
             case .erc20:
                 self.storage.getDecimals(for: address) { result in
                     switch result {
@@ -286,7 +284,6 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
-                break
             case .ether:
                 break
             }
@@ -339,10 +336,8 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
                 viewController.updateDecimalsValue(decimals)
             case .nonFungibleTokenComplete(_, _, _, let tokenType):
                 viewController.updateFormForTokenType(tokenType)
-                break
             case .fungibleTokenComplete:
                 viewController.updateFormForTokenType(.erc20)
-                break
             case .failed:
                 break
             }

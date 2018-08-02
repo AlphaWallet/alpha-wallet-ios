@@ -276,7 +276,7 @@ class EtherKeystoreTests: XCTestCase {
     func testAddWatchAddress() {
         let keystore = FakeEtherKeystore()
         let address: Address = .make()
-        keystore.importWallet(type: ImportType.watch(address: address)) {_  in }
+        keystore.importWallet(type: ImportType.watch(address: address)) { _  in }
 
         XCTAssertEqual(1, keystore.wallets.count)
         XCTAssertEqual(address, keystore.wallets[0].address)

@@ -217,14 +217,11 @@ class TokensDataStore {
                             } else {
                                 completion(.erc20)
                             }
-                            break
                         case .failure:
                             completion(.erc20)
-                            break
                         }
                     }
                 }
-                break
             case .failure:
                 self.getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { result in
                     switch result {
@@ -234,13 +231,10 @@ class TokensDataStore {
                         } else {
                             completion(.erc20)
                         }
-                        break
                     case .failure:
                         completion(.erc20)
-                        break
                     }
                 }
-                break
             }
         }
     }

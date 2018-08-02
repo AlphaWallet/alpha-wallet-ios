@@ -16,7 +16,7 @@ class AccountViewCell: UITableViewCell {
     var addressLabel = UILabel()
     var balanceLabel = UILabel()
     weak var delegate: AccountViewCellDelegate?
-    var account: Wallet? = nil
+    var account: Wallet?
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
