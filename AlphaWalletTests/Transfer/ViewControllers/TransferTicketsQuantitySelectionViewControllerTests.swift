@@ -4,7 +4,7 @@ import FBSnapshotTestCase
 @testable import Trust
 import UIKit
 
-class TransferTicketsQuantitySelectionViewControllerTests: FBSnapshotTestCase  {
+class TransferTicketsQuantitySelectionViewControllerTests: FBSnapshotTestCase {
     override func setUp() {
         super.setUp()
         isDeviceAgnostic = true

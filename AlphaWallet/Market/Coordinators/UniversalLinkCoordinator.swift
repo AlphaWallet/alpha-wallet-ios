@@ -249,7 +249,6 @@ class UniversalLinkCoordinator: Coordinator {
             case .updated:
                 strongSelf.makeTicketHolderImpl(bytes32Tickets: bytes32Tickets, contractAddress: contractAddress)
                 strongSelf.updateTicketFields()
-                break
             case .unmodified, .error:
                 break
             }
@@ -404,7 +403,7 @@ extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
 	}
 
 	func didPressImport(in viewController: ImportTicketViewController) {
-        if let signedOrder = viewController.signedOrder, let tokenObj = viewController.tokenObject {
+        if let signedOrder = viewController.signedOrder {
             self.delegate?.didImported(contract: signedOrder.order.contractAddress, in: self)
         }
 
