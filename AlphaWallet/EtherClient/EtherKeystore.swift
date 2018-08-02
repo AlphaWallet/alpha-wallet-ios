@@ -257,7 +257,7 @@ open class EtherKeystore: Keystore {
 
     }
 
-    func delete(wallet: Wallet) -> Result<Void, KeystoreError> {
+    @discardableResult func delete(wallet: Wallet) -> Result<Void, KeystoreError> {
         switch wallet.type {
         case .real(let account):
             guard let account = getAccount(for: account.address) else {

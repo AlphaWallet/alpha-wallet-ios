@@ -30,7 +30,7 @@ class WalletCoordinator: Coordinator {
     }
 
     ///Return true if caller should proceed to show UI (`navigationController`)
-    func start(_ entryPoint: WalletEntryPoint) -> Bool {
+    @discardableResult func start(_ entryPoint: WalletEntryPoint) -> Bool {
         self.entryPoint = entryPoint
         switch entryPoint {
         case .welcome:

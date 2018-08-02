@@ -23,13 +23,10 @@ class AssetDefinitionStoreTests: XCTestCase {
         let expectation = XCTestExpectation(description: "cached case should not be called")
         expectation.isInverted = true
         store.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
-            guard let strongSelf = self else {
-                return
-            }
+            guard self != nil else { return }
             switch result {
             case .cached:
                 expectation.fulfill()
-                break
             case .updated, .unmodified, .error:
                 break
             }
@@ -43,13 +40,10 @@ class AssetDefinitionStoreTests: XCTestCase {
         store[contractAddress] = "something"
         let expectation = XCTestExpectation(description: "cached case should be called")
         store.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
-            guard let strongSelf = self else {
-                return
-            }
+            guard self != nil else { return }
             switch result {
             case .cached:
                 expectation.fulfill()
-                break
             case .updated, .unmodified, .error:
                 break
             }
