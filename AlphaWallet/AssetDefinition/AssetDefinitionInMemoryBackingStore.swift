@@ -4,7 +4,7 @@ import Foundation
 
 class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
     private var xmls = [String: String]()
-    var delegate: AssetDefinitionBackingStoreDelegate?
+    weak var delegate: AssetDefinitionBackingStoreDelegate?
 
     subscript(contract: String) -> String? {
         get {
