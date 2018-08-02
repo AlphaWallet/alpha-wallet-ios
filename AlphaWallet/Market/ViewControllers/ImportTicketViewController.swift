@@ -10,6 +10,11 @@ protocol ImportTicketViewControllerDelegate: class {
 
 //class ImportTicketViewController: UIViewController, VerifiableStatusViewController {
 class ImportTicketViewController: UIViewController, OptionalTicketVerifiableStatusViewController {
+    enum State {
+        case ready(ImportTicketViewControllerViewModel)
+        case notReady
+    }
+
     let config: Config
     weak var delegate: ImportTicketViewControllerDelegate?
     let roundedBackground = RoundedBackground()
@@ -25,11 +30,7 @@ class ImportTicketViewController: UIViewController, OptionalTicketVerifiableStat
     let buttonSeparator = UIView()
     let actionButton = UIButton(type: .system)
     let cancelButton = UIButton(type: .system)
-    var viewModel: ImportTicketViewControllerViewModel?
-    var query: String?
-    var parameters: Parameters?
-    var signedOrder: SignedOrder?
-    var tokenObject: TokenObject?
+    private var viewModel: ImportTicketViewControllerViewModel?
     var contract: String? {
         didSet {
             guard url != nil else { return }
@@ -39,6 +40,13 @@ class ImportTicketViewController: UIViewController, OptionalTicketVerifiableStat
     var url: URL? {
         didSet {
             updateNavigationRightBarButtons(isVerified: true, hasShowInfoButton: false)
+        }
+    }
+    var state: State {
+        if let viewModel = viewModel {
+            return .ready(viewModel)
+        } else {
+            return .notReady
         }
     }
 
