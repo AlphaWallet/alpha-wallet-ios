@@ -4,7 +4,7 @@ import XCTest
 import TrustKeystore
 import BigInt
 
-class MarketQueueHandlerTests: XCTestCase  {
+class MarketQueueHandlerTests: XCTestCase {
 
     var expectations = [XCTestExpectation]()
     let keyStore = FakeEtherKeystore()
@@ -12,8 +12,7 @@ class MarketQueueHandlerTests: XCTestCase  {
     func testGetOrders() {
         let expectation = self.expectation(description: "wait til callback")
         expectations.append(expectation)
-        MarketQueueHandler().getOrders(callback: {
-            callback in
+        MarketQueueHandler().getOrders(callback: { callback in
             print(callback)
             expectation.fulfill()
         })

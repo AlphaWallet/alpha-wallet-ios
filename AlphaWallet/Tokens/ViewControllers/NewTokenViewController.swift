@@ -221,16 +221,16 @@ class NewTokenViewController: UIViewController {
             return false
         }
         switch tokenType {
-            case .ether, .erc20:
-                guard !decimalsTextField.value.trimmed.isEmpty else {
-                    displayError(title: R.string.localizable.decimals(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-                    return false
-                }
-            case .erc721, .erc875:
-                guard !balanceTextField.value.trimmed.isEmpty else {
-                    displayError(title: R.string.localizable.balance(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-                    return false
-                }
+        case .ether, .erc20:
+            guard !decimalsTextField.value.trimmed.isEmpty else {
+                displayError(title: R.string.localizable.decimals(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
+                return false
+            }
+        case .erc721, .erc875:
+            guard !balanceTextField.value.trimmed.isEmpty else {
+                displayError(title: R.string.localizable.balance(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
+                return false
+            }
         }
 
         return true

@@ -6,7 +6,7 @@ import XCTest
 class TransactionViewModelTests: XCTestCase {
 
     func testErrorState() {
-        let viewModel = TransactionViewModel(transaction: .make(state: .error), config: .make(), chainState: .make(), currentWallet: .make())
+        let _ = TransactionViewModel(transaction: .make(state: .error), config: .make(), chainState: .make(), currentWallet: .make())
 
     }
 

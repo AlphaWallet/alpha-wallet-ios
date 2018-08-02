@@ -17,7 +17,7 @@ class TicketRowView: UIView {
 	let cityLabel = UILabel()
 	let timeLabel = UILabel()
 	let teamsLabel = UILabel()
-	var detailsRowStack: UIStackView? = nil
+	var detailsRowStack: UIStackView?
     let showCheckbox: Bool
     var areDetailsVisible = false {
 		didSet {
