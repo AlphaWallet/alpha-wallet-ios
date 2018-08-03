@@ -27,6 +27,7 @@ target 'AlphaWallet' do
   pod 'SwiftyJSON'
   pod 'web3swift', :git => 'https://github.com/alpha-wallet/web3swift.git', :branch => 'alphawallet'
   pod 'SAMKeychain'
+  pod 'Macaw'
   target 'AlphaWalletTests' do
       inherit! :search_paths
       # Pods for testing
