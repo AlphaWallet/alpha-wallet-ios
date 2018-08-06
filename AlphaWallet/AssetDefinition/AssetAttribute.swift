@@ -2,6 +2,7 @@
 
 import UIKit
 import SwiftyXMLParser
+import BigInt
 
 protocol AssetAttributeValue {}
 extension String: AssetAttributeValue {}
@@ -34,40 +35,47 @@ enum AssetAttributeSyntax: String {
 }
 
 enum AssetAttribute {
-    case mapping(attribute: XML.Accessor, syntax: AssetAttributeSyntax, lang: String)
-    case direct(attribute: XML.Accessor, syntax: AssetAttributeSyntax)
+    case mapping(attribute: XML.Accessor, syntax: AssetAttributeSyntax, lang: String, bitmask: BigInt, bitShift: Int)
+    case direct(attribute: XML.Accessor, syntax: AssetAttributeSyntax, bitmask: BigInt, bitShift: Int)
 
     init(attribute: XML.Element, lang: String) {
         self = {
             let attributeAccessor = XML.Accessor(attribute)
             //TODO show error if syntax attribute is missing
-            if case .singleElement(let origin) = attributeAccessor["origin"], let rawSyntax = attributeAccessor.attributes["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let type = XML.Accessor(origin).attributes["as"] {
+            if case .singleElement(let origin) = attributeAccessor["origin"], let rawSyntax = attributeAccessor.attributes["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let type = XML.Accessor(origin).attributes["as"], let bitmaskString = AssetAttribute.getBitMaskFrom(attribute: attributeAccessor), let bitmask = BigInt(bitmaskString, radix: 16) {
+                let bitShift = AssetAttribute.bitShiftCount(forBitMask: bitmask)
                 switch type {
                 case "mapping":
-                    return .mapping(attribute: attributeAccessor, syntax: syntax, lang: lang)
+                    return .mapping(attribute: attributeAccessor, syntax: syntax, lang: lang, bitmask: bitmask, bitShift: bitShift)
                 default:
-                    return .direct(attribute: attributeAccessor, syntax: syntax)
+                    return .direct(attribute: attributeAccessor, syntax: syntax, bitmask: bitmask, bitShift: bitShift)
                 }
             }
             //TODO maybe return an optional to indicate error instead?
-            return .direct(attribute: attributeAccessor, syntax: .iA5String)
+            return .direct(attribute: attributeAccessor, syntax: .iA5String, bitmask: BigInt(0), bitShift: 0)
         }()
     }
 
     func extract<T>(from tokenValueHex: String) -> T? where T: AssetAttributeValue {
         switch self {
-        case .mapping(_, let syntax, _):
+        case .mapping(_, let syntax, _, _, _):
             guard let value = parseValueFromMapping(tokenValueHex: tokenValueHex) else { return nil }
             return syntax.extract(from: value, isMapping: true) as? T
-        case .direct(_, let syntax):
+        case .direct(_, let syntax, _, _):
             let value = parseValue(tokenValueHex: tokenValueHex)
             return syntax.extract(from: value, isMapping: false) as? T
         }
     }
 
     private func parseValue(tokenValueHex: String) -> String {
-        let (start, end) = getIndices(forTokenValueHexLength: tokenValueHex.count)
-        return tokenValueHex.substring(with: Range(uncheckedBounds: (start, end)))
+        switch self {
+        case .direct(let attribute, _, let bitmask, let bitShift), .mapping(let attribute, _, _, let bitmask, let bitShift):
+            if let tokenHexAsInt = BigInt(tokenValueHex, radix: 16) {
+                let value = (bitmask & tokenHexAsInt) >> bitShift
+                return String(value, radix: 16)
+            }
+        }
+        return ""
     }
 
     private func parseValueAsIntInHex(tokenValueHex: String) -> String {
@@ -80,7 +88,7 @@ enum AssetAttribute {
 
     private func parseValueFromMapping(tokenValueHex: String) -> String? {
         switch self {
-        case .mapping(let attribute, _, let lang):
+        case .mapping(let attribute, _, let lang, _, _):
             let id = parseValueAsIntInHex(tokenValueHex: tokenValueHex)
             guard id != "0" else { return nil }
             if let value = attribute["origin"]["option"].getElementWithKeyAttribute(equals: id)?["value"].getElementWithLangAttribute(equals: lang)?.text {
@@ -92,30 +100,16 @@ enum AssetAttribute {
         }
     }
 
-    private func handleBitmaskIndices(bitmask: String, forTokenValueHexLength length: Int) -> (Int, Int) {
-        var startingNumber = 0
-        var endingNumber = 0
-        let diff = bitmask.count - length
-        let trimmedBitmask = bitmask.substring(from: diff)
-        if let index = trimmedBitmask.index(of: "F") {
-            startingNumber = trimmedBitmask.distance(from: trimmedBitmask.startIndex, to: index)
-        }
-        let strippedBitmask = trimmedBitmask.replacingOccurrences(of: "0", with: "")
-        endingNumber = strippedBitmask.count + startingNumber
-        return (startingNumber, endingNumber)
-    }
-
-    private func getBitMaskFrom(attribute: XML.Accessor) -> String? {
+    private static func getBitMaskFrom(attribute: XML.Accessor) -> String? {
         return attribute["origin"].attributes["bitmask"]
     }
 
-    private func getIndices(forTokenValueHexLength length: Int) -> (Int, Int) {
-        switch self {
-        case .direct(let attribute, _), .mapping(let attribute, _, _):
-            if let bitmask = getBitMaskFrom(attribute: attribute) {
-                return handleBitmaskIndices(bitmask: bitmask, forTokenValueHexLength: length)
-            }
-        }
-        return (0, 0)
+    ///Used to truncate bits to the right of the bitmask
+    private static func bitShiftCount(forBitMask bitmask: BigInt) -> Int {
+        var count = 0
+        repeat {
+            count += 1
+        } while bitmask % (1 << count) == 0
+        return count - 1
     }
 }
