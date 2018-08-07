@@ -216,6 +216,7 @@ struct ImportTicketViewControllerViewModel {
         case .free:
             return ""
         case .paid(_, let dollarCost):
+            guard let dollarCost = dollarCost else { return "" }
             return "$\(dollarCost)"
         }
     }
