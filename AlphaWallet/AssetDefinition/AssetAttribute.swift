@@ -23,13 +23,11 @@ enum AssetAttributeSyntax: String {
             if isMapping {
                 return string
             } else {
-                return String(data: Data(bytes: string.hexa2Bytes), encoding: .utf8)
+                guard let value = BigInt(string) else { return "" }
+                return String(data: Data(bytes: String(value, radix: 16).hexa2Bytes), encoding: .utf8)
             }
         case .integer:
-            if let intValue = Int(string, radix: 16) {
-                return intValue
-            }
-            return nil
+            return Int(string)
         }
     }
 }
@@ -58,45 +56,21 @@ enum AssetAttribute {
 
     func extract<T>(from tokenValueHex: String) -> T? where T: AssetAttributeValue {
         switch self {
-        case .mapping(_, let syntax, _, _, _):
-            guard let value = parseValueFromMapping(tokenValueHex: tokenValueHex) else { return nil }
+        case .mapping(let attribute, let syntax, let lang, _, _):
+            guard let key = parseValue(tokenValueHex: tokenValueHex) else { return nil }
+            guard let value = attribute["origin"]["option"].getElementWithKeyAttribute(equals: String(key))?["value"].getElementWithLangAttribute(equals: lang)?.text else { return nil }
             return syntax.extract(from: value, isMapping: true) as? T
         case .direct(_, let syntax, _, _):
-            let value = parseValue(tokenValueHex: tokenValueHex)
-            return syntax.extract(from: value, isMapping: false) as? T
+            guard let value = parseValue(tokenValueHex: tokenValueHex) else { return nil }
+            return syntax.extract(from: String(value), isMapping: false) as? T
         }
     }
 
-    private func parseValue(tokenValueHex: String) -> String {
+    private func parseValue(tokenValueHex: String) -> BigInt? {
         switch self {
         case .direct(let attribute, _, let bitmask, let bitShift), .mapping(let attribute, _, _, let bitmask, let bitShift):
-            if let tokenHexAsInt = BigInt(tokenValueHex, radix: 16) {
-                let value = (bitmask & tokenHexAsInt) >> bitShift
-                return String(value, radix: 16)
-            }
-        }
-        return ""
-    }
-
-    private func parseValueAsIntInHex(tokenValueHex: String) -> String {
-        let value = parseValue(tokenValueHex: tokenValueHex)
-        if let intValue = Int(value, radix: 16) {
-            return String(intValue)
-        }
-        return "0"
-    }
-
-    private func parseValueFromMapping(tokenValueHex: String) -> String? {
-        switch self {
-        case .mapping(let attribute, _, let lang, _, _):
-            let id = parseValueAsIntInHex(tokenValueHex: tokenValueHex)
-            guard id != "0" else { return nil }
-            if let value = attribute["origin"]["option"].getElementWithKeyAttribute(equals: id)?["value"].getElementWithLangAttribute(equals: lang)?.text {
-                return value
-            }
-            return nil
-        case .direct:
-            return nil
+            guard let tokenHexAsInt = BigInt(tokenValueHex, radix: 16) else { return nil }
+            return (bitmask & tokenHexAsInt) >> bitShift
         }
     }
 
