@@ -27,23 +27,20 @@ private class PrivateXMLHandler {
     }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
-        //check if leading or trailing zeros
-        let tokenId = tokenBytes32
-        guard tokenId != 0 else { return .empty }
+        guard tokenBytes32 != 0 else { return .empty }
         let lang = getLang()
-        let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
 
-        let locality: String = fields["locality"]?.extract(from: tokenHex) ?? "N/A"
-        let venue: String = fields["venue"]?.extract(from: tokenHex) ?? "N/A"
-        let time: GeneralisedTime = fields["time"]?.extract(from: tokenHex) ?? .init()
-        let countryA: String = fields["countryA"]?.extract(from: tokenHex) ?? ""
-        let countryB: String = fields["countryB"]?.extract(from: tokenHex) ?? ""
-        let match: Int = fields["match"]?.extract(from: tokenHex) ?? 0
-        let category: String = fields["category"]?.extract(from: tokenHex) ?? "N/A"
-        let numero: Int = fields["numero"]?.extract(from: tokenHex) ?? 0
+        let locality: String = fields["locality"]?.extract(from: tokenBytes32) ?? "N/A"
+        let venue: String = fields["venue"]?.extract(from: tokenBytes32) ?? "N/A"
+        let time: GeneralisedTime = fields["time"]?.extract(from: tokenBytes32) ?? .init()
+        let countryA: String = fields["countryA"]?.extract(from: tokenBytes32) ?? ""
+        let countryB: String = fields["countryB"]?.extract(from: tokenBytes32) ?? ""
+        let match: Int = fields["match"]?.extract(from: tokenBytes32) ?? 0
+        let category: String = fields["category"]?.extract(from: tokenBytes32) ?? "N/A"
+        let numero: Int = fields["numero"]?.extract(from: tokenBytes32) ?? 0
 
         return Ticket(
-                id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
+                id: String(tokenBytes32, radix: 16),
                 index: index,
                 city: locality,
                 name: getName(lang: lang),
