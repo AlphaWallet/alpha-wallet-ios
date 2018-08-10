@@ -29,28 +29,17 @@ private class PrivateXMLHandler {
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
         guard tokenBytes32 != 0 else { return .empty }
         let lang = getLang()
-
-        let locality: String = fields["locality"]?.extract(from: tokenBytes32) ?? "N/A"
-        let venue: String = fields["venue"]?.extract(from: tokenBytes32) ?? "N/A"
-        let time: GeneralisedTime = fields["time"]?.extract(from: tokenBytes32) ?? .init()
-        let countryA: String = fields["countryA"]?.extract(from: tokenBytes32) ?? ""
-        let countryB: String = fields["countryB"]?.extract(from: tokenBytes32) ?? ""
-        let match: Int = fields["match"]?.extract(from: tokenBytes32) ?? 0
-        let category: String = fields["category"]?.extract(from: tokenBytes32) ?? "N/A"
-        let numero: Int = fields["numero"]?.extract(from: tokenBytes32) ?? 0
+        var values = [String: AssetAttributeValue]()
+        for (name, attribute) in fields {
+            let value = attribute.extract(from: tokenBytes32)
+            values[name] = value
+        }
 
         return Ticket(
                 id: String(tokenBytes32, radix: 16),
                 index: index,
-                city: locality,
                 name: getName(lang: lang),
-                venue: venue,
-                match: match,
-                date: time,
-                seatId: numero,
-                category: category,
-                countryA: countryA,
-                countryB: countryB
+                values: values
         )
     }
 
