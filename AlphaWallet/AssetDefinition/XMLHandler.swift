@@ -36,7 +36,7 @@ private class PrivateXMLHandler {
         }
 
         return Ticket(
-                id: String(tokenBytes32, radix: 16),
+                id: tokenBytes32,
                 index: index,
                 name: getName(lang: lang),
                 values: values
