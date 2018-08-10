@@ -10,7 +10,7 @@ import Foundation
 import BigInt
 
 struct Ticket {
-    let id: String
+    let id: BigUInt
     let index: UInt16
     var name: String
     let values: [String: AssetAttributeValue]
@@ -49,7 +49,7 @@ struct Ticket {
 
     static var empty: Ticket {
         return Ticket(
-                id: Constants.nullTicket,
+                id: Constants.nullTicketBigUInt,
                 index: 0,
                 name: "FIFA WC",
                 values: [
