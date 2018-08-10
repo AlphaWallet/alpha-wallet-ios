@@ -66,7 +66,7 @@ private class PrivateXMLHandler {
         let lang = getLang()
         var fields = [String: AssetAttribute]()
         for e in xml["token"]["attribute-types"]["attribute-type"] {
-            if let id = e.attributes["id"], case let .singleElement(element) = e {
+            if let id = e.attributes["id"], case let .singleElement(element) = e, XML.Accessor(element)["origin"].attributes["as"] != nil {
                 fields[id] = AssetAttribute(attribute: element, lang: lang)
             }
         }
