@@ -19,7 +19,7 @@ protocol SendViewControllerDelegate: class {
     )
 }
 
-class SendViewController: UIViewController {
+class SendViewController: UIViewController, CanScanQRCode {
     let roundedBackground = RoundedBackground()
     let header = SendHeaderView()
     let targetAddressTextField = AddressTextField()
@@ -564,6 +564,10 @@ extension SendViewController: AddressTextFieldDelegate {
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            promptUserOpenSettingsToChangeCameraPermission()
+            return
+        }
         let controller = QRCodeReaderViewController()
         controller.delegate = self
         present(controller, animated: true, completion: nil)

@@ -273,6 +273,7 @@
 		442FCE2BEE8D475C7DEB39C1 /* RedeemTicketsQuantitySelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FC54DA900FA2F9BB73A63 /* RedeemTicketsQuantitySelectionViewModel.swift */; };
 		442FCED8B618930EFD1F7BA8 /* GetIsERC875Encode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442FCA1F19B6293FE5FAD494 /* GetIsERC875Encode.swift */; };
 		4AEDE35A1DC3B1F4B885A073 /* Pods_AlphaWallet.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9BD60178B937124277D81CCD /* Pods_AlphaWallet.framework */; };
+		5E7C700A0B11504AC44718DD /* CanScanQRCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74159ED115D14384A1CB /* CanScanQRCode.swift */; };
 		5E7C701BFF4469B35A074EB9 /* RequestViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C767497AD8DEE83F384D7 /* RequestViewModel.swift */; };
 		5E7C70AE62DBB193399C7F5E /* ServerViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CDB0BAD5D27D2F24F57 /* ServerViewCell.swift */; };
 		5E7C70BE9AE35408038E1971 /* HelpContentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B089FD4C96810DD10FD /* HelpContentsViewController.swift */; };
@@ -846,6 +847,7 @@
 		5E7C73DF5FBFE756097D32B1 /* EthCurrencyHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EthCurrencyHelper.swift; sourceTree = "<group>"; };
 		5E7C73ED9226646D562B5A3C /* UIStackView+Array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIStackView+Array.swift"; sourceTree = "<group>"; };
 		5E7C741196D9D9C9C3EE5E30 /* LockCreatePasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeViewController.swift; sourceTree = "<group>"; };
+		5E7C74159ED115D14384A1CB /* CanScanQRCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CanScanQRCode.swift; sourceTree = "<group>"; };
 		5E7C7419F47CC8B2996AA8F9 /* TransferTicketsQuantitySelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTicketsQuantitySelectionViewController.swift; sourceTree = "<group>"; };
 		5E7C743172FCBDCD362C03A6 /* ImportWalletTabBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportWalletTabBar.swift; sourceTree = "<group>"; };
 		5E7C7487BDF72352446E1266 /* ImportTicketViewControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportTicketViewControllerTests.swift; sourceTree = "<group>"; };
@@ -1973,6 +1975,7 @@
 				5E7C727433F7B8E322B3C68A /* SetTransferTicketsExpiryDateViewController.swift */,
 				5E7C7D46C7CABC31A7477F37 /* GenerateTransferMagicLinkViewController.swift */,
 				5E7C78B63FDE2FAF25389260 /* TransferTicketsViaWalletAddressViewController.swift */,
+				5E7C74159ED115D14384A1CB /* CanScanQRCode.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -3702,6 +3705,7 @@
 				76F1D439D545AA9B7E686DCC /* ContractERC721Transfer.swift in Sources */,
 				5E7C79DE8864702C51C0A7CC /* ResultResult.swift in Sources */,
 				5E7C7AE2EF04A23EC7C5ADFD /* ImportTicketViewController.swift in Sources */,
+				5E7C700A0B11504AC44718DD /* CanScanQRCode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
