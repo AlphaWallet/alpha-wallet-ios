@@ -9,7 +9,7 @@ protocol TransferTicketsViaWalletAddressViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: TransferTicketsViaWalletAddressViewController)
 }
 
-class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVerifiableStatusViewController {
+class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVerifiableStatusViewController, CanScanQRCode {
     let config: Config
     var contract: String {
         return token.contract
@@ -169,6 +169,10 @@ extension TransferTicketsViaWalletAddressViewController: AddressTextFieldDelegat
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            promptUserOpenSettingsToChangeCameraPermission()
+            return
+        }
         let controller = QRCodeReaderViewController()
         controller.delegate = self
         present(controller, animated: true, completion: nil)
