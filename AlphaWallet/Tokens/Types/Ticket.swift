@@ -15,38 +15,6 @@ struct Ticket {
     var name: String
     let values: [String: AssetAttributeValue]
 
-    var city: String {
-        return values["locality"] as? String ?? "N/A"
-    }
-
-    var venue: String {
-        return values["venue"] as? String ?? "N/A"
-    }
-
-    var match: Int {
-        return values["match"] as? Int ?? 0
-    }
-
-    var date: GeneralisedTime {
-        return values["time"] as? GeneralisedTime ?? .init()
-    }
-
-    var seatId: Int {
-        return values["numero"] as? Int ?? 0
-    }
-
-    var category: String {
-        return values["category"] as? String ?? "N/A"
-    }
-
-    var countryA: String {
-        return values["countryA"] as? String ?? ""
-    }
-
-    var countryB: String {
-        return values["countryB"] as? String ?? ""
-    }
-
     static var empty: Ticket {
         return Ticket(
                 id: Constants.nullTicketBigUInt,

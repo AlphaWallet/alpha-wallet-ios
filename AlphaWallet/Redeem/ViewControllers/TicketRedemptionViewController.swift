@@ -17,7 +17,7 @@ class TicketRedemptionViewController: UIViewController, TicketVerifiableStatusVi
     var viewModel: TicketRedemptionViewModel
     var titleLabel = UILabel()
     let imageView =  UIImageView()
-    let ticketView = TicketRowView()
+    let ticketView: TokenRowView & UIView
     var timer: Timer!
     var session: WalletSession
     private let token: TokenObject
@@ -28,6 +28,15 @@ class TicketRedemptionViewController: UIViewController, TicketVerifiableStatusVi
 		self.session = session
         self.token = token
         self.viewModel = viewModel
+
+        let tokenType = CryptoKittyHandling(address: token.address)
+        switch tokenType {
+        case .cryptoKitty:
+            ticketView = TokenListFormatRowView()
+        case .otherNonFungibleToken:
+            ticketView = TicketRowView()
+        }
+
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -160,7 +169,7 @@ class TicketRedemptionViewController: UIViewController, TicketVerifiableStatusVi
 
         configureUI()
 
-        ticketView.configure(viewModel: .init(ticketHolder: viewModel.ticketHolder))
+        ticketView.configure(tokenHolder: viewModel.ticketHolder)
 
         ticketView.stateLabel.isHidden = true
     }

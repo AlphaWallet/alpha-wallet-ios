@@ -29,7 +29,7 @@ class SetSellTicketsExpiryDateViewController: UIViewController, TicketVerifiable
     let noteTitleLabel = UILabel()
     let noteLabel = UILabel()
     let noteBorderView = UIView()
-    let ticketView = TicketRowView()
+    let ticketView: TokenRowView & UIView
     let nextButton = UIButton(type: .system)
     var datePicker = UIDatePicker()
     var timePicker = UIDatePicker()
@@ -53,6 +53,15 @@ class SetSellTicketsExpiryDateViewController: UIViewController, TicketVerifiable
         self.ticketHolder = ticketHolder
         self.ethCost = ethCost
         self.viewModel = viewModel
+
+        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        switch tokenType {
+        case .cryptoKitty:
+            ticketView = TokenListFormatRowView()
+        case .otherNonFungibleToken:
+            ticketView = TicketRowView()
+        }
+
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -259,7 +268,7 @@ class SetSellTicketsExpiryDateViewController: UIViewController, TicketVerifiable
 
         header.configure(title: viewModel.headerTitle)
 
-        ticketView.configure(viewModel: .init())
+        ticketView.configure(tokenHolder: viewModel.ticketHolder)
 
         linkExpiryDateLabel.textAlignment = .center
         linkExpiryDateLabel.textColor = viewModel.choiceLabelColor
@@ -308,20 +317,6 @@ class SetSellTicketsExpiryDateViewController: UIViewController, TicketVerifiable
         noteBorderView.layer.borderWidth = 1
 
         ticketView.stateLabel.isHidden = true
-
-        ticketView.ticketCountLabel.text = viewModel.ticketCountString
-
-        ticketView.venueLabel.text = viewModel.venue
-
-        ticketView.dateLabel.text = viewModel.date
-
-        ticketView.cityLabel.text = viewModel.city
-
-        ticketView.categoryLabel.text = viewModel.category
-
-        ticketView.teamsLabel.text = viewModel.teams
-
-        ticketView.matchLabel.text = viewModel.match
 
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor

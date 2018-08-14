@@ -18,7 +18,7 @@ class ChooseTicketTransferModeViewController: UIViewController, TicketVerifiable
     }
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
-    let ticketView = TicketRowView()
+    let ticketView: TokenRowView & UIView
     let generateMagicLinkButton = UIButton(type: .system)
     let transferNowButton = UIButton(type: .system)
     var viewModel: ChooseTicketTransferModeViewControllerViewModel
@@ -36,6 +36,15 @@ class ChooseTicketTransferModeViewController: UIViewController, TicketVerifiable
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
+
+        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        switch tokenType {
+        case .cryptoKitty:
+            ticketView = TokenListFormatRowView()
+        case .otherNonFungibleToken:
+            ticketView = TicketRowView()
+        }
+
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -133,7 +142,7 @@ class ChooseTicketTransferModeViewController: UIViewController, TicketVerifiable
 
         header.configure(title: viewModel.headerTitle)
 
-        ticketView.configure(viewModel: .init(ticketHolder: ticketHolder))
+        ticketView.configure(tokenHolder: ticketHolder)
 
         ticketView.stateLabel.isHidden = true
 

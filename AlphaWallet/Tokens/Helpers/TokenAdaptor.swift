@@ -17,6 +17,21 @@ class TokenAdaptor {
     }
 
     public func getTicketHolders() -> [TokenHolder] {
+        switch token.type {
+        case .ether, .erc20, .erc875:
+            return getNonCryptoKittyTicketHolders()
+        case .erc721:
+            let tokenType = CryptoKittyHandling(address: token.address)
+            switch tokenType {
+            case .cryptoKitty:
+                return getCryptoKittyTicketHolders()
+            case .otherNonFungibleToken:
+                return getNonCryptoKittyTicketHolders()
+            }
+        }
+    }
+
+    private func getNonCryptoKittyTicketHolders() -> [TokenHolder] {
         let balance = token.balance
         var tickets = [Ticket]()
         for (index, item) in balance.enumerated() {
@@ -25,6 +40,19 @@ class TokenAdaptor {
             guard isNonZeroBalance(id) else { continue }
             if let ticketInt = BigUInt(id.drop0x, radix: 16) {
                 let ticket = getTicket(for: ticketInt, index: UInt16(index), in: token)
+                tickets.append(ticket)
+            }
+        }
+
+        return bundle(tickets: tickets)
+    }
+
+    private func getCryptoKittyTicketHolders() -> [TokenHolder] {
+        let balance = token.balance
+        var tickets = [Ticket]()
+        for (index, item) in balance.enumerated() {
+            let jsonString = item.balance
+            if let ticket = getTicketForCryptoKitty(forJSONString: jsonString, in: token) {
                 tickets.append(ticket)
             }
         }
@@ -52,14 +80,22 @@ class TokenAdaptor {
     }
 
     private func sortBundlesUpcomingFirst(bundles: [TokenHolder]) -> [TokenHolder] {
-        return bundles.sorted { $0.date < $1.date }
+        return bundles.sorted {
+            let d0 = $0.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+            let d1 = $1.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+            return d0 < d1
+        }
     }
 
     //If sequential or have the same seat number, add them together
     ///e.g 21, 22, 25 is broken up into 2 bundles: 21-22 and 25.
     ///e.g 21, 21, 22, 25 is broken up into 2 bundles: (21,21-22) and 25.
     private func breakBundlesFurtherToHaveContinuousSeatRange(tickets: [Ticket]) -> [[Ticket]] {
-        let tickets = tickets.sorted { $0.seatId <= $1.seatId }
+        let tickets = tickets.sorted {
+            let s0 = $0.values["numero"] as? Int ?? 0
+            let s1 = $1.values["numero"] as? Int ?? 0
+            return s0 <= s1
+        }
         return tickets.reduce([[Ticket]]()) { results, ticket in
             var results = results
             if var previousRange = results.last, let previousTicket = previousRange.last, (previousTicket.seatId + 1 == ticket.seatId || previousTicket.seatId == ticket.seatId) {
@@ -77,7 +113,15 @@ class TokenAdaptor {
     private func groupTicketsByFields(tickets: [Ticket]) -> Dictionary<String, [Ticket]>.Values {
         var dictionary = [String: [Ticket]]()
         for each in tickets {
-            let hash = "\(each.city),\(each.venue),\(each.date),\(each.countryA),\(each.countryB),\(each.match),\(each.category)"
+            let city = each.values["locality"] as? String ?? "N/A"
+            let venue = each.values["venue"] as? String ?? "N/A"
+            let date = each.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+            let countryA = each.values["countryA"] as? String ?? ""
+            let countryB = each.values["countryB"] as? String ?? ""
+            let match = each.values["match"] as? Int ?? 0
+            let category = each.values["category"] as? String ?? "N/A"
+
+            let hash = "\(city),\(venue),\(date),\(countryA),\(countryB),\(match),\(category)"
             var group = dictionary[hash] ?? []
             group.append(each)
             dictionary[hash] = group
@@ -90,6 +134,23 @@ class TokenAdaptor {
         return XMLHandler(contract: token.contract).getFifaInfoForTicket(tokenId: id, index: index)
     }
 
+    private func getTicketForCryptoKitty(forJSONString jsonString: String, in token: TokenObject) -> Ticket? {
+        guard let data = jsonString.data(using: .utf8), let cat = try? JSONDecoder().decode(CryptoKitty.self, from: data) else { return nil }
+        var values = [String: AssetAttributeValue]()
+        values["tokenId"] = cat.tokenId
+        values["description"] = cat.description
+        values["imageUrl"] = cat.imageUrl
+        values["thumbnailUrl"] = cat.thumbnailUrl
+        values["externalLink"] = cat.externalLink
+        values["traits"] = cat.traits
+        return Ticket(
+                id: 0,
+                index: 0,
+                name: "name",
+                values: values
+        )
+    }
+
     private func getTicketHolder(for tickets: [Ticket]) -> TokenHolder {
         return TokenHolder(
                 tickets: tickets,
@@ -98,4 +159,11 @@ class TokenAdaptor {
         )
     }
 
+}
+
+extension Ticket {
+    //TODO Convenience-only. (Look for references). Should remove once we generalize things further and not hardcode the use of seatId
+    var seatId: Int {
+        return values["numero"] as? Int ?? 0
+    }
 }

@@ -8,6 +8,7 @@ protocol AssetAttributeValue {}
 extension String: AssetAttributeValue {}
 extension Int: AssetAttributeValue {}
 extension GeneralisedTime: AssetAttributeValue {}
+extension Array: AssetAttributeValue {}
 
 enum AssetAttributeSyntax: String {
     case directoryString = "1.3.6.1.4.1.1466.115.121.1.15"
