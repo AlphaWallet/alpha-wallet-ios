@@ -136,10 +136,14 @@ class UniversalLinkCoordinator: Coordinator {
             web3Swift.start()
             getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(web3: web3Swift)
             getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { result in
+                guard let balance = try? result.dematerialize() else {
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+                    return
+                }
                 //filter null tickets
                 let filteredTokens = self.checkERC875TokensAreAvailable(
                         indices: signedOrder.order.indices,
-                        balance: try! result.dematerialize()
+                        balance: balance
                 )
                 if filteredTokens.isEmpty {
                     self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
