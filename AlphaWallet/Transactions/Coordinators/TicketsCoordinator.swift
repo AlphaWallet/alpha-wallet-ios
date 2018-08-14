@@ -64,11 +64,8 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        let viewModel = TicketsViewModel(
-            token: token
-        )
         rootViewController.tokenObject = token
-        rootViewController.configure(viewModel: viewModel)
+        rootViewController.configure()
         navigationController.viewControllers = [rootViewController]
         refreshUponAssetDefinitionChanges()
     }
