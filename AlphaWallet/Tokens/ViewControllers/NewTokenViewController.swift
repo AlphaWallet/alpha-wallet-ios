@@ -10,7 +10,7 @@ protocol NewTokenViewControllerDelegate: class {
     func didAddAddress(address: String, in viewController: NewTokenViewController)
 }
 
-class NewTokenViewController: UIViewController {
+class NewTokenViewController: UIViewController, CanScanQRCode {
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
     let footerBar = UIView()
@@ -330,6 +330,10 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            promptUserOpenSettingsToChangeCameraPermission()
+            return
+        }
         let controller = QRCodeReaderViewController()
         controller.delegate = self
         present(controller, animated: true, completion: nil)
