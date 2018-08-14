@@ -26,7 +26,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
     let ethCostLabel = UILabel()
     let dollarCostLabelLabel = UILabel()
     let dollarCostLabel = PaddedLabel()
-    let ticketView = TicketRowView()
+    let ticketView: TokenRowView & UIView
     let nextButton = UIButton(type: .system)
     var viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel
     var paymentFlow: PaymentFlow
@@ -62,6 +62,15 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
         self.paymentFlow = paymentFlow
         self.ethPrice = ethPrice
         self.viewModel = viewModel
+
+        let tokenType = CryptoKittyHandling(address: viewModel.token.address)
+        switch tokenType {
+        case .cryptoKitty:
+            ticketView = TokenListFormatRowView()
+        case .otherNonFungibleToken:
+            ticketView = TicketRowView()
+        }
+
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -269,7 +278,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
 
         header.configure(title: viewModel.headerTitle)
 
-        ticketView.configure(viewModel: .init(ticketHolder: viewModel.ticketHolder))
+        ticketView.configure(tokenHolder: viewModel.ticketHolder)
 
         pricePerTicketLabel.textAlignment = .center
         pricePerTicketLabel.textColor = viewModel.choiceLabelColor

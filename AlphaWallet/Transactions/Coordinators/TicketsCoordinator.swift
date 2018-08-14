@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 import Result
+import SafariServices
 import TrustKeystore
 import MessageUI
 import BigInt
@@ -380,6 +381,12 @@ extension TicketsCoordinator: TicketsViewControllerDelegate {
     func didPressViewContractWebPage(in viewController: TicketsViewController) {
         delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
+
+    func didTapURL(url: URL, in viewController: TicketsViewController) {
+        let controller = SFSafariViewController(url: url)
+        // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
+        viewController.present(controller, animated: true, completion: nil)
+    }
 }
 
 extension TicketsCoordinator: RedeemTicketsViewControllerDelegate {
@@ -393,6 +400,12 @@ extension TicketsCoordinator: RedeemTicketsViewControllerDelegate {
 
     func didPressViewContractWebPage(in viewController: RedeemTicketsViewController) {
         delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
+    }
+
+    func didTapURL(url: URL, in viewController: RedeemTicketsViewController) {
+        let controller = SFSafariViewController(url: url)
+        // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
+        viewController.present(controller, animated: true, completion: nil)
     }
 }
 
@@ -421,6 +434,12 @@ extension TicketsCoordinator: SellTicketsViewControllerDelegate {
 
     func didPressViewContractWebPage(in viewController: SellTicketsViewController) {
         delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
+    }
+
+    func didTapURL(url: URL, in viewController: SellTicketsViewController) {
+        let controller = SFSafariViewController(url: url)
+        // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
+        viewController.present(controller, animated: true, completion: nil)
     }
 }
 
@@ -477,6 +496,12 @@ extension TicketsCoordinator: TransferTicketsViewControllerDelegate {
 
     func didPressViewContractWebPage(in viewController: TransferTicketsViewController) {
         delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
+    }
+
+    func didTapURL(url: URL, in viewController: TransferTicketsViewController) {
+        let controller = SFSafariViewController(url: url)
+        // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
+        viewController.present(controller, animated: true, completion: nil)
     }
 }
 
