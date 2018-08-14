@@ -96,7 +96,7 @@ class InCoordinator: Coordinator {
         let keystore = try! EtherKeystore()
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()
-        let web3 = self.web3(for: config.server)
+        let web3 = self.web3()
         web3.start()
         let realm = self.realm(for: migration.config)
         let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
@@ -120,7 +120,7 @@ class InCoordinator: Coordinator {
         let migration = MigrationInitializer(account: account, chainID: config.chainID)
         migration.perform()
 
-        let web3 = self.web3(for: config.server)
+        let web3 = self.web3()
         web3.start()
         let realm = self.realm(for: migration.config)
         let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
@@ -384,7 +384,7 @@ class InCoordinator: Coordinator {
         return try! Realm(configuration: config)
     }
 
-    private func web3(for server: RPCServer) -> Web3Swift {
+    private func web3() -> Web3Swift {
         return Web3Swift(url: config.rpcURL)
     }
 
@@ -401,7 +401,7 @@ class InCoordinator: Coordinator {
     private func fetchXMLAssetDefinitions() {
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()
-        let web3 = self.web3(for: config.server)
+        let web3 = self.web3()
         web3.start()
         let realm = self.realm(for: migration.config)
         let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
@@ -504,7 +504,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
     // but not sent to the paymaster because the user has ether.
 
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
-        let web3 = self.web3(for: config.server)
+        let web3 = self.web3()
         web3.start()
         let signature = signedOrder.signature.substring(from: 2)
         let v = UInt8(signature.substring(from: 128), radix: 16)!
