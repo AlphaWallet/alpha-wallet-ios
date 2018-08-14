@@ -19,12 +19,11 @@ protocol SendViewControllerDelegate: class {
     )
 }
 
-class SendViewController: UIViewController {
+class SendViewController: UIViewController, CanScanQRCode {
     let roundedBackground = RoundedBackground()
     let header = SendHeaderView()
     let targetAddressTextField = AddressTextField()
-    let amountTextField = UITextField()
-    let alternativeAmountLabel = UILabel()
+    let amountTextField = AmountTextField()
     let targetAddressLabel = UILabel()
     let amountLabel = UILabel()
     let myAddressContainer = UIView()
@@ -56,20 +55,11 @@ class SendViewController: UIViewController {
     var balanceViewModel: BalanceBaseViewModel?
     weak var delegate: SendViewControllerDelegate?
 
-    struct Pair {
-        let left: String
-        let right: String
-
-        func swapPair() -> Pair {
-            return Pair(left: right, right: left)
-        }
-    }
-
-    var pairValue = 0.0
     let session: WalletSession
     let account: Account
     let transferType: TransferType
     let storage: TokensDataStore
+    let ethPrice: Subscribable<Double>
 
     private var allowedCharacters: String = {
         let decimalSeparator = Locale.current.decimalSeparator ?? "."
@@ -77,9 +67,6 @@ class SendViewController: UIViewController {
     }()
     private var gasPrice: BigInt?
     private var data = Data()
-    lazy var currentPair: Pair = {
-        return Pair(left: viewModel.symbol, right: session.config.currency.rawValue)
-    }()
     lazy var decimalFormatter: DecimalFormatter = {
         return DecimalFormatter()
     }()
@@ -88,12 +75,14 @@ class SendViewController: UIViewController {
             session: WalletSession,
             storage: TokensDataStore,
             account: Account,
-            transferType: TransferType = .ether(config: Config(), destination: .none)
+            transferType: TransferType = .ether(config: Config(), destination: .none),
+            ethPrice: Subscribable<Double>
     ) {
         self.session = session
         self.account = account
         self.transferType = transferType
         self.storage = storage
+        self.ethPrice = ethPrice
 
         super.init(nibName: nil, bundle: nil)
 
@@ -108,10 +97,11 @@ class SendViewController: UIViewController {
 
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
-        amountTextField.keyboardType = .decimalPad
-        amountTextField.leftViewMode = .always
-        amountTextField.rightViewMode = .always
-        amountTextField.inputAccessoryView = makeToolbarWithDoneButton()
+        ethPrice.subscribe { [weak self] value in
+            if let value = value {
+                self?.amountTextField.ethToDollarRate = value
+            }
+        }
 
         myAddressContainer.translatesAutoresizingMaskIntoConstraints = false
 
@@ -144,7 +134,7 @@ class SendViewController: UIViewController {
             amountLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
             amountTextField,
-            alternativeAmountLabel,
+            amountTextField.alternativeAmountLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 10: 20),
             myAddressContainer,
         ].asStackView(axis: .vertical, alignment: .center)
@@ -205,44 +195,22 @@ class SendViewController: UIViewController {
     }
 
     func configure(viewModel: SendViewModel) {
-        let firstConfigure = self.viewModel == nil
         self.viewModel = viewModel
 
-        if firstConfigure {
-            //Not good to rely on viewModel here on firstConfigure, which means if we change the padding on subsequent calls (which will probably never happen), it wouldn't be reflected. Unfortunately this needs to be here, otherwise while typing in the amount text field, the left and right views will move out of the text field momentarily
-            amountTextField.leftView = .spacerWidth(viewModel.textFieldHorizontalPadding)
-            amountTextField.rightView = makeAmountRightView()
-        }
         targetAddressTextField.configureOnce()
 
         changeQRCode(value: 0)
 
         view.backgroundColor = viewModel.backgroundColor
 
-        headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
         header.configure(viewModel: headerViewModel)
 
-        //targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
         targetAddressLabel.font = viewModel.textFieldsLabelFont
         targetAddressLabel.textColor = viewModel.textFieldsLabelTextColor
 
-        //amountLabel.text = R.string.localizable.aSendRecipientAmountTitle()
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
 
-        amountTextField.textColor = viewModel.textFieldTextColor
-        amountTextField.font = viewModel.textFieldFont
-        amountTextField.layer.borderColor = viewModel.textFieldBorderColor.cgColor
-        amountTextField.layer.borderWidth = viewModel.textFieldBorderWidth
-
-        alternativeAmountLabel.numberOfLines = 0
-        alternativeAmountLabel.textColor = viewModel.alternativeAmountColor
-        alternativeAmountLabel.font = viewModel.alternativeAmountFont
-        alternativeAmountLabel.textAlignment = .center
-        alternativeAmountLabel.text = viewModel.alternativeAmountText
-        alternativeAmountLabel.isHidden = !viewModel.showAlternativeAmount
-
-        //myAddressLabelLabel.text = R.string.localizable.aSendSenderAddressTitle()
         myAddressLabelLabel.font = viewModel.textFieldsLabelFont
         myAddressLabelLabel.textColor = viewModel.textFieldsLabelTextColor
 
@@ -287,15 +255,7 @@ class SendViewController: UIViewController {
 
     @objc func send() {
         let addressString = targetAddressTextField.value
-        var amountString = ""
-        if self.currentPair.left == viewModel.symbol {
-            amountString = amountTextField.text?.trimmed ?? ""
-        } else {
-            guard let formatedValue = decimalFormatter.string(from: NSNumber(value: self.pairValue)) else {
-                return displayError(error: SendInputErrors.wrongInput)
-            }
-            amountString = formatedValue
-        }
+        var amountString = amountTextField.ethCost
         guard let address = Address(string: addressString) else {
             return displayError(error: Errors.invalidAddress)
         }
@@ -339,28 +299,6 @@ class SendViewController: UIViewController {
         self.delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }
 
-    @objc func fiatAction(sender: UIButton) {
-        let swappedPair = currentPair.swapPair()
-        //New pair for future calculation we should swap pair each time we press fiat button.
-        self.currentPair = swappedPair
-
-        if var viewModel = viewModel {
-            viewModel.currentPair = currentPair
-            viewModel.pairValue = 0
-            configure(viewModel: viewModel)
-        }
-
-        //Update button title.
-        sender.setTitle(currentPair.left, for: .normal)
-        amountTextField.text = nil
-        //Reset pair value.
-        pairValue = 0.0
-        //Update section.
-        updatePriceSection()
-        //Set focuse on pair change.
-        activateAmountView()
-    }
-
     @objc func copyAddress() {
         UIPasteboard.general.string = viewModel.myAddressText
 
@@ -376,55 +314,6 @@ class SendViewController: UIViewController {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private func updatePriceSection() {
-        guard viewModel.showAlternativeAmount else {
-            return
-        }
-
-        if var viewModel = viewModel {
-            viewModel.pairValue = pairValue
-            configure(viewModel: viewModel)
-        }
-    }
-
-    private func updatePairPrice(with amount: Double) {
-        guard let rates = storage.tickers, let currentTokenInfo = rates[viewModel.destinationAddress.description], let price = Double(currentTokenInfo.price) else {
-            return
-        }
-        if currentPair.left == viewModel.symbol {
-            pairValue = amount * price
-        } else {
-            pairValue = amount / price
-        }
-        updatePriceSection()
-    }
-
-    private func amountTextFieldChanged(in range: NSRange, to string: String) -> Bool {
-        guard let input = amountTextField.text else {
-            return true
-        }
-        //In this step we validate only allowed characters it is because of the iPad keyboard.
-        let characterSet = NSCharacterSet(charactersIn: allowedCharacters).inverted
-        let separatedChars = string.components(separatedBy: characterSet)
-        let filteredNumbersAndSeparator = separatedChars.joined(separator: "")
-        if string != filteredNumbersAndSeparator {
-            return false
-        }
-        //This is required to prevent user from input of numbers like 1.000.25 or 1,000,25.
-        if string == "," || string == "." || string == "'" {
-            return !input.contains(string)
-        }
-        let text = (input as NSString).replacingCharacters(in: range, with: string)
-        guard let amount = decimalFormatter.number(from: text) else {
-            //Should be done in another way.
-            pairValue = 0.0
-            updatePriceSection()
-            return true
-        }
-        updatePairPrice(with: amount.doubleValue)
-        return true
     }
 
     private func changeQRCode(value: Int) {
@@ -478,34 +367,6 @@ class SendViewController: UIViewController {
             break
         }
     }
-
-    private func makeAmountRightView() -> UIView {
-        let fiatButton = Button(size: .normal, style: .borderless)
-        fiatButton.translatesAutoresizingMaskIntoConstraints = false
-        fiatButton.setTitle(currentPair.left, for: .normal)
-        fiatButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
-        fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
-        fiatButton.isHidden = !viewModel.showAlternativeAmount
-
-        let amountRightView = [fiatButton].asStackView(distribution: .equalSpacing, spacing: 1)
-        amountRightView.translatesAutoresizingMaskIntoConstraints = false
-
-        return amountRightView
-    }
-
-    private func makeToolbarWithDoneButton() -> UIToolbar {
-        //Frame needed, but actual values aren't that important
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
-        toolbar.barStyle = .default
-
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(closeKeyboard))
-
-        toolbar.items = [flexSpace, done]
-        toolbar.sizeToFit()
-
-        return toolbar
-    }
 }
 
 extension SendViewController: QRCodeReaderDelegate {
@@ -532,29 +393,20 @@ extension SendViewController: QRCodeReaderDelegate {
         }
 
         if let value = result.params["amount"] {
-            amountTextField.text = EtherNumberFormatter.full.string(from: BigInt(value) ?? BigInt(), units: .ether)
+            amountTextField.ethCost = EtherNumberFormatter.full.string(from: BigInt(value) ?? BigInt(), units: .ether)
         } else {
-            amountTextField.text = ""
+            amountTextField.ethCost = ""
         }
-        pairValue = 0.0
-        updatePriceSection()
     }
 }
 
-extension SendViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-        if textField == amountTextField {
-            return amountTextFieldChanged(in: range, to: string)
-        } else {
-            return true
-        }
+extension SendViewController: AmountTextFieldDelegate {
+    func changeAmount(in textField: AmountTextField) {
+        //do nothing
     }
 
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField == amountTextField {
-            view.endEditing(true)
-        }
-        return true
+    func changeType(in textField: AmountTextField) {
+        //do nothing
     }
 }
 
@@ -564,6 +416,10 @@ extension SendViewController: AddressTextFieldDelegate {
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            promptUserOpenSettingsToChangeCameraPermission()
+            return
+        }
         let controller = QRCodeReaderViewController()
         controller.delegate = self
         present(controller, animated: true, completion: nil)
