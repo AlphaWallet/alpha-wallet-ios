@@ -22,7 +22,8 @@ private class PrivateXMLHandler {
     init(contract: String) {
         contractAddress = contract.add0x.lowercased()
         let assetDefinitionStore = AssetDefinitionStore()
-        xml = try! XML.parse(assetDefinitionStore[contract] ?? "")
+        //We use a try? for the first parse() instead of try! to avoid the very unlikely chance that it will crash. We fallback to an empty XML just like if we haven't downloaded it yet
+        xml = (try? XML.parse(assetDefinitionStore[contract] ?? "")) ?? (try! XML.parse(""))
         isOfficial = assetDefinitionStore.isOfficial(contract: contract)
     }
 

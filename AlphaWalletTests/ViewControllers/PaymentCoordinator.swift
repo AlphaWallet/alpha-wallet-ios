@@ -13,7 +13,8 @@ class PaymentCoordinatorTests: XCTestCase {
             flow: .send(type: .ether(config: Config(), destination: address)),
             session: .make(),
             keystore: FakeKeystore(),
-            storage: FakeTokensDataStore()
+            storage: FakeTokensDataStore(),
+            ethPrice: Subscribable<Double>(nil)
         )
         coordinator.start()
 
@@ -27,7 +28,8 @@ class PaymentCoordinatorTests: XCTestCase {
             flow: .request,
             session: .make(),
             keystore: FakeKeystore(),
-            storage: FakeTokensDataStore()
+            storage: FakeTokensDataStore(),
+            ethPrice: Subscribable<Double>(nil)
         )
 
         coordinator.start()

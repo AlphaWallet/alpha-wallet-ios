@@ -5,24 +5,14 @@ import UIKit
 import TrustKeystore
 
 struct SendViewModel {
-    typealias Pair = SendViewController.Pair
-
     let transferType: TransferType
     let session: WalletSession
     let storage: TokensDataStore
-    var currentPair: Pair
-    let stringFormatter = StringFormatter()
-    var pairValue = 0.0
 
-    init(transferType: TransferType, session: WalletSession, storage: TokensDataStore, currentPair: Pair) {
+    init(transferType: TransferType, session: WalletSession, storage: TokensDataStore) {
         self.transferType = transferType
         self.session = session
         self.storage = storage
-        self.currentPair = currentPair
-    }
-
-    var symbol: String {
-        return transferType.symbol(server: session.config.server)
     }
 
     var destinationAddress: Address {
@@ -68,31 +58,11 @@ struct SendViewModel {
         return 22
     }
 
-    var alternativeAmountColor: UIColor {
-        return Colors.appGrayLabelColor
-    }
-    var alternativeAmountFont: UIFont {
-        return Fonts.regular(size: 10)!
-    }
-    var alternativeAmountText: String {
-        return valueOfPairRepresentation()
-    }
-
     var showAlternativeAmount: Bool {
         guard let currentTokenInfo = storage.tickers?[destinationAddress.description], let price = Double(currentTokenInfo.price), price > 0 else {
             return false
         }
         return true
-    }
-
-    private func valueOfPairRepresentation() -> String {
-        var formattedString = ""
-        if currentPair.left == symbol {
-            formattedString = StringFormatter().currency(with: pairValue, and: session.config.currency.rawValue)
-        } else {
-            formattedString = stringFormatter.formatter(for: pairValue)
-        }
-        return "~ \(formattedString) " + "\(currentPair.right)"
     }
 
     var myAddressText: String {
