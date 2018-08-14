@@ -16,7 +16,7 @@ class StaticHTMLViewController: UIViewController {
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.delegate = self
         if let path = url() {
-            let html = try! String(contentsOf: path)
+            let html = (try? String(contentsOf: path)) ?? ""
             webView.loadHTMLString(html, baseURL: URL(fileURLWithPath: Bundle.main.bundlePath))
         }
         view.addSubview(webView)
