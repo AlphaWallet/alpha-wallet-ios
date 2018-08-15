@@ -54,6 +54,23 @@ enum AssetAttribute {
         }()
     }
 
+    func extract(from tokenValue: BigUInt) -> AssetAttributeValue {
+        switch self {
+        case .mapping(_, let syntax, _, _, _), .direct(_, let syntax, _, _):
+            switch syntax {
+            case .directoryString, .iA5String:
+                let value: String = extract(from: tokenValue) ?? "N/A"
+                return value
+            case .generalisedTime:
+                let value: GeneralisedTime = extract(from: tokenValue) ?? .init()
+                return value
+            case .integer:
+                let value: Int = extract(from: tokenValue) ?? 0
+                return value
+            }
+        }
+    }
+
     func extract<T>(from tokenValue: BigUInt) -> T? where T: AssetAttributeValue {
         switch self {
         case .mapping(let attribute, let syntax, let lang, _, _):
