@@ -23,15 +23,14 @@ protocol TicketsViewControllerDelegate: class {
 class TicketsViewController: UIViewController, TicketVerifiableStatusViewController {
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return tokenObject.contract
     }
     var tokenObject: TokenObject
-    //TODO forced unwraps aren't good
-    var viewModel: TicketsViewModel!
-    var tokensStorage: TokensDataStore!
-    var account: Wallet!
-    var session: WalletSession!
+    var viewModel: TicketsViewModel
+    var tokensStorage: TokensDataStore
+    var account: Wallet
+    var session: WalletSession
     weak var delegate: TicketsViewControllerDelegate?
     let header = TicketsViewControllerHeader()
     let roundedBackground = RoundedBackground()
@@ -41,9 +40,13 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
     let sellButton = UIButton(type: .system)
     let transferButton = UIButton(type: .system)
 
-    init(config: Config, tokenObject: TokenObject) {
+    init(config: Config, tokenObject: TokenObject, account: Wallet, session: WalletSession, tokensStorage: TokensDataStore, viewModel: TicketsViewModel) {
         self.config = config
         self.tokenObject = tokenObject
+        self.account = account
+        self.session = session
+        self.tokensStorage = tokensStorage
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -59,6 +62,7 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appWhite
         tableView.tableHeaderView = header
+        tableView.rowHeight = UITableViewAutomaticDimension
         roundedBackground.addSubview(tableView)
 
         redeemButton.setTitle(R.string.localizable.aWalletTicketTokenRedeemButtonTitle(), for: .normal)
@@ -124,8 +128,10 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: TicketsViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: TicketsViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         tableView.dataSource = self
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
@@ -182,7 +188,7 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
 
     @objc func transfer() {
         delegate?.didPressTransfer(for: .send(type: .ERC875Token(viewModel.token)),
-                                   ticketHolders: viewModel.ticketHolders!,
+                                   ticketHolders: viewModel.ticketHolders,
                                    in: self)
     }
 
@@ -213,12 +219,6 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
         let ticketHolder = viewModel.item(for: indexPath)
 		cell.configure(viewModel: .init(ticketHolder: ticketHolder))
         return cell
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let ticketHolder = viewModel.item(for: indexPath)
-        let cellViewModel = TicketTableViewCellViewModel(ticketHolder: ticketHolder)
-        return cellViewModel.cellHeight
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

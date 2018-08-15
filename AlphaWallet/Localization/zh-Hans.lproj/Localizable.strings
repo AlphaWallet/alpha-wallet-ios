@@ -56,7 +56,7 @@
 "transactions.deposit.button.title" = "购买";
 "transactions.noTransactions.label.title" = "暂无记录";
 "wallet.navigation.title" = "钱包";
-"wallets.backup.alertSheet.title" = "备份 Encrypted Wallet";
+"wallets.backup.alertSheet.title" = "备份加密后的私钥文档";
 "transactions.tabbar.item.title" = "我的账单";
 "transaction.navigation.title" = "交易";
 "import.navigation.title" = "导入钱包";
@@ -72,9 +72,9 @@
 "importWallet.import.button.title" = "导入";
 "importWallet.import.invalidAddress" = "无效的以太坊地址";
 "importWallet.import.invalidPrivateKey" = "私钥长度必须为64个字符";
-"Keystore JSON" = "Encrypted Wallet";
+"Keystore JSON" = "加密后的私钥文档";
 "More Details" = "更多详情";
-"Keystore" = "From Backup";
+"Keystore" = "加密后的私钥文档";
 "Private Key" = "私有密钥";
 "settings.currency.button.title" = "货币";
 "settings.network.test.label.title" = "测试网络";
@@ -205,6 +205,7 @@
 "a.wallet.contents.filter.assetsOnly.title" = "资产类";
 "a.wallet.contents.issuer.title" = "发行方";
 "a.wallet.next.button.title" = "下一步";
+"a.wallet.no.tokens" = "你没有这类Token";
 "a.help.navigation.title" = "帮助";
 "a.help.contact.footer.button.title" = "需要进一步帮助? 联系我们";
 "a.help.contact.email.subject" = "帮助/建议";
@@ -244,7 +245,7 @@
 "a.claim.ticket.dollarCostLabel.title" = "等价于美金";
 "a.send.receive.button.title" = "发送/接收";
 "a.send.recipient.address.title" = "地址";
-"a.send.balance.insufficient" = "Insufficient balance";
+"a.send.balance.insufficient" = "余额不足";
 "accounts.confirm.delete.title" = "你确认要删除这个钱包么?";
 "accounts.confirm.delete.message" = "请确认你已经做好钱包备份.";
 "accounts.confirm.delete.okTitle" = "删除";
@@ -274,3 +275,6 @@
 "unknown.error" = "出现未知错误.";
 "coming.soon" = "近期开放";
 "backupPassword.confirmation.mustMatch" = "请输入相同的密码进行确认";
+"camera.qrCode.denied.prompt.title" = "Camera Access Required to Scan QR Code";
+"camera.qrCode.denied.prompt.message" = "Your privacy settings are preventing us from accessing your camera for QR code scanning. Fix this by:\n\n1. Tap the Open Settings button below to open the Settings app.\n\n2. Tap to enable the Camera on.\n\n3. Launch this app again.";
+"camera.qrCode.denied.prompt.button" = "Open Settings";

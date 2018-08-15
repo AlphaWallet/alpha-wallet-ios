@@ -217,14 +217,11 @@ class TokensDataStore {
                             } else {
                                 completion(.erc20)
                             }
-                            break
                         case .failure:
                             completion(.erc20)
-                            break
                         }
                     }
                 }
-                break
             case .failure:
                 self.getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { result in
                     switch result {
@@ -234,13 +231,10 @@ class TokensDataStore {
                         } else {
                             completion(.erc20)
                         }
-                        break
                     case .failure:
                         completion(.erc20)
-                        break
                     }
                 }
-                break
             }
         }
     }
@@ -288,7 +282,7 @@ class TokensDataStore {
                 getERC875Balance(for: tokenObject.contract, completion: { result in
                     switch result {
                     case .success(let balance):
-                        self.update(token: tokenObject, action: .stormBirdBalance(balance))
+                        self.update(token: tokenObject, action: .nonFungibleBalance(balance))
                     case .failure: break
                     }
 
@@ -297,7 +291,7 @@ class TokensDataStore {
                 getERC721Balance(for: tokenObject.contract, completion: { result in
                     switch result {
                     case .success(let balance):
-                        self.update(token: tokenObject, action: .stormBirdBalance(balance))
+                        self.update(token: tokenObject, action: .nonFungibleBalance(balance))
                     case .failure: break
                     }
 
@@ -413,7 +407,7 @@ class TokensDataStore {
     enum TokenUpdate {
         case value(BigInt)
         case isDisabled(Bool)
-        case stormBirdBalance([String])
+        case nonFungibleBalance([String])
     }
 
     func update(token: TokenObject, action: TokenUpdate) {
@@ -424,7 +418,7 @@ class TokensDataStore {
                 token.value = value.description
             case .isDisabled(let value):
                 token.isDisabled = value
-            case .stormBirdBalance(let balance):
+            case .nonFungibleBalance(let balance):
                 token.balance.removeAll()
                 if !balance.isEmpty {
                     for i in 0...balance.count - 1 {

@@ -15,8 +15,7 @@ import TrustKeystore
 private class PrivateXMLHandler {
     private let xml: XML.Accessor
     let contractAddress: String
-    //TODO do we always want the first one?
-    lazy var contract = xml["token"]["contract"][0]
+    lazy var contract = xml["token"]["contract"].getElement(attributeName: "type", attributeValue: "holding", fallbackToFirst: true)
     lazy var fields = extractFields()
     private let isOfficial: Bool
     private let signatureNamespace: String
@@ -31,40 +30,26 @@ private class PrivateXMLHandler {
     init(contract: String) {
         contractAddress = contract.add0x.lowercased()
         let assetDefinitionStore = AssetDefinitionStore()
-        xml = try! XML.parse(assetDefinitionStore[contract] ?? "")
+        //We use a try? for the first parse() instead of try! to avoid the very unlikely chance that it will crash. We fallback to an empty XML just like if we haven't downloaded it yet
+        xml = (try? XML.parse(assetDefinitionStore[contract] ?? "")) ?? (try! XML.parse(""))
         isOfficial = assetDefinitionStore.isOfficial(contract: contract)
         signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml)
     }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
-        //check if leading or trailing zeros
-        let tokenId = tokenBytes32
-        guard tokenId != 0 else { return .empty }
+        guard tokenBytes32 != 0 else { return .empty }
         let lang = getLang()
-        let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
-
-        //TODO should check for nil and handle rather than default to any value in this class. Or maybe the asset definition XML is missing. Otherwise, it should be returning a reasonable default already
-        let locality: String = fields["locality"]?.extract(from: tokenHex) ?? "N/A"
-        let venue: String = fields["venue"]?.extract(from: tokenHex) ?? "N/A"
-        let time: GeneralisedTime = fields["time"]?.extract(from: tokenHex) ?? .init()
-        let countryA: String = fields["countryA"]?.extract(from: tokenHex) ?? ""
-        let countryB: String = fields["countryB"]?.extract(from: tokenHex) ?? ""
-        let match: Int = fields["match"]?.extract(from: tokenHex) ?? 0
-        let category: String = fields["category"]?.extract(from: tokenHex) ?? "N/A"
-        let numero: Int = fields["numero"]?.extract(from: tokenHex) ?? 0
+        var values = [String: AssetAttributeValue]()
+        for (name, attribute) in fields {
+            let value = attribute.extract(from: tokenBytes32)
+            values[name] = value
+        }
 
         return Ticket(
-                id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
+                id: tokenBytes32,
                 index: index,
-                city: locality,
                 name: getName(lang: lang),
-                venue: venue,
-                match: match,
-                date: time,
-                seatId: numero,
-                category: category,
-                countryA: countryA,
-                countryB: countryB
+                values: values
         )
     }
 
@@ -80,7 +65,7 @@ private class PrivateXMLHandler {
         let lang = getLang()
         var fields = [String: AssetAttribute]()
         for e in xml["token"]["attribute-types"]["attribute-type"] {
-            if let id = e.attributes["id"], case let .singleElement(element) = e {
+            if let id = e.attributes["id"], case let .singleElement(element) = e, XML.Accessor(element)["origin"].attributes["as"] != nil {
                 fields[id] = AssetAttribute(attribute: element, lang: lang)
             }
         }
@@ -88,7 +73,7 @@ private class PrivateXMLHandler {
     }
 
     func getName(lang: String) -> String {
-        if let name = contract["name"].getElementWithLangAttribute(equals: lang)?.text {
+        if let name = contract?["name"].getElementWithLangAttribute(equals: lang)?.text {
             return name
         }
         return "N/A"

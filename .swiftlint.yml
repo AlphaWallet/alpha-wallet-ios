@@ -22,6 +22,7 @@ opt_in_rules:
   - multiline_parameters
 included:
   - AlphaWallet
+  - AlphaWalletTests
 excluded:
   - AlphaWallet/Vendors
   - AlphaWallet/R.generated.swift
@@ -30,7 +31,7 @@ function_parameter_count:
   error: 25
 line_length:
   warning: 250
-  error: 450
+  error: 600
 large_tuple:
   warning: 4
 function_body_length: 80

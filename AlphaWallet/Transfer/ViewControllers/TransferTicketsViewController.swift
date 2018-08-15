@@ -11,22 +11,23 @@ protocol TransferTicketsViewControllerDelegate: class {
 class TransferTicketsViewController: UIViewController, TicketVerifiableStatusViewController {
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return viewModel.token.contract
     }
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
 	let nextButton = UIButton(type: .system)
-    var viewModel: TransferTicketsViewModel!
+    var viewModel: TransferTicketsViewModel
     var paymentFlow: PaymentFlow
     private let token: TokenObject
     weak var delegate: TransferTicketsViewControllerDelegate?
 
-    init(config: Config, paymentFlow: PaymentFlow, token: TokenObject) {
+    init(config: Config, paymentFlow: PaymentFlow, token: TokenObject, viewModel: TransferTicketsViewModel) {
         self.config = config
         self.paymentFlow = paymentFlow
         self.token = token
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -80,8 +81,10 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: TransferTicketsViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: TransferTicketsViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         tableView.dataSource = self
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
@@ -95,8 +98,8 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
 
     @objc
     func nextButtonTapped() {
-        let selectedTicketHolders = viewModel.ticketHolders?.filter { $0.isSelected }
-        if selectedTicketHolders!.isEmpty {
+        let selectedTicketHolders = viewModel.ticketHolders.filter { $0.isSelected }
+        if selectedTicketHolders.isEmpty {
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTicketTokenTransferSelectTicketsAtLeastOneTitle(),
                                     alertButtonTitles: [R.string.localizable.oK()],
@@ -104,7 +107,7 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
                                     viewController: self,
                                     completion: nil)
         } else {
-            self.delegate?.didSelectTicketHolder(token: viewModel.token, ticketHolder: selectedTicketHolders!.first!, in: self)
+            self.delegate?.didSelectTicketHolder(token: viewModel.token, ticketHolder: selectedTicketHolders.first!, in: self)
         }
     }
 

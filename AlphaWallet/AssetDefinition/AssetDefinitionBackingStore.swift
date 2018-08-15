@@ -6,7 +6,7 @@ protocol AssetDefinitionBackingStore {
     var delegate: AssetDefinitionBackingStoreDelegate? { get set }
 
     subscript(contract: String) -> String? { get set }
-    func lastModifiedDataOfCachedAssetDefinitionFile(forContract contract: String) -> Date?
+    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date?
     func forEachContractWithXML(_ body: (String) -> Void)
     func isOfficial(contract: String) -> Bool
 }
@@ -17,6 +17,6 @@ extension AssetDefinitionBackingStore {
     }
 }
 
-protocol AssetDefinitionBackingStoreDelegate {
+protocol AssetDefinitionBackingStoreDelegate: class {
     func invalidateAssetDefinition(forContract contract: String)
 }

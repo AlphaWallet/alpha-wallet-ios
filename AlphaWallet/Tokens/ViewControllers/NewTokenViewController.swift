@@ -10,7 +10,7 @@ protocol NewTokenViewControllerDelegate: class {
     func didAddAddress(address: String, in viewController: NewTokenViewController)
 }
 
-class NewTokenViewController: UIViewController {
+class NewTokenViewController: UIViewController, CanScanQRCode {
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
     let footerBar = UIView()
@@ -221,16 +221,16 @@ class NewTokenViewController: UIViewController {
             return false
         }
         switch tokenType {
-            case .ether, .erc20:
-                guard !decimalsTextField.value.trimmed.isEmpty else {
-                    displayError(title: R.string.localizable.decimals(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-                    return false
-                }
-            case .erc721, .erc875:
-                guard !balanceTextField.value.trimmed.isEmpty else {
-                    displayError(title: R.string.localizable.balance(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-                    return false
-                }
+        case .ether, .erc20:
+            guard !decimalsTextField.value.trimmed.isEmpty else {
+                displayError(title: R.string.localizable.decimals(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
+                return false
+            }
+        case .erc721, .erc875:
+            guard !balanceTextField.value.trimmed.isEmpty else {
+                displayError(title: R.string.localizable.balance(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
+                return false
+            }
         }
 
         return true
@@ -330,6 +330,10 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            promptUserOpenSettingsToChangeCameraPermission()
+            return
+        }
         let controller = QRCodeReaderViewController()
         controller.delegate = self
         present(controller, animated: true, completion: nil)

@@ -15,10 +15,10 @@ class BaseTicketTableViewCell: UITableViewCell {
         contentView.addSubview(rowView)
 
         NSLayoutConstraint.activate([
-            rowView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            rowView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            rowView.topAnchor.constraint(equalTo: topAnchor),
-            rowView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            rowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            rowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            rowView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            rowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
         ])
     }
 

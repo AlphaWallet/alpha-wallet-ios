@@ -32,7 +32,8 @@ class TicketsCoordinator: NSObject, Coordinator {
     var token: TokenObject
     var type: PaymentFlow!
     lazy var rootViewController: TicketsViewController = {
-        return self.makeTicketsViewController(with: self.session.account)
+        let viewModel = TicketsViewModel(token: token)
+        return self.makeTicketsViewController(with: self.session.account, viewModel: viewModel)
     }()
 
     weak var delegate: TicketsCoordinatorDelegate?
@@ -63,11 +64,8 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        let viewModel = TicketsViewModel(
-            token: token
-        )
         rootViewController.tokenObject = token
-        rootViewController.configure(viewModel: viewModel)
+        rootViewController.configure()
         navigationController.viewControllers = [rootViewController]
         refreshUponAssetDefinitionChanges()
     }
@@ -81,11 +79,8 @@ class TicketsCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func makeTicketsViewController(with account: Wallet) -> TicketsViewController {
-        let controller = TicketsViewController(config: session.config, tokenObject: token)
-        controller.account = account
-        controller.session = session
-        controller.tokensStorage = tokensStorage
+    private func makeTicketsViewController(with account: Wallet, viewModel: TicketsViewModel) -> TicketsViewController {
+        let controller = TicketsViewController(config: session.config, tokenObject: token, account: account, session: session, tokensStorage: tokensStorage, viewModel: viewModel)
         controller.delegate = self
         return controller
     }
@@ -193,72 +188,72 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func makeRedeemTicketsViewController() -> RedeemTicketsViewController {
-        let controller = RedeemTicketsViewController(config: session.config, token: token)
         let viewModel = RedeemTicketsViewModel(token: token)
-        controller.configure(viewModel: viewModel)
+        let controller = RedeemTicketsViewController(config: session.config, token: token, viewModel: viewModel)
+        controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeSellTicketsViewController(paymentFlow: PaymentFlow) -> SellTicketsViewController {
-        let controller = SellTicketsViewController(config: session.config, paymentFlow: paymentFlow)
         let viewModel = SellTicketsViewModel(token: token)
-        controller.configure(viewModel: viewModel)
+        let controller = SellTicketsViewController(config: session.config, paymentFlow: paymentFlow, viewModel: viewModel)
+        controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeRedeemTicketsQuantitySelectionViewController(token: TokenObject, for ticketHolder: TokenHolder) -> RedeemTicketsQuantitySelectionViewController {
-        let controller = RedeemTicketsQuantitySelectionViewController(config: session.config, token: token)
         let viewModel = RedeemTicketsQuantitySelectionViewModel(token: token, ticketHolder: ticketHolder)
-		controller.configure(viewModel: viewModel)
+        let controller = RedeemTicketsQuantitySelectionViewController(config: session.config, token: token, viewModel: viewModel)
+		controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeEnterSellTicketsPriceQuantityViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTicketsPriceQuantityViewController {
-        let controller = EnterSellTicketsPriceQuantityViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, ethPrice: ethPrice)
         let viewModel = EnterSellTicketsPriceQuantityViewControllerViewModel(token: token, ticketHolder: ticketHolder)
-        controller.configure(viewModel: viewModel)
+        let controller = EnterSellTicketsPriceQuantityViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, ethPrice: ethPrice, viewModel: viewModel)
+        controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeEnterTransferTicketsExpiryDateViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> SetTransferTicketsExpiryDateViewController {
-        let controller = SetTransferTicketsExpiryDateViewController(config: session.config, ticketHolder: ticketHolder, paymentFlow: paymentFlow)
         let viewModel = SetTransferTicketsExpiryDateViewControllerViewModel(token: token, ticketHolder: ticketHolder)
-        controller.configure(viewModel: viewModel)
+        let controller = SetTransferTicketsExpiryDateViewController(config: session.config, ticketHolder: ticketHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+        controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeTransferTicketsViaWalletAddressViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTicketsViaWalletAddressViewController {
-        let controller = TransferTicketsViaWalletAddressViewController(config: session.config, token: token, ticketHolder: ticketHolder, paymentFlow: paymentFlow)
         let viewModel = TransferTicketsViaWalletAddressViewControllerViewModel(token: token, ticketHolder: ticketHolder)
-        controller.configure(viewModel: viewModel)
+        let controller = TransferTicketsViaWalletAddressViewController(config: session.config, token: token, ticketHolder: ticketHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+        controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeEnterSellTicketsExpiryDateViewController(token: TokenObject, for ticketHolder: TokenHolder, ethCost: String, paymentFlow: PaymentFlow) -> SetSellTicketsExpiryDateViewController {
-        let controller = SetSellTicketsExpiryDateViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, ticketHolder: ticketHolder, ethCost: ethCost)
         let viewModel = SetSellTicketsExpiryDateViewControllerViewModel(token: token, ticketHolder: ticketHolder, ethCost: ethCost)
-        controller.configure(viewModel: viewModel)
+        let controller = SetSellTicketsExpiryDateViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, ticketHolder: ticketHolder, ethCost: ethCost, viewModel: viewModel)
+        controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeTicketRedemptionViewController(token: TokenObject, for ticketHolder: TokenHolder) -> TicketRedemptionViewController {
-        let controller = TicketRedemptionViewController(config: session.config, session: session, token: token)
         let viewModel = TicketRedemptionViewModel(token: token, ticketHolder: ticketHolder)
-		controller.configure(viewModel: viewModel)
+        let controller = TicketRedemptionViewController(config: session.config, session: session, token: token, viewModel: viewModel)
+		controller.configure()
         return controller
     }
 
     private func makeTransferTicketsViewController(paymentFlow: PaymentFlow) -> TransferTicketsViewController {
-        let controller = TransferTicketsViewController(config: session.config, paymentFlow: paymentFlow, token: token)
         let viewModel = TransferTicketsViewModel(token: token)
-        controller.configure(viewModel: viewModel)
+        let controller = TransferTicketsViewController(config: session.config, paymentFlow: paymentFlow, token: token, viewModel: viewModel)
+        controller.configure()
         controller.delegate = self
         return controller
     }
@@ -271,17 +266,17 @@ class TicketsCoordinator: NSObject, Coordinator {
     }
 
     private func makeTransferTicketsQuantitySelectionViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTicketsQuantitySelectionViewController {
-        let controller = TransferTicketsQuantitySelectionViewController(config: session.config, paymentFlow: paymentFlow, token: token)
         let viewModel = TransferTicketsQuantitySelectionViewModel(token: token, ticketHolder: ticketHolder)
-        controller.configure(viewModel: viewModel)
+        let controller = TransferTicketsQuantitySelectionViewController(config: session.config, paymentFlow: paymentFlow, token: token, viewModel: viewModel)
+        controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeChooseTicketTransferModeViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> ChooseTicketTransferModeViewController {
-        let controller = ChooseTicketTransferModeViewController(config: session.config, ticketHolder: ticketHolder, paymentFlow: paymentFlow)
         let viewModel = ChooseTicketTransferModeViewControllerViewModel(token: token, ticketHolder: ticketHolder)
-        controller.configure(viewModel: viewModel)
+        let controller = ChooseTicketTransferModeViewController(config: session.config, ticketHolder: ticketHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+        controller.configure()
         controller.delegate = self
         return controller
     }

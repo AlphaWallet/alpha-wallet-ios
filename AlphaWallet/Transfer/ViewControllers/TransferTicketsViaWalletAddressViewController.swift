@@ -9,9 +9,9 @@ protocol TransferTicketsViaWalletAddressViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: TransferTicketsViaWalletAddressViewController)
 }
 
-class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVerifiableStatusViewController {
+class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVerifiableStatusViewController, CanScanQRCode {
     let config: Config
-    var contract: String? {
+    var contract: String {
         return token.contract
     }
     private let token: TokenObject
@@ -20,16 +20,23 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
     let ticketView = TicketRowView()
     let targetAddressTextField = AddressTextField()
     let nextButton = UIButton(type: .system)
-    var viewModel: TransferTicketsViaWalletAddressViewControllerViewModel!
+    var viewModel: TransferTicketsViaWalletAddressViewControllerViewModel
     var ticketHolder: TokenHolder
     var paymentFlow: PaymentFlow
     weak var delegate: TransferTicketsViaWalletAddressViewControllerDelegate?
 
-    init(config: Config, token: TokenObject, ticketHolder: TokenHolder, paymentFlow: PaymentFlow) {
+    init(
+            config: Config,
+            token: TokenObject,
+            ticketHolder: TokenHolder,
+            paymentFlow: PaymentFlow,
+            viewModel: TransferTicketsViaWalletAddressViewControllerViewModel
+    ) {
         self.config = config
         self.token = token
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -114,8 +121,10 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
         openURL(url)
     }
 
-    func configure(viewModel: TransferTicketsViaWalletAddressViewControllerViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: TransferTicketsViaWalletAddressViewControllerViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor
@@ -160,6 +169,10 @@ extension TransferTicketsViaWalletAddressViewController: AddressTextFieldDelegat
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            promptUserOpenSettingsToChangeCameraPermission()
+            return
+        }
         let controller = QRCodeReaderViewController()
         controller.delegate = self
         present(controller, animated: true, completion: nil)

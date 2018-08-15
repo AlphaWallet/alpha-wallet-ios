@@ -4,10 +4,9 @@ import UIKit
 
 struct SendHeaderViewViewModel {
     var title = ""
-    var ticker: CoinTicker? = nil
-    var currencyAmount: String? = nil
-    var currencyAmountWithoutSymbol: Double? = nil
-    var showAlternativeAmount = false
+    var ticker: CoinTicker?
+    var currencyAmount: String?
+    var currencyAmountWithoutSymbol: Double?
 
     var issuer: String {
         return ""

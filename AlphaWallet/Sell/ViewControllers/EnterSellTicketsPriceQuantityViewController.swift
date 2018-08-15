@@ -11,7 +11,7 @@ protocol EnterSellTicketsPriceQuantityViewControllerDelegate: class {
 class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerifiableStatusViewController {
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return viewModel.token.contract
     }
     let storage: TokensDataStore
@@ -28,7 +28,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
     let dollarCostLabel = PaddedLabel()
     let ticketView = TicketRowView()
     let nextButton = UIButton(type: .system)
-    var viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel!
+    var viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel
     var paymentFlow: PaymentFlow
     var ethPrice: Subscribable<Double>
     var totalEthCost: Double {
@@ -50,11 +50,18 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
     }
     weak var delegate: EnterSellTicketsPriceQuantityViewControllerDelegate?
 
-    init(config: Config, storage: TokensDataStore, paymentFlow: PaymentFlow, ethPrice: Subscribable<Double>) {
+    init(
+            config: Config,
+            storage: TokensDataStore,
+            paymentFlow: PaymentFlow,
+            ethPrice: Subscribable<Double>,
+            viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel
+    ) {
         self.config = config
         self.storage = storage
         self.paymentFlow = paymentFlow
         self.ethPrice = ethPrice
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -252,8 +259,10 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
         delegate?.didPressViewContractWebPage(in: self)
     }
 
-    func configure(viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: EnterSellTicketsPriceQuantityViewControllerViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor

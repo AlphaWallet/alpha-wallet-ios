@@ -5,7 +5,7 @@ import Foundation
 class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore {
     private let officialStore = AssetDefinitionDiskBackingStore()
     private let overridesStore: AssetDefinitionBackingStore
-    var delegate: AssetDefinitionBackingStoreDelegate?
+    weak var delegate: AssetDefinitionBackingStoreDelegate?
 
     init(overridesStore: AssetDefinitionBackingStore? = nil) {
         if let overridesStore = overridesStore {
@@ -13,7 +13,7 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         } else {
             let store = AssetDefinitionDiskBackingStore(directoryName: "assetDefinitionsOverrides")
             self.overridesStore = store
-            store.watchDirectoryContents() { contract in
+            store.watchDirectoryContents { contract in
                 self.delegate?.invalidateAssetDefinition(forContract: contract)
             }
         }
@@ -35,9 +35,9 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         return officialStore.isOfficial(contract: contract)
     }
 
-    func lastModifiedDataOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
         //Even with an override, we just want to fetch the latest official version. Doesn't imply we'll use the official version
-        return officialStore.lastModifiedDataOfCachedAssetDefinitionFile(forContract: contract)
+        return officialStore.lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
     }
 
     func forEachContractWithXML(_ body: (String) -> Void) {

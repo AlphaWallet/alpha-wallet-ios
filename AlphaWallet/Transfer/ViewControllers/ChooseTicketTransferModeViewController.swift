@@ -13,7 +13,7 @@ class ChooseTicketTransferModeViewController: UIViewController, TicketVerifiable
     let horizontalAdjustmentForLongMagicLinkButtonTitle = CGFloat(20)
 
     let config: Config
-    var contract: String? {
+    var contract: String {
         return viewModel.token.contract
     }
     let roundedBackground = RoundedBackground()
@@ -21,15 +21,21 @@ class ChooseTicketTransferModeViewController: UIViewController, TicketVerifiable
     let ticketView = TicketRowView()
     let generateMagicLinkButton = UIButton(type: .system)
     let transferNowButton = UIButton(type: .system)
-    var viewModel: ChooseTicketTransferModeViewControllerViewModel!
+    var viewModel: ChooseTicketTransferModeViewControllerViewModel
     var ticketHolder: TokenHolder
     var paymentFlow: PaymentFlow
     weak var delegate: ChooseTicketTransferModeViewControllerDelegate?
 
-    init(config: Config, ticketHolder: TokenHolder, paymentFlow: PaymentFlow) {
+    init(
+            config: Config,
+            ticketHolder: TokenHolder,
+            paymentFlow: PaymentFlow,
+            viewModel: ChooseTicketTransferModeViewControllerViewModel
+    ) {
         self.config = config
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -117,8 +123,10 @@ class ChooseTicketTransferModeViewController: UIViewController, TicketVerifiable
         delegate?.didPressViewContractWebPage(in: self)
     }
 
-    func configure(viewModel: ChooseTicketTransferModeViewControllerViewModel) {
-        self.viewModel = viewModel
+    func configure(viewModel newViewModel: ChooseTicketTransferModeViewControllerViewModel? = nil) {
+        if let newViewModel = newViewModel {
+            viewModel = newViewModel
+        }
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
         view.backgroundColor = viewModel.backgroundColor

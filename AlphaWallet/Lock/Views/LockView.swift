@@ -6,11 +6,11 @@ import UIKit
 class LockView: UIView {
 	var characterView = UIStackView()
 	var lockTitle = UILabel()
-	var model: LockViewModel!
+	var model: LockViewModel
 	var characters: [PasscodeCharacterView]!
 	init(_ model: LockViewModel) {
-		super.init(frame: CGRect.zero)
 		self.model = model
+		super.init(frame: CGRect.zero)
 		self.characters = passcodeCharacters()
 		configCharacterView()
 		configLabel()
