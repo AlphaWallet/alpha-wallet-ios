@@ -18,6 +18,7 @@ class SendCoordinator: Coordinator {
     let navigationController: UINavigationController
     let keystore: Keystore
     let storage: TokensDataStore
+    let ethPrice: Subscribable<Double>
     let ticketHolders: [TokenHolder]!
 
     var coordinators: [Coordinator] = []
@@ -33,6 +34,7 @@ class SendCoordinator: Coordinator {
         keystore: Keystore,
         storage: TokensDataStore,
         account: Account,
+        ethPrice: Subscribable<Double>,
         ticketHolders: [TokenHolder] = []
     ) {
         self.transferType = transferType
@@ -42,6 +44,7 @@ class SendCoordinator: Coordinator {
         self.account = account
         self.keystore = keystore
         self.storage = storage
+        self.ethPrice = ethPrice
         self.ticketHolders = ticketHolders
     }
 
@@ -50,8 +53,7 @@ class SendCoordinator: Coordinator {
         sendViewController.configure(viewModel:
                 .init(transferType: sendViewController.transferType,
                         session: session,
-                        storage: sendViewController.storage,
-                        currentPair: SendViewController.Pair(left: symbol, right: session.config.currency.rawValue)
+                        storage: sendViewController.storage
                         )
         )
         //Make sure the pop up, especially the height, is enough to fit the content in iPad
@@ -68,7 +70,8 @@ class SendCoordinator: Coordinator {
             session: session,
             storage: storage,
             account: account,
-            transferType: transferType
+            transferType: transferType,
+            ethPrice: ethPrice
         )
 
         if navigationController.viewControllers.isEmpty {

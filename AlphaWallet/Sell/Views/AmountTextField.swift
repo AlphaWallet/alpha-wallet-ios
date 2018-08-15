@@ -24,10 +24,20 @@ class AmountTextField: UIControl {
         }
     }
     var ethCost: String {
-        if currentPair.left == "ETH" {
-            return textField.text ?? "0"
-        } else {
-            return convertToAlternateAmount()
+        get {
+            if currentPair.left == "ETH" {
+                return textField.text ?? "0"
+            } else {
+                return convertToAlternateAmount()
+            }
+        }
+        set {
+            if currentPair.left != "ETH" {
+                currentPair = currentPair.swapPair()
+                updateFiatButtonTitle()
+            }
+            textField.text = newValue
+            updateAlternatePricingDisplay()
         }
     }
     var dollarCost: String {
@@ -38,7 +48,7 @@ class AmountTextField: UIControl {
         }
     }
     var currentPair: Pair
-    let textField = UITextField()
+    private let textField = UITextField()
     let alternativeAmountLabel = UILabel()
     let fiatButton = Button(size: .normal, style: .borderless)
     weak var delegate: AmountTextFieldDelegate?
@@ -105,12 +115,15 @@ class AmountTextField: UIControl {
         let swappedPair = currentPair.swapPair()
         //New pair for future calculation we should swap pair each time we press fiat button.
         self.currentPair = swappedPair
-        fiatButton.setTitle(currentPair.left, for: .normal)
-        button.setTitle(currentPair.left, for: .normal)
+        updateFiatButtonTitle()
         textField.text = nil
         computeAlternateAmount()
         activateAmountView()
         delegate?.changeType(in: self)
+    }
+
+    private func updateFiatButtonTitle() {
+        fiatButton.setTitle(currentPair.left, for: .normal)
     }
 
     private func activateAmountView() {

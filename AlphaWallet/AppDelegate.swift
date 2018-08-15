@@ -56,7 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     }
 
     // Respond to URI scheme links
-    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
         return true
     }
 
@@ -72,12 +72,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return true
     }
 
-    private func handleUniversalLink(url: URL) -> Bool {
+    @discardableResult private func handleUniversalLink(url: URL) -> Bool {
         appCoordinator.createInitialWallet()
         appCoordinator.closeWelcomeWindow()
-        universalLinkCoordinator = UniversalLinkCoordinator(config: Config())
-        universalLinkCoordinator.ethPrice = appCoordinator.ethPrice
-        universalLinkCoordinator.ethBalance = appCoordinator.ethBalance
+        guard let ethPrice = appCoordinator.ethPrice, let ethBalance = appCoordinator.ethBalance else { return false }
+
+        universalLinkCoordinator = UniversalLinkCoordinator(config: Config(), ethPrice: ethPrice, ethBalance: ethBalance)
         universalLinkCoordinator.delegate = self
         universalLinkCoordinator.start()
         let handled = universalLinkCoordinator.handleUniversalLink(url: url)

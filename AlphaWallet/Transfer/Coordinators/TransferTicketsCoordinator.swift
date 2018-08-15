@@ -91,7 +91,7 @@ class TransferTicketsCoordinator: Coordinator {
                 switch result {
                 case .success:
                     self.sendTransaction(with: configurator)
-                case .failure(let error):
+                case .failure:
                     //TODO use the error object or remove it from the case-statement
                     self.processFailed()
                 }
@@ -110,7 +110,7 @@ class TransferTicketsCoordinator: Coordinator {
                 switch result {
                 case .success:
                     celf.processSuccessful()
-                case .failure(let error):
+                case .failure:
                     //TODO use the error object or remove it from the case-statement
                     celf.processFailed()
                 }

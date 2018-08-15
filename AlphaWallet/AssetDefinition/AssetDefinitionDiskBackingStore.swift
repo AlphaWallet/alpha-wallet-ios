@@ -9,7 +9,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
     private let assetDefinitionsDirectoryName: String
     lazy var directory = documentsDirectory.appendingPathComponent(assetDefinitionsDirectoryName)
     private let isOfficial: Bool
-    var delegate: AssetDefinitionBackingStoreDelegate?
+    weak var delegate: AssetDefinitionBackingStoreDelegate?
     private var directoryWatcher: DirectoryContentsWatcherProtocol?
 
     init(directoryName: String = officialDirectoryName) {
@@ -58,19 +58,17 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         return isOfficial
     }
 
-    func lastModifiedDataOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
         let path = localURLOfXML(for: contract)
         guard let lastModified = try? path.resourceValues(forKeys: [.contentModificationDateKey]) else {
             return nil
         }
-        return lastModified.contentModificationDate as? Date
+        return lastModified.contentModificationDate
     }
 
     func forEachContractWithXML(_ body: (String) -> Void) {
         if let files = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) {
-            let contracts = files.flatMap {
-                contract(fromPath: $0)
-            }
+            let contracts = files.compactMap { contract(fromPath: $0) }
             for each in contracts {
                 body(each)
             }
@@ -93,7 +91,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
                     }
                 }
             }
-        } catch let error {
+        } catch {
         }
     }
 }

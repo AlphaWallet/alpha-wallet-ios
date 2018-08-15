@@ -13,7 +13,7 @@ class TokenObject: Object {
     @objc dynamic var value: String = ""
     @objc dynamic var isDisabled: Bool = false
     var balance = List<TokenBalance>()
-    var nonZeroBalance: Array<TokenBalance> {
+    var nonZeroBalance: [TokenBalance] {
         return Array(balance.filter { isNonZeroBalance($0.balance) })
     }
     @objc dynamic var rawType: String = TokenType.erc20.rawValue
@@ -85,5 +85,9 @@ class TokenObject: Object {
 }
 
 func isNonZeroBalance(_ balance: String) -> Bool {
-    return BigUInt(balance) != 0
+    return !isZeroBalance(balance)
+}
+
+func isZeroBalance(_ balance: String) -> Bool {
+    return BigUInt(balance) == 0
 }

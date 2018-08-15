@@ -22,22 +22,21 @@ class GetContractInteractions {
         let etherscanURL = RPCServer(chainID: chainId).etherscanAPIURLForTransactionList(for: address)
         Alamofire.request(etherscanURL).validate().responseJSON { response in
             switch response.result {
-                case .success(let value):
-                    let json = JSON(value)
-                    let contracts: [String] = json["result"].map { _, transactionJson in
-                        if transactionJson["input"] != "0x" {
-                            //every transaction that has input is by default a transaction to a contract
-                            return transactionJson["to"].description
-                        }
-                        return ""
+            case .success(let value):
+                let json = JSON(value)
+                let contracts: [String] = json["result"].map { _, transactionJson in
+                    if transactionJson["input"] != "0x" {
+                        //every transaction that has input is by default a transaction to a contract
+                        return transactionJson["to"].description
                     }
-                    let nonEmptyContracts = contracts.filter { !$0.isEmpty }
-                    completion(nonEmptyContracts)
-                case .failure(let error):
-                    print(error)
-                    completion([])
-                default:
-                    completion([])
+                    return ""
+                }
+                let nonEmptyContracts = contracts.filter { !$0.isEmpty }
+                let uniqueNonEmptyContracts = Array(Set(nonEmptyContracts))
+                completion(uniqueNonEmptyContracts)
+            case .failure(let error):
+                print(error)
+                completion([])
             }
         }
     }

@@ -19,10 +19,14 @@ struct ImportTicketViewControllerViewModel {
             }
         }
     }
+    enum Cost {
+        case free
+        case paid(eth: Decimal, dollar: Decimal?)
+    }
+
     var state: State
     var ticketHolder: TokenHolder?
-    var ethCost: String?
-    var dollarCost: String?
+    var cost: Cost?
 
     var backgroundColor: UIColor {
         return Colors.appBackground
@@ -177,10 +181,11 @@ struct ImportTicketViewControllerViewModel {
     }
 
     var ethCostLabelText: String {
-        guard let ethCost = ethCost else { return R.string.localizable.aClaimTicketEthCostFreeTitle() }
-        if ethCost.isEmpty {
+        guard let cost = cost else { return R.string.localizable.aClaimTicketEthCostFreeTitle() }
+        switch cost {
+        case .free:
             return R.string.localizable.aClaimTicketEthCostFreeTitle()
-        } else {
+        case .paid(let ethCost, _):
             return "\(ethCost) ETH"
         }
     }
@@ -206,10 +211,12 @@ struct ImportTicketViewControllerViewModel {
     }
 
     var dollarCostLabelText: String {
-        guard let dollarCost = dollarCost else { return "" }
-        if dollarCost.isEmpty {
+        guard let cost = cost else { return "" }
+        switch cost {
+        case .free:
             return ""
-        } else {
+        case .paid(_, let dollarCost):
+            guard let dollarCost = dollarCost else { return "" }
             return "$\(dollarCost)"
         }
     }
@@ -276,16 +283,23 @@ struct ImportTicketViewControllerViewModel {
     }
 
     var transactionIsFree: Bool {
-        guard let ethCost = ethCost else { return true }
-        return ethCost.isEmpty
+        guard let cost = cost else { return true }
+        switch cost {
+        case .free:
+            return true
+        case .paid:
+            return false
+        }
     }
 
     var hideDollarCost: Bool {
-        if transactionIsFree {
+        guard let cost = cost else { return true }
+        switch cost {
+        case .free:
             return true
+        case .paid:
+            return false
         }
-        guard let dollarCost = dollarCost else { return true }
-        return dollarCost.trimmed.isEmpty
     }
 
     init(state: State) {

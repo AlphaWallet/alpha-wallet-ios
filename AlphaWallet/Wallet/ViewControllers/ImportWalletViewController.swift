@@ -8,7 +8,7 @@ protocol ImportWalletViewControllerDelegate: class {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController)
 }
 
-class ImportWalletViewController: UIViewController {
+class ImportWalletViewController: UIViewController, CanScanQRCode {
     struct ValidationError: LocalizedError {
         var msg: String
         var errorDescription: String? {
@@ -310,6 +310,10 @@ class ImportWalletViewController: UIViewController {
     }
 
     @objc func openReader() {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            promptUserOpenSettingsToChangeCameraPermission()
+            return
+        }
         let controller = QRCodeReaderViewController()
         controller.delegate = self
         present(controller, animated: true, completion: nil)

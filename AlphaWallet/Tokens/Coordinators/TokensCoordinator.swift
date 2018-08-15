@@ -43,7 +43,7 @@ class TokensCoordinator: Coordinator {
     weak var delegate: TokensCoordinatorDelegate?
 
     lazy var rootViewController: TokensViewController = {
-        return self.tokensViewController
+        return tokensViewController
     }()
 
     init(
@@ -73,7 +73,7 @@ class TokensCoordinator: Coordinator {
     }
     
     private func refreshUponAssetDefinitionChanges() {
-        assetDefinitionStore.subscribe { [weak self] contract in
+        assetDefinitionStore.subscribe { [weak self] _ in
             self?.storage.updateERC875TokensToLocalizedName()
         }
     }
@@ -143,7 +143,7 @@ class TokensCoordinator: Coordinator {
                 self.storage.add(tokens: [token])
                 completion()
             case .failed(let networkReachable):
-                if let networkReachable = networkReachable, networkReachable  {
+                if let networkReachable = networkReachable, networkReachable {
                     self.storage.add(deadContracts: [DeletedContract(contract: contract)])
                 }
                 completion()
@@ -226,7 +226,7 @@ class TokensCoordinator: Coordinator {
 
         assetDefinitionStore.fetchXML(forContract: address)
 
-        self.storage.getContractName(for: address) { result in
+        storage.getContractName(for: address) { result in
             switch result {
             case .success(let name):
                 completedName = name
@@ -237,7 +237,7 @@ class TokensCoordinator: Coordinator {
             }
         }
 
-        self.storage.getContractSymbol(for: address) { result in
+        storage.getContractSymbol(for: address) { result in
             switch result {
             case .success(let symbol):
                 completedSymbol = symbol
@@ -248,7 +248,7 @@ class TokensCoordinator: Coordinator {
             }
         }
 
-        self.storage.getTokenType(for: address) { tokenType in
+        storage.getTokenType(for: address) { tokenType in
             completedTokenType = tokenType
             switch tokenType {
             case .erc875:
@@ -262,7 +262,6 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
-                break
             case .erc721:
                 self.storage.getERC721Balance(for: address) { result in
                     switch result {
@@ -274,7 +273,6 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
-                break
             case .erc20:
                 self.storage.getDecimals(for: address) { result in
                     switch result {
@@ -286,7 +284,6 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
-                break
             case .ether:
                 break
             }
@@ -327,7 +324,7 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
     }
 
     func didAddAddress(address: String, in viewController: NewTokenViewController) {
-        self.fetchContractData(for: address) { data in
+        fetchContractData(for: address) { data in
             switch data {
             case .name(let name):
                 viewController.updateNameValue(name)
@@ -339,10 +336,8 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
                 viewController.updateDecimalsValue(decimals)
             case .nonFungibleTokenComplete(_, _, _, let tokenType):
                 viewController.updateFormForTokenType(tokenType)
-                break
             case .fungibleTokenComplete:
                 viewController.updateFormForTokenType(.erc20)
-                break
             case .failed:
                 break
             }

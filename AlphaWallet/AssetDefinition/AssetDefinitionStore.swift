@@ -64,9 +64,11 @@ class AssetDefinitionStore {
     }
 
     /// useCacheAndFetch: when true, the completionHandler will be called immediately and a second time if an updated XML is fetched. When false, the completionHandler will only be called up fetching an updated XML
+    ///
+    /// IMPLEMENTATION NOTE: Current implementation will fetch the same XML multiple times if this function is called again before the previous attempt has completed. A check (which requires tracking completion handlers) hasn't been implemented because this doesn't usually happen in practice
     func fetchXML(forContract contract: String, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         let contract = contract.add0x.lowercased()
-        if useCacheAndFetch {
+        if useCacheAndFetch && self[contract] != nil {
             completionHandler?(.cached)
         }
         guard let url = urlToFetch(contract: contract) else { return }
@@ -74,7 +76,7 @@ class AssetDefinitionStore {
                 url,
                 method: .get,
                 headers: httpHeadersWithLastModifiedTimestamp(forContract: contract)
-        ).response() { response in
+        ).response { response in
             if response.response?.statusCode == 304 {
                 completionHandler?(.unmodified)
             } else if response.response?.statusCode == 406 {
@@ -105,13 +107,13 @@ class AssetDefinitionStore {
         return URL(string: Constants.repoServer)?.appendingPathComponent(name)
     }
 
-    private func lastModifiedDataOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
-        return backingStore.lastModifiedDataOfCachedAssetDefinitionFile(forContract: contract)
+    private func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+        return backingStore.lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
     }
 
     private func httpHeadersWithLastModifiedTimestamp(forContract contract: String) -> HTTPHeaders {
         var result = httpHeaders
-        if let lastModified = lastModifiedDataOfCachedAssetDefinitionFile(forContract: contract) {
+        if let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract) {
             result["IF-Modified-Since"] = string(fromLastModifiedDate: lastModified)
             return result
         } else {
