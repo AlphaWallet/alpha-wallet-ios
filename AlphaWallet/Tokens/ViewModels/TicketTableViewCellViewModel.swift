@@ -29,21 +29,4 @@ struct TicketTableViewCellViewModel {
             return R.string.localizable.aWalletTicketTokenBundleStatusRedeemedTitle()
         }
     }
-
-    var cellHeight: CGFloat {
-        let detailsHeight = CGFloat(34)
-        if status.isEmpty {
-            if ticketHolder.areDetailsVisible {
-                return 120 + detailsHeight
-            } else {
-                return 120
-            }
-        } else {
-            if ticketHolder.areDetailsVisible {
-                return 150 + detailsHeight
-            } else {
-                return 150
-            }
-        }
-    }
 }
