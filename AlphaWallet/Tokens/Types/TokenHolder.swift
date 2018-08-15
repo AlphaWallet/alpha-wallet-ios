@@ -22,6 +22,7 @@ class TokenHolder {
     var category: String { return tickets[0].category }
     var countryA: String { return tickets[0].countryA }
     var countryB: String { return tickets[0].countryB }
+    var values: [String: AssetAttributeValue] { return tickets[0].values }
     var status: TicketHolderStatus
     var isSelected = false
     var areDetailsVisible = false
