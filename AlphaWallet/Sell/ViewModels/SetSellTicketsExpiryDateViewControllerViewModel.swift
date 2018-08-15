@@ -37,34 +37,6 @@ struct SetSellTicketsExpiryDateViewControllerViewModel {
         return Fonts.regular(size: 10)!
     }
 
-    var ticketCountString: String {
-        return "x\(ticketHolder.tickets.count)"
-    }
-
-    var city: String {
-        return ticketHolder.city
-    }
-
-    var category: String {
-        return String(ticketHolder.category)
-    }
-
-    var teams: String {
-        return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
-    }
-
-    var match: String {
-        return "M\(ticketHolder.match)"
-    }
-
-	var venue: String {
-        return ticketHolder.venue
-    }
-
-    var date: String {
-        return ticketHolder.date.formatAsShortDateString()
-    }
-
     var linkExpiryDateLabelText: String {
         return R.string.localizable.aWalletTicketTokenSellLinkExpiryDateTitle()
     }

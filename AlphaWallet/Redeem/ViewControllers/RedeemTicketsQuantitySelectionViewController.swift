@@ -25,7 +25,7 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController, TicketVeri
     let header = TicketsViewControllerTitleHeader()
 	let subtitleLabel = UILabel()
     var quantityStepper = NumberStepper()
-    let ticketView = TicketRowView()
+    let ticketView: TokenRowView & UIView
     let nextButton = UIButton(type: .system)
     var viewModel: RedeemTicketsQuantitySelectionViewModel
     weak var delegate: RedeemTicketsQuantitySelectionViewControllerDelegate?
@@ -34,6 +34,15 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController, TicketVeri
         self.config = config
         self.token = token
         self.viewModel = viewModel
+
+        let tokenType = CryptoKittyHandling(address: token.address)
+        switch tokenType {
+        case .cryptoKitty:
+            ticketView = TokenListFormatRowView()
+        case .otherNonFungibleToken:
+            ticketView = TicketRowView()
+        }
+
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -142,7 +151,7 @@ class RedeemTicketsQuantitySelectionViewController: UIViewController, TicketVeri
         subtitleLabel.font = viewModel.subtitleFont
         subtitleLabel.text = viewModel.subtitleText
 
-        ticketView.configure(viewModel: .init(ticketHolder: viewModel.ticketHolder))
+        ticketView.configure(tokenHolder: viewModel.ticketHolder)
 
         quantityStepper.borderWidth = 1
         quantityStepper.clipsToBounds = true
