@@ -18,6 +18,14 @@ private class PrivateXMLHandler {
     lazy var contract = xml["token"]["contract"].getElement(attributeName: "type", attributeValue: "holding", fallbackToFirst: true)
     lazy var fields = extractFields()
     private let isOfficial: Bool
+    private let signatureNamespace: String
+    private var signatureNamespacePrefix: String {
+        if signatureNamespace.isEmpty {
+            return ""
+        } else {
+            return "\(signatureNamespace):"
+        }
+    }
 
     init(contract: String) {
         contractAddress = contract.add0x.lowercased()
@@ -25,6 +33,7 @@ private class PrivateXMLHandler {
         //We use a try? for the first parse() instead of try! to avoid the very unlikely chance that it will crash. We fallback to an empty XML just like if we haven't downloaded it yet
         xml = (try? XML.parse(assetDefinitionStore[contract] ?? "")) ?? (try! XML.parse(""))
         isOfficial = assetDefinitionStore.isOfficial(contract: contract)
+        signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml)
     }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
@@ -83,6 +92,27 @@ private class PrivateXMLHandler {
         }
         return "en"
     }
+
+    func getIssuer() -> String {
+        if let issuer = xml["token"]["\(signatureNamespacePrefix)Signature"]["\(signatureNamespacePrefix)KeyInfo"]["\(signatureNamespacePrefix)KeyName"].text {
+            return issuer
+        }
+        return ""
+    }
+
+    private static func discoverSignatureNamespace(xml: XML.Accessor) -> String {
+        if case let .singleElement(element) = xml["token"] {
+            let children: [XML.Element] = element.childElements
+            for each in children {
+                if each.name == "Signature" {
+                    return ""
+                } else if each.name.hasSuffix(":Signature") {
+                    return String(each.name.split(separator: ":")[0])
+                }
+            }
+        }
+        return ""
+    }
 }
 
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
@@ -114,6 +144,10 @@ public class XMLHandler {
 
     func getLang() -> String {
         return privateXMLHandler.getLang()
+    }
+
+    func getIssuer() -> String {
+        return privateXMLHandler.getIssuer()
     }
 
     func isVerified(for server: RPCServer) -> Bool {

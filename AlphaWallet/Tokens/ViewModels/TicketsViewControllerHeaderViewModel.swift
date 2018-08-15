@@ -17,10 +17,12 @@ struct TicketsViewControllerHeaderViewModel {
     }
 
     var issuer: String {
-        if config.server == .main {
-            return "\(R.string.localizable.aWalletContentsIssuerTitle()): \(R.string.localizable.ticketIssuer())"
-        } else {
+        let xmlHandler = XMLHandler(contract: tokenObject.address.eip55String)
+        let issuer = xmlHandler.getIssuer()
+        if issuer.isEmpty {
             return ""
+        } else {
+            return "\(R.string.localizable.aWalletContentsIssuerTitle()): \(issuer)"
         }
     }
 
