@@ -47,6 +47,7 @@ class RedeemTicketsViewController: UIViewController, TicketVerifiableStatusViewC
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appWhite
         tableView.tableHeaderView = header
+        tableView.rowHeight = UITableViewAutomaticDimension
         roundedBackground.addSubview(tableView)
 
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
@@ -142,12 +143,6 @@ extension RedeemTicketsViewController: UITableViewDelegate, UITableViewDataSourc
         let ticketHolder = viewModel.item(for: indexPath)
 		cell.configure(viewModel: .init(ticketHolder: ticketHolder))
         return cell
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let ticketHolder = viewModel.item(for: indexPath)
-        let cellViewModel = BaseTicketTableViewCellViewModel(ticketHolder: ticketHolder)
-        return cellViewModel.cellHeight
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
