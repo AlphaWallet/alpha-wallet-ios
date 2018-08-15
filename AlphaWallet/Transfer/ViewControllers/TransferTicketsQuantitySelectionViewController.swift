@@ -18,7 +18,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, TicketVe
     let header = TicketsViewControllerTitleHeader()
 	let subtitleLabel = UILabel()
     var quantityStepper = NumberStepper()
-    let ticketView = TicketRowView()
+    let ticketView: TokenRowView & UIView
     let nextButton = UIButton(type: .system)
     var viewModel: TransferTicketsQuantitySelectionViewModel
     var paymentFlow: PaymentFlow
@@ -35,6 +35,15 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, TicketVe
         self.paymentFlow = paymentFlow
         self.token = token
         self.viewModel = viewModel
+
+        let tokenType = CryptoKittyHandling(contract: token.contract)
+        switch tokenType {
+        case .cryptoKitty:
+            ticketView = TokenListFormatRowView()
+        case .otherNonFungibleToken:
+            ticketView = TicketRowView()
+        }
+
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -100,7 +109,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, TicketVe
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
-    
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -142,7 +151,7 @@ class TransferTicketsQuantitySelectionViewController: UIViewController, TicketVe
         subtitleLabel.font = viewModel.subtitleFont
         subtitleLabel.text = viewModel.subtitleText
 
-        ticketView.configure(viewModel: .init(ticketHolder: viewModel.ticketHolder))
+        ticketView.configure(tokenHolder: viewModel.ticketHolder)
 
         quantityStepper.borderWidth = 1
         quantityStepper.clipsToBounds = true

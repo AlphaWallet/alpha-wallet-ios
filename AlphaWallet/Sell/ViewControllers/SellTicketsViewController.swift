@@ -6,6 +6,7 @@ protocol SellTicketsViewControllerDelegate: class {
     func didSelectTicketHolder(ticketHolder: TokenHolder, in viewController: SellTicketsViewController)
     func didPressViewInfo(in viewController: SellTicketsViewController)
     func didPressViewContractWebPage(in viewController: SellTicketsViewController)
+    func didTapURL(url: URL, in viewController: SellTicketsViewController)
 }
 
 class SellTicketsViewController: UIViewController, TicketVerifiableStatusViewController {
@@ -36,6 +37,7 @@ class SellTicketsViewController: UIViewController, TicketVerifiableStatusViewCon
         view.addSubview(roundedBackground)
 
         tableView.register(TicketTableViewCellWithCheckbox.self, forCellReuseIdentifier: TicketTableViewCellWithCheckbox.identifier)
+        tableView.register(TokenListFormatTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenListFormatTableViewCellWithCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
@@ -133,14 +135,29 @@ extension SellTicketsViewController: UITableViewDelegate, UITableViewDataSource 
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithCheckbox
         let ticketHolder = viewModel.item(for: indexPath)
-		cell.configure(viewModel: .init(ticketHolder: ticketHolder))
-        return cell
+        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        switch tokenType {
+        case .cryptoKitty:
+            let cell = tableView.dequeueReusableCell(withIdentifier: TokenListFormatTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenListFormatTableViewCellWithCheckbox
+            cell.delegate = self
+            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            return cell
+        case .otherNonFungibleToken:
+            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithCheckbox
+            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            return cell
+        }
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let changedIndexPaths = viewModel.toggleSelection(for: indexPath)
         animateRowHeightChanges(for: changedIndexPaths, in: tableView)
+    }
+}
+
+extension SellTicketsViewController: BaseTokenListFormatTableViewCellDelegate {
+    func didTapURL(url: URL) {
+        delegate?.didTapURL(url: url, in: self)
     }
 }
