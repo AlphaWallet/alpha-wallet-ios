@@ -36,6 +36,7 @@ public struct Constants {
     public static let ticketContractAddress = "0xA66A3F08068174e8F005112A8b2c7A507a822335"
     public static let ticketContractAddressRopsten = "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3"
     public static let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
+    public static let nullTicketBigUInt = BigUInt(0)
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
     public static let event = "FIFA WC2018"
 
