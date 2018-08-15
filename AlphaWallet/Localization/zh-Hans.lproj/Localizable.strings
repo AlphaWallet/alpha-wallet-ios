@@ -269,7 +269,6 @@
 "Balance" = "余额";
 "confirmSignMessage" = "确认要在这条信息上面签名:";
 "blockchain.ethereum" = "基于以太坊智能合约";
-"ticket.issuer" = "盛开体育旅游";
 "touch.id" = "触控ID";
 "face.id" = "面容ID";
 "undefined.error" = "未知错误";
@@ -279,3 +278,5 @@
 "camera.qrCode.denied.prompt.title" = "Camera Access Required to Scan QR Code";
 "camera.qrCode.denied.prompt.message" = "Your privacy settings are preventing us from accessing your camera for QR code scanning. Fix this by:\n\n1. Tap the Open Settings button below to open the Settings app.\n\n2. Tap to enable the Camera on.\n\n3. Launch this app again.";
 "camera.qrCode.denied.prompt.button" = "Open Settings";
+"cryptoKitties.url.open" = "Open on CryptoKitties";
+"cryptoKitties.cat.name" = "CryptoKitty #%@";

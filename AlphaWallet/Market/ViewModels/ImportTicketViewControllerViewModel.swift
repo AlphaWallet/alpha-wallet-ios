@@ -75,7 +75,7 @@ struct ImportTicketViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return ticketHolder.city
+            return ticketHolder.values["locality"] as? String ?? "N/A"
         }
     }
 
@@ -84,7 +84,7 @@ struct ImportTicketViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return String(ticketHolder.category)
+            return ticketHolder.values["category"] as? String ?? "N/A"
         }
     }
 
@@ -93,7 +93,8 @@ struct ImportTicketViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return ticketHolder.date.format("hh:mm")
+            let value = ticketHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+            return value.format("hh:mm")
         }
     }
 
@@ -102,13 +103,16 @@ struct ImportTicketViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
+            let countryA = ticketHolder.values["countryA"] as? String ?? ""
+            let countryB = ticketHolder.values["countryB"] as? String ?? ""
+            return R.string.localizable.aWalletTicketTokenMatchVs(countryA, countryB)
         }
     }
 
     var match: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        return "M\(ticketHolder.match)"
+        let value = ticketHolder.values["match"] as? Int ?? 0
+        return "M\(value)"
     }
 
     var venue: String {
@@ -116,7 +120,7 @@ struct ImportTicketViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return ticketHolder.venue
+            return ticketHolder.values["venue"] as? String ?? "N/A"
         }
     }
 
@@ -125,7 +129,8 @@ struct ImportTicketViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return ticketHolder.date.format("dd MMM yyyy")
+            let value = ticketHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+            return value.format("dd MMM yyyy")
         }
     }
 

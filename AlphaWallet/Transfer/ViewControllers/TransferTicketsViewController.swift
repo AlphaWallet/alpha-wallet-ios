@@ -6,6 +6,7 @@ protocol TransferTicketsViewControllerDelegate: class {
     func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTicketsViewController)
     func didPressViewInfo(in viewController: TransferTicketsViewController)
     func didPressViewContractWebPage(in viewController: TransferTicketsViewController)
+    func didTapURL(url: URL, in viewController: TransferTicketsViewController)
 }
 
 class TransferTicketsViewController: UIViewController, TicketVerifiableStatusViewController {
@@ -38,11 +39,13 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
         view.addSubview(roundedBackground)
 
         tableView.register(TicketTableViewCellWithCheckbox.self, forCellReuseIdentifier: TicketTableViewCellWithCheckbox.identifier)
+        tableView.register(TokenListFormatTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenListFormatTableViewCellWithCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appWhite
         tableView.tableHeaderView = header
+        tableView.rowHeight = UITableViewAutomaticDimension
         roundedBackground.addSubview(tableView)
 
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
@@ -134,20 +137,29 @@ extension TransferTicketsViewController: UITableViewDelegate, UITableViewDataSou
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithCheckbox
         let ticketHolder = viewModel.item(for: indexPath)
-		cell.configure(viewModel: .init(ticketHolder: ticketHolder))
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let ticketHolder = viewModel.item(for: indexPath)
-        let cellViewModel = BaseTicketTableViewCellViewModel(ticketHolder: ticketHolder)
-        return cellViewModel.cellHeight
+        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        switch tokenType {
+        case .cryptoKitty:
+            let cell = tableView.dequeueReusableCell(withIdentifier: TokenListFormatTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenListFormatTableViewCellWithCheckbox
+            cell.delegate = self
+            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            return cell
+        case .otherNonFungibleToken:
+            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithCheckbox
+            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            return cell
+        }
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let changedIndexPaths = viewModel.toggleSelection(for: indexPath)
         animateRowHeightChanges(for: changedIndexPaths, in: tableView)
+    }
+}
+
+extension TransferTicketsViewController: BaseTokenListFormatTableViewCellDelegate {
+    func didTapURL(url: URL) {
+        delegate?.didTapURL(url: url, in: self)
     }
 }

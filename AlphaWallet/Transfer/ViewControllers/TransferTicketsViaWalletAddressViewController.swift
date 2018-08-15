@@ -17,7 +17,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
     private let token: TokenObject
     let roundedBackground = RoundedBackground()
     let header = TicketsViewControllerTitleHeader()
-    let ticketView = TicketRowView()
+    let ticketView: TokenRowView & UIView
     let targetAddressTextField = AddressTextField()
     let nextButton = UIButton(type: .system)
     var viewModel: TransferTicketsViaWalletAddressViewControllerViewModel
@@ -37,6 +37,15 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
+
+        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        switch tokenType {
+        case .cryptoKitty:
+            ticketView = TokenListFormatRowView()
+        case .otherNonFungibleToken:
+            ticketView = TicketRowView()
+        }
+
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -131,7 +140,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
 
         header.configure(title: viewModel.headerTitle)
 
-        ticketView.configure(viewModel: .init(ticketHolder: ticketHolder))
+        ticketView.configure(tokenHolder: ticketHolder)
 
         ticketView.stateLabel.isHidden = true
 

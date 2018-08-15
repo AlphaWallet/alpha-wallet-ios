@@ -1,11 +1,13 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import Alamofire
 import Result
 import APIKit
 import RealmSwift
 import BigInt
 import Moya
+import SwiftyJSON
 import TrustKeystore
 
 enum TokenError: Error {
@@ -13,7 +15,7 @@ enum TokenError: Error {
 }
 
 protocol TokensDataStoreDelegate: class {
-    func didUpdate(result: Result<TokensViewModel, TokenError>)
+    func didUpdate(result: ResultResult<TokensViewModel, TokenError>.t)
 }
 
 class TokensDataStore {
@@ -149,7 +151,7 @@ class TokensDataStore {
     }
 
     func getContractName(for addressString: String,
-                         completion: @escaping (Result<String, AnyError>) -> Void) {
+                         completion: @escaping (ResultResult<String, AnyError>.t) -> Void) {
         let address = Address(string: addressString)
         getNameCoordinator.getName(for: address!) { (result) in
             completion(result)
@@ -157,14 +159,14 @@ class TokensDataStore {
     }
 
     func getContractSymbol(for addressString: String,
-                           completion: @escaping (Result<String, AnyError>) -> Void) {
+                           completion: @escaping (ResultResult<String, AnyError>.t) -> Void) {
         let address = Address(string: addressString)
         getSymbolCoordinator.getSymbol(for: address!) { result in
             completion(result)
         }
     }
     func getDecimals(for addressString: String,
-                     completion: @escaping (Result<UInt8, AnyError>) -> Void) {
+                     completion: @escaping (ResultResult<UInt8, AnyError>.t) -> Void) {
         let address = Address(string: addressString)
         getDecimalsCoordinator.getDecimals(for: address!) { result in
             completion(result)
@@ -172,7 +174,7 @@ class TokensDataStore {
     }
 
     func getERC875Balance(for addressString: String,
-                          completion: @escaping (Result<[String], AnyError>) -> Void) {
+                          completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
         let address = Address(string: addressString)
         getERC875BalanceCoordinator.getERC875TokenBalance(for: account.address, contract: address!) { result in
             completion(result)
@@ -180,7 +182,7 @@ class TokensDataStore {
     }
 
     func getIsERC875Contract(for addressString: String,
-                             completion: @escaping (Result<Bool, AnyError>) -> Void) {
+                             completion: @escaping (ResultResult<Bool, AnyError>.t) -> Void) {
         let address = Address(string: addressString)
         getIsERC875ContractCoordinator.getIsERC875Contract(for: address!) { result in
             completion(result)
@@ -188,15 +190,69 @@ class TokensDataStore {
     }
 
     func getERC721Balance(for addressString: String,
-                          completion: @escaping (Result<[String], AnyError>) -> Void) {
+                          completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
+        let tokenType = CryptoKittyHandling(contract: addressString)
+        switch tokenType {
+        case .cryptoKitty:
+            getCryptoKittyBalance(for: addressString, completion: completion)
+        case .otherNonFungibleToken:
+            getGenericERC721Balance(for: addressString, completion: completion)
+        }
+    }
+
+    private func getGenericERC721Balance(for addressString: String,
+                                         completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
         let address = Address(string: addressString)
         getERC721BalanceCoordinator.getERC721TokenBalance(for: account.address, contract: address!) { result in
             switch result {
             case .success(let ints):
-                completion(.success(ints.map { MarketQueueHandler.bytesToHexa($0.data.array) }))
+                completion(.success(ints.map {
+                    MarketQueueHandler.bytesToHexa($0.data.array)
+                }))
             case .failure(let error):
                 completion(.failure(error))
             }
+        }
+    }
+
+    private func getCryptoKittyBalance(for addressString: String,
+                                         completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
+        guard let url = URL(string: "\(Constants.openseaAPI)api/v1/assets/?owner=\(account.address.eip55String)&order_by=current_price&order_direction=asc") else {
+            completion(.failure(AnyError(CryptoKittyError(localizedDescription: "Error calling \(Constants.openseaAPI) API"))))
+            return
+        }
+        Alamofire.request(
+                url,
+                method: .get
+        ).responseJSON { response in
+            guard let data = response.data, let json = try? JSON(data: data) else {
+                completion(.failure(AnyError(CryptoKittyError(localizedDescription: "Error calling \(Constants.openseaAPI) API"))))
+                return
+            }
+            var results = [String]()
+            for (index, each): (String, JSON) in json["assets"] where each["asset_contract"]["address"].stringValue.sameContract(as: Constants.cryptoKittiesContractAddress) {
+                let tokenId = each["token_id"].stringValue
+                let description = each["description"].stringValue
+                let thumbnailUrl = each["image_thumbnail_url"].stringValue
+                let imageUrl = each["image_url"].stringValue
+                let externalLink = each["external_link"].stringValue
+                var traits = [CryptoKittyTrait]()
+                for each in each["traits"].arrayValue {
+                    let traitCount = each["trait_count"].intValue
+                    let traitType = each["trait_type"].stringValue
+                    let traitValue = each["value"].stringValue
+                    let trait = CryptoKittyTrait(count: traitCount, type: traitType, value: traitValue)
+                    traits.append(trait)
+                }
+                let cat = CryptoKitty(tokenId: tokenId, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, traits: traits)
+                if let encodedJson = try? JSONEncoder().encode(cat), let jsonString = String(data: encodedJson, encoding: .utf8) {
+                    results.append(jsonString)
+                } else {
+                    completion(.failure(AnyError(CryptoKittyError(localizedDescription: "Error converting JSON to CryptoKitty"))))
+                    return
+                }
+            }
+            completion(.success(results))
         }
     }
 

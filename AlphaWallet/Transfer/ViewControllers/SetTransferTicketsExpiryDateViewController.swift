@@ -17,7 +17,7 @@ class SetTransferTicketsExpiryDateViewController: UIViewController, TicketVerifi
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
     let header = TicketsViewControllerTitleHeader()
-    let ticketView = TicketRowView()
+    let ticketView: TokenRowView & UIView
     let linkExpiryDateLabel = UILabel()
     let linkExpiryDateField = DateEntryField()
     let linkExpiryTimeLabel = UILabel()
@@ -44,6 +44,15 @@ class SetTransferTicketsExpiryDateViewController: UIViewController, TicketVerifi
         self.ticketHolder = ticketHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
+
+        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        switch tokenType {
+        case .cryptoKitty:
+            ticketView = TokenListFormatRowView()
+        case .otherNonFungibleToken:
+            ticketView = TicketRowView()
+        }
+
         super.init(nibName: nil, bundle: nil)
 
         updateNavigationRightBarButtons(isVerified: true)
@@ -254,7 +263,7 @@ class SetTransferTicketsExpiryDateViewController: UIViewController, TicketVerifi
 
         header.configure(title: viewModel.headerTitle)
 
-        ticketView.configure(viewModel: .init(ticketHolder: ticketHolder))
+        ticketView.configure(tokenHolder: ticketHolder)
 
         linkExpiryDateLabel.textAlignment = .center
         linkExpiryDateLabel.textColor = viewModel.choiceLabelColor

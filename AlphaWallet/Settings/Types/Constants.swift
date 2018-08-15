@@ -52,6 +52,28 @@ public struct Constants {
     
     //ERC specs
     public static let erc721InterfaceHash = "0x9a20483d"
+    
+    //OpenSea links for erc721 assets
+    public static let openseaAPI = "https://api.opensea.io/"
+
+    public static let cryptoKittiesCooldowns = [
+        "Fast",
+        "Swift",
+        "Swift",
+        "Snappy",
+        "Snappy",
+        "Brisk",
+        "Brisk",
+        "Ploddy",
+        "Ploddy",
+        "Slow",
+        "Slow",
+        "Sluggish"
+    ]
+    
+    //contract addresses that are compatible with opensea
+    //See comment in CryptoKittyHandling enum
+    public static let cryptoKittiesContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 }
 
 public struct UnitConfiguration {
