@@ -26,18 +26,6 @@ class TokenObject: Object {
         }
     }
 
-    var isERC721: Bool {
-        return type == .erc721
-    }
-
-    var isERC875: Bool {
-        return type == .erc875
-    }
-    
-    var isERC20: Bool {
-        return type == .erc20
-    }
-
     convenience init(
             contract: String = "",
             name: String = "",
