@@ -55,7 +55,14 @@ public class UniversalLinkHandler {
     //link has shortened price and expiry and must be expanded
     func parseUniversalLink(url: String) -> SignedOrder? {
         let linkInfo = b64SafeEncodingToRegularEncoding(url.substring(from: urlPrefix.count))
-        guard let linkBytes = Data(base64Encoded: linkInfo)?.array else { return nil }
+        guard var linkBytes = Data(base64Encoded: linkInfo)?.array else { return nil }
+        let encodingByte = linkBytes[0]
+        if encodingByte == 0x01 {
+            //handle spawnable link
+            return handleSpawnableLink(linkBytes: linkBytes)
+        }
+        //clear encoding byte after determining that it is an index link
+        linkBytes.remove(at: 0)
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
         let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
@@ -66,11 +73,47 @@ public class UniversalLinkHandler {
             indices: ticketIndices,
             expiry: expiry,
             contractAddress: contractAddress,
-            start: BigUInt("0")!,
-            count: ticketIndices.count
+            start: BigUInt(0),
+            count: ticketIndices.count,
+            tokenIds: nil
         )
         let message = getMessageFromOrder(order: order)
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
+    }
+    
+    func handleSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
+        var bytes = linkBytes
+        bytes.remove(at: 0)
+        let price = getPriceFromLinkBytes(linkBytes: bytes)
+        let expiry = getExpiryFromLinkBytes(linkBytes: bytes)
+        let contractAddress = getContractAddressFromLinkBytes(linkBytes: bytes)
+        let tokenIds = getTokenIdsFromSpawnableLink(linkBytes: bytes)
+        let (v, r, s) = getVRSFromLinkBytes(linkBytes: bytes)
+        let order = Order(
+            price: price,
+            indices: [UInt16](),
+            expiry: expiry,
+            contractAddress: contractAddress,
+            start: BigUInt(0),
+            count: tokenIds.count,
+            tokenIds: tokenIds
+        )
+        let message = getMessageFromOrder(order: order)
+        return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
+    }
+    
+    func getTokenIdsFromSpawnableLink(linkBytes: [UInt8]) -> [BigUInt] {
+        let tokens = linkBytes[84..<linkBytes.count]
+        let tokenCount = tokens.count / 32
+        var tokenIds = [BigUInt]()
+        var startPos: Int = 0
+        for i in 0..<tokenCount {
+            let tokenId: [UInt8] = Array(tokens[startPos...32 * i])
+            let tokenIdBigUInt = BigUInt(Data(bytes: tokenId))
+            tokenIds.append(tokenIdBigUInt)
+            startPos += 32
+        }
+        return tokenIds
     }
     
     //we used a special encoding so that one 16 bit number could represent either one ticket or two
@@ -96,17 +139,11 @@ public class UniversalLinkHandler {
     
     //shortens price and expiry
     func formatMessageForLink(signedOrder: SignedOrder) -> String {
-        //append encodable byte to differiantiate between spawnable and index
-        //based links
-        var message = [UInt8]()
-        message.append(UInt8(0x01))
-        for i in 0..<signedOrder.message.count {
-            message.append(signedOrder.message[i])
-        }
+        let message = signedOrder.message
         let indices = decodeTicketIndices(indices: signedOrder.order.indices)
         var messageWithSzabo = [UInt8]()
-        let price = Array(message[0...32])
-        let expiry = Array(message[33...64])
+        let price = Array(message[0...31])
+        let expiry = Array(message[32...63])
         let priceHex = MarketQueueHandler.bytesToHexa(price)
         let expiryHex = MarketQueueHandler.bytesToHexa(expiry)
         //removes leading zeros
@@ -116,18 +153,24 @@ public class UniversalLinkHandler {
         let priceSzabo = priceInt / 1000000000000
         var priceBytes = formatTo4Bytes(priceSzabo.serialize().bytes)
         var expiryBytes = formatTo4Bytes(expiryInt.serialize().bytes)
-        for i in 0...4 {
+        for i in 0...3 {
             messageWithSzabo.append(priceBytes[i])
         }
         for i in 0...3 {
             messageWithSzabo.append(expiryBytes[i])
         }
-        for i in 65...84 {
+        for i in 64...83 {
             messageWithSzabo.append(message[i])
         }
-        for i in 0...indices.count - 1 {
+        for i in 0..<indices.count {
             messageWithSzabo.append(indices[i])
         }
+        //append encodable byte to differiantiate between spawnable and index
+        //based links
+        //0x01: Standard magic link.
+        //0x02: Spawn token magic link.
+        //0x03: Customisable spawn token link.
+        messageWithSzabo.insert(0x01, at: 0)
         return MarketQueueHandler.bytesToHexa(messageWithSzabo)
     }
     
@@ -135,17 +178,19 @@ public class UniversalLinkHandler {
         var formattedArray = [UInt8]()
         if array.count == 4 {
             return array
-        } else if array.isEmpty {
+        }
+        else if array.isEmpty {
             for _ in 0...3 {
                 formattedArray.append(0)
             }
             return formattedArray
-        } else {
+        }
+        else {
             let missingDigits = 4 - array.count
-            for _ in 0...missingDigits - 1 {
+            for _ in 0..<missingDigits {
                 formattedArray.append(0)
             }
-            for i in 0...array.count - 1 {
+            for i in 0..<array.count {
                 formattedArray.append(array[i])
             }
             return formattedArray

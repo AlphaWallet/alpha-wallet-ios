@@ -289,7 +289,8 @@ class TicketsCoordinator: NSObject, Coordinator {
             expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
             contractAddress: ticketHolder.contractAddress,
             start: BigUInt("0")!,
-            count: ticketHolder.indices.count
+            count: ticketHolder.indices.count,
+            tokenIds: [BigUInt]()
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
@@ -312,7 +313,8 @@ class TicketsCoordinator: NSObject, Coordinator {
                 expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
                 contractAddress: ticketHolder.contractAddress,
                 start: BigUInt("0")!,
-                count: ticketHolder.indices.count
+                count: ticketHolder.indices.count,
+                tokenIds: [BigUInt]()
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address

@@ -56,7 +56,8 @@ public class MarketQueueHandler {
                 expiry: BigUInt(expiry, radix: 16)!,
                 contractAddress: contractAddress,
                 start: BigUInt(orderObj["start"].string!)!,
-                count: orderObj["count"].intValue
+                count: orderObj["count"].intValue,
+                tokenIds: [BigUInt]()
         )
         let signedOrder = SignedOrder(
                 order: order,
