@@ -81,7 +81,7 @@ public class OrderHandler {
                                tickets: [UInt16],
                                contractAddress: String) -> [UInt8] {
         //ticket count * 2 because it is 16 bits not 8
-        let arrayLength: Int = 85 + tickets.count * 2
+        let arrayLength: Int = 84 + tickets.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
 
@@ -111,7 +111,7 @@ public class OrderHandler {
 
         var ticketsUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: tickets)
 
-        for i in 0...ticketsUint8.count - 1 {
+        for i in 0..<ticketsUint8.count {
             buffer.append(ticketsUint8[i])
         }
 
@@ -120,7 +120,7 @@ public class OrderHandler {
 
     public static func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
         var arrayOfUint8 = [UInt8]()
-        for i in 0...arrayOfUInt16.count - 1 {
+        for i in 0..<arrayOfUInt16.count {
             var UInt8ArrayPair = arrayOfUInt16[i].bigEndian.data.array
             arrayOfUint8.append(UInt8ArrayPair[0])
             arrayOfUint8.append(UInt8ArrayPair[1])
