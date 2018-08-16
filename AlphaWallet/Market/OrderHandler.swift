@@ -9,6 +9,7 @@ public struct Order {
     //for mapping to server
     var start: BigUInt
     var count: Int
+    var tokenIds: [BigUInt]?
 }
 
 public struct SignedOrder {
