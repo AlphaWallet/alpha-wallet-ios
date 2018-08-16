@@ -275,8 +275,8 @@
 "unknown.error" = "出现未知错误.";
 "coming.soon" = "近期开放";
 "backupPassword.confirmation.mustMatch" = "请输入相同的密码进行确认";
-"camera.qrCode.denied.prompt.title" = "Camera Access Required to Scan QR Code";
-"camera.qrCode.denied.prompt.message" = "Your privacy settings are preventing us from accessing your camera for QR code scanning. Fix this by:\n\n1. Tap the Open Settings button below to open the Settings app.\n\n2. Tap to enable the Camera on.\n\n3. Launch this app again.";
-"camera.qrCode.denied.prompt.button" = "Open Settings";
-"cryptoKitties.url.open" = "Open on CryptoKitties";
+"camera.qrCode.denied.prompt.title" = "需要调用您手机上的相机功能来扫描QR码";
+"camera.qrCode.denied.prompt.message" = "您现有的隐私设定阻止了AlphaWallet扫描QR码. 修复步骤:\n\n1. 点击下方“打开设置”按钮来进入手机设置页面.\n\n2. 点击启用相机功能.\n\n3. 重新打开AlphaWallet.";
+"camera.qrCode.denied.prompt.button" = "打开设置";
+"cryptoKitties.url.open" = "在CryptoKitties应用内打开";
 "cryptoKitties.cat.name" = "CryptoKitty #%@";
