@@ -57,7 +57,7 @@ public class UniversalLinkHandler {
         let linkInfo = b64SafeEncodingToRegularEncoding(url.substring(from: urlPrefix.count))
         guard var linkBytes = Data(base64Encoded: linkInfo)?.array else { return nil }
         let encodingByte = linkBytes[0]
-        if encodingByte == 0x01 {
+        if encodingByte == 0x02 {
             //handle spawnable link
             return handleSpawnableLink(linkBytes: linkBytes)
         }
