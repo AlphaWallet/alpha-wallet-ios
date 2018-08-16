@@ -80,7 +80,7 @@ public class OrderHandler {
                                tickets: [UInt16],
                                contractAddress: String) -> [UInt8] {
         //ticket count * 2 because it is 16 bits not 8
-        let arrayLength: Int = 84 + tickets.count * 2
+        let arrayLength: Int = 85 + tickets.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
 
