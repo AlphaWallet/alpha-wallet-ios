@@ -96,11 +96,17 @@ public class UniversalLinkHandler {
     
     //shortens price and expiry
     func formatMessageForLink(signedOrder: SignedOrder) -> String {
-        let message = signedOrder.message
+        //append encodable byte to differiantiate between spawnable and index
+        //based links
+        var message = [UInt8]()
+        message.append(UInt8(0x01))
+        for i in 0..<signedOrder.message.count {
+            message.append(signedOrder.message[i])
+        }
         let indices = decodeTicketIndices(indices: signedOrder.order.indices)
         var messageWithSzabo = [UInt8]()
-        let price = Array(message[0...31])
-        let expiry = Array(message[32...63])
+        let price = Array(message[0...32])
+        let expiry = Array(message[33...64])
         let priceHex = MarketQueueHandler.bytesToHexa(price)
         let expiryHex = MarketQueueHandler.bytesToHexa(expiry)
         //removes leading zeros
@@ -110,13 +116,13 @@ public class UniversalLinkHandler {
         let priceSzabo = priceInt / 1000000000000
         var priceBytes = formatTo4Bytes(priceSzabo.serialize().bytes)
         var expiryBytes = formatTo4Bytes(expiryInt.serialize().bytes)
-        for i in 0...3 {
+        for i in 0...4 {
             messageWithSzabo.append(priceBytes[i])
         }
         for i in 0...3 {
             messageWithSzabo.append(expiryBytes[i])
         }
-        for i in 64...83 {
+        for i in 65...84 {
             messageWithSzabo.append(message[i])
         }
         for i in 0...indices.count - 1 {
