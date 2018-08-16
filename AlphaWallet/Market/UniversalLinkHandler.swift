@@ -297,7 +297,7 @@ public class UniversalLinkHandler {
             message.append(contractBytes[i])
         }
         let indices = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: order.indices)
-        for i in 0...indices.count - 1 {
+        for i in 0..<indices.count {
             message.append(indices[i])
         }
         return message
