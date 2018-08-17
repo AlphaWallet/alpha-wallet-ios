@@ -4,19 +4,15 @@
 
 import Foundation
 import BigInt
-import JSONRPCKit
-import APIKit
 import Result
 import TrustKeystore
-import JavaScriptKit
-import BigInt
+import web3swift
 
 class GetERC721BalanceCoordinator {
-    private let web3: Web3Swift
-    init(
-            web3: Web3Swift
-    ) {
-        self.web3 = web3
+    private let config: Config
+
+    init(config: Config) {
+        self.config = config
     }
 
     func getERC721TokenBalance(
@@ -24,63 +20,48 @@ class GetERC721BalanceCoordinator {
             contract: Address,
             completion: @escaping (Result<[BigUInt], AnyError>) -> Void
     ) {
-        let request = GetERC721BalanceEncode(address: address)
-        web3.request(request: request) { result in
-            switch result {
-            case .success(let res):
-                let request2 = EtherServiceRequest(
-                        batch: BatchFactory().create(CallRequest(to: contract.description, data: res))
-                )
-                Session.send(request2) { [weak self] result2 in
-                    switch result2 {
-                    case .success(let balance):
-                        let request = GetERC721BalanceDecode(data: balance)
-                        self?.web3.request(request: request) { result in
-                            switch result {
-                            case .success(let res):
-                                let values: [BigUInt] = (self?.adapt(res))!
-                                NSLog("result \(values)")
-                                completion(.success(values))
-                            case .failure(let error):
-                                let err = error.error
-                                if err is JSErrorDomain { // TODO:
-                                    switch err {
-                                    case JSErrorDomain.invalidReturnType(let value):
-                                        let values: [BigUInt] = (self?.adapt(value))!
-                                        NSLog("result error \(values)")
-                                        completion(.success(values))
-                                    default:
-                                        completion(.failure(AnyError(error)))
-                                    }
-                                } else {
-                                    NSLog("getPrice3 error \(error)")
-                                    completion(.failure(AnyError(error)))
-                                }
-                            }
-                        }
-                    case .failure(let error):
-                        NSLog("getPrice2 error \(error)")
-                        completion(.failure(AnyError(error)))
-                    }
+        guard let contractAddress = EthereumAddress(contract.eip55String) else {
+            completion(.failure(AnyError(Web3Error(description: "Error converting contract address: \(contract.eip55String)"))))
+            return
+        }
+
+        guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
+            completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)"))))
+            return
+        }
+
+        let web3 = web3swift.web3(provider: webProvider)
+        let function = GetERC721Balance()
+        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: contractAddress, options: web3.options) else {
+            completion(.failure(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(function.name)()"))))
+            return
+        }
+
+        //TODO Use promise directly instead of DispatchQueue once web3swift pod opens it up
+        DispatchQueue.global().async {
+            guard let balanceResult = contractInstance.method(function.name, options: nil)?.call(options: nil) else {
+                completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String)"))))
+                return
+            }
+            DispatchQueue.main.sync {
+                if case .success(let balanceResult) = balanceResult {
+                    let balances = self.adapt(balanceResult["0"])
+                    completion(.success(balances))
+                } else {
+                    completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))))
                 }
-            case .failure(let error):
-                NSLog("getPrice error \(error)")
-                completion(.failure(AnyError(error)))
             }
         }
     }
-}
 
-extension GetERC721BalanceCoordinator {
     private func adapt(_ values: Any) -> [BigUInt] {
-        if let array = values as? [Any] {
-            return array.map {
-                if let val = BigUInt(String(describing: $0), radix: 16) {
-                    return val
-                }
+        guard let array = values as? [Any] else { return [] }
+        return array.map {
+            if let val = BigUInt(String(describing: $0)) {
+                return val
+            } else {
                 return BigUInt(0)
             }
         }
-        return []
     }
 }

@@ -21,39 +21,39 @@ protocol TokensDataStoreDelegate: class {
 class TokensDataStore {
 
     private lazy var getBalanceCoordinator: GetBalanceCoordinator = {
-        return GetBalanceCoordinator(web3: self.web3)
+        return GetBalanceCoordinator(config: config)
     }()
 
     private lazy var claimOrderCoordinator: ClaimOrderCoordinator = {
-        return ClaimOrderCoordinator(web3: self.web3)
+        return ClaimOrderCoordinator(web3: web3)
     }()
 
     private lazy var getNameCoordinator: GetNameCoordinator = {
-        return GetNameCoordinator(web3: self.web3)
+        return GetNameCoordinator(config: config)
     }()
 
     private lazy var getSymbolCoordinator: GetSymbolCoordinator = {
-        return GetSymbolCoordinator(web3: self.web3)
+        return GetSymbolCoordinator(config: config)
     }()
 
     private lazy var getERC875BalanceCoordinator: GetERC875BalanceCoordinator = {
-        return GetERC875BalanceCoordinator(web3: self.web3)
+        return GetERC875BalanceCoordinator(config: config)
     }()
 
     private lazy var getIsERC875ContractCoordinator: GetIsERC875ContractCoordinator = {
-        return GetIsERC875ContractCoordinator(web3: self.web3)
+        return GetIsERC875ContractCoordinator(config: config)
     }()
 
     private lazy var getERC721BalanceCoordinator: GetERC721BalanceCoordinator = {
-        return GetERC721BalanceCoordinator(web3: self.web3)
+        return GetERC721BalanceCoordinator(config: config)
     }()
 
     private lazy var getIsERC721ContractCoordinator: GetIsERC721ContractCoordinator = {
-        return GetIsERC721ContractCoordinator(web3: self.web3)
+        return GetIsERC721ContractCoordinator(config: config)
     }()
 
     private lazy var getDecimalsCoordinator: GetDecimalsCoordinator = {
-        return GetDecimalsCoordinator(web3: self.web3)
+        return GetDecimalsCoordinator(config: config)
     }()
 
     private let provider = TrustProviderFactory.makeProvider()
