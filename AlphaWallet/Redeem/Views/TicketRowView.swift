@@ -163,3 +163,9 @@ class TicketRowView: UIView {
 		matchLabel.text = viewModel.match
 	}
 }
+
+extension TicketRowView: TokenRowView {
+	func configure(tokenHolder: TokenHolder) {
+		configure(viewModel: .init(ticketHolder: tokenHolder))
+	}
+}

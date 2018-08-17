@@ -269,10 +269,14 @@
 "Balance" = "余额";
 "confirmSignMessage" = "确认要在这条信息上面签名:";
 "blockchain.ethereum" = "基于以太坊智能合约";
-"ticket.issuer" = "盛开体育旅游";
 "touch.id" = "触控ID";
 "face.id" = "面容ID";
 "undefined.error" = "未知错误";
 "unknown.error" = "出现未知错误.";
 "coming.soon" = "近期开放";
 "backupPassword.confirmation.mustMatch" = "请输入相同的密码进行确认";
+"camera.qrCode.denied.prompt.title" = "需要调用您手机上的相机功能来扫描QR码";
+"camera.qrCode.denied.prompt.message" = "您现有的隐私设定阻止了AlphaWallet扫描QR码. 修复步骤:\n\n1. 点击下方“打开设置”按钮来进入手机设置页面.\n\n2. 点击启用相机功能.\n\n3. 重新打开AlphaWallet.";
+"camera.qrCode.denied.prompt.button" = "打开设置";
+"cryptoKitties.url.open" = "在CryptoKitties应用内打开";
+"cryptoKitties.cat.name" = "CryptoKitty #%@";

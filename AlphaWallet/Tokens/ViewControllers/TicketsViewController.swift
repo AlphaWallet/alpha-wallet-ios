@@ -18,6 +18,7 @@ protocol TicketsViewControllerDelegate: class {
     func didCancel(in viewController: TicketsViewController)
     func didPressViewRedemptionInfo(in viewController: TicketsViewController)
     func didPressViewContractWebPage(in viewController: TicketsViewController)
+    func didTapURL(url: URL, in viewController: TicketsViewController)
 }
 
 class TicketsViewController: UIViewController, TicketVerifiableStatusViewController {
@@ -57,11 +58,13 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
         view.addSubview(roundedBackground)
 
         tableView.register(TicketTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TicketTableViewCellWithoutCheckbox.identifier)
+        tableView.register(TokenListFormatTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TokenListFormatTableViewCellWithoutCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appWhite
         tableView.tableHeaderView = header
+        tableView.rowHeight = UITableViewAutomaticDimension
         roundedBackground.addSubview(tableView)
 
         redeemButton.setTitle(R.string.localizable.aWalletTicketTokenRedeemButtonTitle(), for: .normal)
@@ -214,16 +217,19 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithoutCheckbox
         let ticketHolder = viewModel.item(for: indexPath)
-		cell.configure(viewModel: .init(ticketHolder: ticketHolder))
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let ticketHolder = viewModel.item(for: indexPath)
-        let cellViewModel = TicketTableViewCellViewModel(ticketHolder: ticketHolder)
-        return cellViewModel.cellHeight
+        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        switch tokenType {
+        case .cryptoKitty:
+            let cell = tableView.dequeueReusableCell(withIdentifier: TokenListFormatTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenListFormatTableViewCellWithoutCheckbox
+            cell.delegate = self
+            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            return cell
+        case .otherNonFungibleToken:
+            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithoutCheckbox
+            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            return cell
+        }
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -232,3 +238,8 @@ extension TicketsViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
+extension TicketsViewController: BaseTokenListFormatTableViewCellDelegate {
+    func didTapURL(url: URL) {
+        delegate?.didTapURL(url: url, in: self)
+    }
+}

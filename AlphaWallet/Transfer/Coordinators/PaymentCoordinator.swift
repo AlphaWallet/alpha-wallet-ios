@@ -19,6 +19,7 @@ class PaymentCoordinator: Coordinator {
     let navigationController: UINavigationController
     let keystore: Keystore
     let storage: TokensDataStore
+    let ethPrice: Subscribable<Double>
     let ticketHolders: [TokenHolder]!
 
     init(
@@ -27,6 +28,7 @@ class PaymentCoordinator: Coordinator {
         session: WalletSession,
         keystore: Keystore,
         storage: TokensDataStore,
+        ethPrice: Subscribable<Double>,
         ticketHolders: [TokenHolder] = []
     ) {
         self.navigationController = navigationController
@@ -35,6 +37,7 @@ class PaymentCoordinator: Coordinator {
         self.flow = flow
         self.keystore = keystore
         self.storage = storage
+        self.ethPrice = ethPrice
         self.ticketHolders = ticketHolders
     }
 
@@ -48,6 +51,7 @@ class PaymentCoordinator: Coordinator {
                 keystore: keystore,
                 storage: storage,
                 account: account,
+                ethPrice: ethPrice,
                 ticketHolders: ticketHolders!
             )
             coordinator.delegate = self

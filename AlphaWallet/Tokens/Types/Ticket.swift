@@ -7,32 +7,29 @@
 //
 
 import Foundation
+import BigInt
 
 struct Ticket {
-    let id: String
+    let id: BigUInt
     let index: UInt16
-    let city: String
-    let name: String
-    let venue: String
-    let match: Int
-    let date: GeneralisedTime
-    let seatId: Int
-    let category: String
-    let countryA: String
-    let countryB: String
+    var name: String
+    let values: [String: AssetAttributeValue]
+
     static var empty: Ticket {
         return Ticket(
-                id: Constants.nullTicket,
-                index: UInt16(0),
-                city: "N/A",
+                id: Constants.nullTicketBigUInt,
+                index: 0,
                 name: "FIFA WC",
-                venue: "N/A",
-                match: 0,
-                date: .init(),
-                seatId: 0,
-                category: "N/A",
-                countryA: "N/A",
-                countryB: "N/A"
+                values: [
+                    "locality": "N/A",
+                    "venue": "N/A",
+                    "match": 0,
+                    "time": GeneralisedTime.init(),
+                    "numero": 0,
+                    "category": "N/A",
+                    "countryA": "N/A",
+                    "countryB": "N/A"
+                ]
         )
     }
 }

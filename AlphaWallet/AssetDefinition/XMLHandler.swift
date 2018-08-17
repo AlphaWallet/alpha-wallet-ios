@@ -18,42 +18,38 @@ private class PrivateXMLHandler {
     lazy var contract = xml["token"]["contract"].getElement(attributeName: "type", attributeValue: "holding", fallbackToFirst: true)
     lazy var fields = extractFields()
     private let isOfficial: Bool
+    private let signatureNamespace: String
+    private var signatureNamespacePrefix: String {
+        if signatureNamespace.isEmpty {
+            return ""
+        } else {
+            return "\(signatureNamespace):"
+        }
+    }
 
     init(contract: String) {
         contractAddress = contract.add0x.lowercased()
         let assetDefinitionStore = AssetDefinitionStore()
-        xml = try! XML.parse(assetDefinitionStore[contract] ?? "")
+        //We use a try? for the first parse() instead of try! to avoid the very unlikely chance that it will crash. We fallback to an empty XML just like if we haven't downloaded it yet
+        xml = (try? XML.parse(assetDefinitionStore[contract] ?? "")) ?? (try! XML.parse(""))
         isOfficial = assetDefinitionStore.isOfficial(contract: contract)
+        signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml)
     }
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
-        //check if leading or trailing zeros
-        let tokenId = tokenBytes32
-        guard tokenId != 0 else { return .empty }
+        guard tokenBytes32 != 0 else { return .empty }
         let lang = getLang()
-        let tokenHex = MarketQueueHandler.bytesToHexa(tokenBytes32.serialize().bytes)
-
-        let locality: String = fields["locality"]?.extract(from: tokenHex) ?? "N/A"
-        let venue: String = fields["venue"]?.extract(from: tokenHex) ?? "N/A"
-        let time: GeneralisedTime = fields["time"]?.extract(from: tokenHex) ?? .init()
-        let countryA: String = fields["countryA"]?.extract(from: tokenHex) ?? ""
-        let countryB: String = fields["countryB"]?.extract(from: tokenHex) ?? ""
-        let match: Int = fields["match"]?.extract(from: tokenHex) ?? 0
-        let category: String = fields["category"]?.extract(from: tokenHex) ?? "N/A"
-        let numero: Int = fields["numero"]?.extract(from: tokenHex) ?? 0
+        var values = [String: AssetAttributeValue]()
+        for (name, attribute) in fields {
+            let value = attribute.extract(from: tokenBytes32)
+            values[name] = value
+        }
 
         return Ticket(
-                id: MarketQueueHandler.bytesToHexa(tokenId.serialize().array),
+                id: tokenBytes32,
                 index: index,
-                city: locality,
                 name: getName(lang: lang),
-                venue: venue,
-                match: match,
-                date: time,
-                seatId: numero,
-                category: category,
-                countryA: countryA,
-                countryB: countryB
+                values: values
         )
     }
 
@@ -69,7 +65,7 @@ private class PrivateXMLHandler {
         let lang = getLang()
         var fields = [String: AssetAttribute]()
         for e in xml["token"]["attribute-types"]["attribute-type"] {
-            if let id = e.attributes["id"], case let .singleElement(element) = e {
+            if let id = e.attributes["id"], case let .singleElement(element) = e, XML.Accessor(element)["origin"].attributes["as"] != nil {
                 fields[id] = AssetAttribute(attribute: element, lang: lang)
             }
         }
@@ -95,6 +91,27 @@ private class PrivateXMLHandler {
             return "ru"
         }
         return "en"
+    }
+
+    func getIssuer() -> String {
+        if let issuer = xml["token"]["\(signatureNamespacePrefix)Signature"]["\(signatureNamespacePrefix)KeyInfo"]["\(signatureNamespacePrefix)KeyName"].text {
+            return issuer
+        }
+        return ""
+    }
+
+    private static func discoverSignatureNamespace(xml: XML.Accessor) -> String {
+        if case let .singleElement(element) = xml["token"] {
+            let children: [XML.Element] = element.childElements
+            for each in children {
+                if each.name == "Signature" {
+                    return ""
+                } else if each.name.hasSuffix(":Signature") {
+                    return String(each.name.split(separator: ":")[0])
+                }
+            }
+        }
+        return ""
     }
 }
 
@@ -127,6 +144,10 @@ public class XMLHandler {
 
     func getLang() -> String {
         return privateXMLHandler.getLang()
+    }
+
+    func getIssuer() -> String {
+        return privateXMLHandler.getIssuer()
     }
 
     func isVerified(for server: RPCServer) -> Bool {

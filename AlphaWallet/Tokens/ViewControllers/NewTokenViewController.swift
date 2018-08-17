@@ -10,7 +10,7 @@ protocol NewTokenViewControllerDelegate: class {
     func didAddAddress(address: String, in viewController: NewTokenViewController)
 }
 
-class NewTokenViewController: UIViewController {
+class NewTokenViewController: UIViewController, CanScanQRCode {
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
     let footerBar = UIView()
@@ -186,6 +186,7 @@ class NewTokenViewController: UIViewController {
 
     //int is 64 bits, if this proves not enough later we can convert to BigUInt
     public func updateBalanceValue(_ balance: [String]) {
+        //TODO this happens to work for CryptoKitty now because of how isNonZeroBalance() is implemented. But should fix
         let filteredTokens = balance.filter { isNonZeroBalance($0) }
         viewModel.ERC875TokenBalance = filteredTokens
         balanceTextField.value = viewModel.ERC875TokenBalanceAmount.description
@@ -330,6 +331,10 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            promptUserOpenSettingsToChangeCameraPermission()
+            return
+        }
         let controller = QRCodeReaderViewController()
         controller.delegate = self
         present(controller, animated: true, completion: nil)

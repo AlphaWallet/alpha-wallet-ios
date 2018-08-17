@@ -119,7 +119,5 @@ class SendHeaderView: UIView {
         valueLabel.textColor = viewModel.textColor
         valueLabel.font = viewModel.textValueFont
         valueLabel.text = viewModel.value
-
-        footerStackView?.isHidden = !viewModel.showAlternativeAmount
     }
 }

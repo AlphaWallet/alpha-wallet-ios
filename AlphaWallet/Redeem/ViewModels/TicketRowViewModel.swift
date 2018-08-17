@@ -68,36 +68,42 @@ struct TicketRowViewModel {
 
     var city: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        return ", \(ticketHolder.city)"
+        let value = ticketHolder.values["locality"] ?? "N/A"
+        return ", \(value)"
     }
 
     var category: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        return String(ticketHolder.category)
+        return ticketHolder.values["category"] as? String ?? "N/A"
     }
 
     var teams: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        return R.string.localizable.aWalletTicketTokenMatchVs(ticketHolder.countryA, ticketHolder.countryB)
+        let countryA = ticketHolder.values["countryA"] as? String ?? ""
+        let countryB = ticketHolder.values["countryB"] as? String ?? ""
+        return R.string.localizable.aWalletTicketTokenMatchVs(countryA, countryB)
     }
 
     var match: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        return "M\(ticketHolder.match)"
+        let value = ticketHolder.values["match"] as? Int ?? 0
+        return "M\(value)"
     }
 
     var venue: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        return ticketHolder.venue
+        return ticketHolder.values["venue"] as? String ?? "N/A"
     }
 
     var date: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        return ticketHolder.date.formatAsShortDateString()
+        let value = ticketHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+        return value.formatAsShortDateString()
     }
 
     var time: String {
         guard let ticketHolder = ticketHolder else { return "" }
-        return ticketHolder.date.format("h:mm a")
+        let value = ticketHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+        return value.format("h:mm a")
     }
 }

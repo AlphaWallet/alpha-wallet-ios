@@ -2,11 +2,21 @@
 
 import UIKit
 
-// Override showCheckbox() to return true or false
-class BaseTicketTableViewCell: UITableViewCell {
-    static let identifier = "TicketTableViewCell"
+protocol BaseTokenListFormatTableViewCellDelegate: class {
+    func didTapURL(url: URL)
+}
 
-    lazy var rowView = TicketRowView(showCheckbox: showCheckbox())
+//TODO might be unnecessary in the future. Full-text search for TokenRowViewProtocol
+// Override showCheckbox() to return true or false
+class BaseTokenListFormatTableViewCell: UITableViewCell {
+    static let identifier = "BaseTokenListFormatTableViewCell"
+
+    lazy var rowView: TokenListFormatRowView = {
+        let result = TokenListFormatRowView(showCheckbox: showCheckbox())
+        result.delegate = self
+        return result
+    }()
+    weak var delegate: BaseTokenListFormatTableViewCellDelegate?
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -46,5 +56,11 @@ class BaseTicketTableViewCell: UITableViewCell {
 
     func showCheckbox() -> Bool {
         return true
+    }
+}
+
+extension BaseTokenListFormatTableViewCell: TokenListFormatRowViewDelegate {
+    func didTapURL(url: URL) {
+        delegate?.didTapURL(url: url)
     }
 }
