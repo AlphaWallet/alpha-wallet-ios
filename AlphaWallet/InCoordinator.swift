@@ -512,7 +512,12 @@ extension InCoordinator: TokensCoordinatorDelegate {
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
 
-        ClaimOrderCoordinator(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) { result in
+        ClaimOrderCoordinator(web3: web3).claimOrder(
+                signedOrder: signedOrder,
+                expiry: signedOrder.order.expiry,
+                v: v,
+                r: r,
+                s: s) { result in
             switch result {
             case .success(let payload):
                 let address: Address = self.initialWallet.address
@@ -529,7 +534,8 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         r: r,
                         s: s,
                         expiry: signedOrder.order.expiry,
-                        indices: signedOrder.order.indices
+                        indices: signedOrder.order.indices,
+                        tokenIds: signedOrder.order.tokenIds
                 )
 
                 let wallet = self.keystore.recentlyUsedWallet!

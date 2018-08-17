@@ -297,13 +297,13 @@ class TokensDataStore {
 
     //Result<Void, AnyError>
     //claim order continues to use indices to do the transaction, not the bytes32 variables
-    func claimOrder(ticketIndices: [UInt16],
+    func claimOrder(signedOrder: SignedOrder,
                     expiry: BigUInt,
                     v: UInt8,
                     r: String,
                     s: String,
                     completion: @escaping(Any) -> Void) {
-        claimOrderCoordinator.claimOrder(indices: ticketIndices, expiry: expiry, v: v, r: r, s: s) { result in
+        claimOrderCoordinator.claimOrder(signedOrder: signedOrder, expiry: expiry, v: v, r: r, s: s) { result in
             completion(result)
         }
     }

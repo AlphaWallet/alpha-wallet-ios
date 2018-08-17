@@ -78,7 +78,8 @@ class TransferTicketsCoordinator: Coordinator {
                     r: .none,
                     s: .none,
                     expiry: .none,
-                    indices: ticketHolder.indices
+                    indices: ticketHolder.indices,
+                    tokenIds: .none
             )
 
             let configurator = TransactionConfigurator(
