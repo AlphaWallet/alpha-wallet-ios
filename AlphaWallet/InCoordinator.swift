@@ -93,7 +93,6 @@ class InCoordinator: Coordinator {
     }
 
     func fetchEthPrice() {
-        let keystore = try! EtherKeystore()
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()
         let web3 = self.web3()
