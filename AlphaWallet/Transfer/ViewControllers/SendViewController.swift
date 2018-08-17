@@ -294,7 +294,8 @@ class SendViewController: UIViewController, CanScanQRCode {
                 r: .none,
                 s: .none,
                 expiry: .none,
-                indices: .none
+                indices: .none,
+                tokenIds: .none
         )
         self.delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }

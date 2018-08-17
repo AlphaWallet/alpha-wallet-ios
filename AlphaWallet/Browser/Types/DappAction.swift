@@ -60,7 +60,8 @@ extension DappAction {
             r: .none,
             s: .none,
             expiry: .none,
-            indices: .none
+            indices: .none,
+            tokenIds: .none
         )
     }
 }

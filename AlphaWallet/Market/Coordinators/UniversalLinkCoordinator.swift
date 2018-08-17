@@ -128,46 +128,58 @@ class UniversalLinkCoordinator: Coordinator {
         let recoveredSigner = ecrecover(signedOrder: signedOrder)
         switch recoveredSigner {
         case .success(let ethereumAddress):
-            //TODO extract method for the whole .success? Quite long
             guard let recoverAddress = Address(string: ethereumAddress.address) else { return false }
-            let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
-            //gather signer address balance
-            let web3Swift = Web3Swift()
-            web3Swift.start()
-            getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(web3: web3Swift)
-            getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { result in
-                guard let balance = try? result.dematerialize() else {
-                    self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
-                    return
-                }
-                //filter null tickets
-                let filteredTokens = self.checkERC875TokensAreAvailable(
-                        indices: signedOrder.order.indices,
-                        balance: balance
-                )
-                if filteredTokens.isEmpty {
-                    self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
-                    return
-                }
-
-                self.makeTicketHolder(
-                        filteredTokens,
-                        signedOrder.order.indices,
-                        signedOrder.order.contractAddress
-                )
-
-                if signedOrder.order.price > 0 || !isStormBirdContract {
-                    self.handlePaidImports(signedOrder: signedOrder)
-                } else {
-                    self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
-                }
-            }
+            handleBalanceCheckAndProcess875Order(
+                    recoverAddress: recoverAddress,
+                    signedOrder: signedOrder,
+                    isStormBird: isStormBirdContract
+            )
         case .failure(let error):
             //TODO handle. Show error maybe?
             NSLog("xxx error during ecrecover: \(error.localizedDescription)")
             return false
         }
         return true
+    }
+
+    private func handleBalanceCheckAndProcess875Order(
+        recoverAddress: Address,
+        signedOrder: SignedOrder,
+        isStormBird: Bool)
+    {
+        let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
+        //gather signer address balance
+        let web3Swift = Web3Swift()
+        web3Swift.start()
+        getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(web3: web3Swift)
+        getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { result in
+            guard let balance = try? result.dematerialize() else {
+                self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+                return
+            }
+            //filter null tickets
+            let filteredTokens = self.checkERC875TokensAreAvailable(
+                    indices: signedOrder.order.indices,
+                    balance: balance
+            )
+            if filteredTokens.isEmpty {
+                self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+                return
+            }
+
+            self.makeTicketHolder(
+                    filteredTokens,
+                    signedOrder.order.indices,
+                    signedOrder.order.contractAddress
+            )
+
+            if signedOrder.order.price > 0 || !isStormBird {
+                self.handlePaidImports(signedOrder: signedOrder)
+            }
+            else {
+                self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
+            }
+        }
     }
 
     private func ecrecover(signedOrder: SignedOrder) -> ResultResult<web3swift.EthereumAddress, web3swift.Web3Error>.t {
