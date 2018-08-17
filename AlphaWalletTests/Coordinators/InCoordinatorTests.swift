@@ -57,11 +57,12 @@ class InCoordinatorTests: XCTestCase {
     }
 
     func testShowSendFlow() {
-       let coordinator = InCoordinator(
-            navigationController: FakeNavigationController(),
-            wallet: .make(),
-            keystore: FakeEtherKeystore(),
-            config: .make()
+        let wallet: Wallet = .make()
+        let coordinator = InCoordinator(
+                navigationController: FakeNavigationController(),
+                wallet: wallet,
+                keystore: FakeKeystore(wallets: [wallet]),
+                config: .make()
         )
         coordinator.showTabBar(for: .make())
 
@@ -74,10 +75,11 @@ class InCoordinatorTests: XCTestCase {
     }
 
     func testShowRequstFlow() {
+        let wallet: Wallet = .make()
         let coordinator = InCoordinator(
             navigationController: FakeNavigationController(),
-            wallet: .make(),
-            keystore: FakeEtherKeystore(),
+            wallet: wallet,
+            keystore: FakeKeystore(wallets: [wallet]),
             config: .make()
         )
         coordinator.showTabBar(for: .make())
