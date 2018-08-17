@@ -1,55 +1,56 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import BigInt
-import JSONRPCKit
-import APIKit
 import Result
 import TrustKeystore
+import web3swift
 
 class GetDecimalsCoordinator {
 
-    private let web3: Web3Swift
+    private let config: Config
 
-    init(
-        web3: Web3Swift
-    ) {
-        self.web3 = web3
+    init(config: Config) {
+        self.config = config
     }
 
     func getDecimals(
         for contract: Address,
         completion: @escaping (Result<UInt8, AnyError>) -> Void
     ) {
-        let request = GetERC20DecimalsEncode()
-        web3.request(request: request) { result in
-            switch result {
-            case .success(let res):
-                let request2 = EtherServiceRequest(
-                    batch: BatchFactory().create(CallRequest(to: contract.description, data: res))
-                )
-                Session.send(request2) { [weak self] result2 in
-                    switch result2 {
-                    case .success(let balance):
-                        let request = GetERC20DecimalsDecode(data: balance)
-                        self?.web3.request(request: request) { result in
-                            switch result {
-                            case .success(let res):
-                                NSLog("result is \(res)")
-                                completion(.success(UInt8(res) ?? UInt8()))
-                            case .failure(let error):
-                                NSLog("getDecimals3 error \(error)")
-                                completion(.failure(AnyError(error)))
-                            }
-                        }
-                    case .failure(let error):
-                        NSLog("getDecimals2 error \(error)")
-                        completion(.failure(AnyError(error)))
+        guard let contractAddress = EthereumAddress(contract.eip55String) else {
+            completion(.failure(AnyError(Web3Error(description: "Error converting contract address: \(contract.eip55String)"))))
+            return
+        }
+
+        guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
+            completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)"))))
+            return
+        }
+
+        let web3 = web3swift.web3(provider: webProvider)
+        let functionName = "decimals"
+        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: web3swift.Web3.Utils.erc20ABI, at: contractAddress, options: web3.options) else {
+            completion(.failure(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(functionName)()"))))
+            return
+        }
+
+        //TODO Use promise directly instead of DispatchQueue once web3swift pod opens it up
+        DispatchQueue.global().async {
+            guard let decimalsResult = contractInstance.method(functionName, options: nil)?.call(options: nil) else {
+                completion(.failure(AnyError(Web3Error(description: "Error calling \(functionName)() on \(contract.eip55String)"))))
+                return
+            }
+            DispatchQueue.main.sync {
+                if case .success(let dictionary) = decimalsResult, let decimalsWithUnknownType = dictionary["0"] {
+                    let string = String(describing: decimalsWithUnknownType)
+                    if let decimals = UInt8(string) {
+                        completion(.success(decimals))
+                    } else {
+                        completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
                     }
+                } else {
+                    completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
                 }
-            case .failure(let error):
-                NSLog("getDecimals error \(error)")
-                completion(.failure(AnyError(error)))
             }
         }
     }
