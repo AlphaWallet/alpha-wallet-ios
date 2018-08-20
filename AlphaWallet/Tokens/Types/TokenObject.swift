@@ -77,5 +77,8 @@ func isNonZeroBalance(_ balance: String) -> Bool {
 }
 
 func isZeroBalance(_ balance: String) -> Bool {
-    return BigUInt(balance) == 0
+    if balance == Constants.nullTicket {
+        return true
+    }
+    return false
 }
