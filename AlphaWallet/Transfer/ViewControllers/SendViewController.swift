@@ -261,7 +261,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         }
         let parsedValue: BigInt? = {
             switch transferType {
-            case .ether:
+            case .ether, .dapp:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .ERC20Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)

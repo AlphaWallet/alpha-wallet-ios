@@ -23,7 +23,7 @@ class ConfirmCoordinator: Coordinator {
     weak var delegate: ConfirmCoordinatorDelegate?
 
     init(
-        navigationController: UINavigationController,
+        navigationController: UINavigationController = NavigationController(),
         session: WalletSession,
         configurator: TransactionConfigurator,
         keystore: Keystore,
