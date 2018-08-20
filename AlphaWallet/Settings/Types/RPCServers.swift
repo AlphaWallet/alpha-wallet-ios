@@ -3,6 +3,7 @@
 import Foundation
 import web3swift
 import BigInt
+import TrustKeystore
 
 enum RPCServer {
     case main
@@ -74,6 +75,19 @@ enum RPCServer {
 
     func etherscanContractDetailsWebPageURL(for address: String) -> URL {
         return URL(string: etherscanContractDetailsWebPageURL + address)!
+    }
+
+    var priceID: Address {
+        switch self {
+        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom:
+            return Address(string: "0x000000000000000000000000000000000000003c")!
+        case .poa:
+            return Address(string: "0x00000000000000000000000000000000000000AC")!
+        case .classic:
+            return Address(string: "0x000000000000000000000000000000000000003D")!
+        case .callisto:
+            return Address(string: "0x0000000000000000000000000000000000000334")!
+        }
     }
 
     var displayName: String {

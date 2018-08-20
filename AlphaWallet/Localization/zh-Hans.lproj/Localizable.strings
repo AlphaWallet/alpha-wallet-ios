@@ -4,6 +4,14 @@
 "Done" = "完成";
 "Cancel" = "取消";
 "Save" = "备份";
+"Delete" = "删除";
+"Reload" = "Reload";
+"Share" = "分享";
+"New" = "New";
+"Bookmarks" = "Bookmarks";
+"History" = "History";
+"DuckDuckGo" = "DuckDuckGo";
+"Google" = "Google";
 "configureTransaction.error.gasFeeTooHigh" = "Gas 费用太高，最大可用：%@";
 "configureTransaction.error.gasLimitTooHigh" = "Gas 限制太高，最大可用：%d";
 "configureTransaction.gasLimit.label.description" = "Gas 限制用于防止智能合约消耗你所有的%@。我们会尽可能得为你自动计算 Gas 限制，但是一些智能合约可能需要自定义的 Gas 限制。";
@@ -113,6 +121,8 @@
 "wallet.import.button.title" = "导入钱包";
 "browser.home.button.title" = "主页";
 "browser.reload.button.title" = "刷新";
+"browser.addbookmark.button.title" = "Add Bookmark";
+"browser.tabbar.item.title" = "Browser";
 "configureTransaction.gasPriceGwei.label.title" = "Gas费用 (Gwei)";
 "enterPassword.confirmPassword.textField.placeholder" = "确认密码";
 "enterPassword.navigation.title" = "备份密码";

@@ -1,32 +1,39 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 
-class BrowserURLParser {
+final class BrowserURLParser {
+    let urlRegEx = try! NSRegularExpression(pattern: "^(http(s)?://)?[a-z0-9-_]+(\\.[a-z0-9-_]+)+(/)?", options: .caseInsensitive)
+    let validSchemes = ["http", "https"]
+    let engine: SearchEngine
 
-    private let defaultURL = "google.com"
-    let searchURL = "https://www.google.com/search?q="
-    let schemes = ["http", "https"]
-
-    init() {
-
+    init(
+        engine: SearchEngine = .default
+    ) {
+        self.engine = engine
     }
 
+    /// Determines if a string is an address or a search query and returns the appropriate URL.
     func url(from string: String) -> URL? {
-        let urlString = appendScheme(for: string)
-        let component = NSURLComponents(string: urlString)
-        guard let componentURL = component?.url, let _ = component?.host  else {
-            return searchURL(for: string)
+        let range = NSRange(string.startIndex ..< string.endIndex, in: string)
+        if urlRegEx.firstMatch(in: string, options: .anchored, range: range) != nil {
+            if !validSchemes.contains(where: { string.hasPrefix("\($0)://") }) {
+                return URL(string: "http://" + string)
+            } else {
+                return URL(string: string)
+            }
         }
-        return componentURL
+
+        return buildSearchURL(for: string)
     }
 
-    func appendScheme(for string: String) -> String {
-        let values = schemes.filter { string.hasPrefix($0) }
-        return values.isEmpty ? "http://" + string : string
-    }
-
-    func searchURL(for query: String) -> URL? {
-        return URL(string: searchURL + query)
+    /// Builds a search URL from a seach query string.
+    func buildSearchURL(for query: String) -> URL {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = engine.host
+        components.path = engine.path(for: query)
+        components.queryItems = engine.queryItems(for: query)
+        return try! components.asURL()
     }
 }
