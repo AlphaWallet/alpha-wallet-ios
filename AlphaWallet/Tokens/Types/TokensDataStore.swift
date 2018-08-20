@@ -85,6 +85,19 @@ class TokensDataStore {
         )
     }
 
+    //TODO might be best to remove ethToken(for:) and just use token(for:) if possible, but careful with the contract value returned for .ether
+    static func token(for config: Config) -> TokenObject {
+        return TokenObject(
+                contract: config.server.priceID.description,
+                name: config.server.name,
+                symbol: config.server.symbol,
+                decimals: config.server.decimals,
+                value: "0",
+                isCustom: false,
+                type: .ether
+        )
+    }
+
     init(
             realm: Realm,
             account: Wallet,

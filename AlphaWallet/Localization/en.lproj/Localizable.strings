@@ -4,6 +4,14 @@
 "Done" = "Done";
 "Cancel" = "Cancel";
 "Save" = "Save";
+"Delete" = "Delete";
+"Reload" = "Reload";
+"Share" = "Share";
+"New" = "New";
+"Bookmarks" = "Bookmarks";
+"History" = "History";
+"DuckDuckGo" = "DuckDuckGo";
+"Google" = "Google";
 "configureTransaction.error.gasFeeTooHigh" = "Gas Fee too high. Max available: %@";
 "configureTransaction.error.gasLimitTooHigh" = "Gas Limit too high. Max available: %d";
 "configureTransaction.gasLimit.label.description" = "The gas limit prevents smart contracts from consuming all your %@. We will try to calculate the gas limit automatically for you, but some smart contracts may require a custom gas limit.";
@@ -113,6 +121,8 @@
 "welldone.viewmodel.sharing.text" = "Check out AlphaWallet - The first crypto mobile wallet which can interact with smart contracts to perform real-world use cases.";
 "browser.home.button.title" = "Home";
 "browser.reload.button.title" = "Reload";
+"browser.addbookmark.button.title" = "Add Bookmark";
+"browser.tabbar.item.title" = "Browser";
 "configureTransaction.gasPriceGwei.label.title" = "Gas Price (Gwei)";
 "enterPassword.confirmPassword.textField.placeholder" = "Confirm Password";
 "enterPassword.navigation.title" = "Backup Password";

@@ -180,6 +180,18 @@ class InCoordinator: Coordinator {
         }
         tabBarController.viewControllers?.append(transactionCoordinator.navigationController)
 
+        let browserCoordinator = BrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
+        browserCoordinator.delegate = self
+        browserCoordinator.start()
+        browserCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.dapps_icon(), selectedImage: nil)
+
+        addCoordinator(browserCoordinator)
+        if let viewControllers = tabBarController.viewControllers, !viewControllers.isEmpty {
+            tabBarController.viewControllers?.append(browserCoordinator.navigationController)
+        } else {
+            tabBarController.viewControllers = [browserCoordinator.navigationController]
+        }
+
         let alphaSettingsCoordinator = SettingsCoordinator(
                 keystore: keystore,
                 session: session,
@@ -635,6 +647,12 @@ extension InCoordinator: PromptBackupCoordinatorDelegate {
 
     func didFinish(in coordinator: PromptBackupCoordinator) {
         removeCoordinator(coordinator)
+    }
+}
+
+extension InCoordinator: BrowserCoordinatorDelegate {
+    func didSentTransaction(transaction: SentTransaction, in coordinator: BrowserCoordinator) {
+        handlePendingTransaction(transaction: transaction)
     }
 }
 
