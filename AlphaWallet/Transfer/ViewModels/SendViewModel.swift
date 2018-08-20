@@ -35,6 +35,8 @@ struct SendViewModel {
             return token
         case .ERC721Token(let token):
             return token
+        case .dapp:
+            return nil
         }
     }
 

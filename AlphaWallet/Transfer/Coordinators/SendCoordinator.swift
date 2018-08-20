@@ -84,6 +84,7 @@ class SendCoordinator: Coordinator {
         case .ERC875Token: break
         case .ERC875TokenOrder: break
         case .ERC721Token: break
+        case .dapp: break
         }
         controller.delegate = self
         return controller

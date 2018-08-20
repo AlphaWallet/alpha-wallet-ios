@@ -9,6 +9,7 @@ import Result
 enum SignMesageType {
     case message(Data)
     case personalMessage(Data)
+    case typedMessage([EthTypedData])
 }
 
 protocol SignMessageCoordinatorDelegate: class {
@@ -70,6 +71,11 @@ class SignMessageCoordinator: Coordinator {
             return data.hexEncoded
         case .personalMessage(let data):
             return String(data: data, encoding: .utf8)!
+        case .typedMessage(let (typedData)):
+            let string = typedData.map {
+                return "\($0.name) : \($0.value.string)"
+            }.joined(separator: "\n")
+            return string
         }
     }
 
@@ -80,6 +86,12 @@ class SignMessageCoordinator: Coordinator {
             result = keystore.signMessage(data, for: account)
         case .personalMessage(let data):
             result = keystore.signPersonalMessage(data, for: account)
+        case .typedMessage(let typedData):
+            if typedData.isEmpty {
+                result = .failure(KeystoreError.failedToSignMessage)
+            } else {
+                result = keystore.signTypedMessage(typedData, for: account)
+            }
         }
         switch result {
         case .success(let data):
