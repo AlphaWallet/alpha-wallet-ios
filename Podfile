@@ -23,6 +23,7 @@ target 'AlphaWallet' do
   pod 'CryptoSwift'
   pod 'SwiftyXMLParser', :git => 'https://github.com/yahoojapan/SwiftyXMLParser.git'
   pod 'Kingfisher', '~> 4.0'
+  pod 'TrustWeb3Provider', :git=>'https://github.com/TrustWallet/trust-web3-provider', :commit=>'f4e0ebb1b8fa4812637babe85ef975d116543dfd'
   pod 'TrustKeystore', :git => 'https://github.com/alpha-wallet/trust-keystore.git', :branch => 'alphawallet'
   pod 'SwiftyJSON'
   pod 'web3swift', :git => 'https://github.com/alpha-wallet/web3swift.git', :branch => 'alphawallet'

@@ -100,6 +100,10 @@ struct FakeKeystore: Keystore {
         //TODO: Implement
         return .failure(KeystoreError.failedToSignTransaction)
     }
+
+    func signTypedMessage(_ datas: [EthTypedData], for account: Account) -> Result<Data, KeystoreError> {
+        return .failure(KeystoreError.failedToSignMessage)
+    }
 }
 
 extension FakeKeystore {

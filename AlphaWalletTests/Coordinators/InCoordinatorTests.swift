@@ -23,11 +23,12 @@ class InCoordinatorTests: XCTestCase {
 
         XCTAssertNotNil(tabbarController)
 
-        XCTAssert(tabbarController?.viewControllers!.count == 4)
+        XCTAssert(tabbarController?.viewControllers!.count == 5)
         XCTAssert((tabbarController?.viewControllers?[0] as? UINavigationController)?.viewControllers[0] is MarketplaceViewController)
         XCTAssert((tabbarController?.viewControllers?[1] as? UINavigationController)?.viewControllers[0] is TokensViewController)
         XCTAssert((tabbarController?.viewControllers?[2] as? UINavigationController)?.viewControllers[0] is TransactionsViewController)
-        XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
+        XCTAssert((tabbarController?.viewControllers?[3] as? UINavigationController)?.viewControllers[0] is MasterBrowserViewController)
+        XCTAssert((tabbarController?.viewControllers?[4] as? UINavigationController)?.viewControllers[0] is SettingsViewController)
     }
 
     func testChangeRecentlyUsedAccount() {
@@ -57,11 +58,12 @@ class InCoordinatorTests: XCTestCase {
     }
 
     func testShowSendFlow() {
-       let coordinator = InCoordinator(
-            navigationController: FakeNavigationController(),
-            wallet: .make(),
-            keystore: FakeEtherKeystore(),
-            config: .make()
+        let wallet: Wallet = .make()
+        let coordinator = InCoordinator(
+                navigationController: FakeNavigationController(),
+                wallet: wallet,
+                keystore: FakeKeystore(wallets: [wallet]),
+                config: .make()
         )
         coordinator.showTabBar(for: .make())
 
@@ -74,10 +76,11 @@ class InCoordinatorTests: XCTestCase {
     }
 
     func testShowRequstFlow() {
+        let wallet: Wallet = .make()
         let coordinator = InCoordinator(
             navigationController: FakeNavigationController(),
-            wallet: .make(),
-            keystore: FakeEtherKeystore(),
+            wallet: wallet,
+            keystore: FakeKeystore(wallets: [wallet]),
             config: .make()
         )
         coordinator.showTabBar(for: .make())
