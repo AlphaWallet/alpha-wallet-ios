@@ -5,11 +5,11 @@
 "Cancel" = "取消";
 "Save" = "备份";
 "Delete" = "删除";
-"Reload" = "Reload";
+"Reload" = "刷新";
 "Share" = "分享";
 "New" = "New";
-"Bookmarks" = "Bookmarks";
-"History" = "History";
+"Bookmarks" = "书签";
+"History" = "历史";
 "DuckDuckGo" = "DuckDuckGo";
 "Google" = "Google";
 "configureTransaction.error.gasFeeTooHigh" = "Gas 费用太高，最大可用：%@";
@@ -121,8 +121,8 @@
 "wallet.import.button.title" = "导入钱包";
 "browser.home.button.title" = "主页";
 "browser.reload.button.title" = "刷新";
-"browser.addbookmark.button.title" = "Add Bookmark";
-"browser.tabbar.item.title" = "Browser";
+"browser.addbookmark.button.title" = "添加书签";
+"browser.tabbar.item.title" = "浏览器";
 "configureTransaction.gasPriceGwei.label.title" = "Gas费用 (Gwei)";
 "enterPassword.confirmPassword.textField.placeholder" = "确认密码";
 "enterPassword.navigation.title" = "备份密码";
