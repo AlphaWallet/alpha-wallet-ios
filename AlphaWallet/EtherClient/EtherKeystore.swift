@@ -302,26 +302,35 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func signPersonalMessage(_ data: Data, for account: Account) -> Result<Data, KeystoreError> {
-        let message = String(data: data, encoding: .utf8)!
-        let formattedMessage: String = "\u{19}Ethereum Signed Message:\n" + "\(message.count)" + message
-        let hash = formattedMessage.data(using: .utf8)?.sha3(.keccak256)
-        return signMessage(hash!, for: account)
+    func signPersonalMessage(_ message: Data, for account: Account) -> Result<Data, KeystoreError> {
+        let prefix = "\u{19}Ethereum Signed Message:\n\(message.count)".data(using: .utf8)!
+        return signMessage(prefix + message, for: account)
     }
 
-    func signMessage(_ data: Data, for account: Account) -> Result<Data, KeystoreError> {
+    func signHash(_ hash: Data, for account: Account) -> Result<Data, KeystoreError> {
         guard
-            let password = getPassword(for: account) else {
-                return .failure(KeystoreError.failedToSignMessage)
+                let password = getPassword(for: account) else {
+            return .failure(KeystoreError.failedToSignMessage)
         }
         do {
-            var data = try keyStore.signHash(data, account: account, password: password)
+            var data = try keyStore.signHash(hash, account: account, password: password)
             // TODO: Make it configurable, instead of overriding last byte.
             data[64] += 27
             return .success(data)
         } catch {
             return .failure(KeystoreError.failedToSignMessage)
         }
+    }
+
+    func signTypedMessage(_ datas: [EthTypedData], for account: Account) -> Result<Data, KeystoreError> {
+        let schemas = datas.map { $0.schemaData }.reduce(Data(), { $0 + $1 }).sha3(.keccak256)
+        let values = datas.map { $0.typedData }.reduce(Data(), { $0 + $1 }).sha3(.keccak256)
+        let combined = (schemas + values).sha3(.keccak256)
+        return signHash(combined, for: account)
+    }
+
+    func signMessage(_ message: Data, for account: Account) -> Result<Data, KeystoreError> {
+        return signHash(message.sha3(.keccak256), for: account)
     }
     
     func signMessageBulk(_ data: [Data], for account: Account) -> Result<[Data], KeystoreError> {

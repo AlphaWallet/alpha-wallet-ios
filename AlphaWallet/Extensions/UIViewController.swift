@@ -85,4 +85,24 @@ extension UIViewController {
         return self.presentedViewController == nil && self.isVisible
     }
 
+    func add(asChildViewController viewController: UIViewController) {
+        addChildViewController(viewController)
+        view.addSubview(viewController.view)
+        viewController.view.frame = view.bounds
+        viewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        viewController.didMove(toParentViewController: self)
+    }
+
+    func remove(asChildViewController viewController: UIViewController) {
+        viewController.willMove(toParentViewController: nil)
+        viewController.view.removeFromSuperview()
+        viewController.removeFromParentViewController()
+    }
+
+    func showShareActivity(from sender: UIView, with items: [Any], completion: (() -> Swift.Void)? = nil) {
+        let activityViewController = UIActivityViewController.make(items: items)
+        activityViewController.popoverPresentationController?.sourceView = sender
+        activityViewController.popoverPresentationController?.sourceRect = sender.centerRect
+        present(activityViewController, animated: true, completion: completion)
+    }
 }
