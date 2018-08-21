@@ -3,53 +3,50 @@
 //
 
 import Foundation
-import BigInt
-import JSONRPCKit
-import APIKit
 import Result
 import TrustKeystore
+import web3swift
 
 class GetIsERC721ContractCoordinator {
-    private let web3: Web3Swift
+    private let config: Config
 
-    init(
-            web3: Web3Swift
-    ) {
-        self.web3 = web3
+    init(config: Config) {
+        self.config = config
     }
 
     func getIsERC721Contract(
             for contract: Address,
             completion: @escaping (Result<Bool, AnyError>) -> Void
     ) {
-        let request = GetIsERC721Encode()
-        web3.request(request: request) { result in
-            switch result {
-            case .success(let res):
-                let request2 = EtherServiceRequest(
-                    batch: BatchFactory().create(CallRequest(to: contract.description, data: res))
-                )
-                Session.send(request2) { [weak self] result2 in
-                    switch result2 {
-                    case .success(let is721):
-                        let request = GetIsERC721Decode(data: is721)
-                        self?.web3.request(request: request) { result in
-                            switch result {
-                            case .success(let res):
-                                completion(.success(res.toBool()))
-                            case .failure(let error):
-                                NSLog("getIsERC721Contract 3 error \(error)")
-                                completion(.failure(AnyError(error)))
-                            }
-                        }
-                    case .failure(let error):
-                        NSLog("getIsERC721Contract 2 error \(error)")
-                        completion(.failure(AnyError(error)))
-                    }
+        guard let contractAddress = EthereumAddress(contract.eip55String) else {
+            completion(.failure(AnyError(Web3Error(description: "Error converting contract address: \(contract.eip55String)"))))
+            return
+        }
+
+        guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
+            completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)"))))
+            return
+        }
+
+        let web3 = web3swift.web3(provider: webProvider)
+        let function = GetIsERC721()
+        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: contractAddress, options: web3.options) else {
+            completion(.failure(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(function.name)()"))))
+            return
+        }
+
+        //TODO Use promise directly instead of DispatchQueue once web3swift pod opens it up
+        DispatchQueue.global().async {
+            guard let result = contractInstance.method(function.name, parameters: [Constants.erc721InterfaceHash] as [AnyObject], options: nil)?.call(options: nil) else {
+                completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String)"))))
+                return
+            }
+            DispatchQueue.main.sync {
+                if case .success(let dictionary) = result, let isERC721 = dictionary["0"] as? Bool {
+                    completion(.success(isERC721))
+                } else {
+                    completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))))
                 }
-            case .failure(let error):
-                NSLog("getIsERC721 error \(error)")
-                completion(.failure(AnyError(error)))
             }
         }
     }
