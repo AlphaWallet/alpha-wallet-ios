@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import BigInt
 
-struct TokenCardViewCellViewModel {
+struct NonFungibleTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
 

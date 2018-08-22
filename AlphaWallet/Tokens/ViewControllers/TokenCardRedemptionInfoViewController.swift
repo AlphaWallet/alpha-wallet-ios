@@ -2,7 +2,7 @@
 
 import UIKit
 
-class TicketRedemptionInfoViewController: StaticHTMLViewController {
+class TokenCardRedemptionInfoViewController: StaticHTMLViewController {
     override func url() -> URL? {
         return R.file.redeemInfoHtml()
     }

@@ -15,7 +15,7 @@ protocol RedeemTokenViewControllerDelegate: class {
     func didTapURL(url: URL, in viewController: RedeemTokenViewController)
 }
 
-class RedeemTokenViewController: UIViewController, TicketVerifiableStatusViewController {
+class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewController {
 
     let config: Config
     var contract: String {
