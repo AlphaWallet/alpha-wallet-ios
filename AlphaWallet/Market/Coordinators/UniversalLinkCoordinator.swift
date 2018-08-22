@@ -23,7 +23,7 @@ class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
     private let config: Config
 	weak var delegate: UniversalLinkCoordinatorDelegate?
-	private var importTicketViewController: ImportTicketViewController?
+	private var importTicketViewController: ImportTokenViewController?
     private let ethPrice: Subscribable<Double>
     private let ethBalance: Subscribable<BigInt>
     private var hasCompleted = false
@@ -269,7 +269,7 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func preparingToImportUniversalLink() {
 		guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
-        importTicketViewController = ImportTicketViewController(config: config)
+        importTicketViewController = ImportTokenViewController(config: config)
         guard let vc = importTicketViewController else { return }
         vc.delegate = self
         vc.configure(viewModel: .init(state: .validating))
@@ -283,7 +283,7 @@ class UniversalLinkCoordinator: Coordinator {
         vc.configure(viewModel: viewModel)
     }
 
-    private func updateImportTicketController(with state: ImportTicketViewControllerViewModel.State, cost: ImportTicketViewControllerViewModel.Cost? = nil) {
+    private func updateImportTicketController(with state: ImportMagicTokenViewControllerViewModel.State, cost: ImportMagicTokenViewControllerViewModel.Cost? = nil) {
         guard !hasCompleted else { return }
         if let vc = importTicketViewController, case .ready(var viewModel) = vc.state {
             viewModel.state = state
@@ -298,7 +298,7 @@ class UniversalLinkCoordinator: Coordinator {
         hasCompleted = state.hasCompleted
     }
 
-	private func promptImportUniversalLink(cost: ImportTicketViewControllerViewModel.Cost) {
+	private func promptImportUniversalLink(cost: ImportMagicTokenViewControllerViewModel.Cost) {
 		updateImportTicketController(with: .promptImport, cost: cost)
     }
 
@@ -315,7 +315,7 @@ class UniversalLinkCoordinator: Coordinator {
 		coordinator.start()
 	}
 
-    private func showImportError(errorMessage: String, cost: ImportTicketViewControllerViewModel.Cost? = nil) {
+    private func showImportError(errorMessage: String, cost: ImportMagicTokenViewControllerViewModel.Cost? = nil) {
         updateImportTicketController(with: .failed(errorMessage: errorMessage), cost: cost)
 	}
 
@@ -378,13 +378,13 @@ class UniversalLinkCoordinator: Coordinator {
     }
 }
 
-extension UniversalLinkCoordinator: ImportTicketViewControllerDelegate {
-	func didPressDone(in viewController: ImportTicketViewController) {
+extension UniversalLinkCoordinator: ImportTokenViewControllerDelegate {
+	func didPressDone(in viewController: ImportTokenViewController) {
 		viewController.dismiss(animated: true)
 		delegate?.completed(in: self)
 	}
 
-	func didPressImport(in viewController: ImportTicketViewController) {
+	func didPressImport(in viewController: ImportTokenViewController) {
         guard let transactionType = transactionType else { return }
         switch transactionType {
         case .freeTransfer(let query, let parameters):

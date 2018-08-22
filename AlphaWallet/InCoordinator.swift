@@ -50,9 +50,9 @@ class InCoordinator: Coordinator {
         }.first
     }
 
-    var ticketsCoordinator: TicketsCoordinator? {
+    var ticketsCoordinator: TokensCardCoordinator? {
         return self.coordinators.compactMap {
-            $0 as? TicketsCoordinator
+            $0 as? TokensCardCoordinator
         }.first
     }
 
@@ -332,7 +332,7 @@ class InCoordinator: Coordinator {
         }
     }
 
-    func showPaymentFlow(for paymentFlow: PaymentFlow, ticketHolders: [TokenHolder] = [], in ticketsCoordinator: TicketsCoordinator) {
+    func showPaymentFlow(for paymentFlow: PaymentFlow, ticketHolders: [TokenHolder] = [], in ticketsCoordinator: TokensCardCoordinator) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
@@ -360,7 +360,7 @@ class InCoordinator: Coordinator {
         let session = transactionCoordinator.session
         let tokenStorage = transactionCoordinator.tokensStorage
 
-        let ticketsCoordinator = TicketsCoordinator(
+        let ticketsCoordinator = TokensCardCoordinator(
             session: session,
             keystore: keystore,
             tokensStorage: tokenStorage,
@@ -380,11 +380,11 @@ class InCoordinator: Coordinator {
         }
     }
 
-    func showTicketListToRedeem(for token: TokenObject, coordinator: TicketsCoordinator) {
+    func showTicketListToRedeem(for token: TokenObject, coordinator: TokensCardCoordinator) {
         coordinator.showRedeemViewController()
     }
 
-    func showTicketListToSell(for paymentFlow: PaymentFlow, coordinator: TicketsCoordinator) {
+    func showTicketListToSell(for paymentFlow: PaymentFlow, coordinator: TokensCardCoordinator) {
         coordinator.showSellViewController(for: paymentFlow)
     }
 
@@ -424,21 +424,21 @@ class InCoordinator: Coordinator {
     }
 }
 
-extension InCoordinator: TicketsCoordinatorDelegate {
+extension InCoordinator: TokensCardCoordinatorDelegate {
 
-    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TokenHolder], in coordinator: TicketsCoordinator) {
+    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TokenHolder], in coordinator: TokensCardCoordinator) {
         showPaymentFlow(for: type, ticketHolders: ticketHolders, in: coordinator)
     }
 
-    func didPressRedeem(for token: TokenObject, in coordinator: TicketsCoordinator) {
+    func didPressRedeem(for token: TokenObject, in coordinator: TokensCardCoordinator) {
         showTicketListToRedeem(for: token, coordinator: coordinator)
     }
 
-    func didPressSell(for type: PaymentFlow, in coordinator: TicketsCoordinator) {
+    func didPressSell(for type: PaymentFlow, in coordinator: TokensCardCoordinator) {
         showTicketListToSell(for: type, coordinator: coordinator)
     }
 
-    func didCancel(in coordinator: TicketsCoordinator) {
+    func didCancel(in coordinator: TokensCardCoordinator) {
         navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
     }

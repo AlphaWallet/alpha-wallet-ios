@@ -11,7 +11,7 @@ protocol GenerateTransferMagicLinkViewControllerDelegate: class {
 class GenerateTransferMagicLinkViewController: UIViewController {
     weak var delegate: GenerateTransferMagicLinkViewControllerDelegate?
     let background = UIView()
-	let header = TicketsViewControllerTitleHeader()
+	let header = TokensCardViewControllerTitleHeader()
     let detailsBackground = UIView()
     let subtitleLabel = UILabel()
     let ticketCountLabel = UILabel()
