@@ -189,7 +189,8 @@ class TicketsViewController: UIViewController, TicketVerifiableStatusViewControl
     }
 
     @objc func transfer() {
-        delegate?.didPressTransfer(for: .send(type: .ERC875Token(viewModel.token)),
+        let transferType = TransferType(token: viewModel.token)
+        delegate?.didPressTransfer(for: .send(type: transferType),
                                    ticketHolders: viewModel.ticketHolders,
                                    in: self)
     }
