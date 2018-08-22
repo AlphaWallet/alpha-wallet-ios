@@ -239,14 +239,14 @@ extension TokensViewController: UITableViewDelegate {
             )
             return cellViewModel.cellHeight
         case .erc721:
-            let cellViewModel = TicketTokenViewCellViewModel(
+            let cellViewModel = TokenCardViewCellViewModel(
                     config: dataStore.config,
                     token: token,
                     ticker: viewModel.ticker(for: token)
             )
             return cellViewModel.cellHeight
         case .erc875:
-            let cellViewModel = TicketTokenViewCellViewModel(
+            let cellViewModel = TokenCardViewCellViewModel(
                     config: dataStore.config,
                     token: token,
                     ticker: viewModel.ticker(for: token)

@@ -14,7 +14,7 @@ class AccountsViewController: UIViewController {
     weak var delegate: AccountsViewControllerDelegate?
     var allowsAccountDeletion: Bool = false
     let roundedBackground = RoundedBackground()
-    let header = TicketsViewControllerTitleHeader()
+    let header = TokensCardViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
     var viewModel: AccountsViewModel {
         return AccountsViewModel(

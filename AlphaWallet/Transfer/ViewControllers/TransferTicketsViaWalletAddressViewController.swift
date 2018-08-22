@@ -16,11 +16,11 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
     }
     private let token: TokenObject
     let roundedBackground = RoundedBackground()
-    let header = TicketsViewControllerTitleHeader()
+    let header = TokensCardViewControllerTitleHeader()
     let ticketView: TokenRowView & UIView
     let targetAddressTextField = AddressTextField()
     let nextButton = UIButton(type: .system)
-    var viewModel: TransferTicketsViaWalletAddressViewControllerViewModel
+    var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
     var ticketHolder: TokenHolder
     var paymentFlow: PaymentFlow
     weak var delegate: TransferTicketsViaWalletAddressViewControllerDelegate?
@@ -30,7 +30,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
             token: TokenObject,
             ticketHolder: TokenHolder,
             paymentFlow: PaymentFlow,
-            viewModel: TransferTicketsViaWalletAddressViewControllerViewModel
+            viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
     ) {
         self.config = config
         self.token = token
@@ -43,7 +43,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
         case .cryptoKitty:
             ticketView = TokenListFormatRowView()
         case .otherNonFungibleToken:
-            ticketView = TicketRowView()
+            ticketView = TokenCardRowView()
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -130,7 +130,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
         openURL(url)
     }
 
-    func configure(viewModel newViewModel: TransferTicketsViaWalletAddressViewControllerViewModel? = nil) {
+    func configure(viewModel newViewModel: TransferTokensCardViaWalletAddressViewControllerViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }

@@ -36,7 +36,7 @@ class BaseTokenListFormatTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: BaseTicketTableViewCellViewModel) {
+    func configure(viewModel: BaseTokenCardTableViewCellViewModel) {
         selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
 
