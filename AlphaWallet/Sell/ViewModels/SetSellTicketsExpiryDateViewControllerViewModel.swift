@@ -7,7 +7,7 @@ struct SetSellTicketsExpiryDateViewControllerViewModel {
 
     var token: TokenObject
     var ticketHolder: TokenHolder
-    var ethCost: String = "0"
+    var ethCost: Ether = .zero
 
     var headerTitle: String {
 		return R.string.localizable.aWalletTicketTokenSellEnterLinkExpiryDateTitle()
@@ -74,12 +74,12 @@ struct SetSellTicketsExpiryDateViewControllerViewModel {
     }
 
     var perTicketPriceLabelText: String {
-        let amount = Double(ethCost)! / Double(ticketCount)
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount)
+        let amount = ethCost / ticketCount
+        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(String(amount))
     }
 
     var totalEthLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellTotalEthPriceTitle(ethCost)
+        return R.string.localizable.aWalletTicketTokenSellTotalEthPriceTitle(String(ethCost))
     }
 
     var noteTitleLabelText: String {
@@ -114,7 +114,7 @@ struct SetSellTicketsExpiryDateViewControllerViewModel {
         return ticketHolder.count
     }
 
-    init(token: TokenObject, ticketHolder: TokenHolder, ethCost: String) {
+    init(token: TokenObject, ticketHolder: TokenHolder, ethCost: Ether) {
         self.token = token
         self.ticketHolder = ticketHolder
         self.ethCost = ethCost

@@ -114,7 +114,7 @@ class TicketsCoordinator: NSObject, Coordinator {
 
     private func showSaleConfirmationScreen(for ticketHolder: TokenHolder,
                                             linkExpiryDate: Date,
-                                            ethCost: String,
+                                            ethCost: Ether,
                                             in viewController: SetSellTicketsExpiryDateViewController) {
         let vc = makeGenerateSellMagicLinkViewController(paymentFlow: viewController.paymentFlow, ticketHolder: ticketHolder, ethCost: ethCost, linkExpiryDate: linkExpiryDate)
         viewController.navigationController?.present(vc, animated: true)
@@ -127,7 +127,7 @@ class TicketsCoordinator: NSObject, Coordinator {
         viewController.navigationController?.present(vc, animated: true)
     }
 
-    private func makeGenerateSellMagicLinkViewController(paymentFlow: PaymentFlow, ticketHolder: TokenHolder, ethCost: String, linkExpiryDate: Date) -> GenerateSellMagicLinkViewController {
+    private func makeGenerateSellMagicLinkViewController(paymentFlow: PaymentFlow, ticketHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) -> GenerateSellMagicLinkViewController {
         let vc = GenerateSellMagicLinkViewController(
                 paymentFlow: paymentFlow,
                 ticketHolder: ticketHolder,
@@ -162,7 +162,7 @@ class TicketsCoordinator: NSObject, Coordinator {
     private func showEnterSellTicketsExpiryDateViewController(
             token: TokenObject,
             for ticketHolder: TokenHolder,
-            ethCost: String,
+            ethCost: Ether,
             in viewController: EnterSellTicketsPriceQuantityViewController) {
         let vc = makeEnterSellTicketsExpiryDateViewController(token: token, for: ticketHolder, ethCost: ethCost, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
@@ -236,7 +236,7 @@ class TicketsCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func makeEnterSellTicketsExpiryDateViewController(token: TokenObject, for ticketHolder: TokenHolder, ethCost: String, paymentFlow: PaymentFlow) -> SetSellTicketsExpiryDateViewController {
+    private func makeEnterSellTicketsExpiryDateViewController(token: TokenObject, for ticketHolder: TokenHolder, ethCost: Ether, paymentFlow: PaymentFlow) -> SetSellTicketsExpiryDateViewController {
         let viewModel = SetSellTicketsExpiryDateViewControllerViewModel(token: token, ticketHolder: ticketHolder, ethCost: ethCost)
         let controller = SetSellTicketsExpiryDateViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, ticketHolder: ticketHolder, ethCost: ethCost, viewModel: viewModel)
         controller.configure()
@@ -301,10 +301,10 @@ class TicketsCoordinator: NSObject, Coordinator {
     //note that the price must be in szabo for a sell link, price must be rounded
     private func generateSellLink(ticketHolder: TokenHolder,
                                   linkExpiryDate: Date,
-                                  ethCost: String,
+                                  ethCost: Ether,
                                   paymentFlow: PaymentFlow) -> String {
-        let ethCostRoundedTo4dp = String(format: "%.4f", Float(string: ethCost)!)
-        let cost = Decimal(string: ethCostRoundedTo4dp)! * Decimal(string: "1000000000000000000")!
+        let ethCostRoundedTo5dp = String(format: "%.5f", Float(string: String(ethCost))!)
+        let cost = Decimal(string: ethCostRoundedTo5dp)! * Decimal(string: "1000000000000000000")!
         let wei = BigUInt(cost.description)!
         let order = Order(
                 price: wei,
@@ -321,7 +321,7 @@ class TicketsCoordinator: NSObject, Coordinator {
         return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
     }
 
-    private func sellViaActivitySheet(ticketHolder: TokenHolder, linkExpiryDate: Date, ethCost: String, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
+    private func sellViaActivitySheet(ticketHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
         let url = generateSellLink(
             ticketHolder: ticketHolder,
             linkExpiryDate: linkExpiryDate,
@@ -458,7 +458,7 @@ extension TicketsCoordinator: TransferTicketsQuantitySelectionViewControllerDele
 }
 
 extension TicketsCoordinator: EnterSellTicketsPriceQuantityViewControllerDelegate {
-    func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TokenHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController) {
+    func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TokenHolder, ethCost: Ether, in viewController: EnterSellTicketsPriceQuantityViewController) {
         showEnterSellTicketsExpiryDateViewController(token: token, for: ticketHolder, ethCost: ethCost, in: viewController)
     }
 
@@ -472,7 +472,7 @@ extension TicketsCoordinator: EnterSellTicketsPriceQuantityViewControllerDelegat
 }
 
 extension TicketsCoordinator: SetSellTicketsExpiryDateViewControllerDelegate {
-    func didSetSellTicketsExpiryDate(ticketHolder: TokenHolder, linkExpiryDate: Date, ethCost: String, in viewController: SetSellTicketsExpiryDateViewController) {
+    func didSetSellTicketsExpiryDate(ticketHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, in viewController: SetSellTicketsExpiryDateViewController) {
         showSaleConfirmationScreen(for: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, in: viewController)
     }
 
