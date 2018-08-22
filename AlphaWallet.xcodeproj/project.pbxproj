@@ -437,7 +437,7 @@
 		5E7C7EC61482FC780432A0FC /* AssetAttribute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7596408BA84E95C90ADA /* AssetAttribute.swift */; };
 		5E7C7ECE164289A89734B4EF /* LocalesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76C895E7BFA47233068C /* LocalesCoordinator.swift */; };
 		5E7C7EDA1BB781A45C1C19CD /* ImportWalletTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73D26F24C4AAE981E2F2 /* ImportWalletTab.swift */; };
-		5E7C7EEE563D81793CB96FA0 /* TransferTicketsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C755132D9B6F95080A1BE /* TransferTicketsCoordinator.swift */; };
+		5E7C7EEE563D81793CB96FA0 /* TransferNFTCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C755132D9B6F95080A1BE /* TransferNFTCoordinator.swift */; };
 		5E7C7F287415575EDF33DDEB /* XMLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7633741EA2029D541466 /* XMLHandler.swift */; };
 		5E7C7F60056FDD6ACC390400 /* UniversalLinkInPasteboardCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F3DD81D44A996789FC4 /* UniversalLinkInPasteboardCoordinator.swift */; };
 		5E7C7F72926D84CF741C0D18 /* ABIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CBCC0A74A084AC2F053 /* ABIType.swift */; };
@@ -904,7 +904,7 @@
 		5E7C7534FB6BF4D199643246 /* AlphaWalletSettingsSwitchRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AlphaWalletSettingsSwitchRow.swift; path = Views/AlphaWalletSettingsSwitchRow.swift; sourceTree = "<group>"; };
 		5E7C7535095323B035CA47C0 /* ImportTicketViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportTicketViewController.swift; sourceTree = "<group>"; };
 		5E7C754C0E2E57F32A61F9A3 /* SetTransferTicketsExpiryDateViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetTransferTicketsExpiryDateViewControllerViewModel.swift; sourceTree = "<group>"; };
-		5E7C755132D9B6F95080A1BE /* TransferTicketsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferTicketsCoordinator.swift; sourceTree = "<group>"; };
+		5E7C755132D9B6F95080A1BE /* TransferNFTCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferNFTCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7558286761EF1ADD2988 /* ABIError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ABIError.swift; sourceTree = "<group>"; };
 		5E7C7564AF453BAB0BDAAA57 /* SettingsAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsAction.swift; sourceTree = "<group>"; };
 		5E7C758EEBD945A3451C96C8 /* CryptoKittyHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptoKittyHandling.swift; sourceTree = "<group>"; };
@@ -2123,7 +2123,7 @@
 				29F114F51FA8147300114A29 /* RequestCoordinator.swift */,
 				29C0FCE0200DA94A004A13CB /* SignMessageCoordinator.swift */,
 				77B3BF3B201908ED00EEC15A /* ConfirmCoordinator.swift */,
-				5E7C755132D9B6F95080A1BE /* TransferTicketsCoordinator.swift */,
+				5E7C755132D9B6F95080A1BE /* TransferNFTCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -3759,7 +3759,7 @@
 				5E7C776BE1B19F824954962D /* BaseTicketTableViewCell.swift in Sources */,
 				5E7C7C0FAC500A6651E663FD /* TransferTicketsQuantitySelectionViewModel.swift in Sources */,
 				5E7C77AD9FAAC18211B6F355 /* TransferTicketsQuantitySelectionViewController.swift in Sources */,
-				5E7C7EEE563D81793CB96FA0 /* TransferTicketsCoordinator.swift in Sources */,
+				5E7C7EEE563D81793CB96FA0 /* TransferNFTCoordinator.swift in Sources */,
 				5E7C7567A690B6B8F889AE83 /* SendViewController.swift in Sources */,
 				5E7C72E1D4B4B4C8443F3DA1 /* SendHeaderView.swift in Sources */,
 				5E7C713ACE8C72642B1C9F93 /* SendHeaderViewViewModel.swift in Sources */,

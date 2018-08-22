@@ -9,6 +9,22 @@ struct Transfer {
 }
 
 enum TransferType {
+
+    init(token: TokenObject) {
+        self = {
+            switch token.type {
+            case .ether:
+                return .ether(config: Config(), destination: nil)
+            case .erc20:
+                return .ERC20Token(token)
+            case .erc875:
+                return .ERC875Token(token)
+            case .erc721:
+                return .ERC721Token(token)
+            }
+        }()
+    }
+
     case ether(config: Config, destination: Address?)
     case ERC20Token(TokenObject)
     case ERC875Token(TokenObject)
