@@ -7,7 +7,7 @@ struct EnterSellTicketsPriceQuantityViewControllerViewModel {
 
     var token: TokenObject
     var ticketHolder: TokenHolder
-    var ethCost: String = "0"
+    var ethCost: Ether = .zero
     var dollarCost: String = ""
 
     var headerTitle: String {

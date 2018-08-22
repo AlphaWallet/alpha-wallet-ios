@@ -3,7 +3,7 @@
 import UIKit
 
 protocol SetSellTicketsExpiryDateViewControllerDelegate: class {
-    func didSetSellTicketsExpiryDate(ticketHolder: TokenHolder, linkExpiryDate: Date, ethCost: String, in viewController: SetSellTicketsExpiryDateViewController)
+    func didSetSellTicketsExpiryDate(ticketHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, in viewController: SetSellTicketsExpiryDateViewController)
     func didPressViewInfo(in viewController: SetSellTicketsExpiryDateViewController)
     func didPressViewContractWebPage(in viewController: SetSellTicketsExpiryDateViewController)
 }
@@ -36,7 +36,7 @@ class SetSellTicketsExpiryDateViewController: UIViewController, TicketVerifiable
     var viewModel: SetSellTicketsExpiryDateViewControllerViewModel
     var paymentFlow: PaymentFlow
     var ticketHolder: TokenHolder
-    var ethCost: String
+    var ethCost: Ether
     weak var delegate: SetSellTicketsExpiryDateViewControllerDelegate?
 
     init(
@@ -44,7 +44,7 @@ class SetSellTicketsExpiryDateViewController: UIViewController, TicketVerifiable
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
             ticketHolder: TokenHolder,
-            ethCost: String,
+            ethCost: Ether,
             viewModel: SetSellTicketsExpiryDateViewControllerViewModel
     ) {
         self.config = config
