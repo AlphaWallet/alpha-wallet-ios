@@ -3,7 +3,7 @@
 import Foundation
 import TrustKeystore
 
-struct Token {
+struct TokenUpdate {
     let address: Address
     let name: String
     let symbol: String

@@ -33,7 +33,7 @@ class TokenAdaptor {
 
     private func getNonCryptoKittyTicketHolders() -> [TokenHolder] {
         let balance = token.balance
-        var tickets = [Ticket]()
+        var tickets = [Token]()
         for (index, item) in balance.enumerated() {
             //id is the value of the bytes32 ticket
             let id = item.balance
@@ -49,7 +49,7 @@ class TokenAdaptor {
 
     private func getCryptoKittyTicketHolders() -> [TokenHolder] {
         let balance = token.balance
-        var tickets = [Ticket]()
+        var tickets = [Token]()
         for (index, item) in balance.enumerated() {
             let jsonString = item.balance
             if let ticket = getTicketForCryptoKitty(forJSONString: jsonString, in: token) {
@@ -60,7 +60,7 @@ class TokenAdaptor {
         return bundle(tickets: tickets)
     }
 
-    func bundle(tickets: [Ticket]) -> [TokenHolder] {
+    func bundle(tickets: [Token]) -> [TokenHolder] {
         switch token.type {
         case .ether, .erc20, .erc875:
             break
@@ -90,13 +90,13 @@ class TokenAdaptor {
     //If sequential or have the same seat number, add them together
     ///e.g 21, 22, 25 is broken up into 2 bundles: 21-22 and 25.
     ///e.g 21, 21, 22, 25 is broken up into 2 bundles: (21,21-22) and 25.
-    private func breakBundlesFurtherToHaveContinuousSeatRange(tickets: [Ticket]) -> [[Ticket]] {
+    private func breakBundlesFurtherToHaveContinuousSeatRange(tickets: [Token]) -> [[Token]] {
         let tickets = tickets.sorted {
             let s0 = $0.values["numero"] as? Int ?? 0
             let s1 = $1.values["numero"] as? Int ?? 0
             return s0 <= s1
         }
-        return tickets.reduce([[Ticket]]()) { results, ticket in
+        return tickets.reduce([[Token]]()) { results, ticket in
             var results = results
             if var previousRange = results.last, let previousTicket = previousRange.last, (previousTicket.seatId + 1 == ticket.seatId || previousTicket.seatId == ticket.seatId) {
                 previousRange.append(ticket)
@@ -110,8 +110,8 @@ class TokenAdaptor {
     }
 
     ///Group by the properties used in the hash. We abuse a dictionary to help with grouping
-    private func groupTicketsByFields(tickets: [Ticket]) -> Dictionary<String, [Ticket]>.Values {
-        var dictionary = [String: [Ticket]]()
+    private func groupTicketsByFields(tickets: [Token]) -> Dictionary<String, [Token]>.Values {
+        var dictionary = [String: [Token]]()
         for each in tickets {
             let city = each.values["locality"] as? String ?? "N/A"
             let venue = each.values["venue"] as? String ?? "N/A"
@@ -130,11 +130,11 @@ class TokenAdaptor {
     }
 
     //TODO pass lang into here
-    private func getTicket(for id: BigUInt, index: UInt16, in token: TokenObject) -> Ticket {
+    private func getTicket(for id: BigUInt, index: UInt16, in token: TokenObject) -> Token {
         return XMLHandler(contract: token.contract).getFifaInfoForTicket(tokenId: id, index: index)
     }
 
-    private func getTicketForCryptoKitty(forJSONString jsonString: String, in token: TokenObject) -> Ticket? {
+    private func getTicketForCryptoKitty(forJSONString jsonString: String, in token: TokenObject) -> Token? {
         guard let data = jsonString.data(using: .utf8), let cat = try? JSONDecoder().decode(CryptoKitty.self, from: data) else { return nil }
         var values = [String: AssetAttributeValue]()
         values["tokenId"] = cat.tokenId
@@ -143,7 +143,7 @@ class TokenAdaptor {
         values["thumbnailUrl"] = cat.thumbnailUrl
         values["externalLink"] = cat.externalLink
         values["traits"] = cat.traits
-        return Ticket(
+        return Token(
                 id: BigUInt(cat.tokenId)!,
                 index: 0,
                 name: "name",
@@ -151,7 +151,7 @@ class TokenAdaptor {
         )
     }
 
-    private func getTicketHolder(for tickets: [Ticket]) -> TokenHolder {
+    private func getTicketHolder(for tickets: [Token]) -> TokenHolder {
         return TokenHolder(
                 tickets: tickets,
                 status: .available,
@@ -161,7 +161,7 @@ class TokenAdaptor {
 
 }
 
-extension Ticket {
+extension Token {
     //TODO Convenience-only. (Look for references). Should remove once we generalize things further and not hardcode the use of seatId
     var seatId: Int {
         return values["numero"] as? Int ?? 0

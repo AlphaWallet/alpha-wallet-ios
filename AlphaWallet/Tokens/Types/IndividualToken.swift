@@ -1,5 +1,5 @@
 //
-//  Ticket.swift
+//  IndividualToken.swift
 //  Alpha-Wallet
 //
 //  Created by Oguzhan Gungor on 2/25/18.
@@ -9,14 +9,14 @@
 import Foundation
 import BigInt
 
-struct Ticket {
+struct Token {
     let id: BigUInt
     let index: UInt16
     var name: String
     let values: [String: AssetAttributeValue]
 
-    static var empty: Ticket {
-        return Ticket(
+    static var empty: Token {
+        return Token(
                 id: Constants.nullTicketBigUInt,
                 index: 0,
                 name: "FIFA WC",
