@@ -487,7 +487,15 @@ extension TicketsCoordinator: SetSellTicketsExpiryDateViewControllerDelegate {
 
 extension TicketsCoordinator: TransferTicketsViewControllerDelegate {
     func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTicketsViewController) {
-        showEnterQuantityViewController(token: token, for: ticketHolder, in: viewController)
+        switch token.type {
+            case .erc721:
+                let vc = makeTransferTicketsViaWalletAddressViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
+                viewController.navigationController?.pushViewController(vc, animated: true)
+            case .erc875:
+                showEnterQuantityViewController(token: token, for: ticketHolder, in: viewController)
+            case .erc20: break
+            case .ether: break
+        }
     }
 
     func didPressViewInfo(in viewController: TransferTicketsViewController) {
