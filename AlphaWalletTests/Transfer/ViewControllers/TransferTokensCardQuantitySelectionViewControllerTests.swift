@@ -4,14 +4,14 @@ import FBSnapshotTestCase
 @testable import Trust
 import UIKit
 
-class TransferTicketsQuantitySelectionViewControllerTests: FBSnapshotTestCase {
+class TransferTokensCardQuantitySelectionViewControllerTests: FBSnapshotTestCase {
     override func setUp() {
         super.setUp()
         isDeviceAgnostic = true
         recordMode = false
     }
 
-    func testTransferTicketQuantitySelectionViewControllerCanBeCreated() {
+    func testTransferTokensCardQuantitySelectionViewControllerCanBeCreated() {
         let token = TokenObject()
         let type = PaymentFlow.send(type: .ERC875Token(token))
         let ticket = Token(id: "1", index: 1, name: "", values: ["city": "", "venue": "", "match": 9, "time": GeneralisedTime(string: "20010203160500+0300")!, "numero": 1, "category": "MATCH CLUB", "countryA": "Team A", "countryB": "Team B"])

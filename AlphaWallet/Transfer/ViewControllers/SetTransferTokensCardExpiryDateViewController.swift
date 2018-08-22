@@ -8,7 +8,7 @@ protocol SetTransferTokensCardExpiryDateViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: SetTransferTokensCardExpiryDateViewController)
 }
 
-class SetTransferTokensCardExpiryDateViewController: UIViewController, TicketVerifiableStatusViewController {
+class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVerifiableStatusViewController {
 
     let config: Config
     var contract: String {
