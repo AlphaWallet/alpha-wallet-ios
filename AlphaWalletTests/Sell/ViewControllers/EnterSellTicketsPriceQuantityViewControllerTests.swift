@@ -12,10 +12,10 @@ class EnterSellTicketsPriceQuantityViewControllerTests: FBSnapshotTestCase {
     }
 
     func testSellTicketsPriceQuantityViewControllerDisplay() {
-        let ticket = Ticket(id: "1", index: 1, name: "", values: ["locality": "", "venue": "", "match": 9, "time": GeneralisedTime(string: "20010203160500+0300")!, "numero": 1, "category": "MATCH CLUB", "countryA": "Team A", "countryB": "Team B"])
+        let ticket = Token(id: "1", index: 1, name: "", values: ["locality": "", "venue": "", "match": 9, "time": GeneralisedTime(string: "20010203160500+0300")!, "numero": 1, "category": "MATCH CLUB", "countryA": "Team A", "countryB": "Team B"])
         let tokenHolder = TokenHolder(tickets: [ticket], status: .available, contractAddress: "0x1")
         let token = TokenObject(contract: "0x0000000000000000000000000000000000000001", name: "", symbol: "", decimals: 0, value: "", isCustom: true, isDisabled: false, type: .erc875)
-        let controller = EnterSellTicketsPriceQuantityViewController(
+        let controller = EnterSellTokensCardPriceQuantityViewController(
                 config: Config(),
                 storage: FakeTokensDataStore(),
                 paymentFlow: .send(type: .ERC875Token(token)),

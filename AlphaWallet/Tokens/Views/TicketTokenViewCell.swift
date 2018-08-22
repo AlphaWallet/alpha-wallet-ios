@@ -48,7 +48,7 @@ class TicketTokenViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: TicketTokenViewCellViewModel) {
+    func configure(viewModel: TokenCardViewCellViewModel) {
         selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
 

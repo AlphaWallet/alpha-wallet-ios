@@ -12,11 +12,11 @@ class ImportTicketViewControllerTests: FBSnapshotTestCase {
     }
 
     func testImportTicketViewControllerDisplay() {
-        let controller = ImportTicketViewController(config: Config())
-        var viewModel: ImportTicketViewControllerViewModel = .init(state: .validating)
-        let ticket = Ticket(id: "1", index: 1, name: "", values: ["locality": "", "venue": "", "match": 9, "time": GeneralisedTime(string: "20010203160500+0300")!, "numero": 1, "category": "MATCH CLUB", "countryA": "Team A", "countryB": "Team B"])
+        let controller = ImportTokenViewController(config: Config())
+        var viewModel: ImportMagicTokenViewControllerViewModel = .init(state: .validating)
+        let ticket = Token(id: "1", index: 1, name: "", values: ["locality": "", "venue": "", "match": 9, "time": GeneralisedTime(string: "20010203160500+0300")!, "numero": 1, "category": "MATCH CLUB", "countryA": "Team A", "countryB": "Team B"])
         let ticketHolder = TokenHolder(tickets: [ticket], status: .available, contractAddress: "0x1")
-        let cost: ImportTicketViewControllerViewModel.Cost = .paid(eth: Decimal(1), dollar: Decimal(400))
+        let cost: ImportMagicTokenViewControllerViewModel.Cost = .paid(eth: Decimal(1), dollar: Decimal(400))
 
         viewModel.ticketHolder = ticketHolder
         viewModel.state = .promptImport

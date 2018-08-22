@@ -44,7 +44,7 @@ class TicketsViewControllerHeader: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: TicketsViewControllerHeaderViewModel) {
+    func configure(viewModel: TokensCardViewControllerHeaderViewModel) {
         frame = CGRect(x: 0, y: 0, width: 300, height: 90)
         backgroundColor = viewModel.backgroundColor
 

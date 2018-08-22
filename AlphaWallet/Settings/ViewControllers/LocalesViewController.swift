@@ -11,7 +11,7 @@ class LocalesViewController: UIViewController {
     let headerHeight = CGFloat(70)
     weak var delegate: LocalesViewControllerDelegate?
     let roundedBackground = RoundedBackground()
-    let header = TicketsViewControllerTitleHeader()
+    let header = TokensCardViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
     var viewModel: LocalesViewModel?
     private var balances: [Address: Balance?] = [:]
