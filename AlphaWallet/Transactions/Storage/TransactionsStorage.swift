@@ -50,15 +50,15 @@ class TransactionsStorage {
         return items
     }
 
-    private func tokens(from transactions: [Transaction]) -> [Token] {
-        let tokens: [Token] = transactions.compactMap { transaction in
+    private func tokens(from transactions: [Transaction]) -> [TokenUpdate] {
+        let tokens: [TokenUpdate] = transactions.compactMap { transaction in
             guard
                 let operation = transaction.localizedOperations.first,
                 let contract = Address(string: operation.contract ?? ""),
                 let name = operation.name,
                 let symbol = operation.symbol
                 else { return nil }
-            return Token(
+            return TokenUpdate(
                 address: contract,
                 name: name,
                 symbol: symbol,

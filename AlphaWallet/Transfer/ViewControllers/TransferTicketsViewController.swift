@@ -16,15 +16,15 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
         return viewModel.token.contract
     }
     let roundedBackground = RoundedBackground()
-    let header = TicketsViewControllerTitleHeader()
+    let header = TokensCardViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
 	let nextButton = UIButton(type: .system)
-    var viewModel: TransferTicketsViewModel
+    var viewModel: TransferTokensCardViewModel
     var paymentFlow: PaymentFlow
     private let token: TokenObject
     weak var delegate: TransferTicketsViewControllerDelegate?
 
-    init(config: Config, paymentFlow: PaymentFlow, token: TokenObject, viewModel: TransferTicketsViewModel) {
+    init(config: Config, paymentFlow: PaymentFlow, token: TokenObject, viewModel: TransferTokensCardViewModel) {
         self.config = config
         self.paymentFlow = paymentFlow
         self.token = token
@@ -38,7 +38,7 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        tableView.register(TicketTableViewCellWithCheckbox.self, forCellReuseIdentifier: TicketTableViewCellWithCheckbox.identifier)
+        tableView.register(TokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithCheckbox.identifier)
         tableView.register(TokenListFormatTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenListFormatTableViewCellWithCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
@@ -84,7 +84,7 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel newViewModel: TransferTicketsViewModel? = nil) {
+    func configure(viewModel newViewModel: TransferTokensCardViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
@@ -146,7 +146,7 @@ extension TransferTicketsViewController: UITableViewDelegate, UITableViewDataSou
             cell.configure(viewModel: .init(ticketHolder: ticketHolder))
             return cell
         case .otherNonFungibleToken:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithCheckbox
+            let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithCheckbox
             cell.configure(viewModel: .init(ticketHolder: ticketHolder))
             return cell
         }

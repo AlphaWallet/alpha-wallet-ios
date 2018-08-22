@@ -14,7 +14,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
     let footerBar = UIView()
-    let header = TicketsViewControllerTitleHeader()
+    let header = TokensCardViewControllerTitleHeader()
     var viewModel = NewTokenViewModel()
     var tokenType = TokenType.erc20
 

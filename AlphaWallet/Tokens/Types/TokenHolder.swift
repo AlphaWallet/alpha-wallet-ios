@@ -13,7 +13,7 @@ class TokenHolder {
         case available, sold, redeemed, forSale, transferred
     }
 
-    var tickets: [Ticket]
+    var tickets: [Token]
     var name: String { return tickets[0].name }
     var values: [String: AssetAttributeValue] { return tickets[0].values }
     var status: TicketHolderStatus
@@ -21,7 +21,7 @@ class TokenHolder {
     var areDetailsVisible = false
     var contractAddress: String
 
-    init(tickets: [Ticket], status: TicketHolderStatus, contractAddress: String) {
+    init(tickets: [Token], status: TicketHolderStatus, contractAddress: String) {
         self.tickets = tickets
         self.status = status
         self.contractAddress = contractAddress

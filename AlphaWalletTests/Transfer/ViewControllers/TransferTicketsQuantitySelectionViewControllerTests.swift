@@ -14,10 +14,10 @@ class TransferTicketsQuantitySelectionViewControllerTests: FBSnapshotTestCase {
     func testTransferTicketQuantitySelectionViewControllerCanBeCreated() {
         let token = TokenObject()
         let type = PaymentFlow.send(type: .ERC875Token(token))
-        let ticket = Ticket(id: "1", index: 1, name: "", values: ["city": "", "venue": "", "match": 9, "time": GeneralisedTime(string: "20010203160500+0300")!, "numero": 1, "category": "MATCH CLUB", "countryA": "Team A", "countryB": "Team B"])
+        let ticket = Token(id: "1", index: 1, name: "", values: ["city": "", "venue": "", "match": 9, "time": GeneralisedTime(string: "20010203160500+0300")!, "numero": 1, "category": "MATCH CLUB", "countryA": "Team A", "countryB": "Team B"])
         let ticketHolder = TokenHolder(tickets: [ticket], status: .available, contractAddress: "0x1")
-        let viewModel = TransferTicketsQuantitySelectionViewModel(token: token, ticketHolder: ticketHolder)
-        let controller = TransferTicketsQuantitySelectionViewController(paymentFlow: type, token: token, viewModel: viewModel)
+        let viewModel = TransferTokensCardQuantitySelectionViewModel(token: token, ticketHolder: ticketHolder)
+        let controller = TransferTokensCardQuantitySelectionViewController(paymentFlow: type, token: token, viewModel: viewModel)
         controller.configure()
 
         FBSnapshotVerifyView(controller.view)

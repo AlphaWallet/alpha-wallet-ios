@@ -6,7 +6,7 @@ import UIKit
 class BaseTicketTableViewCell: UITableViewCell {
     static let identifier = "TicketTableViewCell"
 
-    lazy var rowView = TicketRowView(showCheckbox: showCheckbox())
+    lazy var rowView = TokenCardRowView(showCheckbox: showCheckbox())
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -26,7 +26,7 @@ class BaseTicketTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: BaseTicketTableViewCellViewModel) {
+    func configure(viewModel: BaseTokenCardTableViewCellViewModel) {
         selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
 
