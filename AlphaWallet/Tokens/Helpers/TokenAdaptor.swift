@@ -144,7 +144,7 @@ class TokenAdaptor {
         values["externalLink"] = cat.externalLink
         values["traits"] = cat.traits
         return Ticket(
-                id: 0,
+                id: BigUInt(cat.tokenId)!,
                 index: 0,
                 name: "name",
                 values: values

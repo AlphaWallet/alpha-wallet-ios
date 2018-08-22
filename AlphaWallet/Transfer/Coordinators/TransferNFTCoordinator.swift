@@ -4,13 +4,13 @@ import Foundation
 import TrustKeystore
 import BigInt
 
-protocol TransferTicketsCoordinatorDelegate: class {
-    func didClose(in coordinator: TransferTicketsCoordinator)
-    func didFinishSuccessfully(in coordinator: TransferTicketsCoordinator)
-    func didFail(in coordinator: TransferTicketsCoordinator)
+protocol TransferNFTCoordinatorDelegate: class {
+    func didClose(in coordinator: TransferNFTCoordinator)
+    func didFinishSuccessfully(in coordinator: TransferNFTCoordinator)
+    func didFail(in coordinator: TransferNFTCoordinator)
 }
 
-class TransferTicketsCoordinator: Coordinator {
+class TransferNFTCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     var ticketHolder: TokenHolder
     var walletAddress: String
@@ -20,7 +20,7 @@ class TransferTicketsCoordinator: Coordinator {
     var account: Account
     var viewController: UIViewController
     var statusViewController: StatusViewController?
-    weak var delegate: TransferTicketsCoordinatorDelegate?
+    weak var delegate: TransferNFTCoordinatorDelegate?
     var status = StatusViewControllerViewModel.State.processing {
         didSet {
             statusViewController?.configure(viewModel: .init(
@@ -71,7 +71,7 @@ class TransferTicketsCoordinator: Coordinator {
                     to: address,
                     data: Data(),
                     gasLimit: .none,
-                    tokenId: .none,
+                    tokenId: String(ticketHolder.tickets[0].id),
                     gasPrice: nil,
                     nonce: .none,
                     v: .none,
@@ -131,7 +131,7 @@ class TransferTicketsCoordinator: Coordinator {
     }
 }
 
-extension TransferTicketsCoordinator: StatusViewControllerDelegate {
+extension TransferNFTCoordinator: StatusViewControllerDelegate {
     func didPressDone(in viewController: StatusViewController) {
         viewController.dismiss(animated: false)
         switch status {

@@ -505,21 +505,21 @@ extension TicketsCoordinator: TransferTicketsViewControllerDelegate {
     }
 }
 
-extension TicketsCoordinator: TransferTicketsCoordinatorDelegate {
-    private func cleanUpAfterTransfer(coordinator: TransferTicketsCoordinator) {
+extension TicketsCoordinator: TransferNFTCoordinatorDelegate {
+    private func cleanUpAfterTransfer(coordinator: TransferNFTCoordinator) {
         navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
     }
 
-    func didClose(in coordinator: TransferTicketsCoordinator) {
+    func didClose(in coordinator: TransferNFTCoordinator) {
         cleanUpAfterTransfer(coordinator: coordinator)
     }
 
-    func didFinishSuccessfully(in coordinator: TransferTicketsCoordinator) {
+    func didFinishSuccessfully(in coordinator: TransferNFTCoordinator) {
         cleanUpAfterTransfer(coordinator: coordinator)
     }
 
-    func didFail(in coordinator: TransferTicketsCoordinator) {
+    func didFail(in coordinator: TransferNFTCoordinator) {
         cleanUpAfterTransfer(coordinator: coordinator)
     }
 }
@@ -591,7 +591,7 @@ extension TicketsCoordinator: TransferTicketsViaWalletAddressViewControllerDeleg
             }
 
             if case .real(let account) = self.session.account.type {
-                let coordinator = TransferTicketsCoordinator(ticketHolder: ticketHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: self.keystore, session: self.session, account: account, on: self.navigationController)
+                let coordinator = TransferNFTCoordinator(ticketHolder: ticketHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: self.keystore, session: self.session, account: account, on: self.navigationController)
                 coordinator.delegate = self
                 coordinator.start()
                 self.addCoordinator(coordinator)
