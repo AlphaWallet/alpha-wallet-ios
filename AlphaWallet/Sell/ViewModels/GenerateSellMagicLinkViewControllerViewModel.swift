@@ -4,7 +4,7 @@ import UIKit
 
 struct GenerateSellMagicLinkViewControllerViewModel {
     var ticketHolder: TokenHolder
-    var ethCost: String
+    var ethCost: Ether
     var linkExpiryDate: Date
 
     var contentsBackgroundColor: UIColor {
@@ -70,12 +70,12 @@ struct GenerateSellMagicLinkViewControllerViewModel {
     }
 
     var perTicketPriceLabelText: String {
-        let amount = Double(ethCost)! / Double(ticketCount)
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount)
+        let amount = ethCost / ticketCount
+        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(String(amount))
     }
 
     var totalEthLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellTotalEthPriceTitle(ethCost)
+        return R.string.localizable.aWalletTicketTokenSellTotalEthPriceTitle(String(ethCost))
     }
 
     var detailsBackgroundBackgroundColor: UIColor {
@@ -86,7 +86,7 @@ struct GenerateSellMagicLinkViewControllerViewModel {
         return ticketHolder.count
     }
 
-    init(ticketHolder: TokenHolder, ethCost: String, linkExpiryDate: Date) {
+    init(ticketHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) {
         self.ticketHolder = ticketHolder
         self.ethCost = ethCost
         self.linkExpiryDate = linkExpiryDate

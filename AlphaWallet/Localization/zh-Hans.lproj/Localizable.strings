@@ -169,7 +169,7 @@
 "a.wallet.ticketToken.sell.enterLinkExpiryDate.title" = "设置MagicLink的有效期";
 "a.wallet.ticketToken.sell.singleTicketSelected.title" = "已选择1张门票";
 "a.wallet.ticketToken.sell.multipleTicketSelected.title" = "已选择%d张门票";
-"a.wallet.ticketToken.sell.perTicketEthPrice.title" = "%f ETH/门票";
+"a.wallet.ticketToken.sell.perTicketEthPrice.title" = "%@ ETH/门票";
 "a.wallet.ticketToken.sell.totalEthPrice.title" = "总价: %@ ETH";
 "a.wallet.ticketToken.sell.magicLinkDescription.title" = "你将创建一个MagicLink销售链接，买家可以通过点击MagicLink来购买你的门票.";
 "a.wallet.ticketToken.sell.noteTitleLabel.title" = "注意";
