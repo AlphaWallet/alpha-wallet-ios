@@ -144,7 +144,7 @@ class TokensDataStore {
         return Array(realm.objects(HiddenContract.self))
     }
 
-    static func update(in realm: Realm, tokens: [Token]) {
+    static func update(in realm: Realm, tokens: [TokenUpdate]) {
         realm.beginWrite()
         for token in tokens {
             let update: [String: Any] = [
@@ -473,13 +473,13 @@ class TokensDataStore {
         try! realm.commitWrite()
     }
 
-    enum TokenUpdate {
+    enum TokenUpdateAction {
         case value(BigInt)
         case isDisabled(Bool)
         case nonFungibleBalance([String])
     }
 
-    func update(token: TokenObject, action: TokenUpdate) {
+    func update(token: TokenObject, action: TokenUpdateAction) {
         guard !token.isInvalidated else { return }
         try! realm.write {
             switch action {

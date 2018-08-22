@@ -36,7 +36,7 @@ private class PrivateXMLHandler {
         signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml)
     }
 
-    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
+    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
         guard tokenBytes32 != 0 else { return .empty }
         let lang = getLang()
         var values = [String: AssetAttributeValue]()
@@ -45,7 +45,7 @@ private class PrivateXMLHandler {
             values[name] = value
         }
 
-        return Ticket(
+        return Token(
                 id: tokenBytes32,
                 index: index,
                 name: getName(lang: lang),
@@ -134,7 +134,7 @@ public class XMLHandler {
         xmlHandlers[contract.add0x.lowercased()] = nil
     }
 
-    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
+    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
         return privateXMLHandler.getFifaInfoForTicket(tokenId: tokenBytes32, index: index)
     }
 

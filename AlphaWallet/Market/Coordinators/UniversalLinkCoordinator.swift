@@ -251,7 +251,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func makeTicketHolderImpl(bytes32Tickets: [String], contractAddress: String) {
-        var tickets = [Ticket]()
+        var tickets = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress)
         for i in 0..<bytes32Tickets.count {
             let ticket = bytes32Tickets[i]
