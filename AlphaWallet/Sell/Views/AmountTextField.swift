@@ -79,7 +79,7 @@ class AmountTextField: UIControl {
         textField.leftView = .spacerWidth(22)
         textField.rightView = makeAmountRightView()
         textField.textColor = Colors.appBackground
-        textField.font = Fonts.bold(size: 21)
+        textField.font = Fonts.bold(size: ScreenChecker().isNarrowScreen() ? 14: 21)
         addSubview(textField)
 
         alternativeAmountLabel.translatesAutoresizingMaskIntoConstraints = false

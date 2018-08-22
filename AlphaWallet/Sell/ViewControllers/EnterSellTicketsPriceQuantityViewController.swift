@@ -1,9 +1,10 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import BigInt
 
 protocol EnterSellTicketsPriceQuantityViewControllerDelegate: class {
-    func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TokenHolder, ethCost: String, in viewController: EnterSellTicketsPriceQuantityViewController)
+    func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TokenHolder, ethCost: Ether, in viewController: EnterSellTicketsPriceQuantityViewController)
     func didPressViewInfo(in viewController: EnterSellTicketsPriceQuantityViewController)
     func didPressViewContractWebPage(in viewController: EnterSellTicketsPriceQuantityViewController)
 }
@@ -31,12 +32,12 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
     var viewModel: EnterSellTicketsPriceQuantityViewControllerViewModel
     var paymentFlow: PaymentFlow
     var ethPrice: Subscribable<Double>
-    var totalEthCost: Double {
-        if let ethCostPerTicket = Double(pricePerTicketField.ethCost) {
-            let quantity = Double(quantityStepper.value)
+    var totalEthCost: Ether {
+        if let ethCostPerTicket = Ether(string: pricePerTicketField.ethCost) {
+            let quantity = Int(quantityStepper.value)
             return ethCostPerTicket * quantity
         } else {
-            return 0
+            return .zero
         }
     }
 
@@ -247,7 +248,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
             return
         }
 
-        delegate?.didEnterSellTicketsPriceQuantity(token: viewModel.token, ticketHolder: getTicketHolderFromQuantity(), ethCost: String(totalEthCost), in: self)
+        delegate?.didEnterSellTicketsPriceQuantity(token: viewModel.token, ticketHolder: getTicketHolderFromQuantity(), ethCost: totalEthCost, in: self)
     }
 
     @objc func quantityChanged() {
