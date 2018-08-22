@@ -187,7 +187,7 @@ class AmountTextField: UIControl {
     private func convertToAlternateAmount() -> String {
         if let ethToDollarRate = ethToDollarRate, let string = textField.text, let amount = Double(string) {
             if currentPair.left == "ETH" {
-                return String(amount * ethToDollarRate)
+                return StringFormatter().currency(with: amount * ethToDollarRate, and: "USD")
             } else {
                 return String(amount / ethToDollarRate)
             }

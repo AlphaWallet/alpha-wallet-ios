@@ -43,7 +43,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
     var totalDollarCost: String {
         if let dollarCostPerTicket = Double(pricePerTicketField.dollarCost) {
             let quantity = Double(quantityStepper.value)
-            return String(dollarCostPerTicket * quantity)
+            return StringFormatter().currency(with: dollarCostPerTicket * quantity, and: "USD")
         } else {
             return ""
         }
@@ -256,7 +256,7 @@ class EnterSellTicketsPriceQuantityViewController: UIViewController, TicketVerif
 
     private func updateTotalCostsLabels() {
         viewModel.ethCost = String(totalEthCost)
-        viewModel.dollarCost = String(totalDollarCost)
+        viewModel.dollarCost = totalDollarCost
         configure(viewModel: viewModel)
     }
 
