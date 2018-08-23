@@ -31,12 +31,12 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     let noteBorderView = UIView()
     let ticketView: TokenRowView & UIView
     let nextButton = UIButton(type: .system)
-    var datePicker = UIDatePicker()
-    var timePicker = UIDatePicker()
+    let datePicker = UIDatePicker()
+    let timePicker = UIDatePicker()
     var viewModel: SetSellTokensCardExpiryDateViewControllerViewModel
-    var paymentFlow: PaymentFlow
-    var ticketHolder: TokenHolder
-    var ethCost: Ether
+    let paymentFlow: PaymentFlow
+    let ticketHolder: TokenHolder
+    let ethCost: Ether
     weak var delegate: SetSellTokensCardExpiryDateViewControllerDelegate?
 
     init(

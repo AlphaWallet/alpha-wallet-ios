@@ -12,13 +12,13 @@ protocol TransferNFTCoordinatorDelegate: class {
 
 class TransferNFTCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
-    var ticketHolder: TokenHolder
-    var walletAddress: String
-    var paymentFlow: PaymentFlow
-    var keystore: Keystore
-    var session: WalletSession
-    var account: Account
-    var viewController: UIViewController
+    let ticketHolder: TokenHolder
+    let walletAddress: String
+    let paymentFlow: PaymentFlow
+    let keystore: Keystore
+    let session: WalletSession
+    let account: Account
+    let viewController: UIViewController
     var statusViewController: StatusViewController?
     weak var delegate: TransferNFTCoordinatorDelegate?
     var status = StatusViewControllerViewModel.State.processing {

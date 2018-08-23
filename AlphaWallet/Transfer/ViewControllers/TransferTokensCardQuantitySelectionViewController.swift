@@ -17,11 +17,11 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     let roundedBackground = RoundedBackground()
     let header = TokensCardViewControllerTitleHeader()
 	let subtitleLabel = UILabel()
-    var quantityStepper = NumberStepper()
+    let quantityStepper = NumberStepper()
     let ticketView: TokenRowView & UIView
     let nextButton = UIButton(type: .system)
     var viewModel: TransferTokensCardQuantitySelectionViewModel
-    var paymentFlow: PaymentFlow
+    let paymentFlow: PaymentFlow
     private let token: TokenObject
     weak var delegate: TransferTokenCardQuantitySelectionViewControllerDelegate?
 
