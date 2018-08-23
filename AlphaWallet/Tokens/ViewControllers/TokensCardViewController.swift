@@ -29,9 +29,9 @@ class TokensCardViewController: UIViewController, TicketVerifiableStatusViewCont
     }
     var tokenObject: TokenObject
     var viewModel: TicketsViewModel
-    var tokensStorage: TokensDataStore
-    var account: Wallet
-    var session: WalletSession
+    let tokensStorage: TokensDataStore
+    let account: Wallet
+    let session: WalletSession
     weak var delegate: TokensCardViewControllerDelegate?
     let header = TicketsViewControllerHeader()
     let roundedBackground = RoundedBackground()

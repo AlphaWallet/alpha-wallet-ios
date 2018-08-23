@@ -22,8 +22,8 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TicketVerifia
     let generateMagicLinkButton = UIButton(type: .system)
     let transferNowButton = UIButton(type: .system)
     var viewModel: ChooseTokenCardTransferModeViewControllerViewModel
-    var ticketHolder: TokenHolder
-    var paymentFlow: PaymentFlow
+    let ticketHolder: TokenHolder
+    let paymentFlow: PaymentFlow
     weak var delegate: ChooseTokenCardTransferModeViewControllerDelegate?
 
     init(

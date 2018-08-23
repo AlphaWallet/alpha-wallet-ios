@@ -22,16 +22,16 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TicketVer
     let linkExpiryDateField = DateEntryField()
     let linkExpiryTimeLabel = UILabel()
     let linkExpiryTimeField = TimeEntryField()
-    var datePicker = UIDatePicker()
-    var timePicker = UIDatePicker()
+    let datePicker = UIDatePicker()
+    let timePicker = UIDatePicker()
     let descriptionLabel = UILabel()
     let noteTitleLabel = UILabel()
     let noteLabel = UILabel()
     let noteBorderView = UIView()
     let nextButton = UIButton(type: .system)
     var viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
-    var ticketHolder: TokenHolder
-    var paymentFlow: PaymentFlow
+    let ticketHolder: TokenHolder
+    let paymentFlow: PaymentFlow
     weak var delegate: SetTransferTokensCardExpiryDateViewControllerDelegate?
 
     init(

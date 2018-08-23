@@ -30,8 +30,8 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TicketVe
     let ticketView: TokenRowView & UIView
     let nextButton = UIButton(type: .system)
     var viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel
-    var paymentFlow: PaymentFlow
-    var ethPrice: Subscribable<Double>
+    let paymentFlow: PaymentFlow
+    let ethPrice: Subscribable<Double>
     var totalEthCost: Ether {
         if let ethCostPerTicket = Ether(string: pricePerTicketField.ethCost) {
             let quantity = Int(quantityStepper.value)
