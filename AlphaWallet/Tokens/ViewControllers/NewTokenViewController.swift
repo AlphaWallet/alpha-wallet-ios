@@ -192,7 +192,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         balanceTextField.value = viewModel.ERC875TokenBalanceAmount.description
     }
 
-    public func updateFormForTokenType(_ tokenType: TokenType) {
+    public func updateForm(forTokenType tokenType: TokenType) {
         self.tokenType = tokenType
         switch tokenType {
         case .ether, .erc20:
