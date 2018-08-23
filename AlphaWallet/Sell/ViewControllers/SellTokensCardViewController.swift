@@ -9,7 +9,7 @@ protocol SellTokensCardViewControllerDelegate: class {
     func didTapURL(url: URL, in viewController: SellTokensCardViewController)
 }
 
-class SellTokensCardViewController: UIViewController, TicketVerifiableStatusViewController {
+class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
 
     let config: Config
     var contract: String {

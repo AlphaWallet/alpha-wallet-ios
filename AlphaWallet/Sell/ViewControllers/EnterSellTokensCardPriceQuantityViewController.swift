@@ -9,7 +9,7 @@ protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: EnterSellTokensCardPriceQuantityViewController)
 }
 
-class EnterSellTokensCardPriceQuantityViewController: UIViewController, TicketVerifiableStatusViewController {
+class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVerifiableStatusViewController {
 
     let config: Config
     var contract: String {

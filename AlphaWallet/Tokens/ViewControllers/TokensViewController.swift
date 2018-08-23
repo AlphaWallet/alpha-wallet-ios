@@ -51,7 +51,7 @@ class TokensViewController: UIViewController {
 
         tableView.register(TokenViewCell.self, forCellReuseIdentifier: TokenViewCell.identifier)
         tableView.register(EthTokenViewCell.self, forCellReuseIdentifier: EthTokenViewCell.identifier)
-        tableView.register(TicketTokenViewCell.self, forCellReuseIdentifier: TicketTokenViewCell.identifier)
+        tableView.register(NonFungibleTokenViewCell.self, forCellReuseIdentifier: NonFungibleTokenViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.estimatedRowHeight = 0
         tableView.delegate = self
@@ -239,14 +239,14 @@ extension TokensViewController: UITableViewDelegate {
             )
             return cellViewModel.cellHeight
         case .erc721:
-            let cellViewModel = TokenCardViewCellViewModel(
+            let cellViewModel = NonFungibleTokenViewCellViewModel(
                     config: dataStore.config,
                     token: token,
                     ticker: viewModel.ticker(for: token)
             )
             return cellViewModel.cellHeight
         case .erc875:
-            let cellViewModel = TokenCardViewCellViewModel(
+            let cellViewModel = NonFungibleTokenViewCellViewModel(
                     config: dataStore.config,
                     token: token,
                     ticker: viewModel.ticker(for: token)
@@ -302,7 +302,7 @@ extension TokensViewController: UITableViewDataSource {
             )
             return cell
         case .erc721:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
             cell.configure(
                     viewModel: .init(
                             config: dataStore.config,
@@ -312,7 +312,7 @@ extension TokensViewController: UITableViewDataSource {
             )
             return cell
         case .erc875:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
             cell.configure(
                     viewModel: .init(
                             config: dataStore.config,

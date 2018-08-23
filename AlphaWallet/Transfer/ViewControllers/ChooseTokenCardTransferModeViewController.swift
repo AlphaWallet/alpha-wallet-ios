@@ -9,7 +9,7 @@ protocol ChooseTokenCardTransferModeViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: ChooseTokenCardTransferModeViewController)
 }
 
-class ChooseTokenCardTransferModeViewController: UIViewController, TicketVerifiableStatusViewController {
+class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiableStatusViewController {
     let horizontalAdjustmentForLongMagicLinkButtonTitle = CGFloat(20)
 
     let config: Config
