@@ -21,19 +21,19 @@ protocol TokensCardViewControllerDelegate: class {
     func didTapURL(url: URL, in viewController: TokensCardViewController)
 }
 
-class TokensCardViewController: UIViewController, TicketVerifiableStatusViewController {
+class TokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
 
     let config: Config
     var contract: String {
         return tokenObject.contract
     }
     var tokenObject: TokenObject
-    var viewModel: TicketsViewModel
+    var viewModel: TokensCardViewModel
     var tokensStorage: TokensDataStore
     var account: Wallet
     var session: WalletSession
     weak var delegate: TokensCardViewControllerDelegate?
-    let header = TicketsViewControllerHeader()
+    let header = TokenCardsViewControllerHeader()
     let roundedBackground = RoundedBackground()
     let tableView = UITableView(frame: .zero, style: .plain)
 
@@ -41,7 +41,7 @@ class TokensCardViewController: UIViewController, TicketVerifiableStatusViewCont
     let sellButton = UIButton(type: .system)
     let transferButton = UIButton(type: .system)
 
-    init(config: Config, tokenObject: TokenObject, account: Wallet, session: WalletSession, tokensStorage: TokensDataStore, viewModel: TicketsViewModel) {
+    init(config: Config, tokenObject: TokenObject, account: Wallet, session: WalletSession, tokensStorage: TokensDataStore, viewModel: TokensCardViewModel) {
         self.config = config
         self.tokenObject = tokenObject
         self.account = account
@@ -57,7 +57,7 @@ class TokensCardViewController: UIViewController, TicketVerifiableStatusViewCont
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        tableView.register(TicketTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TicketTableViewCellWithoutCheckbox.identifier)
+        tableView.register(TokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier)
         tableView.register(TokenListFormatTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TokenListFormatTableViewCellWithoutCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
@@ -130,7 +130,7 @@ class TokensCardViewController: UIViewController, TicketVerifiableStatusViewCont
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel newViewModel: TicketsViewModel? = nil) {
+    func configure(viewModel newViewModel: TokensCardViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
@@ -227,7 +227,7 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
             cell.configure(viewModel: .init(ticketHolder: ticketHolder))
             return cell
         case .otherNonFungibleToken:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TicketTableViewCellWithoutCheckbox
+            let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithoutCheckbox
             cell.configure(viewModel: .init(ticketHolder: ticketHolder))
             return cell
         }

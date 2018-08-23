@@ -2,7 +2,7 @@
 
 import UIKit
 
-struct TicketRowViewModel {
+struct TokenCardRowViewModel {
     var ticketHolder: TokenHolder?
 
     var backgroundColor: UIColor {

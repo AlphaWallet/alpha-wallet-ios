@@ -2,7 +2,7 @@
 
 import UIKit
 
-class TokenCardTableViewCellWithCheckbox: BaseTicketTableViewCell {
+class TokenCardTableViewCellWithCheckbox: BaseTokenCardTableViewCell {
     override func showCheckbox() -> Bool {
         return true
     }
