@@ -49,23 +49,23 @@ extension VerifiableStatusViewController where Self: UIViewController {
     }
 }
 
-protocol TicketVerifiableStatusViewController: VerifiableStatusViewController {
+protocol TokenVerifiableStatusViewController: VerifiableStatusViewController {
     var contract: String { get }
     var config: Config { get }
 }
 
-extension TicketVerifiableStatusViewController {
+extension TokenVerifiableStatusViewController {
     var isContractVerified: Bool {
         return XMLHandler(contract: contract).isVerified(for: config.server)
     }
 }
 
-protocol OptionalTicketVerifiableStatusViewController: VerifiableStatusViewController {
+protocol OptionalTokenVerifiableStatusViewController: VerifiableStatusViewController {
     var contract: String? { get }
     var config: Config { get }
 }
 
-extension OptionalTicketVerifiableStatusViewController {
+extension OptionalTokenVerifiableStatusViewController {
     var isContractVerified: Bool {
         guard let contract = contract else { return false }
         return XMLHandler(contract: contract).isVerified(for: config.server)

@@ -99,7 +99,7 @@ class TokenCardRowView: UIView {
 		fatalError("init(coder:) has not been implemented")
 	}
 
-	func configure(viewModel: TicketRowViewModel) {
+	func configure(viewModel: TokenCardRowViewModel) {
 		background.backgroundColor = viewModel.contentsBackgroundColor
 		background.layer.cornerRadius = 20
 		background.layer.shadowRadius = 3

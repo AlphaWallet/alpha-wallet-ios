@@ -1,5 +1,5 @@
 //
-//  TicketsViewModel.swift
+//  TokensCardViewModel.swift
 //  Alpha-Wallet
 //
 //  Created by Oguzhan Gungor on 2/24/18.
@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-struct TicketsViewModel {
+struct TokensCardViewModel {
 
     var token: TokenObject
     var ticketHolders: [TokenHolder]

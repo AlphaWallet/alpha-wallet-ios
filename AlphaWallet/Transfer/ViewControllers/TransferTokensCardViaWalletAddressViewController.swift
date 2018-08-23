@@ -3,13 +3,13 @@
 import UIKit
 import QRCodeReaderViewController
 
-protocol TransferTicketsViaWalletAddressViewControllerDelegate: class {
-    func didEnterWalletAddress(ticketHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTicketsViaWalletAddressViewController)
-    func didPressViewInfo(in viewController: TransferTicketsViaWalletAddressViewController)
-    func didPressViewContractWebPage(in viewController: TransferTicketsViaWalletAddressViewController)
+protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class {
+    func didEnterWalletAddress(ticketHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
+    func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController)
+    func didPressViewContractWebPage(in viewController: TransferTokensCardViaWalletAddressViewController)
 }
 
-class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVerifiableStatusViewController, CanScanQRCode {
+class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController, CanScanQRCode {
     let config: Config
     var contract: String {
         return token.contract
@@ -23,7 +23,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
     var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
     var ticketHolder: TokenHolder
     var paymentFlow: PaymentFlow
-    weak var delegate: TransferTicketsViaWalletAddressViewControllerDelegate?
+    weak var delegate: TransferTokensCardViaWalletAddressViewControllerDelegate?
 
     init(
             config: Config,
@@ -155,7 +155,7 @@ class TransferTicketsViaWalletAddressViewController: UIViewController, TicketVer
 
 }
 
-extension TransferTicketsViaWalletAddressViewController: QRCodeReaderDelegate {
+extension TransferTokensCardViaWalletAddressViewController: QRCodeReaderDelegate {
     func readerDidCancel(_ reader: QRCodeReaderViewController!) {
         reader.stopScanning()
         reader.dismiss(animated: true, completion: nil)
@@ -172,7 +172,7 @@ extension TransferTicketsViaWalletAddressViewController: QRCodeReaderDelegate {
     }
 }
 
-extension TransferTicketsViaWalletAddressViewController: AddressTextFieldDelegate {
+extension TransferTokensCardViaWalletAddressViewController: AddressTextFieldDelegate {
     func displayError(error: Error, for textField: AddressTextField) {
         displayError(error: error)
     }
