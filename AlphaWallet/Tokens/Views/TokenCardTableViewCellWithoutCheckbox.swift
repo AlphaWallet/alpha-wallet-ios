@@ -2,9 +2,8 @@
 
 import UIKit
 
-class TicketTableViewCellWithoutCheckbox: BaseTicketTableViewCell {
+class TokenCardTableViewCellWithoutCheckbox: BaseTokenCardTableViewCell {
     override func showCheckbox() -> Bool {
         return false
     }
 }
-

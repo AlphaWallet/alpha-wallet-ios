@@ -2,14 +2,14 @@
 
 import UIKit
 
-protocol TransferTicketsViewControllerDelegate: class {
-    func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTicketsViewController)
-    func didPressViewInfo(in viewController: TransferTicketsViewController)
-    func didPressViewContractWebPage(in viewController: TransferTicketsViewController)
-    func didTapURL(url: URL, in viewController: TransferTicketsViewController)
+protocol TransferTokensCardViewControllerDelegate: class {
+    func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTokensCardViewController)
+    func didPressViewInfo(in viewController: TransferTokensCardViewController)
+    func didPressViewContractWebPage(in viewController: TransferTokensCardViewController)
+    func didTapURL(url: URL, in viewController: TransferTokensCardViewController)
 }
 
-class TransferTicketsViewController: UIViewController, TicketVerifiableStatusViewController {
+class TransferTokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
 
     let config: Config
     var contract: String {
@@ -22,7 +22,7 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
     var viewModel: TransferTokensCardViewModel
     var paymentFlow: PaymentFlow
     private let token: TokenObject
-    weak var delegate: TransferTicketsViewControllerDelegate?
+    weak var delegate: TransferTokensCardViewControllerDelegate?
 
     init(config: Config, paymentFlow: PaymentFlow, token: TokenObject, viewModel: TransferTokensCardViewModel) {
         self.config = config
@@ -127,7 +127,7 @@ class TransferTicketsViewController: UIViewController, TicketVerifiableStatusVie
     }
 }
 
-extension TransferTicketsViewController: UITableViewDelegate, UITableViewDataSource {
+extension TransferTokensCardViewController: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -158,7 +158,7 @@ extension TransferTicketsViewController: UITableViewDelegate, UITableViewDataSou
     }
 }
 
-extension TransferTicketsViewController: BaseTokenListFormatTableViewCellDelegate {
+extension TransferTokensCardViewController: BaseTokenListFormatTableViewCellDelegate {
     func didTapURL(url: URL) {
         delegate?.didTapURL(url: url, in: self)
     }
