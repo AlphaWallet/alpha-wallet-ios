@@ -33,7 +33,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     var token: TokenObject
     var type: PaymentFlow!
     lazy var rootViewController: TokensCardViewController = {
-        let viewModel = TicketsViewModel(token: token)
+        let viewModel = TokensCardViewModel(token: token)
         return self.makeTicketsViewController(with: self.session.account, viewModel: viewModel)
     }()
 
@@ -75,12 +75,12 @@ class TokensCardCoordinator: NSObject, Coordinator {
         assetDefinitionStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
             guard contract.sameContract(as: strongSelf.token.contract) else { return }
-            let viewModel = TicketsViewModel(token: strongSelf.token)
+            let viewModel = TokensCardViewModel(token: strongSelf.token)
             strongSelf.rootViewController.configure(viewModel: viewModel)
         }
     }
 
-    private func makeTicketsViewController(with account: Wallet, viewModel: TicketsViewModel) -> TokensCardViewController {
+    private func makeTicketsViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
         let controller = TokensCardViewController(config: session.config, tokenObject: token, account: account, session: session, tokensStorage: tokensStorage, viewModel: viewModel)
         controller.delegate = self
         return controller
@@ -228,9 +228,9 @@ class TokensCardCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func makeTransferTicketsViaWalletAddressViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTicketsViaWalletAddressViewController {
+    private func makeTransferTicketsViaWalletAddressViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
         let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, ticketHolder: ticketHolder)
-        let controller = TransferTicketsViaWalletAddressViewController(config: session.config, token: token, ticketHolder: ticketHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+        let controller = TransferTokensCardViaWalletAddressViewController(config: session.config, token: token, ticketHolder: ticketHolder, paymentFlow: paymentFlow, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
@@ -251,9 +251,9 @@ class TokensCardCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func makeTransferTicketsViewController(paymentFlow: PaymentFlow) -> TransferTicketsViewController {
+    private func makeTransferTicketsViewController(paymentFlow: PaymentFlow) -> TransferTokensCardViewController {
         let viewModel = TransferTokensCardViewModel(token: token)
-        let controller = TransferTicketsViewController(config: session.config, paymentFlow: paymentFlow, token: token, viewModel: viewModel)
+        let controller = TransferTokensCardViewController(config: session.config, paymentFlow: paymentFlow, token: token, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
@@ -261,7 +261,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func showEnterQuantityViewController(token: TokenObject,
                                                  for ticketHolder: TokenHolder,
-                                                 in viewController: TransferTicketsViewController) {
+                                                 in viewController: TransferTokensCardViewController) {
         let quantityViewController = makeTransferTicketsQuantitySelectionViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
@@ -485,8 +485,8 @@ extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelega
     }
 }
 
-extension TokensCardCoordinator: TransferTicketsViewControllerDelegate {
-    func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTicketsViewController) {
+extension TokensCardCoordinator: TransferTokensCardViewControllerDelegate {
+    func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTokensCardViewController) {
         switch token.type {
             case .erc721:
                 let vc = makeTransferTicketsViaWalletAddressViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
@@ -498,15 +498,15 @@ extension TokensCardCoordinator: TransferTicketsViewControllerDelegate {
         }
     }
 
-    func didPressViewInfo(in viewController: TransferTicketsViewController) {
+    func didPressViewInfo(in viewController: TransferTokensCardViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
     }
 
-    func didPressViewContractWebPage(in viewController: TransferTicketsViewController) {
+    func didPressViewContractWebPage(in viewController: TransferTokensCardViewController) {
         delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 
-    func didTapURL(url: URL, in viewController: TransferTicketsViewController) {
+    func didTapURL(url: URL, in viewController: TransferTokensCardViewController) {
         let controller = SFSafariViewController(url: url)
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
         viewController.present(controller, animated: true, completion: nil)
@@ -586,8 +586,8 @@ extension TokensCardCoordinator: GenerateTransferMagicLinkViewControllerDelegate
     }
 }
 
-extension TokensCardCoordinator: TransferTicketsViaWalletAddressViewControllerDelegate {
-    func didEnterWalletAddress(ticketHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTicketsViaWalletAddressViewController) {
+extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControllerDelegate {
+    func didEnterWalletAddress(ticketHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
         UIAlertController.alert(title: "", message: R.string.localizable.aWalletTicketTokenTransferModeWalletAddressConfirmation(walletAddress), alertButtonTitles: [R.string.localizable.aWalletTicketTokenTransferButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: navigationController) {
             guard $0 == 0 else {
                 return
@@ -607,11 +607,11 @@ extension TokensCardCoordinator: TransferTicketsViaWalletAddressViewControllerDe
         }
     }
 
-    func didPressViewInfo(in viewController: TransferTicketsViaWalletAddressViewController) {
+    func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController) {
         delegate?.didPressViewEthereumInfo(in: viewController)
     }
 
-    func didPressViewContractWebPage(in viewController: TransferTicketsViaWalletAddressViewController) {
+    func didPressViewContractWebPage(in viewController: TransferTokensCardViaWalletAddressViewController) {
         delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 }

@@ -2,7 +2,7 @@
 
 import UIKit
 
-class TicketSellInfoViewController: HelpContentsViewController {
+class TokenCardSellInfoViewController: HelpContentsViewController {
     override func url() -> URL? {
         return R.file.sellInfoHtml()
     }
