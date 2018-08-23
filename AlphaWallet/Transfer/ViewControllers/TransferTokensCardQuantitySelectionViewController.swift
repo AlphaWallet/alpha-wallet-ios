@@ -8,7 +8,7 @@ protocol TransferTokenCardQuantitySelectionViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: TransferTokensCardQuantitySelectionViewController)
 }
 
-class TransferTokensCardQuantitySelectionViewController: UIViewController, TicketVerifiableStatusViewController {
+class TransferTokensCardQuantitySelectionViewController: UIViewController, TokenVerifiableStatusViewController {
 
     let config: Config
     var contract: String {

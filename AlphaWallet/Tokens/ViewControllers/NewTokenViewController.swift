@@ -371,7 +371,11 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
         let newValue = (textField.value as NSString?)?.replacingCharacters(in: range, with: string)
         if let newValue = newValue, CryptoAddressValidator.isValidAddress(newValue) {
-            updateContractValue(value: newValue)
+            DispatchQueue.global().async {
+                DispatchQueue.main.sync {
+                    self.updateContractValue(value: newValue)
+                }
+            }
         }
         return true
     }

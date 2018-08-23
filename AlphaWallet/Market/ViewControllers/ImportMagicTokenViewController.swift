@@ -9,7 +9,7 @@ protocol ImportTokenViewControllerDelegate: class {
 }
 
 //class ImportTicketViewController: UIViewController, VerifiableStatusViewController {
-class ImportTokenViewController: UIViewController, OptionalTicketVerifiableStatusViewController {
+class ImportTokenViewController: UIViewController, OptionalTokenVerifiableStatusViewController {
     enum State {
         case ready(ImportMagicTokenViewControllerViewModel)
         case notReady

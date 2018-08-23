@@ -14,7 +14,7 @@ protocol RedeemTokenCardQuantitySelectionViewControllerDelegate: class {
     func didPressViewContractWebPage(in viewController: RedeemTokenCardQuantitySelectionViewController)
 }
 
-class RedeemTokenCardQuantitySelectionViewController: UIViewController, TicketVerifiableStatusViewController {
+class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVerifiableStatusViewController {
 
     let config: Config
     var contract: String {
