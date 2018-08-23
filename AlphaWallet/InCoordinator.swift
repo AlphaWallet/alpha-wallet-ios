@@ -444,7 +444,7 @@ extension InCoordinator: TokensCardCoordinatorDelegate {
     }
 
     func didPressViewRedemptionInfo(in viewController: UIViewController) {
-        let controller = TicketRedemptionInfoViewController()
+        let controller = TokenCardRedemptionInfoViewController()
 		viewController.navigationController?.pushViewController(controller, animated: true)
     }
 
