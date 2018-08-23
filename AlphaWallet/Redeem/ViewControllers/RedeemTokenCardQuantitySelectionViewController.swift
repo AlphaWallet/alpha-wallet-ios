@@ -24,7 +24,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TicketVe
     let roundedBackground = RoundedBackground()
     let header = TokensCardViewControllerTitleHeader()
 	let subtitleLabel = UILabel()
-    var quantityStepper = NumberStepper()
+    let quantityStepper = NumberStepper()
     let ticketView: TokenRowView & UIView
     let nextButton = UIButton(type: .system)
     var viewModel: RedeemTokenCardQuantitySelectionViewModel

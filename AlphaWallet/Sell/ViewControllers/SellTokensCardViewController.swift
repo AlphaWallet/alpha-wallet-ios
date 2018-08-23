@@ -20,7 +20,7 @@ class SellTokensCardViewController: UIViewController, TicketVerifiableStatusView
     let tableView = UITableView(frame: .zero, style: .plain)
 	let nextButton = UIButton(type: .system)
     var viewModel: SellTokensCardViewModel
-    var paymentFlow: PaymentFlow
+    let paymentFlow: PaymentFlow
     weak var delegate: SellTokensCardViewControllerDelegate?
 
     init(config: Config, paymentFlow: PaymentFlow, viewModel: SellTokensCardViewModel) {
