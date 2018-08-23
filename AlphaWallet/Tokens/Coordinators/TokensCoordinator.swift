@@ -335,9 +335,9 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
             case .decimals(let decimals):
                 viewController.updateDecimalsValue(decimals)
             case .nonFungibleTokenComplete(_, _, _, let tokenType):
-                viewController.updateFormForTokenType(tokenType)
+                viewController.updateForm(forTokenType: tokenType)
             case .fungibleTokenComplete:
-                viewController.updateFormForTokenType(.erc20)
+                viewController.updateForm(forTokenType: .erc20)
             case .failed:
                 break
             }

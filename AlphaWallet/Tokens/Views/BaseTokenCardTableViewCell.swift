@@ -3,7 +3,7 @@
 import UIKit
 
 // Override showCheckbox() to return true or false
-class BaseTicketTableViewCell: UITableViewCell {
+class BaseTokenCardTableViewCell: UITableViewCell {
     static let identifier = "TicketTableViewCell"
 
     lazy var rowView = TokenCardRowView(showCheckbox: showCheckbox())

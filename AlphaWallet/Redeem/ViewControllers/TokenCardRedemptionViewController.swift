@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TokenCardRedemptionViewController: UIViewController, TicketVerifiableStatusViewController {
+class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatusViewController {
 
     let config: Config
     var contract: String {
@@ -123,7 +123,7 @@ class TokenCardRedemptionViewController: UIViewController, TicketVerifiableStatu
     }
 
     func showInfo() {
-        let controller = TicketRedemptionInfoViewController()
+        let controller = TokenCardRedemptionInfoViewController()
         navigationController?.pushViewController(controller, animated: true)
     }
 
