@@ -3,9 +3,9 @@
 import UIKit
 
 struct GenerateSellMagicLinkViewControllerViewModel {
-    var ticketHolder: TokenHolder
-    var ethCost: Ether
-    var linkExpiryDate: Date
+    let ticketHolder: TokenHolder
+    let ethCost: Ether
+    let linkExpiryDate: Date
 
     var contentsBackgroundColor: UIColor {
         return Colors.appWhite

@@ -28,10 +28,10 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         return tokenObject.contract
     }
     var tokenObject: TokenObject
-    var viewModel: TokensCardViewModel
-    var tokensStorage: TokensDataStore
-    var account: Wallet
-    var session: WalletSession
+    var viewModel: TicketsViewModel
+    let tokensStorage: TokensDataStore
+    let account: Wallet
+    let session: WalletSession
     weak var delegate: TokensCardViewControllerDelegate?
     let header = TokenCardsViewControllerHeader()
     let roundedBackground = RoundedBackground()

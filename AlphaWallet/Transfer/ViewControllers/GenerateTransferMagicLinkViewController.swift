@@ -18,9 +18,9 @@ class GenerateTransferMagicLinkViewController: UIViewController {
     let descriptionLabel = UILabel()
     let actionButton = UIButton()
     let cancelButton = UIButton()
-    var paymentFlow: PaymentFlow
-    var ticketHolder: TokenHolder
-    var linkExpiryDate: Date
+    let paymentFlow: PaymentFlow
+    let ticketHolder: TokenHolder
+    let linkExpiryDate: Date
     var viewModel: GenerateTransferMagicLinkViewControllerViewModel?
 
     init(paymentFlow: PaymentFlow, ticketHolder: TokenHolder, linkExpiryDate: Date) {
