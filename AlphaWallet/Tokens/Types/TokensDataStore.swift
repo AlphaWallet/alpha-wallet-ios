@@ -516,7 +516,7 @@ class TokensDataStore {
             if let token = config.createDefaultTicketToken(forContract: contract) {
                 let contract = token.contract.eip55String
                 let localizedName = token.name
-                if let storedTicketToken = enabledObject.first(where: { $0.contract == contract }) {
+                if let storedTicketToken = enabledObject.first(where: { $0.contract.sameContract(as: contract) }) {
                     //TODO multiple realm writes in a loop. Should we group them together?
                     updateTicketTokenName(token: storedTicketToken, to: localizedName)
                 }
