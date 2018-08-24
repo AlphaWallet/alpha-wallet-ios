@@ -140,39 +140,6 @@ struct Config {
     ///Debugging flag. Set to false to disable auto fetching prices, etc to cut down on network calls
     let isAutoFetchingDisabled = false
 
-    func createDefaultTicketToken() -> ERCToken? {
-        guard let contract = ticketContractAddress else { return nil }
-        guard let contractAddress = Address(string: contract) else { return nil }
-        let xmlHandler = XMLHandler(contract: contract)
-        let lang = xmlHandler.getLang()
-        let name = xmlHandler.getName(lang: lang)
-        //TODO get symbol from RPC node, but this doesn't provide much benefit as it is a hardcoded
-        //placeholder anyway
-        //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
-        switch server {
-        case .main:
-            return ERCToken(
-                    contract: contractAddress,
-                    name: Constants.event + " " + name,
-                    symbol: "SHANKAI",
-                    decimals: 0,
-                    type: .erc875,
-                    balance: []
-            )
-        case .ropsten:
-            return ERCToken(
-                    contract: contractAddress,
-                    name: name,
-                    symbol: "TEST",
-                    decimals: 0,
-                    type: .erc875,
-                    balance: []
-            )
-        case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
-            return nil
-        }
-    }
-
     func createDefaultTicketToken(forContract contract: String) -> ERCToken? {
         guard let contractAddress = Address(string: contract) else { return nil }
         let xmlHandler = XMLHandler(contract: contract)
