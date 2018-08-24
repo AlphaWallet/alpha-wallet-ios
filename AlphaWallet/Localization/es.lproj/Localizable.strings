@@ -95,6 +95,7 @@
 "Copy Address" = "Copiar dirección";
 "Decimals" = "Decimals";
 "warning.fieldRequired" = "Field required!";
+"detecting.token.type.title" = "Detecting token type…";
 "editTokens.searchBar.placeholder.title" = "Search tokens";
 "importWallet.import.alertSheet.option.title" = "iCloud/Dropbox/Google Drive";
 "importWallet.import.alertSheet.title" = "Import Wallet Options";
