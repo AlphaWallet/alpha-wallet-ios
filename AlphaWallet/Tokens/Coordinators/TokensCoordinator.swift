@@ -62,7 +62,6 @@ class TokensCoordinator: Coordinator {
     }
 
     func start() {
-        addFIFAToken()
         autoDetectTokens()
         showTokens()
         refreshUponAssetDefinitionChanges()
@@ -190,14 +189,6 @@ class TokensCoordinator: Coordinator {
 //            storage: storage
 //        )
 //        navigationController.pushViewController(controller, animated: true)
-    }
-
-    //FIFA add the FIFA token with a hardcoded address for appropriate network if not already present
-    private func addFIFAToken() {
-        if let token = session.config.createDefaultTicketToken(), !storage.enabledObject.contains { $0.address.eip55String == token.contract.eip55String } {
-            storage.addCustom(token: token)
-        }
-        tokensViewController.fetch()
     }
 
     /// Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
