@@ -101,8 +101,9 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
     func nextButtonTapped() {
         let selectedTicketHolders = viewModel.ticketHolders.filter { $0.isSelected }
         if selectedTicketHolders.isEmpty {
+            let tokenTypeName = XMLHandler(contract: contract).getTokenTypeName(.singular, titlecase: .notTitlecase)
             UIAlertController.alert(title: "",
-                                    message: R.string.localizable.aWalletTicketTokenSellSelectTicketsAtLeastOneTitle(),
+                                    message: R.string.localizable.aWalletTicketTokenSellSelectTicketsAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,

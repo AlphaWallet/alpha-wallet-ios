@@ -222,8 +222,9 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     @objc
     func nextButtonTapped() {
         guard quantityStepper.value > 0 else {
+            let tokenTypeName = XMLHandler(contract: contract).getTokenTypeName()
             UIAlertController.alert(title: "",
-                    message: R.string.localizable.aWalletTicketTokenSellSelectTicketQuantityAtLeastOneTitle(),
+                    message: R.string.localizable.aWalletTicketTokenSellSelectTicketQuantityAtLeastOneTitle(tokenTypeName),
                     alertButtonTitles: [R.string.localizable.oK()],
                     alertButtonStyles: [.cancel],
                     viewController: self,
@@ -239,8 +240,9 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         }
 
         guard !noPrice else {
+            let tokenTypeName = XMLHandler(contract: contract).getTokenTypeName(.plural, titlecase: .notTitlecase)
             UIAlertController.alert(title: "",
-                    message: R.string.localizable.aWalletTicketTokenSellPriceProvideTitle(),
+                    message: R.string.localizable.aWalletTicketTokenSellPriceProvideTitle(tokenTypeName),
                     alertButtonTitles: [R.string.localizable.oK()],
                     alertButtonStyles: [.cancel],
                     viewController: self,

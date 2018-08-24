@@ -87,10 +87,6 @@ class TokensViewModel {
         if etherTokenContract == token.contract {
             return false
         }
-        if let ticketContractAddress = config.ticketContractAddress,
-           token.contract.lowercased() == ticketContractAddress.lowercased() {
-            return false
-        }
         return true
     }
 
