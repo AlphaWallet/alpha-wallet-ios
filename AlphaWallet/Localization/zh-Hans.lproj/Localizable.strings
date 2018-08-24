@@ -74,7 +74,7 @@
 "Copy Address" = "复制地址";
 "Decimals" = "位数";
 "warning.fieldRequired" = "必填字段!";
-"detecting.token.type.title" = "Detecting token type…";
+"detecting.token.type.title" = "正在检查通证类型…";
 "editTokens.searchBar.placeholder.title" = "搜索通证";
 "importWallet.import.alertSheet.option.title" = "iCloud/Dropbox/Google Drive";
 "importWallet.import.alertSheet.title" = "导入钱包选项";
