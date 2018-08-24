@@ -107,8 +107,9 @@ class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewCont
     func nextButtonTapped() {
         let selectedTicketHolders = viewModel.ticketHolders.filter { $0.isSelected }
         if selectedTicketHolders.isEmpty {
+            let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.singular, titlecase: .notTitlecase)
             UIAlertController.alert(title: "",
-                                    message: R.string.localizable.aWalletTicketTokenRedeemSelectTicketsAtLeastOneTitle(),
+                                    message: R.string.localizable.aWalletTicketTokenRedeemSelectTicketsAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,

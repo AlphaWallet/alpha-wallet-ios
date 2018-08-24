@@ -54,7 +54,8 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var descriptionLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellMagicLinkDescriptionTitle()
+        let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.plural, titlecase: .notTitlecase)
+        return R.string.localizable.aWalletTicketTokenSellMagicLinkDescriptionTitle(tokenTypeName)
     }
 
     var descriptionLabelFont: UIFont {
@@ -67,15 +68,18 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
 
     var ticketCountLabelText: String {
         if ticketCount == 1 {
-            return R.string.localizable.aWalletTicketTokenSellSingleTicketSelectedTitle()
+            let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.singular, titlecase: .titlecase)
+            return R.string.localizable.aWalletTicketTokenSellSingleTicketSelectedTitle(tokenTypeName)
         } else {
-            return R.string.localizable.aWalletTicketTokenSellMultipleTicketSelectedTitle(ticketHolder.count)
+            let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.plural, titlecase: .titlecase)
+            return R.string.localizable.aWalletTicketTokenSellMultipleTicketSelectedTitle(ticketHolder.count, tokenTypeName)
         }
     }
 
     var perTicketPriceLabelText: String {
+        let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.singular, titlecase: .titlecase)
         let amount = ethCost / ticketCount
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(String(amount))
+        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(String(amount), tokenTypeName)
     }
 
     var totalEthLabelText: String {
@@ -95,7 +99,8 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellNoteLabelTitle()
+        let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.plural, titlecase: .notTitlecase)
+        return R.string.localizable.aWalletTicketTokenSellNoteLabelTitle(tokenTypeName)
     }
 
     var noteLabelFont: UIFont {
