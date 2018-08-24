@@ -62,9 +62,11 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
 
     var ticketCountLabelText: String {
         if ticketCount == 1 {
-            return R.string.localizable.aWalletTicketTokenSellConfirmSingleTicketSelectedTitle()
+            let tokenTypeName = XMLHandler(contract: ticketHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
+            return R.string.localizable.aWalletTicketTokenSellConfirmSingleTicketSelectedTitle(tokenTypeName)
         } else {
-            return R.string.localizable.aWalletTicketTokenSellConfirmMultipleTicketSelectedTitle(ticketHolder.count)
+            let tokenTypeName = XMLHandler(contract: ticketHolder.contractAddress).getTokenTypeName(.plural, titlecase: .titlecase)
+            return R.string.localizable.aWalletTicketTokenSellConfirmMultipleTicketSelectedTitle(ticketHolder.count, tokenTypeName)
         }
     }
 
