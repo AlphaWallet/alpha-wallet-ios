@@ -1,5 +1,5 @@
 //
-//  TicketHolder.swift
+//  TokenHolder.swift
 //  Alpha-Wallet
 //
 //  Created by Oguzhan Gungor on 2/25/18.
@@ -9,19 +9,19 @@
 import Foundation
 
 class TokenHolder {
-    enum TicketHolderStatus {
+    enum Status {
         case available, sold, redeemed, forSale, transferred
     }
 
     var tickets: [Token]
     var name: String { return tickets[0].name }
     var values: [String: AssetAttributeValue] { return tickets[0].values }
-    var status: TicketHolderStatus
+    var status: Status
     var isSelected = false
     var areDetailsVisible = false
     var contractAddress: String
 
-    init(tickets: [Token], status: TicketHolderStatus, contractAddress: String) {
+    init(tickets: [Token], status: Status, contractAddress: String) {
         self.tickets = tickets
         self.status = status
         self.contractAddress = contractAddress
