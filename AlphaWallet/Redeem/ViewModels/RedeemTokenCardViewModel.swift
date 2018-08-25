@@ -27,10 +27,6 @@ struct RedeemTokenCardViewModel {
         return ticketHolders.count
     }
 
-    func height(for section: Int) -> CGFloat {
-        return 90
-    }
-
     var title: String {
         return R.string.localizable.aWalletTicketTokenRedeemSelectTicketsTitle ()
     }
