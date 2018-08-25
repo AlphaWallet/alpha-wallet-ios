@@ -59,10 +59,8 @@ open class EtherKeystore: Keystore {
             keychain.set(newValue?.address.description ?? "", forKey: Keys.recentlyUsedAddress, withAccess: defaultKeychainAccess)
         }
         get {
-            let address = keychain.get(Keys.recentlyUsedAddress)
-            return wallets.filter {
-                $0.address.description == address || $0.address.description.lowercased() == address?.lowercased()
-            }.first
+            guard let address = keychain.get(Keys.recentlyUsedAddress) else { return nil }
+            return wallets.filter { $0.address.description.sameContract(as: address) }.first
         }
     }
 
