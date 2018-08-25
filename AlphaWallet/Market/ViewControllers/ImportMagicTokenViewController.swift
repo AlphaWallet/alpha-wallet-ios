@@ -3,20 +3,19 @@
 import UIKit
 import Alamofire
 
-protocol ImportTokenViewControllerDelegate: class {
-    func didPressDone(in viewController: ImportTokenViewController)
-    func didPressImport(in viewController: ImportTokenViewController)
+protocol ImportMagicTokenViewControllerDelegate: class {
+    func didPressDone(in viewController: ImportMagicTokenViewController)
+    func didPressImport(in viewController: ImportMagicTokenViewController)
 }
 
-//class ImportTicketViewController: UIViewController, VerifiableStatusViewController {
-class ImportTokenViewController: UIViewController, OptionalTokenVerifiableStatusViewController {
+class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableStatusViewController {
     enum State {
         case ready(ImportMagicTokenViewControllerViewModel)
         case notReady
     }
 
     let config: Config
-    weak var delegate: ImportTokenViewControllerDelegate?
+    weak var delegate: ImportMagicTokenViewControllerDelegate?
     let roundedBackground = RoundedBackground()
     let header = TokensCardViewControllerTitleHeader()
     let ticketView = TokenCardRowView()

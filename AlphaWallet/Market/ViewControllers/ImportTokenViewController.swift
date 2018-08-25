@@ -4,8 +4,8 @@ import UIKit
 import Alamofire
 
 protocol ImportTokenViewControllerDelegate: class {
-    func didPressDone(in viewController: ImportTokenViewController)
-    func didPressImport(in viewController: ImportTokenViewController)
+    func didPressDone(in viewController: ImportMagicTokenViewController)
+    func didPressImport(in viewController: ImportMagicTokenViewController)
 }
 
 //class ImportTokenViewController: UIViewController, VerifiableStatusViewController {
@@ -16,7 +16,7 @@ class ImportTokenViewController: UIViewController, OptionalTokenVerifiableStatus
     }
 
     let config: Config
-    weak var delegate: ImportTokenViewControllerDelegate?
+    weak var delegate: ImportMagicTokenViewControllerDelegate?
     let roundedBackground = RoundedBackground()
     let header = TokensViewControllerTitleHeader()
     let TokenView = TokenRowView()
