@@ -14,4 +14,9 @@ class EtherTests: XCTestCase {
         XCTAssertEqual(String(e * 10), "12")
         XCTAssertEqual(String(e / 10), "0.12")
     }
+
+    func testDescriptionShouldNotIncludeFormatting() {
+        let e = Ether(string: "1000")!
+        XCTAssertEqual(String(e), "1000")
+    }
 }

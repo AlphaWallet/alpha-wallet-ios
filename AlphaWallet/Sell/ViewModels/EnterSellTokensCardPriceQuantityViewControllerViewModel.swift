@@ -75,7 +75,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var ethCostLabelText: String {
-        return "\(ethCost) ETH"
+        return "\(ethCost.formattedDescription) ETH"
     }
 
     var ethCostLabelColor: UIColor {
