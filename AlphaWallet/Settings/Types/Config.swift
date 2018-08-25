@@ -143,8 +143,7 @@ struct Config {
     func createDefaultTicketToken(forContract contract: String) -> ERCToken? {
         guard let contractAddress = Address(string: contract) else { return nil }
         let xmlHandler = XMLHandler(contract: contract)
-        let lang = xmlHandler.getLang()
-        let name = xmlHandler.getName(lang: lang)
+        let name = xmlHandler.getName()
         //TODO get symbol from RPC node, but this doesn't provide much benefit as it is a hardcoded
         //placeholder anyway
         //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
