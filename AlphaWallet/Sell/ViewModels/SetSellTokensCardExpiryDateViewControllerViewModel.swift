@@ -75,11 +75,11 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
 
     var perTicketPriceLabelText: String {
         let amount = ethCost / ticketCount
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(String(amount))
+        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount.formattedDescription)
     }
 
     var totalEthLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellTotalEthPriceTitle(String(ethCost))
+        return R.string.localizable.aWalletTicketTokenSellTotalEthPriceTitle(ethCost.formattedDescription)
     }
 
     var noteTitleLabelText: String {
