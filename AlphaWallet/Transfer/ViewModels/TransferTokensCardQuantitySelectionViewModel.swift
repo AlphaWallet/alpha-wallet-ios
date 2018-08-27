@@ -9,7 +9,8 @@ struct TransferTokensCardQuantitySelectionViewModel {
     var ticketHolder: TokenHolder
 
     var headerTitle: String {
-		return R.string.localizable.aWalletTicketTokenTransferSelectQuantityTitle()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.plural, titlecase: .titlecase)
+		return R.string.localizable.aWalletTicketTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 
     var maxValue: Int {
@@ -45,6 +46,7 @@ struct TransferTokensCardQuantitySelectionViewModel {
     }
 
     var subtitleText: String {
-		return R.string.localizable.aWalletTicketTokenTransferQuantityTitle()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+		return R.string.localizable.aWalletTicketTokenTransferQuantityTitle(tokenTypeName.localizedUppercase)
     }
 }

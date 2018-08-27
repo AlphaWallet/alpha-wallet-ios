@@ -6,11 +6,7 @@ import UIKit
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
     var config: Config
-    var tokens: [TokenObject] = [] {
-        willSet {
-			tokens = reorderTokensSoFIFAAtIndex1(tokens: newValue)
-        }
-    }
+    var tokens: [TokenObject] = []
     var tickers: [String: CoinTicker]?
     var etherTokenContract: String
     var filter: WalletFilter = .all
@@ -88,11 +84,11 @@ class TokensViewModel {
 
     func canDelete(for row: Int, section: Int) -> Bool {
         let token = item(for: row, section: section)
-        if etherTokenContract == token.contract {
+        if etherTokenContract.sameContract(as: token.contract) {
             return false
         }
         if let ticketContractAddress = config.ticketContractAddress,
-           token.contract.lowercased() == ticketContractAddress.lowercased() {
+           token.contract.sameContract(as: ticketContractAddress) {
             return false
         }
         return true
@@ -113,22 +109,7 @@ class TokensViewModel {
     ) {
         self.config = config
         self.etherTokenContract = TokensDataStore.etherToken(for: config).contract
-        self.tokens = reorderTokensSoFIFAAtIndex1(tokens: tokens)
+        self.tokens = tokens
         self.tickers = tickers
-    }
-
-    //FIFA make the FIFA token be index 1. Can remove the function and replace with the argument when we no longer need this
-    private func reorderTokensSoFIFAAtIndex1(tokens: [TokenObject]) -> [TokenObject] {
-        guard let contract = config.ticketContractAddress else { return tokens }
-        let index = tokens.index { $0.address.eip55String.sameContract(as: contract) }
-        if let index = index, tokens.count >= 2 {
-            var reorderedTokens = tokens
-            let target = reorderedTokens[index]
-            reorderedTokens.remove(at: index)
-            reorderedTokens.insert(target, at: 1)
-            return reorderedTokens
-        } else {
-            return tokens
-        }
     }
 }
