@@ -44,19 +44,20 @@ class TransferNFTCoordinator: Coordinator {
 
     func start() {
         guard let address = validateAddress() else { return }
-        showProgressViewController()
+        showProgressViewController(address: address)
         transfer(address: address)
     }
 
-    private func showProgressViewController() {
+    private func showProgressViewController(address: Address) {
         statusViewController = StatusViewController()
         if let vc = statusViewController {
             vc.delegate = self
+            let tokenTypeName = XMLHandler(contract: address.eip55String).getTokenTypeName(.singular)
             vc.configure(viewModel: .init(
                     state: .processing,
-                    inProgressText: R.string.localizable.aWalletTicketTokenTransferInProgressTitle(),
-                    succeededTextText: R.string.localizable.aWalletTicketTokenTransferSuccessTitle(),
-                    failedText: R.string.localizable.aWalletTicketTokenTransferFailedTitle()
+                    inProgressText: R.string.localizable.aWalletTicketTokenTransferInProgressTitle(tokenTypeName),
+                    succeededTextText: R.string.localizable.aWalletTicketTokenTransferSuccessTitle(tokenTypeName),
+                    failedText: R.string.localizable.aWalletTicketTokenTransferFailedTitle(tokenTypeName)
             ))
             vc.modalPresentationStyle = .overCurrentContext
             viewController.present(vc, animated: true)
