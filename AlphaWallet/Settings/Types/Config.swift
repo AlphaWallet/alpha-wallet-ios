@@ -126,47 +126,21 @@ struct Config {
         }
     }
 
-    var ticketContractAddress: String? {
-        switch server {
-        case .main:
-            return "0xA66A3F08068174e8F005112A8b2c7A507a822335"
-        case .ropsten:
-            return "0xd8e5f58de3933e1e35f9c65eb72cb188674624f3"
-        default:
-            return nil
-        }
-    }
-
     ///Debugging flag. Set to false to disable auto fetching prices, etc to cut down on network calls
     let isAutoFetchingDisabled = false
 
-    func createDefaultTicketToken(forContract contract: String) -> ERCToken? {
+    //TODO move?
+    func getContractLocalizedName(forContract contract: String) -> String? {
         guard let contractAddress = Address(string: contract) else { return nil }
         let xmlHandler = XMLHandler(contract: contract)
-        let lang = xmlHandler.getLang()
-        let name = xmlHandler.getName(lang: lang)
+        let name = xmlHandler.getName()
         //TODO get symbol from RPC node, but this doesn't provide much benefit as it is a hardcoded
         //placeholder anyway
         //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
+        let lang = xmlHandler.getLang()
         switch server {
-        case .main:
-            return ERCToken(
-                    contract: contractAddress,
-                    name: Constants.event + " " + name,
-                    symbol: "SHANKAI",
-                    decimals: 0,
-                    type: .erc875,
-                    balance: []
-            )
-        case .ropsten:
-            return ERCToken(
-                    contract: contractAddress,
-                    name: name,
-                    symbol: "TEST",
-                    decimals: 0,
-                    type: .erc875,
-                    balance: []
-            )
+        case .main, .ropsten:
+            return name
         case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
             return nil
         }
