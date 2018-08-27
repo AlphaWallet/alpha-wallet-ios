@@ -1,4 +1,4 @@
-//  TicketsCoordinator.swift
+//  TokensCardCoordinator.swift
 //  Alpha-Wallet
 //
 //  Created by Oguzhan Gungor on 2/27/18.
