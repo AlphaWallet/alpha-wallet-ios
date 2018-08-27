@@ -93,7 +93,7 @@ DEPENDENCIES:
   - SwiftyJSON
   - SwiftyXMLParser (from `https://github.com/yahoojapan/SwiftyXMLParser.git`)
   - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, branch `alphawallet`)
-  - TrustWeb3Provider (from `https://github.com/TrustWallet/trust-web3-provider`, commit `f4e0ebb1b8fa4812637babe85ef975d116543dfd`)
+  - TrustWeb3Provider (from `https://github.com/alpha-wallet/dapp-web3-provider`, branch `nervos-dist`)
   - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, branch `alphawallet`)
 
 SPEC REPOS:
@@ -138,8 +138,8 @@ EXTERNAL SOURCES:
     :branch: alphawallet
     :git: https://github.com/alpha-wallet/trust-keystore.git
   TrustWeb3Provider:
-    :commit: f4e0ebb1b8fa4812637babe85ef975d116543dfd
-    :git: https://github.com/TrustWallet/trust-web3-provider
+    :branch: nervos-dist
+    :git: https://github.com/alpha-wallet/dapp-web3-provider
   web3swift:
     :branch: alphawallet
     :git: https://github.com/alpha-wallet/web3swift.git
@@ -155,8 +155,8 @@ CHECKOUT OPTIONS:
     :commit: c819647f4b3c5b149b61268eecd5a0805fbf6498
     :git: https://github.com/alpha-wallet/trust-keystore.git
   TrustWeb3Provider:
-    :commit: f4e0ebb1b8fa4812637babe85ef975d116543dfd
-    :git: https://github.com/TrustWallet/trust-web3-provider
+    :commit: 3982bf7bfa956839d33d7616247631c6375fc450
+    :git: https://github.com/alpha-wallet/dapp-web3-provider
   web3swift:
     :commit: e158b947f0f541ddf09461f4b73d960bde1dadcd
     :git: https://github.com/alpha-wallet/web3swift.git
@@ -197,6 +197,6 @@ SPEC CHECKSUMS:
   TrustWeb3Provider: 50fa391bdf170feb43dd4419992931510a5751d8
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: ab5c3543229c5209bd644442b4501f028619ae92
+PODFILE CHECKSUM: d32ff5d8a05bd2e3997b22c3d29c454caeffca4e
 
 COCOAPODS: 1.5.3
