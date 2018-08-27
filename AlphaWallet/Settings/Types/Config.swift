@@ -133,17 +133,7 @@ struct Config {
     func getContractLocalizedName(forContract contract: String) -> String? {
         guard let contractAddress = Address(string: contract) else { return nil }
         let xmlHandler = XMLHandler(contract: contract)
-        let name = xmlHandler.getName()
-        //TODO get symbol from RPC node, but this doesn't provide much benefit as it is a hardcoded
-        //placeholder anyway
-        //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
-        let lang = xmlHandler.getLang()
-        switch server {
-        case .main, .ropsten:
-            return name
-        case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
-            return nil
-        }
+        return xmlHandler.getName()
     }
 
     func addToWalletAddressesAlreadyPromptedForBackup(address: String) {

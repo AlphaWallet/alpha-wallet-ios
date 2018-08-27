@@ -206,10 +206,6 @@ public class XMLHandler {
         return privateXMLHandler.getTokenTypeName(type, titlecase: titlecase)
     }
 
-    func getLang() -> String {
-        return privateXMLHandler.getLang()
-    }
-
     func getIssuer() -> String {
         return privateXMLHandler.getIssuer()
     }

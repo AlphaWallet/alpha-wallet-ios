@@ -87,10 +87,6 @@ class TokensViewModel {
         if etherTokenContract.sameContract(as: token.contract) {
             return false
         }
-        if let ticketContractAddress = config.ticketContractAddress,
-           token.contract.sameContract(as: ticketContractAddress) {
-            return false
-        }
         return true
     }
 
