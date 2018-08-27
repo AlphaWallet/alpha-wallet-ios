@@ -47,11 +47,13 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var quantityLabelText: String {
-		return R.string.localizable.aWalletTicketTokenSellQuantityTitle()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+		return R.string.localizable.aWalletTicketTokenSellQuantityTitle(tokenTypeName.localizedUppercase)
     }
 
     var pricePerTicketLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellPricePerTicketTitle()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.singular)
+        return R.string.localizable.aWalletTicketTokenSellPricePerTicketTitle(tokenTypeName.localizedUppercase)
     }
 
     var linkExpiryDateLabelText: String {
@@ -75,7 +77,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var ethCostLabelText: String {
-        return "\(ethCost) ETH"
+        return "\(ethCost.formattedDescription) ETH"
     }
 
     var ethCostLabelColor: UIColor {

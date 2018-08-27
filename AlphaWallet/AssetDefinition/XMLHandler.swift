@@ -10,6 +10,15 @@ import SwiftyXMLParser
 import BigInt
 import TrustKeystore
 
+enum SingularOrPlural {
+    case singular
+    case plural
+}
+enum TitlecaseOrNot {
+    case titlecase
+    case notTitlecase
+}
+
 //  Interface to extract data from non fungible token
 
 private class PrivateXMLHandler {
@@ -38,7 +47,6 @@ private class PrivateXMLHandler {
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
         guard tokenBytes32 != 0 else { return .empty }
-        let lang = getLang()
         var values = [String: AssetAttributeValue]()
         for (name, attribute) in fields {
             let value = attribute.extract(from: tokenBytes32)
@@ -48,7 +56,7 @@ private class PrivateXMLHandler {
         return Token(
                 id: tokenBytes32,
                 index: index,
-                name: getName(lang: lang),
+                name: getName(),
                 values: values
         )
     }
@@ -72,14 +80,65 @@ private class PrivateXMLHandler {
         return fields
     }
 
-    func getName(lang: String) -> String {
+    func getName() -> String {
+        let lang = getLang()
         if let name = contract?["name"].getElementWithLangAttribute(equals: lang)?.text {
+            if contractAddress.sameContract(as: Constants.ticketContractAddress) || contractAddress.sameContract(as: Constants.ticketContractAddressRopsten ) {
+                return "\(Constants.fifaWorldCup2018TokenNamePrefix) \(name)"
+            }
             return name
         }
         return "N/A"
     }
-    
-    func getLang() -> String {
+
+    func getTokenTypeName(_ type: SingularOrPlural = .plural, titlecase: TitlecaseOrNot = .titlecase) -> String {
+        if contractAddress.sameContract(as: Constants.ticketContractAddress) || contractAddress.sameContract(as: Constants.ticketContractAddressRopsten) {
+            switch type {
+            case .singular:
+                switch titlecase {
+                case .titlecase:
+                    return R.string.localizable.ticketTitlecase()
+                case .notTitlecase:
+                    return R.string.localizable.ticketLowercase()
+                }
+            case .plural:
+                switch titlecase {
+                case .titlecase:
+                    return R.string.localizable.ticketsTitlecase()
+                case .notTitlecase:
+                    return R.string.localizable.ticketsLowercase()
+                }
+            }
+        }
+        if contractAddress.sameContract(as: Constants.cryptoKittiesContractAddress) {
+            switch titlecase {
+            case .titlecase:
+                return R.string.localizable.cryptokittiesTitlecase()
+            case .notTitlecase:
+                return R.string.localizable.cryptokittiesLowercase()
+            }
+        }
+
+        //TODO read from XML (and programatically titlecase if necessary) and fallback if missing
+        switch type {
+        case .singular:
+            switch titlecase {
+            case .titlecase:
+                return R.string.localizable.tokenTitlecase()
+            case .notTitlecase:
+                return R.string.localizable.tokenLowercase()
+            }
+        case .plural:
+            switch titlecase {
+            case .titlecase:
+                return R.string.localizable.tokensTitlecase()
+            case .notTitlecase:
+                return R.string.localizable.tokensLowercase()
+            }
+        }
+    }
+
+    private func getLang() -> String {
         let lang = Locale.preferredLanguages[0]
         if lang.hasPrefix("en") {
             return "en"
@@ -138,8 +197,13 @@ public class XMLHandler {
         return privateXMLHandler.getFifaInfoForTicket(tokenId: tokenBytes32, index: index)
     }
 
-    func getName(lang: String) -> String {
-        return privateXMLHandler.getName(lang: lang)
+    func getName() -> String {
+        return privateXMLHandler.getName()
+    }
+
+    /// Expected to return names like "cryptokitties", "tickets" that are specified in the asset definition. If absent, fallback to "tokens"
+    func getTokenTypeName(_ type: SingularOrPlural = .plural, titlecase: TitlecaseOrNot = .titlecase) -> String {
+        return privateXMLHandler.getTokenTypeName(type, titlecase: titlecase)
     }
 
     func getLang() -> String {
