@@ -9,7 +9,8 @@ struct ChooseTokenCardTransferModeViewControllerViewModel {
     var ticketHolder: TokenHolder
 
     var headerTitle: String {
-		return R.string.localizable.aWalletTicketTokenTransferSelectQuantityTitle()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.plural, titlecase: .titlecase)
+		return R.string.localizable.aWalletTicketTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 
     var backgroundColor: UIColor {

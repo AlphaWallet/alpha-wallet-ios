@@ -117,8 +117,9 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     @objc
     func nextButtonTapped() {
         if quantityStepper.value == 0 {
+            let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
             UIAlertController.alert(title: "",
-                                    message: R.string.localizable.aWalletTicketTokenTransferSelectTicketQuantityAtLeastOneTitle(),
+                                    message: R.string.localizable.aWalletTicketTokenTransferSelectTicketQuantityAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,

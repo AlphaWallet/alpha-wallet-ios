@@ -2,7 +2,7 @@
 
 import UIKit
 
-//TODO make TicketTableViewCellWithoutCheckbox, etc cell classes be generic (with TokenRowView as the type parameter). Unfortunately: https://bugs.swift.org/browse/SR-6977 is only fixed in Swift 4.2, aka Xcode 10.
+//TODO make TokenCardTableViewCellWithoutCheckbox, etc cell classes be generic (with TokenRowView as the type parameter). Unfortunately: https://bugs.swift.org/browse/SR-6977 is only fixed in Swift 4.2, aka Xcode 10.
 protocol TokenRowView: class {
 //var checkboxImageView: UIImageView { get }
 //var areDetailsVisible: Bool { get set }
