@@ -103,8 +103,9 @@ class TransferTokensCardViewController: UIViewController, TokenVerifiableStatusV
     func nextButtonTapped() {
         let selectedTicketHolders = viewModel.ticketHolders.filter { $0.isSelected }
         if selectedTicketHolders.isEmpty {
+            let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.singular, titlecase: .notTitlecase)
             UIAlertController.alert(title: "",
-                                    message: R.string.localizable.aWalletTicketTokenTransferSelectTicketsAtLeastOneTitle(),
+                                    message: R.string.localizable.aWalletTicketTokenTransferSelectTicketsAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,

@@ -6,6 +6,6 @@ import UIKit
 struct EditTokenViewModel {
 
     var title: String {
-        return R.string.localizable.tokens()
+        return R.string.localizable.tokenTitlecase()
     }
 }

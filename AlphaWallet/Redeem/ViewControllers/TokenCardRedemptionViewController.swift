@@ -135,8 +135,9 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private func showSuccessMessage() {
         invalidateTimer()
 
+        let tokenTypeName = XMLHandler(contract: contract).getTokenTypeName()
         UIAlertController.alert(title: R.string.localizable.aWalletTicketTokenRedeemSuccessfulTitle(),
-                                message: R.string.localizable.aWalletTicketTokenRedeemSuccessfulDescription(),
+                                message: R.string.localizable.aWalletTicketTokenRedeemSuccessfulDescription(tokenTypeName),
                                 alertButtonTitles: [R.string.localizable.oK()],
                                 alertButtonStyles: [.cancel],
                                 viewController: self,
