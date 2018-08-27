@@ -21,10 +21,6 @@ struct TransferTokensCardViewModel {
         return ticketHolders.count
     }
 
-    func height(for section: Int) -> CGFloat {
-        return 90
-    }
-
     var title: String {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
         return R.string.localizable.aWalletTicketTokenTransferSelectTicketsTitle(tokenTypeName)
