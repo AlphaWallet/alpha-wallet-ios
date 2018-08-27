@@ -59,8 +59,8 @@ class ConfigTests: XCTestCase {
         config.locale = AppLocale.simplifiedChinese.id
 
         let tableView = UITableView()
-        tableView.register(R.nib.editTokenTableViewCell(), forCellReuseIdentifier: R.nib.editTokenTableViewCell.name)
-        XCTAssertNoThrow(tableView.dequeueReusableCell(withIdentifier: R.nib.editTokenTableViewCell.name))
+        tableView.register(R.nib.bookmarkViewCell(), forCellReuseIdentifier: R.nib.bookmarkViewCell.name)
+        XCTAssertNoThrow(tableView.dequeueReusableCell(withIdentifier: R.nib.bookmarkViewCell.name))
 
         //Must change this back to system, otherwise other tests will break either immediately or the next run
         config.locale = AppLocale.system.id
