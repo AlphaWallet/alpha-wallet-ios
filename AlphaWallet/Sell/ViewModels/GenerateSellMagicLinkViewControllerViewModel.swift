@@ -74,7 +74,7 @@ struct GenerateSellMagicLinkViewControllerViewModel {
     var perTicketPriceLabelText: String {
         let tokenTypeName = XMLHandler(contract: ticketHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
         let amount = ethCost / ticketCount
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount.formattedDescription)
+        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount.formattedDescription, tokenTypeName)
     }
 
     var totalEthLabelText: String {
