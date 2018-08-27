@@ -23,7 +23,7 @@ class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
     private let config: Config
 	weak var delegate: UniversalLinkCoordinatorDelegate?
-	private var importTicketViewController: ImportTokenViewController?
+	private var importTicketViewController: ImportMagicTokenViewController?
     private let ethPrice: Subscribable<Double>
     private let ethBalance: Subscribable<BigInt>
     private var hasCompleted = false
@@ -270,7 +270,7 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func preparingToImportUniversalLink() {
 		guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
-        importTicketViewController = ImportTokenViewController(config: config)
+        importTicketViewController = ImportMagicTokenViewController(config: config)
         guard let vc = importTicketViewController else { return }
         vc.delegate = self
         vc.configure(viewModel: .init(state: .validating))
@@ -379,13 +379,13 @@ class UniversalLinkCoordinator: Coordinator {
     }
 }
 
-extension UniversalLinkCoordinator: ImportTokenViewControllerDelegate {
-	func didPressDone(in viewController: ImportTokenViewController) {
+extension UniversalLinkCoordinator: ImportMagicTokenViewControllerDelegate {
+	func didPressDone(in viewController: ImportMagicTokenViewController) {
 		viewController.dismiss(animated: true)
 		delegate?.completed(in: self)
 	}
 
-	func didPressImport(in viewController: ImportTokenViewController) {
+	func didPressImport(in viewController: ImportMagicTokenViewController) {
         guard let transactionType = transactionType else { return }
         switch transactionType {
         case .freeTransfer(let query, let parameters):

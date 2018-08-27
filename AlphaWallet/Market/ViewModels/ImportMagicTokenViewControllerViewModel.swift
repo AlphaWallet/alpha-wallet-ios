@@ -221,8 +221,9 @@ struct ImportMagicTokenViewControllerViewModel {
         case .free:
             return ""
         case .paid(_, let dollarCost):
-            guard let dollarCost = dollarCost else { return "" }
-            return "$\(dollarCost)"
+            guard let dollarCost = dollarCost, let dollarCostAsDouble = Double(dollarCost.description) else { return "" }
+            let string = StringFormatter().currency(with: dollarCostAsDouble , and: "USD")
+            return "$\(string)"
         }
     }
 
