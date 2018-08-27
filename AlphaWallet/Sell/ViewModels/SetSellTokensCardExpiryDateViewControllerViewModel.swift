@@ -79,7 +79,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     var perTicketPriceLabelText: String {
         let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.singular, titlecase: .titlecase)
         let amount = ethCost / ticketCount
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount.formattedDescription)
+        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount.formattedDescription, tokenTypeName)
     }
 
     var totalEthLabelText: String {
