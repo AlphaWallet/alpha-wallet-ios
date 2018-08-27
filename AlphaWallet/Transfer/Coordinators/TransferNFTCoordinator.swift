@@ -20,14 +20,17 @@ class TransferNFTCoordinator: Coordinator {
     let account: Account
     let viewController: UIViewController
     var statusViewController: StatusViewController?
+    var address: Address?
     weak var delegate: TransferNFTCoordinatorDelegate?
     var status = StatusViewControllerViewModel.State.processing {
         didSet {
+            guard let address = address else { return }
+            let tokenTypeName = XMLHandler(contract: address.eip55String).getTokenTypeName(.singular)
             statusViewController?.configure(viewModel: .init(
                     state: status,
-                    inProgressText: R.string.localizable.aClaimTicketInProgressTitle(),
-                    succeededTextText: R.string.localizable.aClaimTicketSuccessTitle(),
-                    failedText: R.string.localizable.aClaimTicketFailedTitle()
+                    inProgressText: R.string.localizable.aWalletTicketTokenTransferInProgressTitle(tokenTypeName),
+                    succeededTextText: R.string.localizable.aWalletTicketTokenTransferSuccessTitle(tokenTypeName),
+                    failedText: R.string.localizable.aWalletTicketTokenTransferFailedTitle(tokenTypeName)
             ))
         }
     }
@@ -44,6 +47,7 @@ class TransferNFTCoordinator: Coordinator {
 
     func start() {
         guard let address = validateAddress() else { return }
+        self.address = address
         showProgressViewController(address: address)
         transfer(address: address)
     }
