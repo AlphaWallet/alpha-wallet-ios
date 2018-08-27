@@ -23,7 +23,7 @@ class UniversalLinkHandlerTests: XCTestCase {
     func testCreateUniversalLink() {
         var indices = [UInt16]()
         indices.append(1)
-        let contractAddress = Config().ticketContractAddress!
+        let contractAddress = "0x1"
         let testOrder1 = Order(price: BigUInt("1000000000")!,
                                indices: indices,
                                expiry: BigUInt("0")!,
