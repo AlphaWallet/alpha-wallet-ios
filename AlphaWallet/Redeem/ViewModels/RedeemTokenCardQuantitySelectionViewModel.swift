@@ -15,7 +15,8 @@ struct RedeemTokenCardQuantitySelectionViewModel {
     var ticketHolder: TokenHolder
 
     var headerTitle: String {
-		return R.string.localizable.aWalletTicketTokenRedeemSelectQuantityTitle()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+		return R.string.localizable.aWalletTicketTokenRedeemSelectQuantityTitle(tokenTypeName)
     }
 
     var maxValue: Int {
@@ -51,6 +52,7 @@ struct RedeemTokenCardQuantitySelectionViewModel {
     }
 
     var subtitleText: String {
-		return R.string.localizable.aWalletTicketTokenRedeemQuantityTitle()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+		return R.string.localizable.aWalletTicketTokenRedeemQuantityTitle(tokenTypeName.localizedUppercase)
     }
 }

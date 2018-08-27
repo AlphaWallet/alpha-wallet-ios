@@ -19,7 +19,7 @@ struct Token {
         return Token(
                 id: Constants.nullTicketBigUInt,
                 index: 0,
-                name: "FIFA WC",
+                name: R.string.localizable.tokensTitlecase(),
                 values: [
                     "locality": "N/A",
                     "venue": "N/A",
