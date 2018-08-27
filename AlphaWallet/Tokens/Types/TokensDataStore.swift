@@ -374,7 +374,7 @@ class TokensDataStore {
             switch result {
             case .success(let balance):
                 let etherToken = TokensDataStore.etherToken(for: self.config)
-                self.update(token: self.objects.first (where: { $0.contract == etherToken.contract })!, action: .value(balance.value))
+                self.update(token: self.objects.first (where: { $0.contract.sameContract(as: etherToken.contract) })!, action: .value(balance.value))
                 self.updateDelegate()
             case .failure: break
             }
@@ -513,7 +513,9 @@ class TokensDataStore {
 
     public func updateERC875TokensToLocalizedName() {
         assetDefinitionStore.forEachContractWithXML { contract in
-            if let localizedName = config.getContractLocalizedName(forContract: contract) {
+            if let token = config.createDefaultTicketToken(forContract: contract) {
+                let contract = token.contract.eip55String
+                let localizedName = token.name
                 if let storedTicketToken = enabledObject.first(where: { $0.contract.sameContract(as: contract) }) {
                     //TODO multiple realm writes in a loop. Should we group them together?
                     updateTicketTokenName(token: storedTicketToken, to: localizedName)
