@@ -22,7 +22,8 @@ struct SellTokensCardViewModel {
     }
 
     var title: String {
-        return R.string.localizable.aWalletTicketTokenSellSelectTicketsTitle ()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+        return R.string.localizable.aWalletTicketTokenSellSelectTicketsTitle(tokenTypeName)
     }
 
     var buttonTitleColor: UIColor {

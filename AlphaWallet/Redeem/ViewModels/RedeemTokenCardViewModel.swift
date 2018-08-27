@@ -28,7 +28,8 @@ struct RedeemTokenCardViewModel {
     }
 
     var title: String {
-        return R.string.localizable.aWalletTicketTokenRedeemSelectTicketsTitle ()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+        return R.string.localizable.aWalletTicketTokenRedeemSelectTicketsTitle(tokenTypeName)
     }
 
     var buttonTitleColor: UIColor {
