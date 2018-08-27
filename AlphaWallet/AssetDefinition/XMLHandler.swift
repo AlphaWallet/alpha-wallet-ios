@@ -47,7 +47,6 @@ private class PrivateXMLHandler {
 
     func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
         guard tokenBytes32 != 0 else { return .empty }
-        let lang = getLang()
         var values = [String: AssetAttributeValue]()
         for (name, attribute) in fields {
             let value = attribute.extract(from: tokenBytes32)
@@ -57,7 +56,7 @@ private class PrivateXMLHandler {
         return Token(
                 id: tokenBytes32,
                 index: index,
-                name: getName(lang: lang),
+                name: getName(),
                 values: values
         )
     }
@@ -81,7 +80,8 @@ private class PrivateXMLHandler {
         return fields
     }
 
-    func getName(lang: String) -> String {
+    func getName() -> String {
+        let lang = getLang()
         if let name = contract?["name"].getElementWithLangAttribute(equals: lang)?.text {
             if contractAddress.sameContract(as: Constants.ticketContractAddress) || contractAddress.sameContract(as: Constants.ticketContractAddressRopsten ) {
                 return "\(Constants.fifaWorldCup2018TokenNamePrefix) \(name)"
@@ -138,7 +138,7 @@ private class PrivateXMLHandler {
         }
     }
 
-    func getLang() -> String {
+    private func getLang() -> String {
         let lang = Locale.preferredLanguages[0]
         if lang.hasPrefix("en") {
             return "en"
@@ -197,8 +197,8 @@ public class XMLHandler {
         return privateXMLHandler.getFifaInfoForTicket(tokenId: tokenBytes32, index: index)
     }
 
-    func getName(lang: String) -> String {
-        return privateXMLHandler.getName(lang: lang)
+    func getName() -> String {
+        return privateXMLHandler.getName()
     }
 
     /// Expected to return names like "cryptokitties", "tickets" that are specified in the asset definition. If absent, fallback to "tokens"
