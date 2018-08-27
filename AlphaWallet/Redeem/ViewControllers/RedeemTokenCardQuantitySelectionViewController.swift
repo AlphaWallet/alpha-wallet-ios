@@ -116,8 +116,9 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     @objc
     func nextButtonTapped() {
         if quantityStepper.value == 0 {
+            let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
             UIAlertController.alert(title: "",
-                                    message: R.string.localizable.aWalletTicketTokenRedeemSelectTicketQuantityAtLeastOneTitle(),
+                                    message: R.string.localizable.aWalletTicketTokenRedeemSelectTicketQuantityAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,

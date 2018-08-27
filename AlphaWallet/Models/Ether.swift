@@ -22,7 +22,17 @@ public struct Ether {
 
 extension Ether: CustomStringConvertible {
     public var description: String {
+        return unformattedDescription
+    }
+
+    public var formattedDescription: String {
         return EtherNumberFormatter().string(from: ether)
+    }
+
+    public var unformattedDescription: String {
+        let formatter = EtherNumberFormatter()
+        formatter.groupingSeparator = ""
+        return formatter.string(from: ether)
     }
 }
 

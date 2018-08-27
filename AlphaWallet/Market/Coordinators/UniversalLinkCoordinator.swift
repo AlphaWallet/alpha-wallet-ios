@@ -75,10 +75,11 @@ class UniversalLinkCoordinator: Coordinator {
     @discardableResult private func handlePaidImportsImpl(signedOrder: SignedOrder) -> Bool {
         guard isShowingImportUserInterface else { return false }
 
+        //TODO we might not need to pass a TokenObject. Maybe something simpler? Especially since name and symbol is unused
         //TODO: not always ERC875
         let tokenObject = TokenObject(contract: signedOrder.order.contractAddress,
-                name: Constants.event,
-                symbol: "FIFA",
+                name: "",
+                symbol: "",
                 decimals: 0,
                 value: signedOrder.order.price.description,
                 isCustom: true,
