@@ -63,15 +63,18 @@ struct GenerateSellMagicLinkViewControllerViewModel {
 
     var ticketCountLabelText: String {
         if ticketCount == 1 {
-            return R.string.localizable.aWalletTicketTokenSellConfirmSingleTicketSelectedTitle()
+            let tokenTypeName = XMLHandler(contract: ticketHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
+            return R.string.localizable.aWalletTicketTokenSellConfirmSingleTicketSelectedTitle(tokenTypeName)
         } else {
-            return R.string.localizable.aWalletTicketTokenSellConfirmMultipleTicketSelectedTitle(ticketHolder.count)
+            let tokenTypeName = XMLHandler(contract: ticketHolder.contractAddress).getTokenTypeName(.plural, titlecase: .titlecase)
+            return R.string.localizable.aWalletTicketTokenSellConfirmMultipleTicketSelectedTitle(ticketHolder.count, tokenTypeName)
         }
     }
 
     var perTicketPriceLabelText: String {
+        let tokenTypeName = XMLHandler(contract: ticketHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
         let amount = ethCost / ticketCount
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(String(amount))
+        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(String(amount), tokenTypeName)
     }
 
     var totalEthLabelText: String {
