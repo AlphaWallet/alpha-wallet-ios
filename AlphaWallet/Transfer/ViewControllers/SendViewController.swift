@@ -97,10 +97,16 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
-        ethPrice.subscribe { [weak self] value in
+        switch transferType {
+        case .ether:
+            ethPrice.subscribe { [weak self] value in
             if let value = value {
                 self?.amountTextField.ethToDollarRate = value
             }
+        }
+        default:
+            amountTextField.alternativeAmountLabel.isHidden = true
+            amountTextField.isFiatButtonHidden = true
         }
 
         myAddressContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -203,6 +209,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         view.backgroundColor = viewModel.backgroundColor
 
+        headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
         header.configure(viewModel: headerViewModel)
 
         targetAddressLabel.font = viewModel.textFieldsLabelFont
