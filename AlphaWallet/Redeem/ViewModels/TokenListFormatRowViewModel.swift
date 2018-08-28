@@ -84,7 +84,13 @@ struct TokenListFormatRowViewModel {
             generationText = ""
         }
         if let cooldown = traits.first(where: { $0.type == "cooldown_index" }), let cooldownIndex = Int(cooldown.value) {
-            let cooldownValue = Constants.cryptoKittiesCooldowns[cooldownIndex]
+            let cooldownValue: String
+            if Constants.cryptoKittiesCooldowns.indices.contains(cooldownIndex) {
+                cooldownValue = Constants.cryptoKittiesCooldowns[cooldownIndex]
+            } else {
+                //TODO localize
+                cooldownValue = "Unknown"
+            }
             cooldownText = "\(cooldownValue) Cooldown"
         } else {
             cooldownText = ""
