@@ -48,6 +48,11 @@ class AmountTextField: UIControl {
         }
     }
     var currentPair: Pair
+    var isFiatButtonHidden: Bool = false {
+        didSet {
+            textField.rightView?.isHidden = isFiatButtonHidden
+        }
+    }
     private let textField = UITextField()
     let alternativeAmountLabel = UILabel()
     let fiatButton = Button(size: .normal, style: .borderless)
