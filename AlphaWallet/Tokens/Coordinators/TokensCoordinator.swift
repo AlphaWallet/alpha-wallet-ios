@@ -19,6 +19,7 @@ private enum ContractData {
     case decimals(UInt8)
     case nonFungibleTokenComplete(name: String, symbol: String, balance: [String], tokenType: TokenType)
     case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8)
+    case delegateTokenComplete
     case failed(networkReachable: Bool?)
 }
 
@@ -92,7 +93,8 @@ class TokensCoordinator: Coordinator {
             let alreadyAddedContracts = self.storage.enabledObject.map { $0.address.eip55String.lowercased() }
             let deletedContracts = self.storage.deletedContracts.map { $0.contract.lowercased() }
             let hiddenContracts = self.storage.hiddenContracts.map { $0.contract.lowercased() }
-            let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts
+            let delegateContracts = self.storage.delegateContracts.map { $0.contract.lowercased() }
+            let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
             var contractsPulled = 0
             var hasRefreshedAfterAddingAllContracts = false
             for eachContract in contractsToAdd {
@@ -140,6 +142,9 @@ class TokensCoordinator: Coordinator {
                         type: .erc20
                 )
                 self.storage.add(tokens: [token])
+                completion()
+            case .delegateTokenComplete:
+                self.storage.add(delegateContracts: [DelegateContract(contract: contract)])
                 completion()
             case .failed(let networkReachable):
                 if let networkReachable = networkReachable, networkReachable {
@@ -200,19 +205,29 @@ class TokensCoordinator: Coordinator {
         var completedTokenType: TokenType?
         var failed = false
 
-        func callCompletionOnAllData() {
-            if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance, let tokenType = completedTokenType {
-                completion(.nonFungibleTokenComplete(name: completedName, symbol: completedSymbol, balance: completedBalance, tokenType: tokenType))
-            } else if let completedName = completedName, let completedSymbol = completedSymbol, let completedDecimals = completedDecimals {
-                completion(.fungibleTokenComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
-            }
-        }
-
         func callCompletionFailed() {
             guard !failed else { return }
             failed = true
             //TODO maybe better to share an instance of the reachability manager
             completion(.failed(networkReachable: NetworkReachabilityManager()?.isReachable))
+        }
+
+        func callCompletionOnAllData() {
+            if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance, let tokenType = completedTokenType {
+                completion(.nonFungibleTokenComplete(name: completedName, symbol: completedSymbol, balance: completedBalance, tokenType: tokenType))
+            } else if let completedName = completedName, let completedSymbol = completedSymbol, let completedDecimals = completedDecimals {
+                if completedSymbol.isEmpty {
+                    //Must check because we also get an empty symbol (and name) if there's no connectivity
+                    //TODO maybe better to share an instance of the reachability manager
+                    if let reachabilityManager = NetworkReachabilityManager(), reachabilityManager.isReachable {
+                        completion(.delegateTokenComplete)
+                    } else {
+                        callCompletionFailed()
+                    }
+                } else {
+                    completion(.fungibleTokenComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
+                }
+            }
         }
 
         assetDefinitionStore.fetchXML(forContract: address)
@@ -329,6 +344,9 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
                 viewController.updateForm(forTokenType: tokenType)
             case .fungibleTokenComplete:
                 viewController.updateForm(forTokenType: .erc20)
+            case .delegateTokenComplete:
+                viewController.updateForm(forTokenType: .erc20)
+                break
             case .failed:
                 break
             }
