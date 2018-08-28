@@ -140,6 +140,10 @@ class TokensDataStore {
         return Array(realm.objects(DeletedContract.self))
     }
 
+    var delegateContracts: [DelegateContract] {
+        return Array(realm.objects(DelegateContract.self))
+    }
+
     var hiddenContracts: [HiddenContract] {
         return Array(realm.objects(HiddenContract.self))
     }
@@ -438,6 +442,12 @@ class TokensDataStore {
     func add(deadContracts: [DeletedContract]) {
         try! realm.write {
             realm.add(deadContracts, update: false)
+        }
+    }
+
+    func add(delegateContracts: [DelegateContract]) {
+        try! realm.write {
+            realm.add(delegateContracts, update: false)
         }
     }
 
