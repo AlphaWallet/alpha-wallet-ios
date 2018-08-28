@@ -7,6 +7,7 @@ struct SendHeaderViewViewModel {
     var ticker: CoinTicker?
     var currencyAmount: String?
     var currencyAmountWithoutSymbol: Double?
+    var showAlternativeAmount = false
 
     var issuer: String {
         return ""
