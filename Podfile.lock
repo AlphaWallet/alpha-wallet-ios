@@ -54,7 +54,7 @@ PODS:
   - SwiftLint (0.25.1)
   - SwiftyJSON (4.0.0)
   - SwiftyXMLParser (4.1.0)
-  - TrezorCrypto (0.0.5)
+  - TrezorCrypto (0.0.8)
   - TrustKeystore (0.1.3):
     - CryptoSwift (~> 0.10.0)
     - secp256k1_ios (~> 0.1.0)
@@ -92,7 +92,7 @@ DEPENDENCIES:
   - SwiftLint
   - SwiftyJSON
   - SwiftyXMLParser (from `https://github.com/yahoojapan/SwiftyXMLParser.git`)
-  - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, branch `alphawallet`)
+  - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, branch `prevent-burn-addresses`)
   - TrustWeb3Provider (from `https://github.com/alpha-wallet/dapp-web3-provider`, branch `nervos-dist`)
   - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, branch `alphawallet`)
 
@@ -135,7 +135,7 @@ EXTERNAL SOURCES:
   SwiftyXMLParser:
     :git: https://github.com/yahoojapan/SwiftyXMLParser.git
   TrustKeystore:
-    :branch: alphawallet
+    :branch: prevent-burn-addresses
     :git: https://github.com/alpha-wallet/trust-keystore.git
   TrustWeb3Provider:
     :branch: nervos-dist
@@ -152,7 +152,7 @@ CHECKOUT OPTIONS:
     :commit: 1ddcad0a09efb85f2325d994c2169cd9ba116ae3
     :git: https://github.com/yahoojapan/SwiftyXMLParser.git
   TrustKeystore:
-    :commit: c819647f4b3c5b149b61268eecd5a0805fbf6498
+    :commit: 0e7b5ec33aba24ae9e3673425781b44899bf6585
     :git: https://github.com/alpha-wallet/trust-keystore.git
   TrustWeb3Provider:
     :commit: 3982bf7bfa956839d33d7616247631c6375fc450
@@ -192,11 +192,11 @@ SPEC CHECKSUMS:
   SwiftLint: ce933681be10c3266e82576dad676fa815a602e9
   SwiftyJSON: 070dabdcb1beb81b247c65ffa3a79dbbfb3b48aa
   SwiftyXMLParser: b5a79fb8a730903703d0a92d30752a0b05158967
-  TrezorCrypto: ecef681446bf02af6248d3b5e394026d7e766e56
+  TrezorCrypto: 938c4b715fff7824a9c891a105e65ee0e4e81662
   TrustKeystore: 26efa8079f6451d02ce64b906d3ff240fd71d7ca
   TrustWeb3Provider: 50fa391bdf170feb43dd4419992931510a5751d8
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: d32ff5d8a05bd2e3997b22c3d29c454caeffca4e
+PODFILE CHECKSUM: 39a2d9cd21d3969b7d342989b9f6ec64f1dbe126
 
 COCOAPODS: 1.5.3
