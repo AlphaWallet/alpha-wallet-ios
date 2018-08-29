@@ -97,18 +97,26 @@ class TokensCoordinator: Coordinator {
             let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
             var contractsPulled = 0
             var hasRefreshedAfterAddingAllContracts = false
-            for eachContract in contractsToAdd {
-                self.addToken(for: eachContract) {
-                    contractsPulled += 1
-                    if contractsPulled == contractsToAdd.count {
-                        hasRefreshedAfterAddingAllContracts = true
+            DispatchQueue.global().async {
+                for eachContract in contractsToAdd {
+                    self.addToken(for: eachContract) {
+                        contractsPulled += 1
+                        if contractsPulled == contractsToAdd.count {
+                            hasRefreshedAfterAddingAllContracts = true
+                            DispatchQueue.main.async {
+                                self.tokensViewController.fetch()
+                            }
+                        }
+                    }
+                    //TODO remove this and the outer DispatchQueue.global().async {} once GetNameCoordinator and related coordinators use promise properly. Must test with contract that auto-detects many tokens (24 is good enough)
+                    let millionthOfSecondsToSleep: UInt32 = 300000
+                    usleep(millionthOfSecondsToSleep)
+                }
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    if !hasRefreshedAfterAddingAllContracts {
                         self.tokensViewController.fetch()
                     }
-                }
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                if !hasRefreshedAfterAddingAllContracts {
-                    self.tokensViewController.fetch()
                 }
             }
         }
