@@ -13,14 +13,14 @@ class MigrationInitializer: Initializer {
     }()
 
     init(
-        account: Wallet, chainID: Int
+            account: Wallet, chainID: Int
     ) {
         self.account = account
         self.chainID = chainID
     }
 
     func perform() {
-        config.schemaVersion = 47
+        config.schemaVersion = 48
         config.migrationBlock = { migration, oldSchemaVersion in
             switch oldSchemaVersion {
             case 0...32:
@@ -41,6 +41,15 @@ class MigrationInitializer: Initializer {
                     guard let newObject = newObject else { return }
                     if let isStormbird = oldObject["isStormBird"] as? Bool {
                         newObject["rawType"] = isStormbird ? TokenType.erc875.rawValue : TokenType.erc20.rawValue
+                    }
+                }
+            }
+            if oldSchemaVersion < 48 {
+                migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
+                    guard let oldObject = oldObject else { return }
+                    guard let newObject = newObject else { return }
+                    if let contract = oldObject["contract"] as? String, contract == "0x0000000000000000000000000000000000000000" {
+                        newObject["rawType"] = TokenType.ether.rawValue
                     }
                 }
             }
