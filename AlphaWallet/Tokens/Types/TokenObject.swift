@@ -50,7 +50,7 @@ class TokenObject: Object {
         if let ethAddress = Address(string: contract) {
             return ethAddress
         }
-        return Constants.nullAddress
+        return Address(uncheckedAgainstNullAddress: Constants.nullAddress)!
     }
 
     var valueBigInt: BigInt {
