@@ -47,7 +47,10 @@ class TokenObject: Object {
     }
 
     var address: Address {
-        return Address(string: contract)!
+        if let ethAddress = Address(string: contract) {
+            return ethAddress
+        }
+        return EtherKeystore.current!.address
     }
 
     var valueBigInt: BigInt {
