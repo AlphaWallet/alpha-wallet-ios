@@ -69,7 +69,10 @@ public struct Constants {
         "Ploddy",
         "Slow",
         "Slow",
-        "Sluggish"
+        "Sluggish",
+        "Sluggish",
+        "Catatonic",
+        "Catatonic"
     ]
     
     //contract addresses that are compatible with opensea
