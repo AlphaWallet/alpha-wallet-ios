@@ -48,7 +48,7 @@ class MigrationInitializer: Initializer {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
-                    if let contract = oldObject["contract"] as? String, contract == "0x0000000000000000000000000000000000000000" {
+                    if let contract = oldObject["contract"] as? String, contract == Constants.nullAddress {
                         newObject["rawType"] = TokenType.ether.rawValue
                     }
                 }
