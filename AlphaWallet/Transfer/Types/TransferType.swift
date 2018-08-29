@@ -52,7 +52,7 @@ extension TransferType {
     func contract() -> Address {
         switch self {
         case .ether(let config, _):
-            return Address(noBurnCheckString: TokensDataStore.etherToken(for: config).contract)!
+            return Address(uncheckedAgainstNullAddress: TokensDataStore.etherToken(for: config).contract)!
         case .ERC20Token(let token):
             return Address(string: token.contract)!
         case .ERC875Token(let token):

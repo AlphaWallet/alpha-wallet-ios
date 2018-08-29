@@ -92,7 +92,7 @@ DEPENDENCIES:
   - SwiftLint
   - SwiftyJSON
   - SwiftyXMLParser (from `https://github.com/yahoojapan/SwiftyXMLParser.git`)
-  - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, branch `prevent-burn-addresses`)
+  - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, commit `32d4f03295aa35ec3da36327d06cff608c739778`)
   - TrustWeb3Provider (from `https://github.com/alpha-wallet/dapp-web3-provider`, branch `nervos-dist`)
   - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, branch `alphawallet`)
 
@@ -135,7 +135,7 @@ EXTERNAL SOURCES:
   SwiftyXMLParser:
     :git: https://github.com/yahoojapan/SwiftyXMLParser.git
   TrustKeystore:
-    :branch: prevent-burn-addresses
+    :commit: 32d4f03295aa35ec3da36327d06cff608c739778
     :git: https://github.com/alpha-wallet/trust-keystore.git
   TrustWeb3Provider:
     :branch: nervos-dist
@@ -152,7 +152,7 @@ CHECKOUT OPTIONS:
     :commit: 1ddcad0a09efb85f2325d994c2169cd9ba116ae3
     :git: https://github.com/yahoojapan/SwiftyXMLParser.git
   TrustKeystore:
-    :commit: 0e7b5ec33aba24ae9e3673425781b44899bf6585
+    :commit: 32d4f03295aa35ec3da36327d06cff608c739778
     :git: https://github.com/alpha-wallet/trust-keystore.git
   TrustWeb3Provider:
     :commit: 3982bf7bfa956839d33d7616247631c6375fc450
@@ -197,6 +197,6 @@ SPEC CHECKSUMS:
   TrustWeb3Provider: 50fa391bdf170feb43dd4419992931510a5751d8
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: 39a2d9cd21d3969b7d342989b9f6ec64f1dbe126
+PODFILE CHECKSUM: 8b6bcdea2271dd0591aaff5d6cfb45d0fcbd3e69
 
 COCOAPODS: 1.5.3
