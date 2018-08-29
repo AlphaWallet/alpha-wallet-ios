@@ -75,7 +75,7 @@ class TokensDataStore {
 
     static func etherToken(for config: Config) -> TokenObject {
         return TokenObject(
-            contract: "0x0000000000000000000000000000000000000000",
+            contract: Constants.nullAddress,
             name: config.server.name,
             symbol: config.server.symbol,
             decimals: config.server.decimals,
