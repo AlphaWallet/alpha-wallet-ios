@@ -35,6 +35,7 @@ public struct Constants {
     public static let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
     public static let nullTicketBigUInt = BigUInt(0)
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
+    public static let nullAddress = "0x0000000000000000000000000000000000000000"
 
     // FIFA hardcoded FIFA token address
     public static let ticketContractAddress = "0xA66A3F08068174e8F005112A8b2c7A507a822335"
