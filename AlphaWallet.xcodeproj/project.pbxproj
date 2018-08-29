@@ -497,7 +497,6 @@
 		771AA964200D5EDB00D25403 /* WordCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771AA963200D5EDB00D25403 /* WordCollectionViewCell.swift */; };
 		771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 771AA965200D5F1900D25403 /* WordCollectionViewCell.xib */; };
 		7721A6BE202A5677004DB16C /* DecryptError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6BD202A5677004DB16C /* DecryptError.swift */; };
-		7721A6C4202D9520004DB16C /* trust-min.js in Resources */ = {isa = PBXBuildFile; fileRef = 7721A6C3202D9520004DB16C /* trust-min.js */; };
 		7721A6C8202EF81B004DB16C /* CustomRPC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6C7202EF81B004DB16C /* CustomRPC.swift */; };
 		7721A6CC202EFBC5004DB16C /* AddCustomNetworkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6CB202EFBC5004DB16C /* AddCustomNetworkViewController.swift */; };
 		7721A6CE202EFC21004DB16C /* AddCustomNetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6CD202EFC21004DB16C /* AddCustomNetworkViewModel.swift */; };
@@ -1074,7 +1073,6 @@
 		771AA965200D5F1900D25403 /* WordCollectionViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WordCollectionViewCell.xib; sourceTree = "<group>"; };
 		7721A6BD202A5677004DB16C /* DecryptError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecryptError.swift; sourceTree = "<group>"; };
 		7721A6BF202B1D3E004DB16C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		7721A6C3202D9520004DB16C /* trust-min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = "trust-min.js"; path = "JS/dist/trust-min.js"; sourceTree = SOURCE_ROOT; };
 		7721A6C7202EF81B004DB16C /* CustomRPC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRPC.swift; sourceTree = "<group>"; };
 		7721A6CB202EFBC5004DB16C /* AddCustomNetworkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNetworkViewController.swift; sourceTree = "<group>"; };
 		7721A6CD202EFC21004DB16C /* AddCustomNetworkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNetworkViewModel.swift; sourceTree = "<group>"; };
@@ -1492,7 +1490,6 @@
 		291F52AA1F6B805400B369AB /* Vendors */ = {
 			isa = PBXGroup;
 			children = (
-				7721A6C2202D94FC004DB16C /* JSWeb3Provider */,
 				2981C29A1FC18F6000537E43 /* Changelly */,
 				298542E61FBA9BA900CB5081 /* ShapeShift */,
 				295996041FAAFC9400DB66A8 /* Coinbase */,
@@ -2869,14 +2866,6 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
-		7721A6C2202D94FC004DB16C /* JSWeb3Provider */ = {
-			isa = PBXGroup;
-			children = (
-				7721A6C3202D9520004DB16C /* trust-min.js */,
-			);
-			path = JSWeb3Provider;
-			sourceTree = "<group>";
-		};
 		77872D2A202514930032D687 /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
@@ -3207,7 +3196,6 @@
 			files = (
 				C876FF82204A79D300B7D0EA /* SourceSansPro-Light.otf in Resources */,
 				C876FF84204A79D300B7D0EA /* SourceSansPro-Regular.otf in Resources */,
-				7721A6C4202D9520004DB16C /* trust-min.js in Resources */,
 				C868C5292053BDE00059672B /* LaunchScreen.storyboard in Resources */,
 				C876FF85204A79D300B7D0EA /* SourceSansPro-Semibold.otf in Resources */,
 				C880330E2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png in Resources */,
