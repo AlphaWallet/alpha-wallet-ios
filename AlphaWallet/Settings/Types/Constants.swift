@@ -32,8 +32,8 @@ public struct Constants {
     public static let donationAddress = "0xFE6d4bC2De2D0b0E6FE47f08A28Ed52F9d052A02"
     public static let dappsBrowserURL = "https://www.stateofthedapps.com"
 
-    public static let nullTicket = "0x0000000000000000000000000000000000000000000000000000000000000000"
-    public static let nullTicketBigUInt = BigUInt(0)
+    public static let nullTokenId = "0x0000000000000000000000000000000000000000000000000000000000000000"
+    public static let nullTokenIdBigUInt = BigUInt(0)
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
     public static let nullAddress = "0x0000000000000000000000000000000000000000"
 

@@ -6,11 +6,11 @@ import UIKit
 struct SetSellTokensCardExpiryDateViewControllerViewModel {
 
     var token: TokenObject
-    var ticketHolder: TokenHolder
+    var tokenHolder: TokenHolder
     var ethCost: Ether = .zero
 
     var headerTitle: String {
-		return R.string.localizable.aWalletTicketTokenSellEnterLinkExpiryDateTitle()
+		return R.string.localizable.aWalletTokenSellEnterLinkExpiryDateTitle()
     }
 
     var backgroundColor: UIColor {
@@ -38,24 +38,24 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var linkExpiryDateLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellLinkExpiryDateTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle()
     }
 
     var linkExpiryTimeLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellLinkExpiryTimeTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryTimeTitle()
     }
 
-    var ticketSaleDetailsLabelFont: UIFont {
+    var tokenSaleDetailsLabelFont: UIFont {
         return Fonts.semibold(size: 21)!
     }
 
-    var ticketSaleDetailsLabelColor: UIColor {
+    var tokenSaleDetailsLabelColor: UIColor {
         return Colors.appBackground
     }
 
     var descriptionLabelText: String {
         let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.plural, titlecase: .notTitlecase)
-        return R.string.localizable.aWalletTicketTokenSellMagicLinkDescriptionTitle(tokenTypeName)
+        return R.string.localizable.aWalletTokenSellMagicLinkDescriptionTitle(tokenTypeName)
     }
 
     var descriptionLabelFont: UIFont {
@@ -66,28 +66,28 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
         return Colors.appText
     }
 
-    var ticketCountLabelText: String {
-        if ticketCount == 1 {
+    var tokenCountLabelText: String {
+        if tokenCount == 1 {
             let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.singular, titlecase: .titlecase)
-            return R.string.localizable.aWalletTicketTokenSellSingleTicketSelectedTitle(tokenTypeName)
+            return R.string.localizable.aWalletTokenSellSingleTokenSelectedTitle(tokenTypeName)
         } else {
             let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.plural, titlecase: .titlecase)
-            return R.string.localizable.aWalletTicketTokenSellMultipleTicketSelectedTitle(ticketHolder.count, tokenTypeName)
+            return R.string.localizable.aWalletTokenSellMultipleTokenSelectedTitle(tokenHolder.count, tokenTypeName)
         }
     }
 
-    var perTicketPriceLabelText: String {
+    var perTokenPriceLabelText: String {
         let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.singular, titlecase: .titlecase)
-        let amount = ethCost / ticketCount
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount.formattedDescription, tokenTypeName)
+        let amount = ethCost / tokenCount
+        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, tokenTypeName)
     }
 
     var totalEthLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellTotalEthPriceTitle(ethCost.formattedDescription)
+        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(ethCost.formattedDescription)
     }
 
     var noteTitleLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellNoteTitleLabelTitle()
+        return R.string.localizable.aWalletTokenSellNoteTitleLabelTitle()
     }
 
     var noteTitleLabelFont: UIFont {
@@ -100,7 +100,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
 
     var noteLabelText: String {
         let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.plural, titlecase: .notTitlecase)
-        return R.string.localizable.aWalletTicketTokenSellNoteLabelTitle(tokenTypeName)
+        return R.string.localizable.aWalletTokenSellNoteLabelTitle(tokenTypeName)
     }
 
     var noteLabelFont: UIFont {
@@ -115,13 +115,13 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
         return Colors.appRed
     }
 
-    private var ticketCount: Int {
-        return ticketHolder.count
+    private var tokenCount: Int {
+        return tokenHolder.count
     }
 
-    init(token: TokenObject, ticketHolder: TokenHolder, ethCost: Ether) {
+    init(token: TokenObject, tokenHolder: TokenHolder, ethCost: Ether) {
         self.token = token
-        self.ticketHolder = ticketHolder
+        self.tokenHolder = tokenHolder
         self.ethCost = ethCost
     }
 }

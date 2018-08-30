@@ -18,7 +18,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     weak var delegate: ImportMagicTokenViewControllerDelegate?
     let roundedBackground = RoundedBackground()
     let header = TokensCardViewControllerTitleHeader()
-    let ticketView = TokenCardRowView()
+    let tokenCardRowView = TokenCardRowView()
     let statusLabel = UILabel()
     let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
     var costStackView: UIStackView?
@@ -54,8 +54,8 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = .clear
 
-        ticketView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(ticketView)
+        tokenCardRowView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tokenCardRowView)
 
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.hidesWhenStopped = true
@@ -99,7 +99,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         let stackView = [
             header,
             .spacer(height: 1),
-            ticketView,
+            tokenCardRowView,
             .spacer(height: 1),
             activityIndicator,
             .spacer(height: 14),
@@ -127,16 +127,16 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         NSLayoutConstraint.activate([
             header.heightAnchor.constraint(equalToConstant: 90),
 
-            ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tokenCardRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tokenCardRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
             separator1.heightAnchor.constraint(equalToConstant: 1),
-            separator1.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            separator1.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+            separator1.leadingAnchor.constraint(equalTo: tokenCardRowView.background.leadingAnchor),
+            separator1.trailingAnchor.constraint(equalTo: tokenCardRowView.background.trailingAnchor),
 
             separator2.heightAnchor.constraint(equalToConstant: 1),
-            separator2.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            separator2.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+            separator2.leadingAnchor.constraint(equalTo: tokenCardRowView.background.leadingAnchor),
+            separator2.trailingAnchor.constraint(equalTo: tokenCardRowView.background.trailingAnchor),
 
             buttonsStackView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -153,7 +153,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
             footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            statusLabel.widthAnchor.constraint(equalTo: ticketView.widthAnchor, constant: -20),
+            statusLabel.widthAnchor.constraint(equalTo: tokenCardRowView.widthAnchor, constant: -20),
 
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
@@ -172,24 +172,24 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
             header.configure(title: viewModel.headerTitle)
 
-            ticketView.configure(viewModel: .init())
+            tokenCardRowView.configure(viewModel: .init())
 
-            ticketView.isHidden = !viewModel.showTicketRow
+            tokenCardRowView.isHidden = !viewModel.showTokenRow
 
-            ticketView.stateLabel.isHidden = true
+            tokenCardRowView.stateLabel.isHidden = true
 
-            ticketView.ticketCountLabel.text = viewModel.ticketCount
-            ticketView.venueLabel.text = viewModel.venue
-            ticketView.dateLabel.text = viewModel.date
-            ticketView.cityLabel.text = viewModel.city
-            ticketView.categoryLabel.text = viewModel.category
-            ticketView.timeLabel.text = viewModel.time
-            ticketView.teamsLabel.text = viewModel.teams
-            ticketView.matchLabel.text = viewModel.match
+            tokenCardRowView.tokenCountLabel.text = viewModel.tokenCount
+            tokenCardRowView.venueLabel.text = viewModel.venue
+            tokenCardRowView.dateLabel.text = viewModel.date
+            tokenCardRowView.cityLabel.text = viewModel.city
+            tokenCardRowView.categoryLabel.text = viewModel.category
+            tokenCardRowView.timeLabel.text = viewModel.time
+            tokenCardRowView.teamsLabel.text = viewModel.teams
+            tokenCardRowView.matchLabel.text = viewModel.match
 
-            ticketView.dateImageView.isHidden = !viewModel.showTicketRowIcons
-            ticketView.seatRangeImageView.isHidden = !viewModel.showTicketRowIcons
-            ticketView.categoryImageView.isHidden = !viewModel.showTicketRowIcons
+            tokenCardRowView.dateImageView.isHidden = !viewModel.showTokenRowIcons
+            tokenCardRowView.seatRangeImageView.isHidden = !viewModel.showTokenRowIcons
+            tokenCardRowView.categoryImageView.isHidden = !viewModel.showTokenRowIcons
 
             statusLabel.textColor = viewModel.statusColor
             statusLabel.font = viewModel.statusFont

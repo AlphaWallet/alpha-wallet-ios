@@ -13,25 +13,25 @@ class TokenHolder {
         case available, sold, redeemed, forSale, transferred
     }
 
-    var tickets: [Token]
-    var name: String { return tickets[0].name }
-    var values: [String: AssetAttributeValue] { return tickets[0].values }
+    var tokens: [Token]
+    var name: String { return tokens[0].name }
+    var values: [String: AssetAttributeValue] { return tokens[0].values }
     var status: Status
     var isSelected = false
     var areDetailsVisible = false
     var contractAddress: String
 
-    init(tickets: [Token], status: Status, contractAddress: String) {
-        self.tickets = tickets
+    init(tokens: [Token], status: Status, contractAddress: String) {
+        self.tokens = tokens
         self.status = status
         self.contractAddress = contractAddress
     }
 
     var count: Int {
-        return tickets.count
+        return tokens.count
     }
 
     var indices: [UInt16] {
-        return tickets.map { $0.index }
+        return tokens.map { $0.index }
     }
 }

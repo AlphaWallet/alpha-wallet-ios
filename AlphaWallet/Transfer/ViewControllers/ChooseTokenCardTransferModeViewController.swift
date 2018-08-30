@@ -3,8 +3,8 @@
 import UIKit
 
 protocol ChooseTokenCardTransferModeViewControllerDelegate: class, CanOpenURL {
-    func didChooseTransferViaMagicLink(token: TokenObject, ticketHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
-    func didChooseTransferNow(token: TokenObject, ticketHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
+    func didChooseTransferViaMagicLink(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
+    func didChooseTransferNow(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
     func didPressViewInfo(in viewController: ChooseTokenCardTransferModeViewController)
 }
 
@@ -17,31 +17,31 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     }
     let roundedBackground = RoundedBackground()
     let header = TokensCardViewControllerTitleHeader()
-    let ticketView: TokenRowView & UIView
+    let tokenRowView: TokenRowView & UIView
     let generateMagicLinkButton = UIButton(type: .system)
     let transferNowButton = UIButton(type: .system)
     var viewModel: ChooseTokenCardTransferModeViewControllerViewModel
-    let ticketHolder: TokenHolder
+    let tokenHolder: TokenHolder
     let paymentFlow: PaymentFlow
     weak var delegate: ChooseTokenCardTransferModeViewControllerDelegate?
 
     init(
             config: Config,
-            ticketHolder: TokenHolder,
+            tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
             viewModel: ChooseTokenCardTransferModeViewControllerViewModel
     ) {
         self.config = config
-        self.ticketHolder = ticketHolder
+        self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
 
-        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
         switch tokenType {
         case .cryptoKitty:
-            ticketView = TokenListFormatRowView()
+            tokenRowView = TokenListFormatRowView()
         case .otherNonFungibleToken:
-            ticketView = TokenCardRowView()
+            tokenRowView = TokenCardRowView()
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -51,18 +51,18 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        generateMagicLinkButton.setTitle(R.string.localizable.aWalletTicketTokenTransferModeMagicLinkButtonTitle(), for: .normal)
+        generateMagicLinkButton.setTitle(R.string.localizable.aWalletTokenTransferModeMagicLinkButtonTitle(), for: .normal)
         generateMagicLinkButton.addTarget(self, action: #selector(generateMagicLinkTapped), for: .touchUpInside)
 
-        transferNowButton.setTitle(R.string.localizable.aWalletTicketTokenTransferModeNowButtonTitle(), for: .normal)
+        transferNowButton.setTitle(R.string.localizable.aWalletTokenTransferModeNowButtonTitle(), for: .normal)
         transferNowButton.addTarget(self, action: #selector(transferNowTapped), for: .touchUpInside)
 
-        ticketView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(ticketView)
+        tokenRowView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tokenRowView)
 
         let stackView = [
             header,
-            ticketView,
+            tokenRowView,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
@@ -87,8 +87,8 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         NSLayoutConstraint.activate([
 			header.heightAnchor.constraint(equalToConstant: 90),
 
-            ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
@@ -116,11 +116,11 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     }
 
     @objc func generateMagicLinkTapped() {
-        delegate?.didChooseTransferViaMagicLink(token: viewModel.token, ticketHolder: ticketHolder, in: self)
+        delegate?.didChooseTransferViaMagicLink(token: viewModel.token, tokenHolder: tokenHolder, in: self)
     }
 
     @objc func transferNowTapped() {
-        delegate?.didChooseTransferNow(token: viewModel.token, ticketHolder: ticketHolder, in: self)
+        delegate?.didChooseTransferNow(token: viewModel.token, tokenHolder: tokenHolder, in: self)
     }
 
     func showInfo() {
@@ -141,9 +141,9 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
 
         header.configure(title: viewModel.headerTitle)
 
-        ticketView.configure(tokenHolder: ticketHolder)
+        tokenRowView.configure(tokenHolder: tokenHolder)
 
-        ticketView.stateLabel.isHidden = true
+        tokenRowView.stateLabel.isHidden = true
 
         generateMagicLinkButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		generateMagicLinkButton.backgroundColor = viewModel.buttonBackgroundColor

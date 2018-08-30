@@ -17,7 +17,7 @@ https://app.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGN
  * uint32:    price in Szabo                                           000f4240
  * uint32:    expiry in Unix Time                                      5AB5B400
  * bytes20:   contract address         007bee82bdd9e866b2bd114780a47f2261c684e3
- * Uint16[]:  ticket indices                               010203040506070809
+ * Uint16[]:  token indices                               010203040506070809
  * bytes32:    2F982B84C635967A9B6306ED5789A7C1919164171E37DCCDF4B59BE547544105
  * bytes32:    30818B896B7D240F56C59EBDF209062EE54DA7A3590905739674DCFDCECF3E9B
  * byte:                                                                     1b
@@ -59,23 +59,23 @@ public class UniversalLinkHandler {
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
         let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
-        let ticketIndices = getTicketIndicesFromLinkBytes(linkBytes: linkBytes)
+        let tokenIndices = getTokenIndicesFromLinkBytes(linkBytes: linkBytes)
         let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes)
         let order = Order(
             price: price,
-            indices: ticketIndices,
+            indices: tokenIndices,
             expiry: expiry,
             contractAddress: contractAddress,
             start: BigUInt("0")!,
-            count: ticketIndices.count
+            count: tokenIndices.count
         )
         let message = getMessageFromOrder(order: order)
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
     
-    //we used a special encoding so that one 16 bit number could represent either one ticket or two
+    //we used a special encoding so that one 16 bit number could represent either one token or two
     //this is for the purpose of keeping universal links as short as possible
-    func decodeTicketIndices(indices: [UInt16]) -> [UInt8] {
+    func decodeTokenIndices(indices: [UInt16]) -> [UInt8] {
         var indicesBytes = [UInt8]()
         for i in 0...indices.count - 1 {
             let index = indices[i]
@@ -97,7 +97,7 @@ public class UniversalLinkHandler {
     //shortens price and expiry
     func formatMessageForLink(signedOrder: SignedOrder) -> String {
         let message = signedOrder.message
-        let indices = decodeTicketIndices(indices: signedOrder.order.indices)
+        let indices = decodeTokenIndices(indices: signedOrder.order.indices)
         var messageWithSzabo = [UInt8]()
         let price = Array(message[0...31])
         let expiry = Array(message[32...63])
@@ -174,34 +174,33 @@ public class UniversalLinkHandler {
         return MarketQueueHandler.bytesToHexa(contractAddrBytes)
     }
 
-    func getTicketIndicesFromLinkBytes(linkBytes: [UInt8]) -> [UInt16] {
-
-        let ticketLength = linkBytes.count - (65 + 20 + 8) - 1
-        var ticketIndices = [UInt16]()
+    func getTokenIndicesFromLinkBytes(linkBytes: [UInt8]) -> [UInt16] {
+        let tokenLength = linkBytes.count - (65 + 20 + 8) - 1
+        var tokenIndices = [UInt16]()
         var state: Int = 1
         var currentIndex: UInt16 = 0
-        let ticketStart = 28
+        let tokenStart = 28
 
-        for i in stride(from: ticketStart, through: ticketStart + ticketLength, by: 1) {
+        for i in stride(from: tokenStart, through: tokenStart + tokenLength, by: 1) {
             let byte: UInt8 = linkBytes[i]
             switch state {
             case 1:
-                //8th bit is equal to 128, if not set then it is only one ticket and will change the state
+                //8th bit is equal to 128, if not set then it is only one token and will change the state
                 if byte & (128) == 128 { //should be done with masks
                     currentIndex = UInt16((byte & 127)) << 8
                     state = 2
                 } else {
-                    ticketIndices.append(UInt16(byte))
+                    tokenIndices.append(UInt16(byte))
                 }
             case 2:
                 currentIndex += UInt16(byte)
-                ticketIndices.append(currentIndex)
+                tokenIndices.append(currentIndex)
                 state = 1
             default:
                 break
             }
         }
-        return ticketIndices
+        return tokenIndices
     }
     
     func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String) {

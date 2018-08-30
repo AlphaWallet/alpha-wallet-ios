@@ -3,7 +3,7 @@
 import UIKit
 
 protocol TransferTokenCardQuantitySelectionViewControllerDelegate: class, CanOpenURL {
-    func didSelectQuantity(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTokensCardQuantitySelectionViewController)
+    func didSelectQuantity(token: TokenObject, tokenHolder: TokenHolder, in viewController: TransferTokensCardQuantitySelectionViewController)
     func didPressViewInfo(in viewController: TransferTokensCardQuantitySelectionViewController)
 }
 
@@ -17,7 +17,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     let header = TokensCardViewControllerTitleHeader()
 	let subtitleLabel = UILabel()
     let quantityStepper = NumberStepper()
-    let ticketView: TokenRowView & UIView
+    let tokenRowView: TokenRowView & UIView
     let nextButton = UIButton(type: .system)
     var viewModel: TransferTokensCardQuantitySelectionViewModel
     let paymentFlow: PaymentFlow
@@ -38,9 +38,9 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         let tokenType = CryptoKittyHandling(contract: token.contract)
         switch tokenType {
         case .cryptoKitty:
-            ticketView = TokenListFormatRowView()
+            tokenRowView = TokenListFormatRowView()
         case .otherNonFungibleToken:
-            ticketView = TokenCardRowView()
+            tokenRowView = TokenCardRowView()
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -55,8 +55,8 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
-        ticketView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(ticketView)
+        tokenRowView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tokenRowView)
 
         quantityStepper.translatesAutoresizingMaskIntoConstraints = false
         quantityStepper.minimumValue = 1
@@ -65,7 +65,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
 
         let stackView = [
             header,
-            ticketView,
+            tokenRowView,
             .spacer(height: 20),
             subtitleLabel,
             .spacer(height: 4),
@@ -90,8 +90,8 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
 
 			quantityStepper.heightAnchor.constraint(equalToConstant: 50),
 
-            ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
@@ -118,13 +118,13 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         if quantityStepper.value == 0 {
             let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
             UIAlertController.alert(title: "",
-                                    message: R.string.localizable.aWalletTicketTokenTransferSelectTicketQuantityAtLeastOneTitle(tokenTypeName),
+                                    message: R.string.localizable.aWalletTokenTransferSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,
                                     completion: nil)
         } else {
-            delegate?.didSelectQuantity(token: viewModel.token, ticketHolder: getTicketHolderFromQuantity(), in: self)
+            delegate?.didSelectQuantity(token: viewModel.token, tokenHolder: getTokenHolderFromQuantity(), in: self)
         }
     }
 
@@ -151,28 +151,28 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         subtitleLabel.font = viewModel.subtitleFont
         subtitleLabel.text = viewModel.subtitleText
 
-        ticketView.configure(tokenHolder: viewModel.ticketHolder)
+        tokenRowView.configure(tokenHolder: viewModel.tokenHolder)
 
         quantityStepper.borderWidth = 1
         quantityStepper.clipsToBounds = true
         quantityStepper.borderColor = viewModel.stepperBorderColor
         quantityStepper.maximumValue = viewModel.maxValue
 
-        ticketView.stateLabel.isHidden = true
+        tokenRowView.stateLabel.isHidden = true
 
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor
         nextButton.titleLabel?.font = viewModel.buttonFont
     }
 
-    private func getTicketHolderFromQuantity() -> TokenHolder {
+    private func getTokenHolderFromQuantity() -> TokenHolder {
         let quantity = quantityStepper.value
-        let ticketHolder = viewModel.ticketHolder
-        let tickets = Array(ticketHolder.tickets[..<quantity])
+        let tokenHolder = viewModel.tokenHolder
+        let tokens = Array(tokenHolder.tokens[..<quantity])
         return TokenHolder(
-            tickets: tickets,
-            status: ticketHolder.status,
-            contractAddress: ticketHolder.contractAddress
+            tokens: tokens,
+            status: tokenHolder.status,
+            contractAddress: tokenHolder.contractAddress
         )
     }
 

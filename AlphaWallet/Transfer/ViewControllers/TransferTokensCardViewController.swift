@@ -3,7 +3,7 @@
 import UIKit
 
 protocol TransferTokensCardViewControllerDelegate: class, CanOpenURL {
-    func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTokensCardViewController)
+    func didSelectTokenHolder(token: TokenObject, tokenHolder: TokenHolder, in viewController: TransferTokensCardViewController)
     func didPressViewInfo(in viewController: TransferTokensCardViewController)
     func didTapURL(url: URL, in viewController: TransferTokensCardViewController)
 }
@@ -100,17 +100,17 @@ class TransferTokensCardViewController: UIViewController, TokenVerifiableStatusV
 
     @objc
     func nextButtonTapped() {
-        let selectedTicketHolders = viewModel.ticketHolders.filter { $0.isSelected }
-        if selectedTicketHolders.isEmpty {
+        let selectedTokenHolders = viewModel.tokenHolders.filter { $0.isSelected }
+        if selectedTokenHolders.isEmpty {
             let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.singular, titlecase: .notTitlecase)
             UIAlertController.alert(title: "",
-                                    message: R.string.localizable.aWalletTicketTokenTransferSelectTicketsAtLeastOneTitle(tokenTypeName),
+                                    message: R.string.localizable.aWalletTokenTransferSelectTokensAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,
                                     completion: nil)
         } else {
-            self.delegate?.didSelectTicketHolder(token: viewModel.token, ticketHolder: selectedTicketHolders.first!, in: self)
+            self.delegate?.didSelectTokenHolder(token: viewModel.token, tokenHolder: selectedTokenHolders.first!, in: self)
         }
     }
 
@@ -137,17 +137,17 @@ extension TransferTokensCardViewController: UITableViewDelegate, UITableViewData
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let ticketHolder = viewModel.item(for: indexPath)
-        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        let tokenHolder = viewModel.item(for: indexPath)
+        let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
         switch tokenType {
         case .cryptoKitty:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenListFormatTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenListFormatTableViewCellWithCheckbox
             cell.delegate = self
-            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder))
             return cell
         case .otherNonFungibleToken:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithCheckbox
-            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder))
             return cell
         }
     }

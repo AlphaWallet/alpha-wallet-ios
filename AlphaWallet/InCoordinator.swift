@@ -50,7 +50,7 @@ class InCoordinator: Coordinator {
         }.first
     }
 
-    var ticketsCoordinator: TokensCardCoordinator? {
+    var tokensCardCoordinator: TokensCardCoordinator? {
         return self.coordinators.compactMap {
             $0 as? TokensCardCoordinator
         }.first
@@ -332,22 +332,22 @@ class InCoordinator: Coordinator {
         }
     }
 
-    func showPaymentFlow(for paymentFlow: PaymentFlow, ticketHolders: [TokenHolder] = [], in ticketsCoordinator: TokensCardCoordinator) {
+    func showPaymentFlow(for paymentFlow: PaymentFlow, tokenHolders: [TokenHolder] = [], in tokensCardCoordinator: TokensCardCoordinator) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
-        //TODO do we need to pass these (especially tokenStorage) to showTransferViewController(for:ticketHolders:) to make sure storage is synchronized?
+        //TODO do we need to pass these (especially tokenStorage) to showTransferViewController(for:tokenHolders:) to make sure storage is synchronized?
         let session = transactionCoordinator.session
 
         switch (paymentFlow, session.account.type) {
         case (.send, .real), (.request, _):
-            ticketsCoordinator.showTransferViewController(for: paymentFlow, ticketHolders: ticketHolders)
+            tokensCardCoordinator.showTransferViewController(for: paymentFlow, tokenHolders: tokenHolders)
         case (_, _):
             navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
         }
     }
 
-    func showTicketList(for type: PaymentFlow, token: TokenObject) {
+    func showTokenList(for type: PaymentFlow, token: TokenObject) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
@@ -360,7 +360,7 @@ class InCoordinator: Coordinator {
         let session = transactionCoordinator.session
         let tokenStorage = transactionCoordinator.tokensStorage
 
-        let ticketsCoordinator = TokensCardCoordinator(
+        let tokensCardCoordinator = TokensCardCoordinator(
             session: session,
             keystore: keystore,
             tokensStorage: tokenStorage,
@@ -368,23 +368,23 @@ class InCoordinator: Coordinator {
             token: token,
             assetDefinitionStore: assetDefinitionStore
         )
-        addCoordinator(ticketsCoordinator)
-        ticketsCoordinator.type = type
-        ticketsCoordinator.delegate = self
-        ticketsCoordinator.start()
+        addCoordinator(tokensCardCoordinator)
+        tokensCardCoordinator.type = type
+        tokensCardCoordinator.delegate = self
+        tokensCardCoordinator.start()
         switch (type, session.account.type) {
         case (.send, .real), (.request, _):
-            navigationController.present(ticketsCoordinator.navigationController, animated: true, completion: nil)
+            navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
         case (_, _):
             navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
         }
     }
 
-    func showTicketListToRedeem(for token: TokenObject, coordinator: TokensCardCoordinator) {
+    func showTokenListToRedeem(for token: TokenObject, coordinator: TokensCardCoordinator) {
         coordinator.showRedeemViewController()
     }
 
-    func showTicketListToSell(for paymentFlow: PaymentFlow, coordinator: TokensCardCoordinator) {
+    func showTokenListToSell(for paymentFlow: PaymentFlow, coordinator: TokensCardCoordinator) {
         coordinator.showSellViewController(for: paymentFlow)
     }
 
@@ -426,16 +426,16 @@ class InCoordinator: Coordinator {
 
 extension InCoordinator: TokensCardCoordinatorDelegate {
 
-    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TokenHolder], in coordinator: TokensCardCoordinator) {
-        showPaymentFlow(for: type, ticketHolders: ticketHolders, in: coordinator)
+    func didPressTransfer(for type: PaymentFlow, tokenHolders: [TokenHolder], in coordinator: TokensCardCoordinator) {
+        showPaymentFlow(for: type, tokenHolders: tokenHolders, in: coordinator)
     }
 
     func didPressRedeem(for token: TokenObject, in coordinator: TokensCardCoordinator) {
-        showTicketListToRedeem(for: token, coordinator: coordinator)
+        showTokenListToRedeem(for: token, coordinator: coordinator)
     }
 
     func didPressSell(for type: PaymentFlow, in coordinator: TokensCardCoordinator) {
-        showTicketListToSell(for: type, coordinator: coordinator)
+        showTokenListToSell(for: type, coordinator: coordinator)
     }
 
     func didCancel(in coordinator: TokensCardCoordinator) {
@@ -543,17 +543,17 @@ extension InCoordinator: TokensCoordinatorDelegate {
     }
 
     func didPressERC721(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
-        showTicketList(for: type, token: token)
+        showTokenList(for: type, token: token)
     }
 
     func didPressERC875(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
-        showTicketList(for: type, token: token)
+        showTokenList(for: type, token: token)
     }
 
     // When a user clicks a Universal Link, either the user pays to publish a
-    // transaction or, if the ticket price = 0 (new purchase or incoming
+    // transaction or, if the token price = 0 (new purchase or incoming
     // transfer from a buddy), the user can send the data to a paymaster.
-    // This function deal with the special case that the ticket price = 0
+    // This function deal with the special case that the token price = 0
     // but not sent to the paymaster because the user has ether.
 
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {

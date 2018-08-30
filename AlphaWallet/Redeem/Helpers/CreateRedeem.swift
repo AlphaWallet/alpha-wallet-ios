@@ -22,11 +22,11 @@ class CreateRedeem {
         return String(minsTime)
     }
 
-    func redeemMessage(ticketIndices: [UInt16]) -> (message: String, qrCode: String) {
+    func redeemMessage(tokenIndices: [UInt16]) -> (message: String, qrCode: String) {
         let contractAddress = token.contract.add0x.lowercased()
-        let messageForSigning = formIndicesSelection(indices: ticketIndices)
+        let messageForSigning = formIndicesSelection(indices: tokenIndices)
                 + "," + generateTimeStamp() + "," + contractAddress
-        let qrCodeData = formIndicesSelection(indices: ticketIndices)
+        let qrCodeData = formIndicesSelection(indices: tokenIndices)
         return (messageForSigning, qrCodeData)
     }
 
