@@ -6,6 +6,7 @@ import UIKit
 enum BrowserNavigation {
     case goBack
     case more(sender: UIView)
+    case close
     case home
     case enter(String)
     case beginEditing

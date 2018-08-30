@@ -3,10 +3,9 @@
 import UIKit
 import BigInt
 
-protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: class {
+protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: class, CanOpenURL {
     func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TokenHolder, ethCost: Ether, in viewController: EnterSellTokensCardPriceQuantityViewController)
     func didPressViewInfo(in viewController: EnterSellTokensCardPriceQuantityViewController)
-    func didPressViewContractWebPage(in viewController: EnterSellTokensCardPriceQuantityViewController)
 }
 
 class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -268,7 +267,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 
     func configure(viewModel newViewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel? = nil) {

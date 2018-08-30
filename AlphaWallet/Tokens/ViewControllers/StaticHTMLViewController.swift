@@ -2,11 +2,16 @@
 
 import UIKit
 
+protocol StaticHTMLViewControllerDelegate: class, CanOpenURL {
+}
+
 class StaticHTMLViewController: UIViewController {
     let webView = UIWebView()
     let footer = UIView()
+    weak var delegate: StaticHTMLViewControllerDelegate?
 
-    init() {
+    init(delegate: StaticHTMLViewControllerDelegate?) {
+        self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = Colors.appBackground
 
@@ -53,7 +58,7 @@ class StaticHTMLViewController: UIViewController {
 extension StaticHTMLViewController: UIWebViewDelegate {
     func webView(_ webView: UIWebView, shouldStartLoadWith request: URLRequest, navigationType: UIWebViewNavigationType) -> Bool {
         if let url = request.url, url.absoluteString.hasPrefix("http") {
-            openURL(url)
+            delegate?.didPressOpenWebPage(url, in: self)
             return false
         } else {
             return true

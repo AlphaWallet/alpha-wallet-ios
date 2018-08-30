@@ -11,13 +11,12 @@ import UIKit
 import Result
 import TrustKeystore
 
-protocol TokensCardViewControllerDelegate: class {
+protocol TokensCardViewControllerDelegate: class, CanOpenURL {
     func didPressRedeem(token: TokenObject, in viewController: TokensCardViewController)
     func didPressSell(for type: PaymentFlow, in viewController: TokensCardViewController)
     func didPressTransfer(for type: PaymentFlow, ticketHolders: [TokenHolder], in viewController: TokensCardViewController)
     func didCancel(in viewController: TokensCardViewController)
     func didPressViewRedemptionInfo(in viewController: TokensCardViewController)
-    func didPressViewContractWebPage(in viewController: TokensCardViewController)
     func didTapURL(url: URL, in viewController: TokensCardViewController)
 }
 
@@ -200,7 +199,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(in: self)
+        delegate?.didPressViewContractWebPage(forContract: tokenObject.contract, in: self)
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
@@ -241,6 +240,6 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
 
 extension TokensCardViewController: BaseTokenListFormatTableViewCellDelegate {
     func didTapURL(url: URL) {
-        delegate?.didTapURL(url: url, in: self)
+        delegate?.didPressOpenWebPage(url, in: self)
     }
 }

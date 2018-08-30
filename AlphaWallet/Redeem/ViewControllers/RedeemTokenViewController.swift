@@ -8,10 +8,9 @@
 
 import UIKit
 
-protocol RedeemTokenViewControllerDelegate: class {
+protocol RedeemTokenViewControllerDelegate: class, CanOpenURL {
     func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: RedeemTokenViewController)
     func didPressViewInfo(in viewController: RedeemTokenViewController)
-    func didPressViewContractWebPage(in viewController: RedeemTokenViewController)
     func didTapURL(url: URL, in viewController: RedeemTokenViewController)
 }
 
@@ -124,7 +123,7 @@ class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewCont
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
@@ -165,6 +164,6 @@ extension RedeemTokenViewController: UITableViewDelegate, UITableViewDataSource 
 
 extension RedeemTokenViewController: BaseTokenListFormatTableViewCellDelegate {
     func didTapURL(url: URL) {
-        delegate?.didTapURL(url: url, in: self)
+        delegate?.didPressOpenWebPage(url, in: self)
     }
 }

@@ -444,18 +444,59 @@ extension InCoordinator: TokensCardCoordinatorDelegate {
     }
 
     func didPressViewRedemptionInfo(in viewController: UIViewController) {
-        let controller = TokenCardRedemptionInfoViewController()
+        let controller = TokenCardRedemptionInfoViewController(delegate: self)
 		viewController.navigationController?.pushViewController(controller, animated: true)
     }
 
-    func didPressViewContractWebPage(for token: TokenObject, in viewController: UIViewController) {
-        let url =  config.server.etherscanContractDetailsWebPageURL(for: token.contract)
-        viewController.openURL(url)
+    func didPressViewEthereumInfo(in viewController: UIViewController) {
+        let controller = WhatIsEthereumInfoViewController(delegate: self)
+        viewController.navigationController?.pushViewController(controller, animated: true)
+    }
+}
+
+extension InCoordinator: CanOpenURL {
+    private func open(url: URL, in viewController: UIViewController) {
+        guard let account = keystore.recentlyUsedWallet else { return }
+
+        //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
+        let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
+        migration.perform()
+        let web3 = self.web3()
+        web3.start()
+        let realm = self.realm(for: migration.config)
+
+        let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
+
+        let balanceCoordinator = GetBalanceCoordinator(config: config)
+        let balance = BalanceCoordinator(wallet: account, config: config, storage: tokensStorage)
+        let session = WalletSession(
+                account: account,
+                config: config,
+                web3: web3,
+                balanceCoordinator: balance
+        )
+
+        let browserCoordinator = BrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
+        browserCoordinator.delegate = self
+        browserCoordinator.start()
+        addCoordinator(browserCoordinator)
+
+        let controller = browserCoordinator.navigationController
+        browserCoordinator.openURL(url)
+        viewController.present(controller, animated: true, completion: nil)
     }
 
-    func didPressViewEthereumInfo(in viewController: UIViewController) {
-        let controller = WhatIsEthereumInfoViewController()
-        viewController.navigationController?.pushViewController(controller, animated: true)
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        let url = config.server.etherscanContractDetailsWebPageURL(for: contract)
+        open(url: url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        open(url: url, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        open(url: url, in: viewController)
     }
 }
 
@@ -654,10 +695,18 @@ extension InCoordinator: BrowserCoordinatorDelegate {
     func didSentTransaction(transaction: SentTransaction, in coordinator: BrowserCoordinator) {
         handlePendingTransaction(transaction: transaction)
     }
+
+    func didPressCloseButton(in coordinator: BrowserCoordinator) {
+        coordinator.navigationController.dismiss(animated: true)
+        removeCoordinator(coordinator)
+    }
 }
 
 struct NoTokenError: LocalizedError {
     var errorDescription: String? {
         return R.string.localizable.aWalletNoTokens()
     }
+}
+
+extension InCoordinator: StaticHTMLViewControllerDelegate {
 }

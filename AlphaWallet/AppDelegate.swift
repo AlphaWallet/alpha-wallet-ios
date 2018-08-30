@@ -114,6 +114,21 @@ extension AppDelegate: UniversalLinkCoordinatorDelegate {
     }
 }
 
+//TODO remove this once AppDelegate no longer implements UniversalLinkCoordinatorDelegate. i.e. when we move UniversalLinkCoordinator management into InCoordinator
+extension AppDelegate: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        appCoordinator.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        appCoordinator.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        appCoordinator.didPressOpenWebPage(url, in: viewController)
+    }
+}
+
 extension AppDelegate: UniversalLinkInPasteboardCoordinatorDelegate {
     func importUniversalLink(url: URL, for coordinator: UniversalLinkInPasteboardCoordinator) {
         guard universalLinkCoordinator == nil else { return }

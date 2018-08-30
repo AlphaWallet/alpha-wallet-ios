@@ -3,10 +3,9 @@
 import UIKit
 import QRCodeReaderViewController
 
-protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class {
+protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpenURL {
     func didEnterWalletAddress(ticketHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
     func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController)
-    func didPressViewContractWebPage(in viewController: TransferTokensCardViaWalletAddressViewController)
 }
 
 class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController, CanScanQRCode {
@@ -126,8 +125,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     }
 
     func showContractWebPage() {
-        let url = config.server.etherscanContractDetailsWebPageURL(for: viewModel.token.contract)
-        openURL(url)
+        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 
     func configure(viewModel newViewModel: TransferTokensCardViaWalletAddressViewControllerViewModel? = nil) {
