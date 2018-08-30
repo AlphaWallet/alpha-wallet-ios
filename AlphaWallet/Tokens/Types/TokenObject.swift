@@ -47,7 +47,7 @@ class TokenObject: Object {
     }
 
     var address: Address {
-        return Address(string: contract)!
+        return Address(uncheckedAgainstNullAddress: contract)!
     }
 
     var valueBigInt: BigInt {
