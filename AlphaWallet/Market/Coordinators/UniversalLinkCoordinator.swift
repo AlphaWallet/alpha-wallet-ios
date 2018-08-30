@@ -7,7 +7,7 @@ import Realm
 import TrustKeystore
 import web3swift
 
-protocol UniversalLinkCoordinatorDelegate: class {
+protocol UniversalLinkCoordinatorDelegate: class, CanOpenURL {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
 	func completed(in coordinator: UniversalLinkCoordinator)
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
@@ -394,6 +394,20 @@ extension UniversalLinkCoordinator: ImportMagicTokenViewControllerDelegate {
             importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject)
         }
 	}
+}
+
+extension UniversalLinkCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
+    }
 }
 
 extension UniversalLinkCoordinator: PromptBackupCoordinatorDelegate {

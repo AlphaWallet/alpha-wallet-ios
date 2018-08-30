@@ -253,6 +253,8 @@ extension BrowserViewController: BrowserNavigationBarDelegate {
             break
         case .more:
             break
+        case .close:
+            stopLoading()
         case .home:
             break
         case .enter:

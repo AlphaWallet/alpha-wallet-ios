@@ -2,11 +2,10 @@
 
 import UIKit
 
-protocol ChooseTokenCardTransferModeViewControllerDelegate: class {
+protocol ChooseTokenCardTransferModeViewControllerDelegate: class, CanOpenURL {
     func didChooseTransferViaMagicLink(token: TokenObject, ticketHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
     func didChooseTransferNow(token: TokenObject, ticketHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController)
     func didPressViewInfo(in viewController: ChooseTokenCardTransferModeViewController)
-    func didPressViewContractWebPage(in viewController: ChooseTokenCardTransferModeViewController)
 }
 
 class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -129,7 +128,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 
     func configure(viewModel newViewModel: ChooseTokenCardTransferModeViewControllerViewModel? = nil) {

@@ -5,8 +5,8 @@ import UIKit
 class HelpContentsViewController: StaticHTMLViewController {
     let banner = ContactUsBannerView()
 
-    override init() {
-        super.init()
+    override init(delegate: StaticHTMLViewControllerDelegate?) {
+        super.init(delegate: delegate)
 
         banner.delegate = self
         banner.translatesAutoresizingMaskIntoConstraints = false

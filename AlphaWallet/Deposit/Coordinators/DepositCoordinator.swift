@@ -4,18 +4,24 @@ import Foundation
 import TrustKeystore
 import UIKit
 
+protocol DepositCoordinatorDelegate: class, CanOpenURL {
+}
+
 class DepositCoordinator: Coordinator {
 
     let navigationController: UINavigationController
     let account: Wallet
     var coordinators: [Coordinator] = []
+    weak var delegate: DepositCoordinatorDelegate?
 
     init(
         navigationController: UINavigationController,
-        account: Wallet
+        account: Wallet,
+        delegate: DepositCoordinatorDelegate?
     ) {
         self.navigationController = navigationController
         self.account = account
+        self.delegate = delegate
     }
 
     func start(from barButtonItem: UIBarButtonItem? = .none) {
@@ -63,20 +69,20 @@ class DepositCoordinator: Coordinator {
         let widget = CoinbaseBuyWidget(
             address: account.address.description
         )
-        navigationController.openURL(widget.url)
+        delegate?.didPressOpenWebPage(widget.url, in: navigationController)
     }
 
     func showShapeShift() {
         let widget = ShapeShiftBuyWidget(
             address: account.address.description
         )
-        navigationController.openURL(widget.url)
+        delegate?.didPressOpenWebPage(widget.url, in: navigationController)
     }
 
     func showChangelly() {
         let widget = ChangellyBuyWidget(
             address: account.address.description
         )
-        navigationController.openURL(widget.url)
+        delegate?.didPressOpenWebPage(widget.url, in: navigationController)
     }
 }
