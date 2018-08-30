@@ -34,28 +34,28 @@ class StaticHTMLViewController: UIViewController {
             footer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footer.heightAnchor.constraint(equalToConstant: footerHeight()),
             footer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            ])
-        }
-
-        required init?(coder aDecoder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-
-        func url() -> URL? {
-            return nil
-        }
-
-        func footerHeight() -> CGFloat {
-            return 0
-        }
+        ])
     }
 
-    extension StaticHTMLViewController: UIWebViewDelegate {
-        func webView(_ webView: UIWebView, shouldStartLoadWith request: URLRequest, navigationType: UIWebViewNavigationType) -> Bool {
-            if let url = request.url, url.absoluteString.hasPrefix("http") {
-                openURL(url)
-                return false
-            } else {
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func url() -> URL? {
+        return nil
+    }
+
+    func footerHeight() -> CGFloat {
+        return 0
+    }
+}
+
+extension StaticHTMLViewController: UIWebViewDelegate {
+    func webView(_ webView: UIWebView, shouldStartLoadWith request: URLRequest, navigationType: UIWebViewNavigationType) -> Bool {
+        if let url = request.url, url.absoluteString.hasPrefix("http") {
+            openURL(url)
+            return false
+        } else {
             return true
         }
     }
