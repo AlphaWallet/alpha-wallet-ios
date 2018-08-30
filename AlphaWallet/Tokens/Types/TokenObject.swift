@@ -47,9 +47,6 @@ class TokenObject: Object {
     }
 
     var address: Address {
-        if let ethAddress = Address(string: contract) {
-            return ethAddress
-        }
         return Address(uncheckedAgainstNullAddress: Constants.nullAddress)!
     }
 

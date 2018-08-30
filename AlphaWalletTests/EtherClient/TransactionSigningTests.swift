@@ -41,7 +41,7 @@ class TransactionSigningTests: XCTestCase {
     }
 
     func testSignTransaction() {
-        let account: Account = .make(address: Address(data: Data(repeating: 0, count: 20)))
+        let account: Account = .make(address: Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!)
         let transaction = UnsignedTransaction(
             value: BigInt("1000000000000000000"),
             account: account,
