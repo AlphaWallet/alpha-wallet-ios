@@ -14,7 +14,7 @@ import TrustKeystore
 protocol TokensCardViewControllerDelegate: class, CanOpenURL {
     func didPressRedeem(token: TokenObject, in viewController: TokensCardViewController)
     func didPressSell(for type: PaymentFlow, in viewController: TokensCardViewController)
-    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TokenHolder], in viewController: TokensCardViewController)
+    func didPressTransfer(for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController)
     func didCancel(in viewController: TokensCardViewController)
     func didPressViewRedemptionInfo(in viewController: TokensCardViewController)
     func didTapURL(url: URL, in viewController: TokensCardViewController)
@@ -66,13 +66,13 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.rowHeight = UITableViewAutomaticDimension
         roundedBackground.addSubview(tableView)
 
-        redeemButton.setTitle(R.string.localizable.aWalletTicketTokenRedeemButtonTitle(), for: .normal)
+        redeemButton.setTitle(R.string.localizable.aWalletTokenRedeemButtonTitle(), for: .normal)
         redeemButton.addTarget(self, action: #selector(redeem), for: .touchUpInside)
 
-        sellButton.setTitle(R.string.localizable.aWalletTicketTokenSellButtonTitle(), for: .normal)
+        sellButton.setTitle(R.string.localizable.aWalletTokenSellButtonTitle(), for: .normal)
         sellButton.addTarget(self, action: #selector(sell), for: .touchUpInside)
 
-        transferButton.setTitle(R.string.localizable.aWalletTicketTokenTransferButtonTitle(), for: .normal)
+        transferButton.setTitle(R.string.localizable.aWalletTokenTransferButtonTitle(), for: .normal)
         transferButton.addTarget(self, action: #selector(transfer), for: .touchUpInside)
 
         let buttonsStackView = [redeemButton, sellButton, transferButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
@@ -190,7 +190,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     @objc func transfer() {
         let transferType = TransferType(token: viewModel.token)
         delegate?.didPressTransfer(for: .send(type: transferType),
-                                   ticketHolders: viewModel.ticketHolders,
+                                   tokenHolders: viewModel.tokenHolders,
                                    in: self)
     }
 
@@ -217,17 +217,17 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let ticketHolder = viewModel.item(for: indexPath)
-        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        let tokenHolder = viewModel.item(for: indexPath)
+        let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
         switch tokenType {
         case .cryptoKitty:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenListFormatTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenListFormatTableViewCellWithoutCheckbox
             cell.delegate = self
-            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder))
             return cell
         case .otherNonFungibleToken:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithoutCheckbox
-            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder))
             return cell
         }
     }

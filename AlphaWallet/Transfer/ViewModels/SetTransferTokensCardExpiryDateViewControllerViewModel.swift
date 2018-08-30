@@ -6,11 +6,11 @@ import UIKit
 struct SetTransferTokensCardExpiryDateViewControllerViewModel {
 
     var token: TokenObject
-    var ticketHolder: TokenHolder
+    var tokenHolder: TokenHolder
 
     var headerTitle: String {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.plural, titlecase: .titlecase)
-		return R.string.localizable.aWalletTicketTokenTransferSelectQuantityTitle(tokenTypeName)
+		return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 
     var backgroundColor: UIColor {
@@ -30,7 +30,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var descriptionLabelText: String {
-        return R.string.localizable.aWalletTicketTokenTransferMagicLinkDescriptionTitle()
+        return R.string.localizable.aWalletTokenTransferMagicLinkDescriptionTitle()
     }
 
     var descriptionLabelFont: UIFont {
@@ -42,7 +42,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
     
     var noteTitleLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellNoteTitleLabelTitle()
+        return R.string.localizable.aWalletTokenSellNoteTitleLabelTitle()
     }
 
     var noteTitleLabelFont: UIFont {
@@ -54,7 +54,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteLabelText: String {
-        return R.string.localizable.aWalletTicketTokenTransferNoteLabelTitle()
+        return R.string.localizable.aWalletTokenTransferNoteLabelTitle()
     }
 
     var noteLabelFont: UIFont {
@@ -78,10 +78,10 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
     
     var linkExpiryDateLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellLinkExpiryDateTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle()
     }
 
     var linkExpiryTimeLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellLinkExpiryTimeTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryTimeTitle()
     }
 }

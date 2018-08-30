@@ -3,7 +3,7 @@
 import UIKit
 
 protocol SetSellTokensCardExpiryDateViewControllerDelegate: class, CanOpenURL {
-    func didSetSellTicketsExpiryDate(ticketHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, in viewController: SetSellTokensCardExpiryDateViewController)
+    func didSetSellTokensExpiryDate(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, in viewController: SetSellTokensCardExpiryDateViewController)
     func didPressViewInfo(in viewController: SetSellTokensCardExpiryDateViewController)
 }
 
@@ -21,20 +21,20 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     let linkExpiryDateField = DateEntryField()
     let linkExpiryTimeLabel = UILabel()
     let linkExpiryTimeField = TimeEntryField()
-    let ticketCountLabel = UILabel()
-    let perTicketPriceLabel = UILabel()
+    let tokenCountLabel = UILabel()
+    let perTokenPriceLabel = UILabel()
     let totalEthLabel = UILabel()
     let descriptionLabel = UILabel()
     let noteTitleLabel = UILabel()
     let noteLabel = UILabel()
     let noteBorderView = UIView()
-    let ticketView: TokenRowView & UIView
+    let tokenRowView: TokenRowView & UIView
     let nextButton = UIButton(type: .system)
     let datePicker = UIDatePicker()
     let timePicker = UIDatePicker()
     var viewModel: SetSellTokensCardExpiryDateViewControllerViewModel
     let paymentFlow: PaymentFlow
-    let ticketHolder: TokenHolder
+    let tokenHolder: TokenHolder
     let ethCost: Ether
     weak var delegate: SetSellTokensCardExpiryDateViewControllerDelegate?
 
@@ -42,23 +42,23 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
             config: Config,
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
-            ticketHolder: TokenHolder,
+            tokenHolder: TokenHolder,
             ethCost: Ether,
             viewModel: SetSellTokensCardExpiryDateViewControllerViewModel
     ) {
         self.config = config
         self.storage = storage
         self.paymentFlow = paymentFlow
-        self.ticketHolder = ticketHolder
+        self.tokenHolder = tokenHolder
         self.ethCost = ethCost
         self.viewModel = viewModel
 
-        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
         switch tokenType {
         case .cryptoKitty:
-            ticketView = TokenListFormatRowView()
+            tokenRowView = TokenListFormatRowView()
         case .otherNonFungibleToken:
-            ticketView = TokenCardRowView()
+            tokenRowView = TokenCardRowView()
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -74,13 +74,13 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
-        ticketView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(ticketView)
+        tokenRowView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(tokenRowView)
 
         linkExpiryDateLabel.translatesAutoresizingMaskIntoConstraints = false
         linkExpiryTimeLabel.translatesAutoresizingMaskIntoConstraints = false
-        ticketCountLabel.translatesAutoresizingMaskIntoConstraints = false
-        perTicketPriceLabel.translatesAutoresizingMaskIntoConstraints = false
+        tokenCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        perTokenPriceLabel.translatesAutoresizingMaskIntoConstraints = false
         totalEthLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         noteTitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -139,10 +139,10 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
 
         let stackView = [
             header,
-            ticketView,
+            tokenRowView,
             .spacer(height: 18),
-            ticketCountLabel,
-            perTicketPriceLabel,
+            tokenCountLabel,
+            perTokenPriceLabel,
             totalEthLabel,
             .spacer(height: 4),
             descriptionLabel,
@@ -173,23 +173,23 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
             header.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             header.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
 
-            ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            linkExpiryDateField.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            linkExpiryTimeField.rightAnchor.constraint(equalTo: ticketView.background.rightAnchor),
+            linkExpiryDateField.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
+            linkExpiryTimeField.rightAnchor.constraint(equalTo: tokenRowView.background.rightAnchor),
             linkExpiryDateField.heightAnchor.constraint(equalToConstant: 50),
             linkExpiryDateField.widthAnchor.constraint(equalTo: linkExpiryTimeField.widthAnchor),
             linkExpiryDateField.heightAnchor.constraint(equalTo: linkExpiryTimeField.heightAnchor),
 
-            datePicker.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            datePicker.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+            datePicker.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
+            datePicker.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
 
-            timePicker.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            timePicker.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+            timePicker.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
+            timePicker.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
 
-            noteBorderView.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            noteBorderView.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+            noteBorderView.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
+            noteBorderView.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
 
             noteStackView.leadingAnchor.constraint(equalTo: noteBorderView.leadingAnchor, constant: 10),
             noteStackView.trailingAnchor.constraint(equalTo: noteBorderView.trailingAnchor, constant: -10),
@@ -226,7 +226,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         let expiryDate = linkExpiryDate()
         guard expiryDate > Date() else {
             UIAlertController.alert(title: "",
-                    message: R.string.localizable.aWalletTicketTokenSellLinkExpiryTimeAtLeastNowTitle(),
+                    message: R.string.localizable.aWalletTokenSellLinkExpiryTimeAtLeastNowTitle(),
                     alertButtonTitles: [R.string.localizable.oK()],
                     alertButtonStyles: [.cancel],
                     viewController: self,
@@ -235,7 +235,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         }
 
         //TODO be good if we check if date chosen is not too far into the future. Example 1 year ahead. Common error?
-        delegate?.didSetSellTicketsExpiryDate(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate(), ethCost: ethCost, in: self)
+        delegate?.didSetSellTokensExpiryDate(tokenHolder: tokenHolder, linkExpiryDate: linkExpiryDate(), ethCost: ethCost, in: self)
     }
 
     private func linkExpiryDate() -> Date {
@@ -267,7 +267,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
 
         header.configure(title: viewModel.headerTitle)
 
-        ticketView.configure(tokenHolder: viewModel.ticketHolder)
+        tokenRowView.configure(tokenHolder: viewModel.tokenHolder)
 
         linkExpiryDateLabel.textAlignment = .center
         linkExpiryDateLabel.textColor = viewModel.choiceLabelColor
@@ -279,19 +279,19 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         linkExpiryTimeLabel.font = viewModel.choiceLabelFont
         linkExpiryTimeLabel.text = viewModel.linkExpiryTimeLabelText
 
-        ticketCountLabel.textAlignment = .center
-        ticketCountLabel.textColor = viewModel.ticketSaleDetailsLabelColor
-        ticketCountLabel.font = viewModel.ticketSaleDetailsLabelFont
-        ticketCountLabel.text = viewModel.ticketCountLabelText
+        tokenCountLabel.textAlignment = .center
+        tokenCountLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+        tokenCountLabel.font = viewModel.tokenSaleDetailsLabelFont
+        tokenCountLabel.text = viewModel.tokenCountLabelText
 
-        perTicketPriceLabel.textAlignment = .center
-        perTicketPriceLabel.textColor = viewModel.ticketSaleDetailsLabelColor
-        perTicketPriceLabel.font = viewModel.ticketSaleDetailsLabelFont
-        perTicketPriceLabel.text = viewModel.perTicketPriceLabelText
+        perTokenPriceLabel.textAlignment = .center
+        perTokenPriceLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+        perTokenPriceLabel.font = viewModel.tokenSaleDetailsLabelFont
+        perTokenPriceLabel.text = viewModel.perTokenPriceLabelText
 
         totalEthLabel.textAlignment = .center
-        totalEthLabel.textColor = viewModel.ticketSaleDetailsLabelColor
-        totalEthLabel.font = viewModel.ticketSaleDetailsLabelFont
+        totalEthLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+        totalEthLabel.font = viewModel.tokenSaleDetailsLabelFont
         totalEthLabel.text = viewModel.totalEthLabelText
 
         descriptionLabel.textAlignment = .center
@@ -315,7 +315,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         noteBorderView.layer.borderColor = viewModel.noteBorderColor.cgColor
         noteBorderView.layer.borderWidth = 1
 
-        ticketView.stateLabel.isHidden = true
+        tokenRowView.stateLabel.isHidden = true
 
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor

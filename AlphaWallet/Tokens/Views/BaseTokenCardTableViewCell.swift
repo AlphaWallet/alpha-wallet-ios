@@ -4,7 +4,7 @@ import UIKit
 
 // Override showCheckbox() to return true or false
 class BaseTokenCardTableViewCell: UITableViewCell {
-    static let identifier = "TicketTableViewCell"
+    static let identifier = "TokenCardTableViewCell"
 
     lazy var rowView = TokenCardRowView(showCheckbox: showCheckbox())
 
@@ -32,7 +32,7 @@ class BaseTokenCardTableViewCell: UITableViewCell {
 
         contentView.backgroundColor = viewModel.backgroundColor
 
-        rowView.configure(viewModel: .init(ticketHolder: viewModel.ticketHolder))
+        rowView.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder))
 
         if showCheckbox() {
             rowView.checkboxImageView.image = viewModel.checkboxImage

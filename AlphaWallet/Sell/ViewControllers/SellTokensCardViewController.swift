@@ -3,7 +3,7 @@
 import UIKit
 
 protocol SellTokensCardViewControllerDelegate: class, CanOpenURL {
-    func didSelectTicketHolder(ticketHolder: TokenHolder, in viewController: SellTokensCardViewController)
+    func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: SellTokensCardViewController)
     func didPressViewInfo(in viewController: SellTokensCardViewController)
     func didTapURL(url: URL, in viewController: SellTokensCardViewController)
 }
@@ -98,17 +98,17 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
 
     @objc
     func nextButtonTapped() {
-        let selectedTicketHolders = viewModel.ticketHolders.filter { $0.isSelected }
-        if selectedTicketHolders.isEmpty {
+        let selectedTokenHolders = viewModel.tokenHolders.filter { $0.isSelected }
+        if selectedTokenHolders.isEmpty {
             let tokenTypeName = XMLHandler(contract: contract).getTokenTypeName(.singular, titlecase: .notTitlecase)
             UIAlertController.alert(title: "",
-                                    message: R.string.localizable.aWalletTicketTokenSellSelectTicketsAtLeastOneTitle(tokenTypeName),
+                                    message: R.string.localizable.aWalletTokenSellSelectTokensAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],
                                     alertButtonStyles: [.cancel],
                                     viewController: self,
                                     completion: nil)
         } else {
-            self.delegate?.didSelectTicketHolder(ticketHolder: selectedTicketHolders.first!, in: self)
+            self.delegate?.didSelectTokenHolder(tokenHolder: selectedTokenHolders.first!, in: self)
         }
     }
 
@@ -135,17 +135,17 @@ extension SellTokensCardViewController: UITableViewDelegate, UITableViewDataSour
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let ticketHolder = viewModel.item(for: indexPath)
-        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        let tokenHolder = viewModel.item(for: indexPath)
+        let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
         switch tokenType {
         case .cryptoKitty:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenListFormatTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenListFormatTableViewCellWithCheckbox
             cell.delegate = self
-            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder))
             return cell
         case .otherNonFungibleToken:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithCheckbox
-            cell.configure(viewModel: .init(ticketHolder: ticketHolder))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder))
             return cell
         }
     }

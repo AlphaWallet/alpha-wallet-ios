@@ -12,7 +12,7 @@ protocol TransferNFTCoordinatorDelegate: class {
 
 class TransferNFTCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
-    let ticketHolder: TokenHolder
+    let tokenHolder: TokenHolder
     let walletAddress: String
     let paymentFlow: PaymentFlow
     let keystore: Keystore
@@ -28,15 +28,15 @@ class TransferNFTCoordinator: Coordinator {
             let tokenTypeName = XMLHandler(contract: address.eip55String).getTokenTypeName(.singular)
             statusViewController?.configure(viewModel: .init(
                     state: status,
-                    inProgressText: R.string.localizable.aWalletTicketTokenTransferInProgressTitle(tokenTypeName),
-                    succeededTextText: R.string.localizable.aWalletTicketTokenTransferSuccessTitle(tokenTypeName),
-                    failedText: R.string.localizable.aWalletTicketTokenTransferFailedTitle(tokenTypeName)
+                    inProgressText: R.string.localizable.aWalletTokenTransferInProgressTitle(tokenTypeName),
+                    succeededTextText: R.string.localizable.aWalletTokenTransferSuccessTitle(tokenTypeName),
+                    failedText: R.string.localizable.aWalletTokenTransferFailedTitle(tokenTypeName)
             ))
         }
     }
 
-    init(ticketHolder: TokenHolder, walletAddress: String, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: Account, on viewController: UIViewController) {
-        self.ticketHolder = ticketHolder
+    init(tokenHolder: TokenHolder, walletAddress: String, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: Account, on viewController: UIViewController) {
+        self.tokenHolder = tokenHolder
         self.walletAddress = walletAddress
         self.paymentFlow = paymentFlow
         self.keystore = keystore
@@ -59,9 +59,9 @@ class TransferNFTCoordinator: Coordinator {
             let tokenTypeName = XMLHandler(contract: address.eip55String).getTokenTypeName(.singular)
             vc.configure(viewModel: .init(
                     state: .processing,
-                    inProgressText: R.string.localizable.aWalletTicketTokenTransferInProgressTitle(tokenTypeName),
-                    succeededTextText: R.string.localizable.aWalletTicketTokenTransferSuccessTitle(tokenTypeName),
-                    failedText: R.string.localizable.aWalletTicketTokenTransferFailedTitle(tokenTypeName)
+                    inProgressText: R.string.localizable.aWalletTokenTransferInProgressTitle(tokenTypeName),
+                    succeededTextText: R.string.localizable.aWalletTokenTransferSuccessTitle(tokenTypeName),
+                    failedText: R.string.localizable.aWalletTokenTransferFailedTitle(tokenTypeName)
             ))
             vc.modalPresentationStyle = .overCurrentContext
             viewController.present(vc, animated: true)
@@ -76,14 +76,14 @@ class TransferNFTCoordinator: Coordinator {
                     to: address,
                     data: Data(),
                     gasLimit: .none,
-                    tokenId: String(ticketHolder.tickets[0].id),
+                    tokenId: String(tokenHolder.tokens[0].id),
                     gasPrice: nil,
                     nonce: .none,
                     v: .none,
                     r: .none,
                     s: .none,
                     expiry: .none,
-                    indices: ticketHolder.indices
+                    indices: tokenHolder.indices
             )
 
             let configurator = TransactionConfigurator(

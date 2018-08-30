@@ -3,7 +3,7 @@
 import UIKit
 
 struct GenerateSellMagicLinkViewControllerViewModel {
-    let ticketHolder: TokenHolder
+    let tokenHolder: TokenHolder
     let ethCost: Ether
     let linkExpiryDate: Date
 
@@ -17,11 +17,11 @@ struct GenerateSellMagicLinkViewControllerViewModel {
         return Fonts.light(size: 25)!
     }
     var subtitleLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellConfirmSubtitle()
+        return R.string.localizable.aWalletTokenSellConfirmSubtitle()
     }
 
 	var headerTitle: String {
-		return R.string.localizable.aWalletTicketTokenSellConfirmTitle()
+		return R.string.localizable.aWalletTokenSellConfirmTitle()
 	}
 
     var actionButtonTitleColor: UIColor {
@@ -43,54 +43,54 @@ struct GenerateSellMagicLinkViewControllerViewModel {
         return Fonts.regular(size: 20)!
     }
     var actionButtonTitle: String {
-        return R.string.localizable.aWalletTicketTokenSellConfirmButtonTitle()
+        return R.string.localizable.aWalletTokenSellConfirmButtonTitle()
     }
     var cancelButtonTitle: String {
-        return R.string.localizable.aWalletTicketTokenSellConfirmCancelButtonTitle()
+        return R.string.localizable.aWalletTokenSellConfirmCancelButtonTitle()
     }
 
-    var ticketSaleDetailsLabelFont: UIFont {
+    var tokenSaleDetailsLabelFont: UIFont {
         return Fonts.semibold(size: 21)!
     }
 
-    var ticketSaleDetailsLabelColor: UIColor {
+    var tokenSaleDetailsLabelColor: UIColor {
         return Colors.appBackground
     }
 
     var descriptionLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellConfirmExpiryDateDescription(linkExpiryDate.format("dd MMM yyyy  hh:mm"))
+        return R.string.localizable.aWalletTokenSellConfirmExpiryDateDescription(linkExpiryDate.format("dd MMM yyyy  hh:mm"))
     }
 
-    var ticketCountLabelText: String {
-        if ticketCount == 1 {
-            let tokenTypeName = XMLHandler(contract: ticketHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
-            return R.string.localizable.aWalletTicketTokenSellConfirmSingleTicketSelectedTitle(tokenTypeName)
+    var tokenCountLabelText: String {
+        if tokenCount == 1 {
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
+            return R.string.localizable.aWalletTokenSellConfirmSingleTokenSelectedTitle(tokenTypeName)
         } else {
-            let tokenTypeName = XMLHandler(contract: ticketHolder.contractAddress).getTokenTypeName(.plural, titlecase: .titlecase)
-            return R.string.localizable.aWalletTicketTokenSellConfirmMultipleTicketSelectedTitle(ticketHolder.count, tokenTypeName)
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.plural, titlecase: .titlecase)
+            return R.string.localizable.aWalletTokenSellConfirmMultipleTokenSelectedTitle(tokenHolder.count, tokenTypeName)
         }
     }
 
-    var perTicketPriceLabelText: String {
-        let tokenTypeName = XMLHandler(contract: ticketHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
-        let amount = ethCost / ticketCount
-        return R.string.localizable.aWalletTicketTokenSellPerTicketEthPriceTitle(amount.formattedDescription, tokenTypeName)
+    var perTokenPriceLabelText: String {
+        let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
+        let amount = ethCost / tokenCount
+        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, tokenTypeName)
     }
 
     var totalEthLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellTotalEthPriceTitle(ethCost.formattedDescription)
+        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(ethCost.formattedDescription)
     }
 
     var detailsBackgroundBackgroundColor: UIColor {
         return UIColor(red: 236, green: 236, blue: 236)
     }
 
-    private var ticketCount: Int {
-        return ticketHolder.count
+    private var tokenCount: Int {
+        return tokenHolder.count
     }
 
-    init(ticketHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) {
-        self.ticketHolder = ticketHolder
+    init(tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) {
+        self.tokenHolder = tokenHolder
         self.ethCost = ethCost
         self.linkExpiryDate = linkExpiryDate
     }

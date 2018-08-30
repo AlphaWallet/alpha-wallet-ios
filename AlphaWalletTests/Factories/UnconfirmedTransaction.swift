@@ -21,7 +21,7 @@ extension UnconfirmedTransaction {
             to: to,
             data: data,
             gasLimit: gasLimit,
-            tokenId: Constants.nullTicket,
+            tokenId: Constants.nullTokenId,
             gasPrice: gasPrice,
             nonce: nonce,
             v: .none,

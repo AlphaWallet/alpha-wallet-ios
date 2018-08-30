@@ -30,11 +30,11 @@ extension VerifiableStatusViewController where Self: UIViewController {
         let image: UIImage?
         let tintColor: UIColor
         if isVerified {
-            title = R.string.localizable.aWalletTicketTokenVerifiedContract()
+            title = R.string.localizable.aWalletTokenVerifiedContract()
             image = R.image.verified()
             tintColor = Colors.appGreenContrastBackground
         } else {
-            title = R.string.localizable.aWalletTicketTokenUnverifiedContract()
+            title = R.string.localizable.aWalletTokenUnverifiedContract()
             image = R.image.unverified()
             tintColor = Colors.appRed
         }
