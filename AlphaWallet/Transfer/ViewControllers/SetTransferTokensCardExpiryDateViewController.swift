@@ -2,10 +2,9 @@
 
 import UIKit
 
-protocol SetTransferTokensCardExpiryDateViewControllerDelegate: class {
+protocol SetTransferTokensCardExpiryDateViewControllerDelegate: class, CanOpenURL {
     func didPressNext(ticketHolder: TokenHolder, linkExpiryDate: Date, in viewController: SetTransferTokensCardExpiryDateViewController)
     func didPressViewInfo(in viewController: SetTransferTokensCardExpiryDateViewController)
-    func didPressViewContractWebPage(in viewController: SetTransferTokensCardExpiryDateViewController)
 }
 
 class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -236,7 +235,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 
     override func viewDidLayoutSubviews() {
