@@ -13,7 +13,7 @@ struct TokensCardViewControllerHeaderViewModel {
     }
 
     var title: String {
-        return "\((totalValidTicketNumber)) \(tokenObject.title)"
+        return "\((totalValidTokenCount)) \(tokenObject.title)"
     }
 
     var issuer: String {
@@ -62,8 +62,8 @@ struct TokensCardViewControllerHeaderViewModel {
         return Fonts.semibold(size: 10)!
     }
 
-    var totalValidTicketNumber: String {
-        let validTickets = tokenObject.nonZeroBalance
-        return validTickets.count.toString()
+    var totalValidTokenCount: String {
+        let validTokens = tokenObject.nonZeroBalance
+        return validTokens.count.toString()
     }
 }

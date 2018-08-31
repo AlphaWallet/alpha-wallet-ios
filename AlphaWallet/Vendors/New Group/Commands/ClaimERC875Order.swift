@@ -20,7 +20,7 @@ struct ClaimERC875Order: Web3Request {
     typealias Response = String
 
     let expiry: BigUInt
-    //we still use indices in the trade but interpret the tickets from their hex values 
+    //we still use indices in the trade but interpret the tokens from their hex values
     let indices: [UInt16]
     let v: UInt8
     let r: String

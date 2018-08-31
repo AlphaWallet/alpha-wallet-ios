@@ -11,10 +11,10 @@ import UIKit
 
 struct TokenCardRedemptionViewModel {
     var token: TokenObject
-    var ticketHolder: TokenHolder
+    var tokenHolder: TokenHolder
 
     var headerTitle: String {
-        return R.string.localizable.aWalletTicketTokenRedeemShowQRCodeTitle()
+        return R.string.localizable.aWalletTokenRedeemShowQRCodeTitle()
     }
 
     var headerColor: UIColor {

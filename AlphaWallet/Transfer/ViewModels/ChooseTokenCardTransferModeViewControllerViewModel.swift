@@ -6,11 +6,11 @@ import UIKit
 struct ChooseTokenCardTransferModeViewControllerViewModel {
 
     var token: TokenObject
-    var ticketHolder: TokenHolder
+    var tokenHolder: TokenHolder
 
     var headerTitle: String {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.plural, titlecase: .titlecase)
-		return R.string.localizable.aWalletTicketTokenTransferSelectQuantityTitle(tokenTypeName)
+		return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 
     var backgroundColor: UIColor {

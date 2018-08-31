@@ -23,14 +23,14 @@ class UniversalLinkCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
     private let config: Config
 	weak var delegate: UniversalLinkCoordinatorDelegate?
-	private var importTicketViewController: ImportMagicTokenViewController?
+	private var importTokenViewController: ImportMagicTokenViewController?
     private let ethPrice: Subscribable<Double>
     private let ethBalance: Subscribable<BigInt>
     private var hasCompleted = false
     private var addressOfNewWallet: String?
     private var getERC875TokenBalanceCoordinator: GetERC875BalanceCoordinator?
-    //TODO better to make sure ticketHolder is non-optional. But be careful that ImportTicketViewController also handles when viewModel always has a TicketHolder. Needs good defaults in TicketHolder that can be displayed
-    private var ticketHolder: TokenHolder?
+    //TODO better to make sure tokenHolder is non-optional. But be careful that ImportMagicTokenViewController also handles when viewModel always has a TokenHolder. Needs good defaults in TokenHolder that can be displayed
+    private var tokenHolder: TokenHolder?
     private var transactionType: TransactionType?
     private var isShowingImportUserInterface: Bool {
         return delegate?.viewControllerForPresenting(in: self) != nil
@@ -115,17 +115,17 @@ class UniversalLinkCoordinator: Coordinator {
         let matchedPrefix = url.description.hasPrefix(prefix)
         preparingToImportUniversalLink()
         guard matchedPrefix, url.absoluteString.count > prefix.count else {
-            showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+            showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }
         guard let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString) else {
-            showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+            showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }
         let isVerified = XMLHandler(contract: signedOrder.order.contractAddress).isVerified(for: config.server)
         let isStormBirdContract = isVerified
-        importTicketViewController?.url = url
-        importTicketViewController?.contract = signedOrder.order.contractAddress
+        importTokenViewController?.url = url
+        importTokenViewController?.contract = signedOrder.order.contractAddress
         let recoveredSigner = ecrecover(signedOrder: signedOrder)
         switch recoveredSigner {
         case .success(let ethereumAddress):
@@ -138,20 +138,20 @@ class UniversalLinkCoordinator: Coordinator {
             getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(config: config)
             getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { result in
                 guard let balance = try? result.dematerialize() else {
-                    self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
                     return
                 }
-                //filter null tickets
+                //filter null tokens
                 let filteredTokens = self.checkERC875TokensAreAvailable(
                         indices: signedOrder.order.indices,
                         balance: balance
                 )
                 if filteredTokens.isEmpty {
-                    self.showImportError(errorMessage: R.string.localizable.aClaimTicketInvalidLinkTryAgain())
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
                     return
                 }
 
-                self.makeTicketHolder(
+                self.makeTokenHolder(
                         filteredTokens,
                         signedOrder.order.indices,
                         signedOrder.order.contractAddress
@@ -201,7 +201,7 @@ class UniversalLinkCoordinator: Coordinator {
         if ethPrice.value == nil {
             let ethCost = convert(ethCost: signedOrder.order.price)
             showImportError(
-                errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(),
+                errorMessage: R.string.localizable.aClaimTokenFailedNotEnoughEthTitle(),
                 cost: .paid(eth: ethCost, dollar: nil)
             )
         }
@@ -209,7 +209,7 @@ class UniversalLinkCoordinator: Coordinator {
             guard let celf = self else { return }
             guard let price = celf.ethPrice.value else { return }
             let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
-            celf.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedNotEnoughEthTitle(),
+            celf.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedNotEnoughEthTitle(),
                     cost: .paid(eth: ethCost, dollar: dollarCost))
         }
     }
@@ -225,9 +225,9 @@ class UniversalLinkCoordinator: Coordinator {
         }
         for i in 0..<indices.count {
             let token: String = balance[Int(indices[i])]
-            //all of the indices provided should map to a valid non null ticket
+            //all of the indices provided should map to a valid non null token
             if isZeroBalance(token) {
-                //if null ticket at any index then the deal cannot happen
+                //if null token at any index then the deal cannot happen
                 return [String]()
             }
             filteredTokens.append(token)
@@ -235,34 +235,34 @@ class UniversalLinkCoordinator: Coordinator {
         return filteredTokens
     }
 
-    private func makeTicketHolder(_ bytes32Tickets: [String], _ indices: [UInt16], _ contractAddress: String) {
+    private func makeTokenHolder(_ bytes32Tokens: [String], _ indices: [UInt16], _ contractAddress: String) {
         //TODO better to pass in the store instance once UniversalLinkCoordinator is owned by InCoordinator
         AssetDefinitionStore().fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .cached:
-                strongSelf.makeTicketHolderImpl(bytes32Tickets: bytes32Tickets, contractAddress: contractAddress)
+                strongSelf.makeTokenHolderImpl(bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
             case .updated:
-                strongSelf.makeTicketHolderImpl(bytes32Tickets: bytes32Tickets, contractAddress: contractAddress)
-                strongSelf.updateTicketFields()
+                strongSelf.makeTokenHolderImpl(bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
+                strongSelf.updateTokenFields()
             case .unmodified, .error:
                 break
             }
         }
     }
 
-    private func makeTicketHolderImpl(bytes32Tickets: [String], contractAddress: String) {
-        var tickets = [Token]()
+    private func makeTokenHolderImpl(bytes32Tokens: [String], contractAddress: String) {
+        var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress)
-        for i in 0..<bytes32Tickets.count {
-            let ticket = bytes32Tickets[i]
-            if let tokenId = BigUInt(ticket.drop0x, radix: 16) {
-                let ticket = xmlHandler.getFifaInfoForTicket(tokenId: tokenId, index: UInt16(i))
-                tickets.append(ticket)
+        for i in 0..<bytes32Tokens.count {
+            let token = bytes32Tokens[i]
+            if let tokenId = BigUInt(token.drop0x, radix: 16) {
+                let token = xmlHandler.getToken(fromTokenId: tokenId, index: UInt16(i))
+                tokens.append(token)
             }
         }
-        ticketHolder = TokenHolder(
-                tickets: tickets,
+        tokenHolder = TokenHolder(
+                tokens: tokens,
                 status: .available,
                 contractAddress: contractAddress
         )
@@ -270,26 +270,26 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func preparingToImportUniversalLink() {
 		guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
-        importTicketViewController = ImportMagicTokenViewController(config: config)
-        guard let vc = importTicketViewController else { return }
+        importTokenViewController = ImportMagicTokenViewController(config: config)
+        guard let vc = importTokenViewController else { return }
         vc.delegate = self
         vc.configure(viewModel: .init(state: .validating))
         viewController.present(UINavigationController(rootViewController: vc), animated: true)
 	}
 
-    private func updateTicketFields() {
-        guard let ticketHolder = ticketHolder else { return }
-        guard let vc = importTicketViewController, case .ready(var viewModel) = vc.state else { return }
-        viewModel.ticketHolder = ticketHolder
+    private func updateTokenFields() {
+        guard let tokenHolder = tokenHolder else { return }
+        guard let vc = importTokenViewController, case .ready(var viewModel) = vc.state else { return }
+        viewModel.tokenHolder = tokenHolder
         vc.configure(viewModel: viewModel)
     }
 
-    private func updateImportTicketController(with state: ImportMagicTokenViewControllerViewModel.State, cost: ImportMagicTokenViewControllerViewModel.Cost? = nil) {
+    private func updateImportTokenController(with state: ImportMagicTokenViewControllerViewModel.State, cost: ImportMagicTokenViewControllerViewModel.Cost? = nil) {
         guard !hasCompleted else { return }
-        if let vc = importTicketViewController, case .ready(var viewModel) = vc.state {
+        if let vc = importTokenViewController, case .ready(var viewModel) = vc.state {
             viewModel.state = state
-            if let ticketHolder = ticketHolder {
-                viewModel.ticketHolder = ticketHolder
+            if let tokenHolder = tokenHolder {
+                viewModel.tokenHolder = tokenHolder
             }
             if let cost = cost {
                 viewModel.cost = cost
@@ -300,11 +300,11 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
 	private func promptImportUniversalLink(cost: ImportMagicTokenViewControllerViewModel.Cost) {
-		updateImportTicketController(with: .promptImport, cost: cost)
+		updateImportTokenController(with: .promptImport, cost: cost)
     }
 
 	private func showImportSuccessful() {
-		updateImportTicketController(with: .succeeded)
+		updateImportTokenController(with: .succeeded)
 		promptBackupWallet()
 	}
 
@@ -317,25 +317,25 @@ class UniversalLinkCoordinator: Coordinator {
 	}
 
     private func showImportError(errorMessage: String, cost: ImportMagicTokenViewControllerViewModel.Cost? = nil) {
-        updateImportTicketController(with: .failed(errorMessage: errorMessage), cost: cost)
+        updateImportTokenController(with: .failed(errorMessage: errorMessage), cost: cost)
 	}
 
     private func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
-        updateImportTicketController(with: .processing)
+        updateImportTokenController(with: .processing)
         delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject) { successful in
-            guard let vc = self.importTicketViewController, case .ready = vc.state else { return }
+            guard let vc = self.importTokenViewController, case .ready = vc.state else { return }
             if successful {
                 self.delegate?.didImported(contract: signedOrder.order.contractAddress, in: self)
                 self.showImportSuccessful()
             } else {
                 //TODO Pass in error message
-                self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
+                self.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle())
             }
         }
     }
 
 	private func importFreeTransfer(query: String, parameters: Parameters) {
-		updateImportTicketController(with: .processing)
+		updateImportTokenController(with: .processing)
 
         Alamofire.request(
                 query,
@@ -353,14 +353,14 @@ class UniversalLinkCoordinator: Coordinator {
                 }
             }
 
-            guard let vc = self.importTicketViewController, case .ready(var viewModel) = vc.state else { return }
+            guard let vc = self.importTokenViewController, case .ready(var viewModel) = vc.state else { return }
             // TODO handle http response
             print(result)
             if successful {
                 self.showImportSuccessful()
             } else {
                 //TODO Pass in error message
-                self.showImportError(errorMessage: R.string.localizable.aClaimTicketFailedTitle())
+                self.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle())
             }
         }
     }

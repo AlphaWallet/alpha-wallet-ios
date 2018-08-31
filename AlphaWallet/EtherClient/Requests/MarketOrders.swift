@@ -12,7 +12,7 @@ import Foundation
 
 public struct Order {
     var price: BigInt?
-    var ticketIndices: [Int]?
+    var tokenIndices: [Int]?
     var expiryBuffer: BigInt?
     var contractAddress: String?
 }

@@ -124,7 +124,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         myAddressContainerStackView.translatesAutoresizingMaskIntoConstraints = false
         myAddressContainer.addSubview(myAddressContainerStackView)
 
-        nextButton.setTitle(R.string.localizable.aWalletTicketTokenTransferButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.aWalletTokenTransferButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
 
         let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)

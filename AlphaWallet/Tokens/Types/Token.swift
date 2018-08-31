@@ -17,7 +17,7 @@ struct Token {
 
     static var empty: Token {
         return Token(
-                id: Constants.nullTicketBigUInt,
+                id: Constants.nullTokenIdBigUInt,
                 index: 0,
                 name: R.string.localizable.tokensTitlecase(),
                 values: [

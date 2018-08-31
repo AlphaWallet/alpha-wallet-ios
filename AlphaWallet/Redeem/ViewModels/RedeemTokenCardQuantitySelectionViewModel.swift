@@ -12,15 +12,15 @@ import UIKit
 struct RedeemTokenCardQuantitySelectionViewModel {
 
     var token: TokenObject
-    var ticketHolder: TokenHolder
+    var tokenHolder: TokenHolder
 
     var headerTitle: String {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
-		return R.string.localizable.aWalletTicketTokenRedeemSelectQuantityTitle(tokenTypeName)
+		return R.string.localizable.aWalletTokenRedeemSelectQuantityTitle(tokenTypeName)
     }
 
     var maxValue: Int {
-        return ticketHolder.tickets.count
+        return tokenHolder.tokens.count
     }
 
     var backgroundColor: UIColor {
@@ -53,6 +53,6 @@ struct RedeemTokenCardQuantitySelectionViewModel {
 
     var subtitleText: String {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
-		return R.string.localizable.aWalletTicketTokenRedeemQuantityTitle(tokenTypeName.localizedUppercase)
+		return R.string.localizable.aWalletTokenRedeemQuantityTitle(tokenTypeName.localizedUppercase)
     }
 }

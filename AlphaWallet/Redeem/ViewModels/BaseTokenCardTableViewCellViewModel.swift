@@ -3,12 +3,12 @@
 import UIKit
 
 struct BaseTokenCardTableViewCellViewModel {
-    let ticketHolder: TokenHolder
+    let tokenHolder: TokenHolder
 
     init(
-            ticketHolder: TokenHolder
+            tokenHolder: TokenHolder
     ) {
-        self.ticketHolder = ticketHolder
+        self.tokenHolder = tokenHolder
     }
 
     var backgroundColor: UIColor {
@@ -20,7 +20,7 @@ struct BaseTokenCardTableViewCellViewModel {
     }
 
     var checkboxImage: UIImage {
-        if ticketHolder.isSelected {
+        if tokenHolder.isSelected {
             return R.image.ticket_bundle_checked()!
         } else {
             return R.image.ticket_bundle_unchecked()!
@@ -28,6 +28,6 @@ struct BaseTokenCardTableViewCellViewModel {
     }
 
     var areDetailsVisible: Bool {
-        return ticketHolder.areDetailsVisible
+        return tokenHolder.areDetailsVisible
     }
 }

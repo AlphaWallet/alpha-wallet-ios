@@ -19,7 +19,7 @@ class SendCoordinator: Coordinator {
     let keystore: Keystore
     let storage: TokensDataStore
     let ethPrice: Subscribable<Double>
-    let ticketHolders: [TokenHolder]!
+    let tokenHolders: [TokenHolder]!
 
     var coordinators: [Coordinator] = []
     weak var delegate: SendCoordinatorDelegate?
@@ -28,14 +28,14 @@ class SendCoordinator: Coordinator {
     }()
 
     init(
-        transferType: TransferType,
-        navigationController: UINavigationController = UINavigationController(),
-        session: WalletSession,
-        keystore: Keystore,
-        storage: TokensDataStore,
-        account: Account,
-        ethPrice: Subscribable<Double>,
-        ticketHolders: [TokenHolder] = []
+            transferType: TransferType,
+            navigationController: UINavigationController = UINavigationController(),
+            session: WalletSession,
+            keystore: Keystore,
+            storage: TokensDataStore,
+            account: Account,
+            ethPrice: Subscribable<Double>,
+            tokenHolders: [TokenHolder] = []
     ) {
         self.transferType = transferType
         self.navigationController = navigationController
@@ -45,7 +45,7 @@ class SendCoordinator: Coordinator {
         self.keystore = keystore
         self.storage = storage
         self.ethPrice = ethPrice
-        self.ticketHolders = ticketHolders
+        self.tokenHolders = tokenHolders
     }
 
     func start() {

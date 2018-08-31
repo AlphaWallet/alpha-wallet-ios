@@ -42,7 +42,7 @@ class BaseTokenListFormatTableViewCell: UITableViewCell {
 
         contentView.backgroundColor = viewModel.backgroundColor
 
-        rowView.configure(viewModel: .init(ticketHolder: viewModel.ticketHolder))
+        rowView.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder))
 
         if showCheckbox() {
             rowView.checkboxImageView.image = viewModel.checkboxImage

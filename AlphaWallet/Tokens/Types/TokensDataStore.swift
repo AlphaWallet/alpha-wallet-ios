@@ -314,13 +314,13 @@ class TokensDataStore {
 
     //Result<Void, AnyError>
     //claim order continues to use indices to do the transaction, not the bytes32 variables
-    func claimOrder(ticketIndices: [UInt16],
+    func claimOrder(tokenIndices: [UInt16],
                     expiry: BigUInt,
                     v: UInt8,
                     r: String,
                     s: String,
                     completion: @escaping(Any) -> Void) {
-        claimOrderCoordinator.claimOrder(indices: ticketIndices, expiry: expiry, v: v, r: r, s: s) { result in
+        claimOrderCoordinator.claimOrder(indices: tokenIndices, expiry: expiry, v: v, r: r, s: s) { result in
             completion(result)
         }
     }
@@ -524,15 +524,15 @@ class TokensDataStore {
     public func updateERC875TokensToLocalizedName() {
         assetDefinitionStore.forEachContractWithXML { contract in
             if let localizedName = config.getContractLocalizedName(forContract: contract) {
-                if let storedTicketToken = enabledObject.first(where: { $0.contract.sameContract(as: contract) }) {
+                if let storedToken = enabledObject.first(where: { $0.contract.sameContract(as: contract) }) {
                     //TODO multiple realm writes in a loop. Should we group them together?
-                    updateTicketTokenName(token: storedTicketToken, to: localizedName)
+                    updateTokenName(token: storedToken, to: localizedName)
                 }
             }
         }
     }
 
-    private func updateTicketTokenName(token: TokenObject, to name: String) {
+    private func updateTokenName(token: TokenObject, to name: String) {
         try! realm.write {
             token.name = name
         }

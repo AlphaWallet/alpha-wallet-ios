@@ -15,7 +15,7 @@ import BigInt
 
 protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
     func didPressTransfer(for type: PaymentFlow,
-                          ticketHolders: [TokenHolder],
+                          tokenHolders: [TokenHolder],
                           in coordinator: TokensCardCoordinator)
     func didPressRedeem(for token: TokenObject,
                         in coordinator: TokensCardCoordinator)
@@ -33,7 +33,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     var type: PaymentFlow!
     lazy var rootViewController: TokensCardViewController = {
         let viewModel = TokensCardViewModel(token: token)
-        return self.makeTicketsViewController(with: self.session.account, viewModel: viewModel)
+        return self.makeTokensCardViewController(with: self.session.account, viewModel: viewModel)
     }()
 
     weak var delegate: TokensCardCoordinatorDelegate?
@@ -79,7 +79,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         }
     }
 
-    private func makeTicketsViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
+    private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
         let controller = TokensCardViewController(config: session.config, tokenObject: token, account: account, session: session, tokensStorage: tokensStorage, viewModel: viewModel)
         controller.delegate = self
         return controller
@@ -90,52 +90,52 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     func showRedeemViewController() {
-        let redeemViewController = makeRedeemTicketsViewController()
+        let redeemViewController = makeRedeemTokensViewController()
         navigationController.pushViewController(redeemViewController, animated: true)
     }
 
     func showSellViewController(for paymentFlow: PaymentFlow) {
-        let sellViewController = makeSellTicketsViewController(paymentFlow: paymentFlow)
+        let sellViewController = makeSellTokensCardViewController(paymentFlow: paymentFlow)
         navigationController.pushViewController(sellViewController, animated: true)
     }
 
-    func showTransferViewController(for paymentFlow: PaymentFlow, ticketHolders: [TokenHolder]) {
-        let transferViewController = makeTransferTicketsViewController(paymentFlow: paymentFlow)
+    func showTransferViewController(for paymentFlow: PaymentFlow, tokenHolders: [TokenHolder]) {
+        let transferViewController = makeTransferTokensCardViewController(paymentFlow: paymentFlow)
         navigationController.pushViewController(transferViewController, animated: true)
     }
 
-    private func showChooseTicketTransferModeViewController(token: TokenObject,
-                                                            for ticketHolder: TokenHolder,
-                                                            in viewController: TransferTokensCardQuantitySelectionViewController) {
-        let vc = makeChooseTicketTransferModeViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
+    private func showChooseTokensCardTransferModeViewController(token: TokenObject,
+                                                                for tokenHolder: TokenHolder,
+                                                                in viewController: TransferTokensCardQuantitySelectionViewController) {
+        let vc = makeChooseTokenCardTransferModeViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
-    private func showSaleConfirmationScreen(for ticketHolder: TokenHolder,
+    private func showSaleConfirmationScreen(for tokenHolder: TokenHolder,
                                             linkExpiryDate: Date,
                                             ethCost: Ether,
                                             in viewController: SetSellTokensCardExpiryDateViewController) {
-        let vc = makeGenerateSellMagicLinkViewController(paymentFlow: viewController.paymentFlow, ticketHolder: ticketHolder, ethCost: ethCost, linkExpiryDate: linkExpiryDate)
+        let vc = makeGenerateSellMagicLinkViewController(paymentFlow: viewController.paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, linkExpiryDate: linkExpiryDate)
         viewController.navigationController?.present(vc, animated: true)
     }
 
-    private func showTransferConfirmationScreen(for ticketHolder: TokenHolder,
+    private func showTransferConfirmationScreen(for tokenHolder: TokenHolder,
                                                 linkExpiryDate: Date,
                                                 in viewController: SetTransferTokensCardExpiryDateViewController) {
-        let vc = makeGenerateTransferMagicLinkViewController(paymentFlow: viewController.paymentFlow, ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate)
+        let vc = makeGenerateTransferMagicLinkViewController(paymentFlow: viewController.paymentFlow, tokenHolder: tokenHolder, linkExpiryDate: linkExpiryDate)
         viewController.navigationController?.present(vc, animated: true)
     }
 
-    private func makeGenerateSellMagicLinkViewController(paymentFlow: PaymentFlow, ticketHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) -> GenerateSellMagicLinkViewController {
+    private func makeGenerateSellMagicLinkViewController(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) -> GenerateSellMagicLinkViewController {
         let vc = GenerateSellMagicLinkViewController(
                 paymentFlow: paymentFlow,
-                ticketHolder: ticketHolder,
+                tokenHolder: tokenHolder,
                 ethCost: ethCost,
                 linkExpiryDate: linkExpiryDate
         )
         vc.delegate = self
         vc.configure(viewModel: .init(
-                ticketHolder: ticketHolder,
+                tokenHolder: tokenHolder,
                 ethCost: ethCost,
                 linkExpiryDate: linkExpiryDate
         ))
@@ -143,51 +143,51 @@ class TokensCardCoordinator: NSObject, Coordinator {
         return vc
     }
 
-    private func makeGenerateTransferMagicLinkViewController(paymentFlow: PaymentFlow, ticketHolder: TokenHolder, linkExpiryDate: Date) -> GenerateTransferMagicLinkViewController {
+    private func makeGenerateTransferMagicLinkViewController(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, linkExpiryDate: Date) -> GenerateTransferMagicLinkViewController {
         let vc = GenerateTransferMagicLinkViewController(
                 paymentFlow: paymentFlow,
-                ticketHolder: ticketHolder,
+                tokenHolder: tokenHolder,
                 linkExpiryDate: linkExpiryDate
         )
         vc.delegate = self
         vc.configure(viewModel: .init(
-                ticketHolder: ticketHolder,
+                tokenHolder: tokenHolder,
                 linkExpiryDate: linkExpiryDate
         ))
         vc.modalPresentationStyle = .overCurrentContext
         return vc
     }
 
-    private func showEnterSellTicketsExpiryDateViewController(
+    private func showEnterSellTokensCardExpiryDateViewController(
             token: TokenObject,
-            for ticketHolder: TokenHolder,
+            for tokenHolder: TokenHolder,
             ethCost: Ether,
             in viewController: EnterSellTokensCardPriceQuantityViewController) {
-        let vc = makeEnterSellTicketsExpiryDateViewController(token: token, for: ticketHolder, ethCost: ethCost, paymentFlow: viewController.paymentFlow)
+        let vc = makeEnterSellTokensCardExpiryDateViewController(token: token, for: tokenHolder, ethCost: ethCost, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
     private func showEnterQuantityViewController(token: TokenObject,
-                                                 for ticketHolder: TokenHolder,
+                                                 for tokenHolder: TokenHolder,
                                                  in viewController: RedeemTokenViewController) {
-        let quantityViewController = makeRedeemTicketsQuantitySelectionViewController(token: token, for: ticketHolder)
+        let quantityViewController = makeRedeemTokensCardQuantitySelectionViewController(token: token, for: tokenHolder)
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
 
-    private func showEnterPriceQuantityViewController(for ticketHolder: TokenHolder,
+    private func showEnterPriceQuantityViewController(for tokenHolder: TokenHolder,
                                                       in viewController: SellTokensCardViewController) {
-        let vc = makeEnterSellTicketsPriceQuantityViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
+        let vc = makeEnterSellTokensCardPriceQuantityViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
-    private func showTicketRedemptionViewController(token: TokenObject,
-                                                    for ticketHolder: TokenHolder,
-                                                    in viewController: UIViewController) {
-        let quantityViewController = makeTicketRedemptionViewController(token: token, for: ticketHolder)
+    private func showTokenCardRedemptionViewController(token: TokenObject,
+                                                       for tokenHolder: TokenHolder,
+                                                       in viewController: UIViewController) {
+        let quantityViewController = makeTokenCardRedemptionViewController(token: token, for: tokenHolder)
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
 
-    private func makeRedeemTicketsViewController() -> RedeemTokenViewController {
+    private func makeRedeemTokensViewController() -> RedeemTokenViewController {
         let viewModel = RedeemTokenCardViewModel(token: token)
         let controller = RedeemTokenViewController(config: session.config, token: token, viewModel: viewModel)
         controller.configure()
@@ -195,7 +195,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func makeSellTicketsViewController(paymentFlow: PaymentFlow) -> SellTokensCardViewController {
+    private func makeSellTokensCardViewController(paymentFlow: PaymentFlow) -> SellTokensCardViewController {
         let viewModel = SellTokensCardViewModel(token: token)
         let controller = SellTokensCardViewController(config: session.config, paymentFlow: paymentFlow, viewModel: viewModel)
         controller.configure()
@@ -203,55 +203,55 @@ class TokensCardCoordinator: NSObject, Coordinator {
         return controller
     }
 
-    private func makeRedeemTicketsQuantitySelectionViewController(token: TokenObject, for ticketHolder: TokenHolder) -> RedeemTokenCardQuantitySelectionViewController {
-        let viewModel = RedeemTokenCardQuantitySelectionViewModel(token: token, ticketHolder: ticketHolder)
+    private func makeRedeemTokensCardQuantitySelectionViewController(token: TokenObject, for tokenHolder: TokenHolder) -> RedeemTokenCardQuantitySelectionViewController {
+        let viewModel = RedeemTokenCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder)
         let controller = RedeemTokenCardQuantitySelectionViewController(config: session.config, token: token, viewModel: viewModel)
 		controller.configure()
         controller.delegate = self
         return controller
     }
 
-    private func makeEnterSellTicketsPriceQuantityViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
-        let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, ticketHolder: ticketHolder)
+    private func makeEnterSellTokensCardPriceQuantityViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
+        let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder)
         let controller = EnterSellTokensCardPriceQuantityViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, ethPrice: ethPrice, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
-    private func makeEnterTransferTicketsExpiryDateViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> SetTransferTokensCardExpiryDateViewController {
-        let viewModel = SetTransferTokensCardExpiryDateViewControllerViewModel(token: token, ticketHolder: ticketHolder)
-        let controller = SetTransferTokensCardExpiryDateViewController(config: session.config, ticketHolder: ticketHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+    private func makeEnterTransferTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> SetTransferTokensCardExpiryDateViewController {
+        let viewModel = SetTransferTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder)
+        let controller = SetTransferTokensCardExpiryDateViewController(config: session.config, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
-    private func makeTransferTicketsViaWalletAddressViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
-        let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, ticketHolder: ticketHolder)
-        let controller = TransferTokensCardViaWalletAddressViewController(config: session.config, token: token, ticketHolder: ticketHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+    private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
+        let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, tokenHolder: tokenHolder)
+        let controller = TransferTokensCardViaWalletAddressViewController(config: session.config, token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
-    private func makeEnterSellTicketsExpiryDateViewController(token: TokenObject, for ticketHolder: TokenHolder, ethCost: Ether, paymentFlow: PaymentFlow) -> SetSellTokensCardExpiryDateViewController {
-        let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, ticketHolder: ticketHolder, ethCost: ethCost)
-        let controller = SetSellTokensCardExpiryDateViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, ticketHolder: ticketHolder, ethCost: ethCost, viewModel: viewModel)
+    private func makeEnterSellTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, ethCost: Ether, paymentFlow: PaymentFlow) -> SetSellTokensCardExpiryDateViewController {
+        let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost)
+        let controller = SetSellTokensCardExpiryDateViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
-    private func makeTicketRedemptionViewController(token: TokenObject, for ticketHolder: TokenHolder) -> TokenCardRedemptionViewController {
-        let viewModel = TokenCardRedemptionViewModel(token: token, ticketHolder: ticketHolder)
+    private func makeTokenCardRedemptionViewController(token: TokenObject, for tokenHolder: TokenHolder) -> TokenCardRedemptionViewController {
+        let viewModel = TokenCardRedemptionViewModel(token: token, tokenHolder: tokenHolder)
         let controller = TokenCardRedemptionViewController(config: session.config, session: session, token: token, viewModel: viewModel)
 		controller.configure()
         controller.delegate = self
         return controller
     }
 
-    private func makeTransferTicketsViewController(paymentFlow: PaymentFlow) -> TransferTokensCardViewController {
+    private func makeTransferTokensCardViewController(paymentFlow: PaymentFlow) -> TransferTokensCardViewController {
         let viewModel = TransferTokensCardViewModel(token: token)
         let controller = TransferTokensCardViewController(config: session.config, paymentFlow: paymentFlow, token: token, viewModel: viewModel)
         controller.configure()
@@ -260,36 +260,36 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func showEnterQuantityViewController(token: TokenObject,
-                                                 for ticketHolder: TokenHolder,
+                                                 for tokenHolder: TokenHolder,
                                                  in viewController: TransferTokensCardViewController) {
-        let quantityViewController = makeTransferTicketsQuantitySelectionViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
+        let quantityViewController = makeTransferTokensCardQuantitySelectionViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
 
-    private func makeTransferTicketsQuantitySelectionViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardQuantitySelectionViewController {
-        let viewModel = TransferTokensCardQuantitySelectionViewModel(token: token, ticketHolder: ticketHolder)
+    private func makeTransferTokensCardQuantitySelectionViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardQuantitySelectionViewController {
+        let viewModel = TransferTokensCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder)
         let controller = TransferTokensCardQuantitySelectionViewController(config: session.config, paymentFlow: paymentFlow, token: token, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
-    private func makeChooseTicketTransferModeViewController(token: TokenObject, for ticketHolder: TokenHolder, paymentFlow: PaymentFlow) -> ChooseTokenCardTransferModeViewController {
-        let viewModel = ChooseTokenCardTransferModeViewControllerViewModel(token: token, ticketHolder: ticketHolder)
-        let controller = ChooseTokenCardTransferModeViewController(config: session.config, ticketHolder: ticketHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+    private func makeChooseTokenCardTransferModeViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> ChooseTokenCardTransferModeViewController {
+        let viewModel = ChooseTokenCardTransferModeViewControllerViewModel(token: token, tokenHolder: tokenHolder)
+        let controller = ChooseTokenCardTransferModeViewController(config: session.config, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
-    private func generateTransferLink(ticketHolder: TokenHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow) -> String {
+    private func generateTransferLink(tokenHolder: TokenHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow) -> String {
         let order = Order(
             price: BigUInt("0")!,
-            indices: ticketHolder.indices,
+            indices: tokenHolder.indices,
             expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-            contractAddress: ticketHolder.contractAddress,
+            contractAddress: tokenHolder.contractAddress,
             start: BigUInt("0")!,
-            count: ticketHolder.indices.count
+            count: tokenHolder.indices.count
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
@@ -299,7 +299,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     //note that the price must be in szabo for a sell link, price must be rounded
-    private func generateSellLink(ticketHolder: TokenHolder,
+    private func generateSellLink(tokenHolder: TokenHolder,
                                   linkExpiryDate: Date,
                                   ethCost: Ether,
                                   paymentFlow: PaymentFlow) -> String {
@@ -308,11 +308,11 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let wei = BigUInt(cost.description)!
         let order = Order(
                 price: wei,
-                indices: ticketHolder.indices,
+                indices: tokenHolder.indices,
                 expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
-                contractAddress: ticketHolder.contractAddress,
+                contractAddress: tokenHolder.contractAddress,
                 start: BigUInt("0")!,
-                count: ticketHolder.indices.count
+                count: tokenHolder.indices.count
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
@@ -321,9 +321,9 @@ class TokensCardCoordinator: NSObject, Coordinator {
         return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
     }
 
-    private func sellViaActivitySheet(ticketHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
+    private func sellViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
         let url = generateSellLink(
-            ticketHolder: ticketHolder,
+            tokenHolder: tokenHolder,
             linkExpiryDate: linkExpiryDate,
             ethCost: ethCost,
             paymentFlow: paymentFlow
@@ -341,8 +341,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
         viewController.present(vc, animated: true)
     }
 
-    private func transferViaActivitySheet(ticketHolder: TokenHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
-        let url = generateTransferLink(ticketHolder: ticketHolder, linkExpiryDate: linkExpiryDate, paymentFlow: paymentFlow)
+    private func transferViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
+        let url = generateTransferLink(tokenHolder: tokenHolder, linkExpiryDate: linkExpiryDate, paymentFlow: paymentFlow)
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
         vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
@@ -366,8 +366,8 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
         delegate?.didPressSell(for: type, in: self)
     }
 
-    func didPressTransfer(for type: PaymentFlow, ticketHolders: [TokenHolder], in viewController: TokensCardViewController) {
-        delegate?.didPressTransfer(for: type, ticketHolders: ticketHolders, in: self)
+    func didPressTransfer(for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController) {
+        delegate?.didPressTransfer(for: type, tokenHolders: tokenHolders, in: self)
     }
 
     func didCancel(in viewController: TokensCardViewController) {
@@ -386,8 +386,8 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: RedeemTokenViewControllerDelegate {
-    func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: RedeemTokenViewController) {
-        showEnterQuantityViewController(token: token, for: ticketHolder, in: viewController)
+    func didSelectTokenHolder(token: TokenObject, tokenHolder: TokenHolder, in viewController: RedeemTokenViewController) {
+        showEnterQuantityViewController(token: token, for: tokenHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: RedeemTokenViewController) {
@@ -402,8 +402,8 @@ extension TokensCardCoordinator: RedeemTokenViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: RedeemTokenCardQuantitySelectionViewControllerDelegate {
-    func didSelectQuantity(token: TokenObject, ticketHolder: TokenHolder, in viewController: RedeemTokenCardQuantitySelectionViewController) {
-        showTicketRedemptionViewController(token: token, for: ticketHolder, in: viewController)
+    func didSelectQuantity(token: TokenObject, tokenHolder: TokenHolder, in viewController: RedeemTokenCardQuantitySelectionViewController) {
+        showTokenCardRedemptionViewController(token: token, for: tokenHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: RedeemTokenCardQuantitySelectionViewController) {
@@ -412,8 +412,8 @@ extension TokensCardCoordinator: RedeemTokenCardQuantitySelectionViewControllerD
 }
 
 extension TokensCardCoordinator: SellTokensCardViewControllerDelegate {
-    func didSelectTicketHolder(ticketHolder: TokenHolder, in viewController: SellTokensCardViewController) {
-        showEnterPriceQuantityViewController(for: ticketHolder, in: viewController)
+    func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: SellTokensCardViewController) {
+        showEnterPriceQuantityViewController(for: tokenHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: SellTokensCardViewController) {
@@ -428,8 +428,8 @@ extension TokensCardCoordinator: SellTokensCardViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: TransferTokenCardQuantitySelectionViewControllerDelegate {
-    func didSelectQuantity(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTokensCardQuantitySelectionViewController) {
-        showChooseTicketTransferModeViewController(token: token, for: ticketHolder, in: viewController)
+    func didSelectQuantity(token: TokenObject, tokenHolder: TokenHolder, in viewController: TransferTokensCardQuantitySelectionViewController) {
+        showChooseTokensCardTransferModeViewController(token: token, for: tokenHolder, in: viewController)
     }
 
     func didPressViewInfo(in viewController: TransferTokensCardQuantitySelectionViewController) {
@@ -438,8 +438,8 @@ extension TokensCardCoordinator: TransferTokenCardQuantitySelectionViewControlle
 }
 
 extension TokensCardCoordinator: EnterSellTokensCardPriceQuantityViewControllerDelegate {
-    func didEnterSellTicketsPriceQuantity(token: TokenObject, ticketHolder: TokenHolder, ethCost: Ether, in viewController: EnterSellTokensCardPriceQuantityViewController) {
-        showEnterSellTicketsExpiryDateViewController(token: token, for: ticketHolder, ethCost: ethCost, in: viewController)
+    func didEnterSellTokensPriceQuantity(token: TokenObject, tokenHolder: TokenHolder, ethCost: Ether, in viewController: EnterSellTokensCardPriceQuantityViewController) {
+        showEnterSellTokensCardExpiryDateViewController(token: token, for: tokenHolder, ethCost: ethCost, in: viewController)
     }
 
     func didPressViewInfo(in viewController: EnterSellTokensCardPriceQuantityViewController) {
@@ -448,8 +448,8 @@ extension TokensCardCoordinator: EnterSellTokensCardPriceQuantityViewControllerD
 }
 
 extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelegate {
-    func didSetSellTicketsExpiryDate(ticketHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, in viewController: SetSellTokensCardExpiryDateViewController) {
-        showSaleConfirmationScreen(for: ticketHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, in: viewController)
+    func didSetSellTokensExpiryDate(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, in viewController: SetSellTokensCardExpiryDateViewController) {
+        showSaleConfirmationScreen(for: tokenHolder, linkExpiryDate: linkExpiryDate, ethCost: ethCost, in: viewController)
     }
 
     func didPressViewInfo(in viewController: SetSellTokensCardExpiryDateViewController) {
@@ -458,13 +458,13 @@ extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelega
 }
 
 extension TokensCardCoordinator: TransferTokensCardViewControllerDelegate {
-    func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTokensCardViewController) {
+    func didSelectTokenHolder(token: TokenObject, tokenHolder: TokenHolder, in viewController: TransferTokensCardViewController) {
         switch token.type {
             case .erc721:
-                let vc = makeTransferTicketsViaWalletAddressViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
+                let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
                 viewController.navigationController?.pushViewController(vc, animated: true)
             case .erc875:
-                showEnterQuantityViewController(token: token, for: ticketHolder, in: viewController)
+                showEnterQuantityViewController(token: token, for: tokenHolder, in: viewController)
             case .erc20: break
             case .ether: break
         }
@@ -502,7 +502,7 @@ extension TokensCardCoordinator: TransferNFTCoordinatorDelegate {
 
 extension TokensCardCoordinator: GenerateSellMagicLinkViewControllerDelegate {
     func didPressShare(in viewController: GenerateSellMagicLinkViewController, sender: UIView) {
-        sellViaActivitySheet(ticketHolder: viewController.ticketHolder, linkExpiryDate: viewController.linkExpiryDate, ethCost: viewController.ethCost, paymentFlow: viewController.paymentFlow, in: viewController, sender: sender)
+        sellViaActivitySheet(tokenHolder: viewController.tokenHolder, linkExpiryDate: viewController.linkExpiryDate, ethCost: viewController.ethCost, paymentFlow: viewController.paymentFlow, in: viewController, sender: sender)
     }
 
     func didPressCancel(in viewController: GenerateSellMagicLinkViewController) {
@@ -511,13 +511,13 @@ extension TokensCardCoordinator: GenerateSellMagicLinkViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: ChooseTokenCardTransferModeViewControllerDelegate {
-    func didChooseTransferViaMagicLink(token: TokenObject, ticketHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController) {
-        let vc = makeEnterTransferTicketsExpiryDateViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
+    func didChooseTransferViaMagicLink(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController) {
+        let vc = makeEnterTransferTokensCardExpiryDateViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
-    func didChooseTransferNow(token: TokenObject, ticketHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController) {
-        let vc = makeTransferTicketsViaWalletAddressViewController(token: token, for: ticketHolder, paymentFlow: viewController.paymentFlow)
+    func didChooseTransferNow(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController) {
+        let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -527,8 +527,8 @@ extension TokensCardCoordinator: ChooseTokenCardTransferModeViewControllerDelega
 }
 
 extension TokensCardCoordinator: SetTransferTokensCardExpiryDateViewControllerDelegate {
-    func didPressNext(ticketHolder: TokenHolder, linkExpiryDate: Date, in viewController: SetTransferTokensCardExpiryDateViewController) {
-        showTransferConfirmationScreen(for: ticketHolder, linkExpiryDate: linkExpiryDate, in: viewController)
+    func didPressNext(tokenHolder: TokenHolder, linkExpiryDate: Date, in viewController: SetTransferTokensCardExpiryDateViewController) {
+        showTransferConfirmationScreen(for: tokenHolder, linkExpiryDate: linkExpiryDate, in: viewController)
     }
 
     func didPressViewInfo(in viewController: SetTransferTokensCardExpiryDateViewController) {
@@ -538,7 +538,7 @@ extension TokensCardCoordinator: SetTransferTokensCardExpiryDateViewControllerDe
 
 extension TokensCardCoordinator: GenerateTransferMagicLinkViewControllerDelegate {
     func didPressShare(in viewController: GenerateTransferMagicLinkViewController, sender: UIView) {
-        transferViaActivitySheet(ticketHolder: viewController.ticketHolder, linkExpiryDate: viewController.linkExpiryDate, paymentFlow: viewController.paymentFlow, in: viewController, sender: sender)
+        transferViaActivitySheet(tokenHolder: viewController.tokenHolder, linkExpiryDate: viewController.linkExpiryDate, paymentFlow: viewController.paymentFlow, in: viewController, sender: sender)
     }
 
     func didPressCancel(in viewController: GenerateTransferMagicLinkViewController) {
@@ -547,8 +547,8 @@ extension TokensCardCoordinator: GenerateTransferMagicLinkViewControllerDelegate
 }
 
 extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControllerDelegate {
-    func didEnterWalletAddress(ticketHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
-        UIAlertController.alert(title: "", message: R.string.localizable.aWalletTicketTokenTransferModeWalletAddressConfirmation(walletAddress), alertButtonTitles: [R.string.localizable.aWalletTicketTokenTransferButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: navigationController) {
+    func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
+        UIAlertController.alert(title: "", message: R.string.localizable.aWalletTokenTransferModeWalletAddressConfirmation(walletAddress), alertButtonTitles: [R.string.localizable.aWalletTokenTransferButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: navigationController) {
             guard $0 == 0 else {
                 return
             }
@@ -559,7 +559,7 @@ extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControlle
             }
 
             if case .real(let account) = self.session.account.type {
-                let coordinator = TransferNFTCoordinator(ticketHolder: ticketHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: self.keystore, session: self.session, account: account, on: self.navigationController)
+                let coordinator = TransferNFTCoordinator(tokenHolder: tokenHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: self.keystore, session: self.session, account: account, on: self.navigationController)
                 coordinator.delegate = self
                 coordinator.start()
                 self.addCoordinator(coordinator)
