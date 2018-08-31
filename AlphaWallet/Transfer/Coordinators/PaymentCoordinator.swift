@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import TrustKeystore
 
-protocol PaymentCoordinatorDelegate: class {
+protocol PaymentCoordinatorDelegate: class, CanOpenURL {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator)
     func didCancel(in coordinator: PaymentCoordinator)
 }
@@ -95,5 +95,19 @@ extension PaymentCoordinator: RequestCoordinatorDelegate {
     func didCancel(in coordinator: RequestCoordinator) {
         removeCoordinator(coordinator)
         cancel()
+    }
+}
+
+extension PaymentCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }
