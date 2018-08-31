@@ -146,7 +146,7 @@ class InCoordinator: Coordinator {
 
         let marketplaceController = MarketplaceViewController()
         let marketplaceNavigationController = UINavigationController(rootViewController: marketplaceController)
-        marketplaceController.tabBarItem = UITabBarItem(title: R.string.localizable.aMarketplaceTabbarItemTitle(), image: R.image.tab_marketplace()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_marketplace())
+        //marketplaceController.tabBarItem = UITabBarItem(title: R.string.localizable.aMarketplaceTabbarItemTitle(), image: R.image.tab_marketplace()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_marketplace())
 
         let tabBarController = TabBarController()
         tabBarController.viewControllers = [
