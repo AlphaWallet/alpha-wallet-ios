@@ -5,7 +5,7 @@ import UIKit
 import BigInt
 import TrustKeystore
 
-protocol SendCoordinatorDelegate: class {
+protocol SendCoordinatorDelegate: class, CanOpenURL {
     func didFinish(_ result: ConfirmResult, in coordinator: SendCoordinator)
     func didCancel(in coordinator: SendCoordinator)
 }
@@ -118,5 +118,19 @@ extension SendCoordinator: SendViewControllerDelegate {
             }
         }
         navigationController.pushViewController(controller, animated: true)
+    }
+}
+
+extension SendCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }
