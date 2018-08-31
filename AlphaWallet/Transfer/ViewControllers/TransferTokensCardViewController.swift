@@ -2,10 +2,9 @@
 
 import UIKit
 
-protocol TransferTokensCardViewControllerDelegate: class {
+protocol TransferTokensCardViewControllerDelegate: class, CanOpenURL {
     func didSelectTicketHolder(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTokensCardViewController)
     func didPressViewInfo(in viewController: TransferTokensCardViewController)
-    func didPressViewContractWebPage(in viewController: TransferTokensCardViewController)
     func didTapURL(url: URL, in viewController: TransferTokensCardViewController)
 }
 
@@ -120,7 +119,7 @@ class TransferTokensCardViewController: UIViewController, TokenVerifiableStatusV
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
@@ -161,6 +160,6 @@ extension TransferTokensCardViewController: UITableViewDelegate, UITableViewData
 
 extension TransferTokensCardViewController: BaseTokenListFormatTableViewCellDelegate {
     func didTapURL(url: URL) {
-        delegate?.didTapURL(url: url, in: self)
+        delegate?.didPressOpenWebPage(url, in: self)
     }
 }

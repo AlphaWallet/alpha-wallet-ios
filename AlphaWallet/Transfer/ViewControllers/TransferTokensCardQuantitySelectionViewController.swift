@@ -2,10 +2,9 @@
 
 import UIKit
 
-protocol TransferTokenCardQuantitySelectionViewControllerDelegate: class {
+protocol TransferTokenCardQuantitySelectionViewControllerDelegate: class, CanOpenURL {
     func didSelectQuantity(token: TokenObject, ticketHolder: TokenHolder, in viewController: TransferTokensCardQuantitySelectionViewController)
     func didPressViewInfo(in viewController: TransferTokensCardQuantitySelectionViewController)
-    func didPressViewContractWebPage(in viewController: TransferTokensCardQuantitySelectionViewController)
 }
 
 class TransferTokensCardQuantitySelectionViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -134,7 +133,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 
     func configure(viewModel newViewModel: TransferTokensCardQuantitySelectionViewModel? = nil) {

@@ -9,6 +9,7 @@ import WebKit
 
 protocol BrowserCoordinatorDelegate: class {
     func didSentTransaction(transaction: SentTransaction, in coordinator: BrowserCoordinator)
+    func didPressCloseButton(in coordinator: BrowserCoordinator)
 }
 
 final class BrowserCoordinator: NSObject, Coordinator {
@@ -247,6 +248,8 @@ extension BrowserCoordinator: BrowserViewControllerDelegate {
                 enableToolbar = true
                 rootViewController.select(viewType: .browser)
                 rootViewController.browserViewController.goHome()
+            case .close:
+                delegate?.didPressCloseButton(in: self)
             case .more(let sender):
                 presentMoreOptions(sender: sender)
             case .enter(let string):
@@ -254,8 +257,9 @@ extension BrowserCoordinator: BrowserViewControllerDelegate {
                 openURL(url)
             case .goBack:
                 rootViewController.browserViewController.webView.goBack()
-            default: break
-            }
+            case .beginEditing:
+                break
+}
         case .changeURL(let url):
             handleToolbar(for: url)
         }

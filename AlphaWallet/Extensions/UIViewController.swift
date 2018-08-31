@@ -63,12 +63,6 @@ extension UIViewController {
         MBProgressHUD.hide(for: view, animated: animated)
     }
 
-    func openURL(_ url: URL) {
-        let controller = SFSafariViewController(url: url)
-        // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
-        present(controller, animated: true, completion: nil)
-    }
-
     public var isVisible: Bool {
         if isViewLoaded {
             return view.window != nil

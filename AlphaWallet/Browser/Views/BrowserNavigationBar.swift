@@ -10,6 +10,7 @@ final class BrowserNavigationBar: UINavigationBar {
 
     let textField = UITextField()
     let moreButton = UIButton()
+    let closeButton = UIButton()
     let homeButton = UIButton()
     let backButton = UIButton()
     weak var browserDelegate: BrowserNavigationBarDelegate?
@@ -44,6 +45,12 @@ final class BrowserNavigationBar: UINavigationBar {
         moreButton.setImage(R.image.toolbarMenu(), for: .normal)
         moreButton.addTarget(self, action: #selector(moreAction(_:)), for: .touchUpInside)
 
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.isHidden = true
+        closeButton.setTitle(R.string.localizable.done(), for: .normal)
+        closeButton.addTarget(self, action: #selector(closeAction(_:)), for: .touchUpInside)
+        closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+
         homeButton.translatesAutoresizingMaskIntoConstraints = false
         homeButton.setImage(R.image.browserHome()?.withRenderingMode(.alwaysTemplate), for: .normal)
         homeButton.addTarget(self, action: #selector(homeAction(_:)), for: .touchUpInside)
@@ -53,6 +60,7 @@ final class BrowserNavigationBar: UINavigationBar {
         backButton.addTarget(self, action: #selector(goBackAction), for: .touchUpInside)
 
         let stackView = UIStackView(arrangedSubviews: [
+            closeButton,
             homeButton,
             .spacerWidth(),
             backButton,
@@ -89,6 +97,10 @@ final class BrowserNavigationBar: UINavigationBar {
 
     @objc private func homeAction(_ sender: UIView) {
         browserDelegate?.did(action: .home)
+    }
+
+    @objc private func closeAction(_ sender: UIView) {
+        browserDelegate?.did(action: .close)
     }
 
     required init?(coder aDecoder: NSCoder) {

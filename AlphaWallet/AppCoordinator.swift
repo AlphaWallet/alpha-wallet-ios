@@ -142,6 +142,18 @@ class AppCoordinator: NSObject, Coordinator {
     func createInitialWallet() {
         WalletCoordinator(keystore: keystore).createInitialWallet()
     }
+
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        inCoordinator?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        inCoordinator?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        inCoordinator?.didPressOpenWebPage(url, in: viewController)
+    }
 }
 
 //Disable creating and importing wallets from welcome screen
