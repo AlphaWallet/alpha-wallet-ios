@@ -13,7 +13,7 @@ import TrustKeystore
 import MessageUI
 import BigInt
 
-protocol TokensCardCoordinatorDelegate: class {
+protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
     func didPressTransfer(for type: PaymentFlow,
                           ticketHolders: [TokenHolder],
                           in coordinator: TokensCardCoordinator)
@@ -24,7 +24,6 @@ protocol TokensCardCoordinatorDelegate: class {
     func didCancel(in coordinator: TokensCardCoordinator)
     func didPressViewRedemptionInfo(in: UIViewController)
     func didPressViewEthereumInfo(in: UIViewController)
-    func didPressViewContractWebPage(for token: TokenObject, in viewController: UIViewController)
 }
 
 class TokensCardCoordinator: NSObject, Coordinator {
@@ -248,6 +247,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let viewModel = TokenCardRedemptionViewModel(token: token, ticketHolder: ticketHolder)
         let controller = TokenCardRedemptionViewController(config: session.config, session: session, token: token, viewModel: viewModel)
 		controller.configure()
+        controller.delegate = self
         return controller
     }
 
@@ -378,10 +378,6 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
        delegate?.didPressViewRedemptionInfo(in: viewController)
     }
 
-    func didPressViewContractWebPage(in viewController: TokensCardViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
-    }
-
     func didTapURL(url: URL, in viewController: TokensCardViewController) {
         let controller = SFSafariViewController(url: url)
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
@@ -396,10 +392,6 @@ extension TokensCardCoordinator: RedeemTokenViewControllerDelegate {
 
     func didPressViewInfo(in viewController: RedeemTokenViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
-    }
-
-    func didPressViewContractWebPage(in viewController: RedeemTokenViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 
     func didTapURL(url: URL, in viewController: RedeemTokenViewController) {
@@ -417,10 +409,6 @@ extension TokensCardCoordinator: RedeemTokenCardQuantitySelectionViewControllerD
     func didPressViewInfo(in viewController: RedeemTokenCardQuantitySelectionViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
     }
-
-    func didPressViewContractWebPage(in viewController: RedeemTokenCardQuantitySelectionViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
-    }
 }
 
 extension TokensCardCoordinator: SellTokensCardViewControllerDelegate {
@@ -430,10 +418,6 @@ extension TokensCardCoordinator: SellTokensCardViewControllerDelegate {
 
     func didPressViewInfo(in viewController: SellTokensCardViewController) {
         delegate?.didPressViewEthereumInfo(in: viewController)
-    }
-
-    func didPressViewContractWebPage(in viewController: SellTokensCardViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 
     func didTapURL(url: URL, in viewController: SellTokensCardViewController) {
@@ -451,10 +435,6 @@ extension TokensCardCoordinator: TransferTokenCardQuantitySelectionViewControlle
     func didPressViewInfo(in viewController: TransferTokensCardQuantitySelectionViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
     }
-
-    func didPressViewContractWebPage(in viewController: TransferTokensCardQuantitySelectionViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
-    }
 }
 
 extension TokensCardCoordinator: EnterSellTokensCardPriceQuantityViewControllerDelegate {
@@ -465,10 +445,6 @@ extension TokensCardCoordinator: EnterSellTokensCardPriceQuantityViewControllerD
     func didPressViewInfo(in viewController: EnterSellTokensCardPriceQuantityViewController) {
         delegate?.didPressViewEthereumInfo(in: viewController)
     }
-
-    func didPressViewContractWebPage(in viewController: EnterSellTokensCardPriceQuantityViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
-    }
 }
 
 extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelegate {
@@ -478,10 +454,6 @@ extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelega
 
     func didPressViewInfo(in viewController: SetSellTokensCardExpiryDateViewController) {
         delegate?.didPressViewEthereumInfo(in: viewController)
-    }
-
-    func didPressViewContractWebPage(in viewController: SetSellTokensCardExpiryDateViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 }
 
@@ -500,10 +472,6 @@ extension TokensCardCoordinator: TransferTokensCardViewControllerDelegate {
 
     func didPressViewInfo(in viewController: TransferTokensCardViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
-    }
-
-    func didPressViewContractWebPage(in viewController: TransferTokensCardViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 
     func didTapURL(url: URL, in viewController: TransferTokensCardViewController) {
@@ -556,10 +524,6 @@ extension TokensCardCoordinator: ChooseTokenCardTransferModeViewControllerDelega
     func didPressViewInfo(in viewController: ChooseTokenCardTransferModeViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
     }
-
-    func didPressViewContractWebPage(in viewController: ChooseTokenCardTransferModeViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
-    }
 }
 
 extension TokensCardCoordinator: SetTransferTokensCardExpiryDateViewControllerDelegate {
@@ -569,10 +533,6 @@ extension TokensCardCoordinator: SetTransferTokensCardExpiryDateViewControllerDe
 
     func didPressViewInfo(in viewController: SetTransferTokensCardExpiryDateViewController) {
         delegate?.didPressViewRedemptionInfo(in: viewController)
-    }
-
-    func didPressViewContractWebPage(in viewController: SetTransferTokensCardExpiryDateViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
     }
 }
 
@@ -610,8 +570,21 @@ extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControlle
     func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController) {
         delegate?.didPressViewEthereumInfo(in: viewController)
     }
+}
 
-    func didPressViewContractWebPage(in viewController: TransferTokensCardViaWalletAddressViewController) {
-        delegate?.didPressViewContractWebPage(for: viewController.viewModel.token, in: viewController)
+extension TokensCardCoordinator: TokenCardRedemptionViewControllerDelegate {
+}
+
+extension TokensCardCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }

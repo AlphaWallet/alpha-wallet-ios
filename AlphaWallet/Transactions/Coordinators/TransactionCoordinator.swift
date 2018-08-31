@@ -5,7 +5,7 @@ import UIKit
 import Result
 import TrustKeystore
 
-protocol TransactionCoordinatorDelegate: class {
+protocol TransactionCoordinatorDelegate: class, CanOpenURL {
     func didPress(for type: PaymentFlow, in coordinator: TransactionCoordinator)
     func didCancel(in coordinator: TransactionCoordinator)
 }
@@ -79,8 +79,9 @@ class TransactionCoordinator: Coordinator {
 
     func showTransaction(_ transaction: Transaction) {
         let controller = TransactionViewController(
-            session: session,
-            transaction: transaction
+                session: session,
+                transaction: transaction,
+                delegate: self
         )
         if UIDevice.current.userInterfaceIdiom == .pad {
             let nav = UINavigationController(rootViewController: controller)
@@ -116,7 +117,8 @@ class TransactionCoordinator: Coordinator {
     func showDeposit(for account: Wallet, from barButtonItem: UIBarButtonItem? = .none) {
         let coordinator = DepositCoordinator(
             navigationController: navigationController,
-            account: account
+            account: account,
+            delegate: self
         )
         coordinator.start(from: barButtonItem)
     }
@@ -138,7 +140,8 @@ extension TransactionCoordinator: TransactionsViewControllerDelegate {
     func didPressDeposit(for account: Wallet, sender: UIView, in viewController: TransactionsViewController) {
         let coordinator = DepositCoordinator(
             navigationController: navigationController,
-            account: account
+            account: account,
+            delegate: self
         )
         coordinator.start(from: sender)
     }
@@ -146,4 +149,24 @@ extension TransactionCoordinator: TransactionsViewControllerDelegate {
     func reset() {
         delegate?.didCancel(in: self)
     }
+}
+
+extension TransactionCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
+    }
+}
+
+extension TransactionCoordinator: TransactionViewControllerDelegate {
+}
+
+extension TransactionCoordinator: DepositCoordinatorDelegate {
 }

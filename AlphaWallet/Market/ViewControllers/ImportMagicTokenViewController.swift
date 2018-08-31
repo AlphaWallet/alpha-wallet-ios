@@ -3,7 +3,7 @@
 import UIKit
 import Alamofire
 
-protocol ImportMagicTokenViewControllerDelegate: class {
+protocol ImportMagicTokenViewControllerDelegate: class, CanOpenURL {
     func didPressDone(in viewController: ImportMagicTokenViewController)
     func didPressImport(in viewController: ImportMagicTokenViewController)
 }
@@ -270,11 +270,10 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     func showContractWebPage() {
         if case .main = config.server {
             guard let url = url else { return }
-            openURL(url)
+            delegate?.didPressViewContractWebPage(url, in: self)
         } else {
             guard let contract = contract else { return }
-            let url =  config.server.etherscanContractDetailsWebPageURL(for: contract)
-            openURL(url)
+            delegate?.didPressViewContractWebPage(forContract: contract, in: self)
         }
     }
 

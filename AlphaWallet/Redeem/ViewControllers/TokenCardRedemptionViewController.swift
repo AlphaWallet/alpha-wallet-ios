@@ -8,6 +8,9 @@
 
 import UIKit
 
+protocol TokenCardRedemptionViewControllerDelegate: class, CanOpenURL {
+}
+
 class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatusViewController {
 
     let config: Config
@@ -22,6 +25,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     var session: WalletSession
     private let token: TokenObject
     let redeemListener = RedeemEventListener()
+    weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
     init(config: Config, session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel) {
         self.config = config
@@ -123,13 +127,12 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     }
 
     func showInfo() {
-        let controller = TokenCardRedemptionInfoViewController()
+        let controller = TokenCardRedemptionInfoViewController(delegate: self)
         navigationController?.pushViewController(controller, animated: true)
     }
 
     func showContractWebPage() {
-        let url = session.config.server.etherscanContractDetailsWebPageURL(for: viewModel.token.contract)
-        openURL(url)
+        delegate?.didPressViewContractWebPage(forContract: viewModel.token.contract, in: self)
     }
 
     private func showSuccessMessage() {
@@ -175,3 +178,20 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         ticketView.stateLabel.isHidden = true
     }
  }
+
+extension TokenCardRedemptionViewController: StaticHTMLViewControllerDelegate {
+}
+
+extension TokenCardRedemptionViewController: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
+    }
+}

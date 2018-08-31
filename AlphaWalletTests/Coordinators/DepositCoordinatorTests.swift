@@ -5,11 +5,13 @@ import XCTest
 import SafariServices
 
 class DepositCoordinatorTests: XCTestCase {
+    private var didCallOpenWebPage = false
     
     func testStart() {
         let coordinator = DepositCoordinator(
             navigationController: FakeNavigationController(),
-            account: .make()
+            account: .make(),
+            delegate: nil
         )
 
         coordinator.start()
@@ -20,22 +22,37 @@ class DepositCoordinatorTests: XCTestCase {
     func testDepositCoinbase() {
         let coordinator = DepositCoordinator(
             navigationController: FakeNavigationController(),
-            account: .make()
+            account: .make(),
+            delegate: self
         )
 
         coordinator.showCoinbase()
-
-        XCTAssertTrue(coordinator.navigationController.presentedViewController is SFSafariViewController)
+        XCTAssertTrue(didCallOpenWebPage)
     }
 
     func testDepositShapeShift() {
         let coordinator = DepositCoordinator(
             navigationController: FakeNavigationController(),
-            account: .make()
+            account: .make(),
+            delegate: self
         )
 
         coordinator.showShapeShift()
+        XCTAssertTrue(didCallOpenWebPage)
+    }
+}
 
-        XCTAssertTrue(coordinator.navigationController.presentedViewController is SFSafariViewController)
+extension DepositCoordinatorTests: DepositCoordinatorDelegate {
+}
+
+extension DepositCoordinatorTests: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        didCallOpenWebPage = true
     }
 }
