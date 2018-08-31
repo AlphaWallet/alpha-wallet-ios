@@ -3,7 +3,7 @@
 import UIKit
 
 protocol SetTransferTokensCardExpiryDateViewControllerDelegate: class, CanOpenURL {
-    func didPressNext(ticketHolder: TokenHolder, linkExpiryDate: Date, in viewController: SetTransferTokensCardExpiryDateViewController)
+    func didPressNext(tokenHolder: TokenHolder, linkExpiryDate: Date, in viewController: SetTransferTokensCardExpiryDateViewController)
     func didPressViewInfo(in viewController: SetTransferTokensCardExpiryDateViewController)
 }
 
@@ -16,7 +16,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
     let header = TokensCardViewControllerTitleHeader()
-    let ticketView: TokenRowView & UIView
+    let tokenRowView: TokenRowView & UIView
     let linkExpiryDateLabel = UILabel()
     let linkExpiryDateField = DateEntryField()
     let linkExpiryTimeLabel = UILabel()
@@ -29,27 +29,27 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     let noteBorderView = UIView()
     let nextButton = UIButton(type: .system)
     var viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
-    let ticketHolder: TokenHolder
+    let tokenHolder: TokenHolder
     let paymentFlow: PaymentFlow
     weak var delegate: SetTransferTokensCardExpiryDateViewControllerDelegate?
 
     init(
             config: Config,
-            ticketHolder: TokenHolder,
+            tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
             viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
     ) {
         self.config = config
-        self.ticketHolder = ticketHolder
+        self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
 
-        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
         switch tokenType {
         case .cryptoKitty:
-            ticketView = TokenListFormatRowView()
+            tokenRowView = TokenListFormatRowView()
         case .otherNonFungibleToken:
-            ticketView = TokenCardRowView()
+            tokenRowView = TokenCardRowView()
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -68,8 +68,8 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
-        ticketView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(ticketView)
+        tokenRowView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(tokenRowView)
 
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         noteTitleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -121,7 +121,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
 
         let stackView = [
             header,
-            ticketView,
+            tokenRowView,
             .spacer(height: 18),
             descriptionLabel,
             .spacer(height: 18),
@@ -155,23 +155,23 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         NSLayoutConstraint.activate([
 			header.heightAnchor.constraint(equalToConstant: 90),
 
-            ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            linkExpiryDateField.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            linkExpiryTimeField.rightAnchor.constraint(equalTo: ticketView.background.rightAnchor),
+            linkExpiryDateField.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
+            linkExpiryTimeField.rightAnchor.constraint(equalTo: tokenRowView.background.rightAnchor),
             linkExpiryDateField.heightAnchor.constraint(equalToConstant: 50),
             linkExpiryDateField.widthAnchor.constraint(equalTo: linkExpiryTimeField.widthAnchor),
             linkExpiryDateField.heightAnchor.constraint(equalTo: linkExpiryTimeField.heightAnchor),
 
-            datePicker.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            datePicker.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+            datePicker.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
+            datePicker.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
 
-            timePicker.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            timePicker.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+            timePicker.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
+            timePicker.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
 
-            noteBorderView.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            noteBorderView.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+            noteBorderView.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
+            noteBorderView.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
 
             noteStackView.leadingAnchor.constraint(equalTo: noteBorderView.leadingAnchor, constant: 10),
             noteStackView.trailingAnchor.constraint(equalTo: noteBorderView.trailingAnchor, constant: -10),
@@ -208,7 +208,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         let expiryDate = linkExpiryDate()
         guard expiryDate > Date() else {
             UIAlertController.alert(title: "",
-                    message: R.string.localizable.aWalletTicketTokenTransferLinkExpiryTimeAtLeastNowTitle(),
+                    message: R.string.localizable.aWalletTokenTransferLinkExpiryTimeAtLeastNowTitle(),
                     alertButtonTitles: [R.string.localizable.oK()],
                     alertButtonStyles: [.cancel],
                     viewController: self,
@@ -216,7 +216,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
             return
         }
 
-        delegate?.didPressNext(ticketHolder: ticketHolder, linkExpiryDate: expiryDate, in: self)
+        delegate?.didPressNext(tokenHolder: tokenHolder, linkExpiryDate: expiryDate, in: self)
     }
 
     private func linkExpiryDate() -> Date {
@@ -262,7 +262,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
 
         header.configure(title: viewModel.headerTitle)
 
-        ticketView.configure(tokenHolder: ticketHolder)
+        tokenRowView.configure(tokenHolder: tokenHolder)
 
         linkExpiryDateLabel.textAlignment = .center
         linkExpiryDateLabel.textColor = viewModel.choiceLabelColor
@@ -274,7 +274,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         linkExpiryTimeLabel.font = viewModel.choiceLabelFont
         linkExpiryTimeLabel.text = viewModel.linkExpiryTimeLabelText
 
-        ticketView.stateLabel.isHidden = true
+        tokenRowView.stateLabel.isHidden = true
 
         descriptionLabel.textAlignment = .center
         descriptionLabel.numberOfLines = 0

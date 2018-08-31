@@ -4,7 +4,7 @@ import UIKit
 import QRCodeReaderViewController
 
 protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpenURL {
-    func didEnterWalletAddress(ticketHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
+    func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
     func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController)
 }
 
@@ -16,33 +16,33 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     private let token: TokenObject
     let roundedBackground = RoundedBackground()
     let header = TokensCardViewControllerTitleHeader()
-    let ticketView: TokenRowView & UIView
+    let tokenRowView: TokenRowView & UIView
     let targetAddressTextField = AddressTextField()
     let nextButton = UIButton(type: .system)
     var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
-    var ticketHolder: TokenHolder
+    var tokenHolder: TokenHolder
     var paymentFlow: PaymentFlow
     weak var delegate: TransferTokensCardViaWalletAddressViewControllerDelegate?
 
     init(
             config: Config,
             token: TokenObject,
-            ticketHolder: TokenHolder,
+            tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
             viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
     ) {
         self.config = config
         self.token = token
-        self.ticketHolder = ticketHolder
+        self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
 
-        let tokenType = CryptoKittyHandling(contract: ticketHolder.contractAddress)
+        let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
         switch tokenType {
         case .cryptoKitty:
-            ticketView = TokenListFormatRowView()
+            tokenRowView = TokenListFormatRowView()
         case .otherNonFungibleToken:
-            ticketView = TokenCardRowView()
+            tokenRowView = TokenCardRowView()
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -61,12 +61,12 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
-        ticketView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(ticketView)
+        tokenRowView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tokenRowView)
 
         let stackView = [
             header,
-            ticketView,
+            tokenRowView,
             .spacer(height: 10),
             targetAddressTextField.label,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
@@ -89,8 +89,8 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         NSLayoutConstraint.activate([
 			header.heightAnchor.constraint(equalToConstant: 90),
 
-            ticketView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            ticketView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
             targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
@@ -117,7 +117,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
     @objc func nextButtonTapped() {
         let address = targetAddressTextField.value.trimmed
-        delegate?.didEnterWalletAddress(ticketHolder: ticketHolder, to: address, paymentFlow: paymentFlow, in: self)
+        delegate?.didEnterWalletAddress(tokenHolder: tokenHolder, to: address, paymentFlow: paymentFlow, in: self)
     }
 
     func showInfo() {
@@ -138,9 +138,9 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
         header.configure(title: viewModel.headerTitle)
 
-        ticketView.configure(tokenHolder: ticketHolder)
+        tokenRowView.configure(tokenHolder: tokenHolder)
 
-        ticketView.stateLabel.isHidden = true
+        tokenRowView.stateLabel.isHidden = true
 
         targetAddressTextField.label.text = R.string.localizable.aSendRecipientAddressTitle()
 

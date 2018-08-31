@@ -6,7 +6,7 @@ class TokenCardRowView: UIView {
 	let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
 	let background = UIView()
 	let stateLabel = UILabel()
-	let ticketCountLabel = UILabel()
+	let tokenCountLabel = UILabel()
 	let venueLabel = UILabel()
 	let dateLabel = UILabel()
 	let categoryLabel = UILabel()
@@ -38,7 +38,7 @@ class TokenCardRowView: UIView {
 		background.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(background)
 
-		let topRowStack = [ticketCountLabel, categoryLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
+		let topRowStack = [tokenCountLabel, categoryLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
 		let bottomRowStack = [dateImageView, dateLabel, seatRangeImageView, teamsLabel, .spacerWidth(7), categoryImageView, matchLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
 		let detailsRow0 = [timeLabel, cityLabel].asStackView(contentHuggingPriority: .required)
 
@@ -114,8 +114,8 @@ class TokenCardRowView: UIView {
 		stateLabel.textColor = viewModel.stateColor
 		stateLabel.font = viewModel.subtitleFont
 
-		ticketCountLabel.textColor = viewModel.countColor
-		ticketCountLabel.font = viewModel.ticketCountFont
+		tokenCountLabel.textColor = viewModel.countColor
+		tokenCountLabel.font = viewModel.tokenCountFont
 
 		venueLabel.textColor = viewModel.titleColor
 		venueLabel.font = viewModel.venueFont
@@ -146,7 +146,7 @@ class TokenCardRowView: UIView {
 		teamsLabel.textColor = viewModel.subtitleColor
 		teamsLabel.font = viewModel.subtitleFont
 
-		ticketCountLabel.text = viewModel.ticketCount
+		tokenCountLabel.text = viewModel.tokenCount
 
 		venueLabel.text = viewModel.venue
 
@@ -166,6 +166,6 @@ class TokenCardRowView: UIView {
 
 extension TokenCardRowView: TokenRowView {
 	func configure(tokenHolder: TokenHolder) {
-		configure(viewModel: .init(ticketHolder: tokenHolder))
+		configure(viewModel: .init(tokenHolder: tokenHolder))
 	}
 }

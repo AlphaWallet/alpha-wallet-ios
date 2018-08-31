@@ -25,7 +25,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var state: State
-    var ticketHolder: TokenHolder?
+    var tokenHolder: TokenHolder?
     var cost: Cost?
 
     var backgroundColor: UIColor {
@@ -37,7 +37,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var headerTitle: String {
-        return R.string.localizable.aClaimTicketTitle()
+        return R.string.localizable.aClaimTokenTitle()
     }
 
     var activityIndicatorColor: UIColor {
@@ -52,7 +52,7 @@ struct ImportMagicTokenViewControllerViewModel {
         }
     }
 
-    var showTicketRow: Bool {
+    var showTokenRow: Bool {
         switch state {
         case .validating:
             return false
@@ -61,80 +61,80 @@ struct ImportMagicTokenViewControllerViewModel {
         }
     }
 
-    var ticketCount: String {
-        guard let ticketHolder = ticketHolder else { return "" }
+    var tokenCount: String {
+        guard let tokenHolder = tokenHolder else { return "" }
         if case .validating = state {
             return ""
         } else {
-            return "x\(ticketHolder.tickets.count)"
+            return "x\(tokenHolder.tokens.count)"
         }
     }
 
     var city: String {
-        guard let ticketHolder = ticketHolder else { return "" }
+        guard let tokenHolder = tokenHolder else { return "" }
         if case .validating = state {
             return ""
         } else {
-            return ticketHolder.values["locality"] as? String ?? "N/A"
+            return tokenHolder.values["locality"] as? String ?? "N/A"
         }
     }
 
     var category: String {
-        guard let ticketHolder = ticketHolder else { return "" }
+        guard let tokenHolder = tokenHolder else { return "" }
         if case .validating = state {
             return ""
         } else {
-            return ticketHolder.values["category"] as? String ?? "N/A"
+            return tokenHolder.values["category"] as? String ?? "N/A"
         }
     }
 
     var time: String {
-        guard let ticketHolder = ticketHolder else { return "" }
+        guard let tokenHolder = tokenHolder else { return "" }
         if case .validating = state {
             return ""
         } else {
-            let value = ticketHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+            let value = tokenHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
             return value.format("hh:mm")
         }
     }
 
     var teams: String {
-        guard let ticketHolder = ticketHolder else { return "" }
+        guard let tokenHolder = tokenHolder else { return "" }
         if case .validating = state {
             return ""
         } else {
-            let countryA = ticketHolder.values["countryA"] as? String ?? ""
-            let countryB = ticketHolder.values["countryB"] as? String ?? ""
-            return R.string.localizable.aWalletTicketTokenMatchVs(countryA, countryB)
+            let countryA = tokenHolder.values["countryA"] as? String ?? ""
+            let countryB = tokenHolder.values["countryB"] as? String ?? ""
+            return R.string.localizable.aWalletTokenMatchVs(countryA, countryB)
         }
     }
 
     var match: String {
-        guard let ticketHolder = ticketHolder else { return "" }
-        let value = ticketHolder.values["match"] as? Int ?? 0
+        guard let tokenHolder = tokenHolder else { return "" }
+        let value = tokenHolder.values["match"] as? Int ?? 0
         return "M\(value)"
     }
 
     var venue: String {
-        guard let ticketHolder = ticketHolder else { return "" }
+        guard let tokenHolder = tokenHolder else { return "" }
         if case .validating = state {
             return ""
         } else {
-            return ticketHolder.values["venue"] as? String ?? "N/A"
+            return tokenHolder.values["venue"] as? String ?? "N/A"
         }
     }
 
     var date: String {
-        guard let ticketHolder = ticketHolder else { return "" }
+        guard let tokenHolder = tokenHolder else { return "" }
         if case .validating = state {
             return ""
         } else {
-            let value = ticketHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+            let value = tokenHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
             return value.format("dd MMM yyyy")
         }
     }
 
-    var showTicketRowIcons: Bool {
+    var showTokenRowIcons: Bool {
         if case .validating = state {
             return false
         } else {
@@ -145,13 +145,13 @@ struct ImportMagicTokenViewControllerViewModel {
     var statusText: String {
         switch state {
         case .validating:
-            return R.string.localizable.aClaimTicketValidatingTitle()
+            return R.string.localizable.aClaimTokenValidatingTitle()
         case .promptImport:
-            return R.string.localizable.aClaimTicketPromptImportTitle()
+            return R.string.localizable.aClaimTokenPromptImportTitle()
         case .processing:
-            return R.string.localizable.aClaimTicketInProgressTitle()
+            return R.string.localizable.aClaimTokenInProgressTitle()
         case .succeeded:
-            return R.string.localizable.aClaimTicketSuccessTitle()
+            return R.string.localizable.aClaimTokenSuccessTitle()
         case .failed(let errorMessage):
             return errorMessage
         }
@@ -170,11 +170,11 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var showCost: Bool {
-        return showTicketRow
+        return showTokenRow
     }
 
     var ethCostLabelLabelText: String {
-        return R.string.localizable.aClaimTicketEthCostLabelTitle()
+        return R.string.localizable.aClaimTokenEthCostLabelTitle()
     }
 
     var ethCostLabelLabelColor: UIColor {
@@ -186,10 +186,10 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelText: String {
-        guard let cost = cost else { return R.string.localizable.aClaimTicketEthCostFreeTitle() }
+        guard let cost = cost else { return R.string.localizable.aClaimTokenEthCostFreeTitle() }
         switch cost {
         case .free:
-            return R.string.localizable.aClaimTicketEthCostFreeTitle()
+            return R.string.localizable.aClaimTokenEthCostFreeTitle()
         case .paid(let ethCost, _):
             return "\(ethCost) ETH"
         }
@@ -204,7 +204,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var dollarCostLabelLabelText: String {
-        return R.string.localizable.aClaimTicketDollarCostLabelTitle()
+        return R.string.localizable.aClaimTokenDollarCostLabelTitle()
     }
 
     var dollarCostLabelLabelColor: UIColor {
@@ -266,9 +266,9 @@ struct ImportMagicTokenViewControllerViewModel {
             return ""
         case .promptImport:
             if transactionIsFree {
-                return R.string.localizable.aClaimTicketImportButtonTitle()
+                return R.string.localizable.aClaimTokenImportButtonTitle()
             } else {
-                return R.string.localizable.aClaimTicketPurchaseButtonTitle()
+                return R.string.localizable.aClaimTokenPurchaseButtonTitle()
             }
         case .processing:
             return ""

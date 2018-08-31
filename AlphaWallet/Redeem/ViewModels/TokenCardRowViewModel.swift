@@ -3,7 +3,7 @@
 import UIKit
 
 struct TokenCardRowViewModel {
-    var ticketHolder: TokenHolder?
+    var tokenHolder: TokenHolder?
 
     var backgroundColor: UIColor {
         return Colors.appWhite
@@ -29,7 +29,7 @@ struct TokenCardRowViewModel {
         return Colors.appBackground
     }
 
-    var ticketCountFont: UIFont {
+    var tokenCountFont: UIFont {
         return Fonts.bold(size: 21)!
     }
 
@@ -61,49 +61,49 @@ struct TokenCardRowViewModel {
         return Fonts.light(size: 16)!
     }
 
-    var ticketCount: String {
-        guard let ticketHolder = ticketHolder else { return "" }
-        return "x\(ticketHolder.tickets.count)"
+    var tokenCount: String {
+        guard let tokenHolder = tokenHolder else { return "" }
+        return "x\(tokenHolder.tokens.count)"
     }
 
     var city: String {
-        guard let ticketHolder = ticketHolder else { return "" }
-        let value = ticketHolder.values["locality"] ?? "N/A"
+        guard let tokenHolder = tokenHolder else { return "" }
+        let value = tokenHolder.values["locality"] ?? "N/A"
         return ", \(value)"
     }
 
     var category: String {
-        guard let ticketHolder = ticketHolder else { return "" }
-        return ticketHolder.values["category"] as? String ?? "N/A"
+        guard let tokenHolder = tokenHolder else { return "" }
+        return tokenHolder.values["category"] as? String ?? "N/A"
     }
 
     var teams: String {
-        guard let ticketHolder = ticketHolder else { return "" }
-        let countryA = ticketHolder.values["countryA"] as? String ?? ""
-        let countryB = ticketHolder.values["countryB"] as? String ?? ""
-        return R.string.localizable.aWalletTicketTokenMatchVs(countryA, countryB)
+        guard let tokenHolder = tokenHolder else { return "" }
+        let countryA = tokenHolder.values["countryA"] as? String ?? ""
+        let countryB = tokenHolder.values["countryB"] as? String ?? ""
+        return R.string.localizable.aWalletTokenMatchVs(countryA, countryB)
     }
 
     var match: String {
-        guard let ticketHolder = ticketHolder else { return "" }
-        let value = ticketHolder.values["match"] as? Int ?? 0
+        guard let tokenHolder = tokenHolder else { return "" }
+        let value = tokenHolder.values["match"] as? Int ?? 0
         return "M\(value)"
     }
 
     var venue: String {
-        guard let ticketHolder = ticketHolder else { return "" }
-        return ticketHolder.values["venue"] as? String ?? "N/A"
+        guard let tokenHolder = tokenHolder else { return "" }
+        return tokenHolder.values["venue"] as? String ?? "N/A"
     }
 
     var date: String {
-        guard let ticketHolder = ticketHolder else { return "" }
-        let value = ticketHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+        guard let tokenHolder = tokenHolder else { return "" }
+        let value = tokenHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
         return value.formatAsShortDateString()
     }
 
     var time: String {
-        guard let ticketHolder = ticketHolder else { return "" }
-        let value = ticketHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+        guard let tokenHolder = tokenHolder else { return "" }
+        let value = tokenHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
         return value.format("h:mm a")
     }
 }

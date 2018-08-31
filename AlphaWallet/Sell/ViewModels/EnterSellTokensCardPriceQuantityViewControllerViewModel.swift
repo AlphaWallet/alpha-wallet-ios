@@ -6,16 +6,16 @@ import UIKit
 struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
 
     var token: TokenObject
-    var ticketHolder: TokenHolder
+    var tokenHolder: TokenHolder
     var ethCost: Ether = .zero
     var dollarCost: String = ""
 
     var headerTitle: String {
-		return R.string.localizable.aWalletTicketTokenSellSelectQuantityTitle()
+		return R.string.localizable.aWalletTokenSellSelectQuantityTitle()
     }
 
     var maxValue: Int {
-        return ticketHolder.tickets.count
+        return tokenHolder.tokens.count
     }
 
     var backgroundColor: UIColor {
@@ -48,24 +48,24 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
 
     var quantityLabelText: String {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
-		return R.string.localizable.aWalletTicketTokenSellQuantityTitle(tokenTypeName.localizedUppercase)
+		return R.string.localizable.aWalletTokenSellQuantityTitle(tokenTypeName.localizedUppercase)
     }
 
-    var pricePerTicketLabelText: String {
+    var pricePerTokenLabelText: String {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.singular)
-        return R.string.localizable.aWalletTicketTokenSellPricePerTicketTitle(tokenTypeName.localizedUppercase)
+        return R.string.localizable.aWalletTokenSellPricePerTokenTitle(tokenTypeName.localizedUppercase)
     }
 
     var linkExpiryDateLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellLinkExpiryDateTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle()
     }
 
     var linkExpiryTimeLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellLinkExpiryTimeTitle()
+        return R.string.localizable.aWalletTokenSellLinkExpiryTimeTitle()
     }
 
     var ethCostLabelLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellTotalCostTitle()
+        return R.string.localizable.aWalletTokenSellTotalCostTitle()
     }
 
     var ethCostLabelLabelFont: UIFont {
@@ -116,8 +116,8 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
         return dollarCost.trimmed.isEmpty
     }
 
-    init(token: TokenObject, ticketHolder: TokenHolder) {
+    init(token: TokenObject, tokenHolder: TokenHolder) {
         self.token = token
-        self.ticketHolder = ticketHolder
+        self.tokenHolder = tokenHolder
     }
 }

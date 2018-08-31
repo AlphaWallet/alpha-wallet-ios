@@ -13,7 +13,7 @@ class TokenListFormatRowView: UIView {
     let background = UIView()
     let stateLabel = UILabel()
     //TODO We don't display this for now. Maybe should have flag to show/hide it
-    let ticketCountLabel = UILabel()
+    let tokenCountLabel = UILabel()
     private let thumbnailImageView = UIImageView()
     //TODO this imageView is not used yet
     private let imageView = UIImageView()
@@ -156,8 +156,8 @@ class TokenListFormatRowView: UIView {
         stateLabel.textColor = viewModel.stateColor
         stateLabel.font = viewModel.subtitleFont
 
-        ticketCountLabel.textColor = viewModel.countColor
-        ticketCountLabel.font = viewModel.ticketCountFont
+        tokenCountLabel.textColor = viewModel.countColor
+        tokenCountLabel.font = viewModel.tokenCountFont
 
         descriptionLabel.textColor = viewModel.titleColor
         descriptionLabel.font = viewModel.descriptionFont
@@ -174,7 +174,7 @@ class TokenListFormatRowView: UIView {
 
         displayDetails(viewModel: viewModel)
 
-        ticketCountLabel.text = viewModel.ticketCount
+        tokenCountLabel.text = viewModel.tokenCount
 
         descriptionLabel.text = viewModel.description
 
@@ -222,6 +222,6 @@ class TokenListFormatRowView: UIView {
 
 extension TokenListFormatRowView: TokenRowView {
     func configure(tokenHolder: TokenHolder) {
-        configure(viewModel: .init(ticketHolder: tokenHolder))
+        configure(viewModel: .init(tokenHolder: tokenHolder))
     }
 }

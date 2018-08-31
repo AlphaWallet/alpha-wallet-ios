@@ -12,19 +12,19 @@ import UIKit
 struct TokensCardViewModel {
 
     var token: TokenObject
-    var ticketHolders: [TokenHolder]
+    var tokenHolders: [TokenHolder]
 
     init(token: TokenObject) {
         self.token = token
-        self.ticketHolders = TokenAdaptor(token: token).getTicketHolders()
+        self.tokenHolders = TokenAdaptor(token: token).getTokenHolders()
     }
 
     func item(for indexPath: IndexPath) -> TokenHolder {
-        return ticketHolders[indexPath.row]
+        return tokenHolders[indexPath.row]
     }
 
     func numberOfItems(for section: Int) -> Int {
-        return ticketHolders.count
+        return tokenHolders.count
     }
 
     var buttonTitleColor: UIColor {
@@ -40,16 +40,16 @@ struct TokensCardViewModel {
     }
 
     func toggleDetailsVisible(for indexPath: IndexPath) -> [IndexPath] {
-        let ticketHolder = item(for: indexPath)
+        let tokenHolder = item(for: indexPath)
         var changed = [indexPath]
-        if ticketHolder.areDetailsVisible {
-            ticketHolder.areDetailsVisible = false
+        if tokenHolder.areDetailsVisible {
+            tokenHolder.areDetailsVisible = false
         } else {
-            for (i, each) in ticketHolders.enumerated() where each.areDetailsVisible {
+            for (i, each) in tokenHolders.enumerated() where each.areDetailsVisible {
                 each.areDetailsVisible = false
                 changed.append(.init(row: i, section: indexPath.section))
             }
-            ticketHolder.areDetailsVisible = true
+            tokenHolder.areDetailsVisible = true
         }
         return changed
     }

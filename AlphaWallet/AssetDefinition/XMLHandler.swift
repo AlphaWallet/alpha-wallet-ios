@@ -45,7 +45,7 @@ private class PrivateXMLHandler {
         signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml)
     }
 
-    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
+    func getToken(fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
         guard tokenBytes32 != 0 else { return .empty }
         var values = [String: AssetAttributeValue]()
         for (name, attribute) in fields {
@@ -193,15 +193,15 @@ public class XMLHandler {
         xmlHandlers[contract.add0x.lowercased()] = nil
     }
 
-    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
-        return privateXMLHandler.getFifaInfoForTicket(tokenId: tokenBytes32, index: index)
+    func getToken(fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
+        return privateXMLHandler.getToken(fromTokenId: tokenBytes32, index: index)
     }
 
     func getName() -> String {
         return privateXMLHandler.getName()
     }
 
-    /// Expected to return names like "cryptokitties", "tickets" that are specified in the asset definition. If absent, fallback to "tokens"
+    /// Expected to return names like "cryptokitties", "token" that are specified in the asset definition. If absent, fallback to "tokens"
     func getTokenTypeName(_ type: SingularOrPlural = .plural, titlecase: TitlecaseOrNot = .titlecase) -> String {
         return privateXMLHandler.getTokenTypeName(type, titlecase: titlecase)
     }

@@ -6,15 +6,15 @@ import UIKit
 struct TransferTokensCardQuantitySelectionViewModel {
 
     var token: TokenObject
-    var ticketHolder: TokenHolder
+    var tokenHolder: TokenHolder
 
     var headerTitle: String {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.plural, titlecase: .titlecase)
-		return R.string.localizable.aWalletTicketTokenTransferSelectQuantityTitle(tokenTypeName)
+		return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 
     var maxValue: Int {
-        return ticketHolder.tickets.count
+        return tokenHolder.tokens.count
     }
 
     var backgroundColor: UIColor {
@@ -47,6 +47,6 @@ struct TransferTokensCardQuantitySelectionViewModel {
 
     var subtitleText: String {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
-		return R.string.localizable.aWalletTicketTokenTransferQuantityTitle(tokenTypeName.localizedUppercase)
+		return R.string.localizable.aWalletTokenTransferQuantityTitle(tokenTypeName.localizedUppercase)
     }
 }

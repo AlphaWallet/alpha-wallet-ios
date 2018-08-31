@@ -6,6 +6,6 @@ import Foundation
 
 class TokenObjectTest: XCTestCase {
     func testCheckNonZeroBalance() {
-        XCTAssertFalse(isNonZeroBalance(Constants.nullTicket))
+        XCTAssertFalse(isNonZeroBalance(Constants.nullTokenId))
     }
 }

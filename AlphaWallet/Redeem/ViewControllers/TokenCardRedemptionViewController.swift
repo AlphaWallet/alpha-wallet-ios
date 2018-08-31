@@ -20,7 +20,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     var viewModel: TokenCardRedemptionViewModel
     var titleLabel = UILabel()
     let imageView =  UIImageView()
-    let ticketView: TokenRowView & UIView
+    let tokenRowView: TokenRowView & UIView
     var timer: Timer!
     var session: WalletSession
     private let token: TokenObject
@@ -36,9 +36,9 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         let tokenType = CryptoKittyHandling(address: token.address)
         switch tokenType {
         case .cryptoKitty:
-            ticketView = TokenListFormatRowView()
+            tokenRowView = TokenListFormatRowView()
         case .otherNonFungibleToken:
-            ticketView = TokenCardRowView()
+            tokenRowView = TokenCardRowView()
         }
 
         super.init(nibName: nil, bundle: nil)
@@ -55,14 +55,14 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         imageHolder.cornerRadius = 20
         imageHolder.addSubview(imageView)
 
-        ticketView.translatesAutoresizingMaskIntoConstraints = false
+        tokenRowView.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [
             titleLabel,
             .spacer(height: 10),
             imageHolder,
             .spacer(height: 4),
-            ticketView,
+            tokenRowView,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
@@ -76,8 +76,8 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
             imageView.topAnchor.constraint(equalTo: imageHolder.topAnchor, constant: 70),
             imageView.bottomAnchor.constraint(equalTo: imageHolder.bottomAnchor, constant: -70),
 
-            imageHolder.leadingAnchor.constraint(equalTo: ticketView.background.leadingAnchor),
-            imageHolder.trailingAnchor.constraint(equalTo: ticketView.background.trailingAnchor),
+            imageHolder.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
+            imageHolder.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
 			imageHolder.widthAnchor.constraint(equalTo: imageHolder.heightAnchor),
 
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -116,7 +116,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     @objc
     private func configureUI() {
         let redeem = CreateRedeem(config: session.config, token: token)
-        let redeemData = redeem.redeemMessage(ticketIndices: viewModel.ticketHolder.indices)
+        let redeemData = redeem.redeemMessage(tokenIndices: viewModel.tokenHolder.indices)
         switch session.account.type {
         case .real(let account):
             let decimalSignature = SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account)!
@@ -139,13 +139,13 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         invalidateTimer()
 
         let tokenTypeName = XMLHandler(contract: contract).getTokenTypeName()
-        UIAlertController.alert(title: R.string.localizable.aWalletTicketTokenRedeemSuccessfulTitle(),
-                                message: R.string.localizable.aWalletTicketTokenRedeemSuccessfulDescription(tokenTypeName),
+        UIAlertController.alert(title: R.string.localizable.aWalletTokenRedeemSuccessfulTitle(),
+                                message: R.string.localizable.aWalletTokenRedeemSuccessfulDescription(tokenTypeName),
                                 alertButtonTitles: [R.string.localizable.oK()],
                                 alertButtonStyles: [.cancel],
                                 viewController: self,
                                 completion: { _ in
-                                    // TODO: let ticket coordinator handle this as we need to refresh the ticket list as well
+                                    // TODO: let token coordinator handle this as we need to refresh the token list as well
                                     self.dismiss(animated: true, completion: nil)
                                 })
 
@@ -173,9 +173,9 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
 
         configureUI()
 
-        ticketView.configure(tokenHolder: viewModel.ticketHolder)
+        tokenRowView.configure(tokenHolder: viewModel.tokenHolder)
 
-        ticketView.stateLabel.isHidden = true
+        tokenRowView.stateLabel.isHidden = true
     }
  }
 
