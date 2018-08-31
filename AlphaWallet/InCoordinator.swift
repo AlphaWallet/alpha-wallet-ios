@@ -50,12 +50,6 @@ class InCoordinator: Coordinator {
         }.first
     }
 
-    var tokensCardCoordinator: TokensCardCoordinator? {
-        return self.coordinators.compactMap {
-            $0 as? TokensCardCoordinator
-        }.first
-    }
-
     var tabBarController: UITabBarController? {
         return self.navigationController.viewControllers.first as? UITabBarController
     }
