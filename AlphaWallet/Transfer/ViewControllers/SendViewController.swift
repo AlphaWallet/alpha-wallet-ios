@@ -11,7 +11,7 @@ import BigInt
 import TrustKeystore
 import MBProgressHUD
 
-protocol SendViewControllerDelegate: class {
+protocol SendViewControllerDelegate: class, CanOpenURL {
     func didPressConfirm(
             transaction: UnconfirmedTransaction,
             transferType: TransferType,
@@ -19,7 +19,7 @@ protocol SendViewControllerDelegate: class {
     )
 }
 
-class SendViewController: UIViewController, CanScanQRCode {
+class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatusViewController {
     let roundedBackground = RoundedBackground()
     let header = SendHeaderView()
     let targetAddressTextField = AddressTextField()
@@ -55,6 +55,25 @@ class SendViewController: UIViewController, CanScanQRCode {
     var balanceViewModel: BalanceBaseViewModel?
     weak var delegate: SendViewControllerDelegate?
 
+    let config: Config
+    var contract: String {
+        //Only ERC20 tokens are relevant here
+        switch transferType {
+        case .ERC20Token(let token):
+            return token.contract
+        case .ether:
+            return "0x"
+        case .dapp:
+            return "0x"
+        case .ERC875Token:
+            return "0x"
+        case .ERC875TokenOrder:
+            return "0x"
+        case .ERC721Token:
+            return "0x"
+        }
+    }
+
     let session: WalletSession
     let account: Account
     let transferType: TransferType
@@ -83,8 +102,13 @@ class SendViewController: UIViewController, CanScanQRCode {
         self.transferType = transferType
         self.storage = storage
         self.ethPrice = ethPrice
+        self.config = Config()
 
         super.init(nibName: nil, bundle: nil)
+
+        if case .ERC20Token = transferType {
+            updateNavigationRightBarButtons(isVerified: false, hasShowInfoButton: false)
+        }
 
         configureBalanceViewModel()
 
@@ -443,5 +467,14 @@ extension SendViewController: AddressTextFieldDelegate {
 
     func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
         return true
+    }
+}
+
+extension SendViewController: VerifiableStatusViewController {
+    func showInfo() {
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 }
