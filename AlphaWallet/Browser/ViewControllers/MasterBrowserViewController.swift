@@ -66,6 +66,17 @@ final class MasterBrowserViewController: UIViewController {
         setupView()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if let navigationController = navigationController, navigationController.isBeingPresented {
+            browserViewController.browserNavBar?.closeButton.isHidden = false
+        } else if isBeingPresented {
+            browserViewController.browserNavBar?.closeButton.isHidden = false
+        } else {
+            browserViewController.browserNavBar?.closeButton.isHidden = true
+        }
+    }
+
     func select(viewType: BookmarksViewType) {
         segmentController.selectedSegmentIndex = viewType.rawValue
         updateView()

@@ -2,10 +2,9 @@
 
 import UIKit
 
-protocol SetSellTokensCardExpiryDateViewControllerDelegate: class {
+protocol SetSellTokensCardExpiryDateViewControllerDelegate: class, CanOpenURL {
     func didSetSellTicketsExpiryDate(ticketHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, in viewController: SetSellTokensCardExpiryDateViewController)
     func didPressViewInfo(in viewController: SetSellTokensCardExpiryDateViewController)
-    func didPressViewContractWebPage(in viewController: SetSellTokensCardExpiryDateViewController)
 }
 
 class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -255,7 +254,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 
     func configure(viewModel newViewModel: SetSellTokensCardExpiryDateViewControllerViewModel? = nil) {
