@@ -61,7 +61,7 @@ final class BrowserViewController: UIViewController {
 
     weak var delegate: BrowserViewControllerDelegate?
 
-    var browserNavBar: BrowserNavigationBar? {
+    private var browserNavBar: BrowserNavigationBar? {
         return navigationController?.navigationBar as? BrowserNavigationBar
     }
 
@@ -80,6 +80,8 @@ final class BrowserViewController: UIViewController {
     }()
 
     let server: RPCServer
+
+    var isCloseButtonVisibilityConfigured = false
 
     init(
         account: Wallet,
@@ -242,6 +244,13 @@ final class BrowserViewController: UIViewController {
             }
             errorView.show(error: error)
         }
+    }
+
+    /// This function is expected to be called at most once (hence "setup"), subsequent calls will be ignored. This is important because it's designed to be called from a viewWillAppear(), checking if the browser is being presented and we decide if we want to show the close button then. It shouldn't be changed, e.g. when we present another view controller over the browser and close it (this time the browser wouldn't be presented anymore and hiding the close button will be wrong)
+    func setUpCloseButtonAs(hidden: Bool) {
+        guard !isCloseButtonVisibilityConfigured else { return }
+        isCloseButtonVisibilityConfigured = true
+        browserNavBar?.closeButton.isHidden = hidden
     }
 }
 
