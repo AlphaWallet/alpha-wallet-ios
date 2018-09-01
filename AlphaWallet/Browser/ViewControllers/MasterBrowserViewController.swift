@@ -69,11 +69,11 @@ final class MasterBrowserViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if let navigationController = navigationController, navigationController.isBeingPresented {
-            browserViewController.browserNavBar?.closeButton.isHidden = false
+            browserViewController.setUpCloseButtonAs(hidden: false)
         } else if isBeingPresented {
-            browserViewController.browserNavBar?.closeButton.isHidden = false
+            browserViewController.setUpCloseButtonAs(hidden: false)
         } else {
-            browserViewController.browserNavBar?.closeButton.isHidden = true
+            browserViewController.setUpCloseButtonAs(hidden: true)
         }
     }
 
