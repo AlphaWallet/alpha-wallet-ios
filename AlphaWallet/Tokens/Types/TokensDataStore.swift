@@ -114,7 +114,7 @@ class TokensDataStore {
         self.scheduledTimerForPricesUpdate()
         self.scheduledTimerForEthBalanceUpdate()
 
-        updateERC875TokensToLocalizedName()
+        fetchTokenNamesForNonFungibleTokensIfEmpty()
     }
     private func addEthToken() {
         //Check if we have previos values.
@@ -521,12 +521,20 @@ class TokensDataStore {
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
-    public func updateERC875TokensToLocalizedName() {
+    public func fetchTokenNamesForNonFungibleTokensIfEmpty() {
         assetDefinitionStore.forEachContractWithXML { contract in
-            if let localizedName = config.getContractLocalizedName(forContract: contract) {
-                if let storedToken = enabledObject.first(where: { $0.contract.sameContract(as: contract) }) {
-                    //TODO multiple realm writes in a loop. Should we group them together?
-                    updateTokenName(token: storedToken, to: localizedName)
+            let localizedName = XMLHandler(contract: contract).getName()
+            if localizedName != "N/A" {
+                if let storedToken = self.enabledObject.first(where: { $0.contract.sameContract(as: contract) }), storedToken.name.isEmpty {
+                    getContractName(for: contract) { result in
+                        switch result {
+                        case .success(let name):
+                            //TODO multiple realm writes in a loop. Should we group them together?
+                            self.updateTokenName(token: storedToken, to: name)
+                        case .failure:
+                            break
+                        }
+                    }
                 }
             }
         }
