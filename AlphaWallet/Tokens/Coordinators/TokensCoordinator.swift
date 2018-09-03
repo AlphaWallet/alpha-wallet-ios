@@ -74,7 +74,7 @@ class TokensCoordinator: Coordinator {
     
     private func refreshUponAssetDefinitionChanges() {
         assetDefinitionStore.subscribe { [weak self] _ in
-            self?.storage.updateERC875TokensToLocalizedName()
+            self?.storage.fetchTokenNamesForNonFungibleTokensIfEmpty()
         }
     }
 
