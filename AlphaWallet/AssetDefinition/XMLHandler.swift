@@ -90,24 +90,6 @@ private class PrivateXMLHandler {
     }
 
     func getTokenTypeName(_ type: SingularOrPlural = .plural, titlecase: TitlecaseOrNot = .titlecase) -> String {
-        if contractAddress.sameContract(as: Constants.ticketContractAddress) || contractAddress.sameContract(as: Constants.ticketContractAddressRopsten) {
-            switch type {
-            case .singular:
-                switch titlecase {
-                case .titlecase:
-                    return R.string.localizable.ticketTitlecase()
-                case .notTitlecase:
-                    return R.string.localizable.ticketLowercase()
-                }
-            case .plural:
-                switch titlecase {
-                case .titlecase:
-                    return R.string.localizable.ticketsTitlecase()
-                case .notTitlecase:
-                    return R.string.localizable.ticketsLowercase()
-                }
-            }
-        }
         if contractAddress.sameContract(as: Constants.cryptoKittiesContractAddress) {
             switch titlecase {
             case .titlecase:
@@ -117,22 +99,27 @@ private class PrivateXMLHandler {
             }
         }
 
-        //TODO read from XML (and programatically titlecase if necessary) and fallback if missing
-        switch type {
-        case .singular:
-            switch titlecase {
-            case .titlecase:
-                return R.string.localizable.tokenTitlecase()
-            case .notTitlecase:
-                return R.string.localizable.tokenLowercase()
+        let name = getName()
+        if name == "N/A" {
+            switch type {
+            case .singular:
+                switch titlecase {
+                case .titlecase:
+                    return R.string.localizable.tokenTitlecase()
+                case .notTitlecase:
+                    return R.string.localizable.tokenLowercase()
+                }
+            case .plural:
+                switch titlecase {
+                case .titlecase:
+                    return R.string.localizable.tokensTitlecase()
+                case .notTitlecase:
+                    return R.string.localizable.tokensLowercase()
+                }
             }
-        case .plural:
-            switch titlecase {
-            case .titlecase:
-                return R.string.localizable.tokensTitlecase()
-            case .notTitlecase:
-                return R.string.localizable.tokensLowercase()
-            }
+        } else {
+            //TODO be smart with lowercase and title case
+            return name
         }
     }
 
