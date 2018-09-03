@@ -178,6 +178,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
             tokenCardRowView.stateLabel.isHidden = true
 
+            //TODO should not set these directly. configure instead
             tokenCardRowView.tokenCountLabel.text = viewModel.tokenCount
             tokenCardRowView.venueLabel.text = viewModel.venue
             tokenCardRowView.dateLabel.text = viewModel.date
@@ -187,9 +188,45 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
             tokenCardRowView.teamsLabel.text = viewModel.teams
             tokenCardRowView.matchLabel.text = viewModel.match
 
-            tokenCardRowView.dateImageView.isHidden = !viewModel.showTokenRowIcons
-            tokenCardRowView.seatRangeImageView.isHidden = !viewModel.showTokenRowIcons
-            tokenCardRowView.categoryImageView.isHidden = !viewModel.showTokenRowIcons
+            switch viewModel.state {
+            case .validating:
+                tokenCardRowView.dateImageView.isHidden = !viewModel.showTokenRowIcons
+                tokenCardRowView.seatRangeImageView.isHidden = !viewModel.showTokenRowIcons
+                tokenCardRowView.categoryImageView.isHidden = !viewModel.showTokenRowIcons
+                break
+            case .processing:
+                tokenCardRowView.dateImageView.isHidden = !viewModel.showTokenRowIcons
+                tokenCardRowView.seatRangeImageView.isHidden = !viewModel.showTokenRowIcons
+                tokenCardRowView.categoryImageView.isHidden = !viewModel.showTokenRowIcons
+                break
+            case .promptImport:
+                if (viewModel.teams == "" && viewModel.city == "" && viewModel.category == "") || (viewModel.teams == "-" && viewModel.city == "N/A" && viewModel.category == "N/A") {
+                    tokenCardRowView.onlyShowTitle = true
+                } else {
+                    tokenCardRowView.onlyShowTitle = false
+                    tokenCardRowView.dateImageView.isHidden = !viewModel.showTokenRowIcons
+                    tokenCardRowView.seatRangeImageView.isHidden = !viewModel.showTokenRowIcons
+                    tokenCardRowView.categoryImageView.isHidden = !viewModel.showTokenRowIcons
+                }
+            case .succeeded:
+                if (viewModel.teams == "" && viewModel.city == "" && viewModel.category == "") || (viewModel.teams == "-" && viewModel.city == "N/A" && viewModel.category == "N/A") {
+                    tokenCardRowView.onlyShowTitle = true
+                } else {
+                    tokenCardRowView.onlyShowTitle = false
+                    tokenCardRowView.dateImageView.isHidden = !viewModel.showTokenRowIcons
+                    tokenCardRowView.seatRangeImageView.isHidden = !viewModel.showTokenRowIcons
+                    tokenCardRowView.categoryImageView.isHidden = !viewModel.showTokenRowIcons
+                }
+            case .failed:
+                if (viewModel.teams == "" && viewModel.city == "" && viewModel.category == "") || (viewModel.teams == "-" && viewModel.city == "N/A" && viewModel.category == "N/A") {
+                    tokenCardRowView.onlyShowTitle = true
+                } else {
+                    tokenCardRowView.onlyShowTitle = false
+                    tokenCardRowView.dateImageView.isHidden = !viewModel.showTokenRowIcons
+                    tokenCardRowView.seatRangeImageView.isHidden = !viewModel.showTokenRowIcons
+                    tokenCardRowView.categoryImageView.isHidden = !viewModel.showTokenRowIcons
+                }
+            }
 
             statusLabel.textColor = viewModel.statusColor
             statusLabel.font = viewModel.statusFont
