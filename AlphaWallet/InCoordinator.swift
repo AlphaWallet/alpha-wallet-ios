@@ -149,9 +149,6 @@ class InCoordinator: Coordinator {
         marketplaceController.tabBarItem = UITabBarItem(title: R.string.localizable.aMarketplaceTabbarItemTitle(), image: R.image.tab_marketplace()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_marketplace())
 
         let tabBarController = TabBarController()
-        tabBarController.viewControllers = [
-            marketplaceNavigationController,
-        ]
         tabBarController.tabBar.isTranslucent = false
         tabBarController.didShake = { [weak self] in
             if inCoordinatorViewModel.canActivateDebugMode {
@@ -170,9 +167,17 @@ class InCoordinator: Coordinator {
             tokensCoordinator.delegate = self
             tokensCoordinator.start()
             addCoordinator(tokensCoordinator)
-            tabBarController.viewControllers?.append(tokensCoordinator.navigationController)
+            tabBarController.viewControllers = [
+                tokensCoordinator.navigationController
+            ]
         }
-        tabBarController.viewControllers?.append(transactionCoordinator.navigationController)
+
+        if let viewControllers = tabBarController.viewControllers, !viewControllers.isEmpty {
+            tabBarController.viewControllers?.append(transactionCoordinator.navigationController)
+        } else {
+            tabBarController.viewControllers = [transactionCoordinator.navigationController]
+        }
+
 
         let browserCoordinator = BrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
         browserCoordinator.delegate = self
