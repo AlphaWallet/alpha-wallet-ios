@@ -20,11 +20,13 @@ class TokenHolder {
     var isSelected = false
     var areDetailsVisible = false
     var contractAddress: String
+    var hasAssetDefinition: Bool
 
-    init(tokens: [Token], status: Status, contractAddress: String) {
+    init(tokens: [Token], status: Status, contractAddress: String, hasAssetDefinition: Bool) {
         self.tokens = tokens
         self.status = status
         self.contractAddress = contractAddress
+        self.hasAssetDefinition = hasAssetDefinition
     }
 
     var count: Int {

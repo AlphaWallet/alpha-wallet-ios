@@ -200,7 +200,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
                 tokenCardRowView.categoryImageView.isHidden = !viewModel.showTokenRowIcons
                 break
             case .promptImport:
-                if (viewModel.teams == "" && viewModel.city == "" && viewModel.category == "") || (viewModel.teams == "-" && viewModel.city == "N/A" && viewModel.category == "N/A") {
+                if (viewModel.teams == "" && viewModel.city == "") || (viewModel.teams == "-" && viewModel.city == "N/A") {
                     tokenCardRowView.onlyShowTitle = true
                 } else {
                     tokenCardRowView.onlyShowTitle = false
@@ -209,7 +209,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
                     tokenCardRowView.categoryImageView.isHidden = !viewModel.showTokenRowIcons
                 }
             case .succeeded:
-                if (viewModel.teams == "" && viewModel.city == "" && viewModel.category == "") || (viewModel.teams == "-" && viewModel.city == "N/A" && viewModel.category == "N/A") {
+                if (viewModel.teams == "" && viewModel.city == "") || (viewModel.teams == "-" && viewModel.city == "N/A") {
                     tokenCardRowView.onlyShowTitle = true
                 } else {
                     tokenCardRowView.onlyShowTitle = false
@@ -218,7 +218,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
                     tokenCardRowView.categoryImageView.isHidden = !viewModel.showTokenRowIcons
                 }
             case .failed:
-                if (viewModel.teams == "" && viewModel.city == "" && viewModel.category == "") || (viewModel.teams == "-" && viewModel.city == "N/A" && viewModel.category == "N/A") {
+                if (viewModel.teams == "" && viewModel.city == "") || (viewModel.teams == "-" && viewModel.city == "N/A") {
                     tokenCardRowView.onlyShowTitle = true
                 } else {
                     tokenCardRowView.onlyShowTitle = false
