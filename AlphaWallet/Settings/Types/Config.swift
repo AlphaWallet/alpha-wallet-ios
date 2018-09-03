@@ -129,13 +129,6 @@ struct Config {
     ///Debugging flag. Set to false to disable auto fetching prices, etc to cut down on network calls
     let isAutoFetchingDisabled = false
 
-    //TODO move?
-    func getContractLocalizedName(forContract contract: String) -> String? {
-        guard let contractAddress = Address(string: contract) else { return nil }
-        let xmlHandler = XMLHandler(contract: contract)
-        return xmlHandler.getName()
-    }
-
     func addToWalletAddressesAlreadyPromptedForBackup(address: String) {
         var addresses: [String]
         if let value = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
