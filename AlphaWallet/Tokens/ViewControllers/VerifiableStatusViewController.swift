@@ -11,7 +11,12 @@ extension VerifiableStatusViewController where Self: UIViewController {
     func updateNavigationRightBarButtons(isVerified: Bool, hasShowInfoButton: Bool = true) {
         let verifiedStatusButton = UIBarButtonItem(customView: createVerifiedStatusButton(isVerified: isVerified))
         if isVerified {
-            if hasShowInfoButton {
+            var showInfoButton = hasShowInfoButton
+            //TODO ugly
+            if let tokenVerifiableVC = self as? TokenVerifiableStatusViewController {
+                showInfoButton = tokenVerifiableVC.contract == Constants.ticketContractAddress || tokenVerifiableVC.contract == Constants.ticketContractAddressRopsten
+            }
+            if showInfoButton {
                 let infoButton = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
                 navigationItem.rightBarButtonItems = [
                     infoButton,
