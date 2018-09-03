@@ -68,7 +68,24 @@ class TokenObject: Object {
     }
 
     var title: String {
-        return name.isEmpty ? symbol : (name + " (" + symbol + ")")
+        let localizedName = XMLHandler(contract: contract).getName()
+        let compositeName: String
+        //TODO improve and remove the check for "N/A". Maybe a constant
+        if localizedName == "N/A" {
+            compositeName = name
+        } else {
+            if name.isEmpty {
+                compositeName = localizedName
+            } else {
+                compositeName = "\(name) \(localizedName)"
+            }
+        }
+
+        if compositeName.isEmpty {
+            return symbol
+        } else {
+            return "\(compositeName) (\(symbol))"
+        }
     }
 }
 

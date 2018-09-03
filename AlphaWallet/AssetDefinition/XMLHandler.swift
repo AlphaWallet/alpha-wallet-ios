@@ -83,12 +83,10 @@ private class PrivateXMLHandler {
     func getName() -> String {
         let lang = getLang()
         if let name = contract?["name"].getElementWithLangAttribute(equals: lang)?.text {
-            if contractAddress.sameContract(as: Constants.ticketContractAddress) || contractAddress.sameContract(as: Constants.ticketContractAddressRopsten ) {
-                return "\(Constants.fifaWorldCup2018TokenNamePrefix) \(name)"
-            }
             return name
+        } else {
+            return "N/A"
         }
-        return "N/A"
     }
 
     func getTokenTypeName(_ type: SingularOrPlural = .plural, titlecase: TitlecaseOrNot = .titlecase) -> String {
