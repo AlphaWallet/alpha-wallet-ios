@@ -171,7 +171,13 @@ class TokensDataStore {
                          completion: @escaping (ResultResult<String, AnyError>.t) -> Void) {
         let address = Address(string: addressString)
         getNameCoordinator.getName(for: address!) { (result) in
-            completion(result)
+            let xmlName = XMLHandler(contract: address!.eip55String).getName()
+            if xmlName == "N/A" {
+                completion(result)
+                return
+            }
+            let fullName = try! result.dematerialize().description + " " + xmlName
+            completion(.success(fullName))
         }
     }
 
