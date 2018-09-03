@@ -86,6 +86,18 @@ class InCoordinator: Coordinator {
         fetchXMLAssetDefinitions()
     }
 
+    //TODO use more of this in InCoordinator (watch out for which wallet we are creating it for)
+    func createTokensDatastore() -> TokensDataStore? {
+        guard let wallet = keystore.recentlyUsedWallet else { return nil }
+        let migration = MigrationInitializer(account: wallet, chainID: config.chainID)
+        migration.perform()
+        let web3 = self.web3()
+        web3.start()
+        let realm = self.realm(for: migration.config)
+        let tokensStorage = TokensDataStore(realm: realm, account: wallet, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
+        return tokensStorage
+    }
+
     func fetchEthPrice() {
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()

@@ -27,6 +27,7 @@ private class PrivateXMLHandler {
     lazy var contract = xml["token"]["contract"].getElement(attributeName: "type", attributeValue: "holding", fallbackToFirst: true)
     lazy var fields = extractFields()
     private let isOfficial: Bool
+    let hasAssetDefinition: Bool
     private let signatureNamespace: String
     private var signatureNamespacePrefix: String {
         if signatureNamespace.isEmpty {
@@ -39,13 +40,15 @@ private class PrivateXMLHandler {
     init(contract: String) {
         contractAddress = contract.add0x.lowercased()
         let assetDefinitionStore = AssetDefinitionStore()
+        let xmlString = assetDefinitionStore[contract]
+        hasAssetDefinition = xmlString != nil
         //We use a try? for the first parse() instead of try! to avoid the very unlikely chance that it will crash. We fallback to an empty XML just like if we haven't downloaded it yet
-        xml = (try? XML.parse(assetDefinitionStore[contract] ?? "")) ?? (try! XML.parse(""))
+        xml = (try? XML.parse(xmlString ?? "")) ?? (try! XML.parse(""))
         isOfficial = assetDefinitionStore.isOfficial(contract: contract)
         signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml)
     }
 
-    func getToken(fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
+    func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
         guard tokenBytes32 != 0 else { return .empty }
         var values = [String: AssetAttributeValue]()
         for (name, attribute) in fields {
@@ -56,7 +59,7 @@ private class PrivateXMLHandler {
         return Token(
                 id: tokenBytes32,
                 index: index,
-                name: getName(),
+                name: name,
                 values: values
         )
     }
@@ -163,6 +166,9 @@ private class PrivateXMLHandler {
 public class XMLHandler {
     fileprivate static var xmlHandlers: [String: PrivateXMLHandler] = [:]
     private let privateXMLHandler: PrivateXMLHandler
+    var hasAssetDefinition: Bool {
+        return privateXMLHandler.hasAssetDefinition
+    }
 
     init(contract: String) {
         let contract = contract.add0x.lowercased()
@@ -178,8 +184,8 @@ public class XMLHandler {
         xmlHandlers[contract.add0x.lowercased()] = nil
     }
 
-    func getToken(fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
-        return privateXMLHandler.getToken(fromTokenId: tokenBytes32, index: index)
+    func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
+        return privateXMLHandler.getToken(name: name, fromTokenId: tokenBytes32, index: index)
     }
 
     func getName() -> String {

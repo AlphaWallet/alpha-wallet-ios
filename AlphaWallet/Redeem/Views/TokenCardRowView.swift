@@ -182,9 +182,8 @@ class TokenCardRowView: UIView {
 
 		matchLabel.text = viewModel.match
 
-		if let contract = viewModel.tokenHolder?.contractAddress {
-			//TODO improve check. Might be slow
-			onlyShowTitle = AssetDefinitionStore()[contract] == nil
+		if let tokenHolder = viewModel.tokenHolder {
+			onlyShowTitle = !tokenHolder.hasAssetDefinition
 		}
 	}
 }
