@@ -18,6 +18,7 @@ public struct Constants {
 
     // fee master
     public static let paymentServer = "https://app.awallet.io:80/api/claimToken"
+    public static let paymentServerSupportsContractEndPoint = "https://app.awallet.io:80/api/checkContractIsSupportedForFreeTransfers"
     public static let getTicketInfoFromServer = "https://app.awallet.io:80/api/ecrecoverAndGetTickets"
 
     // social
