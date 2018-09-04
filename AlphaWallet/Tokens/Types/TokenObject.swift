@@ -68,18 +68,8 @@ class TokenObject: Object {
     }
 
     var title: String {
-        let localizedName = XMLHandler(contract: contract).getName()
-        let compositeName: String
-        //TODO improve and remove the check for "N/A". Maybe a constant
-        if localizedName == "N/A" {
-            compositeName = name
-        } else {
-            if name.isEmpty {
-                compositeName = localizedName
-            } else {
-                compositeName = "\(name) \(localizedName)"
-            }
-        }
+        let localizedNameFromAssetDefinition = XMLHandler(contract: contract).getName()
+        let compositeName = compositeTokenName(fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
 
         if compositeName.isEmpty {
             return symbol
@@ -98,4 +88,19 @@ func isZeroBalance(_ balance: String) -> Bool {
         return true
     }
     return false
+}
+
+func compositeTokenName(fromContractName contractName: String, localizedNameFromAssetDefinition: String) -> String {
+    let compositeName: String
+    //TODO improve and remove the check for "N/A". Maybe a constant
+    if localizedNameFromAssetDefinition.isEmpty || localizedNameFromAssetDefinition == "N/A" {
+        compositeName = contractName
+    } else {
+        if contractName.isEmpty {
+            compositeName = localizedNameFromAssetDefinition
+        } else {
+            compositeName = "\(contractName) \(localizedNameFromAssetDefinition)"
+        }
+    }
+    return compositeName
 }

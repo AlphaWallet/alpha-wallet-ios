@@ -3,7 +3,7 @@
 import Foundation
 import Alamofire
 import BigInt
-import Realm
+import RealmSwift
 import TrustKeystore
 import web3swift
 
@@ -35,11 +35,13 @@ class UniversalLinkCoordinator: Coordinator {
     private var isShowingImportUserInterface: Bool {
         return delegate?.viewControllerForPresenting(in: self) != nil
     }
+    private let tokensDatastore: TokensDataStore
 
-    init(config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>) {
+    init(config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore) {
         self.config = config
         self.ethPrice = ethPrice
         self.ethBalance = ethBalance
+        self.tokensDatastore = tokensDatastore
     }
 
 	func start() {
@@ -263,32 +265,45 @@ class UniversalLinkCoordinator: Coordinator {
         //TODO better to pass in the store instance once UniversalLinkCoordinator is owned by InCoordinator
         AssetDefinitionStore().fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
             guard let strongSelf = self else { return }
-            switch result {
-            case .cached:
-                strongSelf.makeTokenHolderImpl(bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
-            case .updated:
-                strongSelf.makeTokenHolderImpl(bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
+
+            func makeTokenHolder(name: String) {
+                strongSelf.makeTokenHolderImpl(name: name, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
                 strongSelf.updateTokenFields()
-            case .unmodified, .error:
-                break
+            }
+
+            if let existingToken = strongSelf.tokensDatastore.objects.first(where: { $0.contract.sameContract(as: contractAddress) }) {
+                makeTokenHolder(name: existingToken.name)
+            } else {
+                let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
+                makeTokenHolder(name: localizedTokenTypeName )
+
+                strongSelf.tokensDatastore.getContractName(for: contractAddress) { [weak self] result in
+                    switch result {
+                    case .success(let name):
+                        makeTokenHolder(name: name)
+                    case .failure:
+                        break
+                    }
+                }
             }
         }
     }
 
-    private func makeTokenHolderImpl(bytes32Tokens: [String], contractAddress: String) {
+    private func makeTokenHolderImpl(name: String, bytes32Tokens: [String], contractAddress: String) {
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress)
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(fromTokenId: tokenId, index: UInt16(i))
+                let token = xmlHandler.getToken(name: name, fromTokenId: tokenId, index: UInt16(i))
                 tokens.append(token)
             }
         }
         tokenHolder = TokenHolder(
                 tokens: tokens,
                 status: .available,
-                contractAddress: contractAddress
+                contractAddress: contractAddress,
+                hasAssetDefinition: xmlHandler.hasAssetDefinition
         )
     }
 

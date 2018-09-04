@@ -19,14 +19,35 @@ class TokenCardRowView: UIView {
 	let teamsLabel = UILabel()
 	var detailsRowStack: UIStackView?
     let showCheckbox: Bool
+	var canDetailsBeVisible = true
     var areDetailsVisible = false {
 		didSet {
+			guard canDetailsBeVisible else { return }
 			detailsRowStack?.isHidden = !areDetailsVisible
 		}
     }
+	let bottomRowStack: UIStackView
+	let spaceAboveBottomRowStack = UIView.spacer(height: 10)
+	var onlyShowTitle: Bool = false {
+		didSet {
+			if onlyShowTitle {
+				canDetailsBeVisible = false
+				bottomRowStack.isHidden = true
+				venueLabel.isHidden = true
+				spaceAboveBottomRowStack.isHidden = true
+			} else {
+				canDetailsBeVisible = true
+				bottomRowStack.isHidden = false
+				venueLabel.isHidden = false
+				spaceAboveBottomRowStack.isHidden = false
+			}
+		}
+	}
 
 	init(showCheckbox: Bool = false) {
         self.showCheckbox = showCheckbox
+
+		bottomRowStack = [dateImageView, dateLabel, seatRangeImageView, teamsLabel, .spacerWidth(7), categoryImageView, matchLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
 
 		super.init(frame: .zero)
 
@@ -39,7 +60,6 @@ class TokenCardRowView: UIView {
 		addSubview(background)
 
 		let topRowStack = [tokenCountLabel, categoryLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
-		let bottomRowStack = [dateImageView, dateLabel, seatRangeImageView, teamsLabel, .spacerWidth(7), categoryImageView, matchLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
 		let detailsRow0 = [timeLabel, cityLabel].asStackView(contentHuggingPriority: .required)
 
 		detailsRowStack = [
@@ -53,7 +73,7 @@ class TokenCardRowView: UIView {
 			stateLabel,
 			topRowStack,
 			venueLabel,
-			.spacer(height: 10),
+            spaceAboveBottomRowStack,
 			bottomRowStack,
 			detailsRowStack!,
 		].asStackView(axis: .vertical, contentHuggingPriority: .required)
@@ -161,6 +181,10 @@ class TokenCardRowView: UIView {
 		teamsLabel.text = viewModel.teams
 
 		matchLabel.text = viewModel.match
+
+		if let tokenHolder = viewModel.tokenHolder {
+			onlyShowTitle = !tokenHolder.hasAssetDefinition
+		}
 	}
 }
 

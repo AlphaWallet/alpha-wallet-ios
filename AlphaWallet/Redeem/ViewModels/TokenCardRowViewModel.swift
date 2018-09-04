@@ -74,7 +74,12 @@ struct TokenCardRowViewModel {
 
     var category: String {
         guard let tokenHolder = tokenHolder else { return "" }
-        return tokenHolder.values["category"] as? String ?? "N/A"
+        if tokenHolder.hasAssetDefinition {
+            return tokenHolder.values["category"] as? String ?? "N/A"
+        } else {
+            //For ERC75 tokens, display the contract's name as the "title". https://github.com/alpha-wallet/alpha-wallet-ios/issues/664
+            return tokenHolder.name
+        }
     }
 
     var teams: String {
