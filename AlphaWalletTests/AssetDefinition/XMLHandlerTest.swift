@@ -16,7 +16,9 @@ class XMLHandlerTest: XCTestCase {
     
     func testParser() {
         let token = XMLHandler(contract: "0x").getToken(
-            fromTokenId: BigUInt(tokenHex, radix: 16)!, index: UInt16(1)
+                name: "",
+                fromTokenId: BigUInt(tokenHex, radix: 16)!,
+                index: UInt16(1)
         )
         XCTAssertNotNil(token)
     }

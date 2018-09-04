@@ -76,8 +76,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         appCoordinator.createInitialWallet()
         appCoordinator.closeWelcomeWindow()
         guard let ethPrice = appCoordinator.ethPrice, let ethBalance = appCoordinator.ethBalance else { return false }
+        guard let inCoordinator = appCoordinator.inCoordinator, let tokensDatastore = inCoordinator.createTokensDatastore() else { return false }
 
-        universalLinkCoordinator = UniversalLinkCoordinator(config: Config(), ethPrice: ethPrice, ethBalance: ethBalance)
+        universalLinkCoordinator = UniversalLinkCoordinator(
+                config: Config(),
+                ethPrice: ethPrice,
+                ethBalance: ethBalance,
+                tokensDatastore: tokensDatastore
+        )
         universalLinkCoordinator.delegate = self
         universalLinkCoordinator.start()
         let handled = universalLinkCoordinator.handleUniversalLink(url: url)

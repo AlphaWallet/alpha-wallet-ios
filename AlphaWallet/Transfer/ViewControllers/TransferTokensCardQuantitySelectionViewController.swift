@@ -172,7 +172,8 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         return TokenHolder(
             tokens: tokens,
             status: tokenHolder.status,
-            contractAddress: tokenHolder.contractAddress
+            contractAddress: tokenHolder.contractAddress,
+            hasAssetDefinition: tokenHolder.hasAssetDefinition
         )
     }
 
