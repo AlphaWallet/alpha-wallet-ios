@@ -157,10 +157,16 @@ class UniversalLinkCoordinator: Coordinator {
                         signedOrder.order.contractAddress
                 )
 
-                if signedOrder.order.price > 0 || !isStormBirdContract {
-                    self.handlePaidImports(signedOrder: signedOrder)
+                if signedOrder.order.price == 0 && isStormBirdContract {
+                    self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
+                        if supported {
+                            self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
+                        } else {
+                            self.handlePaidImports(signedOrder: signedOrder)
+                        }
+                    }
                 } else {
-                    self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
+                    self.handlePaidImports(signedOrder: signedOrder)
                 }
             }
         case .failure(let error):
@@ -169,6 +175,24 @@ class UniversalLinkCoordinator: Coordinator {
             return false
         }
         return true
+    }
+
+    private func checkPaymentServerSupportsContract(contractAddress: String, completionHandler: @escaping (Bool) -> Void) {
+        let parameters: Parameters = [
+            "contractAddress": contractAddress
+        ]
+        Alamofire.request(
+                Constants.paymentServerSupportsContractEndPoint,
+                method: .get,
+                parameters: parameters
+        ).responseJSON { result in
+            if let response = result.response {
+                let supported = response.statusCode >= 200 && response.statusCode <= 299
+                completionHandler(supported)
+            } else {
+                completionHandler(false)
+            }
+        }
     }
 
     private func ecrecover(signedOrder: SignedOrder) -> ResultResult<web3swift.EthereumAddress, web3swift.Web3Error>.t {
