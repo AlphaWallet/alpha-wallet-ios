@@ -243,20 +243,16 @@ class UniversalLinkCoordinator: Coordinator {
             guard let strongSelf = self else { return }
 
             func makeTokenHolder(name: String) {
-                switch result {
-                case .cached:
-                    strongSelf.makeTokenHolderImpl(name: name, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
-                case .updated:
-                    strongSelf.makeTokenHolderImpl(name: name, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
-                    strongSelf.updateTokenFields()
-                case .unmodified, .error:
-                    break
-                }
+                strongSelf.makeTokenHolderImpl(name: name, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
+                strongSelf.updateTokenFields()
             }
 
             if let existingToken = strongSelf.tokensDatastore.objects.first(where: { $0.contract.sameContract(as: contractAddress) }) {
                 makeTokenHolder(name: existingToken.name)
             } else {
+                let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
+                makeTokenHolder(name: localizedTokenTypeName )
+
                 strongSelf.tokensDatastore.getContractName(for: contractAddress) { [weak self] result in
                     switch result {
                     case .success(let name):
