@@ -27,14 +27,14 @@ PODS:
   - Moya/Core (10.0.1):
     - Alamofire (~> 4.1)
     - Result (~> 3.0)
-  - PromiseKit (6.3.3):
-    - PromiseKit/CorePromise (= 6.3.3)
-    - PromiseKit/Foundation (= 6.3.3)
-    - PromiseKit/UIKit (= 6.3.3)
-  - PromiseKit/CorePromise (6.3.3)
-  - PromiseKit/Foundation (6.3.3):
+  - PromiseKit (6.3.5):
+    - PromiseKit/CorePromise (= 6.3.5)
+    - PromiseKit/Foundation (= 6.3.5)
+    - PromiseKit/UIKit (= 6.3.5)
+  - PromiseKit/CorePromise (6.3.5)
+  - PromiseKit/Foundation (6.3.5):
     - PromiseKit/CorePromise
-  - PromiseKit/UIKit (6.3.3):
+  - PromiseKit/UIKit (6.3.5):
     - PromiseKit/CorePromise
   - QRCodeReaderViewController (4.0.2)
   - R.swift (4.0.0):
@@ -94,7 +94,7 @@ DEPENDENCIES:
   - SwiftyXMLParser (from `https://github.com/yahoojapan/SwiftyXMLParser.git`)
   - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, commit `32d4f03295aa35ec3da36327d06cff608c739778`)
   - TrustWeb3Provider (from `https://github.com/alpha-wallet/dapp-web3-provider`, branch `nervos-dist`)
-  - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, branch `alphawallet`)
+  - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, commit `2b3c5ee878212ce70768568def7e727f0f1ebf86`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -141,7 +141,7 @@ EXTERNAL SOURCES:
     :branch: nervos-dist
     :git: https://github.com/alpha-wallet/dapp-web3-provider
   web3swift:
-    :branch: alphawallet
+    :commit: 2b3c5ee878212ce70768568def7e727f0f1ebf86
     :git: https://github.com/alpha-wallet/web3swift.git
 
 CHECKOUT OPTIONS:
@@ -158,7 +158,7 @@ CHECKOUT OPTIONS:
     :commit: 3982bf7bfa956839d33d7616247631c6375fc450
     :git: https://github.com/alpha-wallet/dapp-web3-provider
   web3swift:
-    :commit: e158b947f0f541ddf09461f4b73d960bde1dadcd
+    :commit: 2b3c5ee878212ce70768568def7e727f0f1ebf86
     :git: https://github.com/alpha-wallet/web3swift.git
 
 SPEC CHECKSUMS:
@@ -177,7 +177,7 @@ SPEC CHECKSUMS:
   libsodium: 9a8faa5ef2fa0d2d57bd7f7d79bf8fb7c1a9f0ea
   MBProgressHUD: e7baa36a220447d8aeb12769bf0585582f3866d9
   Moya: 9e621707ff754eeb51ff3ec51a3d54e517c0733a
-  PromiseKit: e168626994ae29c38b51252a8d1b0a561fd3f2c7
+  PromiseKit: 32c36425387e9cfc7f1206f27bfd906d0b53c0d6
   QRCodeReaderViewController: e8f27d035b3e72b1d4b1c61ff66458287e3be0ff
   R.swift: d6a5ec2f55a8441dc0ed9f1f8b37d7d11ae85c66
   R.swift.Library: c3af34921024333546e23b70e70d0b4e0cffca75
@@ -197,6 +197,6 @@ SPEC CHECKSUMS:
   TrustWeb3Provider: 50fa391bdf170feb43dd4419992931510a5751d8
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: 8b6bcdea2271dd0591aaff5d6cfb45d0fcbd3e69
+PODFILE CHECKSUM: abf9f7a794c8f47d436e8ce6ad2b876b8908bc45
 
 COCOAPODS: 1.5.3

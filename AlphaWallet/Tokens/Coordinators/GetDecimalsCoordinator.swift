@@ -34,24 +34,23 @@ class GetDecimalsCoordinator {
             return
         }
 
-        //TODO Use promise directly instead of DispatchQueue once web3swift pod opens it up
-        DispatchQueue.global().async {
-            guard let decimalsResult = contractInstance.method(functionName, options: nil)?.call(options: nil) else {
-                completion(.failure(AnyError(Web3Error(description: "Error calling \(functionName)() on \(contract.eip55String)"))))
-                return
-            }
-            DispatchQueue.main.sync {
-                if case .success(let dictionary) = decimalsResult, let decimalsWithUnknownType = dictionary["0"] {
-                    let string = String(describing: decimalsWithUnknownType)
-                    if let decimals = UInt8(string) {
-                        completion(.success(decimals))
-                    } else {
-                        completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
-                    }
+        guard let promise = contractInstance.method(functionName, options: nil) else {
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(functionName)() on \(contract.eip55String)"))))
+            return
+        }
+        promise.callPromise(options: nil).done { dictionary in
+            if let decimalsWithUnknownType = dictionary["0"] {
+                let string = String(describing: decimalsWithUnknownType)
+                if let decimals = UInt8(string) {
+                    completion(.success(decimals))
                 } else {
                     completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
                 }
+            } else {
+                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
             }
+        }.catch { error in
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
         }
     }
 }

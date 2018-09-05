@@ -38,24 +38,23 @@ class GetBalanceCoordinator {
             return
         }
 
-        //TODO Use promise directly instead of DispatchQueue once web3swift pod opens it up
-        DispatchQueue.global().async {
-            guard let balanceResult = contractInstance.method(functionName, parameters: [address.eip55String] as [AnyObject], options: nil)?.call(options: nil) else {
-                completion(.failure(AnyError(Web3Error(description: "Error calling \(functionName)() on \(contract.eip55String)"))))
-                return
-            }
-            DispatchQueue.main.sync {
-                if case .success(let balanceResult) = balanceResult, let balanceWithUnknownType = balanceResult["0"]{
-                    let string = String(describing: balanceWithUnknownType)
-                    if let balance = BigInt(string) {
-                        completion(.success(balance))
-                    } else {
-                        completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
-                    }
+        guard let promise = contractInstance.method(functionName, parameters: [address.eip55String] as [AnyObject], options: nil) else {
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(functionName)() on \(contract.eip55String)"))))
+            return
+        }
+        promise.callPromise(options: nil).done { balanceResult in
+            if let balanceWithUnknownType = balanceResult["0"] {
+                let string = String(describing: balanceWithUnknownType)
+                if let balance = BigInt(string) {
+                    completion(.success(balance))
                 } else {
                     completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
                 }
+            } else {
+                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
             }
+        }.catch { error in
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
         }
     }
 
