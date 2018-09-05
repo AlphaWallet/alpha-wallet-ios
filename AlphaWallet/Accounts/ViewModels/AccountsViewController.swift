@@ -33,6 +33,7 @@ class AccountsViewController: UIViewController {
     private var balances: [Address: Balance?] = [:]
     private let keystore: Keystore
     private let balanceCoordinator: GetBalanceCoordinator
+    private var etherKeystore = try? EtherKeystore()
 
     init(
         keystore: Keystore,
@@ -129,9 +130,10 @@ class AccountsViewController: UIViewController {
     private func getAccountViewModels(for path: IndexPath) -> AccountViewModel {
         let account = self.account(for: path)
         let balance = self.balances[account.address].flatMap { $0 }
-        let model = AccountViewModel(wallet: account, current: EtherKeystore.current, walletBalance: balance)
+        let model = AccountViewModel(wallet: account, current: etherKeystore?.recentlyUsedWallet, walletBalance: balance)
         return model
     }
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -156,7 +158,7 @@ extension AccountsViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return allowsAccountDeletion && (EtherKeystore.current != viewModel.wallets[indexPath.row] || viewModel.wallets.count == 1)
+        return allowsAccountDeletion && (etherKeystore?.recentlyUsedWallet != viewModel.wallets[indexPath.row])
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
