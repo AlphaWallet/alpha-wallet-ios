@@ -34,19 +34,18 @@ class GetSymbolCoordinator {
             return
         }
 
-        //TODO Use promise directly instead of DispatchQueue once web3swift pod opens it up
-        DispatchQueue.global().async {
-            guard let symbolsResult = contractInstance.method(functionName, options: nil)?.call(options: nil) else {
-                completion(.failure(AnyError(Web3Error(description: "Error calling \(functionName)() on \(contract.eip55String)"))))
-                return
+        guard let promise = contractInstance.method(functionName, options: nil) else {
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(functionName)() on \(contract.eip55String)"))))
+            return
+        }
+        promise.callPromise(options: nil).done { symbolsResult in
+            if let symbol = symbolsResult["0"] as? String {
+                completion(.success(symbol))
+            } else {
+                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
             }
-            DispatchQueue.main.sync {
-                if case .success(let symbolsResult) = symbolsResult, let symbol = symbolsResult["0"] as? String {
-                    completion(.success(symbol))
-                } else {
-                    completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
-                }
-            }
+        }.catch { error in
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
         }
     }
 }

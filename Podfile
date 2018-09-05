@@ -26,7 +26,7 @@ target 'AlphaWallet' do
   pod 'TrustWeb3Provider', :git=>'https://github.com/alpha-wallet/dapp-web3-provider', :branch => 'nervos-dist'
   pod 'TrustKeystore', :git => 'https://github.com/alpha-wallet/trust-keystore.git', :commit => '32d4f03295aa35ec3da36327d06cff608c739778'
   pod 'SwiftyJSON'
-  pod 'web3swift', :git => 'https://github.com/alpha-wallet/web3swift.git', :branch => 'alphawallet'
+  pod 'web3swift', :git => 'https://github.com/alpha-wallet/web3swift.git', :commit => '2b3c5ee878212ce70768568def7e727f0f1ebf86'
   pod 'SAMKeychain'
   target 'AlphaWalletTests' do
       inherit! :search_paths
