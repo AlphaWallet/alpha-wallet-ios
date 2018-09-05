@@ -32,20 +32,15 @@ class GetERC875BalanceCoordinator {
             return
         }
 
-        //TODO Use promise directly instead of DispatchQueue once web3swift pod opens it up
-        DispatchQueue.global().async {
-            guard let balanceResult = contractInstance.method(function.name, parameters: [address.eip55String] as [AnyObject], options: nil)?.call(options: nil) else {
-                completion(.failure(AnyError(Web3Error(description: "Error calling \(contractInstance).\(function.name)() of \(address.eip55String) as ERC875"))))
-                return
-            }
-            DispatchQueue.main.sync {
-                if case .success(let balanceResult) = balanceResult {
-                    let balances = self.adapt(balanceResult["0"])
-                    completion(.success(balances))
-                } else {
-                    completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractInstance).\(function.name)() of \(address.eip55String) as ERC875"))))
-                }
-            }
+        guard let promise = contractInstance.method(function.name, parameters: [address.eip55String] as [AnyObject], options: nil) else {
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(contractInstance).\(function.name)() of \(address.eip55String) as ERC875"))))
+            return
+        }
+        promise.callPromise(options: nil).done { balanceResult in
+            let balances = self.adapt(balanceResult["0"])
+            completion(.success(balances))
+        }.catch { error in
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractInstance).\(function.name)() of \(address.eip55String) as ERC875"))))
         }
     }
 

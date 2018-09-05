@@ -37,20 +37,15 @@ class GetERC721BalanceCoordinator {
             return
         }
 
-        //TODO Use promise directly instead of DispatchQueue once web3swift pod opens it up
-        DispatchQueue.global().async {
-            guard let balanceResult = contractInstance.method(function.name, options: nil)?.call(options: nil) else {
-                completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String)"))))
-                return
-            }
-            DispatchQueue.main.sync {
-                if case .success(let balanceResult) = balanceResult {
-                    let balances = self.adapt(balanceResult["0"])
-                    completion(.success(balances))
-                } else {
-                    completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))))
-                }
-            }
+        guard let promise = contractInstance.method(function.name, options: nil) else {
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String)"))))
+            return
+        }
+        promise.callPromise(options: nil).done { balanceResult in
+            let balances = self.adapt(balanceResult["0"])
+            completion(.success(balances))
+        }.catch { error in
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))))
         }
     }
 
