@@ -31,6 +31,16 @@ enum RPCServer {
         }
     }
 
+    var id: String {
+        switch self {
+        case .main: return "ethereum"
+        case .poa: return "poa"
+        case .classic: return "classic"
+        case .callisto: return "callisto"
+        default: return ""
+        }
+    }
+
     var name: String {
         switch self {
         case .main: return "Ethereum"

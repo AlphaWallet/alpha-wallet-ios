@@ -29,7 +29,7 @@ extension TrustService: TargetType {
     var path: String {
         switch self {
         case .getTransactions:
-            return "/transactions"
+            return "/\(Config().server.id)/transactions"
         case .getTransaction(let ID):
             return "/transactions/\(ID)"
         case .register:
@@ -37,7 +37,7 @@ extension TrustService: TargetType {
         case .unregister:
             return "/push/unregister"
         case .prices:
-            return "/tokenPrices"
+            return "/prices"
         case .marketplace:
             return "/marketplace"
         }

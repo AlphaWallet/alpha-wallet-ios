@@ -428,7 +428,7 @@ class TokensDataStore {
             guard let `self` = self else { return }
             guard case .success(let response) = result else { return }
             do {
-                let tickers = try response.map([CoinTicker].self, atKeyPath: "response", using: JSONDecoder())
+                let tickers = try response.map([CoinTicker].self, atKeyPath: "docs", using: JSONDecoder())
                 self.tickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
                     var dict = dict
                     dict[ticker.contract] = ticker
