@@ -4,8 +4,8 @@ import Foundation
 import Moya
 
 enum TrustService {
-    case prices(TokensPrice)
-    case getTransactions(address: String, startBlock: Int, page: Int)
+    case prices
+    case getTransactions(address: String, startBlock: Int, endBlock: Int)
     case getTransaction(ID: String)
     case register(device: PushDevice)
     case unregister(device: PushDevice)
@@ -24,20 +24,30 @@ struct TokenPrice: Encodable {
 
 extension TrustService: TargetType {
 
-    var baseURL: URL { return Config().remoteURL }
+    var baseURL: URL {
+        switch self {
+        case .getTransactions:
+            return Config().transactionInfoEndpoints
+        case .prices:
+            return Config().priceInfoEndpoints
+        case .getTransaction, .register, .unregister, .marketplace:
+            //TODO this wouldn't be needed after we remove these unused cases
+            return Config().priceInfoEndpoints
+        }
+    }
 
     var path: String {
         switch self {
         case .getTransactions:
-            return "/transactions"
-        case .getTransaction(let ID):
-            return "/transactions/\(ID)"
+            return "/api"
+        case .getTransaction(let txId):
+            return "/api?module=transaction&action=gettxreceiptstatus&txhash=/\(txId)"
         case .register:
             return "/push/register"
         case .unregister:
             return "/push/unregister"
         case .prices:
-            return "/tokenPrices"
+            return "/v1/ticker/ethereum/"
         case .marketplace:
             return "/marketplace"
         }
@@ -49,18 +59,20 @@ extension TrustService: TargetType {
         case .getTransaction: return .get
         case .register: return .post
         case .unregister: return .delete
-        case .prices: return .post
+        case .prices: return .get
         case .marketplace: return .get
         }
     }
 
     var task: Task {
         switch self {
-        case .getTransactions(let address, let startBlock, let page):
+        case .getTransactions(let address, let startBlock, let endBlock):
             return .requestParameters(parameters: [
+                "module": "account",
+                "action": "txlist",
                 "address": address,
-                "startBlock": startBlock,
-                "page": page,
+                "startblock": startBlock,
+                "endblock": endBlock,
             ], encoding: URLEncoding())
         case .getTransaction:
             return .requestPlain
@@ -68,8 +80,8 @@ extension TrustService: TargetType {
             return .requestJSONEncodable(device)
         case .unregister(let device):
             return .requestJSONEncodable(device)
-        case .prices(let tokensPrice):
-            return .requestJSONEncodable(tokensPrice)
+        case .prices:
+            return .requestPlain
         case .marketplace(let chainID):
             return .requestParameters(parameters: ["chainID": chainID], encoding: URLEncoding())
         }

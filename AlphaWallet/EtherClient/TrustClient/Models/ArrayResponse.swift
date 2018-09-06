@@ -3,5 +3,5 @@
 import Foundation
 
 struct ArrayResponse<T: Decodable>: Decodable {
-    let docs: [T]
+    let result: [T]
 }
