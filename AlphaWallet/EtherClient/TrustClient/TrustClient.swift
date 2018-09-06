@@ -4,7 +4,7 @@ import Foundation
 import Moya
 
 enum TrustService {
-    case prices(TokensPrice)
+    case prices
     case getTransactions(address: String, startBlock: Int, endBlock: Int)
     case getTransaction(ID: String)
     case register(device: PushDevice)
@@ -24,7 +24,17 @@ struct TokenPrice: Encodable {
 
 extension TrustService: TargetType {
 
-    var baseURL: URL { return Config().remoteURL }
+    var baseURL: URL {
+        switch self {
+        case .getTransactions:
+            return Config().transactionInfoEndpoints
+        case .prices:
+            return Config().priceInfoEndpoints
+        case .getTransaction, .register, .unregister, .marketplace:
+            //TODO this wouldn't be needed after we remove these unused cases
+            return Config().priceInfoEndpoints
+        }
+    }
 
     var path: String {
         switch self {
@@ -37,7 +47,7 @@ extension TrustService: TargetType {
         case .unregister:
             return "/push/unregister"
         case .prices:
-            return "/api?module=stats&action=ethprice"
+            return "/v1/ticker/ethereum/"
         case .marketplace:
             return "/marketplace"
         }
@@ -49,7 +59,7 @@ extension TrustService: TargetType {
         case .getTransaction: return .get
         case .register: return .post
         case .unregister: return .delete
-        case .prices: return .post
+        case .prices: return .get
         case .marketplace: return .get
         }
     }
@@ -70,8 +80,8 @@ extension TrustService: TargetType {
             return .requestJSONEncodable(device)
         case .unregister(let device):
             return .requestJSONEncodable(device)
-        case .prices(let tokensPrice):
-            return .requestJSONEncodable(tokensPrice)
+        case .prices:
+            return .requestPlain
         case .marketplace(let chainID):
             return .requestParameters(parameters: ["chainID": chainID], encoding: URLEncoding())
         }

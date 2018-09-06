@@ -34,7 +34,7 @@ class TokensViewModel {
         guard let tickers = tickers else { return 0 }
         guard !token.valueBigInt.isZero, let tickersSymbol = tickers[token.contract] else { return 0 }
         let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
-        let price = Double(tickersSymbol.price) ?? 0
+        let price = Double(tickersSymbol.price_usd) ?? 0
         return tokenValue * price
     }
 

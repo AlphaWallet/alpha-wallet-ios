@@ -419,16 +419,16 @@ class TokensDataStore {
     }
 
     func updatePrices() {
-        let tokens = objects.map { TokenPrice(contract: $0.contract, symbol: $0.symbol) }
-        let tokensPrice = TokensPrice(
-            currency: config.currency.rawValue,
-            tokens: tokens
-        )
-        provider.request(.prices(tokensPrice)) { [weak self] result in
+//        let tokens = objects.map { TokenPrice(contract: $0.contract, symbol: $0.symbol) }
+//        let tokensPrice = TokensPrice(
+//            currency: config.currency.rawValue,
+//            tokens: tokens
+//        )
+        provider.request(.prices) { [weak self] result in
             guard let `self` = self else { return }
             guard case .success(let response) = result else { return }
             do {
-                let tickers = try response.map([CoinTicker].self, atKeyPath: "response", using: JSONDecoder())
+                let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
                 self.tickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
                     var dict = dict
                     dict[ticker.contract] = ticker
