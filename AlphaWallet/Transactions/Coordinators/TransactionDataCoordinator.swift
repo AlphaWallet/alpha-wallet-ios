@@ -114,11 +114,12 @@ class TransactionDataCoordinator {
     ) {
         NSLog("fetchTransaction: startBlock: \(startBlock), page: \(page)")
 
-        trustProvider.request(.getTransactions(address: address.description, startBlock: startBlock, page: page)) { result in
+        trustProvider.request(.getTransactions(address: address.description,
+                startBlock: startBlock, endBlock: 999_999_999)) { result in
             switch result {
             case .success(let response):
                 do {
-                    let rawTransactions = try response.map(ArrayResponse<RawTransaction>.self).docs
+                    let rawTransactions = try response.map(ArrayResponse<RawTransaction>.self).result
                     let transactions: [Transaction] = rawTransactions.compactMap { .from(transaction: $0) }
                     completion(.success(transactions))
                 } catch {
@@ -216,7 +217,7 @@ class TransactionDataCoordinator {
         page: Int,
         completion: @escaping (Result<[Transaction], AnyError>) -> Void
     ) {
-        fetchTransaction(for: address, startBlock: 1, page: page) { [weak self] result in
+        fetchTransaction(for: address, startBlock: 0, page: page) { [weak self] result in
             guard let `self` = self else { return }
             switch result {
             case .success(let transactions):
