@@ -114,7 +114,7 @@ class TransactionDataCoordinator {
     ) {
         NSLog("fetchTransaction: startBlock: \(startBlock), page: \(page)")
 
-        trustProvider.request(.getTransactions(address: address.description, startBlock: startBlock, page: page)) { result in
+        trustProvider.request(.getTransactions(address: address.description)) { result in
             switch result {
             case .success(let response):
                 do {
