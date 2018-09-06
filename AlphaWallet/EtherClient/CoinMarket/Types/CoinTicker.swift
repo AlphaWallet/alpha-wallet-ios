@@ -6,10 +6,10 @@ import RealmSwift
 struct CoinTicker: Codable {
     let id: String
     let symbol: String
-    var price: String
+    var price_usd: String
     let percent_change_24h: String
-    let contract: String
-    let image: String
+    let contract: String = Constants.nullAddress
+    let image: String = ""
 
     lazy var rate: CurrencyRate = {
         CurrencyRate(
@@ -17,7 +17,7 @@ struct CoinTicker: Codable {
             rates: [
                 Rate(
                     code: symbol,
-                    price: Double(price) ?? 0,
+                    price: Double(price_usd) ?? 0,
                     contract: contract
                 ),
             ]
