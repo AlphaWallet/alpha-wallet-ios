@@ -32,7 +32,7 @@ class TransactionViewCell: UITableViewCell {
         let leftStackView = [
             titleLabel,
             subTitleLabel,
-        ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 6)
+        ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 0)
         leftStackView.translatesAutoresizingMaskIntoConstraints = false
 
         let rightStackView = [amountLabel].asStackView(axis: .vertical)
@@ -54,7 +54,7 @@ class TransactionViewCell: UITableViewCell {
         let xMargin  = CGFloat(7)
         let yMargin  = CGFloat(7)
         NSLayoutConstraint.activate([
-            statusImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 44),
+            statusImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 26),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: StyleLayout.sideMargin),
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -StyleLayout.sideMargin),
