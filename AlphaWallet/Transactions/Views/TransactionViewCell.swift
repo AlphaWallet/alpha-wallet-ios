@@ -60,10 +60,10 @@ class TransactionViewCell: UITableViewCell {
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -StyleLayout.sideMargin),
             stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin),
 
-            background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
-            background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-            background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-            background.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -yMargin),
+            background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: xMargin),
+            background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -xMargin),
+            background.topAnchor.constraint(equalTo: contentView.topAnchor, constant: yMargin),
+            background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -yMargin),
         ])
     }
 
