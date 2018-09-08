@@ -2,7 +2,6 @@ import Foundation
 import UIKit
 import StatefulViewController
 import Result
-import TrustKeystore
 
 protocol TokensViewControllerDelegate: class {
     func didPressAddToken( in viewController: UIViewController)
