@@ -49,7 +49,7 @@ class GetERC721BalanceCoordinator {
         }
     }
 
-    private func adapt(_ values: Any) -> [BigUInt] {
+    private func adapt(_ values: Any?) -> [BigUInt] {
         guard let array = values as? [Any] else { return [] }
         return array.map {
             if let val = BigUInt(String(describing: $0)) {
