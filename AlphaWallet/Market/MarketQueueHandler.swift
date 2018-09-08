@@ -27,11 +27,11 @@ public class MarketQueueHandler {
     public func getOrders(callback: @escaping (_ result: Any) -> Void) {
         Alamofire.request(baseURL + "contract/" + contractAddress, method: .get).responseJSON { response in
             var orders = [SignedOrder]()
-            if let json = response.result.value {
+            if response.result.value != nil {
                 let parsedJSON = try! JSON(data: response.data!)
                 for i in 0...parsedJSON.count - 1 {
                     let orderObj: JSON = parsedJSON["orders"][i]
-                    if orderObj == nil {
+                    if orderObj == .null {
                         //String not used in UI
                         callback("no orders")
                         return

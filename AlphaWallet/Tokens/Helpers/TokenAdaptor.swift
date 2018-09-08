@@ -50,7 +50,7 @@ class TokenAdaptor {
     private func getCryptoKittyTokenHolders() -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
-        for (index, item) in balance.enumerated() {
+        for (_, item) in balance.enumerated() {
             let jsonString = item.balance
             if let token = getTokenForCryptoKitty(forJSONString: jsonString) {
                 tokens.append(token)

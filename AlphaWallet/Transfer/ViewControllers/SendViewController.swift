@@ -286,7 +286,7 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
 
     @objc func send() {
         let addressString = targetAddressTextField.value
-        var amountString = amountTextField.ethCost
+        let amountString = amountTextField.ethCost
         guard let address = Address(string: addressString) else {
             return displayError(error: Errors.invalidAddress)
         }
