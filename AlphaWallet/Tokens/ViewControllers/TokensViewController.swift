@@ -123,6 +123,7 @@ class TokensViewController: UIViewController {
     private func showImportWalletImage() {
         if let importWalletView = importWalletView {
             importWalletView.isHidden = false
+            importWalletHelpBubbleView?.isHidden = false
             return
         }
         importWalletView = UIView()
@@ -197,8 +198,9 @@ class TokensViewController: UIViewController {
 }
 
 extension TokensViewController: StatefulViewController {
+    //Always return true, otherwise users will be stuck in the assets sub-tab when they have no assets
     func hasContent() -> Bool {
-        return viewModel.hasContent
+        return true
     }
 }
 
