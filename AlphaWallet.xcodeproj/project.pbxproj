@@ -282,7 +282,6 @@
 		5E7C71A7D2BD6FCE3980CC51 /* ImportWalletHelpBubbleViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A16ABC8BD5D508AA641 /* ImportWalletHelpBubbleViewViewModel.swift */; };
 		5E7C71B412DAE4BD7920436B /* ABIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7558286761EF1ADD2988 /* ABIError.swift */; };
 		5E7C71B52A77008694BFA5D1 /* TokensDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74B9EB81C51E956566E7 /* TokensDataStore.swift */; };
-		5E7C71C3356BF80240720EFE /* LockEnterPasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73495E0C0A207152EC25 /* LockEnterPasscodeViewController.swift */; };
 		5E7C71CA7E0B33EEB08D551D /* HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A794D1437F435CBB780 /* HistoryViewController.swift */; };
 		5E7C71D1D16FE09032EB4B7E /* TokenObjectTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C702A684DF27DC8ED4E42 /* TokenObjectTest.swift */; };
 		5E7C71D40F530871D95170C6 /* BookmarkViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C72CEFD7E32ACE303AB1F /* BookmarkViewCell.xib */; };
@@ -436,6 +435,7 @@
 		5E7C7ECE164289A89734B4EF /* LocalesCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76C895E7BFA47233068C /* LocalesCoordinator.swift */; };
 		5E7C7EDA1BB781A45C1C19CD /* ImportWalletTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73D26F24C4AAE981E2F2 /* ImportWalletTab.swift */; };
 		5E7C7EEE563D81793CB96FA0 /* TransferNFTCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C755132D9B6F95080A1BE /* TransferNFTCoordinator.swift */; };
+		5E7C7F1B297CE042114EF095 /* LockEnterPasscodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75CBBFF0273EF476F95B /* LockEnterPasscodeViewController.swift */; };
 		5E7C7F287415575EDF33DDEB /* XMLHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7633741EA2029D541466 /* XMLHandler.swift */; };
 		5E7C7F60056FDD6ACC390400 /* UniversalLinkInPasteboardCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F3DD81D44A996789FC4 /* UniversalLinkInPasteboardCoordinator.swift */; };
 		5E7C7F72926D84CF741C0D18 /* ABIType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CBCC0A74A084AC2F053 /* ABIType.swift */; };
@@ -875,7 +875,6 @@
 		5E7C72DDBF109139E4C661D5 /* DelegateContract.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelegateContract.swift; sourceTree = "<group>"; };
 		5E7C7318B6059C18BE87ECAE /* ABIValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ABIValue.swift; sourceTree = "<group>"; };
 		5E7C731B6F01534683227123 /* NonFungibleTokenViewCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NonFungibleTokenViewCellViewModel.swift; sourceTree = "<group>"; };
-		5E7C73495E0C0A207152EC25 /* LockEnterPasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LockEnterPasscodeViewController.swift; path = AlphaWallet/AlphaWalletLock/ViewControllers/LockEnterPasscodeViewController.swift; sourceTree = SOURCE_ROOT; };
 		5E7C734D61C0347C1638A1F7 /* BaseTokenListFormatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseTokenListFormatTableViewCell.swift; sourceTree = "<group>"; };
 		5E7C73617E3A4C0B9A90A5F8 /* AmountTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AmountTextField.swift; sourceTree = "<group>"; };
 		5E7C7382EAC8B9CE5EE0668D /* CryptoKitty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptoKitty.swift; sourceTree = "<group>"; };
@@ -907,6 +906,7 @@
 		5E7C7596408BA84E95C90ADA /* AssetAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetAttribute.swift; sourceTree = "<group>"; };
 		5E7C759D3BBDDFB39AD262AA /* AssetAttributeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetAttributeTests.swift; sourceTree = "<group>"; };
 		5E7C75B5AF76279A71395FC7 /* AddressTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressTextField.swift; sourceTree = "<group>"; };
+		5E7C75CBBFF0273EF476F95B /* LockEnterPasscodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockEnterPasscodeViewController.swift; sourceTree = "<group>"; };
 		5E7C75CC640BAFFE0E789F44 /* WalletFilterViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletFilterViewModel.swift; sourceTree = "<group>"; };
 		5E7C75CE3F1D6B7993E7A840 /* OnboardingCollectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingCollectionViewController.swift; sourceTree = "<group>"; };
 		5E7C75F65E8C1E20EBA6A5F4 /* Scrollable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scrollable.swift; sourceTree = "<group>"; };
@@ -2763,7 +2763,7 @@
 			children = (
 				5E7C7D5F3CAE69CF932AB236 /* LockPasscodeViewController.swift */,
 				5E7C741196D9D9C9C3EE5E30 /* LockCreatePasscodeViewController.swift */,
-				5E7C73495E0C0A207152EC25 /* LockEnterPasscodeViewController.swift */,
+				5E7C75CBBFF0273EF476F95B /* LockEnterPasscodeViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -3745,7 +3745,6 @@
 				5E7C7793AB6B577906F2BCA3 /* SettingsViewController.swift in Sources */,
 				5E7C75C99B9F595F26EDC405 /* LockPasscodeViewController.swift in Sources */,
 				5E7C710331196CD591B51785 /* LockCreatePasscodeViewController.swift in Sources */,
-				5E7C71C3356BF80240720EFE /* LockEnterPasscodeViewController.swift in Sources */,
 				5E7C7499A8D6814F7950DA70 /* LockCreatePasscodeCoordinator.swift in Sources */,
 				5E7C71F8050CCF990539B293 /* LockView.swift in Sources */,
 				5E7C74B99922D0CAB635970E /* PasscodeCharacterView.swift in Sources */,
@@ -3882,6 +3881,7 @@
 				5E7C7226D3B95E63ED9EDD33 /* FetchAssetDefinitionsCoordinator.swift in Sources */,
 				5E7C767C9166726E96ED4C07 /* DelegateContract.swift in Sources */,
 				5E7C77D5AD018763345D8DD5 /* CanOpenContractWebPage.swift in Sources */,
+				5E7C7F1B297CE042114EF095 /* LockEnterPasscodeViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
