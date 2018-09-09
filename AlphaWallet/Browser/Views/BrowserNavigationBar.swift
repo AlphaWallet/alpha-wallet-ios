@@ -36,8 +36,6 @@ final class BrowserNavigationBar: UINavigationBar {
         textField.clearButtonMode = .whileEditing
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 6, height: 30))
         textField.leftViewMode = .always
-        textField.autoresizingMask = [.flexibleWidth]
-        textField.setContentHuggingPriority(.required, for: .horizontal)
         textField.placeholder = NSLocalizedString("browser.url.textfield.placeholder", value: "Search or enter website url", comment: "")
         textField.keyboardType = .webSearch
 
@@ -50,6 +48,7 @@ final class BrowserNavigationBar: UINavigationBar {
         closeButton.setTitle(R.string.localizable.done(), for: .normal)
         closeButton.addTarget(self, action: #selector(closeAction(_:)), for: .touchUpInside)
         closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        closeButton.setContentHuggingPriority(.required, for: .horizontal)
 
         homeButton.translatesAutoresizingMaskIntoConstraints = false
         homeButton.setImage(R.image.browserHome()?.withRenderingMode(.alwaysTemplate), for: .normal)
