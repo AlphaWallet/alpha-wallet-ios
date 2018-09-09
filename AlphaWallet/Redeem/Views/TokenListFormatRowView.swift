@@ -182,6 +182,7 @@ class TokenListFormatRowView: UIView {
 
         subtitleLabel.text = viewModel.subtitle
 
+        self.thumbnailImageView.image = nil
         //TODO cancel the request if we reuse the cell before it's finished downloading
         if let url = viewModel.thumbnailImageUrl {
             var request = URLRequest(url: url)
@@ -204,7 +205,7 @@ class TokenListFormatRowView: UIView {
         }
         let labelsToAddCount = viewModel.details.count - detailLabels.count
         if labelsToAddCount > 0 {
-            for i in 1...labelsToAddCount {
+            for _ in 1...labelsToAddCount {
                 let label = UILabel()
                 label.translatesAutoresizingMaskIntoConstraints = false
                 label.textColor = viewModel.subtitleColor

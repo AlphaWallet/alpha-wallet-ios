@@ -67,7 +67,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                 
                 let account = keystore.createAccount(password: "test")
                 
-                let signedTransaction = UnsignedTransaction(value: unsignedTransaction.value,
+                let _ = UnsignedTransaction(value: unsignedTransaction.value,
                                                         account: account,
                                                         to: unsignedTransaction.to,
                                                         nonce: unsignedTransaction.nonce,
@@ -76,7 +76,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                                                         gasLimit: unsignedTransaction.gasLimit,
                                                         chainID: 3)
                 
-                let sendTransactionCoordinator = SendTransactionCoordinator(session: session,
+                let _ = SendTransactionCoordinator(session: session,
                                                                             keystore: keystore,
                                                                             confirmType: .signThenSend)
                 expectation.fulfill()
