@@ -50,7 +50,7 @@ class GetDecimalsCoordinator {
                 completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
             }
         }.catch { error in
-            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)(): \(error)"))))
         }
     }
 }

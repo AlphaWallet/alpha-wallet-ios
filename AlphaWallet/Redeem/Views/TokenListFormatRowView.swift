@@ -182,6 +182,7 @@ class TokenListFormatRowView: UIView {
 
         subtitleLabel.text = viewModel.subtitle
 
+        self.thumbnailImageView.image = nil
         //TODO cancel the request if we reuse the cell before it's finished downloading
         if let url = viewModel.thumbnailImageUrl {
             var request = URLRequest(url: url)
