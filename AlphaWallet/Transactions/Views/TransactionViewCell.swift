@@ -32,7 +32,7 @@ class TransactionViewCell: UITableViewCell {
         let leftStackView = [
             titleLabel,
             subTitleLabel,
-        ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 6)
+        ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 0)
         leftStackView.translatesAutoresizingMaskIntoConstraints = false
 
         let rightStackView = [amountLabel].asStackView(axis: .vertical)
@@ -54,16 +54,16 @@ class TransactionViewCell: UITableViewCell {
         let xMargin  = CGFloat(7)
         let yMargin  = CGFloat(7)
         NSLayoutConstraint.activate([
-            statusImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 44),
+            statusImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 26),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: StyleLayout.sideMargin),
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -StyleLayout.sideMargin),
             stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin),
 
-            background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
-            background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-            background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-            background.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -yMargin),
+            background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: xMargin),
+            background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -xMargin),
+            background.topAnchor.constraint(equalTo: contentView.topAnchor, constant: yMargin),
+            background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -yMargin),
         ])
     }
 
