@@ -23,6 +23,8 @@ struct ImportMagicTokenViewControllerViewModel {
         case free
         case paid(eth: Decimal, dollar: Decimal?)
     }
+    private let emptyCity = "N/A"
+    private let emptyTeams = "-"
 
     var state: State
     var tokenHolder: TokenHolder?
@@ -75,7 +77,7 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return tokenHolder.values["locality"] as? String ?? "N/A"
+            return tokenHolder.values["locality"] as? String ?? emptyCity
         }
     }
 
@@ -110,7 +112,12 @@ struct ImportMagicTokenViewControllerViewModel {
         } else {
             let countryA = tokenHolder.values["countryA"] as? String ?? ""
             let countryB = tokenHolder.values["countryB"] as? String ?? ""
-            return R.string.localizable.aWalletTokenMatchVs(countryA, countryB)
+            //While both will return emptyTeams, we want to be explicit about ising `emptyTeams`
+            if countryA.isEmpty && countryB.isEmpty {
+                return emptyTeams
+            } else {
+                return R.string.localizable.aWalletTokenMatchVs(countryA, countryB)
+            }
         }
     }
 
@@ -310,6 +317,15 @@ struct ImportMagicTokenViewControllerViewModel {
             return true
         case .paid:
             return false
+        }
+    }
+
+    var onlyShowTitle: Bool {
+        switch state {
+        case .validating, .processing:
+            return true
+        case .promptImport, .succeeded, .failed:
+            return (teams.isEmpty && city.isEmpty) || (teams == emptyTeams && city == emptyCity)
         }
     }
 

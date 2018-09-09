@@ -197,7 +197,7 @@
 "a.wallet.token.sell.confirm.multipleTokenSelected.title" = "%d %@";
 "a.wallet.token.transfer.button.title" = "Transfer";
 "a.wallet.token.transfer.selectTokens.title" = "Select %@ To Transfer:";
-"a.wallet.token.transfer.selectTokeTokenity.atLeastOne.title" = "Please select quantity of %@";
+"a.wallet.token.transfer.selectTokenQuantity.atLeastOne.title" = "Please select quantity of %@";
 "a.wallet.token.transfer.selectTokens.atLeastOne.title" = "Please select a %@ to transfer";
 "a.wallet.token.transfer.selectQuantity.title" = "Transfer %@";
 "a.wallet.token.transfer.quantity.title" = "QUANTITY OF %@";
