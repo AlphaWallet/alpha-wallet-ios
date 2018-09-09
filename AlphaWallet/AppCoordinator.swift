@@ -8,7 +8,7 @@ import BigInt
 class AppCoordinator: NSObject, Coordinator {
     private let config: Config
     let navigationController: UINavigationController
-    lazy var welcomeViewController: WelcomeViewController = {
+    private lazy var welcomeViewController: WelcomeViewController = {
         let controller = WelcomeViewController()
         controller.delegate = self
         return controller
@@ -21,17 +21,17 @@ class AppCoordinator: NSObject, Coordinator {
     var inCoordinator: InCoordinator? {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
-    var universalLinkCoordinator: UniversalLinkCoordinator? {
+    private var universalLinkCoordinator: UniversalLinkCoordinator? {
         return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
     }
-    var ethPrice: Subscribable<Double>? {
+    private var ethPrice: Subscribable<Double>? {
         if let inCoordinator = inCoordinator {
             return inCoordinator.ethPrice
         } else {
             return nil
         }
     }
-    var ethBalance: Subscribable<BigInt>? {
+    private var ethBalance: Subscribable<BigInt>? {
         if let inCoordinator = inCoordinator {
             return inCoordinator.ethBalance
         } else {
