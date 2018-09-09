@@ -277,7 +277,7 @@ class UniversalLinkCoordinator: Coordinator {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
                 makeTokenHolder(name: localizedTokenTypeName )
 
-                strongSelf.tokensDatastore.getContractName(for: contractAddress) { [weak self] result in
+                strongSelf.tokensDatastore.getContractName(for: contractAddress) { result in
                     switch result {
                     case .success(let name):
                         makeTokenHolder(name: name)
@@ -392,7 +392,7 @@ class UniversalLinkCoordinator: Coordinator {
                 }
             }
 
-            guard let vc = self.importTokenViewController, case .ready(var viewModel) = vc.state else { return }
+            guard let vc = self.importTokenViewController, case .ready = vc.state else { return }
             // TODO handle http response
             print(result)
             if successful {
