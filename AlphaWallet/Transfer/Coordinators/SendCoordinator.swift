@@ -49,7 +49,6 @@ class SendCoordinator: Coordinator {
     }
 
     func start() {
-        let symbol = sendViewController.transferType.symbol(server: session.config.server)
         sendViewController.configure(viewModel:
                 .init(transferType: sendViewController.transferType,
                         session: session,

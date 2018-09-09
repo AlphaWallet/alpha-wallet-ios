@@ -247,7 +247,7 @@ class TokensDataStore {
                 return
             }
             var results = [String]()
-            for (index, each): (String, JSON) in json["assets"] where each["asset_contract"]["address"].stringValue.sameContract(as: Constants.cryptoKittiesContractAddress) {
+            for (_, each): (String, JSON) in json["assets"] where each["asset_contract"]["address"].stringValue.sameContract(as: Constants.cryptoKittiesContractAddress) {
                 let tokenId = each["token_id"].stringValue
                 let description = each["description"].stringValue
                 let thumbnailUrl = each["image_thumbnail_url"].stringValue

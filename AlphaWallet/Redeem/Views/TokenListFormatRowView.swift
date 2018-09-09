@@ -205,7 +205,7 @@ class TokenListFormatRowView: UIView {
         }
         let labelsToAddCount = viewModel.details.count - detailLabels.count
         if labelsToAddCount > 0 {
-            for i in 1...labelsToAddCount {
+            for _ in 1...labelsToAddCount {
                 let label = UILabel()
                 label.translatesAutoresizingMaskIntoConstraints = false
                 label.textColor = viewModel.subtitleColor

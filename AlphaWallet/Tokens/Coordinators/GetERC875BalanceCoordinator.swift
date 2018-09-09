@@ -44,7 +44,7 @@ class GetERC875BalanceCoordinator {
         }
     }
 
-    private func adapt(_ values: Any) -> [String] {
+    private func adapt(_ values: Any?) -> [String] {
         guard let array = values as? [Data] else { return [] }
         return array.map { each in
             let value = each.toHexString()
