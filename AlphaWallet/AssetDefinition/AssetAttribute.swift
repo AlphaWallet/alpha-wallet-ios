@@ -86,7 +86,7 @@ enum AssetAttribute {
 
     private func parseValue(tokenValue: BigUInt) -> BigUInt? {
         switch self {
-        case .direct(let attribute, _, let bitmask, let bitShift), .mapping(let attribute, _, _, let bitmask, let bitShift):
+        case .direct(_, _, let bitmask, let bitShift), .mapping(_, _, _, let bitmask, let bitShift):
             return (bitmask & tokenValue) >> bitShift
         }
     }
