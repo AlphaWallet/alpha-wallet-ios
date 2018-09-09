@@ -156,10 +156,6 @@ class InCoordinator: Coordinator {
         transactionCoordinator.start()
         addCoordinator(transactionCoordinator)
 
-        let marketplaceController = MarketplaceViewController()
-        let marketplaceNavigationController = UINavigationController(rootViewController: marketplaceController)
-        marketplaceController.tabBarItem = UITabBarItem(title: R.string.localizable.aMarketplaceTabbarItemTitle(), image: R.image.tab_marketplace()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_marketplace())
-
         let tabBarController = TabBarController()
         tabBarController.tabBar.isTranslucent = false
         tabBarController.didShake = { [weak self] in
@@ -478,7 +474,6 @@ extension InCoordinator: CanOpenURL {
 
         let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
 
-        let balanceCoordinator = GetBalanceCoordinator(config: config)
         let balance = BalanceCoordinator(wallet: account, config: config, storage: tokensStorage)
         let session = WalletSession(
                 account: account,
