@@ -71,7 +71,7 @@ class TransactionsViewController: UIViewController {
         tableView.dataSource = self
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appBackground
-        tableView.rowHeight = 80
+        tableView.rowHeight = UITableViewAutomaticDimension
         view.addSubview(tableView)
 
         view.addSubview(footerBar)

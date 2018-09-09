@@ -6,29 +6,29 @@ class TokenCardRowView: UIView {
 	let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
 	let background = UIView()
 	let stateLabel = UILabel()
-	let tokenCountLabel = UILabel()
-	let venueLabel = UILabel()
-	let dateLabel = UILabel()
-	let categoryLabel = UILabel()
-	let matchLabel = UILabel()
-	let dateImageView = UIImageView()
-	let seatRangeImageView = UIImageView()
-	let categoryImageView = UIImageView()
-	let cityLabel = UILabel()
-	let timeLabel = UILabel()
-	let teamsLabel = UILabel()
-	var detailsRowStack: UIStackView?
-    let showCheckbox: Bool
-	var canDetailsBeVisible = true
+	private let tokenCountLabel = UILabel()
+	private let venueLabel = UILabel()
+	private let dateLabel = UILabel()
+	private let categoryLabel = UILabel()
+	private let matchLabel = UILabel()
+	private let dateImageView = UIImageView()
+	private let seatRangeImageView = UIImageView()
+	private let categoryImageView = UIImageView()
+	private let cityLabel = UILabel()
+	private let timeLabel = UILabel()
+	private let teamsLabel = UILabel()
+	private var detailsRowStack: UIStackView?
+    private let showCheckbox: Bool
+	private var canDetailsBeVisible = true
     var areDetailsVisible = false {
 		didSet {
 			guard canDetailsBeVisible else { return }
 			detailsRowStack?.isHidden = !areDetailsVisible
 		}
     }
-	let bottomRowStack: UIStackView
-	let spaceAboveBottomRowStack = UIView.spacer(height: 10)
-	var onlyShowTitle: Bool = false {
+	private let bottomRowStack: UIStackView
+	private let spaceAboveBottomRowStack = UIView.spacer(height: 10)
+	private var onlyShowTitle: Bool = false {
 		didSet {
 			if onlyShowTitle {
 				canDetailsBeVisible = false
@@ -119,7 +119,7 @@ class TokenCardRowView: UIView {
 		fatalError("init(coder:) has not been implemented")
 	}
 
-	func configure(viewModel: TokenCardRowViewModel) {
+	func configure(viewModel: TokenCardRowViewModelProtocol) {
 		background.backgroundColor = viewModel.contentsBackgroundColor
 		background.layer.cornerRadius = 20
 		background.layer.shadowRadius = 3
@@ -182,14 +182,12 @@ class TokenCardRowView: UIView {
 
 		matchLabel.text = viewModel.match
 
-		if let tokenHolder = viewModel.tokenHolder {
-			onlyShowTitle = !tokenHolder.hasAssetDefinition
-		}
+		onlyShowTitle = viewModel.onlyShowTitle
 	}
 }
 
 extension TokenCardRowView: TokenRowView {
 	func configure(tokenHolder: TokenHolder) {
-		configure(viewModel: .init(tokenHolder: tokenHolder))
+		configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder))
 	}
 }

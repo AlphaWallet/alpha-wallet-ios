@@ -40,11 +40,11 @@ class GetERC875BalanceCoordinator {
             let balances = self.adapt(balanceResult["0"])
             completion(.success(balances))
         }.catch { error in
-            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractInstance).\(function.name)() of \(address.eip55String) as ERC875"))))
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractInstance).\(function.name)() of \(address.eip55String) as ERC875: \(error)"))))
         }
     }
 
-    private func adapt(_ values: Any) -> [String] {
+    private func adapt(_ values: Any?) -> [String] {
         guard let array = values as? [Data] else { return [] }
         return array.map { each in
             let value = each.toHexString()
