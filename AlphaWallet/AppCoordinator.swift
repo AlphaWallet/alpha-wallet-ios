@@ -15,10 +15,14 @@ class AppCoordinator: NSObject, Coordinator {
     }()
     private let lock = Lock()
     private var keystore: Keystore
+    private let window: UIWindow
     private var appTracker = AppTracker()
     var coordinators: [Coordinator] = []
     var inCoordinator: InCoordinator? {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
+    }
+    var universalLinkCoordinator: UniversalLinkCoordinator? {
+        return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
     }
     var ethPrice: Subscribable<Double>? {
         if let inCoordinator = inCoordinator {
@@ -43,6 +47,7 @@ class AppCoordinator: NSObject, Coordinator {
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
+        self.window = window
         super.init()
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
@@ -114,20 +119,6 @@ class AppCoordinator: NSObject, Coordinator {
         resetToWelcomeScreen()
     }
 
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
-        let inCoordinatorInstance = coordinators.first {
-            $0 is InCoordinator
-        } as? InCoordinator
-        
-        if let inCoordinator = inCoordinatorInstance {
-            inCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, completion: completion)
-        }
-    }
-
-    func addImported(contract: String) {
-        inCoordinator?.addImported(contract: contract)
-    }
-
     func showInitialWalletCoordinator(entryPoint: WalletEntryPoint) {
         let coordinator = InitialWalletCreationCoordinator(
             navigationController: navigationController,
@@ -141,6 +132,33 @@ class AppCoordinator: NSObject, Coordinator {
     
     func createInitialWallet() {
         WalletCoordinator(keystore: keystore).createInitialWallet()
+    }
+
+    func handleUniversalLink(url: URL) -> Bool {
+        createInitialWallet()
+        closeWelcomeWindow()
+        guard let ethPrice = self.ethPrice, let ethBalance = self.ethBalance else { return false }
+        guard let inCoordinator = self.inCoordinator, let tokensDatastore = inCoordinator.createTokensDatastore() else { return false }
+
+        let universalLinkCoordinator = UniversalLinkCoordinator(
+                config: config,
+                ethPrice: ethPrice,
+                ethBalance: ethBalance,
+                tokensDatastore: tokensDatastore
+        )
+        universalLinkCoordinator.delegate = self
+        universalLinkCoordinator.start()
+        let handled = universalLinkCoordinator.handleUniversalLink(url: url)
+        if handled {
+            addCoordinator(universalLinkCoordinator)
+        }
+        return handled
+    }
+
+    func handleUniversalLinkInPasteboard() {
+        let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator()
+        universalLinkPasteboardCoordinator.delegate = self
+        universalLinkPasteboardCoordinator.start()
     }
 
     func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
@@ -193,5 +211,37 @@ extension AppCoordinator: InCoordinatorDelegate {
     }
 
     func didUpdateAccounts(in coordinator: InCoordinator) {
+    }
+}
+
+extension AppCoordinator: UniversalLinkCoordinatorDelegate {
+    func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController? {
+        if var top = window.rootViewController {
+            while let vc = top.presentedViewController {
+                top = vc
+            }
+            return top
+        } else {
+            return nil
+        }
+    }
+
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
+        inCoordinator?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, completion: completion)
+    }
+
+    func completed(in coordinator: UniversalLinkCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func didImported(contract: String, in coordinator: UniversalLinkCoordinator) {
+        inCoordinator?.addImported(contract: contract)
+    }
+}
+
+extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
+    func importUniversalLink(url: URL, for coordinator: UniversalLinkInPasteboardCoordinator) {
+        guard universalLinkCoordinator == nil else { return }
+        handleUniversalLink(url: url)
     }
 }

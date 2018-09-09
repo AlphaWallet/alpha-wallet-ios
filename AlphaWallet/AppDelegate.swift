@@ -5,10 +5,7 @@ import RealmSwift
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
     var window: UIWindow?
-    var appCoordinator: AppCoordinator!
-    var coordinator: AppCoordinator!
-    // Need to retain while still processing
-    var universalLinkCoordinator: UniversalLinkCoordinator!
+    private var appCoordinator: AppCoordinator!
     //This is separate coordinator for the protection of the sensitive information.
     lazy var protectionCoordinator: ProtectionCoordinator = {
         return ProtectionCoordinator()
@@ -34,10 +31,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func applicationDidBecomeActive(_ application: UIApplication) {
         //Lokalise.shared.checkForUpdates { _, _ in }
         protectionCoordinator.applicationDidBecomeActive()
-        //TODO better to move into AppCoordinator or InCoordinator. Ditto for tap to import universal link.
-        let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator()
-        universalLinkPasteboardCoordinator.delegate = self
-        universalLinkPasteboardCoordinator.start()
+        appCoordinator.handleUniversalLinkInPasteboard()
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
@@ -73,71 +67,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     }
 
     @discardableResult private func handleUniversalLink(url: URL) -> Bool {
-        appCoordinator.createInitialWallet()
-        appCoordinator.closeWelcomeWindow()
-        guard let ethPrice = appCoordinator.ethPrice, let ethBalance = appCoordinator.ethBalance else { return false }
-        guard let inCoordinator = appCoordinator.inCoordinator, let tokensDatastore = inCoordinator.createTokensDatastore() else { return false }
-
-        universalLinkCoordinator = UniversalLinkCoordinator(
-                config: Config(),
-                ethPrice: ethPrice,
-                ethBalance: ethBalance,
-                tokensDatastore: tokensDatastore
-        )
-        universalLinkCoordinator.delegate = self
-        universalLinkCoordinator.start()
-        let handled = universalLinkCoordinator.handleUniversalLink(url: url)
-        if !handled {
-            universalLinkCoordinator = nil
-        }
+        let handled = appCoordinator.handleUniversalLink(url: url)
         return handled
-    }
-}
-
-extension AppDelegate: UniversalLinkCoordinatorDelegate {
-
-    func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController? {
-        if var top = window?.rootViewController {
-            while let vc = top.presentedViewController {
-                top = vc
-            }
-            return top
-        } else {
-            return nil
-        }
-    }
-
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
-        appCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, completion: completion)
-    }
-
-    func completed(in coordinator: UniversalLinkCoordinator) {
-        universalLinkCoordinator = nil
-    }
-
-    func didImported(contract: String, in coordinator: UniversalLinkCoordinator) {
-        appCoordinator.addImported(contract: contract)
-    }
-}
-
-//TODO remove this once AppDelegate no longer implements UniversalLinkCoordinatorDelegate. i.e. when we move UniversalLinkCoordinator management into InCoordinator
-extension AppDelegate: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
-        appCoordinator.didPressViewContractWebPage(forContract: contract, in: viewController)
-    }
-
-    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
-        appCoordinator.didPressViewContractWebPage(url, in: viewController)
-    }
-
-    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
-        appCoordinator.didPressOpenWebPage(url, in: viewController)
-    }
-}
-
-extension AppDelegate: UniversalLinkInPasteboardCoordinatorDelegate {
-    func importUniversalLink(url: URL, for coordinator: UniversalLinkInPasteboardCoordinator) {
-        guard universalLinkCoordinator == nil else { return }
-        handleUniversalLink(url: url)
     }
 }
