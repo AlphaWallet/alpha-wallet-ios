@@ -45,11 +45,11 @@ class GetERC721BalanceCoordinator {
             let balances = self.adapt(balanceResult["0"])
             completion(.success(balances))
         }.catch { error in
-            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))))
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)(): \(error)"))))
         }
     }
 
-    private func adapt(_ values: Any) -> [BigUInt] {
+    private func adapt(_ values: Any?) -> [BigUInt] {
         guard let array = values as? [Any] else { return [] }
         return array.map {
             if let val = BigUInt(String(describing: $0)) {
