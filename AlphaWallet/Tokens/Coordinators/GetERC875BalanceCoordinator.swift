@@ -40,7 +40,7 @@ class GetERC875BalanceCoordinator {
             let balances = self.adapt(balanceResult["0"])
             completion(.success(balances))
         }.catch { error in
-            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractInstance).\(function.name)() of \(address.eip55String) as ERC875"))))
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractInstance).\(function.name)() of \(address.eip55String) as ERC875: \(error)"))))
         }
     }
 
