@@ -15,6 +15,7 @@ class AppCoordinator: NSObject, Coordinator {
     }()
     private let lock = Lock()
     private var keystore: Keystore
+    private let assetDefinitionStore = AssetDefinitionStore()
     private let window: UIWindow
     private var appTracker = AppTracker()
     var coordinators: [Coordinator] = []
@@ -69,16 +70,17 @@ class AppCoordinator: NSObject, Coordinator {
 
     func showTransactions(for wallet: Wallet) {
         let coordinator = InCoordinator(
-            navigationController: navigationController,
-            wallet: wallet,
-            keystore: keystore,
-            appTracker: appTracker
+                navigationController: navigationController,
+                wallet: wallet,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                appTracker: appTracker
         )
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
-    
+
     func closeWelcomeWindow() {
         guard navigationController.viewControllers.contains(welcomeViewController) else {
             return
@@ -99,7 +101,7 @@ class AppCoordinator: NSObject, Coordinator {
         initializers.forEach { $0.perform() }
         //We should clean passcode if there is no wallets. This step is required for app reinstall.
         if !keystore.hasWallets {
-           lock.clear()
+            lock.clear()
         }
     }
 
@@ -121,15 +123,15 @@ class AppCoordinator: NSObject, Coordinator {
 
     func showInitialWalletCoordinator(entryPoint: WalletEntryPoint) {
         let coordinator = InitialWalletCreationCoordinator(
-            navigationController: navigationController,
-            keystore: keystore,
-            entryPoint: entryPoint
+                navigationController: navigationController,
+                keystore: keystore,
+                entryPoint: entryPoint
         )
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
-    
+
     func createInitialWallet() {
         WalletCoordinator(keystore: keystore).createInitialWallet()
     }
@@ -144,7 +146,8 @@ class AppCoordinator: NSObject, Coordinator {
                 config: config,
                 ethPrice: ethPrice,
                 ethBalance: ethBalance,
-                tokensDatastore: tokensDatastore
+                tokensDatastore: tokensDatastore,
+                assetDefinitionStore: assetDefinitionStore
         )
         universalLinkCoordinator.delegate = self
         universalLinkCoordinator.start()

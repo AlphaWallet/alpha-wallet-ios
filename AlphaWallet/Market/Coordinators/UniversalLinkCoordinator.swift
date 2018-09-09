@@ -36,12 +36,14 @@ class UniversalLinkCoordinator: Coordinator {
         return delegate?.viewControllerForPresenting(in: self) != nil
     }
     private let tokensDatastore: TokensDataStore
+    private let assetDefinitionStore: AssetDefinitionStore
 
-    init(config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore) {
+    init(config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
         self.config = config
         self.ethPrice = ethPrice
         self.ethBalance = ethBalance
         self.tokensDatastore = tokensDatastore
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
 	func start() {
@@ -263,8 +265,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func makeTokenHolder(_ bytes32Tokens: [String], _ indices: [UInt16], _ contractAddress: String) {
-        //TODO better to pass in the store instance once UniversalLinkCoordinator is owned by InCoordinator
-        AssetDefinitionStore().fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
+        assetDefinitionStore.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
             guard let strongSelf = self else { return }
 
             func makeTokenHolder(name: String) {
