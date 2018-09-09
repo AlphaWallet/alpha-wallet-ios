@@ -138,37 +138,38 @@ class UniversalLinkCoordinator: Coordinator {
             let web3Swift = Web3Swift()
             web3Swift.start()
             getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(config: config)
-            getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { result in
+            getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
+                guard let strongSelf = self else { return }
                 guard let balance = try? result.dematerialize() else {
-                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
                     return
                 }
                 //filter null tokens
-                let filteredTokens = self.checkERC875TokensAreAvailable(
+                let filteredTokens = strongSelf.checkERC875TokensAreAvailable(
                         indices: signedOrder.order.indices,
                         balance: balance
                 )
                 if filteredTokens.isEmpty {
-                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
                     return
                 }
 
-                self.makeTokenHolder(
+                strongSelf.makeTokenHolder(
                         filteredTokens,
                         signedOrder.order.indices,
                         signedOrder.order.contractAddress
                 )
 
                 if signedOrder.order.price == 0 && isStormBirdContract {
-                    self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
+                    strongSelf.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
                         if supported {
-                            self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
+                            strongSelf.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
                         } else {
-                            self.handlePaidImports(signedOrder: signedOrder)
+                            strongSelf.handlePaidImports(signedOrder: signedOrder)
                         }
                     }
                 } else {
-                    self.handlePaidImports(signedOrder: signedOrder)
+                    strongSelf.handlePaidImports(signedOrder: signedOrder)
                 }
             }
         case .failure(let error):
@@ -277,7 +278,7 @@ class UniversalLinkCoordinator: Coordinator {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
                 makeTokenHolder(name: localizedTokenTypeName )
 
-                strongSelf.tokensDatastore.getContractName(for: contractAddress) { [weak self] result in
+                strongSelf.tokensDatastore.getContractName(for: contractAddress) { result in
                     switch result {
                     case .success(let name):
                         makeTokenHolder(name: name)
@@ -361,14 +362,15 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject) {
         updateImportTokenController(with: .processing)
-        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject) { successful in
-            guard let vc = self.importTokenViewController, case .ready = vc.state else { return }
+        delegate?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject) { [weak self] successful in
+            guard let strongSelf = self else { return }
+            guard let vc = strongSelf.importTokenViewController, case .ready = vc.state else { return }
             if successful {
-                self.delegate?.didImported(contract: signedOrder.order.contractAddress, in: self)
-                self.showImportSuccessful()
+                strongSelf.delegate?.didImported(contract: signedOrder.order.contractAddress, in: strongSelf)
+                strongSelf.showImportSuccessful()
             } else {
                 //TODO Pass in error message
-                self.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle())
+                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle())
             }
         }
     }
@@ -380,26 +382,27 @@ class UniversalLinkCoordinator: Coordinator {
                 query,
                 method: .post,
                 parameters: parameters
-        ).responseJSON { result in
+        ).responseJSON { [weak self] result in
+            guard let strongSelf = self else { return }
             var successful = false //need to set this to false by default else it will allow no connections to be considered successful etc
             //401 code will be given if signature is invalid on the server
             if let response = result.response {
                 if response.statusCode < 300 {
                     successful = true
                     if let contract = parameters["contractAddress"] as? String {
-                        self.delegate?.didImported(contract: contract, in: self)
+                        strongSelf.delegate?.didImported(contract: contract, in: strongSelf)
                     }
                 }
             }
 
-            guard let vc = self.importTokenViewController, case .ready(var viewModel) = vc.state else { return }
+            guard let vc = strongSelf.importTokenViewController, case .ready(var viewModel) = vc.state else { return }
             // TODO handle http response
             print(result)
             if successful {
-                self.showImportSuccessful()
+                strongSelf.showImportSuccessful()
             } else {
                 //TODO Pass in error message
-                self.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle())
+                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedTitle())
             }
         }
     }
