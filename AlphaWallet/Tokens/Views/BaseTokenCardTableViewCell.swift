@@ -32,7 +32,7 @@ class BaseTokenCardTableViewCell: UITableViewCell {
 
         contentView.backgroundColor = viewModel.backgroundColor
 
-        rowView.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder))
+        rowView.configure(viewModel: TokenCardRowViewModel(tokenHolder: viewModel.tokenHolder))
 
         if showCheckbox() {
             rowView.checkboxImageView.image = viewModel.checkboxImage
