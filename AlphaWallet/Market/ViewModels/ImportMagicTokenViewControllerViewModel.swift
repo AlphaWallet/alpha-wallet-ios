@@ -146,14 +146,6 @@ struct ImportMagicTokenViewControllerViewModel {
         }
     }
 
-    var showTokenRowIcons: Bool {
-        if case .validating = state {
-            return false
-        } else {
-            return true
-        }
-    }
-
     var statusText: String {
         switch state {
         case .validating:
