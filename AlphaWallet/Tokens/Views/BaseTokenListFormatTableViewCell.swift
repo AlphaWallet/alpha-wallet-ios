@@ -11,7 +11,7 @@ protocol BaseTokenListFormatTableViewCellDelegate: class {
 class BaseTokenListFormatTableViewCell: UITableViewCell {
     static let identifier = "BaseTokenListFormatTableViewCell"
 
-    lazy var rowView: TokenListFormatRowView = {
+    private lazy var rowView: TokenListFormatRowView = {
         let result = TokenListFormatRowView(showCheckbox: showCheckbox())
         result.delegate = self
         return result
