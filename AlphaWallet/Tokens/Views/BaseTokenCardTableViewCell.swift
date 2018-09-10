@@ -6,7 +6,7 @@ import UIKit
 class BaseTokenCardTableViewCell: UITableViewCell {
     static let identifier = "TokenCardTableViewCell"
 
-    lazy var rowView = TokenCardRowView(showCheckbox: showCheckbox())
+    private lazy var rowView = TokenCardRowView(showCheckbox: showCheckbox())
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

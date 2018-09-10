@@ -7,19 +7,19 @@ import Kingfisher
 class EthTokenViewCell: UITableViewCell {
     static let identifier = "EthTokenViewCell"
 
-    let background = UIView()
-    let titleLabel = UILabel()
-    let blockchainLabel = UILabel()
-    let separator = UILabel()
-    let issuerLabel = UILabel()
+    private let background = UIView()
+    private let titleLabel = UILabel()
+    private let blockchainLabel = UILabel()
+    private let separator = UILabel()
+    private let issuerLabel = UILabel()
 
-    let middleBorder = UIView()
-    let valuePercentageChangeValueLabel = UILabel()
-    let valuePercentageChangePeriodLabel = UILabel()
-    let valueChangeLabel = UILabel()
-    let valueChangeNameLabel = UILabel()
-    let valueLabel = UILabel()
-    let valueNameLabel = UILabel()
+    private let middleBorder = UIView()
+    private let valuePercentageChangeValueLabel = UILabel()
+    private let valuePercentageChangePeriodLabel = UILabel()
+    private let valueChangeLabel = UILabel()
+    private let valueChangeNameLabel = UILabel()
+    private let valueLabel = UILabel()
+    private let valueNameLabel = UILabel()
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
