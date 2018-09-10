@@ -85,7 +85,7 @@ class TokensViewController: UIViewController {
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationController?.applyTintAdjustment()
+        navigationController?.applyTintAdjustment()
         fetch()
     }
     @objc func pullToRefresh() {
@@ -94,8 +94,8 @@ class TokensViewController: UIViewController {
     }
 
     func fetch() {
-        self.startLoading()
-        self.dataStore.fetch()
+        startLoading()
+        dataStore.fetch()
     }
 
     override func viewDidLayoutSubviews() {

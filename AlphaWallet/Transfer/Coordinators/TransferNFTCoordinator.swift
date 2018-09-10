@@ -92,13 +92,13 @@ class TransferNFTCoordinator: Coordinator {
                     transaction: transaction
             )
             configurator.load { [weak self] result in
-                guard let `self` = self else { return }
+                guard let strongSelf = self else { return }
                 switch result {
                 case .success:
-                    self.sendTransaction(with: configurator)
+                    strongSelf.sendTransaction(with: configurator)
                 case .failure:
                     //TODO use the error object or remove it from the case-statement
-                    self.processFailed()
+                    strongSelf.processFailed()
                 }
             }
         }

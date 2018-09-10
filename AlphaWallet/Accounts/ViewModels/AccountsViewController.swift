@@ -92,10 +92,11 @@ class AccountsViewController: UIViewController {
             message: R.string.localizable.accountsConfirmDeleteMessage(),
             okTitle: R.string.localizable.accountsConfirmDeleteOkTitle(),
             okStyle: .destructive
-        ) { result in
+        ) { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success:
-                self.delete(account: account)
+                strongSelf.delete(account: account)
             case .failure: break
             }
         }
@@ -103,14 +104,14 @@ class AccountsViewController: UIViewController {
     func delete(account: Wallet) {
         navigationController?.displayLoading(text: R.string.localizable.deleting())
         keystore.delete(wallet: account) { [weak self] result in
-            guard let `self` = self else { return }
-            self.navigationController?.hideLoading()
+            guard let strongSelf = self else { return }
+            strongSelf.navigationController?.hideLoading()
             switch result {
             case .success:
-                self.fetch()
-                self.delegate?.didDeleteAccount(account: account, in: self)
+                strongSelf.fetch()
+                strongSelf.delegate?.didDeleteAccount(account: account, in: strongSelf)
             case .failure(let error):
-                self.displayError(error: error)
+                strongSelf.displayError(error: error)
             }
         }
     }
@@ -177,6 +178,6 @@ extension AccountsViewController: UITableViewDelegate, UITableViewDataSource {
 
 extension AccountsViewController: AccountViewCellDelegate {
     func accountViewCell(_ cell: AccountViewCell, didTapInfoViewForAccount account: Wallet) {
-        self.delegate?.didSelectInfoForAccount(account: account, sender: cell.infoButton, in: self)
+        delegate?.didSelectInfoForAccount(account: account, sender: cell.infoButton, in: self)
     }
 }

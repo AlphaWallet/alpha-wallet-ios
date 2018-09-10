@@ -41,7 +41,7 @@ final class BrowserViewController: UIViewController {
     lazy var webView: WKWebView = {
         let webView = WKWebView(
             frame: .zero,
-            configuration: self.config
+            configuration: config
         )
         webView.allowsBackForwardNavigationGestures = true
         webView.translatesAutoresizingMaskIntoConstraints = false
@@ -135,8 +135,8 @@ final class BrowserViewController: UIViewController {
 
     private func injectUserAgent() {
         webView.evaluateJavaScript("navigator.userAgent") { [weak self] result, _ in
-            guard let `self` = self, let currentUserAgent = result as? String else { return }
-            self.webView.customUserAgent = currentUserAgent + " " + self.userClient
+            guard let strongSelf = self, let currentUserAgent = result as? String else { return }
+            strongSelf.webView.customUserAgent = currentUserAgent + " " + strongSelf.userClient
         }
     }
 
@@ -209,7 +209,7 @@ final class BrowserViewController: UIViewController {
             }
         } else if keyPath == Keys.URL {
             if let url = webView.url {
-                self.browserNavBar?.textField.text = url.absoluteString
+                browserNavBar?.textField.text = url.absoluteString
                 changeURL(url)
             }
         }

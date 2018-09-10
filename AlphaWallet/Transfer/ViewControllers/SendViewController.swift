@@ -322,7 +322,7 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
                 expiry: .none,
                 indices: .none
         )
-        self.delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
+        delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }
 
     @objc func copyAddress() {
@@ -345,12 +345,13 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
     private func changeQRCode(value: Int) {
         if let viewModel = viewModel {
             let string = viewModel.myAddressText
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue.global(qos: .background).async { [weak self] in
+                guard let strongSelf = self else { return }
                 // EIP67 format not being used much yet, use hex value for now
                 // let string = "ethereum:\(account.address.address)?value=\(value)"
-                let image = self.generateQRCode(from: string)
-                DispatchQueue.main.async {
-                    self.imageView.image = image
+                let image = strongSelf.generateQRCode(from: string)
+                DispatchQueue.main.async { [weak self] in
+                    strongSelf.imageView.image = image
                 }
             }
         }
@@ -381,11 +382,11 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
             headerViewModel.title = "\(amount) \(viewModel.symbol)"
-            let etherToken = TokensDataStore.etherToken(for: self.session.config)
-            let ticker = self.storage.coinTicker(for: etherToken)
-            self.headerViewModel.ticker = ticker
-            self.headerViewModel.currencyAmount = self.session.balanceCoordinator.viewModel.currencyAmount
-            self.headerViewModel.currencyAmountWithoutSymbol = self.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
+            let etherToken = TokensDataStore.etherToken(for: session.config)
+            let ticker = storage.coinTicker(for: etherToken)
+            headerViewModel.ticker = ticker
+            headerViewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
+            headerViewModel.currencyAmountWithoutSymbol = session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
             }

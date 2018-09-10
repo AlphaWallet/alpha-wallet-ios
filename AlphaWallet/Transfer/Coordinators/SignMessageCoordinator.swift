@@ -52,13 +52,13 @@ class SignMessageCoordinator: Coordinator {
             title: R.string.localizable.oK(),
             style: .default
         ) { [weak self] _ in
-            guard let `self` = self else { return }
-            self.handleSignedMessage(with: type)
+            guard let strongSelf = self else { return }
+            strongSelf.handleSignedMessage(with: type)
         }
         let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { [weak self] _ in
-            guard let `self` = self else { return }
-            self.didComplete?(.failure(AnyError(DAppError.cancelled)))
-            self.delegate?.didCancel(in: self)
+            guard let strongSelf = self else { return }
+            strongSelf.didComplete?(.failure(AnyError(DAppError.cancelled)))
+            strongSelf.delegate?.didCancel(in: strongSelf)
         }
         alertController.addAction(signAction)
         alertController.addAction(cancelAction)

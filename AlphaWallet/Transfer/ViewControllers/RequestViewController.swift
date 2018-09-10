@@ -154,10 +154,11 @@ class RequestViewController: UIViewController {
 		// EIP67 format not being used much yet, use hex value for now
 		// let string = "ethereum:\(account.address.address)?value=\(value)"
 
-		DispatchQueue.global(qos: .background).async {
-			let image = self.generateQRCode(from: string)
-			DispatchQueue.main.async {
-				self.imageView.image = image
+		DispatchQueue.global(qos: .background).async { [weak self] in
+            guard let strongSelf = self else { return }
+			let image = strongSelf.generateQRCode(from: string)
+			DispatchQueue.main.async { [weak self] in
+				strongSelf.imageView.image = image
 			}
 		}
 	}
