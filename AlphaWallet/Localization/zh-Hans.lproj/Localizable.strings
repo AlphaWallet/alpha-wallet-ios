@@ -254,6 +254,7 @@
 "a.claim.token.success.title" = "你的门票已经被转让，你的剩余门票数量稍后会被更新";
 "a.claim.token.failed.title" = "无效的MagicLink链接";
 "a.claim.token.invalidLink.tryAgain" = "链接无效，请重试";
+"a.claim.token.noConnectivity.tryAgain" = "Not connected to the internet, please try again";
 "a.claim.token.failed.notEnoughEth.title" = "你没有足够的以太币来购买MagicLink内的门票";
 "a.claim.token.validating.title" = "处理中...";
 "a.claim.token.promptImport.title" = "导入?";
