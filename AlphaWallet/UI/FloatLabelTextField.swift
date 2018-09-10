@@ -18,7 +18,7 @@ import Eureka
             }
         }
         set {
-            self.accessibilityLabel = newValue
+            accessibilityLabel = newValue
         }
     }
 
@@ -144,7 +144,7 @@ import Eureka
             title.text = str
             title.sizeToFit()
         }
-        self.addSubview(title)
+        addSubview(title)
     }
 
     private func maxTopInset() -> CGFloat {
@@ -164,23 +164,25 @@ import Eureka
 
     private func showTitle(_ animated: Bool) {
         let dur = animated ? animationDuration : 0
-        UIView.animate(withDuration: dur, delay: 0, options: UIViewAnimationOptions.beginFromCurrentState.union(.curveEaseOut), animations: {
+        UIView.animate(withDuration: dur, delay: 0, options: UIViewAnimationOptions.beginFromCurrentState.union(.curveEaseOut), animations: { [weak self] in
+            guard let strongSelf = self else { return }
             // Animation
-            self.title.alpha = 1.0
-            var r = self.title.frame
-            r.origin.y = self.titleYPadding
-            self.title.frame = r
+            strongSelf.title.alpha = 1.0
+            var r = strongSelf.title.frame
+            r.origin.y = strongSelf.titleYPadding
+            strongSelf.title.frame = r
         })
     }
 
     private func hideTitle(_ animated: Bool) {
         let dur = animated ? animationDuration : 0
-        UIView.animate(withDuration: dur, delay: 0, options: UIViewAnimationOptions.beginFromCurrentState.union(.curveEaseIn), animations: {
+        UIView.animate(withDuration: dur, delay: 0, options: UIViewAnimationOptions.beginFromCurrentState.union(.curveEaseIn), animations: { [weak self] in
+            guard let strongSelf = self else { return }
             // Animation
-            self.title.alpha = 0.0
-            var r = self.title.frame
-            r.origin.y = self.title.font.lineHeight + self.hintYPadding
-            self.title.frame = r
+            strongSelf.title.alpha = 0.0
+            var r = strongSelf.title.frame
+            r.origin.y = strongSelf.title.font.lineHeight + strongSelf.hintYPadding
+            strongSelf.title.frame = r
         })
     }
 }

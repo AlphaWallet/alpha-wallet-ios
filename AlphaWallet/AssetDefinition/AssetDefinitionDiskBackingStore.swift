@@ -79,13 +79,14 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         guard directoryWatcher == nil else { return }
         directoryWatcher = DirectoryContentsWatcher.Local(path: directory.path)
         do {
-            try directoryWatcher?.start { results in
+            try directoryWatcher?.start { [weak self] results in
+                guard let strongSelf = self else { return }
                 switch results {
                 case .noChanges:
                     break
                 case .updated(let filenames):
                     for each in filenames {
-                        if let url = URL(string: each), let contract = self.contract(fromPath: url) {
+                        if let url = URL(string: each), let contract = strongSelf.contract(fromPath: url) {
                             changeHandler(contract)
                         }
                     }

@@ -159,7 +159,7 @@ final class BrowserCoordinator: NSObject, Coordinator {
             account: account
         )
         coordinator.didComplete = { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let data):
                 let callback: DappCallback
@@ -171,12 +171,12 @@ final class BrowserCoordinator: NSObject, Coordinator {
                 case .typedMessage:
                     callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
                 }
-                self.rootViewController.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
+                strongSelf.rootViewController.browserViewController.notifyFinish(callbackID: callbackID, value: .success(callback))
             case .failure:
-                self.rootViewController.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
+                strongSelf.rootViewController.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
             }
             coordinator.didComplete = nil
-            self.removeCoordinator(coordinator)
+            strongSelf.removeCoordinator(coordinator)
         }
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -225,7 +225,7 @@ final class BrowserCoordinator: NSObject, Coordinator {
     private func share() {
         guard let url = rootViewController.browserViewController.webView.url else { return }
         rootViewController.displayLoading()
-        self.rootViewController.showShareActivity(from: UIView(), with: [url]) { [weak self] in
+        rootViewController.showShareActivity(from: UIView(), with: [url]) { [weak self] in
             self?.rootViewController.hideLoading()
         }
     }
@@ -267,8 +267,8 @@ extension BrowserCoordinator: BrowserViewControllerDelegate {
 
     func didCall(action: DappAction, callbackID: Int) {
         guard case .real(let account) = session.account.type else {
-            self.rootViewController.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
-            self.navigationController.topViewController?.displayError(error: InCoordinatorError.onlyWatchAccount)
+            rootViewController.browserViewController.notifyFinish(callbackID: callbackID, value: .failure(DAppError.cancelled))
+            navigationController.topViewController?.displayError(error: InCoordinatorError.onlyWatchAccount)
             return
         }
         switch action {

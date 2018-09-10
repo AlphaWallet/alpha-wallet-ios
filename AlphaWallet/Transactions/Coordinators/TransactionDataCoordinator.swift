@@ -28,7 +28,7 @@ class TransactionDataCoordinator {
     let session: WalletSession
     let config = Config()
     var viewModel: TransactionsViewModel {
-        return .init(transactions: self.storage.objects)
+        return .init(transactions: storage.objects)
     }
     var timer: Timer?
     var updateTransactionsTimer: Timer?
@@ -96,12 +96,12 @@ class TransactionDataCoordinator {
             for: session.account.address,
             startBlock: startBlock
         ) { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let transactions):
-                self.update(items: transactions)
+                strongSelf.update(items: transactions)
             case .failure(let error):
-                self.handleError(error: error)
+                strongSelf.handleError(error: error)
             }
         }
     }
@@ -143,13 +143,13 @@ class TransactionDataCoordinator {
     private func updatePendingTransaction(_ transaction: Transaction) {
         let request = GetTransactionRequest(hash: transaction.id)
         Session.send(EtherServiceRequest(batch: BatchFactory().create(request))) { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success:
                 // NSLog("parsedTransaction \(_parsedTransaction)")
                 if transaction.date > Date().addingTimeInterval(Config.deleyedTransactionInternalSeconds) {
-                    self.update(state: .completed, for: transaction)
-                    self.update(items: [transaction])
+                    strongSelf.update(state: .completed, for: transaction)
+                    strongSelf.update(items: [transaction])
                 }
             case .failure(let error):
                 // NSLog("error: \(error)")
@@ -160,10 +160,10 @@ class TransactionDataCoordinator {
                     switch error {
                     case .responseError:
                         // NSLog("code \(code), error: \(message)")
-                        self.delete(transactions: [transaction])
+                        strongSelf.delete(transactions: [transaction])
                     case .resultObjectParseError:
                         if transaction.date > Date().addingTimeInterval(Config.deleteMissingInternalSeconds) {
-                            self.update(state: .failed, for: transaction)
+                            strongSelf.update(state: .failed, for: transaction)
                         }
                     default: break
                     }
@@ -218,20 +218,20 @@ class TransactionDataCoordinator {
         completion: @escaping (Result<[Transaction], AnyError>) -> Void
     ) {
         fetchTransaction(for: address, startBlock: 0, page: page) { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let transactions):
-                self.update(items: transactions)
+                strongSelf.update(items: transactions)
                 if !transactions.isEmpty && page <= 50 { // page limit to 50, otherwise you have too many transactions.
                     let timeout = DispatchTime.now() + .milliseconds(300)
                     DispatchQueue.main.asyncAfter(deadline: timeout) { [weak self] in
                         self?.initialFetch(for: address, page: page + 1, completion: completion)
                     }
                 } else {
-                    self.transactionsTracker.fetchingState = .done
+                    strongSelf.transactionsTracker.fetchingState = .done
                 }
             case .failure:
-                self.transactionsTracker.fetchingState = .failed
+                strongSelf.transactionsTracker.fetchingState = .failed
             }
         }
     }

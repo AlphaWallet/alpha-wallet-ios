@@ -25,9 +25,9 @@ open class _AlphaWalletSettingsButtonRowOf<T: Equatable> : Row<AlphaWalletSettin
 		if !isDisabled {
 			if let presentationMode = presentationMode {
 				if let controller = presentationMode.makeController() {
-					presentationMode.present(controller, row: self, presentingController: self.cell.formViewController()!)
+					presentationMode.present(controller, row: self, presentingController: cell.formViewController()!)
 				} else {
-					presentationMode.present(nil, row: self, presentingController: self.cell.formViewController()!)
+					presentationMode.present(nil, row: self, presentingController: cell.formViewController()!)
 				}
 			}
 		}
