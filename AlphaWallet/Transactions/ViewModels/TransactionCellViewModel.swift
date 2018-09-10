@@ -10,8 +10,6 @@ struct TransactionCellViewModel {
     private let config: Config
     private let chainState: ChainState
     private let currentWallet: Wallet
-    private let shortFormatter = EtherNumberFormatter.short
-
     private let transactionViewModel: TransactionViewModel
 
     init(
