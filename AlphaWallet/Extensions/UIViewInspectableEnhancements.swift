@@ -8,18 +8,7 @@
 
 import UIKit
 
-@IBDesignable class DesignableLabel: UILabel {}
-
-@IBDesignable class DesignableButton: UIButton {}
-
-@IBDesignable class DesignableView: UIView {}
-
-@IBDesignable class DesignableTextView: UITextView {}
-
-@IBDesignable class DesignableTextField: UITextField {}
-
 extension UIView {
-
     @IBInspectable var cornerRadius: CGFloat {
         get {
             return layer.cornerRadius

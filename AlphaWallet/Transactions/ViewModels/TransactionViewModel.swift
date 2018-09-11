@@ -52,10 +52,6 @@ struct TransactionViewModel {
         return transactionValue(for: fullFormatter)
     }
 
-    var shortAmountAttributedString: NSAttributedString {
-        return amountAttributedString(for: shortValue)
-    }
-
     var fullAmountAttributedString: NSAttributedString {
         return amountAttributedString(for: fullValue)
     }

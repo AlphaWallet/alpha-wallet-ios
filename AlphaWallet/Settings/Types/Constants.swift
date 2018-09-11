@@ -11,9 +11,6 @@ public struct Constants {
     public static let gasLimit = BigInt(300000)
     public static let gasPriceDefaultERC875 = BigInt("22000000000")!
 
-    //coinmarketcap
-    public static let coinMarketCapPriceAPI = "https://api.coinmarketcap.com"
-
     // XML repo
     public static let repoServer = "https://repo.awallet.io"
     public static let repoClientName = "AlphaWallet"
@@ -33,7 +30,6 @@ public struct Constants {
 
     // support
     public static let supportEmail = "support@awallet.io"
-    public static let donationAddress = "0xFE6d4bC2De2D0b0E6FE47f08A28Ed52F9d052A02"
     public static let dappsBrowserURL = "https://www.stateofthedapps.com"
 
     public static let nullTokenId = "0x0000000000000000000000000000000000000000000000000000000000000000"

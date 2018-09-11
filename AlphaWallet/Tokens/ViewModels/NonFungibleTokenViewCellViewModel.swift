@@ -5,7 +5,6 @@ import UIKit
 import BigInt
 
 struct NonFungibleTokenViewCellViewModel {
-    private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
 
     let config: Config

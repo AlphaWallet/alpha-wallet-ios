@@ -79,11 +79,6 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
     let transferType: TransferType
     let storage: TokensDataStore
     let ethPrice: Subscribable<Double>
-
-    private var allowedCharacters: String = {
-        let decimalSeparator = Locale.current.decimalSeparator ?? "."
-        return "0123456789" + decimalSeparator
-    }()
     private var gasPrice: BigInt?
     private var data = Data()
     lazy var decimalFormatter: DecimalFormatter = {
