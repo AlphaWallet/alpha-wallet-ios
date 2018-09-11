@@ -30,7 +30,6 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     var viewModel: TokensCardViewModel
     let tokensStorage: TokensDataStore
     let account: Wallet
-    let session: WalletSession
     weak var delegate: TokensCardViewControllerDelegate?
     let header = TokenCardsViewControllerHeader()
     let roundedBackground = RoundedBackground()
@@ -40,11 +39,10 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     let sellButton = UIButton(type: .system)
     let transferButton = UIButton(type: .system)
 
-    init(config: Config, tokenObject: TokenObject, account: Wallet, session: WalletSession, tokensStorage: TokensDataStore, viewModel: TokensCardViewModel) {
+    init(config: Config, tokenObject: TokenObject, account: Wallet, tokensStorage: TokensDataStore, viewModel: TokensCardViewModel) {
         self.config = config
         self.tokenObject = tokenObject
         self.account = account
-        self.session = session
         self.tokensStorage = tokensStorage
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -136,7 +134,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.dataSource = self
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
-        header.configure(viewModel: .init(config: session.config, tokenObject: tokenObject))
+        header.configure(viewModel: .init(tokenObject: tokenObject))
         tableView.tableHeaderView = header
 
         redeemButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
