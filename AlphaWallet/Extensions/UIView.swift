@@ -21,14 +21,6 @@ extension UIView {
         }
     }
 
-    var layoutInsets: UIEdgeInsets {
-        if #available(iOS 11, *) {
-            return safeAreaInsets
-        } else {
-            return layoutMargins
-        }
-    }
-
     static func spacer(height: CGFloat = 1, backgroundColor: UIColor = .clear) -> UIView {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false

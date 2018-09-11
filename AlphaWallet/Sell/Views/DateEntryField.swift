@@ -64,20 +64,6 @@ class DateEntryField: UIControl {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func makeToolbarWithDoneButton() -> UIToolbar {
-        //Frame needed, but actual values aren't that important
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 40))
-        toolbar.barStyle = .default
-
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(closeKeyboard))
-
-        toolbar.items = [flexSpace, done]
-        toolbar.sizeToFit()
-
-        return toolbar
-    }
-
     @objc func closeKeyboard() {
         delegate?.didTap(in: self)
     }

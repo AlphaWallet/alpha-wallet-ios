@@ -27,7 +27,6 @@ class UniversalLinkCoordinator: Coordinator {
     private let ethPrice: Subscribable<Double>
     private let ethBalance: Subscribable<BigInt>
     private var hasCompleted = false
-    private var addressOfNewWallet: String?
     private var getERC875TokenBalanceCoordinator: GetERC875BalanceCoordinator?
     //TODO better to make sure tokenHolder is non-optional. But be careful that ImportMagicTokenViewController also handles when viewModel always has a TokenHolder. Needs good defaults in TokenHolder that can be displayed
     private var tokenHolder: TokenHolder?
@@ -36,12 +35,14 @@ class UniversalLinkCoordinator: Coordinator {
         return delegate?.viewControllerForPresenting(in: self) != nil
     }
     private let tokensDatastore: TokensDataStore
+    private let assetDefinitionStore: AssetDefinitionStore
 
-    init(config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore) {
+    init(config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
         self.config = config
         self.ethPrice = ethPrice
         self.ethBalance = ethBalance
         self.tokensDatastore = tokensDatastore
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
 	func start() {
@@ -141,7 +142,11 @@ class UniversalLinkCoordinator: Coordinator {
             getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
                 guard let strongSelf = self else { return }
                 guard let balance = try? result.dematerialize() else {
-                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                    if let reachabilityManager = NetworkReachabilityManager(), !reachabilityManager.isReachable {
+                        strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
+                    } else {
+                        strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                    }
                     return
                 }
                 //filter null tokens
@@ -263,8 +268,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func makeTokenHolder(_ bytes32Tokens: [String], _ indices: [UInt16], _ contractAddress: String) {
-        //TODO better to pass in the store instance once UniversalLinkCoordinator is owned by InCoordinator
-        AssetDefinitionStore().fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
+        assetDefinitionStore.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
             guard let strongSelf = self else { return }
 
             func makeTokenHolder(name: String) {
