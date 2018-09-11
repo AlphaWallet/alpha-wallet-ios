@@ -14,6 +14,7 @@ class InCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             wallet: .make(),
             keystore: FakeKeystore(wallets: [wallet]),
+            assetDefinitionStore: AssetDefinitionStore(),
             config: config
         )
 
@@ -44,6 +45,7 @@ class InCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             wallet: .make(),
             keystore: keystore,
+            assetDefinitionStore: AssetDefinitionStore(),
             config: .make()
         )
 
@@ -62,6 +64,7 @@ class InCoordinatorTests: XCTestCase {
                 navigationController: FakeNavigationController(),
                 wallet: wallet,
                 keystore: FakeKeystore(wallets: [wallet]),
+                assetDefinitionStore: AssetDefinitionStore(),
                 config: .make()
         )
         coordinator.showTabBar(for: .make())
@@ -80,6 +83,7 @@ class InCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             wallet: wallet,
             keystore: FakeKeystore(wallets: [wallet]),
+            assetDefinitionStore: AssetDefinitionStore(),
             config: .make()
         )
         coordinator.showTabBar(for: .make())
@@ -97,6 +101,7 @@ class InCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             wallet: .make(),
             keystore: FakeEtherKeystore(),
+            assetDefinitionStore: AssetDefinitionStore(),
             config: .make()
         )
         coordinator.showTabBar(for: .make())
@@ -128,6 +133,7 @@ class InCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             wallet: .make(),
             keystore: FakeEtherKeystore(),
+            assetDefinitionStore: AssetDefinitionStore(),
             config: .make()
         )
         coordinator.showTabBar(for: .make())
