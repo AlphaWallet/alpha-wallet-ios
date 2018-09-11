@@ -80,7 +80,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
-        let controller = TokensCardViewController(config: session.config, tokenObject: token, account: account, session: session, tokensStorage: tokensStorage, viewModel: viewModel)
+        let controller = TokensCardViewController(config: session.config, tokenObject: token, account: account, tokensStorage: tokensStorage, viewModel: viewModel)
         controller.delegate = self
         return controller
     }
