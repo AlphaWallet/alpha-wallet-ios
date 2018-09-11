@@ -38,20 +38,8 @@ class TokensViewModel {
         return tokenValue * price
     }
 
-    var headerBalance: String? {
-        return amount
-    }
-
-    var headerBalanceTextColor: UIColor {
-        return Colors.black
-    }
-
     var headerBackgroundColor: UIColor {
         return .white
-    }
-
-    var headerBalanceFont: UIFont {
-        return Fonts.semibold(size: 26)!
     }
 
     var title: String {
@@ -88,14 +76,6 @@ class TokensViewModel {
             return false
         }
         return true
-    }
-
-    var footerTextColor: UIColor {
-        return Colors.black
-    }
-
-    var footerTextFont: UIFont {
-        return Fonts.light(size: 15)!
     }
 
     init(

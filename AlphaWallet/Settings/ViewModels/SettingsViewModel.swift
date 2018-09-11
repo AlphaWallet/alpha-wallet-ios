@@ -38,14 +38,6 @@ struct SettingsViewModel {
         }
     }
 
-    var networkTitle: String {
-        return R.string.localizable.settingsNetworkButtonTitle()
-    }
-
-    var currencyTitle: String {
-        return R.string.localizable.settingsCurrencyButtonTitle()
-    }
-    
     var localeTitle: String {
         return R.string.localizable.settingsLanguageButtonTitle()
     }

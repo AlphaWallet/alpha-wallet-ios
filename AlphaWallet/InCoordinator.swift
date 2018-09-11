@@ -65,6 +65,7 @@ class InCoordinator: Coordinator {
             navigationController: UINavigationController = NavigationController(),
             wallet: Wallet,
             keystore: Keystore,
+            assetDefinitionStore: AssetDefinitionStore,
             config: Config = Config(),
             appTracker: AppTracker = AppTracker()
     ) {
@@ -73,7 +74,7 @@ class InCoordinator: Coordinator {
         self.keystore = keystore
         self.config = config
         self.appTracker = appTracker
-        self.assetDefinitionStore = AssetDefinitionStore()
+        self.assetDefinitionStore = assetDefinitionStore
         self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
     }
 

@@ -19,7 +19,6 @@ struct TransactionDetailsViewModel {
     private let transaction: Transaction
     private let config: Config
     private let chainState: ChainState
-    private let shortFormatter = EtherNumberFormatter.short
     private let fullFormatter = EtherNumberFormatter.full
     private let currencyRate: CurrencyRate?
 
