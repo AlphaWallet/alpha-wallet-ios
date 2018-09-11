@@ -52,10 +52,6 @@ struct TransactionsViewModel {
         return Fonts.regular(size: 16)!
     }
 
-    var headerBorderColor: UIColor {
-        return UIColor(hex: "e1e1e1")
-    }
-
     var numberOfSections: Int {
         return items.count
     }

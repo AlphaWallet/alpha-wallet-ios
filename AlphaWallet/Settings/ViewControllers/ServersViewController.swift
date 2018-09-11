@@ -14,7 +14,6 @@ class ServersViewController: UIViewController {
     let header = TokensCardViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
     var viewModel: ServersViewModel?
-    private var balances: [Address: Balance?] = [:]
 
     init() {
         super.init(nibName: nil, bundle: nil)

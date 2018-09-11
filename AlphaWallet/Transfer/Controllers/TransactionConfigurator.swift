@@ -34,10 +34,6 @@ class TransactionConfigurator {
         return transaction.gasPrice ?? configuration.gasPrice
     }()
 
-    var calculatedGasLimit: BigInt? {
-        return transaction.gasLimit
-    }
-
     var requestEstimateGas: Bool {
         return transaction.gasLimit == .none
     }

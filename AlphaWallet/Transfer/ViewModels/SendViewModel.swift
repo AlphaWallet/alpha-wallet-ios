@@ -40,26 +40,6 @@ struct SendViewModel {
         }
     }
 
-    var textFieldTextColor: UIColor {
-        return Colors.appText
-    }
-    var textFieldFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
-            return Fonts.light(size: 11)!
-        } else {
-            return Fonts.light(size: 15)!
-        }
-    }
-    var textFieldBorderColor: UIColor {
-        return Colors.appBackground
-    }
-    var textFieldBorderWidth: CGFloat {
-        return 1
-    }
-    var textFieldHorizontalPadding: CGFloat {
-        return 22
-    }
-
     var showAlternativeAmount: Bool {
         guard let currentTokenInfo = storage.tickers?[destinationAddress.description], let price = Double(currentTokenInfo.price_usd), price > 0 else {
             return false
@@ -70,9 +50,6 @@ struct SendViewModel {
     var myAddressText: String {
         return session.account.address.description
     }
-	var addressColor: UIColor {
-		return Colors.appText
-	}
     var addressFont: UIFont {
         return Fonts.semibold(size: 14)!
     }

@@ -27,7 +27,6 @@ class UniversalLinkCoordinator: Coordinator {
     private let ethPrice: Subscribable<Double>
     private let ethBalance: Subscribable<BigInt>
     private var hasCompleted = false
-    private var addressOfNewWallet: String?
     private var getERC875TokenBalanceCoordinator: GetERC875BalanceCoordinator?
     //TODO better to make sure tokenHolder is non-optional. But be careful that ImportMagicTokenViewController also handles when viewModel always has a TokenHolder. Needs good defaults in TokenHolder that can be displayed
     private var tokenHolder: TokenHolder?
