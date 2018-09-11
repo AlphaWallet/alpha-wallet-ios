@@ -3,11 +3,11 @@
 import UIKit
 
 class TokenCardsViewControllerHeader: UIView {
-    let background = UIView()
-    let titleLabel = UILabel()
-    let blockchainLabel = UILabel()
-    let separator = UILabel()
-    let issuerLabel = UILabel()
+    private let background = UIView()
+    private let titleLabel = UILabel()
+    private let blockchainLabel = UILabel()
+    private let separator = UILabel()
+    private let issuerLabel = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
