@@ -23,7 +23,7 @@ class ConfirmPaymentViewController: UIViewController {
     let session: WalletSession
     let stackViewController = StackViewController()
     lazy var sendTransactionCoordinator = {
-        return SendTransactionCoordinator(session: self.session, keystore: keystore, confirmType: confirmType)
+        return SendTransactionCoordinator(session: session, keystore: keystore, confirmType: confirmType)
     }()
     lazy var submitButton: UIButton = {
         let button = Button(size: .large, style: .solid)
@@ -56,17 +56,17 @@ class ConfirmPaymentViewController: UIViewController {
         navigationItem.title = viewModel.title
 
         configurator.load { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success:
-                self.reloadView()
+                strongSelf.reloadView()
             case .failure(let error):
-                self.displayError(error: error)
+                strongSelf.displayError(error: error)
             }
         }
         configurator.configurationUpdate.subscribe { [weak self] _ in
-            guard let `self` = self else { return }
-            self.reloadView()
+            guard let strongSelf = self else { return }
+            strongSelf.reloadView()
         }
     }
 
@@ -138,7 +138,7 @@ class ConfirmPaymentViewController: UIViewController {
             currentBalance: session.balance,
             currencyRate: session.balanceCoordinator.currencyRate
         )
-        self.configure(for: viewModel)
+        configure(for: viewModel)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -153,17 +153,17 @@ class ConfirmPaymentViewController: UIViewController {
             currencyRate: session.balanceCoordinator.currencyRate
         )
         controller.delegate = self
-        self.navigationController?.pushViewController(controller, animated: true)
+        navigationController?.pushViewController(controller, animated: true)
     }
 
     @objc func send() {
-        self.displayLoading()
+        displayLoading()
 
         let transaction = configurator.formUnsignedTransaction()
-        self.sendTransactionCoordinator.send(transaction: transaction) { [weak self] result in
-            guard let `self` = self else { return }
-            self.didCompleted?(result)
-            self.hideLoading()
+        sendTransactionCoordinator.send(transaction: transaction) { [weak self] result in
+            guard let strongSelf = self else { return }
+            strongSelf.didCompleted?(result)
+            strongSelf.hideLoading()
         }
     }
 }

@@ -12,7 +12,8 @@ class MarketQueueHandlerTests: XCTestCase {
     func testGetOrders() {
         let expectation = self.expectation(description: "wait til callback")
         expectations.append(expectation)
-        MarketQueueHandler().getOrders(callback: { callback in
+        let marketQueueHandler = MarketQueueHandler()
+        marketQueueHandler.getOrders(callback: { callback in
             print(callback)
             expectation.fulfill()
         })

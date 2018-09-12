@@ -61,11 +61,12 @@ class AccountsCoordinator: Coordinator {
                 alertButtonTitles: [R.string.localizable.walletCreateButtonTitle(), R.string.localizable.walletImportButtonTitle(), R.string.localizable.cancel()],
                 alertButtonStyles: [.default, .default, .cancel],
                 viewController: navigationController,
-                preferredStyle: .actionSheet) { index in
+                preferredStyle: .actionSheet) { [weak self] index in
+                    guard let strongSelf = self else { return }
 			        if index == 0 {
-                        self.showCreateWallet()
+                        strongSelf.showCreateWallet()
                     } else if index == 1 {
-                        self.showImportWallet()
+                        strongSelf.showImportWallet()
                     }
         }
 	}
@@ -99,15 +100,16 @@ class AccountsCoordinator: Coordinator {
         switch account.type {
         case .real(let account):
             let actionTitle = R.string.localizable.walletsBackupAlertSheetTitle()
-            let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { _ in
+            let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
+                guard let strongSelf = self else { return }
                 let coordinator = BackupCoordinator(
-                    navigationController: self.navigationController,
-                    keystore: self.keystore,
+                    navigationController: strongSelf.navigationController,
+                    keystore: strongSelf.keystore,
                     account: account
                 )
-                coordinator.delegate = self
+                coordinator.delegate = strongSelf
                 coordinator.start()
-                self.addCoordinator(coordinator)
+                strongSelf.addCoordinator(coordinator)
             }
             controller.addAction(backupKeystoreAction)
         case .watch:
@@ -146,12 +148,12 @@ extension AccountsCoordinator: WalletCoordinatorDelegate {
     func didFinish(with account: Wallet, in coordinator: WalletCoordinator) {
         delegate?.didAddAccount(account: account, in: self)
         if let delegate = delegate {
-            self.removeCoordinator(coordinator)
+            removeCoordinator(coordinator)
             delegate.didSelectAccount(account: account, in: self)
         } else {
             accountsViewController.fetch()
             coordinator.navigationController.dismiss(animated: true, completion: nil)
-            self.removeCoordinator(coordinator)
+            removeCoordinator(coordinator)
         }
     }
 

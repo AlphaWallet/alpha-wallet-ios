@@ -75,8 +75,9 @@ open class EtherKeystore: Keystore {
     // Async
     @available(iOS 10.0, *)
     func createAccount(with password: String, completion: @escaping (Result<Account, KeystoreError>) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            let account = self.createAccount(password: password)
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let strongSelf = self else { return }
+            let account = strongSelf.createAccount(password: password)
             DispatchQueue.main.async {
                 completion(.success(account))
             }
@@ -100,10 +101,11 @@ open class EtherKeystore: Keystore {
                 }
             }
         case .privateKey(let privateKey):
-            keystore(for: privateKey, password: newPassword) { result in
+            keystore(for: privateKey, password: newPassword) { [weak self] result in
+                guard let strongSelf = self else { return }
                 switch result {
                 case .success(let value):
-                    self.importKeystore(
+                    strongSelf.importKeystore(
                         value: value,
                         password: newPassword,
                         newPassword: newPassword
@@ -122,10 +124,11 @@ open class EtherKeystore: Keystore {
         case .mnemonic:
             let key = ""
             // TODO: Implement it
-            keystore(for: key, password: newPassword) { result in
+            keystore(for: key, password: newPassword) { [weak self] result in
+                guard let strongSelf = self else { return }
                 switch result {
                 case .success(let value):
-                    self.importKeystore(
+                    strongSelf.importKeystore(
                         value: value,
                         password: newPassword,
                         newPassword: newPassword
@@ -142,14 +145,15 @@ open class EtherKeystore: Keystore {
                 }
             }
         case .watch(let address):
-            self.watchAddresses = [watchAddresses, [address.description]].flatMap { $0 }
+            watchAddresses = [watchAddresses, [address.description]].flatMap { $0 }
             completion(.success(Wallet(type: .watch(address))))
         }
     }
 
     func keystore(for privateKey: String, password: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            let keystore = self.convertPrivateKeyToKeystoreFile(
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let strongSelf = self else { return }
+            let keystore = strongSelf.convertPrivateKeyToKeystoreFile(
                 privateKey: privateKey,
                 passphrase: password
             )
@@ -165,8 +169,9 @@ open class EtherKeystore: Keystore {
     }
 
     func importKeystore(value: String, password: String, newPassword: String, completion: @escaping (Result<Account, KeystoreError>) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            let result = self.importKeystore(value: value, password: password, newPassword: newPassword)
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let strongSelf = self else { return }
+            let result = strongSelf.importKeystore(value: value, password: password, newPassword: newPassword)
             DispatchQueue.main.async {
                 switch result {
                 case .success(let account):
@@ -210,7 +215,7 @@ open class EtherKeystore: Keystore {
     }
 
     func export(account: Account, password: String, newPassword: String) -> Result<String, KeystoreError> {
-        let result = self.exportData(account: account, password: password, newPassword: newPassword)
+        let result = exportData(account: account, password: password, newPassword: newPassword)
         switch result {
         case .success(let data):
             let string = String(data: data, encoding: .utf8) ?? ""
@@ -221,8 +226,9 @@ open class EtherKeystore: Keystore {
     }
 
     func export(account: Account, password: String, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            let result = self.export(account: account, password: password, newPassword: newPassword)
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let strongSelf = self else { return }
+            let result = strongSelf.export(account: account, password: password, newPassword: newPassword)
             DispatchQueue.main.async {
                 completion(result)
             }
@@ -279,8 +285,9 @@ open class EtherKeystore: Keystore {
     }
 
     func delete(wallet: Wallet, completion: @escaping (Result<Void, KeystoreError>) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async {
-            let result = self.delete(wallet: wallet)
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let strongSelf = self else { return }
+            let result = strongSelf.delete(wallet: wallet)
             DispatchQueue.main.async {
                 completion(result)
             }

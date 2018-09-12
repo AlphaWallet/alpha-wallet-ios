@@ -75,16 +75,17 @@ class WalletCoordinator: Coordinator {
     func createInstantWallet() {
         navigationController.displayLoading(text: R.string.localizable.walletCreateInProgress(), animated: false)
         let password = PasswordGenerator.generateRandom()
-        keystore.createAccount(with: password) { result in
+        keystore.createAccount(with: password) { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let account):
                 let wallet = Wallet(type: WalletType.real(account))
-                self.delegate?.didFinish(with: wallet, in: self)
+                strongSelf.delegate?.didFinish(with: wallet, in: strongSelf)
             case .failure(let error):
                 //TODO this wouldn't work since navigationController isn't shown anymore
-                self.navigationController.displayError(error: error)
+                strongSelf.navigationController.displayError(error: error)
             }
-            self.navigationController.hideLoading(animated: false)
+            strongSelf.navigationController.hideLoading(animated: false)
         }
     }
 

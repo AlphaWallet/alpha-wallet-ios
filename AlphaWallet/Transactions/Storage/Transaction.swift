@@ -69,7 +69,7 @@ class Transaction: Object {
     }
 
     var state: TransactionState {
-        return TransactionState(int: self.internalState)
+        return TransactionState(int: internalState)
     }
 }
 

@@ -40,10 +40,10 @@ class AddCustomNetworkCoordinator: Coordinator {
 
     @objc func addNetwork() {
         addCustomNetworkController.addNetwork { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let network):
-                self.delegate?.didAddNetwork(network: network, in: self)
+                strongSelf.delegate?.didAddNetwork(network: network, in: strongSelf)
             case .failure: break
             }
         }

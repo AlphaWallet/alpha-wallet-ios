@@ -132,22 +132,23 @@ public extension DirectoryContentsWatcher {
                 source.cancel()
             }
 
-            source.setEventHandler {
+            source.setEventHandler { [weak self] in
+                guard let strongSelf = self else { return }
                 let flags = source.data
 
                 if flags.contains(.delete) || flags.contains(.rename) {
-                    _ = try? self.stop()
+                    _ = try? strongSelf.stop()
                     do {
-                        try self.startObserving(closure)
+                        try strongSelf.startObserving(closure)
                     } catch {
-                        self.queue.asyncAfter(deadline: .now() + self.refreshInterval) {
-                            _ = try? self.startObserving(closure)
+                        strongSelf.queue.asyncAfter(deadline: .now() + strongSelf.refreshInterval) {
+                            _ = try? strongSelf.startObserving(closure)
                         }
                     }
                     return
                 }
 
-                self.needsToReload()
+                strongSelf.needsToReload()
             }
 
             source.setCancelHandler {
@@ -164,7 +165,10 @@ public extension DirectoryContentsWatcher {
             guard case .Started = state else { return }
 
             cancelReload?()
-            cancelReload = throttle(after: refreshInterval) { self.refresh() }
+            cancelReload = throttle(after: refreshInterval) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.refresh()
+            }
         }
 
         /**
@@ -192,7 +196,7 @@ public extension DirectoryContentsWatcher {
 
             if let previousContent = previousContent {
                 if contents != previousContent {
-                    let filenames = self.keysWithDifferentValues(between: contents, and: previousContent)
+                    let filenames = keysWithDifferentValues(between: contents, and: previousContent)
                     self.previousContent = contents
                     queue.async {
                         closure(.updated(contents: filenames))

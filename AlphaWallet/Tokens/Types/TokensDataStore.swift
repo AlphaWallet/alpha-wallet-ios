@@ -276,13 +276,14 @@ class TokensDataStore {
     func getTokenType(for addressString: String,
                       completion: @escaping (TokenType) -> Void) {
         let address = Address(string: addressString)
-        getIsERC875ContractCoordinator.getIsERC875Contract(for: address!) { result in
+        getIsERC875ContractCoordinator.getIsERC875Contract(for: address!) { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let isERC875):
                 if isERC875 {
                     completion(.erc875)
                 } else {
-                    self.getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { result in
+                    strongSelf.getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { result in
                         switch result {
                         case .success(let isERC721):
                             if isERC721 {
@@ -296,7 +297,7 @@ class TokensDataStore {
                     }
                 }
             case .failure:
-                self.getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { result in
+                strongSelf.getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { result in
                     switch result {
                     case .success(let isERC721):
                         if isERC721 {
@@ -340,31 +341,33 @@ class TokensDataStore {
             case .erc20:
                 guard let contract = Address(string: tokenObject.contract) else { return }
                 getBalanceCoordinator.getBalance(for: account.address, contract: contract) { [weak self] result in
-                    guard let `self` = self else { return }
+                    guard let strongSelf = self else { return }
                     switch result {
                     case .success(let balance):
-                        self.update(token: tokenObject, action: .value(balance))
+                        strongSelf.update(token: tokenObject, action: .value(balance))
                     case .failure: break
                     }
                     count += 1
                     if count == updateTokens.count {
-                        self.refreshETHBalance()
+                        strongSelf.refreshETHBalance()
                     }
                 }
             case .erc875:
-                getERC875Balance(for: tokenObject.contract, completion: { result in
+                getERC875Balance(for: tokenObject.contract, completion: { [weak self] result in
+                    guard let strongSelf = self else { return }
                     switch result {
                     case .success(let balance):
-                        self.update(token: tokenObject, action: .nonFungibleBalance(balance))
+                        strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
                     case .failure: break
                     }
 
                 })
             case .erc721:
-                getERC721Balance(for: tokenObject.contract, completion: { result in
+                getERC721Balance(for: tokenObject.contract, completion: { [weak self] result in
+                    guard let strongSelf = self else { return }
                     switch result {
                     case .success(let balance):
-                        self.update(token: tokenObject, action: .nonFungibleBalance(balance))
+                        strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
                     case .failure: break
                     }
 
@@ -373,13 +376,13 @@ class TokensDataStore {
         }
     }
     func refreshETHBalance() {
-        self.getBalanceCoordinator.getEthBalance(for: self.account.address) {  [weak self] result in
-            guard let `self` = self else { return }
+        getBalanceCoordinator.getEthBalance(for: account.address) {  [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let balance):
-                let etherToken = TokensDataStore.etherToken(for: self.config)
-                self.update(token: self.objects.first (where: { $0.contract.sameContract(as: etherToken.contract) })!, action: .value(balance.value))
-                self.updateDelegate()
+                let etherToken = TokensDataStore.etherToken(for: strongSelf.config)
+                strongSelf.update(token: strongSelf.objects.first (where: { $0.contract.sameContract(as: etherToken.contract) })!, action: .value(balance.value))
+                strongSelf.updateDelegate()
             case .failure: break
             }
         }
@@ -425,16 +428,16 @@ class TokensDataStore {
 //            tokens: tokens
 //        )
         provider.request(.prices) { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             guard case .success(let response) = result else { return }
             do {
                 let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
-                self.tickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
+                strongSelf.tickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
                     var dict = dict
                     dict[ticker.contract] = ticker
                     return dict
                 }
-                self.updateDelegate()
+                strongSelf.updateDelegate()
             } catch { }
         }
     }
@@ -522,15 +525,16 @@ class TokensDataStore {
     }
 
     public func fetchTokenNamesForNonFungibleTokensIfEmpty() {
-        assetDefinitionStore.forEachContractWithXML { contract in
+        assetDefinitionStore.forEachContractWithXML { [weak self] contract in
+            guard let strongSelf = self else { return }
             let localizedName = XMLHandler(contract: contract).getName()
             if localizedName != "N/A" {
-                if let storedToken = self.enabledObject.first(where: { $0.contract.sameContract(as: contract) }), storedToken.name.isEmpty {
+                if let storedToken = strongSelf.enabledObject.first(where: { $0.contract.sameContract(as: contract) }), storedToken.name.isEmpty {
                     getContractName(for: contract) { result in
                         switch result {
                         case .success(let name):
                             //TODO multiple realm writes in a loop. Should we group them together?
-                            self.updateTokenName(token: storedToken, to: name)
+                            strongSelf.updateTokenName(token: storedToken, to: name)
                         case .failure:
                             break
                         }

@@ -45,13 +45,13 @@ class InCoordinator: Coordinator {
     var ethBalance = Subscribable<BigInt>(nil)
     weak var delegate: InCoordinatorDelegate?
     var transactionCoordinator: TransactionCoordinator? {
-        return self.coordinators.compactMap {
+        return coordinators.compactMap {
             $0 as? TransactionCoordinator
         }.first
     }
 
     var tabBarController: UITabBarController? {
-        return self.navigationController.viewControllers.first as? UITabBarController
+        return navigationController.viewControllers.first as? UITabBarController
     }
 
     lazy var helpUsCoordinator: HelpUsCoordinator = {
@@ -288,7 +288,7 @@ class InCoordinator: Coordinator {
     }
 
     func restart(for account: Wallet, in coordinator: TransactionCoordinator) {
-        self.navigationController.dismiss(animated: false, completion: nil)
+        navigationController.dismiss(animated: false, completion: nil)
         coordinator.navigationController.dismiss(animated: true, completion: nil)
         coordinator.stop()
         removeAllCoordinators()
@@ -571,10 +571,11 @@ extension InCoordinator: TokensCoordinatorDelegate {
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
 
-        ClaimOrderCoordinator(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) { result in
+        ClaimOrderCoordinator(web3: web3).claimOrder(indices: signedOrder.order.indices, expiry: signedOrder.order.expiry, v: v, r: r, s: s) { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let payload):
-                let address: Address = self.initialWallet.address
+                let address: Address = strongSelf.initialWallet.address
                 let transaction = UnconfirmedTransaction(
                         transferType: .ERC875TokenOrder(tokenObject),
                         value: BigInt(signedOrder.order.price),
@@ -591,30 +592,30 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         indices: signedOrder.order.indices
                 )
 
-                let wallet = self.keystore.recentlyUsedWallet!
+                let wallet = strongSelf.keystore.recentlyUsedWallet!
                 let migration = MigrationInitializer(
                     account: wallet,
-                    chainID: self.config.chainID
+                    chainID: strongSelf.config.chainID
                 )
                 migration.perform()
-                let realm = self.realm(for: migration.config)
+                let realm = strongSelf.realm(for: migration.config)
                 
                 let tokensStorage = TokensDataStore(
                     realm: realm,
                     account: wallet,
-                    config: self.config,
+                    config: strongSelf.config,
                     web3: web3,
-                    assetDefinitionStore: self.assetDefinitionStore
+                    assetDefinitionStore: strongSelf.assetDefinitionStore
                 )
                 
                 let balance = BalanceCoordinator(
                     wallet: wallet,
-                    config: self.config,
+                    config: strongSelf.config,
                     storage: tokensStorage
                 )
                 let session = WalletSession(
                         account: wallet,
-                        config: self.config,
+                        config: strongSelf.config,
                         web3: web3,
                         balanceCoordinator: balance
                 )
@@ -638,11 +639,11 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         data: signTransaction.data,
                         gasPrice: Constants.gasPriceDefaultERC875,
                         gasLimit: signTransaction.gasLimit,
-                        chainID: self.config.chainID
+                        chainID: strongSelf.config.chainID
                 )
                 let sendTransactionCoordinator = SendTransactionCoordinator(
                         session: session,
-                        keystore: self.keystore,
+                        keystore: strongSelf.keystore,
                         confirmType: .signThenSend
                 )
 
