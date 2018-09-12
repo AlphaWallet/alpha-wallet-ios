@@ -15,13 +15,13 @@ class TransactionCoordinator: Coordinator {
     private let keystore: Keystore
     let storage: TransactionsStorage
     lazy var rootViewController: TransactionsViewController = {
-        return self.makeTransactionsController(with: self.session.account)
+        return makeTransactionsController(with: session.account)
     }()
 
     lazy var dataCoordinator: TransactionDataCoordinator = {
         let coordinator = TransactionDataCoordinator(
-            session: self.session,
-            storage: self.storage
+            session: session,
+            storage: storage
         )
         return coordinator
     }()

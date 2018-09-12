@@ -134,7 +134,7 @@ extension FixedWidthInteger {
     }
 
     func getTypedData(size: Int) -> Data {
-        var intValue = self.bigEndian
+        var intValue = bigEndian
         var data = Data(buffer: UnsafeBufferPointer(start: &intValue, count: 1))
         let num = size / 8 - 8
         if num > 0 {

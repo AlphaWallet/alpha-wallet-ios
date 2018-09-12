@@ -12,11 +12,11 @@ class TransactionViewController: UIViewController {
 
     private lazy var viewModel: TransactionDetailsViewModel = {
         return .init(
-            transaction: self.transaction,
+            transaction: transaction,
             config: session.config,
-            chainState: self.session.chainState,
-            currentWallet: self.session.account,
-            currencyRate: self.session.balanceCoordinator.currencyRate
+            chainState: session.chainState,
+            currentWallet: session.account,
+            currencyRate: session.balanceCoordinator.currencyRate
         )
     }()
     let stackViewController = StackViewController()

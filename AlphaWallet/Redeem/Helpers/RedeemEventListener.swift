@@ -18,7 +18,8 @@ class RedeemEventListener {
         if !shouldListen {
             return
         }
-        EventsRest().getEvents(for: address, completion: { result in
+        EventsRest().getEvents(for: address, completion: { [weak self] result in
+            guard let strongSelf = self else { return }
             print(result)
             switch result {
             case .success(let events):
@@ -26,7 +27,7 @@ class RedeemEventListener {
                 completion()
             case .failure(let error):
                 print(error)
-                self.start(for: address, completion: completion)
+                strongSelf.start(for: address, completion: completion)
             }
         })
     }

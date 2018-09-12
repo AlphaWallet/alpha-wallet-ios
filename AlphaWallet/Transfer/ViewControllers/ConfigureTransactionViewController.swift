@@ -25,8 +25,8 @@ class ConfigureTransactionViewController: FormViewController {
 
     lazy var viewModel: ConfigureTransactionViewModel = {
         return ConfigureTransactionViewModel(
-            config: self.config,
-            transferType: self.transferType
+            config: config,
+            transferType: transferType
         )
     }()
 
@@ -127,13 +127,15 @@ class ConfigureTransactionViewController: FormViewController {
         }
 
         +++ Section {
-            $0.hidden = Eureka.Condition.function([], { _ in
-                return self.viewModel.isDataInputHidden
+            $0.hidden = Eureka.Condition.function([], { [weak self] _ in
+                guard let strongSelf = self else { return true }
+                return strongSelf.viewModel.isDataInputHidden
             })
         }
-        <<< AppFormAppearance.textFieldFloat(tag: Values.data) {
+        <<< AppFormAppearance.textFieldFloat(tag: Values.data) { [weak self] in
+            guard let strongSelf = self else { return }
             $0.title = R.string.localizable.configureTransactionDataLabelTitle()
-            $0.value = self.configuration.data.hexEncoded
+            $0.value = strongSelf.configuration.data.hexEncoded
         }
 
         +++ Section()

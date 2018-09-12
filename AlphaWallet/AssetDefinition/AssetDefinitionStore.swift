@@ -76,17 +76,18 @@ class AssetDefinitionStore {
                 url,
                 method: .get,
                 headers: httpHeadersWithLastModifiedTimestamp(forContract: contract)
-        ).response { response in
+        ).response { [weak self] response in
+            guard let strongSelf = self else { return }
             if response.response?.statusCode == 304 {
                 completionHandler?(.unmodified)
             } else if response.response?.statusCode == 406 {
                 completionHandler?(.error)
             } else {
                 if let data = response.data, let xml = String(data: data, encoding: .utf8), !xml.isEmpty {
-                    self[contract] = xml
+                    strongSelf[contract] = xml
                     XMLHandler.invalidate(forContract: contract)
                     completionHandler?(.updated)
-                    self.subscribers.forEach { $0(contract) }
+                    strongSelf.subscribers.forEach { $0(contract) }
                 } else {
                     completionHandler?(.error)
                 }

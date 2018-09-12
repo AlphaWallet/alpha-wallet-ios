@@ -5,13 +5,13 @@ import UIKit
 
 class LockCreatePasscodeViewController: LockPasscodeViewController {
 	private lazy var lockCreatePasscodeViewModel: LockCreatePasscodeViewModel? = {
-		return self.model as? LockCreatePasscodeViewModel
+		return model as? LockCreatePasscodeViewModel
 	}()
 	private var firstPasscode: String?
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		self.title = lockCreatePasscodeViewModel?.title
-		self.lockView.lockTitle.text = lockCreatePasscodeViewModel?.initialLabelText
+		title = lockCreatePasscodeViewModel?.title
+		lockView.lockTitle.text = lockCreatePasscodeViewModel?.initialLabelText
 	}
 	override func enteredPasscode(_ passcode: String) {
 		super.enteredPasscode(passcode)
@@ -30,9 +30,9 @@ class LockCreatePasscodeViewController: LockPasscodeViewController {
 		}
 	}
 	private func showFirstPasscodeView() {
-		self.lockView.lockTitle.text = lockCreatePasscodeViewModel?.initialLabelText
+		lockView.lockTitle.text = lockCreatePasscodeViewModel?.initialLabelText
 	}
 	private func showConfirmPasscodeView() {
-		self.lockView.lockTitle.text = lockCreatePasscodeViewModel?.confirmLabelText
+		lockView.lockTitle.text = lockCreatePasscodeViewModel?.confirmLabelText
 	}
 }

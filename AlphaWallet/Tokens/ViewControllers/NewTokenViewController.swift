@@ -301,8 +301,9 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     @objc func keyboardWillShow(_ notification: Notification) {
         if let userInfo = notification.userInfo {
             if let keyboardSize = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval {
-                UIView.animate(withDuration: duration, animations: { () -> Void in
-                    self.scrollViewBottomAnchorConstraint.constant = self.footerBar.bounds.size.height - keyboardSize.height
+                UIView.animate(withDuration: duration, animations: { [weak self] () -> Void in
+                    guard let strongSelf = self else { return }
+                    strongSelf.scrollViewBottomAnchorConstraint.constant = strongSelf.footerBar.bounds.size.height - keyboardSize.height
                 })
             }
         }
@@ -311,8 +312,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     @objc func keyboardWillHide(_ notification: Notification) {
         if let userInfo = notification.userInfo {
             if let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval {
-                UIView.animate(withDuration: duration, animations: { () -> Void in
-                    self.scrollViewBottomAnchorConstraint.constant = 0
+                UIView.animate(withDuration: duration, animations: { [weak self] () -> Void in
+                    self?.scrollViewBottomAnchorConstraint.constant = 0
                 })
             }
         }
@@ -371,9 +372,9 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
         let newValue = (textField.value as NSString?)?.replacingCharacters(in: range, with: string)
         if let newValue = newValue, CryptoAddressValidator.isValidAddress(newValue) {
-            DispatchQueue.global().async {
-                DispatchQueue.main.sync {
-                    self.updateContractValue(value: newValue)
+            DispatchQueue.global().async { [weak self] in
+                DispatchQueue.main.sync { [weak self] in
+                    self?.updateContractValue(value: newValue)
                 }
             }
         }

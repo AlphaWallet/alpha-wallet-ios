@@ -100,9 +100,10 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
                                      repeats: true)
         redeemListener.shouldListen = true
         redeemListener.start(for: session.account.address,
-                             completion: {
-            self.redeemListener.stop()
-            self.showSuccessMessage()
+                             completion: { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.redeemListener.stop()
+            strongSelf.showSuccessMessage()
         })
     }
 
@@ -144,9 +145,10 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
                                 alertButtonTitles: [R.string.localizable.oK()],
                                 alertButtonStyles: [.cancel],
                                 viewController: self,
-                                completion: { _ in
+                                completion: { [weak self] _ in
+                                    guard let strongSelf = self else { return }
                                     // TODO: let token coordinator handle this as we need to refresh the token list as well
-                                    self.dismiss(animated: true, completion: nil)
+                                    strongSelf.dismiss(animated: true, completion: nil)
                                 })
 
     }

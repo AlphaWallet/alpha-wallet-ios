@@ -168,8 +168,9 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         ]
 
         if UserDefaults.standard.bool(forKey: "FASTLANE_SNAPSHOT") {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                self.demo()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.demo()
             }
         }
     }
@@ -267,13 +268,14 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             }
         }()
 
-        keystore.importWallet(type: importType) { result in
-            self.hideLoading(animated: false)
+        keystore.importWallet(type: importType) { [weak self] result in
+            guard let strongSelf = self else { return }
+            strongSelf.hideLoading(animated: false)
             switch result {
             case .success(let account):
-                self.didImport(account: account)
+                strongSelf.didImport(account: account)
             case .failure(let error):
-                self.displayError(error: error)
+                strongSelf.displayError(error: error)
             }
         }
     }
@@ -294,8 +296,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         alertController.addAction(UIAlertAction(
             title: R.string.localizable.importWalletImportAlertSheetOptionTitle(),
             style: .default
-        ) { _ in
-            self.showDocumentPicker()
+        ) {  [weak self] _ in
+            self?.showDocumentPicker()
         })
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in })
         present(alertController, animated: true)
