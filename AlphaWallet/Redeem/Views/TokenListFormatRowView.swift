@@ -188,10 +188,11 @@ class TokenListFormatRowView: UIView {
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.cachePolicy = .returnCacheDataElseLoad
-            Alamofire.request(request).response { response in
+            Alamofire.request(request).response { [weak self] response in
+                guard let strongSelf = self else { return }
                 if let data = response.data, let image = UIImage(data: data) {
                     if url == viewModel.thumbnailImageUrl {
-                        self.thumbnailImageView.image = image
+                        strongSelf.thumbnailImageView.image = image
                     }
                 }
             }

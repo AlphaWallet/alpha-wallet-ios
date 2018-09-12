@@ -13,8 +13,8 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         } else {
             let store = AssetDefinitionDiskBackingStore(directoryName: "assetDefinitionsOverrides")
             self.overridesStore = store
-            store.watchDirectoryContents { contract in
-                self.delegate?.invalidateAssetDefinition(forContract: contract)
+            store.watchDirectoryContents { [weak self] contract in
+                self?.delegate?.invalidateAssetDefinition(forContract: contract)
             }
         }
     }

@@ -47,8 +47,8 @@ class BackupCoordinator: Coordinator {
             text: R.string.localizable.exportPresentBackupOptionsLabelTitle()
         )
         keystore.export(account: account, password: password, newPassword: newPassword) { [weak self] result in
-            guard let `self` = self else { return }
-            self.handleExport(result: result, completion: completion)
+            guard let strongSelf = self else { return }
+            strongSelf.handleExport(result: result, completion: completion)
         }
     }
 
@@ -83,8 +83,9 @@ class BackupCoordinator: Coordinator {
     }
 
     func presentShareActivity(for account: Account, password: String, newPassword: String) {
-        self.presentActivityViewController(for: account, password: password, newPassword: newPassword) { result in
-            self.finish(result: result)
+        presentActivityViewController(for: account, password: password, newPassword: newPassword) { [weak self] result in
+            guard let strongSelf = self else { return }
+            strongSelf.finish(result: result)
         }
     }
 
