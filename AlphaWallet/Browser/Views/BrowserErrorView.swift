@@ -47,7 +47,7 @@ final class BrowserErrorView: UIView {
     }
 
     func show(error: Error) {
-        self.isHidden = false
+        isHidden = false
         textLabel.text = error.localizedDescription
         textLabel.textAlignment = .center
         textLabel.setNeedsLayout()
@@ -58,7 +58,7 @@ final class BrowserErrorView: UIView {
     }
 
     private func finishInit() {
-        self.backgroundColor = .white
+        backgroundColor = .white
         addSubview(textLabel)
         addSubview(reloadButton)
         NSLayoutConstraint.activate([

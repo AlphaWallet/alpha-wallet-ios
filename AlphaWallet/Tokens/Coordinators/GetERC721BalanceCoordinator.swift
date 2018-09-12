@@ -41,8 +41,9 @@ class GetERC721BalanceCoordinator {
             completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String)"))))
             return
         }
-        promise.callPromise(options: nil).done { balanceResult in
-            let balances = self.adapt(balanceResult["0"])
+        promise.callPromise(options: nil).done { [weak self] balanceResult in
+            guard let strongSelf = self else { return }
+            let balances = strongSelf.adapt(balanceResult["0"])
             completion(.success(balances))
         }.catch { error in
             completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)(): \(error)"))))

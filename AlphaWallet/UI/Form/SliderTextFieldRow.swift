@@ -59,12 +59,12 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
             let title = textLabel
             textLabel?.translatesAutoresizingMaskIntoConstraints = false
             textLabel?.setContentHuggingPriority(UILayoutPriority(500), for: .horizontal)
-            self.titleLabel = title
+            titleLabel = title
 
 //            let value = detailTextLabel
 //            value?.translatesAutoresizingMaskIntoConstraints = false
 //            value?.setContentHuggingPriority(UILayoutPriority(500), for: .horizontal)
-//            self.valueLabel = value
+//            valueLabel = value
             detailTextLabel?.isHidden = true
 
             let slider = UISlider()
@@ -121,7 +121,7 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
         if steps > 0 {
             let stepValue = round((slider.value - slider.minimumValue) / (slider.maximumValue - slider.minimumValue) * steps)
             let stepAmount = (slider.maximumValue - slider.minimumValue) / steps
-            roundedValue = stepValue * stepAmount + self.slider.minimumValue
+            roundedValue = stepValue * stepAmount + slider.minimumValue
         } else {
             roundedValue = slider.value
         }
