@@ -7,17 +7,8 @@ import BigInt
 struct NonFungibleTokenViewCellViewModel {
     private let token: TokenObject
 
-    let config: Config
-    let ticker: CoinTicker?
-
-    init(
-        config: Config,
-        token: TokenObject,
-        ticker: CoinTicker?
-    ) {
-        self.config = config
+    init(token: TokenObject) {
         self.token = token
-        self.ticker = ticker
     }
 
     var title: String {
