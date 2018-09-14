@@ -110,9 +110,6 @@ class TokensCoordinator: Coordinator {
                             }
                         }
                     }
-                    //TODO remove this and the outer DispatchQueue.global().async {} once GetNameCoordinator and related coordinators use promise properly. Must test with contract that auto-detects many tokens (24 is good enough)
-                    let millionthOfSecondsToSleep: UInt32 = 300000
-                    usleep(millionthOfSecondsToSleep)
                 }
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
