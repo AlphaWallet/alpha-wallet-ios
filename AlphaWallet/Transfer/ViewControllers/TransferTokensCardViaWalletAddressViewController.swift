@@ -40,7 +40,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
         switch tokenType {
         case .cryptoKitty:
-            tokenRowView = TokenListFormatRowView()
+            tokenRowView = CryptoKittyCardRowView()
         case .otherNonFungibleToken:
             tokenRowView = TokenCardRowView()
         }
