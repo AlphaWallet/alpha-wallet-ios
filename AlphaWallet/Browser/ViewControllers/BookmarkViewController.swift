@@ -33,7 +33,7 @@ final class BookmarkViewController: UIViewController {
         tableView.rowHeight = 60
         tableView.register(R.nib.bookmarkViewCell(), forCellReuseIdentifier: R.nib.bookmarkViewCell.name)
         view.addSubview(tableView)
-        emptyView = EmptyView(title: NSLocalizedString("bookmarks.noBookmarks.label.title", value: "No bookmarks yet!", comment: ""))
+        emptyView = EmptyView(title: R.string.localizable.browserNoBookmarksLabelTitle())
 
         NSLayoutConstraint.activate([
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -55,7 +55,7 @@ final class BookmarkViewController: UIViewController {
     }
 
     func confirmDelete(bookmark: Bookmark, index: IndexPath) {
-        confirm(title: NSLocalizedString("browser.bookmarks.confirm.delete.title", value: "Are you sure you would like to delete this bookmark?", comment: ""),
+        confirm(title: R.string.localizable.browserBookmarksConfirmDeleteTitle(),
                 okTitle: R.string.localizable.delete(),
                 okStyle: .destructive) { [weak self] result in
                     guard let strongSelf = self else { return }
