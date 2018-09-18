@@ -78,6 +78,8 @@ public struct Constants {
     //contract addresses that are compatible with opensea
     //See comment in CryptoKittyHandling enum
     public static let cryptoKittiesContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
+
+    public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
 }
 
 public struct UnitConfiguration {

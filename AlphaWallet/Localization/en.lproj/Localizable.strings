@@ -77,6 +77,8 @@
 "wallet.import.button.title" = "Import Wallet";
 "wallets.backup.alertSheet.title" = "Backup Encrypted Private Key";
 "transactions.tabbar.item.title" = "My Transactions";
+"transactions.received.ether" = "You have received %@ ether";
+"transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive Ether?";
 "transaction.navigation.title" = "Transaction";
 "import.navigation.title" = "Import Wallet";
 "configureTransaction.data.label.title" = "Transaction Data (Optional)";

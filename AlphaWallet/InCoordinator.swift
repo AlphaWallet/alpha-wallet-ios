@@ -9,6 +9,7 @@ import BigInt
 protocol InCoordinatorDelegate: class {
     func didCancel(in coordinator: InCoordinator)
     func didUpdateAccounts(in coordinator: InCoordinator)
+    func didShowWallet(in coordinator: InCoordinator)
 }
 
 enum Tabs {
@@ -48,6 +49,9 @@ class InCoordinator: Coordinator {
         return coordinators.compactMap {
             $0 as? TransactionCoordinator
         }.first
+    }
+    private var transactionCoordinators: [TransactionCoordinator] {
+        return coordinators.compactMap { $0 as? TransactionCoordinator }
     }
 
     var tabBarController: UITabBarController? {
@@ -540,6 +544,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 
     func didPressShowWallet(in coordinator: SettingsCoordinator) {
         showPaymentFlow(for: .request)
+        delegate?.didShowWallet(in: self)
     }
 }
 
