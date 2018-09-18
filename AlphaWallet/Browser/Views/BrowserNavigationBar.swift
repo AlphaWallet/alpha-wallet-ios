@@ -36,7 +36,7 @@ final class BrowserNavigationBar: UINavigationBar {
         textField.clearButtonMode = .whileEditing
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 6, height: 30))
         textField.leftViewMode = .always
-        textField.placeholder = NSLocalizedString("browser.url.textfield.placeholder", value: "Search or enter website url", comment: "")
+        textField.placeholder = R.string.localizable.browserUrlTextfieldPlaceholder()
         textField.keyboardType = .webSearch
 
         moreButton.translatesAutoresizingMaskIntoConstraints = false
