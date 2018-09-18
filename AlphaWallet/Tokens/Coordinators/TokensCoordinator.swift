@@ -220,18 +220,27 @@ class TokensCoordinator: Coordinator {
             completion(.failed(networkReachable: NetworkReachabilityManager()?.isReachable))
         }
 
+        func callCompletionAsDelegateTokenOrNot() {
+            assert(completedSymbol != nil && completedSymbol?.isEmpty == true)
+            //Must check because we also get an empty symbol (and name) if there's no connectivity
+            //TODO maybe better to share an instance of the reachability manager
+            if let reachabilityManager = NetworkReachabilityManager(), reachabilityManager.isReachable {
+                completion(.delegateTokenComplete)
+            } else {
+                callCompletionFailed()
+            }
+        }
+
         func callCompletionOnAllData() {
             if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance, let tokenType = completedTokenType {
-                completion(.nonFungibleTokenComplete(name: completedName, symbol: completedSymbol, balance: completedBalance, tokenType: tokenType))
+                if completedSymbol.isEmpty {
+                    callCompletionAsDelegateTokenOrNot()
+                } else {
+                    completion(.nonFungibleTokenComplete(name: completedName, symbol: completedSymbol, balance: completedBalance, tokenType: tokenType))
+                }
             } else if let completedName = completedName, let completedSymbol = completedSymbol, let completedDecimals = completedDecimals {
                 if completedSymbol.isEmpty {
-                    //Must check because we also get an empty symbol (and name) if there's no connectivity
-                    //TODO maybe better to share an instance of the reachability manager
-                    if let reachabilityManager = NetworkReachabilityManager(), reachabilityManager.isReachable {
-                        completion(.delegateTokenComplete)
-                    } else {
-                        callCompletionFailed()
-                    }
+                    callCompletionAsDelegateTokenOrNot()
                 } else {
                     completion(.fungibleTokenComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
                 }
