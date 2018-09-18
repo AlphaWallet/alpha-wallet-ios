@@ -2,12 +2,14 @@
 
 import Foundation
 import UIKit
+import BigInt
 import JSONRPCKit
 import APIKit
 import RealmSwift
 import Result
 import Moya
 import TrustKeystore
+import UserNotifications
 
 enum TransactionError: Error {
     case failedToFetch
@@ -26,6 +28,7 @@ class TransactionDataCoordinator {
 
     let storage: TransactionsStorage
     let session: WalletSession
+    private let keystore: Keystore
     let config = Config()
     var viewModel: TransactionsViewModel {
         return .init(transactions: storage.objects)
@@ -38,13 +41,16 @@ class TransactionDataCoordinator {
         return TransactionsTracker(sessionID: session.sessionID)
     }()
     private let trustProvider = TrustProviderFactory.makeProvider()
+    private var previousTransactions: [Transaction]?
 
     init(
         session: WalletSession,
-        storage: TransactionsStorage
+        storage: TransactionsStorage,
+        keystore: Keystore
     ) {
         self.session = session
         self.storage = storage
+        self.keystore = keystore
         NotificationCenter.default.addObserver(self, selector: #selector(stopTimers), name: .UIApplicationWillResignActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(restartTimers), name: .UIApplicationDidBecomeActive, object: nil)
     }
@@ -192,7 +198,33 @@ class TransactionDataCoordinator {
         handleUpdateItems()
     }
 
+    private func notifyUserEtherReceivedInNewTransactions() {
+        if let previousTransactions = previousTransactions {
+            let diff = storage.objects - previousTransactions
+            if let wallet = keystore.recentlyUsedWallet {
+                let newIncomingEthTransactions = diff.filter { $0.to.sameContract(as: wallet.address.eip55String) }
+                let formatter = EtherNumberFormatter.short
+                for each in newIncomingEthTransactions {
+                    let amount = formatter.string(from: BigInt(each.value) ?? BigInt(), decimals: 18)
+                    notifyUserEtherReceived(for: each.id, amount: amount)
+                }
+            }
+        }
+        previousTransactions = storage.objects
+    }
+
+    private func notifyUserEtherReceived(for transactionId: String, amount: String) {
+        let notificationCenter = UNUserNotificationCenter.current()
+        let content = UNMutableNotificationContent()
+        content.body = R.string.localizable.transactionsReceivedEther(amount)
+        content.sound = .default()
+        let identifier = Constants.etherReceivedNotificationIdentifier
+        let request = UNNotificationRequest(identifier: "\(identifier):\(transactionId)", content: content, trigger: nil)
+        notificationCenter.add(request)
+    }
+
     func handleUpdateItems() {
+        notifyUserEtherReceivedInNewTransactions()
         delegate?.didUpdate(result: .success(storage.objects))
     }
 

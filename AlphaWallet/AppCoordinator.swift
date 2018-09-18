@@ -22,6 +22,9 @@ class AppCoordinator: NSObject, Coordinator {
     var inCoordinator: InCoordinator? {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
+    var pushNotificationsCoordinator: PushNotificationsCoordinator? {
+        return coordinators.first { $0 is PushNotificationsCoordinator } as? PushNotificationsCoordinator
+    }
     private var universalLinkCoordinator: UniversalLinkCoordinator? {
         return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
     }
@@ -107,6 +110,9 @@ class AppCoordinator: NSObject, Coordinator {
 
     func handleNotifications() {
         UIApplication.shared.applicationIconBadgeNumber = 0
+        let coordinator = PushNotificationsCoordinator()
+        coordinator.start()
+        addCoordinator(coordinator)
     }
 
     func resetToWelcomeScreen() {
@@ -214,6 +220,10 @@ extension AppCoordinator: InCoordinatorDelegate {
     }
 
     func didUpdateAccounts(in coordinator: InCoordinator) {
+    }
+
+    func didShowWallet(in coordinator: InCoordinator) {
+        pushNotificationsCoordinator?.didShowWallet(in: coordinator.navigationController)
     }
 }
 

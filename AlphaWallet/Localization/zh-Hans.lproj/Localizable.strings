@@ -66,6 +66,8 @@
 "wallet.navigation.title" = "钱包";
 "wallets.backup.alertSheet.title" = "备份加密后的私钥文档";
 "transactions.tabbar.item.title" = "我的账单";
+"transactions.received.ether" = "You have received %@ ether";
+"transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive Ether?";
 "transaction.navigation.title" = "交易";
 "import.navigation.title" = "导入钱包";
 "configureTransaction.data.label.title" = "交易数据(可选)";

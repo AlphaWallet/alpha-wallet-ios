@@ -21,7 +21,8 @@ class TransactionCoordinator: Coordinator {
     lazy var dataCoordinator: TransactionDataCoordinator = {
         let coordinator = TransactionDataCoordinator(
             session: session,
-            storage: storage
+            storage: storage,
+            keystore: keystore
         )
         return coordinator
     }()
