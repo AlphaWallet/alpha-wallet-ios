@@ -89,6 +89,11 @@
 "browser.reload.button.title" = "Reload";
 "browser.addbookmark.button.title" = "Add Bookmark";
 "browser.tabbar.item.title" = "Browser";
+"browser.history.confirm.delete.title" = "Are you sure you would like to delete?";
+"browser.noHistory.label.title" = "No history yet";
+"browser.bookmarks.confirm.delete.title" = "Are you sure you would like to delete this bookmark?";
+"browser.noBookmarks.label.title" = "No bookmarks yet!";
+"browser.url.textfield.placeholder" = "Search or enter website URL";
 "configureTransaction.data.label.title" = "Datos de transacción (Opcional)";
 "confirmPayment.data.label.title" = "Datos";
 "Contract Address" = "Contract Address";
