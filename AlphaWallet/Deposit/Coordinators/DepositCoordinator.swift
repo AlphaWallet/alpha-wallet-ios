@@ -41,14 +41,17 @@ class DepositCoordinator: Coordinator {
             message: R.string.localizable.depositBuyLabelTitle(),
             preferredStyle: .actionSheet
         )
-        let coinbaseAction = UIAlertAction(title: R.string.localizable.depositBuyButtonCoinbaseTitle(), style: .default) { _ in
-            self.showCoinbase()
+        let coinbaseAction = UIAlertAction(title: R.string.localizable.depositBuyButtonCoinbaseTitle(), style: .default) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.showCoinbase()
         }
-        let shapeShiftAction = UIAlertAction(title: R.string.localizable.depositBuyButtonShapeShiftTitle(), style: .default) { _ in
-            self.showShapeShift()
+        let shapeShiftAction = UIAlertAction(title: R.string.localizable.depositBuyButtonShapeShiftTitle(), style: .default) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.showShapeShift()
         }
-        let changellyAction = UIAlertAction(title: R.string.localizable.depositBuyButtonChangellyTitle(), style: .default) { _ in
-            self.showChangelly()
+        let changellyAction = UIAlertAction(title: R.string.localizable.depositBuyButtonChangellyTitle(), style: .default) { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.showChangelly()
         }
         let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
 

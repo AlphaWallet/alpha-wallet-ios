@@ -33,7 +33,7 @@ final class BookmarkViewController: UIViewController {
         tableView.rowHeight = 60
         tableView.register(R.nib.bookmarkViewCell(), forCellReuseIdentifier: R.nib.bookmarkViewCell.name)
         view.addSubview(tableView)
-        emptyView = EmptyView(title: NSLocalizedString("bookmarks.noBookmarks.label.title", value: "No bookmarks yet!", comment: ""))
+        emptyView = EmptyView(title: R.string.localizable.browserNoBookmarksLabelTitle())
 
         NSLayoutConstraint.activate([
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -55,12 +55,13 @@ final class BookmarkViewController: UIViewController {
     }
 
     func confirmDelete(bookmark: Bookmark, index: IndexPath) {
-        confirm(title: NSLocalizedString("browser.bookmarks.confirm.delete.title", value: "Are you sure you would like to delete this bookmark?", comment: ""),
+        confirm(title: R.string.localizable.browserBookmarksConfirmDeleteTitle(),
                 okTitle: R.string.localizable.delete(),
-                okStyle: .destructive) { result in
+                okStyle: .destructive) { [weak self] result in
+                    guard let strongSelf = self else { return }
                     switch result {
                     case .success:
-                        self.delete(bookmark: bookmark, index: index)
+                        strongSelf.delete(bookmark: bookmark, index: index)
                     case .failure: break
                     }
         }
@@ -89,7 +90,7 @@ extension BookmarkViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = self.tableView.dequeueReusableCell(withIdentifier: R.nib.bookmarkViewCell.name, for: indexPath) as! BookmarkViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: R.nib.bookmarkViewCell.name, for: indexPath) as! BookmarkViewCell
         cell.viewModel = BookmarkViewModel(bookmark: viewModel.bookmark(for: indexPath))
         return cell
     }

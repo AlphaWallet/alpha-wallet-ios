@@ -58,7 +58,7 @@ extension Data {
                 byte = val << 4
             } else {
                 byte += val
-                self.append(byte)
+                append(byte)
             }
             even = !even
         }

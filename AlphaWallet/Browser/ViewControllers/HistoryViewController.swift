@@ -29,7 +29,7 @@ final class HistoryViewController: UIViewController {
         tableView.rowHeight = 60
         tableView.register(R.nib.bookmarkViewCell(), forCellReuseIdentifier: R.nib.bookmarkViewCell.name)
         view.addSubview(tableView)
-        emptyView = EmptyView(title: NSLocalizedString("history.noHistory.label.title", value: "No history yet!", comment: ""))
+        emptyView = EmptyView(title: R.string.localizable.browserNoHistoryLabelTitle())
 
         NSLayoutConstraint.activate([
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -77,7 +77,7 @@ extension HistoryViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = self.tableView.dequeueReusableCell(withIdentifier: R.nib.bookmarkViewCell.name, for: indexPath) as! BookmarkViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: R.nib.bookmarkViewCell.name, for: indexPath) as! BookmarkViewCell
         cell.viewModel = HistoryViewModel(history: viewModel.item(for: indexPath))
         return cell
     }
@@ -98,7 +98,7 @@ extension HistoryViewController: UITableViewDelegate {
         if editingStyle == .delete {
             let history = viewModel.item(for: indexPath)
             confirm(
-                title: NSLocalizedString("Are you sure you would like to delete?", value: "Are you sure you would like to delete?", comment: ""),
+                title: R.string.localizable.browserHistoryConfirmDeleteTitle(),
                 okTitle: R.string.localizable.delete(),
                 okStyle: .destructive
             ) { [weak self] result in

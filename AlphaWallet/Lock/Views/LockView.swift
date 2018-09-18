@@ -18,7 +18,7 @@ class LockView: UIView {
 		applyConstraints()
 	}
 	private func configCharacterView() {
-		characterView = UIStackView(arrangedSubviews: self.characters)
+		characterView = UIStackView(arrangedSubviews: characters)
 		characterView.axis = .horizontal
 		characterView.distribution = .fillEqually
 		characterView.alignment = .fill
@@ -32,17 +32,17 @@ class LockView: UIView {
 		lockTitle.textColor = Colors.appWhite
 	}
 	private func applyConstraints() {
-		characterView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true
-		characterView.centerYAnchor.constraint(equalTo: self.centerYAnchor).isActive = true
+		characterView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true
+		characterView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
 		characterView.heightAnchor.constraint(equalToConstant: 20.0).isActive = true
-		lockTitle.trailingAnchor.constraint(equalTo: self.trailingAnchor).isActive = true
-		lockTitle.leadingAnchor.constraint(equalTo: self.leadingAnchor).isActive = true
+		lockTitle.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+		lockTitle.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
 		lockTitle.bottomAnchor.constraint(equalTo: characterView.topAnchor, constant: -20).isActive = true
 	}
 	private func addUiElements() {
-		self.backgroundColor = Colors.appBackground
-		self.addSubview(lockTitle)
-		self.addSubview(characterView)
+		backgroundColor = Colors.appBackground
+		addSubview(lockTitle)
+		addSubview(characterView)
 	}
 	private func passcodeCharacters() -> [PasscodeCharacterView] {
 		var characters = [PasscodeCharacterView]()

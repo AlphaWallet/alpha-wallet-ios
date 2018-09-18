@@ -133,6 +133,11 @@
 "browser.reload.button.title" = "刷新";
 "browser.addbookmark.button.title" = "添加书签";
 "browser.tabbar.item.title" = "浏览器";
+"browser.history.confirm.delete.title" = "Are you sure you would like to delete?";
+"browser.noHistory.label.title" = "No history yet";
+"browser.bookmarks.confirm.delete.title" = "Are you sure you would like to delete this bookmark?";
+"browser.noBookmarks.label.title" = "No bookmarks yet!";
+"browser.url.textfield.placeholder" = "Search or enter website URL";
 "configureTransaction.gasPriceGwei.label.title" = "Gas费用 (Gwei)";
 "enterPassword.confirmPassword.textField.placeholder" = "确认密码";
 "enterPassword.navigation.title" = "备份密码";

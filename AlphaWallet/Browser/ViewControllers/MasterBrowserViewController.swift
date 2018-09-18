@@ -90,9 +90,9 @@ final class MasterBrowserViewController: UIViewController {
             UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil),
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: self, action: nil),
         ]
-        self.toolbarItems = items
-        self.navigationController?.isToolbarHidden = false
-        self.navigationController?.toolbar.isTranslucent = false
+        toolbarItems = items
+        navigationController?.isToolbarHidden = false
+        navigationController?.toolbar.isTranslucent = false
         updateView()
     }
 

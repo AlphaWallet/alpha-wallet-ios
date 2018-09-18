@@ -5,7 +5,6 @@ import UIKit
 
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
-    var config: Config
     var tokens: [TokenObject] = []
     var tickers: [String: CoinTicker]?
     var etherTokenContract: String
@@ -83,7 +82,6 @@ class TokensViewModel {
         tokens: [TokenObject],
         tickers: [String: CoinTicker]?
     ) {
-        self.config = config
         self.etherTokenContract = TokensDataStore.etherToken(for: config).contract
         self.tokens = tokens
         self.tickers = tickers

@@ -8,7 +8,7 @@ extension CurrencyRate {
         guard let feeInDouble = Double(fee) else {
             return nil
         }
-        guard let price = self.rates.filter({ $0.code == symbol }).first else {
+        guard let price = rates.filter({ $0.code == symbol }).first else {
             return nil
         }
         let formattedFee = CurrencyFormatter.formatter.string(from: NSNumber(value: price.price * feeInDouble))
