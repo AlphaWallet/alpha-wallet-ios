@@ -108,7 +108,7 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
                                     viewController: self,
                                     completion: nil)
         } else {
-            self.delegate?.didSelectTokenHolder(tokenHolder: selectedTokenHolders.first!, in: self)
+            delegate?.didSelectTokenHolder(tokenHolder: selectedTokenHolders.first!, in: self)
         }
     }
 

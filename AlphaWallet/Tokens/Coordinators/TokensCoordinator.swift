@@ -87,35 +87,34 @@ class TokensCoordinator: Coordinator {
 
         guard let address = keystore.recentlyUsedWallet?.address else { return }
         let web3 = Web3Swift(url: session.config.rpcURL)
-        GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: session.config.chainID) { contracts in
-            guard let currentAddress = self.keystore.recentlyUsedWallet?.address, currentAddress.eip55String.sameContract(as: address.eip55String) else { return }
+        GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: session.config.chainID) { [weak self] contracts in
+            guard let strongSelf = self else { return }
+            guard let currentAddress = strongSelf.keystore.recentlyUsedWallet?.address, currentAddress.eip55String.sameContract(as: address.eip55String) else { return }
             let detectedContracts = contracts.map { $0.lowercased() }
-            let alreadyAddedContracts = self.storage.enabledObject.map { $0.address.eip55String.lowercased() }
-            let deletedContracts = self.storage.deletedContracts.map { $0.contract.lowercased() }
-            let hiddenContracts = self.storage.hiddenContracts.map { $0.contract.lowercased() }
-            let delegateContracts = self.storage.delegateContracts.map { $0.contract.lowercased() }
+            let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.address.eip55String.lowercased() }
+            let deletedContracts = strongSelf.storage.deletedContracts.map { $0.contract.lowercased() }
+            let hiddenContracts = strongSelf.storage.hiddenContracts.map { $0.contract.lowercased() }
+            let delegateContracts = strongSelf.storage.delegateContracts.map { $0.contract.lowercased() }
             let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
             var contractsPulled = 0
             var hasRefreshedAfterAddingAllContracts = false
-            DispatchQueue.global().async {
+            DispatchQueue.global().async { [weak strongSelf] in
+                guard let strongSelf = self else { return }
                 for eachContract in contractsToAdd {
-                    self.addToken(for: eachContract) {
+                    strongSelf.addToken(for: eachContract) {
                         contractsPulled += 1
                         if contractsPulled == contractsToAdd.count {
                             hasRefreshedAfterAddingAllContracts = true
                             DispatchQueue.main.async {
-                                self.tokensViewController.fetch()
+                                strongSelf.tokensViewController.fetch()
                             }
                         }
                     }
-                    //TODO remove this and the outer DispatchQueue.global().async {} once GetNameCoordinator and related coordinators use promise properly. Must test with contract that auto-detects many tokens (24 is good enough)
-                    let millionthOfSecondsToSleep: UInt32 = 300000
-                    usleep(millionthOfSecondsToSleep)
                 }
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     if !hasRefreshedAfterAddingAllContracts {
-                        self.tokensViewController.fetch()
+                        strongSelf.tokensViewController.fetch()
                     }
                 }
             }
@@ -123,7 +122,8 @@ class TokensCoordinator: Coordinator {
     }
 
     private func addToken(for contract: String, completion: @escaping () -> Void) {
-        fetchContractData(for: contract) { data in
+        fetchContractData(for: contract) { [weak self] data in
+            guard let strongSelf = self else { return }
             switch data {
             case .name, .symbol, .balance, .decimals:
                 break
@@ -137,7 +137,7 @@ class TokensCoordinator: Coordinator {
                             type: tokenType,
                             balance: balance
                     )
-                    self.storage.addCustom(token: token)
+                    strongSelf.storage.addCustom(token: token)
                     completion()
                 }
             case .fungibleTokenComplete(let name, let symbol, let decimals):
@@ -149,14 +149,14 @@ class TokensCoordinator: Coordinator {
                         value: "0",
                         type: .erc20
                 )
-                self.storage.add(tokens: [token])
+                strongSelf.storage.add(tokens: [token])
                 completion()
             case .delegateTokenComplete:
-                self.storage.add(delegateContracts: [DelegateContract(contract: contract)])
+                strongSelf.storage.add(delegateContracts: [DelegateContract(contract: contract)])
                 completion()
             case .failed(let networkReachable):
                 if let networkReachable = networkReachable, networkReachable {
-                    self.storage.add(deadContracts: [DeletedContract(contract: contract)])
+                    strongSelf.storage.add(deadContracts: [DeletedContract(contract: contract)])
                 }
                 completion()
             }
@@ -166,8 +166,8 @@ class TokensCoordinator: Coordinator {
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     func addImportedToken(for contract: String) {
         delete(hiddenContract: contract)
-        addToken(for: contract) {
-            self.tokensViewController.fetch()
+        addToken(for: contract) { [weak self] in
+            self?.tokensViewController.fetch()
         }
     }
 
@@ -271,11 +271,12 @@ class TokensCoordinator: Coordinator {
             }
         }
 
-        storage.getTokenType(for: address) { tokenType in
+        storage.getTokenType(for: address) { [weak self] tokenType in
+            guard let strongSelf = self else { return }
             completedTokenType = tokenType
             switch tokenType {
             case .erc875:
-                self.storage.getERC875Balance(for: address) { result in
+                strongSelf.storage.getERC875Balance(for: address) { result in
                     switch result {
                     case .success(let balance):
                         completedBalance = balance
@@ -286,7 +287,7 @@ class TokensCoordinator: Coordinator {
                     }
                 }
             case .erc721:
-                self.storage.getERC721Balance(for: address) { result in
+                strongSelf.storage.getERC721Balance(for: address) { result in
                     switch result {
                     case .success(let balance):
                         completedBalance = balance
@@ -297,7 +298,7 @@ class TokensCoordinator: Coordinator {
                     }
                 }
             case .erc20:
-                self.storage.getDecimals(for: address) { result in
+                strongSelf.storage.getDecimals(for: address) { result in
                     switch result {
                     case .success(let decimal):
                         completedDecimals = decimal

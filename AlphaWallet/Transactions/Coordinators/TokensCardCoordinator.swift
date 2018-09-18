@@ -33,7 +33,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     var type: PaymentFlow!
     lazy var rootViewController: TokensCardViewController = {
         let viewModel = TokensCardViewModel(token: token)
-        return self.makeTokensCardViewController(with: self.session.account, viewModel: viewModel)
+        return makeTokensCardViewController(with: session.account, viewModel: viewModel)
     }()
 
     weak var delegate: TokensCardCoordinatorDelegate?
@@ -80,7 +80,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
-        let controller = TokensCardViewController(config: session.config, tokenObject: token, account: account, session: session, tokensStorage: tokensStorage, viewModel: viewModel)
+        let controller = TokensCardViewController(config: session.config, tokenObject: token, account: account, tokensStorage: tokensStorage, viewModel: viewModel)
         controller.delegate = self
         return controller
     }
@@ -330,11 +330,12 @@ class TokensCardCoordinator: NSObject, Coordinator {
         )
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
-        vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
+        vc.completionWithItemsHandler = { [weak self] activityType, completed, returnedItems, error in
+            guard let strongSelf = self else { return }
             //Be annoying if user copies and we close the sell process
             if completed && activityType != UIActivityType.copyToPasteboard {
-                self.navigationController.dismiss(animated: false) {
-                    self.delegate?.didCancel(in: self)
+                strongSelf.navigationController.dismiss(animated: false) {
+                    strongSelf.delegate?.didCancel(in: strongSelf)
                 }
             }
         }
@@ -345,11 +346,12 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let url = generateTransferLink(tokenHolder: tokenHolder, linkExpiryDate: linkExpiryDate, paymentFlow: paymentFlow)
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
-        vc.completionWithItemsHandler = { activityType, completed, returnedItems, error in
+        vc.completionWithItemsHandler = { [weak self] activityType, completed, returnedItems, error in
+            guard let strongSelf = self else { return }
             //Be annoying if user copies and we close the transfer process
             if completed && activityType != UIActivityType.copyToPasteboard {
-                self.navigationController.dismiss(animated: false) {
-                    self.delegate?.didCancel(in: self)
+                strongSelf.navigationController.dismiss(animated: false) {
+                    strongSelf.delegate?.didCancel(in: strongSelf)
                 }
             }
         }
@@ -548,21 +550,20 @@ extension TokensCardCoordinator: GenerateTransferMagicLinkViewControllerDelegate
 
 extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControllerDelegate {
     func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
-        UIAlertController.alert(title: "", message: R.string.localizable.aWalletTokenTransferModeWalletAddressConfirmation(walletAddress), alertButtonTitles: [R.string.localizable.aWalletTokenTransferButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: navigationController) {
-            guard $0 == 0 else {
-                return
-            }
+        UIAlertController.alert(title: "", message: R.string.localizable.aWalletTokenTransferModeWalletAddressConfirmation(walletAddress), alertButtonTitles: [R.string.localizable.aWalletTokenTransferButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: navigationController) { [weak self] in
+            guard let strongSelf = self else { return }
+            guard $0 == 0 else { return }
 
             //Defensive. Should already be checked before this
             guard let _ = Address(string: walletAddress) else {
-                return self.navigationController.displayError(error: Errors.invalidAddress)
+                return strongSelf.navigationController.displayError(error: Errors.invalidAddress)
             }
 
-            if case .real(let account) = self.session.account.type {
-                let coordinator = TransferNFTCoordinator(tokenHolder: tokenHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: self.keystore, session: self.session, account: account, on: self.navigationController)
+            if case .real(let account) = strongSelf.session.account.type {
+                let coordinator = TransferNFTCoordinator(tokenHolder: tokenHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: strongSelf.keystore, session: strongSelf.session, account: account, on: strongSelf.navigationController)
                 coordinator.delegate = self
                 coordinator.start()
-                self.addCoordinator(coordinator)
+                strongSelf.addCoordinator(coordinator)
             }
         }
     }

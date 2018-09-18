@@ -64,7 +64,7 @@ class TokenObject: Object {
 
     override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? TokenObject else { return false }
-        return object.contract.sameContract(as: self.contract)
+        return object.contract.sameContract(as: contract)
     }
 
     var title: String {

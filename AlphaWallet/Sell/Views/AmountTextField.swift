@@ -119,7 +119,7 @@ class AmountTextField: UIControl {
         guard ethToDollarRate != nil else { return }
         let swappedPair = currentPair.swapPair()
         //New pair for future calculation we should swap pair each time we press fiat button.
-        self.currentPair = swappedPair
+        currentPair = swappedPair
         updateFiatButtonTitle()
         textField.text = nil
         computeAlternateAmount()
@@ -202,8 +202,8 @@ class AmountTextField: UIControl {
     }
 
     private func updateAlternatePricingDisplay() {
-        self.computeAlternateAmount()
-        self.delegate?.changeAmount(in: self)
+        computeAlternateAmount()
+        delegate?.changeAmount(in: self)
     }
 }
 
@@ -212,8 +212,9 @@ extension AmountTextField: UITextFieldDelegate {
         let allowChange = amountChanged(in: range, to: string)
         if allowChange {
             //We have to allow the text field the chance to update, so we have to use asyncAfter..
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.updateAlternatePricingDisplay()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.updateAlternatePricingDisplay()
             }
 
         }

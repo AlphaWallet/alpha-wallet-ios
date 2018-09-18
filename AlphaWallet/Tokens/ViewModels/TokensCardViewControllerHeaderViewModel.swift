@@ -4,11 +4,9 @@ import UIKit
 import BigInt
 
 struct TokensCardViewControllerHeaderViewModel {
-    let config: Config
     private let tokenObject: TokenObject
 
-    init(config: Config, tokenObject: TokenObject) {
-        self.config = config
+    init(tokenObject: TokenObject) {
         self.tokenObject = tokenObject
     }
 

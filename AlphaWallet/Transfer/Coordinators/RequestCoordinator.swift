@@ -14,7 +14,7 @@ class RequestCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: RequestCoordinatorDelegate?
     lazy var requestViewController: RequestViewController = {
-        return self.makeRequestViewController()
+        return makeRequestViewController()
     }()
     private lazy var viewModel: RequestViewModel = {
         return .init(account: session.account, config: session.config)
@@ -35,7 +35,7 @@ class RequestCoordinator: Coordinator {
 
     func makeRequestViewController() -> RequestViewController {
         let controller = RequestViewController(viewModel: viewModel)
-        controller.navigationItem.titleView = BalanceTitleView.make(from: self.session, .ether(config: session.config, destination: .none))
+        controller.navigationItem.titleView = BalanceTitleView.make(from: session, .ether(config: session.config, destination: .none))
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share(_:)))
         return controller

@@ -91,9 +91,9 @@ class NumberStepper: UIControl {
         let button = UIButton()
 		button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("-", for: .normal)
-        button.setTitleColor(self.buttonsTextColor, for: .normal)
-        button.setBackgroundColor(self.buttonsBackgroundColor, forState: .normal)
-        button.titleLabel?.font = self.buttonsFont
+        button.setTitleColor(buttonsTextColor, for: .normal)
+        button.setBackgroundColor(buttonsBackgroundColor, forState: .normal)
+        button.titleLabel?.font = buttonsFont
         button.addTarget(self, action: #selector(rightButtonTouchDown), for: .touchDown)
         button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpInside)
         button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpOutside)
@@ -105,9 +105,9 @@ class NumberStepper: UIControl {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("+", for: .normal)
-        button.setTitleColor(self.buttonsTextColor, for: .normal)
-        button.setBackgroundColor(self.buttonsBackgroundColor, forState: .normal)
-        button.titleLabel?.font = self.buttonsFont
+        button.setTitleColor(buttonsTextColor, for: .normal)
+        button.setBackgroundColor(buttonsBackgroundColor, forState: .normal)
+        button.titleLabel?.font = buttonsFont
         button.addTarget(self, action: #selector(leftButtonTouchDown), for: .touchDown)
         button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpInside)
         button.addTarget(self, action: #selector(buttonTouchUp), for: .touchUpOutside)
@@ -119,10 +119,10 @@ class NumberStepper: UIControl {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
-        label.text = String(self.value)
-        label.textColor = self.labelTextColor
-        label.backgroundColor = self.labelBackgroundColor
-        label.font = self.labelFont
+        label.text = String(value)
+        label.textColor = labelTextColor
+        label.backgroundColor = labelBackgroundColor
+        label.font = labelFont
         return label
     }()
 

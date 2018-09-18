@@ -26,7 +26,7 @@ final class BrowserErrorView: UIView {
     lazy var reloadButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.addTarget(self, action: #selector(reloadTapped), for: .touchUpInside)
-        button.setTitle(NSLocalizedString("browser.reload.button.title", value: "Reload", comment: ""), for: .normal)
+        button.setTitle(R.string.localizable.browserReloadButtonTitle(), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.sizeToFit()
         return button
@@ -47,7 +47,7 @@ final class BrowserErrorView: UIView {
     }
 
     func show(error: Error) {
-        self.isHidden = false
+        isHidden = false
         textLabel.text = error.localizedDescription
         textLabel.textAlignment = .center
         textLabel.setNeedsLayout()
@@ -58,7 +58,7 @@ final class BrowserErrorView: UIView {
     }
 
     private func finishInit() {
-        self.backgroundColor = .white
+        backgroundColor = .white
         addSubview(textLabel)
         addSubview(reloadButton)
         NSLayoutConstraint.activate([

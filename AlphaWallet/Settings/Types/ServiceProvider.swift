@@ -28,7 +28,7 @@ enum URLServiceProvider {
     }
 
     var remoteURL: URL {
-        return URL(string: self.remoteURLString)!
+        return URL(string: remoteURLString)!
     }
 
     private var remoteURLString: String {

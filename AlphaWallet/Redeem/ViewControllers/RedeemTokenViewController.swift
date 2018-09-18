@@ -114,7 +114,7 @@ class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewCont
                                     viewController: self,
                                     completion: nil)
         } else {
-            self.delegate?.didSelectTokenHolder(token: viewModel.token, tokenHolder: selectedTokenHolders.first!, in: self)
+            delegate?.didSelectTokenHolder(token: viewModel.token, tokenHolder: selectedTokenHolders.first!, in: self)
         }
     }
 

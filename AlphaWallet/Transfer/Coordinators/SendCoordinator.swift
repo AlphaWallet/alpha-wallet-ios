@@ -24,7 +24,7 @@ class SendCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: SendCoordinatorDelegate?
     lazy var sendViewController: SendViewController = {
-        return self.makeSendViewController()
+        return makeSendViewController()
     }()
 
     init(
@@ -108,12 +108,13 @@ extension SendCoordinator: SendViewControllerDelegate {
             configurator: configurator,
             confirmType: .signThenSend
         )
-        controller.didCompleted = { result in
+        controller.didCompleted = { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let type):
-                self.delegate?.didFinish(type, in: self)
+                strongSelf.delegate?.didFinish(type, in: strongSelf)
             case .failure(let error):
-                self.navigationController.displayError(error: error)
+                strongSelf.navigationController.displayError(error: error)
             }
         }
         navigationController.pushViewController(controller, animated: true)

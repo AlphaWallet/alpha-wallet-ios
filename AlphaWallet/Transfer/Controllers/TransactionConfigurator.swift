@@ -76,7 +76,7 @@ class TransactionConfigurator {
             data: configuration.data
         )
         Session.send(EtherServiceRequest(batch: BatchFactory().create(request))) { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let gasLimit):
                 let gasLimit: BigInt = {
@@ -86,10 +86,10 @@ class TransactionConfigurator {
                     }
                     return limit + (limit * 20 / 100)
                 }()
-                self.configuration =  TransactionConfiguration(
-                    gasPrice: self.calculatedGasPrice,
+                strongSelf.configuration =  TransactionConfiguration(
+                    gasPrice: strongSelf.calculatedGasPrice,
                     gasLimit: gasLimit,
-                    data: self.configuration.data
+                    data: strongSelf.configuration.data
                 )
             case .failure: break
             }
@@ -103,10 +103,10 @@ class TransactionConfigurator {
                 return completion(.success(()))
             }
             estimateGasLimit()
-            self.configuration = TransactionConfiguration(
+            configuration = TransactionConfiguration(
                     gasPrice: calculatedGasPrice,
                     gasLimit: GasLimitConfiguration.default,
-                    data: transaction.data ?? self.configuration.data
+                    data: transaction.data ?? configuration.data
             )
             completion(.success(()))
         case .ERC20Token:
