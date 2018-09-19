@@ -1,3 +1,5 @@
+// Copyright © 2018 Stormbird PTE. LTD.
+
 import Foundation
 
 struct ContractERC875Transfer: Web3Request {
