@@ -3,6 +3,7 @@
 //  AlphaWallet
 //
 //  Created by James Sangalli on 11/4/18.
+//  Copyright © 2018 Stormbird PTE. LTD.
 //
 
 import Foundation
