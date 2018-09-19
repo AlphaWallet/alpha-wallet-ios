@@ -1,5 +1,7 @@
 //
 // Created by James Sangalli on 7/3/18.
+// Copyright © 2018 Stormbird PTE. LTD.
+//
 // This is a struct with the capacity to convert an order to a new format:
 // the data field of a transaction.
 // There are 4 formats of orders:

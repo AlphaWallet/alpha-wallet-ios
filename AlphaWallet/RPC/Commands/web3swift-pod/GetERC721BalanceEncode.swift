@@ -1,5 +1,6 @@
 //
 // Created by James Sangalli on 14/7/18.
+// Copyright © 2018 Stormbird PTE. LTD.
 //
 
 import Foundation
