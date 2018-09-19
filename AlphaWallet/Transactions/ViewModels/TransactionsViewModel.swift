@@ -4,12 +4,9 @@ import Foundation
 import UIKit
 
 struct TransactionsViewModel {
-
-    static let formatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter
-    }()
+    private var formatter: DateFormatter {
+        return Date.formatter(with: "dd MMM yyyy")
+    }
 
     var items: [(date: String, transactions: [Transaction])] = []
     let config: Config
@@ -23,7 +20,7 @@ struct TransactionsViewModel {
         var newItems: [String: [Transaction]] = [:]
 
         for transaction in transactions {
-            let date = TransactionsViewModel.formatter.string(from: transaction.date)
+            let date = formatter.string(from: transaction.date)
 
             var currentItems = newItems[date] ?? []
             currentItems.append(transaction)
@@ -32,7 +29,7 @@ struct TransactionsViewModel {
         //TODO. IMPROVE perfomance
         let tuple = newItems.map { (key, values) in return (date: key, transactions: values) }
         items = tuple.sorted { (object1, object2) -> Bool in
-            return TransactionsViewModel.formatter.date(from: object1.date)! > TransactionsViewModel.formatter.date(from: object2.date)!
+            return formatter.date(from: object1.date)! > formatter.date(from: object2.date)!
         }
     }
 
@@ -66,7 +63,7 @@ struct TransactionsViewModel {
 
     func titleForHeader(in section: Int) -> String {
         let value = items[section].date
-        let date = TransactionsViewModel.formatter.date(from: value)!
+        let date = formatter.date(from: value)!
         if NSCalendar.current.isDateInToday(date) {
             return R.string.localizable.today()
         }
