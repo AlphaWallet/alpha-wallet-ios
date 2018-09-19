@@ -5,15 +5,6 @@ import Foundation
 import UIKit
 
 struct TransactionDetailsViewModel {
-
-    private static let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .long
-        formatter.timeStyle = .medium
-        formatter.timeZone = TimeZone.current
-        return formatter
-    }()
-
     private let transactionViewModel: TransactionViewModel
 
     private let transaction: Transaction
@@ -50,7 +41,7 @@ struct TransactionDetailsViewModel {
     }
 
     var createdAt: String {
-        return TransactionDetailsViewModel.dateFormatter.string(from: transaction.date)
+        return Date.formatter(with: "dd MMM yyyy h:mm:ss a").string(from: transaction.date)
     }
 
     var createdAtLabelTitle: String {
