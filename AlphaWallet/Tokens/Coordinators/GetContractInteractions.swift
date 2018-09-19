@@ -24,7 +24,6 @@ class GetContractInteractions {
             switch response.result {
             case .success(let value):
                 let json = JSON(value)
-                print(value)
                 let contracts: [String] = json["result"].map { _, transactionJson in
                     if transactionJson["input"] != "0x" {
                         //every transaction that has input is by default a transaction to a contract
