@@ -164,21 +164,21 @@ class TransactionsViewController: UIViewController {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    fileprivate func hederView(for section: Int) -> UIView {
-        let conteiner = UIView()
-        conteiner.backgroundColor = viewModel.headerBackgroundColor
+    fileprivate func headerView(for section: Int) -> UIView {
+        let container = UIView()
+        container.backgroundColor = viewModel.headerBackgroundColor
         let title = UILabel()
         title.text = viewModel.titleForHeader(in: section)
         title.sizeToFit()
         title.textColor = viewModel.headerTitleTextColor
         title.font = viewModel.headerTitleFont
-        conteiner.addSubview(title)
+        container.addSubview(title)
         title.translatesAutoresizingMaskIntoConstraints = false
-        let horConstraint = NSLayoutConstraint(item: title, attribute: .centerX, relatedBy: .equal, toItem: conteiner, attribute: .centerX, multiplier: 1.0, constant: 0.0)
-        let verConstraint = NSLayoutConstraint(item: title, attribute: .centerY, relatedBy: .equal, toItem: conteiner, attribute: .centerY, multiplier: 1.0, constant: 0.0)
-        let leftConstraint = NSLayoutConstraint(item: title, attribute: .left, relatedBy: .equal, toItem: conteiner, attribute: .left, multiplier: 1.0, constant: 20.0)
-        conteiner.addConstraints([horConstraint, verConstraint, leftConstraint])
-        return conteiner
+        let horConstraint = NSLayoutConstraint(item: title, attribute: .centerX, relatedBy: .equal, toItem: container, attribute: .centerX, multiplier: 1.0, constant: 0.0)
+        let verConstraint = NSLayoutConstraint(item: title, attribute: .centerY, relatedBy: .equal, toItem: container, attribute: .centerY, multiplier: 1.0, constant: 0.0)
+        let leftConstraint = NSLayoutConstraint(item: title, attribute: .left, relatedBy: .equal, toItem: container, attribute: .left, multiplier: 1.0, constant: 20.0)
+        container.addConstraints([horConstraint, verConstraint, leftConstraint])
+        return container
     }
 
     private func reflectActionButtonsVisibility() {
@@ -244,7 +244,7 @@ extension TransactionsViewController: UITableViewDataSource {
         return viewModel.numberOfItems(for: section)
     }
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return hederView(for: section)
+        return headerView(for: section)
     }
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
     }
