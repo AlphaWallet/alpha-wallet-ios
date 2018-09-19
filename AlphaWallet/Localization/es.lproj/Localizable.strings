@@ -84,7 +84,7 @@
 "wallet.import.button.title" = "Import Wallet";
 "wallets.backup.alertSheet.title" = "Backup Encrypted Private Key";
 "transactions.tabbar.item.title" = "Actas";
-"transactions.received.ether" = "You have received %@ ether";
+"transactions.received.ether" = "You have received %@ ETH";
 "transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive Ether?";
 "import.navigation.title" = "Importando cartera";
 "browser.home.button.title" = "Home";
