@@ -28,6 +28,13 @@ https://app.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGN
 import Foundation
 import BigInt
 
+private enum LinkFormat {
+    case unassigned 
+    case normal
+    case spawnable
+    case customizable
+}
+
 public class UniversalLinkHandler {
 
     public let urlPrefix = "https://app.awallet.io/"
@@ -58,12 +65,14 @@ public class UniversalLinkHandler {
         let linkInfo = b64SafeEncodingToRegularEncoding(url.substring(from: urlPrefix.count))
         guard var linkBytes = Data(base64Encoded: linkInfo)?.array else { return nil }
         let encodingByte = linkBytes[0]
-        if encodingByte == 0x02 {
-            //handle spawnable link
-            return handleSpawnableLink(linkBytes: linkBytes)
+        switch encodingByte {
+        case Constants.oldFormat: break
+        //new link format, remove extra byte and continue
+        case Constants.notSpawnable: linkBytes.remove(at: 0)
+        case Constants.spawnable: return handleSpawnableLink(linkBytes: linkBytes)
+        case Constants.customizable: return handleSpawnableLink(linkBytes: linkBytes)
+        default: break
         }
-        //clear encoding byte after determining that it is an index link
-        linkBytes.remove(at: 0)
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
         let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
