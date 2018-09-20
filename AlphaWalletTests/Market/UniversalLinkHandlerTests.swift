@@ -11,7 +11,7 @@ import TrustKeystore
 class UniversalLinkHandlerTests: XCTestCase {
     
     func testUniversalLinkParser() {
-        let testUrl = "https://app.awallet.io/AAAAAAAAAACjNHyO0TRETCUWmHLJCmNg1Cs2kQFxEtQiQ269SZP2r2Y6CETiCqCE3HGQa63LYjsaCOccJi0mj9bpsmnZCwFkjVcNaaJ6Ed8lVU83UiGILQZ4CcFhHA=="
+        let testUrl = "https://app.awallet.io/AQAAAAAAAACjNHyO0TRETCUWmHLJCmNg1Cs2kQFxEtQiQ269SZP2r2Y6CETiCqCE3HGQa63LYjsaCOccJi0mj9bpsmnZCwFkjVcNaaJ6Ed8lVU83UiGILQZ4CcFhHA=="
         if let signedOrder = UniversalLinkHandler().parseUniversalLink(url: testUrl) {
             XCTAssertGreaterThanOrEqual(signedOrder.signature.count, 130)
             let url = UniversalLinkHandler().createUniversalLink(signedOrder: signedOrder)
