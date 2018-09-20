@@ -11,7 +11,12 @@ extension VerifiableStatusViewController where Self: UIViewController {
     func updateNavigationRightBarButtons(isVerified: Bool, hasShowInfoButton: Bool = true) {
         let verifiedStatusButton = UIBarButtonItem(customView: createVerifiedStatusButton(isVerified: isVerified))
         if isVerified {
-            if hasShowInfoButton {
+            var showInfoButton = hasShowInfoButton
+            //TODO ugly
+            if let tokenVerifiableVC = self as? TokenVerifiableStatusViewController {
+                showInfoButton = tokenVerifiableVC.contract == Constants.ticketContractAddress || tokenVerifiableVC.contract == Constants.ticketContractAddressRopsten
+            }
+            if showInfoButton {
                 let infoButton = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
                 navigationItem.rightBarButtonItems = [
                     infoButton,
@@ -30,11 +35,11 @@ extension VerifiableStatusViewController where Self: UIViewController {
         let image: UIImage?
         let tintColor: UIColor
         if isVerified {
-            title = R.string.localizable.aWalletTicketTokenVerifiedContract()
+            title = R.string.localizable.aWalletTokenVerifiedContract()
             image = R.image.verified()
             tintColor = Colors.appGreenContrastBackground
         } else {
-            title = R.string.localizable.aWalletTicketTokenUnverifiedContract()
+            title = R.string.localizable.aWalletTokenUnverifiedContract()
             image = R.image.unverified()
             tintColor = Colors.appRed
         }
@@ -49,23 +54,23 @@ extension VerifiableStatusViewController where Self: UIViewController {
     }
 }
 
-protocol TicketVerifiableStatusViewController: VerifiableStatusViewController {
+protocol TokenVerifiableStatusViewController: VerifiableStatusViewController {
     var contract: String { get }
     var config: Config { get }
 }
 
-extension TicketVerifiableStatusViewController {
+extension TokenVerifiableStatusViewController {
     var isContractVerified: Bool {
         return XMLHandler(contract: contract).isVerified(for: config.server)
     }
 }
 
-protocol OptionalTicketVerifiableStatusViewController: VerifiableStatusViewController {
+protocol OptionalTokenVerifiableStatusViewController: VerifiableStatusViewController {
     var contract: String? { get }
     var config: Config { get }
 }
 
-extension OptionalTicketVerifiableStatusViewController {
+extension OptionalTokenVerifiableStatusViewController {
     var isContractVerified: Bool {
         guard let contract = contract else { return false }
         return XMLHandler(contract: contract).isVerified(for: config.server)

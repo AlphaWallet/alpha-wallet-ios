@@ -13,7 +13,7 @@ enum ConfirmationError: LocalizedError {
 extension UIViewController {
     func displaySuccess(title: String? = .none, message: String? = .none) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
-        alertController.popoverPresentationController?.sourceView = self.view
+        alertController.popoverPresentationController?.sourceView = view
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: UIAlertActionStyle.default, handler: nil))
         present(alertController, animated: true, completion: nil)
     }
@@ -28,7 +28,7 @@ extension UIViewController {
             message = error.prettyError
         }
         let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
-        alertController.popoverPresentationController?.sourceView = self.view
+        alertController.popoverPresentationController?.sourceView = view
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: UIAlertActionStyle.default, handler: nil))
         present(alertController, animated: true, completion: nil)
     }
@@ -41,32 +41,26 @@ extension UIViewController {
         completion: @escaping (Result<Void, ConfirmationError>) -> Void
     ) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-        alertController.popoverPresentationController?.sourceView = self.view
+        alertController.popoverPresentationController?.sourceView = view
         alertController.addAction(UIAlertAction(title: okTitle, style: okStyle, handler: { _ in
             completion(.success(()))
         }))
         alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel, handler: { _ in
             completion(.failure(ConfirmationError.cancel))
         }))
-        self.present(alertController, animated: true, completion: nil)
+        present(alertController, animated: true, completion: nil)
     }
 
     func displayLoading(
         text: String = R.string.localizable.loadingDots(),
         animated: Bool = true
     ) {
-        let hud = MBProgressHUD.showAdded(to: self.view, animated: animated)
+        let hud = MBProgressHUD.showAdded(to: view, animated: animated)
         hud.label.text = text
     }
 
     func hideLoading(animated: Bool = true) {
         MBProgressHUD.hide(for: view, animated: animated)
-    }
-
-    func openURL(_ url: URL) {
-        let controller = SFSafariViewController(url: url)
-        // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
-        present(controller, animated: true, completion: nil)
     }
 
     public var isVisible: Bool {
@@ -77,12 +71,32 @@ extension UIViewController {
     }
 
     public var isTopViewController: Bool {
-        if self.navigationController != nil {
-            return self.navigationController?.visibleViewController === self
-        } else if self.tabBarController != nil {
-            return self.tabBarController?.selectedViewController == self && self.presentedViewController == nil
+        if navigationController != nil {
+            return navigationController?.visibleViewController === self
+        } else if tabBarController != nil {
+            return tabBarController?.selectedViewController == self && presentedViewController == nil
         }
-        return self.presentedViewController == nil && self.isVisible
+        return presentedViewController == nil && isVisible
     }
 
+    func add(asChildViewController viewController: UIViewController) {
+        addChildViewController(viewController)
+        view.addSubview(viewController.view)
+        viewController.view.frame = view.bounds
+        viewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        viewController.didMove(toParentViewController: self)
+    }
+
+    func remove(asChildViewController viewController: UIViewController) {
+        viewController.willMove(toParentViewController: nil)
+        viewController.view.removeFromSuperview()
+        viewController.removeFromParentViewController()
+    }
+
+    func showShareActivity(from sender: UIView, with items: [Any], completion: (() -> Swift.Void)? = nil) {
+        let activityViewController = UIActivityViewController.make(items: items)
+        activityViewController.popoverPresentationController?.sourceView = sender
+        activityViewController.popoverPresentationController?.sourceRect = sender.centerRect
+        present(activityViewController, animated: true, completion: completion)
+    }
 }

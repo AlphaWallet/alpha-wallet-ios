@@ -34,10 +34,6 @@ class TransactionConfigurator {
         return transaction.gasPrice ?? configuration.gasPrice
     }()
 
-    var calculatedGasLimit: BigInt? {
-        return transaction.gasLimit
-    }
-
     var requestEstimateGas: Bool {
         return transaction.gasLimit == .none
     }
@@ -62,7 +58,7 @@ class TransactionConfigurator {
     func estimateGasLimit() {
         let to: Address? = {
             switch transaction.transferType {
-            case .ether: return transaction.to
+            case .ether, .dapp: return transaction.to
             case .ERC20Token(let token):
                 return Address(string: token.contract)
             case .ERC875Token(let token):
@@ -80,7 +76,7 @@ class TransactionConfigurator {
             data: configuration.data
         )
         Session.send(EtherServiceRequest(batch: BatchFactory().create(request))) { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let gasLimit):
                 let gasLimit: BigInt = {
@@ -90,10 +86,10 @@ class TransactionConfigurator {
                     }
                     return limit + (limit * 20 / 100)
                 }()
-                self.configuration =  TransactionConfiguration(
-                    gasPrice: self.calculatedGasPrice,
+                strongSelf.configuration =  TransactionConfiguration(
+                    gasPrice: strongSelf.calculatedGasPrice,
                     gasLimit: gasLimit,
-                    data: self.configuration.data
+                    data: strongSelf.configuration.data
                 )
             case .failure: break
             }
@@ -102,15 +98,15 @@ class TransactionConfigurator {
 
     func load(completion: @escaping (Result<Void, AnyError>) -> Void) {
         switch transaction.transferType {
-        case .ether:
+        case .ether, .dapp:
             guard requestEstimateGas else {
                 return completion(.success(()))
             }
             estimateGasLimit()
-            self.configuration = TransactionConfiguration(
+            configuration = TransactionConfiguration(
                     gasPrice: calculatedGasPrice,
                     gasLimit: GasLimitConfiguration.default,
-                    data: transaction.data ?? self.configuration.data
+                    data: transaction.data ?? configuration.data
             )
             completion(.success(()))
         case .ERC20Token:
@@ -198,7 +194,7 @@ class TransactionConfigurator {
     func formUnsignedTransaction() -> UnsignedTransaction {
         let value: BigInt = {
             switch transaction.transferType {
-            case .ether: return transaction.value
+            case .ether, .dapp: return transaction.value
             case .ERC20Token: return 0
             case .ERC875Token: return 0
             case .ERC875TokenOrder: return transaction.value
@@ -207,7 +203,7 @@ class TransactionConfigurator {
         }()
         let address: Address? = {
             switch transaction.transferType {
-            case .ether: return transaction.to
+            case .ether, .dapp: return transaction.to
             case .ERC20Token(let token): return token.address
             case .ERC875Token(let token): return token.address
             case .ERC875TokenOrder(let token): return token.address

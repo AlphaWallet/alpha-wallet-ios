@@ -1,11 +1,13 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
 
-enum BrowserAction {
+enum BrowserNavigation {
     case goBack
-    case goForward
     case more(sender: UIView)
+    case close
+    case home
     case enter(String)
+    case beginEditing
 }

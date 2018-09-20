@@ -19,6 +19,7 @@ private enum ContractData {
     case decimals(UInt8)
     case nonFungibleTokenComplete(name: String, symbol: String, balance: [String], tokenType: TokenType)
     case fungibleTokenComplete(name: String, symbol: String, decimals: UInt8)
+    case delegateTokenComplete
     case failed(networkReachable: Bool?)
 }
 
@@ -62,7 +63,6 @@ class TokensCoordinator: Coordinator {
     }
 
     func start() {
-        addFIFAToken()
         autoDetectTokens()
         showTokens()
         refreshUponAssetDefinitionChanges()
@@ -74,7 +74,7 @@ class TokensCoordinator: Coordinator {
     
     private func refreshUponAssetDefinitionChanges() {
         assetDefinitionStore.subscribe { [weak self] _ in
-            self?.storage.updateERC875TokensToLocalizedName()
+            self?.storage.fetchTokenNamesForNonFungibleTokensIfEmpty()
         }
     }
 
@@ -87,34 +87,43 @@ class TokensCoordinator: Coordinator {
 
         guard let address = keystore.recentlyUsedWallet?.address else { return }
         let web3 = Web3Swift(url: session.config.rpcURL)
-        GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: session.config.chainID) { contracts in
-            guard let currentAddress = self.keystore.recentlyUsedWallet?.address, currentAddress.eip55String.sameContract(as: address.eip55String) else { return }
+        GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: session.config.chainID) { [weak self] contracts in
+            guard let strongSelf = self else { return }
+            guard let currentAddress = strongSelf.keystore.recentlyUsedWallet?.address, currentAddress.eip55String.sameContract(as: address.eip55String) else { return }
             let detectedContracts = contracts.map { $0.lowercased() }
-            let alreadyAddedContracts = self.storage.enabledObject.map { $0.address.eip55String.lowercased() }
-            let deletedContracts = self.storage.deletedContracts.map { $0.contract.lowercased() }
-            let hiddenContracts = self.storage.hiddenContracts.map { $0.contract.lowercased() }
-            let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts
+            let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.address.eip55String.lowercased() }
+            let deletedContracts = strongSelf.storage.deletedContracts.map { $0.contract.lowercased() }
+            let hiddenContracts = strongSelf.storage.hiddenContracts.map { $0.contract.lowercased() }
+            let delegateContracts = strongSelf.storage.delegateContracts.map { $0.contract.lowercased() }
+            let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
             var contractsPulled = 0
             var hasRefreshedAfterAddingAllContracts = false
-            for eachContract in contractsToAdd {
-                self.addToken(for: eachContract) {
-                    contractsPulled += 1
-                    if contractsPulled == contractsToAdd.count {
-                        hasRefreshedAfterAddingAllContracts = true
-                        self.tokensViewController.fetch()
+            DispatchQueue.global().async { [weak strongSelf] in
+                guard let strongSelf = self else { return }
+                for eachContract in contractsToAdd {
+                    strongSelf.addToken(for: eachContract) {
+                        contractsPulled += 1
+                        if contractsPulled == contractsToAdd.count {
+                            hasRefreshedAfterAddingAllContracts = true
+                            DispatchQueue.main.async {
+                                strongSelf.tokensViewController.fetch()
+                            }
+                        }
                     }
                 }
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                if !hasRefreshedAfterAddingAllContracts {
-                    self.tokensViewController.fetch()
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    if !hasRefreshedAfterAddingAllContracts {
+                        strongSelf.tokensViewController.fetch()
+                    }
                 }
             }
         }
     }
 
     private func addToken(for contract: String, completion: @escaping () -> Void) {
-        fetchContractData(for: contract) { data in
+        fetchContractData(for: contract) { [weak self] data in
+            guard let strongSelf = self else { return }
             switch data {
             case .name, .symbol, .balance, .decimals:
                 break
@@ -128,7 +137,7 @@ class TokensCoordinator: Coordinator {
                             type: tokenType,
                             balance: balance
                     )
-                    self.storage.addCustom(token: token)
+                    strongSelf.storage.addCustom(token: token)
                     completion()
                 }
             case .fungibleTokenComplete(let name, let symbol, let decimals):
@@ -140,11 +149,14 @@ class TokensCoordinator: Coordinator {
                         value: "0",
                         type: .erc20
                 )
-                self.storage.add(tokens: [token])
+                strongSelf.storage.add(tokens: [token])
+                completion()
+            case .delegateTokenComplete:
+                strongSelf.storage.add(delegateContracts: [DelegateContract(contract: contract)])
                 completion()
             case .failed(let networkReachable):
                 if let networkReachable = networkReachable, networkReachable {
-                    self.storage.add(deadContracts: [DeletedContract(contract: contract)])
+                    strongSelf.storage.add(deadContracts: [DeletedContract(contract: contract)])
                 }
                 completion()
             }
@@ -154,8 +166,8 @@ class TokensCoordinator: Coordinator {
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
     func addImportedToken(for contract: String) {
         delete(hiddenContract: contract)
-        addToken(for: contract) {
-            self.tokensViewController.fetch()
+        addToken(for: contract) { [weak self] in
+            self?.tokensViewController.fetch()
         }
     }
 
@@ -192,14 +204,6 @@ class TokensCoordinator: Coordinator {
 //        navigationController.pushViewController(controller, animated: true)
     }
 
-    //FIFA add the FIFA token with a hardcoded address for appropriate network if not already present
-    private func addFIFAToken() {
-        if let token = session.config.createDefaultTicketToken(), !storage.enabledObject.contains { $0.address.eip55String == token.contract.eip55String } {
-            storage.addCustom(token: token)
-        }
-        tokensViewController.fetch()
-    }
-
     /// Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
     private func fetchContractData(for address: String, completion: @escaping (ContractData) -> Void) {
         var completedName: String?
@@ -209,19 +213,38 @@ class TokensCoordinator: Coordinator {
         var completedTokenType: TokenType?
         var failed = false
 
-        func callCompletionOnAllData() {
-            if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance, let tokenType = completedTokenType {
-                completion(.nonFungibleTokenComplete(name: completedName, symbol: completedSymbol, balance: completedBalance, tokenType: tokenType))
-            } else if let completedName = completedName, let completedSymbol = completedSymbol, let completedDecimals = completedDecimals {
-                completion(.fungibleTokenComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
-            }
-        }
-
         func callCompletionFailed() {
             guard !failed else { return }
             failed = true
             //TODO maybe better to share an instance of the reachability manager
             completion(.failed(networkReachable: NetworkReachabilityManager()?.isReachable))
+        }
+
+        func callCompletionAsDelegateTokenOrNot() {
+            assert(completedSymbol != nil && completedSymbol?.isEmpty == true)
+            //Must check because we also get an empty symbol (and name) if there's no connectivity
+            //TODO maybe better to share an instance of the reachability manager
+            if let reachabilityManager = NetworkReachabilityManager(), reachabilityManager.isReachable {
+                completion(.delegateTokenComplete)
+            } else {
+                callCompletionFailed()
+            }
+        }
+
+        func callCompletionOnAllData() {
+            if let completedName = completedName, let completedSymbol = completedSymbol, let completedBalance = completedBalance, let tokenType = completedTokenType {
+                if completedSymbol.isEmpty {
+                    callCompletionAsDelegateTokenOrNot()
+                } else {
+                    completion(.nonFungibleTokenComplete(name: completedName, symbol: completedSymbol, balance: completedBalance, tokenType: tokenType))
+                }
+            } else if let completedName = completedName, let completedSymbol = completedSymbol, let completedDecimals = completedDecimals {
+                if completedSymbol.isEmpty {
+                    callCompletionAsDelegateTokenOrNot()
+                } else {
+                    completion(.fungibleTokenComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
+                }
+            }
         }
 
         assetDefinitionStore.fetchXML(forContract: address)
@@ -248,11 +271,12 @@ class TokensCoordinator: Coordinator {
             }
         }
 
-        storage.getTokenType(for: address) { tokenType in
+        storage.getTokenType(for: address) { [weak self] tokenType in
+            guard let strongSelf = self else { return }
             completedTokenType = tokenType
             switch tokenType {
             case .erc875:
-                self.storage.getERC875Balance(for: address) { result in
+                strongSelf.storage.getERC875Balance(for: address) { result in
                     switch result {
                     case .success(let balance):
                         completedBalance = balance
@@ -263,7 +287,7 @@ class TokensCoordinator: Coordinator {
                     }
                 }
             case .erc721:
-                self.storage.getERC721Balance(for: address) { result in
+                strongSelf.storage.getERC721Balance(for: address) { result in
                     switch result {
                     case .success(let balance):
                         completedBalance = balance
@@ -274,7 +298,7 @@ class TokensCoordinator: Coordinator {
                     }
                 }
             case .erc20:
-                self.storage.getDecimals(for: address) { result in
+                strongSelf.storage.getDecimals(for: address) { result in
                     switch result {
                     case .success(let decimal):
                         completedDecimals = decimal
@@ -335,9 +359,12 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
             case .decimals(let decimals):
                 viewController.updateDecimalsValue(decimals)
             case .nonFungibleTokenComplete(_, _, _, let tokenType):
-                viewController.updateFormForTokenType(tokenType)
+                viewController.updateForm(forTokenType: tokenType)
             case .fungibleTokenComplete:
-                viewController.updateFormForTokenType(.erc20)
+                viewController.updateForm(forTokenType: .erc20)
+            case .delegateTokenComplete:
+                viewController.updateForm(forTokenType: .erc20)
+                break
             case .failed:
                 break
             }

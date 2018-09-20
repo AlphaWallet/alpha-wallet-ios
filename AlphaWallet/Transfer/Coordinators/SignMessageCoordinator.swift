@@ -9,6 +9,7 @@ import Result
 enum SignMesageType {
     case message(Data)
     case personalMessage(Data)
+    case typedMessage([EthTypedData])
 }
 
 protocol SignMessageCoordinatorDelegate: class {
@@ -51,13 +52,13 @@ class SignMessageCoordinator: Coordinator {
             title: R.string.localizable.oK(),
             style: .default
         ) { [weak self] _ in
-            guard let `self` = self else { return }
-            self.handleSignedMessage(with: type)
+            guard let strongSelf = self else { return }
+            strongSelf.handleSignedMessage(with: type)
         }
         let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { [weak self] _ in
-            guard let `self` = self else { return }
-            self.didComplete?(.failure(AnyError(DAppError.cancelled)))
-            self.delegate?.didCancel(in: self)
+            guard let strongSelf = self else { return }
+            strongSelf.didComplete?(.failure(AnyError(DAppError.cancelled)))
+            strongSelf.delegate?.didCancel(in: strongSelf)
         }
         alertController.addAction(signAction)
         alertController.addAction(cancelAction)
@@ -70,6 +71,11 @@ class SignMessageCoordinator: Coordinator {
             return data.hexEncoded
         case .personalMessage(let data):
             return String(data: data, encoding: .utf8)!
+        case .typedMessage(let (typedData)):
+            let string = typedData.map {
+                return "\($0.name) : \($0.value.string)"
+            }.joined(separator: "\n")
+            return string
         }
     }
 
@@ -80,6 +86,12 @@ class SignMessageCoordinator: Coordinator {
             result = keystore.signMessage(data, for: account)
         case .personalMessage(let data):
             result = keystore.signPersonalMessage(data, for: account)
+        case .typedMessage(let typedData):
+            if typedData.isEmpty {
+                result = .failure(KeystoreError.failedToSignMessage)
+            } else {
+                result = keystore.signTypedMessage(typedData, for: account)
+            }
         }
         switch result {
         case .success(let data):

@@ -16,6 +16,17 @@ extension String {
         return data.hexEncoded
     }
 
+    var isHexEncoded: Bool {
+        guard starts(with: "0x") else {
+            return false
+        }
+        let regex = try! NSRegularExpression(pattern: "^0x[0-9A-Fa-f]*$")
+        if regex.matches(in: self, range: NSRange(startIndex..., in: self)).isEmpty {
+            return false
+        }
+        return true
+    }
+
     var doubleValue: Double {
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
@@ -32,7 +43,7 @@ extension String {
     }
 
     var trimmed: String {
-        return self.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        return trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 
     var asDictionary: [String: Any]? {
@@ -48,8 +59,8 @@ extension String {
     }
 
     var drop0x: String {
-        if self.count > 2 && self.substring(with: 0..<2) == "0x" {
-            return String(self.dropFirst(2))
+        if count > 2 && substring(with: 0..<2) == "0x" {
+            return String(dropFirst(2))
         }
         return self
     }
@@ -67,7 +78,7 @@ extension String {
     }
 
     func toBool() -> Bool {
-        return (self.toInt()?.toBool())!
+        return (toInt()?.toBool())!
     }
 
     func toQRCode() -> UIImage? {
@@ -77,7 +88,7 @@ extension String {
 
     func isNumeric() -> Bool {
         let numberCharacters = CharacterSet.decimalDigits.inverted
-        return !self.isEmpty && self.rangeOfCharacter(from: numberCharacters) == nil
+        return !isEmpty && rangeOfCharacter(from: numberCharacters) == nil
     }
 
     func isNotNumeric() -> Bool {
@@ -92,7 +103,7 @@ extension String {
 
 extension String {
     func index(from: Int) -> Index {
-        return self.index(startIndex, offsetBy: from)
+        return index(startIndex, offsetBy: from)
     }
 
     func substring(from: Int) -> String {

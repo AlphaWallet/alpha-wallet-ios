@@ -3,12 +3,22 @@
 //  AlphaWallet
 //
 //  Created by James Sangalli on 11/4/18.
+//  Copyright © 2018 Stormbird PTE. LTD.
 //
 
 import Foundation
 import SwiftyXMLParser
 import BigInt
 import TrustKeystore
+
+enum SingularOrPlural {
+    case singular
+    case plural
+}
+enum TitlecaseOrNot {
+    case titlecase
+    case notTitlecase
+}
 
 //  Interface to extract data from non fungible token
 
@@ -18,6 +28,7 @@ private class PrivateXMLHandler {
     lazy var contract = xml["token"]["contract"].getElement(attributeName: "type", attributeValue: "holding", fallbackToFirst: true)
     lazy var fields = extractFields()
     private let isOfficial: Bool
+    let hasAssetDefinition: Bool
     private let signatureNamespace: String
     private var signatureNamespacePrefix: String {
         if signatureNamespace.isEmpty {
@@ -30,25 +41,26 @@ private class PrivateXMLHandler {
     init(contract: String) {
         contractAddress = contract.add0x.lowercased()
         let assetDefinitionStore = AssetDefinitionStore()
+        let xmlString = assetDefinitionStore[contract]
+        hasAssetDefinition = xmlString != nil
         //We use a try? for the first parse() instead of try! to avoid the very unlikely chance that it will crash. We fallback to an empty XML just like if we haven't downloaded it yet
-        xml = (try? XML.parse(assetDefinitionStore[contract] ?? "")) ?? (try! XML.parse(""))
+        xml = (try? XML.parse(xmlString ?? "")) ?? (try! XML.parse(""))
         isOfficial = assetDefinitionStore.isOfficial(contract: contract)
         signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml)
     }
 
-    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
+    func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
         guard tokenBytes32 != 0 else { return .empty }
-        let lang = getLang()
         var values = [String: AssetAttributeValue]()
         for (name, attribute) in fields {
             let value = attribute.extract(from: tokenBytes32)
             values[name] = value
         }
 
-        return Ticket(
+        return Token(
                 id: tokenBytes32,
                 index: index,
-                name: getName(lang: lang),
+                name: name,
                 values: values
         )
     }
@@ -72,14 +84,50 @@ private class PrivateXMLHandler {
         return fields
     }
 
-    func getName(lang: String) -> String {
+    func getName() -> String {
+        let lang = getLang()
         if let name = contract?["name"].getElementWithLangAttribute(equals: lang)?.text {
             return name
+        } else {
+            return "N/A"
         }
-        return "N/A"
     }
-    
-    func getLang() -> String {
+
+    func getTokenTypeName(_ type: SingularOrPlural = .plural, titlecase: TitlecaseOrNot = .titlecase) -> String {
+        if contractAddress.sameContract(as: Constants.cryptoKittiesContractAddress) {
+            switch titlecase {
+            case .titlecase:
+                return R.string.localizable.cryptokittiesTitlecase()
+            case .notTitlecase:
+                return R.string.localizable.cryptokittiesLowercase()
+            }
+        }
+
+        let name = getName()
+        if name == "N/A" {
+            switch type {
+            case .singular:
+                switch titlecase {
+                case .titlecase:
+                    return R.string.localizable.tokenTitlecase()
+                case .notTitlecase:
+                    return R.string.localizable.tokenLowercase()
+                }
+            case .plural:
+                switch titlecase {
+                case .titlecase:
+                    return R.string.localizable.tokensTitlecase()
+                case .notTitlecase:
+                    return R.string.localizable.tokensLowercase()
+                }
+            }
+        } else {
+            //TODO be smart with lowercase and title case
+            return name
+        }
+    }
+
+    private func getLang() -> String {
         let lang = Locale.preferredLanguages[0]
         if lang.hasPrefix("en") {
             return "en"
@@ -119,6 +167,9 @@ private class PrivateXMLHandler {
 public class XMLHandler {
     fileprivate static var xmlHandlers: [String: PrivateXMLHandler] = [:]
     private let privateXMLHandler: PrivateXMLHandler
+    var hasAssetDefinition: Bool {
+        return privateXMLHandler.hasAssetDefinition
+    }
 
     init(contract: String) {
         let contract = contract.add0x.lowercased()
@@ -134,16 +185,17 @@ public class XMLHandler {
         xmlHandlers[contract.add0x.lowercased()] = nil
     }
 
-    func getFifaInfoForTicket(tokenId tokenBytes32: BigUInt, index: UInt16) -> Ticket {
-        return privateXMLHandler.getFifaInfoForTicket(tokenId: tokenBytes32, index: index)
+    func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
+        return privateXMLHandler.getToken(name: name, fromTokenId: tokenBytes32, index: index)
     }
 
-    func getName(lang: String) -> String {
-        return privateXMLHandler.getName(lang: lang)
+    func getName() -> String {
+        return privateXMLHandler.getName()
     }
 
-    func getLang() -> String {
-        return privateXMLHandler.getLang()
+    /// Expected to return names like "cryptokitties", "token" that are specified in the asset definition. If absent, fallback to "tokens"
+    func getTokenTypeName(_ type: SingularOrPlural = .plural, titlecase: TitlecaseOrNot = .titlecase) -> String {
+        return privateXMLHandler.getTokenTypeName(type, titlecase: titlecase)
     }
 
     func getIssuer() -> String {

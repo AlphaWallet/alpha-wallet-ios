@@ -14,7 +14,7 @@ class AccountsViewController: UIViewController {
     weak var delegate: AccountsViewControllerDelegate?
     var allowsAccountDeletion: Bool = false
     let roundedBackground = RoundedBackground()
-    let header = TicketsViewControllerTitleHeader()
+    let header = TokensCardViewControllerTitleHeader()
     let tableView = UITableView(frame: .zero, style: .plain)
     var viewModel: AccountsViewModel {
         return AccountsViewModel(
@@ -33,6 +33,7 @@ class AccountsViewController: UIViewController {
     private var balances: [Address: Balance?] = [:]
     private let keystore: Keystore
     private let balanceCoordinator: GetBalanceCoordinator
+    private var etherKeystore = try? EtherKeystore()
 
     init(
         keystore: Keystore,
@@ -91,10 +92,11 @@ class AccountsViewController: UIViewController {
             message: R.string.localizable.accountsConfirmDeleteMessage(),
             okTitle: R.string.localizable.accountsConfirmDeleteOkTitle(),
             okStyle: .destructive
-        ) { result in
+        ) { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success:
-                self.delete(account: account)
+                strongSelf.delete(account: account)
             case .failure: break
             }
         }
@@ -102,14 +104,14 @@ class AccountsViewController: UIViewController {
     func delete(account: Wallet) {
         navigationController?.displayLoading(text: R.string.localizable.deleting())
         keystore.delete(wallet: account) { [weak self] result in
-            guard let `self` = self else { return }
-            self.navigationController?.hideLoading()
+            guard let strongSelf = self else { return }
+            strongSelf.navigationController?.hideLoading()
             switch result {
             case .success:
-                self.fetch()
-                self.delegate?.didDeleteAccount(account: account, in: self)
+                strongSelf.fetch()
+                strongSelf.delegate?.didDeleteAccount(account: account, in: strongSelf)
             case .failure(let error):
-                self.displayError(error: error)
+                strongSelf.displayError(error: error)
             }
         }
     }
@@ -129,9 +131,10 @@ class AccountsViewController: UIViewController {
     private func getAccountViewModels(for path: IndexPath) -> AccountViewModel {
         let account = self.account(for: path)
         let balance = self.balances[account.address].flatMap { $0 }
-        let model = AccountViewModel(wallet: account, current: EtherKeystore.current, walletBalance: balance)
+        let model = AccountViewModel(wallet: account, current: etherKeystore?.recentlyUsedWallet, walletBalance: balance)
         return model
     }
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -156,7 +159,7 @@ extension AccountsViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return allowsAccountDeletion && (EtherKeystore.current != viewModel.wallets[indexPath.row] || viewModel.wallets.count == 1)
+        return allowsAccountDeletion && (etherKeystore?.recentlyUsedWallet != viewModel.wallets[indexPath.row])
     }
 
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
@@ -175,6 +178,6 @@ extension AccountsViewController: UITableViewDelegate, UITableViewDataSource {
 
 extension AccountsViewController: AccountViewCellDelegate {
     func accountViewCell(_ cell: AccountViewCell, didTapInfoViewForAccount account: Wallet) {
-        self.delegate?.didSelectInfoForAccount(account: account, sender: cell.infoButton, in: self)
+        delegate?.didSelectInfoForAccount(account: account, sender: cell.infoButton, in: self)
     }
 }

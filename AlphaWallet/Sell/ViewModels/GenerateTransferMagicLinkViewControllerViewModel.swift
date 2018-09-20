@@ -3,7 +3,7 @@
 import UIKit
 
 struct GenerateTransferMagicLinkViewControllerViewModel {
-    var ticketHolder: TokenHolder
+    var tokenHolder: TokenHolder
     var linkExpiryDate: Date
 
     var contentsBackgroundColor: UIColor {
@@ -16,11 +16,11 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return Fonts.light(size: 25)!
     }
     var subtitleLabelText: String {
-        return R.string.localizable.aWalletTicketTokenTransferConfirmSubtitle()
+        return R.string.localizable.aWalletTokenTransferConfirmSubtitle()
     }
 
 	var headerTitle: String {
-		return R.string.localizable.aWalletTicketTokenTransferConfirmTitle()
+		return R.string.localizable.aWalletTokenTransferConfirmTitle()
 	}
 
     var actionButtonTitleColor: UIColor {
@@ -42,29 +42,31 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return Fonts.regular(size: 20)!
     }
     var actionButtonTitle: String {
-        return R.string.localizable.aWalletTicketTokenSellConfirmButtonTitle()
+        return R.string.localizable.aWalletTokenSellConfirmButtonTitle()
     }
     var cancelButtonTitle: String {
-        return R.string.localizable.aWalletTicketTokenSellConfirmCancelButtonTitle()
+        return R.string.localizable.aWalletTokenSellConfirmCancelButtonTitle()
     }
 
-    var ticketSaleDetailsLabelFont: UIFont {
+    var tokenSaleDetailsLabelFont: UIFont {
         return Fonts.semibold(size: 21)!
     }
 
-    var ticketSaleDetailsLabelColor: UIColor {
+    var tokenSaleDetailsLabelColor: UIColor {
         return Colors.appBackground
     }
 
     var descriptionLabelText: String {
-        return R.string.localizable.aWalletTicketTokenSellConfirmExpiryDateDescription(linkExpiryDate.format("dd MMM yyyy  hh:mm"))
+        return R.string.localizable.aWalletTokenSellConfirmExpiryDateDescription(linkExpiryDate.format("dd MMM yyyy  hh:mm"))
     }
 
-    var ticketCountLabelText: String {
-        if ticketCount == 1 {
-            return R.string.localizable.aWalletTicketTokenSellConfirmSingleTicketSelectedTitle()
+    var tokenCountLabelText: String {
+        if tokenCount == 1 {
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
+            return R.string.localizable.aWalletTokenSellConfirmSingleTokenSelectedTitle(tokenTypeName)
         } else {
-            return R.string.localizable.aWalletTicketTokenSellConfirmMultipleTicketSelectedTitle(ticketHolder.count)
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.plural, titlecase: .titlecase)
+            return R.string.localizable.aWalletTokenSellConfirmMultipleTokenSelectedTitle(tokenHolder.count, tokenTypeName)
         }
     }
 
@@ -72,12 +74,12 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return UIColor(red: 236, green: 236, blue: 236)
     }
 
-    private var ticketCount: Int {
-        return ticketHolder.count
+    private var tokenCount: Int {
+        return tokenHolder.count
     }
 
-    init(ticketHolder: TokenHolder, linkExpiryDate: Date) {
-        self.ticketHolder = ticketHolder
+    init(tokenHolder: TokenHolder, linkExpiryDate: Date) {
+        self.tokenHolder = tokenHolder
         self.linkExpiryDate = linkExpiryDate
     }
 }

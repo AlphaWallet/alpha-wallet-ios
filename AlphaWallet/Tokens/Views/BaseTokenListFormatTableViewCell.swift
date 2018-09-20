@@ -11,7 +11,7 @@ protocol BaseTokenListFormatTableViewCellDelegate: class {
 class BaseTokenListFormatTableViewCell: UITableViewCell {
     static let identifier = "BaseTokenListFormatTableViewCell"
 
-    lazy var rowView: TokenListFormatRowView = {
+    private lazy var rowView: TokenListFormatRowView = {
         let result = TokenListFormatRowView(showCheckbox: showCheckbox())
         result.delegate = self
         return result
@@ -36,13 +36,13 @@ class BaseTokenListFormatTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: BaseTicketTableViewCellViewModel) {
+    func configure(viewModel: BaseTokenCardTableViewCellViewModel) {
         selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
 
         contentView.backgroundColor = viewModel.backgroundColor
 
-        rowView.configure(viewModel: .init(ticketHolder: viewModel.ticketHolder))
+        rowView.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder))
 
         if showCheckbox() {
             rowView.checkboxImageView.image = viewModel.checkboxImage

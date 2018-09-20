@@ -11,7 +11,7 @@ import BigInt
 import TrustKeystore
 import MBProgressHUD
 
-protocol SendViewControllerDelegate: class {
+protocol SendViewControllerDelegate: class, CanOpenURL {
     func didPressConfirm(
             transaction: UnconfirmedTransaction,
             transferType: TransferType,
@@ -19,7 +19,7 @@ protocol SendViewControllerDelegate: class {
     )
 }
 
-class SendViewController: UIViewController, CanScanQRCode {
+class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatusViewController {
     let roundedBackground = RoundedBackground()
     let header = SendHeaderView()
     let targetAddressTextField = AddressTextField()
@@ -55,16 +55,30 @@ class SendViewController: UIViewController, CanScanQRCode {
     var balanceViewModel: BalanceBaseViewModel?
     weak var delegate: SendViewControllerDelegate?
 
+    let config: Config
+    var contract: String {
+        //Only ERC20 tokens are relevant here
+        switch transferType {
+        case .ERC20Token(let token):
+            return token.contract
+        case .ether:
+            return "0x"
+        case .dapp:
+            return "0x"
+        case .ERC875Token:
+            return "0x"
+        case .ERC875TokenOrder:
+            return "0x"
+        case .ERC721Token:
+            return "0x"
+        }
+    }
+
     let session: WalletSession
     let account: Account
     let transferType: TransferType
     let storage: TokensDataStore
     let ethPrice: Subscribable<Double>
-
-    private var allowedCharacters: String = {
-        let decimalSeparator = Locale.current.decimalSeparator ?? "."
-        return "0123456789" + decimalSeparator
-    }()
     private var gasPrice: BigInt?
     private var data = Data()
     lazy var decimalFormatter: DecimalFormatter = {
@@ -83,8 +97,13 @@ class SendViewController: UIViewController, CanScanQRCode {
         self.transferType = transferType
         self.storage = storage
         self.ethPrice = ethPrice
+        self.config = Config()
 
         super.init(nibName: nil, bundle: nil)
+
+        if case .ERC20Token = transferType {
+            updateNavigationRightBarButtons(isVerified: false, hasShowInfoButton: false)
+        }
 
         configureBalanceViewModel()
 
@@ -97,10 +116,16 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
-        ethPrice.subscribe { [weak self] value in
+        switch transferType {
+        case .ether:
+            ethPrice.subscribe { [weak self] value in
             if let value = value {
                 self?.amountTextField.ethToDollarRate = value
             }
+        }
+        default:
+            amountTextField.alternativeAmountLabel.isHidden = true
+            amountTextField.isFiatButtonHidden = true
         }
 
         myAddressContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -118,7 +143,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         myAddressContainerStackView.translatesAutoresizingMaskIntoConstraints = false
         myAddressContainer.addSubview(myAddressContainerStackView)
 
-        nextButton.setTitle(R.string.localizable.aWalletTicketTokenTransferButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.aWalletTokenTransferButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
 
         let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
@@ -203,6 +228,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         view.backgroundColor = viewModel.backgroundColor
 
+        headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
         header.configure(viewModel: headerViewModel)
 
         targetAddressLabel.font = viewModel.textFieldsLabelFont
@@ -255,13 +281,13 @@ class SendViewController: UIViewController, CanScanQRCode {
 
     @objc func send() {
         let addressString = targetAddressTextField.value
-        var amountString = amountTextField.ethCost
+        let amountString = amountTextField.ethCost
         guard let address = Address(string: addressString) else {
             return displayError(error: Errors.invalidAddress)
         }
         let parsedValue: BigInt? = {
             switch transferType {
-            case .ether:
+            case .ether, .dapp:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .ERC20Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
@@ -297,7 +323,7 @@ class SendViewController: UIViewController, CanScanQRCode {
                 indices: .none,
                 tokenIds: .none
         )
-        self.delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
+        delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }
 
     @objc func copyAddress() {
@@ -320,12 +346,13 @@ class SendViewController: UIViewController, CanScanQRCode {
     private func changeQRCode(value: Int) {
         if let viewModel = viewModel {
             let string = viewModel.myAddressText
-            DispatchQueue.global(qos: .background).async {
+            DispatchQueue.global(qos: .background).async { [weak self] in
+                guard let strongSelf = self else { return }
                 // EIP67 format not being used much yet, use hex value for now
                 // let string = "ethereum:\(account.address.address)?value=\(value)"
-                let image = self.generateQRCode(from: string)
-                DispatchQueue.main.async {
-                    self.imageView.image = image
+                let image = strongSelf.generateQRCode(from: string)
+                DispatchQueue.main.async { [weak self] in
+                    strongSelf.imageView.image = image
                 }
             }
         }
@@ -356,11 +383,11 @@ class SendViewController: UIViewController, CanScanQRCode {
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
             headerViewModel.title = "\(amount) \(viewModel.symbol)"
-            let etherToken = TokensDataStore.etherToken(for: self.session.config)
-            let ticker = self.storage.coinTicker(for: etherToken)
-            self.headerViewModel.ticker = ticker
-            self.headerViewModel.currencyAmount = self.session.balanceCoordinator.viewModel.currencyAmount
-            self.headerViewModel.currencyAmountWithoutSymbol = self.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
+            let etherToken = TokensDataStore.etherToken(for: session.config)
+            let ticker = storage.coinTicker(for: etherToken)
+            headerViewModel.ticker = ticker
+            headerViewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
+            headerViewModel.currencyAmountWithoutSymbol = session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
             }
@@ -437,5 +464,14 @@ extension SendViewController: AddressTextFieldDelegate {
 
     func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
         return true
+    }
+}
+
+extension SendViewController: VerifiableStatusViewController {
+    func showInfo() {
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 }

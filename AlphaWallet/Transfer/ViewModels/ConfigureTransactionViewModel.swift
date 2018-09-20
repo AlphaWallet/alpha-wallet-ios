@@ -29,7 +29,7 @@ struct ConfigureTransactionViewModel {
 
     var isDataInputHidden: Bool {
         switch transferType {
-        case .ether: return false
+        case .ether, .dapp: return false
         case .ERC20Token: return true
         case .ERC875Token: return true
         case .ERC875TokenOrder: return true

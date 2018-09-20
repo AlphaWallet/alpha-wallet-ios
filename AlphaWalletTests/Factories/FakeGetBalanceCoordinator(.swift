@@ -5,6 +5,6 @@ import Foundation
 
 class FakeGetBalanceCoordinator: GetBalanceCoordinator {
     convenience init() {
-        self.init(web3: Web3Swift())
+        self.init(config: Config())
     }
 }

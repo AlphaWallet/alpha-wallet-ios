@@ -23,7 +23,7 @@ class ConfirmCoordinator: Coordinator {
     weak var delegate: ConfirmCoordinatorDelegate?
 
     init(
-        navigationController: UINavigationController,
+        navigationController: UINavigationController = NavigationController(),
         session: WalletSession,
         configurator: TransactionConfigurator,
         keystore: Keystore,
@@ -45,12 +45,13 @@ class ConfirmCoordinator: Coordinator {
             configurator: configurator,
             confirmType: type
         )
-        controller.didCompleted = { result in
+        controller.didCompleted = { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let data):
-                self.didCompleted?(.success(data))
+                strongSelf.didCompleted?(.success(data))
             case .failure(let error):
-                self.navigationController.displayError(error: error)
+                strongSelf.navigationController.displayError(error: error)
             }
         }
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))

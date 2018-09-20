@@ -6,7 +6,7 @@ import Eureka
 import StoreKit
 import MessageUI
 
-protocol SettingsViewControllerDelegate: class {
+protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func didAction(action: AlphaWalletSettingsAction, in viewController: SettingsViewController)
 }
 
@@ -50,10 +50,11 @@ class SettingsViewController: FormViewController {
             self.run(action: .wallets)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
-        }.cellUpdate { cell, _ in
+        }.cellUpdate { [weak self] cell, _ in
+            guard let strongSelf = self else { return }
             cell.imageView?.image = R.image.settings_wallet()?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
-            cell.detailTextLabel?.text = String(self.session.account.address.description.prefix(10)) + "..."
+            cell.detailTextLabel?.text = String(strongSelf.session.account.address.description.prefix(10)) + "..."
             cell.accessoryType = .disclosureIndicator
         }
 
@@ -64,9 +65,7 @@ class SettingsViewController: FormViewController {
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
         }.cellUpdate { [weak self] cell, _ in
-            guard let strongSelf = self else {
-                return
-            }
+            guard let strongSelf = self else { return }
             cell.imageView?.image = R.image.settings_language()?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = strongSelf.viewModel.localeTitle
             cell.detailTextLabel?.text = AppLocale(id: strongSelf.session.config.locale).displayName
@@ -96,7 +95,7 @@ class SettingsViewController: FormViewController {
         <<< AppFormAppearance.alphaWalletSettingsButton { row in
             row.cellStyle = .value1
             row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-                let vc = HelpViewController()
+                let vc = HelpViewController(delegate: self)
                 return vc
             }, onDismiss: { _ in
             })
@@ -135,7 +134,7 @@ class SettingsViewController: FormViewController {
     }
 
     func setPasscode(completion: ((Bool) -> Void)? = .none) {
-        let lock = LockCreatePasscodeCoordinator(navigationController: self.navigationController!, model: LockCreatePasscodeViewModel())
+        let lock = LockCreatePasscodeCoordinator(navigationController: navigationController!, model: LockCreatePasscodeViewModel())
         lock.start()
         lock.lockViewController.willFinishWithResult = { result in
             completion?(result)
@@ -152,7 +151,7 @@ class SettingsViewController: FormViewController {
             if let localURL = type.localURL, UIApplication.shared.canOpenURL(localURL) {
                 UIApplication.shared.open(localURL, options: [:], completionHandler: .none)
             } else {
-                self.openURL(type.remoteURL)
+                self.delegate?.didPressOpenWebPage(type.remoteURL, in: self)
             }
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
@@ -185,5 +184,22 @@ class SettingsViewController: FormViewController {
 
     override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 0
+    }
+}
+
+extension SettingsViewController: HelpViewControllerDelegate {
+}
+
+extension SettingsViewController: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }

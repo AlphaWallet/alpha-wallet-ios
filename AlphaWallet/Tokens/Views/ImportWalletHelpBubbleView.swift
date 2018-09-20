@@ -3,9 +3,9 @@
 import UIKit
 
 class ImportWalletHelpBubbleView: UIView {
-	var importWalletHelpBubbleLayer = CAShapeLayer()
-	let titleLabel = UILabel()
-	let descriptionLabel = UILabel()
+	private var importWalletHelpBubbleLayer = CAShapeLayer()
+	private let titleLabel = UILabel()
+	private let descriptionLabel = UILabel()
 
 	init() {
 		super.init(frame: .zero)

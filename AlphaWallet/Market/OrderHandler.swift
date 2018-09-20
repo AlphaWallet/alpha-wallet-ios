@@ -1,3 +1,5 @@
+// Copyright © 2018 Stormbird PTE. LTD.
+
 import BigInt
 import TrustKeystore
 
@@ -52,7 +54,7 @@ public class OrderHandler {
             let message: [UInt8] = encodeMessageForTrade(
                     price: orders[i].price,
                     expiryBuffer: orders[i].expiry,
-                    tickets: orders[i].indices,
+                    tokens: orders[i].indices,
                     contractAddress: orders[i].contractAddress
             )
             messages.append(Data(bytes: message))
@@ -71,17 +73,17 @@ public class OrderHandler {
         return signedOrders
     }
 
-    //buffer size is 84 + tickets
+    //buffer size is 84 + tokens
     //first 32 bytes is allocated for price
     //next 32 for expiry
     //20 for contract address
-    //remaining for tickets
+    //remaining for tokens
     func encodeMessageForTrade(price: BigUInt,
                                expiryBuffer: BigUInt,
-                               tickets: [UInt16],
+                               tokens: [UInt16],
                                contractAddress: String) -> [UInt8] {
-        //ticket count * 2 because it is 16 bits not 8
-        let arrayLength: Int = 84 + tickets.count * 2
+        //token count * 2 because it is 16 bits not 8
+        let arrayLength: Int = 84 + tokens.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
 
@@ -109,10 +111,9 @@ public class OrderHandler {
             buffer.append(contractAddr[i])
         }
 
-        var ticketsUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: tickets)
-
-        for i in 0..<ticketsUint8.count {
-            buffer.append(ticketsUint8[i])
+        var tokensUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: tokens)
+        for i in 0...tokensUint8.count - 1 {
+            buffer.append(tokensUint8[i])
         }
 
         return buffer

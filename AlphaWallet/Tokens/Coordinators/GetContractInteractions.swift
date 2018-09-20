@@ -1,5 +1,6 @@
 //
 // Created by James Sangalli on 6/6/18.
+// Copyright © 2018 Stormbird PTE. LTD.
 //
 
 import Foundation
@@ -27,7 +28,12 @@ class GetContractInteractions {
                 let contracts: [String] = json["result"].map { _, transactionJson in
                     if transactionJson["input"] != "0x" {
                         //every transaction that has input is by default a transaction to a contract
-                        return transactionJson["to"].description
+                        if transactionJson["contractAddress"].description == "" {
+                            return transactionJson["to"].description
+                        }
+                        else {
+                            return transactionJson["contractAddress"].description
+                        }
                     }
                     return ""
                 }

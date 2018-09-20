@@ -1,5 +1,6 @@
 //
 // Created by James Sangalli on 7/3/18.
+// Copyright © 2018 Stormbird PTE. LTD.
 // When someone takes an order and pays for it, we call it "claim an order"
 //
 

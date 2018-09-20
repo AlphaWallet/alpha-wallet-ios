@@ -2,12 +2,14 @@
 
 import Foundation
 import UIKit
+import BigInt
 import JSONRPCKit
 import APIKit
 import RealmSwift
 import Result
 import Moya
 import TrustKeystore
+import UserNotifications
 
 enum TransactionError: Error {
     case failedToFetch
@@ -26,9 +28,10 @@ class TransactionDataCoordinator {
 
     let storage: TransactionsStorage
     let session: WalletSession
+    private let keystore: Keystore
     let config = Config()
     var viewModel: TransactionsViewModel {
-        return .init(transactions: self.storage.objects)
+        return .init(transactions: storage.objects)
     }
     var timer: Timer?
     var updateTransactionsTimer: Timer?
@@ -38,13 +41,16 @@ class TransactionDataCoordinator {
         return TransactionsTracker(sessionID: session.sessionID)
     }()
     private let trustProvider = TrustProviderFactory.makeProvider()
+    private var previousTransactions: [Transaction]?
 
     init(
         session: WalletSession,
-        storage: TransactionsStorage
+        storage: TransactionsStorage,
+        keystore: Keystore
     ) {
         self.session = session
         self.storage = storage
+        self.keystore = keystore
         NotificationCenter.default.addObserver(self, selector: #selector(stopTimers), name: .UIApplicationWillResignActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(restartTimers), name: .UIApplicationDidBecomeActive, object: nil)
     }
@@ -96,12 +102,12 @@ class TransactionDataCoordinator {
             for: session.account.address,
             startBlock: startBlock
         ) { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let transactions):
-                self.update(items: transactions)
+                strongSelf.update(items: transactions)
             case .failure(let error):
-                self.handleError(error: error)
+                strongSelf.handleError(error: error)
             }
         }
     }
@@ -114,11 +120,12 @@ class TransactionDataCoordinator {
     ) {
         NSLog("fetchTransaction: startBlock: \(startBlock), page: \(page)")
 
-        trustProvider.request(.getTransactions(address: address.description, startBlock: startBlock, page: page)) { result in
+        trustProvider.request(.getTransactions(address: address.description,
+                startBlock: startBlock, endBlock: 999_999_999)) { result in
             switch result {
             case .success(let response):
                 do {
-                    let rawTransactions = try response.map(ArrayResponse<RawTransaction>.self).docs
+                    let rawTransactions = try response.map(ArrayResponse<RawTransaction>.self).result
                     let transactions: [Transaction] = rawTransactions.compactMap { .from(transaction: $0) }
                     completion(.success(transactions))
                 } catch {
@@ -142,13 +149,13 @@ class TransactionDataCoordinator {
     private func updatePendingTransaction(_ transaction: Transaction) {
         let request = GetTransactionRequest(hash: transaction.id)
         Session.send(EtherServiceRequest(batch: BatchFactory().create(request))) { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success:
                 // NSLog("parsedTransaction \(_parsedTransaction)")
                 if transaction.date > Date().addingTimeInterval(Config.deleyedTransactionInternalSeconds) {
-                    self.update(state: .completed, for: transaction)
-                    self.update(items: [transaction])
+                    strongSelf.update(state: .completed, for: transaction)
+                    strongSelf.update(items: [transaction])
                 }
             case .failure(let error):
                 // NSLog("error: \(error)")
@@ -159,10 +166,10 @@ class TransactionDataCoordinator {
                     switch error {
                     case .responseError:
                         // NSLog("code \(code), error: \(message)")
-                        self.delete(transactions: [transaction])
+                        strongSelf.delete(transactions: [transaction])
                     case .resultObjectParseError:
                         if transaction.date > Date().addingTimeInterval(Config.deleteMissingInternalSeconds) {
-                            self.update(state: .failed, for: transaction)
+                            strongSelf.update(state: .failed, for: transaction)
                         }
                     default: break
                     }
@@ -191,7 +198,33 @@ class TransactionDataCoordinator {
         handleUpdateItems()
     }
 
+    private func notifyUserEtherReceivedInNewTransactions() {
+        if let previousTransactions = previousTransactions {
+            let diff = storage.objects - previousTransactions
+            if let wallet = keystore.recentlyUsedWallet {
+                let newIncomingEthTransactions = diff.filter { $0.to.sameContract(as: wallet.address.eip55String) }
+                let formatter = EtherNumberFormatter.short
+                for each in newIncomingEthTransactions {
+                    let amount = formatter.string(from: BigInt(each.value) ?? BigInt(), decimals: 18)
+                    notifyUserEtherReceived(for: each.id, amount: amount)
+                }
+            }
+        }
+        previousTransactions = storage.objects
+    }
+
+    private func notifyUserEtherReceived(for transactionId: String, amount: String) {
+        let notificationCenter = UNUserNotificationCenter.current()
+        let content = UNMutableNotificationContent()
+        content.body = R.string.localizable.transactionsReceivedEther(amount)
+        content.sound = .default()
+        let identifier = Constants.etherReceivedNotificationIdentifier
+        let request = UNNotificationRequest(identifier: "\(identifier):\(transactionId)", content: content, trigger: nil)
+        notificationCenter.add(request)
+    }
+
     func handleUpdateItems() {
+        notifyUserEtherReceivedInNewTransactions()
         delegate?.didUpdate(result: .success(storage.objects))
     }
 
@@ -216,21 +249,21 @@ class TransactionDataCoordinator {
         page: Int,
         completion: @escaping (Result<[Transaction], AnyError>) -> Void
     ) {
-        fetchTransaction(for: address, startBlock: 1, page: page) { [weak self] result in
-            guard let `self` = self else { return }
+        fetchTransaction(for: address, startBlock: 0, page: page) { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let transactions):
-                self.update(items: transactions)
+                strongSelf.update(items: transactions)
                 if !transactions.isEmpty && page <= 50 { // page limit to 50, otherwise you have too many transactions.
                     let timeout = DispatchTime.now() + .milliseconds(300)
                     DispatchQueue.main.asyncAfter(deadline: timeout) { [weak self] in
                         self?.initialFetch(for: address, page: page + 1, completion: completion)
                     }
                 } else {
-                    self.transactionsTracker.fetchingState = .done
+                    strongSelf.transactionsTracker.fetchingState = .done
                 }
             case .failure:
-                self.transactionsTracker.fetchingState = .failed
+                strongSelf.transactionsTracker.fetchingState = .failed
             }
         }
     }

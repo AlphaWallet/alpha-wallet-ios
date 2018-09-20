@@ -49,7 +49,6 @@ struct Colors {
     static let darkBlue = UIColor(hex: "3375BB")
     static let blue = UIColor(hex: "2e91db")
     static let red = UIColor(hex: "f7506c")
-    static let veryLightRed = UIColor(hex: "FFF4F4")
     static let veryLightOrange = UIColor(hex: "FFECC9")
     static let green = UIColor(hex: "2fbb4f")
     static let lightGray = UIColor.lightGray
@@ -75,7 +74,6 @@ struct StyleLayout {
 
 struct Fonts {
     static let labelSize: CGFloat = 18
-    static let buttonSize: CGFloat = 20
 
     static func light(size: CGFloat) -> UIFont? {
         return UIFont(resource: R.font.sourceSansProLight, size: size)

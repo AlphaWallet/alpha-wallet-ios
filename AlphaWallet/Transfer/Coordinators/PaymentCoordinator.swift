@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import TrustKeystore
 
-protocol PaymentCoordinatorDelegate: class {
+protocol PaymentCoordinatorDelegate: class, CanOpenURL {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator)
     func didCancel(in coordinator: PaymentCoordinator)
 }
@@ -20,16 +20,16 @@ class PaymentCoordinator: Coordinator {
     let keystore: Keystore
     let storage: TokensDataStore
     let ethPrice: Subscribable<Double>
-    let ticketHolders: [TokenHolder]!
+    let tokenHolders: [TokenHolder]!
 
     init(
-        navigationController: UINavigationController = UINavigationController(),
-        flow: PaymentFlow,
-        session: WalletSession,
-        keystore: Keystore,
-        storage: TokensDataStore,
-        ethPrice: Subscribable<Double>,
-        ticketHolders: [TokenHolder] = []
+            navigationController: UINavigationController = UINavigationController(),
+            flow: PaymentFlow,
+            session: WalletSession,
+            keystore: Keystore,
+            storage: TokensDataStore,
+            ethPrice: Subscribable<Double>,
+            tokenHolders: [TokenHolder] = []
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
@@ -38,7 +38,7 @@ class PaymentCoordinator: Coordinator {
         self.keystore = keystore
         self.storage = storage
         self.ethPrice = ethPrice
-        self.ticketHolders = ticketHolders
+        self.tokenHolders = tokenHolders
     }
 
     func start() {
@@ -52,7 +52,7 @@ class PaymentCoordinator: Coordinator {
                 storage: storage,
                 account: account,
                 ethPrice: ethPrice,
-                ticketHolders: ticketHolders!
+                tokenHolders: tokenHolders!
             )
             coordinator.delegate = self
             coordinator.start()
@@ -95,5 +95,19 @@ extension PaymentCoordinator: RequestCoordinatorDelegate {
     func didCancel(in coordinator: RequestCoordinator) {
         removeCoordinator(coordinator)
         cancel()
+    }
+}
+
+extension PaymentCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }
