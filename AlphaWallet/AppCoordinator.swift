@@ -244,6 +244,10 @@ extension AppCoordinator: InCoordinatorDelegate {
     func didShowWallet(in coordinator: InCoordinator) {
         pushNotificationsCoordinator?.didShowWallet(in: coordinator.navigationController)
     }
+
+    func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController? {
+        return assetDefinitionStoreCoordinator?.createOverridesViewController()
+    }
 }
 
 extension AppCoordinator: UniversalLinkCoordinatorDelegate {
