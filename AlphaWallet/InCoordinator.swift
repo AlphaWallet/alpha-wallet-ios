@@ -10,6 +10,7 @@ protocol InCoordinatorDelegate: class {
     func didCancel(in coordinator: InCoordinator)
     func didUpdateAccounts(in coordinator: InCoordinator)
     func didShowWallet(in coordinator: InCoordinator)
+    func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController?
 }
 
 enum Tabs {
@@ -545,6 +546,10 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     func didPressShowWallet(in coordinator: SettingsCoordinator) {
         showPaymentFlow(for: .request)
         delegate?.didShowWallet(in: self)
+    }
+
+    func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController? {
+        return delegate?.assetDefinitionsOverrideViewController(for: self)
     }
 }
 

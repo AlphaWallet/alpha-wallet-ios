@@ -32,7 +32,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         return "\(name).xml"
     }
 
-    private static func contract(fromPath path: URL) -> String? {
+    static func contract(fromPath path: URL) -> String? {
         guard path.lastPathComponent.hasPrefix("0x") else { return nil }
         guard path.pathExtension == "xml" else { return nil }
         return path.deletingPathExtension().lastPathComponent
