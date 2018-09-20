@@ -22,6 +22,9 @@ class AppCoordinator: NSObject, Coordinator {
     var inCoordinator: InCoordinator? {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
+    var assetDefinitionStoreCoordinator: AssetDefinitionStoreCoordinator? {
+        return coordinators.first { $0 is AssetDefinitionStoreCoordinator } as? AssetDefinitionStoreCoordinator
+    }
     var pushNotificationsCoordinator: PushNotificationsCoordinator? {
         return coordinators.first { $0 is PushNotificationsCoordinator } as? PushNotificationsCoordinator
     }
@@ -63,12 +66,28 @@ class AppCoordinator: NSObject, Coordinator {
         handleNotifications()
         applyStyle()
         resetToWelcomeScreen()
+        setupAssetDefinitionStore()
 
         if keystore.hasWallets {
             showTransactions(for: keystore.recentlyUsedWallet ?? keystore.wallets.first!)
         } else {
             resetToWelcomeScreen()
         }
+    }
+
+    /// Return true if handled
+    func handleOpen(url: URL) -> Bool {
+        if let assetDefinitionStoreCoordinator = assetDefinitionStoreCoordinator {
+            return assetDefinitionStoreCoordinator.handleOpen(url: url)
+        } else {
+            return false
+        }
+    }
+
+    private func setupAssetDefinitionStore() {
+        let coordinator = AssetDefinitionStoreCoordinator()
+        addCoordinator(coordinator)
+        coordinator.start()
     }
 
     func showTransactions(for wallet: Wallet) {
