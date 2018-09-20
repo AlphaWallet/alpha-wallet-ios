@@ -12,7 +12,7 @@ class Web3Swift: NSObject {
     let url: URL
     var isLoaded = false
 
-    init(url: URL = URL(string: "https://ropsten.infura.io/llyrtzQ3YhkdESt2Fzrk")!) {
+    init(url: URL = URL(string: "https://ropsten.infura.io/v3/da3717f25f824cc1baa32d812386d93f")!) {
         self.url = url
     }
 
