@@ -32,11 +32,14 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         return "\(name).xml"
     }
 
-    func contract(fromPath path: URL) -> String? {
-        guard path.pathExtension == "xml" else {
-            return nil
-        }
+    private static func contract(fromPath path: URL) -> String? {
+        guard path.lastPathComponent.hasPrefix("0x") else { return nil }
+        guard path.pathExtension == "xml" else { return nil }
         return path.deletingPathExtension().lastPathComponent
+    }
+
+    static func isValidAssetDefinitionFilename(forPath path: URL) -> Bool {
+        return contract(fromPath: path) != nil
     }
 
     subscript(contract: String) -> String? {
@@ -68,7 +71,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
 
     func forEachContractWithXML(_ body: (String) -> Void) {
         if let files = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) {
-            let contracts = files.compactMap { contract(fromPath: $0) }
+            let contracts = files.compactMap { AssetDefinitionDiskBackingStore.contract(fromPath: $0) }
             for each in contracts {
                 body(each)
             }
@@ -86,7 +89,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
                     break
                 case .updated(let filenames):
                     for each in filenames {
-                        if let url = URL(string: each), let contract = strongSelf.contract(fromPath: url) {
+                        if let url = URL(string: each), let contract = AssetDefinitionDiskBackingStore.contract(fromPath: url) {
                             changeHandler(contract)
                         }
                     }

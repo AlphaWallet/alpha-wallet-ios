@@ -52,6 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     // Respond to URI scheme links
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
+        let _ = appCoordinator.handleOpen(url: url)
         return true
     }
 
