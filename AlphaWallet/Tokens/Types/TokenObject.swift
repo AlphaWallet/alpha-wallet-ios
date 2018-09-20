@@ -47,7 +47,7 @@ class TokenObject: Object {
     }
 
     var address: Address {
-        return Address(string: contract)!
+        return Address(uncheckedAgainstNullAddress: contract)!
     }
 
     var valueBigInt: BigInt {
@@ -64,11 +64,18 @@ class TokenObject: Object {
 
     override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? TokenObject else { return false }
-        return object.contract == self.contract
+        return object.contract.sameContract(as: contract)
     }
 
     var title: String {
-        return name.isEmpty ? symbol : (name + " (" + symbol + ")")
+        let localizedNameFromAssetDefinition = XMLHandler(contract: contract).getName()
+        let compositeName = compositeTokenName(fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+
+        if compositeName.isEmpty {
+            return symbol
+        } else {
+            return "\(compositeName) (\(symbol))"
+        }
     }
 }
 
@@ -77,5 +84,23 @@ func isNonZeroBalance(_ balance: String) -> Bool {
 }
 
 func isZeroBalance(_ balance: String) -> Bool {
-    return BigUInt(balance) == 0
+    if balance == Constants.nullTokenId {
+        return true
+    }
+    return false
+}
+
+func compositeTokenName(fromContractName contractName: String, localizedNameFromAssetDefinition: String) -> String {
+    let compositeName: String
+    //TODO improve and remove the check for "N/A". Maybe a constant
+    if localizedNameFromAssetDefinition.isEmpty || localizedNameFromAssetDefinition == "N/A" {
+        compositeName = contractName
+    } else {
+        if contractName.isEmpty {
+            compositeName = localizedNameFromAssetDefinition
+        } else {
+            compositeName = "\(contractName) \(localizedNameFromAssetDefinition)"
+        }
+    }
+    return compositeName
 }

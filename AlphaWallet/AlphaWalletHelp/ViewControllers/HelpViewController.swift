@@ -2,18 +2,23 @@
 
 import UIKit
 
+protocol HelpViewControllerDelegate: class, CanOpenURL {
+}
+
 class HelpViewController: UIViewController {
     let tableView = UITableView()
     let banner = ContactUsBannerView()
-    let rows: [(title: String, controller: UIViewController)] = [
-        (title: R.string.localizable.aHelpContentsWhatIsETH(), controller: WhatIsEthereumInfoViewController()),
-        (title: R.string.localizable.aHelpContentsHowDoIGetMyMoney(), controller: HowDoIGetMyMoneyInfoViewController()),
-        (title: R.string.localizable.aHelpContentsHowDoITransferETHIntoMyWallet(), controller: HowDoITransferETHIntoMyWalletInfoViewController()),
-        (title: R.string.localizable.aHelpContentsPrivacyPolicy(), controller: PrivacyPolicyViewController()),
-        (title: R.string.localizable.aHelpContentsTermsOfService(), controller: TermsOfServiceViewController()),
+    lazy var rows: [(title: String, controller: UIViewController)] = [
+        (title: R.string.localizable.aHelpContentsWhatIsETH(), controller: WhatIsEthereumInfoViewController(delegate: self)),
+        (title: R.string.localizable.aHelpContentsHowDoIGetMyMoney(), controller: HowDoIGetMyMoneyInfoViewController(delegate: self)),
+        (title: R.string.localizable.aHelpContentsHowDoITransferETHIntoMyWallet(), controller: HowDoITransferETHIntoMyWalletInfoViewController(delegate: self)),
+        (title: R.string.localizable.aHelpContentsPrivacyPolicy(), controller: PrivacyPolicyViewController(delegate: self)),
+        (title: R.string.localizable.aHelpContentsTermsOfService(), controller: TermsOfServiceViewController(delegate: self)),
     ]
+    weak var delegate: HelpViewControllerDelegate?
 
-    init() {
+    init(delegate: HelpViewControllerDelegate?) {
+        self.delegate = delegate
         super.init(nibName: nil, bundle: nil)
 
         title = R.string.localizable.aHelpNavigationTitle()
@@ -84,5 +89,22 @@ extension HelpViewController: UITableViewDataSource {
 extension HelpViewController: ContactUsBannerViewDelegate {
     func present(_ viewController: UIViewController, for view: ContactUsBannerView) {
         present(viewController, animated: true, completion: nil)
+    }
+}
+
+extension HelpViewController: StaticHTMLViewControllerDelegate {
+}
+
+extension HelpViewController: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }

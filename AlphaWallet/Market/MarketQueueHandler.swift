@@ -1,5 +1,6 @@
 //
 // Created by James Sangalli on 15/2/18.
+// Copyright © 2018 Stormbird PTE. LTD.
 // Sends the sales orders to and from the market queue server
 //
 
@@ -25,18 +26,19 @@ public class MarketQueueHandler {
     public let contractAddress = "bC9a1026A4BC6F0BA8Bbe486d1D09dA5732B39e4".lowercased()
 
     public func getOrders(callback: @escaping (_ result: Any) -> Void) {
-        Alamofire.request(baseURL + "contract/" + contractAddress, method: .get).responseJSON { response in
+        Alamofire.request(baseURL + "contract/" + contractAddress, method: .get).responseJSON { [weak self] response in
+            guard let strongSelf = self else { return }
             var orders = [SignedOrder]()
-            if let json = response.result.value {
+            if response.result.value != nil {
                 let parsedJSON = try! JSON(data: response.data!)
                 for i in 0...parsedJSON.count - 1 {
                     let orderObj: JSON = parsedJSON["orders"][i]
-                    if orderObj == nil {
+                    if orderObj == .null {
                         //String not used in UI
                         callback("no orders")
                         return
                     }
-                    orders.append(self.parseOrder(orderObj))
+                    orders.append(strongSelf.parseOrder(orderObj))
                 }
                 callback(orders)
             }

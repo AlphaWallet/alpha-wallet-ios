@@ -14,9 +14,13 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     let roundedBackground = RoundedBackground()
     let scrollView = UIScrollView()
     let footerBar = UIView()
-    let header = TicketsViewControllerTitleHeader()
+    let header = TokensCardViewControllerTitleHeader()
     var viewModel = NewTokenViewModel()
-    var tokenType = TokenType.erc20
+    var tokenType: TokenType? = nil {
+        didSet {
+            updateSaveButtonBasedOnTokenTypeDetected()
+        }
+    }
 
     let addressTextField = AddressTextField()
     let symbolTextField = TextField()
@@ -94,8 +98,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
-        saveButton.setTitle(R.string.localizable.done(), for: .normal)
         saveButton.addTarget(self, action: #selector(addToken), for: .touchUpInside)
+        updateSaveButtonBasedOnTokenTypeDetected()
 
         let buttonsStackView = [saveButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -168,8 +172,19 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         nameTextField.label.text = viewModel.nameLabel
 
         saveButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-        saveButton.backgroundColor = viewModel.buttonBackgroundColor
+        saveButton.setTitleColor(Colors.veryLightGray, for: .disabled)
         saveButton.titleLabel?.font = viewModel.buttonFont
+    }
+
+    private func updateSaveButtonBasedOnTokenTypeDetected() {
+        if tokenType == nil {
+            saveButton.isEnabled = false
+            saveButton.setTitle(R.string.localizable.detectingTokenTypeTitle(), for: .normal)
+
+        } else {
+            saveButton.isEnabled = true
+            saveButton.setTitle(R.string.localizable.done(), for: .normal)
+        }
     }
 
     public func updateSymbolValue(_ symbol: String) {
@@ -192,7 +207,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         balanceTextField.value = viewModel.ERC875TokenBalanceAmount.description
     }
 
-    public func updateFormForTokenType(_ tokenType: TokenType) {
+    public func updateForm(forTokenType tokenType: TokenType) {
         self.tokenType = tokenType
         switch tokenType {
         case .ether, .erc20:
@@ -221,6 +236,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
             displayError(title: R.string.localizable.symbol(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
             return false
         }
+        guard let tokenType = tokenType else { return false }
+
         switch tokenType {
         case .ether, .erc20:
             guard !decimalsTextField.value.trimmed.isEmpty else {
@@ -238,14 +255,14 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     }
 
     @objc func addToken() {
-        guard validate() else {
-            return
-        }
+        guard validate() else { return }
+
         let contract = addressTextField.value
         let name = nameTextField.value
         let symbol = symbolTextField.value
         let decimals = Int(decimalsTextField.value) ?? 0
-        let tokenType = self.tokenType
+        guard let tokenType = self.tokenType else { return }
+        //TODO looks wrong to mention ERC875TokenBalance specifically
         var balance: [String] = viewModel.ERC875TokenBalance
         
         guard let address = Address(string: contract) else {
@@ -269,6 +286,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     }
 
     private func updateContractValue(value: String) {
+        tokenType = nil
         addressTextField.value = value
         delegate?.didAddAddress(address: value, in: self)
     }
@@ -283,8 +301,9 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     @objc func keyboardWillShow(_ notification: Notification) {
         if let userInfo = notification.userInfo {
             if let keyboardSize = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval {
-                UIView.animate(withDuration: duration, animations: { () -> Void in
-                    self.scrollViewBottomAnchorConstraint.constant = self.footerBar.bounds.size.height - keyboardSize.height
+                UIView.animate(withDuration: duration, animations: { [weak self] () -> Void in
+                    guard let strongSelf = self else { return }
+                    strongSelf.scrollViewBottomAnchorConstraint.constant = strongSelf.footerBar.bounds.size.height - keyboardSize.height
                 })
             }
         }
@@ -293,8 +312,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     @objc func keyboardWillHide(_ notification: Notification) {
         if let userInfo = notification.userInfo {
             if let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval {
-                UIView.animate(withDuration: duration, animations: { () -> Void in
-                    self.scrollViewBottomAnchorConstraint.constant = 0
+                UIView.animate(withDuration: duration, animations: { [weak self] () -> Void in
+                    self?.scrollViewBottomAnchorConstraint.constant = 0
                 })
             }
         }
@@ -353,7 +372,11 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
         let newValue = (textField.value as NSString?)?.replacingCharacters(in: range, with: string)
         if let newValue = newValue, CryptoAddressValidator.isValidAddress(newValue) {
-            updateContractValue(value: newValue)
+            DispatchQueue.global().async { [weak self] in
+                DispatchQueue.main.sync { [weak self] in
+                    self?.updateContractValue(value: newValue)
+                }
+            }
         }
         return true
     }

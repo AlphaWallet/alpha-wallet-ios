@@ -3,7 +3,7 @@
 import UIKit
 
 struct TokenListFormatRowViewModel {
-    var ticketHolder: TokenHolder
+    var tokenHolder: TokenHolder
 
     var contentsBackgroundColor: UIColor {
         return Colors.appWhite
@@ -21,7 +21,7 @@ struct TokenListFormatRowViewModel {
         return UIColor(red: 112, green: 112, blue: 112)
     }
 
-    var ticketCountFont: UIFont {
+    var tokenCountFont: UIFont {
         return Fonts.bold(size: 21)!
     }
 
@@ -65,17 +65,17 @@ struct TokenListFormatRowViewModel {
         return R.string.localizable.cryptoKittiesUrlOpen()
     }
 
-    var ticketCount: String {
-        return "x\(ticketHolder.tickets.count)"
+    var tokenCount: String {
+        return "x\(tokenHolder.tokens.count)"
     }
 
     var title: String {
-        let tokenId = ticketHolder.values["tokenId"] as? String ?? ""
+        let tokenId = tokenHolder.values["tokenId"] as? String ?? ""
         return R.string.localizable.cryptoKittiesCatName(tokenId)
     }
 
     var subtitle: String {
-        let traits =  ticketHolder.values["traits"] as? [CryptoKittyTrait] ?? []
+        let traits =  tokenHolder.values["traits"] as? [CryptoKittyTrait] ?? []
         let generationText: String
         let cooldownText: String
         if let generation = traits.first(where: { $0.type == "generation" }) {
@@ -84,7 +84,13 @@ struct TokenListFormatRowViewModel {
             generationText = ""
         }
         if let cooldown = traits.first(where: { $0.type == "cooldown_index" }), let cooldownIndex = Int(cooldown.value) {
-            let cooldownValue = Constants.cryptoKittiesCooldowns[cooldownIndex]
+            let cooldownValue: String
+            if Constants.cryptoKittiesCooldowns.indices.contains(cooldownIndex) {
+                cooldownValue = Constants.cryptoKittiesCooldowns[cooldownIndex]
+            } else {
+                //TODO localize
+                cooldownValue = "Unknown"
+            }
             cooldownText = "\(cooldownValue) Cooldown"
         } else {
             cooldownText = ""
@@ -99,22 +105,22 @@ struct TokenListFormatRowViewModel {
     }
 
     var description: String {
-        return ticketHolder.values["description"] as? String ?? ""
+        return tokenHolder.values["description"] as? String ?? ""
     }
 
     var thumbnailImageUrl: URL? {
-        guard let url = ticketHolder.values["thumbnailUrl"] as? String else { return nil }
+        guard let url = tokenHolder.values["thumbnailUrl"] as? String else { return nil }
         return URL(string: url)
     }
 
     var externalLink: URL? {
-        guard let url = ticketHolder.values["externalLink"] as? String else { return nil }
+        guard let url = tokenHolder.values["externalLink"] as? String else { return nil }
         return URL(string: url)
     }
 
     //TODO using CryptoKitty struct here, not good
     var details: [String] {
-        let traits =  ticketHolder.values["traits"] as? [CryptoKittyTrait] ?? []
+        let traits =  tokenHolder.values["traits"] as? [CryptoKittyTrait] ?? []
         let withoutGenerationAndCooldownIndex = traits.filter { $0.type != "generation" && $0.type != "cooldown_index" }
         return withoutGenerationAndCooldownIndex.map { "\($0.type): \($0.value)" }
     }

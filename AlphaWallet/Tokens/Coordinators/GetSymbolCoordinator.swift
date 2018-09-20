@@ -1,55 +1,51 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import BigInt
-import JSONRPCKit
-import APIKit
 import Result
 import TrustKeystore
+import web3swift
 
 class GetSymbolCoordinator {
 
-    private let web3: Web3Swift
+    private let config: Config
 
-    init(
-        web3: Web3Swift
-    ) {
-        self.web3 = web3
+    init(config: Config) {
+        self.config = config
     }
 
     func getSymbol(
         for contract: Address,
         completion: @escaping (Result<String, AnyError>) -> Void
     ) {
-        let request = GetERC20SymbolEncode()
-        web3.request(request: request) { result in
-            switch result {
-            case .success(let res):
-                let request2 = EtherServiceRequest(
-                    batch: BatchFactory().create(CallRequest(to: contract.description, data: res))
-                )
-                Session.send(request2) { [weak self] result2 in
-                    switch result2 {
-                    case .success(let balance):
-                        let request = GetERC20SymbolDecode(data: balance)
-                        self?.web3.request(request: request) { result in
-                            switch result {
-                            case .success(let res):
-                                completion(.success(res))
-                            case .failure(let error):
-                                NSLog("getSymbol3 error \(error)")
-                                completion(.failure(AnyError(error)))
-                            }
-                        }
-                    case .failure(let error):
-                        NSLog("getSymbol2 error \(error)")
-                        completion(.failure(AnyError(error)))
-                    }
-                }
-            case .failure(let error):
-                NSLog("getSymbol error \(error)")
-                completion(.failure(AnyError(error)))
+        guard let contractAddress = EthereumAddress(contract.eip55String) else {
+            completion(.failure(AnyError(Web3Error(description: "Error converting contract address: \(contract.eip55String)"))))
+            return
+        }
+
+        guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
+            completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)"))))
+            return
+        }
+
+        let web3 = web3swift.web3(provider: webProvider)
+        let functionName = "symbol"
+        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: web3swift.Web3.Utils.erc20ABI, at: contractAddress, options: web3.options) else {
+            completion(.failure(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(functionName)()"))))
+            return
+        }
+
+        guard let promise = contractInstance.method(functionName, options: nil) else {
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(functionName)() on \(contract.eip55String)"))))
+            return
+        }
+        promise.callPromise(options: nil).done { symbolsResult in
+            if let symbol = symbolsResult["0"] as? String {
+                completion(.success(symbol))
+            } else {
+                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)()"))))
             }
+        }.catch { error in
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(functionName)(): \(error)"))))
         }
     }
 }

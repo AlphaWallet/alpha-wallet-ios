@@ -1,8 +1,9 @@
+// Copyright © 2018 Stormbird PTE. LTD.
+
 import Foundation
 import UIKit
 import StatefulViewController
 import Result
-import TrustKeystore
 
 protocol TokensViewControllerDelegate: class {
     func didPressAddToken( in viewController: UIViewController)
@@ -51,7 +52,7 @@ class TokensViewController: UIViewController {
 
         tableView.register(TokenViewCell.self, forCellReuseIdentifier: TokenViewCell.identifier)
         tableView.register(EthTokenViewCell.self, forCellReuseIdentifier: EthTokenViewCell.identifier)
-        tableView.register(TicketTokenViewCell.self, forCellReuseIdentifier: TicketTokenViewCell.identifier)
+        tableView.register(NonFungibleTokenViewCell.self, forCellReuseIdentifier: NonFungibleTokenViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.estimatedRowHeight = 0
         tableView.delegate = self
@@ -86,7 +87,7 @@ class TokensViewController: UIViewController {
     }
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.navigationController?.applyTintAdjustment()
+        navigationController?.applyTintAdjustment()
         fetch()
     }
     @objc func pullToRefresh() {
@@ -95,8 +96,8 @@ class TokensViewController: UIViewController {
     }
 
     func fetch() {
-        self.startLoading()
-        self.dataStore.fetch()
+        startLoading()
+        dataStore.fetch()
     }
 
     override func viewDidLayoutSubviews() {
@@ -124,6 +125,7 @@ class TokensViewController: UIViewController {
     private func showImportWalletImage() {
         if let importWalletView = importWalletView {
             importWalletView.isHidden = false
+            importWalletHelpBubbleView?.isHidden = false
             return
         }
         importWalletView = UIView()
@@ -198,8 +200,9 @@ class TokensViewController: UIViewController {
 }
 
 extension TokensViewController: StatefulViewController {
+    //Always return true, otherwise users will be stuck in the assets sub-tab when they have no assets
     func hasContent() -> Bool {
-        return viewModel.hasContent
+        return true
     }
 }
 
@@ -233,24 +236,13 @@ extension TokensViewController: UITableViewDelegate {
             )
             return cellViewModel.cellHeight
         case .erc20:
-            let cellViewModel = TokenViewCellViewModel(
-                    token: token,
-                    ticker: viewModel.ticker(for: token)
-            )
+            let cellViewModel = TokenViewCellViewModel(token: token)
             return cellViewModel.cellHeight
         case .erc721:
-            let cellViewModel = TicketTokenViewCellViewModel(
-                    config: dataStore.config,
-                    token: token,
-                    ticker: viewModel.ticker(for: token)
-            )
+            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token)
             return cellViewModel.cellHeight
         case .erc875:
-            let cellViewModel = TicketTokenViewCellViewModel(
-                    config: dataStore.config,
-                    token: token,
-                    ticker: viewModel.ticker(for: token)
-            )
+            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token)
             return cellViewModel.cellHeight
         }
     }
@@ -294,32 +286,15 @@ extension TokensViewController: UITableViewDataSource {
             return cell
         case .erc20:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewCell.identifier, for: indexPath) as! TokenViewCell
-            cell.configure(
-                    viewModel: .init(
-                            token: token,
-                            ticker: viewModel.ticker(for: token)
-                    )
-            )
+            cell.configure(viewModel: .init(token: token))
             return cell
         case .erc721:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
-            cell.configure(
-                    viewModel: .init(
-                            config: dataStore.config,
-                            token: token,
-                            ticker: viewModel.ticker(for: token)
-                    )
-            )
+            let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
+            cell.configure(viewModel: .init(token: token))
             return cell
         case .erc875:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TicketTokenViewCell.identifier, for: indexPath) as! TicketTokenViewCell
-            cell.configure(
-                    viewModel: .init(
-                            config: dataStore.config,
-                            token: token,
-                            ticker: viewModel.ticker(for: token)
-                    )
-            )
+            let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
+            cell.configure(viewModel: .init(token: token))
             return cell
         }
     }

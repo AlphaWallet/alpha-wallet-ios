@@ -5,13 +5,13 @@ import UIKit
 class SplashView: UIView {
     init() {
         super.init(frame: CGRect.zero)
-        self.backgroundColor = .white
+        backgroundColor = .white
         let logoImageView = UIImageView(image: R.image.launch_icon())
         logoImageView.translatesAutoresizingMaskIntoConstraints = false
-        self.addSubview(logoImageView)
+        addSubview(logoImageView)
         NSLayoutConstraint.activate([
-            logoImageView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
-            logoImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            logoImageView.centerXAnchor.constraint(equalTo: centerXAnchor),
+            logoImageView.centerYAnchor.constraint(equalTo: centerYAnchor),
         ])
     }
     required init?(coder aDecoder: NSCoder) {

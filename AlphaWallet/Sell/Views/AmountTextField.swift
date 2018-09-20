@@ -48,6 +48,11 @@ class AmountTextField: UIControl {
         }
     }
     var currentPair: Pair
+    var isFiatButtonHidden: Bool = false {
+        didSet {
+            textField.rightView?.isHidden = isFiatButtonHidden
+        }
+    }
     private let textField = UITextField()
     let alternativeAmountLabel = UILabel()
     let fiatButton = Button(size: .normal, style: .borderless)
@@ -79,7 +84,7 @@ class AmountTextField: UIControl {
         textField.leftView = .spacerWidth(22)
         textField.rightView = makeAmountRightView()
         textField.textColor = Colors.appBackground
-        textField.font = Fonts.bold(size: 21)
+        textField.font = Fonts.bold(size: ScreenChecker().isNarrowScreen() ? 14: 21)
         addSubview(textField)
 
         alternativeAmountLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -114,7 +119,7 @@ class AmountTextField: UIControl {
         guard ethToDollarRate != nil else { return }
         let swappedPair = currentPair.swapPair()
         //New pair for future calculation we should swap pair each time we press fiat button.
-        self.currentPair = swappedPair
+        currentPair = swappedPair
         updateFiatButtonTitle()
         textField.text = nil
         computeAlternateAmount()
@@ -187,7 +192,7 @@ class AmountTextField: UIControl {
     private func convertToAlternateAmount() -> String {
         if let ethToDollarRate = ethToDollarRate, let string = textField.text, let amount = Double(string) {
             if currentPair.left == "ETH" {
-                return String(amount * ethToDollarRate)
+                return StringFormatter().currency(with: amount * ethToDollarRate, and: "USD")
             } else {
                 return String(amount / ethToDollarRate)
             }
@@ -197,8 +202,8 @@ class AmountTextField: UIControl {
     }
 
     private func updateAlternatePricingDisplay() {
-        self.computeAlternateAmount()
-        self.delegate?.changeAmount(in: self)
+        computeAlternateAmount()
+        delegate?.changeAmount(in: self)
     }
 }
 
@@ -207,8 +212,9 @@ extension AmountTextField: UITextFieldDelegate {
         let allowChange = amountChanged(in: range, to: string)
         if allowChange {
             //We have to allow the text field the chance to update, so we have to use asyncAfter..
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.updateAlternatePricingDisplay()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                guard let strongSelf = self else { return }
+                strongSelf.updateAlternatePricingDisplay()
             }
 
         }

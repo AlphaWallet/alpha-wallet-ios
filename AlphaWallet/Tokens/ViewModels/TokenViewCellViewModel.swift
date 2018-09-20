@@ -7,14 +7,9 @@ import BigInt
 struct TokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
-    let ticker: CoinTicker?
 
-    init(
-        token: TokenObject,
-        ticker: CoinTicker?
-    ) {
+    init(token: TokenObject) {
         self.token = token
-        self.ticker = ticker
     }
 
     var title: String {

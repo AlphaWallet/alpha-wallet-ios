@@ -11,21 +11,21 @@ protocol GenerateTransferMagicLinkViewControllerDelegate: class {
 class GenerateTransferMagicLinkViewController: UIViewController {
     weak var delegate: GenerateTransferMagicLinkViewControllerDelegate?
     let background = UIView()
-	let header = TicketsViewControllerTitleHeader()
+	let header = TokensCardViewControllerTitleHeader()
     let detailsBackground = UIView()
     let subtitleLabel = UILabel()
-    let ticketCountLabel = UILabel()
+    let tokenCountLabel = UILabel()
     let descriptionLabel = UILabel()
     let actionButton = UIButton()
     let cancelButton = UIButton()
-    var paymentFlow: PaymentFlow
-    var ticketHolder: TokenHolder
-    var linkExpiryDate: Date
+    let paymentFlow: PaymentFlow
+    let tokenHolder: TokenHolder
+    let linkExpiryDate: Date
     var viewModel: GenerateTransferMagicLinkViewControllerViewModel?
 
-    init(paymentFlow: PaymentFlow, ticketHolder: TokenHolder, linkExpiryDate: Date) {
+    init(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, linkExpiryDate: Date) {
         self.paymentFlow = paymentFlow
-        self.ticketHolder = ticketHolder
+        self.tokenHolder = tokenHolder
         self.linkExpiryDate = linkExpiryDate
         super.init(nibName: nil, bundle: nil)
         view.backgroundColor = .clear
@@ -37,7 +37,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
         view.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
-        ticketCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        tokenCountLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
 
         detailsBackground.translatesAutoresizingMaskIntoConstraints = false
@@ -50,7 +50,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
             header,
             .spacer(height: 20),
             subtitleLabel,
-            ticketCountLabel,
+            tokenCountLabel,
             .spacer(height: 20),
             descriptionLabel,
             .spacer(height: 30),
@@ -110,15 +110,15 @@ class GenerateTransferMagicLinkViewController: UIViewController {
             subtitleLabel.textAlignment = .center
             subtitleLabel.text = viewModel.subtitleLabelText
 
-            ticketCountLabel.textAlignment = .center
-            ticketCountLabel.textColor = viewModel.ticketSaleDetailsLabelColor
-            ticketCountLabel.font = viewModel.ticketSaleDetailsLabelFont
-            ticketCountLabel.text = viewModel.ticketCountLabelText
+            tokenCountLabel.textAlignment = .center
+            tokenCountLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+            tokenCountLabel.font = viewModel.tokenSaleDetailsLabelFont
+            tokenCountLabel.text = viewModel.tokenCountLabelText
 
             descriptionLabel.textAlignment = .center
             descriptionLabel.numberOfLines = 0
-            descriptionLabel.textColor = viewModel.ticketSaleDetailsLabelColor
-            descriptionLabel.font = viewModel.ticketSaleDetailsLabelFont
+            descriptionLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+            descriptionLabel.font = viewModel.tokenSaleDetailsLabelFont
             descriptionLabel.text = viewModel.descriptionLabelText
 
             detailsBackground.backgroundColor = viewModel.detailsBackgroundBackgroundColor

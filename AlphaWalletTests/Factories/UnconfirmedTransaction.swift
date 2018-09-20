@@ -21,14 +21,15 @@ extension UnconfirmedTransaction {
             to: to,
             data: data,
             gasLimit: gasLimit,
-            tokenId: Constants.nullTicket,
+            tokenId: Constants.nullTokenId,
             gasPrice: gasPrice,
             nonce: nonce,
             v: .none,
             r: .none,
             s: .none,
             expiry: .none,
-            indices: .none
+            indices: .none,
+            tokenIds: [BigUInt]()
         )
     }
 }

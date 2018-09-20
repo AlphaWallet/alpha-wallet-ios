@@ -13,7 +13,7 @@ class TokenListFormatRowView: UIView {
     let background = UIView()
     let stateLabel = UILabel()
     //TODO We don't display this for now. Maybe should have flag to show/hide it
-    let ticketCountLabel = UILabel()
+    let tokenCountLabel = UILabel()
     private let thumbnailImageView = UIImageView()
     //TODO this imageView is not used yet
     private let imageView = UIImageView()
@@ -156,8 +156,8 @@ class TokenListFormatRowView: UIView {
         stateLabel.textColor = viewModel.stateColor
         stateLabel.font = viewModel.subtitleFont
 
-        ticketCountLabel.textColor = viewModel.countColor
-        ticketCountLabel.font = viewModel.ticketCountFont
+        tokenCountLabel.textColor = viewModel.countColor
+        tokenCountLabel.font = viewModel.tokenCountFont
 
         descriptionLabel.textColor = viewModel.titleColor
         descriptionLabel.font = viewModel.descriptionFont
@@ -174,7 +174,7 @@ class TokenListFormatRowView: UIView {
 
         displayDetails(viewModel: viewModel)
 
-        ticketCountLabel.text = viewModel.ticketCount
+        tokenCountLabel.text = viewModel.tokenCount
 
         descriptionLabel.text = viewModel.description
 
@@ -182,15 +182,17 @@ class TokenListFormatRowView: UIView {
 
         subtitleLabel.text = viewModel.subtitle
 
+        self.thumbnailImageView.image = nil
         //TODO cancel the request if we reuse the cell before it's finished downloading
         if let url = viewModel.thumbnailImageUrl {
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
             request.cachePolicy = .returnCacheDataElseLoad
-            Alamofire.request(request).response { response in
+            Alamofire.request(request).response { [weak self] response in
+                guard let strongSelf = self else { return }
                 if let data = response.data, let image = UIImage(data: data) {
                     if url == viewModel.thumbnailImageUrl {
-                        self.thumbnailImageView.image = image
+                        strongSelf.thumbnailImageView.image = image
                     }
                 }
             }
@@ -204,7 +206,7 @@ class TokenListFormatRowView: UIView {
         }
         let labelsToAddCount = viewModel.details.count - detailLabels.count
         if labelsToAddCount > 0 {
-            for i in 1...labelsToAddCount {
+            for _ in 1...labelsToAddCount {
                 let label = UILabel()
                 label.translatesAutoresizingMaskIntoConstraints = false
                 label.textColor = viewModel.subtitleColor
@@ -222,6 +224,6 @@ class TokenListFormatRowView: UIView {
 
 extension TokenListFormatRowView: TokenRowView {
     func configure(tokenHolder: TokenHolder) {
-        configure(viewModel: .init(ticketHolder: tokenHolder))
+        configure(viewModel: .init(tokenHolder: tokenHolder))
     }
 }

@@ -48,10 +48,10 @@ class ChainState {
     @objc func fetch() {
         let request = EtherServiceRequest(batch: BatchFactory().create(BlockNumberRequest()))
         Session.send(request) { [weak self] result in
-            guard let `self` = self else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let number):
-                self.latestBlock = number
+                strongSelf.latestBlock = number
             case .failure: break
             }
         }

@@ -5,7 +5,7 @@ import UIKit
 import BigInt
 import TrustKeystore
 
-protocol SendCoordinatorDelegate: class {
+protocol SendCoordinatorDelegate: class, CanOpenURL {
     func didFinish(_ result: ConfirmResult, in coordinator: SendCoordinator)
     func didCancel(in coordinator: SendCoordinator)
 }
@@ -19,23 +19,23 @@ class SendCoordinator: Coordinator {
     let keystore: Keystore
     let storage: TokensDataStore
     let ethPrice: Subscribable<Double>
-    let ticketHolders: [TokenHolder]!
+    let tokenHolders: [TokenHolder]!
 
     var coordinators: [Coordinator] = []
     weak var delegate: SendCoordinatorDelegate?
     lazy var sendViewController: SendViewController = {
-        return self.makeSendViewController()
+        return makeSendViewController()
     }()
 
     init(
-        transferType: TransferType,
-        navigationController: UINavigationController = UINavigationController(),
-        session: WalletSession,
-        keystore: Keystore,
-        storage: TokensDataStore,
-        account: Account,
-        ethPrice: Subscribable<Double>,
-        ticketHolders: [TokenHolder] = []
+            transferType: TransferType,
+            navigationController: UINavigationController = UINavigationController(),
+            session: WalletSession,
+            keystore: Keystore,
+            storage: TokensDataStore,
+            account: Account,
+            ethPrice: Subscribable<Double>,
+            tokenHolders: [TokenHolder] = []
     ) {
         self.transferType = transferType
         self.navigationController = navigationController
@@ -45,11 +45,10 @@ class SendCoordinator: Coordinator {
         self.keystore = keystore
         self.storage = storage
         self.ethPrice = ethPrice
-        self.ticketHolders = ticketHolders
+        self.tokenHolders = tokenHolders
     }
 
     func start() {
-        let symbol = sendViewController.transferType.symbol(server: session.config.server)
         sendViewController.configure(viewModel:
                 .init(transferType: sendViewController.transferType,
                         session: session,
@@ -84,6 +83,7 @@ class SendCoordinator: Coordinator {
         case .ERC875Token: break
         case .ERC875TokenOrder: break
         case .ERC721Token: break
+        case .dapp: break
         }
         controller.delegate = self
         return controller
@@ -108,14 +108,29 @@ extension SendCoordinator: SendViewControllerDelegate {
             configurator: configurator,
             confirmType: .signThenSend
         )
-        controller.didCompleted = { result in
+        controller.didCompleted = { [weak self] result in
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let type):
-                self.delegate?.didFinish(type, in: self)
+                strongSelf.delegate?.didFinish(type, in: strongSelf)
             case .failure(let error):
-                self.navigationController.displayError(error: error)
+                strongSelf.navigationController.displayError(error: error)
             }
         }
         navigationController.pushViewController(controller, animated: true)
+    }
+}
+
+extension SendCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }

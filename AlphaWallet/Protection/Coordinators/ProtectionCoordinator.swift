@@ -6,7 +6,7 @@ import UIKit
 class ProtectionCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 	lazy var splashCoordinator: SplashCoordinator = {
-		return SplashCoordinator(window: self.protectionWindow)
+		return SplashCoordinator(window: protectionWindow)
 	}()
 	lazy var lockEnterPasscodeCoordinator: LockEnterPasscodeCoordinator = {
 		return LockEnterPasscodeCoordinator(model: LockEnterPasscodeViewModel())

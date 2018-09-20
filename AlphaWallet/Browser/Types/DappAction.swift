@@ -1,42 +1,47 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import BigInt
 import TrustKeystore
+import WebKit
 
 enum DappAction {
     case signMessage(String)
     case signPersonalMessage(String)
+    case signTypedMessage([EthTypedData])
     case signTransaction(UnconfirmedTransaction)
     case sendTransaction(UnconfirmedTransaction)
     case unknown
 }
 
 extension DappAction {
-    static func fromCommand(_ command: DappCommand, config: Config) -> DappAction {
-        NSLog("command.name \(command.name)")
-        NSLog("command.object \(command.object)")
+    static func fromCommand(_ command: DappCommand, transfer: Transfer) -> DappAction {
         switch command.name {
         case .signTransaction:
-            return .signTransaction(DappAction.makeUnconfirmedTransaction(command.object, config: config))
+            return .signTransaction(DappAction.makeUnconfirmedTransaction(command.object, transfer: transfer))
         case .sendTransaction:
-            return .sendTransaction(DappAction.makeUnconfirmedTransaction(command.object, config: config))
+            return .sendTransaction(DappAction.makeUnconfirmedTransaction(command.object, transfer: transfer))
         case .signMessage:
             let data = command.object["data"]?.value ?? ""
             return .signMessage(data)
         case .signPersonalMessage:
             let data = command.object["data"]?.value ?? ""
             return .signPersonalMessage(data)
+        case .signTypedMessage:
+            let array = command.object["data"]?.array ?? []
+            return .signTypedMessage(array)
         case .unknown:
             return .unknown
         }
     }
 
-    private static func makeUnconfirmedTransaction(_ object: [String: DappCommandObjectValue], config: Config) -> UnconfirmedTransaction {
+    private static func makeUnconfirmedTransaction(_ object: [String: DappCommandObjectValue], transfer: Transfer) -> UnconfirmedTransaction {
         let to = Address(string: object["to"]?.value ?? "")
         let value = BigInt((object["value"]?.value ?? "0").drop0x, radix: 16) ?? BigInt()
-        let nonce = BigInt((object["nonce"]?.value ?? "0").drop0x, radix: 16) ?? BigInt()
-        //let indices = (object["indices"]?.value ?? "0").drop0x) as [UInt16]
+        let nonce: BigInt? = {
+            guard let value = object["nonce"]?.value else { return .none }
+            return BigInt(value.drop0x, radix: 16)
+        }()
         let gasLimit: BigInt? = {
             guard let value = object["gasLimit"]?.value ?? object["gas"]?.value else { return .none }
             return BigInt((value).drop0x, radix: 16)
@@ -48,20 +53,30 @@ extension DappAction {
         let data = Data(hex: object["data"]?.value ?? "0x")
 
         return UnconfirmedTransaction(
-            transferType: .ether(config: config, destination: .none),
+            transferType: transfer.type,
             value: value,
             to: to,
             data: data,
             gasLimit: gasLimit,
-            tokenId: .none,
+            tokenId: nil,
             gasPrice: gasPrice,
             nonce: nonce,
-            v: .none,
-            r: .none,
-            s: .none,
-            expiry: .none,
-            indices: .none,
-            tokenIds: .none
+            v: nil,
+            r: nil,
+            s: nil,
+            expiry: nil,
+            indices: nil,
+            tokenIds: nil
         )
+    }
+
+    static func fromMessage(_ message: WKScriptMessage) -> DappCommand? {
+        let decoder = JSONDecoder()
+        guard let body = message.body as? [String: AnyObject],
+            let jsonString = body.jsonString,
+            let command = try? decoder.decode(DappCommand.self, from: jsonString.data(using: .utf8)!) else {
+                return .none
+        }
+        return command
     }
 }

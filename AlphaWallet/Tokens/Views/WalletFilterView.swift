@@ -7,11 +7,11 @@ protocol WalletFilterViewDelegate: class {
 }
 
 class WalletFilterView: UIView {
-	let allButton = UIButton(type: .system)
-	let currencyButton = UIButton(type: .system)
-	let assetsButton = UIButton(type: .system)
-	let highlightedBar = UIView()
-	var filter: WalletFilter = .all {
+	private let allButton = UIButton(type: .system)
+	private let currencyButton = UIButton(type: .system)
+	private let assetsButton = UIButton(type: .system)
+	private let highlightedBar = UIView()
+	private var filter: WalletFilter = .all {
 		didSet {
 			viewModel.currentFilter = filter
 			delegate?.didPressWalletFilter(filter: filter, in: self)
@@ -19,9 +19,9 @@ class WalletFilterView: UIView {
 			configureHighlightedBar()
 		}
 	}
-	var highlightBarHorizontalConstraints: [NSLayoutConstraint]?
+	private var highlightBarHorizontalConstraints: [NSLayoutConstraint]?
 	weak var delegate: WalletFilterViewDelegate?
-	lazy var viewModel = WalletFilterViewModel(filter: filter)
+	private lazy var viewModel = WalletFilterViewModel(filter: filter)
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)

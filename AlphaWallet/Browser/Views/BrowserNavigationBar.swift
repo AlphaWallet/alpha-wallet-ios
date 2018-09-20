@@ -1,17 +1,18 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 
 protocol BrowserNavigationBarDelegate: class {
-    func did(action: BrowserAction)
+    func did(action: BrowserNavigation)
 }
 
-class BrowserNavigationBar: UINavigationBar {
+final class BrowserNavigationBar: UINavigationBar {
 
-    let goBack = UIButton()
-    let goForward = UIButton()
     let textField = UITextField()
     let moreButton = UIButton()
+    let closeButton = UIButton()
+    let homeButton = UIButton()
+    let backButton = UIButton()
     weak var browserDelegate: BrowserNavigationBarDelegate?
 
     private struct Layout {
@@ -23,7 +24,6 @@ class BrowserNavigationBar: UINavigationBar {
         super.init(frame: frame)
 
         textField.translatesAutoresizingMaskIntoConstraints = false
-        textField.keyboardType = .URL
         textField.backgroundColor = .white
         textField.layer.cornerRadius = 5
         textField.layer.borderWidth = 0.5
@@ -36,33 +36,52 @@ class BrowserNavigationBar: UINavigationBar {
         textField.clearButtonMode = .whileEditing
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 6, height: 30))
         textField.leftViewMode = .always
-        textField.autoresizingMask = [.flexibleWidth]
-        textField.setContentHuggingPriority(.required, for: .horizontal)
-
-        goBack.translatesAutoresizingMaskIntoConstraints = false
-        goBack.setImage(R.image.toolbarBack(), for: .normal)
-        goBack.addTarget(self, action: #selector(goBackAction), for: .touchUpInside)
-
-        goForward.translatesAutoresizingMaskIntoConstraints = false
-        goForward.setImage(R.image.toolbarForward(), for: .normal)
-        goForward.addTarget(self, action: #selector(goForwardAction), for: .touchUpInside)
+        textField.placeholder = R.string.localizable.browserUrlTextfieldPlaceholder()
+        textField.keyboardType = .webSearch
 
         moreButton.translatesAutoresizingMaskIntoConstraints = false
         moreButton.setImage(R.image.toolbarMenu(), for: .normal)
         moreButton.addTarget(self, action: #selector(moreAction(_:)), for: .touchUpInside)
 
-        let stackView = [goBack, goForward, textField, moreButton].asStackView(spacing: 4)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.isHidden = true
+        closeButton.setTitle(R.string.localizable.done(), for: .normal)
+        closeButton.addTarget(self, action: #selector(closeAction(_:)), for: .touchUpInside)
+        closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        closeButton.setContentHuggingPriority(.required, for: .horizontal)
+
+        homeButton.translatesAutoresizingMaskIntoConstraints = false
+        homeButton.setImage(R.image.browserHome()?.withRenderingMode(.alwaysTemplate), for: .normal)
+        homeButton.addTarget(self, action: #selector(homeAction(_:)), for: .touchUpInside)
+
+        backButton.translatesAutoresizingMaskIntoConstraints = false
+        backButton.setImage(R.image.toolbarBack(), for: .normal)
+        backButton.addTarget(self, action: #selector(goBackAction), for: .touchUpInside)
+
+        let stackView = UIStackView(arrangedSubviews: [
+            closeButton,
+            homeButton,
+            .spacerWidth(),
+            backButton,
+            textField,
+            .spacerWidth(),
+            moreButton,
+        ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.distribution = .fill
+        stackView.spacing = 4
+
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            stackView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: 10),
+            stackView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: -10),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
 
-            goForward.widthAnchor.constraint(equalToConstant: Layout.width),
-            goBack.widthAnchor.constraint(equalToConstant: Layout.width),
+            homeButton.widthAnchor.constraint(equalToConstant: Layout.width),
+            backButton.widthAnchor.constraint(equalToConstant: Layout.width),
             moreButton.widthAnchor.constraint(equalToConstant: Layout.moreButtonWidth),
         ])
     }
@@ -71,12 +90,16 @@ class BrowserNavigationBar: UINavigationBar {
         browserDelegate?.did(action: .goBack)
     }
 
-    @objc private func goForwardAction() {
-        browserDelegate?.did(action: .goForward)
-    }
-
     @objc private func moreAction(_ sender: UIView) {
         browserDelegate?.did(action: .more(sender: sender))
+    }
+
+    @objc private func homeAction(_ sender: UIView) {
+        browserDelegate?.did(action: .home)
+    }
+
+    @objc private func closeAction(_ sender: UIView) {
+        browserDelegate?.did(action: .close)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -89,5 +112,9 @@ extension BrowserNavigationBar: UITextFieldDelegate {
         browserDelegate?.did(action: .enter(textField.text ?? ""))
         textField.resignFirstResponder()
         return true
+    }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        browserDelegate?.did(action: .beginEditing)
     }
 }

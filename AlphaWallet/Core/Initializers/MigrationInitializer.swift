@@ -13,14 +13,14 @@ class MigrationInitializer: Initializer {
     }()
 
     init(
-        account: Wallet, chainID: Int
+            account: Wallet, chainID: Int
     ) {
         self.account = account
         self.chainID = chainID
     }
 
     func perform() {
-        config.schemaVersion = 46
+        config.schemaVersion = 49
         config.migrationBlock = { migration, oldSchemaVersion in
             switch oldSchemaVersion {
             case 0...32:
@@ -41,6 +41,28 @@ class MigrationInitializer: Initializer {
                     guard let newObject = newObject else { return }
                     if let isStormbird = oldObject["isStormBird"] as? Bool {
                         newObject["rawType"] = isStormbird ? TokenType.erc875.rawValue : TokenType.erc20.rawValue
+                    }
+                }
+            }
+            if oldSchemaVersion < 48 {
+                migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
+                    guard let oldObject = oldObject else { return }
+                    guard let newObject = newObject else { return }
+                    if let contract = oldObject["contract"] as? String, contract == Constants.nullAddress {
+                        newObject["rawType"] = TokenType.ether.rawValue
+                    }
+                }
+            }
+            if oldSchemaVersion < 49 {
+                //In schemaVersion 49, we clear the token's `name` because we want it to only contain the name returned by the RPC name call and not the localized text
+                migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
+                    guard let oldObject = oldObject else { return }
+                    guard let newObject = newObject else { return }
+                    if let contract = oldObject["contract"] as? String {
+                        let tokenTypeName = XMLHandler(contract: contract).getName()
+                        if tokenTypeName != "N/A" {
+                            newObject["name"] = ""
+                        }
                     }
                 }
             }

@@ -8,7 +8,7 @@ final class DecimalFormatter {
     /// numberFormatter of a `DecimalFormatter` to represent curent locale.
     private lazy var numberFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
-        formatter.locale = self.locale
+        formatter.locale = locale
         formatter.numberStyle = .decimal
         formatter.isLenient = true
         return formatter
@@ -51,7 +51,7 @@ final class DecimalFormatter {
     ///   - string: string to convert.
     /// - Returns: `NSumber` represenation.
     func number(from string: String) -> NSNumber? {
-        return self.numberFormatter.number(from: string) ?? self.usFormatter.number(from: string) ?? self.frFormatter.number(from: string) ?? self.enCaFormatter.number(from: string)
+        return numberFormatter.number(from: string) ?? usFormatter.number(from: string) ?? frFormatter.number(from: string) ?? enCaFormatter.number(from: string)
     }
     /// Converts a NSumber to a `String`.
     ///
@@ -59,6 +59,6 @@ final class DecimalFormatter {
     ///   - number: nsnumber to convert.
     /// - Returns: `NSumber` represenation.
     func string(from number: NSNumber) -> String? {
-        return self.numberFormatter.string(from: number)
+        return numberFormatter.string(from: number)
     }
 }

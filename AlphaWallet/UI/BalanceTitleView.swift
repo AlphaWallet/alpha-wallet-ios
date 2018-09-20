@@ -10,13 +10,13 @@ enum BalanceMode {
 class BalanceTitleView: UIView {
 
     @objc dynamic var titleTextColor: UIColor? {
-        get { return self.titleLabel.textColor }
-        set { self.titleLabel.textColor = newValue }
+        get { return titleLabel.textColor }
+        set { titleLabel.textColor = newValue }
     }
 
     @objc dynamic var subTitleTextColor: UIColor? {
-        get { return self.subTitleLabel.textColor }
-        set { self.subTitleLabel.textColor = newValue }
+        get { return subTitleLabel.textColor }
+        set { subTitleLabel.textColor = newValue }
     }
 
     let titleLabel = UILabel()
@@ -55,7 +55,7 @@ class BalanceTitleView: UIView {
         ])
 
         stackView.addGestureRecognizer(
-            UITapGestureRecognizer(target: self, action: #selector(self.switchModel))
+            UITapGestureRecognizer(target: self, action: #selector(switchModel))
         )
     }
 
@@ -97,7 +97,7 @@ extension BalanceTitleView {
         let view = BalanceTitleView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
         switch transferType {
-        case .ether:
+        case .ether, .dapp:
             session.balanceViewModel.subscribe { [weak view] viewModel in
                 guard let viewModel = viewModel else { return }
                 view?.viewModel = viewModel

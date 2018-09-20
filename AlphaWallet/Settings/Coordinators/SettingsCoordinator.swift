@@ -5,7 +5,7 @@ import Foundation
 import TrustKeystore
 import UIKit
 
-protocol SettingsCoordinatorDelegate: class {
+protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 	func didRestart(with account: Wallet, in coordinator: SettingsCoordinator)
 	func didUpdateAccounts(in coordinator: SettingsCoordinator)
 	func didCancel(in coordinator: SettingsCoordinator)
@@ -101,6 +101,20 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 		case .locale:
 			restart(for: session.account)
 		}
+	}
+}
+
+extension SettingsCoordinator: CanOpenURL {
+	func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+		delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+	}
+
+	func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+		delegate?.didPressViewContractWebPage(url, in: viewController)
+	}
+
+	func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+		delegate?.didPressOpenWebPage(url, in: viewController)
 	}
 }
 

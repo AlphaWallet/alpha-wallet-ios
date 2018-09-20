@@ -1,65 +1,72 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import WebKit
 import JavaScriptCore
+import TrustKeystore
 
 extension WKWebViewConfiguration {
 
-    static func make(for session: WalletSession, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
-        let address = session.account.address.description.lowercased()
-        let config = WKWebViewConfiguration()
+    static func make(for config: Config, address: Address, with sessionConfig: Config, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
+        let webViewConfig = WKWebViewConfiguration()
         var js = ""
-        if let filepath = Bundle.main.path(forResource: "trust-min", ofType: "js") {
+
+        guard
+            let bundlePath = Bundle.main.path(forResource: "TrustWeb3Provider", ofType: "bundle"),
+            let bundle = Bundle(path: bundlePath) else { return webViewConfig }
+
+        if let filepath = bundle.path(forResource: "trust-min", ofType: "js") {
             do {
                 js += try String(contentsOfFile: filepath)
-                NSLog("Loaded AlphaWallet in page provider")
-            } catch {
-                NSLog("Failed to load AlphaWallet in page provider")
-            }
-        } else {
-            NSLog("AlphaWallet in page provider not found in bundle")
+            } catch { }
         }
 
         js +=
         """
-        const addressHex = "\(address)"
-        const rpcURL = "\(session.config.rpcURL.absoluteString)"
-        const chainID = "\(session.config.chainID)"
+        const addressHex = "\(address.description.lowercased())"
+        const rpcURL = "\(config.rpcURL.absoluteString)"
+        const chainID = "\(config.chainID)"
 
         function executeCallback (id, error, value) {
-          Trust.executeCallback(id, error, value)
+            Trust.executeCallback(id, error, value)
         }
 
         Trust.init(rpcURL, {
-          getAccounts: function (cb) { cb(null, [addressHex]) },
-          signTransaction: function (tx, cb){
-            console.log('signing a transaction', tx)
-            const { id = 8888 } = tx
-            Trust.addCallback(id, cb)
-            webkit.messageHandlers.signTransaction.postMessage({"name": "signTransaction", "object": tx, id: id})
-          },
-          signMessage: function (msgParams, cb) {
-            const { data } = msgParams
-            const { id = 8888 } = msgParams
-            console.log("signing a message", msgParams)
-            Trust.addCallback(id, cb)
-            webkit.messageHandlers.signMessage.postMessage({"name": "signMessage", "object": { data }, id: id})
-        },
-          signPersonalMessage: function (msgParams, cb) {
-            const { data } = msgParams
-            const { id = 8888 } = msgParams
-            console.log("signing a personal message", msgParams)
-            Trust.addCallback(id, cb)
-            webkit.messageHandlers.signPersonalMessage.postMessage({"name": "signPersonalMessage", "object": { data }, id: id})
-          }
+            getAccounts: function (cb) { cb(null, [addressHex]) },
+            processTransaction: function (tx, cb){
+                console.log('signing a transaction', tx)
+                const { id = 8888 } = tx
+                Trust.addCallback(id, cb)
+                webkit.messageHandlers.signTransaction.postMessage({"name": "signTransaction", "object": tx, id: id})
+            },
+            signMessage: function (msgParams, cb) {
+                const { data } = msgParams
+                const { id = 8888 } = msgParams
+                console.log("signing a message", msgParams)
+                Trust.addCallback(id, cb)
+                webkit.messageHandlers.signMessage.postMessage({"name": "signMessage", "object": { data }, id: id})
+            },
+            signPersonalMessage: function (msgParams, cb) {
+                const { data } = msgParams
+                const { id = 8888 } = msgParams
+                console.log("signing a personal message", msgParams)
+                Trust.addCallback(id, cb)
+                webkit.messageHandlers.signPersonalMessage.postMessage({"name": "signPersonalMessage", "object": { data }, id: id})
+            },
+            signTypedMessage: function (msgParams, cb) {
+                const { data } = msgParams
+                const { id = 8888 } = msgParams
+                console.log("signing a typed message", msgParams)
+                Trust.addCallback(id, cb)
+                webkit.messageHandlers.signTypedMessage.postMessage({"name": "signTypedMessage", "object": { data }, id: id})
+            }
         }, {
             address: addressHex,
             networkVersion: chainID
         })
 
         web3.setProvider = function () {
-          console.debug('AlphaWallet - overrode web3.setProvider')
+            console.debug('Trust Wallet - overrode web3.setProvider')
         }
 
         web3.eth.defaultAccount = addressHex
@@ -67,16 +74,19 @@ extension WKWebViewConfiguration {
         web3.version.getNetwork = function(cb) {
             cb(null, chainID)
         }
+
         web3.eth.getCoinbase = function(cb) {
             return cb(null, addressHex)
         }
+        web3.currentProvider.isTrust = false
 
         """
         let userScript = WKUserScript(source: js, injectionTime: .atDocumentStart, forMainFrameOnly: false)
-        config.userContentController.add(messageHandler, name: Method.signTransaction.rawValue)
-        config.userContentController.add(messageHandler, name: Method.signPersonalMessage.rawValue)
-        config.userContentController.add(messageHandler, name: Method.signMessage.rawValue)
-        config.userContentController.addUserScript(userScript)
-        return config
+        webViewConfig.userContentController.add(messageHandler, name: Method.signTransaction.rawValue)
+        webViewConfig.userContentController.add(messageHandler, name: Method.signPersonalMessage.rawValue)
+        webViewConfig.userContentController.add(messageHandler, name: Method.signMessage.rawValue)
+        webViewConfig.userContentController.add(messageHandler, name: Method.signTypedMessage.rawValue)
+        webViewConfig.userContentController.addUserScript(userScript)
+        return webViewConfig
     }
 }

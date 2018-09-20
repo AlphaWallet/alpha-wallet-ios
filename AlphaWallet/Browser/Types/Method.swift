@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 
@@ -8,6 +8,7 @@ enum Method: String, Decodable {
     case signTransaction
     case signPersonalMessage
     case signMessage
+    case signTypedMessage
     case unknown
 
     init(string: String) {

@@ -11,24 +11,24 @@ protocol GenerateSellMagicLinkViewControllerDelegate: class {
 class GenerateSellMagicLinkViewController: UIViewController {
     weak var delegate: GenerateSellMagicLinkViewControllerDelegate?
     let background = UIView()
-	let header = TicketsViewControllerTitleHeader()
+	let header = TokensCardViewControllerTitleHeader()
     let detailsBackground = UIView()
     let subtitleLabel = UILabel()
-    let ticketCountLabel = UILabel()
-    let perTicketPriceLabel = UILabel()
+    let tokenCountLabel = UILabel()
+    let perTokenPriceLabel = UILabel()
     let totalEthLabel = UILabel()
     let descriptionLabel = UILabel()
     let actionButton = UIButton()
     let cancelButton = UIButton()
-    var paymentFlow: PaymentFlow
-    var ticketHolder: TokenHolder
-    var ethCost: String
-    var linkExpiryDate: Date
+    let paymentFlow: PaymentFlow
+    let tokenHolder: TokenHolder
+    let ethCost: Ether
+    let linkExpiryDate: Date
     var viewModel: GenerateSellMagicLinkViewControllerViewModel?
 
-    init(paymentFlow: PaymentFlow, ticketHolder: TokenHolder, ethCost: String, linkExpiryDate: Date) {
+    init(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) {
         self.paymentFlow = paymentFlow
-        self.ticketHolder = ticketHolder
+        self.tokenHolder = tokenHolder
         self.ethCost = ethCost
         self.linkExpiryDate = linkExpiryDate
         super.init(nibName: nil, bundle: nil)
@@ -41,8 +41,8 @@ class GenerateSellMagicLinkViewController: UIViewController {
         view.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
-        ticketCountLabel.translatesAutoresizingMaskIntoConstraints = false
-        perTicketPriceLabel.translatesAutoresizingMaskIntoConstraints = false
+        tokenCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        perTokenPriceLabel.translatesAutoresizingMaskIntoConstraints = false
         totalEthLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -56,8 +56,8 @@ class GenerateSellMagicLinkViewController: UIViewController {
 			header,
             .spacer(height: 20),
             subtitleLabel,
-            ticketCountLabel,
-            perTicketPriceLabel,
+            tokenCountLabel,
+            perTokenPriceLabel,
             totalEthLabel,
             .spacer(height: 20),
             descriptionLabel,
@@ -118,27 +118,27 @@ class GenerateSellMagicLinkViewController: UIViewController {
             subtitleLabel.textAlignment = .center
             subtitleLabel.text = viewModel.subtitleLabelText
 
-            ticketCountLabel.textAlignment = .center
-            ticketCountLabel.textColor = viewModel.ticketSaleDetailsLabelColor
-            ticketCountLabel.font = viewModel.ticketSaleDetailsLabelFont
-            ticketCountLabel.text = viewModel.ticketCountLabelText
+            tokenCountLabel.textAlignment = .center
+            tokenCountLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+            tokenCountLabel.font = viewModel.tokenSaleDetailsLabelFont
+            tokenCountLabel.text = viewModel.tokenCountLabelText
 
-            perTicketPriceLabel.textAlignment = .center
-            perTicketPriceLabel.textColor = viewModel.ticketSaleDetailsLabelColor
-            perTicketPriceLabel.font = viewModel.ticketSaleDetailsLabelFont
-            perTicketPriceLabel.text = viewModel.perTicketPriceLabelText
-            perTicketPriceLabel.adjustsFontSizeToFitWidth = true
+            perTokenPriceLabel.textAlignment = .center
+            perTokenPriceLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+            perTokenPriceLabel.font = viewModel.tokenSaleDetailsLabelFont
+            perTokenPriceLabel.text = viewModel.perTokenPriceLabelText
+            perTokenPriceLabel.adjustsFontSizeToFitWidth = true
 
             totalEthLabel.textAlignment = .center
-            totalEthLabel.textColor = viewModel.ticketSaleDetailsLabelColor
-            totalEthLabel.font = viewModel.ticketSaleDetailsLabelFont
+            totalEthLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+            totalEthLabel.font = viewModel.tokenSaleDetailsLabelFont
             totalEthLabel.text = viewModel.totalEthLabelText
             totalEthLabel.adjustsFontSizeToFitWidth = true
 
             descriptionLabel.textAlignment = .center
             descriptionLabel.numberOfLines = 0
-            descriptionLabel.textColor = viewModel.ticketSaleDetailsLabelColor
-            descriptionLabel.font = viewModel.ticketSaleDetailsLabelFont
+            descriptionLabel.textColor = viewModel.tokenSaleDetailsLabelColor
+            descriptionLabel.font = viewModel.tokenSaleDetailsLabelFont
             descriptionLabel.text = viewModel.descriptionLabelText
 
             detailsBackground.backgroundColor = viewModel.detailsBackgroundBackgroundColor

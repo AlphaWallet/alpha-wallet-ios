@@ -5,15 +5,18 @@ import StackViewController
 import Result
 import SafariServices
 
+protocol TransactionViewControllerDelegate: class, CanOpenURL {
+}
+
 class TransactionViewController: UIViewController {
 
     private lazy var viewModel: TransactionDetailsViewModel = {
         return .init(
-            transaction: self.transaction,
+            transaction: transaction,
             config: session.config,
-            chainState: self.session.chainState,
-            currentWallet: self.session.account,
-            currencyRate: self.session.balanceCoordinator.currencyRate
+            chainState: session.chainState,
+            currentWallet: session.account,
+            currencyRate: session.balanceCoordinator.currencyRate
         )
     }()
     let stackViewController = StackViewController()
@@ -21,12 +24,16 @@ class TransactionViewController: UIViewController {
     let session: WalletSession
     let transaction: Transaction
 
+    weak var delegate: TransactionViewControllerDelegate?
+
     init(
         session: WalletSession,
-        transaction: Transaction
+        transaction: Transaction,
+        delegate: TransactionViewControllerDelegate?
     ) {
         self.session = session
         self.transaction = transaction
+        self.delegate = delegate
 
         stackViewController.scrollView.alwaysBounceVertical = true
         stackViewController.stackView.spacing = 10
@@ -111,7 +118,7 @@ class TransactionViewController: UIViewController {
 
     @objc func more() {
         guard let url = viewModel.detailsURL else { return }
-        openURL(url)
+        delegate?.didPressOpenWebPage(url, in: self)
     }
 
     @objc func share(_ sender: UIBarButtonItem) {

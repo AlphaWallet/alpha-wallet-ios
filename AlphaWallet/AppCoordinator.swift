@@ -8,26 +8,34 @@ import BigInt
 class AppCoordinator: NSObject, Coordinator {
     private let config: Config
     let navigationController: UINavigationController
-    lazy var welcomeViewController: WelcomeViewController = {
+    private lazy var welcomeViewController: WelcomeViewController = {
         let controller = WelcomeViewController()
         controller.delegate = self
         return controller
     }()
     private let lock = Lock()
     private var keystore: Keystore
+    private let assetDefinitionStore = AssetDefinitionStore()
+    private let window: UIWindow
     private var appTracker = AppTracker()
     var coordinators: [Coordinator] = []
     var inCoordinator: InCoordinator? {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
-    var ethPrice: Subscribable<Double>? {
+    var pushNotificationsCoordinator: PushNotificationsCoordinator? {
+        return coordinators.first { $0 is PushNotificationsCoordinator } as? PushNotificationsCoordinator
+    }
+    private var universalLinkCoordinator: UniversalLinkCoordinator? {
+        return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
+    }
+    private var ethPrice: Subscribable<Double>? {
         if let inCoordinator = inCoordinator {
             return inCoordinator.ethPrice
         } else {
             return nil
         }
     }
-    var ethBalance: Subscribable<BigInt>? {
+    private var ethBalance: Subscribable<BigInt>? {
         if let inCoordinator = inCoordinator {
             return inCoordinator.ethBalance
         } else {
@@ -43,6 +51,7 @@ class AppCoordinator: NSObject, Coordinator {
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
+        self.window = window
         super.init()
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
@@ -64,16 +73,17 @@ class AppCoordinator: NSObject, Coordinator {
 
     func showTransactions(for wallet: Wallet) {
         let coordinator = InCoordinator(
-            navigationController: navigationController,
-            wallet: wallet,
-            keystore: keystore,
-            appTracker: appTracker
+                navigationController: navigationController,
+                wallet: wallet,
+                keystore: keystore,
+                assetDefinitionStore: assetDefinitionStore,
+                appTracker: appTracker
         )
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
-    
+
     func closeWelcomeWindow() {
         guard navigationController.viewControllers.contains(welcomeViewController) else {
             return
@@ -94,12 +104,15 @@ class AppCoordinator: NSObject, Coordinator {
         initializers.forEach { $0.perform() }
         //We should clean passcode if there is no wallets. This step is required for app reinstall.
         if !keystore.hasWallets {
-           lock.clear()
+            lock.clear()
         }
     }
 
     func handleNotifications() {
         UIApplication.shared.applicationIconBadgeNumber = 0
+        let coordinator = PushNotificationsCoordinator()
+        coordinator.start()
+        addCoordinator(coordinator)
     }
 
     func resetToWelcomeScreen() {
@@ -114,33 +127,59 @@ class AppCoordinator: NSObject, Coordinator {
         resetToWelcomeScreen()
     }
 
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
-        let inCoordinatorInstance = coordinators.first {
-            $0 is InCoordinator
-        } as? InCoordinator
-        
-        if let inCoordinator = inCoordinatorInstance {
-            inCoordinator.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, completion: completion)
-        }
-    }
-
-    func addImported(contract: String) {
-        inCoordinator?.addImported(contract: contract)
-    }
-
     func showInitialWalletCoordinator(entryPoint: WalletEntryPoint) {
         let coordinator = InitialWalletCreationCoordinator(
-            navigationController: navigationController,
-            keystore: keystore,
-            entryPoint: entryPoint
+                navigationController: navigationController,
+                keystore: keystore,
+                entryPoint: entryPoint
         )
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
-    
+
     func createInitialWallet() {
         WalletCoordinator(keystore: keystore).createInitialWallet()
+    }
+
+    func handleUniversalLink(url: URL) -> Bool {
+        createInitialWallet()
+        closeWelcomeWindow()
+        guard let ethPrice = self.ethPrice, let ethBalance = self.ethBalance else { return false }
+        guard let inCoordinator = self.inCoordinator, let tokensDatastore = inCoordinator.createTokensDatastore() else { return false }
+
+        let universalLinkCoordinator = UniversalLinkCoordinator(
+                config: config,
+                ethPrice: ethPrice,
+                ethBalance: ethBalance,
+                tokensDatastore: tokensDatastore,
+                assetDefinitionStore: assetDefinitionStore
+        )
+        universalLinkCoordinator.delegate = self
+        universalLinkCoordinator.start()
+        let handled = universalLinkCoordinator.handleUniversalLink(url: url)
+        if handled {
+            addCoordinator(universalLinkCoordinator)
+        }
+        return handled
+    }
+
+    func handleUniversalLinkInPasteboard() {
+        let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator()
+        universalLinkPasteboardCoordinator.delegate = self
+        universalLinkPasteboardCoordinator.start()
+    }
+
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        inCoordinator?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        inCoordinator?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        inCoordinator?.didPressOpenWebPage(url, in: viewController)
     }
 }
 
@@ -181,5 +220,41 @@ extension AppCoordinator: InCoordinatorDelegate {
     }
 
     func didUpdateAccounts(in coordinator: InCoordinator) {
+    }
+
+    func didShowWallet(in coordinator: InCoordinator) {
+        pushNotificationsCoordinator?.didShowWallet(in: coordinator.navigationController)
+    }
+}
+
+extension AppCoordinator: UniversalLinkCoordinatorDelegate {
+    func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController? {
+        if var top = window.rootViewController {
+            while let vc = top.presentedViewController {
+                top = vc
+            }
+            return top
+        } else {
+            return nil
+        }
+    }
+
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
+        inCoordinator?.importPaidSignedOrder(signedOrder: signedOrder, tokenObject: tokenObject, completion: completion)
+    }
+
+    func completed(in coordinator: UniversalLinkCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func didImported(contract: String, in coordinator: UniversalLinkCoordinator) {
+        inCoordinator?.addImported(contract: contract)
+    }
+}
+
+extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
+    func importUniversalLink(url: URL, for coordinator: UniversalLinkInPasteboardCoordinator) {
+        guard universalLinkCoordinator == nil else { return }
+        handleUniversalLink(url: url)
     }
 }

@@ -5,9 +5,9 @@ import TrustKeystore
 
 struct RawTransaction: Decodable {
     let hash: String
-    let blockNumber: Int
+    let blockNumber: String
     let timeStamp: String
-    let nonce: Int
+    let nonce: String
     let from: String
     let to: String
     let value: String
@@ -18,7 +18,7 @@ struct RawTransaction: Decodable {
     let error: String?
 
     enum CodingKeys: String, CodingKey {
-        case hash = "_id"
+        case hash = "hash"
         case blockNumber
         case timeStamp
         case nonce
@@ -51,14 +51,14 @@ extension Transaction {
         let to = Address(string: transaction.to)?.description ?? transaction.to
         return Transaction(
             id: transaction.hash,
-            blockNumber: transaction.blockNumber,
+            blockNumber: Int(transaction.blockNumber)!,
             from: from.description,
             to: to,
             value: transaction.value,
             gas: transaction.gas,
             gasPrice: transaction.gasPrice,
             gasUsed: transaction.gasUsed,
-            nonce: String(transaction.nonce),
+            nonce: transaction.nonce,
             date: NSDate(timeIntervalSince1970: TimeInterval(transaction.timeStamp) ?? 0) as Date,
             localizedOperations: LocalizedOperationObject.from(operations: transaction.operationsLocalized),
             state: state

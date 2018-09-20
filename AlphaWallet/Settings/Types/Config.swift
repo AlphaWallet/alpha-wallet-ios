@@ -100,15 +100,15 @@ struct Config {
         return URL(string: urlString)!
     }
 
-    var remoteURL: URL {
+    var transactionInfoEndpoints: URL {
         let urlString: String = {
             switch server {
-            case .main: return "https://api.trustwalletapp.com"
+            case .main: return "https://api.etherscan.io"
             case .classic: return "https://classic.trustwalletapp.com"
             case .callisto: return "https://callisto.trustwalletapp.com"
             case .kovan: return "https://kovan.trustwalletapp.com"
-            case .ropsten: return "https://ropsten.trustwalletapp.com"
-            case .rinkeby: return "https://rinkeby.trustwalletapp.com"
+            case .ropsten: return "https://api-ropsten.etherscan.io"
+            case .rinkeby: return "https://api-rinkeby.etherscan.io"
             case .poa: return "https://poa.trustwalletapp.com"
             case .sokol: return "https://trust-sokol.herokuapp.com"
             case .custom:
@@ -118,6 +118,8 @@ struct Config {
         return URL(string: urlString)!
     }
 
+    let priceInfoEndpoints = URL(string: "https://api.coinmarketcap.com")!
+
     var walletAddressesAlreadyPromptedForBackUp: [String] {
         if let addresses = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
             return addresses as! [String]
@@ -126,84 +128,8 @@ struct Config {
         }
     }
 
-    var ticketContractAddress: String? {
-        switch server {
-        case .main:
-            return "0xA66A3F08068174e8F005112A8b2c7A507a822335"
-        case .ropsten:
-            return "0xd8e5f58de3933e1e35f9c65eb72cb188674624f3"
-        default:
-            return nil
-        }
-    }
-
     ///Debugging flag. Set to false to disable auto fetching prices, etc to cut down on network calls
     let isAutoFetchingDisabled = false
-
-    func createDefaultTicketToken() -> ERCToken? {
-        guard let contract = ticketContractAddress else { return nil }
-        guard let contractAddress = Address(string: contract) else { return nil }
-        let xmlHandler = XMLHandler(contract: contract)
-        let lang = xmlHandler.getLang()
-        let name = xmlHandler.getName(lang: lang)
-        //TODO get symbol from RPC node, but this doesn't provide much benefit as it is a hardcoded
-        //placeholder anyway
-        //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
-        switch server {
-        case .main:
-            return ERCToken(
-                    contract: contractAddress,
-                    name: Constants.event + " " + name,
-                    symbol: "SHANKAI",
-                    decimals: 0,
-                    type: .erc875,
-                    balance: []
-            )
-        case .ropsten:
-            return ERCToken(
-                    contract: contractAddress,
-                    name: name,
-                    symbol: "TEST",
-                    decimals: 0,
-                    type: .erc875,
-                    balance: []
-            )
-        case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
-            return nil
-        }
-    }
-
-    func createDefaultTicketToken(forContract contract: String) -> ERCToken? {
-        guard let contractAddress = Address(string: contract) else { return nil }
-        let xmlHandler = XMLHandler(contract: contract)
-        let lang = xmlHandler.getLang()
-        let name = xmlHandler.getName(lang: lang)
-        //TODO get symbol from RPC node, but this doesn't provide much benefit as it is a hardcoded
-        //placeholder anyway
-        //GetSymbolCoordinator(web3: Web3Swift()).getSymbol(for: contractAddress) { result in }
-        switch server {
-        case .main:
-            return ERCToken(
-                    contract: contractAddress,
-                    name: Constants.event + " " + name,
-                    symbol: "SHANKAI",
-                    decimals: 0,
-                    type: .erc875,
-                    balance: []
-            )
-        case .ropsten:
-            return ERCToken(
-                    contract: contractAddress,
-                    name: name,
-                    symbol: "TEST",
-                    decimals: 0,
-                    type: .erc875,
-                    balance: []
-            )
-        case .kovan, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
-            return nil
-        }
-    }
 
     func addToWalletAddressesAlreadyPromptedForBackup(address: String) {
         var addresses: [String]
