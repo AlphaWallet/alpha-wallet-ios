@@ -28,11 +28,11 @@ https://app.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGN
 import Foundation
 import BigInt
 
-private enum LinkFormat {
-    case unassigned 
-    case normal
-    case spawnable
-    case customizable
+enum LinkFormat: UInt8 {
+    case unassigned = 0x00
+    case normal = 0x01
+    case spawnable = 0x02
+    case customizable = 0x03
 }
 
 public class UniversalLinkHandler {
@@ -65,27 +65,40 @@ public class UniversalLinkHandler {
         let linkInfo = b64SafeEncodingToRegularEncoding(url.substring(from: urlPrefix.count))
         guard var linkBytes = Data(base64Encoded: linkInfo)?.array else { return nil }
         let encodingByte = linkBytes[0]
-        switch encodingByte {
-        case Constants.oldFormat: break
-        //new link format, remove extra byte and continue
-        case Constants.notSpawnable: linkBytes.remove(at: 0)
-        case Constants.spawnable: return handleSpawnableLink(linkBytes: linkBytes)
-        case Constants.customizable: return handleSpawnableLink(linkBytes: linkBytes)
-        default: break
+        if let format = LinkFormat(rawValue: encodingByte) {
+            switch format {
+            case .unassigned:
+                return handleUnSpawnableLink(linkBytes: linkBytes)
+            case .normal:
+                //new link format, remove extra byte and continue
+                linkBytes.remove(at: 0)
+                return handleUnSpawnableLink(linkBytes: linkBytes)
+            case .spawnable:
+                return handleSpawnableLink(linkBytes: linkBytes)
+            case .customizable:
+                return handleSpawnableLink(linkBytes: linkBytes)
+            }
         }
+        else {
+            return nil
+        }
+
+    }
+
+    func handleUnSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
         let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
         let tokenIndices = getTokenIndicesFromLinkBytes(linkBytes: linkBytes)
         let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes)
         let order = Order(
-            price: price,
-            indices: tokenIndices,
-            expiry: expiry,
-            contractAddress: contractAddress,
-            start: BigUInt("0")!,
-            count: tokenIndices.count,
-            tokenIds: [BigUInt()]
+                price: price,
+                indices: tokenIndices,
+                expiry: expiry,
+                contractAddress: contractAddress,
+                start: BigUInt("0")!,
+                count: tokenIndices.count,
+                tokenIds: [BigUInt()]
         )
         let message = getMessageFromOrder(order: order)
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
@@ -113,17 +126,9 @@ public class UniversalLinkHandler {
     }
     
     func getTokenIdsFromSpawnableLink(linkBytes: [UInt8]) -> [BigUInt] {
-        let tokens = linkBytes[84..<linkBytes.count]
-        let tokenCount = tokens.count / 32
-        var tokenIds = [BigUInt]()
-        var startPos: Int = 0
-        for i in 0..<tokenCount {
-            let tokenId: [UInt8] = Array(tokens[startPos...32 * i])
-            let tokenIdBigUInt = BigUInt(Data(bytes: tokenId))
-            tokenIds.append(tokenIdBigUInt)
-            startPos += 32
-        }
-        return tokenIds
+        let bytes = linkBytes[84..<linkBytes.count]
+        let tokenIds = bytes.split(separator: 32)
+        return tokenIds.map { BigUInt(Data(bytes: $0)) }
     }
     
     //we used a special encoding so that one 16 bit number could represent either one token or two
@@ -175,12 +180,7 @@ public class UniversalLinkHandler {
         for i in 0..<indices.count {
             messageWithSzabo.append(indices[i])
         }
-        //append encodable byte to differiantiate between spawnable and index
-        //based links
-        //0x01: Standard magic link.
-        //0x02: Spawn token magic link.
-        //0x03: Customisable spawn token link.
-        messageWithSzabo.insert(0x01, at: 0)
+        messageWithSzabo.insert(LinkFormat.normal.rawValue, at: 0)
         return MarketQueueHandler.bytesToHexa(messageWithSzabo)
     }
     
