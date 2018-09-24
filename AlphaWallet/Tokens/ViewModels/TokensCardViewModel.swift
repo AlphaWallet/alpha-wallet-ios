@@ -31,6 +31,10 @@ struct TokensCardViewModel {
         return Colors.appWhite
     }
 
+    var disabledButtonTitleColor: UIColor {
+        return Colors.darkGray
+    }
+
     var buttonBackgroundColor: UIColor {
         return Colors.appHighlightGreen
     }
