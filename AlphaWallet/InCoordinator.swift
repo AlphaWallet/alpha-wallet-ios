@@ -382,7 +382,6 @@ class InCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore
         )
         addCoordinator(tokensCardCoordinator)
-        tokensCardCoordinator.type = type
         tokensCardCoordinator.delegate = self
         tokensCardCoordinator.start()
         switch (type, session.account.type) {
