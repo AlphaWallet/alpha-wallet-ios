@@ -29,22 +29,25 @@ protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
 class TokensCardCoordinator: NSObject, Coordinator {
 
     private let keystore: Keystore
-    var token: TokenObject
-    var type: PaymentFlow!
-    lazy var rootViewController: TokensCardViewController = {
+    private let token: TokenObject
+    private lazy var rootViewController: TokensCardViewController = {
         let viewModel = TokensCardViewModel(token: token)
         return makeTokensCardViewController(with: session.account, viewModel: viewModel)
     }()
 
     weak var delegate: TokensCardCoordinatorDelegate?
 
-    let session: WalletSession
-    let tokensStorage: TokensDataStore
+    private let session: WalletSession
+    private let tokensStorage: TokensDataStore
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
-    var ethPrice: Subscribable<Double>
-    let assetDefinitionStore: AssetDefinitionStore
-
+    private let ethPrice: Subscribable<Double>
+    private let assetDefinitionStore: AssetDefinitionStore
+    var isReadOnly = false {
+        didSet {
+            rootViewController.isReadOnly = isReadOnly
+        }
+    }
     init(
             session: WalletSession,
             navigationController: UINavigationController = NavigationController(),
@@ -64,7 +67,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        rootViewController.tokenObject = token
         rootViewController.configure()
         navigationController.viewControllers = [rootViewController]
         refreshUponAssetDefinitionChanges()
