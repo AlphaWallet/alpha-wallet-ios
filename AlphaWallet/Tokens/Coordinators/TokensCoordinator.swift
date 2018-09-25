@@ -86,8 +86,7 @@ class TokensCoordinator: Coordinator {
         }
 
         guard let address = keystore.recentlyUsedWallet?.address else { return }
-        let web3 = Web3Swift(url: session.config.rpcURL)
-        GetContractInteractions(web3: web3).getContractList(address: address.eip55String, chainId: session.config.chainID) { [weak self] contracts in
+        GetContractInteractions().getContractList(address: address.eip55String, chainId: session.config.chainID) { [weak self] contracts in
             guard let strongSelf = self else { return }
             guard let currentAddress = strongSelf.keystore.recentlyUsedWallet?.address, currentAddress.eip55String.sameContract(as: address.eip55String) else { return }
             let detectedContracts = contracts.map { $0.lowercased() }
