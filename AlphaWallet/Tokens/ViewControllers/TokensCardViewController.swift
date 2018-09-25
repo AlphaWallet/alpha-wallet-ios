@@ -39,6 +39,12 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     let sellButton = UIButton(type: .system)
     let transferButton = UIButton(type: .system)
 
+    var isReadOnly = false {
+        didSet {
+            configure()
+        }
+    }
+
     init(config: Config, tokenObject: TokenObject, account: Wallet, tokensStorage: TokensDataStore, viewModel: TokensCardViewModel) {
         self.config = config
         self.tokenObject = tokenObject
@@ -138,14 +144,17 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.tableHeaderView = header
 
         redeemButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
+        redeemButton.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
 		redeemButton.backgroundColor = viewModel.buttonBackgroundColor
         redeemButton.titleLabel?.font = viewModel.buttonFont
 
         sellButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
+        sellButton.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
         sellButton.backgroundColor = viewModel.buttonBackgroundColor
         sellButton.titleLabel?.font = viewModel.buttonFont
 
         transferButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
+        transferButton.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
         transferButton.backgroundColor = viewModel.buttonBackgroundColor
         transferButton.titleLabel?.font = viewModel.buttonFont
 
@@ -161,6 +170,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             redeemButton.isHidden = true
             sellButton.isHidden = true
         }
+        [redeemButton, sellButton, transferButton].forEach { $0.isEnabled = !isReadOnly }
 
         tableView.reloadData()
     }
