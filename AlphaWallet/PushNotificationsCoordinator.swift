@@ -49,14 +49,21 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
 
     //TODO call this after send Ether too?
     private func requestForAuthorization() {
-        notificationCenter.requestAuthorization(options: [.alert, .sound]) { granted, error in
+        notificationCenter.requestAuthorization(options: [.badge, .alert, .sound]) { granted, error in
+            if (granted) {
+                DispatchQueue.main.async(execute: {
+                    UIApplication.shared.registerForRemoteNotifications()
+                })
+            } else {
+                //Do stuff if unsuccessful…
+            }
         }
     }
 }
 
 extension PushNotificationsCoordinator: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.alert,.sound])
+        completionHandler([.badge, .alert,.sound])
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
