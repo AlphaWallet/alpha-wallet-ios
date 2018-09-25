@@ -24,10 +24,6 @@ class TokensDataStore {
         return GetBalanceCoordinator(config: config)
     }()
 
-    private lazy var claimOrderCoordinator: ClaimOrderCoordinator = {
-        return ClaimOrderCoordinator(web3: web3)
-    }()
-
     private lazy var getNameCoordinator: GetNameCoordinator = {
         return GetNameCoordinator(config: config)
     }()
@@ -310,19 +306,6 @@ class TokensDataStore {
                     }
                 }
             }
-        }
-    }
-
-    //Result<Void, AnyError>
-    //claim order continues to use indices to do the transaction, not the bytes32 variables
-    func claimOrder(tokenIndices: [UInt16],
-                    expiry: BigUInt,
-                    v: UInt8,
-                    r: String,
-                    s: String,
-                    completion: @escaping(Any) -> Void) {
-        claimOrderCoordinator.claimOrder(indices: tokenIndices, expiry: expiry, v: v, r: r, s: s) { result in
-            completion(result)
         }
     }
 
