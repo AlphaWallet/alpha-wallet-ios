@@ -4,6 +4,9 @@ PODS:
     - Alamofire (~> 4.0)
   - APIKit (3.1.1):
     - Result (~> 3.0)
+  - AWSCore (2.6.28)
+  - AWSSNS (2.6.28):
+    - AWSCore (= 2.6.28)
   - BigInt (3.0.1):
     - SipHash (~> 1.2)
   - BonMot (5.0)
@@ -75,6 +78,7 @@ PODS:
 
 DEPENDENCIES:
   - APIKit
+  - AWSSNS
   - BigInt (~> 3.0)
   - BonMot (~> 5.0)
   - CryptoSwift
@@ -105,6 +109,8 @@ SPEC REPOS:
     - Alamofire
     - Alamofire-Synchronous
     - APIKit
+    - AWSCore
+    - AWSSNS
     - BigInt
     - BonMot
     - CryptoSwift
@@ -171,6 +177,8 @@ SPEC CHECKSUMS:
   Alamofire: e4fa87002c137ba2d8d634d2c51fabcda0d5c223
   Alamofire-Synchronous: eedf1e6e961c3795a63c74990b3f7d9fbfac7e50
   APIKit: 7460983f490d3bde6aaaaa4164d18c9865a6f91d
+  AWSCore: f75fcf5b2f4325da49ae1f7cb5484778d3b0acc6
+  AWSSNS: a67710a80c8d380e34248b16e503e0719f02a28d
   BigInt: 8e8a52161c745cd3ab78e3dc346a9fbee51e6cf6
   BonMot: 3ff354572f2aa9295d3760947f7578490cb810be
   CryptoSwift: 6c778d69282bed3b4e975ff97a79d074f20bb011
@@ -205,6 +213,6 @@ SPEC CHECKSUMS:
   TrustWeb3Provider: 50fa391bdf170feb43dd4419992931510a5751d8
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: caccb0375c7c8fe484ea4ff6a58733a27376ae1c
+PODFILE CHECKSUM: 5014a448c34c0fb838c8d9510ff58582b9d0141d
 
 COCOAPODS: 1.5.3
