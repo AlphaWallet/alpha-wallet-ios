@@ -26,7 +26,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     var contract: String {
         return tokenObject.contract
     }
-    var tokenObject: TokenObject
+    let tokenObject: TokenObject
     var viewModel: TokensCardViewModel
     let tokensStorage: TokensDataStore
     let account: Wallet
