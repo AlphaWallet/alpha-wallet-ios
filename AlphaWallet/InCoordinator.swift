@@ -382,11 +382,13 @@ class InCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore
         )
         addCoordinator(tokensCardCoordinator)
-        tokensCardCoordinator.type = type
         tokensCardCoordinator.delegate = self
         tokensCardCoordinator.start()
         switch (type, session.account.type) {
         case (.send, .real), (.request, _):
+            navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
+        case (.send, .watch), (.request, _):
+            tokensCardCoordinator.isReadOnly = true
             navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
         case (_, _):
             navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
