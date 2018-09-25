@@ -61,7 +61,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        inializers()
+        initializers()
         appTracker.start()
         handleNotifications()
         applyStyle()
@@ -113,7 +113,7 @@ class AppCoordinator: NSObject, Coordinator {
         }
     }
 
-    func inializers() {
+    func initializers() {
         var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).compactMap { URL(fileURLWithPath: $0) }
         paths.append(keystore.keystoreDirectory)
 
