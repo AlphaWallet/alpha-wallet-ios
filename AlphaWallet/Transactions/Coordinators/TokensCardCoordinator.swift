@@ -44,6 +44,11 @@ class TokensCardCoordinator: NSObject, Coordinator {
     var coordinators: [Coordinator] = []
     var ethPrice: Subscribable<Double>
     let assetDefinitionStore: AssetDefinitionStore
+    var isReadOnly = false {
+        didSet {
+            rootViewController.isReadOnly = isReadOnly
+        }
+    }
 
     init(
             session: WalletSession,
