@@ -28,7 +28,7 @@ final class MasterBrowserViewController: UIViewController {
         ]
         let segmentedControl = UISegmentedControl(items: items)
         segmentedControl.addTarget(self, action: #selector(selectionDidChange(_:)), for: .valueChanged)
-        segmentedControl.tintColor = .clear
+        segmentedControl.style()
         return segmentedControl
     }()
 
@@ -36,7 +36,7 @@ final class MasterBrowserViewController: UIViewController {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(R.image.browser_scan()?.withRenderingMode(.alwaysTemplate), for: .normal)
-        button.tintColor = .clear
+        button.imageView?.tintColor = Colors.appBackground
         button.addTarget(self, action: #selector(qrReader), for: .touchUpInside)
         return button
     }()
