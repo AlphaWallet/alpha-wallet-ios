@@ -36,7 +36,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         let tokenType = CryptoKittyHandling(address: token.address)
         switch tokenType {
         case .cryptoKitty:
-            tokenRowView = TokenListFormatRowView()
+            tokenRowView = CryptoKittyCardRowView()
         case .otherNonFungibleToken:
             tokenRowView = TokenCardRowView()
         }
