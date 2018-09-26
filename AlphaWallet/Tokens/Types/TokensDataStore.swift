@@ -236,7 +236,8 @@ class TokensDataStore {
         }
         Alamofire.request(
                 url,
-                method: .get
+                method: .get,
+                headers: ["X-API-KEY" : Constants.openseaAPIKEY]
         ).responseJSON { response in
             guard let data = response.data, let json = try? JSON(data: data) else {
                 completion(.failure(AnyError(CryptoKittyError(localizedDescription: "Error calling \(Constants.openseaAPI) API"))))
