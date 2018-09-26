@@ -272,39 +272,41 @@ class TokensDataStore {
     func getTokenType(for addressString: String,
                       completion: @escaping (TokenType) -> Void) {
         let address = Address(string: addressString)
+        var knownToBeNotERC721 = false
+        var knownToBeNotERC875 = false
         getIsERC875ContractCoordinator.getIsERC875Contract(for: address!) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let isERC875):
                 if isERC875 {
                     completion(.erc875)
+                    return
                 } else {
-                    strongSelf.getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { result in
-                        switch result {
-                        case .success(let isERC721):
-                            if isERC721 {
-                                completion(.erc721)
-                            } else {
-                                completion(.erc20)
-                            }
-                        case .failure:
-                            completion(.erc20)
-                        }
-                    }
+                    knownToBeNotERC875 = true
                 }
             case .failure:
-                strongSelf.getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { result in
-                    switch result {
-                    case .success(let isERC721):
-                        if isERC721 {
-                            completion(.erc721)
-                        } else {
-                            completion(.erc20)
-                        }
-                    case .failure:
-                        completion(.erc20)
-                    }
+                knownToBeNotERC875 = true
+            }
+            if knownToBeNotERC721 && knownToBeNotERC875 {
+                completion(.erc20)
+            }
+        }
+
+        getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let isERC721):
+                if isERC721 {
+                    completion(.erc721)
+                    return
+                } else {
+                    knownToBeNotERC721 = true
                 }
+            case .failure:
+                knownToBeNotERC721 = true
+            }
+            if knownToBeNotERC721 && knownToBeNotERC875 {
+                completion(.erc20)
             }
         }
     }
