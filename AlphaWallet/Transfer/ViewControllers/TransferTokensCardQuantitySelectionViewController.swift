@@ -38,7 +38,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         let tokenType = CryptoKittyHandling(contract: token.contract)
         switch tokenType {
         case .cryptoKitty:
-            tokenRowView = TokenListFormatRowView()
+            tokenRowView = CryptoKittyCardRowView()
         case .otherNonFungibleToken:
             tokenRowView = TokenCardRowView()
         }
@@ -171,7 +171,6 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         let tokens = Array(tokenHolder.tokens[..<quantity])
         return TokenHolder(
             tokens: tokens,
-            status: tokenHolder.status,
             contractAddress: tokenHolder.contractAddress,
             hasAssetDefinition: tokenHolder.hasAssetDefinition
         )
