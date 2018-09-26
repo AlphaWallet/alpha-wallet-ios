@@ -66,7 +66,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         let tokenType = CryptoKittyHandling(address: viewModel.token.address)
         switch tokenType {
         case .cryptoKitty:
-            tokenRowView = TokenListFormatRowView()
+            tokenRowView = CryptoKittyCardRowView()
         case .otherNonFungibleToken:
             tokenRowView = TokenCardRowView()
         }
@@ -334,7 +334,6 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         let tokens = Array(tokenHolder.tokens[..<quantity])
         return TokenHolder(
             tokens: tokens,
-            status: tokenHolder.status,
             contractAddress: tokenHolder.contractAddress,
             hasAssetDefinition: tokenHolder.hasAssetDefinition
         )

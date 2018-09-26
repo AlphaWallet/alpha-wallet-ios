@@ -78,20 +78,17 @@ struct TokenListFormatRowViewModel {
         let traits =  tokenHolder.values["traits"] as? [CryptoKittyTrait] ?? []
         let generationText: String
         let cooldownText: String
-        if let generation = traits.first(where: { $0.type == "generation" }) {
-            generationText = "Gen \(generation.value)"
+        if let generation = traits.first(where: { $0.type == CryptoKitty.generationTraitName }) {
+            generationText = R.string.localizable.cryptoKittiesGeneration(generation.value)
         } else {
             generationText = ""
         }
-        if let cooldown = traits.first(where: { $0.type == "cooldown_index" }), let cooldownIndex = Int(cooldown.value) {
-            let cooldownValue: String
+        if let cooldown = traits.first(where: { $0.type == CryptoKitty.cooldownIndexTraitName }), let cooldownIndex = Int(cooldown.value) {
             if Constants.cryptoKittiesCooldowns.indices.contains(cooldownIndex) {
-                cooldownValue = Constants.cryptoKittiesCooldowns[cooldownIndex]
+                cooldownText = R.string.localizable.cryptoKittiesCooldown(Constants.cryptoKittiesCooldowns[cooldownIndex])
             } else {
-                //TODO localize
-                cooldownValue = "Unknown"
+                cooldownText = R.string.localizable.cryptoKittiesCooldownUnknown()
             }
-            cooldownText = "\(cooldownValue) Cooldown"
         } else {
             cooldownText = ""
         }
@@ -121,7 +118,7 @@ struct TokenListFormatRowViewModel {
     //TODO using CryptoKitty struct here, not good
     var details: [String] {
         let traits =  tokenHolder.values["traits"] as? [CryptoKittyTrait] ?? []
-        let withoutGenerationAndCooldownIndex = traits.filter { $0.type != "generation" && $0.type != "cooldown_index" }
+        let withoutGenerationAndCooldownIndex = traits.filter { $0.type != CryptoKitty.generationTraitName && $0.type != CryptoKitty.cooldownIndexTraitName }
         return withoutGenerationAndCooldownIndex.map { "\($0.type): \($0.value)" }
     }
 }
