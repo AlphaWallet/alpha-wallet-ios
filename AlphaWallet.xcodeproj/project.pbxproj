@@ -1115,6 +1115,8 @@
 		AAEF2CAA2050A68A0038BE0D /* SignatureHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureHelper.swift; sourceTree = "<group>"; };
 		B138ABCF208C2C93000FC28A /* MonkeyTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonkeyTest.swift; sourceTree = "<group>"; };
 		B13A87D3BA5167741E5D0801 /* Pods-Trust.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Trust.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWallet/Pods-Trust.release.xcconfig"; sourceTree = "<group>"; };
+		B1CCA9D1215B615A0000FBF7 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		B1CCA9D2215B61620000FBF7 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B1DC375C203AEAE100C9756D /* MarketQueueHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketQueueHandler.swift; sourceTree = "<group>"; };
 		B1DC375E203AEB4800C9756D /* MarketQueueHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketQueueHandlerTests.swift; sourceTree = "<group>"; };
 		B1E55D902159E5500091205D /* AlphaWallet-SNS-bridging-header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AlphaWallet-SNS-bridging-header.h"; sourceTree = "<group>"; };
@@ -3261,6 +3263,8 @@
 				"zh-Hans",
 				"zh-Hant",
 				vi,
+				ja,
+				ko,
 			);
 			mainGroup = 2912CCEC1F6A830700C6CBE3;
 			productRefGroup = 2912CCF61F6A830700C6CBE3 /* Products */;
@@ -4092,6 +4096,8 @@
 				290B2B551F8F50030053C83E /* en */,
 				294DFBA41FE0F437004CEB56 /* es */,
 				7721A6BF202B1D3E004DB16C /* zh-Hans */,
+				B1CCA9D1215B615A0000FBF7 /* ja */,
+				B1CCA9D2215B61620000FBF7 /* ko */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
