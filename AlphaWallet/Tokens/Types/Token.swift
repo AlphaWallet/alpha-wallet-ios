@@ -10,9 +10,14 @@ import Foundation
 import BigInt
 
 struct Token {
+    enum Status {
+        case available, sold, redeemed, forSale, transferred, pending, availableButDataUnavailable
+    }
+
     let id: BigUInt
     let index: UInt16
     var name: String
+    var status: Status
     let values: [String: AssetAttributeValue]
 
     static var empty: Token {
@@ -20,6 +25,7 @@ struct Token {
                 id: Constants.nullTokenIdBigUInt,
                 index: 0,
                 name: R.string.localizable.tokensTitlecase(),
+                status: .available,
                 values: [
                     "locality": "N/A",
                     "venue": "N/A",
