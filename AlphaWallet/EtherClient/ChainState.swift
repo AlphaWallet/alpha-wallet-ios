@@ -33,7 +33,11 @@ class ChainState {
     ) {
         self.config = config
         self.defaults = config.defaults
-        self.updateLatestBlock = Timer.scheduledTimer(timeInterval: 6, target: self, selector: #selector(fetch), userInfo: nil, repeats: true)
+        if config.isAutoFetchingDisabled {
+            //No-op
+        } else {
+            self.updateLatestBlock = Timer.scheduledTimer(timeInterval: 6, target: self, selector: #selector(fetch), userInfo: nil, repeats: true)
+        }
     }
 
     func start() {
