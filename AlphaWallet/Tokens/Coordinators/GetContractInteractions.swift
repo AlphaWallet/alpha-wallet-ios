@@ -8,13 +8,6 @@ import Alamofire
 import SwiftyJSON
 
 class GetContractInteractions {
-
-    private let web3: Web3Swift
-
-    init(web3: Web3Swift) {
-        self.web3 = web3
-    }
-
     //This function only gets a list of contracts you have transacted with
     //if you have not transacted with the contract then it will not show up
     //there is currently no efficient way to get all your tokens but it might be for the best
