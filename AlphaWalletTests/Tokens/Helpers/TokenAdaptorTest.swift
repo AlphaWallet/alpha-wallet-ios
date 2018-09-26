@@ -9,9 +9,9 @@ class TokenAdaptorTest: XCTestCase {
     func testBundlesAreBrokenIntoContinuousSeatRanges() {
         let date = GeneralisedTime()
         let tokens = [
-            Token(id: "1", index: 1, name: "Name", values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 1, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
-            Token(id: "2", index: 2, name: "Name", values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
-            Token(id: "3", index: 3, name: "Name", values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 4, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
+            Token(id: "1", index: 1, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 1, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
+            Token(id: "2", index: 2, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
+            Token(id: "3", index: 3, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 4, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
         ]
         let bundles = TokenAdaptor(token: TokenObject()).bundle(tokens: tokens)
         XCTAssertEqual(bundles.count, 2)
@@ -20,10 +20,10 @@ class TokenAdaptorTest: XCTestCase {
     func testBundlesGroupIdenticalSeatIDsTogether() {
         let date = GeneralisedTime()
         let tokens = [
-            Token(id: "1", index: 1, name: "Name", values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 1, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
-            Token(id: "2", index: 2, name: "Name", values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
-            Token(id: "3", index: 3, name: "Name", values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 4, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
-            Token(id: "4", index: 4, name: "Name", values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
+            Token(id: "1", index: 1, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 1, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
+            Token(id: "2", index: 2, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
+            Token(id: "3", index: 3, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 4, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
+            Token(id: "4", index: 4, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
         ]
         let bundles = TokenAdaptor(token: TokenObject()).bundle(tokens: tokens)
         XCTAssertEqual(bundles.count, 2)

@@ -301,3 +301,7 @@
 "camera.qrCode.denied.prompt.button" = "Abrir Ajustes";
 "cryptoKitties.url.open" = "Abrir en CryptoKitties";
 "cryptoKitties.cat.name" = "CryptoKitty #%@";
+"cryptoKitties.cattributes.title" = "Cattributes";
+"cryptoKitties.generation" = "Gen %@";
+"cryptoKitties.cooldown" = "%@ Cooldown";
+"cryptoKitties.cooldown.unknown" = "Unknown";
