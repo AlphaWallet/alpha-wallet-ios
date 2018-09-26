@@ -11,10 +11,10 @@
 			<string>Asset Definition</string>
 			<key>LSHandlerRank</key>
 			<string>Default</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>public.xml</string>
-            </array>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.xml</string>
+			</array>
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
@@ -41,7 +41,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>224</string>
+	<string>225</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
