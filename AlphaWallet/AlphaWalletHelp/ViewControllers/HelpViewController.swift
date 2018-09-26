@@ -6,16 +6,15 @@ protocol HelpViewControllerDelegate: class, CanOpenURL {
 }
 
 class HelpViewController: UIViewController {
-    let tableView = UITableView()
-    let banner = ContactUsBannerView()
-    lazy var rows: [(title: String, controller: UIViewController)] = [
+    private let banner = ContactUsBannerView()
+    private lazy var rows: [(title: String, controller: UIViewController)] = [
         (title: R.string.localizable.aHelpContentsWhatIsETH(), controller: WhatIsEthereumInfoViewController(delegate: self)),
         (title: R.string.localizable.aHelpContentsHowDoIGetMyMoney(), controller: HowDoIGetMyMoneyInfoViewController(delegate: self)),
         (title: R.string.localizable.aHelpContentsHowDoITransferETHIntoMyWallet(), controller: HowDoITransferETHIntoMyWalletInfoViewController(delegate: self)),
         (title: R.string.localizable.aHelpContentsPrivacyPolicy(), controller: PrivacyPolicyViewController(delegate: self)),
         (title: R.string.localizable.aHelpContentsTermsOfService(), controller: TermsOfServiceViewController(delegate: self)),
     ]
-    weak var delegate: HelpViewControllerDelegate?
+    private weak var delegate: HelpViewControllerDelegate?
 
     init(delegate: HelpViewControllerDelegate?) {
         self.delegate = delegate
@@ -25,6 +24,7 @@ class HelpViewController: UIViewController {
 
         view.backgroundColor = Colors.appBackground
 
+        let tableView = UITableView()
         tableView.register(HelpViewCell.self, forCellReuseIdentifier: HelpViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
