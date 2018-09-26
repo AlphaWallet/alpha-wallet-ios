@@ -61,6 +61,7 @@ private class PrivateXMLHandler {
                 id: tokenBytes32,
                 index: index,
                 name: name,
+                status: .available,
                 values: values
         )
     }

@@ -158,6 +158,7 @@
 "send.action.transaction.sent.wait" = "Wait for the transaction to be mined on the network to see details.";
 "transaction.cell.failed.title" = "Failed";
 "transaction.cell.pending.title" = "Pending";
+"transaction.cell.availableButDataUnavailable.title" = "Incomplete Data";
 "walletTokens.tabbar.item.title" = "Wallet";
 "a.wallet.import.wallet.title" = "Import";
 "a.wallet.import.wallet.bubble.title" = "Have a ticket to import?";
@@ -309,3 +310,7 @@
 "camera.qrCode.denied.prompt.button" = "Open Settings";
 "cryptoKitties.url.open" = "Open on CryptoKitties";
 "cryptoKitties.cat.name" = "CryptoKitty #%@";
+"cryptoKitties.cattributes.title" = "Cattributes";
+"cryptoKitties.generation" = "Gen %@";
+"cryptoKitties.cooldown" = "%@ Cooldown";
+"cryptoKitties.cooldown.unknown" = "Unknown";
