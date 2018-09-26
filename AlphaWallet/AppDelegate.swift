@@ -1,19 +1,26 @@
 // Copyright SIX DAY LLC. All rights reserved.
 import UIKit
 import RealmSwift
+import AWSSNS
+//import AWSCognito
+import AWSCore
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
     var window: UIWindow?
     private var appCoordinator: AppCoordinator!
+    private let SNSPlatformApplicationArn = "arn:aws:sns:us-west-2:400248756644:app/APNS/AlphaWallet-iOS"
+    private let SNSPlatformApplicationArnSANDBOX = "arn:aws:sns:us-west-2:400248756644:app/APNS_SANDBOX/AlphaWallet-testing"
+    private let identityPoolId = "us-west-2:42f7f376-9a3f-412e-8c15-703b5d50b4e2"
     //This is separate coordinator for the protection of the sensitive information.
     private lazy var protectionCoordinator: ProtectionCoordinator = {
         return ProtectionCoordinator()
     }()
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         print(Realm.Configuration().fileURL!)
-
         window = UIWindow(frame: UIScreen.main.bounds)
         do {
             let keystore = try EtherKeystore()
@@ -28,9 +35,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
         return true
     }
+
+    private func cognitoRegistration()
+    {
+        // Override point for customization after application launch.
+        /// Setup AWS Cognito credentials
+        // Initialize the Amazon Cognito credentials provider
+//        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: .USWest2,
+//                identityPoolId: identityPoolId)
+//        let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialsProvider)
+//        AWSServiceManager.default().defaultServiceConfiguration = configuration
+//        let defaultServiceConfiguration = AWSServiceConfiguration(
+//                region: AWSRegionType.USWest2, credentialsProvider: credentialsProvider)
+//        AWSServiceManager.default().defaultServiceConfiguration = defaultServiceConfiguration
+    }
+    
     func applicationWillResignActive(_ application: UIApplication) {
         protectionCoordinator.applicationWillResignActive()
     }
+    
     func applicationDidBecomeActive(_ application: UIApplication) {
         //Lokalise.shared.checkForUpdates { _, _ in }
         protectionCoordinator.applicationDidBecomeActive()
@@ -67,11 +90,54 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             handled = handleUniversalLink(url: url)
         }
         //TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
-        return true
+        return handled
+    }
+    
+    // Respond to amazon SNS registration
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        /// Attach the device token to the user defaults
+        var token = ""
+        for i in 0..<deviceToken.count {
+            let tokenInfo = String(format: "%02.2hhx", arguments: [deviceToken[i]])
+            token.append(tokenInfo)
+        }
+        print(token)
+        UserDefaults.standard.set(token, forKey: "deviceTokenForSNS")
+        /// Create a platform endpoint. In this case, the endpoint is a
+        /// device endpoint ARN
+        let sns = AWSSNS.default()
+        let request = AWSSNSCreatePlatformEndpointInput()
+        request?.token = token
+        #if DEBUG
+            request?.platformApplicationArn = SNSPlatformApplicationArnSANDBOX
+        #else
+            request?.platformApplicationArn = SNSPlatformApplicationArn
+        #endif
+
+        sns.createPlatformEndpoint(request!).continueWith(executor: AWSExecutor.mainThread(), block: { (task: AWSTask!) -> AnyObject? in
+            if task.error != nil {
+                print("Error: \(String(describing: task.error))")
+            } else {
+                let createEndpointResponse = task.result! as AWSSNSCreateEndpointResponse
+                if let endpointArnForSNS = createEndpointResponse.endpointArn {
+                    print("endpointArn: \(endpointArnForSNS)")
+                    UserDefaults.standard.set(endpointArnForSNS, forKey: "endpointArnForSNS")
+                }
+            }
+            return nil
+        })
+    }
+
+    //TODO Handle SNS errors
+    func application(_ application: UIApplication,
+                     didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        print(error.localizedDescription)
     }
 
     @discardableResult private func handleUniversalLink(url: URL) -> Bool {
         let handled = appCoordinator.handleUniversalLink(url: url)
         return handled
     }
+
 }
