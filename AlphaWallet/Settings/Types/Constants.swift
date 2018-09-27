@@ -45,7 +45,7 @@ public struct Constants {
     public static let mainnetEtherscanAPI = "https://api.etherscan.io/api?module=account&action=txlist&address="
     public static let ropstenEtherscanAPI = "https://ropsten.etherscan.io/api?module=account&action=txlist&address="
     public static let rinkebyEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
-    public static let kovanEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
+    public static let kovanEtherscanAPI = "https://kovan.etherscan.io/api?module=account&action=txlist&address="
 
     //etherscan contract details web page
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"

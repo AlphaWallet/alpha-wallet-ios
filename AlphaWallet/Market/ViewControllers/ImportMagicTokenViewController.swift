@@ -254,20 +254,11 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     }
 
     func showContractWebPage() {
-        guard let contract = contract else { return }
         if case .main = config.server {
             guard let url = url else { return }
             delegate?.didPressViewContractWebPage(url, in: self)
-        } else if case .ropsten = config.server {
-            guard let url = URL(string: Constants.ropstenEtherscanContractDetailsWebPageURL + contract) else { return }
-            delegate?.didPressViewContractWebPage(url, in: self)
-        } else if case .rinkeby = config.server {
-            guard let url = URL(string: Constants.rinkebyEtherscanAPI + contract) else { return }
-            delegate?.didPressViewContractWebPage(url, in: self)
-        } else if case .kovan = config.server {
-            guard let url = URL(string: Constants.kovanEtherscanContractDetailsWebPageURL + contract) else { return }
-            delegate?.didPressViewContractWebPage(url, in: self)
         } else {
+            guard let contract = contract else { return }
             delegate?.didPressViewContractWebPage(forContract: contract, in: self)
         }
     }
