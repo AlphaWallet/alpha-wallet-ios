@@ -65,7 +65,8 @@ extension DappAction {
             r: nil,
             s: nil,
             expiry: nil,
-            indices: nil
+            indices: nil,
+            tokenIds: nil
         )
     }
 

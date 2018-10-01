@@ -21,4 +21,5 @@ struct UnconfirmedTransaction {
     let s: String?
     let expiry: BigUInt?
     let indices: [UInt16]?
+    let tokenIds: [BigUInt]?
 }

@@ -11,6 +11,7 @@ public struct Order {
     //for mapping to server
     var start: BigUInt
     var count: Int
+    var tokenIds: [BigUInt]?
 }
 
 public struct SignedOrder {
@@ -111,7 +112,6 @@ public class OrderHandler {
         }
 
         var tokensUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: tokens)
-
         for i in 0...tokensUint8.count - 1 {
             buffer.append(tokensUint8[i])
         }
@@ -121,7 +121,7 @@ public class OrderHandler {
 
     public static func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
         var arrayOfUint8 = [UInt8]()
-        for i in 0...arrayOfUInt16.count - 1 {
+        for i in 0..<arrayOfUInt16.count {
             var UInt8ArrayPair = arrayOfUInt16[i].bigEndian.data.array
             arrayOfUint8.append(UInt8ArrayPair[0])
             arrayOfUint8.append(UInt8ArrayPair[1])
