@@ -36,6 +36,9 @@ PODS:
     - PromiseKit/CorePromise (= 6.3.5)
     - PromiseKit/Foundation (= 6.3.5)
     - PromiseKit/UIKit (= 6.3.5)
+  - PromiseKit/Alamofire (6.3.5):
+    - Alamofire (~> 4.0)
+    - PromiseKit/CorePromise
   - PromiseKit/CorePromise (6.3.5)
   - PromiseKit/Foundation (6.3.5):
     - PromiseKit/CorePromise
@@ -88,9 +91,11 @@ DEPENDENCIES:
   - JSONRPCKit (~> 2.0.0)
   - KeychainSwift
   - Kingfisher (~> 4.0)
-  - Macaw (= 0.9.2)
+  - Macaw (from `https://github.com/alpha-wallet/Macaw.git`, commit `c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8`)
   - MBProgressHUD
   - Moya (~> 10.0.1)
+  - PromiseKit/Alamofire
+  - PromiseKit/CorePromise
   - QRCodeReaderViewController (from `https://github.com/yannickl/QRCodeReaderViewController.git`, branch `master`)
   - R.swift
   - RealmSwift (~> 3.9)
@@ -121,7 +126,6 @@ SPEC REPOS:
     - KeychainSwift
     - Kingfisher
     - libsodium
-    - Macaw
     - MBProgressHUD
     - Moya
     - PromiseKit
@@ -141,6 +145,9 @@ SPEC REPOS:
     - TrezorCrypto
 
 EXTERNAL SOURCES:
+  Macaw:
+    :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
+    :git: https://github.com/alpha-wallet/Macaw.git
   QRCodeReaderViewController:
     :branch: master
     :git: https://github.com/yannickl/QRCodeReaderViewController.git
@@ -157,6 +164,9 @@ EXTERNAL SOURCES:
     :git: https://github.com/alpha-wallet/web3swift.git
 
 CHECKOUT OPTIONS:
+  Macaw:
+    :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
+    :git: https://github.com/alpha-wallet/Macaw.git
   QRCodeReaderViewController:
     :commit: 80bd79cbeede842949b229f81bc6328f53701c5a
     :git: https://github.com/yannickl/QRCodeReaderViewController.git
@@ -213,6 +223,6 @@ SPEC CHECKSUMS:
   TrustWeb3Provider: 50fa391bdf170feb43dd4419992931510a5751d8
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: 5014a448c34c0fb838c8d9510ff58582b9d0141d
+PODFILE CHECKSUM: 5f466c536c14e9c8f9d033b78ce18bfa41c167b1
 
 COCOAPODS: 1.5.3

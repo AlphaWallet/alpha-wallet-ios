@@ -10,6 +10,12 @@ public struct Constants {
     public static let keychainKeyPrefix = "alphawallet"
     public static let gasLimit = BigInt(300000)
     public static let gasPriceDefaultERC875 = BigInt("22000000000")!
+    
+    //link formats
+    public static let oldFormat: UInt8 = 0x00
+    public static let notSpawnable: UInt8 = 0x01
+    public static let spawnable: UInt8 = 0x02
+    public static let customizable: UInt8 = 0x03
 
     // XML repo
     public static let repoServer = "https://repo.awallet.io"

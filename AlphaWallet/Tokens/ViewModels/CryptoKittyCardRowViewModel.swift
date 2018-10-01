@@ -1,11 +1,23 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import PromiseKit
 
 struct CryptoKittyCardRowViewModel {
-    var tokenHolder: TokenHolder
+    static var imageGenerator = GenerateCryptoKittyPNGFromSVG()
 
-    var areDetailsVisible: Bool
+    let tokenHolder: TokenHolder
+
+    let areDetailsVisible: Bool
+
+    var bigImage: Promise<UIImage>?
+
+    init(tokenHolder: TokenHolder, areDetailsVisible: Bool) {
+        self.tokenHolder = tokenHolder
+        self.areDetailsVisible = areDetailsVisible
+        let tokenId = tokenHolder.values["tokenId"] as? String
+        self.bigImage = CryptoKittyCardRowViewModel.imageGenerator.withDownloadedImage(fromURL: imageUrl, forTokenId: tokenId)
+    }
 
     var contentsBackgroundColor: UIColor {
         return Colors.appWhite

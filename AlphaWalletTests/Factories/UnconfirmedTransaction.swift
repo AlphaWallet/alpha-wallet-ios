@@ -28,7 +28,8 @@ extension UnconfirmedTransaction {
             r: .none,
             s: .none,
             expiry: .none,
-            indices: .none
+            indices: .none,
+            tokenIds: [BigUInt]()
         )
     }
 }
