@@ -29,7 +29,22 @@ struct ClaimERC875Order: Web3Request {
     let s: String
 
     var type: Web3RequestType {
-        let abi = "{\"constant\":false,\"inputs\":[{\"name\":\"expiry\",\"type\":\"uint256\"},{\"name\":\"ticketIndices\",\"type\":\"uint16[]\"},{\"name\":\"v\",\"type\":\"uint8\"},{\"name\":\"r\",\"type\":\"bytes32\"},{\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"trade\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}, [\"\(expiry)\", \(indices), \(v), \"\(r)\", \"\(s)\"]"
+        let abi = "{\"constant\":false,\"inputs\":[{\"name\":\"expiry\",\"type\":\"uint256\"},{\"name\":\"ticketIndices\",\"type\":\"uint16[]\"},{\"name\":\"v\",\"type\":\"uint8\"},{\"name\":\"r\",\"type\":\"uint256\"},{\"name\":\"s\",\"type\":\"uint256\"}],\"name\":\"trade\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}, [\"\(expiry)\", \(indices), \(v), \"\(r)\", \"\(s)\"]"
+        let run = "web3.eth.abi.encodeFunctionCall(" + abi + ")"
+        return .script(command: run)
+    }
+}
+
+struct ClaimERC875Spawnable: Web3Request {
+    typealias Response = String
+    let tokenIds: [BigUInt]
+    let v: UInt8
+    let r: String
+    let s: String
+    let expiry: BigUInt
+
+    var type: Web3RequestType {
+        let abi = "{\"constant\":false,\"inputs\":[{\"name\":\"expiry\",\"type\":\"uint256\"},{\"name\":\"tokenIds\",\"type\":\"uint256[]\"},{\"name\":\"v\",\"type\":\"uint8\"},{\"name\":\"r\",\"type\":\"uint256\"},{\"name\":\"s\",\"type\":\"uint256\"}],\"name\":\"passToSpawnable\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}, [\"\(expiry)\", \(tokenIds), \(v), \"\(r)\", \"\(s)\"]"
         let run = "web3.eth.abi.encodeFunctionCall(" + abi + ")"
         return .script(command: run)
     }

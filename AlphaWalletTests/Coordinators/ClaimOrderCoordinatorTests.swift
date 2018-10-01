@@ -34,8 +34,19 @@ class ClaimOrderCoordinatorTests: XCTestCase {
             isDisabled: false,
             type: .erc875
         )
+        
+        let order = Order(price: BigUInt(0),
+                          indices: indices,
+                          expiry: expiry!,
+                          contractAddress: token.contract,
+                          start: 0,
+                          count: 1,
+                          tokenIds: [BigUInt]()
+        )
+        
+        let signedOrder = SignedOrder(order: order, message: [UInt8](), signature: "")
 
-        claimOrderCoordinator.claimOrder(indices: indices, expiry: expiry!, v: v, r: r, s: s) { result in
+        claimOrderCoordinator.claimOrder(signedOrder: signedOrder, expiry: expiry!, v: v, r: r, s: s) { result in
             switch result {
             case .success(let payload):
                 let address: Address = .makeStormBird()
@@ -52,7 +63,8 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                     r: r,
                     s: s,
                     expiry: expiry,
-                    indices: indices
+                    indices: indices,
+                    tokenIds: [BigUInt]()
                 )
 
                 let session: WalletSession = .makeStormBirdSession()
