@@ -142,6 +142,7 @@ class TokenAdaptor {
         values["imageUrl"] = cat.imageUrl
         values["thumbnailUrl"] = cat.thumbnailUrl
         values["externalLink"] = cat.externalLink
+        values["backgroundColor"] = cat.backgroundColor
         values["traits"] = cat.traits
 
         let status: Token.Status

@@ -250,6 +250,7 @@ class TokensDataStore {
                 let thumbnailUrl = each["image_thumbnail_url"].stringValue
                 let imageUrl = each["image_url"].stringValue
                 let externalLink = each["external_link"].stringValue
+                let backgroundColor = each["background_color"].stringValue
                 var traits = [CryptoKittyTrait]()
                 for each in each["traits"].arrayValue {
                     let traitCount = each["trait_count"].intValue
@@ -258,7 +259,7 @@ class TokensDataStore {
                     let trait = CryptoKittyTrait(count: traitCount, type: traitType, value: traitValue)
                     traits.append(trait)
                 }
-                let cat = CryptoKitty(tokenId: tokenId, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, traits: traits)
+                let cat = CryptoKitty(tokenId: tokenId, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
                 if let encodedJson = try? JSONEncoder().encode(cat), let jsonString = String(data: encodedJson, encoding: .utf8) {
                     results.append(jsonString)
                 } else {
