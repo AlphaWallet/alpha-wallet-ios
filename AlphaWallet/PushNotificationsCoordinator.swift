@@ -63,7 +63,12 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
 
 extension PushNotificationsCoordinator: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.badge, .alert,.sound])
+        if notification.request.identifier == Constants.etherReceivedNotificationIdentifier {
+            completionHandler([.badge, .alert, .sound])
+        } else {
+            //don't display notifications from SNS yet
+            completionHandler([])
+        }
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
