@@ -9,22 +9,17 @@
 import Foundation
 
 class TokenHolder {
-    enum Status {
-        case available, sold, redeemed, forSale, transferred
-    }
-
     var tokens: [Token]
     var name: String { return tokens[0].name }
     var values: [String: AssetAttributeValue] { return tokens[0].values }
-    var status: Status
+    var status: Token.Status { return tokens[0].status }
     var isSelected = false
     var areDetailsVisible = false
     var contractAddress: String
     var hasAssetDefinition: Bool
 
-    init(tokens: [Token], status: Status, contractAddress: String, hasAssetDefinition: Bool) {
+    init(tokens: [Token], contractAddress: String, hasAssetDefinition: Bool) {
         self.tokens = tokens
-        self.status = status
         self.contractAddress = contractAddress
         self.hasAssetDefinition = hasAssetDefinition
     }

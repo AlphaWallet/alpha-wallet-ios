@@ -88,3 +88,10 @@ struct Fonts {
         return UIFont(resource: R.font.sourceSansProBold, size: size)
     }
 }
+
+extension UISegmentedControl {
+    func style() {
+        setDividerImage(.filled(with: Colors.appBackground), forLeftSegmentState: .normal, rightSegmentState: .normal, barMetrics: .default)
+        subviews.forEach { $0.tintColor = Colors.appBackground }
+    }
+}

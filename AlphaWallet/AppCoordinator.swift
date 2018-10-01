@@ -22,6 +22,9 @@ class AppCoordinator: NSObject, Coordinator {
     var inCoordinator: InCoordinator? {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
     }
+    var assetDefinitionStoreCoordinator: AssetDefinitionStoreCoordinator? {
+        return coordinators.first { $0 is AssetDefinitionStoreCoordinator } as? AssetDefinitionStoreCoordinator
+    }
     var pushNotificationsCoordinator: PushNotificationsCoordinator? {
         return coordinators.first { $0 is PushNotificationsCoordinator } as? PushNotificationsCoordinator
     }
@@ -58,17 +61,33 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func start() {
-        inializers()
+        initializers()
         appTracker.start()
         handleNotifications()
         applyStyle()
         resetToWelcomeScreen()
+        setupAssetDefinitionStore()
 
         if keystore.hasWallets {
             showTransactions(for: keystore.recentlyUsedWallet ?? keystore.wallets.first!)
         } else {
             resetToWelcomeScreen()
         }
+    }
+
+    /// Return true if handled
+    func handleOpen(url: URL) -> Bool {
+        if let assetDefinitionStoreCoordinator = assetDefinitionStoreCoordinator {
+            return assetDefinitionStoreCoordinator.handleOpen(url: url)
+        } else {
+            return false
+        }
+    }
+
+    private func setupAssetDefinitionStore() {
+        let coordinator = AssetDefinitionStoreCoordinator()
+        addCoordinator(coordinator)
+        coordinator.start()
     }
 
     func showTransactions(for wallet: Wallet) {
@@ -94,7 +113,7 @@ class AppCoordinator: NSObject, Coordinator {
         }
     }
 
-    func inializers() {
+    func initializers() {
         var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).compactMap { URL(fileURLWithPath: $0) }
         paths.append(keystore.keystoreDirectory)
 
@@ -224,6 +243,10 @@ extension AppCoordinator: InCoordinatorDelegate {
 
     func didShowWallet(in coordinator: InCoordinator) {
         pushNotificationsCoordinator?.didShowWallet(in: coordinator.navigationController)
+    }
+
+    func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController? {
+        return assetDefinitionStoreCoordinator?.createOverridesViewController()
     }
 }
 

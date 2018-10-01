@@ -305,7 +305,6 @@ class UniversalLinkCoordinator: Coordinator {
         }
         tokenHolder = TokenHolder(
                 tokens: tokens,
-                status: .available,
                 contractAddress: contractAddress,
                 hasAssetDefinition: xmlHandler.hasAssetDefinition
         )

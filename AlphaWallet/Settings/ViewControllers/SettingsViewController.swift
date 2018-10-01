@@ -8,6 +8,7 @@ import MessageUI
 
 protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func didAction(action: AlphaWalletSettingsAction, in viewController: SettingsViewController)
+    func assetDefinitionsOverrideViewController(for: SettingsViewController) -> UIViewController?
 }
 
 class SettingsViewController: FormViewController {
@@ -122,6 +123,19 @@ class SettingsViewController: FormViewController {
             cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.settingsNetworkButtonTitle()
             cell.detailTextLabel?.text = RPCServer(chainID: strongSelf.session.config.chainID).displayName
+            cell.accessoryType = .disclosureIndicator
+        }
+
+        <<< AppFormAppearance.alphaWalletSettingsButton { row in
+            row.cellStyle = .value1
+            row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
+                self.delegate?.assetDefinitionsOverrideViewController(for: self) ?? UIViewController()
+            }, onDismiss: { _ in
+            })
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { cell, _ in
+            cell.textLabel?.text = "    \(R.string.localizable.aHelpAssetDefinitionOverridesTitle())"
             cell.accessoryType = .disclosureIndicator
         }
 
