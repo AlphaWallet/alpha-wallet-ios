@@ -47,7 +47,6 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
         }
     }
 
-    //TODO call this after send Ether too?
     private func requestForAuthorization() {
         notificationCenter.requestAuthorization(options: [.badge, .alert, .sound]) { granted, error in
             if (granted) {
@@ -63,7 +62,7 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
 
 extension PushNotificationsCoordinator: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.badge, .alert,.sound])
+        completionHandler([]) //don't display notifications from SNS yet
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
