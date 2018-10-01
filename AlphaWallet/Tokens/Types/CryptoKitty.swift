@@ -11,6 +11,7 @@ struct CryptoKitty: Codable {
     let thumbnailUrl: String
     let imageUrl: String
     let externalLink: String
+    let backgroundColor: String?
     let traits: [CryptoKittyTrait]
     var generationTrait: CryptoKittyTrait? {
         return traits.first(where: { $0.type == CryptoKitty.generationTraitName  })

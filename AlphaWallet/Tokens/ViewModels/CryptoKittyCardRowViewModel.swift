@@ -12,7 +12,11 @@ struct CryptoKittyCardRowViewModel {
     }
 
     var bigImageBackgroundColor: UIColor {
-        return UIColor(red: 247, green: 197, blue: 196)
+        if let color =  tokenHolder.values["backgroundColor"] as? String, !color.isEmpty {
+            return UIColor(hex: color)
+        } else {
+            return UIColor(red: 247, green: 197, blue: 196)
+        }
     }
 
     var titleColor: UIColor {
