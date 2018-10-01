@@ -28,8 +28,9 @@ target 'AlphaWallet' do
   pod 'SwiftyJSON'
   pod 'web3swift', :git => 'https://github.com/alpha-wallet/web3swift.git', :commit => '2b3c5ee878212ce70768568def7e727f0f1ebf86'
   pod 'SAMKeychain'
-  #pod 'SVGKit', :git => 'https://github.com/SVGKit/SVGKit.git', :commit => '733acf66e44a02396efc8a6f445d190af592d544'
-  pod "Macaw", "0.9.2"
+  pod 'PromiseKit/CorePromise'
+  pod 'PromiseKit/Alamofire'
+  pod "Macaw", :git => 'https://github.com/alpha-wallet/Macaw.git', :commit => 'c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8'
   pod 'AWSSNS'
   # pod 'AWSCognito'
   target 'AlphaWalletTests' do
