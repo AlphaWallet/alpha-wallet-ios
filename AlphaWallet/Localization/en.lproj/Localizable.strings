@@ -158,6 +158,7 @@
 "send.action.transaction.sent.wait" = "Wait for the transaction to be mined on the network to see details.";
 "transaction.cell.failed.title" = "Failed";
 "transaction.cell.pending.title" = "Pending";
+"transaction.cell.availableButDataUnavailable.title" = "Incomplete Data";
 "walletTokens.tabbar.item.title" = "Wallet";
 "a.wallet.import.wallet.title" = "Import";
 "a.wallet.import.wallet.bubble.title" = "Have a ticket to import?";
@@ -234,6 +235,7 @@
 "a.wallet.next.button.title" = "Next";
 "a.wallet.no.tokens" = "You don't have any tokens";
 "a.help.navigation.title" = "Help & FAQs";
+"a.help.assetDefinitionOverrides.title" = "Asset Definition Overrides";
 "a.help.contact.footer.button.title" = "Still need help? Contact Us";
 "a.help.contact.email.subject" = "Help/Feedback for AlphaWallet";
 "a.help.contact.email.helpfulToDevelopers" = "Helpful information to developers:";
@@ -308,3 +310,7 @@
 "camera.qrCode.denied.prompt.button" = "Open Settings";
 "cryptoKitties.url.open" = "Open on CryptoKitties";
 "cryptoKitties.cat.name" = "CryptoKitty #%@";
+"cryptoKitties.cattributes.title" = "Cattributes";
+"cryptoKitties.generation" = "Gen %@";
+"cryptoKitties.cooldown" = "%@ Cooldown";
+"cryptoKitties.cooldown.unknown" = "Unknown";

@@ -10,6 +10,7 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 	func didUpdateAccounts(in coordinator: SettingsCoordinator)
 	func didCancel(in coordinator: SettingsCoordinator)
 	func didPressShowWallet(in coordinator: SettingsCoordinator)
+	func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
 }
 
 class SettingsCoordinator: Coordinator {
@@ -101,6 +102,10 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 		case .locale:
 			restart(for: session.account)
 		}
+	}
+
+	func assetDefinitionsOverrideViewController(for: SettingsViewController) -> UIViewController? {
+        return delegate?.assetDefinitionsOverrideViewController(for: self)
 	}
 }
 

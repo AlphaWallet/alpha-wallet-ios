@@ -143,10 +143,19 @@ class TokenAdaptor {
         values["thumbnailUrl"] = cat.thumbnailUrl
         values["externalLink"] = cat.externalLink
         values["traits"] = cat.traits
+
+        let status: Token.Status
+        let cryptoKittyGenerationWhenDataNotAvailable = "-1"
+        if let generation = cat.generationTrait, generation.value == cryptoKittyGenerationWhenDataNotAvailable {
+            status = .availableButDataUnavailable
+        } else {
+            status = .available
+        }
         return Token(
                 id: BigUInt(cat.tokenId)!,
                 index: 0,
                 name: "name",
+                status: status,
                 values: values
         )
     }
@@ -154,7 +163,6 @@ class TokenAdaptor {
     private func getTokenHolder(for tokens: [Token]) -> TokenHolder {
         return TokenHolder(
                 tokens: tokens,
-                status: .available,
                 contractAddress: token.contract,
                 hasAssetDefinition: XMLHandler(contract: token.contract).hasAssetDefinition
         )

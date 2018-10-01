@@ -10,6 +10,7 @@ protocol InCoordinatorDelegate: class {
     func didCancel(in coordinator: InCoordinator)
     func didUpdateAccounts(in coordinator: InCoordinator)
     func didShowWallet(in coordinator: InCoordinator)
+    func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController?
 }
 
 enum Tabs {
@@ -381,11 +382,13 @@ class InCoordinator: Coordinator {
             assetDefinitionStore: assetDefinitionStore
         )
         addCoordinator(tokensCardCoordinator)
-        tokensCardCoordinator.type = type
         tokensCardCoordinator.delegate = self
         tokensCardCoordinator.start()
         switch (type, session.account.type) {
         case (.send, .real), (.request, _):
+            navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
+        case (.send, .watch), (.request, _):
+            tokensCardCoordinator.isReadOnly = true
             navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
         case (_, _):
             navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
@@ -545,6 +548,10 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     func didPressShowWallet(in coordinator: SettingsCoordinator) {
         showPaymentFlow(for: .request)
         delegate?.didShowWallet(in: self)
+    }
+
+    func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController? {
+        return delegate?.assetDefinitionsOverrideViewController(for: self)
     }
 }
 

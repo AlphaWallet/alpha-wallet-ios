@@ -62,6 +62,7 @@ public struct Constants {
     
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
+    public static let openseaAPIKEY = "11ba1b4f0c4246aeb07b1f8e5a20525f" // X-API-KEY
 
     public static let cryptoKittiesCooldowns = [
         "Fast",

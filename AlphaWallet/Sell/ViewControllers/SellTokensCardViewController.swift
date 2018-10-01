@@ -36,7 +36,7 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
         view.addSubview(roundedBackground)
 
         tableView.register(TokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithCheckbox.identifier)
-        tableView.register(TokenListFormatTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenListFormatTableViewCellWithCheckbox.identifier)
+        tableView.register(CryptoKittyTokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: CryptoKittyTokenCardTableViewCellWithCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
@@ -139,7 +139,7 @@ extension SellTokensCardViewController: UITableViewDelegate, UITableViewDataSour
         let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
         switch tokenType {
         case .cryptoKitty:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TokenListFormatTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenListFormatTableViewCellWithCheckbox
+            let cell = tableView.dequeueReusableCell(withIdentifier: CryptoKittyTokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! CryptoKittyTokenCardTableViewCellWithCheckbox
             cell.delegate = self
             cell.configure(viewModel: .init(tokenHolder: tokenHolder))
             return cell
@@ -156,7 +156,7 @@ extension SellTokensCardViewController: UITableViewDelegate, UITableViewDataSour
     }
 }
 
-extension SellTokensCardViewController: BaseTokenListFormatTableViewCellDelegate {
+extension SellTokensCardViewController: BaseCryptoKittyTokenCardTableViewCellDelegate {
     func didTapURL(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
     }
