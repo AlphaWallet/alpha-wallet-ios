@@ -211,7 +211,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
-        tableView.reloadData()
+        tableview.reloadRows(at: indexPaths, with: .automatic)
     }
 }
 
