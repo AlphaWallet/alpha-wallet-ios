@@ -83,7 +83,8 @@ class TransferNFTCoordinator: Coordinator {
                     r: .none,
                     s: .none,
                     expiry: .none,
-                    indices: tokenHolder.indices
+                    indices: tokenHolder.indices,
+                    tokenIds: .none
             )
 
             let configurator = TransactionConfigurator(

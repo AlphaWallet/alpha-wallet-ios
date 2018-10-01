@@ -1,8 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import Alamofire
-import Macaw
+import PromiseKit
 
 protocol CryptoKittyCardRowViewDelegate: class {
     func didTapURL(url: URL)
@@ -14,9 +13,9 @@ class CryptoKittyCardRowView: UIView {
     let background = UIView()
     private let mainVerticalStackView: UIStackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required)
     let stateLabel = UILabel()
-    private let thumbnailImageView = SVGView()
+    private let thumbnailImageView = UIImageView()
     private let bigImageBackground = UIView()
-    private let bigImageView = SVGView()
+    private let bigImageView = UIImageView()
     //the SVG from CryptoKitty usually has lots of white space around the kitty. We add a container around the image view and let it bleed out a little
     private let bigImageHolder = UIView()
     private let titleLabel = UILabel()
@@ -165,6 +164,7 @@ class CryptoKittyCardRowView: UIView {
 
         thumbnailRelatedConstraints = [
             thumbnailImageView.widthAnchor.constraint(equalToConstant: 150),
+            thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor),
             thumbnailImageView.heightAnchor.constraint(equalTo: col0.heightAnchor),
         ]
 
@@ -315,23 +315,17 @@ class CryptoKittyCardRowView: UIView {
             if let currentDisplayedImageUrl = currentDisplayedImageUrl, currentDisplayedImageUrl == viewModel.imageUrl {
                 //Empty
             } else {
-                thumbnailImageView.node = Group()
-                bigImageView.node = Group()
+                thumbnailImageView.image = nil
+                bigImageView.image = nil
             }
-            //TODO cancel the request if we reuse the cell before it's finished downloading
-            if let url = viewModel.imageUrl {
-                var request = URLRequest(url: url)
-                request.httpMethod = "GET"
-                request.cachePolicy = .returnCacheDataElseLoad
-                Alamofire.request(request).response { [weak self] response in
+            if let bigImagePromise = viewModel.bigImage {
+                currentDisplayedImageUrl = viewModel.imageUrl
+                bigImagePromise.done { [weak self] image in
                     guard let strongSelf = self else { return }
-                    if url == viewModel.imageUrl, let data = response.data, let string = String(data: data, encoding: .utf8), let bigNode = try? SVGParser.parse(text: string), let thumbnailNode = try? SVGParser.parse(text: string) {
-                        strongSelf.currentDisplayedImageUrl = url
-                        //Strangely, we need 2 separate, but duplicate, nodes, otherwise the thumbnail wouldn't show up
-                        strongSelf.thumbnailImageView.node = thumbnailNode
-                        strongSelf.bigImageView.node = bigNode
-                    }
-                }
+                    guard strongSelf.currentDisplayedImageUrl == viewModel.imageUrl else { return }
+                    strongSelf.bigImageView.image = image
+                    strongSelf.thumbnailImageView.image = image
+                }.cauterize()
             }
         }
 

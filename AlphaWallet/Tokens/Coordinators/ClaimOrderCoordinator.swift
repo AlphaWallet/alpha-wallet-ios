@@ -22,13 +22,31 @@ class ClaimOrderCoordinator {
         self.web3 = web3
     }
 
-    func claimOrder(indices: [UInt16],
+    func claimOrder(signedOrder: SignedOrder,
                     expiry: BigUInt,
                     v: UInt8,
                     r: String,
                     s: String,
                     completion: @escaping (Result<String, AnyError>) -> Void
         ) {
+
+        if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
+            claimSpawnableOrder(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s) { result in
+                completion(result)
+            }
+        } else {
+            claimNormalOrder(expiry: expiry, indices: signedOrder.order.indices, v: v, r: r, s: s) { result in
+                completion(result)
+            }
+        }
+    }
+    
+    func claimNormalOrder(expiry: BigUInt,
+                          indices: [UInt16],
+                          v: UInt8,
+                          r: String,
+                          s: String,
+                          completion: @escaping (Result<String, AnyError>) -> Void) {
         let request = ClaimERC875Order(expiry: expiry, indices: indices, v: v, r: r, s: s)
         web3.request(request: request) { result in
             switch result {
@@ -39,6 +57,25 @@ class ClaimOrderCoordinator {
             case .failure(let err):
                 print(err)
                 completion(.failure(AnyError(err)))
+            }
+        }
+    }
+
+    func claimSpawnableOrder(expiry: BigUInt,
+                            tokenIds: [BigUInt],
+                             v: UInt8,
+                             r: String,
+                             s: String,
+                             completion: @escaping (Result<String, AnyError>) -> Void) {
+        let request = ClaimERC875Spawnable(tokenIds: tokenIds, v: v, r: r, s: s, expiry: expiry)
+        web3.request(request: request) { result in
+            switch result {
+                case .success(let res):
+                    print(res)
+                    completion(.success(res))
+                case .failure(let err):
+                    print(err)
+                    completion(.failure(AnyError(err)))
             }
         }
     }

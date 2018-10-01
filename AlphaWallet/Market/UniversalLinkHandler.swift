@@ -28,6 +28,21 @@ https://app.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGN
 import Foundation
 import BigInt
 
+enum LinkFormat: UInt8 {
+    case unassigned = 0x00
+    case normal = 0x01
+    case spawnable = 0x02
+    case customizable = 0x03
+}
+
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0 ..< Swift.min($0 + size, count)])
+        }
+    }
+}
+
 public class UniversalLinkHandler {
 
     public let urlPrefix = "https://app.awallet.io/"
@@ -56,29 +71,79 @@ public class UniversalLinkHandler {
     //link has shortened price and expiry and must be expanded
     func parseUniversalLink(url: String) -> SignedOrder? {
         let linkInfo = b64SafeEncodingToRegularEncoding(url.substring(from: urlPrefix.count))
-        guard let linkBytes = Data(base64Encoded: linkInfo)?.array else { return nil }
+        guard var linkBytes = Data(base64Encoded: linkInfo)?.array else { return nil }
+        let encodingByte = linkBytes[0]
+        if let format = LinkFormat(rawValue: encodingByte) {
+            switch format {
+            case .unassigned:
+                return handleUnSpawnableLink(linkBytes: linkBytes)
+            case .normal:
+                //new link format, remove extra byte and continue
+                linkBytes.remove(at: 0)
+                return handleUnSpawnableLink(linkBytes: linkBytes)
+            case .spawnable:
+                return handleSpawnableLink(linkBytes: linkBytes)
+            case .customizable:
+                return handleSpawnableLink(linkBytes: linkBytes)
+            }
+        }
+        else {
+            return nil
+        }
+
+    }
+
+    func handleUnSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
         let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
         let tokenIndices = getTokenIndicesFromLinkBytes(linkBytes: linkBytes)
         let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes)
         let order = Order(
-            price: price,
-            indices: tokenIndices,
-            expiry: expiry,
-            contractAddress: contractAddress,
-            start: BigUInt("0")!,
-            count: tokenIndices.count
+                price: price,
+                indices: tokenIndices,
+                expiry: expiry,
+                contractAddress: contractAddress,
+                start: BigUInt("0")!,
+                count: tokenIndices.count,
+                tokenIds: [BigUInt()]
         )
         let message = getMessageFromOrder(order: order)
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
+    }
+    
+    func handleSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
+        var bytes = linkBytes
+        bytes.remove(at: 0)
+        let price = getPriceFromLinkBytes(linkBytes: bytes)
+        let expiry = getExpiryFromLinkBytes(linkBytes: bytes)
+        let contractAddress = getContractAddressFromLinkBytes(linkBytes: bytes)
+        let tokenIds = getTokenIdsFromSpawnableLink(linkBytes: bytes)
+        let (v, r, s) = getVRSFromLinkBytes(linkBytes: bytes)
+        let order = Order(
+            price: price,
+            indices: [UInt16](),
+            expiry: expiry,
+            contractAddress: contractAddress,
+            start: BigUInt(0),
+            count: tokenIds.count,
+            tokenIds: tokenIds
+        )
+        let message = getMessageFromOrder(order: order)
+        return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
+    }
+    
+    func getTokenIdsFromSpawnableLink(linkBytes: [UInt8]) -> [BigUInt] {
+        let bytes = Array(linkBytes[84..<linkBytes.count])
+        let tokenIds = bytes.chunked(into: 32)
+        return tokenIds.map { BigUInt(Data(bytes: $0)) }
     }
     
     //we used a special encoding so that one 16 bit number could represent either one token or two
     //this is for the purpose of keeping universal links as short as possible
     func decodeTokenIndices(indices: [UInt16]) -> [UInt8] {
         var indicesBytes = [UInt8]()
-        for i in 0...indices.count - 1 {
+        for i in 0..<indices.count {
             let index = indices[i]
             if index < 128 {
                 let byte = UInt8(index)
@@ -120,9 +185,10 @@ public class UniversalLinkHandler {
         for i in 64...83 {
             messageWithSzabo.append(message[i])
         }
-        for i in 0...indices.count - 1 {
+        for i in 0..<indices.count {
             messageWithSzabo.append(indices[i])
         }
+        messageWithSzabo.insert(LinkFormat.normal.rawValue, at: 0)
         return MarketQueueHandler.bytesToHexa(messageWithSzabo)
     }
     
@@ -130,17 +196,19 @@ public class UniversalLinkHandler {
         var formattedArray = [UInt8]()
         if array.count == 4 {
             return array
-        } else if array.isEmpty {
+        }
+        else if array.isEmpty {
             for _ in 0...3 {
                 formattedArray.append(0)
             }
             return formattedArray
-        } else {
+        }
+        else {
             let missingDigits = 4 - array.count
-            for _ in 0...missingDigits - 1 {
+            for _ in 0..<missingDigits {
                 formattedArray.append(0)
             }
-            for i in 0...array.count - 1 {
+            for i in 0..<array.count {
                 formattedArray.append(array[i])
             }
             return formattedArray
@@ -246,7 +314,7 @@ public class UniversalLinkHandler {
             message.append(contractBytes[i])
         }
         let indices = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: order.indices)
-        for i in 0...indices.count - 1 {
+        for i in 0..<indices.count {
             message.append(indices[i])
         }
         return message
