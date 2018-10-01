@@ -132,7 +132,6 @@ class UniversalLinkCoordinator: Coordinator {
         let recoveredSigner = ecrecover(signedOrder: signedOrder)
         switch recoveredSigner {
         case .success(let ethereumAddress):
-            //TODO extract method for the whole .success? Quite long
             guard let recoverAddress = Address(string: ethereumAddress.address) else { return false }
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             //gather signer address balance
