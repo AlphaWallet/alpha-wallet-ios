@@ -291,7 +291,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
             expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
             contractAddress: tokenHolder.contractAddress,
             start: BigUInt("0")!,
-            count: tokenHolder.indices.count
+            count: tokenHolder.indices.count,
+            tokenIds: [BigUInt]()
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
@@ -314,7 +315,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
                 expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
                 contractAddress: tokenHolder.contractAddress,
                 start: BigUInt("0")!,
-                count: tokenHolder.indices.count
+                count: tokenHolder.indices.count,
+                tokenIds: [BigUInt]()
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
