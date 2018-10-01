@@ -35,6 +35,14 @@ enum LinkFormat: UInt8 {
     case customizable = 0x03
 }
 
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0 ..< Swift.min($0 + size, count)])
+        }
+    }
+}
+
 public class UniversalLinkHandler {
 
     public let urlPrefix = "https://app.awallet.io/"
@@ -126,8 +134,8 @@ public class UniversalLinkHandler {
     }
     
     func getTokenIdsFromSpawnableLink(linkBytes: [UInt8]) -> [BigUInt] {
-        let bytes = linkBytes[84..<linkBytes.count]
-        let tokenIds = bytes.split(separator: 32)
+        let bytes = Array(linkBytes[84..<linkBytes.count])
+        let tokenIds = bytes.chunked(into: 32)
         return tokenIds.map { BigUInt(Data(bytes: $0)) }
     }
     
