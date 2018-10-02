@@ -77,6 +77,8 @@
 "wallet.import.button.title" = "ウォレットをインポート";
 "wallets.backup.alertSheet.title" = "暗号化された秘密鍵のバックアップ";
 "transactions.tabbar.item.title" = "私のトランザクション";
+"transactions.received.ether" = "You have received %@ ETH";
+"transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive Ether?";
 "transaction.navigation.title" = "トランザクション";
 "import.navigation.title" = "ウォレットをインポート";
 "configureTransaction.data.label.title" = "トランザクション データ (オプション)";
@@ -133,6 +135,11 @@
 "browser.reload.button.title" = "再読み込み";
 "browser.addbookmark.button.title" = "ブックマークを追加";
 "browser.tabbar.item.title" = "ブラウザ";
+"browser.history.confirm.delete.title" = "Are you sure you would like to delete?";
+"browser.noHistory.label.title" = "No history yet";
+"browser.bookmarks.confirm.delete.title" = "Are you sure you would like to delete this bookmark?";
+"browser.noBookmarks.label.title" = "No bookmarks yet!";
+"browser.url.textfield.placeholder" = "Search or enter website URL";
 "configureTransaction.gasPriceGwei.label.title" = "ガス価格 (Gwei)";
 "enterPassword.confirmPassword.textField.placeholder" = "パスワードを確認";
 "enterPassword.navigation.title" = "バックアップのパスワード";
@@ -151,6 +158,7 @@
 "send.action.transaction.sent.wait" = "詳細を表示するには、ネットワークでトランザクションがマイニングされるのをお待ちください。";
 "transaction.cell.failed.title" = "失敗しました";
 "transaction.cell.pending.title" = "保留中";
+"transaction.cell.availableButDataUnavailable.title" = "Incomplete Data";
 "walletTokens.tabbar.item.title" = "ウォレット";
 "a.wallet.import.wallet.title" = "インポート";
 "a.wallet.import.wallet.bubble.title" = "インポートするチケットがありますか?";
@@ -227,6 +235,7 @@
 "a.wallet.next.button.title" = "次へ";
 "a.wallet.no.tokens" = "まだトークンがありません";
 "a.help.navigation.title" = "ヘルプ・よくある質問";
+"a.help.assetDefinitionOverrides.title" = "Asset Definition Overrides";
 "a.help.contact.footer.button.title" = "まだヘルプが必要ですか? 当社にお問い合わせください";
 "a.help.contact.email.subject" = "AlphaWallet のヘルプ/フィードバック";
 "a.help.contact.email.helpfulToDevelopers" = "開発者に役立つ情報:";
@@ -301,3 +310,7 @@
 "camera.qrCode.denied.prompt.button" = "設定を開く";
 "cryptoKitties.url.open" = "CryptoKitties で開く";
 "cryptoKitties.cat.name" = "CryptoKitty #%@";
+"cryptoKitties.cattributes.title" = "Cattributes";
+"cryptoKitties.generation" = "Gen %@";
+"cryptoKitties.cooldown" = "%@ Cooldown";
+"cryptoKitties.cooldown.unknown" = "Unknown";
