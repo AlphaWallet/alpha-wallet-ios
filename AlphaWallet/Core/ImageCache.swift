@@ -28,7 +28,7 @@ class ImageCache {
         get {
             let url = fullURL(for: key)
             guard let data = try? Data(contentsOf: url) else { return nil }
-            return UIImage(data: data, scale: UIScreen.main.scale)
+            return ImageCache.image(fromData: data)
         }
         set(image) {
             guard let image = image else { return }
@@ -36,5 +36,9 @@ class ImageCache {
             let data = UIImagePNGRepresentation(image)
             try? data?.write(to: url)
         }
+    }
+
+    static func image(fromData data: Data) -> UIImage? {
+        return UIImage(data: data, scale: UIScreen.main.scale)
     }
 }
