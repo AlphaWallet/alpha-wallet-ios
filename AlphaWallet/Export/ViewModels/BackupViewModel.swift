@@ -4,7 +4,7 @@ import Foundation
 
 struct BackupViewModel {
 
-    let config: Config
+    private let config: Config
 
     init(
         config: Config = Config()

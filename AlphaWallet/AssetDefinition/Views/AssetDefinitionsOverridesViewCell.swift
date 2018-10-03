@@ -5,8 +5,8 @@ import UIKit
 class AssetDefinitionsOverridesViewCell: UITableViewCell {
     static let identifier = "AssetDefinitionsOverridesViewCell"
 
-    let background = UIView()
-    let titleLabel = UILabel()
+    private let background = UIView()
+    private let titleLabel = UILabel()
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

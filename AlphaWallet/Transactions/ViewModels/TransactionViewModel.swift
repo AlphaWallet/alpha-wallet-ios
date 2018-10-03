@@ -5,7 +5,6 @@ import UIKit
 import BigInt
 
 struct TransactionViewModel {
-
     private let transaction: Transaction
     private let config: Config
     private let chainState: ChainState

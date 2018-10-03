@@ -19,7 +19,6 @@ enum BookmarksViewType: Int {
 }
 
 final class MasterBrowserViewController: UIViewController {
-
     private lazy var segmentController: UISegmentedControl = {
         let items = [
             R.string.localizable.new(),
@@ -41,10 +40,10 @@ final class MasterBrowserViewController: UIViewController {
         return button
     }()
 
-    weak var delegate: MasterBrowserViewControllerDelegate?
+    private let bookmarksViewController: BookmarkViewController
+    private let historyViewController: HistoryViewController
 
-    let bookmarksViewController: BookmarkViewController
-    let historyViewController: HistoryViewController
+    weak var delegate: MasterBrowserViewControllerDelegate?
     let browserViewController: BrowserViewController
 
     init(

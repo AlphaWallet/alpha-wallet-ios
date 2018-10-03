@@ -8,10 +8,11 @@ protocol ContactUsBannerViewDelegate: class {
 }
 
 class ContactUsBannerView: UIView {
+    private let button = UIButton(type: .system)
+    private let imageView = UIImageView()
+    private let label = UILabel()
+
     weak var delegate: ContactUsBannerViewDelegate?
-    let button = UIButton(type: .system)
-    let imageView = UIImageView()
-    let label = UILabel()
     let bannerHeight = CGFloat(60)
 
     override init(frame: CGRect) {

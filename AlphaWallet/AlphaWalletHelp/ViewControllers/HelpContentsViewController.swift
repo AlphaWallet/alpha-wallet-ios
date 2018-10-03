@@ -3,7 +3,7 @@
 import UIKit
 
 class HelpContentsViewController: StaticHTMLViewController {
-    let banner = ContactUsBannerView()
+    private let banner = ContactUsBannerView()
 
     override init(delegate: StaticHTMLViewControllerDelegate?) {
         super.init(delegate: delegate)

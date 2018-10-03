@@ -9,29 +9,22 @@ protocol EnterSellTokensCardPriceQuantityViewControllerDelegate: class, CanOpenU
 }
 
 class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVerifiableStatusViewController {
-
-    let config: Config
-    var contract: String {
-        return viewModel.token.contract
-    }
-    let storage: TokensDataStore
-    let roundedBackground = RoundedBackground()
-    let scrollView = UIScrollView()
-    let header = TokensCardViewControllerTitleHeader()
-    let pricePerTokenLabel = UILabel()
-    let pricePerTokenField = AmountTextField()
-	let quantityLabel = UILabel()
-    let quantityStepper = NumberStepper()
-    let ethCostLabelLabel = UILabel()
-    let ethCostLabel = UILabel()
-    let dollarCostLabelLabel = UILabel()
-    let dollarCostLabel = PaddedLabel()
-    let tokenRowView: TokenRowView & UIView
-    let nextButton = UIButton(type: .system)
-    var viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel
-    let paymentFlow: PaymentFlow
-    let ethPrice: Subscribable<Double>
-    var totalEthCost: Ether {
+    private let storage: TokensDataStore
+    private let roundedBackground = RoundedBackground()
+    private let scrollView = UIScrollView()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let pricePerTokenLabel = UILabel()
+	private let quantityLabel = UILabel()
+    private let quantityStepper = NumberStepper()
+    private let ethCostLabelLabel = UILabel()
+    private let ethCostLabel = UILabel()
+    private let dollarCostLabelLabel = UILabel()
+    private let dollarCostLabel = PaddedLabel()
+    private let tokenRowView: TokenRowView & UIView
+    private let nextButton = UIButton(type: .system)
+    private var viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel
+    private let ethPrice: Subscribable<Double>
+    private var totalEthCost: Ether {
         if let ethCostPerToken = Ether(string: pricePerTokenField.ethCost) {
             let quantity = Int(quantityStepper.value)
             return ethCostPerToken * quantity
@@ -40,7 +33,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         }
     }
 
-    var totalDollarCost: String {
+    private var totalDollarCost: String {
         if let dollarCostPerToken = Double(pricePerTokenField.dollarCost) {
             let quantity = Double(quantityStepper.value)
             return StringFormatter().currency(with: dollarCostPerToken * quantity, and: "USD")
@@ -48,6 +41,13 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             return ""
         }
     }
+
+    let config: Config
+    var contract: String {
+        return viewModel.token.contract
+    }
+    let pricePerTokenField = AmountTextField()
+    let paymentFlow: PaymentFlow
     weak var delegate: EnterSellTokensCardPriceQuantityViewControllerDelegate?
 
     init(

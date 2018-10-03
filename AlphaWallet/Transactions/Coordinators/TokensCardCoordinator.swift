@@ -27,7 +27,6 @@ protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
 }
 
 class TokensCardCoordinator: NSObject, Coordinator {
-
     private let keystore: Keystore
     private let token: TokenObject
     private lazy var rootViewController: TokensCardViewController = {
@@ -35,19 +34,21 @@ class TokensCardCoordinator: NSObject, Coordinator {
         return makeTokensCardViewController(with: session.account, viewModel: viewModel)
     }()
 
-    weak var delegate: TokensCardCoordinatorDelegate?
-
     private let session: WalletSession
     private let tokensStorage: TokensDataStore
-    let navigationController: UINavigationController
-    var coordinators: [Coordinator] = []
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
+
+    weak var delegate: TokensCardCoordinatorDelegate?
+    let navigationController: UINavigationController
+    var coordinators: [Coordinator] = []
+
     var isReadOnly = false {
         didSet {
             rootViewController.isReadOnly = isReadOnly
         }
     }
+
     init(
             session: WalletSession,
             navigationController: UINavigationController = NavigationController(),

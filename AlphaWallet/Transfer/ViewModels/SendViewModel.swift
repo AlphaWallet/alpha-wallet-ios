@@ -5,9 +5,9 @@ import UIKit
 import TrustKeystore
 
 struct SendViewModel {
-    let transferType: TransferType
-    let session: WalletSession
-    let storage: TokensDataStore
+    private let transferType: TransferType
+    private let session: WalletSession
+    private let storage: TokensDataStore
 
     init(transferType: TransferType, session: WalletSession, storage: TokensDataStore) {
         self.transferType = transferType

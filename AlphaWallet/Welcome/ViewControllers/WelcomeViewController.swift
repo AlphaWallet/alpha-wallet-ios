@@ -8,11 +8,7 @@ protocol WelcomeViewControllerDelegate: class {
 }
 
 class WelcomeViewController: UIViewController {
-
-    var viewModel = WelcomeViewModel()
-    weak var delegate: WelcomeViewControllerDelegate?
-
-    lazy var collectionViewController: OnboardingCollectionViewController = {
+    private lazy var collectionViewController: OnboardingCollectionViewController = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
@@ -26,12 +22,12 @@ class WelcomeViewController: UIViewController {
         collectionViewController.collectionView?.backgroundColor = viewModel.backgroundColor
         return collectionViewController
     }()
-    let pageControl: UIPageControl = {
+    private let pageControl: UIPageControl = {
         let pageControl = UIPageControl()
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         return pageControl
     }()
-    let createWalletButton: UIButton = {
+    private let createWalletButton: UIButton = {
         let button = Button(size: .large, style: .squared)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.aWelcomeOnboardingCreatewalletButtonTitle(), for: .normal)
@@ -40,8 +36,7 @@ class WelcomeViewController: UIViewController {
         button.setTitleColor(Colors.appWhite, for: .normal)
         return button
     }()
-    let pages: [OnboardingPageViewModel] = [
-
+    private let pages: [OnboardingPageViewModel] = [
         OnboardingPageViewModel(
             title: R.string.localizable.aWelcomeOnboarding1(),
             image: R.image.onboarding_1()!
@@ -55,6 +50,10 @@ class WelcomeViewController: UIViewController {
             image: R.image.onboarding_3()!
         ),
     ]
+
+    private var viewModel = WelcomeViewModel()
+
+    weak var delegate: WelcomeViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()

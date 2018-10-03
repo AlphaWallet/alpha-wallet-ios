@@ -5,9 +5,9 @@ import UIKit
 class HelpViewCell: UITableViewCell {
 	static let identifier = "HelpViewCell"
 
-	let background = UIView()
-	let titleLabel = UILabel()
-	let iconImageView = UIImageView()
+	private let background = UIView()
+	private let titleLabel = UILabel()
+	private let iconImageView = UIImageView()
 
 	override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
 		super.init(style: style, reuseIdentifier: reuseIdentifier)

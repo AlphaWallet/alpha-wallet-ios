@@ -12,23 +12,23 @@ protocol TokensViewControllerDelegate: class {
 }
 
 class TokensViewController: UIViewController {
-
     private let dataStore: TokensDataStore
 
-    var viewModel: TokensViewModel {
+    private var viewModel: TokensViewModel {
         didSet {
             viewModel.filter = oldValue.filter
             refreshView(viewModel: viewModel)
         }
     }
-    let session: WalletSession
-    let account: Wallet
-	let filterView = WalletFilterView()
-    var importWalletView: UIView?
-    var importWalletLayer = CAShapeLayer()
-    var importWalletHelpBubbleView: ImportWalletHelpBubbleView?
-    let tableView: UITableView
-    let refreshControl = UIRefreshControl()
+    private let session: WalletSession
+    private let account: Wallet
+	private let filterView = WalletFilterView()
+    private var importWalletView: UIView?
+    private var importWalletLayer = CAShapeLayer()
+    private var importWalletHelpBubbleView: ImportWalletHelpBubbleView?
+    private let tableView: UITableView
+    private let refreshControl = UIRefreshControl()
+
     weak var delegate: TokensViewControllerDelegate?
 
     init(session: WalletSession,

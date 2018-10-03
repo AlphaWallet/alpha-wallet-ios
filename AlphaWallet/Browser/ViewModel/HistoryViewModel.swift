@@ -5,7 +5,7 @@ import UIKit
 
 struct HistoryViewModel: URLViewModel {
 
-    let history: History
+    private let history: History
 
     init(
         history: History

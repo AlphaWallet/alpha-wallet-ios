@@ -4,9 +4,8 @@ import Foundation
 import UIKit
 
 class PassphraseViewController: UIViewController {
-
-    let passphraseView = PassphraseView(frame: .zero)
-    let viewModel = PassphraseViewModel()
+    private let passphraseView = PassphraseView(frame: .zero)
+    private let viewModel = PassphraseViewModel()
 
     init(words: [String]) {
         super.init(nibName: nil, bundle: nil)

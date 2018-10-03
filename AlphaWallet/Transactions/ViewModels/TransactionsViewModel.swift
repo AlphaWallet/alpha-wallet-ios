@@ -7,9 +7,8 @@ struct TransactionsViewModel {
     private var formatter: DateFormatter {
         return Date.formatter(with: "dd MMM yyyy")
     }
-
-    var items: [(date: String, transactions: [Transaction])] = []
-    let config: Config
+    private var items: [(date: String, transactions: [Transaction])] = []
+    private let config: Config
 
     init(
         transactions: [Transaction] = [],

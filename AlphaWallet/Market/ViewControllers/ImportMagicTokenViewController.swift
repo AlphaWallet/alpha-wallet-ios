@@ -14,22 +14,24 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         case notReady
     }
 
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let tokenCardRowView = TokenCardRowView()
+    private let statusLabel = UILabel()
+    private let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+    private var costStackView: UIStackView?
+    private let ethCostLabelLabel = UILabel()
+    private let ethCostLabel = UILabel()
+    private let dollarCostLabelLabel = UILabel()
+    private let dollarCostLabel = PaddedLabel()
+    private let buttonSeparator = UIView()
+    private let actionButton = UIButton(type: .system)
+    private let cancelButton = UIButton(type: .system)
+    private var viewModel: ImportMagicTokenViewControllerViewModel?
+
     let config: Config
     weak var delegate: ImportMagicTokenViewControllerDelegate?
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-    let tokenCardRowView = TokenCardRowView()
-    let statusLabel = UILabel()
-    let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
-    var costStackView: UIStackView?
-    let ethCostLabelLabel = UILabel()
-    let ethCostLabel = UILabel()
-    let dollarCostLabelLabel = UILabel()
-    let dollarCostLabel = PaddedLabel()
-    let buttonSeparator = UIView()
-    let actionButton = UIButton(type: .system)
-    let cancelButton = UIButton(type: .system)
-    private var viewModel: ImportMagicTokenViewControllerViewModel?
+
     var contract: String? {
         didSet {
             guard url != nil else { return }
