@@ -22,10 +22,9 @@ protocol BrowserViewControllerDelegate: class {
 }
 
 final class BrowserViewController: UIViewController {
-
     private var myContext = 0
-    let account: Wallet
-    let sessionConfig: Config
+    private let account: Wallet
+    private let sessionConfig: Config
 
     private struct Keys {
         static let estimatedProgress = "estimatedProgress"
@@ -37,6 +36,19 @@ final class BrowserViewController: UIViewController {
     private lazy var userClient: String = {
         return Keys.ClientName + "/" + (Bundle.main.versionNumber ?? "")
     }()
+
+    private lazy var errorView: BrowserErrorView = {
+        let errorView = BrowserErrorView()
+        errorView.translatesAutoresizingMaskIntoConstraints = false
+        errorView.delegate = self
+        return errorView
+    }()
+
+    private var browserNavBar: BrowserNavigationBar? {
+        return navigationController?.navigationBar as? BrowserNavigationBar
+    }
+
+    weak var delegate: BrowserViewControllerDelegate?
 
     lazy var webView: WKWebView = {
         let webView = WKWebView(
@@ -51,19 +63,6 @@ final class BrowserViewController: UIViewController {
         }
         return webView
     }()
-
-    lazy var errorView: BrowserErrorView = {
-        let errorView = BrowserErrorView()
-        errorView.translatesAutoresizingMaskIntoConstraints = false
-        errorView.delegate = self
-        return errorView
-    }()
-
-    weak var delegate: BrowserViewControllerDelegate?
-
-    private var browserNavBar: BrowserNavigationBar? {
-        return navigationController?.navigationBar as? BrowserNavigationBar
-    }
 
     lazy var progressView: UIProgressView = {
         let progressView = UIProgressView(progressViewStyle: .default)

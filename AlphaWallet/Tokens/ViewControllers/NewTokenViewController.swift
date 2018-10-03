@@ -11,25 +11,25 @@ protocol NewTokenViewControllerDelegate: class {
 }
 
 class NewTokenViewController: UIViewController, CanScanQRCode {
-    let roundedBackground = RoundedBackground()
-    let scrollView = UIScrollView()
-    let footerBar = UIView()
-    let header = TokensCardViewControllerTitleHeader()
-    var viewModel = NewTokenViewModel()
-    var tokenType: TokenType? = nil {
+    private let roundedBackground = RoundedBackground()
+    private let scrollView = UIScrollView()
+    private let footerBar = UIView()
+    private let header = TokensCardViewControllerTitleHeader()
+    private var viewModel = NewTokenViewModel()
+    private var tokenType: TokenType? = nil {
         didSet {
             updateSaveButtonBasedOnTokenTypeDetected()
         }
     }
 
-    let addressTextField = AddressTextField()
-    let symbolTextField = TextField()
-    let decimalsTextField = TextField()
-    let balanceTextField = TextField()
-    let nameTextField = TextField()
-    let saveButton = UIButton(type: .system)
+    private let addressTextField = AddressTextField()
+    private let symbolTextField = TextField()
+    private let decimalsTextField = TextField()
+    private let balanceTextField = TextField()
+    private let nameTextField = TextField()
+    private let saveButton = UIButton(type: .system)
 
-    var scrollViewBottomAnchorConstraint: NSLayoutConstraint!
+    private var scrollViewBottomAnchorConstraint: NSLayoutConstraint!
 
     weak var delegate: NewTokenViewControllerDelegate?
 

@@ -6,7 +6,7 @@ import WebKit
 ///Reason for this class: https://stackoverflow.com/questions/26383031/wkwebview-causes-my-view-controller-to-leak
 final class ScriptMessageProxy: NSObject, WKScriptMessageHandler {
 
-    weak var delegate: WKScriptMessageHandler?
+    private weak var delegate: WKScriptMessageHandler?
 
     init(delegate: WKScriptMessageHandler) {
         self.delegate = delegate

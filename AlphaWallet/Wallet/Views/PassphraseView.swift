@@ -4,15 +4,15 @@ import Foundation
 import UIKit
 
 class PassphraseView: UIView {
-
-    lazy var layout: UICollectionViewLayout = {
+    private lazy var layout: UICollectionViewLayout = {
         let layout = UICollectionViewFlowLayout()
         layout.minimumLineSpacing = 0
         layout.minimumInteritemSpacing = 0
         layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         return layout
     }()
-    lazy var collectionView: UICollectionView = {
+
+    private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.isScrollEnabled = false
         return collectionView

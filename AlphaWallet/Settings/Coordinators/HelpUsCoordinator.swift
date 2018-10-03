@@ -4,12 +4,12 @@ import UIKit
 import StoreKit
 
 class HelpUsCoordinator: Coordinator {
+    private let navigationController: UINavigationController
+    private let appTracker: AppTracker
+    private let viewModel = HelpUsViewModel()
 
-    let navigationController: UINavigationController
-    let appTracker: AppTracker
     var coordinators: [Coordinator] = []
 
-    private let viewModel = HelpUsViewModel()
     init(
         navigationController: UINavigationController = NavigationController(),
         appTracker: AppTracker = AppTracker()

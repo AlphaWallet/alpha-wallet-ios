@@ -3,7 +3,7 @@
 import UIKit
 
 struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
-    var tokenHolder: TokenHolder
+    let tokenHolder: TokenHolder
 
     var tokenCount: String {
         return "x\(tokenHolder.tokens.count)"

@@ -3,8 +3,7 @@
 import Foundation
 
 struct InCoordinatorViewModel {
-
-    let config: Config
+    private let config: Config
 
     init(config: Config) {
         self.config = config

@@ -16,9 +16,7 @@ import Result
 class ClaimOrderCoordinator {
     private let web3: Web3Swift
 
-    init(
-            web3: Web3Swift
-    ) {
+    init(web3: Web3Swift) {
         self.web3 = web3
     }
 

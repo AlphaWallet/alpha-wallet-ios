@@ -7,7 +7,8 @@ protocol DateEntryFieldDelegate: class {
 }
 
 class DateEntryField: UIControl {
-    var leftButton = UIButton(type: .custom)
+    private let leftButton = UIButton(type: .custom)
+
     var value = Date() {
         didSet {
             displayDateString()

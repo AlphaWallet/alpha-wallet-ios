@@ -8,6 +8,9 @@ enum BalanceMode {
 }
 
 class BalanceTitleView: UIView {
+    private let titleLabel = UILabel()
+    private let subTitleLabel = UILabel()
+    private var mode = BalanceMode.short
 
     @objc dynamic var titleTextColor: UIColor? {
         get { return titleLabel.textColor }
@@ -19,15 +22,12 @@ class BalanceTitleView: UIView {
         set { subTitleLabel.textColor = newValue }
     }
 
-    let titleLabel = UILabel()
-    let subTitleLabel = UILabel()
     var viewModel: BalanceBaseViewModel? {
         didSet {
             guard let viewModel = viewModel else { return }
             configure(viewModel: viewModel)
         }
     }
-    private var mode = BalanceMode.short
 
     override init(frame: CGRect) {
         super.init(frame: .zero)

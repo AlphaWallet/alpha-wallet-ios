@@ -4,8 +4,8 @@ import Foundation
 import UIKit
 
 struct LocaleViewModel {
-    let locale: AppLocale
-    let isSelected: Bool
+    private let locale: AppLocale
+    private let isSelected: Bool
 
     init(locale: AppLocale, selected: Bool) {
         self.locale = locale

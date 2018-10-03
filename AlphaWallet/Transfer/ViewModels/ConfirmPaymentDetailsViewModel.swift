@@ -4,24 +4,11 @@ import Foundation
 import BigInt
 
 struct ConfirmPaymentDetailsViewModel {
-
-    let transaction: PreviewTransaction
-    let currentBalance: BalanceProtocol?
-    let currencyRate: CurrencyRate?
-    let config: Config
+    private let transaction: PreviewTransaction
+    private let currentBalance: BalanceProtocol?
+    private let currencyRate: CurrencyRate?
+    private let config: Config
     private let fullFormatter = EtherNumberFormatter.full
-
-    init(
-        transaction: PreviewTransaction,
-        config: Config = Config(),
-        currentBalance: BalanceProtocol?,
-        currencyRate: CurrencyRate?
-    ) {
-        self.transaction = transaction
-        self.currentBalance = currentBalance
-        self.config = config
-        self.currencyRate = currencyRate
-    }
 
     private var gasViewModel: GasViewModel {
         return GasViewModel(fee: totalFee, symbol: config.server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
@@ -33,6 +20,18 @@ struct ConfirmPaymentDetailsViewModel {
 
     private var gasLimit: BigInt {
         return transaction.gasLimit
+    }
+
+    init(
+        transaction: PreviewTransaction,
+        config: Config = Config(),
+        currentBalance: BalanceProtocol?,
+        currencyRate: CurrencyRate?
+    ) {
+        self.transaction = transaction
+        self.currentBalance = currentBalance
+        self.config = config
+        self.currencyRate = currencyRate
     }
 
     var amount: String {

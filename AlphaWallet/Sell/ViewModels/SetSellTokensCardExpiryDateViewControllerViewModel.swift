@@ -4,10 +4,10 @@ import Foundation
 import UIKit
 
 struct SetSellTokensCardExpiryDateViewControllerViewModel {
+    private let ethCost: Ether
 
-    var token: TokenObject
-    var tokenHolder: TokenHolder
-    var ethCost: Ether = .zero
+    let token: TokenObject
+    let tokenHolder: TokenHolder
 
     var headerTitle: String {
 		return R.string.localizable.aWalletTokenSellEnterLinkExpiryDateTitle()

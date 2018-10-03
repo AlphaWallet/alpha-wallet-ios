@@ -6,9 +6,9 @@ import UIKit
 class LocaleViewCell: UITableViewCell {
     static let identifier = "LocaleViewCell"
 
-    let background = UIView()
-    var selectedIcon = UIImageView(image: R.image.ticket_bundle_checked())
-    var nameLabel = UILabel()
+    private let background = UIView()
+    private let selectedIcon = UIImageView(image: R.image.ticket_bundle_checked())
+    private let nameLabel = UILabel()
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

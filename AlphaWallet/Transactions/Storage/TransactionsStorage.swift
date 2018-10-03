@@ -5,12 +5,9 @@ import RealmSwift
 import TrustKeystore
 
 class TransactionsStorage {
-
     let realm: Realm
 
-    init(
-        realm: Realm
-    ) {
+    init(realm: Realm) {
         self.realm = realm
     }
 

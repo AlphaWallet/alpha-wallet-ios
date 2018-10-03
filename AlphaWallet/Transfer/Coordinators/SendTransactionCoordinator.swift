@@ -7,11 +7,10 @@ import JSONRPCKit
 import Result
 
 class SendTransactionCoordinator {
-
     private let keystore: Keystore
-    let session: WalletSession
-    let formatter = EtherNumberFormatter.full
-    let confirmType: ConfirmType
+    private let session: WalletSession
+    private let formatter = EtherNumberFormatter.full
+    private let confirmType: ConfirmType
 
     init(
         session: WalletSession,

@@ -17,24 +17,24 @@ enum ConfirmResult {
 }
 
 class ConfirmPaymentViewController: UIViewController {
-
     private let keystore: Keystore
     //let transaction: UnconfirmedTransaction
-    let session: WalletSession
-    let stackViewController = StackViewController()
-    lazy var sendTransactionCoordinator = {
+    private let session: WalletSession
+    private let stackViewController = StackViewController()
+    private lazy var sendTransactionCoordinator = {
         return SendTransactionCoordinator(session: session, keystore: keystore, confirmType: confirmType)
     }()
-    lazy var submitButton: UIButton = {
+    private lazy var submitButton: UIButton = {
         let button = Button(size: .large, style: .solid)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(viewModel.sendButtonText, for: .normal)
         button.addTarget(self, action: #selector(send), for: .touchUpInside)
         return button
     }()
-    let viewModel = ConfirmPaymentViewModel()
-    var configurator: TransactionConfigurator
-    let confirmType: ConfirmType
+    private let viewModel = ConfirmPaymentViewModel()
+    private var configurator: TransactionConfigurator
+    private let confirmType: ConfirmType
+
     var didCompleted: ((Result<ConfirmResult, AnyError>) -> Void)?
 
     init(

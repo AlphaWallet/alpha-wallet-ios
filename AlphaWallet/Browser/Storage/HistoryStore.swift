@@ -4,12 +4,12 @@ import Foundation
 import RealmSwift
 
 final class  HistoryStore {
+    private let realm: Realm
+
     var histories: Results<History> {
         return realm.objects(History.self)
             .sorted(byKeyPath: "createdAt", ascending: false)
     }
-
-    let realm: Realm
 
     init(realm: Realm) {
         self.realm = realm

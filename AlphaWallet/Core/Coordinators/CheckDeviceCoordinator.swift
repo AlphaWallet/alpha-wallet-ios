@@ -4,13 +4,10 @@ import Foundation
 import UIKit
 
 class CheckDeviceCoordinator: Coordinator {
-    var coordinators: [Coordinator] = []
+    private let navigationController: UINavigationController
+    private let jailbreakChecker: JailbreakChecker
 
-    let navigationController: UINavigationController
-
-    let jailbreakChecker: JailbreakChecker
-
-    lazy var alertViewController: UIAlertController = {
+    private lazy var alertViewController: UIAlertController = {
         let controller = UIAlertController(
             title: R.string.localizable.appDeviceJailbreakTitle(),
             message: R.string.localizable.appDeviceJailbreakDescription(),
@@ -21,6 +18,8 @@ class CheckDeviceCoordinator: Coordinator {
 
         return controller
     }()
+
+    var coordinators: [Coordinator] = []
 
     init(
         navigationController: UINavigationController,

@@ -14,7 +14,6 @@ enum RestError: Error {
 }
 
 struct RestClient {
-
     static func get(endPoint: String,
                     parameters: [String: AnyHashable]? = nil,
                     completion: @escaping (_ response: DataResponse<Any>) -> Void) {

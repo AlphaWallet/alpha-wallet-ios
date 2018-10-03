@@ -10,9 +10,8 @@ import Foundation
 import UIKit
 
 struct RedeemTokenCardViewModel {
-
-    var token: TokenObject
-    var tokenHolders: [TokenHolder]
+    let token: TokenObject
+    let tokenHolders: [TokenHolder]
 
     init(token: TokenObject) {
         self.token = token

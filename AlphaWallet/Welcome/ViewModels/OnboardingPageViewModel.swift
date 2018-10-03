@@ -4,8 +4,8 @@
 import UIKit
 
 struct OnboardingPageViewModel {
-    var title: String
-    var image: UIImage
+    let title: String
+    let image: UIImage
 
     init() {
         title = ""

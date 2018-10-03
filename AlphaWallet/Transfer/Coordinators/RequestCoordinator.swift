@@ -8,17 +8,19 @@ protocol RequestCoordinatorDelegate: class {
 }
 
 class RequestCoordinator: Coordinator {
+    private let session: WalletSession
 
-    let session: WalletSession
-    let navigationController: UINavigationController
-    var coordinators: [Coordinator] = []
-    weak var delegate: RequestCoordinatorDelegate?
-    lazy var requestViewController: RequestViewController = {
-        return makeRequestViewController()
-    }()
     private lazy var viewModel: RequestViewModel = {
         return .init(account: session.account, config: session.config)
     }()
+
+    private lazy var requestViewController: RequestViewController = {
+        return makeRequestViewController()
+    }()
+
+    let navigationController: UINavigationController
+    var coordinators: [Coordinator] = []
+    weak var delegate: RequestCoordinatorDelegate?
 
     init(
         navigationController: UINavigationController = UINavigationController(),

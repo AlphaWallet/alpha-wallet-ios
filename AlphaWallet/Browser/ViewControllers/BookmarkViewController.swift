@@ -9,19 +9,16 @@ protocol BookmarkViewControllerDelegate: class {
 }
 
 final class BookmarkViewController: UIViewController {
-
-    let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let bookmarksStore: BookmarksStore
 
     weak var delegate: BookmarkViewControllerDelegate?
-    private let bookmarksStore: BookmarksStore
 
     lazy var viewModel: BookmarksViewModel = {
         return BookmarksViewModel(bookmarksStore: bookmarksStore)
     }()
 
-    init(
-        bookmarksStore: BookmarksStore
-    ) {
+    init(bookmarksStore: BookmarksStore) {
         self.bookmarksStore = bookmarksStore
 
         super.init(nibName: nil, bundle: nil)

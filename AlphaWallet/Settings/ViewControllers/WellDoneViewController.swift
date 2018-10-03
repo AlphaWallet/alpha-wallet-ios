@@ -10,7 +10,6 @@ protocol WellDoneViewControllerDelegate: class {
 }
 
 class WellDoneViewController: UIViewController {
-
     weak var delegate: WellDoneViewControllerDelegate?
 
     override func viewDidLoad() {
