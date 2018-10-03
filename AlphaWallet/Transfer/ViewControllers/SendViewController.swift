@@ -64,12 +64,11 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
     weak var delegate: SendViewControllerDelegate?
     let config: Config
     var contract: String {
-        //Only ERC20 tokens are relevant here
         switch transferType {
         case .ERC20Token(let token):
             return token.contract
         case .ether:
-            return "0x"
+            return account.address.eip55String
         case .dapp:
             return "0x"
         case .ERC875Token:
@@ -99,8 +98,13 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
 
         super.init(nibName: nil, bundle: nil)
 
-        if case .ERC20Token = transferType {
+        switch transferType {
+        case .ERC20Token:
             updateNavigationRightBarButtons(isVerified: false, hasShowInfoButton: false)
+        case .ether:
+            updateNavigationRightBarButtons(isVerified: true, hasShowInfoButton: false)
+        case .ERC875Token, .ERC721Token, .ERC875TokenOrder, .dapp:
+            break
         }
 
         configureBalanceViewModel()
