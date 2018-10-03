@@ -5,6 +5,7 @@ import UIKit
 
 class SplashViewController: UIViewController {
     private var splashView = SplashView()
+
     init() {
         super.init(nibName: nil, bundle: nil)
         splashView.translatesAutoresizingMaskIntoConstraints = false

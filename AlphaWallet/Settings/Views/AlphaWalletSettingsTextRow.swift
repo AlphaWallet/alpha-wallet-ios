@@ -16,7 +16,8 @@ open class _TextRow: FieldRow<AlphaWalletSettingsTextCell> {
 }
 
 open class AlphaWalletSettingsTextCell: _FieldCell<String>, CellType {
-	let background = UIView()
+	private let background = UIView()
+
 	let mainLabel = UILabel()
 	let subLabel = UILabel()
 

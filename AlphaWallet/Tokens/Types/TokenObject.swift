@@ -12,11 +12,14 @@ class TokenObject: Object {
     @objc dynamic var decimals: Int = 0
     @objc dynamic var value: String = ""
     @objc dynamic var isDisabled: Bool = false
-    var balance = List<TokenBalance>()
+    @objc dynamic var rawType: String = TokenType.erc20.rawValue
+
+    let balance = List<TokenBalance>()
+
     var nonZeroBalance: [TokenBalance] {
         return Array(balance.filter { isNonZeroBalance($0.balance) })
     }
-    @objc dynamic var rawType: String = TokenType.erc20.rawValue
+
     var type: TokenType {
         get {
             return TokenType(rawValue: rawType)!

@@ -9,18 +9,17 @@ protocol EnterPasswordCoordinatorDelegate: class {
 }
 
 class EnterPasswordCoordinator: Coordinator {
-    var coordinators: [Coordinator] = []
-
-    weak var delegate: EnterPasswordCoordinatorDelegate?
-
-    lazy var enterPasswordController: EnterPasswordViewController = {
+    private lazy var enterPasswordController: EnterPasswordViewController = {
         let controller = EnterPasswordViewController(account: account)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
         controller.delegate = self
         return controller
     }()
-    let navigationController: UINavigationController
     private let account: Account
+
+    let navigationController: UINavigationController
+    var coordinators: [Coordinator] = []
+    weak var delegate: EnterPasswordCoordinatorDelegate?
 
     init(
         navigationController: UINavigationController = UINavigationController(),

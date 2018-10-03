@@ -11,7 +11,6 @@ import Result
 import TrustKeystore
 
 public class EventsRest {
-
     func getEvents(for address: Address,
                    completion: @escaping (Result<[Event], AnyError>) -> Void) {
         let endpoint = EndPoints.EventBaseUrl + "/" + address.description.lowercased()

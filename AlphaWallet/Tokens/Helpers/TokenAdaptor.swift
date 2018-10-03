@@ -11,7 +11,8 @@ import RealmSwift
 import BigInt
 
 class TokenAdaptor {
-    var token: TokenObject
+    private let token: TokenObject
+
     init(token: TokenObject) {
         self.token = token
     }

@@ -10,8 +10,8 @@ import Foundation
 import UIKit
 
 struct TokenCardRedemptionViewModel {
-    var token: TokenObject
-    var tokenHolder: TokenHolder
+    let token: TokenObject
+    let tokenHolder: TokenHolder
 
     var headerTitle: String {
         return R.string.localizable.aWalletTokenRedeemShowQRCodeTitle()

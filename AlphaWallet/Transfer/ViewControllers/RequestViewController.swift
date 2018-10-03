@@ -9,21 +9,21 @@ import StackViewController
 
 //Careful to fit in shorter phone like iPhone 5s without needing to scroll
 class RequestViewController: UIViewController {
-	let roundedBackground: RoundedBackground = {
+	private let roundedBackground: RoundedBackground = {
 		let roundedBackground = RoundedBackground()
 		roundedBackground.translatesAutoresizingMaskIntoConstraints = false
 		return roundedBackground
 	}()
 
-	let stackViewController = StackViewController()
+	private let stackViewController = StackViewController()
 
-	lazy var imageView: UIImageView = {
+	private lazy var imageView: UIImageView = {
 		let imageView = UIImageView()
 		imageView.translatesAutoresizingMaskIntoConstraints = false
 		return imageView
 	}()
 
-	lazy var copyButton: UIButton = {
+	private lazy var copyButton: UIButton = {
 		let button = Button(size: .normal, style: .border)
 		button.translatesAutoresizingMaskIntoConstraints = false
 		button.titleLabel?.font = viewModel.buttonFont
@@ -34,7 +34,7 @@ class RequestViewController: UIViewController {
 		return button
 	}()
 
-	lazy var addressHintLabel: UILabel = {
+	private lazy var addressHintLabel: UILabel = {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.textColor = viewModel.labelColor
@@ -44,7 +44,7 @@ class RequestViewController: UIViewController {
 		return label
 	}()
 
-	lazy var instructionLabel: UILabel = {
+	private lazy var instructionLabel: UILabel = {
 		let label = UILabel()
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.textColor = viewModel.labelColor
@@ -54,14 +54,14 @@ class RequestViewController: UIViewController {
 		return label
 	}()
 
-	lazy var addressContainerView: UIView = {
+	private lazy var addressContainerView: UIView = {
 		let v = UIView()
 		v.translatesAutoresizingMaskIntoConstraints = false
 		v.backgroundColor = viewModel.addressBackgroundColor
 		return v
 	}()
 
-	lazy var addressLabel: UILabel = {
+	private lazy var addressLabel: UILabel = {
 		let label = UILabel(frame: .zero)
 		label.translatesAutoresizingMaskIntoConstraints = false
 		label.textColor = viewModel.labelColor
@@ -73,11 +73,9 @@ class RequestViewController: UIViewController {
 		return label
 	}()
 
-	let viewModel: RequestViewModel
+	private let viewModel: RequestViewModel
 
-	init(
-			viewModel: RequestViewModel
-	) {
+	init(viewModel: RequestViewModel) {
 		self.viewModel = viewModel
 
 		stackViewController.scrollView.alwaysBounceVertical = true

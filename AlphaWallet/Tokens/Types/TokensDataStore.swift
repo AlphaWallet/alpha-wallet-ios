@@ -19,7 +19,6 @@ protocol TokensDataStoreDelegate: class {
 }
 
 class TokensDataStore {
-
     private lazy var getBalanceCoordinator: GetBalanceCoordinator = {
         return GetBalanceCoordinator(config: config)
     }()

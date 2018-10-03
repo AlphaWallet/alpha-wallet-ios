@@ -14,12 +14,12 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 }
 
 class SettingsCoordinator: Coordinator {
+	private let keystore: Keystore
+	private let session: WalletSession
+	private let storage: TransactionsStorage
+	private let balanceCoordinator: GetBalanceCoordinator
 
 	let navigationController: UINavigationController
-	let keystore: Keystore
-	let session: WalletSession
-	let storage: TransactionsStorage
-	let balanceCoordinator: GetBalanceCoordinator
 	weak var delegate: SettingsCoordinatorDelegate?
 	var coordinators: [Coordinator] = []
 

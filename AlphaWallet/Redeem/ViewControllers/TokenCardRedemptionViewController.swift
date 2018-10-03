@@ -12,19 +12,19 @@ protocol TokenCardRedemptionViewControllerDelegate: class, CanOpenURL {
 }
 
 class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatusViewController {
+    private var viewModel: TokenCardRedemptionViewModel
+    private var titleLabel = UILabel()
+    private let imageView =  UIImageView()
+    private let tokenRowView: TokenRowView & UIView
+    private var timer: Timer!
+    private var session: WalletSession
+    private let token: TokenObject
+    private let redeemListener = RedeemEventListener()
 
     let config: Config
     var contract: String {
         return token.contract
     }
-    var viewModel: TokenCardRedemptionViewModel
-    var titleLabel = UILabel()
-    let imageView =  UIImageView()
-    let tokenRowView: TokenRowView & UIView
-    var timer: Timer!
-    var session: WalletSession
-    private let token: TokenObject
-    let redeemListener = RedeemEventListener()
     weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
     init(config: Config, session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel) {

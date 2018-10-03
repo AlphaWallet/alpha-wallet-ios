@@ -3,7 +3,7 @@
 import UIKit
 
 class MarketplaceViewController: UIViewController {
-	let comingSoonLabel = UILabel()
+	private let comingSoonLabel = UILabel()
 
 	init() {
 		super.init(nibName: nil, bundle: nil)

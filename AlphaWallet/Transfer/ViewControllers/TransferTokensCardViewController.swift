@@ -9,18 +9,18 @@ protocol TransferTokensCardViewControllerDelegate: class, CanOpenURL {
 }
 
 class TransferTokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let tableView = UITableView(frame: .zero, style: .plain)
+	private let nextButton = UIButton(type: .system)
+    private var viewModel: TransferTokensCardViewModel
+    private let token: TokenObject
 
     let config: Config
     var contract: String {
         return viewModel.token.contract
     }
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-    let tableView = UITableView(frame: .zero, style: .plain)
-	let nextButton = UIButton(type: .system)
-    var viewModel: TransferTokensCardViewModel
     var paymentFlow: PaymentFlow
-    private let token: TokenObject
     weak var delegate: TransferTokensCardViewControllerDelegate?
 
     init(config: Config, paymentFlow: PaymentFlow, token: TokenObject, viewModel: TransferTokensCardViewModel) {

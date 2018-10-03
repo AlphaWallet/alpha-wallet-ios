@@ -17,13 +17,11 @@ protocol SignMessageCoordinatorDelegate: class {
 }
 
 class SignMessageCoordinator: Coordinator {
+    private let navigationController: UINavigationController
+    private let keystore: Keystore
+    private let account: Account
 
     var coordinators: [Coordinator] = []
-
-    let navigationController: UINavigationController
-    let keystore: Keystore
-    let account: Account
-
     weak var delegate: SignMessageCoordinatorDelegate?
     var didComplete: ((Result<Data, AnyError>) -> Void)?
 

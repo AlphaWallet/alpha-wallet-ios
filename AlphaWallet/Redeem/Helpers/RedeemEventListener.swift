@@ -10,7 +10,6 @@ import Foundation
 import TrustKeystore
 
 class RedeemEventListener {
-
     var shouldListen = false
 
     func start(for address: Address,

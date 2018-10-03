@@ -10,7 +10,6 @@ import UIKit
 
 @IBDesignable
 class NumberStepper: UIControl {
-
     @IBInspectable public var stepValue: Int = 1
     @IBInspectable public var minimumValue: Int = 0
     @IBInspectable public var maximumValue: Int = 100
@@ -87,7 +86,7 @@ class NumberStepper: UIControl {
         }
     }
 
-    lazy var rightButton: UIButton = {
+    private lazy var rightButton: UIButton = {
         let button = UIButton()
 		button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("-", for: .normal)
@@ -101,7 +100,7 @@ class NumberStepper: UIControl {
         return button
     }()
 
-    lazy var leftButton: UIButton = {
+    private lazy var leftButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("+", for: .normal)
@@ -115,7 +114,7 @@ class NumberStepper: UIControl {
         return button
     }()
 
-    lazy var label: UILabel = {
+    private lazy var label: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textAlignment = .center
@@ -130,7 +129,7 @@ class NumberStepper: UIControl {
         case Stable, ShouldIncrease, ShouldDecrease
     }
 
-    var stepperState = StepperState.Stable {
+    private var stepperState = StepperState.Stable {
         didSet {
             if stepperState != .Stable {
                 updateValue()

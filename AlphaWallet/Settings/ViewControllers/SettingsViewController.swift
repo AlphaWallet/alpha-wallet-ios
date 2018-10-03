@@ -12,15 +12,17 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
 }
 
 class SettingsViewController: FormViewController {
-    private var lock = Lock()
-    weak var delegate: SettingsViewControllerDelegate?
-    var isPasscodeEnabled: Bool {
+    private let lock = Lock()
+    private var isPasscodeEnabled: Bool {
         return lock.isPasscodeSet()
     }
-    lazy var viewModel: SettingsViewModel = {
+    private lazy var viewModel: SettingsViewModel = {
         return SettingsViewModel(isDebug: isDebug)
     }()
-    let session: WalletSession
+    private let session: WalletSession
+
+    weak var delegate: SettingsViewControllerDelegate?
+
     init(session: WalletSession) {
         self.session = session
         super.init(style: .plain)

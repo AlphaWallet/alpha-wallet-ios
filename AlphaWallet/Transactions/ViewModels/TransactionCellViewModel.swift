@@ -5,7 +5,6 @@ import Foundation
 import UIKit
 
 struct TransactionCellViewModel {
-
     private let transaction: Transaction
     private let config: Config
     private let chainState: ChainState

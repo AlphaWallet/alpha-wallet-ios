@@ -4,11 +4,9 @@ import Foundation
 import UIKit
 
 class TransactionHeaderView: UIView {
-
     let amountLabel = UILabel(frame: .zero)
 
     override init(frame: CGRect = .zero) {
-
         super.init(frame: frame)
 
         amountLabel.translatesAutoresizingMaskIntoConstraints = false

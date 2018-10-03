@@ -8,12 +8,13 @@ protocol ServersViewControllerDelegate: class {
 }
 
 class ServersViewController: UIViewController {
-    let headerHeight = CGFloat(70)
+    private let headerHeight = CGFloat(70)
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private var viewModel: ServersViewModel?
+
     weak var delegate: ServersViewControllerDelegate?
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-    let tableView = UITableView(frame: .zero, style: .plain)
-    var viewModel: ServersViewModel?
 
     init() {
         super.init(nibName: nil, bundle: nil)

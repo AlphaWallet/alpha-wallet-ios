@@ -6,7 +6,6 @@ import TrustKeystore
 import web3swift
 
 class GetNameCoordinator {
-
     private let config: Config
 
     init(config: Config) {

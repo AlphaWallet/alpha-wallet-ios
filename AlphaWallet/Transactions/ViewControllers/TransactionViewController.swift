@@ -9,7 +9,6 @@ protocol TransactionViewControllerDelegate: class, CanOpenURL {
 }
 
 class TransactionViewController: UIViewController {
-
     private lazy var viewModel: TransactionDetailsViewModel = {
         return .init(
             transaction: transaction,
@@ -19,10 +18,9 @@ class TransactionViewController: UIViewController {
             currencyRate: session.balanceCoordinator.currencyRate
         )
     }()
-    let stackViewController = StackViewController()
-
-    let session: WalletSession
-    let transaction: Transaction
+    private let stackViewController = StackViewController()
+    private let session: WalletSession
+    private let transaction: Transaction
 
     weak var delegate: TransactionViewControllerDelegate?
 

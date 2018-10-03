@@ -4,12 +4,10 @@ import UIKit
 import PromiseKit
 
 struct CryptoKittyCardRowViewModel {
-    static var imageGenerator = GenerateCryptoKittyPNGFromSVG()
-
-    let tokenHolder: TokenHolder
+    private static var imageGenerator = GenerateCryptoKittyPNGFromSVG()
+    private let tokenHolder: TokenHolder
 
     let areDetailsVisible: Bool
-
     var bigImage: Promise<UIImage>?
 
     init(tokenHolder: TokenHolder, areDetailsVisible: Bool) {

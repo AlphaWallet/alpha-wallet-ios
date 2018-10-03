@@ -13,35 +13,22 @@ protocol BrowserCoordinatorDelegate: class {
 }
 
 final class BrowserCoordinator: NSObject, Coordinator {
-    var coordinators: [Coordinator] = []
-    let session: WalletSession
-    let keystore: Keystore
-    let navigationController: NavigationController
+    private let session: WalletSession
+    private let keystore: Keystore
 
-    lazy var bookmarksViewController: BookmarkViewController = {
+    private lazy var bookmarksViewController: BookmarkViewController = {
         let controller = BookmarkViewController(bookmarksStore: bookmarksStore)
         controller.delegate = self
         return controller
     }()
 
-    lazy var historyViewController: HistoryViewController = {
+    private lazy var historyViewController: HistoryViewController = {
         let controller = HistoryViewController(store: historyStore)
         controller.delegate = self
         return controller
     }()
 
-    lazy var rootViewController: MasterBrowserViewController = {
-        let controller = MasterBrowserViewController(
-            bookmarksViewController: bookmarksViewController,
-            historyViewController: historyViewController,
-            browserViewController: browserViewController,
-            type: .browser
-        )
-        controller.delegate = self
-        return controller
-    }()
-
-    lazy var browserViewController: BrowserViewController = {
+    private lazy var browserViewController: BrowserViewController = {
         let controller = BrowserViewController(account: session.account, config: session.config, server: server)
         controller.delegate = self
         controller.webView.uiDelegate = self
@@ -54,25 +41,38 @@ final class BrowserCoordinator: NSObject, Coordinator {
     private lazy var historyStore: HistoryStore = {
         return HistoryStore(realm: sharedRealm)
     }()
-    lazy var preferences: PreferencesController = {
+    private lazy var preferences: PreferencesController = {
         return PreferencesController()
     }()
-    var urlParser: BrowserURLParser {
+    private var urlParser: BrowserURLParser {
         let engine = SearchEngine(rawValue: preferences.get(for: .browserSearchEngine)) ?? .default
         return BrowserURLParser(engine: engine)
     }
 
-    var server: RPCServer {
+    private var server: RPCServer {
         return session.config.server
     }
-
-    weak var delegate: BrowserCoordinatorDelegate?
-
-    var enableToolbar: Bool = true {
+    private var enableToolbar: Bool = true {
         didSet {
             navigationController.isToolbarHidden = !enableToolbar
         }
     }
+
+    var coordinators: [Coordinator] = []
+    let navigationController: NavigationController
+
+    lazy var rootViewController: MasterBrowserViewController = {
+        let controller = MasterBrowserViewController(
+            bookmarksViewController: bookmarksViewController,
+            historyViewController: historyViewController,
+            browserViewController: browserViewController,
+            type: .browser
+        )
+        controller.delegate = self
+        return controller
+    }()
+
+    weak var delegate: BrowserCoordinatorDelegate?
 
     init(
         session: WalletSession,

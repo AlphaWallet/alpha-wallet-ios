@@ -8,20 +8,20 @@ protocol TransferTokenCardQuantitySelectionViewControllerDelegate: class, CanOpe
 }
 
 class TransferTokensCardQuantitySelectionViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+	private let subtitleLabel = UILabel()
+    private let quantityStepper = NumberStepper()
+    private let tokenRowView: TokenRowView & UIView
+    private let nextButton = UIButton(type: .system)
+    private var viewModel: TransferTokensCardQuantitySelectionViewModel
+    private let token: TokenObject
 
     let config: Config
     var contract: String {
         return token.contract
     }
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-	let subtitleLabel = UILabel()
-    let quantityStepper = NumberStepper()
-    let tokenRowView: TokenRowView & UIView
-    let nextButton = UIButton(type: .system)
-    var viewModel: TransferTokensCardQuantitySelectionViewModel
     let paymentFlow: PaymentFlow
-    private let token: TokenObject
     weak var delegate: TransferTokenCardQuantitySelectionViewControllerDelegate?
 
     init(

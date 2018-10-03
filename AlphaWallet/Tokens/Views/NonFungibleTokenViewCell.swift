@@ -7,11 +7,11 @@ import Kingfisher
 class NonFungibleTokenViewCell: UITableViewCell {
     static let identifier = "NonFugibleTokenViewCell"
 
-    let background = UIView()
-    let titleLabel = UILabel()
-    let blockchainLabel = UILabel()
-    let separator = UILabel()
-    let issuerLabel = UILabel()
+    private let background = UIView()
+    private let titleLabel = UILabel()
+    private let blockchainLabel = UILabel()
+    private let separator = UILabel()
+    private let issuerLabel = UILabel()
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
