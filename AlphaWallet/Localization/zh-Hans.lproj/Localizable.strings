@@ -156,7 +156,7 @@
 "send.action.copy.transaction.title" = "复制交易ID";
 "transaction.cell.failed.title" = "失败";
 "transaction.cell.pending.title" = "待确认";
-"transaction.cell.availableButDataUnavailable.title" = "Incomplete Data";
+"transaction.cell.availableButDataUnavailable.title" = "数据不完整";
 "send.action.transaction.sent" = "交易已发送";
 "send.action.transaction.sent.wait" = "等待交易在区块链上被确认，以查看详细信息。";
 "walletTokens.tabbar.item.title" = "我的钱包";
