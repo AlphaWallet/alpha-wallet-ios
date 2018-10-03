@@ -7,14 +7,11 @@ protocol BrowserErrorViewDelegate: class {
 }
 
 final class BrowserErrorView: UIView {
-
-    weak var delegate: BrowserErrorViewDelegate?
-
     private let topMargin: CGFloat = 120
     private let leftMargin: CGFloat = 40
     private let buttonTopMargin: CGFloat = 6
 
-    lazy var textLabel: UILabel = {
+    private lazy var textLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.textColor = Colors.gray
@@ -23,7 +20,7 @@ final class BrowserErrorView: UIView {
         return label
     }()
 
-    lazy var reloadButton: Button = {
+    private lazy var reloadButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.addTarget(self, action: #selector(reloadTapped), for: .touchUpInside)
         button.setTitle(R.string.localizable.browserReloadButtonTitle(), for: .normal)
@@ -31,6 +28,8 @@ final class BrowserErrorView: UIView {
         button.sizeToFit()
         return button
     }()
+
+    weak var delegate: BrowserErrorViewDelegate?
 
     init() {
         super.init(frame: CGRect.zero)

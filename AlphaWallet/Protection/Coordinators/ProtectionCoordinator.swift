@@ -4,14 +4,18 @@
 import UIKit
 
 class ProtectionCoordinator: Coordinator {
-	var coordinators: [Coordinator] = []
-	lazy var splashCoordinator: SplashCoordinator = {
+	private lazy var splashCoordinator: SplashCoordinator = {
 		return SplashCoordinator(window: protectionWindow)
 	}()
-	lazy var lockEnterPasscodeCoordinator: LockEnterPasscodeCoordinator = {
+
+	private lazy var lockEnterPasscodeCoordinator: LockEnterPasscodeCoordinator = {
 		return LockEnterPasscodeCoordinator(model: LockEnterPasscodeViewModel())
 	}()
-	let protectionWindow = UIWindow()
+
+	private let protectionWindow = UIWindow()
+
+	var coordinators: [Coordinator] = []
+
 	init() {
 		protectionWindow.windowLevel = UIWindowLevelStatusBar + 2.0
 	}

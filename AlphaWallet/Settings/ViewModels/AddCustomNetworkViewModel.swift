@@ -3,7 +3,6 @@
 import Foundation
 
 struct AddCustomNetworkViewModel {
-
     var title: String {
         return R.string.localizable.settingsCustomNetworkNavigationTitle()
     }

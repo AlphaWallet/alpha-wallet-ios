@@ -24,11 +24,10 @@ enum TitlecaseOrNot {
 
 private class PrivateXMLHandler {
     private let xml: XML.Accessor
-    let contractAddress: String
-    lazy var contract = xml["token"]["contract"].getElement(attributeName: "type", attributeValue: "holding", fallbackToFirst: true)
-    lazy var fields = extractFields()
+    private let contractAddress: String
+    private lazy var contract = xml["token"]["contract"].getElement(attributeName: "type", attributeValue: "holding", fallbackToFirst: true)
+    private lazy var fields = extractFields()
     private let isOfficial: Bool
-    let hasAssetDefinition: Bool
     private let signatureNamespace: String
     private var signatureNamespacePrefix: String {
         if signatureNamespace.isEmpty {
@@ -37,6 +36,8 @@ private class PrivateXMLHandler {
             return "\(signatureNamespace):"
         }
     }
+
+    let hasAssetDefinition: Bool
 
     init(contract: String) {
         contractAddress = contract.add0x.lowercased()

@@ -7,7 +7,8 @@ protocol TimeEntryFieldDelegate: class {
 }
 
 class TimeEntryField: UIControl {
-    var leftButton = UIButton(type: .custom)
+    private let leftButton = UIButton(type: .custom)
+
     var value = Date() {
         didSet {
             displayTimeString()

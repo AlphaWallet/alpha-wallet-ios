@@ -6,7 +6,6 @@ import UIKit
 
 struct TransactionDetailsViewModel {
     private let transactionViewModel: TransactionViewModel
-
     private let transaction: Transaction
     private let config: Config
     private let chainState: ChainState

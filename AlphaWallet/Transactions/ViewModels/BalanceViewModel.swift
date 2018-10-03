@@ -4,10 +4,9 @@ import Foundation
 import UIKit
 
 struct BalanceViewModel: BalanceBaseViewModel {
-
-    let balance: Balance?
-    let rate: CurrencyRate?
-    let config: Config
+    private let balance: Balance?
+    private let rate: CurrencyRate?
+    private let config: Config
 
     init(
         balance: Balance? = .none,

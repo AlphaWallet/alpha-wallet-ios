@@ -9,10 +9,10 @@ protocol BackupViewControllerDelegate: class {
 }
 
 class BackupViewController: UIViewController {
+    private let account: Account
+    private let viewModel = BackupViewModel()
 
-    let account: Account
     weak var delegate: BackupViewControllerDelegate?
-    let viewModel = BackupViewModel()
 
     init(account: Account) {
         self.account = account

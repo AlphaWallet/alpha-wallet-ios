@@ -8,11 +8,7 @@ protocol CryptoKittyCardRowViewDelegate: class {
 }
 
 class CryptoKittyCardRowView: UIView {
-    let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
-    weak var delegate: CryptoKittyCardRowViewDelegate?
-    let background = UIView()
     private let mainVerticalStackView: UIStackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required)
-    let stateLabel = UILabel()
     private let thumbnailImageView = UIImageView()
     private let bigImageBackground = UIView()
     private let bigImageView = UIImageView()
@@ -61,6 +57,12 @@ class CryptoKittyCardRowView: UIView {
     private var viewsVisibleWhenDetailsAreVisibleImagesNotAvailable = [UIView]()
     private var viewsVisibleWhenDetailsAreNotVisibleImagesNotAvailable = [UIView]()
     private var currentDisplayedImageUrl: URL?
+
+    var background = UIView()
+    var stateLabel = UILabel()
+
+    let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
+    weak var delegate: CryptoKittyCardRowViewDelegate?
 
     init(showCheckbox: Bool = false) {
         self.showCheckbox = showCheckbox

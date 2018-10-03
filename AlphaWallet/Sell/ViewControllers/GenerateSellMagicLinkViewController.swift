@@ -9,22 +9,23 @@ protocol GenerateSellMagicLinkViewControllerDelegate: class {
 }
 
 class GenerateSellMagicLinkViewController: UIViewController {
+    private let background = UIView()
+	private let header = TokensCardViewControllerTitleHeader()
+    private let detailsBackground = UIView()
+    private let subtitleLabel = UILabel()
+    private let tokenCountLabel = UILabel()
+    private let perTokenPriceLabel = UILabel()
+    private let totalEthLabel = UILabel()
+    private let descriptionLabel = UILabel()
+    private let actionButton = UIButton()
+    private let cancelButton = UIButton()
+    private var viewModel: GenerateSellMagicLinkViewControllerViewModel?
+
     weak var delegate: GenerateSellMagicLinkViewControllerDelegate?
-    let background = UIView()
-	let header = TokensCardViewControllerTitleHeader()
-    let detailsBackground = UIView()
-    let subtitleLabel = UILabel()
-    let tokenCountLabel = UILabel()
-    let perTokenPriceLabel = UILabel()
-    let totalEthLabel = UILabel()
-    let descriptionLabel = UILabel()
-    let actionButton = UIButton()
-    let cancelButton = UIButton()
     let paymentFlow: PaymentFlow
     let tokenHolder: TokenHolder
     let ethCost: Ether
     let linkExpiryDate: Date
-    var viewModel: GenerateSellMagicLinkViewControllerViewModel?
 
     init(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) {
         self.paymentFlow = paymentFlow

@@ -4,9 +4,8 @@ import Foundation
 import UIKit
 
 struct SellTokensCardViewModel {
-
-    var token: TokenObject
-    var tokenHolders: [TokenHolder]
+    let token: TokenObject
+    let tokenHolders: [TokenHolder]
 
     init(token: TokenObject) {
         self.token = token

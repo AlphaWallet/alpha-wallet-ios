@@ -9,11 +9,9 @@ protocol AddCustomNetworkCoordinatorDelegate: class {
 }
 
 class AddCustomNetworkCoordinator: Coordinator {
-    let navigationController: UINavigationController
-    var coordinators: [Coordinator] = []
-    weak var delegate: AddCustomNetworkCoordinatorDelegate?
+    private let navigationController: UINavigationController
 
-    lazy var addNetworkItem: UIBarButtonItem = {
+    private lazy var addNetworkItem: UIBarButtonItem = {
         return UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
@@ -21,11 +19,14 @@ class AddCustomNetworkCoordinator: Coordinator {
         )
     }()
 
-    lazy var addCustomNetworkController: AddCustomNetworkViewController = {
+    private lazy var addCustomNetworkController: AddCustomNetworkViewController = {
         let controller = AddCustomNetworkViewController()
         controller.navigationItem.rightBarButtonItem = addNetworkItem
         return controller
     }()
+
+    var coordinators: [Coordinator] = []
+    weak var delegate: AddCustomNetworkCoordinatorDelegate?
 
     init(
         navigationController: UINavigationController = NavigationController()

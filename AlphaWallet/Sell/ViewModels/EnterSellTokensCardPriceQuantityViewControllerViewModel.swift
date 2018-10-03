@@ -4,9 +4,8 @@ import Foundation
 import UIKit
 
 struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
-
-    var token: TokenObject
-    var tokenHolder: TokenHolder
+    let token: TokenObject
+    let tokenHolder: TokenHolder
     var ethCost: Ether = .zero
     var dollarCost: String = ""
 

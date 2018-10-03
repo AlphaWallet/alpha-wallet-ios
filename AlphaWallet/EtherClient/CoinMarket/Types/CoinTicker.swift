@@ -4,12 +4,13 @@ import Foundation
 import RealmSwift
 
 struct CoinTicker: Codable {
-    let id: String
-    let symbol: String
-    var price_usd: String
+    private let id: String
+    private let symbol: String
+    private let image: String = ""
+
+    let price_usd: String
     let percent_change_24h: String
     let contract: String = Constants.nullAddress
-    let image: String = ""
 
     lazy var rate: CurrencyRate = {
         CurrencyRate(

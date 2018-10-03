@@ -6,7 +6,6 @@ import TrustKeystore
 import web3swift
 
 class GetSymbolCoordinator {
-
     private let config: Config
 
     init(config: Config) {

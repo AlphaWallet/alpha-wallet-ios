@@ -8,10 +8,9 @@ protocol HistoryViewControllerDelegate: class {
 }
 
 final class HistoryViewController: UIViewController {
-
-    let store: HistoryStore
-    let tableView = UITableView(frame: .zero, style: .plain)
-    lazy var viewModel: HistoriesViewModel = {
+    private let store: HistoryStore
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private lazy var viewModel: HistoriesViewModel = {
         return HistoriesViewModel(store: store)
     }()
 

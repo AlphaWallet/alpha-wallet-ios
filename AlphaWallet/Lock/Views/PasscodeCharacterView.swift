@@ -4,12 +4,14 @@
 import UIKit
 
 class PasscodeCharacterView: UIView {
-	var isEmpty = true
+	private var isEmpty = true
 	private var circle: CAShapeLayer?
 	private var hyphen: CAShapeLayer?
+
 	override func layoutSubviews() {
 		commonInit()
 	}
+
 	private func commonInit() {
 		isEmpty = true
 		backgroundColor = UIColor.clear
@@ -17,10 +19,12 @@ class PasscodeCharacterView: UIView {
 		drawHyphen()
 		redraw()
 	}
+
 	private func redraw() {
 		circle?.isHidden = isEmpty
 		hyphen?.isHidden = !isEmpty
 	}
+
 	private func drawCircle() {
 		let borderWidth: CGFloat = 2
 		let radius: CGFloat = bounds.width / 2 - borderWidth
@@ -33,6 +37,7 @@ class PasscodeCharacterView: UIView {
 		layer.addSublayer(circle)
 		self.circle = circle
 	}
+
 	private func drawHyphen() {
 		let horizontalMargin: CGFloat = 2
 		let hyphenHeight: CGFloat = bounds.height / 7
@@ -53,6 +58,7 @@ class PasscodeCharacterView: UIView {
 		layer.addSublayer(hyphen)
 		self.hyphen = hyphen
 	}
+
 	func setEmpty(_ isEmpty: Bool) {
 		if self.isEmpty != isEmpty {
 			self.isEmpty = isEmpty

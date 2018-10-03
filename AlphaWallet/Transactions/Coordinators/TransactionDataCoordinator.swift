@@ -20,28 +20,28 @@ protocol TransactionDataCoordinatorDelegate: class {
 }
 
 class TransactionDataCoordinator {
-
     struct Config {
         static let deleteMissingInternalSeconds: Double = 60.0
         static let deleyedTransactionInternalSeconds: Double = 60.0
     }
 
-    let storage: TransactionsStorage
-    let session: WalletSession
+    private let storage: TransactionsStorage
+    private let session: WalletSession
     private let keystore: Keystore
-    let config = Config()
-    var viewModel: TransactionsViewModel {
+    private let config = Config()
+    private var viewModel: TransactionsViewModel {
         return .init(transactions: storage.objects)
     }
-    var timer: Timer?
-    var updateTransactionsTimer: Timer?
+    private var timer: Timer?
+    private var updateTransactionsTimer: Timer?
 
-    weak var delegate: TransactionDataCoordinatorDelegate?
     private lazy var transactionsTracker: TransactionsTracker = {
         return TransactionsTracker(sessionID: session.sessionID)
     }()
     private let trustProvider = TrustProviderFactory.makeProvider()
     private var previousTransactions: [Transaction]?
+
+    weak var delegate: TransactionDataCoordinatorDelegate?
 
     init(
         session: WalletSession,

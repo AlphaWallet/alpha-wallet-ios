@@ -7,10 +7,13 @@ protocol ImportWalletTabBarDelegate: class {
 }
 
 class ImportWalletTabBar: UIView {
-	let keystoreButton = UIButton(type: .system)
-	let privateKeyButton = UIButton(type: .system)
-	let watchButton = UIButton(type: .system)
-	let tabHighlightView = UIView()
+	private let keystoreButton = UIButton(type: .system)
+	private let privateKeyButton = UIButton(type: .system)
+	private let watchButton = UIButton(type: .system)
+	private let tabHighlightView = UIView()
+	private var highlightBarHorizontalConstraints: [NSLayoutConstraint]?
+	private lazy var viewModel = ImportWalletTabBarViewModel(tab: tab)
+
 	var tab: ImportWalletTab = .keystore {
 		didSet {
 			viewModel.currentTab = tab
@@ -18,9 +21,7 @@ class ImportWalletTabBar: UIView {
 			configure()
 		}
 	}
-	var highlightBarHorizontalConstraints: [NSLayoutConstraint]?
 	weak var delegate: ImportWalletTabBarDelegate?
-	lazy var viewModel = ImportWalletTabBarViewModel(tab: tab)
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)

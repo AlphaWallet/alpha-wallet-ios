@@ -4,19 +4,12 @@
 import UIKit
 
 class LockView: UIView {
-	var characterView = UIStackView()
+	private var characterView = UIStackView()
+	private var model: LockViewModel
+
 	var lockTitle = UILabel()
-	var model: LockViewModel
 	var characters: [PasscodeCharacterView]!
-	init(_ model: LockViewModel) {
-		self.model = model
-		super.init(frame: CGRect.zero)
-		self.characters = passcodeCharacters()
-		configCharacterView()
-		configLabel()
-		addUiElements()
-		applyConstraints()
-	}
+
 	private func configCharacterView() {
 		characterView = UIStackView(arrangedSubviews: characters)
 		characterView.axis = .horizontal
@@ -54,6 +47,17 @@ class LockView: UIView {
 		}
 		return characters
 	}
+
+	init(_ model: LockViewModel) {
+		self.model = model
+		super.init(frame: CGRect.zero)
+		self.characters = passcodeCharacters()
+		configCharacterView()
+		configLabel()
+		addUiElements()
+		applyConstraints()
+	}
+
 	func shake() {
 		let keypath = "position"
 		let animation = CABasicAnimation(keyPath: keypath)

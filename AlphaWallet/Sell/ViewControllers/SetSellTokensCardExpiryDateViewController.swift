@@ -8,34 +8,34 @@ protocol SetSellTokensCardExpiryDateViewControllerDelegate: class, CanOpenURL {
 }
 
 class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let storage: TokensDataStore
+    private let roundedBackground = RoundedBackground()
+    private let scrollView = UIScrollView()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let linkExpiryDateLabel = UILabel()
+    private let linkExpiryDateField = DateEntryField()
+    private let linkExpiryTimeLabel = UILabel()
+    private let linkExpiryTimeField = TimeEntryField()
+    private let tokenCountLabel = UILabel()
+    private let perTokenPriceLabel = UILabel()
+    private let totalEthLabel = UILabel()
+    private let descriptionLabel = UILabel()
+    private let noteTitleLabel = UILabel()
+    private let noteLabel = UILabel()
+    private let noteBorderView = UIView()
+    private let tokenRowView: TokenRowView & UIView
+    private let nextButton = UIButton(type: .system)
+    private let datePicker = UIDatePicker()
+    private let timePicker = UIDatePicker()
+    private var viewModel: SetSellTokensCardExpiryDateViewControllerViewModel
+    private let tokenHolder: TokenHolder
+    private let ethCost: Ether
 
     let config: Config
     var contract: String {
         return viewModel.token.contract
     }
-    let storage: TokensDataStore
-    let roundedBackground = RoundedBackground()
-    let scrollView = UIScrollView()
-    let header = TokensCardViewControllerTitleHeader()
-    let linkExpiryDateLabel = UILabel()
-    let linkExpiryDateField = DateEntryField()
-    let linkExpiryTimeLabel = UILabel()
-    let linkExpiryTimeField = TimeEntryField()
-    let tokenCountLabel = UILabel()
-    let perTokenPriceLabel = UILabel()
-    let totalEthLabel = UILabel()
-    let descriptionLabel = UILabel()
-    let noteTitleLabel = UILabel()
-    let noteLabel = UILabel()
-    let noteBorderView = UIView()
-    let tokenRowView: TokenRowView & UIView
-    let nextButton = UIButton(type: .system)
-    let datePicker = UIDatePicker()
-    let timePicker = UIDatePicker()
-    var viewModel: SetSellTokensCardExpiryDateViewControllerViewModel
     let paymentFlow: PaymentFlow
-    let tokenHolder: TokenHolder
-    let ethCost: Ether
     weak var delegate: SetSellTokensCardExpiryDateViewControllerDelegate?
 
     init(

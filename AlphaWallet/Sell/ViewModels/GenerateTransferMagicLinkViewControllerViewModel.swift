@@ -3,8 +3,8 @@
 import UIKit
 
 struct GenerateTransferMagicLinkViewControllerViewModel {
-    var tokenHolder: TokenHolder
-    var linkExpiryDate: Date
+    private let tokenHolder: TokenHolder
+    private let linkExpiryDate: Date
 
     var contentsBackgroundColor: UIColor {
         return Colors.appWhite

@@ -8,11 +8,11 @@ protocol DepositCoordinatorDelegate: class, CanOpenURL {
 }
 
 class DepositCoordinator: Coordinator {
+    private let account: Wallet
+    private weak var delegate: DepositCoordinatorDelegate?
 
     let navigationController: UINavigationController
-    let account: Wallet
     var coordinators: [Coordinator] = []
-    weak var delegate: DepositCoordinatorDelegate?
 
     init(
         navigationController: UINavigationController,

@@ -16,8 +16,8 @@ struct Token {
 
     let id: BigUInt
     let index: UInt16
-    var name: String
-    var status: Status
+    let name: String
+    let status: Status
     let values: [String: AssetAttributeValue]
 
     static var empty: Token {

@@ -5,8 +5,7 @@ import Eureka
 import Result
 
 class AddCustomNetworkViewController: FormViewController {
-
-    let viewModel = AddCustomNetworkViewModel()
+    private let viewModel = AddCustomNetworkViewModel()
 
     private struct Values {
         static let chainID = "chainID"
@@ -14,8 +13,6 @@ class AddCustomNetworkViewController: FormViewController {
         static let symbol = "symbol"
         static let endpoint = "endpoint"
     }
-
-    weak var delegate: NewTokenViewControllerDelegate?
 
     private var chainIDRow: TextFloatLabelRow? {
         return form.rowBy(tag: Values.chainID) as? TextFloatLabelRow
@@ -29,6 +26,8 @@ class AddCustomNetworkViewController: FormViewController {
     private var endpointRow: TextFloatLabelRow? {
         return form.rowBy(tag: Values.endpoint) as? TextFloatLabelRow
     }
+
+    weak var delegate: NewTokenViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()

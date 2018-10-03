@@ -4,9 +4,8 @@ import Foundation
 import UIKit
 
 struct TransferTokensCardViaWalletAddressViewControllerViewModel {
-
-    var token: TokenObject
-    var tokenHolder: TokenHolder
+    let token: TokenObject
+    let tokenHolder: TokenHolder
 
     var headerTitle: String {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.plural, titlecase: .titlecase)

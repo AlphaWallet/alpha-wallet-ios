@@ -16,24 +16,21 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         }
     }
 
-    let keystore: Keystore
+    private let keystore: Keystore
     private let viewModel = ImportWalletViewModel()
-
     //We don't actually use the rounded corner here, but it's a useful "content" view here
-    let roundedBackground = RoundedBackground()
-    let scrollView = UIScrollView()
-    let footerBar = UIView()
-    let tabBar = ImportWalletTabBar()
-    let keystoreJSONTextView = TextView()
-    let passwordTextField = TextField()
-    let privateKeyTextView = TextView()
-    let watchAddressTextField = AddressTextField()
-
-    var keystoreJSONControlsStackView: UIStackView!
-    var privateKeyControlsStackView: UIStackView!
-    var watchControlsStackView: UIStackView!
-
-    let importButton = UIButton(type: .system)
+    private let roundedBackground = RoundedBackground()
+    private let scrollView = UIScrollView()
+    private let footerBar = UIView()
+    private let tabBar = ImportWalletTabBar()
+    private let keystoreJSONTextView = TextView()
+    private let passwordTextField = TextField()
+    private let privateKeyTextView = TextView()
+    private let watchAddressTextField = AddressTextField()
+    private var keystoreJSONControlsStackView: UIStackView!
+    private var privateKeyControlsStackView: UIStackView!
+    private var watchControlsStackView: UIStackView!
+    private let importButton = UIButton(type: .system)
 
     weak var delegate: ImportWalletViewControllerDelegate?
 

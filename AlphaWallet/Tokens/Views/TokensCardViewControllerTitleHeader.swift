@@ -3,8 +3,8 @@
 import UIKit
 
 class TokensCardViewControllerTitleHeader: UIView {
-    let background = UIView()
-    let titleLabel = UILabel()
+    private let background = UIView()
+    private let titleLabel = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)

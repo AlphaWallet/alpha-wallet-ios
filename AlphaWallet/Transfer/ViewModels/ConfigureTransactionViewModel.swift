@@ -3,9 +3,8 @@
 import Foundation
 
 struct ConfigureTransactionViewModel {
-
-    let config: Config
-    let transferType: TransferType
+    private let config: Config
+    private let transferType: TransferType
 
     init(
         config: Config,

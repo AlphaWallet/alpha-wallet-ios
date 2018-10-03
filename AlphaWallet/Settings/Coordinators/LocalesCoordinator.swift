@@ -7,8 +7,9 @@ protocol LocalesCoordinatorDelegate: class {
 }
 
 class LocalesCoordinator: Coordinator {
+    private var config: Config
+
     var coordinators: [Coordinator] = []
-    var config: Config
 
     lazy var localesViewController: LocalesViewController = {
         let locales: [AppLocale] = [

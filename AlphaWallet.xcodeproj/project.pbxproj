@@ -1899,7 +1899,6 @@
 			isa = PBXGroup;
 			children = (
 				29E6E06F1FEA12910079265A /* TransactionConfigurator.swift */,
-				5E7C7A5A98CE71365B6E80FF /* Views */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -2628,13 +2627,6 @@
 				5E7C7EA385280B0BAB6F0745 /* TransactionViewModelTests.swift */,
 			);
 			path = ViewModels;
-			sourceTree = "<group>";
-		};
-		5E7C7A5A98CE71365B6E80FF /* Views */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Views;
 			sourceTree = "<group>";
 		};
 		5E7C7A968681D718C8A32B47 /* Commands */ = {
