@@ -235,7 +235,7 @@
 "a.wallet.next.button.title" = "下一步";
 "a.wallet.no.tokens" = "你没有这类 Token";
 "a.help.navigation.title" = "帮助";
-"a.help.assetDefinitionOverrides.title" = "Asset Definition Overrides";
+"a.help.assetDefinitionOverrides.title" = "资产定义覆写";
 "a.help.contact.footer.button.title" = "需要进一步帮助? 联系我们";
 "a.help.contact.email.subject" = "帮助/建议";
 "a.help.contact.email.helpfulToDevelopers" = "提供给开发人员的有用信息:";
