@@ -135,11 +135,11 @@
 "browser.reload.button.title" = "刷新";
 "browser.addbookmark.button.title" = "添加书签";
 "browser.tabbar.item.title" = "浏览器";
-"browser.history.confirm.delete.title" = "Are you sure you would like to delete?";
-"browser.noHistory.label.title" = "No history yet";
-"browser.bookmarks.confirm.delete.title" = "Are you sure you would like to delete this bookmark?";
-"browser.noBookmarks.label.title" = "No bookmarks yet!";
-"browser.url.textfield.placeholder" = "Search or enter website URL";
+"browser.history.confirm.delete.title" = "确定要删除吗?";
+"browser.noHistory.label.title" = "目前没有历史记录";
+"browser.bookmarks.confirm.delete.title" = "确定要删除此书签吗?";
+"browser.noBookmarks.label.title" = "目前没有书签";
+"browser.url.textfield.placeholder" = "搜索或直接输入网址 URL ";
 "configureTransaction.gasPriceGwei.label.title" = "Gas费用 (Gwei)";
 "enterPassword.confirmPassword.textField.placeholder" = "确认密码";
 "enterPassword.navigation.title" = "备份密码";
