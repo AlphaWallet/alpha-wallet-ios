@@ -76,9 +76,9 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                 )
 
                 let unsignedTransaction = configurator.formUnsignedTransaction()
-                
+
                 let account = keystore.createAccount(password: "test")
-                
+
                 let _ = UnsignedTransaction(value: unsignedTransaction.value,
                                                         account: account,
                                                         to: unsignedTransaction.to,
@@ -91,6 +91,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                 let _ = SendTransactionCoordinator(session: session,
                                                                             keystore: keystore,
                                                                             confirmType: .signThenSend)
+                keystore.delete(wallet: Wallet(type: WalletType.real(account)))
                 expectation.fulfill()
 
             case .failure: break
