@@ -4,7 +4,7 @@ import Foundation
 
 struct SkipBackupFilesInitializer: Initializer {
 
-    let urls: [URL]
+    private let urls: [URL]
 
     init(paths: [URL]) {
         self.urls = paths

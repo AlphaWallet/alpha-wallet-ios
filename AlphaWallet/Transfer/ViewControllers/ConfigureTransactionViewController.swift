@@ -9,26 +9,18 @@ protocol ConfigureTransactionViewControllerDelegate: class {
 }
 
 class ConfigureTransactionViewController: FormViewController {
-
-    let configuration: TransactionConfiguration
-    let config: Config
-    let transferType: TransferType
-    let currencyRate: CurrencyRate?
+    private let configuration: TransactionConfiguration
+    private let config: Config
+    private let transferType: TransferType
+    private let currencyRate: CurrencyRate?
     private let fullFormatter = EtherNumberFormatter.full
 
-    struct Values {
+    private struct Values {
         static let gasPrice = "gasPrice"
         static let gasLimit = "gasLimit"
         static let totalFee = "totalFee"
         static let data = "data"
     }
-
-    lazy var viewModel: ConfigureTransactionViewModel = {
-        return ConfigureTransactionViewModel(
-            config: config,
-            transferType: transferType
-        )
-    }()
 
     private var gasPriceRow: SliderTextFieldRow? {
         return form.rowBy(tag: Values.gasPrice) as? SliderTextFieldRow
@@ -59,6 +51,14 @@ class ConfigureTransactionViewController: FormViewController {
     private var gasViewModel: GasViewModel {
         return GasViewModel(fee: totalFee, symbol: config.server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
     }
+
+    lazy var viewModel: ConfigureTransactionViewModel = {
+        return ConfigureTransactionViewModel(
+            config: config,
+            transferType: transferType
+        )
+    }()
+
 
     weak var delegate: ConfigureTransactionViewControllerDelegate?
 

@@ -15,17 +15,17 @@ protocol RedeemTokenViewControllerDelegate: class, CanOpenURL {
 }
 
 class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let token: TokenObject
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let tableView = UITableView(frame: .zero, style: .plain)
+	private let nextButton = UIButton(type: .system)
+    private var viewModel: RedeemTokenCardViewModel
 
     let config: Config
     var contract: String {
         return token.contract
     }
-    private let token: TokenObject
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-    let tableView = UITableView(frame: .zero, style: .plain)
-	let nextButton = UIButton(type: .system)
-    var viewModel: RedeemTokenCardViewModel
     weak var delegate: RedeemTokenViewControllerDelegate?
 
     init(config: Config, token: TokenObject, viewModel: RedeemTokenCardViewModel) {

@@ -313,4 +313,4 @@
 "cryptoKitties.cattributes.title" = "Cattributes";
 "cryptoKitties.generation" = "Gen %@";
 "cryptoKitties.cooldown" = "%@ Cooldown";
-"cryptoKitties.cooldown.unknown" = "Unknown";
+"cryptoKitties.cooldown.unknown" = "未知";

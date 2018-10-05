@@ -14,21 +14,25 @@ protocol TransactionsViewControllerDelegate: class {
 }
 
 class TransactionsViewController: UIViewController {
+    private var viewModel: TransactionsViewModel
+    private let tokensStorage: TokensDataStore
+    private let account: Wallet
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let refreshControl = UIRefreshControl()
+    private let dataCoordinator: TransactionDataCoordinator
+    private let session: WalletSession
+    private var actionButtonsVisibleConstraint: NSLayoutConstraint?
+    private var actionButtonsInVisibleConstraint: NSLayoutConstraint?
+    private let footerBar: UIView = {
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = Colors.appHighlightGreen
+        return footerBar
+    }()
 
-    var viewModel: TransactionsViewModel
     var paymentType: PaymentFlow?
-
-    let tokensStorage: TokensDataStore
-    let account: Wallet
-
-    let tableView = UITableView(frame: .zero, style: .plain)
-    let refreshControl = UIRefreshControl()
-
     weak var delegate: TransactionsViewControllerDelegate?
-    let dataCoordinator: TransactionDataCoordinator
-    let session: WalletSession
-    var actionButtonsVisibleConstraint: NSLayoutConstraint?
-    var actionButtonsInVisibleConstraint: NSLayoutConstraint?
+
     var showActionButtons = false {
         didSet {
 			reflectActionButtonsVisibility()
@@ -41,12 +45,7 @@ class TransactionsViewController: UIViewController {
         footerView.sendButton.addTarget(self, action: #selector(send), for: .touchUpInside)
         return footerView
     }()
-    let footerBar: UIView = {
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = Colors.appHighlightGreen
-		return footerBar
-    }()
+
 
     init(
         account: Wallet,

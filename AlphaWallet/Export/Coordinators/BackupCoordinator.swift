@@ -12,11 +12,11 @@ protocol BackupCoordinatorDelegate: class {
 }
 
 class BackupCoordinator: Coordinator {
+    private let keystore: Keystore
+    private let account: Account
 
     let navigationController: UINavigationController
     weak var delegate: BackupCoordinatorDelegate?
-    let keystore: Keystore
-    let account: Account
     var coordinators: [Coordinator] = []
 
     init(

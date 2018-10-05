@@ -20,18 +20,20 @@ class EnterPasswordViewController: FormViewController {
         static var password = "password"
         static var confirmPassword = "confirmPassword"
     }
-    weak var delegate: EnterPasswordViewControllerDelegate?
+
     private let viewModel = EnterPasswordViewModel()
 
-    var passwordRow: TextFloatLabelRow? {
+    private var passwordRow: TextFloatLabelRow? {
         return form.rowBy(tag: Values.password) as? TextFloatLabelRow
     }
 
-    var confirmPasswordRow: TextFloatLabelRow? {
+    private var confirmPasswordRow: TextFloatLabelRow? {
         return form.rowBy(tag: Values.confirmPassword) as? TextFloatLabelRow
     }
 
     private let account: Account
+
+    weak var delegate: EnterPasswordViewControllerDelegate?
 
     init(
         account: Account

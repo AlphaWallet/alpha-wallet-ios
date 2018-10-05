@@ -8,28 +8,28 @@ protocol SetTransferTokensCardExpiryDateViewControllerDelegate: class, CanOpenUR
 }
 
 class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let roundedBackground = RoundedBackground()
+    private let scrollView = UIScrollView()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let tokenRowView: TokenRowView & UIView
+    private let linkExpiryDateLabel = UILabel()
+    private let linkExpiryDateField = DateEntryField()
+    private let linkExpiryTimeLabel = UILabel()
+    private let linkExpiryTimeField = TimeEntryField()
+    private let datePicker = UIDatePicker()
+    private let timePicker = UIDatePicker()
+    private let descriptionLabel = UILabel()
+    private let noteTitleLabel = UILabel()
+    private let noteLabel = UILabel()
+    private let noteBorderView = UIView()
+    private let nextButton = UIButton(type: .system)
+    private var viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
+    private let tokenHolder: TokenHolder
 
     let config: Config
     var contract: String {
         return viewModel.token.contract
     }
-    let roundedBackground = RoundedBackground()
-    let scrollView = UIScrollView()
-    let header = TokensCardViewControllerTitleHeader()
-    let tokenRowView: TokenRowView & UIView
-    let linkExpiryDateLabel = UILabel()
-    let linkExpiryDateField = DateEntryField()
-    let linkExpiryTimeLabel = UILabel()
-    let linkExpiryTimeField = TimeEntryField()
-    let datePicker = UIDatePicker()
-    let timePicker = UIDatePicker()
-    let descriptionLabel = UILabel()
-    let noteTitleLabel = UILabel()
-    let noteLabel = UILabel()
-    let noteBorderView = UIView()
-    let nextButton = UIButton(type: .system)
-    var viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
-    let tokenHolder: TokenHolder
     let paymentFlow: PaymentFlow
     weak var delegate: SetTransferTokensCardExpiryDateViewControllerDelegate?
 

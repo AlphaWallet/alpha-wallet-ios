@@ -14,19 +14,19 @@ protocol RedeemTokenCardQuantitySelectionViewControllerDelegate: class, CanOpenU
 }
 
 class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let token: TokenObject
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+	private let subtitleLabel = UILabel()
+    private let quantityStepper = NumberStepper()
+    private let tokenRowView: TokenRowView & UIView
+    private let nextButton = UIButton(type: .system)
+    private var viewModel: RedeemTokenCardQuantitySelectionViewModel
 
     let config: Config
     var contract: String {
         return token.contract
     }
-    private let token: TokenObject
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-	let subtitleLabel = UILabel()
-    let quantityStepper = NumberStepper()
-    let tokenRowView: TokenRowView & UIView
-    let nextButton = UIButton(type: .system)
-    var viewModel: RedeemTokenCardQuantitySelectionViewModel
     weak var delegate: RedeemTokenCardQuantitySelectionViewControllerDelegate?
 
     init(config: Config, token: TokenObject, viewModel: RedeemTokenCardQuantitySelectionViewModel) {

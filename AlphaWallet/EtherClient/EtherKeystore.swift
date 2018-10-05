@@ -12,17 +12,18 @@ enum EtherKeystoreError: LocalizedError {
 }
 
 open class EtherKeystore: Keystore {
-    struct Keys {
+    private struct Keys {
         static let recentlyUsedAddress: String = "recentlyUsedAddress"
         static let watchAddresses = "watchAddresses"
     }
 
     private let keychain: KeychainSwift
     private let datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
-    let keyStore: KeyStore
+    private let keyStore: KeyStore
     private let defaultKeychainAccess: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly
+    private let userDefaults: UserDefaults
+
     let keystoreDirectory: URL
-    let userDefaults: UserDefaults
 
     public init(
         keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix),

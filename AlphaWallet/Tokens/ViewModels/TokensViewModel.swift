@@ -5,20 +5,8 @@ import UIKit
 
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
-    var tokens: [TokenObject] = []
-    var tickers: [String: CoinTicker]?
-    var etherTokenContract: String
-    var filter: WalletFilter = .all
-    var filteredTokens: [TokenObject] {
-        switch filter {
-        case .all:
-            return tokens
-        case .currencyOnly:
-            return tokens.filter { $0.type == .ether || $0.type == .erc20 }
-        case .assetsOnly:
-            return tokens.filter { $0.type != .ether && $0.type != .erc20 }
-        }
-    }
+    private let tokens: [TokenObject]
+    private let tickers: [String: CoinTicker]?
 
     private var amount: String? {
         var totalAmount: Double = 0
@@ -35,6 +23,19 @@ class TokensViewModel {
         let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
         let price = Double(tickersSymbol.price_usd) ?? 0
         return tokenValue * price
+    }
+
+    let etherTokenContract: String
+    var filter: WalletFilter = .all
+    var filteredTokens: [TokenObject] {
+        switch filter {
+        case .all:
+            return tokens
+        case .currencyOnly:
+            return tokens.filter { $0.type == .ether || $0.type == .erc20 }
+        case .assetsOnly:
+            return tokens.filter { $0.type != .ether && $0.type != .erc20 }
+        }
     }
 
     var headerBackgroundColor: UIColor {

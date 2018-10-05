@@ -6,7 +6,8 @@ protocol StaticHTMLViewControllerDelegate: class, CanOpenURL {
 }
 
 class StaticHTMLViewController: UIViewController {
-    let webView = UIWebView()
+    private let webView = UIWebView()
+
     let footer = UIView()
     weak var delegate: StaticHTMLViewControllerDelegate?
 

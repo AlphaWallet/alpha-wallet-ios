@@ -6,7 +6,6 @@ import TrustKeystore
 import web3swift
 
 class GetDecimalsCoordinator {
-
     private let config: Config
 
     init(config: Config) {

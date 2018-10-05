@@ -5,9 +5,9 @@ import RealmSwift
 import TrustKeystore
 
 class MigrationInitializer: Initializer {
+    private let account: Wallet
+    private let chainID: Int
 
-    let account: Wallet
-    let chainID: Int
     lazy var config: Realm.Configuration = {
         return RealmConfiguration.configuration(for: account, chainID: chainID)
     }()

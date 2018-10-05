@@ -4,10 +4,10 @@ import Foundation
 import BigInt
 
 struct GasViewModel {
-    let fee: BigInt
-    let symbol: String
-    let currencyRate: CurrencyRate?
-    let formatter: EtherNumberFormatter
+    private let fee: BigInt
+    private let symbol: String
+    private let currencyRate: CurrencyRate?
+    private let formatter: EtherNumberFormatter
 
     init(
         fee: BigInt,

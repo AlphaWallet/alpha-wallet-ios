@@ -3,7 +3,6 @@
 import Foundation
 
 struct BalanceTokenViewModel: BalanceBaseViewModel {
-
     let token: TokenObject
 
     var currencyAmount: String? {

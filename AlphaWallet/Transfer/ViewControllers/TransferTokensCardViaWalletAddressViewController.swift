@@ -9,19 +9,20 @@ protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpe
 }
 
 class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenVerifiableStatusViewController, CanScanQRCode {
+    private let token: TokenObject
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let tokenRowView: TokenRowView & UIView
+    private let targetAddressTextField = AddressTextField()
+    private let nextButton = UIButton(type: .system)
+    private var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
+    private var tokenHolder: TokenHolder
+    private var paymentFlow: PaymentFlow
+
     let config: Config
     var contract: String {
         return token.contract
     }
-    private let token: TokenObject
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-    let tokenRowView: TokenRowView & UIView
-    let targetAddressTextField = AddressTextField()
-    let nextButton = UIButton(type: .system)
-    var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
-    var tokenHolder: TokenHolder
-    var paymentFlow: PaymentFlow
     weak var delegate: TransferTokensCardViaWalletAddressViewControllerDelegate?
 
     init(

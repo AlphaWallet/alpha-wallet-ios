@@ -9,19 +9,20 @@ protocol GenerateTransferMagicLinkViewControllerDelegate: class {
 }
 
 class GenerateTransferMagicLinkViewController: UIViewController {
-    weak var delegate: GenerateTransferMagicLinkViewControllerDelegate?
-    let background = UIView()
-	let header = TokensCardViewControllerTitleHeader()
-    let detailsBackground = UIView()
-    let subtitleLabel = UILabel()
-    let tokenCountLabel = UILabel()
-    let descriptionLabel = UILabel()
-    let actionButton = UIButton()
-    let cancelButton = UIButton()
+    private let background = UIView()
+	private let header = TokensCardViewControllerTitleHeader()
+    private let detailsBackground = UIView()
+    private let subtitleLabel = UILabel()
+    private let tokenCountLabel = UILabel()
+    private let descriptionLabel = UILabel()
+    private let actionButton = UIButton()
+    private let cancelButton = UIButton()
+    private var viewModel: GenerateTransferMagicLinkViewControllerViewModel?
+
     let paymentFlow: PaymentFlow
     let tokenHolder: TokenHolder
     let linkExpiryDate: Date
-    var viewModel: GenerateTransferMagicLinkViewControllerViewModel?
+    weak var delegate: GenerateTransferMagicLinkViewControllerDelegate?
 
     init(paymentFlow: PaymentFlow, tokenHolder: TokenHolder, linkExpiryDate: Date) {
         self.paymentFlow = paymentFlow

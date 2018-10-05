@@ -7,13 +7,14 @@ protocol StatusViewControllerDelegate: class {
 }
 
 class StatusViewController: UIViewController {
+	private let background = UIView()
+	private let imageView = UIImageView()
+	private let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+	private let titleLabel = UILabel()
+	private let actionButton = UIButton()
+	private var viewModel: StatusViewControllerViewModel?
+
 	weak var delegate: StatusViewControllerDelegate?
-	let background = UIView()
-	let imageView = UIImageView()
-	let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
-	let titleLabel = UILabel()
-	let actionButton = UIButton()
-	var viewModel: StatusViewControllerViewModel?
 
 	init() {
 		super.init(nibName: nil, bundle: nil)

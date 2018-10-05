@@ -6,9 +6,8 @@ import TrustKeystore
 import UIKit
 
 struct RequestViewModel {
-
-	let account: Wallet
-	let config: Config
+	private let account: Wallet
+	private let config: Config
 
 	init(
 			account: Wallet,

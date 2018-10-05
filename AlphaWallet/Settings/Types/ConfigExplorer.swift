@@ -3,8 +3,7 @@
 import Foundation
 
 struct ConfigExplorer {
-
-    let server: RPCServer
+    private let server: RPCServer
 
     init(
         server: RPCServer

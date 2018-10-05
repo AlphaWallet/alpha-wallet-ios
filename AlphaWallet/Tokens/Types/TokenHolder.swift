@@ -9,14 +9,12 @@
 import Foundation
 
 class TokenHolder {
-    var tokens: [Token]
-    var name: String { return tokens[0].name }
-    var values: [String: AssetAttributeValue] { return tokens[0].values }
-    var status: Token.Status { return tokens[0].status }
+    let tokens: [Token]
+    let contractAddress: String
+    let hasAssetDefinition: Bool
+
     var isSelected = false
     var areDetailsVisible = false
-    var contractAddress: String
-    var hasAssetDefinition: Bool
 
     init(tokens: [Token], contractAddress: String, hasAssetDefinition: Bool) {
         self.tokens = tokens
@@ -30,5 +28,17 @@ class TokenHolder {
 
     var indices: [UInt16] {
         return tokens.map { $0.index }
+    }
+
+    var name: String {
+        return tokens[0].name
+    }
+
+    var values: [String: AssetAttributeValue] {
+        return tokens[0].values
+    }
+
+    var status: Token.Status {
+        return tokens[0].status
     }
 }

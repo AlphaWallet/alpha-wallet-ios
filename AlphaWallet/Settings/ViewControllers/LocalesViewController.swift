@@ -8,12 +8,13 @@ protocol LocalesViewControllerDelegate: class {
 }
 
 class LocalesViewController: UIViewController {
-    let headerHeight = CGFloat(70)
+    private let headerHeight = CGFloat(70)
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private var viewModel: LocalesViewModel?
+
     weak var delegate: LocalesViewControllerDelegate?
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-    let tableView = UITableView(frame: .zero, style: .plain)
-    var viewModel: LocalesViewModel?
 
     init() {
         super.init(nibName: nil, bundle: nil)

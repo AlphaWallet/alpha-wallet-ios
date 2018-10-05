@@ -5,12 +5,12 @@ import UIKit
 import StatefulViewController
 
 class LoadingView: UIView {
+    private let imageView = UIImageView()
+    private let insets: UIEdgeInsets
+    private let viewModel = StateViewModel()
 
     let label = UILabel()
-    let imageView = UIImageView()
     let loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
-    let insets: UIEdgeInsets
-    private let viewModel = StateViewModel()
 
     init(
         frame: CGRect = .zero,

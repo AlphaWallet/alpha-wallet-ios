@@ -11,18 +11,16 @@ protocol TransferNFTCoordinatorDelegate: class {
 }
 
 class TransferNFTCoordinator: Coordinator {
-    var coordinators: [Coordinator] = []
-    let tokenHolder: TokenHolder
-    let walletAddress: String
-    let paymentFlow: PaymentFlow
-    let keystore: Keystore
-    let session: WalletSession
-    let account: Account
-    let viewController: UIViewController
-    var statusViewController: StatusViewController?
-    var address: Address?
-    weak var delegate: TransferNFTCoordinatorDelegate?
-    var status = StatusViewControllerViewModel.State.processing {
+    private let tokenHolder: TokenHolder
+    private let walletAddress: String
+    private let paymentFlow: PaymentFlow
+    private let keystore: Keystore
+    private let session: WalletSession
+    private let account: Account
+    private let viewController: UIViewController
+    private var statusViewController: StatusViewController?
+    private var address: Address?
+    private var status = StatusViewControllerViewModel.State.processing {
         didSet {
             guard let address = address else { return }
             let tokenTypeName = XMLHandler(contract: address.eip55String).getTokenTypeName(.singular)
@@ -34,6 +32,9 @@ class TransferNFTCoordinator: Coordinator {
             ))
         }
     }
+
+    var coordinators: [Coordinator] = []
+    weak var delegate: TransferNFTCoordinatorDelegate?
 
     init(tokenHolder: TokenHolder, walletAddress: String, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: Account, on viewController: UIViewController) {
         self.tokenHolder = tokenHolder

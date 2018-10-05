@@ -9,7 +9,7 @@ protocol Signer {
 }
 
 struct EIP155Signer: Signer {
-    let chainId: BigInt
+    private let chainId: BigInt
 
     init(chainId: BigInt) {
         self.chainId = chainId

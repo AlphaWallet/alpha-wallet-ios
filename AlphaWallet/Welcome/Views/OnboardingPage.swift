@@ -4,11 +4,11 @@
 import UIKit
 
 final class OnboardingPage: UICollectionViewCell {
-    static let identifier = "Page"
-    let style = OnboardingPageStyle()
-
+    private let style = OnboardingPageStyle()
     private var imageView: UIImageView!
     private var titleLabel: UILabel!
+
+    static let identifier = "Page"
 
     override var reuseIdentifier: String? {
         return OnboardingPage.identifier

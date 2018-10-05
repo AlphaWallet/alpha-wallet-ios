@@ -5,7 +5,6 @@ import ObjectiveC
 import TrustKeystore
 
 struct Config {
-
     struct Keys {
         static let chainID = "chainID"
         static let isCryptoPrimaryCurrency = "isCryptoPrimaryCurrency"

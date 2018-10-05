@@ -3,7 +3,6 @@ import Foundation
 import UIKit
 
 struct HelpUsViewModel {
-
     var title: String {
         return R.string.localizable.welldoneNavigationTitle()
     }
