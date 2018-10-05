@@ -20,15 +20,14 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 }
 
 class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatusViewController {
-    let roundedBackground = RoundedBackground()
-    let header = SendHeaderView()
-    let targetAddressTextField = AddressTextField()
-    let amountTextField = AmountTextField()
-    let targetAddressLabel = UILabel()
-    let amountLabel = UILabel()
-    let myAddressContainer = UIView()
-    let myAddressLabelLabel = UILabel()
-    let myAddressLabel: UILabel = {
+    private let roundedBackground = RoundedBackground()
+    private let header = SendHeaderView()
+    private let amountTextField = AmountTextField()
+    private let targetAddressLabel = UILabel()
+    private let amountLabel = UILabel()
+    private let myAddressContainer = UIView()
+    private let myAddressLabelLabel = UILabel()
+    private let myAddressLabel: UILabel = {
         let label = UILabel(frame: .zero)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
@@ -37,32 +36,39 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
         label.adjustsFontSizeToFitWidth = true
         return label
     }()
-    let copyButton: UIButton = {
+    private let copyButton: UIButton = {
         let button = Button(size: .normal, style: .border)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(copyAddress), for: .touchUpInside)
         return button
     }()
-    let imageView: UIImageView = {
+    private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
-    let nextButton = UIButton(type: .system)
+    private let nextButton = UIButton(type: .system)
+    private var viewModel: SendViewModel!
+    private var headerViewModel = SendHeaderViewViewModel()
+    private var balanceViewModel: BalanceBaseViewModel?
+    private let session: WalletSession
+    private let account: Account
+    private let ethPrice: Subscribable<Double>
+    private var gasPrice: BigInt?
+    private var data = Data()
+    private lazy var decimalFormatter: DecimalFormatter = {
+        return DecimalFormatter()
+    }()
 
-    var viewModel: SendViewModel!
-    var headerViewModel = SendHeaderViewViewModel()
-    var balanceViewModel: BalanceBaseViewModel?
+    let targetAddressTextField = AddressTextField()
     weak var delegate: SendViewControllerDelegate?
-
     let config: Config
     var contract: String {
-        //Only ERC20 tokens are relevant here
         switch transferType {
         case .ERC20Token(let token):
             return token.contract
         case .ether:
-            return "0x"
+            return account.address.eip55String
         case .dapp:
             return "0x"
         case .ERC875Token:
@@ -73,17 +79,8 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
             return "0x"
         }
     }
-
-    let session: WalletSession
-    let account: Account
     let transferType: TransferType
     let storage: TokensDataStore
-    let ethPrice: Subscribable<Double>
-    private var gasPrice: BigInt?
-    private var data = Data()
-    lazy var decimalFormatter: DecimalFormatter = {
-        return DecimalFormatter()
-    }()
 
     init(
             session: WalletSession,
@@ -101,8 +98,13 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
 
         super.init(nibName: nil, bundle: nil)
 
-        if case .ERC20Token = transferType {
+        switch transferType {
+        case .ERC20Token:
             updateNavigationRightBarButtons(isVerified: false, hasShowInfoButton: false)
+        case .ether:
+            updateNavigationRightBarButtons(isVerified: true, hasShowInfoButton: false)
+        case .ERC875Token, .ERC721Token, .ERC875TokenOrder, .dapp:
+            break
         }
 
         configureBalanceViewModel()

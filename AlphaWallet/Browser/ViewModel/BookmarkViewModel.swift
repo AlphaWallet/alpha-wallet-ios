@@ -4,8 +4,8 @@ import Foundation
 import UIKit
 
 struct BookmarkViewModel: URLViewModel {
+    private let bookmark: Bookmark
 
-    let bookmark: Bookmark
     init(
         bookmark: Bookmark
     ) {

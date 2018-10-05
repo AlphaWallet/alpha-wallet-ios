@@ -5,12 +5,11 @@ import UIKit
 import StatefulViewController
 
 class ErrorView: UIView {
-
-    let descriptionLabel = UILabel()
-    let imageView = UIImageView()
-    let button = Button(size: .normal, style: .solid)
-    let insets: UIEdgeInsets
-    var onRetry: (() -> Void)? = .none
+    private let descriptionLabel = UILabel()
+    private let imageView = UIImageView()
+    private let button = Button(size: .normal, style: .solid)
+    private let insets: UIEdgeInsets
+    private var onRetry: (() -> Void)? = .none
     private let viewModel = StateViewModel()
 
     init(

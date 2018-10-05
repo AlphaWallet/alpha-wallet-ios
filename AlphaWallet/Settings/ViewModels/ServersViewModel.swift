@@ -4,8 +4,9 @@ import Foundation
 import TrustKeystore
 
 struct ServersViewModel {
+    private let selectedServer: RPCServer
+
     let servers: [RPCServer]
-    let selectedServer: RPCServer
 
     var title: String {
         return R.string.localizable.settingsNetworkButtonTitle()

@@ -5,15 +5,15 @@ import UIKit
 import StatefulViewController
 
 class TransactionsEmptyView: UIView {
-
-    let titleLabel = UILabel()
-    let imageView = UIImageView()
-    let button = Button(size: .normal, style: .solid)
-    let depositButton = Button(size: .normal, style: .solid)
-    let insets: UIEdgeInsets
+    private let titleLabel = UILabel()
+    private let imageView = UIImageView()
+    private let button = Button(size: .normal, style: .solid)
+    private let depositButton = Button(size: .normal, style: .solid)
+    private let insets: UIEdgeInsets
     private var onRetry: (() -> Void)? = .none
-    var onDeposit: ((_ sender: UIButton) -> Void)? = .none
     private let viewModel = StateViewModel()
+
+    var onDeposit: ((_ sender: UIButton) -> Void)? = .none
 
     var isDepositAvailable: Bool = true {
         didSet {

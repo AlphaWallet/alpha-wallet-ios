@@ -5,7 +5,7 @@ import RealmSwift
 
 struct BookmarksViewModel {
 
-    let bookmarksStore: BookmarksStore
+    private let bookmarksStore: BookmarksStore
 
     init(
         bookmarksStore: BookmarksStore

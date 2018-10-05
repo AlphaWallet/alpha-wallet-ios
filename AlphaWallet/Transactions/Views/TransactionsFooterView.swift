@@ -4,7 +4,6 @@ import Foundation
 import UIKit
 
 class TransactionsFooterView: UIView {
-
     lazy var sendButton: UIButton = {
         let sendButton = UIButton(type: .system)
         sendButton.translatesAutoresizingMaskIntoConstraints = false

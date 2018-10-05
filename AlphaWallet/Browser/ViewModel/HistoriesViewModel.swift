@@ -4,7 +4,7 @@ import Foundation
 
 struct HistoriesViewModel {
 
-    let store: HistoryStore
+    private let store: HistoryStore
 
     init(
         store: HistoryStore

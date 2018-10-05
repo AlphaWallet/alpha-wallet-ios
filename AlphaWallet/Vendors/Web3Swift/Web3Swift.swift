@@ -7,9 +7,9 @@ import Result
 import JavaScriptCore
 
 class Web3Swift: NSObject {
+    private let webView = WKWebView()
+    private let url: URL
 
-    let webView = WKWebView()
-    let url: URL
     var isLoaded = false
 
     init(url: URL = URL(string: "https://ropsten.infura.io/llyrtzQ3YhkdESt2Fzrk")!) {

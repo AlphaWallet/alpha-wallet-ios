@@ -11,17 +11,20 @@ protocol BalanceCoordinatorDelegate: class {
 }
 
 class BalanceCoordinator {
-    let wallet: Wallet
-    let storage: TokensDataStore
+    private let wallet: Wallet
+    private let storage: TokensDataStore
+
     var balance: Balance?
     var currencyRate: CurrencyRate?
     weak var delegate: BalanceCoordinatorDelegate?
+
     var viewModel: BalanceViewModel {
         return BalanceViewModel(
             balance: balance,
             rate: currencyRate
         )
     }
+
     init(
             wallet: Wallet,
             config: Config,

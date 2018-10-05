@@ -17,13 +17,11 @@ protocol SignMessageCoordinatorDelegate: class {
 }
 
 class SignMessageCoordinator: Coordinator {
+    private let navigationController: UINavigationController
+    private let keystore: Keystore
+    private let account: Account
 
     var coordinators: [Coordinator] = []
-
-    let navigationController: UINavigationController
-    let keystore: Keystore
-    let account: Account
-
     weak var delegate: SignMessageCoordinatorDelegate?
     var didComplete: ((Result<Data, AnyError>) -> Void)?
 
@@ -79,11 +77,20 @@ class SignMessageCoordinator: Coordinator {
         }
     }
 
+    private func isMessage(data: Data) -> Bool {
+        guard let _ = String(data: data, encoding: .utf8) else { return false }
+        return true
+    }
+
     private func handleSignedMessage(with type: SignMesageType) {
         let result: Result<Data, KeystoreError>
         switch type {
         case .message(let data):
-            result = keystore.signMessage(data, for: account)
+            if isMessage(data: data) {
+                result = keystore.signMessage(data, for: account)
+            } else {
+                result = keystore.signHash(data, for: account)
+            }
         case .personalMessage(let data):
             result = keystore.signPersonalMessage(data, for: account)
         case .typedMessage(let typedData):

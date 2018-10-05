@@ -7,8 +7,9 @@ protocol ServersCoordinatorDelegate: class {
 }
 
 class ServersCoordinator: Coordinator {
+    private var config: Config
+
     var coordinators: [Coordinator] = []
-    var config: Config
 
     lazy var serversViewController: ServersViewController = {
         let servers: [RPCServer] = {

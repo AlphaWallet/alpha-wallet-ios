@@ -20,25 +20,26 @@ public struct PreviewTransaction {
 }
 
 class TransactionConfigurator {
+    private let session: WalletSession
+    private let account: Account
 
-    let session: WalletSession
-    let account: Account
+    private lazy var calculatedGasPrice: BigInt = {
+        return transaction.gasPrice ?? configuration.gasPrice
+    }()
+
+    private var requestEstimateGas: Bool {
+        return transaction.gasLimit == .none
+    }
+
     let transaction: UnconfirmedTransaction
+
+    var configurationUpdate: Subscribable<TransactionConfiguration> = Subscribable(nil)
+
     var configuration: TransactionConfiguration {
         didSet {
             configurationUpdate.value = configuration
         }
     }
-
-    lazy var calculatedGasPrice: BigInt = {
-        return transaction.gasPrice ?? configuration.gasPrice
-    }()
-
-    var requestEstimateGas: Bool {
-        return transaction.gasLimit == .none
-    }
-
-    var configurationUpdate: Subscribable<TransactionConfiguration> = Subscribable(nil)
 
     init(
         session: WalletSession,

@@ -3,14 +3,13 @@
 import UIKit
 
 class TransactionViewCell: UITableViewCell {
-
     static let identifier = "TransactionTableViewCell"
 
-    let background = UIView()
-    let statusImageView = UIImageView()
-    let titleLabel = UILabel()
-    let amountLabel = UILabel()
-    let subTitleLabel = UILabel()
+    private let background = UIView()
+    private let statusImageView = UIImageView()
+    private let titleLabel = UILabel()
+    private let amountLabel = UILabel()
+    private let subTitleLabel = UILabel()
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

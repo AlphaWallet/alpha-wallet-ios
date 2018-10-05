@@ -10,17 +10,16 @@ protocol PaymentCoordinatorDelegate: class, CanOpenURL {
 }
 
 class PaymentCoordinator: Coordinator {
+    private let session: WalletSession
+    private let flow: PaymentFlow
+    private let keystore: Keystore
+    private let storage: TokensDataStore
+    private let ethPrice: Subscribable<Double>
+    private let tokenHolders: [TokenHolder]!
 
-    let session: WalletSession
     weak var delegate: PaymentCoordinatorDelegate?
-
-    let flow: PaymentFlow
     var coordinators: [Coordinator] = []
     let navigationController: UINavigationController
-    let keystore: Keystore
-    let storage: TokensDataStore
-    let ethPrice: Subscribable<Double>
-    let tokenHolders: [TokenHolder]!
 
     init(
             navigationController: UINavigationController = UINavigationController(),

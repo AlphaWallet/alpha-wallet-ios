@@ -17,8 +17,8 @@ open class _AlphaWalletSettingsSwitchRow: Row<AlphaWalletSwitchCell> {
 }
 
 open class AlphaWalletSwitchCell: Cell<Bool>, CellType {
+    private let background = UIView()
 
-    let background = UIView()
     @IBOutlet public weak var switchControl: UISwitch!
 
     required public init(style: UITableViewCellStyle, reuseIdentifier: String?) {

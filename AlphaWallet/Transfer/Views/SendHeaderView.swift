@@ -2,20 +2,18 @@
 import UIKit
 
 class SendHeaderView: UIView {
-    let background = UIView()
-    let titleLabel = UILabel()
-    let blockchainLabel = UILabel()
-    let issuerLabel = UILabel()
-
-    let middleBorder = UIView()
-
-    var footerStackView: UIStackView?
-    let valuePercentageChangeValueLabel = UILabel()
-    let valuePercentageChangePeriodLabel = UILabel()
-    let valueChangeLabel = UILabel()
-    let valueChangeNameLabel = UILabel()
-    let valueLabel = UILabel()
-    let valueNameLabel = UILabel()
+    private let background = UIView()
+    private let titleLabel = UILabel()
+    private let blockchainLabel = UILabel()
+    private let issuerLabel = UILabel()
+    private let middleBorder = UIView()
+    private var footerStackView: UIStackView?
+    private let valuePercentageChangeValueLabel = UILabel()
+    private let valuePercentageChangePeriodLabel = UILabel()
+    private let valueChangeLabel = UILabel()
+    private let valueChangeNameLabel = UILabel()
+    private let valueLabel = UILabel()
+    private let valueNameLabel = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)

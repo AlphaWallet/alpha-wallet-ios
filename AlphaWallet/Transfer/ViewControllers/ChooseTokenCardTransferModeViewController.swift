@@ -9,19 +9,19 @@ protocol ChooseTokenCardTransferModeViewControllerDelegate: class, CanOpenURL {
 }
 
 class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiableStatusViewController {
-    let horizontalAdjustmentForLongMagicLinkButtonTitle = CGFloat(20)
+    private let horizontalAdjustmentForLongMagicLinkButtonTitle = CGFloat(20)
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let tokenRowView: TokenRowView & UIView
+    private let generateMagicLinkButton = UIButton(type: .system)
+    private let transferNowButton = UIButton(type: .system)
+    private var viewModel: ChooseTokenCardTransferModeViewControllerViewModel
+    private let tokenHolder: TokenHolder
 
     let config: Config
     var contract: String {
         return viewModel.token.contract
     }
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-    let tokenRowView: TokenRowView & UIView
-    let generateMagicLinkButton = UIButton(type: .system)
-    let transferNowButton = UIButton(type: .system)
-    var viewModel: ChooseTokenCardTransferModeViewControllerViewModel
-    let tokenHolder: TokenHolder
     let paymentFlow: PaymentFlow
     weak var delegate: ChooseTokenCardTransferModeViewControllerDelegate?
 

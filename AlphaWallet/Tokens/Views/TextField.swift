@@ -15,8 +15,12 @@ class TextField: UIControl {
         case none
     }
 
+    private var isConfigured = false
+
     let label = UILabel()
     let textField = UITextField()
+    weak var delegate: TextFieldDelegate?
+
     var value: String {
         get {
             return textField.text ?? ""
@@ -25,6 +29,7 @@ class TextField: UIControl {
             textField.text = newValue
         }
     }
+
     var inputAccessoryButtonType = InputAccessoryButtonType.none {
         didSet {
             switch inputAccessoryButtonType {
@@ -37,8 +42,6 @@ class TextField: UIControl {
             }
         }
     }
-    private var isConfigured = false
-    weak var delegate: TextFieldDelegate?
 
     init() {
         super.init(frame: .zero)

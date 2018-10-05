@@ -9,7 +9,7 @@ struct EthTokenViewCellViewModel {
     private let token: TokenObject
     private let currencyAmount: String?
     private let currencyAmountWithoutSymbol: Double?
-    let ticker: CoinTicker?
+    private let ticker: CoinTicker?
 
     init(
         token: TokenObject,

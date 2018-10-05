@@ -7,18 +7,18 @@ protocol BrowserNavigationBarDelegate: class {
 }
 
 final class BrowserNavigationBar: UINavigationBar {
-
-    let textField = UITextField()
-    let moreButton = UIButton()
-    let closeButton = UIButton()
-    let homeButton = UIButton()
-    let backButton = UIButton()
-    weak var browserDelegate: BrowserNavigationBarDelegate?
+    private let moreButton = UIButton()
+    private let homeButton = UIButton()
 
     private struct Layout {
         static let width: CGFloat = 34
         static let moreButtonWidth: CGFloat = 24
     }
+
+    let textField = UITextField()
+    let closeButton = UIButton()
+    let backButton = UIButton()
+    weak var browserDelegate: BrowserNavigationBarDelegate?
 
     override init(frame: CGRect) {
         super.init(frame: frame)

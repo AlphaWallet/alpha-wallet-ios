@@ -11,21 +11,21 @@ protocol SendCoordinatorDelegate: class, CanOpenURL {
 }
 
 class SendCoordinator: Coordinator {
+    private let transferType: TransferType
+    private let session: WalletSession
+    private let account: Account
+    private let keystore: Keystore
+    private let storage: TokensDataStore
+    private let ethPrice: Subscribable<Double>
+    private let tokenHolders: [TokenHolder]!
 
-    let transferType: TransferType
-    let session: WalletSession
-    let account: Account
-    let navigationController: UINavigationController
-    let keystore: Keystore
-    let storage: TokensDataStore
-    let ethPrice: Subscribable<Double>
-    let tokenHolders: [TokenHolder]!
-
-    var coordinators: [Coordinator] = []
-    weak var delegate: SendCoordinatorDelegate?
     lazy var sendViewController: SendViewController = {
         return makeSendViewController()
     }()
+
+    let navigationController: UINavigationController
+    var coordinators: [Coordinator] = []
+    weak var delegate: SendCoordinatorDelegate?
 
     init(
             transferType: TransferType,

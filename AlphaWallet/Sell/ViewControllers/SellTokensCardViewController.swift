@@ -9,16 +9,16 @@ protocol SellTokensCardViewControllerDelegate: class, CanOpenURL {
 }
 
 class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let tableView = UITableView(frame: .zero, style: .plain)
+	private let nextButton = UIButton(type: .system)
+    private var viewModel: SellTokensCardViewModel
 
     let config: Config
     var contract: String {
         return viewModel.token.contract
     }
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-    let tableView = UITableView(frame: .zero, style: .plain)
-	let nextButton = UIButton(type: .system)
-    var viewModel: SellTokensCardViewModel
     let paymentFlow: PaymentFlow
     weak var delegate: SellTokensCardViewControllerDelegate?
 

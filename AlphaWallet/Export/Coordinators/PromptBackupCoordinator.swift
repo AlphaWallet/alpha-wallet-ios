@@ -9,9 +9,10 @@ protocol PromptBackupCoordinatorDelegate: class {
 
 ///We allow user to switch wallets, so it's important to know which wallet we are prompting for. It might not be the current wallet
 class PromptBackupCoordinator: Coordinator {
+    private var walletAddress: String
+
     var coordinators: [Coordinator] = []
     weak var delegate: PromptBackupCoordinatorDelegate?
-    var walletAddress: String
 
     init(walletAddress: String) {
         self.walletAddress = walletAddress

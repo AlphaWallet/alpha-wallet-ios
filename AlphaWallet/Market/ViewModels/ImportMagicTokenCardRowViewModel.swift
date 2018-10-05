@@ -3,7 +3,7 @@
 import Foundation
 
 struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
-    var importMagicTokenViewControllerViewModel: ImportMagicTokenViewControllerViewModel
+    private var importMagicTokenViewControllerViewModel: ImportMagicTokenViewControllerViewModel
 
     init(importMagicTokenViewControllerViewModel: ImportMagicTokenViewControllerViewModel) {
         self.importMagicTokenViewControllerViewModel = importMagicTokenViewControllerViewModel

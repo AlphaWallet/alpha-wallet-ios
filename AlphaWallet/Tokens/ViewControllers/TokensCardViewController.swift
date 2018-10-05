@@ -21,23 +21,22 @@ protocol TokensCardViewControllerDelegate: class, CanOpenURL {
 }
 
 class TokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
+    private let tokenObject: TokenObject
+    private var viewModel: TokensCardViewModel
+    private let tokensStorage: TokensDataStore
+    private let account: Wallet
+    private let header = TokenCardsViewControllerHeader()
+    private let roundedBackground = RoundedBackground()
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let redeemButton = UIButton(type: .system)
+    private let sellButton = UIButton(type: .system)
+    private let transferButton = UIButton(type: .system)
 
     let config: Config
     var contract: String {
         return tokenObject.contract
     }
-    let tokenObject: TokenObject
-    var viewModel: TokensCardViewModel
-    let tokensStorage: TokensDataStore
-    let account: Wallet
     weak var delegate: TokensCardViewControllerDelegate?
-    let header = TokenCardsViewControllerHeader()
-    let roundedBackground = RoundedBackground()
-    let tableView = UITableView(frame: .zero, style: .plain)
-
-    let redeemButton = UIButton(type: .system)
-    let sellButton = UIButton(type: .system)
-    let transferButton = UIButton(type: .system)
 
     var isReadOnly = false {
         didSet {

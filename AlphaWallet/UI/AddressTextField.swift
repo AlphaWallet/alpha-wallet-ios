@@ -11,6 +11,8 @@ protocol AddressTextFieldDelegate: class {
 }
 
 class AddressTextField: UIControl {
+    private var isConfigured = false
+
     let label = UILabel()
     let textField = UITextField()
     var value: String {
@@ -21,7 +23,6 @@ class AddressTextField: UIControl {
             textField.text = newValue
         }
     }
-    private var isConfigured = false
     weak var delegate: AddressTextFieldDelegate?
 
     override init(frame: CGRect) {

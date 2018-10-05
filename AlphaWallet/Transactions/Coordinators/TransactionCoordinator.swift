@@ -11,9 +11,9 @@ protocol TransactionCoordinatorDelegate: class, CanOpenURL {
 }
 
 class TransactionCoordinator: Coordinator {
-
     private let keystore: Keystore
-    let storage: TransactionsStorage
+    private let storage: TransactionsStorage
+
     lazy var rootViewController: TransactionsViewController = {
         return makeTransactionsController(with: session.account)
     }()

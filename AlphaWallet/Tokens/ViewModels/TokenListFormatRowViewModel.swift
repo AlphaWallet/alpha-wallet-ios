@@ -3,7 +3,7 @@
 import UIKit
 
 struct TokenListFormatRowViewModel {
-    var tokenHolder: TokenHolder
+    let tokenHolder: TokenHolder
 
     var contentsBackgroundColor: UIColor {
         return Colors.appWhite
@@ -66,7 +66,7 @@ struct TokenListFormatRowViewModel {
     }
 
     var tokenCount: String {
-        return "x\(tokenHolder.tokens.count)"
+        return "x\(tokenHolder.count)"
     }
 
     var title: String {

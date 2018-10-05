@@ -24,15 +24,12 @@ private enum ContractData {
 }
 
 class TokensCoordinator: Coordinator {
-
-    let navigationController: UINavigationController
-    let session: WalletSession
-    let keystore: Keystore
-    var coordinators: [Coordinator] = []
-    let storage: TokensDataStore
+    private let session: WalletSession
+    private let keystore: Keystore
+    private let storage: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
 
-    lazy var tokensViewController: TokensViewController = {
+    private lazy var tokensViewController: TokensViewController = {
         let controller = TokensViewController(
 			session: session,
             account: session.account,
@@ -41,6 +38,9 @@ class TokensCoordinator: Coordinator {
         controller.delegate = self
         return controller
     }()
+
+    let navigationController: UINavigationController
+    var coordinators: [Coordinator] = []
     weak var delegate: TokensCoordinatorDelegate?
 
     lazy var rootViewController: TokensViewController = {

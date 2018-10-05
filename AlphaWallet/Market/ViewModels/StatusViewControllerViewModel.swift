@@ -8,10 +8,12 @@ struct StatusViewControllerViewModel {
 		case succeeded
 		case failed
 	}
+
+    private let inProgressText: String
+	private let succeededTextText: String
+	private let failedText: String
+
 	var state: State
-    let inProgressText: String
-	let succeededTextText: String
-	let failedText: String
 
 	var contentsBackgroundColor: UIColor {
 		return Colors.appWhite

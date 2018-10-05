@@ -10,15 +10,14 @@ protocol ConfirmCoordinatorDelegate: class {
 }
 
 class ConfirmCoordinator: Coordinator {
+    private let session: WalletSession
+    private let account: Account
+    private let keystore: Keystore
+    private let configurator: TransactionConfigurator
+    private let type: ConfirmType
 
     let navigationController: UINavigationController
-    let session: WalletSession
-    let account: Account
-    let keystore: Keystore
-    let configurator: TransactionConfigurator
     var didCompleted: ((Result<ConfirmResult, AnyError>) -> Void)?
-    let type: ConfirmType
-
     var coordinators: [Coordinator] = []
     weak var delegate: ConfirmCoordinatorDelegate?
 

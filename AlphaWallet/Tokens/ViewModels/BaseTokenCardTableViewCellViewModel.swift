@@ -5,9 +5,7 @@ import UIKit
 struct BaseTokenCardTableViewCellViewModel {
     let tokenHolder: TokenHolder
 
-    init(
-            tokenHolder: TokenHolder
-    ) {
+    init(tokenHolder: TokenHolder) {
         self.tokenHolder = tokenHolder
     }
 
