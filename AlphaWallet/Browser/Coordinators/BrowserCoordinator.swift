@@ -289,12 +289,12 @@ extension BrowserCoordinator: BrowserViewControllerDelegate {
         }
     }
 
-    func convertMessageToHex(msg: String) -> String {
+    //allow the message to be passed in as a pure string, if it is then we convert it to hex
+    private func convertMessageToHex(msg: String) -> String {
         if msg.hasPrefix("0x") {
             return msg
         } else {
-            let data = Data(msg.utf8)
-            return data.hexString
+            return msg.hex
         }
     }
 
