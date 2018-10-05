@@ -277,13 +277,24 @@ extension BrowserCoordinator: BrowserViewControllerDelegate {
         case .sendTransaction(let unconfirmedTransaction):
             executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: browserViewController.server)
         case .signMessage(let hexMessage):
-            signMessage(with: .message(Data(hex: hexMessage)), account: account, callbackID: callbackID)
+            let msg = convertMessageToHex(msg: hexMessage)
+            signMessage(with: .message(Data(hex: msg)), account: account, callbackID: callbackID)
         case .signPersonalMessage(let hexMessage):
-            signMessage(with: .personalMessage(Data(hex: hexMessage)), account: account, callbackID: callbackID)
+            let msg = convertMessageToHex(msg: hexMessage)
+            signMessage(with: .personalMessage(Data(hex: msg)), account: account, callbackID: callbackID)
         case .signTypedMessage(let typedData):
             signMessage(with: .typedMessage(typedData), account: account, callbackID: callbackID)
         case .unknown:
             break
+        }
+    }
+
+    func convertMessageToHex(msg: String) -> String {
+        if msg.hasPrefix("0x") {
+            return msg
+        } else {
+            let data = Data(msg.utf8)
+            return data.hexString
         }
     }
 
