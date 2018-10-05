@@ -34,7 +34,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     }
 
     private var totalDollarCost: String {
-        if let dollarCostPerToken = Double(pricePerTokenField.dollarCost) {
+        if let dollarCostPerToken = pricePerTokenField.dollarCost {
             let quantity = Double(quantityStepper.value)
             return StringFormatter().currency(with: dollarCostPerToken * quantity, and: "USD")
         } else {
