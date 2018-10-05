@@ -18,7 +18,7 @@ protocol SignMessageCoordinatorDelegate: class {
 
 class SignMessageCoordinator: Coordinator {
     private let navigationController: UINavigationController
-    public let keystore: Keystore
+    private let keystore: Keystore
     private let account: Account
 
     var coordinators: [Coordinator] = []
@@ -77,7 +77,7 @@ class SignMessageCoordinator: Coordinator {
         }
     }
 
-    func isMessage(data: Data) -> Bool {
+    private func isMessage(data: Data) -> Bool {
         guard let _ = String(data: data, encoding: .utf8) else { return false }
         return true
     }
