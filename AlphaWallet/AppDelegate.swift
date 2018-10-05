@@ -135,7 +135,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func subscribeToSecurityTopicSNS(token: String) {
         let sns = AWSSNS.default()
         guard let endpointRequest = AWSSNSCreatePlatformEndpointInput() else { return }
-        endpointRequest.platformApplicationArn = SNSPlatformApplicationArn
+        #if DEBUG
+            endpointRequest.platformApplicationArn = SNSPlatformApplicationArnSANDBOX
+        #else
+            endpointRequest.platformApplicationArn = SNSPlatformApplicationArn
+        #endif
         endpointRequest.token = token
 
         sns.createPlatformEndpoint(endpointRequest).continueWith() { task in
