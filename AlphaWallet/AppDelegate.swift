@@ -36,18 +36,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return true
     }
 
-    private func cognitoRegistration()
-    {
+    private func cognitoRegistration() {
         // Override point for customization after application launch.
         /// Setup AWS Cognito credentials
         // Initialize the Amazon Cognito credentials provider
-//        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: .USWest2,
-//                identityPoolId: identityPoolId)
-//        let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialsProvider)
-//        AWSServiceManager.default().defaultServiceConfiguration = configuration
-//        let defaultServiceConfiguration = AWSServiceConfiguration(
-//                region: AWSRegionType.USWest2, credentialsProvider: credentialsProvider)
-//        AWSServiceManager.default().defaultServiceConfiguration = defaultServiceConfiguration
+        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: .USWest2,
+                identityPoolId: identityPoolId)
+        let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialsProvider)
+        AWSServiceManager.default().defaultServiceConfiguration = configuration
+        let defaultServiceConfiguration = AWSServiceConfiguration(
+                region: AWSRegionType.USWest2, credentialsProvider: credentialsProvider)
+        AWSServiceManager.default().defaultServiceConfiguration = defaultServiceConfiguration
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
@@ -106,6 +105,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         UserDefaults.standard.set(token, forKey: "deviceTokenForSNS")
         /// Create a platform endpoint. In this case, the endpoint is a
         /// device endpoint ARN
+        cognitoRegistration()
         let sns = AWSSNS.default()
         let request = AWSSNSCreatePlatformEndpointInput()
         request?.token = token
