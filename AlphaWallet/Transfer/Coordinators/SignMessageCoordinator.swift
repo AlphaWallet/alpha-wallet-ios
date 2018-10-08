@@ -88,11 +88,7 @@ class SignMessageCoordinator: Coordinator {
         let result: Result<Data, KeystoreError>
         switch type {
         case .message(let data):
-            if isMessage(data: data) {
-                result = keystore.signMessage(data, for: account)
-            } else {
-                result = keystore.signHash(data, for: account)
-            }
+            result = keystore.signMessage(data, for: account)
         case .personalMessage(let data):
             result = keystore.signPersonalMessage(data, for: account)
         case .typedMessage(let typedData):
