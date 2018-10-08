@@ -58,8 +58,10 @@ public struct Constants {
     public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
     
     //ERC specs
-    public static let erc721InterfaceHash = "0x9a20483d"
-    
+    public static let erc721InterfaceHash = "0x80ac58cd"
+    //CryptoKitties' ERC165 interface signature for ERC721 is wrong
+    public static let erc721InterfaceHashOnlyForCryptoKitty = "0x9a20483d"
+
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaAPIKEY = "11ba1b4f0c4246aeb07b1f8e5a20525f" // X-API-KEY
