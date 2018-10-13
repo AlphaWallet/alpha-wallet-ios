@@ -386,6 +386,7 @@ class InCoordinator: Coordinator {
         tokensCardCoordinator.start()
         switch (type, session.account.type) {
         case (.send, .real), (.request, _):
+            makeCoordinatorReadOnlyIfNonCryptoKitty721(coordinator: tokensCardCoordinator, token: token)
             navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
         case (.send, .watch), (.request, _):
             tokensCardCoordinator.isReadOnly = true
@@ -436,6 +437,20 @@ class InCoordinator: Coordinator {
         let coordinator = FetchAssetDefinitionsCoordinator(assetDefinitionStore: assetDefinitionStore, tokensDataStore: tokensStorage)
         coordinator.start()
         addCoordinator(coordinator)
+    }
+
+    private func makeCoordinatorReadOnlyIfNonCryptoKitty721(coordinator: TokensCardCoordinator, token: TokenObject) {
+        switch token.type {
+        case .ether, .erc20, .erc875:
+            break
+        case .erc721:
+            switch CryptoKittyHandling(contract: token.contract) {
+            case .cryptoKitty:
+                break
+            case .otherNonFungibleToken:
+                coordinator.isReadOnly = true
+            }
+        }
     }
 }
 

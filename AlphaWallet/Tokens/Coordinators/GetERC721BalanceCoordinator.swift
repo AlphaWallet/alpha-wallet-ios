@@ -19,7 +19,7 @@ class GetERC721BalanceCoordinator {
     func getERC721TokenBalance(
             for address: Address,
             contract: Address,
-            completion: @escaping (Result<[BigUInt], AnyError>) -> Void
+            completion: @escaping (Result<BigUInt, AnyError>) -> Void
     ) {
         guard let contractAddress = EthereumAddress(contract.eip55String) else {
             completion(.failure(AnyError(Web3Error(description: "Error converting contract address: \(contract.eip55String)"))))
@@ -38,27 +38,24 @@ class GetERC721BalanceCoordinator {
             return
         }
 
-        guard let promise = contractInstance.method(function.name, options: nil) else {
+        guard let promise = contractInstance.method(function.name, parameters: [address.eip55String] as [AnyObject], options: nil) else {
             completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String)"))))
             return
         }
         promise.callPromise(options: nil).done { [weak self] balanceResult in
             guard let strongSelf = self else { return }
-            let balances = strongSelf.adapt(balanceResult["0"])
-            completion(.success(balances))
+            let balance = strongSelf.adapt(balanceResult["0"])
+            completion(.success(balance))
         }.catch { error in
             completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)(): \(error)"))))
         }
     }
 
-    private func adapt(_ values: Any?) -> [BigUInt] {
-        guard let array = values as? [Any] else { return [] }
-        return array.map {
-            if let val = BigUInt(String(describing: $0)) {
-                return val
-            } else {
-                return BigUInt(0)
-            }
+    private func adapt(_ value: Any) -> BigUInt {
+        if let value = value as? BigUInt {
+            return value
+        } else {
+            return BigUInt(0)
         }
     }
 }
