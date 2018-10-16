@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import PromiseKit
 import Result
 import TrustKeystore
 import web3swift
@@ -17,7 +18,7 @@ class GetIsERC721ContractCoordinator {
 
     func getIsERC721Contract(
             for contract: Address,
-            completion: @escaping (Result<Bool, AnyError>) -> Void
+            completion: @escaping (ResultResult<Bool, AnyError>.t) -> Void
     ) {
         guard let contractAddress = EthereumAddress(contract.eip55String) else {
             completion(.failure(AnyError(Web3Error(description: "Error converting contract address: \(contract.eip55String)"))))
@@ -36,18 +37,33 @@ class GetIsERC721ContractCoordinator {
             return
         }
 
-        guard let promise = contractInstance.method(function.name, parameters: [Constants.erc721InterfaceHash] as [AnyObject], options: nil) else {
-            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String)"))))
+        guard let cryptoKittyPromise = contractInstance.method(function.name, parameters: [Constants.erc721InterfaceHashOnlyForCryptoKitty] as [AnyObject], options: nil)?.callPromise(options: nil) else {
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String) with params: \(Constants.erc721InterfaceHashOnlyForCryptoKitty)"))))
             return
         }
-        promise.callPromise(options: nil).done { dictionary in
-            if let isERC721 = dictionary["0"] as? Bool {
-                completion(.success(isERC721))
+
+        guard let nonCryptoKittyERC721Promise = contractInstance.method(function.name, parameters: [Constants.erc721InterfaceHash] as [AnyObject], options: nil)?.callPromise(options: nil) else {
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String) with params: \(Constants.erc721InterfaceHash)"))))
+            return
+        }
+
+        //Slower than theoretically possible because we wait for every promise to be resolved. In theory we can stop when any promise is fulfilled with true. But code is much less elegant
+        firstly {
+            when(resolved: cryptoKittyPromise, nonCryptoKittyERC721Promise)
+        }.done { results in
+            let cryptoKittyResult = results[0]
+            let nonCryptoKittyERC721Result = results[1]
+            let isCryptoKitty = cryptoKittyPromise.value?["0"] as? Bool
+            let isNonCryptoKittyERC721 = nonCryptoKittyERC721Promise.value?["0"] as? Bool
+            if let isCryptoKitty = isCryptoKitty, isCryptoKitty {
+                completion(.success(true))
+            } else if let isNonCryptoKittyERC721 = isNonCryptoKittyERC721, isNonCryptoKittyERC721 {
+                completion(.success(true))
+            } else if let isCryptoKitty = isCryptoKitty, let isNonCryptoKittyERC721 = isNonCryptoKittyERC721 {
+                completion(.success(false))
             } else {
                 completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))))
             }
-        }.catch { error in
-            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)(): \(error)"))))
         }
     }
 }

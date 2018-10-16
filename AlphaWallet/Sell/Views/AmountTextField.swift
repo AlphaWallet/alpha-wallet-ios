@@ -40,11 +40,11 @@ class AmountTextField: UIControl {
             updateAlternatePricingDisplay()
         }
     }
-    var dollarCost: String {
+    var dollarCost: Double? {
         if currentPair.left == "ETH" {
-            return convertToAlternateAmount()
+            return convertToAlternateAmountNumeric()
         } else {
-            return textField.text ?? "0"
+            return Double(textField.text ?? "")
         }
     }
     var currentPair: Pair
@@ -198,6 +198,18 @@ class AmountTextField: UIControl {
             }
         } else {
             return ""
+        }
+    }
+
+    private func convertToAlternateAmountNumeric() -> Double? {
+        if let ethToDollarRate = ethToDollarRate, let string = textField.text, let amount = Double(string) {
+            if currentPair.left == "ETH" {
+                return amount * ethToDollarRate
+            } else {
+                return amount / ethToDollarRate
+            }
+        } else {
+            return nil
         }
     }
 
