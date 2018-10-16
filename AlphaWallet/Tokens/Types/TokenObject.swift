@@ -80,6 +80,15 @@ class TokenObject: Object {
             return "\(compositeName) (\(symbol))"
         }
     }
+
+    var isERC721: Bool {
+        switch type {
+        case .erc721:
+            return true
+        case .ether, .erc20, .erc875:
+            return false
+        }
+    }
 }
 
 func isNonZeroBalance(_ balance: String) -> Bool {

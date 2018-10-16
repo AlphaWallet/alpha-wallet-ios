@@ -308,9 +308,4 @@
 "camera.qrCode.denied.prompt.title" = "Camera Access Required to Scan QR Code";
 "camera.qrCode.denied.prompt.message" = "Your privacy settings are preventing us from accessing your camera for QR code scanning. Fix this by:\n\n1. Tap the Open Settings button below to open the Settings app.\n\n2. Tap to enable the Camera on.\n\n3. Launch this app again.";
 "camera.qrCode.denied.prompt.button" = "Open Settings";
-"cryptoKitties.url.open" = "Open on CryptoKitties";
-"cryptoKitties.cat.name" = "CryptoKitty #%@";
-"cryptoKitties.cattributes.title" = "Cattributes";
-"cryptoKitties.generation" = "Gen %@";
-"cryptoKitties.cooldown" = "%@ Cooldown";
-"cryptoKitties.cooldown.unknown" = "Unknown";
+"openSeaNonFungibleTokens.url.open" = "Open on %@";

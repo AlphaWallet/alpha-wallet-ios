@@ -297,6 +297,7 @@ class InCoordinator: Coordinator {
         coordinator.navigationController.dismiss(animated: true, completion: nil)
         coordinator.stop()
         removeAllCoordinators()
+        OpenSea.sharedInstance.reset()
         showTabBar(for: account)
         fetchXMLAssetDefinitions()
     }
@@ -386,7 +387,7 @@ class InCoordinator: Coordinator {
         tokensCardCoordinator.start()
         switch (type, session.account.type) {
         case (.send, .real), (.request, _):
-            makeCoordinatorReadOnlyIfNonCryptoKitty721(coordinator: tokensCardCoordinator, token: token)
+            makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: tokensCardCoordinator, token: token)
             navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
         case (.send, .watch), (.request, _):
             tokensCardCoordinator.isReadOnly = true
@@ -439,15 +440,15 @@ class InCoordinator: Coordinator {
         addCoordinator(coordinator)
     }
 
-    private func makeCoordinatorReadOnlyIfNonCryptoKitty721(coordinator: TokensCardCoordinator, token: TokenObject) {
+    private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: TokensCardCoordinator, token: TokenObject) {
         switch token.type {
         case .ether, .erc20, .erc875:
             break
         case .erc721:
-            switch CryptoKittyHandling(contract: token.contract) {
-            case .cryptoKitty:
+            switch OpenSeaNonFungibleTokenHandling(token: token) {
+            case .supportedByOpenSea:
                 break
-            case .otherNonFungibleToken:
+            case .notSupportedByOpenSea:
                 coordinator.isReadOnly = true
             }
         }

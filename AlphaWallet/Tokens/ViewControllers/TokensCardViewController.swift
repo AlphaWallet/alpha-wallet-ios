@@ -60,7 +60,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         view.addSubview(roundedBackground)
 
         tableView.register(TokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier)
-        tableView.register(CryptoKittyTokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: CryptoKittyTokenCardTableViewCellWithoutCheckbox.identifier)
+        tableView.register(OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
@@ -210,7 +210,9 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
-        tableview.reloadRows(at: indexPaths, with: .automatic)
+        //TODO reloading only the affect cells show expanded cell with wrong height the first time, so we reload all instead
+//        tableview.reloadRows(at: indexPaths, with: .automatic)
+        tableview.reloadData()
     }
 }
 
@@ -225,16 +227,16 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tokenHolder = viewModel.item(for: indexPath)
-        let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
+        let tokenType = OpenSeaNonFungibleTokenHandling(token: tokenObject)
         switch tokenType {
-        case .cryptoKitty:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CryptoKittyTokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! CryptoKittyTokenCardTableViewCellWithoutCheckbox
+        case .supportedByOpenSea:
+            let cell = tableView.dequeueReusableCell(withIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox
             cell.delegate = self
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width))
             return cell
-        case .otherNonFungibleToken:
+        case .notSupportedByOpenSea:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithoutCheckbox
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width))
             return cell
         }
     }
@@ -245,7 +247,7 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension TokensCardViewController: BaseCryptoKittyTokenCardTableViewCellDelegate {
+extension TokensCardViewController: BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate {
     func didTapURL(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
     }
