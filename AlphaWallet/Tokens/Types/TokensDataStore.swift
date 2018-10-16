@@ -217,10 +217,8 @@ class TokensDataStore {
         let address = Address(string: addressString)
         getERC721BalanceCoordinator.getERC721TokenBalance(for: account.address, contract: address!) { result in
             switch result {
-            case .success(let ints):
-                completion(.success(ints.map {
-                    MarketQueueHandler.bytesToHexa($0.data.array)
-                }))
+            case .success(let balance):
+                completion(.success([String](repeating: "0", count: Int(balance))))
             case .failure(let error):
                 completion(.failure(error))
             }

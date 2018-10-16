@@ -6,6 +6,10 @@ import TrustKeystore
 import Result
 
 struct FakeKeystore: Keystore {
+    func signHash(_ data: Data, for account: Account) -> Result<Data, KeystoreError> {
+        return .failure(KeystoreError.failedToSignMessage)
+    }
+    
     static var current: Wallet?
     var hasWallets: Bool {
         return !wallets.isEmpty
