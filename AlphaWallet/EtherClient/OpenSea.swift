@@ -57,7 +57,11 @@ class OpenSea {
                 let name = each["name"].stringValue
                 let description = each["description"].stringValue
                 let thumbnailUrl = each["image_thumbnail_url"].stringValue
-                let imageUrl = each["image_url"].stringValue
+                //We'll get what seems to be the PNG version first, falling back to the sometimes PNG, but sometimes SVG version
+                var imageUrl = each["image_preview_url"].stringValue
+                if imageUrl.isEmpty {
+                    imageUrl = each["image_url"].stringValue
+                }
                 let externalLink = each["external_link"].stringValue
                 let backgroundColor = each["background_color"].stringValue
                 var traits = [OpenSeaNonFungibleTrait]()
