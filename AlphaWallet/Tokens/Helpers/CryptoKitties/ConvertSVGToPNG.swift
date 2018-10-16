@@ -5,12 +5,12 @@ import UIKit
 import Macaw
 import PromiseKit
 
-class GenerateCryptoKittyPNGFromSVG {
+class ConvertSVGToPNG {
     private let imageCache = ImageCache()
     private var promises = [URL: Promise<UIImage>]()
     private var rasterizedImageFileExtensions = ["png", "jpg", "jpeg"]
 
-    func withDownloadedImage(fromURL url: URL?, forTokenId tokenId: String?) -> Promise<UIImage> {
+    func withDownloadedImage(fromURL url: URL?, forTokenId tokenId: String?, withPrefix prefix: String) -> Promise<UIImage> {
         guard let tokenId = tokenId else {
             return Promise { $0.resolve(nil, GenerationError(errorDescription: "No tokenId")) }
         }
@@ -22,7 +22,7 @@ class GenerateCryptoKittyPNGFromSVG {
             return promise
         }
 
-        if let image = cachedImage(forKittyId: tokenId) {
+        if let image = cachedImage(forTokenId: tokenId, withPrefix: prefix) {
             return Promise { $0.resolve(image, nil) }
         }
 
@@ -35,7 +35,7 @@ class GenerateCryptoKittyPNGFromSVG {
             if self.rasterizedImageFileExtensions.contains(imageFileExtension) {
                 if let image = ImageCache.image(fromData: data) {
                     //TODO resize the image if it's drastically bigger than what we are using in the app
-                    self.cache(image: image, forKittyId: tokenId)
+                    self.cache(image: image, forTokenId: tokenId, withPrefix: prefix)
                     return Promise { $0.resolve(image, nil) }
                 } else {
                     return Promise { $0.resolve(nil, GenerationError(errorDescription: "Can't create image from data interpreted as PNG. URL: \(url) tokenId: \(tokenId)")) }
@@ -45,7 +45,7 @@ class GenerateCryptoKittyPNGFromSVG {
                 return imagePromise
             }
         }.then { image -> Promise<UIImage> in
-            self.cache(image: image, forKittyId: tokenId)
+            self.cache(image: image, forTokenId: tokenId, withPrefix: prefix)
             return Promise { $0.resolve(image, nil) }
         }
         promises[url] = promise
@@ -82,16 +82,12 @@ class GenerateCryptoKittyPNGFromSVG {
         }
     }
 
-    private func cryptoKittyImageKey(fromKittyId kittyId: String) -> String {
-        return "cryptokitty-\(kittyId)"
+    private func cachedImage(forTokenId tokenId: String, withPrefix prefix: String) -> UIImage? {
+        return imageCache["\(prefix)-\(tokenId)"]
     }
 
-    private func cachedImage(forKittyId kittyId: String) -> UIImage? {
-        return imageCache[cryptoKittyImageKey(fromKittyId: kittyId)]
-    }
-
-    private func cache(image: UIImage, forKittyId kittyId: String) {
-        imageCache[cryptoKittyImageKey(fromKittyId: kittyId)] = image
+    private func cache(image: UIImage, forTokenId tokenId: String, withPrefix prefix: String) {
+        imageCache["\(prefix)-\(tokenId)"] = image
     }
 
     private struct GenerationError: LocalizedError {

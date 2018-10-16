@@ -4,10 +4,7 @@ import UIKit
 
 struct BaseTokenCardTableViewCellViewModel {
     let tokenHolder: TokenHolder
-
-    init(tokenHolder: TokenHolder) {
-        self.tokenHolder = tokenHolder
-    }
+    let cellWidth: CGFloat
 
     var backgroundColor: UIColor {
         return Colors.appWhite

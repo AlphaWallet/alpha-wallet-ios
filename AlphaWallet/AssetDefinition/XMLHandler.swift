@@ -96,6 +96,7 @@ private class PrivateXMLHandler {
     }
 
     func getTokenTypeName(_ type: SingularOrPlural = .plural, titlecase: TitlecaseOrNot = .titlecase) -> String {
+        //TODO should generalize this
         if contractAddress.sameContract(as: Constants.cryptoKittiesContractAddress) {
             switch titlecase {
             case .titlecase:

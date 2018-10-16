@@ -61,26 +61,6 @@ public struct Constants {
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaAPIKEY = "11ba1b4f0c4246aeb07b1f8e5a20525f" // X-API-KEY
 
-    public static let cryptoKittiesCooldowns = [
-        "Fast",
-        "Swift",
-        "Swift",
-        "Snappy",
-        "Snappy",
-        "Brisk",
-        "Brisk",
-        "Ploddy",
-        "Ploddy",
-        "Slow",
-        "Slow",
-        "Sluggish",
-        "Sluggish",
-        "Catatonic",
-        "Catatonic"
-    ]
-    
-    //contract addresses that are compatible with opensea
-    //See comment in CryptoKittyHandling enum
     public static let cryptoKittiesContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 
     public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"

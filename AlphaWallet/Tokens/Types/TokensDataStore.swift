@@ -1,12 +1,10 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import Alamofire
-import Result
-import APIKit
-import RealmSwift
 import BigInt
-import Moya
+import PromiseKit
+import Result
+import RealmSwift
 import SwiftyJSON
 import TrustKeystore
 
@@ -202,17 +200,6 @@ class TokensDataStore {
     }
 
     func getERC721Balance(for addressString: String,
-                          completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
-        let tokenType = CryptoKittyHandling(contract: addressString)
-        switch tokenType {
-        case .cryptoKitty:
-            getCryptoKittyBalance(for: addressString, completion: completion)
-        case .otherNonFungibleToken:
-            getGenericERC721Balance(for: addressString, completion: completion)
-        }
-    }
-
-    private func getGenericERC721Balance(for addressString: String,
                                          completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
         let address = Address(string: addressString)
         getERC721BalanceCoordinator.getERC721TokenBalance(for: account.address, contract: address!) { result in
@@ -225,47 +212,9 @@ class TokensDataStore {
         }
     }
 
-    private func getCryptoKittyBalance(for addressString: String,
-                                         completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
-        guard let url = URL(string: "\(Constants.openseaAPI)api/v1/assets/?owner=\(account.address.eip55String)&order_by=current_price&order_direction=asc") else {
-            completion(.failure(AnyError(CryptoKittyError(localizedDescription: "Error calling \(Constants.openseaAPI) API"))))
-            return
-        }
-        Alamofire.request(
-                url,
-                method: .get,
-                headers: ["X-API-KEY" : Constants.openseaAPIKEY]
-        ).responseJSON { response in
-            guard let data = response.data, let json = try? JSON(data: data) else {
-                completion(.failure(AnyError(CryptoKittyError(localizedDescription: "Error calling \(Constants.openseaAPI) API"))))
-                return
-            }
-            var results = [String]()
-            for (_, each): (String, JSON) in json["assets"] where each["asset_contract"]["address"].stringValue.sameContract(as: Constants.cryptoKittiesContractAddress) {
-                let tokenId = each["token_id"].stringValue
-                let description = each["description"].stringValue
-                let thumbnailUrl = each["image_thumbnail_url"].stringValue
-                let imageUrl = each["image_url"].stringValue
-                let externalLink = each["external_link"].stringValue
-                let backgroundColor = each["background_color"].stringValue
-                var traits = [CryptoKittyTrait]()
-                for each in each["traits"].arrayValue {
-                    let traitCount = each["trait_count"].intValue
-                    let traitType = each["trait_type"].stringValue
-                    let traitValue = each["value"].stringValue
-                    let trait = CryptoKittyTrait(count: traitCount, type: traitType, value: traitValue)
-                    traits.append(trait)
-                }
-                let cat = CryptoKitty(tokenId: tokenId, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
-                if let encodedJson = try? JSONEncoder().encode(cat), let jsonString = String(data: encodedJson, encoding: .utf8) {
-                    results.append(jsonString)
-                } else {
-                    completion(.failure(AnyError(CryptoKittyError(localizedDescription: "Error converting JSON to CryptoKitty"))))
-                    return
-                }
-            }
-            completion(.success(results))
-        }
+    private func getTokensFromOpenSea() -> Promise<ResultResult<[String: [OpenSeaNonFungible]], AnyError>.t> {
+        //TODO when we no longer create multiple instances of TokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
+        return OpenSea.sharedInstance.makeFetchPromise(owner: account.address.eip55String)
     }
 
     func getTokenType(for addressString: String,
@@ -317,48 +266,136 @@ class TokensDataStore {
         }
         let etherToken = TokensDataStore.etherToken(for: config)
         let updateTokens = enabledObject.filter { $0 != etherToken }
+        let nonERC721Tokens = updateTokens.filter { !$0.isERC721 }
+        let erc721Tokens = updateTokens.filter { $0.isERC721 }
+        refreshBalanceForNonERC721Tokens(tokens: nonERC721Tokens)
+        refreshBalanceForERC721Tokens(tokens: erc721Tokens)
+    }
+
+    private func refreshBalanceForNonERC721Tokens(tokens: [TokenObject]) {
+        assert(!tokens.contains { $0.isERC721 })
         var count = 0
-        for tokenObject in updateTokens {
+        //So we refresh the UI. Possible improvement is to refresh earlier, but still refresh at the end
+        func incrementCountAndUpdateDelegate() {
+            count += 1
+            if count == tokens.count {
+                updateDelegate()
+            }
+        }
+        for tokenObject in tokens {
             switch tokenObject.type {
             case .ether:
-                break
+                incrementCountAndUpdateDelegate()
             case .erc20:
-                guard let contract = Address(string: tokenObject.contract) else { return }
+                guard let contract = Address(string: tokenObject.contract) else {
+                    incrementCountAndUpdateDelegate()
+                    return
+                }
                 getBalanceCoordinator.getBalance(for: account.address, contract: contract) { [weak self] result in
+                    defer { incrementCountAndUpdateDelegate() }
                     guard let strongSelf = self else { return }
                     switch result {
                     case .success(let balance):
                         strongSelf.update(token: tokenObject, action: .value(balance))
-                    case .failure: break
-                    }
-                    count += 1
-                    if count == updateTokens.count {
-                        strongSelf.refreshETHBalance()
+                    case .failure:
+                        break
                     }
                 }
             case .erc875:
                 getERC875Balance(for: tokenObject.contract, completion: { [weak self] result in
+                    defer { incrementCountAndUpdateDelegate() }
                     guard let strongSelf = self else { return }
                     switch result {
                     case .success(let balance):
                         strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
-                    case .failure: break
+                    case .failure:
+                        break
                     }
 
                 })
             case .erc721:
-                getERC721Balance(for: tokenObject.contract, completion: { [weak self] result in
-                    guard let strongSelf = self else { return }
-                    switch result {
-                    case .success(let balance):
-                        strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
-                    case .failure: break
-                    }
-
-                })
+                //We'll check with OpenSea below and an ERC721 token isn't found there, then we get the balance of each token ourselves
+                incrementCountAndUpdateDelegate()
+                break
             }
         }
     }
+
+    private func refreshBalanceForERC721Tokens(tokens: [TokenObject]) {
+        assert(!tokens.contains { !$0.isERC721 })
+        getTokensFromOpenSea().done { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let contractToOpenSeaNonFungibles):
+                let erc721ContractsFoundInOpenSea = Array(contractToOpenSeaNonFungibles.keys).map { $0.lowercased() }
+                let erc721ContractsNotFoundInOpenSea = tokens.map { $0.contract.lowercased() } - erc721ContractsFoundInOpenSea
+                var count = 0
+                for each in erc721ContractsNotFoundInOpenSea {
+                    strongSelf.getERC721Balance(for: each) { [weak self] result in
+                        guard let strongSelf = self else { return }
+                        defer {
+                            count += 1
+                            if count == erc721ContractsNotFoundInOpenSea.count {
+                                strongSelf.updateDelegate()
+                            }
+                        }
+                        switch result {
+                        case .success(let balance):
+                            if let token = tokens.first(where: { $0.contract.sameContract(as: each) }) {
+                                strongSelf.update(token: token, action: .nonFungibleBalance(balance))
+                            }
+                        case .failure:
+                            break
+                        }
+                    }
+                }
+
+                for (contract, openSeaNonFungibles) in contractToOpenSeaNonFungibles {
+                    var listOfJson = [String]()
+                    var anyNonFungible: OpenSeaNonFungible?
+                    for each in openSeaNonFungibles {
+                        if let encodedJson = try? JSONEncoder().encode(each), let jsonString = String(data: encodedJson, encoding: .utf8) {
+                            anyNonFungible = each
+                            listOfJson.append(jsonString)
+                        } else {
+                            NSLog("Failed to convert ERC721 token from OpenSea to JSON")
+                        }
+                    }
+
+                    if let tokenObject = tokens.first(where: { $0.contract.sameContract(as: contract) }) {
+                        switch tokenObject.type {
+                        case .ether, .erc721, .erc875:
+                            break
+                        case .erc20:
+                            strongSelf.update(token: tokenObject, action: .type(.erc721))
+                        }
+                        strongSelf.update(token: tokenObject, action: .nonFungibleBalance(listOfJson))
+                        if let anyNonFungible = anyNonFungible {
+                            strongSelf.update(token: tokenObject, action: .name(anyNonFungible.contractName))
+                        }
+                    } else {
+                        if let address = Address(string: contract) {
+                            let token = ERCToken(
+                                    contract: address,
+                                    name: openSeaNonFungibles[0].contractName,
+                                    symbol: openSeaNonFungibles[0].symbol,
+                                    decimals: 0,
+                                    type: .erc721,
+                                    balance: listOfJson
+                            )
+                            strongSelf.addCustom(token: token)
+                        } else {
+                            NSLog("Failed to add token from OpenSea: \(contract)")
+                        }
+                    }
+                }
+                strongSelf.updateDelegate()
+            case .failure:
+                NSLog("Failed to retrieve tokens from OpenSea")
+            }
+        }
+    }
+
     func refreshETHBalance() {
         getBalanceCoordinator.getEthBalance(for: account.address) {  [weak self] result in
             guard let strongSelf = self else { return }
@@ -474,6 +511,8 @@ class TokensDataStore {
         case value(BigInt)
         case isDisabled(Bool)
         case nonFungibleBalance([String])
+        case name(String)
+        case type(TokenType)
     }
 
     func update(token: TokenObject, action: TokenUpdateAction) {
@@ -491,6 +530,10 @@ class TokensDataStore {
                         token.balance.append(TokenBalance(balance: balance[i]))
                     }
                 }
+            case .name(let name):
+                token.name = name
+            case .type(let type):
+                token.type = type
             }
         }
     }

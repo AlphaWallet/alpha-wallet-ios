@@ -63,11 +63,11 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         self.ethPrice = ethPrice
         self.viewModel = viewModel
 
-        let tokenType = CryptoKittyHandling(address: viewModel.token.address)
+        let tokenType = OpenSeaNonFungibleTokenHandling(token: viewModel.token)
         switch tokenType {
-        case .cryptoKitty:
-            tokenRowView = CryptoKittyCardRowView()
-        case .otherNonFungibleToken:
+        case .supportedByOpenSea:
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+        case .notSupportedByOpenSea:
             tokenRowView = TokenCardRowView()
         }
 
