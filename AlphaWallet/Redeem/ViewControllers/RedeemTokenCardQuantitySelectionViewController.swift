@@ -34,11 +34,11 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
         self.token = token
         self.viewModel = viewModel
 
-        let tokenType = CryptoKittyHandling(address: token.address)
+        let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
         switch tokenType {
-        case .cryptoKitty:
-            tokenRowView = CryptoKittyCardRowView()
-        case .otherNonFungibleToken:
+        case .supportedByOpenSea:
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+        case .notSupportedByOpenSea:
             tokenRowView = TokenCardRowView()
         }
 

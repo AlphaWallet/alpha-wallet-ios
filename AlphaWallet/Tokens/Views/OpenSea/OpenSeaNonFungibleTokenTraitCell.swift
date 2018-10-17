@@ -3,8 +3,8 @@
 import Foundation
 import UIKit
 
-class CryptoKittyCAttributeCell: UICollectionViewCell {
-    static let identifier = "CryptoKittyCAttributeCell"
+class OpenSeaNonFungibleTokenTraitCell: UICollectionViewCell {
+    static let identifier = "OpenSeaNonFungibleTokenTraitCell"
     private let iconImageView = UIImageView()
     private let nameLabel = UILabel()
     private let valueLabel = UILabel()
@@ -42,7 +42,7 @@ class CryptoKittyCAttributeCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: CryptoKittyCAttributeCellViewModel) {
+    func configure(viewModel: OpenSeaNonFungibleTokenAttributeCellViewModel) {
         backgroundColor = viewModel.backgroundColor
         contentView.backgroundColor = viewModel.backgroundColor
         nameLabel.backgroundColor = viewModel.backgroundColor

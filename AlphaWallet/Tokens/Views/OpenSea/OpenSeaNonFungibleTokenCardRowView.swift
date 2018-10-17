@@ -3,16 +3,16 @@
 import UIKit
 import PromiseKit
 
-protocol CryptoKittyCardRowViewDelegate: class {
+protocol OpenSeaNonFungibleTokenCardRowViewDelegate: class {
     func didTapURL(url: URL)
 }
 
-class CryptoKittyCardRowView: UIView {
+class OpenSeaNonFungibleTokenCardRowView: UIView {
     private let mainVerticalStackView: UIStackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required)
     private let thumbnailImageView = UIImageView()
     private let bigImageBackground = UIView()
     private let bigImageView = UIImageView()
-    //the SVG from CryptoKitty usually has lots of white space around the kitty. We add a container around the image view and let it bleed out a little
+    //the SVG from CryptoKitty usually has lots of white space around the kitty. We add a container around the image view and let it bleed out a little for CryptoKitties
     private let bigImageHolder = UIView()
     private let titleLabel = UILabel()
     private let spacers = (
@@ -21,20 +21,27 @@ class CryptoKittyCardRowView: UIView {
             belowDescription: UIView.spacer(height: 20),
             belowState: UIView.spacer(height: 10),
             aboveHorizontalSubtitleStackView: UIView.spacer(height: 20),
-            belowHorizontalSubtitleStackView: UIView.spacer(height: 20)
+            belowHorizontalSubtitleStackView: UIView.spacer(height: 20),
+            belowAttributesLabel: UIView.spacer(height: 20),
+            aboveStatsLabel: UIView.spacer(height: 20),
+            belowStatsLabel: UIView.spacer(height: 20),
+            aboveRankingsLabel: UIView.spacer(height: 20),
+            belowRankingsLabel: UIView.spacer(height: 20),
+            atBottom: UIView.spacer(height: 16)
     )
     private let horizontalSubtitleStackView: UIStackView = [].asStackView(alignment: .center)
     private let verticalSubtitleStackView: UIStackView = [].asStackView(axis: .vertical, alignment: .leading)
+    //TODO Name is too-specific for generation and cooldown, but the icons really are for those. We can rename (or remove this TODO once we are clean whether the icons are shown if the values displayed aren't generation/cooldown
     private let verticalGenerationIconImageView = UIImageView()
     private let verticalCooldownIconImageView = UIImageView()
-    private let verticalGenerationLabel = UILabel()
-    private let verticalCooldownLabel = UILabel()
-    private let kittyIdIconLabel = UILabel()
+    private let verticalSubtitle1Label = UILabel()
+    private let verticalSubtitle2And3Label = UILabel()
+    private let nonFungibleIdIconLabel = UILabel()
     private let generationIconImageView = UIImageView()
     private let cooldownIconImageView = UIImageView()
-    private let kittyIdLabel = UILabel()
-    private let generationLabel = UILabel()
-    private let cooldownLabel = UILabel()
+    private let nonFungibleIdLabel = UILabel()
+    private let subtitle1Label = UILabel()
+    private let subtitle2And3Label = UILabel()
     private let descriptionLabel = UILabel()
     private let attributesLabel = UILabel()
     private let attributesCollectionView = { () -> UICollectionView in
@@ -46,12 +53,36 @@ class CryptoKittyCardRowView: UIView {
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
     lazy private var attributesCollectionViewHeightConstraint = attributesCollectionView.heightAnchor.constraint(equalToConstant: 100)
+    private let rankingsLabel = UILabel()
+    private let rankingsCollectionView = { () -> UICollectionView in
+        let layout = UICollectionViewFlowLayout()
+        //3-column for iPhone 6s and above, 2-column for iPhone 5
+        layout.itemSize = CGSize(width: 105, height: 30)
+        layout.minimumLineSpacing = 10
+        layout.minimumInteritemSpacing = 00
+        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+    }()
+    lazy private var rankingsCollectionViewHeightConstraint = rankingsCollectionView.heightAnchor.constraint(equalToConstant: 100)
+    private let statsLabel = UILabel()
+    private let statsCollectionView = { () -> UICollectionView in
+        let layout = UICollectionViewFlowLayout()
+        //3-column for iPhone 6s and above, 2-column for iPhone 5
+        layout.itemSize = CGSize(width: 105, height: 30)
+        layout.minimumLineSpacing = 10
+        layout.minimumInteritemSpacing = 00
+        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+    }()
+    lazy private var statsCollectionViewHeightConstraint = statsCollectionView.heightAnchor.constraint(equalToConstant: 100)
     private let urlButton = UIButton(type: .system)
     private let urlButtonHolder = [].asStackView(axis: .vertical, alignment: .leading)
     private let showCheckbox: Bool
-    private var viewModel: CryptoKittyCardRowViewModel?
+    private var viewModel: OpenSeaNonFungibleTokenCardRowViewModel?
     private var thumbnailRelatedConstraints = [NSLayoutConstraint]()
+    //Sets a default which is ignored. At runtime, we recalculate constant based on image's aspect ratio so the image can always fill the width
+    lazy private var bigImageHolderHeightConstraint = bigImageView.heightAnchor.constraint(equalToConstant: 300)
     private var bigImageRelatedConstraints = [NSLayoutConstraint]()
+    private var bigImageViewRelatedConstraintsWithPositiveBleed = [NSLayoutConstraint]()
+    private var bigImageViewRelatedConstraintsWithNegativeBleed = [NSLayoutConstraint]()
     private var viewsVisibleWhenDetailsAreVisibleImagesAvailable = [UIView]()
     private var viewsVisibleWhenDetailsAreNotVisibleImagesAvailable = [UIView]()
     private var viewsVisibleWhenDetailsAreVisibleImagesNotAvailable = [UIView]()
@@ -62,7 +93,7 @@ class CryptoKittyCardRowView: UIView {
     var stateLabel = UILabel()
 
     let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
-    weak var delegate: CryptoKittyCardRowViewDelegate?
+    weak var delegate: OpenSeaNonFungibleTokenCardRowViewDelegate?
 
     init(showCheckbox: Bool = false) {
         self.showCheckbox = showCheckbox
@@ -81,9 +112,17 @@ class CryptoKittyCardRowView: UIView {
         urlButtonHolder.isHidden = true
         urlButton.addTarget(self, action: #selector(tappedUrl), for: .touchUpInside)
 
-        attributesCollectionView.register(CryptoKittyCAttributeCell.self, forCellWithReuseIdentifier: CryptoKittyCAttributeCell.identifier)
+        attributesCollectionView.register(OpenSeaNonFungibleTokenTraitCell.self, forCellWithReuseIdentifier: OpenSeaNonFungibleTokenTraitCell.identifier)
         attributesCollectionView.isUserInteractionEnabled = false
         attributesCollectionView.dataSource = self
+
+        rankingsCollectionView.register(OpenSeaNonFungibleTokenTraitCell.self, forCellWithReuseIdentifier: OpenSeaNonFungibleTokenTraitCell.identifier)
+        rankingsCollectionView.isUserInteractionEnabled = false
+        rankingsCollectionView.dataSource = self
+
+        statsCollectionView.register(OpenSeaNonFungibleTokenTraitCell.self, forCellWithReuseIdentifier: OpenSeaNonFungibleTokenTraitCell.identifier)
+        statsCollectionView.isUserInteractionEnabled = false
+        statsCollectionView.dataSource = self
 
         setupLayout()
     }
@@ -99,10 +138,10 @@ class CryptoKittyCardRowView: UIView {
         bigImageBackground.layer.cornerRadius = 20
         background.addSubview(bigImageBackground)
 
-        horizontalSubtitleStackView.addArrangedSubviews([kittyIdIconLabel, .spacerWidth(3), kittyIdLabel, .spacerWidth(7), generationIconImageView, generationLabel, .spacerWidth(7), cooldownIconImageView, cooldownLabel])
+        horizontalSubtitleStackView.addArrangedSubviews([nonFungibleIdIconLabel, .spacerWidth(3), nonFungibleIdLabel, .spacerWidth(7), generationIconImageView, subtitle1Label, .spacerWidth(7), cooldownIconImageView, subtitle2And3Label])
 
-        let generationStackView = [verticalGenerationIconImageView, verticalGenerationLabel].asStackView(spacing: 0, contentHuggingPriority: .required)
-        let cooldownStackView = [verticalCooldownIconImageView, verticalCooldownLabel].asStackView(spacing: 0, contentHuggingPriority: .required)
+        let generationStackView = [verticalGenerationIconImageView, verticalSubtitle1Label].asStackView(spacing: 0, contentHuggingPriority: .required)
+        let cooldownStackView = [verticalCooldownIconImageView, verticalSubtitle2And3Label].asStackView(spacing: 0, contentHuggingPriority: .required)
         verticalSubtitleStackView.addArrangedSubviews([
             generationStackView,
             cooldownStackView
@@ -121,8 +160,16 @@ class CryptoKittyCardRowView: UIView {
             descriptionLabel,
             spacers.belowDescription,
             attributesLabel,
-            .spacer(height: 20),
+            spacers.belowAttributesLabel,
             attributesCollectionView,
+            spacers.aboveRankingsLabel,
+            rankingsLabel,
+            spacers.belowRankingsLabel,
+            rankingsCollectionView,
+            spacers.aboveStatsLabel,
+            statsLabel,
+            spacers.belowStatsLabel,
+            statsCollectionView,
         ].asStackView(axis: .vertical, contentHuggingPriority: .required, alignment: .leading)
 
         let col1 = thumbnailImageView
@@ -132,7 +179,6 @@ class CryptoKittyCardRowView: UIView {
         urlButtonHolder.addArrangedSubviews([
             .spacer(height: 20),
             urlButton,
-            .spacer(height: 16),
         ])
 
         mainVerticalStackView.addArrangedSubviews([
@@ -140,6 +186,7 @@ class CryptoKittyCardRowView: UIView {
             bigImageHolder,
             bodyStackView,
             urlButtonHolder,
+            spacers.atBottom
         ])
         mainVerticalStackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(mainVerticalStackView)
@@ -173,20 +220,22 @@ class CryptoKittyCardRowView: UIView {
         let marginForBigImageView = CGFloat(1)
         bigImageRelatedConstraints = [
             bigImageHolder.widthAnchor.constraint(equalTo: mainVerticalStackView.widthAnchor),
-            bigImageHolder.heightAnchor.constraint(equalToConstant: 300),
+            bigImageHolderHeightConstraint,
             bigImageBackground.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: marginForBigImageView),
             bigImageBackground.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -marginForBigImageView),
             bigImageBackground.topAnchor.constraint(equalTo: background.topAnchor, constant: marginForBigImageView),
             bigImageBackground.bottomAnchor.constraint(equalTo: bigImageHolder.bottomAnchor, constant: 10),
         ]
 
-        //We let the big image bleed out of its container view because CryptoKitty images has a huge empty marge around the kitties. Careful that this also fits iPhone 5s
-        let bleedForBigImage: CGFloat
-        if ScreenChecker().isNarrowScreen() {
-            bleedForBigImage = 24
-        } else {
-            bleedForBigImage = 34
-        }
+        bigImageViewRelatedConstraintsWithPositiveBleed = [
+            bigImageView.bottomAnchor.constraint(equalTo: bigImageHolder.bottomAnchor, constant: 0),
+            bigImageView.trailingAnchor.constraint(equalTo: bigImageHolder.trailingAnchor, constant: 0),
+        ]
+        bigImageViewRelatedConstraintsWithNegativeBleed = [
+            bigImageView.topAnchor.constraint(equalTo: bigImageHolder.topAnchor, constant: 0),
+            bigImageView.leadingAnchor.constraint(equalTo: bigImageHolder.leadingAnchor, constant: 0),
+        ]
+
         NSLayoutConstraint.activate([
             mainVerticalStackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
             mainVerticalStackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
@@ -204,13 +253,26 @@ class CryptoKittyCardRowView: UIView {
             attributesCollectionView.trailingAnchor.constraint(equalTo: mainVerticalStackView.trailingAnchor),
             attributesCollectionViewHeightConstraint,
 
-            descriptionLabel.widthAnchor.constraint(equalTo: col0.widthAnchor),
+            //It is important to anchor the collection view to the outermost stackview (which has aligment=.fill) instead of child stackviews which does not have alignment=.fill
+            rankingsCollectionView.leadingAnchor.constraint(equalTo: mainVerticalStackView.leadingAnchor),
+            rankingsCollectionView.trailingAnchor.constraint(equalTo: mainVerticalStackView.trailingAnchor),
+            rankingsCollectionViewHeightConstraint,
 
-            bigImageView.topAnchor.constraint(equalTo: bigImageHolder.topAnchor, constant: -bleedForBigImage),
-            bigImageView.bottomAnchor.constraint(equalTo: bigImageHolder.bottomAnchor, constant: bleedForBigImage),
-            bigImageView.leadingAnchor.constraint(equalTo: bigImageHolder.leadingAnchor, constant: -bleedForBigImage),
-            bigImageView.trailingAnchor.constraint(equalTo: bigImageHolder.trailingAnchor, constant: bleedForBigImage),
-        ] + checkboxRelatedConstraints + thumbnailRelatedConstraints)
+            verticalGenerationIconImageView.widthAnchor.constraint(equalTo: verticalCooldownIconImageView.widthAnchor),
+            verticalCooldownIconImageView.widthAnchor.constraint(equalTo: verticalCooldownIconImageView.heightAnchor),
+
+            //It is important to anchor the collection view to the outermost stackview (which has aligment=.fill) instead of child stackviews which does not have alignment=.fill
+            statsCollectionView.leadingAnchor.constraint(equalTo: mainVerticalStackView.leadingAnchor),
+            statsCollectionView.trailingAnchor.constraint(equalTo: mainVerticalStackView.trailingAnchor),
+            statsCollectionViewHeightConstraint,
+
+            descriptionLabel.widthAnchor.constraint(equalTo: col0.widthAnchor),
+        ] +
+                bigImageViewRelatedConstraintsWithPositiveBleed +
+                bigImageViewRelatedConstraintsWithNegativeBleed +
+                checkboxRelatedConstraints +
+                thumbnailRelatedConstraints
+        )
 
         viewsVisibleWhenDetailsAreNotVisibleImagesAvailable = [
             spacers.aboveTitle,
@@ -221,6 +283,10 @@ class CryptoKittyCardRowView: UIView {
         viewsVisibleWhenDetailsAreVisibleImagesAvailable = [
             attributesLabel,
             attributesCollectionView,
+            rankingsLabel,
+            rankingsCollectionView,
+            statsLabel,
+            statsCollectionView,
             urlButtonHolder,
             bigImageHolder,
             bigImageBackground,
@@ -250,7 +316,7 @@ class CryptoKittyCardRowView: UIView {
         delegate?.didTapURL(url: url)
     }
 
-    func configure(viewModel: CryptoKittyCardRowViewModel) {
+    func configure(viewModel: OpenSeaNonFungibleTokenCardRowViewModel) {
         self.viewModel = viewModel
 
         background.backgroundColor = viewModel.contentsBackgroundColor
@@ -266,30 +332,40 @@ class CryptoKittyCardRowView: UIView {
         stateLabel.textColor = viewModel.stateColor
         stateLabel.font = viewModel.stateFont
 
-        kittyIdIconLabel.text = viewModel.kittyIdIconText
-        kittyIdIconLabel.textColor = viewModel.kittyIdIconTextColor
+        nonFungibleIdIconLabel.text = viewModel.nonFungibleIdIconText
+        nonFungibleIdIconLabel.textColor = viewModel.nonFungibleIdIconTextColor
         generationIconImageView.image = viewModel.generationIcon
         cooldownIconImageView.image = viewModel.cooldownIcon
         verticalGenerationIconImageView.image = viewModel.generationIcon
         verticalCooldownIconImageView.image = viewModel.cooldownIcon
 
-        kittyIdLabel.textColor = viewModel.kittyIdTextColor
-        generationLabel.textColor = viewModel.generationTextColor
-        cooldownLabel.textColor = viewModel.cooldownTextColor
-        kittyIdLabel.font = viewModel.subtitleFont
-        generationLabel.font = viewModel.subtitleFont
-        cooldownLabel.font = viewModel.subtitleFont
+        nonFungibleIdLabel.textColor = viewModel.nonFungibleIdTextColor
+        subtitle1Label.textColor = viewModel.generationTextColor
+        subtitle2And3Label.textColor = viewModel.cooldownTextColor
+        nonFungibleIdLabel.font = viewModel.subtitleFont
+        subtitle1Label.font = viewModel.subtitleFont
+        subtitle2And3Label.font = viewModel.subtitleFont
 
-        verticalGenerationLabel.textColor = viewModel.generationTextColor
-        verticalCooldownLabel.textColor = viewModel.cooldownTextColor
-        verticalGenerationLabel.font = viewModel.subtitleFont
-        verticalCooldownLabel.font = viewModel.subtitleFont
+        verticalSubtitle1Label.textColor = viewModel.generationTextColor
+        verticalSubtitle2And3Label.textColor = viewModel.cooldownTextColor
+        verticalSubtitle1Label.font = viewModel.subtitleFont
+        verticalSubtitle2And3Label.font = viewModel.subtitleFont
 
-        kittyIdLabel.text = viewModel.tokenId
-        generationLabel.text = viewModel.generation
-        cooldownLabel.text = viewModel.cooldown
-        verticalGenerationLabel.text = viewModel.generation
-        verticalCooldownLabel.text = viewModel.cooldown
+        nonFungibleIdLabel.text = viewModel.tokenId
+        subtitle1Label.text = viewModel.subtitle1
+        verticalSubtitle1Label.text = viewModel.subtitle1
+        if viewModel.isSubtitle3Hidden {
+            subtitle2And3Label.text = viewModel.subtitle2
+            verticalSubtitle2And3Label.text = viewModel.subtitle2
+        } else {
+            if let subtitle2 = viewModel.subtitle2, let subtitle3 = viewModel.subtitle3 {
+                subtitle2And3Label.text = "\(subtitle2) / \(subtitle3)"
+                verticalSubtitle2And3Label.text = "\(subtitle2) / \(subtitle3)"
+            } else {
+                subtitle2And3Label.text = viewModel.subtitle2
+                verticalSubtitle2And3Label.text = viewModel.subtitle2
+            }
+        }
 
         descriptionLabel.numberOfLines = 0
         descriptionLabel.textColor = viewModel.titleColor
@@ -301,17 +377,37 @@ class CryptoKittyCardRowView: UIView {
         attributesLabel.textColor = viewModel.titleColor
         attributesLabel.font = viewModel.attributesTitleFont
 
+        rankingsLabel.textColor = viewModel.titleColor
+        rankingsLabel.font = viewModel.attributesTitleFont
+
+        statsLabel.textColor = viewModel.titleColor
+        statsLabel.font = viewModel.attributesTitleFont
+
+        thumbnailImageView.contentMode = .scaleAspectFit
         thumbnailImageView.backgroundColor = .clear
 
         bigImageBackground.backgroundColor = viewModel.bigImageBackgroundColor
+        bigImageView.contentMode = .scaleAspectFit
         bigImageView.backgroundColor = .clear
         bigImageHolder.backgroundColor = .clear
+
+        let bleedForBigImage = viewModel.bleedForBigImage
+        for each in bigImageViewRelatedConstraintsWithPositiveBleed {
+            each.constant = bleedForBigImage
+        }
+        for each in bigImageViewRelatedConstraintsWithNegativeBleed {
+            each.constant = -bleedForBigImage
+        }
 
         descriptionLabel.text = viewModel.description
 
         titleLabel.text = viewModel.title
 
         attributesLabel.text = viewModel.attributesTitle
+
+        rankingsLabel.text = viewModel.rankingsTitle
+
+        statsLabel.text = viewModel.statsTitle
 
         if !viewModel.areImagesHidden {
             if let currentDisplayedImageUrl = currentDisplayedImageUrl, currentDisplayedImageUrl == viewModel.imageUrl {
@@ -327,6 +423,7 @@ class CryptoKittyCardRowView: UIView {
                     guard strongSelf.currentDisplayedImageUrl == viewModel.imageUrl else { return }
                     strongSelf.bigImageView.image = image
                     strongSelf.thumbnailImageView.image = image
+                    strongSelf.bigImageHolderHeightConstraint.constant = image.size.height / image.size.width * strongSelf.bigImageHolder.frame.size.width
                 }.cauterize()
             }
         }
@@ -353,9 +450,28 @@ class CryptoKittyCardRowView: UIView {
             NSLayoutConstraint.deactivate(bigImageRelatedConstraints)
         }
 
+        //Can only set isHidden to true and never false here, because we might have set isHidden to true earlier depending on whether details are available
+        if viewModel.areSubtitlesHidden {
+            verticalSubtitleStackView.isHidden = true
+            horizontalSubtitleStackView.isHidden = true
+            spacers.aboveHorizontalSubtitleStackView.isHidden = true
+        }
+
+        verticalGenerationIconImageView.isHidden = viewModel.isSubtitle1Hidden
+        generationIconImageView.isHidden = viewModel.isSubtitle1Hidden
+        verticalCooldownIconImageView.isHidden = viewModel.isSubtitle2Hidden
+        cooldownIconImageView.isHidden = viewModel.isSubtitle2Hidden
+
+        relayoutParent(withWidth: viewModel.width)
+
         attributesCollectionView.backgroundColor = viewModel.contentsBackgroundColor
-        attributesCollectionView.reloadData()
         attributesCollectionViewHeightConstraint.constant = attributesCollectionView.collectionViewLayout.collectionViewContentSize.height
+
+        rankingsCollectionView.backgroundColor = viewModel.contentsBackgroundColor
+        rankingsCollectionViewHeightConstraint.constant = rankingsCollectionView.collectionViewLayout.collectionViewContentSize.height
+
+        statsCollectionView.backgroundColor = viewModel.contentsBackgroundColor
+        statsCollectionViewHeightConstraint.constant = statsCollectionView.collectionViewLayout.collectionViewContentSize.height
 
         urlButton.setTitle(viewModel.urlButtonText, for: .normal)
         urlButton.tintColor = viewModel.urlButtonTextColor
@@ -364,6 +480,39 @@ class CryptoKittyCardRowView: UIView {
         urlButton.setImage(viewModel.urlButtonImage, for: .normal)
         urlButton.semanticContentAttribute = .forceRightToLeft
         urlButton.imageEdgeInsets = .init(top: 1, left: 0, bottom: 0, right: -20)
+
+        //Careful to not set it to false
+        if viewModel.externalLinkButtonHidden {
+            urlButtonHolder.isHidden = true
+        }
+
+        if viewModel.isAttributesTitleHidden {
+            attributesLabel.isHidden = true
+            spacers.belowDescription.isHidden = true
+            spacers.belowAttributesLabel.isHidden = true
+        }
+
+        if viewModel.isRankingsTitleHidden {
+            rankingsLabel.isHidden = true
+            spacers.aboveRankingsLabel.isHidden = true
+            spacers.belowRankingsLabel.isHidden = true
+        }
+
+        if viewModel.isStatsTitleHidden {
+            statsLabel.isHidden = true
+            spacers.aboveStatsLabel.isHidden = true
+            spacers.belowStatsLabel.isHidden = true
+        }
+    }
+
+    //So collection views know the width to calculate their "full" height so they don't need to scroll
+    private func relayoutParent(withWidth width: CGFloat) {
+        guard let viewModel = viewModel else { return }
+        guard viewModel.width > 0 else { return }
+        var f = frame
+        f.size.width = viewModel.width
+        superview?.frame = f
+        superview?.layoutIfNeeded()
     }
 
     override func layoutSubviews() {
@@ -395,22 +544,39 @@ class CryptoKittyCardRowView: UIView {
     }
 }
 
-extension CryptoKittyCardRowView: TokenRowView {
+extension OpenSeaNonFungibleTokenCardRowView: TokenRowView {
     func configure(tokenHolder: TokenHolder) {
-        configure(viewModel: .init(tokenHolder: tokenHolder, areDetailsVisible: false))
+        configure(viewModel: .init(tokenHolder: tokenHolder, areDetailsVisible: false, width: 0))
     }
 }
 
-extension CryptoKittyCardRowView: UICollectionViewDataSource {
+extension OpenSeaNonFungibleTokenCardRowView: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         guard let viewModel = viewModel else { return 0 }
-        return viewModel.attributes.count
+        switch collectionView {
+        case attributesCollectionView:
+            return viewModel.attributes.count
+        case rankingsCollectionView:
+            return viewModel.rankings.count
+        case statsCollectionView:
+            return viewModel.stats.count
+        default:
+            return 0
+        }
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CryptoKittyCAttributeCell.identifier, for: indexPath) as! CryptoKittyCAttributeCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OpenSeaNonFungibleTokenTraitCell.identifier, for: indexPath) as! OpenSeaNonFungibleTokenTraitCell
         if let viewModel = viewModel {
-            let nameAndValues = viewModel.attributes[indexPath.row]
+            let nameAndValues: OpenSeaNonFungibleTokenAttributeCellViewModel
+            switch collectionView {
+            case attributesCollectionView:
+                nameAndValues = viewModel.attributes[indexPath.row]
+            case rankingsCollectionView:
+                nameAndValues = viewModel.rankings[indexPath.row]
+            default:
+                nameAndValues = viewModel.stats[indexPath.row]
+            }
             cell.configure(viewModel: .init(
                     name: nameAndValues.name,
                     value: nameAndValues.value

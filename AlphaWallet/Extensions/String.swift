@@ -134,3 +134,13 @@ extension String {
         }
     }
 }
+
+extension String {
+    func capitalizingFirstLetter() -> String {
+        return prefix(1).uppercased() + dropFirst()
+    }
+
+    func titleCasedWords() -> String {
+        return split(separator: " ").map { String($0).capitalizingFirstLetter() }.joined(separator: " ")
+    }
+}

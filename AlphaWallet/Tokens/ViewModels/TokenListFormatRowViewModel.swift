@@ -62,7 +62,7 @@ struct TokenListFormatRowViewModel {
     }
 
     var urlButtonText: String {
-        return R.string.localizable.cryptoKittiesUrlOpen()
+        return R.string.localizable.openSeaNonFungibleTokensUrlOpen(tokenHolder.name)
     }
 
     var tokenCount: String {
@@ -71,24 +71,20 @@ struct TokenListFormatRowViewModel {
 
     var title: String {
         let tokenId = tokenHolder.values["tokenId"] as? String ?? ""
-        return R.string.localizable.cryptoKittiesCatName(tokenId)
+        return "\(tokenHolder.name) #\(tokenId)"
     }
 
     var subtitle: String {
-        let traits =  tokenHolder.values["traits"] as? [CryptoKittyTrait] ?? []
+        let traits =  tokenHolder.values["traits"] as? [OpenSeaNonFungibleTrait] ?? []
         let generationText: String
         let cooldownText: String
-        if let generation = traits.first(where: { $0.type == CryptoKitty.generationTraitName }) {
-            generationText = R.string.localizable.cryptoKittiesGeneration(generation.value)
+        if let generation = traits.first(where: { $0.type == OpenSeaNonFungible.generationTraitName }) {
+            generationText = "Gen \(generation.value)"
         } else {
             generationText = ""
         }
-        if let cooldown = traits.first(where: { $0.type == CryptoKitty.cooldownIndexTraitName }), let cooldownIndex = Int(cooldown.value) {
-            if Constants.cryptoKittiesCooldowns.indices.contains(cooldownIndex) {
-                cooldownText = R.string.localizable.cryptoKittiesCooldown(Constants.cryptoKittiesCooldowns[cooldownIndex])
-            } else {
-                cooldownText = R.string.localizable.cryptoKittiesCooldownUnknown()
-            }
+        if let cooldown = traits.first(where: { $0.type == OpenSeaNonFungible.cooldownIndexTraitName }) {
+            cooldownText = "\(cooldown) Cooldown"
         } else {
             cooldownText = ""
         }
@@ -117,8 +113,8 @@ struct TokenListFormatRowViewModel {
 
     //TODO using CryptoKitty struct here, not good
     var details: [String] {
-        let traits =  tokenHolder.values["traits"] as? [CryptoKittyTrait] ?? []
-        let withoutGenerationAndCooldownIndex = traits.filter { $0.type != CryptoKitty.generationTraitName && $0.type != CryptoKitty.cooldownIndexTraitName }
+        let traits =  tokenHolder.values["traits"] as? [OpenSeaNonFungibleTrait] ?? []
+        let withoutGenerationAndCooldownIndex = traits.filter { $0.type != OpenSeaNonFungible.generationTraitName && $0.type != OpenSeaNonFungible.cooldownIndexTraitName }
         return withoutGenerationAndCooldownIndex.map { "\($0.type): \($0.value)" }
     }
 }

@@ -2,28 +2,32 @@
 
 import Foundation
 
-struct CryptoKitty: Codable {
+struct OpenSeaNonFungible: Codable {
+    //Not every token might used the same name. This is just common in OpenSea
     public static let generationTraitName = "generation"
     public static let cooldownIndexTraitName = "cooldown_index"
 
     let tokenId: String
+    let contractName: String
+    let symbol: String
+    let name: String
     let description: String
     let thumbnailUrl: String
     let imageUrl: String
     let externalLink: String
     let backgroundColor: String?
-    let traits: [CryptoKittyTrait]
-    var generationTrait: CryptoKittyTrait? {
-        return traits.first(where: { $0.type == CryptoKitty.generationTraitName  })
+    let traits: [OpenSeaNonFungibleTrait]
+    var generationTrait: OpenSeaNonFungibleTrait? {
+        return traits.first(where: { $0.type == OpenSeaNonFungible.generationTraitName  })
     }
 }
 
-struct CryptoKittyTrait: Codable {
+struct OpenSeaNonFungibleTrait: Codable {
     let count: Int
     let type: String
     let value: String
 }
 
-struct CryptoKittyError: Error {
+struct OpenSeaError: Error {
     var localizedDescription: String
 }

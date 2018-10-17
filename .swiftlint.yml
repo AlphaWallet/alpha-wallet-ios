@@ -40,7 +40,7 @@ file_length:
   error: 1200
 type_body_length:
   warning: 300
-  error: 400
+  error: 500
  
 
 superfluous_disable_command: warning
