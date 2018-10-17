@@ -485,7 +485,7 @@ class TokensDataStore {
             case .isDisabled(let value):
                 token.isDisabled = value
             case .nonFungibleBalance(let balance):
-                token.balance.removeAll()
+                realm.delete(token.balance)
                 if !balance.isEmpty {
                     for i in 0...balance.count - 1 {
                         token.balance.append(TokenBalance(balance: balance[i]))
