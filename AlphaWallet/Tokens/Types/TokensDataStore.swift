@@ -212,7 +212,7 @@ class TokensDataStore {
         }
     }
 
-    private func getTokensFromOpenSea() -> Promise<ResultResult<[String: [OpenSeaNonFungible]], AnyError>.t> {
+    private func getTokensFromOpenSea() -> OpenSea.PromiseResult {
         //TODO when we no longer create multiple instances of TokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
         return OpenSea.sharedInstance.makeFetchPromise(owner: account.address.eip55String)
     }

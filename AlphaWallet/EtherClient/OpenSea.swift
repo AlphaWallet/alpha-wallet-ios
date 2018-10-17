@@ -7,10 +7,17 @@ import Result
 import SwiftyJSON
 
 class OpenSea {
-    static let sharedInstance = OpenSea()
-    var fetch = OpenSea.makeEmptyFulfilledPromise()
+    typealias PromiseResult = Promise<ResultResult<[String: [OpenSeaNonFungible]], AnyError>.t>
 
-    private static func makeEmptyFulfilledPromise() -> Promise<ResultResult<[String: [OpenSeaNonFungible]], AnyError>.t> {
+    //Assuming 1 token (token ID, rather than a token) is 4kb, 1500 HyperDragons is 6MB. So we rate limit requests
+    private static let numberOfTokenIdsBeforeRateLimitingRequests = 25
+    private static let minimumSecondsBetweenRequests = TimeInterval(60)
+    static let sharedInstance = OpenSea()
+
+    private var recentWalletsWithManyTokens = [String: (Date, PromiseResult)]()
+    private var fetch = OpenSea.makeEmptyFulfilledPromise()
+
+    private static func makeEmptyFulfilledPromise() -> PromiseResult {
         return Promise {
             $0.fulfill(.success([:]))
         }
@@ -22,7 +29,12 @@ class OpenSea {
     }
 
     ///Uses a promise to make sure we don't fetch from OpenSea multiple times concurrently
-    func makeFetchPromise(owner: String) -> Promise<ResultResult<[String: [OpenSeaNonFungible]], AnyError>.t> {
+    func makeFetchPromise(owner: String) -> PromiseResult {
+        trimCachedPromises()
+        if let cachedPromise = cachedPromise(forOwner: owner) {
+            return cachedPromise
+        }
+
         if fetch.isResolved {
             fetch = Promise { seal in
                 let offset = 0
@@ -88,7 +100,33 @@ class OpenSea {
                     completion(results)
                 }
             } else {
+                var tokenIdCount = 0
+                for (_, tokenIds) in sum {
+                    tokenIdCount += tokenIds.count
+                }
+                self.cachePromise(withTokenIdCount: tokenIdCount, forOwner: owner)
                 completion(.success(sum))
+            }
+        }
+    }
+
+    private func cachePromise(withTokenIdCount tokenIdCount: Int, forOwner wallet: String) {
+        guard tokenIdCount >= OpenSea.numberOfTokenIdsBeforeRateLimitingRequests else { return }
+        recentWalletsWithManyTokens[wallet.lowercased()] = (Date(), fetch)
+    }
+
+    private func cachedPromise(forOwner wallet: String) -> PromiseResult? {
+        guard let (_, promise) = recentWalletsWithManyTokens[wallet.lowercased()] else { return nil }
+        return promise
+    }
+
+    private func trimCachedPromises() {
+        let cachedWallets = recentWalletsWithManyTokens.keys
+        let now = Date()
+        for each in cachedWallets {
+            guard let (date, _) = recentWalletsWithManyTokens[each] else { continue }
+            if now.timeIntervalSince(date) >= OpenSea.minimumSecondsBetweenRequests {
+                recentWalletsWithManyTokens.removeValue(forKey: each)
             }
         }
     }
