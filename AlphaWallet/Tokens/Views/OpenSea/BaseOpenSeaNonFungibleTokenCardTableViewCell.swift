@@ -2,21 +2,21 @@
 
 import UIKit
 
-protocol BaseCryptoKittyTokenCardTableViewCellDelegate: class {
+protocol BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate: class {
     func didTapURL(url: URL)
 }
 
 //TODO might be unnecessary in the future. Full-text search for TokenRowViewProtocol
 // Override showCheckbox() to return true or false
-class BaseCryptoKittyTokenCardTableViewCell: UITableViewCell {
-    static let identifier = "BaseCryptoKittyTokenCardTableViewCell"
+class BaseOpenSeaNonFungibleTokenCardTableViewCell: UITableViewCell {
+    static let identifier = "BaseOpenSeaNonFungibleTokenCardTableViewCell"
 
-    private lazy var rowView: CryptoKittyCardRowView = {
-        let result = CryptoKittyCardRowView(showCheckbox: showCheckbox())
+    private lazy var rowView: OpenSeaNonFungibleTokenCardRowView = {
+        let result = OpenSeaNonFungibleTokenCardRowView(showCheckbox: showCheckbox())
         result.delegate = self
         return result
     }()
-    weak var delegate: BaseCryptoKittyTokenCardTableViewCellDelegate?
+    weak var delegate: BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate?
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -42,7 +42,7 @@ class BaseCryptoKittyTokenCardTableViewCell: UITableViewCell {
 
         contentView.backgroundColor = viewModel.backgroundColor
 
-        rowView.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder, areDetailsVisible: viewModel.areDetailsVisible))
+        rowView.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder, areDetailsVisible: viewModel.areDetailsVisible, width: viewModel.cellWidth))
 
         if showCheckbox() {
             rowView.checkboxImageView.image = viewModel.checkboxImage
@@ -58,7 +58,7 @@ class BaseCryptoKittyTokenCardTableViewCell: UITableViewCell {
     }
 }
 
-extension BaseCryptoKittyTokenCardTableViewCell: CryptoKittyCardRowViewDelegate {
+extension BaseOpenSeaNonFungibleTokenCardTableViewCell: OpenSeaNonFungibleTokenCardRowViewDelegate {
     func didTapURL(url: URL) {
         delegate?.didTapURL(url: url)
     }

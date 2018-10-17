@@ -36,11 +36,11 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
 
-        let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
+        let tokenType = OpenSeaNonFungibleTokenHandling(token: viewModel.token)
         switch tokenType {
-        case .cryptoKitty:
-            tokenRowView = CryptoKittyCardRowView()
-        case .otherNonFungibleToken:
+        case .supportedByOpenSea:
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+        case .notSupportedByOpenSea:
             tokenRowView = TokenCardRowView()
         }
 

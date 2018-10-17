@@ -54,36 +54,11 @@ public struct Constants {
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"
     public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"
     public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
-    
-    //ERC specs
-    public static let erc721InterfaceHash = "0x80ac58cd"
-    //CryptoKitties' ERC165 interface signature for ERC721 is wrong
-    public static let erc721InterfaceHashOnlyForCryptoKitty = "0x9a20483d"
 
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaAPIKEY = "11ba1b4f0c4246aeb07b1f8e5a20525f" // X-API-KEY
 
-    public static let cryptoKittiesCooldowns = [
-        "Fast",
-        "Swift",
-        "Swift",
-        "Snappy",
-        "Snappy",
-        "Brisk",
-        "Brisk",
-        "Ploddy",
-        "Ploddy",
-        "Slow",
-        "Slow",
-        "Sluggish",
-        "Sluggish",
-        "Catatonic",
-        "Catatonic"
-    ]
-    
-    //contract addresses that are compatible with opensea
-    //See comment in CryptoKittyHandling enum
     public static let cryptoKittiesContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 
     public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"

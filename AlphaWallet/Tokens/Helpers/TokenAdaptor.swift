@@ -20,19 +20,19 @@ class TokenAdaptor {
     public func getTokenHolders() -> [TokenHolder] {
         switch token.type {
         case .ether, .erc20, .erc875:
-            return getNonCryptoKittyTokenHolders()
+            return getNotSupportedByOpenSeaTokenHolders()
         case .erc721:
-            let tokenType = CryptoKittyHandling(address: token.address)
+            let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
             switch tokenType {
-            case .cryptoKitty:
-                return getCryptoKittyTokenHolders()
-            case .otherNonFungibleToken:
-                return getNonCryptoKittyTokenHolders()
+            case .supportedByOpenSea:
+                return getSupportedByOpenSeaTokenHolders()
+            case .notSupportedByOpenSea:
+                return getNotSupportedByOpenSeaTokenHolders()
             }
         }
     }
 
-    private func getNonCryptoKittyTokenHolders() -> [TokenHolder] {
+    private func getNotSupportedByOpenSeaTokenHolders() -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
         for (index, item) in balance.enumerated() {
@@ -48,12 +48,12 @@ class TokenAdaptor {
         return bundle(tokens: tokens)
     }
 
-    private func getCryptoKittyTokenHolders() -> [TokenHolder] {
+    private func getSupportedByOpenSeaTokenHolders() -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
         for (_, item) in balance.enumerated() {
             let jsonString = item.balance
-            if let token = getTokenForCryptoKitty(forJSONString: jsonString) {
+            if let token = getTokenForOpenSeaNonFungible(forJSONString: jsonString) {
                 tokens.append(token)
             }
         }
@@ -135,28 +135,29 @@ class TokenAdaptor {
         return XMLHandler(contract: token.contract).getToken(name: name, fromTokenId: id, index: index)
     }
 
-    private func getTokenForCryptoKitty(forJSONString jsonString: String) -> Token? {
-        guard let data = jsonString.data(using: .utf8), let cat = try? JSONDecoder().decode(CryptoKitty.self, from: data) else { return nil }
+    private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String) -> Token? {
+        guard let data = jsonString.data(using: .utf8), let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: data) else { return nil }
         var values = [String: AssetAttributeValue]()
-        values["tokenId"] = cat.tokenId
-        values["description"] = cat.description
-        values["imageUrl"] = cat.imageUrl
-        values["thumbnailUrl"] = cat.thumbnailUrl
-        values["externalLink"] = cat.externalLink
-        values["backgroundColor"] = cat.backgroundColor
-        values["traits"] = cat.traits
+        values["tokenId"] = nonFungible.tokenId
+        values["name"] = nonFungible.name
+        values["description"] = nonFungible.description
+        values["imageUrl"] = nonFungible.imageUrl
+        values["thumbnailUrl"] = nonFungible.thumbnailUrl
+        values["externalLink"] = nonFungible.externalLink
+        values["backgroundColor"] = nonFungible.backgroundColor
+        values["traits"] = nonFungible.traits
 
         let status: Token.Status
         let cryptoKittyGenerationWhenDataNotAvailable = "-1"
-        if let generation = cat.generationTrait, generation.value == cryptoKittyGenerationWhenDataNotAvailable {
+        if let generation = nonFungible.generationTrait, generation.value == cryptoKittyGenerationWhenDataNotAvailable {
             status = .availableButDataUnavailable
         } else {
             status = .available
         }
         return Token(
-                id: BigUInt(cat.tokenId)!,
+                id: BigUInt(nonFungible.tokenId)!,
                 index: 0,
-                name: "name",
+                name: nonFungible.contractName,
                 status: status,
                 values: values
         )

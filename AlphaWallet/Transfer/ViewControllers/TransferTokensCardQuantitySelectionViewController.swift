@@ -35,11 +35,11 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         self.token = token
         self.viewModel = viewModel
 
-        let tokenType = CryptoKittyHandling(contract: token.contract)
+        let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
         switch tokenType {
-        case .cryptoKitty:
-            tokenRowView = CryptoKittyCardRowView()
-        case .otherNonFungibleToken:
+        case .supportedByOpenSea:
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+        case .notSupportedByOpenSea:
             tokenRowView = TokenCardRowView()
         }
 

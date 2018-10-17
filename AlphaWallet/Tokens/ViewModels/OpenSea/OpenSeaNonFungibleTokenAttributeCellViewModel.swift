@@ -3,12 +3,12 @@
 import Foundation
 import UIKit
 
-struct CryptoKittyCAttributeCellViewModel {
+struct OpenSeaNonFungibleTokenAttributeCellViewModel {
     let name: String
     let value: String
 
     var image: UIImage {
-        return R.image.cryptoKittyAttribute()!
+        return R.image.openSeaNonFungibleAttribute()!
     }
 
     var backgroundColor: UIColor {

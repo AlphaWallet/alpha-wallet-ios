@@ -38,7 +38,7 @@ class TransferTokensCardViewController: UIViewController, TokenVerifiableStatusV
         view.addSubview(roundedBackground)
 
         tableView.register(TokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithCheckbox.identifier)
-        tableView.register(CryptoKittyTokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: CryptoKittyTokenCardTableViewCellWithCheckbox.identifier)
+        tableView.register(OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
@@ -138,16 +138,16 @@ extension TransferTokensCardViewController: UITableViewDelegate, UITableViewData
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tokenHolder = viewModel.item(for: indexPath)
-        let tokenType = CryptoKittyHandling(contract: tokenHolder.contractAddress)
+        let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
         switch tokenType {
-        case .cryptoKitty:
-            let cell = tableView.dequeueReusableCell(withIdentifier: CryptoKittyTokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! CryptoKittyTokenCardTableViewCellWithCheckbox
+        case .supportedByOpenSea:
+            let cell = tableView.dequeueReusableCell(withIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox
             cell.delegate = self
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width))
             return cell
-        case .otherNonFungibleToken:
+        case .notSupportedByOpenSea:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithCheckbox
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width))
             return cell
         }
     }
@@ -158,7 +158,7 @@ extension TransferTokensCardViewController: UITableViewDelegate, UITableViewData
     }
 }
 
-extension TransferTokensCardViewController: BaseCryptoKittyTokenCardTableViewCellDelegate {
+extension TransferTokensCardViewController: BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate {
     func didTapURL(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
     }
