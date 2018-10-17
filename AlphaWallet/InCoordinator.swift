@@ -589,7 +589,6 @@ extension InCoordinator: TokensCoordinatorDelegate {
     // transfer from a buddy), the user can send the data to a paymaster.
     // This function deal with the special case that the token price = 0
     // but not sent to the paymaster because the user has ether.
-
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
         let web3 = self.web3()
         web3.start()
@@ -613,9 +612,9 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         value: BigInt(signedOrder.order.price),
                         to: address,
                         data: Data(bytes: payload.hexa2Bytes),
-                        gasLimit: Constants.gasLimit,
+                        gasLimit: GasLimitConfiguration.max,
                         tokenId: .none,
-                        gasPrice: Constants.gasPriceDefaultERC875,
+                        gasPrice: GasLimitConfiguration.default,
                         nonce: .none,
                         v: v,
                         r: r,
@@ -670,7 +669,7 @@ extension InCoordinator: TokensCoordinatorDelegate {
                         to: signTransaction.to,
                         nonce: signTransaction.nonce,
                         data: signTransaction.data,
-                        gasPrice: Constants.gasPriceDefaultERC875,
+                        gasPrice: GasPriceConfiguration.default,
                         gasLimit: signTransaction.gasLimit,
                         chainID: strongSelf.config.chainID
                 )
