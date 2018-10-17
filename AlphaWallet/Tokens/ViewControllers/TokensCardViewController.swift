@@ -210,9 +210,14 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
-        //TODO reloading only the affect cells show expanded cell with wrong height the first time, so we reload all instead
+        //TODO reloading only the affect cells show expanded cell with wrong height the first time, so we reload all instead and scroll the cell to the top instead
 //        tableview.reloadRows(at: indexPaths, with: .automatic)
         tableview.reloadData()
+        if indexPaths.count == 2 {
+            if let indexPath = indexPaths.first(where: { viewModel.item(for: $0).areDetailsVisible }) {
+                tableview.scrollToRow(at: indexPath, at: .top, animated: false)
+            }
+        }
     }
 }
 
