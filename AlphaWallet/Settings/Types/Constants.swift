@@ -8,8 +8,6 @@ public struct Constants {
     public static let shapeShiftPublicKey = "c4097b033e02163da6114fbbc1bf15155e759ddfd8352c88c55e7fef162e901a800e7eaecf836062a0c075b2b881054e0b9aa2324be7bc3694578493faf59af4"
     public static let changellyRefferalID = "968d4f0f0bf9"
     public static let keychainKeyPrefix = "alphawallet"
-    public static let gasLimit = BigInt(300000)
-    public static let gasPriceDefaultERC875 = BigInt("22000000000")!
     
     //link formats
     public static let oldFormat: UInt8 = 0x00
