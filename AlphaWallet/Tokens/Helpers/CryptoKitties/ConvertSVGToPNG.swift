@@ -8,7 +8,6 @@ import PromiseKit
 class ConvertSVGToPNG {
     private let imageCache = ImageCache()
     private var promises = [URL: Promise<UIImage>]()
-    private var rasterizedImageFileExtensions = ["png", "jpg", "jpeg"]
 
     func withDownloadedImage(fromURL url: URL?, forTokenId tokenId: String?, withPrefix prefix: String) -> Promise<UIImage> {
         guard let tokenId = tokenId else {
@@ -32,7 +31,10 @@ class ConvertSVGToPNG {
         //OK to retain strong self reference because we can still download the image and cache it for future sessions
         let promise = Alamofire.request(request).responseData().then { data, response -> Promise<UIImage> in
             let imageFileExtension = url.pathExtension.lowercased()
-            if self.rasterizedImageFileExtensions.contains(imageFileExtension) {
+            if imageFileExtension.lowercased() == "svg" {
+                let imagePromise = self.generateImage(data: data, fromURL: url, forTokenId: tokenId)
+                return imagePromise
+            } else {
                 if let image = ImageCache.image(fromData: data) {
                     //TODO resize the image if it's drastically bigger than what we are using in the app
                     self.cache(image: image, forTokenId: tokenId, withPrefix: prefix)
@@ -40,9 +42,6 @@ class ConvertSVGToPNG {
                 } else {
                     return Promise { $0.resolve(nil, GenerationError(errorDescription: "Can't create image from data interpreted as PNG. URL: \(url) tokenId: \(tokenId)")) }
                 }
-            } else {
-                let imagePromise = self.generateImage(data: data, fromURL: url, forTokenId: tokenId)
-                return imagePromise
             }
         }.then { image -> Promise<UIImage> in
             self.cache(image: image, forTokenId: tokenId, withPrefix: prefix)
