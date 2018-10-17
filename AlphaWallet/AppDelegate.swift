@@ -13,6 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     private let SNSPlatformApplicationArn = "arn:aws:sns:us-west-2:400248756644:app/APNS/AlphaWallet-iOS"
     private let SNSPlatformApplicationArnSANDBOX = "arn:aws:sns:us-west-2:400248756644:app/APNS_SANDBOX/AlphaWallet-testing"
     private let identityPoolId = "us-west-2:42f7f376-9a3f-412e-8c15-703b5d50b4e2"
+    private let SNSSecurityTopicEndpoint = "arn:aws:sns:us-west-2:400248756644:security"
     //This is separate coordinator for the protection of the sensitive information.
     private lazy var protectionCoordinator: ProtectionCoordinator = {
         return ProtectionCoordinator()
@@ -48,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                 region: AWSRegionType.USWest2, credentialsProvider: credentialsProvider)
         AWSServiceManager.default().defaultServiceConfiguration = defaultServiceConfiguration
     }
-    
+
     func applicationWillResignActive(_ application: UIApplication) {
         protectionCoordinator.applicationWillResignActive()
     }
@@ -123,10 +124,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                 if let endpointArnForSNS = createEndpointResponse.endpointArn {
                     print("endpointArn: \(endpointArnForSNS)")
                     UserDefaults.standard.set(endpointArnForSNS, forKey: "endpointArnForSNS")
+                    //every user should subscribe to the security topic
+                    self.subscribeToTopicSNS(token: token, topicEndpoint: self.SNSSecurityTopicEndpoint)
+                    if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                        //TODO subscribe to version topic when created
+                    }
                 }
             }
             return nil
         })
+    }
+
+    func subscribeToTopicSNS(token: String, topicEndpoint: String) {
+        let sns = AWSSNS.default()
+        guard let endpointRequest = AWSSNSCreatePlatformEndpointInput() else { return }
+        #if DEBUG
+            endpointRequest.platformApplicationArn = SNSPlatformApplicationArnSANDBOX
+        #else
+            endpointRequest.platformApplicationArn = SNSPlatformApplicationArn
+        #endif
+        endpointRequest.token = token
+
+        sns.createPlatformEndpoint(endpointRequest).continueWith() { task in
+            guard let response: AWSSNSCreateEndpointResponse = task.result else { return nil }
+            guard let subscribeRequest = AWSSNSSubscribeInput() else { return nil }
+            subscribeRequest.endpoint = response.endpointArn
+            subscribeRequest.protocols = "application"
+            subscribeRequest.topicArn = topicEndpoint
+            return sns.subscribe(subscribeRequest)
+        }
     }
 
     //TODO Handle SNS errors
