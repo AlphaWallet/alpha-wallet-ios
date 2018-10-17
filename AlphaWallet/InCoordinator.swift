@@ -357,7 +357,7 @@ class InCoordinator: Coordinator {
         case (.send, .real), (.request, _):
             tokensCardCoordinator.showTransferViewController(for: paymentFlow, tokenHolders: tokenHolders)
         case (_, _):
-            navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
+            tokensCardCoordinator.navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
         }
     }
 
