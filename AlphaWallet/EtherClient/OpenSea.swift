@@ -60,52 +60,57 @@ class OpenSea {
                 completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(Constants.openseaAPI) API"))))
                 return
             }
-            var results = sum
-            var currentPageCount = 0
-            for (_, each): (String, JSON) in json["assets"] {
-                let tokenId = each["token_id"].stringValue
-                let contractName = each["asset_contract"]["name"].stringValue
-                let symbol = each["asset_contract"]["symbol"].stringValue
-                let name = each["name"].stringValue
-                let description = each["description"].stringValue
-                let thumbnailUrl = each["image_thumbnail_url"].stringValue
-                //We'll get what seems to be the PNG version first, falling back to the sometimes PNG, but sometimes SVG version
-                var imageUrl = each["image_preview_url"].stringValue
-                if imageUrl.isEmpty {
-                    imageUrl = each["image_url"].stringValue
+            DispatchQueue.global(qos: .userInitiated).async {
+                var results = sum
+                var currentPageCount = 0
+                for (_, each): (String, JSON) in json["assets"] {
+                    let tokenId = each["token_id"].stringValue
+                    let contractName = each["asset_contract"]["name"].stringValue
+                    let symbol = each["asset_contract"]["symbol"].stringValue
+                    let name = each["name"].stringValue
+                    let description = each["description"].stringValue
+                    let thumbnailUrl = each["image_thumbnail_url"].stringValue
+                    //We'll get what seems to be the PNG version first, falling back to the sometimes PNG, but sometimes SVG version
+                    var imageUrl = each["image_preview_url"].stringValue
+                    if imageUrl.isEmpty {
+                        imageUrl = each["image_url"].stringValue
+                    }
+                    let externalLink = each["external_link"].stringValue
+                    let backgroundColor = each["background_color"].stringValue
+                    var traits = [OpenSeaNonFungibleTrait]()
+                    for each in each["traits"].arrayValue {
+                        let traitCount = each["trait_count"].intValue
+                        let traitType = each["trait_type"].stringValue
+                        let traitValue = each["value"].stringValue
+                        let trait = OpenSeaNonFungibleTrait(count: traitCount, type: traitType, value: traitValue)
+                        traits.append(trait)
+                    }
+                    let contract = each["asset_contract"]["address"].stringValue
+                    let cat = OpenSeaNonFungible(tokenId: tokenId, contractName: contractName, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
+                    currentPageCount += 1
+                    if var list = results[contract] {
+                        list.append(cat)
+                        results[contract] = list
+                    } else {
+                        let list = [cat]
+                        results[contract] = list
+                    }
                 }
-                let externalLink = each["external_link"].stringValue
-                let backgroundColor = each["background_color"].stringValue
-                var traits = [OpenSeaNonFungibleTrait]()
-                for each in each["traits"].arrayValue {
-                    let traitCount = each["trait_count"].intValue
-                    let traitType = each["trait_type"].stringValue
-                    let traitValue = each["value"].stringValue
-                    let trait = OpenSeaNonFungibleTrait(count: traitCount, type: traitType, value: traitValue)
-                    traits.append(trait)
+                DispatchQueue.main.async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    if currentPageCount > 0 {
+                        strongSelf.fetchPage(forOwner: owner, offset: offset + currentPageCount, sum: results) { results in
+                            completion(results)
+                        }
+                    } else {
+                        var tokenIdCount = 0
+                        for (_, tokenIds) in sum {
+                            tokenIdCount += tokenIds.count
+                        }
+                        strongSelf.cachePromise(withTokenIdCount: tokenIdCount, forOwner: owner)
+                        completion(.success(sum))
+                    }
                 }
-                let contract = each["asset_contract"]["address"].stringValue
-                let cat = OpenSeaNonFungible(tokenId: tokenId, contractName: contractName, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
-                currentPageCount += 1
-                if var list = results[contract] {
-                    list.append(cat)
-                    results[contract] = list
-                } else {
-                    let list = [cat]
-                    results[contract] = list
-                }
-            }
-            if currentPageCount > 0 {
-                self.fetchPage(forOwner: owner, offset: offset + currentPageCount, sum: results) { results in
-                    completion(results)
-                }
-            } else {
-                var tokenIdCount = 0
-                for (_, tokenIds) in sum {
-                    tokenIdCount += tokenIds.count
-                }
-                self.cachePromise(withTokenIdCount: tokenIdCount, forOwner: owner)
-                completion(.success(sum))
             }
         }
     }
