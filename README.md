@@ -1,6 +1,6 @@
 # AlphaWallet - Your gateway to blockchain technology
 
-[![Build Status](https://travis-ci.com/alpha-wallet/alpha-wallet-ios.svg?branch=master)](https://travis-ci.com/alpha-wallet/alpha-wallet-ios.svg?branch=master)
+[![Build Status](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)
 [![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
 
 [<img src="https://github.com/James-Sangalli/alpha-wallet-ios/blob/master/resources/screens.png">](https://awallet.io/)
