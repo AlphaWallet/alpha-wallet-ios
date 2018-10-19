@@ -16,7 +16,7 @@ enum TransactionError: Error {
 }
 
 protocol TransactionDataCoordinatorDelegate: class {
-    func didUpdate(result: Result<[Transaction], TransactionError>)
+    func didUpdate(result: ResultResult<[Transaction], TransactionError>.t)
 }
 
 class TransactionDataCoordinator {
@@ -39,7 +39,7 @@ class TransactionDataCoordinator {
         return TransactionsTracker(sessionID: session.sessionID)
     }()
     private let trustProvider = TrustProviderFactory.makeProvider()
-    private var previousTransactions: [Transaction]?
+    private var isFetchingLatestTransactions = false
 
     weak var delegate: TransactionDataCoordinatorDelegate?
 
@@ -57,9 +57,8 @@ class TransactionDataCoordinator {
 
     func start() {
         runScheduledTimers()
-        // Start fetching all transactions process.
         if transactionsTracker.fetchingState != .done {
-            initialFetch(for: session.account.address, page: 0) { _ in }
+            fetchOlderTransactions(for: session.account.address)
         }
     }
 
@@ -83,28 +82,36 @@ class TransactionDataCoordinator {
             self?.fetchPending()
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
         updateTransactionsTimer = Timer.scheduledTimer(timeInterval: 15, target: BlockOperation { [weak self] in
-            self?.fetchTransactions()
+            self?.fetchLatestTransactions()
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
     func fetch() {
         session.refresh(.balance)
-        fetchTransactions()
+        fetchLatestTransactions()
         fetchPendingTransactions()
     }
 
-    @objc func fetchTransactions() {
-        let startBlock: Int = {
-            guard let transaction = storage.completedObjects.first else { return 1 }
-            return transaction.blockNumber - 2000
-        }()
-        fetchTransaction(
-            for: session.account.address,
-            startBlock: startBlock
-        ) { [weak self] result in
+    ///Fetching transactions might take a long time, we use a flag to make sure we only pull the latest transactions 1 "page" at a time, otherwise we'd end up pulling the same "page" multiple times
+    @objc private func fetchLatestTransactions() {
+        guard !isFetchingLatestTransactions else { return }
+        isFetchingLatestTransactions = true
+
+        let startBlock: Int
+        let sortOrder: TrustService.SortOrder
+        if let newestCachedTransaction = storage.completedObjects.first {
+            startBlock = newestCachedTransaction.blockNumber + 1
+            sortOrder = .asc
+        } else {
+            startBlock = 1
+            sortOrder = .desc
+        }
+        fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder) { [weak self] result in
             guard let strongSelf = self else { return }
+            defer { strongSelf.isFetchingLatestTransactions = false }
             switch result {
             case .success(let transactions):
+                strongSelf.notifyUserEtherReceived(inNewTransactions: transactions)
                 strongSelf.update(items: transactions)
             case .failure(let error):
                 strongSelf.handleError(error: error)
@@ -112,24 +119,33 @@ class TransactionDataCoordinator {
         }
     }
 
-    private func fetchTransaction(
+    private func fetchTransactions(
         for address: Address,
         startBlock: Int,
-        page: Int = 0,
-        completion: @escaping (Result<[Transaction], AnyError>) -> Void
+        endBlock: Int = 999_999_999,
+        sortOrder: TrustService.SortOrder,
+        completion: @escaping (ResultResult<[Transaction], AnyError>.t) -> Void
     ) {
-        NSLog("fetchTransaction: startBlock: \(startBlock), page: \(page)")
-
-        trustProvider.request(.getTransactions(address: address.description,
-                startBlock: startBlock, endBlock: 999_999_999)) { result in
+        trustProvider.request(
+                .getTransactions(
+                        address: address.description,
+                        startBlock: startBlock,
+                        endBlock: endBlock,
+                        sortOrder: sortOrder
+                )
+        ) { result in
             switch result {
             case .success(let response):
-                do {
-                    let rawTransactions = try response.map(ArrayResponse<RawTransaction>.self).result
-                    let transactions: [Transaction] = rawTransactions.compactMap { .from(transaction: $0) }
-                    completion(.success(transactions))
-                } catch {
-                    completion(.failure(AnyError(error)))
+                DispatchQueue.global(qos: .userInitiated).async {
+                    do {
+                        let rawTransactions = try response.map(ArrayResponse<RawTransaction>.self).result
+                        let transactions: [Transaction] = rawTransactions.compactMap { .from(transaction: $0) }
+                        DispatchQueue.main.async {
+                            completion(.success(transactions))
+                        }
+                    } catch {
+                        completion(.failure(AnyError(error)))
+                    }
                 }
             case .failure(let error):
                 completion(.failure(AnyError(error)))
@@ -183,10 +199,6 @@ class TransactionDataCoordinator {
         fetchPendingTransactions()
     }
 
-    @objc func fetchLatest() {
-        fetchTransactions()
-    }
-
     func update(items: [Transaction]) {
         storage.add(items)
         handleUpdateItems()
@@ -198,19 +210,28 @@ class TransactionDataCoordinator {
         handleUpdateItems()
     }
 
-    private func notifyUserEtherReceivedInNewTransactions() {
-        if let previousTransactions = previousTransactions {
-            let diff = storage.objects - previousTransactions
-            if let wallet = keystore.recentlyUsedWallet {
-                let newIncomingEthTransactions = diff.filter { $0.to.sameContract(as: wallet.address.eip55String) }
-                let formatter = EtherNumberFormatter.short
-                for each in newIncomingEthTransactions {
-                    let amount = formatter.string(from: BigInt(each.value) ?? BigInt(), decimals: 18)
-                    notifyUserEtherReceived(for: each.id, amount: amount)
-                }
+    private func notifyUserEtherReceived(inNewTransactions transactions: [Transaction]) {
+        guard let wallet = keystore.recentlyUsedWallet else { return }
+        var toNotify: [Transaction]
+        if let newestCached = storage.objects.first {
+            toNotify = transactions.filter { $0.blockNumber > newestCached.blockNumber }
+        } else {
+            toNotify = transactions
+        }
+        //Beyond a certain number, it's too noisy and a performance nightmare. Eg. the first time we fetch transactions for a newly imported wallet, we might get 10,000 of them
+        let maximumNumberOfNotifications = 10
+        if toNotify.count > maximumNumberOfNotifications {
+            toNotify = Array(toNotify[0..<maximumNumberOfNotifications])
+        }
+        let newIncomingEthTransactions = toNotify.filter { $0.to.sameContract(as: wallet.address.eip55String) }
+        let formatter = EtherNumberFormatter.short
+        let thresholdToShowNotification = Date.yesterday
+        for each in newIncomingEthTransactions {
+            let amount = formatter.string(from: BigInt(each.value) ?? BigInt(), decimals: 18)
+            if each.date > thresholdToShowNotification {
+                notifyUserEtherReceived(for: each.id, amount: amount)
             }
         }
-        previousTransactions = storage.objects
     }
 
     private func notifyUserEtherReceived(for transactionId: String, amount: String) {
@@ -224,7 +245,6 @@ class TransactionDataCoordinator {
     }
 
     func handleUpdateItems() {
-        notifyUserEtherReceivedInNewTransactions()
         delegate?.didUpdate(result: .success(storage.objects))
     }
 
@@ -244,20 +264,18 @@ class TransactionDataCoordinator {
         handleUpdateItems()
     }
 
-    func initialFetch(
-        for address: Address,
-        page: Int,
-        completion: @escaping (Result<[Transaction], AnyError>) -> Void
-    ) {
-        fetchTransaction(for: address, startBlock: 0, page: page) { [weak self] result in
+    private func fetchOlderTransactions(for address: Address) {
+        guard let oldestCachedTransaction = storage.completedObjects.last else { return }
+
+        fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let transactions):
                 strongSelf.update(items: transactions)
-                if !transactions.isEmpty && page <= 50 { // page limit to 50, otherwise you have too many transactions.
+                if !transactions.isEmpty {
                     let timeout = DispatchTime.now() + .milliseconds(300)
                     DispatchQueue.main.asyncAfter(deadline: timeout) { [weak self] in
-                        self?.initialFetch(for: address, page: page + 1, completion: completion)
+                        self?.fetchOlderTransactions(for: address)
                     }
                 } else {
                     strongSelf.transactionsTracker.fetchingState = .done
