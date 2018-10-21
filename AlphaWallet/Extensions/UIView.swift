@@ -47,4 +47,25 @@ extension UIView {
     var centerRect: CGRect {
         return CGRect(x: bounds.midX, y: bounds.midY, width: 0, height: 0)
     }
+
+    //Have to recreate UIMotionEffect every time, after `layoutSubviews()` complete
+    func setupParallaxEffect(forView view: UIView, max: CGFloat) {
+        view.motionEffects.forEach { view.removeMotionEffect($0) }
+
+        let min = max
+        let max = -max
+
+        let xMotion = UIInterpolatingMotionEffect(keyPath: "center.x", type: .tiltAlongHorizontalAxis)
+        xMotion.minimumRelativeValue = min
+        xMotion.maximumRelativeValue = max
+
+        let yMotion = UIInterpolatingMotionEffect(keyPath: "center.y", type: .tiltAlongVerticalAxis)
+        yMotion.minimumRelativeValue = min
+        yMotion.maximumRelativeValue = max
+
+        let motionEffectGroup = UIMotionEffectGroup()
+        motionEffectGroup.motionEffects = [xMotion, yMotion]
+
+        view.addMotionEffect(motionEffectGroup)
+    }
 }
