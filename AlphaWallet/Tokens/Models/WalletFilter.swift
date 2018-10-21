@@ -6,4 +6,5 @@ enum WalletFilter {
 	case all
 	case currencyOnly
 	case assetsOnly
+	case collectiblesOnly
 }

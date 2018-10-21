@@ -75,6 +75,7 @@ class OpenSea {
                     if imageUrl.isEmpty {
                         imageUrl = each["image_url"].stringValue
                     }
+                    let contractImageUrl = each["asset_contract"]["featured_image_url"].stringValue
                     let externalLink = each["external_link"].stringValue
                     let backgroundColor = each["background_color"].stringValue
                     var traits = [OpenSeaNonFungibleTrait]()
@@ -86,7 +87,7 @@ class OpenSea {
                         traits.append(trait)
                     }
                     let contract = each["asset_contract"]["address"].stringValue
-                    let cat = OpenSeaNonFungible(tokenId: tokenId, contractName: contractName, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
+                    let cat = OpenSeaNonFungible(tokenId: tokenId, contractName: contractName, symbol: symbol, name: name, description: description, thumbnailUrl: thumbnailUrl, imageUrl: imageUrl, contractImageUrl: contractImageUrl, externalLink: externalLink, backgroundColor: backgroundColor, traits: traits)
                     currentPageCount += 1
                     if var list = results[contract] {
                         list.append(cat)
