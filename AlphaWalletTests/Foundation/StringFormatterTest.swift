@@ -1,6 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-@testable import Trust
+@testable import AlphaWallet
 import XCTest
 
 class StringFormatterTest: XCTestCase {
