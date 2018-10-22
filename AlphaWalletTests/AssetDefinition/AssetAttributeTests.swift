@@ -2,7 +2,7 @@
 
 import Foundation
 import XCTest
-@testable import Trust
+@testable import AlphaWallet
 import SwiftyXMLParser
 
 class AssetAttributeTests: XCTestCase {

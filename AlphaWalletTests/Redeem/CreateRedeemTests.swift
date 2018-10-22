@@ -2,7 +2,7 @@
 // Created by James Sangalli on 2/3/18.
 //
 import Foundation
-@testable import Trust
+@testable import AlphaWallet
 import XCTest
 import BigInt
 

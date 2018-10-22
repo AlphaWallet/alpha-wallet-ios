@@ -231,6 +231,7 @@
 "a.wallet.contents.filter.all.title" = "全部";
 "a.wallet.contents.filter.currencyOnly.title" = "币类";
 "a.wallet.contents.filter.assetsOnly.title" = "资产类";
+"a.wallet.contents.filter.collectiblesOnly.title" = "COLLECTIBLES";
 "a.wallet.contents.issuer.title" = "发行方";
 "a.wallet.next.button.title" = "下一步";
 "a.wallet.no.tokens" = "你没有这类 Token";

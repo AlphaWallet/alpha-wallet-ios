@@ -521,27 +521,6 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         setupParallaxEffect(forView: bigImageHolder, max: 24)
         setupParallaxEffect(forView: thumbnailImageView, max: 15)
     }
-
-    //Have to recreate UIMotionEffect every time, after `layoutSubviews()` complete
-    private func setupParallaxEffect(forView view: UIView, max: CGFloat) {
-        view.motionEffects.forEach { view.removeMotionEffect($0) }
-
-        let min = max
-        let max = -max
-
-        let xMotion = UIInterpolatingMotionEffect(keyPath: "center.x", type: .tiltAlongHorizontalAxis)
-        xMotion.minimumRelativeValue = min
-        xMotion.maximumRelativeValue = max
-
-        let yMotion = UIInterpolatingMotionEffect(keyPath: "center.y", type: .tiltAlongVerticalAxis)
-        yMotion.minimumRelativeValue = min
-        yMotion.maximumRelativeValue = max
-
-        let motionEffectGroup = UIMotionEffectGroup()
-        motionEffectGroup.motionEffects = [xMotion, yMotion]
-
-        view.addMotionEffect(motionEffectGroup)
-    }
 }
 
 extension OpenSeaNonFungibleTokenCardRowView: TokenRowView {

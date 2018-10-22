@@ -7,7 +7,7 @@
 
 import Foundation
 import XCTest
-@testable import Trust
+@testable import AlphaWallet
 import BigInt
 
 class XMLHandlerTest: XCTestCase {
