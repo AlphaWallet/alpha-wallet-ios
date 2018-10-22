@@ -30,6 +30,16 @@ class OpenSea {
 
     ///Uses a promise to make sure we don't fetch from OpenSea multiple times concurrently
     func makeFetchPromise(owner: String) -> PromiseResult {
+        switch Config().server {
+        case .main:
+            break
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom(_):
+            fetch = Promise { seal in
+                seal.fulfill(.success([:]))
+            }
+            return fetch
+        }
+
         trimCachedPromises()
         if let cachedPromise = cachedPromise(forOwner: owner) {
             return cachedPromise
