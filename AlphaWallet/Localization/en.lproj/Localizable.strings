@@ -231,6 +231,7 @@
 "a.wallet.contents.filter.all.title" = "ALL";
 "a.wallet.contents.filter.currencyOnly.title" = "CURRENCY";
 "a.wallet.contents.filter.assetsOnly.title" = "ASSETS";
+"a.wallet.contents.filter.collectiblesOnly.title" = "COLLECTIBLES";
 "a.wallet.contents.issuer.title" = "Issuer";
 "a.wallet.next.button.title" = "Next";
 "a.wallet.no.tokens" = "You don't have any tokens";

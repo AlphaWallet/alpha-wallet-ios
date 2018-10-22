@@ -10,6 +10,7 @@ class WalletFilterView: UIView {
 	private let allButton = UIButton(type: .system)
 	private let currencyButton = UIButton(type: .system)
 	private let assetsButton = UIButton(type: .system)
+	private let collectiblesButton = UIButton(type: .system)
 	private let highlightedBar = UIView()
 	private var filter: WalletFilter = .all {
 		didSet {
@@ -40,7 +41,11 @@ class WalletFilterView: UIView {
 		assetsButton.titleLabel?.font = viewModel.font
 		assetsButton.addTarget(self, action: #selector(showAssetsOnly), for: .touchUpInside)
 
-		let buttonsStackView = [allButton, currencyButton, assetsButton].asStackView(spacing: 20)
+		collectiblesButton.setTitle(R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle(), for: .normal)
+		collectiblesButton.titleLabel?.font = viewModel.font
+		collectiblesButton.addTarget(self, action: #selector(showCollectiblesOnly), for: .touchUpInside)
+
+		let buttonsStackView = [allButton, currencyButton, assetsButton, collectiblesButton].asStackView(spacing: 20)
 		buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(buttonsStackView)
 
@@ -94,10 +99,15 @@ class WalletFilterView: UIView {
 		filter = .assetsOnly
 	}
 
+	@objc func showCollectiblesOnly() {
+		filter = .collectiblesOnly
+	}
+
 	func configureButtonColors() {
 		allButton.setTitleColor(viewModel.colorForFilter(filter: .all), for: .normal)
 		currencyButton.setTitleColor(viewModel.colorForFilter(filter: .currencyOnly), for: .normal)
 		assetsButton.setTitleColor(viewModel.colorForFilter(filter: .assetsOnly), for: .normal)
+		collectiblesButton.setTitleColor(viewModel.colorForFilter(filter: .collectiblesOnly), for: .normal)
 	}
 
 	func configureHighlightedBar() {
@@ -109,6 +119,8 @@ class WalletFilterView: UIView {
 			button = currencyButton
 		case .assetsOnly:
 			button = assetsButton
+		case .collectiblesOnly:
+            button = collectiblesButton
 		}
 
 		if let previousConstraints = highlightBarHorizontalConstraints {

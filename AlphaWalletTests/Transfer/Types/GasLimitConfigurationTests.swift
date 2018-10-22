@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import XCTest
-@testable import Trust
+@testable import AlphaWallet
 import BigInt
 
 class GasLimitConfigurationTests: XCTestCase {
