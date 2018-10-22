@@ -27,7 +27,18 @@ class TokensViewController: UIViewController {
     private var importWalletLayer = CAShapeLayer()
     private var importWalletHelpBubbleView: ImportWalletHelpBubbleView?
     private let tableView: UITableView
-    private let refreshControl = UIRefreshControl()
+    private let tableViewRefreshControl = UIRefreshControl()
+    private let collectiblesCollectionViewRefreshControl = UIRefreshControl()
+    private let collectiblesCollectionView = { () -> UICollectionView in
+        let layout = UICollectionViewFlowLayout()
+        let numberOfColumns = CGFloat(3)
+        let dimension = (UIScreen.main.bounds.size.width / numberOfColumns).rounded(.down)
+        let heightForLabel = CGFloat(18)
+        layout.itemSize = CGSize(width: dimension, height: dimension + heightForLabel)
+        layout.minimumInteritemSpacing = 0
+        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+    }()
+    private var currentCollectiblesContractsDisplayed = [String]()
 
     weak var delegate: TokensViewControllerDelegate?
 
@@ -59,7 +70,21 @@ class TokensViewController: UIViewController {
         tableView.dataSource = self
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appBackground
+        tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
+        tableView.addSubview(tableViewRefreshControl)
         view.addSubview(tableView)
+
+        collectiblesCollectionView.backgroundColor = Colors.appBackground
+        collectiblesCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectiblesCollectionView.alwaysBounceVertical = true
+        collectiblesCollectionView.register(OpenSeaNonFungibleTokenViewCell.self, forCellWithReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier)
+        collectiblesCollectionView.dataSource = self
+        collectiblesCollectionView.isHidden = true
+        collectiblesCollectionView.delegate = self
+        collectiblesCollectionViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
+        collectiblesCollectionView.refreshControl = collectiblesCollectionViewRefreshControl
+        view.addSubview(collectiblesCollectionView)
+
         NSLayoutConstraint.activate([
             filterView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             filterView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -69,9 +94,12 @@ class TokensViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            tableView.leadingAnchor.constraint(equalTo: collectiblesCollectionView.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: collectiblesCollectionView.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: collectiblesCollectionView.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: collectiblesCollectionView.bottomAnchor),
         ])
-        refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
-        tableView.addSubview(refreshControl)
         errorView = ErrorView(onRetry: { [weak self] in
             self?.startLoading()
             self?.dataStore.fetch()
@@ -91,7 +119,8 @@ class TokensViewController: UIViewController {
         fetch()
     }
     @objc func pullToRefresh() {
-        refreshControl.beginRefreshing()
+        tableViewRefreshControl.beginRefreshing()
+        collectiblesCollectionViewRefreshControl.beginRefreshing()
         fetch()
     }
 
@@ -108,9 +137,19 @@ class TokensViewController: UIViewController {
     }
 
     private func reload() {
-        tableView.reloadData()
-        let haveData = viewModel.numberOfSections > 0 && viewModel.numberOfItems(for: 0) > 0
-        if haveData {
+        tableView.isHidden = !viewModel.shouldShowTable
+        collectiblesCollectionView.isHidden = !viewModel.shouldShowCollectiblesCollectionView
+        if viewModel.hasContent {
+            if viewModel.shouldShowTable {
+                tableView.reloadData()
+            }
+            if viewModel.shouldShowCollectiblesCollectionView {
+                var contractsForCollectibles = contractsForCollectiblesFromViewModel()
+                if contractsForCollectibles != currentCollectiblesContractsDisplayed {
+                    currentCollectiblesContractsDisplayed = contractsForCollectibles
+                    collectiblesCollectionView.reloadData()
+                }
+            }
             hideImportWalletImage()
         } else {
             showImportWalletImage()
@@ -197,6 +236,16 @@ class TokensViewController: UIViewController {
             return UIBezierPath()
         }
     }
+
+    //Reloading the collectibles tab is very obvious visually, with the flashing images even if there are no changes. So we used this to check if the list of collectibles have changed, if not, don't refresh. We could have used a library that tracks diff, but that is overkill and one more dependency
+    private func contractsForCollectiblesFromViewModel() -> [String] {
+        var contractsForCollectibles = [String]()
+        for i in (0..<viewModel.numberOfItems(for: 0)) {
+            let token = viewModel.item(for: i, section: 0)
+            contractsForCollectibles.append(token.contract.lowercased())
+        }
+        return contractsForCollectibles
+    }
 }
 
 extension TokensViewController: StatefulViewController {
@@ -259,8 +308,11 @@ extension TokensViewController: TokensDataStoreDelegate {
         }
         reload()
 
-        if refreshControl.isRefreshing {
-            refreshControl.endRefreshing()
+        if tableViewRefreshControl.isRefreshing {
+            tableViewRefreshControl.endRefreshing()
+        }
+        if collectiblesCollectionViewRefreshControl.isRefreshing {
+            collectiblesCollectionViewRefreshControl.endRefreshing()
         }
     }
 }
@@ -311,3 +363,23 @@ extension TokensViewController: WalletFilterViewDelegate {
     }
 }
 
+extension TokensViewController: UICollectionViewDataSource {
+    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return viewModel.numberOfItems(for: section)
+    }
+
+    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let token = viewModel.item(for: indexPath.row, section: indexPath.section)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier, for: indexPath) as! OpenSeaNonFungibleTokenViewCell
+        cell.configure(viewModel: .init(token: token))
+        return cell
+    }
+}
+
+extension TokensViewController: UICollectionViewDelegate {
+    public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectiblesCollectionView.deselectItem(at: indexPath, animated: true)
+        let token = viewModel.item(for: indexPath.item, section: indexPath.section)
+        delegate?.didSelect(token: token, in: self)
+    }
+}
