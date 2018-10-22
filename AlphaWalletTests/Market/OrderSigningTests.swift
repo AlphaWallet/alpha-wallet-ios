@@ -1,5 +1,5 @@
 import XCTest
-@testable import Trust
+@testable import AlphaWallet
 import TrustKeystore
 import RealmSwift
 import BigInt

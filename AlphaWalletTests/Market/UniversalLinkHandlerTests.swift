@@ -3,7 +3,7 @@
 //
 
 import Foundation
-@testable import Trust
+@testable import AlphaWallet
 import XCTest
 import BigInt
 import TrustKeystore

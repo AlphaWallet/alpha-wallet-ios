@@ -2,7 +2,7 @@
 
 import Foundation
 import XCTest
-@testable import Trust
+@testable import AlphaWallet
 
 class StringExtensionTests: XCTestCase {
     func testAdd0x() {
