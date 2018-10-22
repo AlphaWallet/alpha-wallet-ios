@@ -74,7 +74,7 @@ class TransactionDataCoordinator {
     }
 
     private func runScheduledTimers() {
-        guard !Trust.Config().isAutoFetchingDisabled else { return }
+        guard !AlphaWallet.Config().isAutoFetchingDisabled else { return }
         guard timer == nil, updateTransactionsTimer == nil else {
             return
         }

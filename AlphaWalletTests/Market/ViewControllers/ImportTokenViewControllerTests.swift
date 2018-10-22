@@ -1,7 +1,7 @@
 //Copyright © 2018 Stormbird PTE. LTD.
 
 import FBSnapshotTestCase
-@testable import Trust
+@testable import AlphaWallet
 import UIKit
 
 class ImportTokenViewControllerTests: FBSnapshotTestCase {

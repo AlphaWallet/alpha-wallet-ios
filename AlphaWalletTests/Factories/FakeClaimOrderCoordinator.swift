@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-@testable import Trust
+@testable import AlphaWallet
 
 class FakeClaimOrderCoordinator: ClaimOrderCoordinator {
     convenience init() {

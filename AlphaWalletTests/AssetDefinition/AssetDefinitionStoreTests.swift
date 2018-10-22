@@ -2,7 +2,7 @@
 
 import Foundation
 import XCTest
-@testable import Trust
+@testable import AlphaWallet
 
 class AssetDefinitionStoreTests: XCTestCase {
     func testConvertsModifiedDateToStringForHTTPHeaderIfModifiedSince() {
