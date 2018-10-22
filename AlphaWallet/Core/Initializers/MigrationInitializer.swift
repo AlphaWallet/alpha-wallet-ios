@@ -22,10 +22,8 @@ class MigrationInitializer: Initializer {
     func perform() {
         config.schemaVersion = 49
         config.migrationBlock = { migration, oldSchemaVersion in
-            switch oldSchemaVersion {
-            case 0...32:
+            if oldSchemaVersion < 33 {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
-
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
                     guard let value = oldObject["contract"] as? String else { return }
@@ -33,7 +31,6 @@ class MigrationInitializer: Initializer {
 
                     newObject["contract"] = address.description
                 }
-            default: break
             }
             if oldSchemaVersion < 44 {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
