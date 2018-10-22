@@ -142,6 +142,7 @@ class TokenAdaptor {
         values["name"] = nonFungible.name
         values["description"] = nonFungible.description
         values["imageUrl"] = nonFungible.imageUrl
+        values["contractImageUrl"] = nonFungible.contractImageUrl
         values["thumbnailUrl"] = nonFungible.thumbnailUrl
         values["externalLink"] = nonFungible.externalLink
         values["backgroundColor"] = nonFungible.backgroundColor

@@ -6,8 +6,16 @@ import Macaw
 import PromiseKit
 
 class ConvertSVGToPNG {
-    private let imageCache = ImageCache()
+    private let imageCache: ImageCache
     private var promises = [URL: Promise<UIImage>]()
+
+    init(cachingDirectoryName: String) {
+        imageCache = ImageCache(directoryName: cachingDirectoryName)
+    }
+
+    init() {
+        imageCache = ImageCache()
+    }
 
     func withDownloadedImage(fromURL url: URL?, forTokenId tokenId: String?, withPrefix prefix: String) -> Promise<UIImage> {
         guard let tokenId = tokenId else {

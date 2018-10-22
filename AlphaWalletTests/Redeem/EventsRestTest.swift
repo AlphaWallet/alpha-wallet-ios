@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@testable import Trust
+@testable import AlphaWallet
 import XCTest
 
 class EventsRestTest: XCTestCase {

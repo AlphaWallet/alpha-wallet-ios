@@ -74,7 +74,7 @@ class TransactionDataCoordinator {
     }
 
     private func runScheduledTimers() {
-        guard !Trust.Config().isAutoFetchingDisabled else { return }
+        guard !AlphaWallet.Config().isAutoFetchingDisabled else { return }
         guard timer == nil, updateTransactionsTimer == nil else {
             return
         }
@@ -237,7 +237,12 @@ class TransactionDataCoordinator {
     private func notifyUserEtherReceived(for transactionId: String, amount: String) {
         let notificationCenter = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
-        content.body = R.string.localizable.transactionsReceivedEther(amount)
+        switch Trust.Config().server {
+        case .main:
+            content.body = R.string.localizable.transactionsReceivedEther(amount)
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+            content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(Trust.Config().server.name))")
+        }
         content.sound = .default()
         let identifier = Constants.etherReceivedNotificationIdentifier
         let request = UNNotificationRequest(identifier: "\(identifier):\(transactionId)", content: content, trigger: nil)
