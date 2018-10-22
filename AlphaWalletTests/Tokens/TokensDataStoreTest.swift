@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import XCTest
-@testable import Trust
+@testable import AlphaWallet
 import Foundation
 
 class TokensDataStoreTest: XCTestCase {

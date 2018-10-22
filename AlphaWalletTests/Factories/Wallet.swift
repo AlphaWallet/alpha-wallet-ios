@@ -2,7 +2,7 @@
 
 import Foundation
 import TrustKeystore
-@testable import Trust
+@testable import AlphaWallet
 
 extension Wallet {
     static func make(

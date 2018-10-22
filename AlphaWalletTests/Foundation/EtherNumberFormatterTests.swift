@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import BigInt
-@testable import Trust
+@testable import AlphaWallet
 import XCTest
 
 class EtherNumberFormatterTests: XCTestCase {
