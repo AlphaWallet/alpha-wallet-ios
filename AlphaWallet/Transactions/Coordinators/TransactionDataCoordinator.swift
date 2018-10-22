@@ -237,11 +237,11 @@ class TransactionDataCoordinator {
     private func notifyUserEtherReceived(for transactionId: String, amount: String) {
         let notificationCenter = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
-        switch Trust.Config().server {
+        switch AlphaWallet.Config().server {
         case .main:
             content.body = R.string.localizable.transactionsReceivedEther(amount)
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
-            content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(Trust.Config().server.name))")
+            content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(AlphaWallet.Config().server.name))")
         }
         content.sound = .default()
         let identifier = Constants.etherReceivedNotificationIdentifier
