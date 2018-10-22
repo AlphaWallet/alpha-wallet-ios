@@ -35,6 +35,8 @@ class TokensViewModel {
             return tokens.filter { $0.type == .ether || $0.type == .erc20 }
         case .assetsOnly:
             return tokens.filter { $0.type != .ether && $0.type != .erc20 }
+        case .collectiblesOnly:
+            return tokens.filter { $0.type == .erc721 && !$0.balance.isEmpty }
         }
     }
 
@@ -48,6 +50,24 @@ class TokensViewModel {
 
     var backgroundColor: UIColor {
         return Colors.appBackground
+    }
+
+    var shouldShowTable: Bool {
+        switch filter {
+        case .all, .currencyOnly, .assetsOnly:
+            return hasContent
+        case .collectiblesOnly:
+            return false
+        }
+    }
+
+    var shouldShowCollectiblesCollectionView: Bool {
+        switch filter {
+        case .all, .currencyOnly, .assetsOnly:
+            return false
+        case .collectiblesOnly:
+            return hasContent
+        }
     }
 
     var hasContent: Bool {
