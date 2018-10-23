@@ -130,6 +130,7 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 
 	func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
 		storage.deleteAll()
+		TransactionsTracker(sessionID: session.sessionID).fetchingState = .initial
 		delegate?.didUpdateAccounts(in: self)
 		guard !coordinator.accountsViewController.hasWallets else { return }
 		coordinator.navigationController.dismiss(animated: true, completion: nil)
