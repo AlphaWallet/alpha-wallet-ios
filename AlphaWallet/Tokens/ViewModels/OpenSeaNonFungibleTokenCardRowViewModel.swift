@@ -184,8 +184,11 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
         return value
     }
 
-    var description: String {
-        return tokenHolder.values["description"] as? String ?? ""
+    var description: NSAttributedString {
+        let string = tokenHolder.values["description"] as? String ?? ""
+        let htmlData = string.data(using: .utf8)
+        let options = [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.html]
+        return (try? NSMutableAttributedString(data: htmlData ?? Data(), options: options, documentAttributes: nil)) ?? NSAttributedString(string: string)
     }
 
     var thumbnailImageUrl: URL? {

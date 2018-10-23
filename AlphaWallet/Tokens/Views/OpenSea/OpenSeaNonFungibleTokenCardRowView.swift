@@ -399,7 +399,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             each.constant = -bleedForBigImage
         }
 
-        descriptionLabel.text = viewModel.description
+        descriptionLabel.attributedText = viewModel.description
 
         titleLabel.text = viewModel.title
 
