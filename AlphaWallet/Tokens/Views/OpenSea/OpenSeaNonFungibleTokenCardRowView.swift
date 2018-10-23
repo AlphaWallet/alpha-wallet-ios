@@ -295,15 +295,18 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             spacers.belowHorizontalSubtitleStackView,
             spacers.belowDescription,
             descriptionLabel,
+            spacers.atBottom,
         ]
         viewsVisibleWhenDetailsAreNotVisibleImagesNotAvailable = [
             spacers.atTop,
             spacers.belowState,
+            spacers.atBottom,
         ]
         viewsVisibleWhenDetailsAreVisibleImagesNotAvailable = [
             spacers.atTop,
             spacers.belowState,
             urlButtonHolder,
+            spacers.atBottom,
         ]
     }
 
