@@ -323,76 +323,73 @@ class TokensDataStore {
 
     private func refreshBalanceForERC721Tokens(tokens: [TokenObject]) {
         assert(!tokens.contains { !$0.isERC721 })
-        getTokensFromOpenSea().done { [weak self] result in
+        getTokensFromOpenSea().done { [weak self] contractToOpenSeaNonFungibles in
             guard let strongSelf = self else { return }
-            switch result {
-            case .success(let contractToOpenSeaNonFungibles):
-                let erc721ContractsFoundInOpenSea = Array(contractToOpenSeaNonFungibles.keys).map { $0.lowercased() }
-                let erc721ContractsNotFoundInOpenSea = tokens.map { $0.contract.lowercased() } - erc721ContractsFoundInOpenSea
-                var count = 0
-                for each in erc721ContractsNotFoundInOpenSea {
-                    strongSelf.getERC721Balance(for: each) { [weak self] result in
-                        guard let strongSelf = self else { return }
-                        defer {
-                            count += 1
-                            if count == erc721ContractsNotFoundInOpenSea.count {
-                                strongSelf.updateDelegate()
-                            }
+            let erc721ContractsFoundInOpenSea = Array(contractToOpenSeaNonFungibles.keys).map { $0.lowercased() }
+            let erc721ContractsNotFoundInOpenSea = tokens.map { $0.contract.lowercased() } - erc721ContractsFoundInOpenSea
+            var count = 0
+            for each in erc721ContractsNotFoundInOpenSea {
+                strongSelf.getERC721Balance(for: each) { [weak self] result in
+                    guard let strongSelf = self else { return }
+                    defer {
+                        count += 1
+                        if count == erc721ContractsNotFoundInOpenSea.count {
+                            strongSelf.updateDelegate()
                         }
-                        switch result {
-                        case .success(let balance):
-                            if let token = tokens.first(where: { $0.contract.sameContract(as: each) }) {
-                                strongSelf.update(token: token, action: .nonFungibleBalance(balance))
-                            }
-                        case .failure:
-                            break
+                    }
+                    switch result {
+                    case .success(let balance):
+                        if let token = tokens.first(where: { $0.contract.sameContract(as: each) }) {
+                            strongSelf.update(token: token, action: .nonFungibleBalance(balance))
                         }
+                    case .failure:
+                        break
                     }
                 }
-
-                for (contract, openSeaNonFungibles) in contractToOpenSeaNonFungibles {
-                    var listOfJson = [String]()
-                    var anyNonFungible: OpenSeaNonFungible?
-                    for each in openSeaNonFungibles {
-                        if let encodedJson = try? JSONEncoder().encode(each), let jsonString = String(data: encodedJson, encoding: .utf8) {
-                            anyNonFungible = each
-                            listOfJson.append(jsonString)
-                        } else {
-                            NSLog("Failed to convert ERC721 token from OpenSea to JSON")
-                        }
-                    }
-
-                    if let tokenObject = tokens.first(where: { $0.contract.sameContract(as: contract) }) {
-                        switch tokenObject.type {
-                        case .ether, .erc721, .erc875:
-                            break
-                        case .erc20:
-                            strongSelf.update(token: tokenObject, action: .type(.erc721))
-                        }
-                        strongSelf.update(token: tokenObject, action: .nonFungibleBalance(listOfJson))
-                        if let anyNonFungible = anyNonFungible {
-                            strongSelf.update(token: tokenObject, action: .name(anyNonFungible.contractName))
-                        }
-                    } else {
-                        if let address = Address(string: contract) {
-                            let token = ERCToken(
-                                    contract: address,
-                                    name: openSeaNonFungibles[0].contractName,
-                                    symbol: openSeaNonFungibles[0].symbol,
-                                    decimals: 0,
-                                    type: .erc721,
-                                    balance: listOfJson
-                            )
-                            strongSelf.addCustom(token: token)
-                        } else {
-                            NSLog("Failed to add token from OpenSea: \(contract)")
-                        }
-                    }
-                }
-                strongSelf.updateDelegate()
-            case .failure:
-                NSLog("Failed to retrieve tokens from OpenSea")
             }
+
+            for (contract, openSeaNonFungibles) in contractToOpenSeaNonFungibles {
+                var listOfJson = [String]()
+                var anyNonFungible: OpenSeaNonFungible?
+                for each in openSeaNonFungibles {
+                    if let encodedJson = try? JSONEncoder().encode(each), let jsonString = String(data: encodedJson, encoding: .utf8) {
+                        anyNonFungible = each
+                        listOfJson.append(jsonString)
+                    } else {
+                        NSLog("Failed to convert ERC721 token from OpenSea to JSON")
+                    }
+                }
+
+                if let tokenObject = tokens.first(where: { $0.contract.sameContract(as: contract) }) {
+                    switch tokenObject.type {
+                    case .ether, .erc721, .erc875:
+                        break
+                    case .erc20:
+                        strongSelf.update(token: tokenObject, action: .type(.erc721))
+                    }
+                    strongSelf.update(token: tokenObject, action: .nonFungibleBalance(listOfJson))
+                    if let anyNonFungible = anyNonFungible {
+                        strongSelf.update(token: tokenObject, action: .name(anyNonFungible.contractName))
+                    }
+                } else {
+                    if let address = Address(string: contract) {
+                        let token = ERCToken(
+                                contract: address,
+                                name: openSeaNonFungibles[0].contractName,
+                                symbol: openSeaNonFungibles[0].symbol,
+                                decimals: 0,
+                                type: .erc721,
+                                balance: listOfJson
+                        )
+                        strongSelf.addCustom(token: token)
+                    } else {
+                        NSLog("Failed to add token from OpenSea: \(contract)")
+                    }
+                }
+            }
+            strongSelf.updateDelegate()
+        }.catch {
+            NSLog("Failed to retrieve tokens from OpenSea: \($0)")
         }
     }
 
