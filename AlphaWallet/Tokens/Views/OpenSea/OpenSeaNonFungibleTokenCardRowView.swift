@@ -176,7 +176,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
 
         let col1 = thumbnailImageView
 
-        let bodyStackView = [UIView.spacerWidth(outerHorizontalMargin), col0, col1, UIView.spacerWidth(outerHorizontalMargin)].asStackView(axis: .horizontal, contentHuggingPriority: .required, alignment: .top)
+        let bodyStackView = [UIView.spacerWidth(outerHorizontalMargin), col0, col1].asStackView(axis: .horizontal, contentHuggingPriority: .required, alignment: .top)
 
         let urlButtonInnerHolder = [
             .spacer(height: 20),
@@ -389,8 +389,10 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         statsLabel.textColor = viewModel.titleColor
         statsLabel.font = viewModel.attributesTitleFont
 
-        thumbnailImageView.contentMode = .scaleAspectFit
+        thumbnailImageView.contentMode = .scaleAspectFill
         thumbnailImageView.backgroundColor = .clear
+        thumbnailImageView.clipsToBounds = true
+        thumbnailImageView.layer.cornerRadius = backgroundCornerRadius
 
         bigImageBackground.backgroundColor = viewModel.bigImageBackgroundColor
         bigImageView.contentMode = .scaleAspectFit
