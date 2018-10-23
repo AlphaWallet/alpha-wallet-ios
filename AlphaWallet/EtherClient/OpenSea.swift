@@ -7,7 +7,7 @@ import Result
 import SwiftyJSON
 
 class OpenSea {
-    typealias PromiseResult = Promise<ResultResult<[String: [OpenSeaNonFungible]], AnyError>.t>
+    typealias PromiseResult = Promise<[String: [OpenSeaNonFungible]]>
 
     //Assuming 1 token (token ID, rather than a token) is 4kb, 1500 HyperDragons is 6MB. So we rate limit requests
     private static let numberOfTokenIdsBeforeRateLimitingRequests = 25
@@ -19,7 +19,7 @@ class OpenSea {
 
     private static func makeEmptyFulfilledPromise() -> PromiseResult {
         return Promise {
-            $0.fulfill(.success([:]))
+            $0.fulfill([:])
         }
     }
 
@@ -35,7 +35,7 @@ class OpenSea {
             break
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom(_):
             fetch = Promise { seal in
-                seal.fulfill(.success([:]))
+                seal.fulfill([:])
             }
             return fetch
         }
@@ -49,7 +49,12 @@ class OpenSea {
             fetch = Promise { seal in
                 let offset = 0
                 fetchPage(forOwner: owner, offset: offset) { result in
-                    seal.fulfill(result)
+                    switch result {
+                    case .success(let result):
+                        seal.fulfill(result)
+                    case .failure(let error):
+                        seal.reject(error)
+                    }
                 }
             }
         }
@@ -67,7 +72,7 @@ class OpenSea {
                 headers: ["X-API-KEY": Constants.openseaAPIKEY]
         ).responseJSON { response in
             guard let data = response.data, let json = try? JSON(data: data) else {
-                completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(Constants.openseaAPI) API"))))
+                completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(Constants.openseaAPI) API: \(response.error)"))))
                 return
             }
             DispatchQueue.global(qos: .userInitiated).async {
