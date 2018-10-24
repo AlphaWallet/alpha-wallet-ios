@@ -140,16 +140,18 @@ class TokensCoordinator: Coordinator {
                     completion()
                 }
             case .fungibleTokenComplete(let name, let symbol, let decimals):
-                let token = TokenObject(
-                        contract: contract,
-                        name: name,
-                        symbol: symbol,
-                        decimals: Int(decimals),
-                        value: "0",
-                        type: .erc20
-                )
-                strongSelf.storage.add(tokens: [token])
-                completion()
+                if let address = Address(string: contract) {
+                    let token = TokenObject(
+                            contract: address.eip55String,
+                            name: name,
+                            symbol: symbol,
+                            decimals: Int(decimals),
+                            value: "0",
+                            type: .erc20
+                    )
+                    strongSelf.storage.add(tokens: [token])
+                    completion()
+                }
             case .delegateTokenComplete:
                 strongSelf.storage.add(delegateContracts: [DelegateContract(contract: contract)])
                 completion()
