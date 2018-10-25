@@ -4,9 +4,9 @@ import UIKit
 
 //TODO make more reusable as an alert?
 struct ConfirmSignMessageViewControllerViewModel {
-    private let message: SignMesageType
+    private let message: SignMessageType
 
-    init(message: SignMesageType) {
+    init(message: SignMessageType) {
         self.message = message
     }
 

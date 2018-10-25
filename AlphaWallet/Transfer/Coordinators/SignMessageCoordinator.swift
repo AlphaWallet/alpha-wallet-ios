@@ -6,7 +6,7 @@ import TrustKeystore
 import CryptoSwift
 import Result
 
-enum SignMesageType {
+enum SignMessageType {
     case message(Data)
     case personalMessage(Data)
     case typedMessage([EthTypedData])
@@ -20,7 +20,7 @@ class SignMessageCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private let keystore: Keystore
     private let account: Account
-    private var message: SignMesageType?
+    private var message: SignMessageType?
 
     var coordinators: [Coordinator] = []
     weak var delegate: SignMessageCoordinatorDelegate?
@@ -36,13 +36,13 @@ class SignMessageCoordinator: Coordinator {
         self.account = account
     }
 
-    func start(with message: SignMesageType) {
+    func start(with message: SignMessageType) {
         self.message = message
         let alertController = makeAlertController(with: message)
         navigationController.present(alertController, animated: true, completion: nil)
     }
 
-    private func makeAlertController(with type: SignMesageType) -> UIViewController {
+    private func makeAlertController(with type: SignMessageType) -> UIViewController {
         let vc = ConfirmSignMessageViewController()
         vc.delegate = self
         vc.configure(viewModel: .init(message: type))
@@ -51,7 +51,7 @@ class SignMessageCoordinator: Coordinator {
         return vc
     }
 
-    private func handleSignedMessage(with type: SignMesageType) {
+    private func handleSignedMessage(with type: SignMessageType) {
         let result: Result<Data, KeystoreError>
         switch type {
         case .message(let data):
