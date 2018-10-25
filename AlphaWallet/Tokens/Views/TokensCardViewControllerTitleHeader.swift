@@ -24,12 +24,11 @@ class TokensCardViewControllerTitleHeader: UIView {
         // TODO extract constant. Maybe StyleLayout.sideMargin
         NSLayoutConstraint.activate([
             background.leadingAnchor.constraint(equalTo: leadingAnchor),
-//            background.topAnchor.constraint(equalTo: topAnchor),
             background.centerYAnchor.constraint(equalTo: centerYAnchor),
             backgroundWidthConstraint,
 
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
+            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 0),
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: 0),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
         ])
