@@ -51,20 +51,45 @@ class TokensDataStore {
 
     private let provider = TrustProviderFactory.makeProvider()
 
-    let account: Wallet
-    let config: Config
-    let web3: Web3Swift
-    let assetDefinitionStore: AssetDefinitionStore
-    weak var delegate: TokensDataStoreDelegate?
-    let realm: Realm
-    var tickers: [String: CoinTicker]? = .none
-    var pricesTimer = Timer()
-    var ethTimer = Timer()
+    private let account: Wallet
+    private let config: Config
+    private let web3: Web3Swift
+    private let assetDefinitionStore: AssetDefinitionStore
+    private let realm: Realm
+    private var pricesTimer = Timer()
+    private var ethTimer = Timer()
     //We should refresh prices every 5 minutes.
-    let intervalToRefreshPrices = 300.0
+    private let intervalToRefreshPrices = 300.0
     //We should refresh balance of the ETH every 10 seconds.
-    let intervalToETHRefresh = 10.0
+    private let intervalToETHRefresh = 10.0
+
+    weak var delegate: TokensDataStoreDelegate?
+    var tickers: [String: CoinTicker]? = .none
     var tokensModel: Subscribable<[TokenObject]> = Subscribable(nil)
+
+    var objects: [TokenObject] {
+        return realm.objects(TokenObject.self)
+                .sorted(byKeyPath: "contract", ascending: true)
+                .filter { !$0.contract.isEmpty }
+    }
+
+    var enabledObject: [TokenObject] {
+        return realm.objects(TokenObject.self)
+                .sorted(byKeyPath: "contract", ascending: true)
+                .filter { !$0.isDisabled }
+    }
+
+    var deletedContracts: [DeletedContract] {
+        return Array(realm.objects(DeletedContract.self))
+    }
+
+    var delegateContracts: [DelegateContract] {
+        return Array(realm.objects(DelegateContract.self))
+    }
+
+    var hiddenContracts: [HiddenContract] {
+        return Array(realm.objects(HiddenContract.self))
+    }
 
     static func etherToken(for config: Config) -> TokenObject {
         return TokenObject(
@@ -109,36 +134,13 @@ class TokensDataStore {
 
         fetchTokenNamesForNonFungibleTokensIfEmpty()
     }
+
     private func addEthToken() {
         //Check if we have previos values.
         let etherToken = TokensDataStore.etherToken(for: config)
         if objects.first(where: { $0 == etherToken }) == nil {
             add(tokens: [etherToken])
         }
-    }
-
-    var objects: [TokenObject] {
-        return realm.objects(TokenObject.self)
-            .sorted(byKeyPath: "contract", ascending: true)
-            .filter { !$0.contract.isEmpty }
-    }
-
-    var enabledObject: [TokenObject] {
-        return realm.objects(TokenObject.self)
-            .sorted(byKeyPath: "contract", ascending: true)
-            .filter { !$0.isDisabled }
-    }
-
-    var deletedContracts: [DeletedContract] {
-        return Array(realm.objects(DeletedContract.self))
-    }
-
-    var delegateContracts: [DelegateContract] {
-        return Array(realm.objects(DelegateContract.self))
-    }
-
-    var hiddenContracts: [HiddenContract] {
-        return Array(realm.objects(HiddenContract.self))
     }
 
     static func update(in realm: Realm, tokens: [TokenUpdate]) {
@@ -405,7 +407,8 @@ class TokensDataStore {
             }
         }
     }
-    func updateDelegate() {
+
+    private func updateDelegate() {
         tokensModel.value = enabledObject
         let tokensViewModel = TokensViewModel(config: config, tokens: enabledObject, tickers: tickers)
         delegate?.didUpdate(result: .success( tokensViewModel ))
@@ -413,10 +416,6 @@ class TokensDataStore {
 
     func coinTicker(for token: TokenObject) -> CoinTicker? {
         return tickers?[token.contract]
-    }
-
-    func handleError(error: Error) {
-        delegate?.didUpdate(result: .failure(TokenError.failedToFetch))
     }
 
     func addCustom(token: ERCToken) {
@@ -492,12 +491,6 @@ class TokensDataStore {
         try! realm.commitWrite()
     }
 
-    func deleteAll() {
-        try! realm.write {
-            realm.delete(realm.objects(TokenObject.self))
-        }
-    }
-
     func delete(hiddenContracts: [HiddenContract]) {
         realm.beginWrite()
         realm.delete(hiddenContracts)
@@ -548,7 +541,7 @@ class TokensDataStore {
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
-    public func fetchTokenNamesForNonFungibleTokensIfEmpty() {
+    func fetchTokenNamesForNonFungibleTokensIfEmpty() {
         assetDefinitionStore.forEachContractWithXML { [weak self] contract in
             guard let strongSelf = self else { return }
             let localizedName = XMLHandler(contract: contract).getName()
