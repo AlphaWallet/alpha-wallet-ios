@@ -29,6 +29,8 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             belowRankingsLabel: UIView.spacer(height: 20),
             atBottom: UIView.spacer(height: 16)
     )
+    private let outerHorizontalMargin = CGFloat(21)
+    private let backgroundCornerRadius = CGFloat(20)
     private let horizontalSubtitleStackView: UIStackView = [].asStackView(alignment: .center)
     private let verticalSubtitleStackView: UIStackView = [].asStackView(axis: .vertical, alignment: .leading)
     //TODO Name is too-specific for generation and cooldown, but the icons really are for those. We can rename (or remove this TODO once we are clean whether the icons are shown if the values displayed aren't generation/cooldown
@@ -74,7 +76,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
     }()
     lazy private var statsCollectionViewHeightConstraint = statsCollectionView.heightAnchor.constraint(equalToConstant: 100)
     private let urlButton = UIButton(type: .system)
-    private let urlButtonHolder = [].asStackView(axis: .vertical, alignment: .leading)
+    private let urlButtonHolder = [].asStackView(axis: .horizontal, alignment: .leading)
     private let showCheckbox: Bool
     private var viewModel: OpenSeaNonFungibleTokenCardRowViewModel?
     private var thumbnailRelatedConstraints = [NSLayoutConstraint]()
@@ -135,7 +137,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         background.translatesAutoresizingMaskIntoConstraints = false
 
         bigImageBackground.translatesAutoresizingMaskIntoConstraints = false
-        bigImageBackground.layer.cornerRadius = 20
+        bigImageBackground.layer.cornerRadius = backgroundCornerRadius
         background.addSubview(bigImageBackground)
 
         horizontalSubtitleStackView.addArrangedSubviews([nonFungibleIdIconLabel, .spacerWidth(3), nonFungibleIdLabel, .spacerWidth(7), generationIconImageView, subtitle1Label, .spacerWidth(7), cooldownIconImageView, subtitle2And3Label])
@@ -174,12 +176,13 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
 
         let col1 = thumbnailImageView
 
-        let bodyStackView = [col0, col1].asStackView(axis: .horizontal, contentHuggingPriority: .required, alignment: .top)
+        let bodyStackView = [UIView.spacerWidth(outerHorizontalMargin), col0, col1].asStackView(axis: .horizontal, contentHuggingPriority: .required, alignment: .top)
 
-        urlButtonHolder.addArrangedSubviews([
+        let urlButtonInnerHolder = [
             .spacer(height: 20),
             urlButton,
-        ])
+        ].asStackView(axis: .vertical, alignment: .leading)
+        urlButtonHolder.addArrangedSubviews([UIView.spacerWidth(outerHorizontalMargin), urlButtonInnerHolder])
 
         mainVerticalStackView.addArrangedSubviews([
             spacers.atTop,
@@ -237,10 +240,10 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         ]
 
         NSLayoutConstraint.activate([
-            mainVerticalStackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
-            mainVerticalStackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
+            mainVerticalStackView.leadingAnchor.constraint(equalTo: background.leadingAnchor),
+            mainVerticalStackView.trailingAnchor.constraint(equalTo: background.trailingAnchor),
             mainVerticalStackView.topAnchor.constraint(equalTo: background.topAnchor, constant: marginForBigImageView),
-            mainVerticalStackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: 0),
+            mainVerticalStackView.bottomAnchor.constraint(equalTo: background.bottomAnchor),
 
             background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
             background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
@@ -248,22 +251,22 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
 
             stateLabel.heightAnchor.constraint(equalToConstant: 22),
 
-            //It is important to anchor the collection view to the outermost stackview (which has aligment=.fill) instead of child stackviews which does not have alignment=.fill
-            attributesCollectionView.leadingAnchor.constraint(equalTo: mainVerticalStackView.leadingAnchor),
-            attributesCollectionView.trailingAnchor.constraint(equalTo: mainVerticalStackView.trailingAnchor),
+            //It is important to anchor the collection view to an outer stackview (which has aligment=.fill) instead of child stackviews which does not have alignment=.fill
+            attributesCollectionView.leadingAnchor.constraint(equalTo: mainVerticalStackView.leadingAnchor, constant: outerHorizontalMargin),
+            attributesCollectionView.trailingAnchor.constraint(equalTo: mainVerticalStackView.trailingAnchor, constant: -outerHorizontalMargin),
             attributesCollectionViewHeightConstraint,
 
             //It is important to anchor the collection view to the outermost stackview (which has aligment=.fill) instead of child stackviews which does not have alignment=.fill
-            rankingsCollectionView.leadingAnchor.constraint(equalTo: mainVerticalStackView.leadingAnchor),
-            rankingsCollectionView.trailingAnchor.constraint(equalTo: mainVerticalStackView.trailingAnchor),
+            rankingsCollectionView.leadingAnchor.constraint(equalTo: attributesCollectionView.leadingAnchor),
+            rankingsCollectionView.trailingAnchor.constraint(equalTo: attributesCollectionView.trailingAnchor),
             rankingsCollectionViewHeightConstraint,
 
             verticalGenerationIconImageView.widthAnchor.constraint(equalTo: verticalCooldownIconImageView.widthAnchor),
             verticalCooldownIconImageView.widthAnchor.constraint(equalTo: verticalCooldownIconImageView.heightAnchor),
 
             //It is important to anchor the collection view to the outermost stackview (which has aligment=.fill) instead of child stackviews which does not have alignment=.fill
-            statsCollectionView.leadingAnchor.constraint(equalTo: mainVerticalStackView.leadingAnchor),
-            statsCollectionView.trailingAnchor.constraint(equalTo: mainVerticalStackView.trailingAnchor),
+            statsCollectionView.leadingAnchor.constraint(equalTo: attributesCollectionView.leadingAnchor),
+            statsCollectionView.trailingAnchor.constraint(equalTo: attributesCollectionView.trailingAnchor),
             statsCollectionViewHeightConstraint,
 
             descriptionLabel.widthAnchor.constraint(equalTo: col0.widthAnchor),
@@ -295,15 +298,18 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             spacers.belowHorizontalSubtitleStackView,
             spacers.belowDescription,
             descriptionLabel,
+            spacers.atBottom,
         ]
         viewsVisibleWhenDetailsAreNotVisibleImagesNotAvailable = [
             spacers.atTop,
             spacers.belowState,
+            spacers.atBottom,
         ]
         viewsVisibleWhenDetailsAreVisibleImagesNotAvailable = [
             spacers.atTop,
             spacers.belowState,
             urlButtonHolder,
+            spacers.atBottom,
         ]
     }
 
@@ -320,7 +326,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         self.viewModel = viewModel
 
         background.backgroundColor = viewModel.contentsBackgroundColor
-        background.layer.cornerRadius = 20
+        background.layer.cornerRadius = backgroundCornerRadius
         background.layer.shadowRadius = 3
         background.layer.shadowColor = UIColor.black.cgColor
         background.layer.shadowOffset = CGSize(width: 0, height: 0)
@@ -383,13 +389,17 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         statsLabel.textColor = viewModel.titleColor
         statsLabel.font = viewModel.attributesTitleFont
 
-        thumbnailImageView.contentMode = .scaleAspectFit
+        thumbnailImageView.contentMode = .scaleAspectFill
         thumbnailImageView.backgroundColor = .clear
+        thumbnailImageView.clipsToBounds = true
+        thumbnailImageView.layer.cornerRadius = backgroundCornerRadius
 
         bigImageBackground.backgroundColor = viewModel.bigImageBackgroundColor
         bigImageView.contentMode = .scaleAspectFit
         bigImageView.backgroundColor = .clear
         bigImageHolder.backgroundColor = .clear
+        bigImageView.clipsToBounds = true
+        bigImageView.layer.cornerRadius = backgroundCornerRadius
 
         let bleedForBigImage = viewModel.bleedForBigImage
         for each in bigImageViewRelatedConstraintsWithPositiveBleed {
