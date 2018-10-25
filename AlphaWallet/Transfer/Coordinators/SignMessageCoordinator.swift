@@ -6,7 +6,7 @@ import TrustKeystore
 import CryptoSwift
 import Result
 
-enum SignMesageType {
+enum SignMessageType {
     case message(Data)
     case personalMessage(Data)
     case typedMessage([EthTypedData])
@@ -20,6 +20,7 @@ class SignMessageCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private let keystore: Keystore
     private let account: Account
+    private var message: SignMessageType?
 
     var coordinators: [Coordinator] = []
     weak var delegate: SignMessageCoordinatorDelegate?
@@ -35,56 +36,22 @@ class SignMessageCoordinator: Coordinator {
         self.account = account
     }
 
-    func start(with type: SignMesageType) {
-        let alertController = makeAlertController(with: type)
+    func start(with message: SignMessageType) {
+        self.message = message
+        let alertController = makeAlertController(with: message)
         navigationController.present(alertController, animated: true, completion: nil)
     }
 
-    private func makeAlertController(with type: SignMesageType) -> UIAlertController {
-        let alertController = UIAlertController(
-            title: R.string.localizable.confirmSignMessage(),
-            message: message(for: type),
-            preferredStyle: .alert
-        )
-        let signAction = UIAlertAction(
-            title: R.string.localizable.oK(),
-            style: .default
-        ) { [weak self] _ in
-            guard let strongSelf = self else { return }
-            strongSelf.handleSignedMessage(with: type)
-        }
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { [weak self] _ in
-            guard let strongSelf = self else { return }
-            strongSelf.didComplete?(.failure(AnyError(DAppError.cancelled)))
-            strongSelf.delegate?.didCancel(in: strongSelf)
-        }
-        alertController.addAction(signAction)
-        alertController.addAction(cancelAction)
-        return alertController
+    private func makeAlertController(with type: SignMessageType) -> UIViewController {
+        let vc = ConfirmSignMessageViewController()
+        vc.delegate = self
+        vc.configure(viewModel: .init(message: type))
+        vc.modalPresentationStyle = .overFullScreen
+        vc.modalTransitionStyle = .crossDissolve
+        return vc
     }
 
-    func message(for type: SignMesageType) -> String {
-        switch type {
-        case .message(let data),
-             .personalMessage(let data):
-            guard let message = String(data: data, encoding: .utf8) else {
-                return data.hexEncoded
-            }
-            return message
-        case .typedMessage(let (typedData)):
-            let string = typedData.map {
-                return "\($0.name) : \($0.value.string)"
-            }.joined(separator: "\n")
-            return string
-        }
-    }
-
-    private func isMessage(data: Data) -> Bool {
-        guard let _ = String(data: data, encoding: .utf8) else { return false }
-        return true
-    }
-
-    private func handleSignedMessage(with type: SignMesageType) {
+    private func handleSignedMessage(with type: SignMessageType) {
         let result: Result<Data, KeystoreError>
         switch type {
         case .message(let data):
@@ -104,5 +71,19 @@ class SignMessageCoordinator: Coordinator {
         case .failure(let error):
             didComplete?(.failure(AnyError(error)))
         }
+    }
+}
+
+extension SignMessageCoordinator: ConfirmSignMessageViewControllerDelegate {
+    func didPressProceed(in viewController: ConfirmSignMessageViewController) {
+        navigationController.dismiss(animated: true)
+        guard let message = message else { return }
+        handleSignedMessage(with: message)
+    }
+
+    func didPressCancel(in viewController: ConfirmSignMessageViewController) {
+        navigationController.dismiss(animated: true)
+        didComplete?(.failure(AnyError(DAppError.cancelled)))
+        delegate?.didCancel(in: self)
     }
 }
