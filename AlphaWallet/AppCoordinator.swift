@@ -7,7 +7,6 @@ import BigInt
 
 class AppCoordinator: NSObject, Coordinator {
     private let config: Config
-    let navigationController: UINavigationController
     private lazy var welcomeViewController: WelcomeViewController = {
         let controller = WelcomeViewController()
         controller.delegate = self
@@ -18,14 +17,10 @@ class AppCoordinator: NSObject, Coordinator {
     private let assetDefinitionStore = AssetDefinitionStore()
     private let window: UIWindow
     private var appTracker = AppTracker()
-    var coordinators: [Coordinator] = []
-    var inCoordinator: InCoordinator? {
-        return coordinators.first { $0 is InCoordinator } as? InCoordinator
-    }
-    var assetDefinitionStoreCoordinator: AssetDefinitionStoreCoordinator? {
+    private var assetDefinitionStoreCoordinator: AssetDefinitionStoreCoordinator? {
         return coordinators.first { $0 is AssetDefinitionStoreCoordinator } as? AssetDefinitionStoreCoordinator
     }
-    var pushNotificationsCoordinator: PushNotificationsCoordinator? {
+    private var pushNotificationsCoordinator: PushNotificationsCoordinator? {
         return coordinators.first { $0 is PushNotificationsCoordinator } as? PushNotificationsCoordinator
     }
     private var universalLinkCoordinator: UniversalLinkCoordinator? {
@@ -45,6 +40,13 @@ class AppCoordinator: NSObject, Coordinator {
             return nil
         }
     }
+
+    let navigationController: UINavigationController
+    var coordinators: [Coordinator] = []
+    var inCoordinator: InCoordinator? {
+        return coordinators.first { $0 is InCoordinator } as? InCoordinator
+    }
+
     init(
         config: Config = Config(),
         window: UIWindow,
@@ -103,7 +105,7 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
-    func closeWelcomeWindow() {
+    private func closeWelcomeWindow() {
         guard navigationController.viewControllers.contains(welcomeViewController) else {
             return
         }
@@ -113,7 +115,7 @@ class AppCoordinator: NSObject, Coordinator {
         }
     }
 
-    func initializers() {
+    private func initializers() {
         var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).compactMap { URL(fileURLWithPath: $0) }
         paths.append(keystore.keystoreDirectory)
 
@@ -127,14 +129,14 @@ class AppCoordinator: NSObject, Coordinator {
         }
     }
 
-    func handleNotifications() {
+    private func handleNotifications() {
         UIApplication.shared.applicationIconBadgeNumber = 0
         let coordinator = PushNotificationsCoordinator()
         coordinator.start()
         addCoordinator(coordinator)
     }
 
-    func resetToWelcomeScreen() {
+    private func resetToWelcomeScreen() {
         navigationController.setNavigationBarHidden(true, animated: false)
         navigationController.viewControllers = [welcomeViewController]
     }
@@ -157,7 +159,7 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
-    func createInitialWallet() {
+    private func createInitialWallet() {
         WalletCoordinator(keystore: keystore).createInitialWallet()
     }
 

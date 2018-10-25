@@ -32,21 +32,11 @@ enum Tabs {
 
 class InCoordinator: Coordinator {
 
-    let navigationController: UINavigationController
-    var coordinators: [Coordinator] = []
-    let initialWallet: Wallet
-    var keystore: Keystore
+    private let initialWallet: Wallet
     private var config: Config
     private let assetDefinitionStore: AssetDefinitionStore
-    let appTracker: AppTracker
-    lazy var ethPrice: Subscribable<Double> = {
-        var value = Subscribable<Double>(nil)
-        fetchEthPrice()
-        return value
-    }()
-    var ethBalance = Subscribable<BigInt>(nil)
-    weak var delegate: InCoordinatorDelegate?
-    var transactionCoordinator: TransactionCoordinator? {
+    private let appTracker: AppTracker
+    private var transactionCoordinator: TransactionCoordinator? {
         return coordinators.compactMap {
             $0 as? TransactionCoordinator
         }.first
@@ -55,16 +45,26 @@ class InCoordinator: Coordinator {
         return coordinators.compactMap { $0 as? TransactionCoordinator }
     }
 
-    var tabBarController: UITabBarController? {
-        return navigationController.viewControllers.first as? UITabBarController
-    }
-
-    lazy var helpUsCoordinator: HelpUsCoordinator = {
+    private lazy var helpUsCoordinator: HelpUsCoordinator = {
         return HelpUsCoordinator(
                 navigationController: navigationController,
                 appTracker: appTracker
         )
     }()
+
+    let navigationController: UINavigationController
+    var coordinators: [Coordinator] = []
+    var keystore: Keystore
+    lazy var ethPrice: Subscribable<Double> = {
+        var value = Subscribable<Double>(nil)
+        fetchEthPrice()
+        return value
+    }()
+    var ethBalance = Subscribable<BigInt>(nil)
+    weak var delegate: InCoordinatorDelegate?
+    var tabBarController: UITabBarController? {
+        return navigationController.viewControllers.first as? UITabBarController
+    }
 
     init(
             navigationController: UINavigationController = NavigationController(),
@@ -104,7 +104,7 @@ class InCoordinator: Coordinator {
         return tokensStorage
     }
 
-    func fetchEthPrice() {
+    private func fetchEthPrice() {
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()
         let web3 = self.web3()
@@ -266,7 +266,7 @@ class InCoordinator: Coordinator {
         }
     }
 
-    @objc func dismissTransactions() {
+    @objc private func dismissTransactions() {
         navigationController.dismiss(animated: true)
     }
 
@@ -283,7 +283,7 @@ class InCoordinator: Coordinator {
         }
     }
 
-    @objc func activateDebug() {
+    @objc private func activateDebug() {
         config.isDebugEnabled = !config.isDebugEnabled
 
         guard let transactionCoordinator = transactionCoordinator else {
@@ -292,7 +292,7 @@ class InCoordinator: Coordinator {
         restart(for: transactionCoordinator.session.account, in: transactionCoordinator)
     }
 
-    func restart(for account: Wallet, in coordinator: TransactionCoordinator) {
+    private func restart(for account: Wallet, in coordinator: TransactionCoordinator) {
         navigationController.dismiss(animated: false, completion: nil)
         coordinator.navigationController.dismiss(animated: true, completion: nil)
         coordinator.stop()
@@ -302,11 +302,11 @@ class InCoordinator: Coordinator {
         fetchXMLAssetDefinitions()
     }
 
-    func removeAllCoordinators() {
+    private func removeAllCoordinators() {
         coordinators.removeAll()
     }
 
-    func checkDevice() {
+    private func checkDevice() {
         let deviceChecker = CheckDeviceCoordinator(
                 navigationController: navigationController,
                 jailbreakChecker: DeviceChecker()
@@ -346,7 +346,7 @@ class InCoordinator: Coordinator {
         }
     }
 
-    func showPaymentFlow(for paymentFlow: PaymentFlow, tokenHolders: [TokenHolder] = [], in tokensCardCoordinator: TokensCardCoordinator) {
+    private func showPaymentFlow(for paymentFlow: PaymentFlow, tokenHolders: [TokenHolder] = [], in tokensCardCoordinator: TokensCardCoordinator) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
@@ -361,7 +361,7 @@ class InCoordinator: Coordinator {
         }
     }
 
-    func showTokenList(for type: PaymentFlow, token: TokenObject) {
+    private func showTokenList(for type: PaymentFlow, token: TokenObject) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
         }
@@ -397,11 +397,11 @@ class InCoordinator: Coordinator {
         }
     }
 
-    func showTokenListToRedeem(for token: TokenObject, coordinator: TokensCardCoordinator) {
+    private func showTokenListToRedeem(for token: TokenObject, coordinator: TokensCardCoordinator) {
         coordinator.showRedeemViewController()
     }
 
-    func showTokenListToSell(for paymentFlow: PaymentFlow, coordinator: TokensCardCoordinator) {
+    private func showTokenListToSell(for paymentFlow: PaymentFlow, coordinator: TokensCardCoordinator) {
         coordinator.showSellViewController(for: paymentFlow)
     }
 
