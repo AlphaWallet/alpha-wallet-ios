@@ -99,6 +99,16 @@ extension String {
         return drop0x.lowercased() == contract.drop0x.lowercased()
     }
 
+    func isLegacy875Contract() -> Bool {
+        let address = drop0x.lowercased()
+        for i in 0..<Constants.legacy875Addresses.count {
+            if address == Constants.legacy875Addresses[i] {
+                return true
+            }
+        }
+        return false
+    }
+
 }
 
 extension String {
