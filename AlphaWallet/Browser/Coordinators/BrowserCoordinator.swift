@@ -152,7 +152,7 @@ final class BrowserCoordinator: NSObject, Coordinator {
         }
     }
 
-    func signMessage(with type: SignMesageType, account: Account, callbackID: Int) {
+    func signMessage(with type: SignMessageType, account: Account, callbackID: Int) {
         let coordinator = SignMessageCoordinator(
             navigationController: navigationController,
             keystore: keystore,
