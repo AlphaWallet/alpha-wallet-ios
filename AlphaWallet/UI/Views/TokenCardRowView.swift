@@ -183,6 +183,13 @@ class TokenCardRowView: UIView {
 		matchLabel.text = viewModel.match
 
 		onlyShowTitle = viewModel.onlyShowTitle
+
+		adjustmentsToHandleWhenCategoryLabelTextIsTooLong()
+	}
+
+	private func adjustmentsToHandleWhenCategoryLabelTextIsTooLong() {
+		tokenCountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+		categoryLabel.adjustsFontSizeToFitWidth = true
 	}
 }
 
