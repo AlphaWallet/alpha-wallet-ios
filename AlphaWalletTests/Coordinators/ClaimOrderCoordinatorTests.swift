@@ -46,7 +46,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
         
         let signedOrder = SignedOrder(order: order, message: [UInt8](), signature: "")
 
-        claimOrderCoordinator.claimOrder(signedOrder: signedOrder, expiry: expiry!, v: v, r: r, s: s) { result in
+        claimOrderCoordinator.claimOrder(signedOrder: signedOrder, expiry: expiry!, v: v, r: r, s: s, contractAddress: order.contractAddress) { result in
             switch result {
             case .success(let payload):
                 let address: Address = .makeStormBird()
