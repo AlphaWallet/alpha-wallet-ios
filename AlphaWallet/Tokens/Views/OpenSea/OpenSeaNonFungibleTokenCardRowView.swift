@@ -409,7 +409,10 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             each.constant = -bleedForBigImage
         }
 
-        descriptionLabel.attributedText = viewModel.description
+        //WORKAROUND: If we convert from HTML to NSAttributedString while presenting the view controller containing this view, the view controller's animation breaks. As of iOS 12, it shows the view controller immediately followed by presenting it normally, sliding up from the bottom of the screen. i.e. the view controller appears twice. Since the description isn't shown initially, we might as well don't convert now and even gain a slight bit of performance enhancement for doing less work
+        if viewModel.areDetailsVisible {
+            descriptionLabel.attributedText = viewModel.description
+        }
 
         titleLabel.text = viewModel.title
 
