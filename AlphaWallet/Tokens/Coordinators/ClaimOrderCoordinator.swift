@@ -25,6 +25,7 @@ class ClaimOrderCoordinator {
                     v: UInt8,
                     r: String,
                     s: String,
+                    contractAddress: String,
                     completion: @escaping (Result<String, AnyError>) -> Void
         ) {
 
@@ -33,7 +34,7 @@ class ClaimOrderCoordinator {
                 completion(result)
             }
         } else {
-            claimNormalOrder(expiry: expiry, indices: signedOrder.order.indices, v: v, r: r, s: s) { result in
+            claimNormalOrder(expiry: expiry, indices: signedOrder.order.indices, v: v, r: r, s: s, contractAddress: contractAddress) { result in
                 completion(result)
             }
         }
@@ -44,8 +45,9 @@ class ClaimOrderCoordinator {
                           v: UInt8,
                           r: String,
                           s: String,
+                          contractAddress: String,
                           completion: @escaping (Result<String, AnyError>) -> Void) {
-        let request = ClaimERC875Order(expiry: expiry, indices: indices, v: v, r: r, s: s)
+        let request = ClaimERC875Order(expiry: expiry, indices: indices, v: v, r: r, s: s, contractAddress: contractAddress)
         web3.request(request: request) { result in
             switch result {
             //TODO handle cases for UI
