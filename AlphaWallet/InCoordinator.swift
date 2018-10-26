@@ -97,20 +97,16 @@ class InCoordinator: Coordinator {
         guard let wallet = keystore.recentlyUsedWallet else { return nil }
         let migration = MigrationInitializer(account: wallet, chainID: config.chainID)
         migration.perform()
-        let web3 = self.web3()
-        web3.start()
         let realm = self.realm(for: migration.config)
-        let tokensStorage = TokensDataStore(realm: realm, account: wallet, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
+        let tokensStorage = TokensDataStore(realm: realm, account: wallet, config: config, assetDefinitionStore: assetDefinitionStore)
         return tokensStorage
     }
 
     private func fetchEthPrice() {
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()
-        let web3 = self.web3()
-        web3.start()
         let realm = self.realm(for: migration.config)
-        let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
+        let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, assetDefinitionStore: assetDefinitionStore)
         tokensStorage.updatePrices()
 
         let etherToken = TokensDataStore.etherToken(for: config)
@@ -134,8 +130,8 @@ class InCoordinator: Coordinator {
         let web3 = self.web3()
         web3.start()
         let realm = self.realm(for: migration.config)
-        let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
-        let alphaWalletTokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
+        let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, assetDefinitionStore: assetDefinitionStore)
+        let alphaWalletTokensStorage = TokensDataStore(realm: realm, account: account, config: config, assetDefinitionStore: assetDefinitionStore)
         let balanceCoordinator = GetBalanceCoordinator(config: config)
         let balance = BalanceCoordinator(wallet: account, config: config, storage: tokensStorage)
         let session = WalletSession(
@@ -430,10 +426,8 @@ class InCoordinator: Coordinator {
     private func fetchXMLAssetDefinitions() {
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()
-        let web3 = self.web3()
-        web3.start()
         let realm = self.realm(for: migration.config)
-        let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
+        let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, assetDefinitionStore: assetDefinitionStore)
 
         let coordinator = FetchAssetDefinitionsCoordinator(assetDefinitionStore: assetDefinitionStore, tokensDataStore: tokensStorage)
         coordinator.start()
@@ -496,7 +490,7 @@ extension InCoordinator: CanOpenURL {
         web3.start()
         let realm = self.realm(for: migration.config)
 
-        let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, web3: web3, assetDefinitionStore: assetDefinitionStore)
+        let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, assetDefinitionStore: assetDefinitionStore)
 
         let balance = BalanceCoordinator(wallet: account, config: config, storage: tokensStorage)
         let session = WalletSession(
@@ -638,7 +632,6 @@ extension InCoordinator: TokensCoordinatorDelegate {
                     realm: realm,
                     account: wallet,
                     config: strongSelf.config,
-                    web3: web3,
                     assetDefinitionStore: strongSelf.assetDefinitionStore
                 )
                 
