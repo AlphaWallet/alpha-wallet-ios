@@ -53,7 +53,6 @@ class TokensDataStore {
 
     private let account: Wallet
     private let config: Config
-    private let web3: Web3Swift
     private let assetDefinitionStore: AssetDefinitionStore
     private let realm: Realm
     private var pricesTimer = Timer()
@@ -120,12 +119,10 @@ class TokensDataStore {
             realm: Realm,
             account: Wallet,
             config: Config,
-            web3: Web3Swift,
             assetDefinitionStore: AssetDefinitionStore
     ) {
         self.account = account
         self.config = config
-        self.web3 = web3
         self.assetDefinitionStore = assetDefinitionStore
         self.realm = realm
         self.addEthToken()

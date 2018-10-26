@@ -135,8 +135,6 @@ class UniversalLinkCoordinator: Coordinator {
             guard let recoverAddress = Address(string: ethereumAddress.address) else { return false }
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             //gather signer address balance
-            let web3Swift = Web3Swift()
-            web3Swift.start()
             getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(config: config)
             getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
                 guard let strongSelf = self else { return }
