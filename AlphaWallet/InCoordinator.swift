@@ -603,7 +603,8 @@ extension InCoordinator: TokensCoordinatorDelegate {
                 expiry: signedOrder.order.expiry,
                 v: v,
                 r: r,
-                s: s) { result in
+                s: s,
+                contractAddress: signedOrder.order.contractAddress) { result in
             let strongSelf = self //else { return }
             switch result {
             case .success(let payload):

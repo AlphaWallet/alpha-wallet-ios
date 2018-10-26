@@ -99,6 +99,10 @@ extension String {
         return drop0x.lowercased() == contract.drop0x.lowercased()
     }
 
+    var isLegacy875Contract: Bool {
+        return Constants.legacy875Addresses.contains { $0.sameContract(as: self) }
+    }
+
 }
 
 extension String {

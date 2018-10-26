@@ -126,8 +126,12 @@ class TransactionConfigurator {
                 }
             }
                 //TODO clean up
-        case .ERC875Token:
-            session.web3.request(request: ContractERC875Transfer(address: transaction.to!.description, indices: (transaction.indices)!)) { [unowned self] result in
+        case .ERC875Token(let token):
+            session.web3.request(request: ContractERC875Transfer(
+                    address: transaction.to!.description,
+                    contractAddress: token.contract,
+                    indices: transaction.indices!
+            )) { [unowned self] result in
                 switch result {
                 case .success(let res):
                     let data = Data(hex: res.drop0x)
@@ -142,9 +146,9 @@ class TransactionConfigurator {
                 }
             }
                 //TODO put order claim tx here somehow, or maybe the same one above
-        case .ERC875TokenOrder:
+        case .ERC875TokenOrder(let token):
             session.web3.request(request: ClaimERC875Order(expiry: transaction.expiry!, indices: transaction.indices!,
-                    v: transaction.v!, r: transaction.r!, s: transaction.s!)) { [unowned self] result in
+                                                           v: transaction.v!, r: transaction.r!, s: transaction.s!, contractAddress: token.contract)) { [unowned self] result in
                 switch result {
                 case .success(let res):
                     let data = Data(hex: res.drop0x)
