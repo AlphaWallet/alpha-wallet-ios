@@ -186,7 +186,8 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
 
     var description: NSAttributedString {
         let string = tokenHolder.values["description"] as? String ?? ""
-        let htmlData = string.data(using: .utf8)
+        //.unicode, not .utf8, otherwise Chinese will turn garbage
+        let htmlData = string.data(using: .unicode)
         let options = [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.html]
         return (try? NSMutableAttributedString(data: htmlData ?? Data(), options: options, documentAttributes: nil)) ?? NSAttributedString(string: string)
     }
