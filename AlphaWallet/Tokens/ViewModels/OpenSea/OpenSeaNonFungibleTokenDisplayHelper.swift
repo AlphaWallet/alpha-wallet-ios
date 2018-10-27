@@ -502,8 +502,6 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
             return "exp"
         case .bc:
             return "generation"
-        case .bc:
-            return nil
         case .cbt:
             return "generation"
         case .ck:

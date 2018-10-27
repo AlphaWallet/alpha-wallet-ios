@@ -97,7 +97,7 @@ class TokensCoordinator: Coordinator {
             let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
             var contractsPulled = 0
             var hasRefreshedAfterAddingAllContracts = false
-            DispatchQueue.global().async { [weak strongSelf] in
+            DispatchQueue.global().async { [weak self] in
                 guard let strongSelf = self else { return }
                 for eachContract in contractsToAdd {
                     strongSelf.addToken(for: eachContract) {

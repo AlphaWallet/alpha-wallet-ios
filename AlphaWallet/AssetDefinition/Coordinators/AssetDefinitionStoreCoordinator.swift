@@ -109,7 +109,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
         directoryWatcher = DirectoryContentsWatcher.Local(path: directory.path)
         do {
             try directoryWatcher?.start { [weak self] results in
-                guard let strongSelf = self else { return }
+                guard self != nil else { return }
                 switch results {
                 case .noChanges:
                     break

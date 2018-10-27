@@ -155,7 +155,7 @@ class RequestViewController: UIViewController {
 		DispatchQueue.global(qos: .background).async { [weak self] in
             guard let strongSelf = self else { return }
 			let image = strongSelf.generateQRCode(from: string)
-			DispatchQueue.main.async { [weak self] in
+			DispatchQueue.main.async {
 				strongSelf.imageView.image = image
 			}
 		}

@@ -163,7 +163,7 @@ class AppCoordinator: NSObject, Coordinator {
         WalletCoordinator(keystore: keystore).createInitialWallet()
     }
 
-    func handleUniversalLink(url: URL) -> Bool {
+    @discardableResult func handleUniversalLink(url: URL) -> Bool {
         createInitialWallet()
         closeWelcomeWindow()
         guard let ethPrice = self.ethPrice, let ethBalance = self.ethBalance else { return false }

@@ -222,7 +222,7 @@ class TokensDataStore {
         var knownToBeNotERC721 = false
         var knownToBeNotERC875 = false
         getIsERC875ContractCoordinator.getIsERC875Contract(for: address!) { [weak self] result in
-            guard let strongSelf = self else { return }
+            guard self != nil else { return }
             switch result {
             case .success(let isERC875):
                 if isERC875 {
@@ -240,7 +240,7 @@ class TokensDataStore {
         }
 
         getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { [weak self] result in
-            guard let strongSelf = self else { return }
+            guard self != nil else { return }
             switch result {
             case .success(let isERC721):
                 if isERC721 {
