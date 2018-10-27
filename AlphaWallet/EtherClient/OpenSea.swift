@@ -72,7 +72,7 @@ class OpenSea {
                 headers: ["X-API-KEY": Constants.openseaAPIKEY]
         ).responseJSON { response in
             guard let data = response.data, let json = try? JSON(data: data) else {
-                completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(Constants.openseaAPI) API: \(response.error)"))))
+                completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(Constants.openseaAPI) API: \(String(describing: response.error))"))))
                 return
             }
             DispatchQueue.global(qos: .userInitiated).async {
