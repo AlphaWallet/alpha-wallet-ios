@@ -217,7 +217,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         thumbnailRelatedConstraints = [
             thumbnailImageView.widthAnchor.constraint(equalToConstant: 150),
             thumbnailImageView.widthAnchor.constraint(equalTo: thumbnailImageView.heightAnchor),
-            thumbnailImageView.heightAnchor.constraint(equalTo: col0.heightAnchor),
+            thumbnailImageView.heightAnchor.constraint(greaterThanOrEqualTo: col0.heightAnchor),
         ]
 
         let marginForBigImageView = CGFloat(1)
@@ -499,23 +499,17 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             urlButtonHolder.isHidden = true
         }
 
-        if viewModel.isAttributesTitleHidden {
-            attributesLabel.isHidden = true
-            spacers.belowDescription.isHidden = true
-            spacers.belowAttributesLabel.isHidden = true
-        }
+        attributesLabel.isHidden = viewModel.isAttributesTitleHidden
+        spacers.belowDescription.isHidden = viewModel.isAttributesTitleHidden
+        spacers.belowAttributesLabel.isHidden = viewModel.isAttributesTitleHidden
 
-        if viewModel.isRankingsTitleHidden {
-            rankingsLabel.isHidden = true
-            spacers.aboveRankingsLabel.isHidden = true
-            spacers.belowRankingsLabel.isHidden = true
-        }
+        rankingsLabel.isHidden = viewModel.isRankingsTitleHidden
+        spacers.aboveRankingsLabel.isHidden = viewModel.isRankingsTitleHidden
+        spacers.belowRankingsLabel.isHidden = viewModel.isRankingsTitleHidden
 
-        if viewModel.isStatsTitleHidden {
-            statsLabel.isHidden = true
-            spacers.aboveStatsLabel.isHidden = true
-            spacers.belowStatsLabel.isHidden = true
-        }
+        statsLabel.isHidden = viewModel.isStatsTitleHidden
+        spacers.aboveStatsLabel.isHidden = viewModel.isStatsTitleHidden
+        spacers.belowStatsLabel.isHidden = viewModel.isStatsTitleHidden
     }
 
     //So collection views know the width to calculate their "full" height so they don't need to scroll
