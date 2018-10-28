@@ -8,7 +8,6 @@ import Result
 import TrustKeystore
 
 protocol TransactionsViewControllerDelegate: class {
-    func didPressSend(in viewController: TransactionsViewController)
     func didPressTransaction(transaction: Transaction, in viewController: TransactionsViewController)
 }
 
@@ -20,31 +19,9 @@ class TransactionsViewController: UIViewController {
     private let refreshControl = UIRefreshControl()
     private let dataCoordinator: TransactionDataCoordinator
     private let session: WalletSession
-    private var actionButtonsVisibleConstraint: NSLayoutConstraint?
-    private var actionButtonsInVisibleConstraint: NSLayoutConstraint?
-    private let footerBar: UIView = {
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = Colors.appHighlightGreen
-        return footerBar
-    }()
 
     var paymentType: PaymentFlow?
     weak var delegate: TransactionsViewControllerDelegate?
-
-    var showActionButtons = false {
-        didSet {
-			reflectActionButtonsVisibility()
-        }
-    }
-
-    lazy var footerView: TransactionsFooterView = {
-        let footerView = TransactionsFooterView(frame: .zero)
-        footerView.translatesAutoresizingMaskIntoConstraints = false
-        footerView.sendButton.addTarget(self, action: #selector(send), for: .touchUpInside)
-        return footerView
-    }()
-
 
     init(
         account: Wallet,
@@ -72,30 +49,11 @@ class TransactionsViewController: UIViewController {
         tableView.rowHeight = UITableViewAutomaticDimension
         view.addSubview(tableView)
 
-        view.addSubview(footerBar)
-
-		let footerViewHeight = CGFloat(60)
-        footerBar.addSubview(footerView)
-
-        actionButtonsVisibleConstraint = footerBar.heightAnchor.constraint(equalToConstant: footerViewHeight)
-        actionButtonsInVisibleConstraint = footerBar.topAnchor.constraint(equalTo: footerBar.bottomAnchor)
-
-        reflectActionButtonsVisibility()
-
         NSLayoutConstraint.activate([
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-
-            footerView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            footerView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            footerView.topAnchor.constraint(equalTo: footerBar.topAnchor),
-			footerView.heightAnchor.constraint(equalToConstant: footerViewHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
         dataCoordinator.delegate = self
@@ -142,10 +100,6 @@ class TransactionsViewController: UIViewController {
         dataCoordinator.fetch()
     }
 
-    @objc func send() {
-        delegate?.didPressSend(in: self)
-    }
-
     func configure(viewModel: TransactionsViewModel) {
         self.viewModel = viewModel
     }
@@ -168,16 +122,6 @@ class TransactionsViewController: UIViewController {
         let leftConstraint = NSLayoutConstraint(item: title, attribute: .left, relatedBy: .equal, toItem: container, attribute: .left, multiplier: 1.0, constant: 20.0)
         container.addConstraints([horConstraint, verConstraint, leftConstraint])
         return container
-    }
-
-    private func reflectActionButtonsVisibility() {
-        if showActionButtons {
-            actionButtonsVisibleConstraint?.isActive = true
-            actionButtonsInVisibleConstraint?.isActive = false
-        } else {
-            actionButtonsVisibleConstraint?.isActive = false
-            actionButtonsInVisibleConstraint?.isActive = true
-        }
     }
 }
 
