@@ -63,17 +63,6 @@ class TransactionCoordinator: Coordinator {
             tokensStorage: tokensStorage,
             viewModel: viewModel
         )
-
-        let rightItems: [UIBarButtonItem] = {
-            switch viewModel.isBuyActionAvailable {
-            case true:
-                return [
-                    UIBarButtonItem(image: R.image.deposit(), landscapeImagePhone: R.image.deposit(), style: .done, target: self, action: #selector(deposit)),
-                ]
-            case false: return []
-            }
-        }()
-        controller.navigationItem.rightBarButtonItems = rightItems
         controller.delegate = self
         return controller
     }
@@ -110,19 +99,6 @@ class TransactionCoordinator: Coordinator {
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-
-    @objc func deposit(sender: UIBarButtonItem) {
-        showDeposit(for: session.account, from: sender)
-    }
-
-    func showDeposit(for account: Wallet, from barButtonItem: UIBarButtonItem? = .none) {
-        let coordinator = DepositCoordinator(
-            navigationController: navigationController,
-            account: account,
-            delegate: self
-        )
-        coordinator.start(from: barButtonItem)
-    }
 }
 
 extension TransactionCoordinator: TransactionsViewControllerDelegate {
@@ -136,15 +112,6 @@ extension TransactionCoordinator: TransactionsViewControllerDelegate {
 
     func didPressTransaction(transaction: Transaction, in viewController: TransactionsViewController) {
         showTransaction(transaction)
-    }
-
-    func didPressDeposit(for account: Wallet, sender: UIView, in viewController: TransactionsViewController) {
-        let coordinator = DepositCoordinator(
-            navigationController: navigationController,
-            account: account,
-            delegate: self
-        )
-        coordinator.start(from: sender)
     }
 
     func reset() {
@@ -167,7 +134,4 @@ extension TransactionCoordinator: CanOpenURL {
 }
 
 extension TransactionCoordinator: TransactionViewControllerDelegate {
-}
-
-extension TransactionCoordinator: DepositCoordinatorDelegate {
 }

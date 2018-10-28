@@ -71,10 +71,4 @@ struct TransactionsViewModel {
         }
         return value
     }
-
-    var isBuyActionAvailable: Bool {
-        switch config.server {
-        case .main, .kovan, .classic, .callisto, .ropsten, .rinkeby, .poa, .sokol, .custom: return false
-        }
-    }
 }
