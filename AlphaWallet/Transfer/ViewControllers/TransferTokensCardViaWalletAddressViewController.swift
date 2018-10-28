@@ -57,7 +57,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
-        targetAddressTextField.textField.returnKeyType = .done
+        targetAddressTextField.returnKeyType = .done
 
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)

@@ -114,7 +114,7 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
 
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
-        targetAddressTextField.textField.returnKeyType = .next
+        targetAddressTextField.returnKeyType = .next
 
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
