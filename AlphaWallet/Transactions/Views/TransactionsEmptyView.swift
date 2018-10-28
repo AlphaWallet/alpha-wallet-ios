@@ -8,29 +8,18 @@ class TransactionsEmptyView: UIView {
     private let titleLabel = UILabel()
     private let imageView = UIImageView()
     private let button = Button(size: .normal, style: .solid)
-    private let depositButton = Button(size: .normal, style: .solid)
     private let insets: UIEdgeInsets
     private var onRetry: (() -> Void)? = .none
     private let viewModel = StateViewModel()
-
-    var onDeposit: ((_ sender: UIButton) -> Void)? = .none
-
-    var isDepositAvailable: Bool = true {
-        didSet {
-            depositButton.isHidden = !isDepositAvailable
-        }
-    }
 
     init(
         title: String = R.string.localizable.transactionsNoTransactionsLabelTitle(),
         image: UIImage? = R.image.no_transactions_mascot(),
         insets: UIEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
-        onRetry: (() -> Void)? = .none,
-        onDeposit: ((_ sender: UIButton) -> Void)? = .none
+        onRetry: (() -> Void)? = .none
     ) {
         self.insets = insets
         self.onRetry = onRetry
-        self.onDeposit = onDeposit
         super.init(frame: .zero)
 
         backgroundColor = .white
@@ -47,14 +36,9 @@ class TransactionsEmptyView: UIView {
         button.setTitle(R.string.localizable.refresh(), for: .normal)
         button.addTarget(self, action: #selector(retry), for: .touchUpInside)
 
-        depositButton.translatesAutoresizingMaskIntoConstraints = false
-        depositButton.setTitle(R.string.localizable.transactionsDepositButtonTitle(), for: .normal)
-        depositButton.addTarget(self, action: #selector(deposit(_:)), for: .touchUpInside)
-
         let stackView = [
             imageView,
             titleLabel,
-            //depositButton,
         ].asStackView(axis: .vertical, spacing: 30, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -70,16 +54,11 @@ class TransactionsEmptyView: UIView {
             stackView.centerXAnchor.constraint(equalTo: centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: centerYAnchor),
             button.widthAnchor.constraint(equalToConstant: 180),
-            depositButton.widthAnchor.constraint(equalToConstant: 180),
         ])
     }
 
     @objc func retry() {
         onRetry?()
-    }
-
-    @objc func deposit(_ sender: UIButton) {
-        onDeposit?(sender)
     }
 
     required init?(coder aDecoder: NSCoder) {
