@@ -28,7 +28,7 @@ https://app.awallet.io/AA9CQFq1tAAAe+6CvdnoZrK9EUeApH8iYcaE4wECAwQFBgcICS+YK4TGN
 import Foundation
 import BigInt
 
-enum LinkFormat: UInt8 {
+private enum LinkFormat: UInt8 {
     case unassigned = 0x00
     case normal = 0x01
     case spawnable = 0x02
@@ -58,12 +58,12 @@ public class UniversalLinkHandler {
         return urlPrefix + b64SafeEncoding(base64String)
     }
 
-    func b64SafeEncoding(_ b64String: String) -> String {
+    private func b64SafeEncoding(_ b64String: String) -> String {
         let safeEncodingB64 = b64String.replacingOccurrences(of: "+", with: "-")
         return safeEncodingB64.replacingOccurrences(of: "/", with: "_")
     }
 
-    func b64SafeEncodingToRegularEncoding(_ b64SafeEncodedString: String) -> String {
+    private func b64SafeEncodingToRegularEncoding(_ b64SafeEncodedString: String) -> String {
         let regularEncodingb64 = b64SafeEncodedString.replacingOccurrences(of: "-", with: "+")
         return regularEncodingb64.replacingOccurrences(of: "_", with: "/")
     }
@@ -93,7 +93,7 @@ public class UniversalLinkHandler {
 
     }
 
-    func handleUnSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
+    private func handleUnSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
         let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
@@ -112,7 +112,7 @@ public class UniversalLinkHandler {
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
     
-    func handleSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
+    private func handleSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
         var bytes = linkBytes
         bytes.remove(at: 0)
         let price = getPriceFromLinkBytes(linkBytes: bytes)
@@ -133,7 +133,7 @@ public class UniversalLinkHandler {
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
     
-    func getTokenIdsFromSpawnableLink(linkBytes: [UInt8]) -> [BigUInt] {
+    private func getTokenIdsFromSpawnableLink(linkBytes: [UInt8]) -> [BigUInt] {
         let bytes = Array(linkBytes[84..<linkBytes.count])
         let tokenIds = bytes.chunked(into: 32)
         return tokenIds.map { BigUInt(Data(bytes: $0)) }
@@ -141,7 +141,7 @@ public class UniversalLinkHandler {
     
     //we used a special encoding so that one 16 bit number could represent either one token or two
     //this is for the purpose of keeping universal links as short as possible
-    func decodeTokenIndices(indices: [UInt16]) -> [UInt8] {
+    private func decodeTokenIndices(indices: [UInt16]) -> [UInt8] {
         var indicesBytes = [UInt8]()
         for i in 0..<indices.count {
             let index = indices[i]
@@ -161,7 +161,7 @@ public class UniversalLinkHandler {
     }
     
     //shortens price and expiry
-    func formatMessageForLink(signedOrder: SignedOrder) -> String {
+    private func formatMessageForLink(signedOrder: SignedOrder) -> String {
         let message = signedOrder.message
         let indices = decodeTokenIndices(indices: signedOrder.order.indices)
         var messageWithSzabo = [UInt8]()
@@ -192,7 +192,7 @@ public class UniversalLinkHandler {
         return MarketQueueHandler.bytesToHexa(messageWithSzabo)
     }
     
-    func formatTo4Bytes(_ array: [UInt8]) -> [UInt8] {
+    private func formatTo4Bytes(_ array: [UInt8]) -> [UInt8] {
         var formattedArray = [UInt8]()
         if array.count == 4 {
             return array
@@ -215,7 +215,7 @@ public class UniversalLinkHandler {
         }
     }
 
-    func getPriceFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
+    private func getPriceFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
         var priceBytes = [UInt8]()
         for i in 0...3 {
             //price in szabo
@@ -226,7 +226,7 @@ public class UniversalLinkHandler {
         return price * 1000000000000
     }
 
-    func getExpiryFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
+    private func getExpiryFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
         var expiryBytes = [UInt8]()
         for i in 4...7 {
             expiryBytes.append(linkBytes[i])
@@ -235,7 +235,7 @@ public class UniversalLinkHandler {
         return BigUInt(expiry, radix: 16)!
     }
 
-    func getContractAddressFromLinkBytes(linkBytes: [UInt8]) -> String {
+    private func getContractAddressFromLinkBytes(linkBytes: [UInt8]) -> String {
         var contractAddrBytes = [UInt8]()
         for i in 8...27 {
             contractAddrBytes.append(linkBytes[i])
@@ -243,7 +243,7 @@ public class UniversalLinkHandler {
         return MarketQueueHandler.bytesToHexa(contractAddrBytes)
     }
 
-    func getTokenIndicesFromLinkBytes(linkBytes: [UInt8]) -> [UInt16] {
+    private func getTokenIndicesFromLinkBytes(linkBytes: [UInt8]) -> [UInt16] {
         let tokenLength = linkBytes.count - (65 + 20 + 8) - 1
         var tokenIndices = [UInt16]()
         var state: Int = 1
@@ -272,7 +272,7 @@ public class UniversalLinkHandler {
         return tokenIndices
     }
     
-    func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String) {
+    private func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String) {
         var signatureStart = linkBytes.count - 65
         var rBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31 {
@@ -298,7 +298,7 @@ public class UniversalLinkHandler {
     }
     
     //price and expiry need to be 32 bytes each
-    func getMessageFromOrder(order: Order) -> [UInt8] {
+    private func getMessageFromOrder(order: Order) -> [UInt8] {
         var message = [UInt8]()
         //encode price and expiry first
         let priceBytes = padTo32(order.price.serialize().array)
@@ -320,7 +320,7 @@ public class UniversalLinkHandler {
         return message
     }
     
-    func padTo32(_ buffer: [UInt8], to count: Int = 32) -> [UInt8] {
+    private func padTo32(_ buffer: [UInt8], to count: Int = 32) -> [UInt8] {
         let padCount = count - buffer.count
         var padded = buffer
         let padding: [UInt8] = Array(repeating: 0, count: padCount)
