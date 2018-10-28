@@ -144,7 +144,7 @@ class TokensViewController: UIViewController {
                 tableView.reloadData()
             }
             if viewModel.shouldShowCollectiblesCollectionView {
-                var contractsForCollectibles = contractsForCollectiblesFromViewModel()
+                let contractsForCollectibles = contractsForCollectiblesFromViewModel()
                 if contractsForCollectibles != currentCollectiblesContractsDisplayed {
                     currentCollectiblesContractsDisplayed = contractsForCollectibles
                     collectiblesCollectionView.reloadData()
