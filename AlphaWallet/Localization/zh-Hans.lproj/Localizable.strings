@@ -26,10 +26,6 @@
 "confirmPayment.to.label.title" = "去到";
 "confirmPayment.highFeeWarning" = "%@ - 警告. 费用过高.";
 "Copy" = "复制";
-"deposit.buy.button.changelly.title" = "使用 Changelly";
-"deposit.buy.button.coinbase.title" = "使用 Coinbase";
-"deposit.buy.button.shapeShift.title" = "使用 ShapeShift (仅支持数字货币)";
-"deposit.buy.label.title" = "你想如何购买？";
 "Empty" = "空白的";
 "emptyView.noTokens.label.title" = "你还没有收到过任何通证呢！";
 "errorView.description.label.title" = "出了点问题... 请再试一次。";
@@ -61,7 +57,6 @@
 "settings.language.button.title" = "语言";
 "settings.language.useSystem.title" = "使用系统设置";
 "settings.version.label.title" = "版本";
-"transactions.deposit.button.title" = "购买";
 "transactions.noTransactions.label.title" = "暂无记录";
 "wallet.navigation.title" = "钱包";
 "wallets.backup.alertSheet.title" = "备份加密后的私钥文档";
