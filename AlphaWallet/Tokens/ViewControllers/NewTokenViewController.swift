@@ -45,32 +45,32 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
         addressTextField.translatesAutoresizingMaskIntoConstraints = false
         addressTextField.delegate = self
-        addressTextField.textField.returnKeyType = .next
+        addressTextField.returnKeyType = .next
 
         symbolTextField.label.translatesAutoresizingMaskIntoConstraints = false
         symbolTextField.delegate = self
         symbolTextField.translatesAutoresizingMaskIntoConstraints = false
-        symbolTextField.textField.returnKeyType = .next
+        symbolTextField.returnKeyType = .next
 
         decimalsTextField.label.translatesAutoresizingMaskIntoConstraints = false
         decimalsTextField.delegate = self
         decimalsTextField.inputAccessoryButtonType = .next
         decimalsTextField.translatesAutoresizingMaskIntoConstraints = false
-        decimalsTextField.textField.keyboardType = .decimalPad
-        decimalsTextField.textField.returnKeyType = .next
+        decimalsTextField.keyboardType = .decimalPad
+        decimalsTextField.returnKeyType = .next
 
         balanceTextField.label.translatesAutoresizingMaskIntoConstraints = false
         balanceTextField.delegate = self
         balanceTextField.inputAccessoryButtonType = .next
         balanceTextField.translatesAutoresizingMaskIntoConstraints = false
-        balanceTextField.textField.keyboardType = .numbersAndPunctuation
+        balanceTextField.keyboardType = .numbersAndPunctuation
         balanceTextField.isHidden = true
         balanceTextField.label.isHidden = true
 
         nameTextField.label.translatesAutoresizingMaskIntoConstraints = false
         nameTextField.delegate = self
         nameTextField.translatesAutoresizingMaskIntoConstraints = false
-        nameTextField.textField.returnKeyType = .done
+        nameTextField.returnKeyType = .done
 
         let stackView = [
             header,
@@ -360,11 +360,11 @@ extension NewTokenViewController: AddressTextFieldDelegate {
 
     func didPaste(in textField: AddressTextField) {
         updateContractValue(value: textField.value)
-        symbolTextField.textField.becomeFirstResponder()
+        symbolTextField.becomeFirstResponder()
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
-        symbolTextField.textField.becomeFirstResponder()
+        symbolTextField.becomeFirstResponder()
         return true
     }
 
@@ -399,12 +399,12 @@ extension NewTokenViewController: TextFieldDelegate {
         switch textField {
         case symbolTextField:
             if decimalsTextField.isHidden {
-                balanceTextField.textField.becomeFirstResponder()
+                balanceTextField.becomeFirstResponder()
             } else {
-                decimalsTextField.textField.becomeFirstResponder()
+                decimalsTextField.becomeFirstResponder()
             }
         case decimalsTextField, balanceTextField:
-            nameTextField.textField.becomeFirstResponder()
+            nameTextField.becomeFirstResponder()
         case nameTextField:
             view.endEditing(true)
         default:

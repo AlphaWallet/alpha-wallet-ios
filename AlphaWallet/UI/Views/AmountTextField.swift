@@ -20,6 +20,9 @@ class AmountTextField: UIControl {
             return Pair(left: right, right: left)
         }
     }
+
+    private let textField = UITextField()
+
     var ethToDollarRate: Double? = nil {
         didSet {
             if let _ = ethToDollarRate {
@@ -65,7 +68,6 @@ class AmountTextField: UIControl {
         return textField.becomeFirstResponder()
     }
 
-    private let textField = UITextField()
     let alternativeAmountLabel = UILabel()
     let fiatButton = Button(size: .normal, style: .borderless)
     weak var delegate: AmountTextFieldDelegate?

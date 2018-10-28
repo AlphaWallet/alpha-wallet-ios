@@ -12,9 +12,9 @@ protocol AddressTextFieldDelegate: class {
 
 class AddressTextField: UIControl {
     private var isConfigured = false
+    private let textField = UITextField()
 
     let label = UILabel()
-    let textField = UITextField()
     var value: String {
         get {
             return textField.text ?? ""
@@ -23,6 +23,16 @@ class AddressTextField: UIControl {
             textField.text = newValue
         }
     }
+
+    var returnKeyType: UIReturnKeyType {
+        get {
+            return textField.returnKeyType
+        }
+        set {
+            textField.returnKeyType = newValue
+        }
+    }
+
     weak var delegate: AddressTextFieldDelegate?
 
     override init(frame: CGRect) {
@@ -45,6 +55,11 @@ class AddressTextField: UIControl {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func becomeFirstResponder() -> Bool {
+        super.becomeFirstResponder()
+        return textField.becomeFirstResponder()
     }
 
     override func layoutSubviews() {
