@@ -171,6 +171,7 @@ class InCoordinator: Coordinator {
                     session: session,
                     keystore: keystore,
                     tokensStorage: alphaWalletTokensStorage,
+                    ethPrice: ethPrice,
                     assetDefinitionStore: assetDefinitionStore
             )
             tokensCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_wallet())
@@ -342,42 +343,6 @@ class InCoordinator: Coordinator {
         }
     }
 
-    private func showTokenList(for type: PaymentFlow, token: TokenObject) {
-        guard let transactionCoordinator = transactionCoordinator else {
-            return
-        }
-
-        guard !token.nonZeroBalance.isEmpty else {
-            navigationController.displayError(error: NoTokenError())
-            return
-        }
-
-        let session = transactionCoordinator.session
-        let tokenStorage = transactionCoordinator.tokensStorage
-
-        let tokensCardCoordinator = TokensCardCoordinator(
-            session: session,
-            keystore: keystore,
-            tokensStorage: tokenStorage,
-            ethPrice: ethPrice,
-            token: token,
-            assetDefinitionStore: assetDefinitionStore
-        )
-        addCoordinator(tokensCardCoordinator)
-        tokensCardCoordinator.delegate = self
-        tokensCardCoordinator.start()
-        switch (type, session.account.type) {
-        case (.send, .real), (.request, _):
-            makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: tokensCardCoordinator, token: token)
-            navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
-        case (.send, .watch), (.request, _):
-            tokensCardCoordinator.isReadOnly = true
-            navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
-        case (_, _):
-            navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
-        }
-    }
-
     private func handlePendingTransaction(transaction: SentTransaction) {
         transactionCoordinator?.dataCoordinator.addSentTransaction(transaction)
     }
@@ -409,27 +374,6 @@ class InCoordinator: Coordinator {
         let coordinator = FetchAssetDefinitionsCoordinator(assetDefinitionStore: assetDefinitionStore, tokensDataStore: tokensStorage)
         coordinator.start()
         addCoordinator(coordinator)
-    }
-
-    private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: TokensCardCoordinator, token: TokenObject) {
-        switch token.type {
-        case .ether, .erc20, .erc875:
-            break
-        case .erc721:
-            switch OpenSeaNonFungibleTokenHandling(token: token) {
-            case .supportedByOpenSea:
-                break
-            case .notSupportedByOpenSea:
-                coordinator.isReadOnly = true
-            }
-        }
-    }
-}
-
-extension InCoordinator: TokensCardCoordinatorDelegate {
-    func didCancel(in coordinator: TokensCardCoordinator) {
-        navigationController.dismiss(animated: true)
-        removeCoordinator(coordinator)
     }
 }
 
@@ -513,17 +457,8 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
-    
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
         showPaymentFlow(for: type)
-    }
-
-    func didPressERC721(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
-        showTokenList(for: type, token: token)
-    }
-
-    func didPressERC875(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator) {
-        showTokenList(for: type, token: token)
     }
 
     // When a user clicks a Universal Link, either the user pays to publish a
