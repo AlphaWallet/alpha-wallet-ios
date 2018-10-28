@@ -342,21 +342,6 @@ class InCoordinator: Coordinator {
         }
     }
 
-    private func showPaymentFlow(for paymentFlow: PaymentFlow, tokenHolders: [TokenHolder] = [], in tokensCardCoordinator: TokensCardCoordinator) {
-        guard let transactionCoordinator = transactionCoordinator else {
-            return
-        }
-        //TODO do we need to pass these (especially tokenStorage) to showTransferViewController(for:tokenHolders:) to make sure storage is synchronized?
-        let session = transactionCoordinator.session
-
-        switch (paymentFlow, session.account.type) {
-        case (.send, .real), (.request, _):
-            tokensCardCoordinator.showTransferViewController(for: paymentFlow, tokenHolders: tokenHolders)
-        case (_, _):
-            tokensCardCoordinator.navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
-        }
-    }
-
     private func showTokenList(for type: PaymentFlow, token: TokenObject) {
         guard let transactionCoordinator = transactionCoordinator else {
             return
@@ -391,14 +376,6 @@ class InCoordinator: Coordinator {
         case (_, _):
             navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
         }
-    }
-
-    private func showTokenListToRedeem(for token: TokenObject, coordinator: TokensCardCoordinator) {
-        coordinator.showRedeemViewController()
-    }
-
-    private func showTokenListToSell(for paymentFlow: PaymentFlow, coordinator: TokensCardCoordinator) {
-        coordinator.showSellViewController(for: paymentFlow)
     }
 
     private func handlePendingTransaction(transaction: SentTransaction) {
@@ -450,32 +427,9 @@ class InCoordinator: Coordinator {
 }
 
 extension InCoordinator: TokensCardCoordinatorDelegate {
-
-    func didPressTransfer(for type: PaymentFlow, tokenHolders: [TokenHolder], in coordinator: TokensCardCoordinator) {
-        showPaymentFlow(for: type, tokenHolders: tokenHolders, in: coordinator)
-    }
-
-    func didPressRedeem(for token: TokenObject, in coordinator: TokensCardCoordinator) {
-        showTokenListToRedeem(for: token, coordinator: coordinator)
-    }
-
-    func didPressSell(for type: PaymentFlow, in coordinator: TokensCardCoordinator) {
-        showTokenListToSell(for: type, coordinator: coordinator)
-    }
-
     func didCancel(in coordinator: TokensCardCoordinator) {
         navigationController.dismiss(animated: true)
         removeCoordinator(coordinator)
-    }
-
-    func didPressViewRedemptionInfo(in viewController: UIViewController) {
-        let controller = TokenCardRedemptionInfoViewController(delegate: self)
-		viewController.navigationController?.pushViewController(controller, animated: true)
-    }
-
-    func didPressViewEthereumInfo(in viewController: UIViewController) {
-        let controller = WhatIsEthereumInfoViewController(delegate: self)
-        viewController.navigationController?.pushViewController(controller, animated: true)
     }
 }
 
