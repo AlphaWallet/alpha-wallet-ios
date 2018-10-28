@@ -33,10 +33,6 @@
 "confirmPayment.to.label.title" = "To";
 "confirmPayment.highFeeWarning" = "%@ - WARNING. HIGH FEE.";
 "Copy" = "Copy";
-"deposit.buy.button.changelly.title" = "via Changelly";
-"deposit.buy.button.coinbase.title" = "via Coinbase";
-"deposit.buy.button.shapeShift.title" = "via ShapeShift (Crypto only)";
-"deposit.buy.label.title" = "How would you like to buy?";
 "Empty" = "Empty";
 "emptyView.noTokens.label.title" = "You haven't received any tokens yet!";
 "errorView.description.label.title" = "Something went wrong... Try again.";
@@ -69,7 +65,6 @@
 "settings.language.button.title" = "Language";
 "settings.language.useSystem.title" = "Use System Setting";
 "settings.version.label.title" = "Version";
-"transactions.deposit.button.title" = "Buy";
 "transactions.noTransactions.label.title" = "No Transactions Yet!";
 "wallet.navigation.title" = "Wallets";
 "wallet.create.button.title" = "Create Wallet";
