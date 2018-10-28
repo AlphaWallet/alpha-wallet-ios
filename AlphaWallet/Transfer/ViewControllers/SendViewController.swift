@@ -3,7 +3,6 @@
 
 import Foundation
 import UIKit
-import Eureka
 import JSONRPCKit
 import APIKit
 import QRCodeReaderViewController
