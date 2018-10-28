@@ -7,7 +7,6 @@ import TrustKeystore
 
 protocol TransactionCoordinatorDelegate: class, CanOpenURL {
     func didPress(for type: PaymentFlow, in coordinator: TransactionCoordinator)
-    func didCancel(in coordinator: TransactionCoordinator)
 }
 
 class TransactionCoordinator: Coordinator {
@@ -100,10 +99,6 @@ class TransactionCoordinator: Coordinator {
 extension TransactionCoordinator: TransactionsViewControllerDelegate {
     func didPressTransaction(transaction: Transaction, in viewController: TransactionsViewController) {
         showTransaction(transaction)
-    }
-
-    func reset() {
-        delegate?.didCancel(in: self)
     }
 }
 
