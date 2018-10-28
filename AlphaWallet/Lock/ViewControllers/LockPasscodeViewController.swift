@@ -97,9 +97,6 @@ class LockPasscodeViewController: UIViewController {
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
 	}
-	deinit {
-		NotificationCenter.default.removeObserver(self)
-	}
 }
 
 extension LockPasscodeViewController: UITextFieldDelegate {
