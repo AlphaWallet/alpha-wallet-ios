@@ -16,9 +16,36 @@ class TextField: UIControl {
     }
 
     private var isConfigured = false
+    private let textField = UITextField()
+
+    var returnKeyType: UIReturnKeyType {
+        get {
+            return textField.returnKeyType
+        }
+        set {
+            textField.returnKeyType = newValue
+        }
+    }
+
+    var keyboardType: UIKeyboardType {
+        get {
+            return textField.keyboardType
+        }
+        set {
+            textField.keyboardType = newValue
+        }
+    }
+
+    public var isSecureTextEntry: Bool {
+        get {
+            return textField.isSecureTextEntry
+        }
+        set {
+            textField.isSecureTextEntry = newValue
+        }
+    }
 
     let label = UILabel()
-    let textField = UITextField()
     weak var delegate: TextFieldDelegate?
 
     var value: String {
@@ -124,6 +151,11 @@ class TextField: UIControl {
 
     @objc func nextButtonTapped() {
         delegate?.nextButtonTapped(for: self)
+    }
+
+    override func becomeFirstResponder() -> Bool {
+        super.becomeFirstResponder()
+        return textField.becomeFirstResponder()
     }
 }
 

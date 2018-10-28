@@ -54,22 +54,22 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         keystoreJSONTextView.label.translatesAutoresizingMaskIntoConstraints = false
         keystoreJSONTextView.delegate = self
         keystoreJSONTextView.translatesAutoresizingMaskIntoConstraints = false
-        keystoreJSONTextView.textView.returnKeyType = .next
+        keystoreJSONTextView.returnKeyType = .next
 
         passwordTextField.label.translatesAutoresizingMaskIntoConstraints = false
         passwordTextField.delegate = self
         passwordTextField.translatesAutoresizingMaskIntoConstraints = false
-        passwordTextField.textField.returnKeyType = .done
-        passwordTextField.textField.isSecureTextEntry = true
+        passwordTextField.returnKeyType = .done
+        passwordTextField.isSecureTextEntry = true
 
         privateKeyTextView.label.translatesAutoresizingMaskIntoConstraints = false
         privateKeyTextView.delegate = self
         privateKeyTextView.translatesAutoresizingMaskIntoConstraints = false
-        privateKeyTextView.textView.returnKeyType = .done
+        privateKeyTextView.returnKeyType = .done
 
         watchAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         watchAddressTextField.delegate = self
-        watchAddressTextField.textField.returnKeyType = .done
+        watchAddressTextField.returnKeyType = .done
 
         keystoreJSONControlsStackView = [
             keystoreJSONTextView.label,
@@ -351,13 +351,13 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     private func moveFocusToTextEntryField(after textInput: UIView) {
         switch textInput {
-        case keystoreJSONTextView.textView:
-            passwordTextField.textField.becomeFirstResponder()
-        case passwordTextField.textField:
+        case keystoreJSONTextView:
+            passwordTextField.becomeFirstResponder()
+        case passwordTextField:
             view.endEditing(true)
-        case privateKeyTextView.textView:
+        case privateKeyTextView:
             view.endEditing(true)
-        case watchAddressTextField.textField:
+        case watchAddressTextField:
             view.endEditing(true)
         default:
             break
@@ -389,7 +389,7 @@ extension ImportWalletViewController: QRCodeReaderDelegate {
 
 extension ImportWalletViewController: TextFieldDelegate {
     func shouldReturn(in textField: TextField) -> Bool {
-        moveFocusToTextEntryField(after: textField.textField)
+        moveFocusToTextEntryField(after: textField)
         return false
     }
 
@@ -398,13 +398,13 @@ extension ImportWalletViewController: TextFieldDelegate {
     }
 
     func nextButtonTapped(for textField: TextField) {
-        moveFocusToTextEntryField(after: textField.textField)
+        moveFocusToTextEntryField(after: textField)
     }
 }
 
 extension ImportWalletViewController: TextViewDelegate {
     func shouldReturn(in textView: TextView) -> Bool {
-        moveFocusToTextEntryField(after: textView.textView)
+        moveFocusToTextEntryField(after: textView)
         return false
     }
 
@@ -413,7 +413,7 @@ extension ImportWalletViewController: TextViewDelegate {
     }
 
     func nextButtonTapped(for textView: TextView) {
-        moveFocusToTextEntryField(after: textView.textView)
+        moveFocusToTextEntryField(after: textView)
     }
 }
 
@@ -431,7 +431,7 @@ extension ImportWalletViewController: AddressTextFieldDelegate {
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
-        moveFocusToTextEntryField(after: textField.textField)
+        moveFocusToTextEntryField(after: textField)
         return false
     }
 
