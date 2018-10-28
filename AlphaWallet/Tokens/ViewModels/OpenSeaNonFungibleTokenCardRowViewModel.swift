@@ -109,15 +109,15 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var isAttributesTitleHidden: Bool {
-        return attributes.isEmpty
+        return !areDetailsVisible || attributes.isEmpty
     }
 
     var isRankingsTitleHidden: Bool {
-        return rankings.isEmpty
+        return !areDetailsVisible || rankings.isEmpty
     }
 
     var isStatsTitleHidden: Bool {
-        return stats.isEmpty
+        return !areDetailsVisible || stats.isEmpty
     }
 
     var subtitleFont: UIFont {

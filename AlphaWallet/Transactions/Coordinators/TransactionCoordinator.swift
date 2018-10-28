@@ -63,17 +63,6 @@ class TransactionCoordinator: Coordinator {
             tokensStorage: tokensStorage,
             viewModel: viewModel
         )
-
-        let rightItems: [UIBarButtonItem] = {
-            switch viewModel.isBuyActionAvailable {
-            case true:
-                return [
-                    UIBarButtonItem(image: R.image.deposit(), landscapeImagePhone: R.image.deposit(), style: .done, target: self, action: #selector(deposit)),
-                ]
-            case false: return []
-            }
-        }()
-        controller.navigationItem.rightBarButtonItems = rightItems
         controller.delegate = self
         return controller
     }
@@ -134,15 +123,6 @@ extension TransactionCoordinator: TransactionsViewControllerDelegate {
         showTransaction(transaction)
     }
 
-    func didPressDeposit(for account: Wallet, sender: UIView, in viewController: TransactionsViewController) {
-        let coordinator = DepositCoordinator(
-            navigationController: navigationController,
-            account: account,
-            delegate: self
-        )
-        coordinator.start(from: sender)
-    }
-
     func reset() {
         delegate?.didCancel(in: self)
     }
@@ -163,7 +143,4 @@ extension TransactionCoordinator: CanOpenURL {
 }
 
 extension TransactionCoordinator: TransactionViewControllerDelegate {
-}
-
-extension TransactionCoordinator: DepositCoordinatorDelegate {
 }

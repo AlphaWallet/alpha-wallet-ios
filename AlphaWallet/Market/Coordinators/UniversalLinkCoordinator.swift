@@ -395,7 +395,7 @@ class UniversalLinkCoordinator: Coordinator {
                 }
             }
 
-            guard let vc = strongSelf.importTokenViewController, case .ready(var viewModel) = vc.state else { return }
+            guard let vc = strongSelf.importTokenViewController, case .ready = vc.state else { return }
             // TODO handle http response
             print(result)
             if successful {
