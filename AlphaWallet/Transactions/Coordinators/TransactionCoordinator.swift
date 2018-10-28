@@ -95,19 +95,6 @@ class TransactionCoordinator: Coordinator {
         dataCoordinator.stop()
         session.stop()
     }
-
-    @objc func deposit(sender: UIBarButtonItem) {
-        showDeposit(for: session.account, from: sender)
-    }
-
-    func showDeposit(for account: Wallet, from barButtonItem: UIBarButtonItem? = .none) {
-        let coordinator = DepositCoordinator(
-            navigationController: navigationController,
-            account: account,
-            delegate: self
-        )
-        coordinator.start(from: barButtonItem)
-    }
 }
 
 extension TransactionCoordinator: TransactionsViewControllerDelegate {
