@@ -528,13 +528,6 @@ extension InCoordinator: TransactionCoordinatorDelegate {
     func didPress(for type: PaymentFlow, in coordinator: TransactionCoordinator) {
         showPaymentFlow(for: type)
     }
-
-    func didCancel(in coordinator: TransactionCoordinator) {
-        delegate?.didCancel(in: self)
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
-        coordinator.stop()
-        removeAllCoordinators()
-    }
 }
 
 extension InCoordinator: SettingsCoordinatorDelegate {
