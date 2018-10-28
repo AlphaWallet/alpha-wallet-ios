@@ -96,8 +96,17 @@ class TransactionCoordinator: Coordinator {
         session.stop()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    @objc func deposit(sender: UIBarButtonItem) {
+        showDeposit(for: session.account, from: sender)
+    }
+
+    func showDeposit(for account: Wallet, from barButtonItem: UIBarButtonItem? = .none) {
+        let coordinator = DepositCoordinator(
+            navigationController: navigationController,
+            account: account,
+            delegate: self
+        )
+        coordinator.start(from: barButtonItem)
     }
 }
 
