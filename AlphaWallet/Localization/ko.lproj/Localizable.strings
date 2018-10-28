@@ -33,10 +33,6 @@
 "confirmPayment.to.label.title" = "수취인";
 "confirmPayment.highFeeWarning" = "%@ - 경고. 수수료가 높음.";
 "Copy" = "복사";
-"deposit.buy.button.changelly.title" = "Changelly를 통하여";
-"deposit.buy.button.coinbase.title" = "Coinbase를 통하여";
-"deposit.buy.button.shapeShift.title" = "ShapeShift를 통하여 (암호화폐만)";
-"deposit.buy.label.title" = "어떻게 구매하시겠습니까?";
 "Empty" = "비어 있음";
 "emptyView.noTokens.label.title" = "아직 받은 토큰이 없습니다!";
 "errorView.description.label.title" = "무언가 잘못되었습니다... 다시 시도하십시오.";
@@ -69,7 +65,6 @@
 "settings.language.button.title" = "언어";
 "settings.language.useSystem.title" = "시스템 설정 사용";
 "settings.version.label.title" = "버전";
-"transactions.deposit.button.title" = "구매";
 "transactions.noTransactions.label.title" = "아직 거래가 없습니다!";
 "wallet.navigation.title" = "지갑";
 "wallet.create.button.title" = "지갑 생성";

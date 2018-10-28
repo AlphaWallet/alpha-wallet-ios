@@ -78,7 +78,7 @@ struct ConfirmSignMessageViewControllerViewModel {
                 return data.hexEncoded
             }
             return message
-        case .typedMessage(let (typedData)):
+        case .typedMessage:
             return nil
         }
     }

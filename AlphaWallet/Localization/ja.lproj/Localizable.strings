@@ -33,10 +33,6 @@
 "confirmPayment.to.label.title" = "宛先";
 "confirmPayment.highFeeWarning" = "%@ - 警告。高い料金。";
 "Copy" = "コピー";
-"deposit.buy.button.changelly.title" = "Changelly を使用";
-"deposit.buy.button.coinbase.title" = "Coinbase を使用";
-"deposit.buy.button.shapeShift.title" = "ShapeShift を使用 (暗号通貨のみ)";
-"deposit.buy.label.title" = "どのように購入しますか?";
 "Empty" = "空";
 "emptyView.noTokens.label.title" = "まだトークンを受け取っていません!";
 "errorView.description.label.title" = "エラーが発生しました... もう一度試してください。";
@@ -69,7 +65,6 @@
 "settings.language.button.title" = "言語";
 "settings.language.useSystem.title" = "システム設定を使用";
 "settings.version.label.title" = "バージョン";
-"transactions.deposit.button.title" = "購入";
 "transactions.noTransactions.label.title" = "トランザクションはまだありません!";
 "wallet.navigation.title" = "ウォレット";
 "wallet.create.button.title" = "ウォレットを作成";

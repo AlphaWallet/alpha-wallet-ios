@@ -10,7 +10,6 @@ import TrustKeystore
 protocol TransactionsViewControllerDelegate: class {
     func didPressSend(in viewController: TransactionsViewController)
     func didPressTransaction(transaction: Transaction, in viewController: TransactionsViewController)
-    func didPressDeposit(for account: Wallet, sender: UIView, in viewController: TransactionsViewController)
 }
 
 class TransactionsViewController: UIViewController {
@@ -118,12 +117,7 @@ class TransactionsViewController: UIViewController {
             loadingView.label.font = Fonts.regular(size: 18)
         }
         emptyView = {
-            let view = TransactionsEmptyView(
-                onDeposit: { [unowned self] sender in
-                    self.showDeposit(sender)
-                }
-            )
-            view.isDepositAvailable = viewModel.isBuyActionAvailable
+            let view = TransactionsEmptyView()
             return view
         }()
     }
@@ -150,10 +144,6 @@ class TransactionsViewController: UIViewController {
 
     @objc func send() {
         delegate?.didPressSend(in: self)
-    }
-
-    func showDeposit(_ sender: UIButton) {
-        delegate?.didPressDeposit(for: account, sender: sender, in: self)
     }
 
     func configure(viewModel: TransactionsViewModel) {

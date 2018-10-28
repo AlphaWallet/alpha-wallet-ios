@@ -353,7 +353,7 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
                 // EIP67 format not being used much yet, use hex value for now
                 // let string = "ethereum:\(account.address.address)?value=\(value)"
                 let image = strongSelf.generateQRCode(from: string)
-                DispatchQueue.main.async { [weak self] in
+                DispatchQueue.main.async {
                     strongSelf.imageView.image = image
                 }
             }
