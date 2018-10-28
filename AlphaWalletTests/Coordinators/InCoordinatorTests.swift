@@ -100,7 +100,7 @@ class InCoordinatorTests: XCTestCase {
         let coordinator = InCoordinator(
             navigationController: FakeNavigationController(),
             wallet: .make(),
-            keystore: FakeEtherKeystore(),
+            keystore: FakeKeystore(),
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make()
         )
