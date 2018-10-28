@@ -107,10 +107,6 @@ class TransactionCoordinator: Coordinator {
         session.stop()
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
-    }
-
     @objc func deposit(sender: UIBarButtonItem) {
         showDeposit(for: session.account, from: sender)
     }
