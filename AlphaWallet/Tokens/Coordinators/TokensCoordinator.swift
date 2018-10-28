@@ -7,7 +7,6 @@ import Alamofire
 
 protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
 }
 
 private enum ContractData {

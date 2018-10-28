@@ -375,6 +375,121 @@ class InCoordinator: Coordinator {
         coordinator.start()
         addCoordinator(coordinator)
     }
+
+    // When a user clicks a Universal Link, either the user pays to publish a
+    // transaction or, if the token price = 0 (new purchase or incoming
+    // transfer from a buddy), the user can send the data to a paymaster.
+    // This function deal with the special case that the token price = 0
+    // but not sent to the paymaster because the user has ether.
+    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
+        let web3 = self.web3()
+        web3.start()
+        let signature = signedOrder.signature.substring(from: 2)
+        let v = UInt8(signature.substring(from: 128), radix: 16)!
+        let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
+        let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
+
+        ClaimOrderCoordinator(web3: web3).claimOrder(
+                signedOrder: signedOrder,
+                expiry: signedOrder.order.expiry,
+                v: v,
+                r: r,
+                s: s,
+                contractAddress: signedOrder.order.contractAddress) { result in
+            let strongSelf = self //else { return }
+            switch result {
+            case .success(let payload):
+                let address: Address = strongSelf.initialWallet.address
+                let transaction = UnconfirmedTransaction(
+                        transferType: .ERC875TokenOrder(tokenObject),
+                        value: BigInt(signedOrder.order.price),
+                        to: address,
+                        data: Data(bytes: payload.hexa2Bytes),
+                        gasLimit: GasLimitConfiguration.max,
+                        tokenId: .none,
+                        gasPrice: GasLimitConfiguration.default,
+                        nonce: .none,
+                        v: v,
+                        r: r,
+                        s: s,
+                        expiry: signedOrder.order.expiry,
+                        indices: signedOrder.order.indices,
+                        tokenIds: signedOrder.order.tokenIds
+                )
+
+                let wallet = strongSelf.keystore.recentlyUsedWallet!
+                let migration = MigrationInitializer(
+                        account: wallet,
+                        chainID: strongSelf.config.chainID
+                )
+                migration.perform()
+                let realm = strongSelf.realm(for: migration.config)
+
+                let tokensStorage = TokensDataStore(
+                        realm: realm,
+                        account: wallet,
+                        config: strongSelf.config,
+                        assetDefinitionStore: strongSelf.assetDefinitionStore
+                )
+
+                let balance = BalanceCoordinator(
+                        wallet: wallet,
+                        config: strongSelf.config,
+                        storage: tokensStorage
+                )
+                let session = WalletSession(
+                        account: wallet,
+                        config: strongSelf.config,
+                        web3: web3,
+                        balanceCoordinator: balance
+                )
+
+                let account = try! EtherKeystore().getAccount(for: wallet.address)!
+
+                let configurator = TransactionConfigurator(
+                        session: session,
+                        account: account,
+                        transaction: transaction
+                )
+
+                let signTransaction = configurator.formUnsignedTransaction()
+
+                //TODO why is the gas price loaded in twice?
+                let signedTransaction = UnsignedTransaction(
+                        value: signTransaction.value,
+                        account: account,
+                        to: signTransaction.to,
+                        nonce: signTransaction.nonce,
+                        data: signTransaction.data,
+                        gasPrice: GasPriceConfiguration.default,
+                        gasLimit: signTransaction.gasLimit,
+                        chainID: strongSelf.config.chainID
+                )
+                let sendTransactionCoordinator = SendTransactionCoordinator(
+                        session: session,
+                        keystore: strongSelf.keystore,
+                        confirmType: .signThenSend
+                )
+
+                sendTransactionCoordinator.send(transaction: signedTransaction) { result in
+                    switch result {
+                    case .success(let res):
+                        completion(true)
+                        print(res)
+                    case .failure(let error):
+                        completion(false)
+                        print(error)
+                    }
+                }
+            case .failure: break
+            }
+        }
+    }
+
+    func addImported(contract: String) {
+        let tokensCoordinator = coordinators.first { $0 is TokensCoordinator } as? TokensCoordinator
+        tokensCoordinator?.addImportedToken(for: contract)
+    }
 }
 
 extension InCoordinator: CanOpenURL {
@@ -459,121 +574,6 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 extension InCoordinator: TokensCoordinatorDelegate {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
         showPaymentFlow(for: type)
-    }
-
-    // When a user clicks a Universal Link, either the user pays to publish a
-    // transaction or, if the token price = 0 (new purchase or incoming
-    // transfer from a buddy), the user can send the data to a paymaster.
-    // This function deal with the special case that the token price = 0
-    // but not sent to the paymaster because the user has ether.
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
-        let web3 = self.web3()
-        web3.start()
-        let signature = signedOrder.signature.substring(from: 2)
-        let v = UInt8(signature.substring(from: 128), radix: 16)!
-        let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
-        let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
-
-        ClaimOrderCoordinator(web3: web3).claimOrder(
-                signedOrder: signedOrder,
-                expiry: signedOrder.order.expiry,
-                v: v,
-                r: r,
-                s: s,
-                contractAddress: signedOrder.order.contractAddress) { result in
-            let strongSelf = self //else { return }
-            switch result {
-            case .success(let payload):
-                let address: Address = strongSelf.initialWallet.address
-                let transaction = UnconfirmedTransaction(
-                        transferType: .ERC875TokenOrder(tokenObject),
-                        value: BigInt(signedOrder.order.price),
-                        to: address,
-                        data: Data(bytes: payload.hexa2Bytes),
-                        gasLimit: GasLimitConfiguration.max,
-                        tokenId: .none,
-                        gasPrice: GasLimitConfiguration.default,
-                        nonce: .none,
-                        v: v,
-                        r: r,
-                        s: s,
-                        expiry: signedOrder.order.expiry,
-                        indices: signedOrder.order.indices,
-                        tokenIds: signedOrder.order.tokenIds
-                )
-
-                let wallet = strongSelf.keystore.recentlyUsedWallet!
-                let migration = MigrationInitializer(
-                    account: wallet,
-                    chainID: strongSelf.config.chainID
-                )
-                migration.perform()
-                let realm = strongSelf.realm(for: migration.config)
-                
-                let tokensStorage = TokensDataStore(
-                    realm: realm,
-                    account: wallet,
-                    config: strongSelf.config,
-                    assetDefinitionStore: strongSelf.assetDefinitionStore
-                )
-                
-                let balance = BalanceCoordinator(
-                    wallet: wallet,
-                    config: strongSelf.config,
-                    storage: tokensStorage
-                )
-                let session = WalletSession(
-                        account: wallet,
-                        config: strongSelf.config,
-                        web3: web3,
-                        balanceCoordinator: balance
-                )
-
-                let account = try! EtherKeystore().getAccount(for: wallet.address)!
-
-                let configurator = TransactionConfigurator(
-                        session: session,
-                        account: account,
-                        transaction: transaction
-                )
-
-                let signTransaction = configurator.formUnsignedTransaction()
-
-                //TODO why is the gas price loaded in twice?
-                let signedTransaction = UnsignedTransaction(
-                        value: signTransaction.value,
-                        account: account,
-                        to: signTransaction.to,
-                        nonce: signTransaction.nonce,
-                        data: signTransaction.data,
-                        gasPrice: GasPriceConfiguration.default,
-                        gasLimit: signTransaction.gasLimit,
-                        chainID: strongSelf.config.chainID
-                )
-                let sendTransactionCoordinator = SendTransactionCoordinator(
-                        session: session,
-                        keystore: strongSelf.keystore,
-                        confirmType: .signThenSend
-                )
-
-                sendTransactionCoordinator.send(transaction: signedTransaction) { result in
-                    switch result {
-                    case .success(let res):
-                        completion(true)
-                        print(res)
-                    case .failure(let error):
-                        completion(false)
-                        print(error)
-                    }
-                }
-            case .failure: break
-            }
-        }
-    }
-
-    func addImported(contract: String) {
-        let tokensCoordinator = coordinators.first { $0 is TokensCoordinator } as? TokensCoordinator
-        tokensCoordinator?.addImportedToken(for: contract)
     }
 }
 
