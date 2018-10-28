@@ -2,7 +2,6 @@
 
 import Foundation
 import UIKit
-import Eureka
 
 func applyStyle() {
 

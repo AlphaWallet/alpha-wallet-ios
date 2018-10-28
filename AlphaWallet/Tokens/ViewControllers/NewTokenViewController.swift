@@ -2,7 +2,6 @@
 
 import Foundation
 import TrustKeystore
-import Eureka
 import QRCodeReaderViewController
 
 protocol NewTokenViewControllerDelegate: class {
