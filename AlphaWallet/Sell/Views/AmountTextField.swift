@@ -53,6 +53,12 @@ class AmountTextField: UIControl {
             textField.rightView?.isHidden = isFiatButtonHidden
         }
     }
+
+    override func becomeFirstResponder() -> Bool {
+        super.becomeFirstResponder()
+        return textField.becomeFirstResponder()
+    }
+
     private let textField = UITextField()
     let alternativeAmountLabel = UILabel()
     let fiatButton = Button(size: .normal, style: .borderless)
