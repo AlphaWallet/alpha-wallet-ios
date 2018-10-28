@@ -15,8 +15,9 @@ class TextView: UIControl {
         case none
     }
 
+    private let textView = UITextView()
+
     let label = UILabel()
-    let textView = UITextView()
     var value: String {
         get {
             return textView.text ?? ""
@@ -37,6 +38,16 @@ class TextView: UIControl {
             }
         }
     }
+
+    var returnKeyType: UIReturnKeyType {
+        get {
+            return textView.returnKeyType
+        }
+        set {
+            textView.returnKeyType = newValue
+        }
+    }
+
     private var isConfigured = false
     weak var delegate: TextViewDelegate?
 
@@ -74,6 +85,11 @@ class TextView: UIControl {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func becomeFirstResponder() -> Bool {
+        super.becomeFirstResponder()
+        return textView.becomeFirstResponder()
     }
 
     private func makeToolbarWithDoneButton() -> UIToolbar {
