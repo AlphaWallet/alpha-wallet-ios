@@ -144,11 +144,15 @@ class TransactionDataCoordinator {
                             completion(.success(transactions))
                         }
                     } catch {
-                        completion(.failure(AnyError(error)))
+                        DispatchQueue.main.async {
+                            completion(.failure(AnyError(error)))
+                        }
                     }
                 }
             case .failure(let error):
-                completion(.failure(AnyError(error)))
+                DispatchQueue.main.async {
+                    completion(.failure(AnyError(error)))
+                }
             }
         }
     }
