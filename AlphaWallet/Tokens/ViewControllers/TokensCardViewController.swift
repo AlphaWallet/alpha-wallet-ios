@@ -44,6 +44,16 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         }
     }
 
+    var canPeekToken: Bool {
+        let tokenType = OpenSeaNonFungibleTokenHandling(token: tokenObject)
+        switch tokenType {
+        case .supportedByOpenSea:
+            return true
+        case .notSupportedByOpenSea:
+            return false
+        }
+    }
+
     init(config: Config, tokenObject: TokenObject, account: Wallet, tokensStorage: TokensDataStore, viewModel: TokensCardViewModel) {
         self.config = config
         self.tokenObject = tokenObject
@@ -126,6 +136,8 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
+
+        registerForPreviewing(with: self, sourceView: tableView)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -219,6 +231,21 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             }
         }
     }
+
+    private func toggleDetailsVisibility(forIndexPath indexPath: IndexPath) {
+        let changedIndexPaths = viewModel.toggleDetailsVisible(for: indexPath)
+        animateRowHeightChanges(for: changedIndexPaths, in: tableView)
+    }
+
+    private func canPeek(at indexPath: IndexPath) -> Bool {
+        guard canPeekToken else { return false }
+        let tokenHolder = viewModel.item(for: indexPath)
+        if let url = tokenHolder.values["imageUrl"] as? String, !url.isEmpty {
+            return true
+        } else {
+            return false
+        }
+    }
 }
 
 extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
@@ -247,13 +274,35 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let changedIndexPaths = viewModel.toggleDetailsVisible(for: indexPath)
-        animateRowHeightChanges(for: changedIndexPaths, in: tableView)
+        toggleDetailsVisibility(forIndexPath: indexPath)
     }
 }
 
 extension TokensCardViewController: BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate {
     func didTapURL(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
+    }
+}
+
+extension TokensCardViewController: UIViewControllerPreviewingDelegate {
+    public func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        guard let indexPath = tableView.indexPathForRow(at: location) else { return nil }
+        guard canPeek(at: indexPath) else { return nil }
+        guard let cell = tableView.cellForRow(at: indexPath) else { return nil }
+        let tokenHolder = viewModel.item(for: indexPath)
+        guard !tokenHolder.areDetailsVisible else { return nil }
+
+        let viewController = PeekOpenSeaNonFungibleTokenViewController(forIndexPath: indexPath)
+        viewController.configure(viewModel: .init(tokenHolder: tokenHolder, areDetailsVisible: true, width: tableView.frame.size.width, convertHtmlInDescription: false))
+
+        let viewRectInTableView = view.convert(cell.frame, from: tableView)
+        previewingContext.sourceRect = viewRectInTableView
+        //Don't need to set `preferredContentSize`. In fact, if we set the height, it seems to be rendered wrongly
+        return viewController
+    }
+
+    public func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+        guard let viewController = viewControllerToCommit as? PeekOpenSeaNonFungibleTokenViewController else { return }
+        toggleDetailsVisibility(forIndexPath: viewController.indexPath)
     }
 }

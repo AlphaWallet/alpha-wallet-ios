@@ -11,12 +11,14 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     let areDetailsVisible: Bool
     let width: CGFloat
     var bigImage: Promise<UIImage>?
+    let convertHtmlInDescription: Bool
 
-    init(tokenHolder: TokenHolder, areDetailsVisible: Bool, width: CGFloat) {
+    init(tokenHolder: TokenHolder, areDetailsVisible: Bool, width: CGFloat, convertHtmlInDescription: Bool = true) {
         self.tokenHolder = tokenHolder
         self.areDetailsVisible = areDetailsVisible
         self.width = width
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
+        self.convertHtmlInDescription = convertHtmlInDescription
 
         let tokenId = tokenHolder.values["tokenId"] as? String
         self.bigImage = OpenSeaNonFungibleTokenCardRowViewModel.imageGenerator.withDownloadedImage(fromURL: imageUrl, forTokenId: tokenId, withPrefix: tokenHolder.contractAddress)
@@ -185,11 +187,12 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var description: NSAttributedString {
-        let string = tokenHolder.values["description"] as? String ?? ""
-        //.unicode, not .utf8, otherwise Chinese will turn garbage
-        let htmlData = string.data(using: .unicode)
-        let options = [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.html]
-        return (try? NSMutableAttributedString(data: htmlData ?? Data(), options: options, documentAttributes: nil)) ?? NSAttributedString(string: string)
+        return convertDescriptionToAttributedString(asHTML: true)
+    }
+
+    //This is needed because conversion from HTML to NSAttributedString is problematic if we do it while we are animating UI (force touch + peek as of writing this
+    var descriptionWithoutConvertingHtml: NSAttributedString {
+        return convertDescriptionToAttributedString(asHTML: false)
     }
 
     var thumbnailImageUrl: URL? {
@@ -247,6 +250,19 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
 
     var urlButtonImage: UIImage {
         return R.image.openSeaNonFungibleButtonArrow()!
+    }
+
+    private func convertDescriptionToAttributedString(asHTML: Bool) -> NSAttributedString {
+        let string = tokenHolder.values["description"] as? String ?? ""
+        //.unicode, not .utf8, otherwise Chinese will turn garbage
+        let htmlData = string.data(using: .unicode)
+        let options: [NSAttributedString.DocumentReadingOptionKey: NSAttributedString.DocumentType]
+        if asHTML {
+            options = [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.html]
+        } else {
+            options = [:]
+        }
+        return (try? NSMutableAttributedString(data: htmlData ?? Data(), options: options, documentAttributes: nil)) ?? NSAttributedString(string: string)
     }
 
     private func mapTraitsToProperName(name: String, value: String) -> OpenSeaNonFungibleTokenAttributeCellViewModel {
