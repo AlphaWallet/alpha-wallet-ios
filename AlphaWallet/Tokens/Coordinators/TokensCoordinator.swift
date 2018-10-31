@@ -5,11 +5,8 @@ import UIKit
 import TrustKeystore
 import Alamofire
 
-protocol TokensCoordinatorDelegate: class {
+protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
-    func didPressERC875(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator)
-    func didPressERC721(for type: PaymentFlow, token: TokenObject, in coordinator: TokensCoordinator)
-    func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
 }
 
 private enum ContractData {
@@ -27,6 +24,7 @@ class TokensCoordinator: Coordinator {
     private let session: WalletSession
     private let keystore: Keystore
     private let storage: TokensDataStore
+    private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
 
     private lazy var tokensViewController: TokensViewController = {
@@ -52,6 +50,7 @@ class TokensCoordinator: Coordinator {
             session: WalletSession,
             keystore: Keystore,
             tokensStorage: TokensDataStore,
+            ethPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore
     ) {
         self.navigationController = navigationController
@@ -59,6 +58,7 @@ class TokensCoordinator: Coordinator {
         self.session = session
         self.keystore = keystore
         self.storage = tokensStorage
+        self.ethPrice = ethPrice
         self.assetDefinitionStore = assetDefinitionStore
     }
 
@@ -314,6 +314,49 @@ class TokensCoordinator: Coordinator {
             }
         }
     }
+
+    private func showTokenList(for type: PaymentFlow, token: TokenObject) {
+        guard !token.nonZeroBalance.isEmpty else {
+            navigationController.displayError(error: NoTokenError())
+            return
+        }
+
+        let tokensCardCoordinator = TokensCardCoordinator(
+                session: session,
+                keystore: keystore,
+                tokensStorage: storage,
+                ethPrice: ethPrice,
+                token: token,
+                assetDefinitionStore: assetDefinitionStore
+        )
+        addCoordinator(tokensCardCoordinator)
+        tokensCardCoordinator.delegate = self
+        tokensCardCoordinator.start()
+        switch (type, session.account.type) {
+        case (.send, .real), (.request, _):
+            makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: tokensCardCoordinator, token: token)
+            navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
+        case (.send, .watch), (.request, _):
+            tokensCardCoordinator.isReadOnly = true
+            navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
+        case (_, _):
+            navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
+        }
+    }
+
+    private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: TokensCardCoordinator, token: TokenObject) {
+        switch token.type {
+        case .ether, .erc20, .erc875:
+            break
+        case .erc721:
+            switch OpenSeaNonFungibleTokenHandling(token: token) {
+            case .supportedByOpenSea:
+                break
+            case .notSupportedByOpenSea:
+                coordinator.isReadOnly = true
+            }
+        }
+    }
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
@@ -324,9 +367,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         case .erc20:
             delegate?.didPress(for: .send(type: .ERC20Token(token)), in: self)
         case .erc721:
-            delegate?.didPressERC721(for: .send(type: .ERC721Token(token)), token: token, in: self)
+            showTokenList(for: .send(type: .ERC721Token(token)), token: token)
         case .erc875:
-            delegate?.didPressERC875(for: .send(type: .ERC875Token(token)), token: token, in: self)
+            showTokenList(for: .send(type: .ERC875Token(token)), token: token)
         }
     }
 
@@ -373,8 +416,29 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
     }
 }
 
+extension TokensCoordinator: TokensCardCoordinatorDelegate {
+    func didCancel(in coordinator: TokensCardCoordinator) {
+        navigationController.dismiss(animated: true)
+        removeCoordinator(coordinator)
+    }
+}
+
 func -<T: Equatable>(left: [T], right: [T]) -> [T] {
     return left.filter { l in
         !right.contains { $0 == l }
+    }
+}
+
+extension TokensCoordinator: CanOpenURL {
+    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    }
+
+    func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(url, in: viewController)
+    }
+
+    func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
+        delegate?.didPressOpenWebPage(url, in: viewController)
     }
 }

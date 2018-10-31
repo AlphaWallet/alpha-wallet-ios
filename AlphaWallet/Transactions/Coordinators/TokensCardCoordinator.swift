@@ -14,16 +14,7 @@ import MessageUI
 import BigInt
 
 protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
-    func didPressTransfer(for type: PaymentFlow,
-                          tokenHolders: [TokenHolder],
-                          in coordinator: TokensCardCoordinator)
-    func didPressRedeem(for token: TokenObject,
-                        in coordinator: TokensCardCoordinator)
-    func didPressSell(for type: PaymentFlow,
-                      in coordinator: TokensCardCoordinator)
     func didCancel(in coordinator: TokensCardCoordinator)
-    func didPressViewRedemptionInfo(in: UIViewController)
-    func didPressViewEthereumInfo(in: UIViewController)
 }
 
 class TokensCardCoordinator: NSObject, Coordinator {
@@ -92,7 +83,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         session.stop()
     }
 
-    func showRedeemViewController() {
+    private func showRedeemViewController() {
         let redeemViewController = makeRedeemTokensViewController()
         navigationController.pushViewController(redeemViewController, animated: true)
     }
@@ -102,7 +93,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         navigationController.pushViewController(sellViewController, animated: true)
     }
 
-    func showTransferViewController(for paymentFlow: PaymentFlow, tokenHolders: [TokenHolder]) {
+    private func showTransferViewController(for paymentFlow: PaymentFlow, tokenHolders: [TokenHolder]) {
         let transferViewController = makeTransferTokensCardViewController(paymentFlow: paymentFlow)
         navigationController.pushViewController(transferViewController, animated: true)
     }
@@ -362,19 +353,38 @@ class TokensCardCoordinator: NSObject, Coordinator {
         }
         viewController.present(vc, animated: true)
     }
+
+    private func showPaymentFlow(for paymentFlow: PaymentFlow, tokenHolders: [TokenHolder] = []) {
+        switch (paymentFlow, session.account.type) {
+        case (.send, .real), (.request, _):
+            showTransferViewController(for: paymentFlow, tokenHolders: tokenHolders)
+        case (_, _):
+            navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
+        }
+    }
+
+    private func showViewRedemptionInfo(in viewController: UIViewController) {
+        let controller = TokenCardRedemptionInfoViewController(delegate: self)
+        viewController.navigationController?.pushViewController(controller, animated: true)
+    }
+
+    private func showViewEthereumInfo(in viewController: UIViewController) {
+        let controller = WhatIsEthereumInfoViewController(delegate: self)
+        viewController.navigationController?.pushViewController(controller, animated: true)
+    }
 }
 
 extension TokensCardCoordinator: TokensCardViewControllerDelegate {
     func didPressRedeem(token: TokenObject, in viewController: TokensCardViewController) {
-        delegate?.didPressRedeem(for: token, in: self)
+        showRedeemViewController()
     }
 
-    func didPressSell(for type: PaymentFlow, in viewController: TokensCardViewController) {
-        delegate?.didPressSell(for: type, in: self)
+    func didPressSell(for paymentFlow: PaymentFlow, in viewController: TokensCardViewController) {
+        showSellViewController(for: paymentFlow)
     }
 
     func didPressTransfer(for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController) {
-        delegate?.didPressTransfer(for: type, tokenHolders: tokenHolders, in: self)
+        showPaymentFlow(for: type, tokenHolders: tokenHolders)
     }
 
     func didCancel(in viewController: TokensCardViewController) {
@@ -382,7 +392,7 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
     }
 
     func didPressViewRedemptionInfo(in viewController: TokensCardViewController) {
-       delegate?.didPressViewRedemptionInfo(in: viewController)
+        showViewRedemptionInfo(in: viewController)
     }
 
     func didTapURL(url: URL, in viewController: TokensCardViewController) {
@@ -398,7 +408,7 @@ extension TokensCardCoordinator: RedeemTokenViewControllerDelegate {
     }
 
     func didPressViewInfo(in viewController: RedeemTokenViewController) {
-        delegate?.didPressViewRedemptionInfo(in: viewController)
+        showViewRedemptionInfo(in: viewController)
     }
 
     func didTapURL(url: URL, in viewController: RedeemTokenViewController) {
@@ -414,7 +424,7 @@ extension TokensCardCoordinator: RedeemTokenCardQuantitySelectionViewControllerD
     }
 
     func didPressViewInfo(in viewController: RedeemTokenCardQuantitySelectionViewController) {
-        delegate?.didPressViewRedemptionInfo(in: viewController)
+        showViewRedemptionInfo(in: viewController)
     }
 }
 
@@ -424,7 +434,7 @@ extension TokensCardCoordinator: SellTokensCardViewControllerDelegate {
     }
 
     func didPressViewInfo(in viewController: SellTokensCardViewController) {
-        delegate?.didPressViewEthereumInfo(in: viewController)
+        showViewEthereumInfo(in: viewController)
     }
 
     func didTapURL(url: URL, in viewController: SellTokensCardViewController) {
@@ -440,7 +450,7 @@ extension TokensCardCoordinator: TransferTokenCardQuantitySelectionViewControlle
     }
 
     func didPressViewInfo(in viewController: TransferTokensCardQuantitySelectionViewController) {
-        delegate?.didPressViewRedemptionInfo(in: viewController)
+        showViewRedemptionInfo(in: viewController)
     }
 }
 
@@ -450,7 +460,7 @@ extension TokensCardCoordinator: EnterSellTokensCardPriceQuantityViewControllerD
     }
 
     func didPressViewInfo(in viewController: EnterSellTokensCardPriceQuantityViewController) {
-        delegate?.didPressViewEthereumInfo(in: viewController)
+        showViewEthereumInfo(in: viewController)
     }
 }
 
@@ -460,7 +470,7 @@ extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelega
     }
 
     func didPressViewInfo(in viewController: SetSellTokensCardExpiryDateViewController) {
-        delegate?.didPressViewEthereumInfo(in: viewController)
+        showViewEthereumInfo(in: viewController)
     }
 }
 
@@ -478,7 +488,7 @@ extension TokensCardCoordinator: TransferTokensCardViewControllerDelegate {
     }
 
     func didPressViewInfo(in viewController: TransferTokensCardViewController) {
-        delegate?.didPressViewRedemptionInfo(in: viewController)
+        showViewRedemptionInfo(in: viewController)
     }
 
     func didTapURL(url: URL, in viewController: TransferTokensCardViewController) {
@@ -529,7 +539,7 @@ extension TokensCardCoordinator: ChooseTokenCardTransferModeViewControllerDelega
     }
 
     func didPressViewInfo(in viewController: ChooseTokenCardTransferModeViewController) {
-        delegate?.didPressViewRedemptionInfo(in: viewController)
+        showViewRedemptionInfo(in: viewController)
     }
 }
 
@@ -539,7 +549,7 @@ extension TokensCardCoordinator: SetTransferTokensCardExpiryDateViewControllerDe
     }
 
     func didPressViewInfo(in viewController: SetTransferTokensCardExpiryDateViewController) {
-        delegate?.didPressViewRedemptionInfo(in: viewController)
+        showViewRedemptionInfo(in: viewController)
     }
 }
 
@@ -574,7 +584,7 @@ extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControlle
     }
 
     func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController) {
-        delegate?.didPressViewEthereumInfo(in: viewController)
+        showViewEthereumInfo(in: viewController)
     }
 }
 
@@ -593,4 +603,7 @@ extension TokensCardCoordinator: CanOpenURL {
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
     }
+}
+
+extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
 }
