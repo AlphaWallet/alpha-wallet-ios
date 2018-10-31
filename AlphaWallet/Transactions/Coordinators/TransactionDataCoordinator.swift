@@ -144,11 +144,15 @@ class TransactionDataCoordinator {
                             completion(.success(transactions))
                         }
                     } catch {
-                        completion(.failure(AnyError(error)))
+                        DispatchQueue.main.async {
+                            completion(.failure(AnyError(error)))
+                        }
                     }
                 }
             case .failure(let error):
-                completion(.failure(AnyError(error)))
+                DispatchQueue.main.async {
+                    completion(.failure(AnyError(error)))
+                }
             }
         }
     }
@@ -207,7 +211,6 @@ class TransactionDataCoordinator {
     func handleError(error: Error) {
         //delegate?.didUpdate(result: .failure(TransactionError.failedToFetch))
         // Avoid showing an error on failed request, instead show cached transactions.
-        handleUpdateItems()
     }
 
     private func notifyUserEtherReceived(inNewTransactions transactions: [Transaction]) {
