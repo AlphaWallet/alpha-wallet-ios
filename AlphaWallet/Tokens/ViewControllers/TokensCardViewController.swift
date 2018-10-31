@@ -13,7 +13,7 @@ import TrustKeystore
 
 protocol TokensCardViewControllerDelegate: class, CanOpenURL {
     func didPressRedeem(token: TokenObject, in viewController: TokensCardViewController)
-    func didPressSell(for type: PaymentFlow, in viewController: TokensCardViewController)
+    func didPressSell(for paymentFlow: PaymentFlow, in viewController: TokensCardViewController)
     func didPressTransfer(for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController)
     func didCancel(in viewController: TokensCardViewController)
     func didPressViewRedemptionInfo(in viewController: TokensCardViewController)

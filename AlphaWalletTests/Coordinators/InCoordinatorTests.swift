@@ -100,7 +100,7 @@ class InCoordinatorTests: XCTestCase {
         let coordinator = InCoordinator(
             navigationController: FakeNavigationController(),
             wallet: .make(),
-            keystore: FakeEtherKeystore(),
+            keystore: FakeKeystore(),
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make()
         )
@@ -129,14 +129,17 @@ class InCoordinatorTests: XCTestCase {
 //    }
 
     func testShowTabAlphwaWalletWallet() {
+        let keystore = FakeEtherKeystore()
+        let wallet = Wallet(type: .real(keystore.createAccount(password: "test")))
+        keystore.recentlyUsedWallet = wallet
         let coordinator = InCoordinator(
             navigationController: FakeNavigationController(),
-            wallet: .make(),
-            keystore: FakeEtherKeystore(),
+            wallet: wallet,
+            keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
             config: .make()
         )
-        coordinator.showTabBar(for: .make())
+        coordinator.showTabBar(for: wallet)
 
         coordinator.showTab(.wallet)
 
