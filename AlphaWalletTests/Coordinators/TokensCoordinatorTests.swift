@@ -11,6 +11,7 @@ class TokensCoordinatorTests: XCTestCase {
             session: .make(),
             keystore: FakeKeystore(),
             tokensStorage: FakeTokensDataStore(),
+            ethPrice: Subscribable<Double>(nil),
             assetDefinitionStore: AssetDefinitionStore()
         )
         coordinator.start()
