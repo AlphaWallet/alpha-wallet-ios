@@ -44,6 +44,7 @@ class TransferTokensCardViewController: UIViewController, TokenVerifiableStatusV
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appWhite
         tableView.tableHeaderView = header
+        tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
         tableView.rowHeight = UITableViewAutomaticDimension
         roundedBackground.addSubview(tableView)
 

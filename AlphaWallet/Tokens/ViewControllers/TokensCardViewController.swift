@@ -21,6 +21,8 @@ protocol TokensCardViewControllerDelegate: class, CanOpenURL {
 }
 
 class TokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
+    static let anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
+
     private let tokenObject: TokenObject
     private var viewModel: TokensCardViewModel
     private let tokensStorage: TokensDataStore
@@ -66,6 +68,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appWhite
         tableView.tableHeaderView = header
+        tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
         tableView.rowHeight = UITableViewAutomaticDimension
         roundedBackground.addSubview(tableView)
 
