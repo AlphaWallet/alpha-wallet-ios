@@ -22,6 +22,7 @@ struct ClaimERC875Order: Web3Request {
 
     let expiry: BigUInt
     //we still use indices in the trade but interpret the tokens from their hex values
+    //TODO switch to BigUInt
     let indices: [UInt16]
     let v: UInt8
     let r: String
