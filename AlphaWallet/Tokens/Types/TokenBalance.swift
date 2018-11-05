@@ -2,14 +2,14 @@
 
 import Foundation
 import RealmSwift
-import BigInt
 
 class TokenBalance: Object {
     @objc dynamic var balance = "0"
+    @objc dynamic var json: String = "{}"
 
-    convenience init(balance: String = "0") {
+    convenience init(balance: String = "0", json: String = "{}") {
         self.init()
         self.balance = balance
+        self.json = json
     }
-
 }

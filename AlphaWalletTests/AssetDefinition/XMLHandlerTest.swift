@@ -18,7 +18,8 @@ class XMLHandlerTest: XCTestCase {
         let token = XMLHandler(contract: "0x").getToken(
                 name: "",
                 fromTokenId: BigUInt(tokenHex, radix: 16)!,
-                index: UInt16(1)
+                index: UInt16(1),
+                config: .make()
         )
         XCTAssertNotNil(token)
     }
