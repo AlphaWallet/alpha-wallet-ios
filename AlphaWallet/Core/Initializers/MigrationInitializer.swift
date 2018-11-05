@@ -20,7 +20,7 @@ class MigrationInitializer: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 49
+        config.schemaVersion = 50
         config.migrationBlock = { migration, oldSchemaVersion in
             if oldSchemaVersion < 33 {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in

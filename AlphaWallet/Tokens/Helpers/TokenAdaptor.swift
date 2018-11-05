@@ -35,12 +35,14 @@ class TokenAdaptor {
     private func getNotSupportedByOpenSeaTokenHolders() -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
+        //TODO should pass Config instance into this func instead
+        let config = Config()
         for (index, item) in balance.enumerated() {
             //id is the value of the bytes32 token
             let id = item.balance
             guard isNonZeroBalance(id) else { continue }
             if let tokenInt = BigUInt(id.drop0x, radix: 16) {
-                let token = getToken(name: self.token.name, for: tokenInt, index: UInt16(index))
+                let token = getToken(name: self.token.name, for: tokenInt, index: UInt16(index), config: config)
                 tokens.append(token)
             }
         }
@@ -131,8 +133,8 @@ class TokenAdaptor {
     }
 
     //TODO pass lang into here
-    private func getToken(name: String, for id: BigUInt, index: UInt16) -> Token {
-        return XMLHandler(contract: token.contract).getToken(name: name, fromTokenId: id, index: index)
+    private func getToken(name: String, for id: BigUInt, index: UInt16, config: Config) -> Token {
+        return XMLHandler(contract: token.contract).getToken(name: name, fromTokenId: id, index: index, config: config)
     }
 
     private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String) -> Token? {

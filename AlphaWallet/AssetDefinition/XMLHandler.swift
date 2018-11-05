@@ -60,11 +60,11 @@ private class PrivateXMLHandler {
         signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml, rootNamespacePrefix: rootPrefix)
     }
 
-    func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
+    func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16, config: Config) -> Token {
         guard tokenBytes32 != 0 else { return .empty }
         var values = [String: AssetAttributeValue]()
         for (name, attribute) in fields {
-            let value = attribute.extract(from: tokenBytes32)
+            let value = attribute.extract(from: tokenBytes32, ofContract: contractAddress, config: config, callForAssetAttributeCoordinator: InCoordinator.callForAssetAttributeCoordinator)
             values[name] = value
         }
 
@@ -91,6 +91,8 @@ private class PrivateXMLHandler {
         for e in xml["\(rootNamespacePrefix)token"]["\(rootNamespacePrefix)attribute-types"]["\(rootNamespacePrefix)attribute-type"] {
             if let id = e.attributes["id"], case let .singleElement(element) = e, XML.Accessor(element)["\(rootNamespacePrefix)origin"].attributes["as"] != nil {
                 fields[id] = AssetAttribute(attribute: element, rootNamespacePrefix: rootNamespacePrefix, lang: lang)
+            } else if let id = e.attributes["id"], case let .singleElement(element) = e, XML.Accessor(element)["\(rootNamespacePrefix)origin"].attributes["contract"] == "holding-contract" {
+                fields[id] = AssetAttribute(attribute: element, rootNamespacePrefix: rootNamespacePrefix)
             }
         }
         return fields
@@ -192,6 +194,7 @@ private class PrivateXMLHandler {
 public class XMLHandler {
     fileprivate static var xmlHandlers: [String: PrivateXMLHandler] = [:]
     private let privateXMLHandler: PrivateXMLHandler
+
     var hasAssetDefinition: Bool {
         return privateXMLHandler.hasAssetDefinition
     }
@@ -210,8 +213,8 @@ public class XMLHandler {
         xmlHandlers[contract.add0x.lowercased()] = nil
     }
 
-    func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
-        return privateXMLHandler.getToken(name: name, fromTokenId: tokenBytes32, index: index)
+    func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16, config: Config) -> Token {
+        return privateXMLHandler.getToken(name: name, fromTokenId: tokenBytes32, index: index, config: config)
     }
 
     func getName() -> String {

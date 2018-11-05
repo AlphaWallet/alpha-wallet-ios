@@ -73,6 +73,14 @@ extension String {
         }
     }
 
+    var dropParenthesis: String {
+        if hasSuffix("()") {
+            return String(dropLast(2))
+        } else {
+            return self
+        }
+    }
+
     func toInt() -> Int? {
         return Int(self) ?? nil
     }

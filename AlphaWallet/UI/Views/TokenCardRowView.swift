@@ -171,6 +171,13 @@ class TokenCardRowView: UIView {
 		venueLabel.text = viewModel.venue
 
 		dateLabel.text = viewModel.date
+        //TODO: this is how to use it
+//		if let vm = viewModel as? TokenCardRowViewModel {
+//			vm.subscribeDate { [weak self] date in
+//				guard let strongSelf = self else { return }
+//				strongSelf.dateLabel.text = date
+//			}
+//		}
 
 		timeLabel.text = viewModel.time
 

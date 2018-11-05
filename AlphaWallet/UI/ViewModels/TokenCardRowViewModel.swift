@@ -43,6 +43,18 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         return value.formatAsShortDateString()
     }
 
+    //TODO example
+//    func subscribeDate(withBlock block: @escaping (String) -> ()) {
+//        if let subscribableAssetAttributeValue = tokenHolder.values["expired"] as? SubscribableAssetAttributeValue {
+//            subscribableAssetAttributeValue.subscribable.subscribe { value in
+//                if let value = value as? Bool {
+//                    //TODO: Remove this comment: Cast because of test and type doesn't match only. We know the type here
+//                    block("\(value)")
+//                }
+//            }
+//        }
+//    }
+
     var time: String {
         let value = tokenHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
         return value.format("h:mm a")
