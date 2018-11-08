@@ -6,16 +6,25 @@ import Result
 import web3swift
 
 class GetENSOwnerCoordinator {
+
     private let config: Config
 
     init(config: Config) {
         self.config = config
     }
-    // Uses Owner(bytes32) where the bytes32 is the hash of the ENS name, e.g. keccak256("microsoft.eth")
-    func getENSOwnerFromHash(
-            for hash: String,
-            completion: @escaping (Result<String, AnyError>) -> Void
+
+    func getENSOwner(
+            for input: String,
+            completion: @escaping (Result<EthereumAddress, AnyError>) -> Void
     ) {
+
+        //if already an address, send back the address
+        if let ethAddress = EthereumAddress(input) {
+            completion(.success(ethAddress))
+            return
+        }
+
+        let hashedInput = web3swift.Web3Utils.keccak256(Data(input.utf8))
 
         guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
             completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)"))))
@@ -29,13 +38,18 @@ class GetENSOwnerCoordinator {
             return
         }
 
-        guard let promise = contractInstance.method(function.name, options: nil) else {
+        guard let promise = contractInstance.method(function.name, parameters: [hashedInput] as [AnyObject], options: nil) else {
             completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(Constants.ENSRegistrarAddress.address)"))))
             return
         }
+
         promise.callPromise(options: nil).done { result in
             if let owner = result["0"] as? String {
-                completion(.success(owner))
+                guard let ownerAddress = EthereumAddress(owner) else {
+                    completion(.failure(AnyError(Web3Error(description: "Invalid address"))))
+                    return
+                }
+                completion(.success(ownerAddress))
             } else {
                 completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(Constants.ENSRegistrarAddress).\(function.name)()"))))
             }
