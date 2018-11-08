@@ -66,7 +66,12 @@ class TokenAdaptor {
     func bundle(tokens: [Token]) -> [TokenHolder] {
         switch token.type {
         case .ether, .erc20, .erc875:
-            break
+            //TODO handle bundling properly for meetup contracts
+            if !tokens.isEmpty && tokens[0].values["building"] != nil {
+                return tokens.map { getTokenHolder(for: [$0]) }
+            } else {
+                break
+            }
         case .erc721:
             return tokens.map { getTokenHolder(for: [$0]) }
         }

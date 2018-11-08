@@ -171,13 +171,6 @@ class TokenCardRowView: UIView {
 		venueLabel.text = viewModel.venue
 
 		dateLabel.text = viewModel.date
-        //TODO: this is how to use it
-//		if let vm = viewModel as? TokenCardRowViewModel {
-//			vm.subscribeDate { [weak self] date in
-//				guard let strongSelf = self else { return }
-//				strongSelf.dateLabel.text = date
-//			}
-//		}
 
 		timeLabel.text = viewModel.time
 
@@ -190,6 +183,23 @@ class TokenCardRowView: UIView {
 		matchLabel.text = viewModel.match
 
 		onlyShowTitle = viewModel.onlyShowTitle
+
+		if let vm = viewModel as? TokenCardRowViewModel {
+			vm.subscribeBuilding { [weak self] building in
+				guard let strongSelf = self else { return }
+				strongSelf.categoryLabel.text = building
+			}
+
+			vm.subscribeExpired { [weak self] expired in
+				guard let strongSelf = self else { return }
+				strongSelf.teamsLabel.text = expired
+			}
+
+			vm.subscribeStreetStateCountry{ [weak self] streetStateCountry in
+				guard let strongSelf = self else { return }
+				strongSelf.venueLabel.text = streetStateCountry
+			}
+		}
 
 		adjustmentsToHandleWhenCategoryLabelTextIsTooLong()
 	}
