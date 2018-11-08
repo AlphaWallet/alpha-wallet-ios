@@ -25,9 +25,17 @@ enum TitlecaseOrNot {
 private class PrivateXMLHandler {
     private let xml: XML.Accessor
     private let contractAddress: String
-    private lazy var contract = xml["token"]["contract"].getElement(attributeName: "type", attributeValue: "holding", fallbackToFirst: true)
+    private lazy var contract = xml["\(rootNamespacePrefix)token"]["\(rootNamespacePrefix)contract"].getElement(attributeName: "type", attributeValue: "holding", fallbackToFirst: true)
     private lazy var fields = extractFields()
     private let isOfficial: Bool
+    private let rootNamespace: String
+    private var rootNamespacePrefix: String {
+        if rootNamespace.isEmpty {
+            return ""
+        } else {
+            return "\(rootNamespace):"
+        }
+    }
     private let signatureNamespace: String
     private var signatureNamespacePrefix: String {
         if signatureNamespace.isEmpty {
@@ -47,7 +55,9 @@ private class PrivateXMLHandler {
         //We use a try? for the first parse() instead of try! to avoid the very unlikely chance that it will crash. We fallback to an empty XML just like if we haven't downloaded it yet
         xml = (try? XML.parse(xmlString ?? "")) ?? (try! XML.parse(""))
         isOfficial = assetDefinitionStore.isOfficial(contract: contract)
-        signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml)
+        rootNamespace = PrivateXMLHandler.discoverRootNamespace(xml: xml)
+        let rootPrefix = rootNamespace.isEmpty ? "" : "\(rootNamespace):"
+        signatureNamespace = PrivateXMLHandler.discoverSignatureNamespace(xml: xml, rootNamespacePrefix: rootPrefix)
     }
 
     func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16) -> Token {
@@ -69,8 +79,8 @@ private class PrivateXMLHandler {
 
     func isVerified(for server: RPCServer) -> Bool {
         guard isOfficial else { return false }
-        let contractElement = xml["token"]["contract"].getElement(attributeName: "id", attributeValue: "holding_contract")
-        let addressElement = contractElement?["address"].getElement(attributeName: "network", attributeValue: String(server.chainID))
+        let contractElement = xml["\(rootNamespacePrefix)token"]["\(rootNamespacePrefix)contract"].getElement(attributeName: "id", attributeValue: "holding_contract")
+        let addressElement = contractElement?["\(rootNamespacePrefix)address"].getElement(attributeName: "network", attributeValue: String(server.chainID))
         guard let contractInXML = addressElement?.text else { return false }
         return contractInXML.sameContract(as: contractAddress)
     }
@@ -78,9 +88,9 @@ private class PrivateXMLHandler {
     private func extractFields() -> [String: AssetAttribute] {
         let lang = getLang()
         var fields = [String: AssetAttribute]()
-        for e in xml["token"]["attribute-types"]["attribute-type"] {
-            if let id = e.attributes["id"], case let .singleElement(element) = e, XML.Accessor(element)["origin"].attributes["as"] != nil {
-                fields[id] = AssetAttribute(attribute: element, lang: lang)
+        for e in xml["\(rootNamespacePrefix)token"]["\(rootNamespacePrefix)attribute-types"]["\(rootNamespacePrefix)attribute-type"] {
+            if let id = e.attributes["id"], case let .singleElement(element) = e, XML.Accessor(element)["\(rootNamespacePrefix)origin"].attributes["as"] != nil {
+                fields[id] = AssetAttribute(attribute: element, rootNamespacePrefix: rootNamespacePrefix, lang: lang)
             }
         }
         return fields
@@ -88,7 +98,7 @@ private class PrivateXMLHandler {
 
     func getName() -> String {
         let lang = getLang()
-        if let name = contract?["name"].getElementWithLangAttribute(equals: lang)?.text {
+        if let name = contract?["\(rootNamespacePrefix)name"].getElementWithLangAttribute(equals: lang)?.text {
             return name
         } else {
             return "N/A"
@@ -145,14 +155,14 @@ private class PrivateXMLHandler {
     }
 
     func getIssuer() -> String {
-        if let issuer = xml["token"]["\(signatureNamespacePrefix)Signature"]["\(signatureNamespacePrefix)KeyInfo"]["\(signatureNamespacePrefix)KeyName"].text {
+        if let issuer = xml["\(rootNamespacePrefix)token"]["\(signatureNamespacePrefix)Signature"]["\(signatureNamespacePrefix)KeyInfo"]["\(signatureNamespacePrefix)KeyName"].text {
             return issuer
         }
         return ""
     }
 
-    private static func discoverSignatureNamespace(xml: XML.Accessor) -> String {
-        if case let .singleElement(element) = xml["token"] {
+    private static func discoverSignatureNamespace(xml: XML.Accessor, rootNamespacePrefix: String) -> String {
+        if case let .singleElement(element) = xml["\(rootNamespacePrefix)token"] {
             let children: [XML.Element] = element.childElements
             for each in children {
                 if each.name == "Signature" {
@@ -163,6 +173,18 @@ private class PrivateXMLHandler {
             }
         }
         return ""
+    }
+
+    private static func discoverRootNamespace(xml: XML.Accessor) -> String {
+        guard let element = xml.element, !element.childElements.isEmpty else { return "" }
+        let rootTagName = element.childElements[0].name
+        if rootTagName == "token" {
+            return ""
+        } else if rootTagName.hasSuffix(":token") {
+            return String(rootTagName.split(separator: ":")[0])
+        } else {
+            return ""
+        }
     }
 }
 
