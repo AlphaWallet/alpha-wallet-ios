@@ -30,7 +30,7 @@ public struct Constants {
     public static let appstoreURL = "itms-apps://itunes.apple.com/app/id1358230430"
 
     // support
-    public static let supportEmail = "support@awallet.io"
+    public static let supportEmail = "support@alphawallet.com"
     public static let dappsBrowserURL = "http://aw.app"
 
     public static let nullTokenId = "0x0000000000000000000000000000000000000000000000000000000000000000"
