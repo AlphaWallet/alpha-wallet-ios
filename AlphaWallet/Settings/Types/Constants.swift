@@ -31,7 +31,7 @@ public struct Constants {
 
     // support
     public static let supportEmail = "support@awallet.io"
-    public static let dappsBrowserURL = "https://www.stateofthedapps.com"
+    public static let dappsBrowserURL = "http://aw.app"
 
     public static let nullTokenId = "0x0000000000000000000000000000000000000000000000000000000000000000"
     public static let nullTokenIdBigUInt = BigUInt(0)

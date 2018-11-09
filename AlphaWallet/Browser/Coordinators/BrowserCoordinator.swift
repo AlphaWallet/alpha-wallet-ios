@@ -144,12 +144,9 @@ final class BrowserCoordinator: NSObject, Coordinator {
     }
 
     func handleToolbar(for url: URL) {
-        let isToolbarHidden = url.absoluteString != Constants.dappsBrowserURL
+        let isToolbarHidden = false
         navigationController.isToolbarHidden = isToolbarHidden
-
-        if isToolbarHidden {
-            rootViewController.select(viewType: .browser)
-        }
+        rootViewController.select(viewType: .browser)
     }
 
     func signMessage(with type: SignMessageType, account: Account, callbackID: Int) {
