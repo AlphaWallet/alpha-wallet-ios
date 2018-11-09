@@ -34,30 +34,30 @@ enum AssetAttributeSyntax: String {
 }
 
 enum AssetAttribute {
-    case mapping(attribute: XML.Accessor, syntax: AssetAttributeSyntax, lang: String, bitmask: BigUInt, bitShift: Int)
-    case direct(attribute: XML.Accessor, syntax: AssetAttributeSyntax, bitmask: BigUInt, bitShift: Int)
+    case mapping(attribute: XML.Accessor, rootNamespacePrefix: String, syntax: AssetAttributeSyntax, lang: String, bitmask: BigUInt, bitShift: Int)
+    case direct(attribute: XML.Accessor, rootNamespacePrefix: String, syntax: AssetAttributeSyntax, bitmask: BigUInt, bitShift: Int)
 
-    init(attribute: XML.Element, lang: String) {
+    init(attribute: XML.Element, rootNamespacePrefix: String, lang: String) {
         self = {
             let attributeAccessor = XML.Accessor(attribute)
             //TODO show error if syntax attribute is missing
-            if case .singleElement(let origin) = attributeAccessor["origin"], let rawSyntax = attributeAccessor.attributes["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let type = XML.Accessor(origin).attributes["as"], let bitmaskString = AssetAttribute.getBitMaskFrom(attribute: attributeAccessor), let bitmask = BigUInt(bitmaskString, radix: 16) {
+            if case .singleElement(let origin) = attributeAccessor["\(rootNamespacePrefix)origin"], let rawSyntax = attributeAccessor.attributes["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let type = XML.Accessor(origin).attributes["as"], let bitmaskString = AssetAttribute.getBitMaskFrom(attribute: attributeAccessor, rootNamespacePrefix: rootNamespacePrefix), let bitmask = BigUInt(bitmaskString, radix: 16) {
                 let bitShift = AssetAttribute.bitShiftCount(forBitMask: bitmask)
                 switch type {
                 case "mapping":
-                    return .mapping(attribute: attributeAccessor, syntax: syntax, lang: lang, bitmask: bitmask, bitShift: bitShift)
+                    return .mapping(attribute: attributeAccessor, rootNamespacePrefix: rootNamespacePrefix, syntax: syntax, lang: lang, bitmask: bitmask, bitShift: bitShift)
                 default:
-                    return .direct(attribute: attributeAccessor, syntax: syntax, bitmask: bitmask, bitShift: bitShift)
+                    return .direct(attribute: attributeAccessor, rootNamespacePrefix: rootNamespacePrefix, syntax: syntax, bitmask: bitmask, bitShift: bitShift)
                 }
             }
             //TODO maybe return an optional to indicate error instead?
-            return .direct(attribute: attributeAccessor, syntax: .iA5String, bitmask: BigUInt(0), bitShift: 0)
+            return .direct(attribute: attributeAccessor, rootNamespacePrefix: rootNamespacePrefix, syntax: .iA5String, bitmask: BigUInt(0), bitShift: 0)
         }()
     }
 
     func extract(from tokenValue: BigUInt) -> AssetAttributeValue {
         switch self {
-        case .mapping(_, let syntax, _, _, _), .direct(_, let syntax, _, _):
+        case .mapping(_, _, let syntax, _, _, _), .direct(_, _, let syntax, _, _):
             switch syntax {
             case .directoryString, .iA5String:
                 let value: String = extract(from: tokenValue) ?? "N/A"
@@ -74,11 +74,11 @@ enum AssetAttribute {
 
     func extract<T>(from tokenValue: BigUInt) -> T? where T: AssetAttributeValue {
         switch self {
-        case .mapping(let attribute, let syntax, let lang, _, _):
+        case .mapping(let attribute, let rootNamespacePrefix, let syntax, let lang, _, _):
             guard let key = parseValue(tokenValue: tokenValue) else { return nil }
-            guard let value = attribute["origin"]["option"].getElementWithKeyAttribute(equals: String(key))?["value"].getElementWithLangAttribute(equals: lang)?.text else { return nil }
+            guard let value = attribute["\(rootNamespacePrefix)origin"]["\(rootNamespacePrefix)option"].getElementWithKeyAttribute(equals: String(key))?["\(rootNamespacePrefix)value"].getElementWithLangAttribute(equals: lang)?.text else { return nil }
             return syntax.extract(from: value, isMapping: true) as? T
-        case .direct(_, let syntax, _, _):
+        case .direct(_, _, let syntax, _, _):
             guard let value = parseValue(tokenValue: tokenValue) else { return nil }
             return syntax.extract(from: String(value), isMapping: false) as? T
         }
@@ -86,13 +86,13 @@ enum AssetAttribute {
 
     private func parseValue(tokenValue: BigUInt) -> BigUInt? {
         switch self {
-        case .direct(_, _, let bitmask, let bitShift), .mapping(_, _, _, let bitmask, let bitShift):
+        case .direct(_, _, _, let bitmask, let bitShift), .mapping(_, _, _, _, let bitmask, let bitShift):
             return (bitmask & tokenValue) >> bitShift
         }
     }
 
-    private static func getBitMaskFrom(attribute: XML.Accessor) -> String? {
-        return attribute["origin"].attributes["bitmask"]
+    private static func getBitMaskFrom(attribute: XML.Accessor, rootNamespacePrefix: String) -> String? {
+        return attribute["\(rootNamespacePrefix)origin"].attributes["bitmask"]
     }
 
     ///Used to truncate bits to the right of the bitmask
