@@ -23,7 +23,7 @@ public struct Constants {
     public static let getTicketInfoFromServer = "https://app.awallet.io:80/api/ecrecoverAndGetTickets"
 
     // social
-    public static let website = "https://community.awallet.io/c/alphawallet-app/ios-feedback"
+    public static let website = "https://community.alphawallet.com/c/feedback/ios-feedback"
     public static let twitterUsername = "Alpha_wallet"
     public static let redditGroupName = "r/AlphaWallet/"
     public static let facebookUsername = "AlphaWallet"
