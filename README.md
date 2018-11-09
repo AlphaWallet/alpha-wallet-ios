@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)
 [![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
 
-[<img src="https://github.com/James-Sangalli/alpha-wallet-ios/blob/master/resources/screens.png">](https://awallet.io/)
+[<img src="https://github.com/James-Sangalli/alpha-wallet-ios/blob/master/resources/screens.png">](https://alphawallet.com/)
 
 [<img src=resources/app-store-badge.png height="88">](https://itunes.apple.com/us/app/alphawallet/id1358230430?ls=1&mt=8)
 

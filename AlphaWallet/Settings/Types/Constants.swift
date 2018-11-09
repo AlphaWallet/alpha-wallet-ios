@@ -23,15 +23,15 @@ public struct Constants {
     public static let getTicketInfoFromServer = "https://app.awallet.io:80/api/ecrecoverAndGetTickets"
 
     // social
-    public static let website = "https://community.awallet.io/c/alphawallet-app/ios-feedback"
+    public static let website = "https://community.alphawallet.com/c/feedback/ios-feedback"
     public static let twitterUsername = "Alpha_wallet"
     public static let redditGroupName = "r/AlphaWallet/"
     public static let facebookUsername = "AlphaWallet"
     public static let appstoreURL = "itms-apps://itunes.apple.com/app/id1358230430"
 
     // support
-    public static let supportEmail = "support@awallet.io"
-    public static let dappsBrowserURL = "https://www.stateofthedapps.com"
+    public static let supportEmail = "support@alphawallet.com"
+    public static let dappsBrowserURL = "http://aw.app"
 
     public static let nullTokenId = "0x0000000000000000000000000000000000000000000000000000000000000000"
     public static let nullTokenIdBigUInt = BigUInt(0)
