@@ -40,7 +40,7 @@ class GetENSOwnerCoordinator {
         }
 
         //if it does not contain .eth, then it is not a valid ens name
-        if !input.contains(".eth") {
+        if !input.contains(".") {
             completion(.failure(AnyError(Web3Error(description: "Invalid ENS Name"))))
             return
         }
