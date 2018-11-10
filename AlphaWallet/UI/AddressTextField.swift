@@ -121,7 +121,7 @@ class AddressTextField: UIControl {
                 self.value = address.address
                 self.delegate?.didPaste(in: self)
             } else {
-                self.delegate?.displayError(error: Errors.invalidAddress, for: self)
+                self.delegate?.displayError(error: result.error?.error ?? Errors.invalidAddress, for: self)
             }
         }
     }
