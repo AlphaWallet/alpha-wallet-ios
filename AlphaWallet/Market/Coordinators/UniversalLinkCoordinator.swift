@@ -294,10 +294,12 @@ class UniversalLinkCoordinator: Coordinator {
     private func makeTokenHolderImpl(name: String, bytes32Tokens: [String], contractAddress: String) {
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress)
+        //TODO should pass Config instance into this func instead
+        let config = Config()
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(name: name, fromTokenId: tokenId, index: UInt16(i))
+                let token = xmlHandler.getToken(name: name, fromTokenId: tokenId, index: UInt16(i), config: config)
                 tokens.append(token)
             }
         }

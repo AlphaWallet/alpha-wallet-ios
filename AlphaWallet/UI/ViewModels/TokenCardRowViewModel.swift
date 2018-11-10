@@ -23,15 +23,32 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
+    //TODO should not check for the contract this way
+    var isMeetupContract: Bool {
+        return tokenHolder.values["building"] != nil
+    }
+
     var teams: String {
-        let countryA = tokenHolder.values["countryA"] as? String ?? ""
-        let countryB = tokenHolder.values["countryB"] as? String ?? ""
-        return R.string.localizable.aWalletTokenMatchVs(countryA, countryB)
+        if isMeetupContract && tokenHolder.values["expired"] != nil {
+            return ""
+        } else {
+            let countryA = tokenHolder.values["countryA"] as? String ?? ""
+            let countryB = tokenHolder.values["countryB"] as? String ?? ""
+            return R.string.localizable.aWalletTokenMatchVs(countryA, countryB)
+        }
     }
 
     var match: String {
-        let value = tokenHolder.values["match"] as? Int ?? 0
-        return "M\(value)"
+        if tokenHolder.values["section"] != nil {
+            if let section = tokenHolder.values["section"] as? Int {
+                return "S\(section)"
+            } else {
+                return "S0"
+            }
+        } else {
+            let value = tokenHolder.values["match"] as? Int ?? 0
+            return "M\(value)"
+        }
     }
 
     var venue: String {
@@ -41,6 +58,68 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
     var date: String {
         let value = tokenHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
         return value.formatAsShortDateString()
+    }
+
+    func subscribeExpired(withBlock block: @escaping (String) -> ()) {
+        guard isMeetupContract else { return }
+        if let subscribableAssetAttributeValue = tokenHolder.values["expired"] as? SubscribableAssetAttributeValue {
+            subscribableAssetAttributeValue.subscribable.subscribe { value in
+                if let expired = value as? Bool {
+                    if expired {
+                        block("Expired")
+                    } else {
+                        block("Not expired")
+                    }
+                }
+            }
+        }
+    }
+
+    func subscribeBuilding(withBlock block: @escaping (String) -> ()) {
+        if let subscribableAssetAttributeValue = tokenHolder.values["building"] as? SubscribableAssetAttributeValue {
+            subscribableAssetAttributeValue.subscribable.subscribe { value in
+                if let value = value as? String {
+                    block(value)
+                }
+            }
+        }
+    }
+
+    func subscribeStreetStateCountry(withBlock block: @escaping (String) -> ()) {
+        func updateStreetStateCountry(street: String?, state: String?, country: String?) {
+            let values = [street, state, country].compactMap { $0 }
+            let string = values.joined(separator: ", ")
+            block(string)
+        }
+        if let subscribableAssetAttributeValue = tokenHolder.values["street"] as? SubscribableAssetAttributeValue {
+            subscribableAssetAttributeValue.subscribable.subscribe { value in
+                if let value = value as? String {
+                    updateStreetStateCountry(
+                            street: value,
+                            state: (self.tokenHolder.values["state"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                            country: self.tokenHolder.values["country"] as? String
+                    )
+                }
+            }
+        }
+        if let subscribableAssetAttributeValue = tokenHolder.values["state"] as? SubscribableAssetAttributeValue {
+            subscribableAssetAttributeValue.subscribable.subscribe { value in
+                if let value = value as? String {
+                    updateStreetStateCountry(
+                            street: (self.tokenHolder.values["street"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                            state: value,
+                            country: self.tokenHolder.values["country"] as? String
+                    )
+                }
+            }
+        }
+        if let country = tokenHolder.values["country"] as? String {
+            updateStreetStateCountry(
+                    street: (self.tokenHolder.values["street"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                    state: (self.tokenHolder.values["state"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                    country: country
+            )
+        }
     }
 
     var time: String {
