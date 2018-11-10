@@ -31,6 +31,8 @@ enum Tabs {
 }
 
 class InCoordinator: Coordinator {
+    //TODO this is static and non-private so that we can update it from outside when the user switches wallet. Improve encapsulation. Maybe move it
+    static var callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?
 
     private let initialWallet: Wallet
     private var config: Config
@@ -81,6 +83,7 @@ class InCoordinator: Coordinator {
         self.appTracker = appTracker
         self.assetDefinitionStore = assetDefinitionStore
         self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
+        enableAutoRefreshFunctionCallBasedAssetAttributesForAllTokens()
     }
 
     func start() {
@@ -126,6 +129,11 @@ class InCoordinator: Coordinator {
 
         let migration = MigrationInitializer(account: account, chainID: config.chainID)
         migration.perform()
+
+        //TODO this is bad because it is optional and effectively a global
+        if let tokensDataStore = createTokensDatastore() {
+            InCoordinator.callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator(config: config, tokensDataStore: tokensDataStore)
+        }
 
         let web3 = self.web3()
         web3.start()
@@ -295,8 +303,10 @@ class InCoordinator: Coordinator {
         coordinator.stop()
         removeAllCoordinators()
         OpenSea.sharedInstance.reset()
+        InCoordinator.callForAssetAttributeCoordinator = nil
         showTabBar(for: account)
         fetchXMLAssetDefinitions()
+        refreshFunctionCallBasedAssetAttributesForAllTokens()
     }
 
     private func removeAllCoordinators() {
@@ -489,6 +499,29 @@ class InCoordinator: Coordinator {
     func addImported(contract: String) {
         let tokensCoordinator = coordinators.first { $0 is TokensCoordinator } as? TokensCoordinator
         tokensCoordinator?.addImportedToken(for: contract)
+    }
+
+    private func refreshFunctionCallBasedAssetAttributes(forToken token: TokenObject, withTokensDataStore tokensDataStore: TokensDataStore) {
+        guard let callForAssetAttributeCoordinator = InCoordinator.callForAssetAttributeCoordinator else { return }
+        callForAssetAttributeCoordinator.contractToRefetch = token.contract
+        TokenAdaptor(token: token).getTokenHolders()
+        callForAssetAttributeCoordinator.contractToRefetch = nil
+    }
+
+    //TODO auto refresh function-call-based asset attributes shouldn't be in InCoordinator
+    private func enableAutoRefreshFunctionCallBasedAssetAttributesForAllTokens() {
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshFunctionCallBasedAssetAttributesForAllTokens), name: .UIApplicationDidBecomeActive, object: nil)
+    }
+
+    //TODO the body of this function should be moved somewhere else
+    @objc private func refreshFunctionCallBasedAssetAttributesForAllTokens() {
+        //TODO this refresh mechanism isn't good
+        guard let tokensDataStore = createTokensDatastore() else { return }
+
+        //TODO should we check if no asset definition?
+        for each in tokensDataStore.objects {
+            refreshFunctionCallBasedAssetAttributes(forToken: each, withTokensDataStore: tokensDataStore)
+        }
     }
 }
 
