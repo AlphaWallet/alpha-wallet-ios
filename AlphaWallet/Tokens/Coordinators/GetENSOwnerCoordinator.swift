@@ -69,7 +69,11 @@ class GetENSOwnerCoordinator {
             //if null address is returned (as 0) we count it as invalid
             //this is because it is not assigned to an ENS and puts the user in danger of sending funds to null
             if let owner = result["0"] as? EthereumAddress {
-                completion(.success(owner))
+                if owner.address == Constants.nullAddress {
+                    completion(.failure(AnyError(Web3Error(description: "Null address returned"))))
+                } else {
+                    completion(.success(owner))
+                }
             } else {
                 completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractAddress.address).\(function.name)()"))))
             }
