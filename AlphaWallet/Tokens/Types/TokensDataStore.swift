@@ -511,17 +511,61 @@ class TokensDataStore {
             case .isDisabled(let value):
                 token.isDisabled = value
             case .nonFungibleBalance(let balance):
-                realm.delete(token.balance)
+                var newBalance = [TokenBalance]()
                 if !balance.isEmpty {
                     for i in 0...balance.count - 1 {
-                        token.balance.append(TokenBalance(balance: balance[i]))
+                        if let oldBalance = token.balance.first(where: { $0.balance == balance[i] }) {
+                            newBalance.append(TokenBalance(balance: balance[i], json: oldBalance.json))
+                        } else {
+                            newBalance.append(TokenBalance(balance: balance[i]))
+                        }
                     }
                 }
+                realm.delete(token.balance)
+                token.balance.append(objectsIn: newBalance)
             case .name(let name):
                 token.name = name
             case .type(let type):
                 token.type = type
             }
+        }
+    }
+
+    enum TokenBalanceUpdateAction {
+        case updateJsonProperty(String, Any)
+    }
+
+    ///Note that it's possible for a contract to have the same tokenId repeated
+    func update(contract: String, tokenId: String, action: TokenBalanceUpdateAction) {
+        guard let token = objects.first(where: { $0.contract.sameContract(as: contract) }) else { return }
+        let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
+        let balances = token.balance.filter { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt}
+
+        try! realm.write {
+            switch action {
+            case .updateJsonProperty(let key, let value):
+                for each in balances {
+                    let json = each.json
+                    if let data = json.data(using: .utf8), var dictionary = ((try? JSONSerialization.jsonObject(with: data)) as? [String: Any]) {
+                        dictionary[key] = value
+                        if let updatedData = try? JSONSerialization.data(withJSONObject: dictionary), let updatedJson = String(data: updatedData, encoding: .utf8) {
+                            each.json = updatedJson
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    func jsonAttributeValue(forContract contract: String, tokenId: String, attributeName: String) -> Any? {
+        guard let token = objects.first(where: { $0.contract.sameContract(as: contract) }) else { return nil }
+        let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
+        guard let balance = token.balance.first(where: { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt}) else { return nil }
+        let json = balance.json
+        if let data = json.data(using: .utf8), var dictionary = ((try? JSONSerialization.jsonObject(with: data)) as? [String: Any]) {
+            return dictionary[attributeName]
+        } else {
+            return nil
         }
     }
 

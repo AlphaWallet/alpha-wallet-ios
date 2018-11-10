@@ -21,12 +21,17 @@ public struct SignedOrder {
 }
 
 extension String {
-    var hexa2Bytes: [UInt8] {
-        let hexa = Array(characters)
-        return stride(from: 0, to: count, by: 2).compactMap {
-            UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16)
-        }
-    }
+	var hexa2Bytes: [UInt8] {
+		let hexa: Array<Character>
+		if count % 2 == 0 {
+			hexa = Array(characters)
+		} else {
+			hexa = Array(("0" + self).characters)
+		}
+		return stride(from: 0, to: count, by: 2).compactMap {
+			UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16)
+		}
+	}
 }
 
 extension BinaryInteger {
