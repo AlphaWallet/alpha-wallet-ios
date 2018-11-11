@@ -13,7 +13,7 @@ public struct Constants {
     public static let customizable: UInt8 = 0x03
 
     // XML repo
-    public static let repoServer = "https://repo.awallet.io"
+    public static let repoServer = "https://repo.aw.app"
     public static let repoClientName = "AlphaWallet"
     public static let repoPlatformName = "iOS"
 
