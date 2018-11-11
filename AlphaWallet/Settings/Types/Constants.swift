@@ -2,6 +2,7 @@
 
 import Foundation
 import BigInt
+import web3swift
 
 public struct Constants {
     public static let keychainKeyPrefix = "alphawallet"
@@ -20,7 +21,6 @@ public struct Constants {
     // fee master
     public static let paymentServer = "https://app.awallet.io:80/api/claimToken"
     public static let paymentServerSupportsContractEndPoint = "https://app.awallet.io:80/api/checkContractIsSupportedForFreeTransfers"
-    public static let getTicketInfoFromServer = "https://app.awallet.io:80/api/ecrecoverAndGetTickets"
 
     // social
     public static let website = "https://community.alphawallet.com/c/feedback/ios-feedback"
@@ -55,11 +55,15 @@ public struct Constants {
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaAPIKEY = "11ba1b4f0c4246aeb07b1f8e5a20525f" // X-API-KEY
-
     public static let cryptoKittiesContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 
-    public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
+    //ENS
+    public static let ENSRegistrarAddress = EthereumAddress("0x314159265dD8dbb310642f98f50C066173C1259b")!
+    public static let ENSRegistrarRopsten = EthereumAddress("0x112234455c3a32fd11230c42e7bccd4a84e02010")!
+    public static let ENSRegistrarRinkeby = EthereumAddress("0xe7410170f87102df0055eb195163a03b7f2bff4a")!
 
+    //Misc
+    public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
     public static let legacy875Addresses = ["830e1650a87a754e37ca7ed76b700395a7c61614", "a66a3f08068174e8f005112a8b2c7a507a822335"]
 }
 

@@ -111,13 +111,19 @@ class AddressTextField: UIControl {
             delegate?.displayError(error: SendInputErrors.emptyClipBoard, for: self)
             return
         }
-
-        guard CryptoAddressValidator.isValidAddress(value) else {
-            delegate?.displayError(error: Errors.invalidAddress, for: self)
-            return
+        //if address is pasted, the GetENSOwnerCoordinator will simply return it back in EthereumAddress format
+        GetENSOwnerCoordinator(config: Config()).getENSOwner(for: value) { result in
+            if let address = result.value {
+                guard CryptoAddressValidator.isValidAddress(address.address) else {
+                    self.delegate?.displayError(error: Errors.invalidAddress, for: self)
+                    return
+                }
+                self.value = address.address
+                self.delegate?.didPaste(in: self)
+            } else {
+                self.delegate?.displayError(error: result.error?.error ?? Errors.invalidAddress, for: self)
+            }
         }
-        self.value = value
-        delegate?.didPaste(in: self)
     }
 
     @objc func openReader() {
