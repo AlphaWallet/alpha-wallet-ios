@@ -190,6 +190,11 @@ class TokenCardRowView: UIView {
 				strongSelf.categoryLabel.text = building
 			}
 
+			vm.subscribeLocality { [weak self] locality in
+				guard let strongSelf = self else { return }
+				strongSelf.cityLabel.text = ", \(locality)"
+			}
+
 			vm.subscribeExpired { [weak self] expired in
 				guard let strongSelf = self else { return }
 				strongSelf.teamsLabel.text = expired

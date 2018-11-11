@@ -83,27 +83,16 @@ enum AssetAttribute {
             let attributeAccessor = XML.Accessor(attribute)
             let functionElement = attributeAccessor["\(rootNamespacePrefix)origin"]["\(rootNamespacePrefix)function"]
 
-            if let attributeName = attributeAccessor.attributes["id"], case .singleElement(let origin) = attributeAccessor["\(rootNamespacePrefix)origin"], let rawSyntax = attributeAccessor.attributes["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let functionName = functionElement.text?.dropParenthesis, !functionName.isEmpty {
+            if let attributeName = attributeAccessor.attributes["id"], case .singleElement(let origin) = attributeAccessor["\(rootNamespacePrefix)origin"], let rawSyntax = attributeAccessor.attributes["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let functionName = functionElement.attributes["name"], !functionName.isEmpty {
                 let inputs: [CallForAssetAttribute.Argument]
                 let returnType = syntax.solidityReturnType
                 let output = CallForAssetAttribute.ReturnType(type: returnType)
 
-
-                switch functionElement["\(rootNamespacePrefix)value"] {
-                case .singleElement(let inputElement):
-                    if let inputTypeString = inputElement.text, !inputTypeString.isEmpty, let inputName = inputElement.attributes["ref"], !inputName.isEmpty, let inputType = CallForAssetAttribute.SolidityType(rawValue: inputTypeString) {
-                        inputs = [.init(name: inputName, type: inputType)]
-                    } else {
-                        inputs = []
-                    }
-                case .sequence(let inputElements):
-                    inputs = inputElements.compactMap {
-                        if let inputTypeString = $0.text, !inputTypeString.isEmpty, let inputName = $0.attributes["ref"], !inputName.isEmpty, let inputType = CallForAssetAttribute.SolidityType(rawValue: inputTypeString) {
-                            return .init(name: inputName, type: inputType)
-                        } else {
-                            return nil
-                        }
-                    }
+                switch functionElement["\(rootNamespacePrefix)inputs"] {
+                case .singleElement(let inputsElement):
+                    inputs = AssetAttribute.extractInputs(fromInputsElements: [inputsElement])
+                case .sequence(let inputsElements):
+                    inputs = AssetAttribute.extractInputs(fromInputsElements: inputsElements)
                 case .failure:
                     inputs = []
                 }
@@ -116,7 +105,18 @@ enum AssetAttribute {
         }()
     }
 
-   func extract(from tokenValue: BigUInt, ofContract contract: String, config: Config, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> AssetAttributeValue {
+    private static func extractInputs(fromInputsElements inputsElements: [XML.Element]) -> [CallForAssetAttribute.Argument]{
+        return inputsElements.flatMap { $0.childElements }.compactMap {
+            let inputTypeString = $0.name.withoutXMLNamespacePrefix
+            if !inputTypeString.isEmpty, let inputName = $0.attributes["ref"], !inputName.isEmpty, let inputType = CallForAssetAttribute.SolidityType(rawValue: inputTypeString) {
+                return .init(name: inputName, type: inputType)
+            } else {
+                return nil
+            }
+        }
+    }
+
+    func extract(from tokenValue: BigUInt, ofContract contract: String, config: Config, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> AssetAttributeValue {
         switch self {
         case .mapping(_, _, let syntax, _, _, _), .direct(_, _, let syntax, _, _):
             switch syntax {
@@ -155,7 +155,7 @@ enum AssetAttribute {
         switch self {
         case .mapping(let attribute, let rootNamespacePrefix, let syntax, let lang, _, _):
             guard let key = parseValue(tokenValue: tokenValue) else { return nil }
-            guard let value = attribute["\(rootNamespacePrefix)origin"]["\(rootNamespacePrefix)option"].getElementWithKeyAttribute(equals: String(key))?["\(rootNamespacePrefix)value"].getElementWithLangAttribute(equals: lang)?.text else { return nil }
+            guard let value = attribute["\(rootNamespacePrefix)origin"]["\(rootNamespacePrefix)mapping"]["\(rootNamespacePrefix)option"].getElementWithKeyAttribute(equals: String(key))?["\(rootNamespacePrefix)value"].getElementWithLangAttribute(equals: lang)?.text else { return nil }
             return syntax.extract(from: value, isMapping: true) as? T
         case .direct(_, _, let syntax, _, _):
             guard let value = parseValue(tokenValue: tokenValue) else { return nil }
@@ -221,4 +221,15 @@ enum AssetAttribute {
         }
         return callForAssetAttributeCoordinator.getValue(forAttributeName: attributeName, tokenId: tokenId, functionCall: functionCall)
     }
+}
+
+extension String {
+	fileprivate var withoutXMLNamespacePrefix: String {
+		let components = split(separator: ":")
+		if components.count > 1 {
+			return String(components[1])
+		} else {
+			return String(components[0])
+		}
+	}
 }

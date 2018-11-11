@@ -101,7 +101,7 @@ class CallForAssetAttributeCoordinator {
                         let result = value as? String ?? ""
                         seal.fulfill(result)
                         self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
-                    case .int, .uint256:
+                    case .int, .int8, .int16, .int32, .int64, .int128, .int256, .uint, .uint8, .uint16, .uint32, .uint64, .uint128, .uint256:
                         let result = value as? Int ?? 0
                         seal.fulfill(result)
                         self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)

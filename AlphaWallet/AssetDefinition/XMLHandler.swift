@@ -89,7 +89,7 @@ private class PrivateXMLHandler {
         let lang = getLang()
         var fields = [String: AssetAttribute]()
         for e in xml["\(rootNamespacePrefix)token"]["\(rootNamespacePrefix)attribute-types"]["\(rootNamespacePrefix)attribute-type"] {
-            if let id = e.attributes["id"], case let .singleElement(element) = e, XML.Accessor(element)["\(rootNamespacePrefix)origin"].attributes["as"] != nil {
+            if let id = e.attributes["id"], case let .singleElement(element) = e, XML.Accessor(element)["\(rootNamespacePrefix)origin"].attributes["bitmask"] != nil {
                 fields[id] = AssetAttribute(attribute: element, rootNamespacePrefix: rootNamespacePrefix, lang: lang)
             } else if let id = e.attributes["id"], case let .singleElement(element) = e, XML.Accessor(element)["\(rootNamespacePrefix)origin"].attributes["contract"] == "holding-contract" {
                 fields[id] = AssetAttribute(attribute: element, rootNamespacePrefix: rootNamespacePrefix)
