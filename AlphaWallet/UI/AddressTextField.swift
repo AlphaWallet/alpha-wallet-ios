@@ -84,6 +84,7 @@ class AddressTextField: UIControl {
         textField.font = ScreenChecker().isNarrowScreen() ? Fonts.light(size: 11)! : Fonts.light(size: 15)!
         textField.layer.borderColor = Colors.appBackground.cgColor
         textField.layer.borderWidth = 1
+        textField.placeholder = "Ethereum address or ENS name"
     }
 
     private func makeTargetAddressRightView() -> UIView {
