@@ -156,6 +156,7 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
             targetAddressLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
             targetAddressTextField,
+            targetAddressTextField.ensAddressLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 7 : 14),
             amountLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
@@ -285,6 +286,10 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
         GetENSOwnerCoordinator(config: self.config).getENSOwner(for: input) { result in
             if let addr = result.value {
                 let amountString = self.amountTextField.ethCost
+                if addr.address != input {
+                    self.targetAddressTextField.value = addr.address
+                    self.targetAddressTextField.ensAddressLabel.text = input
+                }
                 guard let address = Address(string: addr.address) else {
                     return self.displayError(error: Errors.invalidAddress)
                 }

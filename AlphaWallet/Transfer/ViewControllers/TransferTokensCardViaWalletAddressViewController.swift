@@ -53,7 +53,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        targetAddressTextField.ensLabel.translatesAutoresizingMaskIntoConstraints = false
+        targetAddressTextField.ensAddressLabel.translatesAutoresizingMaskIntoConstraints = false
 
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
@@ -69,7 +69,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
             header,
             tokenRowView,
             .spacer(height: 10),
-            targetAddressTextField.ensLabel,
+            targetAddressTextField.ensAddressLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
             targetAddressTextField,
         ].asStackView(axis: .vertical, alignment: .center)
@@ -143,7 +143,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
         tokenRowView.stateLabel.isHidden = true
 
-        targetAddressTextField.ensLabel.text = R.string.localizable.aSendRecipientAddressTitle()
+        targetAddressTextField.ensAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
 
         targetAddressTextField.configureOnce()
 

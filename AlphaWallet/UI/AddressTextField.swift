@@ -14,7 +14,7 @@ class AddressTextField: UIControl {
 
     private var isConfigured = false
     private let textField = UITextField()
-    let ensLabel = UILabel()
+    let ensAddressLabel = UILabel()
 
     var value: String {
         get {
@@ -45,11 +45,11 @@ class AddressTextField: UIControl {
         textField.rightViewMode = .always
         addSubview(textField)
 
-        ensLabel.translatesAutoresizingMaskIntoConstraints = false
-        ensLabel.numberOfLines = 0
-        ensLabel.textColor = Colors.appGrayLabelColor
-        ensLabel.font = Fonts.regular(size: 10)!
-        ensLabel.textAlignment = .center
+        ensAddressLabel.translatesAutoresizingMaskIntoConstraints = false
+        ensAddressLabel.numberOfLines = 0
+        ensAddressLabel.textColor = Colors.appGrayLabelColor
+        ensAddressLabel.font = Fonts.regular(size: 10)!
+        ensAddressLabel.textAlignment = .center
 
         NSLayoutConstraint.activate([
             textField.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -82,8 +82,8 @@ class AddressTextField: UIControl {
         guard !isConfigured else { return }
         isConfigured = true
 
-        ensLabel.font = Fonts.regular(size: 10)!
-        ensLabel.textColor = Colors.appGrayLabelColor
+        ensAddressLabel.font = Fonts.regular(size: 10)!
+        ensAddressLabel.textColor = Colors.appGrayLabelColor
 
         textField.leftView = .spacerWidth(22)
         textField.rightView = makeTargetAddressRightView()
@@ -126,7 +126,9 @@ class AddressTextField: UIControl {
                     self.delegate?.displayError(error: Errors.invalidAddress, for: self)
                     return
                 }
-                self.ensLabel.text = value
+                if address.address != value {
+                    self.ensAddressLabel.text = value
+                }
                 self.value = address.address
                 self.delegate?.didPaste(in: self)
             } else {
