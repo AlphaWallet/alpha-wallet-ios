@@ -184,7 +184,28 @@ class TokenCardRowView: UIView {
 
 		onlyShowTitle = viewModel.onlyShowTitle
 
+        //TODO this if-else-if is so easy to miss implementing either the if(s) because we aren't taking advantage of type-checking
 		if let vm = viewModel as? TokenCardRowViewModel {
+			vm.subscribeBuilding { [weak self] building in
+				guard let strongSelf = self else { return }
+				strongSelf.categoryLabel.text = building
+			}
+
+			vm.subscribeLocality { [weak self] locality in
+				guard let strongSelf = self else { return }
+				strongSelf.cityLabel.text = ", \(locality)"
+			}
+
+			vm.subscribeExpired { [weak self] expired in
+				guard let strongSelf = self else { return }
+				strongSelf.teamsLabel.text = expired
+			}
+
+			vm.subscribeStreetStateCountry{ [weak self] streetStateCountry in
+				guard let strongSelf = self else { return }
+				strongSelf.venueLabel.text = streetStateCountry
+			}
+		} else if let vm = viewModel as? ImportMagicTokenCardRowViewModel {
 			vm.subscribeBuilding { [weak self] building in
 				guard let strongSelf = self else { return }
 				strongSelf.categoryLabel.text = building
