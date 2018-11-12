@@ -4,10 +4,24 @@ import Foundation
 
 struct CallForAssetAttribute {
     enum SolidityType: String {
+        //TODO do we need to support the "odd" ones like uint24 in all steps of 8?
+        //TODO support address, enums, etc?
         case bool
         case int
-        case string
+        case int8
+        case int16
+        case int32
+        case int64
+        case int128
+        case int256
+        case uint
+        case uint8
+        case uint16
+        case uint32
+        case uint64
+        case uint128
         case uint256
+        case string
     }
 
     struct Argument: Equatable {

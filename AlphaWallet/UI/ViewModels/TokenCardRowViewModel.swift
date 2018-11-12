@@ -75,6 +75,17 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
+    func subscribeLocality(withBlock block: @escaping (String) -> ()) {
+        guard isMeetupContract else { return }
+        if let subscribableAssetAttributeValue = tokenHolder.values["locality"] as? SubscribableAssetAttributeValue {
+            subscribableAssetAttributeValue.subscribable.subscribe { value in
+                if let value = value as? String {
+                    block(value)
+                }
+            }
+        }
+    }
+
     func subscribeBuilding(withBlock block: @escaping (String) -> ()) {
         if let subscribableAssetAttributeValue = tokenHolder.values["building"] as? SubscribableAssetAttributeValue {
             subscribableAssetAttributeValue.subscribable.subscribe { value in
