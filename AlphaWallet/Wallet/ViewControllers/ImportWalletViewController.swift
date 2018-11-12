@@ -90,7 +90,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         privateKeyControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         watchControlsStackView = [
-            watchAddressTextField.label,
+            watchAddressTextField.ensLabel,
             .spacer(height: 4),
             watchAddressTextField,
         ].asStackView(axis: .vertical)
@@ -188,8 +188,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         privateKeyTextView.label.text = viewModel.privateKeyLabel
 
         watchAddressTextField.configureOnce()
-        watchAddressTextField.label.textAlignment = .center
-        watchAddressTextField.label.text = viewModel.watchAddressLabel
+        watchAddressTextField.ensLabel.textAlignment = .center
+        watchAddressTextField.ensLabel.text = viewModel.watchAddressLabel
 
         importButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         importButton.backgroundColor = viewModel.buttonBackgroundColor
