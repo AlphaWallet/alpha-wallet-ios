@@ -41,7 +41,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(scrollView)
 
-        addressTextField.ensLabel.translatesAutoresizingMaskIntoConstraints = false
+        addressTextField.ensAddressLabel.translatesAutoresizingMaskIntoConstraints = false
 
         addressTextField.translatesAutoresizingMaskIntoConstraints = false
         addressTextField.delegate = self
@@ -74,7 +74,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
         let stackView = [
             header,
-            addressTextField.ensLabel,
+            addressTextField.ensAddressLabel,
             .spacer(height: 4),
             addressTextField,
             .spacer(height: 10),
@@ -149,8 +149,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
         header.configure(title: viewModel.title)
 
-        addressTextField.ensLabel.textAlignment = .center
-        addressTextField.ensLabel.text = viewModel.addressLabel
+        addressTextField.ensAddressLabel.textAlignment = .center
+        addressTextField.ensAddressLabel.text = viewModel.addressLabel
 
         addressTextField.configureOnce()
         symbolTextField.configureOnce()
