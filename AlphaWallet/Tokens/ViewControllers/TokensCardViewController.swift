@@ -225,11 +225,22 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
+        guard !indexPaths.isEmpty else { return }
         //TODO reloading only the affect cells show expanded cell with wrong height the first time, so we reload all instead and scroll the cell to the top instead
 //        tableview.reloadRows(at: indexPaths, with: .automatic)
         tableview.reloadData()
-        if let indexPath = indexPaths.first(where: { viewModel.item(for: $0).areDetailsVisible }) {
-            tableview.scrollToRow(at: indexPath, at: .top, animated: false)
+        let anyIndexPath = indexPaths[0]
+        let anyToken = viewModel.item(for: anyIndexPath).tokens[0]
+        //We only auto scroll to reveal for OpenSea-supported tokens which are usually taller and have a picture. Because
+        //    (A) other tokens like ERC875 tickets are usually too short and all text, making it difficult for user to capture where it has scrolled to
+        //    (B) OpenSea-supported tokens are tall, so after expanding, chances are user need to scroll quite a lot if we don't auto-scroll
+        switch OpenSeaNonFungibleTokenHandling(token: viewModel.token) {
+        case .supportedByOpenSea:
+            if let indexPath = indexPaths.first(where: { viewModel.item(for: $0).areDetailsVisible }) {
+                tableview.scrollToRow(at: indexPath, at: .top, animated: false)
+            }
+        case .notSupportedByOpenSea:
+            break
         }
     }
 
