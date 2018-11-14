@@ -88,7 +88,6 @@ class AmountTextField: UIControl {
         translatesAutoresizingMaskIntoConstraints = false
         layer.borderColor = Colors.appBackground.cgColor
         layer.borderWidth = 1
-
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
         textField.keyboardType = .decimalPad
