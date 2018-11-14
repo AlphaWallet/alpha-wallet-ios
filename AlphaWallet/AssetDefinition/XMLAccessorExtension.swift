@@ -40,6 +40,7 @@ extension XML.Accessor {
     }
     
     func getElementWithLangAttribute(equals value: String) -> XML.Accessor? {
-        return getElement(attributeName: "lang", attributeValue: value, fallbackToFirst: true)
+        //TODO make namespace aware for "lang" attribute
+        return getElement(attributeName: "xml:lang", attributeValue: value, fallbackToFirst: true)
     }
 }
