@@ -90,9 +90,10 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         privateKeyControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         watchControlsStackView = [
-            watchAddressTextField.ensAddressLabel,
+            watchAddressTextField.label,
             .spacer(height: 4),
             watchAddressTextField,
+            watchAddressTextField.ensAddressLabel,
         ].asStackView(axis: .vertical)
         watchControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -187,9 +188,9 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         privateKeyTextView.label.textAlignment = .center
         privateKeyTextView.label.text = viewModel.privateKeyLabel
 
+        watchAddressTextField.label.text = viewModel.watchAddressLabel
+
         watchAddressTextField.configureOnce()
-        watchAddressTextField.ensAddressLabel.textAlignment = .center
-        watchAddressTextField.ensAddressLabel.text = viewModel.watchAddressLabel
 
         importButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         importButton.backgroundColor = viewModel.buttonBackgroundColor
@@ -435,8 +436,7 @@ extension ImportWalletViewController: AddressTextFieldDelegate {
         return false
     }
 
-    func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
-        return true
+    func didChange(to string: String, in textField: AddressTextField) {
     }
 }
 

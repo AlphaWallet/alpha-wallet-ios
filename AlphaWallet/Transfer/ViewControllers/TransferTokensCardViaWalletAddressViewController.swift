@@ -195,7 +195,6 @@ extension TransferTokensCardViaWalletAddressViewController: AddressTextFieldDele
         return true
     }
 
-    func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
-        return true
+    func didChange(to string: String, in textField: AddressTextField) {
     }
 }
