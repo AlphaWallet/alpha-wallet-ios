@@ -41,8 +41,6 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(scrollView)
 
-        addressTextField.label.translatesAutoresizingMaskIntoConstraints = false
-
         addressTextField.translatesAutoresizingMaskIntoConstraints = false
         addressTextField.delegate = self
         addressTextField.returnKeyType = .next
@@ -77,6 +75,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
             addressTextField.label,
             .spacer(height: 4),
             addressTextField,
+            addressTextField.ensAddressLabel,
             .spacer(height: 10),
             symbolTextField.label,
             .spacer(height: 4),
@@ -149,7 +148,6 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
         header.configure(title: viewModel.title)
 
-        addressTextField.label.textAlignment = .center
         addressTextField.label.text = viewModel.addressLabel
 
         addressTextField.configureOnce()
@@ -368,16 +366,10 @@ extension NewTokenViewController: AddressTextFieldDelegate {
         return true
     }
 
-    func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
-        let newValue = (textField.value as NSString?)?.replacingCharacters(in: range, with: string)
-        if let newValue = newValue, CryptoAddressValidator.isValidAddress(newValue) {
-            DispatchQueue.global().async { [weak self] in
-                DispatchQueue.main.sync { [weak self] in
-                    self?.updateContractValue(value: newValue)
-                }
-            }
+    func didChange(to string: String, in textField: AddressTextField) {
+        if CryptoAddressValidator.isValidAddress(string) {
+            updateContractValue(value: string)
         }
-        return true
     }
 }
 

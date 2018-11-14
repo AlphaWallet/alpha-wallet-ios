@@ -113,11 +113,13 @@ class TokensViewController: UIViewController {
         })
         refreshView(viewModel: viewModel)
     }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.applyTintAdjustment()
         fetch()
     }
+
     @objc func pullToRefresh() {
         tableViewRefreshControl.beginRefreshing()
         collectiblesCollectionViewRefreshControl.beginRefreshing()

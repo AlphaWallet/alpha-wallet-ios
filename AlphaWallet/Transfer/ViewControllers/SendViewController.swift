@@ -156,6 +156,7 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
             targetAddressLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
             targetAddressTextField,
+            targetAddressTextField.ensAddressLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 7 : 14),
             amountLabel,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
@@ -282,55 +283,49 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
 
     @objc func send() {
         let input = targetAddressTextField.value
-        GetENSOwnerCoordinator(config: self.config).getENSOwner(for: input) { result in
-            if let addr = result.value {
-                let amountString = self.amountTextField.ethCost
-                guard let address = Address(string: addr.address) else {
-                    return self.displayError(error: Errors.invalidAddress)
-                }
-                let parsedValue: BigInt? = {
-                    switch self.transferType {
-                    case .ether, .dapp:
-                        return EtherNumberFormatter.full.number(from: amountString, units: .ether)
-                    case .ERC20Token(let token):
-                        return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-                    case .ERC875Token(let token):
-                        return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-                    case .ERC875TokenOrder(let token):
-                        return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-                    case .ERC721Token(let token):
-                        return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-                    }
-                }()
-                guard let value = parsedValue else {
-                    return self.displayError(error: SendInputErrors.wrongInput)
-                }
-
-                if case .ether = self.transferType, let balance = self.session.balance, balance.value < value {
-                    return self.displayError(title: R.string.localizable.aSendBalanceInsufficient(), error: Errors.invalidAmount)
-                }
-
-                let transaction = UnconfirmedTransaction(
-                    transferType: self.transferType,
-                        value: value,
-                        to: address,
-                        data: self.data,
-                        gasLimit: .none,
-                        tokenId: .none,
-                        gasPrice: self.gasPrice,
-                        nonce: .none,
-                        v: .none,
-                        r: .none,
-                        s: .none,
-                        expiry: .none,
-                        indices: .none,
-                        tokenIds: .none
-                )
-                self.delegate?.didPressConfirm(transaction: transaction, transferType: self.transferType, in: self)
-            } else {
-                return self.displayError(error: Errors.invalidAddress)
-            }
+        guard let address = Address(string: input) else {
+            return displayError(error: Errors.invalidAddress)
         }
+        let amountString = amountTextField.ethCost
+        let parsedValue: BigInt? = {
+            switch transferType {
+            case .ether, .dapp:
+                return EtherNumberFormatter.full.number(from: amountString, units: .ether)
+            case .ERC20Token(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC875Token(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC875TokenOrder(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC721Token(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            }
+        }()
+        guard let value = parsedValue else {
+            return displayError(error: SendInputErrors.wrongInput)
+        }
+
+        if case .ether = transferType, let balance = session.balance, balance.value < value {
+            return displayError(title: R.string.localizable.aSendBalanceInsufficient(), error: Errors.invalidAmount)
+        }
+
+        let transaction = UnconfirmedTransaction(
+                transferType: transferType,
+                value: value,
+                to: address,
+                data: data,
+                gasLimit: .none,
+                tokenId: .none,
+                gasPrice: gasPrice,
+                nonce: .none,
+                v: .none,
+                r: .none,
+                s: .none,
+                expiry: .none,
+                indices: .none,
+                tokenIds: .none
+        )
+        delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }
 
     @objc func copyAddress() {
@@ -469,8 +464,7 @@ extension SendViewController: AddressTextFieldDelegate {
         return true
     }
 
-    func shouldChange(in range: NSRange, to string: String, in textField: AddressTextField) -> Bool {
-        return true
+    func didChange(to string: String, in textField: AddressTextField) {
     }
 }
 
