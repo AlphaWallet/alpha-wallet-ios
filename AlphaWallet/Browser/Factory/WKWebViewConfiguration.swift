@@ -12,10 +12,10 @@ extension WKWebViewConfiguration {
         var js = ""
 
         guard
-            let bundlePath = Bundle.main.path(forResource: "TrustWeb3Provider", ofType: "bundle"),
+            let bundlePath = Bundle.main.path(forResource: "AlphaWalletWeb3Provider", ofType: "bundle"),
             let bundle = Bundle(path: bundlePath) else { return webViewConfig }
 
-        if let filepath = bundle.path(forResource: "trust-min", ofType: "js") {
+        if let filepath = bundle.path(forResource: "AlphaWallet-min", ofType: "js") {
             do {
                 js += try String(contentsOfFile: filepath)
             } catch { }
@@ -28,36 +28,36 @@ extension WKWebViewConfiguration {
         const chainID = "\(config.chainID)"
 
         function executeCallback (id, error, value) {
-            Trust.executeCallback(id, error, value)
+            AlphaWallet.executeCallback(id, error, value)
         }
 
-        Trust.init(rpcURL, {
+        AlphaWallet.init(rpcURL, {
             getAccounts: function (cb) { cb(null, [addressHex]) },
             processTransaction: function (tx, cb){
                 console.log('signing a transaction', tx)
                 const { id = 8888 } = tx
-                Trust.addCallback(id, cb)
+                AlphaWallet.addCallback(id, cb)
                 webkit.messageHandlers.signTransaction.postMessage({"name": "signTransaction", "object": tx, id: id})
             },
             signMessage: function (msgParams, cb) {
                 const { data } = msgParams
                 const { id = 8888 } = msgParams
                 console.log("signing a message", msgParams)
-                Trust.addCallback(id, cb)
+                AlphaWallet.addCallback(id, cb)
                 webkit.messageHandlers.signMessage.postMessage({"name": "signMessage", "object": { data }, id: id})
             },
             signPersonalMessage: function (msgParams, cb) {
                 const { data } = msgParams
                 const { id = 8888 } = msgParams
                 console.log("signing a personal message", msgParams)
-                Trust.addCallback(id, cb)
+                AlphaWallet.addCallback(id, cb)
                 webkit.messageHandlers.signPersonalMessage.postMessage({"name": "signPersonalMessage", "object": { data }, id: id})
             },
             signTypedMessage: function (msgParams, cb) {
                 const { data } = msgParams
                 const { id = 8888 } = msgParams
                 console.log("signing a typed message", msgParams)
-                Trust.addCallback(id, cb)
+                AlphaWallet.addCallback(id, cb)
                 webkit.messageHandlers.signTypedMessage.postMessage({"name": "signTypedMessage", "object": { data }, id: id})
             }
         }, {
@@ -66,7 +66,7 @@ extension WKWebViewConfiguration {
         })
 
         web3.setProvider = function () {
-            console.debug('Trust Wallet - overrode web3.setProvider')
+            console.debug('AlphaWallet Wallet - overrode web3.setProvider')
         }
 
         web3.eth.defaultAccount = addressHex
@@ -78,7 +78,7 @@ extension WKWebViewConfiguration {
         web3.eth.getCoinbase = function(cb) {
             return cb(null, addressHex)
         }
-        web3.currentProvider.isTrust = false
+        web3.currentProvider.isAlphaWallet = false
 
         """
         let userScript = WKUserScript(source: js, injectionTime: .atDocumentStart, forMainFrameOnly: false)
