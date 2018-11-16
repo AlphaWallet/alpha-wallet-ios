@@ -111,6 +111,8 @@ class AddressTextField: UIControl {
         textField.layer.borderColor = Colors.appBackground.cgColor
         textField.layer.borderWidth = 1
         textField.placeholder = "Ethereum address or ENS name"
+        textField.autocapitalizationType = .none
+        textField.autocorrectionType = .no
     }
 
     private func makeTargetAddressRightView() -> UIView {
