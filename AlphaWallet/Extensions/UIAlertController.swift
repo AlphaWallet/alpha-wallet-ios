@@ -34,9 +34,9 @@ extension UIAlertController {
     static func alert(title: String?,
                       message: String?,
                       alertButtonTitles: [String],
-                      alertButtonStyles: [UIAlertActionStyle],
+                      alertButtonStyles: [UIAlertAction.Style],
                       viewController: UIViewController,
-                      preferredStyle: UIAlertControllerStyle = .alert,
+                      preferredStyle: UIAlertController.Style = .alert,
                       completion: ((Int) -> Void)?) {
 
         let alertController = UIAlertController(
@@ -45,7 +45,7 @@ extension UIAlertController {
                 preferredStyle: preferredStyle)
 
         alertButtonTitles.forEach { title in
-            let alertStyle: UIAlertActionStyle = alertButtonStyles[alertButtonTitles.index(of: title)!]
+            let alertStyle = alertButtonStyles[alertButtonTitles.index(of: title)!]
             let action = UIAlertAction(title: title, style: alertStyle, handler: { action in
                 if completion != nil {
                     completion!(alertButtonTitles.index(of: action.title!)!)
@@ -59,7 +59,7 @@ extension UIAlertController {
     static func alertController(
         title: String? = .none,
         message: String? = .none,
-        style: UIAlertControllerStyle,
+        style: UIAlertController.Style,
         in navigationController: NavigationController
     ) -> UIAlertController {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: style)

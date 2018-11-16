@@ -9,7 +9,7 @@ target 'AlphaWallet' do
   pod 'R.swift'
   pod 'JSONRPCKit', '~> 2.0.0'
   pod 'APIKit'
-  pod 'Eureka', '~> 4.1'
+  pod 'Eureka', '~> 4.3'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
   pod 'QRCodeReaderViewController', :git=>'https://github.com/yannickl/QRCodeReaderViewController.git', :branch=>'master'
@@ -17,7 +17,6 @@ target 'AlphaWallet' do
   pod 'SwiftLint'
   pod 'SeedStackViewController'
   pod 'RealmSwift', '~> 3.9'
-  pod 'BonMot', '~> 5.0'
   pod 'Moya', '~> 10.0.1'
   pod 'JavaScriptKit'
   pod 'CryptoSwift'
@@ -57,6 +56,20 @@ post_install do |installer|
     if ['TrustKeystore'].include? target.name
       target.build_configurations.each do |config|
         config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Owholemodule'
+      end
+    end
+    if [
+        'APIKit',
+        'Kingfisher',
+        'Macaw',
+        'R.swift.Library',
+        'RealmSwift',
+        'Result',
+        'SeedStackViewController',
+        'SwiftyXMLParser'
+    ].include? target.name
+      target.build_configurations.each do |config|
+        config.build_settings['SWIFT_VERSION'] = '4'
       end
     end
   end

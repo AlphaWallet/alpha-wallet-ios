@@ -105,7 +105,7 @@ import Eureka
         if !(text?.isEmpty ?? true) {
             var top = ceil(title.font.lineHeight + hintYPadding)
             top = min(top, maxTopInset())
-            r = UIEdgeInsetsInsetRect(r, UIEdgeInsets(top: top, left: 0.0, bottom: 0.0, right: 0.0))
+            r = r.inset(by: .init(top: top, left: 0.0, bottom: 0.0, right: 0.0))
         }
         return r.integral
     }
@@ -115,7 +115,7 @@ import Eureka
         if !(text?.isEmpty ?? true) {
             var top = ceil(title.font.lineHeight + hintYPadding)
             top = min(top, maxTopInset())
-            r = UIEdgeInsetsInsetRect(r, UIEdgeInsets(top: top, left: 0.0, bottom: 0.0, right: 0.0))
+            r = r.inset(by: .init(top: top, left: 0.0, bottom: 0.0, right: 0.0))
         }
         return r.integral
     }
@@ -134,7 +134,7 @@ import Eureka
 
     // MARK: - Private Methods
     private func setup() {
-        borderStyle = UITextBorderStyle.none
+        borderStyle = .none
         titleActiveTextColour = tintColor
         // Set up title label
         title.alpha = 0.0
@@ -164,7 +164,7 @@ import Eureka
 
     private func showTitle(_ animated: Bool) {
         let dur = animated ? animationDuration : 0
-        UIView.animate(withDuration: dur, delay: 0, options: UIViewAnimationOptions.beginFromCurrentState.union(.curveEaseOut), animations: { [weak self] in
+        UIView.animate(withDuration: dur, delay: 0, options: UIView.AnimationOptions.beginFromCurrentState.union(.curveEaseOut), animations: { [weak self] in
             guard let strongSelf = self else { return }
             // Animation
             strongSelf.title.alpha = 1.0
@@ -176,7 +176,7 @@ import Eureka
 
     private func hideTitle(_ animated: Bool) {
         let dur = animated ? animationDuration : 0
-        UIView.animate(withDuration: dur, delay: 0, options: UIViewAnimationOptions.beginFromCurrentState.union(.curveEaseIn), animations: { [weak self] in
+        UIView.animate(withDuration: dur, delay: 0, options: UIView.AnimationOptions.beginFromCurrentState.union(.curveEaseIn), animations: { [weak self] in
             guard let strongSelf = self else { return }
             // Animation
             strongSelf.title.alpha = 0.0

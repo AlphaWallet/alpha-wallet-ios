@@ -21,7 +21,7 @@ open class AlphaWalletSwitchCell: Cell<Bool>, CellType {
 
     @IBOutlet public weak var switchControl: UISwitch!
 
-    required public init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    required public init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         background.translatesAutoresizingMaskIntoConstraints = false

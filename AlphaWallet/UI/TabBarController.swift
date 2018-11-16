@@ -7,7 +7,7 @@ class TabBarController: UITabBarController {
 
     var didShake: (() -> Void)?
 
-    override func motionBegan(_ motion: UIEventSubtype, with event: UIEvent?) {
+    override func motionBegan(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
         didShake?()
     }
 }

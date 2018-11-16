@@ -329,7 +329,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         vc.completionWithItemsHandler = { [weak self] activityType, completed, returnedItems, error in
             guard let strongSelf = self else { return }
             //Be annoying if user copies and we close the sell process
-            if completed && activityType != UIActivityType.copyToPasteboard {
+            if completed && activityType != UIActivity.ActivityType.copyToPasteboard {
                 strongSelf.navigationController.dismiss(animated: false) {
                     strongSelf.delegate?.didCancel(in: strongSelf)
                 }
@@ -345,7 +345,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         vc.completionWithItemsHandler = { [weak self] activityType, completed, returnedItems, error in
             guard let strongSelf = self else { return }
             //Be annoying if user copies and we close the transfer process
-            if completed && activityType != UIActivityType.copyToPasteboard {
+            if completed && activityType != UIActivity.ActivityType.copyToPasteboard {
                 strongSelf.navigationController.dismiss(animated: false) {
                     strongSelf.delegate?.didCancel(in: strongSelf)
                 }

@@ -50,7 +50,7 @@ open class _AlphaWalletSettingsButtonRowOf<T: Equatable> : Row<AlphaWalletSettin
 open class AlphaWalletSettingsButtonCellOf<T: Equatable>: Cell<T>, CellType {
 	let background = UIView()
 
-	required public init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+	required public init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
 		super.init(style: style, reuseIdentifier: reuseIdentifier)
 
 		background.translatesAutoresizingMaskIntoConstraints = false

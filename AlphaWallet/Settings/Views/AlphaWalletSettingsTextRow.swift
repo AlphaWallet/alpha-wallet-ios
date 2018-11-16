@@ -21,7 +21,7 @@ open class AlphaWalletSettingsTextCell: _FieldCell<String>, CellType {
 	let mainLabel = UILabel()
 	let subLabel = UILabel()
 
-	required public init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+	required public init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
 		super.init(style: style, reuseIdentifier: reuseIdentifier)
 
 		background.translatesAutoresizingMaskIntoConstraints = false

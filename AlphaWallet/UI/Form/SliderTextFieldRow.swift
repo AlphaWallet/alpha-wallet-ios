@@ -29,10 +29,10 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
 
     open var formatter: NumberFormatter?
 
-    public required init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    public required init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .value1, reuseIdentifier: reuseIdentifier)
 
-        NotificationCenter.default.addObserver(forName: Notification.Name.UIContentSizeCategoryDidChange, object: nil, queue: nil) { [weak self] _ in
+        NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: nil) { [weak self] _ in
             guard let me = self else { return }
             if me.shouldShowTitle {
                 me.titleLabel = me.textLabel
@@ -44,7 +44,7 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
 
     deinit {
         guard !awakeFromNibCalled else { return }
-        NotificationCenter.default.removeObserver(self, name: Notification.Name.UIContentSizeCategoryDidChange, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIContentSizeCategory.didChangeNotification, object: nil)
     }
 
     required public init?(coder aDecoder: NSCoder) {
@@ -106,13 +106,13 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
         let views: [String: Any] = ["titleLabel": titleLabel, "textField": textField, "slider": slider]
         let metrics = ["vPadding": 12.0, "spacing": 12.0]
         if shouldShowTitle {
-            contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-[titleLabel]-[textField]-|", options: NSLayoutFormatOptions.alignAllLastBaseline, metrics: metrics, views: views))
-            contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-vPadding-[titleLabel]-spacing-[slider]-vPadding-|", options: NSLayoutFormatOptions.alignAllLeft, metrics: metrics, views: views))
+            contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-[titleLabel]-[textField]-|", options: .alignAllLastBaseline, metrics: metrics, views: views))
+            contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-vPadding-[titleLabel]-spacing-[slider]-vPadding-|", options: .alignAllLeft, metrics: metrics, views: views))
         } else {
-            contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-vPadding-[slider]-vPadding-|", options: NSLayoutFormatOptions.alignAllLeft, metrics: metrics, views: views))
+            contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-vPadding-[slider]-vPadding-|", options: .alignAllLeft, metrics: metrics, views: views))
         }
 
-        contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-[slider]-|", options: NSLayoutFormatOptions.alignAllLastBaseline, metrics: metrics, views: views))
+        contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-[slider]-|", options: .alignAllLastBaseline, metrics: metrics, views: views))
     }
 
     @objc func valueChanged() {
