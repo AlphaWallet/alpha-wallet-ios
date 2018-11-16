@@ -45,7 +45,7 @@ class GetENSOwnerCoordinator {
             return
         }
 
-        let node = input.nameHash
+        let node = input.lowercased().nameHash
 
         guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
             completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)"))))
