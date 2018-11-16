@@ -33,7 +33,7 @@ class ImageCache {
         set(image) {
             guard let image = image else { return }
             let url = fullURL(for: key)
-            let data = UIImagePNGRepresentation(image)
+            let data = image.pngData()
             try? data?.write(to: url)
         }
     }

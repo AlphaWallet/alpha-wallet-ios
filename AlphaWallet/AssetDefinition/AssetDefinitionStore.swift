@@ -37,7 +37,7 @@ class AssetDefinitionStore {
     }
 
     func enableFetchXMLForContractInPasteboard() {
-        NotificationCenter.default.addObserver(self, selector: #selector(fetchXMLForContractInPasteboard), name: .UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(fetchXMLForContractInPasteboard), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
     func fetchXMLs(forContracts contracts: [String]) {

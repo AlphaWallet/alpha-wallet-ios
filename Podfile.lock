@@ -9,9 +9,8 @@ PODS:
     - AWSCore (= 2.6.28)
   - BigInt (3.0.1):
     - SipHash (~> 1.2)
-  - BonMot (5.0)
   - CryptoSwift (0.10.0)
-  - Eureka (4.1.1)
+  - Eureka (4.3.0)
   - iOSSnapshotTestCase (3.0.0):
     - iOSSnapshotTestCase/SwiftSupport (= 3.0.0)
   - iOSSnapshotTestCase/Core (3.0.0)
@@ -83,9 +82,8 @@ DEPENDENCIES:
   - APIKit
   - AWSSNS
   - BigInt (~> 3.0)
-  - BonMot (~> 5.0)
   - CryptoSwift
-  - Eureka (~> 4.1)
+  - Eureka (~> 4.3)
   - iOSSnapshotTestCase
   - JavaScriptKit
   - JSONRPCKit (~> 2.0.0)
@@ -118,7 +116,6 @@ SPEC REPOS:
     - AWSCore
     - AWSSNS
     - BigInt
-    - BonMot
     - CryptoSwift
     - Eureka
     - iOSSnapshotTestCase
@@ -196,9 +193,8 @@ SPEC CHECKSUMS:
   AWSCore: f75fcf5b2f4325da49ae1f7cb5484778d3b0acc6
   AWSSNS: a67710a80c8d380e34248b16e503e0719f02a28d
   BigInt: 8e8a52161c745cd3ab78e3dc346a9fbee51e6cf6
-  BonMot: 3ff354572f2aa9295d3760947f7578490cb810be
   CryptoSwift: 6c778d69282bed3b4e975ff97a79d074f20bb011
-  Eureka: b88fb930e42c79f8c03c373d0fcdc28c1d6c50ed
+  Eureka: 6d711cb30ca333b4bc893110285a722ae3840114
   iOSSnapshotTestCase: 23984ffe05289728d646cbb6a7a10b4fb1c93440
   JavaScriptKit: 9ff565209e6efe21bcb9c6d6ca3e863a67a8ecf7
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
@@ -229,6 +225,6 @@ SPEC CHECKSUMS:
   TrustWeb3Provider: 50fa391bdf170feb43dd4419992931510a5751d8
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: 42d64abd066342d6529b93feae6fe5984ceace25
+PODFILE CHECKSUM: a633e3e42e4bd21f349f70c806bc82b6c9e0fa9d
 
 COCOAPODS: 1.5.3

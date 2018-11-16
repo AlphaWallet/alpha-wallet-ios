@@ -131,10 +131,10 @@ class RequestViewController: UIViewController {
 	}
 
 	private func displayStackViewController() {
-		addChildViewController(stackViewController)
+		addChild(stackViewController)
 		roundedBackground.addSubview(stackViewController.view)
 		_ = stackViewController.view.activateSuperviewHuggingConstraints()
-		stackViewController.didMove(toParentViewController: self)
+		stackViewController.didMove(toParent: self)
 
 		stackViewController.stackView.spacing = 10
 		stackViewController.stackView.alignment = .center

@@ -51,8 +51,8 @@ class TransactionDataCoordinator {
         self.session = session
         self.storage = storage
         self.keystore = keystore
-        NotificationCenter.default.addObserver(self, selector: #selector(stopTimers), name: .UIApplicationWillResignActive, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(restartTimers), name: .UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(stopTimers), name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(restartTimers), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
     func start() {
@@ -246,7 +246,7 @@ class TransactionDataCoordinator {
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
             content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(AlphaWallet.Config().server.name))")
         }
-        content.sound = .default()
+        content.sound = .default
         let identifier = Constants.etherReceivedNotificationIdentifier
         let request = UNNotificationRequest(identifier: "\(identifier):\(transactionId)", content: content, trigger: nil)
         notificationCenter.add(request)
