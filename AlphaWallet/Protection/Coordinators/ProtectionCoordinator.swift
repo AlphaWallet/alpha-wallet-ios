@@ -17,7 +17,7 @@ class ProtectionCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 
 	init() {
-		protectionWindow.windowLevel = UIWindowLevelStatusBar + 2.0
+		protectionWindow.windowLevel = UIWindow.Level.statusBar + 2.0
 	}
 
 	func didFinishLaunchingWithOptions() {

@@ -297,7 +297,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
     @objc func keyboardWillShow(_ notification: Notification) {
         if let userInfo = notification.userInfo {
-            if let keyboardSize = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval {
+            if let keyboardSize = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval {
                 UIView.animate(withDuration: duration, animations: { [weak self] () -> Void in
                     guard let strongSelf = self else { return }
                     strongSelf.scrollViewBottomAnchorConstraint.constant = strongSelf.footerBar.bounds.size.height - keyboardSize.height
@@ -308,7 +308,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
     @objc func keyboardWillHide(_ notification: Notification) {
         if let userInfo = notification.userInfo {
-            if let duration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as? TimeInterval {
+            if let duration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval {
                 UIView.animate(withDuration: duration, animations: { [weak self] () -> Void in
                     self?.scrollViewBottomAnchorConstraint.constant = 0
                 })
@@ -320,9 +320,9 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         if UIDevice.current.userInterfaceIdiom == .pad {
             return
         }
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillChangeFrame, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
 }
 

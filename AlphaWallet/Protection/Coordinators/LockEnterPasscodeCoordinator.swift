@@ -12,7 +12,7 @@ class LockEnterPasscodeCoordinator: Coordinator {
 		return LockEnterPasscodeViewController(model: model)
 	}()
 	init(model: LockEnterPasscodeViewModel, lock: LockInterface = Lock()) {
-		self.window.windowLevel = UIWindowLevelStatusBar + 1.0
+		self.window.windowLevel = UIWindow.Level.statusBar + 1.0
 		self.model = model
 		self.lock = lock
 		lockEnterPasscodeViewController.unlockWithResult = { [weak self] (state, bioUnlock) in

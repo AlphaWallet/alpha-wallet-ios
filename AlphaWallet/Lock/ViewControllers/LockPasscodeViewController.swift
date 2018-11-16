@@ -16,7 +16,7 @@ class LockPasscodeViewController: UIViewController {
 	}
 	override func viewDidLoad() {
 		self.navigationItem.hidesBackButton = true
-		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
+		NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
 		self.view.backgroundColor = Colors.appBackground
 		self.configureInvisiblePasscodeField()
 		self.configureNavigationItems()
@@ -86,7 +86,7 @@ class LockPasscodeViewController: UIViewController {
 	}
 	@objc func keyboardWillShow(_ notification: Notification) {
 		if let userInfo = notification.userInfo {
-			if let keyboardSize = (userInfo[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+			if let keyboardSize = (userInfo[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
 				UIView.animate(withDuration: 0.1) { [weak self] () -> Void in
 					guard let strongSelf = self else { return }
 					strongSelf.lockView.bottomAnchor.constraint(equalTo: strongSelf.view.bottomAnchor, constant: -keyboardSize.height).isActive = true

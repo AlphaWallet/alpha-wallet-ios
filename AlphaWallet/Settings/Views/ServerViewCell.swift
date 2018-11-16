@@ -10,7 +10,7 @@ class ServerViewCell: UITableViewCell {
     private let selectedIcon = UIImageView(image: R.image.ticket_bundle_checked())
     private let nameLabel = UILabel()
 
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         contentView.addSubview(background)

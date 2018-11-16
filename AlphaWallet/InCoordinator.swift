@@ -366,12 +366,12 @@ class InCoordinator: Coordinator {
     }
 
     private func showTransactionSent(transaction: SentTransaction) {
-        let alertController = UIAlertController(title: R.string.localizable.sendActionTransactionSent(), message: R.string.localizable.sendActionTransactionSentWait(), preferredStyle: UIAlertControllerStyle.alert)
-        let copyAction = UIAlertAction(title: R.string.localizable.sendActionCopyTransactionTitle(), style: UIAlertActionStyle.default, handler: { _ in
+        let alertController = UIAlertController(title: R.string.localizable.sendActionTransactionSent(), message: R.string.localizable.sendActionTransactionSentWait(), preferredStyle: .alert)
+        let copyAction = UIAlertAction(title: R.string.localizable.sendActionCopyTransactionTitle(), style: UIAlertAction.Style.default, handler: { _ in
             UIPasteboard.general.string = transaction.id
         })
         alertController.addAction(copyAction)
-        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: UIAlertActionStyle.default, handler: nil))
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
         navigationController.present(alertController, animated: true, completion: nil)
     }
 
@@ -510,7 +510,7 @@ class InCoordinator: Coordinator {
 
     //TODO auto refresh function-call-based asset attributes shouldn't be in InCoordinator
     private func enableAutoRefreshFunctionCallBasedAssetAttributesForAllTokens() {
-        NotificationCenter.default.addObserver(self, selector: #selector(refreshFunctionCallBasedAssetAttributesForAllTokens), name: .UIApplicationDidBecomeActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshFunctionCallBasedAssetAttributesForAllTokens), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
     //TODO the body of this function should be moved somewhere else

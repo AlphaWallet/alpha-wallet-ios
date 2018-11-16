@@ -165,7 +165,7 @@ class SettingsViewController: FormViewController {
             $0.title = type.title
         }.onCellSelection { [unowned self] _, _ in
             if let localURL = type.localURL, UIApplication.shared.canOpenURL(localURL) {
-                UIApplication.shared.open(localURL, options: [:], completionHandler: .none)
+                UIApplication.shared.open(localURL, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: .none)
             } else {
                 self.delegate?.didPressOpenWebPage(type.remoteURL, in: self)
             }
@@ -218,4 +218,9 @@ extension SettingsViewController: CanOpenURL {
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
     }
+}
+
+// Helper function inserted by Swift 4.2 migrator.
+fileprivate func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
+	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)})
 }
