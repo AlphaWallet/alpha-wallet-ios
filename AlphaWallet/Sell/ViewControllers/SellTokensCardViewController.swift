@@ -43,7 +43,7 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
         tableView.backgroundColor = Colors.appWhite
         tableView.tableHeaderView = header
         tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
         roundedBackground.addSubview(tableView)
 
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)

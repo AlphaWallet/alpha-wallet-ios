@@ -162,8 +162,8 @@ extension AccountsViewController: UITableViewDelegate, UITableViewDataSource {
         return allowsAccountDeletion && (etherKeystore?.recentlyUsedWallet != viewModel.wallets[indexPath.row])
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == UITableViewCellEditingStyle.delete {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
             let account = self.account(for: indexPath)
             confirmDelete(account: account)
         }

@@ -6,9 +6,9 @@ import StackViewController
 
 extension UIViewController {
     func displayChildViewController(viewController: UIViewController) {
-        addChildViewController(viewController)
+        addChild(viewController)
         view.addSubview(viewController.view)
         _ = viewController.view.activateSuperviewHuggingConstraints()
-        viewController.didMove(toParentViewController: self)
+        viewController.didMove(toParent: self)
     }
 }

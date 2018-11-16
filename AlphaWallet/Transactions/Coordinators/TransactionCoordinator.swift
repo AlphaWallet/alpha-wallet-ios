@@ -46,7 +46,7 @@ class TransactionCoordinator: Coordinator {
         self.storage = storage
         self.tokensStorage = tokensStorage
 
-        NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: .UIApplicationWillEnterForeground, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
     }
 
     func start() {

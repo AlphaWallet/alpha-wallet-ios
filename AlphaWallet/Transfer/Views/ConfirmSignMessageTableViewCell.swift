@@ -6,7 +6,7 @@ import UIKit
 class ConfirmSignMessageTableViewCell: UITableViewCell {
     static let identifier = "ConfirmSignMessageTableViewCell"
 
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
     }
 
