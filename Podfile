@@ -23,7 +23,7 @@ target 'AlphaWallet' do
   pod 'CryptoSwift'
   pod 'SwiftyXMLParser', :git => 'https://github.com/yahoojapan/SwiftyXMLParser.git'
   pod 'Kingfisher', '~> 4.0'
-  pod 'AlphaWalletWeb3Provider', :git=>'https://github.com/James-Sangalli/AlphaWallet-web3-provider', :commit => 'bffa7470187a77fbd5b4c2c83238b51ee398e598'
+  pod 'AlphaWalletWeb3Provider', :git=>'https://github.com/AlphaWallet/AlphaWallet-web3-provider', :commit => '63c55489c49c63ed4543b7a21563ef77eeb3c7e0'
   pod 'TrezorCrypto', :git=>'https://github.com/AlphaWallet/trezor-crypto-ios.git', :commit => '50c16ba5527e269bbc838e80aee5bac0fe304cc7'
   pod 'TrustKeystore', :git => 'https://github.com/alpha-wallet/trust-keystore.git', :commit => '9abdc1a63f1baf17facb26a3e049b5e335a95816'
   pod 'SwiftyJSON'
