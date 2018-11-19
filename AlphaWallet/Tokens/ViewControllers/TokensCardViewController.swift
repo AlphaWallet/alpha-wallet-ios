@@ -79,7 +79,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.backgroundColor = Colors.appWhite
         tableView.tableHeaderView = header
         tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
         roundedBackground.addSubview(tableView)
 
         redeemButton.setTitle(R.string.localizable.aWalletTokenRedeemButtonTitle(), for: .normal)

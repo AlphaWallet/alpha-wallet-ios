@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     }()
 
     func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         print(Realm.Configuration().fileURL!)
         window = UIWindow(frame: UIScreen.main.bounds)
         do {
@@ -70,15 +70,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         protectionCoordinator.applicationWillEnterForeground()
     }
 
-    func application(_ application: UIApplication, shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplicationExtensionPointIdentifier) -> Bool {
-        if extensionPointIdentifier == UIApplicationExtensionPointIdentifier.keyboard {
+    func application(_ application: UIApplication, shouldAllowExtensionPointIdentifier extensionPointIdentifier: UIApplication.ExtensionPointIdentifier) -> Bool {
+        if extensionPointIdentifier == .keyboard {
             return false
         }
         return true
     }
 
     // Respond to URI scheme links
-    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         let _ = appCoordinator.handleOpen(url: url)
         return true
     }
@@ -86,7 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     // Respond to Universal Links
     func application(_ application: UIApplication,
                      continue userActivity: NSUserActivity,
-                     restorationHandler: @escaping ([Any]?) -> Void) -> Bool {
+                     restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
         var handled = false
         if let url = userActivity.webpageURL {
             handled = handleUniversalLink(url: url)
