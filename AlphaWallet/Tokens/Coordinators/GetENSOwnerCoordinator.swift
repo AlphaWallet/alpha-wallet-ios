@@ -8,7 +8,7 @@ import CryptoSwift
 
 //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md
 extension String {
-    public var nameHash: String {
+    var nameHash: String {
         var node = Array<UInt8>.init(repeating: 0x0, count: 32)
         if !self.isEmpty {
             node = self.split(separator: ".")

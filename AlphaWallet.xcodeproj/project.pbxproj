@@ -308,6 +308,7 @@
 		5E7C74C6110D4E93C759D5DB /* ConfirmSignMessageTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7B080E387A79058430B9 /* ConfirmSignMessageTableViewCellViewModel.swift */; };
 		5E7C74DBAE43954C185057B3 /* ChooseTokenCardTransferModeViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BA578BE5FB0E613A6D6 /* ChooseTokenCardTransferModeViewControllerViewModel.swift */; };
 		5E7C74E7DC2D79785240D757 /* GetERC875Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7251DB61EB9468910C81 /* GetERC875Balance.swift */; };
+		5E7C7507CC97BDE973FD4F0E /* GetENSOwnerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E9A5E7D36AA3BC108A4 /* GetENSOwnerCoordinatorTests.swift */; };
 		5E7C75450126F3BAA726EC50 /* web3.min.js in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F7C7E37B5CD147EF784 /* web3.min.js */; };
 		5E7C754ACE4C4305F9E5365A /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 5E7C784984649DD8E02B50B8 /* index.html */; };
 		5E7C7567A690B6B8F889AE83 /* SendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70088832B2D161EB4AAB /* SendViewController.swift */; };
@@ -1027,6 +1028,7 @@
 		5E7C7E2DCCE0D775ECF83088 /* WalletFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WalletFilter.swift; path = Models/WalletFilter.swift; sourceTree = "<group>"; };
 		5E7C7E5C3B750BDEEB2F3FC3 /* AssetDefinitionsOverridesViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDefinitionsOverridesViewController.swift; sourceTree = "<group>"; };
 		5E7C7E81029EED4B560DA523 /* ContractERC20Transfer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContractERC20Transfer.swift; sourceTree = "<group>"; };
+		5E7C7E9A5E7D36AA3BC108A4 /* GetENSOwnerCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetENSOwnerCoordinatorTests.swift; sourceTree = "<group>"; };
 		5E7C7EA385280B0BAB6F0745 /* TransactionViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionViewModelTests.swift; sourceTree = "<group>"; };
 		5E7C7EB14E787BC019660389 /* SellTokensCardViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SellTokensCardViewModel.swift; sourceTree = "<group>"; };
 		5E7C7ECCB155D49910973F05 /* TokenCardTableViewCellWithCheckbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCardTableViewCellWithCheckbox.swift; sourceTree = "<group>"; };
@@ -2496,6 +2498,14 @@
 			path = Sell;
 			sourceTree = "<group>";
 		};
+		5E7C76AB57FE8E8E084CF4A8 /* Coordinators */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7E9A5E7D36AA3BC108A4 /* GetENSOwnerCoordinatorTests.swift */,
+			);
+			path = Coordinators;
+			sourceTree = "<group>";
+		};
 		5E7C76F2B5FAF0201C0A6BC7 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -2546,6 +2556,7 @@
 			children = (
 				5E7C7DB349EEDBC8AE9AD500 /* Helpers */,
 				5E7C71E355BD14E975AF7491 /* TokensDataStoreTest.swift */,
+				5E7C76AB57FE8E8E084CF4A8 /* Coordinators */,
 			);
 			path = Tokens;
 			sourceTree = "<group>";
@@ -4045,6 +4056,7 @@
 				5E7C7AD1BA92A8FFF930F8DC /* BrowserURLParserTests.swift in Sources */,
 				5E7C71570B651B3B56CAA1CC /* StringExtensionTests.swift in Sources */,
 				5E7C75704F09D3ECEBE2A3AA /* TransactionViewModelTests.swift in Sources */,
+				5E7C7507CC97BDE973FD4F0E /* GetENSOwnerCoordinatorTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
