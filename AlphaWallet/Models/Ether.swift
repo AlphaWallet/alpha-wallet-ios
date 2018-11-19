@@ -42,10 +42,10 @@ extension Ether: LosslessStringConvertible {
     }
 }
 
-public func *(ether: Ether, num: Int) -> Ether {
+public func * (ether: Ether, num: Int) -> Ether {
     return Ether(bigInt: ether.ether * BigInt(num))
 }
 
-public func /(ether: Ether, num: Int) -> Ether {
+public func / (ether: Ether, num: Int) -> Ether {
     return Ether(bigInt: ether.ether / BigInt(num))
 }

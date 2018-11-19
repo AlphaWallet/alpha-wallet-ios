@@ -53,7 +53,7 @@ class TokenAdaptor {
     private func getSupportedByOpenSeaTokenHolders() -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
-        for (_, item) in balance.enumerated() {
+        for item in balance {
             let jsonString = item.balance
             if let token = getTokenForOpenSeaNonFungible(forJSONString: jsonString) {
                 tokens.append(token)

@@ -358,11 +358,11 @@ extension NewTokenViewController: AddressTextFieldDelegate {
 
     func didPaste(in textField: AddressTextField) {
         updateContractValue(value: textField.value)
-        symbolTextField.becomeFirstResponder()
+        _ = symbolTextField.becomeFirstResponder()
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
-        symbolTextField.becomeFirstResponder()
+        _ = symbolTextField.becomeFirstResponder()
         return true
     }
 
@@ -391,12 +391,12 @@ extension NewTokenViewController: TextFieldDelegate {
         switch textField {
         case symbolTextField:
             if decimalsTextField.isHidden {
-                balanceTextField.becomeFirstResponder()
+                _ = balanceTextField.becomeFirstResponder()
             } else {
-                decimalsTextField.becomeFirstResponder()
+                _ = decimalsTextField.becomeFirstResponder()
             }
         case decimalsTextField, balanceTextField:
-            nameTextField.becomeFirstResponder()
+            _ = nameTextField.becomeFirstResponder()
         case nameTextField:
             view.endEditing(true)
         default:

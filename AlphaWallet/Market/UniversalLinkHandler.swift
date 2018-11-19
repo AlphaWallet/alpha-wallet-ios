@@ -86,8 +86,7 @@ public class UniversalLinkHandler {
             case .customizable:
                 return handleSpawnableLink(linkBytes: linkBytes)
             }
-        }
-        else {
+        } else {
             return nil
         }
 
@@ -196,14 +195,12 @@ public class UniversalLinkHandler {
         var formattedArray = [UInt8]()
         if array.count == 4 {
             return array
-        }
-        else if array.isEmpty {
+        } else if array.isEmpty {
             for _ in 0...3 {
                 formattedArray.append(0)
             }
             return formattedArray
-        }
-        else {
+        } else {
             let missingDigits = 4 - array.count
             for _ in 0..<missingDigits {
                 formattedArray.append(0)

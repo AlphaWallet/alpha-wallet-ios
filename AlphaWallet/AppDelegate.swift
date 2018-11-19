@@ -128,9 +128,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
                     UserDefaults.standard.set(endpointArnForSNS, forKey: "endpointArnForSNS")
                     //every user should subscribe to the security topic
                     self.subscribeToTopicSNS(token: token, topicEndpoint: self.SNSSecurityTopicEndpoint)
-                    if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-                        //TODO subscribe to version topic when created
-                    }
+//                    if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+//                        //TODO subscribe to version topic when created
+//                    }
                 }
             }
             return nil
@@ -147,7 +147,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         #endif
         endpointRequest.token = token
 
-        sns.createPlatformEndpoint(endpointRequest).continueWith() { task in
+        sns.createPlatformEndpoint(endpointRequest).continueWith { task in
             guard let response: AWSSNSCreateEndpointResponse = task.result else { return nil }
             guard let subscribeRequest = AWSSNSSubscribeInput() else { return nil }
             subscribeRequest.endpoint = response.endpointArn

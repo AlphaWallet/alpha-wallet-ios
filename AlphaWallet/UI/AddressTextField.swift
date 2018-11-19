@@ -208,7 +208,7 @@ extension AddressTextField: UITextFieldDelegate {
 
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         clearAddressFromResolvingEnsName()
-        guard let delegate = delegate else { return true }
+        guard delegate != nil else { return true }
         let newValue = (self.textField.text as NSString?)?.replacingCharacters(in: range, with: string)
         if let newValue = newValue, CryptoAddressValidator.isValidAddress(newValue) {
         } else {

@@ -22,7 +22,7 @@ enum AssetAttributeSyntax: String {
     case integer = "1.3.6.1.4.1.1466.115.121.1.27"
     case bool = "1.3.6.1.4.1.1466.115.121.1.7"
 
-    var solidityReturnType: CallForAssetAttribute.SolidityType  {
+    var solidityReturnType: CallForAssetAttribute.SolidityType {
         switch self {
         case .directoryString, .generalisedTime, .iA5String:
             return .string
@@ -30,8 +30,6 @@ enum AssetAttributeSyntax: String {
             return .int
         case .bool:
             return .bool
-        default:
-            return .string
         }
     }
 
@@ -83,7 +81,7 @@ enum AssetAttribute {
             let attributeAccessor = XML.Accessor(attribute)
             let functionElement = attributeAccessor["\(rootNamespacePrefix)origin"]["\(rootNamespacePrefix)function"]
 
-            if let attributeName = attributeAccessor.attributes["id"], case .singleElement(let origin) = attributeAccessor["\(rootNamespacePrefix)origin"], let rawSyntax = attributeAccessor.attributes["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let functionName = functionElement.attributes["name"], !functionName.isEmpty {
+            if let attributeName = attributeAccessor.attributes["id"], case .singleElement = attributeAccessor["\(rootNamespacePrefix)origin"], let rawSyntax = attributeAccessor.attributes["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let functionName = functionElement.attributes["name"], !functionName.isEmpty {
                 let inputs: [CallForAssetAttribute.Argument]
                 let returnType = syntax.solidityReturnType
                 let output = CallForAssetAttribute.ReturnType(type: returnType)
@@ -105,7 +103,7 @@ enum AssetAttribute {
         }()
     }
 
-    private static func extractInputs(fromInputsElements inputsElements: [XML.Element]) -> [CallForAssetAttribute.Argument]{
+    private static func extractInputs(fromInputsElements inputsElements: [XML.Element]) -> [CallForAssetAttribute.Argument] {
         return inputsElements.flatMap { $0.childElements }.compactMap {
             let inputTypeString = $0.name.withoutXMLNamespacePrefix
             if !inputTypeString.isEmpty, let inputName = $0.attributes["ref"], !inputName.isEmpty, let inputType = CallForAssetAttribute.SolidityType(rawValue: inputTypeString) {
@@ -163,7 +161,7 @@ enum AssetAttribute {
         case .function(_, _, _, let attributeName, let functionName, let inputs, let output):
             let arguments: [AnyObject]
             //TODO we only support tokenID for now
-            if inputs.count == 1 && (inputs[0].name == "tokenID" || inputs[0].name == "TokenID")  {
+            if inputs.count == 1 && (inputs[0].name == "tokenID" || inputs[0].name == "TokenID") {
                 //TODO what format do we need to pass the tokenValue in?
                 arguments = [String(tokenValue) as NSString]
             } else {

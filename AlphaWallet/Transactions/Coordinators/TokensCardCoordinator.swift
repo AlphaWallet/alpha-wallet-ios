@@ -477,13 +477,13 @@ extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelega
 extension TokensCardCoordinator: TransferTokensCardViewControllerDelegate {
     func didSelectTokenHolder(token: TokenObject, tokenHolder: TokenHolder, in viewController: TransferTokensCardViewController) {
         switch token.type {
-            case .erc721:
-                let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
-                viewController.navigationController?.pushViewController(vc, animated: true)
-            case .erc875:
-                showEnterQuantityViewController(token: token, for: tokenHolder, in: viewController)
-            case .erc20: break
-            case .ether: break
+        case .erc721:
+            let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
+            viewController.navigationController?.pushViewController(vc, animated: true)
+        case .erc875:
+            showEnterQuantityViewController(token: token, for: tokenHolder, in: viewController)
+        case .erc20: break
+        case .ether: break
         }
     }
 
