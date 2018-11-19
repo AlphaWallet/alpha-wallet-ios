@@ -34,13 +34,13 @@ struct CallForAssetAttribute {
     }
 
     static private let abiTemplate: [String: Any] = [
-        "type" : "function",
-        "name" : "<to provide>",
-        "inputs" : "<to provide>",
-        "outputs" : "<to provide>",
-        "payable" : false,
-        "stateMutability" : "view",
-        "constant" : true
+        "type": "function",
+        "name": "<to provide>",
+        "inputs": "<to provide>",
+        "outputs": "<to provide>",
+        "payable": false,
+        "stateMutability": "view",
+        "constant": true
     ]
 
     let abi: String
@@ -60,9 +60,9 @@ struct CallForAssetAttribute {
                 "name": "",
                 "type": output.type.rawValue,
             ]
-        ] as Array<[String: String]>
+        ] as [[String: String]]
         name = functionName
-        guard let data = try? JSONSerialization.data(withJSONObject: abiDictionary, options: .prettyPrinted), let abi = String(data: data, encoding: .utf8) else { return nil}
+        guard let data = try? JSONSerialization.data(withJSONObject: abiDictionary, options: .prettyPrinted), let abi = String(data: data, encoding: .utf8) else { return nil }
         self.abi = abi
     }
 }

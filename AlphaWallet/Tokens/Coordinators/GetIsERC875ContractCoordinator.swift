@@ -1,3 +1,4 @@
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
 import Result

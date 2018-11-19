@@ -87,7 +87,7 @@ class GetIsERC721ContractCoordinator {
                 completion(.success(true))
             } else if let isNonCryptoKittyERC721WithOldInterfaceHash = isNonCryptoKittyERC721WithOldInterfaceHash, isNonCryptoKittyERC721WithOldInterfaceHash {
                 completion(.success(true))
-            } else if let isCryptoKitty = isCryptoKitty, let isNonCryptoKittyERC721 = isNonCryptoKittyERC721, let isNonCryptoKittyERC721WithOldInterfaceHash = isNonCryptoKittyERC721WithOldInterfaceHash {
+            } else if isCryptoKitty != nil, isNonCryptoKittyERC721 != nil, isNonCryptoKittyERC721WithOldInterfaceHash != nil {
                 completion(.success(false))
             } else {
                 completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)()"))))

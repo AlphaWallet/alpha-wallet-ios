@@ -23,8 +23,7 @@ class GetContractInteractions {
                         //every transaction that has input is by default a transaction to a contract
                         if transactionJson["contractAddress"].description == "" {
                             return transactionJson["to"].description
-                        }
-                        else {
+                        } else {
                             return transactionJson["contractAddress"].description
                         }
                     }

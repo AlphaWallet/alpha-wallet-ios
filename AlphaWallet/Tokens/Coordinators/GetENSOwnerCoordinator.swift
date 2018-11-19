@@ -84,10 +84,10 @@ class GetENSOwnerCoordinator {
 
     private func getENSAddress(networkId: Int) -> EthereumAddress {
         switch networkId {
-            case 1: return Constants.ENSRegistrarAddress
-            case 3: return Constants.ENSRegistrarRopsten
-            case 4: return Constants.ENSRegistrarRinkeby
-            default: return Constants.ENSRegistrarAddress
+        case 1: return Constants.ENSRegistrarAddress
+        case 3: return Constants.ENSRegistrarRopsten
+        case 4: return Constants.ENSRegistrarRinkeby
+        default: return Constants.ENSRegistrarAddress
         }
     }
     

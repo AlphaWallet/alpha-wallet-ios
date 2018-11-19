@@ -230,7 +230,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
 //        tableview.reloadRows(at: indexPaths, with: .automatic)
         tableview.reloadData()
         let anyIndexPath = indexPaths[0]
-        let anyToken = viewModel.item(for: anyIndexPath).tokens[0]
+        let _ = viewModel.item(for: anyIndexPath).tokens[0]
         //We only auto scroll to reveal for OpenSea-supported tokens which are usually taller and have a picture. Because
         //    (A) other tokens like ERC875 tickets are usually too short and all text, making it difficult for user to capture where it has scrolled to
         //    (B) OpenSea-supported tokens are tall, so after expanding, chances are user need to scroll quite a lot if we don't auto-scroll

@@ -48,15 +48,15 @@ enum RPCServer {
 
     var getEtherscanURL: String {
         switch self {
-            case .main: return Constants.mainnetEtherscanAPI
-            case .ropsten: return Constants.ropstenEtherscanAPI
-            case .rinkeby: return Constants.rinkebyEtherscanAPI
-            case .kovan: return Constants.mainnetEtherscanAPI
-            case .poa: return Constants.mainnetEtherscanAPI
-            case .sokol: return Constants.mainnetEtherscanAPI
-            case .classic: return Constants.mainnetEtherscanAPI
-            case .callisto: return Constants.mainnetEtherscanAPI
-            case .custom(_): return Constants.mainnetEtherscanAPI
+        case .main: return Constants.mainnetEtherscanAPI
+        case .ropsten: return Constants.ropstenEtherscanAPI
+        case .rinkeby: return Constants.rinkebyEtherscanAPI
+        case .kovan: return Constants.mainnetEtherscanAPI
+        case .poa: return Constants.mainnetEtherscanAPI
+        case .sokol: return Constants.mainnetEtherscanAPI
+        case .classic: return Constants.mainnetEtherscanAPI
+        case .callisto: return Constants.mainnetEtherscanAPI
+        case .custom: return Constants.mainnetEtherscanAPI
         }
     }
 

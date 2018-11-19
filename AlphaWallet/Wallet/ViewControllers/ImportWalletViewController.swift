@@ -352,7 +352,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private func moveFocusToTextEntryField(after textInput: UIView) {
         switch textInput {
         case keystoreJSONTextView:
-            passwordTextField.becomeFirstResponder()
+            _ = passwordTextField.becomeFirstResponder()
         case passwordTextField:
             view.endEditing(true)
         case privateKeyTextView:
