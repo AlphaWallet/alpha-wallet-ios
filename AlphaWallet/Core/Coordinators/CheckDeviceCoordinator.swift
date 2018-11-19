@@ -11,7 +11,7 @@ class CheckDeviceCoordinator: Coordinator {
         let controller = UIAlertController(
             title: R.string.localizable.appDeviceJailbreakTitle(),
             message: R.string.localizable.appDeviceJailbreakDescription(),
-            preferredStyle: UIAlertControllerStyle.alert
+            preferredStyle: .alert
         )
         controller.popoverPresentationController?.sourceView = navigationController.view
         controller.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default))

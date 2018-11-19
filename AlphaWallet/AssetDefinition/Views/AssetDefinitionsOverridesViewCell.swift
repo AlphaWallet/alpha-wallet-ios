@@ -8,7 +8,7 @@ class AssetDefinitionsOverridesViewCell: UITableViewCell {
     private let background = UIView()
     private let titleLabel = UILabel()
 
-    override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         background.translatesAutoresizingMaskIntoConstraints = false

@@ -268,8 +268,8 @@ extension TokensViewController: UITableViewDelegate {
         return viewModel.canDelete(for: indexPath.row, section: indexPath.section)
     }
 
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == UITableViewCellEditingStyle.delete {
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
             delegate?.didDelete(token: viewModel.item(for: indexPath.row, section: indexPath.section), in: self)
         }
     }

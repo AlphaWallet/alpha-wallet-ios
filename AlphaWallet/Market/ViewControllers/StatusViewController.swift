@@ -9,7 +9,7 @@ protocol StatusViewControllerDelegate: class {
 class StatusViewController: UIViewController {
 	private let background = UIView()
 	private let imageView = UIImageView()
-	private let activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+	private let activityIndicator = UIActivityIndicatorView(style: .whiteLarge)
 	private let titleLabel = UILabel()
 	private let actionButton = UIButton()
 	private var viewModel: StatusViewControllerViewModel?
