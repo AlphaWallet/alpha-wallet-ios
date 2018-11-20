@@ -62,7 +62,7 @@ class ClaimOrderCoordinator {
     }
 
     func claimSpawnableOrder(expiry: BigUInt,
-                            tokenIds: [BigUInt],
+                             tokenIds: [BigUInt],
                              v: UInt8,
                              r: String,
                              s: String,
@@ -70,12 +70,12 @@ class ClaimOrderCoordinator {
         let request = ClaimERC875Spawnable(tokenIds: tokenIds, v: v, r: r, s: s, expiry: expiry)
         web3.request(request: request) { result in
             switch result {
-                case .success(let res):
-                    print(res)
-                    completion(.success(res))
-                case .failure(let err):
-                    print(err)
-                    completion(.failure(AnyError(err)))
+            case .success(let res):
+                print(res)
+                completion(.success(res))
+            case .failure(let err):
+                print(err)
+                completion(.failure(AnyError(err)))
             }
         }
     }

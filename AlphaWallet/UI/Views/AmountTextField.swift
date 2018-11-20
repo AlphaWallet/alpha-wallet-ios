@@ -145,7 +145,7 @@ class AmountTextField: UIControl {
     }
 
     private func activateAmountView() {
-        becomeFirstResponder()
+        _ = becomeFirstResponder()
     }
 
     required init?(coder aDecoder: NSCoder) {

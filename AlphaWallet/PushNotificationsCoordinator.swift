@@ -50,7 +50,7 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
     //TODO call this after send Ether too?
     private func requestForAuthorization() {
         notificationCenter.requestAuthorization(options: [.badge, .alert, .sound]) { granted, error in
-            if (granted) {
+            if granted {
                 DispatchQueue.main.async(execute: {
                     UIApplication.shared.registerForRemoteNotifications()
                 })

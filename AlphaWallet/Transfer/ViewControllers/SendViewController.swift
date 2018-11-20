@@ -120,10 +120,10 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
         switch transferType {
         case .ether:
             ethPrice.subscribe { [weak self] value in
-            if let value = value {
-                self?.amountTextField.ethToDollarRate = value
+                if let value = value {
+                    self?.amountTextField.ethToDollarRate = value
+                }
             }
-        }
         default:
             amountTextField.alternativeAmountLabel.isHidden = true
             amountTextField.isFiatButtonHidden = true
@@ -338,7 +338,7 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
     }
 
     func activateAmountView() {
-        amountTextField.becomeFirstResponder()
+        _ = amountTextField.becomeFirstResponder()
     }
 
     required init?(coder aDecoder: NSCoder) {

@@ -16,7 +16,7 @@ struct AssetAttributeFunctionCall: Equatable, Hashable {
         return contract.hashValue ^ functionName.hashValue ^ inputs.count ^ output.type.rawValue.hashValue ^ argumentsDescription.hashValue ^ server.chainID
     }
 
-    static func ==(lhs: AssetAttributeFunctionCall, rhs: AssetAttributeFunctionCall) -> Bool {
+    static func == (lhs: AssetAttributeFunctionCall, rhs: AssetAttributeFunctionCall) -> Bool {
         return lhs.contract == rhs.contract && lhs.functionName == rhs.functionName && lhs.inputs == rhs.inputs && lhs.output.type == rhs.output.type && lhs.argumentsDescription == rhs.argumentsDescription && lhs.server.chainID == rhs.server.chainID
     }
 

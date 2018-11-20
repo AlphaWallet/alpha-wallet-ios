@@ -59,7 +59,6 @@ class ConfigureTransactionViewController: FormViewController {
         )
     }()
 
-
     weak var delegate: ConfigureTransactionViewControllerDelegate?
 
     init(

@@ -60,7 +60,7 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         return value.formatAsShortDateString()
     }
 
-    func subscribeExpired(withBlock block: @escaping (String) -> ()) {
+    func subscribeExpired(withBlock block: @escaping (String) -> Void) {
         guard isMeetupContract else { return }
         if let subscribableAssetAttributeValue = tokenHolder.values["expired"] as? SubscribableAssetAttributeValue {
             subscribableAssetAttributeValue.subscribable.subscribe { value in
@@ -75,7 +75,7 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    func subscribeLocality(withBlock block: @escaping (String) -> ()) {
+    func subscribeLocality(withBlock block: @escaping (String) -> Void) {
         guard isMeetupContract else { return }
         if let subscribableAssetAttributeValue = tokenHolder.values["locality"] as? SubscribableAssetAttributeValue {
             subscribableAssetAttributeValue.subscribable.subscribe { value in
@@ -86,7 +86,7 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    func subscribeBuilding(withBlock block: @escaping (String) -> ()) {
+    func subscribeBuilding(withBlock block: @escaping (String) -> Void) {
         if let subscribableAssetAttributeValue = tokenHolder.values["building"] as? SubscribableAssetAttributeValue {
             subscribableAssetAttributeValue.subscribable.subscribe { value in
                 if let value = value as? String {
@@ -96,7 +96,7 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    func subscribeStreetStateCountry(withBlock block: @escaping (String) -> ()) {
+    func subscribeStreetStateCountry(withBlock block: @escaping (String) -> Void) {
         func updateStreetStateCountry(street: String?, state: String?, country: String?) {
             let values = [street, state, country].compactMap { $0 }
             let string = values.joined(separator: ", ")
