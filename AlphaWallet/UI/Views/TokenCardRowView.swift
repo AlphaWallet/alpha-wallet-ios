@@ -201,7 +201,7 @@ class TokenCardRowView: UIView {
 				strongSelf.teamsLabel.text = expired
 			}
 
-			vm.subscribeStreetStateCountry{ [weak self] streetStateCountry in
+			vm.subscribeStreetStateCountry { [weak self] streetStateCountry in
 				guard let strongSelf = self else { return }
 				strongSelf.venueLabel.text = streetStateCountry
 			}
@@ -221,7 +221,7 @@ class TokenCardRowView: UIView {
 				strongSelf.teamsLabel.text = expired
 			}
 
-			vm.subscribeStreetStateCountry{ [weak self] streetStateCountry in
+			vm.subscribeStreetStateCountry { [weak self] streetStateCountry in
 				guard let strongSelf = self else { return }
 				strongSelf.venueLabel.text = streetStateCountry
 			}

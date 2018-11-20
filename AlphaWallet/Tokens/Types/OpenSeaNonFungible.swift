@@ -20,7 +20,7 @@ struct OpenSeaNonFungible: Codable {
     let backgroundColor: String?
     let traits: [OpenSeaNonFungibleTrait]
     var generationTrait: OpenSeaNonFungibleTrait? {
-        return traits.first(where: { $0.type == OpenSeaNonFungible.generationTraitName  })
+        return traits.first { $0.type == OpenSeaNonFungible.generationTraitName }
     }
 }
 

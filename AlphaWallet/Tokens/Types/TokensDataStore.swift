@@ -198,8 +198,7 @@ class TokensDataStore {
         }
     }
 
-    func getERC721Balance(for addressString: String,
-                                         completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
+    func getERC721Balance(for addressString: String, completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
         let address = Address(string: addressString)
         getERC721BalanceCoordinator.getERC721TokenBalance(for: account.address, contract: address!) { result in
             switch result {
@@ -315,7 +314,6 @@ class TokensDataStore {
             case .erc721:
                 //We'll check with OpenSea below and an ERC721 token isn't found there, then we get the balance of each token ourselves
                 incrementCountAndUpdateDelegate()
-                break
             }
         }
     }
@@ -539,7 +537,7 @@ class TokensDataStore {
     func update(contract: String, tokenId: String, action: TokenBalanceUpdateAction) {
         guard let token = objects.first(where: { $0.contract.sameContract(as: contract) }) else { return }
         let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
-        let balances = token.balance.filter { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt}
+        let balances = token.balance.filter { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt }
 
         try! realm.write {
             switch action {
@@ -560,7 +558,7 @@ class TokensDataStore {
     func jsonAttributeValue(forContract contract: String, tokenId: String, attributeName: String) -> Any? {
         guard let token = objects.first(where: { $0.contract.sameContract(as: contract) }) else { return nil }
         let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
-        guard let balance = token.balance.first(where: { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt}) else { return nil }
+        guard let balance = token.balance.first(where: { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt }) else { return nil }
         let json = balance.json
         if let data = json.data(using: .utf8), var dictionary = ((try? JSONSerialization.jsonObject(with: data)) as? [String: Any]) {
             return dictionary[attributeName]

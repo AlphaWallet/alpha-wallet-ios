@@ -47,7 +47,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
 
     func start() {
         deleteInboxContents()
-        watchDirectoryContents() {
+        watchDirectoryContents {
             for each in self.viewControllers {
                 if let viewController = each.object {
                     self.configure(overridesViewController: viewController)

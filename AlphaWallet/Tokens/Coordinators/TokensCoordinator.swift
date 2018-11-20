@@ -408,7 +408,6 @@ extension TokensCoordinator: NewTokenViewControllerDelegate {
                 viewController.updateForm(forTokenType: .erc20)
             case .delegateTokenComplete:
                 viewController.updateForm(forTokenType: .erc20)
-                break
             case .failed:
                 break
             }

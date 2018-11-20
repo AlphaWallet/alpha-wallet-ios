@@ -197,7 +197,6 @@ class InCoordinator: Coordinator {
             tabBarController.viewControllers = [transactionCoordinator.navigationController]
         }
 
-
         let browserCoordinator = BrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
         browserCoordinator.delegate = self
         browserCoordinator.start()
@@ -504,7 +503,7 @@ class InCoordinator: Coordinator {
     private func refreshFunctionCallBasedAssetAttributes(forToken token: TokenObject, withTokensDataStore tokensDataStore: TokensDataStore) {
         guard let callForAssetAttributeCoordinator = InCoordinator.callForAssetAttributeCoordinator else { return }
         callForAssetAttributeCoordinator.contractToRefetch = token.contract
-        TokenAdaptor(token: token).getTokenHolders()
+        _ = TokenAdaptor(token: token).getTokenHolders()
         callForAssetAttributeCoordinator.contractToRefetch = nil
     }
 
