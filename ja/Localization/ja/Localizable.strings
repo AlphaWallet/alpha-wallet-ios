@@ -1,0 +1,71 @@
+<!DOCTYPE html> <html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <style type='text/css'>
+
+html {
+  background-color: rgb(84, 193, 227);
+}
+
+body {
+  background-color: rgb(84, 193, 227);
+  color: white;
+  margin-left: 30px;
+  margin-right: 30px;
+}
+
+h1 {
+  font-family: 'SourceSansPro-Light';
+  font-size: 25px;
+  font-weight: normal;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+p {
+  font-family: 'SourceSansPro-Regular';
+  font-size: 15px;
+  text-align: justify;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+p.centered {
+  text-align: center;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid white;
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+.links {
+  font-family: 'SourceSansPro-Semibold';
+  font-size: 15px;
+  font-weight: normal;
+  margin-top: 40px;
+  text-align: center;
+  color: white;
+}
+
+a:link, a:active, a:visited {
+  color: white;
+}
+
+</style>
+</head>
+<body>
+  <h1>门票兑换处地址</h1>
+  <p class="centered">Smolenskaya Square 3, Floor 10, Moscow, Russia, 121099</p>
+  <p class="centered">开放时间：6月12日 - 7月14号</p>
+  <p class="centered">非比赛日9:00 am - 5:00 pm，比赛日 9.00 am - 11.00 am</p>
+  <p class="centered">注意：6月14号兑换处不开放</p>
+  <p class="centered">联系电话: (00) 7 (495) 771-71-58</p>
+  <br>
+  <p class="centered"><img src="non_asset_catalog_redemption_location.png"></p>
+  <br>
+  <hr>
+</body>
+</html>
