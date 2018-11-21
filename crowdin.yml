@@ -1,0 +1,11 @@
+files:
+  - source: Localization/
+    translation: Localization/%language%/Localizable.strings
+    languages_mapping:
+      language:
+        zh-CN: zh-Hans
+        fr: fr
+        de: de
+        ja: ja
+        ko: ko
+        es-ES: es
