@@ -305,3 +305,5 @@
 "camera.qrCode.denied.prompt.message" = "현재 개인 정보 보호 설정으로는 QR 코드를 스캔하기 위하여 카메라에 접근할 수 없습니다. 수정 방법:\n\n1. 아래 설정 열기 버튼을 탭하여 설정 앱을 엽니다.\n\n2. 탭하여 카메라를 켬으로 활성화합니다.\n\n3. 이 앱을 다시 실행합니다.";
 "camera.qrCode.denied.prompt.button" = "설정 열기";
 "openSeaNonFungibleTokens.url.open" = "%@에서 열기";
+"address.ens.labelMessage" = "Ethereum address or ENS name";
+

@@ -305,3 +305,5 @@
 "camera.qrCode.denied.prompt.message" = "Tus ajustes de privacidad no nos permiten acceder a la cámara para escanear el código QR. Arréglalo de esta forma:\n\n1. Pulsa en el botón Abrir ajustes de abajo para abrir los Ajustes.\n\n2. Pulsa para activar la Cámara.\n\n3. Vuelve a iniciar esta aplicación.";
 "camera.qrCode.denied.prompt.button" = "Abrir Ajustes";
 "openSeaNonFungibleTokens.url.open" = "Abrir en %@";
+"address.ens.labelMessage" = "Ethereum dirección o ENS nombre";
+

@@ -305,3 +305,4 @@
 "camera.qrCode.denied.prompt.message" = "您现有的隐私设定阻止了AlphaWallet扫描QR码. 修复步骤:\n\n1. 点击下方“打开设置”按钮来进入手机设置页面.\n\n2. 点击启用相机功能.\n\n3. 重新打开AlphaWallet.";
 "camera.qrCode.denied.prompt.button" = "打开设置";
 "openSeaNonFungibleTokens.url.open" = "在 %@ 应用内打开";
+"address.ens.labelMessage" = "Ethereum address or ENS name";
