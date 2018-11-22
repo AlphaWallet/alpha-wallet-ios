@@ -305,3 +305,4 @@
 "camera.qrCode.denied.prompt.message" = "プライバシー設定により、 QR コードをスキャンするためにカメラにアクセスできません。次の手順に従って、この問題を修正してください:\n\n1. 下の「設定を開く」ボタンをタップして設定アプリを開きます。\n\n2. タップしてカメラを有効にします。\n\n3. このアプリを再起動します。";
 "camera.qrCode.denied.prompt.button" = "設定を開く";
 "openSeaNonFungibleTokens.url.open" = "%@ で開く";
+"address.ens.labelMessage" = "Ethereum address or ENS name";
