@@ -1,4 +1,4 @@
-# AlphaWallet - Your gateway to blockchain technology
+# AlphaWallet - The mobile wallet engine for the web3 world
 
 [![Build Status](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)
 [![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
@@ -10,8 +10,8 @@
 ## Getting Started
 
 1. [Download](https://developer.apple.com/xcode/download/) the Xcode 9 and above release.
-1. Clone this repository and get the submodules with: git submodule init && git submodule update.
-1. Run `make bootstrap` to install tools and dependencies.
+2. Clone this repository and get the submodules with: git submodule init && git submodule update.
+3. Run `make bootstrap` to install tools and dependencies.
 
 ## Contributing
 
