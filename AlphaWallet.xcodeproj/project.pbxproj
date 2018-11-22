@@ -135,7 +135,6 @@
 		29BDF1961FEE43F40023A45F /* UnconfirmedTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29BDF1951FEE43F40023A45F /* UnconfirmedTransaction.swift */; };
 		29BDF1981FEE4DB00023A45F /* GasPriceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29BDF1971FEE4DB00023A45F /* GasPriceConfiguration.swift */; };
 		29BDF19D1FEE50E90023A45F /* GasPriceConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29BDF19C1FEE50E90023A45F /* GasPriceConfigurationTests.swift */; };
-		29BDF19F1FEE51650023A45F /* GasLimitConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29BDF19E1FEE51650023A45F /* GasLimitConfigurationTests.swift */; };
 		29BE3FD01F7071A200F6BFC2 /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29BE3FCF1F7071A200F6BFC2 /* UIColor.swift */; };
 		29BE3FD21F707DC300F6BFC2 /* TransactionDataCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29BE3FD11F707DC300F6BFC2 /* TransactionDataCoordinator.swift */; };
 		29C0FCE1200DA94A004A13CB /* SignMessageCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C0FCE0200DA94A004A13CB /* SignMessageCoordinator.swift */; };
@@ -721,7 +720,6 @@
 		29BDF1951FEE43F40023A45F /* UnconfirmedTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnconfirmedTransaction.swift; sourceTree = "<group>"; };
 		29BDF1971FEE4DB00023A45F /* GasPriceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasPriceConfiguration.swift; sourceTree = "<group>"; };
 		29BDF19C1FEE50E90023A45F /* GasPriceConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasPriceConfigurationTests.swift; sourceTree = "<group>"; };
-		29BDF19E1FEE51650023A45F /* GasLimitConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasLimitConfigurationTests.swift; sourceTree = "<group>"; };
 		29BE3FCF1F7071A200F6BFC2 /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
 		29BE3FD11F707DC300F6BFC2 /* TransactionDataCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDataCoordinator.swift; sourceTree = "<group>"; };
 		29C0FCE0200DA94A004A13CB /* SignMessageCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignMessageCoordinator.swift; sourceTree = "<group>"; };
@@ -2039,7 +2037,6 @@
 			isa = PBXGroup;
 			children = (
 				29BDF19C1FEE50E90023A45F /* GasPriceConfigurationTests.swift */,
-				29BDF19E1FEE51650023A45F /* GasLimitConfigurationTests.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3978,7 +3975,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				29F1C85620036887003780D8 /* AppTrackerTests.swift in Sources */,
-				29BDF19F1FEE51650023A45F /* GasLimitConfigurationTests.swift in Sources */,
 				290B2B6C1F92C35B0053C83E /* RPCServerTests.swift in Sources */,
 				B1DC375F203AEB4800C9756D /* MarketQueueHandlerTests.swift in Sources */,
 				29FF13031F75EB7500AFD326 /* Account.swift in Sources */,
