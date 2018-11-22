@@ -10,7 +10,6 @@ class TransactionConfiguratorTests: XCTestCase {
         let configurator = TransactionConfigurator(session: .make(), account: .make(), transaction: .make(gasLimit: BigInt(90000), gasPrice: .none))
         
         XCTAssertEqual(GasPriceConfiguration.default, configurator.configuration.gasPrice)
-        XCTAssertEqual(GasLimitConfiguration.default, configurator.configuration.gasLimit)
     }
     
     func testAdjustGasPrice() {
