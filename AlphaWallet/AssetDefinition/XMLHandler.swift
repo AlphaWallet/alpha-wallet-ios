@@ -42,9 +42,9 @@ private class PrivateXMLHandler {
 
     let hasAssetDefinition: Bool
 
-    init(contract: String) {
+    init(contract: String, assetDefinitionStore store: AssetDefinitionStore?) {
         contractAddress = contract.add0x.lowercased()
-        let assetDefinitionStore = AssetDefinitionStore()
+        let assetDefinitionStore = store ?? AssetDefinitionStore()
         let xmlString = assetDefinitionStore[contract]
         hasAssetDefinition = xmlString != nil
         if let xmlString = xmlString {
@@ -174,18 +174,22 @@ public class XMLHandler {
         return privateXMLHandler.hasAssetDefinition
     }
 
-    init(contract: String) {
+    init(contract: String, assetDefinitionStore: AssetDefinitionStore? = nil) {
         let contract = contract.add0x.lowercased()
         if let handler = XMLHandler.xmlHandlers[contract] {
             privateXMLHandler = handler
         } else {
-            privateXMLHandler = PrivateXMLHandler(contract: contract)
+            privateXMLHandler = PrivateXMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore)
             XMLHandler.xmlHandlers[contract] = privateXMLHandler
         }
     }
 
     public static func invalidate(forContract contract: String) {
         xmlHandlers[contract.add0x.lowercased()] = nil
+    }
+
+    public static func invalidateAllContracts() {
+        xmlHandlers.removeAll()
     }
 
     func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16, config: Config) -> Token {
