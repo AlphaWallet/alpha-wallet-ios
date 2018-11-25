@@ -9,3 +9,10 @@ files:
         ja: ja
         ko: ko
         es-ES: es
+        
+  -  source: /AlphaWallet/Localization/en.lproj/Localizable.strings
+      translation: /AlphaWallet/Localization/%osx_code%/%original_file_name%
+
+  -  source: /AlphaWallet/Localization/en.lproj/*.html
+      translation: /AlphaWallet/Localization/%osx_code%/%original_file_name%
+
