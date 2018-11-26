@@ -31,6 +31,7 @@ target 'AlphaWallet' do
   pod 'PromiseKit/CorePromise'
   pod 'PromiseKit/Alamofire'
   pod "Macaw", :git => 'https://github.com/alpha-wallet/Macaw.git', :commit => 'c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8'
+  pod 'Kanna', '~> 4.0.0'
   pod 'AWSSNS'
   # pod 'AWSCognito'
   target 'AlphaWalletTests' do
