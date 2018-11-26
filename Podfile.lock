@@ -21,6 +21,7 @@ PODS:
     - Result (~> 3.1)
   - JSONRPCKit (2.0.3):
     - Result (~> 3.0)
+  - Kanna (4.0.2)
   - KeychainSwift (10.0.0)
   - Kingfisher (4.6.1)
   - libsodium (1.0.12)
@@ -62,7 +63,7 @@ PODS:
   - SwiftLint (0.25.1)
   - SwiftyJSON (4.0.0)
   - SwiftyXMLParser (4.1.0)
-  - SWXMLHash (4.7.1)
+  - SWXMLHash (4.7.4)
   - TrezorCrypto (0.0.9)
   - TrustKeystore (0.1.3):
     - CryptoSwift (~> 0.10.0)
@@ -88,6 +89,7 @@ DEPENDENCIES:
   - iOSSnapshotTestCase
   - JavaScriptKit
   - JSONRPCKit (~> 2.0.0)
+  - Kanna (~> 4.0.0)
   - KeychainSwift
   - Kingfisher (~> 4.0)
   - Macaw (from `https://github.com/alpha-wallet/Macaw.git`, commit `c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8`)
@@ -121,6 +123,7 @@ SPEC REPOS:
     - iOSSnapshotTestCase
     - JavaScriptKit
     - JSONRPCKit
+    - Kanna
     - KeychainSwift
     - Kingfisher
     - libsodium
@@ -199,6 +202,7 @@ SPEC CHECKSUMS:
   iOSSnapshotTestCase: 23984ffe05289728d646cbb6a7a10b4fb1c93440
   JavaScriptKit: 9ff565209e6efe21bcb9c6d6ca3e863a67a8ecf7
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
+  Kanna: c60b61d72554bf04ed1ee074f9b379855cab4892
   KeychainSwift: f9f7910449a0c0fd2cabc889121530dd2c477c33
   Kingfisher: 1f9157d9c02b380cbd0b7cc890161195164eb634
   libsodium: 9a8faa5ef2fa0d2d57bd7f7d79bf8fb7c1a9f0ea
@@ -220,11 +224,11 @@ SPEC CHECKSUMS:
   SwiftLint: ce933681be10c3266e82576dad676fa815a602e9
   SwiftyJSON: 070dabdcb1beb81b247c65ffa3a79dbbfb3b48aa
   SwiftyXMLParser: b5a79fb8a730903703d0a92d30752a0b05158967
-  SWXMLHash: 661b67bc94a01fe71a6ad4ca690cf2cafa5d1d6f
+  SWXMLHash: b35739a5cfd915c3b482977aa720d6708e260a90
   TrezorCrypto: bfeea47a052dca2c77d4a39e1e183865e52de14d
   TrustKeystore: 26efa8079f6451d02ce64b906d3ff240fd71d7ca
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: 1603530570642c600f8fae4c6ac135e30c420168
+PODFILE CHECKSUM: b1a0899658002a573c641f65e1d16556e8daa59f
 
 COCOAPODS: 1.5.3
