@@ -15,7 +15,7 @@ class CallForAssetAttributeCoordinator {
     private static var functionCallCache = [AssetAttributeFunctionCall: Subscribable<AssetAttributeValue>]()
 
     private let config: Config
-    private var tokensDataStore: TokensDataStore
+    private let tokensDataStore: TokensDataStore
     private var promiseCache = [AssetAttributeFunctionCall: Promise<AssetAttributeValue>]()
 
     var contractToRefetch: String?
@@ -23,6 +23,9 @@ class CallForAssetAttributeCoordinator {
     init(config: Config, tokensDataStore: TokensDataStore) {
         self.config = config
         self.tokensDataStore = tokensDataStore
+
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshFunctionCallBasedAssetAttributesForAllTokens), name: UIApplication.didBecomeActiveNotification, object: nil)
+        refreshFunctionCallBasedAssetAttributesForAllTokens()
     }
 
     //TODO too long
@@ -127,6 +130,18 @@ class CallForAssetAttributeCoordinator {
         }
 
         return subscribable
+    }
+
+    @objc func refreshFunctionCallBasedAssetAttributesForAllTokens() {
+        for each in tokensDataStore.objects {
+            refreshFunctionCallBasedAssetAttributes(forToken: each)
+        }
+    }
+
+    private func refreshFunctionCallBasedAssetAttributes(forToken token: TokenObject) {
+        contractToRefetch = token.contract
+        _ = TokenAdaptor(token: token).getTokenHolders()
+        contractToRefetch = nil
     }
 
     private func updateDataStore(forContract contract: String, tokenId: BigUInt, attributeName: String, value: AssetAttributeValue) {
