@@ -149,7 +149,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         footerBar.backgroundColor = Colors.appHighlightGreen
         roundedBackground.addSubview(footerBar)
 
-        let buttonsHeight = CGFloat(60)
+        let buttonsHeight = Metrics.greenButtonHeight
         footerBar.addSubview(buttonsStackView)
 
         NSLayoutConstraint.activate([
@@ -190,7 +190,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
