@@ -31,13 +31,15 @@ enum Tabs {
 }
 
 class InCoordinator: Coordinator {
-    //TODO this is static and non-private so that we can update it from outside when the user switches wallet. Improve encapsulation. Maybe move it
-    static var callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?
-
     private let initialWallet: Wallet
     private var config: Config
     private let assetDefinitionStore: AssetDefinitionStore
     private let appTracker: AppTracker
+    private var callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator? {
+        didSet {
+            XMLHandler.callForAssetAttributeCoordinator = callForAssetAttributeCoordinator
+        }
+    }
     private var transactionCoordinator: TransactionCoordinator? {
         return coordinators.compactMap {
             $0 as? TransactionCoordinator
@@ -132,7 +134,7 @@ class InCoordinator: Coordinator {
 
         //TODO this is bad because it is optional and effectively a global
         if let tokensDataStore = createTokensDatastore() {
-            InCoordinator.callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator(config: config, tokensDataStore: tokensDataStore)
+            callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator(config: config, tokensDataStore: tokensDataStore)
         }
 
         let web3 = self.web3()
@@ -302,7 +304,7 @@ class InCoordinator: Coordinator {
         coordinator.stop()
         removeAllCoordinators()
         OpenSea.sharedInstance.reset()
-        InCoordinator.callForAssetAttributeCoordinator = nil
+        callForAssetAttributeCoordinator = nil
         showTabBar(for: account)
         fetchXMLAssetDefinitions()
         refreshFunctionCallBasedAssetAttributesForAllTokens()
@@ -501,7 +503,7 @@ class InCoordinator: Coordinator {
     }
 
     private func refreshFunctionCallBasedAssetAttributes(forToken token: TokenObject, withTokensDataStore tokensDataStore: TokensDataStore) {
-        guard let callForAssetAttributeCoordinator = InCoordinator.callForAssetAttributeCoordinator else { return }
+        guard let callForAssetAttributeCoordinator = callForAssetAttributeCoordinator else { return }
         callForAssetAttributeCoordinator.contractToRefetch = token.contract
         _ = TokenAdaptor(token: token).getTokenHolders()
         callForAssetAttributeCoordinator.contractToRefetch = nil
