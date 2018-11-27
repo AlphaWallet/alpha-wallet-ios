@@ -85,7 +85,6 @@ class InCoordinator: Coordinator {
         self.appTracker = appTracker
         self.assetDefinitionStore = assetDefinitionStore
         self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
-        enableAutoRefreshFunctionCallBasedAssetAttributesForAllTokens()
     }
 
     func start() {
@@ -307,7 +306,6 @@ class InCoordinator: Coordinator {
         callForAssetAttributeCoordinator = nil
         showTabBar(for: account)
         fetchXMLAssetDefinitions()
-        refreshFunctionCallBasedAssetAttributesForAllTokens()
     }
 
     private func removeAllCoordinators() {
@@ -500,29 +498,6 @@ class InCoordinator: Coordinator {
     func addImported(contract: String) {
         let tokensCoordinator = coordinators.first { $0 is TokensCoordinator } as? TokensCoordinator
         tokensCoordinator?.addImportedToken(for: contract)
-    }
-
-    private func refreshFunctionCallBasedAssetAttributes(forToken token: TokenObject, withTokensDataStore tokensDataStore: TokensDataStore) {
-        guard let callForAssetAttributeCoordinator = callForAssetAttributeCoordinator else { return }
-        callForAssetAttributeCoordinator.contractToRefetch = token.contract
-        _ = TokenAdaptor(token: token).getTokenHolders()
-        callForAssetAttributeCoordinator.contractToRefetch = nil
-    }
-
-    //TODO auto refresh function-call-based asset attributes shouldn't be in InCoordinator
-    private func enableAutoRefreshFunctionCallBasedAssetAttributesForAllTokens() {
-        NotificationCenter.default.addObserver(self, selector: #selector(refreshFunctionCallBasedAssetAttributesForAllTokens), name: UIApplication.didBecomeActiveNotification, object: nil)
-    }
-
-    //TODO the body of this function should be moved somewhere else
-    @objc private func refreshFunctionCallBasedAssetAttributesForAllTokens() {
-        //TODO this refresh mechanism isn't good
-        guard let tokensDataStore = createTokensDatastore() else { return }
-
-        //TODO should we check if no asset definition?
-        for each in tokensDataStore.objects {
-            refreshFunctionCallBasedAssetAttributes(forToken: each, withTokensDataStore: tokensDataStore)
-        }
     }
 }
 
