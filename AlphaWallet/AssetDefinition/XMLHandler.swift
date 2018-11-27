@@ -55,11 +55,11 @@ private class PrivateXMLHandler {
         isOfficial = assetDefinitionStore.isOfficial(contract: contract)
     }
 
-    func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16, config: Config) -> Token {
+    func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16, config: Config, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> Token {
         guard tokenBytes32 != 0 else { return .empty }
         var values = [String: AssetAttributeValue]()
         for (name, attribute) in fields {
-            let value = attribute.extract(from: tokenBytes32, ofContract: contractAddress, config: config, callForAssetAttributeCoordinator: InCoordinator.callForAssetAttributeCoordinator)
+            let value = attribute.extract(from: tokenBytes32, ofContract: contractAddress, config: config, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator)
             values[name] = value
         }
 
@@ -167,6 +167,7 @@ private class PrivateXMLHandler {
 
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public class XMLHandler {
+    static var callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?
     fileprivate static var xmlHandlers: [String: PrivateXMLHandler] = [:]
     private let privateXMLHandler: PrivateXMLHandler
 
@@ -193,7 +194,7 @@ public class XMLHandler {
     }
 
     func getToken(name: String, fromTokenId tokenBytes32: BigUInt, index: UInt16, config: Config) -> Token {
-        return privateXMLHandler.getToken(name: name, fromTokenId: tokenBytes32, index: index, config: config)
+        return privateXMLHandler.getToken(name: name, fromTokenId: tokenBytes32, index: index, config: config, callForAssetAttributeCoordinator: XMLHandler.callForAssetAttributeCoordinator)
     }
 
     func getName() -> String {
