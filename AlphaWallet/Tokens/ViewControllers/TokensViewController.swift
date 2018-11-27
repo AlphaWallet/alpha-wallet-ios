@@ -25,7 +25,6 @@ class TokensViewController: UIViewController {
 	private let filterView = WalletFilterView()
     private var importWalletView: UIView?
     private var importWalletLayer = CAShapeLayer()
-    private var importWalletHelpBubbleView: ImportWalletHelpBubbleView?
     private let tableView: UITableView
     private let tableViewRefreshControl = UIRefreshControl()
     private let collectiblesCollectionViewRefreshControl = UIRefreshControl()
@@ -160,13 +159,11 @@ class TokensViewController: UIViewController {
 
     private func hideImportWalletImage() {
         importWalletView?.isHidden = true
-		importWalletHelpBubbleView?.isHidden = true
     }
 
     private func showImportWalletImage() {
         if let importWalletView = importWalletView {
             importWalletView.isHidden = false
-            importWalletHelpBubbleView?.isHidden = false
             return
         }
         importWalletView = UIView()
@@ -202,17 +199,6 @@ class TokensViewController: UIViewController {
 
                 stackView.centerXAnchor.constraint(equalTo: importWalletView.centerXAnchor),
                 stackView.centerYAnchor.constraint(equalTo: importWalletView.centerYAnchor),
-            ])
-        }
-        importWalletHelpBubbleView = ImportWalletHelpBubbleView()
-		let sideMargin = CGFloat(7)
-        if let importWalletView = importWalletView, let importWalletHelpBubbleView = importWalletHelpBubbleView {
-            view.addSubview(importWalletHelpBubbleView)
-
-            NSLayoutConstraint.activate([
-                importWalletHelpBubbleView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sideMargin),
-                importWalletHelpBubbleView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sideMargin),
-                importWalletHelpBubbleView.topAnchor.constraint(equalTo: importWalletView.bottomAnchor, constant: 7),
             ])
         }
     }
