@@ -4,22 +4,16 @@ import Alamofire
 import Foundation
 import Moya
 
-struct TrustProviderFactory {
-    static let policies: [String: ServerTrustPolicy] = [
+struct AlphaWalletProviderFactory {
+    static let policies: [String: ServerAlphaWalletPolicy] = [
         :
-//        Disabled until: https://github.com/TrustWallet/trust-wallet-ios/pull/129#issuecomment-353718512
-//        "trustwalletapp.com": .pinPublicKeys(
-//            publicKeys: ServerTrustPolicy.publicKeys(in: Bundle.main),
-//            validateCertificateChain: true,
-//            validateHost: true
-//        ),
     ]
 
-    static func makeProvider() -> MoyaProvider<TrustService> {
+    static func makeProvider() -> MoyaProvider<AlphaWalletService> {
         let manager = Manager(
             configuration: URLSessionConfiguration.default,
             serverTrustPolicyManager: ServerTrustPolicyManager(policies: policies)
         )
-        return MoyaProvider<TrustService>(manager: manager)
+        return MoyaProvider<AlphaWalletService>(manager: manager)
     }
 }
