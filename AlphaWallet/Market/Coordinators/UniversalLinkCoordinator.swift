@@ -147,10 +147,16 @@ class UniversalLinkCoordinator: Coordinator {
                     return
                 }
                 //filter null tokens
-                let filteredTokens = strongSelf.checkERC875TokensAreAvailable(
+                var filteredTokens = strongSelf.checkERC875TokensAreAvailable(
                         indices: signedOrder.order.indices,
                         balance: balance
                 )
+
+                //if the token is spawnable then let it continue
+                if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
+                    filteredTokens.append(tokens[0].description)
+                }
+
                 if filteredTokens.isEmpty {
                     strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
                     return
