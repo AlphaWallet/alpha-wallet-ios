@@ -43,14 +43,15 @@ struct ClaimERC875Order: Web3Request {
 
 struct ClaimERC875Spawnable: Web3Request {
     typealias Response = String
-    let tokenIds: [BigUInt]
+    let tokenIds: [String]
     let v: UInt8
     let r: String
     let s: String
     let expiry: BigUInt
+    let recipient: String
 
     var type: Web3RequestType {
-        let abi = "{\"constant\":false,\"inputs\":[{\"name\":\"expiry\",\"type\":\"uint256\"},{\"name\":\"tokenIds\",\"type\":\"uint256[]\"},{\"name\":\"v\",\"type\":\"uint8\"},{\"name\":\"r\",\"type\":\"uint256\"},{\"name\":\"s\",\"type\":\"uint256\"}],\"name\":\"passToSpawnable\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}, [\"\(expiry)\", \(tokenIds), \(v), \"\(r)\", \"\(s)\"]"
+        let abi = "{ \"constant\": false, \"inputs\": [ { \"name\": \"expiry\", \"type\": \"uint256\" }, { \"name\": \"tickets\", \"type\": \"uint256[]\" }, { \"name\": \"v\", \"type\": \"uint8\" }, { \"name\": \"r\", \"type\": \"bytes32\" }, { \"name\": \"s\", \"type\": \"bytes32\" }, { \"name\": \"recipient\", \"type\": \"address\" } ], \"name\": \"spawnPassTo\", \"outputs\": [], \"payable\": false, \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, [\"\(expiry)\", \(tokenIds), \(v), \"\(r)\", \"\(s)\", \"\(recipient)\"]"
         let run = "web3.eth.abi.encodeFunctionCall(" + abi + ")"
         return .script(command: run)
     }
