@@ -84,7 +84,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         footerBar.backgroundColor = Colors.appHighlightGreen
         roundedBackground.addSubview(footerBar)
 
-        let buttonsHeight = CGFloat(60)
+        let buttonsHeight = Metrics.greenButtonHeight
         footerBar.addSubview(buttonsStackView)
 
         NSLayoutConstraint.activate([
@@ -107,7 +107,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.heightAnchor.constraint(equalToConstant: buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
