@@ -7,8 +7,8 @@ import BigInt
 class GasPriceConfigurationTests: XCTestCase {
     
     func testDefault() {
-        XCTAssertEqual(BigInt(9000000000), GasPriceConfiguration.default)
-        XCTAssertEqual(BigInt(1000000000), GasPriceConfiguration.min)
-        XCTAssertEqual(BigInt(470000000000), GasPriceConfiguration.limit)
+        XCTAssertEqual(BigInt(90000), GasPriceConfiguration.default)
+        XCTAssertEqual(BigInt(21000), GasPriceConfiguration.min)
+        XCTAssertEqual(BigInt(4712388), GasPriceConfiguration.limit)
     }
 }

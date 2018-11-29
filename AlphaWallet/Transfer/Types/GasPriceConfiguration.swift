@@ -4,7 +4,7 @@ import Foundation
 import BigInt
 
 public struct GasPriceConfiguration {
-    static let `default`: BigInt = EtherNumberFormatter.full.number(from: "9", units: UnitConfiguration.gasPriceUnit)!
-    static let min: BigInt = EtherNumberFormatter.full.number(from: "1", units: UnitConfiguration.gasPriceUnit)!
-    static let limit: BigInt = EtherNumberFormatter.full.number(from: "470", units: UnitConfiguration.gasPriceUnit)! //roughly the geth default
+    static let `default` = BigInt(90_000)
+    static let min = BigInt(21_000)
+    static let limit = BigInt(4_712_388) //geth default limit
 }

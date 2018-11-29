@@ -13,7 +13,7 @@ class TransactionConfiguratorTests: XCTestCase {
     }
     
     func testAdjustGasPrice() {
-        let desiderGasPrice = BigInt(2000000000)
+        let desiderGasPrice = BigInt(4712388)
         let configurator = TransactionConfigurator(session: .make(), account: .make(), transaction: .make(gasPrice: desiderGasPrice))
         
         XCTAssertEqual(desiderGasPrice, configurator.configuration.gasPrice)
