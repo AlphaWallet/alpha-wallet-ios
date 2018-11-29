@@ -135,49 +135,58 @@ class UniversalLinkCoordinator: Coordinator {
             guard let recoverAddress = Address(string: ethereumAddress.address) else { return false }
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             //gather signer address balance
-            getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(config: config)
-            getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
-                guard let strongSelf = self else { return }
-                guard let balance = try? result.dematerialize() else {
-                    if let reachabilityManager = NetworkReachabilityManager(), !reachabilityManager.isReachable {
-                        strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
-                    } else {
-                        strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
-                    }
-                    return
-                }
-                //filter null tokens
-                var filteredTokens = strongSelf.checkERC875TokensAreAvailable(
-                        indices: signedOrder.order.indices,
-                        balance: balance
-                )
-
-                //if the token is spawnable then let it continue
-                if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
-                    filteredTokens.append(tokens[0].description)
-                }
-
-                if filteredTokens.isEmpty {
-                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
-                    return
-                }
-
-                strongSelf.makeTokenHolder(
-                        filteredTokens,
-                        signedOrder.order.indices,
-                        signedOrder.order.contractAddress
-                )
-
+            if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
                 if signedOrder.order.price == 0 && isStormBirdContract {
-                    strongSelf.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
+                    self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
                         if supported {
-                            strongSelf.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
+                            self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
                         } else {
-                            strongSelf.handlePaidImports(signedOrder: signedOrder)
+                            self.handlePaidImports(signedOrder: signedOrder)
                         }
                     }
                 } else {
-                    strongSelf.handlePaidImports(signedOrder: signedOrder)
+                    self.handlePaidImports(signedOrder: signedOrder)
+                }
+            } else {
+                getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(config: config)
+                getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
+                    guard let strongSelf = self else { return }
+                    guard let balance = try? result.dematerialize() else {
+                        if let reachabilityManager = NetworkReachabilityManager(), !reachabilityManager.isReachable {
+                            strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
+                        } else {
+                            strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                        }
+                        return
+                    }
+
+                    let filteredTokens: [String] = strongSelf.checkERC875TokensAreAvailable(
+                                indices: signedOrder.order.indices,
+                                balance: balance
+                    )
+
+                    if filteredTokens.isEmpty {
+                        strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                        return
+                    }
+
+                    strongSelf.makeTokenHolder(
+                            filteredTokens,
+                            signedOrder.order.indices,
+                            signedOrder.order.contractAddress
+                    )
+
+                    if signedOrder.order.price == 0 && isStormBirdContract {
+                        strongSelf.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
+                            if supported {
+                                strongSelf.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
+                            } else {
+                                strongSelf.handlePaidImports(signedOrder: signedOrder)
+                            }
+                        }
+                    } else {
+                        strongSelf.handlePaidImports(signedOrder: signedOrder)
+                    }
                 }
             }
         case .failure(let error):

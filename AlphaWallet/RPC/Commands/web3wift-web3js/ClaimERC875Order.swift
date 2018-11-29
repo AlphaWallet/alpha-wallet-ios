@@ -43,7 +43,7 @@ struct ClaimERC875Order: Web3Request {
 
 struct ClaimERC875Spawnable: Web3Request {
     typealias Response = String
-    let tokenIds: [String]
+    let tokenIds: [BigUInt]
     let v: UInt8
     let r: String
     let s: String
@@ -51,7 +51,9 @@ struct ClaimERC875Spawnable: Web3Request {
     let recipient: String
 
     var type: Web3RequestType {
-        let abi = "{ \"constant\": false, \"inputs\": [ { \"name\": \"expiry\", \"type\": \"uint256\" }, { \"name\": \"tickets\", \"type\": \"uint256[]\" }, { \"name\": \"v\", \"type\": \"uint8\" }, { \"name\": \"r\", \"type\": \"bytes32\" }, { \"name\": \"s\", \"type\": \"bytes32\" }, { \"name\": \"recipient\", \"type\": \"address\" } ], \"name\": \"spawnPassTo\", \"outputs\": [], \"payable\": false, \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, [\"\(expiry)\", \(tokenIds), \(v), \"\(r)\", \"\(s)\", \"\(recipient)\"]"
+        //BigUInt is cast incorrectly, must be converted to hex string values
+        let tokenStrings: [String] = tokenIds.map { _ in String(tokenIds[0], radix: 16) }
+        let abi = "{ \"constant\": false, \"inputs\": [ { \"name\": \"expiry\", \"type\": \"uint256\" }, { \"name\": \"tickets\", \"type\": \"uint256[]\" }, { \"name\": \"v\", \"type\": \"uint8\" }, { \"name\": \"r\", \"type\": \"bytes32\" }, { \"name\": \"s\", \"type\": \"bytes32\" }, { \"name\": \"recipient\", \"type\": \"address\" } ], \"name\": \"spawnPassTo\", \"outputs\": [], \"payable\": false, \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, [\"\(expiry)\", \(tokenStrings), \(v), \"\(r)\", \"\(s)\", \"\(recipient)\"]"
         let run = "web3.eth.abi.encodeFunctionCall(" + abi + ")"
         return .script(command: run)
     }
