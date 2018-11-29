@@ -69,13 +69,7 @@ class ClaimOrderCoordinator {
                              s: String,
                              recipient: String,
                              completion: @escaping (Result<String, AnyError>) -> Void) {
-        var tokenStrings = [String]()
-        //conversion from BigUInt fails in abi encoding
-        for i in 0..<tokenIds.count {
-            let tokenHex = MarketQueueHandler.bytesToHexa(tokenIds[i].serialize().array)
-            tokenStrings.append(tokenHex)
-        }
-        let request = ClaimERC875Spawnable(tokenIds: tokenStrings, v: v, r: r, s: s, expiry: expiry, recipient: recipient)
+        let request = ClaimERC875Spawnable(tokenIds: tokenIds, v: v, r: r, s: s, expiry: expiry, recipient: recipient)
         web3.request(request: request) { result in
             switch result {
             case .success(let res):
