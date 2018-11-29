@@ -5,14 +5,14 @@ import Foundation
 import Moya
 
 struct TrustProviderFactory {
-    static let policies: [String: ServerAlphaWalletPolicy] = [
+    static let policies: [String: ServerTrustPolicy] = [
         :
     ]
 
     static func makeProvider() -> MoyaProvider<TrustService> {
         let manager = Manager(
             configuration: URLSessionConfiguration.default,
-            serverTrustPolicyManager: ServerAlphaWalletPolicyManager(policies: policies)
+            serverTrustPolicyManager: ServerTrustPolicyManager(policies: policies)
         )
         return MoyaProvider<TrustService>(manager: manager)
     }
