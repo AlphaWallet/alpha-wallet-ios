@@ -28,7 +28,6 @@ class CallForAssetAttributeCoordinator {
         refreshFunctionCallBasedAssetAttributesForAllTokens()
     }
 
-    //TODO too long
     func getValue(
             forAttributeName attributeName: String,
             tokenId: BigUInt,
@@ -65,58 +64,7 @@ class CallForAssetAttributeCoordinator {
             return subscribable
         }
 
-        let promise = Promise<AssetAttributeValue> { seal in
-            guard let contractAddress = EthereumAddress(functionCall.contract) else {
-                seal.reject(Web3Error(description: "Error converting contract address: \(functionCall.contract)"))
-                return
-            }
-
-            guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
-                seal.reject(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)")))
-                return
-            }
-
-            guard let function = CallForAssetAttribute(functionName: functionCall.functionName, inputs: functionCall.inputs, output: functionCall.output) else {
-                seal.reject(AnyError(Web3Error(description: "Failed to create CallForAssetAttribute instance for function: \(functionCall.functionName)")))
-                return
-            }
-
-            let web3 = web3swift.web3(provider: webProvider)
-            guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: contractAddress, options: web3.options) else {
-                seal.reject(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(function.name)()")))
-                return
-            }
-
-            guard let promise = contractInstance.method(function.name, parameters: functionCall.arguments, options: nil) else {
-                seal.reject(AnyError(Web3Error(description: "Error calling \(function.name)() on contract: \(functionCall.contract)")))
-                return
-            }
-
-            //Fine to store a strong reference to self here because it's still useful to cache the function call result
-            promise.callPromise(options: nil).done { dictionary in
-                if let value = dictionary["0"] {
-                    switch functionCall.output.type {
-                    case .bool:
-                        let result = value as? Bool ?? false
-                        seal.fulfill(result)
-                        self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
-                    case .string:
-                        let result = value as? String ?? ""
-                        seal.fulfill(result)
-                        self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
-                    case .int, .int8, .int16, .int32, .int64, .int128, .int256, .uint, .uint8, .uint16, .uint32, .uint64, .uint128, .uint256:
-                        let result = value as? Int ?? 0
-                        seal.fulfill(result)
-                        self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
-                    }
-                } else {
-                    //TODO replace Web3Error here?
-                    seal.reject(Web3Error(description: "nil result from calling: \(function.name)() on contract: \(functionCall.contract)"))
-                }
-            }.catch { error in
-                seal.reject(AnyError(error))
-            }
-        }
+        let promise = makeRpcPromise(forAttributeName: attributeName, tokenId: tokenId, functionCall: functionCall)
         promiseCache[functionCall] = promise
 
         //TODO need to throttle smart contract function calls?
@@ -165,6 +113,63 @@ class CallForAssetAttributeCoordinator {
             return true
         } else {
             return false
+        }
+    }
+
+    private func makeRpcPromise(
+            forAttributeName attributeName: String,
+            tokenId: BigUInt,
+            functionCall: AssetAttributeFunctionCall) -> Promise<AssetAttributeValue> {
+        return Promise<AssetAttributeValue> { seal in
+            guard let contractAddress = EthereumAddress(functionCall.contract) else {
+                seal.reject(Web3Error(description: "Error converting contract address: \(functionCall.contract)"))
+                return
+            }
+
+            guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
+                seal.reject(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)")))
+                return
+            }
+
+            guard let function = CallForAssetAttribute(functionName: functionCall.functionName, inputs: functionCall.inputs, output: functionCall.output) else {
+                seal.reject(AnyError(Web3Error(description: "Failed to create CallForAssetAttribute instance for function: \(functionCall.functionName)")))
+                return
+            }
+
+            let web3 = web3swift.web3(provider: webProvider)
+            guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: contractAddress, options: web3.options) else {
+                seal.reject(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(function.name)()")))
+                return
+            }
+
+            guard let promise = contractInstance.method(function.name, parameters: functionCall.arguments, options: nil) else {
+                seal.reject(AnyError(Web3Error(description: "Error calling \(function.name)() on contract: \(functionCall.contract)")))
+                return
+            }
+
+            //Fine to store a strong reference to self here because it's still useful to cache the function call result
+            promise.callPromise(options: nil).done { dictionary in
+                if let value = dictionary["0"] {
+                    switch functionCall.output.type {
+                    case .bool:
+                        let result = value as? Bool ?? false
+                        seal.fulfill(result)
+                        self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
+                    case .string:
+                        let result = value as? String ?? ""
+                        seal.fulfill(result)
+                        self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
+                    case .int, .int8, .int16, .int32, .int64, .int128, .int256, .uint, .uint8, .uint16, .uint32, .uint64, .uint128, .uint256:
+                        let result = value as? Int ?? 0
+                        seal.fulfill(result)
+                        self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
+                    }
+                } else {
+                    seal.reject(Web3Error(description: "nil result from calling: \(function.name)() on contract: \(functionCall.contract)"))
+                }
+            }.catch { error in
+                seal.reject(AnyError(error))
+            }
         }
     }
 }
