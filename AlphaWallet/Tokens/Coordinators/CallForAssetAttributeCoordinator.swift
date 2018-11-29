@@ -15,7 +15,7 @@ class CallForAssetAttributeCoordinator {
     private static var functionCallCache = [AssetAttributeFunctionCall: Subscribable<AssetAttributeValue>]()
 
     private let config: Config
-    private var tokensDataStore: TokensDataStore
+    private let tokensDataStore: TokensDataStore
     private var promiseCache = [AssetAttributeFunctionCall: Promise<AssetAttributeValue>]()
 
     var contractToRefetch: String?
@@ -23,9 +23,11 @@ class CallForAssetAttributeCoordinator {
     init(config: Config, tokensDataStore: TokensDataStore) {
         self.config = config
         self.tokensDataStore = tokensDataStore
+
+        NotificationCenter.default.addObserver(self, selector: #selector(refreshFunctionCallBasedAssetAttributesForAllTokens), name: UIApplication.didBecomeActiveNotification, object: nil)
+        refreshFunctionCallBasedAssetAttributesForAllTokens()
     }
 
-    //TODO too long
     func getValue(
             forAttributeName attributeName: String,
             tokenId: BigUInt,
@@ -62,7 +64,63 @@ class CallForAssetAttributeCoordinator {
             return subscribable
         }
 
-        let promise = Promise<AssetAttributeValue> { seal in
+        let promise = makeRpcPromise(forAttributeName: attributeName, tokenId: tokenId, functionCall: functionCall)
+        promiseCache[functionCall] = promise
+
+        //TODO need to throttle smart contract function calls?
+        promise.done { [weak self] result in
+            guard let strongSelf = self else { return }
+            subscribable.value = result as AssetAttributeValue
+            strongSelf.promiseCache.removeValue(forKey: functionCall)
+        }.catch { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.promiseCache.removeValue(forKey: functionCall)
+        }
+
+        return subscribable
+    }
+
+    @objc func refreshFunctionCallBasedAssetAttributesForAllTokens() {
+        for each in tokensDataStore.objects {
+            refreshFunctionCallBasedAssetAttributes(forToken: each)
+        }
+    }
+
+    private func refreshFunctionCallBasedAssetAttributes(forToken token: TokenObject) {
+        contractToRefetch = token.contract
+        _ = TokenAdaptor(token: token).getTokenHolders()
+        contractToRefetch = nil
+    }
+
+    private func updateDataStore(forContract contract: String, tokenId: BigUInt, attributeName: String, value: AssetAttributeValue) {
+        tokensDataStore.update(contract: contract, tokenId: String(tokenId, radix: 16).add0x, action: .updateJsonProperty(attributeName, value))
+    }
+
+    private func jsonAttributeValueInDatabase(forContract contract: String, tokenId: BigUInt, attributeName: String) -> Any? {
+        return tokensDataStore.jsonAttributeValue(forContract: contract, tokenId: String(tokenId, radix: 16).add0x, attributeName: attributeName)
+    }
+
+    private func cache(functionCall: AssetAttributeFunctionCall, result: Subscribable<AssetAttributeValue>) {
+        CallForAssetAttributeCoordinator.functionCallCache[functionCall] = result
+    }
+
+    private func cache(forFunctionCall functionCall: AssetAttributeFunctionCall) -> Subscribable<AssetAttributeValue>? {
+        return CallForAssetAttributeCoordinator.functionCallCache[functionCall]
+    }
+
+    private func shouldRefresh(functionCall: AssetAttributeFunctionCall) -> Bool {
+        if let contractToRefetch = contractToRefetch, contractToRefetch.sameContract(as: functionCall.contract) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    private func makeRpcPromise(
+            forAttributeName attributeName: String,
+            tokenId: BigUInt,
+            functionCall: AssetAttributeFunctionCall) -> Promise<AssetAttributeValue> {
+        return Promise<AssetAttributeValue> { seal in
             guard let contractAddress = EthereumAddress(functionCall.contract) else {
                 seal.reject(Web3Error(description: "Error converting contract address: \(functionCall.contract)"))
                 return
@@ -107,49 +165,11 @@ class CallForAssetAttributeCoordinator {
                         self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
                     }
                 } else {
-                    //TODO replace Web3Error here?
                     seal.reject(Web3Error(description: "nil result from calling: \(function.name)() on contract: \(functionCall.contract)"))
                 }
             }.catch { error in
                 seal.reject(AnyError(error))
             }
-        }
-        promiseCache[functionCall] = promise
-
-        //TODO need to throttle smart contract function calls?
-        promise.done { [weak self] result in
-            guard let strongSelf = self else { return }
-            subscribable.value = result as AssetAttributeValue
-            strongSelf.promiseCache.removeValue(forKey: functionCall)
-        }.catch { [weak self] _ in
-            guard let strongSelf = self else { return }
-            strongSelf.promiseCache.removeValue(forKey: functionCall)
-        }
-
-        return subscribable
-    }
-
-    private func updateDataStore(forContract contract: String, tokenId: BigUInt, attributeName: String, value: AssetAttributeValue) {
-        tokensDataStore.update(contract: contract, tokenId: String(tokenId, radix: 16).add0x, action: .updateJsonProperty(attributeName, value))
-    }
-
-    private func jsonAttributeValueInDatabase(forContract contract: String, tokenId: BigUInt, attributeName: String) -> Any? {
-        return tokensDataStore.jsonAttributeValue(forContract: contract, tokenId: String(tokenId, radix: 16).add0x, attributeName: attributeName)
-    }
-
-    private func cache(functionCall: AssetAttributeFunctionCall, result: Subscribable<AssetAttributeValue>) {
-        CallForAssetAttributeCoordinator.functionCallCache[functionCall] = result
-    }
-
-    private func cache(forFunctionCall functionCall: AssetAttributeFunctionCall) -> Subscribable<AssetAttributeValue>? {
-        return CallForAssetAttributeCoordinator.functionCallCache[functionCall]
-    }
-
-    private func shouldRefresh(functionCall: AssetAttributeFunctionCall) -> Bool {
-        if let contractToRefetch = contractToRefetch, contractToRefetch.sameContract(as: functionCall.contract) {
-            return true
-        } else {
-            return false
         }
     }
 }

@@ -75,7 +75,6 @@ enum AssetAttribute {
         }()
     }
 
-    //TODO combine with the `init()` above
     init(attribute: XMLElement, functionElement: XMLElement, rootNamespacePrefix: String, namespaces: [String: String]) {
         self = {
             if let attributeName = attribute["id"],
