@@ -3,7 +3,7 @@
 import Foundation
 import Moya
 
-enum AlphaWalletService {
+enum TrustService {
     case prices
     case getTransactions(address: String, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
     case getTransaction(ID: String)
@@ -17,7 +17,7 @@ enum AlphaWalletService {
     }
 }
 
-extension AlphaWalletService: TargetType {
+extension TrustService: TargetType {
     var baseURL: URL {
         switch self {
         case .getTransactions:

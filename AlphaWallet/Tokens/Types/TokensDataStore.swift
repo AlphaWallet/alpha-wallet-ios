@@ -49,7 +49,7 @@ class TokensDataStore {
         return GetDecimalsCoordinator(config: config)
     }()
 
-    private let provider = AlphaWalletProviderFactory.makeProvider()
+    private let provider = TrustProviderFactory.makeProvider()
 
     private let account: Wallet
     private let config: Config
