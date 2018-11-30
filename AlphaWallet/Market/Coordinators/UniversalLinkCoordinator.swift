@@ -112,6 +112,21 @@ class UniversalLinkCoordinator: Coordinator {
         return true
     }
 
+    func completeOrderHandling(signedOrder: SignedOrder, isStormBirdContract: Bool)
+    {
+        if signedOrder.order.price == 0 && isStormBirdContract {
+            self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
+                if supported {
+                    self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
+                } else {
+                    self.handlePaidImports(signedOrder: signedOrder)
+                }
+            }
+        } else {
+            self.handlePaidImports(signedOrder: signedOrder)
+        }
+    }
+
     //Returns true if handled
     func handleUniversalLink(url: URL) -> Bool {
         let prefix = UniversalLinkHandler().urlPrefix
@@ -136,17 +151,13 @@ class UniversalLinkCoordinator: Coordinator {
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             //gather signer address balance
             if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
-                if signedOrder.order.price == 0 && isStormBirdContract {
-                    self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
-                        if supported {
-                            self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
-                        } else {
-                            self.handlePaidImports(signedOrder: signedOrder)
-                        }
-                    }
-                } else {
-                    self.handlePaidImports(signedOrder: signedOrder)
-                }
+                let tokenStrings: [String] = tokens.map { String($0, radix: 16) }
+                self.makeTokenHolder(
+                        tokenStrings,
+                        [UInt16](),
+                        signedOrder.order.contractAddress
+                )
+                completeOrderHandling(signedOrder: signedOrder, isStormBirdContract: isStormBirdContract)
             } else {
                 getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(config: config)
                 getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
@@ -176,17 +187,10 @@ class UniversalLinkCoordinator: Coordinator {
                             signedOrder.order.contractAddress
                     )
 
-                    if signedOrder.order.price == 0 && isStormBirdContract {
-                        strongSelf.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
-                            if supported {
-                                strongSelf.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
-                            } else {
-                                strongSelf.handlePaidImports(signedOrder: signedOrder)
-                            }
-                        }
-                    } else {
-                        strongSelf.handlePaidImports(signedOrder: signedOrder)
-                    }
+                    strongSelf.completeOrderHandling(
+                        signedOrder: signedOrder,
+                        isStormBirdContract: isStormBirdContract
+                    )
                 }
             }
         case .failure(let error):
