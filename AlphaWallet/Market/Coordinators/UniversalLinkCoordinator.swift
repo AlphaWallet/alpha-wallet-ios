@@ -154,7 +154,6 @@ class UniversalLinkCoordinator: Coordinator {
                 let tokenStrings: [String] = tokens.map { String($0, radix: 16) }
                 self.makeTokenHolder(
                         tokenStrings,
-                        [UInt16](),
                         signedOrder.order.contractAddress
                 )
                 completeOrderHandling(signedOrder: signedOrder, isStormBirdContract: isStormBirdContract)
@@ -183,7 +182,6 @@ class UniversalLinkCoordinator: Coordinator {
 
                     strongSelf.makeTokenHolder(
                             filteredTokens,
-                            signedOrder.order.indices,
                             signedOrder.order.contractAddress
                     )
 
@@ -283,7 +281,7 @@ class UniversalLinkCoordinator: Coordinator {
         return filteredTokens
     }
 
-    private func makeTokenHolder(_ bytes32Tokens: [String], _ indices: [UInt16], _ contractAddress: String) {
+    private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: String) {
         assetDefinitionStore.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
             guard let strongSelf = self else { return }
 
