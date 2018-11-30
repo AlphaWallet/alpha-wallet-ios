@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<t:token xmlns:t="http://attestation.id/ns/tbml"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="tbml.xsd"
+	  xmlns="http://www.w3.org/1999/xhtml">
+  <t:appearance>
+    <t:name xml:lang="en">αWallet Office Entry Token</t:name><t:name xml:lang="zh">αWallet辦公室出入憑證</t:name>
+    <t:introduction xml:lang="en"><!-- displayed when the user have 0 tokens -->
+      <h1>Security Token allows you to enter αWallet office</h1>
+      <p><a href="https://google.com.sg/">Go</a> or <script>document.write("Javascript is included"); alert("hello world")</script>If you haven't got one, and you think you should have one, contact the office manager.</p>
+      <span>Here's a <button onClick="document.write('Javascript for button is included')">button</button></span>
+    </t:introduction>
+    <t:introduction xml:lang="zh"><!-- displayed when the user have 0 tokens -->
+      <h1>需要使用αWallet辦公室出入憑證才能進入辦公室</h1>
+      <p>如果您應該擁有此Token，請聯系辦公室行政。</p>
+    </t:introduction>
+    <t:instruction xml:lang="en"><!-- dispalyed when the user have some tokens -->
+      <h1>Instructions to open the office door</h1>
+      <iframe src="https://google.com.sg/"></iframe>
+      <img alt="A numeric pad with 10 digits, with asterisk on the lower-left corner and number sign on the lower-right corner."
+           src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGoAAABUAQMAAABQnzAJAAAABlBMVEX///8AAABVwtN+AAAACXBI
+WXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4goXCAQH5D1msQAAAUdJREFUOMvVkzFSwzAQRf/KArtg
+gulTaHICH4AZFCofipmo8AE4AkfREXKEHMElnfkryQ4xDE0oQONi32il3f+1Bn5c1TSNeJqmHOBO
+vwjEFKBjQsWsTgPAAWKIrQaAR8CALRpfjwy9KO6IaInBBPTYwwaeY6pVFEWfTioaxbigXZITNopt
+SR8YlZszOqJ1DF09sqsDu6qifOl5pWil95p1nXWeEg6UIKekKBI9kTkUL57yPeXb5LK5RKv4QrxJ
+1jW+OHmbrLs/FZ9ttk4LiXqVrVN81kLJOj6awSO7kj9sXXrfzdykzsCAh1mCpwgOQygCVVPP3SJf
+93uetcF0C+quHJcxc6GM2QrzmGkhuGXqNsQqpjIXD/pPpg7lh5Wzot2Mwb6WH1bSIJm3gvW7osTv
+dzMuZ1Nyvnl/LoTPhXJXW31Q96vWfQA1zLLR3ye5DwAAAABJRU5ErkJggg==" style="float: left;"/>
+      <ol>
+        <li>Key in the office number you are going to access.</li>
+        <li>Wait for the beep</li>
+        <li>Door opens automatically.</li>
+      </ol>
+    </t:instruction>
+    <t:instruction xml:lang="zh"><!-- dispalyed when the user have some tokens -->
+    <h1>辦公室出入憑證使用方法</h1>
+    <img alt="一個數字鍵盤，其左下角是星號，右下角是井號。"
+         src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGoAAABUAQMAAABQnzAJAAAABlBMVEX///8AAABVwtN+AAAACXBI
+WXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4goXCAQH5D1msQAAAUdJREFUOMvVkzFSwzAQRf/KArtg
+gulTaHICH4AZFCofipmo8AE4AkfREXKEHMElnfkryQ4xDE0oQONi32il3f+1Bn5c1TSNeJqmHOBO
+vwjEFKBjQsWsTgPAAWKIrQaAR8CALRpfjwy9KO6IaInBBPTYwwaeY6pVFEWfTioaxbigXZITNopt
+SR8YlZszOqJ1DF09sqsDu6qifOl5pWil95p1nXWeEg6UIKekKBI9kTkUL57yPeXb5LK5RKv4QrxJ
+1jW+OHmbrLs/FZ9ttk4LiXqVrVN81kLJOj6awSO7kj9sXXrfzdykzsCAh1mCpwgOQygCVVPP3SJf
+93uetcF0C+quHJcxc6GM2QrzmGkhuGXqNsQqpjIXD/pPpg7lh5Wzot2Mwb6WH1bSIJm3gvW7osTv
+dzMuZ1Nyvnl/LoTPhXJXW31Q96vWfQA1zLLR3ye5DwAAAABJRU5ErkJggg==" style="float: left;"/>
+    <ol>
+      <li>輸入您要進入的辦公室編號</li>
+      <li>等待提示音</li>
+      <li>門會自動開啓.</li>
+    </ol>
+  </t:instruction>
+  </t:appearance>
+  <t:features>
+    <t:action contract="holding-contract">
+      <t:name xml:lang="en">Open Door</t:name>
+      <t:function name="name">
+        <t:inputs>
+          <t:uint256 ref="tokenID"/>
+        </t:inputs>
+      </t:function>
+      <t:condition></t:condition>
+    </t:action>
+  </t:features>
+  <t:contracts>
+    <t:contract id="holding_contract" type="ERC20">
+      <t:address>0xd2a0ddf0f4d7876303a784cfadd8f95ec1fb791c</t:address>
+      <t:name xml:lang="en">Office Entry</t:name><t:name xml:lang="zh">辦公室出入</t:name>
+    </t:contract>
+  </t:contracts>
+</t:token>

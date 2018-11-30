@@ -71,4 +71,20 @@ extension TokenCardRowViewModelProtocol {
     var detailsFont: UIFont {
         return Fonts.light(size: 16)!
     }
+
+    var buttonTitleColor: UIColor {
+        return Colors.appWhite
+    }
+
+    var disabledButtonTitleColor: UIColor {
+        return Colors.darkGray
+    }
+
+    var buttonBackgroundColor: UIColor {
+        return Colors.appHighlightGreen
+    }
+
+    var buttonFont: UIFont {
+        return Fonts.regular(size: 20)!
+    }
 }

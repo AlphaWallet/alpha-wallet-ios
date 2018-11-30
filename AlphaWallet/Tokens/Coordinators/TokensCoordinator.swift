@@ -347,7 +347,8 @@ class TokensCoordinator: Coordinator {
     }
 
     private func showTokenList(for type: PaymentFlow, token: TokenObject) {
-        guard !token.nonZeroBalance.isEmpty else {
+        let hasAssetDefinition = XMLHandler(contract: token.address.eip55String).hasAssetDefinition
+        guard hasAssetDefinition || !token.nonZeroBalance.isEmpty else {
             navigationController.displayError(error: NoTokenError())
             return
         }

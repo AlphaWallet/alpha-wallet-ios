@@ -10,6 +10,7 @@ import Foundation
 import BigInt
 import Kanna
 import TrustKeystore
+import BRCybertron
 
 enum SingularOrPlural {
     case singular
@@ -41,6 +42,47 @@ private class PrivateXMLHandler {
     }
 
     let hasAssetDefinition: Bool
+
+    var introductionHtmlString: String {
+        let lang = getLang()
+        //TODO fallback to first if not found
+        if let introductionElement = XMLHandler.getTbmlIntroductionElement(fromRoot: xml, namespacePrefix: rootNamespacePrefix, namespaces: namespaces, forLang: lang) {
+            let html = introductionElement.innerHTML ?? ""
+            return sanitize(html: html)
+        } else {
+            return ""
+        }
+    }
+
+    private lazy var xsltToSanitizeHtml: Data? = {
+        //Stripping <html> also strips the <html> we had to wrap the content with when we sanitize
+        return """
+                <xsl:stylesheet version="1.0"
+                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                      <xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
+                      <xsl:template match="node()|@*">
+                      <xsl:copy>
+                        <xsl:apply-templates select="node()|@*"/>
+                      </xsl:copy>
+                    </xsl:template>
+
+                    <xsl:template match="*[name() = 'iframe']">
+                    </xsl:template>
+                    <xsl:template match="*[name() = 'script']">
+                    </xsl:template>
+
+                    <xsl:template match="*[name() = 'a']">
+                        <xsl:apply-templates/>
+                    </xsl:template>
+                     <xsl:template match="*[name() = 'button']">
+                         <xsl:apply-templates/>
+                     </xsl:template>
+                     <xsl:template match="*[name() = 'html']">
+                         <xsl:apply-templates/>
+                     </xsl:template>
+                </xsl:stylesheet>
+              """.data(using: .utf8)
+    }()
 
     init(contract: String, assetDefinitionStore store: AssetDefinitionStore?) {
         contractAddress = contract.add0x.lowercased()
@@ -163,6 +205,18 @@ private class PrivateXMLHandler {
             return ""
         }
     }
+
+    //TODO Need to cache? Too slow?
+    private func sanitize(html: String) -> String {
+        guard let xsltToSanitizeHtml = xsltToSanitizeHtml else { return "" }
+        //Wrapping with <html> (<body> should work too) is essential otherwise encoding of the output will be wrong
+        let wrappedHtml = "<html>\(html)</html>"
+        guard let xmlData = wrappedHtml.data(using: .utf8) else { return "" }
+        let xslt = CYTemplate(data: xsltToSanitizeHtml)
+        //We really want `CYParsingDefaultOptions` but the compiler doesn't let us so we use `.init(rawValue: 0)`. Note that this is different from `[]`.
+        let source = CYDataInputSource(data: xmlData, options: .init(rawValue: 0))
+        return xslt.transform(toString: source, parameters: [:], error: nil)
+    }
 }
 
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
@@ -173,6 +227,10 @@ public class XMLHandler {
 
     var hasAssetDefinition: Bool {
         return privateXMLHandler.hasAssetDefinition
+    }
+
+    var introductionHtmlString: String {
+        return privateXMLHandler.introductionHtmlString
     }
 
     init(contract: String, assetDefinitionStore: AssetDefinitionStore? = nil) {
@@ -289,5 +347,9 @@ extension XMLHandler {
             let fallback = optionElement.at_xpath("value[1]".addToXPath(namespacePrefix: namespacePrefix), namespaces: namespaces)?.text
             return fallback
         }
+    }
+
+     static func getTbmlIntroductionElement(fromRoot root: XMLDocument, namespacePrefix: String, namespaces: [String: String], forLang lang: String) -> XMLElement? {
+        return root.at_xpath("/token/appearance/introduction[@xml:lang='\(lang)']".addToXPath(namespacePrefix: namespacePrefix), namespaces: namespaces)
     }
 }
