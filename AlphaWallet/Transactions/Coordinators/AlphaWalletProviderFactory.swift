@@ -4,16 +4,14 @@ import Alamofire
 import Foundation
 import Moya
 
-struct TrustProviderFactory {
-    static let policies: [String: ServerTrustPolicy] = [
-        :
-    ]
+struct AlphaWalletProviderFactory {
+    static let policies: [String: ServerTrustPolicy] = [:]
     
-    static func makeProvider() -> MoyaProvider<TrustService> {
+    static func makeProvider() -> MoyaProvider<AlphaWalletService> {
         let manager = Manager(
             configuration: URLSessionConfiguration.default,
             serverTrustPolicyManager: ServerTrustPolicyManager(policies: policies)
         )
-        return MoyaProvider<TrustService>(manager: manager)
+        return MoyaProvider<AlphaWalletService>(manager: manager)
     }
 }
