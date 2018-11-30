@@ -491,6 +491,7 @@
 		76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */; };
 		76F1D13FC8A41AD967C59947 /* ClaimOrderCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */; };
 		76F1D5AF727A83205BBCF0EC /* OrderHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */; };
+		76F1D5B10569F2351CA98A93 /* GasLimitConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE9EF8E265016BF02659 /* GasLimitConfiguration.swift */; };
 		76F1D5ECC391A932C96CAC13 /* GetENSOwnerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE7BEE799DDFB68D0F54 /* GetENSOwnerCoordinator.swift */; };
 		76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */; };
 		76F1D7F08263A663C3A67926 /* GetIsERC721ContractCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D4F77311FBF3A442E4B5 /* GetIsERC721ContractCoordinator.swift */; };
@@ -1080,6 +1081,7 @@
 		76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandler.swift; sourceTree = "<group>"; };
 		76F1DE7BEE799DDFB68D0F54 /* GetENSOwnerCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetENSOwnerCoordinator.swift; sourceTree = "<group>"; };
 		76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderSigningTests.swift; sourceTree = "<group>"; };
+		76F1DE9EF8E265016BF02659 /* GasLimitConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasLimitConfiguration.swift; sourceTree = "<group>"; };
 		76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetContractInteractions.swift; sourceTree = "<group>"; };
 		76F1DF80932454E9F58B7830 /* CreateRedeem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeem.swift; sourceTree = "<group>"; };
 		771A8484203242B400528D28 /* InCoordinatorViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InCoordinatorViewModelTests.swift; sourceTree = "<group>"; };
@@ -1989,6 +1991,7 @@
 				29C70C702016C7780072E454 /* SentTransaction.swift */,
 				BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */,
 				5E7C778A54D7D3E196BC5542 /* DAppRequster.swift */,
+				76F1DE9EF8E265016BF02659 /* GasLimitConfiguration.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3953,6 +3956,7 @@
 				5E7C73CA81FB2CE9BCAFC992 /* CallForAssetAttribute.swift in Sources */,
 				5E7C77552A957D1B144D9209 /* CallForAssetAttributeCoordinator.swift in Sources */,
 				5E7C7C8BC4763CFDD3EE119D /* AssetAttributeFunctionCall.swift in Sources */,
+				76F1D5B10569F2351CA98A93 /* GasLimitConfiguration.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -96,9 +96,9 @@ class ConfigureTransactionViewController: FormViewController {
         <<< SliderTextFieldRow(Values.gasPrice) {
             $0.title = R.string.localizable.configureTransactionGasPriceGweiLabelTitle()
             $0.value = Float(gasPriceGwei) ?? 1
-            $0.minimumValue = Float(GasPriceConfiguration.min / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
-            $0.maximumValue = Float(GasPriceConfiguration.limit / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
-            $0.steps = UInt((GasPriceConfiguration.limit / GasPriceConfiguration.min))
+            $0.minimumValue = Float(GasPriceConfiguration.minPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
+            $0.maximumValue = Float(GasPriceConfiguration.maxPrice / BigInt(UnitConfiguration.gasPriceUnit.rawValue))
+            $0.steps = UInt((GasPriceConfiguration.maxPrice / GasPriceConfiguration.minPrice))
             $0.displayValueFor = { (rowValue: Float?) in
                 return "\(Int(rowValue ?? 1))"
             }
@@ -114,9 +114,9 @@ class ConfigureTransactionViewController: FormViewController {
         <<< SliderTextFieldRow(Values.gasLimit) {
             $0.title = R.string.localizable.configureTransactionGasLimitLabelTitle()
             $0.value = Float(configuration.gasLimit.description) ?? 21000
-            $0.minimumValue = Float(GasPriceConfiguration.min)
-            $0.maximumValue = Float(GasPriceConfiguration.limit)
-            $0.steps = UInt((GasPriceConfiguration.limit - GasPriceConfiguration.min) / 1000)
+            $0.minimumValue = Float(GasLimitConfiguration.minGasLimit)
+            $0.maximumValue = Float(GasLimitConfiguration.maxGasLimit)
+            $0.steps = UInt((GasLimitConfiguration.maxGasLimit - GasLimitConfiguration.minGasLimit) / 1000)
             $0.displayValueFor = { (rowValue: Float?) in
                 return "\(Int(rowValue ?? 1))"
             }
