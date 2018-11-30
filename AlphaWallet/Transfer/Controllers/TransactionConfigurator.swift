@@ -52,7 +52,7 @@ class TransactionConfigurator {
 
         self.configuration = TransactionConfiguration(
             gasPrice: min(max(transaction.gasPrice ?? GasPriceConfiguration.defaultPrice, GasPriceConfiguration.minPrice), GasPriceConfiguration.maxPrice),
-            gasLimit: transaction.gasLimit ?? GasPriceConfiguration.maxPrice,
+            gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit,
             data: transaction.data ?? Data()
         )
     }
@@ -171,7 +171,7 @@ class TransactionConfigurator {
                     let data = Data(hex: res.drop0x)
                     self.configuration = TransactionConfiguration(
                             gasPrice: self.calculatedGasPrice,
-                            gasLimit: GasPriceConfiguration.maxPrice,
+                            gasLimit: GasLimitConfiguration.maxGasLimit,
                             data: data
                     )
                     completion(.success(()))
