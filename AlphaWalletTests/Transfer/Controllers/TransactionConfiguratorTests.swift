@@ -9,11 +9,11 @@ class TransactionConfiguratorTests: XCTestCase {
     func testDefault() {
         let configurator = TransactionConfigurator(session: .make(), account: .make(), transaction: .make(gasLimit: BigInt(90000), gasPrice: .none))
         
-        XCTAssertEqual(GasPriceConfiguration.default, configurator.configuration.gasPrice)
+        XCTAssertEqual(GasPriceConfiguration.defaultPrice, configurator.configuration.gasPrice)
     }
     
     func testAdjustGasPrice() {
-        let desiderGasPrice = BigInt(2000000000)
+        let desiderGasPrice = BigInt(1000000000)
         let configurator = TransactionConfigurator(session: .make(), account: .make(), transaction: .make(gasPrice: desiderGasPrice))
         
         XCTAssertEqual(desiderGasPrice, configurator.configuration.gasPrice)
@@ -22,13 +22,13 @@ class TransactionConfiguratorTests: XCTestCase {
     func testMinGasPrice() {
         let configurator = TransactionConfigurator(session: .make(), account: .make(), transaction: .make(gasPrice: BigInt(1)))
         
-        XCTAssertEqual(GasPriceConfiguration.min, configurator.configuration.gasPrice)
+        XCTAssertEqual(GasPriceConfiguration.minPrice, configurator.configuration.gasPrice)
     }
     
     func testMaxGasPrice() {
         let configurator = TransactionConfigurator(session: .make(), account: .make(), transaction: .make(gasPrice: BigInt(990000000000)))
         
-        XCTAssertEqual(GasPriceConfiguration.limit, configurator.configuration.gasPrice)
+        XCTAssertEqual(GasPriceConfiguration.maxPrice, configurator.configuration.gasPrice)
     }
     
     func testLoadEtherConfiguration() {
@@ -36,7 +36,7 @@ class TransactionConfiguratorTests: XCTestCase {
 
         configurator.load { _ in }
         
-        XCTAssertEqual(BigInt(GasPriceConfiguration.default), configurator.configuration.gasPrice)
+        XCTAssertEqual(BigInt(GasPriceConfiguration.defaultPrice), configurator.configuration.gasPrice)
         XCTAssertEqual(BigInt(90000), configurator.configuration.gasLimit)
     }
 }

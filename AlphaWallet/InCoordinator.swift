@@ -417,9 +417,9 @@ class InCoordinator: Coordinator {
                         value: BigInt(signedOrder.order.price),
                         to: address,
                         data: Data(bytes: payload.hexa2Bytes),
-                        gasLimit: GasPriceConfiguration.limit,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
                         tokenId: .none,
-                        gasPrice: GasPriceConfiguration.default,
+                        gasPrice: GasPriceConfiguration.defaultPrice,
                         nonce: .none,
                         v: v,
                         r: r,
@@ -473,7 +473,7 @@ class InCoordinator: Coordinator {
                         to: signTransaction.to,
                         nonce: signTransaction.nonce,
                         data: signTransaction.data,
-                        gasPrice: GasPriceConfiguration.default,
+                        gasPrice: GasPriceConfiguration.defaultPrice,
                         gasLimit: signTransaction.gasLimit,
                         chainID: strongSelf.config.chainID
                 )
