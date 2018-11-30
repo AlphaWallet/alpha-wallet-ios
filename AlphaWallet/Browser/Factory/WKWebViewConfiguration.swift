@@ -78,8 +78,6 @@ extension WKWebViewConfiguration {
         web3.eth.getCoinbase = function(cb) {
             return cb(null, addressHex)
         }
-        web3.currentProvider.isAlphaWallet = false
-
         """
         let userScript = WKUserScript(source: js, injectionTime: .atDocumentStart, forMainFrameOnly: false)
         webViewConfig.userContentController.add(messageHandler, name: Method.signTransaction.rawValue)

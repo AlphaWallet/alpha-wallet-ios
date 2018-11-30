@@ -94,3 +94,7 @@ extension UISegmentedControl {
         subviews.forEach { $0.tintColor = Colors.appBackground }
     }
 }
+
+enum Metrics {
+    static let greenButtonHeight = CGFloat(48)
+}
