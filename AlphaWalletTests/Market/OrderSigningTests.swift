@@ -21,7 +21,8 @@ class OrderSigningTests: XCTestCase {
                                contractAddress: contractAddress,
                                start: BigUInt("91239231313")!,
                                count: 3,
-                               tokenIds: [BigUInt]()
+                               tokenIds: [BigUInt](),
+                               spawnable: false
         )
         for _ in 0...2015 {
             testOrdersList.append(testOrder1)
