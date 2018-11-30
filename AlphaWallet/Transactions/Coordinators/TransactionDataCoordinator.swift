@@ -38,7 +38,7 @@ class TransactionDataCoordinator {
     private lazy var transactionsTracker: TransactionsTracker = {
         return TransactionsTracker(sessionID: session.sessionID)
     }()
-    private let trustProvider = TrustProviderFactory.makeProvider()
+    private let alphaWalletProvider = TrustProviderFactory.makeProvider()
     private var isFetchingLatestTransactions = false
 
     weak var delegate: TransactionDataCoordinatorDelegate?
@@ -126,7 +126,7 @@ class TransactionDataCoordinator {
         sortOrder: TrustService.SortOrder,
         completion: @escaping (ResultResult<[Transaction], AnyError>.t) -> Void
     ) {
-        trustProvider.request(
+        alphaWalletProvider.request(
                 .getTransactions(
                         address: address.description,
                         startBlock: startBlock,
