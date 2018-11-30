@@ -6,5 +6,5 @@ import BigInt
 public struct GasPriceConfiguration {
     static let `default` = BigInt(90_000)
     static let min = BigInt(21_000)
-    static let limit = BigInt(4_712_388) //geth default limit
+    static let maxGas = BigInt(100_000) //geth default limit
 }
