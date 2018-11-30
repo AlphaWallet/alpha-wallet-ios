@@ -157,7 +157,7 @@ private class PrivateXMLHandler {
     }
 
     func getIssuer() -> String {
-        if let keyNameElement = XMLHandler.getKeyNameElement(fromRoot: xml, namespacePrefix: signatureNamespacePrefix, namespaces: namespaces), let issuer = keyNameElement.text {
+        if let keyNameElement = XMLHandler.getKeyNameElement(fromRoot: xml, namespacePrefix: rootNamespacePrefix, signatureNamespacePrefix: signatureNamespacePrefix, namespaces: namespaces), let issuer = keyNameElement.text {
             return issuer
         } else {
             return ""
@@ -267,8 +267,9 @@ extension XMLHandler {
         }
     }
 
-    fileprivate static func getKeyNameElement(fromRoot root: XMLDocument, namespacePrefix: String, namespaces: [String: String]) -> XMLElement? {
-       return root.at_xpath("token/Signature/KeyInfo/KeyName".addToXPath(namespacePrefix: namespacePrefix), namespaces: namespaces)
+    fileprivate static func getKeyNameElement(fromRoot root: XMLDocument, namespacePrefix: String, signatureNamespacePrefix: String, namespaces: [String: String]) -> XMLElement? {
+        let xpath = "/token".addToXPath(namespacePrefix: namespacePrefix) + "/Signature/KeyInfo/KeyName".addToXPath(namespacePrefix: signatureNamespacePrefix)
+        return root.at_xpath(xpath, namespaces: namespaces)
     }
 
     static func getInputsElement(fromFunctionElement functionElement: XMLElement, namespacePrefix: String, namespaces: [String: String]) -> XMLElement? {
