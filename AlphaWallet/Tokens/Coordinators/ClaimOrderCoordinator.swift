@@ -26,11 +26,12 @@ class ClaimOrderCoordinator {
                     r: String,
                     s: String,
                     contractAddress: String,
+                    recipient: String,
                     completion: @escaping (Result<String, AnyError>) -> Void
         ) {
 
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
-            claimSpawnableOrder(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s) { result in
+            claimSpawnableOrder(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient) { result in
                 completion(result)
             }
         } else {
@@ -66,8 +67,9 @@ class ClaimOrderCoordinator {
                              v: UInt8,
                              r: String,
                              s: String,
+                             recipient: String,
                              completion: @escaping (Result<String, AnyError>) -> Void) {
-        let request = ClaimERC875Spawnable(tokenIds: tokenIds, v: v, r: r, s: s, expiry: expiry)
+        let request = ClaimERC875Spawnable(tokenIds: tokenIds, v: v, r: r, s: s, expiry: expiry, recipient: recipient)
         web3.request(request: request) { result in
             switch result {
             case .success(let res):

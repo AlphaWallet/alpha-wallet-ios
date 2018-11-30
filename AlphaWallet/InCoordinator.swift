@@ -397,6 +397,7 @@ class InCoordinator: Coordinator {
         let v = UInt8(signature.substring(from: 128), radix: 16)!
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
+        guard let wallet = keystore.recentlyUsedWallet else { return }
 
         ClaimOrderCoordinator(web3: web3).claimOrder(
                 signedOrder: signedOrder,
@@ -404,8 +405,10 @@ class InCoordinator: Coordinator {
                 v: v,
                 r: r,
                 s: s,
-                contractAddress: signedOrder.order.contractAddress) { result in
-            let strongSelf = self //else { return }
+                contractAddress: signedOrder.order.contractAddress,
+                recipient: wallet.address.eip55String
+        ) { result in
+            let strongSelf = self
             switch result {
             case .success(let payload):
                 let address: Address = strongSelf.initialWallet.address
