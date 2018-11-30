@@ -38,7 +38,7 @@ class TransactionDataCoordinator {
     private lazy var transactionsTracker: TransactionsTracker = {
         return TransactionsTracker(sessionID: session.sessionID)
     }()
-    private let alphaWalletProvider = AlphaWalletProviderFactory.makeProvider()
+    private let alphaWalletProvider = TrustProviderFactory.makeProvider()
     private var isFetchingLatestTransactions = false
 
     weak var delegate: TransactionDataCoordinatorDelegate?
@@ -98,7 +98,7 @@ class TransactionDataCoordinator {
         isFetchingLatestTransactions = true
 
         let startBlock: Int
-        let sortOrder: AlphaWalletService.SortOrder
+        let sortOrder: TrustService.SortOrder
         if let newestCachedTransaction = storage.completedObjects.first {
             startBlock = newestCachedTransaction.blockNumber + 1
             sortOrder = .asc
@@ -123,7 +123,7 @@ class TransactionDataCoordinator {
         for address: Address,
         startBlock: Int,
         endBlock: Int = 999_999_999,
-        sortOrder: AlphaWalletService.SortOrder,
+        sortOrder: TrustService.SortOrder,
         completion: @escaping (ResultResult<[Transaction], AnyError>.t) -> Void
     ) {
         alphaWalletProvider.request(
