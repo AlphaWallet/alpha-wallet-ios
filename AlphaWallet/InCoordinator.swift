@@ -419,7 +419,7 @@ class InCoordinator: Coordinator {
                         data: Data(bytes: payload.hexa2Bytes),
                         gasLimit: GasLimitConfiguration.maxGasLimit,
                         tokenId: .none,
-                        gasPrice: GasLimitConfiguration.defaultGasLimit,
+                        gasPrice: GasPriceConfiguration.defaultPrice,
                         nonce: .none,
                         v: v,
                         r: r,
