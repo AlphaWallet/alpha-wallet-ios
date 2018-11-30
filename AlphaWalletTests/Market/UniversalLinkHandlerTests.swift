@@ -30,7 +30,8 @@ class UniversalLinkHandlerTests: XCTestCase {
                                contractAddress: contractAddress,
                                start: BigUInt("91239231313")!,
                                count: 3,
-                               tokenIds: [BigUInt]()
+                               tokenIds: [BigUInt](),
+                               spawnable: false
         )
         
         var testOrders = [Order]()

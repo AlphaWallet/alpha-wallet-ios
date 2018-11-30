@@ -105,7 +105,8 @@ public class UniversalLinkHandler {
                 contractAddress: contractAddress,
                 start: BigUInt("0")!,
                 count: tokenIndices.count,
-                tokenIds: []
+                tokenIds: [],
+                spawnable: false
         )
         let message = getMessageFromOrder(order: order)
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
@@ -126,7 +127,8 @@ public class UniversalLinkHandler {
             contractAddress: contractAddress,
             start: BigUInt(0),
             count: tokenIds.count,
-            tokenIds: tokenIds
+            tokenIds: tokenIds,
+            spawnable: true
         )
         let message = getMessageFromOrder(order: order)
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
