@@ -97,7 +97,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         scrollView.addSubview(stackView)
 
         saveButton.addTarget(self, action: #selector(addToken), for: .touchUpInside)
-        updateSaveButtonBasedOnTokenTypeDetected()
+        saveButton.isEnabled = true
+        saveButton.setTitle(R.string.localizable.done(), for: .normal)
 
         let buttonsStackView = [saveButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
