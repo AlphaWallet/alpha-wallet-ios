@@ -41,12 +41,13 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                           contractAddress: token.contract,
                           start: 0,
                           count: 1,
-                          tokenIds: [BigUInt]()
+                          tokenIds: [BigUInt](),
+                          spawnable: false
         )
         
         let signedOrder = SignedOrder(order: order, message: [UInt8](), signature: "")
 
-        claimOrderCoordinator.claimOrder(signedOrder: signedOrder, expiry: expiry!, v: v, r: r, s: s, contractAddress: order.contractAddress) { result in
+        claimOrderCoordinator.claimOrder(signedOrder: signedOrder, expiry: expiry!, v: v, r: r, s: s, contractAddress: order.contractAddress, recipient: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0") { result in
             switch result {
             case .success(let payload):
                 let address: Address = .makeStormBird()

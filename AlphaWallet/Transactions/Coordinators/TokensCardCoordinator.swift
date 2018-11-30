@@ -284,7 +284,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
             contractAddress: tokenHolder.contractAddress,
             start: BigUInt("0")!,
             count: tokenHolder.indices.count,
-            tokenIds: [BigUInt]()
+            tokenIds: [BigUInt](),
+            spawnable: false
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
@@ -308,7 +309,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
                 contractAddress: tokenHolder.contractAddress,
                 start: BigUInt("0")!,
                 count: tokenHolder.indices.count,
-                tokenIds: [BigUInt]()
+                tokenIds: [BigUInt](),
+                spawnable: false
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address

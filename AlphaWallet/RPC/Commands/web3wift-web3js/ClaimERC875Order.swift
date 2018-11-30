@@ -48,9 +48,12 @@ struct ClaimERC875Spawnable: Web3Request {
     let r: String
     let s: String
     let expiry: BigUInt
+    let recipient: String
 
     var type: Web3RequestType {
-        let abi = "{\"constant\":false,\"inputs\":[{\"name\":\"expiry\",\"type\":\"uint256\"},{\"name\":\"tokenIds\",\"type\":\"uint256[]\"},{\"name\":\"v\",\"type\":\"uint8\"},{\"name\":\"r\",\"type\":\"uint256\"},{\"name\":\"s\",\"type\":\"uint256\"}],\"name\":\"passToSpawnable\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}, [\"\(expiry)\", \(tokenIds), \(v), \"\(r)\", \"\(s)\"]"
+        //BigUInt is cast incorrectly, must be converted to hex string values
+        let tokenStrings: [String] = tokenIds.map { token in String(token, radix: 16) }
+        let abi = "{ \"constant\": false, \"inputs\": [ { \"name\": \"expiry\", \"type\": \"uint256\" }, { \"name\": \"tickets\", \"type\": \"uint256[]\" }, { \"name\": \"v\", \"type\": \"uint8\" }, { \"name\": \"r\", \"type\": \"bytes32\" }, { \"name\": \"s\", \"type\": \"bytes32\" }, { \"name\": \"recipient\", \"type\": \"address\" } ], \"name\": \"spawnPassTo\", \"outputs\": [], \"payable\": false, \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, [\"\(expiry)\", \(tokenStrings), \(v), \"\(r)\", \"\(s)\", \"\(recipient)\"]"
         let run = "web3.eth.abi.encodeFunctionCall(" + abi + ")"
         return .script(command: run)
     }
