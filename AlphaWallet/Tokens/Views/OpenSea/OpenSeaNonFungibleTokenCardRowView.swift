@@ -22,6 +22,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             belowState: UIView.spacer(height: 10),
             aboveHorizontalSubtitleStackView: UIView.spacer(height: 20),
             belowHorizontalSubtitleStackView: UIView.spacer(height: 20),
+            belowVerticalSubtitleStackView: UIView.spacer(height: 16),
             belowAttributesLabel: UIView.spacer(height: 20),
             aboveStatsLabel: UIView.spacer(height: 20),
             belowStatsLabel: UIView.spacer(height: 20),
@@ -159,6 +160,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             titleLabel,
             .spacer(height: 10),
             verticalSubtitleStackView,
+            spacers.belowVerticalSubtitleStackView,
             descriptionLabel,
             spacers.belowDescription,
             attributesLabel,
@@ -281,6 +283,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             spacers.aboveTitle,
             verticalSubtitleStackView,
             thumbnailImageView,
+            spacers.belowVerticalSubtitleStackView,
         ]
 
         viewsVisibleWhenDetailsAreVisibleImagesAvailable = [
@@ -377,6 +380,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         descriptionLabel.textColor = viewModel.titleColor
         descriptionLabel.font = viewModel.descriptionFont
 
+        titleLabel.numberOfLines = 0
         titleLabel.textColor = viewModel.titleColor
         titleLabel.font = viewModel.titleFont
 
