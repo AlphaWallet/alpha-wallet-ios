@@ -130,6 +130,8 @@ class InCoordinator: Coordinator {
 
         let migration = MigrationInitializer(account: account, chainID: config.chainID)
         migration.perform()
+        //Debugging
+        print(migration.config.fileURL!)
 
         //TODO this is bad because it is optional and effectively a global
         if let tokensDataStore = createTokensDatastore() {
