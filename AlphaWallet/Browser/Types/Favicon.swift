@@ -7,6 +7,6 @@ struct Favicon {
         guard let host = url?.host else {
             return .none
         }
-        return URL(string: "https://api.statvoo.com/favicon/?url=\(host)")
+        return URL(string: "https://api.faviconkit.com/\(host)/64")
     }
 }
