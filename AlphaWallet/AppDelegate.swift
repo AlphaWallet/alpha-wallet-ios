@@ -23,7 +23,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        print(Realm.Configuration().fileURL!)
         window = UIWindow(frame: UIScreen.main.bounds)
         do {
             let keystore = try EtherKeystore()
