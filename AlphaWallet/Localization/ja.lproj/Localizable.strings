@@ -290,8 +290,6 @@
 "accounts.delete.error.failedToExportPrivateKey" = "秘密鍵をエクスポートできませんでした";
 "Chain ID" = "チェーン ID";
 "Endpoint" = "エンドポイント";
-"settings.network.custom.label.title" = "カスタム";
-"settings.customNetwork.navigation.title" = "カスタム ネットワーク";
 "settings.preferences.button.title" = "起動時にトークンを表示";
 "settings.preferences.title" = "基本設定";
 "Balance" = "残高";

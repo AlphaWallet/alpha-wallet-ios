@@ -290,8 +290,6 @@
 "accounts.delete.error.failedToExportPrivateKey" = "Failed to export private key";
 "Chain ID" = "Chain ID";
 "Endpoint" = "Endpoint";
-"settings.network.custom.label.title" = "Custom";
-"settings.customNetwork.navigation.title" = "Custom Network";
 "settings.preferences.button.title" = "Show Tokens on Launch";
 "settings.preferences.title" = "Preferences";
 "Balance" = "Balance";

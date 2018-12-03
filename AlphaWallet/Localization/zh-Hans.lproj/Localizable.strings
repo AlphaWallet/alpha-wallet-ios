@@ -290,8 +290,6 @@
 "accounts.delete.error.failedToExportPrivateKey" = "导出私钥失败";
 "Chain ID" = "Chain ID";
 "Endpoint" = "端点";
-"settings.network.custom.label.title" = "自定义";
-"settings.customNetwork.navigation.title" = "自定义网络";
 "settings.preferences.button.title" = "在开始页面显示 Token";
 "settings.preferences.title" = "设置";
 "Balance" = "余额";
