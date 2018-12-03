@@ -65,6 +65,8 @@
 "settings.language.button.title" = "Language";
 "settings.language.useSystem.title" = "Use System Setting";
 "settings.version.label.title" = "Version";
+"settings.advanced.title" = "Advanced";
+"settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "No Transactions Yet!";
 "wallet.navigation.title" = "Wallets";
 "wallet.create.button.title" = "Create Wallet";
