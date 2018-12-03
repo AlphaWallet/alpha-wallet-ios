@@ -64,7 +64,11 @@ public struct Constants {
 
     //Misc
     public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
-    public static let legacy875Addresses = ["830e1650a87a754e37ca7ed76b700395a7c61614", "a66a3f08068174e8f005112a8b2c7a507a822335"]
+    public static let legacy875Addresses = ["830e1650a87a754e37ca7ed76b700395a7c61614",
+                                            "a66a3f08068174e8f005112a8b2c7a507a822335"]
+    public static let legacy721Addresses = ["06012c8cf97bead5deae237070f9587f8e7a266d",
+                                            "abc7e6c01237e8eef355bba2bf925a730b714d5f",
+                                            "71c118b00759b0851785642541ceb0f4ceea0bd5"]
 }
 
 public struct UnitConfiguration {
