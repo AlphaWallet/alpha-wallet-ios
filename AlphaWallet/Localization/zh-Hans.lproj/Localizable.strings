@@ -57,6 +57,8 @@
 "settings.language.button.title" = "语言";
 "settings.language.useSystem.title" = "使用系统设置";
 "settings.version.label.title" = "版本";
+"settings.advanced.title" = "Advanced";
+"settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "暂无记录";
 "wallet.navigation.title" = "钱包";
 "wallets.backup.alertSheet.title" = "备份加密后的私钥文档";

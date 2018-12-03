@@ -65,6 +65,8 @@
 "settings.language.button.title" = "言語";
 "settings.language.useSystem.title" = "システム設定を使用";
 "settings.version.label.title" = "バージョン";
+"settings.advanced.title" = "Advanced";
+"settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "トランザクションはまだありません!";
 "wallet.navigation.title" = "ウォレット";
 "wallet.create.button.title" = "ウォレットを作成";
