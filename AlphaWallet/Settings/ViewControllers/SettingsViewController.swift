@@ -57,7 +57,8 @@ class SettingsViewController: FormViewController {
             guard let strongSelf = self else { return }
             cell.imageView?.image = R.image.settings_wallet()?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
-            cell.detailTextLabel?.text = String(strongSelf.session.account.address.description.prefix(10)) + "..."
+            cell.detailTextLabel?.text = strongSelf.session.account.address.description
+            cell.detailTextLabel?.lineBreakMode = .byTruncatingMiddle
             cell.accessoryType = .disclosureIndicator
         }
 
