@@ -163,9 +163,14 @@ class TransactionConfigurator {
                 }
             }
 
-        case .ERC721Token:
-            session.web3.request(request: ContractERC721Transfer(address: transaction.to!.description,
-                    tokenId: transaction.tokenId!)) { [unowned self] result in
+        case .ERC721Token(let token):
+            session.web3.request(request: ContractERC721Transfer(
+                from: self.account.address.eip55String,
+                to: transaction.to!.eip55String,
+                tokenId: transaction.tokenId!,
+                contractAddress: token.address.eip55String
+            )) {
+                [unowned self] result in
                 switch result {
                 case .success(let res):
                     let data = Data(hex: res.drop0x)
