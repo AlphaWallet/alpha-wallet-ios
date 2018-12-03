@@ -290,8 +290,6 @@
 "accounts.delete.error.failedToExportPrivateKey" = "Error al exportar la clave privada";
 "Chain ID" = "ID de cadena";
 "Endpoint" = "Punto final";
-"settings.network.custom.label.title" = "Personalizada";
-"settings.customNetwork.navigation.title" = "Red personalizada";
 "settings.preferences.button.title" = "Mostrar tokens al iniciar";
 "settings.preferences.title" = "Preferencias";
 "Balance" = "Saldo";
