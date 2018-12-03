@@ -512,9 +512,6 @@
 		771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 771AA965200D5F1900D25403 /* WordCollectionViewCell.xib */; };
 		7721A6BE202A5677004DB16C /* DecryptError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6BD202A5677004DB16C /* DecryptError.swift */; };
 		7721A6C8202EF81B004DB16C /* CustomRPC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6C7202EF81B004DB16C /* CustomRPC.swift */; };
-		7721A6CC202EFBC5004DB16C /* AddCustomNetworkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6CB202EFBC5004DB16C /* AddCustomNetworkViewController.swift */; };
-		7721A6CE202EFC21004DB16C /* AddCustomNetworkViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6CD202EFC21004DB16C /* AddCustomNetworkViewModel.swift */; };
-		7721A6D0202EFD07004DB16C /* AddCustomNetworkCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7721A6CF202EFD07004DB16C /* AddCustomNetworkCoordinator.swift */; };
 		775C00B520195BFB001B5EBC /* BrowserAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 775C00B420195BFB001B5EBC /* BrowserAction.swift */; };
 		77872D232023F43B0032D687 /* TransactionsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77872D222023F43B0032D687 /* TransactionsTracker.swift */; };
 		77872D25202505B70032D687 /* EnterPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77872D24202505B70032D687 /* EnterPasswordViewController.swift */; };
@@ -1095,9 +1092,6 @@
 		7721A6BD202A5677004DB16C /* DecryptError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecryptError.swift; sourceTree = "<group>"; };
 		7721A6BF202B1D3E004DB16C /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		7721A6C7202EF81B004DB16C /* CustomRPC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomRPC.swift; sourceTree = "<group>"; };
-		7721A6CB202EFBC5004DB16C /* AddCustomNetworkViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNetworkViewController.swift; sourceTree = "<group>"; };
-		7721A6CD202EFC21004DB16C /* AddCustomNetworkViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNetworkViewModel.swift; sourceTree = "<group>"; };
-		7721A6CF202EFD07004DB16C /* AddCustomNetworkCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNetworkCoordinator.swift; sourceTree = "<group>"; };
 		775C00B420195BFB001B5EBC /* BrowserAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserAction.swift; sourceTree = "<group>"; };
 		77872D222023F43B0032D687 /* TransactionsTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsTracker.swift; sourceTree = "<group>"; };
 		77872D24202505B70032D687 /* EnterPasswordViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnterPasswordViewController.swift; sourceTree = "<group>"; };
@@ -1585,7 +1579,6 @@
 			isa = PBXGroup;
 			children = (
 				29F1C85920036968003780D8 /* HelpUsCoordinator.swift */,
-				7721A6CF202EFD07004DB16C /* AddCustomNetworkCoordinator.swift */,
 				5E7C7B1FB2702A2A8A4EBD76 /* SettingsCoordinator.swift */,
 				5E7C7B8FD1E2BCC325DF4EE4 /* ServersCoordinator.swift */,
 				5E7C76C895E7BFA47233068C /* LocalesCoordinator.swift */,
@@ -1778,7 +1771,6 @@
 			children = (
 				29F1C85E200369BA003780D8 /* HelpUsViewModel.swift */,
 				298542F21FBD594D00CB5081 /* SettingsViewModel.swift */,
-				7721A6CD202EFC21004DB16C /* AddCustomNetworkViewModel.swift */,
 				5E7C7FCE2427A30ACD860DF8 /* ServerViewModel.swift */,
 				5E7C7CBEBF984CFCA29D6866 /* ServersViewModel.swift */,
 				5E7C7FB99843529061368DA1 /* LocalesViewModel.swift */,
@@ -2195,7 +2187,6 @@
 			isa = PBXGroup;
 			children = (
 				29F1C85C2003698A003780D8 /* WellDoneViewController.swift */,
-				7721A6CB202EFBC5004DB16C /* AddCustomNetworkViewController.swift */,
 				5E7C7AFE9AF9FE6B58C925D4 /* SettingsViewController.swift */,
 				5E7C74C0C1803DD17FE9EBA7 /* ServersViewController.swift */,
 				5E7C7BF09AD68C113D58344C /* LocalesViewController.swift */,
@@ -3601,7 +3592,6 @@
 				77B3BF3C201908ED00EEC15A /* ConfirmCoordinator.swift in Sources */,
 				298542F91FBE9A0100CB5081 /* CryptoAddressValidator.swift in Sources */,
 				291F52C11F6C8A1F00B369AB /* AccountsViewModel.swift in Sources */,
-				7721A6CC202EFBC5004DB16C /* AddCustomNetworkViewController.swift in Sources */,
 				77872D322027AA4A0032D687 /* SliderTextFieldRow.swift in Sources */,
 				2923D9B11FDA49D8000CF3F8 /* Initializer.swift in Sources */,
 				294DFBAE1FE6F254004CEB56 /* TokenObject.swift in Sources */,
@@ -3670,7 +3660,6 @@
 				296AF9A91F737F6F0058AF78 /* SendRawTransactionRequest.swift in Sources */,
 				293112121FC4F48400966EEA /* ServiceProvider.swift in Sources */,
 				2912CD2F1F6A83A100C6CBE3 /* ImportWalletViewController.swift in Sources */,
-				7721A6D0202EFD07004DB16C /* AddCustomNetworkCoordinator.swift in Sources */,
 				2963B6AD1F981A96003063C1 /* TransactionAppearance.swift in Sources */,
 				29850D2B1F6B30FF00791A49 /* TransactionViewController.swift in Sources */,
 				296AF9AB1F7380920058AF78 /* GetTransactionCountRequest.swift in Sources */,
@@ -3680,7 +3669,6 @@
 				298542F51FBD8E6A00CB5081 /* ConfigExplorer.swift in Sources */,
 				29DF400A1FD3E80A000077CA /* TabBarController.swift in Sources */,
 				29C80D4F1FB520AF0037B1E0 /* BalanceTokenViewModel.swift in Sources */,
-				7721A6CE202EFC21004DB16C /* AddCustomNetworkViewModel.swift in Sources */,
 				291A1B691F980E3400ADEC80 /* StackViewController.swift in Sources */,
 				73C41C73201B5EFF00243C6C /* LockCreatePasscodeViewModel.swift in Sources */,
 				29B6AED61F7CA4A700EC6DE3 /* TransactionConfiguration.swift in Sources */,
