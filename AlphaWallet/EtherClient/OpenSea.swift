@@ -62,7 +62,7 @@ class OpenSea {
     }
 
     private func fetchPage(forOwner owner: String, offset: Int, sum: [String: [OpenSeaNonFungible]] = [:], completion: @escaping (ResultResult<[String: [OpenSeaNonFungible]], AnyError>.t) -> Void) {
-        guard let url = URL(string: "\(Constants.openseaAPI)api/v1/assets/?owner=\(owner)&order_by=current_price&order_direction=asc&limit=2000&offset=\(offset)") else {
+        guard let url = URL(string: "\(Constants.openseaAPI)api/v1/assets/?owner=\(owner)&order_by=current_price&order_direction=asc&limit=200&offset=\(offset)") else {
             completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(Constants.openseaAPI) API \(Thread.isMainThread)"))))
             return
         }
