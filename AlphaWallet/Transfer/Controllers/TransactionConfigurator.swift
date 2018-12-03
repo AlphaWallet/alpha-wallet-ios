@@ -163,14 +163,20 @@ class TransactionConfigurator {
                 }
             }
 
-        case .ERC721Token:
-            session.web3.request(request: ContractERC721Transfer(address: transaction.to!.description,
-                    tokenId: transaction.tokenId!)) { [unowned self] result in
+        case .ERC721Token(let token):
+            session.web3.request(request: ContractERC721Transfer(
+                from: self.account.address.eip55String,
+                to: transaction.to!.eip55String,
+                tokenId: transaction.tokenId!,
+                contractAddress: token.address.eip55String
+            )) {
+                [weak self] result in
+                guard let celf = self else { return }
                 switch result {
                 case .success(let res):
                     let data = Data(hex: res.drop0x)
-                    self.configuration = TransactionConfiguration(
-                            gasPrice: self.calculatedGasPrice,
+                    celf.configuration = TransactionConfiguration(
+                            gasPrice: celf.calculatedGasPrice,
                             gasLimit: GasLimitConfiguration.maxGasLimit,
                             data: data
                     )
