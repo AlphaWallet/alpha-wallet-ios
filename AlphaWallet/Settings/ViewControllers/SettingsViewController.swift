@@ -35,7 +35,7 @@ class SettingsViewController: FormViewController {
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appBackground
 
-        form = Section()
+        form = createSection(withTitle: "")
 
         <<< AppFormAppearance.alphaWalletSettingsButton {
             $0.title = R.string.localizable.aSettingsContentsMyWalletAddress()
@@ -92,6 +92,38 @@ class SettingsViewController: FormViewController {
             cell.imageView?.image = R.image.settings_lock()?.withRenderingMode(.alwaysTemplate)
         }
 
+        +++ createSection(withTitle: R.string.localizable.settingsAdvancedTitle())
+
+        <<< AppFormAppearance.alphaWalletSettingsButton { button in
+            button.cellStyle = .value1
+        }.onCellSelection { [unowned self] _, _ in
+            self.run(action: .servers)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { [weak self] cell, _ in
+            guard let strongSelf = self else {
+                return
+            }
+            cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = R.string.localizable.settingsNetworkButtonTitle()
+            cell.detailTextLabel?.text = RPCServer(chainID: strongSelf.session.config.chainID).displayName
+            cell.accessoryType = .disclosureIndicator
+        }
+        <<< AppFormAppearance.alphaWalletSettingsButton { row in
+            row.cellStyle = .value1
+            row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
+                self.delegate?.assetDefinitionsOverrideViewController(for: self) ?? UIViewController()
+            }, onDismiss: { _ in
+            })
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { cell, _ in
+            cell.textLabel?.text = "    \(R.string.localizable.aHelpAssetDefinitionOverridesTitle())"
+            cell.accessoryType = .disclosureIndicator
+        }
+
+        +++ createSection(withTitle: R.string.localizable.settingsContactUsTitle())
+
         <<< linkProvider(type: .twitter)
         <<< linkProvider(type: .reddit)
         <<< linkProvider(type: .facebook)
@@ -110,36 +142,7 @@ class SettingsViewController: FormViewController {
             cell.accessoryType = .disclosureIndicator
         }
 
-        +++ Section()
-
-        <<< AppFormAppearance.alphaWalletSettingsButton { button in
-            button.cellStyle = .value1
-        }.onCellSelection { [unowned self] _, _ in
-            self.run(action: .servers)
-        }.cellSetup { cell, _ in
-            cell.imageView?.tintColor = Colors.appBackground
-        }.cellUpdate { [weak self] cell, _ in
-            guard let strongSelf = self else {
-                return
-            }
-            cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = R.string.localizable.settingsNetworkButtonTitle()
-            cell.detailTextLabel?.text = RPCServer(chainID: strongSelf.session.config.chainID).displayName
-            cell.accessoryType = .disclosureIndicator
-        }
-
-        <<< AppFormAppearance.alphaWalletSettingsButton { row in
-            row.cellStyle = .value1
-            row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-                self.delegate?.assetDefinitionsOverrideViewController(for: self) ?? UIViewController()
-            }, onDismiss: { _ in
-            })
-        }.cellSetup { cell, _ in
-            cell.imageView?.tintColor = Colors.appBackground
-        }.cellUpdate { cell, _ in
-            cell.textLabel?.text = "    \(R.string.localizable.aHelpAssetDefinitionOverridesTitle())"
-            cell.accessoryType = .disclosureIndicator
-        }
+        +++ createSection(withTitle: "")
 
         <<< AlphaWalletSettingsTextRow {
             $0.disabled = true
@@ -183,23 +186,14 @@ class SettingsViewController: FormViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override open func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let v = UIView()
-        v.backgroundColor = Colors.appBackground
-        return v
-    }
-
-    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if section == 0 {
-            //Match Help tab
-            return 0
-        } else {
-            return super.tableView(tableView, heightForHeaderInSection: section)
+    private func createSection(withTitle title: String) -> Section {
+        return Section() { section in
+            var header = HeaderFooterView<SettingsHeaderView>(.class)
+            header.onSetupView = { view, _ in
+                view.title = title
+            }
+            section.header = header
         }
-    }
-
-    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0
     }
 }
 
