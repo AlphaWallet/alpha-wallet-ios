@@ -170,12 +170,13 @@ class TransactionConfigurator {
                 tokenId: transaction.tokenId!,
                 contractAddress: token.address.eip55String
             )) {
-                [unowned self] result in
+                [weak self] result in
+                guard let celf = self else { return }
                 switch result {
                 case .success(let res):
                     let data = Data(hex: res.drop0x)
-                    self.configuration = TransactionConfiguration(
-                            gasPrice: self.calculatedGasPrice,
+                    celf.configuration = TransactionConfiguration(
+                            gasPrice: celf.calculatedGasPrice,
                             gasLimit: GasLimitConfiguration.maxGasLimit,
                             data: data
                     )
