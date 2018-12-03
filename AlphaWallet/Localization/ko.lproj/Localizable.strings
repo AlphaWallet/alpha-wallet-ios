@@ -65,6 +65,8 @@
 "settings.language.button.title" = "언어";
 "settings.language.useSystem.title" = "시스템 설정 사용";
 "settings.version.label.title" = "버전";
+"settings.advanced.title" = "Advanced";
+"settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "아직 거래가 없습니다!";
 "wallet.navigation.title" = "지갑";
 "wallet.create.button.title" = "지갑 생성";
@@ -306,4 +308,3 @@
 "camera.qrCode.denied.prompt.button" = "설정 열기";
 "openSeaNonFungibleTokens.url.open" = "%@에서 열기";
 "address.ens.labelMessage" = "Ethereum address or ENS name";
-

@@ -65,6 +65,8 @@
 "settings.language.button.title" = "Idioma";
 "settings.language.useSystem.title" = "Usar la configuración del sistema";
 "settings.version.label.title" = "Versión";
+"settings.advanced.title" = "Advanced";
+"settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "¡Todavía no hay transacciones!";
 "wallet.navigation.title" = "Monederos";
 "wallet.create.button.title" = "Crear monedero";
@@ -306,4 +308,3 @@
 "camera.qrCode.denied.prompt.button" = "Abrir Ajustes";
 "openSeaNonFungibleTokens.url.open" = "Abrir en %@";
 "address.ens.labelMessage" = "Ethereum dirección o ENS nombre";
-
