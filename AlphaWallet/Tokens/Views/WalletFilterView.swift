@@ -103,6 +103,10 @@ class WalletFilterView: UIView {
 		filter = .collectiblesOnly
 	}
 
+	func searchFor(keyword: String) {
+		filter = .keyword(keyword)
+	}
+
 	func configureButtonColors() {
 		allButton.setTitleColor(viewModel.colorForFilter(filter: .all), for: .normal)
 		currencyButton.setTitleColor(viewModel.colorForFilter(filter: .currencyOnly), for: .normal)
@@ -113,7 +117,7 @@ class WalletFilterView: UIView {
 	func configureHighlightedBar() {
 		var button: UIButton
 		switch filter {
-		case .all:
+		case .all, .keyword:
 			button = allButton
 		case .currencyOnly:
 			button = currencyButton

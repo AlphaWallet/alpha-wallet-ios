@@ -38,6 +38,7 @@ class TokensViewController: UIViewController {
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
     private var currentCollectiblesContractsDisplayed = [String]()
+    private let searchController: UISearchController
 
     weak var delegate: TokensViewControllerDelegate?
 
@@ -50,6 +51,8 @@ class TokensViewController: UIViewController {
         self.dataStore = dataStore
         self.viewModel = TokensViewModel(config: session.config, tokens: [], tickers: .none)
         tableView = UITableView(frame: .zero, style: .plain)
+        searchController = UISearchController(searchResultsController: nil)
+
         super.init(nibName: nil, bundle: nil)
         dataStore.delegate = self
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addToken))
@@ -111,6 +114,8 @@ class TokensViewController: UIViewController {
                 self?.dataStore.fetch()
         })
         refreshView(viewModel: viewModel)
+
+        setupFilteringWithKeyword()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -162,6 +167,7 @@ class TokensViewController: UIViewController {
     }
 
     private func showImportWalletImage() {
+        guard !searchController.isActive else { return }
         if let importWalletView = importWalletView {
             importWalletView.isHidden = false
             return
@@ -369,5 +375,45 @@ extension TokensViewController: UICollectionViewDelegate {
         collectiblesCollectionView.deselectItem(at: indexPath, animated: true)
         let token = viewModel.item(for: indexPath.item, section: indexPath.section)
         delegate?.didSelect(token: token, in: self)
+    }
+}
+
+extension TokensViewController: UISearchResultsUpdating {
+    public func updateSearchResults(for searchController: UISearchController) {
+        let keyword = searchController.searchBar.text ?? ""
+        filterView.searchFor(keyword: keyword)
+    }
+}
+
+///Support searching/filtering tokens with keywords. This extension is set up so it's easier to copy and paste this functionality elsewhere
+extension TokensViewController {
+    private func hideSearchBarForInitialUse() {
+        tableView.contentOffset = CGPoint(x: 0, y: 44)
+    }
+
+    private func makeSwitchToAnotherTabWorkWhileFiltering() {
+        definesPresentationContext = true
+    }
+
+    private func removeSearchBarBorderForiOS10() {
+        searchController.searchBar.setBackgroundImage(UIImage(color: Colors.appBackground), for: .any, barMetrics: .default)
+    }
+
+    private func doNotDimTableViewToReuseTableForFilteringResult() {
+        searchController.dimsBackgroundDuringPresentation = false
+    }
+
+    private func wireUpSearchController() {
+        searchController.searchResultsUpdater = self
+        //Can't get `navigationItem.searchController = searchController` to work correctly with iOS 12 (probably 11 too). It wouldn't work with iOS 10 anyway.
+        tableView.tableHeaderView = searchController.searchBar
+    }
+
+    private func setupFilteringWithKeyword() {
+        wireUpSearchController()
+        doNotDimTableViewToReuseTableForFilteringResult()
+        removeSearchBarBorderForiOS10()
+        makeSwitchToAnotherTabWorkWhileFiltering()
+        hideSearchBarForInitialUse()
     }
 }
