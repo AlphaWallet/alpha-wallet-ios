@@ -28,6 +28,9 @@ func applyStyle() {
 
     UIToolbar.appearance().tintColor = Colors.appBackground
 
+    UISearchBar.appearance().tintColor = Colors.appWhite
+    UISearchBar.appearance().barTintColor = Colors.appBackground
+
     UITextField.appearance().tintColor = Colors.blue
 
     UIRefreshControl.appearance().tintColor = Colors.appWhite
