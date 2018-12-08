@@ -150,16 +150,16 @@ class AddressTextField: UIControl {
         } else {
             textField.text = value
             GetENSOwnerCoordinator(config: Config()).getENSOwner(for: value) { result in
-                if let address = result.value {
-                    guard CryptoAddressValidator.isValidAddress(address.address) else {
-                        self.delegate?.displayError(error: Errors.invalidAddress, for: self)
-                        return
-                    }
-                    self.ensAddressLabel.text = address.address
-                    self.delegate?.didPaste(in: self)
-                } else {
-                    self.delegate?.displayError(error: result.error?.error ?? Errors.invalidAddress, for: self)
+                guard let address = result.value else {
+                    //Don't show an error when pasting what seems like a wrong ENS name for better usability
+                    return
                 }
+                guard CryptoAddressValidator.isValidAddress(address.address) else {
+                    self.delegate?.displayError(error: Errors.invalidAddress, for: self)
+                    return
+                }
+                self.ensAddressLabel.text = address.address
+                self.delegate?.didPaste(in: self)
             }
         }
     }
