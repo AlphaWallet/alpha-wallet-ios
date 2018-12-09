@@ -5,7 +5,7 @@ import web3swift
 import BigInt
 import TrustKeystore
 
-enum RPCServer {
+enum RPCServer: Hashable {
     case main
     case kovan
     case ropsten
@@ -164,16 +164,5 @@ enum RPCServer {
             default: return .main
             }
         }()
-    }
-}
-
-extension RPCServer: Equatable {
-    static func == (lhs: RPCServer, rhs: RPCServer) -> Bool {
-        switch (lhs, rhs) {
-        case (let .custom(lhs), let .custom(rhs)):
-            return lhs == rhs
-        case (let lhs, let rhs):
-            return lhs.chainID == rhs.chainID
-        }
     }
 }
