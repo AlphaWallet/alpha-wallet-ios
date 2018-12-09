@@ -11,7 +11,6 @@ protocol AddressTextFieldDelegate: class {
 }
 
 class AddressTextField: UIControl {
-    private static let MINIMUM_ENS_NAME_LENGTH = 6 //We assume .co is possible in the future, so: a.b.co
     private var isConfigured = false
     private let textField = UITextField()
     let label = UILabel()
@@ -185,14 +184,6 @@ class AddressTextField: UIControl {
     private func clearAddressFromResolvingEnsName() {
         ensAddressLabel.text = nil
     }
-
-    private func isPossible(ensName: String) -> Bool {
-        if ensName.count >= AddressTextField.MINIMUM_ENS_NAME_LENGTH && ensName.contains(".") {
-            return true
-        } else {
-            return false
-        }
-    }
 }
 
 extension AddressTextField: UITextFieldDelegate {
@@ -206,7 +197,7 @@ extension AddressTextField: UITextFieldDelegate {
         guard delegate != nil else { return true }
         let newValue = (self.textField.text as NSString?)?.replacingCharacters(in: range, with: string)
         if let newValue = newValue, !CryptoAddressValidator.isValidAddress(newValue) {
-            if isPossible(ensName: newValue) {
+            if newValue.isPossibleEnsName {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     //Retain self because it's still useful to resolve and cache even if not used immediately
                     self.queueResolution(ofValue: newValue)
@@ -225,5 +216,12 @@ extension AddressTextField: UITextFieldDelegate {
                 strongSelf.delegate?.didChange(to: string, in: strongSelf)
             }
         }
+    }
+}
+
+extension String {
+    fileprivate var isPossibleEnsName: Bool {
+        let minimumEnsNameLength = 6 //We assume .co is possible in the future, so: a.b.co
+        return count >= minimumEnsNameLength && contains(".")
     }
 }
