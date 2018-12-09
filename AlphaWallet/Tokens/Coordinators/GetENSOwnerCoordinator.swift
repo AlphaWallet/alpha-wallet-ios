@@ -66,14 +66,14 @@ class GetENSOwnerCoordinator {
 
         let web3 = web3swift.web3(provider: webProvider)
         let function = GetENSOwnerEncode()
-        let contractAddress = getENSAddress(networkId: config.chainID)
-        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: contractAddress, options: web3.options) else {
+        let ensRegistrarContract = config.ensRegistrarContract
+        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: ensRegistrarContract, options: web3.options) else {
             completion(.failure(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(function.name)()"))))
             return
         }
 
         guard let promise = contractInstance.method(function.name, parameters: [node] as [AnyObject], options: nil) else {
-            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contractAddress.address)"))))
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(ensRegistrarContract.address)"))))
             return
         }
 
@@ -89,10 +89,10 @@ class GetENSOwnerCoordinator {
                     completion(.success(owner))
                 }
             } else {
-                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractAddress.address).\(function.name)()"))))
+                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(ensRegistrarContract.address).\(function.name)()"))))
             }
         }.catch { error in
-            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractAddress.address).\(function.name)(): \(error)"))))
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(ensRegistrarContract.address).\(function.name)(): \(error)"))))
         }
     }
 
@@ -109,15 +109,6 @@ class GetENSOwnerCoordinator {
             self.getENSOwner(for: input) { result in
                 completion(result)
             }
-        }
-    }
-
-    private func getENSAddress(networkId: Int) -> EthereumAddress {
-        switch networkId {
-        case 1: return Constants.ENSRegistrarAddress
-        case 3: return Constants.ENSRegistrarRopsten
-        case 4: return Constants.ENSRegistrarRinkeby
-        default: return Constants.ENSRegistrarAddress
         }
     }
 
