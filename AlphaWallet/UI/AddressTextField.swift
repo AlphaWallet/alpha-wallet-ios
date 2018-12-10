@@ -11,11 +11,8 @@ protocol AddressTextFieldDelegate: class {
 }
 
 class AddressTextField: UIControl {
-    private static let MINIMUM_ENS_NAME_LENGTH = 6 //We assume .co is possible in the future, so: a.b.co
-    private static let DELAY_AFTER_STOP_TYPING_TO_START_RESOLVING_ENS_NAME = TimeInterval(0.5)
     private var isConfigured = false
     private let textField = UITextField()
-    private var toStartResolvingEnsNameTimer: Timer?
     let label = UILabel()
     let ensAddressLabel = UILabel()
 
@@ -168,35 +165,24 @@ class AddressTextField: UIControl {
         delegate?.openQRCodeReader(for: self)
     }
 
-    private func setToStartResolvingEnsNameTimer() {
-        toStartResolvingEnsNameTimer?.invalidate()
-        //TODO should only resolve one at a time
-        toStartResolvingEnsNameTimer = Timer.scheduledTimer(withTimeInterval: AddressTextField.DELAY_AFTER_STOP_TYPING_TO_START_RESOLVING_ENS_NAME, repeats: false) { _ in
-            if let value = self.textField.text?.trimmed {
-                //TODO extract duplicate calls to GetENSOwnerCoordinator in this class
-                GetENSOwnerCoordinator(config: Config()).getENSOwner(for: value) { result in
-                    if let address = result.value {
-                        guard CryptoAddressValidator.isValidAddress(address.address) else {
-                            //TODO good to show an error message in the UI/label that it is not a valid ENS name
-                            return
-                        }
-                        self.ensAddressLabel.text = address.address
-                    }
+    private func queueResolution(ofValue value: String) {
+        let value = value.trimmed
+        let oldTextValue = textField.text?.trimmed
+        GetENSOwnerCoordinator(config: Config()).queueGetENSOwner(for: value) { [weak self] result in
+            guard let strongSelf = self else { return }
+            if let address = result.value {
+                guard CryptoAddressValidator.isValidAddress(address.address) else {
+                    //TODO good to show an error message in the UI/label that it is not a valid ENS name
+                    return
                 }
+                guard oldTextValue == strongSelf.textField.text?.trimmed else { return }
+                strongSelf.ensAddressLabel.text = address.address
             }
         }
     }
 
     private func clearAddressFromResolvingEnsName() {
         ensAddressLabel.text = nil
-    }
-
-    private func isPossible(ensName: String?) -> Bool {
-        if let ensName = ensName, ensName.count >= AddressTextField.MINIMUM_ENS_NAME_LENGTH && ensName.contains(".") {
-            return true
-        } else {
-            return false
-        }
     }
 }
 
@@ -210,10 +196,12 @@ extension AddressTextField: UITextFieldDelegate {
         clearAddressFromResolvingEnsName()
         guard delegate != nil else { return true }
         let newValue = (self.textField.text as NSString?)?.replacingCharacters(in: range, with: string)
-        if let newValue = newValue, CryptoAddressValidator.isValidAddress(newValue) {
-        } else {
-            if isPossible(ensName: newValue) {
-                setToStartResolvingEnsNameTimer()
+        if let newValue = newValue, !CryptoAddressValidator.isValidAddress(newValue) {
+            if newValue.isPossibleEnsName {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    //Retain self because it's still useful to resolve and cache even if not used immediately
+                    self.queueResolution(ofValue: newValue)
+                }
             }
         }
         informDelegateDidChange(to: newValue ?? "")
@@ -228,5 +216,12 @@ extension AddressTextField: UITextFieldDelegate {
                 strongSelf.delegate?.didChange(to: string, in: strongSelf)
             }
         }
+    }
+}
+
+extension String {
+    fileprivate var isPossibleEnsName: Bool {
+        let minimumEnsNameLength = 6 //We assume .co is possible in the future, so: a.b.co
+        return count >= minimumEnsNameLength && contains(".")
     }
 }

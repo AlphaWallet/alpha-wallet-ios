@@ -3,6 +3,7 @@
 import Foundation
 import ObjectiveC
 import TrustKeystore
+import web3swift
 
 struct Config {
     struct Keys {
@@ -115,6 +116,15 @@ struct Config {
             }
         }()
         return URL(string: urlString)!
+    }
+
+    var ensRegistrarContract: EthereumAddress {
+        switch server {
+        case .main: return Constants.ENSRegistrarAddress
+        case .ropsten: return Constants.ENSRegistrarRopsten
+        case .rinkeby: return Constants.ENSRegistrarRinkeby
+        default: return Constants.ENSRegistrarAddress
+        }
     }
 
     let priceInfoEndpoints = URL(string: "https://api.coinmarketcap.com")!

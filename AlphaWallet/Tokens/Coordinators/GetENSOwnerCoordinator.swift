@@ -21,7 +21,15 @@ extension String {
 }
 
 class GetENSOwnerCoordinator {
+    private struct ENSLookupKey: Hashable {
+        let name: String
+        let server: RPCServer
+    }
 
+    private static var resultsCache = [ENSLookupKey:EthereumAddress]()
+    private static let DELAY_AFTER_STOP_TYPING_TO_START_RESOLVING_ENS_NAME = TimeInterval(0.5)
+
+    private var toStartResolvingEnsNameTimer: Timer?
     private let config: Config
 
     init(config: Config) {
@@ -46,6 +54,10 @@ class GetENSOwnerCoordinator {
         }
 
         let node = input.lowercased().nameHash
+        if let cachedResult = cachedResult(forNode: node) {
+            completion(.success(cachedResult))
+            return
+        }
 
         guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
             completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)"))))
@@ -54,14 +66,14 @@ class GetENSOwnerCoordinator {
 
         let web3 = web3swift.web3(provider: webProvider)
         let function = GetENSOwnerEncode()
-        let contractAddress = getENSAddress(networkId: config.chainID)
-        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: contractAddress, options: web3.options) else {
+        let ensRegistrarContract = config.ensRegistrarContract
+        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: ensRegistrarContract, options: web3.options) else {
             completion(.failure(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(function.name)()"))))
             return
         }
 
         guard let promise = contractInstance.method(function.name, parameters: [node] as [AnyObject], options: nil) else {
-            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contractAddress.address)"))))
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(ensRegistrarContract.address)"))))
             return
         }
 
@@ -72,23 +84,39 @@ class GetENSOwnerCoordinator {
                 if owner.address == Constants.nullAddress {
                     completion(.failure(AnyError(Web3Error(description: "Null address returned"))))
                 } else {
+                    //Retain self because it's useful to cache the results even if we don't immediately need it now
+                    self.cache(forNode: node, result: owner)
                     completion(.success(owner))
                 }
             } else {
-                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractAddress.address).\(function.name)()"))))
+                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(ensRegistrarContract.address).\(function.name)()"))))
             }
         }.catch { error in
-            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contractAddress.address).\(function.name)(): \(error)"))))
+            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(ensRegistrarContract.address).\(function.name)(): \(error)"))))
         }
     }
 
-    private func getENSAddress(networkId: Int) -> EthereumAddress {
-        switch networkId {
-        case 1: return Constants.ENSRegistrarAddress
-        case 3: return Constants.ENSRegistrarRopsten
-        case 4: return Constants.ENSRegistrarRinkeby
-        default: return Constants.ENSRegistrarAddress
+    func queueGetENSOwner(for input: String, completion: @escaping (Result<EthereumAddress, AnyError>) -> Void) {
+        let node = input.lowercased().nameHash
+        if let cachedResult = cachedResult(forNode: node) {
+            completion(.success(cachedResult))
+            return
+        }
+
+        toStartResolvingEnsNameTimer?.invalidate()
+        toStartResolvingEnsNameTimer = Timer.scheduledTimer(withTimeInterval: GetENSOwnerCoordinator.DELAY_AFTER_STOP_TYPING_TO_START_RESOLVING_ENS_NAME, repeats: false) { _ in
+            //Retain self because it's useful to cache the results even if we don't immediately need it now
+            self.getENSOwner(for: input) { result in
+                completion(result)
+            }
         }
     }
-    
+
+    private func cachedResult(forNode node: String) -> EthereumAddress? {
+        return GetENSOwnerCoordinator.resultsCache[ENSLookupKey(name: node, server: config.server)]
+    }
+
+    private func cache(forNode node: String, result: EthereumAddress) {
+        GetENSOwnerCoordinator.resultsCache[ENSLookupKey(name: node, server: config.server)] = result
+    }
 }
