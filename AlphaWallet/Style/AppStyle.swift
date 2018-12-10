@@ -36,7 +36,6 @@ func applyStyle() {
     UIRefreshControl.appearance().tintColor = Colors.appWhite
 
     UIImageView.appearance().tintColor = Colors.lightBlue
-    UIImageView.appearance(whenContainedInInstancesOf: [BrowserNavigationBar.self]).tintColor = .white
 
     BalanceTitleView.appearance().titleTextColor = UIColor.white
     BalanceTitleView.appearance().subTitleTextColor = UIColor(white: 0.9, alpha: 1)
@@ -100,4 +99,12 @@ extension UISegmentedControl {
 
 enum Metrics {
     static let greenButtonHeight = CGFloat(48)
+
+    enum DappsHome {
+        enum Icon {
+            static let shadowOffset = CGSize(width: 0, height: 0)
+            static let shadowOpacity = Float(0.15)
+            static let shadowRadius = CGFloat(6)
+        }
+    }
 }

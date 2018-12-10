@@ -207,8 +207,8 @@ class InCoordinator: Coordinator {
         return coordinator
     }
 
-    private func createBrowserCoordinator(session: WalletSession, keystore: Keystore, realm: Realm) -> BrowserCoordinator {
-        let coordinator = BrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
+    private func createBrowserCoordinator(session: WalletSession, keystore: Keystore, realm: Realm) -> DappBrowserCoordinator {
+        let coordinator = DappBrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.dapps_icon(), selectedImage: nil)
@@ -532,13 +532,13 @@ extension InCoordinator: CanOpenURL {
                 balanceCoordinator: balance
         )
 
-        let browserCoordinator = BrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
+        let browserCoordinator = DappBrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
         browserCoordinator.delegate = self
         browserCoordinator.start()
         addCoordinator(browserCoordinator)
 
         let controller = browserCoordinator.navigationController
-        browserCoordinator.openURL(url)
+        browserCoordinator.open(url: url, browserOnly: true, animated: false)
         viewController.present(controller, animated: true, completion: nil)
     }
 
@@ -627,14 +627,9 @@ extension InCoordinator: PromptBackupCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: BrowserCoordinatorDelegate {
-    func didSentTransaction(transaction: SentTransaction, in coordinator: BrowserCoordinator) {
+extension InCoordinator: DappBrowserCoordinatorDelegate{
+    func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator) {
         handlePendingTransaction(transaction: transaction)
-    }
-
-    func didPressCloseButton(in coordinator: BrowserCoordinator) {
-        coordinator.navigationController.dismiss(animated: true)
-        removeCoordinator(coordinator)
     }
 }
 

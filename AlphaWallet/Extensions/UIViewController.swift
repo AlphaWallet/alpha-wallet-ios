@@ -71,7 +71,9 @@ extension UIViewController {
     }
 
     public var isTopViewController: Bool {
-        if navigationController != nil {
+        if navigationController != nil && navigationController?.tabBarController != nil {
+            return (tabBarController?.selectedViewController as? UINavigationController)?.visibleViewController == self
+        } else if navigationController != nil {
             return navigationController?.visibleViewController === self
         } else if tabBarController != nil {
             return tabBarController?.selectedViewController == self && presentedViewController == nil
