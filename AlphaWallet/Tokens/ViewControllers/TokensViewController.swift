@@ -409,8 +409,15 @@ extension TokensViewController {
         tableView.tableHeaderView = searchController.searchBar
     }
 
+    private func fixTableViewBackgroundColor() {
+        let v = UIView()
+        v.backgroundColor = Colors.appBackground
+        tableView.backgroundView = v
+    }
+
     private func setupFilteringWithKeyword() {
         wireUpSearchController()
+        fixTableViewBackgroundColor()
         doNotDimTableViewToReuseTableForFilteringResult()
         removeSearchBarBorderForiOS10()
         makeSwitchToAnotherTabWorkWhileFiltering()
