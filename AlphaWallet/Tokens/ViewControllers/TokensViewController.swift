@@ -388,7 +388,7 @@ extension TokensViewController: UISearchResultsUpdating {
 ///Support searching/filtering tokens with keywords. This extension is set up so it's easier to copy and paste this functionality elsewhere
 extension TokensViewController {
     private func hideSearchBarForInitialUse() {
-        tableView.contentOffset = CGPoint(x: 0, y: 44)
+        tableView.contentOffset = CGPoint(x: 0, y: searchController.searchBar.frame.size.height)
     }
 
     private func makeSwitchToAnotherTabWorkWhileFiltering() {
@@ -414,6 +414,8 @@ extension TokensViewController {
         doNotDimTableViewToReuseTableForFilteringResult()
         removeSearchBarBorderForiOS10()
         makeSwitchToAnotherTabWorkWhileFiltering()
-        hideSearchBarForInitialUse()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.hideSearchBarForInitialUse()
+        }
     }
 }
