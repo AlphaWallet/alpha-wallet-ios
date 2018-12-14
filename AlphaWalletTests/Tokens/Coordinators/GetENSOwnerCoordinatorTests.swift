@@ -10,4 +10,24 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         XCTAssertEqual("eth".nameHash, "0x93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae")
         XCTAssertEqual("foo.eth".nameHash, "0xde9b09fd7c5f901e23a3f19fecc54828e9c848539801e86591bd9801b019f84f")
     }
+
+    func testResolution() {
+        var expectations = [XCTestExpectation]()
+        let expectation = self.expectation(description: "Wait for ENS name to be resolved")
+        expectations.append(expectation)
+        let ensName = "b00n.thisisme.eth"
+        var config = makeConfigOnMainnet()
+        GetENSOwnerCoordinator(config: config).getENSOwner(for: ensName) { result in
+            if let address = result.value, address.address.sameContract(as: "0xbbce83173d5c1D122AE64856b4Af0D5AE07Fa362") {
+                expectation.fulfill()
+            }
+        }
+        wait(for: expectations, timeout: 3)
+    }
+
+    private func makeConfigOnMainnet() -> Config {
+        var config = Config.make()
+        config.chainID = RPCServer.main.chainID
+        return config
+    }
 }
