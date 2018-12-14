@@ -7,6 +7,7 @@ if (danger.github) {
     warnClosureStronglyCapturesSelf()
     failUsingNSLocalizedStringWithoutR()
     failIfRemoveAnyRealmSchemaMigrationBlock()
+    checkForSpacesInOtherwiseEmptyLines()
 }
 
 function warnHTMLLocalizationMissing() {
@@ -52,6 +53,17 @@ function failIfRemoveAnyRealmSchemaMigrationBlock() {
         })
     })
 }
+
+function checkForSpacesInOtherwiseEmptyLines() {
+    modifiedSwiftFiles().forEach(each => {
+        danger.git.diffForFile(each).then(diff => {
+            if (diff.added.includes("    \n")) {
+                fail(each + ": leading spaces for otherwise empty lines should be removed.")
+            }
+        })
+    })
+}
+
 
 function modifiedSwiftFiles() {
     return danger.git.modified_files.filter(f => f.includes(".swift"))
