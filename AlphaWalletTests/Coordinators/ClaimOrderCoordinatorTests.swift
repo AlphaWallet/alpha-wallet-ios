@@ -98,7 +98,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
             case .failure: break
             }
         }
-        wait(for: expectations, timeout: 10000)
+        wait(for: expectations, timeout: 10)
     }
     
 }
