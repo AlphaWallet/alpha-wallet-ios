@@ -69,6 +69,15 @@ public struct Constants {
     public static let legacy721Addresses = ["06012c8cf97bead5deae237070f9587f8e7a266d",
                                             "abc7e6c01237e8eef355bba2bf925a730b714d5f",
                                             "71c118b00759b0851785642541ceb0f4ceea0bd5"]
+
+    static let partnerContracts = [
+        (name: "DAI", contract: "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"),
+        (name: "GUSD", contract: "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd"),
+        (name: "PAX", contract: "0x8e870d67f660d95d5be530380d0ec0bd388289e1"),
+        (name: "TUSD", contract: "0x8dd5fbce2f6a956c3022ba3663759011dd51e73e"),
+        (name: "USDC", contract: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+        (name: "USDO", contract: "0x98f2ab72198f2e64527bdb28931f60c0f77ac2fc")
+    ]
 }
 
 public struct UnitConfiguration {
