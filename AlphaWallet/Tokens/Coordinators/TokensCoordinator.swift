@@ -63,7 +63,8 @@ class TokensCoordinator: Coordinator {
     }
 
     func start() {
-        autoDetectTokens()
+        autoDetectTransactedTokens()
+        autoDetectPartnerTokens()
         showTokens()
         refreshUponAssetDefinitionChanges()
     }
@@ -79,7 +80,7 @@ class TokensCoordinator: Coordinator {
     }
 
     ///Implementation: We refresh once only, after all the auto detected tokens' data have been pulled because each refresh pulls every tokens' (including those that already exist before the this auto detection) price as well as balance, placing heavy and redundant load on the device. After a timeout, we refresh once just in case it took too long, so user at least gets the chance to see some auto detected tokens
-    private func autoDetectTokens() {
+    private func autoDetectTransactedTokens() {
         //TODO we don't auto detect tokens if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
         if ProcessInfo.processInfo.environment["XCInjectBundleInto"] != nil {
             return
@@ -115,6 +116,34 @@ class TokensCoordinator: Coordinator {
                     if !hasRefreshedAfterAddingAllContracts {
                         strongSelf.tokensViewController.fetch()
                     }
+                }
+            }
+        }
+    }
+
+    private func autoDetectPartnerTokens() {
+        guard session.config.server == .main else { return }
+        guard let address = keystore.recentlyUsedWallet?.address else { return }
+        let alreadyAddedContracts = storage.enabledObject.map { $0.address.eip55String.lowercased() }
+        let deletedContracts = storage.deletedContracts.map { $0.contract.lowercased() }
+        let hiddenContracts = storage.hiddenContracts.map { $0.contract.lowercased() }
+        let contracts = Constants.partnerContracts.map { $0.contract.lowercased() } - alreadyAddedContracts - deletedContracts - hiddenContracts
+        let balanceCoordinator = GetBalanceCoordinator(config: session.config)
+        for each in contracts {
+            guard let contract = Address(string: each) else { continue }
+            balanceCoordinator.getBalance(for: address, contract: contract) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                case .success(let balance):
+                    if balance > 0 {
+                        strongSelf.addToken(for: contract.eip55String) {
+                            DispatchQueue.main.async {
+                                strongSelf.tokensViewController.fetch()
+                            }
+                        }
+                    }
+                case .failure:
+                    break
                 }
             }
         }
