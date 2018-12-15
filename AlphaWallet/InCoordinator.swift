@@ -32,7 +32,7 @@ enum Tabs {
 
 class InCoordinator: Coordinator {
     private let initialWallet: Wallet
-    private var config: Config
+    private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
     private let appTracker: AppTracker
     private var callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator? {
@@ -127,7 +127,6 @@ class InCoordinator: Coordinator {
     }
 
     func showTabBar(for account: Wallet) {
-
         let migration = MigrationInitializer(account: account, chainID: config.chainID)
         migration.perform()
         //Debugging
@@ -138,12 +137,12 @@ class InCoordinator: Coordinator {
             callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator(config: config, tokensDataStore: tokensDataStore)
         }
 
+        //TODO creating many objects here. Messy. Improve?
         let web3 = self.web3()
         web3.start()
         let realm = self.realm(for: migration.config)
         let tokensStorage = TokensDataStore(realm: realm, account: account, config: config, assetDefinitionStore: assetDefinitionStore)
         let alphaWalletTokensStorage = TokensDataStore(realm: realm, account: account, config: config, assetDefinitionStore: assetDefinitionStore)
-        let balanceCoordinator = GetBalanceCoordinator(config: config)
         let balance = BalanceCoordinator(wallet: account, config: config, storage: tokensStorage)
         let session = WalletSession(
                 account: account,
@@ -151,91 +150,19 @@ class InCoordinator: Coordinator {
                 web3: web3,
                 balanceCoordinator: balance
         )
-        let transactionsStorage = TransactionsStorage(
-                realm: realm
-        )
+        let transactionsStorage = TransactionsStorage(realm: realm)
         transactionsStorage.removeTransactions(for: [.failed, .pending, .unknown])
         keystore.recentlyUsedWallet = account
 
-        let inCoordinatorViewModel = InCoordinatorViewModel(config: config)
-        let transactionCoordinator = TransactionCoordinator(
-                session: session,
-                storage: transactionsStorage,
-                keystore: keystore,
-                tokensStorage: tokensStorage
-        )
-        transactionCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.transactionsTabbarItemTitle(), image: R.image.feed()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.feed())
-        transactionCoordinator.delegate = self
-        transactionCoordinator.start()
-        addCoordinator(transactionCoordinator)
-
-        let tabBarController = TabBarController()
-        tabBarController.tabBar.isTranslucent = false
-
-        if inCoordinatorViewModel.tokensAvailable {
-            let tokensCoordinator = TokensCoordinator(
-                    session: session,
-                    keystore: keystore,
-                    tokensStorage: alphaWalletTokensStorage,
-                    ethPrice: ethPrice,
-                    assetDefinitionStore: assetDefinitionStore
-            )
-            tokensCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_wallet())
-            tokensCoordinator.delegate = self
-            tokensCoordinator.start()
-            addCoordinator(tokensCoordinator)
-            tabBarController.viewControllers = [
-                tokensCoordinator.navigationController
-            ]
-        }
-
-        if let viewControllers = tabBarController.viewControllers, !viewControllers.isEmpty {
-            tabBarController.viewControllers?.append(transactionCoordinator.navigationController)
-        } else {
-            tabBarController.viewControllers = [transactionCoordinator.navigationController]
-        }
-
-        let browserCoordinator = BrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
-        browserCoordinator.delegate = self
-        browserCoordinator.start()
-        browserCoordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.dapps_icon(), selectedImage: nil)
-
-        addCoordinator(browserCoordinator)
-        if let viewControllers = tabBarController.viewControllers, !viewControllers.isEmpty {
-            tabBarController.viewControllers?.append(browserCoordinator.navigationController)
-        } else {
-            tabBarController.viewControllers = [browserCoordinator.navigationController]
-        }
-
-        let alphaSettingsCoordinator = SettingsCoordinator(
-                keystore: keystore,
-                session: session,
-                storage: transactionsStorage,
-                balanceCoordinator: balanceCoordinator
-        )
-        alphaSettingsCoordinator.rootViewController.tabBarItem = UITabBarItem(
-                title: R.string.localizable.aSettingsNavigationTitle(),
-                image: R.image.tab_settings()?.withRenderingMode(.alwaysOriginal),
-                selectedImage: R.image.tab_settings()
-        )
-        alphaSettingsCoordinator.delegate = self
-        alphaSettingsCoordinator.start()
-        addCoordinator(alphaSettingsCoordinator)
-        if let viewControllers = tabBarController.viewControllers, !viewControllers.isEmpty {
-            tabBarController.viewControllers?.append(alphaSettingsCoordinator.navigationController)
-        } else {
-            tabBarController.viewControllers = [alphaSettingsCoordinator.navigationController]
-        }
+        let tabBarController = createTabBarController(session: session, keystore: keystore, alphaWalletTokensStorage: alphaWalletTokensStorage, tokensDataStore: tokensStorage, transactionsStorage: transactionsStorage, realm: realm)
 
         navigationController.setViewControllers(
                 [tabBarController],
                 animated: false
         )
         navigationController.setNavigationBarHidden(true, animated: false)
-        addCoordinator(transactionCoordinator)
 
-		hideTitlesInTabBarController(tabBarController: tabBarController)
-
+        let inCoordinatorViewModel = InCoordinatorViewModel(config: config)
         showTab(inCoordinatorViewModel.initialTab)
 
         let etherToken = TokensDataStore.etherToken(for: config)
@@ -249,6 +176,98 @@ class InCoordinator: Coordinator {
                 self?.promptBackupWallet(withAddress: account.address.description)
             }
         }
+    }
+
+    private func createTokensCoordinator(session: WalletSession, tokensDataStore: TokensDataStore) -> TokensCoordinator {
+        let coordinator = TokensCoordinator(
+                session: session,
+                keystore: keystore,
+                tokensStorage: tokensDataStore,
+                ethPrice: ethPrice,
+                assetDefinitionStore: assetDefinitionStore
+        )
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_wallet())
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+        return coordinator
+    }
+
+    private func createTransactionCoordinator(session: WalletSession, transactionsStorage: TransactionsStorage, keystore: Keystore, tokensDataStore: TokensDataStore) -> TransactionCoordinator {
+        let coordinator = TransactionCoordinator(
+                session: session,
+                storage: transactionsStorage,
+                keystore: keystore,
+                tokensStorage: tokensDataStore
+        )
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.transactionsTabbarItemTitle(), image: R.image.feed()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.feed())
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+        return coordinator
+    }
+
+    private func createBrowserCoordinator(session: WalletSession, keystore: Keystore, realm: Realm) -> BrowserCoordinator {
+        let coordinator = BrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
+        coordinator.delegate = self
+        coordinator.start()
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.dapps_icon(), selectedImage: nil)
+        addCoordinator(coordinator)
+        return coordinator
+    }
+
+    private func createSettingsCoordinator(session: WalletSession, keystore: Keystore, transactionsStorage: TransactionsStorage) -> SettingsCoordinator {
+        let balanceCoordinator = GetBalanceCoordinator(config: config)
+        let coordinator = SettingsCoordinator(
+                keystore: keystore,
+                session: session,
+                storage: transactionsStorage,
+                balanceCoordinator: balanceCoordinator
+        )
+        coordinator.rootViewController.tabBarItem = UITabBarItem(
+                title: R.string.localizable.aSettingsNavigationTitle(),
+                image: R.image.tab_settings()?.withRenderingMode(.alwaysOriginal),
+                selectedImage: R.image.tab_settings()
+        )
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+        return coordinator
+    }
+
+    //TODO do we need 2 separate TokensDataStore instances? Is it because they have different delegates?
+    private func createTabBarController(session: WalletSession, keystore: Keystore, alphaWalletTokensStorage: TokensDataStore, tokensDataStore: TokensDataStore, transactionsStorage: TransactionsStorage, realm: Realm) -> UITabBarController {
+        var viewControllers = [UIViewController]()
+
+        let inCoordinatorViewModel = InCoordinatorViewModel(config: config)
+        if inCoordinatorViewModel.tokensAvailable {
+            let tokensCoordinator = createTokensCoordinator(session: session, tokensDataStore: alphaWalletTokensStorage)
+            viewControllers.append(tokensCoordinator.navigationController)
+        }
+
+        let transactionCoordinator = createTransactionCoordinator(
+                session: session,
+                transactionsStorage: transactionsStorage,
+                keystore: keystore,
+                tokensDataStore: tokensDataStore
+        )
+        viewControllers.append(transactionCoordinator.navigationController)
+
+        let browserCoordinator = createBrowserCoordinator(session: session, keystore: keystore, realm: realm)
+        viewControllers.append(browserCoordinator.navigationController)
+
+        let settingsCoordinator = createSettingsCoordinator(
+                session: session,
+                keystore: keystore,
+                transactionsStorage: transactionsStorage
+        )
+        viewControllers.append(settingsCoordinator.navigationController)
+
+        let tabBarController = TabBarController()
+        tabBarController.tabBar.isTranslucent = false
+        tabBarController.viewControllers = viewControllers
+        hideTitlesInTabBarController(tabBarController: tabBarController)
+        return tabBarController
     }
 
     private func promptBackupWallet(withAddress address: String) {
