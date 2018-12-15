@@ -5,7 +5,6 @@ import BigInt
 import PromiseKit
 import Result
 import TrustKeystore
-import web3swift
 
 ///This class uses 2 caches:
 ///
@@ -121,13 +120,8 @@ class CallForAssetAttributeCoordinator {
             tokenId: BigUInt,
             functionCall: AssetAttributeFunctionCall) -> Promise<AssetAttributeValue> {
         return Promise<AssetAttributeValue> { seal in
-            guard let contractAddress = EthereumAddress(functionCall.contract) else {
+            guard let contract = Address(string: functionCall.contract) else {
                 seal.reject(Web3Error(description: "Error converting contract address: \(functionCall.contract)"))
-                return
-            }
-
-            guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
-                seal.reject(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)")))
                 return
             }
 
@@ -136,19 +130,8 @@ class CallForAssetAttributeCoordinator {
                 return
             }
 
-            let web3 = web3swift.web3(provider: webProvider)
-            guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: contractAddress, options: web3.options) else {
-                seal.reject(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(function.name)()")))
-                return
-            }
-
-            guard let promise = contractInstance.method(function.name, parameters: functionCall.arguments, options: nil) else {
-                seal.reject(AnyError(Web3Error(description: "Error calling \(function.name)() on contract: \(functionCall.contract)")))
-                return
-            }
-
             //Fine to store a strong reference to self here because it's still useful to cache the function call result
-            promise.callPromise(options: nil).done { dictionary in
+            callSmartContract(withConfig: config, contract: contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments).done { dictionary in
                 if let value = dictionary["0"] {
                     switch functionCall.output.type {
                     case .bool:
@@ -167,8 +150,8 @@ class CallForAssetAttributeCoordinator {
                 } else {
                     seal.reject(Web3Error(description: "nil result from calling: \(function.name)() on contract: \(functionCall.contract)"))
                 }
-            }.catch { error in
-                seal.reject(AnyError(error))
+            }.catch {
+                seal.reject(AnyError($0))
             }
         }
     }
