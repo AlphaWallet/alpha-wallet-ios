@@ -2,9 +2,10 @@
 // Created by James Sangalli on 8/11/18.
 //
 import Foundation
-import Result
-import web3swift
 import CryptoSwift
+import Result
+import TrustKeystore
+import web3swift
 
 //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md
 extension String {
@@ -59,25 +60,12 @@ class GetENSOwnerCoordinator {
             return
         }
 
-        guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
-            completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)"))))
-            return
-        }
-
-        let web3 = web3swift.web3(provider: webProvider)
         let function = GetENSOwnerEncode()
-        let ensRegistrarContract = config.ensRegistrarContract
-        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: ensRegistrarContract, options: web3.options) else {
-            completion(.failure(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(function.name)()"))))
+        guard let ensRegistrarContract = Address(string: config.ensRegistrarContract.address) else {
+            completion(.failure(AnyError(Web3Error(description: "Error converting contract address: \(config.ensRegistrarContract.address)"))))
             return
         }
-
-        guard let promise = contractInstance.method(function.name, parameters: [node] as [AnyObject], options: nil) else {
-            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(ensRegistrarContract.address)"))))
-            return
-        }
-
-        promise.callPromise(options: nil).done { result in
+        callSmartContract(withConfig: config, contract: ensRegistrarContract, functionName: function.name, abiString: "[\(function.abi)]", parameters: [node] as [AnyObject]).done { result in
             //if null address is returned (as 0) we count it as invalid
             //this is because it is not assigned to an ENS and puts the user in danger of sending funds to null
             if let owner = result["0"] as? EthereumAddress {
@@ -89,10 +77,10 @@ class GetENSOwnerCoordinator {
                     completion(.success(owner))
                 }
             } else {
-                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(ensRegistrarContract.address).\(function.name)()"))))
+                completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(ensRegistrarContract).\(function.name)()"))))
             }
-        }.catch { error in
-            completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(ensRegistrarContract.address).\(function.name)(): \(error)"))))
+        }.catch {
+            completion(.failure(AnyError($0)))
         }
     }
 
