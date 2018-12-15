@@ -171,11 +171,6 @@ class InCoordinator: Coordinator {
 
         let tabBarController = TabBarController()
         tabBarController.tabBar.isTranslucent = false
-        tabBarController.didShake = { [weak self] in
-            if inCoordinatorViewModel.canActivateDebugMode {
-                self?.activateDebug()
-            }
-        }
 
         if inCoordinatorViewModel.tokensAvailable {
             let tokensCoordinator = TokensCoordinator(
@@ -288,15 +283,6 @@ class InCoordinator: Coordinator {
                 }
             }
         }
-    }
-
-    @objc private func activateDebug() {
-        config.isDebugEnabled = !config.isDebugEnabled
-
-        guard let transactionCoordinator = transactionCoordinator else {
-            return
-        }
-        restart(for: transactionCoordinator.session.account, in: transactionCoordinator)
     }
 
     private func restart(for account: Wallet, in coordinator: TransactionCoordinator) {

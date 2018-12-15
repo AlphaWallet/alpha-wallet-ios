@@ -16,10 +16,6 @@ struct InCoordinatorViewModel {
         }
     }
 
-    var canActivateDebugMode: Bool {
-        return config.server.isTestNetwork
-    }
-
     var initialTab: Tabs {
         return .wallet
     }
