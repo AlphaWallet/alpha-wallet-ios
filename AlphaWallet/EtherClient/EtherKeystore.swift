@@ -146,6 +146,10 @@ open class EtherKeystore: Keystore {
                 }
             }
         case .watch(let address):
+            guard !watchAddresses.contains(where: { $0.sameContract(as: address.eip55String) }) else {
+                completion(.failure(.duplicateAccount))
+                return
+            }
             watchAddresses = [watchAddresses, [address.description]].flatMap { $0 }
             completion(.success(Wallet(type: .watch(address))))
         }
