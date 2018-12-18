@@ -51,7 +51,7 @@ enum RPCServer: Hashable {
         case .main: return Constants.mainnetEtherscanAPI
         case .ropsten: return Constants.ropstenEtherscanAPI
         case .rinkeby: return Constants.rinkebyEtherscanAPI
-        case .kovan: return Constants.mainnetEtherscanAPI
+        case .kovan: return Constants.kovanEtherscanAPI
         case .poa: return Constants.mainnetEtherscanAPI
         case .sokol: return Constants.mainnetEtherscanAPI
         case .classic: return Constants.mainnetEtherscanAPI
