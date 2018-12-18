@@ -49,7 +49,7 @@ public struct Constants {
 
     //etherscan contract details web page
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"
-    public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"
+    public static let kovanEtherscanContractDetailsWebPageURL = "https://kovan.etherscan.io/address/"
     public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
 
     //OpenSea links for erc721 assets
