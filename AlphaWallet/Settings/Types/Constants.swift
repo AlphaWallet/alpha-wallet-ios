@@ -45,12 +45,14 @@ public struct Constants {
     //etherscan APIs
     public static let mainnetEtherscanAPI = "https://api.etherscan.io/api?module=account&action=txlist&address="
     public static let ropstenEtherscanAPI = "https://ropsten.etherscan.io/api?module=account&action=txlist&address="
+    public static let kovanEtherscanAPI = "https://api-kovan.etherscan.io/api?module=account&action=txlist&address="
     public static let rinkebyEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
 
     //etherscan contract details web page
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"
-    public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"
+    public static let kovanEtherscanContractDetailsWebPageURL = "https://kovan.etherscan.io/address/"
     public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
+    public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"
 
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
