@@ -20,13 +20,15 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 
 class SendViewController: UIViewController, CanScanQRCode {
     private let roundedBackground = RoundedBackground()
-    private let header = SendHeaderView()
+    private let scrollView = UIScrollView()
+    private let header = SendHeaderViewWithIntroduction()
     private let amountTextField = AmountTextField()
     private let targetAddressLabel = UILabel()
     private let amountLabel = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: SendViewModel!
-    private var headerViewModel = SendHeaderViewViewModel()
+    //hhh verify this shows xDai correct
+    lazy private var headerViewModel = SendHeaderViewViewModelWithIntroduction(server: config.server)
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
     private let account: Account
@@ -80,6 +82,9 @@ class SendViewController: UIViewController, CanScanQRCode {
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.addSubview(scrollView)
+
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
         targetAddressTextField.returnKeyType = .next
@@ -112,7 +117,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             amountTextField.alternativeAmountLabel,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(stackView)
+        scrollView.addSubview(stackView)
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
@@ -134,7 +139,8 @@ class SendViewController: UIViewController, CanScanQRCode {
 
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -145,6 +151,11 @@ class SendViewController: UIViewController, CanScanQRCode {
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         storage.updatePrices()
@@ -278,6 +289,10 @@ class SendViewController: UIViewController, CanScanQRCode {
             headerViewModel.ticker = ticker
             headerViewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
             headerViewModel.currencyAmountWithoutSymbol = session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
+
+            //TODO is this the best place to put it? because this func is called configureBalanceViewModel() "balance"
+            headerViewModel.contractAddress = token.address.eip55String
+
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
             }

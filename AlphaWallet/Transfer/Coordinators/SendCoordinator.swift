@@ -18,6 +18,7 @@ class SendCoordinator: Coordinator {
     private let storage: TokensDataStore
     private let ethPrice: Subscribable<Double>
     private let tokenHolders: [TokenHolder]!
+    private let assetDefinitionStore: AssetDefinitionStore
 
     lazy var sendViewController: SendViewController = {
         return makeSendViewController()
@@ -35,7 +36,8 @@ class SendCoordinator: Coordinator {
             storage: TokensDataStore,
             account: Account,
             ethPrice: Subscribable<Double>,
-            tokenHolders: [TokenHolder] = []
+            tokenHolders: [TokenHolder] = [],
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.transferType = transferType
         self.navigationController = navigationController
@@ -46,6 +48,7 @@ class SendCoordinator: Coordinator {
         self.storage = storage
         self.ethPrice = ethPrice
         self.tokenHolders = tokenHolders
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     func start() {

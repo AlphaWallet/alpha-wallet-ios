@@ -350,7 +350,8 @@ class InCoordinator: Coordinator {
                     session: session,
                     keystore: keystore,
                     storage: tokenStorage,
-                    ethPrice: ethPrice
+                    ethPrice: ethPrice,
+                    assetDefinitionStore: assetDefinitionStore
             )
             coordinator.delegate = self
             if let topVC = navigationController.presentedViewController {

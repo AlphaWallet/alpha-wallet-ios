@@ -3,6 +3,7 @@
 import UIKit
 import WebKit
 
+//TODO remove duplicate of TokenCardsViewControllerHeader once IFRAME design is clear
 class TokenCardsViewControllerHeaderWithIntroduction: UIView {
     private let background = UIView()
     private let titleLabel = UILabel()
