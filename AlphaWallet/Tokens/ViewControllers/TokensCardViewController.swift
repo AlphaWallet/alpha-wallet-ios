@@ -69,6 +69,8 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
+        header.delegate = self
+
         tableView.register(TokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier)
         tableView.register(OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -280,4 +282,8 @@ extension TokensCardViewController: UIViewControllerPreviewingDelegate {
     }
 }
 
-
+extension TokensCardViewController: TokenCardsViewControllerHeaderWithIntroductionDelegate {
+    func didUpdate(height: CGFloat, ofHeader header: TokenCardsViewControllerHeaderWithIntroduction) {
+        tableView.tableHeaderView = header
+    }
+}

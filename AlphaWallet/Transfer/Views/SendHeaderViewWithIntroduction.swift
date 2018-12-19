@@ -18,6 +18,7 @@ class SendHeaderViewWithIntroduction: UIView {
     private let valueLabel = UILabel()
     private let valueNameLabel = UILabel()
     private let introductionWebView = WKWebView(frame: .zero, configuration: .init())
+    lazy private var introductionWebViewHeightConstraint = introductionWebView.heightAnchor.constraint(equalToConstant: 200)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -47,6 +48,8 @@ class SendHeaderViewWithIntroduction: UIView {
         ].asStackView(axis: .vertical, perpendicularContentHuggingPriority: .defaultLow)
         footerStackView?.translatesAutoresizingMaskIntoConstraints = false
 
+        introductionWebView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
+
         let stackView = [
             titleLabel,
             bottomRowStack,
@@ -73,9 +76,7 @@ class SendHeaderViewWithIntroduction: UIView {
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -7),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
-
-            introductionWebView.heightAnchor.constraint(equalToConstant: 200),
-        ])
+        ] + [introductionWebViewHeightConstraint])
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -136,6 +137,18 @@ class SendHeaderViewWithIntroduction: UIView {
             introductionWebView.navigationDelegate = self
             introductionWebView.loadHTMLString(html, baseURL: nil)
         }
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        guard keyPath == "estimatedProgress" else { return }
+        guard introductionWebView.estimatedProgress == 1 else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+            self.makeIntroductionWebViewFullHeight()
+        }
+    }
+
+    private func makeIntroductionWebViewFullHeight() {
+        introductionWebViewHeightConstraint.constant = introductionWebView.scrollView.contentSize.height
     }
 }
 
