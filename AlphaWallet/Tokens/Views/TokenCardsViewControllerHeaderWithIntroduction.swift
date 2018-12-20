@@ -30,9 +30,13 @@ class TokenCardsViewControllerHeaderWithIntroduction: UIView {
         introductionWebView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
 
         let bottomRowStack = [blockchainLabel, separator, issuerLabel].asStackView(spacing: 15)
+
+        let titleLabelHolder = [UIView.spacerWidth(21), titleLabel, UIView.spacerWidth(21)].asStackView()
+        let bottomRowStackHolder = [UIView.spacerWidth(21), bottomRowStack, UIView.spacerWidth(21)].asStackView()
+
         let stackView = [
-            titleLabel,
-            bottomRowStack,
+            titleLabelHolder,
+            bottomRowStackHolder,
             introductionWebView,
         ].asStackView(axis: .vertical, spacing: 15)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -46,8 +50,8 @@ class TokenCardsViewControllerHeaderWithIntroduction: UIView {
             background.topAnchor.constraint(equalTo: topAnchor),
             backgroundWidthConstraint,
 
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
+            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 0),
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: 0),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
         ] + [introductionWebViewHeightConstraint])
