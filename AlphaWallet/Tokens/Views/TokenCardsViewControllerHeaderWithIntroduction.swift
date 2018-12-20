@@ -97,7 +97,7 @@ class TokenCardsViewControllerHeaderWithIntroduction: UIView {
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         guard keyPath == "estimatedProgress" else { return }
         guard introductionWebView.estimatedProgress == 1 else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.makeIntroductionWebViewFullHeight()
         }
     }
