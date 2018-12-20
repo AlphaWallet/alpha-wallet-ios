@@ -42,7 +42,7 @@ class TokensViewModel {
             if lowercasedKeyword.isEmpty {
                 return tokens
             } else {
-                return tokens.filter { $0.name.trimmed.lowercased().contains(lowercasedKeyword) || $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) }
+                return tokens.filter { $0.name.trimmed.lowercased().contains(lowercasedKeyword) || $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) || $0.contract.lowercased().contains(lowercasedKeyword) }
             }
         }
     }
