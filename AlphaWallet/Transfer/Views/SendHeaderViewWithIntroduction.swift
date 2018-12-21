@@ -50,9 +50,12 @@ class SendHeaderViewWithIntroduction: UIView {
 
         introductionWebView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
 
+        let titleLabelHolder = [UIView.spacerWidth(7), titleLabel, UIView.spacerWidth(7)].asStackView()
+        let bottomRowStackHolder = [UIView.spacerWidth(7), bottomRowStack, UIView.spacerWidth(7)].asStackView()
+
         let stackView = [
-            titleLabel,
-            bottomRowStack,
+            titleLabelHolder,
+            bottomRowStackHolder,
             .spacer(height: 7),
             middleBorder,
             footerStackView!,
@@ -72,8 +75,8 @@ class SendHeaderViewWithIntroduction: UIView {
 
             middleBorder.heightAnchor.constraint(equalToConstant: 1),
 
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 7),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -7),
+            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 0),
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: 0),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
         ] + [introductionWebViewHeightConstraint])
