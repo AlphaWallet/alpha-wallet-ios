@@ -18,34 +18,12 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
     )
 }
 
-class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatusViewController {
+class SendViewController: UIViewController, CanScanQRCode {
     private let roundedBackground = RoundedBackground()
     private let header = SendHeaderView()
     private let amountTextField = AmountTextField()
     private let targetAddressLabel = UILabel()
     private let amountLabel = UILabel()
-    private let myAddressContainer = UIView()
-    private let myAddressLabelLabel = UILabel()
-    private let myAddressLabel: UILabel = {
-        let label = UILabel(frame: .zero)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.minimumScaleFactor = 0.5
-        label.adjustsFontSizeToFitWidth = true
-        return label
-    }()
-    private let copyButton: UIButton = {
-        let button = Button(size: .normal, style: .border)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(copyAddress), for: .touchUpInside)
-        return button
-    }()
-    private let imageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
-    }()
     private let nextButton = UIButton(type: .system)
     private var viewModel: SendViewModel!
     private var headerViewModel = SendHeaderViewViewModel()
@@ -97,15 +75,6 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
 
         super.init(nibName: nil, bundle: nil)
 
-        switch transferType {
-        case .ERC20Token:
-            updateNavigationRightBarButtons(isVerified: false, hasShowInfoButton: false)
-        case .ether:
-            updateNavigationRightBarButtons(isVerified: true, hasShowInfoButton: false)
-        case .ERC875Token, .ERC721Token, .ERC875TokenOrder, .dapp:
-            break
-        }
-
         configureBalanceViewModel()
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
@@ -129,22 +98,7 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
             amountTextField.isFiatButtonHidden = true
         }
 
-        myAddressContainer.translatesAutoresizingMaskIntoConstraints = false
-
-        let myAddressContainerCol0 = [
-            myAddressLabelLabel,
-            .spacer(height: 10),
-            myAddressLabel,
-            .spacer(height: 10),
-            copyButton,
-        ].asStackView(axis: .vertical, alignment: .center)
-        myAddressContainerCol0.translatesAutoresizingMaskIntoConstraints = false
-
-        let myAddressContainerStackView = [myAddressContainerCol0, .spacerWidth(20), imageView].asStackView(alignment: .center)
-        myAddressContainerStackView.translatesAutoresizingMaskIntoConstraints = false
-        myAddressContainer.addSubview(myAddressContainerStackView)
-
-        nextButton.setTitle(R.string.localizable.aWalletTokenTransferButtonTitle(), for: .normal)
+        nextButton.setTitle(R.string.localizable.send(), for: .normal)
         nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
 
         let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
@@ -162,8 +116,6 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
             .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
             amountTextField,
             amountTextField.alternativeAmountLabel,
-            .spacer(height: ScreenChecker().isNarrowScreen() ? 10: 20),
-            myAddressContainer,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
@@ -186,17 +138,6 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
             amountTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             amountTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
             amountTextField.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen() ? 30 : 50),
-
-            myAddressContainerStackView.leadingAnchor.constraint(equalTo: myAddressContainer.leadingAnchor, constant: 20),
-            myAddressContainerStackView.trailingAnchor.constraint(equalTo: myAddressContainer.trailingAnchor, constant: -20),
-            myAddressContainerStackView.topAnchor.constraint(equalTo: myAddressContainer.topAnchor, constant: ScreenChecker().isNarrowScreen() ? 10 : 20),
-            myAddressContainerStackView.bottomAnchor.constraint(equalTo: myAddressContainer.bottomAnchor, constant: ScreenChecker().isNarrowScreen() ? -10 : -20),
-
-            myAddressContainer.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
-            myAddressContainer.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
-
-            imageView.widthAnchor.constraint(equalTo: myAddressContainerStackView.widthAnchor, multiplier: 0.5, constant: 10),
-            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor),
 
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
@@ -226,8 +167,6 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
 
         targetAddressTextField.configureOnce()
 
-        changeQRCode(value: 0)
-
         view.backgroundColor = viewModel.backgroundColor
 
         headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
@@ -238,22 +177,6 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
 
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
-
-        myAddressLabelLabel.font = viewModel.textFieldsLabelFont
-        myAddressLabelLabel.textColor = viewModel.textFieldsLabelTextColor
-
-        myAddressLabel.textColor = viewModel.myAddressTextColor
-        myAddressLabel.font = viewModel.addressFont
-        myAddressLabel.text = viewModel.myAddressText
-
-        copyButton.titleLabel?.font = viewModel.copyAddressButtonFont
-        copyButton.setTitle("    \(viewModel.copyAddressButtonTitle)    ", for: .normal)
-        copyButton.setTitleColor(viewModel.copyAddressButtonTitleColor, for: .normal)
-        copyButton.backgroundColor = viewModel.copyAddressButtonBackgroundColor
-
-        myAddressContainer.borderColor = viewModel.myAddressBorderColor
-        myAddressContainer.borderWidth = viewModel.myAddressBorderWidth
-        myAddressContainer.cornerRadius = 20
 
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         nextButton.backgroundColor = viewModel.buttonBackgroundColor
@@ -267,7 +190,6 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
 
     private func roundCornersBasedOnHeight() {
         amountTextField.layer.cornerRadius = amountTextField.frame.size.height / 2
-        copyButton.cornerRadius = copyButton.frame.size.height / 2
     }
 
     func getGasPrice() {
@@ -328,40 +250,12 @@ class SendViewController: UIViewController, CanScanQRCode, TokenVerifiableStatus
         delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }
 
-    @objc func copyAddress() {
-        UIPasteboard.general.string = viewModel.myAddressText
-
-        let hud = MBProgressHUD.showAdded(to: view, animated: true)
-        hud.mode = .text
-        hud.label.text = viewModel.addressCopiedText
-        hud.hide(animated: true, afterDelay: 1.5)
-    }
-
     func activateAmountView() {
         _ = amountTextField.becomeFirstResponder()
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private func changeQRCode(value: Int) {
-        if let viewModel = viewModel {
-            let string = viewModel.myAddressText
-            DispatchQueue.global(qos: .background).async { [weak self] in
-                guard let strongSelf = self else { return }
-                // EIP67 format not being used much yet, use hex value for now
-                // let string = "ethereum:\(account.address.address)?value=\(value)"
-                let image = strongSelf.generateQRCode(from: string)
-                DispatchQueue.main.async {
-                    strongSelf.imageView.image = image
-                }
-            }
-        }
-    }
-
-    private func generateQRCode(from string: String) -> UIImage? {
-        return string.toQRCode()
     }
 
     private func configureBalanceViewModel() {
@@ -465,14 +359,5 @@ extension SendViewController: AddressTextFieldDelegate {
     }
 
     func didChange(to string: String, in textField: AddressTextField) {
-    }
-}
-
-extension SendViewController: VerifiableStatusViewController {
-    func showInfo() {
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
     }
 }

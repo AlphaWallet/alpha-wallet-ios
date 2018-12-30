@@ -53,6 +53,7 @@
 "request.myAddressIs.label.title" = "내 %1$@ 주소: %2$@";
 "Retry" = "다시 시도";
 "Send" = "보내기";
+"Receive" = "Receive";
 "send.error.emptyClipBoard" = "빈 클립보드";
 "send.error.invalidAddress" = "잘못된 주소";
 "send.error.invalidAmount" = "잘못된 금액";
@@ -322,3 +323,4 @@
 "dappBrowser.myDapps.edit.title.label" = "Title";
 "dappBrowser.myDapps.edit.url.label" = "Address";
 "dappBrowser.clearMyDapps" = "Remove Dapp?";
+"recent.transactions" = "Recent Transactions";

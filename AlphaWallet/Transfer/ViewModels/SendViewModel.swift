@@ -47,43 +47,11 @@ struct SendViewModel {
         return true
     }
 
-    var myAddressText: String {
-        return session.account.address.description
-    }
-    var addressFont: UIFont {
-        return Fonts.semibold(size: 14)!
-    }
-    var addressCopiedText: String {
-        return R.string.localizable.requestAddressCopiedTitle()
-    }
-
-    var copyAddressButtonBackgroundColor: UIColor {
-        return Colors.appBackground
-    }
-    var copyAddressButtonTitleColor: UIColor {
-        return Colors.appWhite
-    }
-    var copyAddressButtonFont: UIFont {
-        return Fonts.regular(size: 14)!
-    }
-    var copyAddressButtonTitle: String {
-        return R.string.localizable.copy()
-    }
     var textFieldsLabelTextColor: UIColor {
         return Colors.appGrayLabelColor
     }
     var textFieldsLabelFont: UIFont {
         return Fonts.regular(size: 10)!
-    }
-
-    var myAddressTextColor: UIColor {
-        return Colors.gray
-    }
-    var myAddressBorderColor: UIColor {
-        return UIColor(red: 235, green: 235, blue: 235)
-    }
-    var myAddressBorderWidth: CGFloat {
-        return 1
     }
 
     var buttonTitleColor: UIColor {
