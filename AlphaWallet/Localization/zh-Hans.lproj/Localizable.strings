@@ -46,6 +46,7 @@
 "request.myAddressIs.label.title" = "我的 %1$@ 地址是：%2$@";
 "Retry" = "重试";
 "Send" = "发送";
+"Receive" = "Receive";
 "send.error.emptyClipBoard" = "空白的剪贴板";
 "send.error.invalidAddress" = "无效的地址";
 "send.error.wrongInput" = "错误的输入";
@@ -322,3 +323,4 @@
 "dappBrowser.myDapps.edit.title.label" = "Title";
 "dappBrowser.myDapps.edit.url.label" = "Address";
 "dappBrowser.clearMyDapps" = "Remove Dapp?";
+"recent.transactions" = "Recent Transactions";

@@ -53,6 +53,7 @@
 "request.myAddressIs.label.title" = "Mi dirección de %1$@ es: %2$@";
 "Retry" = "Reintentar";
 "Send" = "Enviar";
+"Receive" = "Receive";
 "send.error.emptyClipBoard" = "Vaciar portapapeles";
 "send.error.invalidAddress" = "Dirección no válida";
 "send.error.invalidAmount" = "Cantidad no válida";
@@ -322,3 +323,4 @@
 "dappBrowser.myDapps.edit.title.label" = "Title";
 "dappBrowser.myDapps.edit.url.label" = "Address";
 "dappBrowser.clearMyDapps" = "Remove Dapp?";
+"recent.transactions" = "Recent Transactions";

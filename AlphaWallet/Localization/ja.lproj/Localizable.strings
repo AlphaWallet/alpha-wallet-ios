@@ -53,6 +53,7 @@
 "request.myAddressIs.label.title" = "私の %1$@ のアドレス: %2$@";
 "Retry" = "再試行";
 "Send" = "送信";
+"Receive" = "Receive";
 "send.error.emptyClipBoard" = "クリップボードが空です";
 "send.error.invalidAddress" = "無効なアドレス";
 "send.error.invalidAmount" = "無効な金額";
@@ -322,3 +323,4 @@
 "dappBrowser.myDapps.edit.title.label" = "Title";
 "dappBrowser.myDapps.edit.url.label" = "Address";
 "dappBrowser.clearMyDapps" = "Remove Dapp?";
+"recent.transactions" = "Recent Transactions";

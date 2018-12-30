@@ -4,9 +4,11 @@ import Foundation
 import UIKit
 import TrustKeystore
 import Alamofire
+import RealmSwift
 
 protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator)
+    func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
 }
 
 private enum ContractData {
@@ -386,15 +388,34 @@ class TokensCoordinator: Coordinator {
             }
         }
     }
+
+    private func createTransactionsStore() -> TransactionsStorage? {
+        guard let wallet = keystore.recentlyUsedWallet else { return nil }
+        let migration = MigrationInitializer(account: wallet, chainID: session.config.chainID)
+        migration.perform()
+        let realm = try! Realm(configuration: migration.config)
+        return TransactionsStorage(realm: realm)
+    }
+
+    private func show(fungibleToken token: TokenObject, transferType: TransferType) {
+        guard let transactionsStore = createTransactionsStore() else { return }
+
+        let viewController = TokenViewController(session: session, tokensDataStore: storage, transferType: transferType)
+        viewController.delegate = self
+        let viewModel = TokenViewControllerViewModel(transferType: transferType, session: session, tokensStore: storage, transactionsStore: transactionsStore)
+        viewController.configure(viewModel: viewModel)
+        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
+        navigationController.present(UINavigationController(rootViewController: viewController), animated: true, completion: nil)
+    }
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
     func didSelect(token: TokenObject, in viewController: UIViewController) {
         switch token.type {
         case .ether:
-            delegate?.didPress(for: .send(type: .ether(config: session.config, destination: .none)), in: self)
+            show(fungibleToken: token, transferType: .ether(config: session.config, destination: .none))
         case .erc20:
-            delegate?.didPress(for: .send(type: .ERC20Token(token)), in: self)
+            show(fungibleToken: token, transferType: .ERC20Token(token))
         case .erc721:
             showTokenList(for: .send(type: .ERC721Token(token)), token: token)
         case .erc875:
@@ -468,5 +489,19 @@ extension TokensCoordinator: CanOpenURL {
 
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
+    }
+}
+
+extension TokensCoordinator: TokenViewControllerDelegate {
+    func didTapSend(forTransferType transferType: TransferType, inViewController viewController: TokenViewController) {
+        delegate?.didPress(for: .send(type: transferType), in: self)
+    }
+
+    func didTapReceive(forTransferType transferType: TransferType, inViewController viewController: TokenViewController) {
+        delegate?.didPress(for: .request, in: self)
+    }
+
+    func didTap(transaction: Transaction, inViewController viewController: TokenViewController) {
+        delegate?.didTap(transaction: transaction, inViewController: viewController, in: self)
     }
 }

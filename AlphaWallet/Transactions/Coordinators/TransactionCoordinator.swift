@@ -82,6 +82,18 @@ class TransactionCoordinator: Coordinator {
         }
     }
 
+    //TODO duplicate of method showTransaction(_:) to display in a specific UIViewController because we are now showing transactions from outside the transactions tab. Clean up
+    func showTransaction(_ transaction: Transaction, inViewController viewController: UIViewController) {
+        let controller = TransactionViewController(
+                session: session,
+                transaction: transaction,
+                delegate: self
+        )
+        let nav = UINavigationController(rootViewController: controller)
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: controller, action: #selector(dismiss))
+        viewController.present(nav, animated: true, completion: nil)
+    }
+
     @objc func didEnterForeground() {
         rootViewController.fetch()
     }
