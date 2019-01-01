@@ -48,6 +48,12 @@ public struct Constants {
     public static let kovanEtherscanAPI = "https://api-kovan.etherscan.io/api?module=account&action=txlist&address="
     public static let rinkebyEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
 
+    //xDai APIs
+    public static let xDaiAPI = "https://blockscout.com/poa/dai/api"
+
+    //xDai contract page
+    public static let xDaiContractPage = "https://blockscout.com/poa/dai/address/"
+
     //etherscan contract details web page
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"
     public static let kovanEtherscanContractDetailsWebPageURL = "https://kovan.etherscan.io/address/"
