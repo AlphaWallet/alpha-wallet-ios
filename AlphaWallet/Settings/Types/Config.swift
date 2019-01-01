@@ -88,6 +88,7 @@ struct Config {
             case .rinkeby: return "https://rinkeby.infura.io/llyrtzQ3YhkdESt2Fzrk"
             case .poa: return "https://core.poa.network"
             case .sokol: return "https://sokol.poa.network"
+            case .xDai: return "https://dai.poa.network"
             case .custom(let custom):
                 return custom.endpoint
             }
@@ -105,6 +106,7 @@ struct Config {
             case .ropsten: return "https://api-ropsten.etherscan.io"
             case .rinkeby: return "https://api-rinkeby.etherscan.io"
             case .poa: return "https://poa.trustwalletapp.com"
+            case .xDai: return "https://blockscout.com/poa/dai/api"
             case .sokol: return "https://trust-sokol.herokuapp.com"
             case .custom:
                 return "" // Enable? make optional
