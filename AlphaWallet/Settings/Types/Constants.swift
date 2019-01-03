@@ -49,7 +49,7 @@ public struct Constants {
     public static let rinkebyEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
 
     //xDai APIs
-    public static let xDaiAPI = "https://blockscout.com/poa/dai/api"
+    public static let xDaiAPI = "https://blockscout.com/poa/dai/"
 
     //xDai contract page
     public static let xDaiContractPage = "https://blockscout.com/poa/dai/address/"
