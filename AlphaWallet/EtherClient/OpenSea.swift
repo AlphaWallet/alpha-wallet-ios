@@ -33,7 +33,7 @@ class OpenSea {
         switch Config().server {
         case .main:
             break
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom, .xDai:
             fetch = Promise { seal in
                 seal.fulfill([:])
             }

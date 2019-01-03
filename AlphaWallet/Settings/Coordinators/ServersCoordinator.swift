@@ -17,6 +17,7 @@ class ServersCoordinator: Coordinator {
                 RPCServer.main,
                 RPCServer.classic,
                 RPCServer.poa,
+                RPCServer.xDai,
                 // RPCServer.callisto, TODO: Enable.
                 RPCServer.kovan,
                 RPCServer.ropsten,

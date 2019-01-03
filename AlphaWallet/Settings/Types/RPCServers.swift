@@ -14,6 +14,7 @@ enum RPCServer: Hashable {
     case sokol
     case classic
     case callisto
+    case xDai
     case custom(CustomRPC)
 
     var chainID: Int {
@@ -26,6 +27,7 @@ enum RPCServer: Hashable {
         case .sokol: return 77
         case .classic: return 61
         case .callisto: return 104729
+        case .xDai: return 100
         case .custom(let custom):
             return custom.chainID
         }
@@ -41,6 +43,7 @@ enum RPCServer: Hashable {
         case .sokol: return "Sokol"
         case .classic: return "Ethereum Classic"
         case .callisto: return "Callisto"
+        case .xDai: return "xDai"
         case .custom(let custom):
             return custom.name
         }
@@ -56,6 +59,7 @@ enum RPCServer: Hashable {
         case .sokol: return Constants.mainnetEtherscanAPI
         case .classic: return Constants.mainnetEtherscanAPI
         case .callisto: return Constants.mainnetEtherscanAPI
+        case .xDai: return Constants.xDaiAPI
         case .custom: return Constants.mainnetEtherscanAPI
         }
     }
@@ -66,6 +70,7 @@ enum RPCServer: Hashable {
         case .ropsten: return Constants.ropstenEtherscanContractDetailsWebPageURL
         case .rinkeby: return Constants.rinkebyEtherscanContractDetailsWebPageURL
         case .kovan: return Constants.kovanEtherscanContractDetailsWebPageURL
+        case .xDai: return Constants.xDaiContractPage
         case .poa, .sokol, .classic, .callisto, .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
         }
     }
@@ -80,7 +85,7 @@ enum RPCServer: Hashable {
 
     var priceID: Address {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom:
+        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai:
             return Address(string: "0x000000000000000000000000000000000000003c")!
         case .poa:
             return Address(string: "0x00000000000000000000000000000000000000AC")!
@@ -101,7 +106,7 @@ enum RPCServer: Hashable {
 
     var isTestNetwork: Bool {
         switch self {
-        case .main, .poa, .classic, .callisto, .custom: return false
+        case .main, .poa, .classic, .callisto, .custom, .xDai: return false
         case .kovan, .ropsten, .rinkeby, .sokol: return true
         }
     }
@@ -113,6 +118,7 @@ enum RPCServer: Hashable {
         case .callisto: return "CLO"
         case .kovan, .ropsten, .rinkeby: return "ETH"
         case .poa, .sokol: return "POA"
+        case .xDai: return "xDai"
         case .custom(let custom):
             return custom.symbol
         }
@@ -128,7 +134,7 @@ enum RPCServer: Hashable {
         case .kovan: return .Kovan
         case .ropsten: return .Ropsten
         case .rinkeby: return .Rinkeby
-        case .poa, .sokol, .classic, .callisto:
+        case .poa, .sokol, .classic, .callisto, .xDai:
             return .Custom(networkID: BigUInt(chainID))
         case .custom:
             return .Custom(networkID: BigUInt(chainID))
@@ -146,6 +152,7 @@ enum RPCServer: Hashable {
             case RPCServer.rinkeby.name: return .rinkeby
             case RPCServer.poa.name: return .poa
             case RPCServer.sokol.name: return .sokol
+            case RPCServer.xDai.name: return .xDai
             default: return .main
             }
         }()
@@ -162,6 +169,7 @@ enum RPCServer: Hashable {
             case RPCServer.rinkeby.chainID: return .rinkeby
             case RPCServer.poa.chainID: return .poa
             case RPCServer.sokol.chainID: return .sokol
+            case RPCServer.xDai.chainID: return .xDai
             default: return .main
             }
         }()
