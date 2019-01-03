@@ -243,7 +243,7 @@ class TransactionDataCoordinator {
         switch AlphaWallet.Config().server {
         case .main:
             content.body = R.string.localizable.transactionsReceivedEther(amount)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom, .xDai:
             content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(AlphaWallet.Config().server.name))")
         }
         content.sound = .default
