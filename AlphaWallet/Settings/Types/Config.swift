@@ -120,6 +120,7 @@ struct Config {
         case .main: return Constants.ENSRegistrarAddress
         case .ropsten: return Constants.ENSRegistrarRopsten
         case .rinkeby: return Constants.ENSRegistrarRinkeby
+        case .xDai: return Constants.ENSRegistrarXDAI
         default: return Constants.ENSRegistrarAddress
         }
     }
