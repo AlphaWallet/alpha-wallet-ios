@@ -3,12 +3,9 @@
 import Foundation
 
 struct HistoriesViewModel {
-
     private let store: HistoryStore
 
-    init(
-        store: HistoryStore
-    ) {
+    init(store: HistoryStore) {
         self.store = store
     }
 

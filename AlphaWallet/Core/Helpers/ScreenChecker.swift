@@ -8,4 +8,8 @@ class ScreenChecker {
 		let iPhone6Width = CGFloat(375)
 		return UIScreen.main.bounds.width < iPhone6Width
 	}
+
+	func isBigScreen() -> Bool {
+		return UIScreen.main.bounds.width >= 768 && UIScreen.main.bounds.height >= 768
+	}
 }

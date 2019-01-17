@@ -6,19 +6,11 @@ import WebKit
 import JavaScriptCore
 import Result
 
-enum BrowserAction {
-    case history
-    case addBookmark(bookmark: Bookmark)
-    case bookmarks
-    case qrCode
-    case changeURL(URL)
-    case navigationAction(BrowserNavigation)
-}
-
 protocol BrowserViewControllerDelegate: class {
-    func didCall(action: DappAction, callbackID: Int)
-    func runAction(action: BrowserAction)
-    func didVisitURL(url: URL, title: String)
+    func didCall(action: DappAction, callbackID: Int, inBrowserViewController viewController: BrowserViewController)
+    func didVisitURL(url: URL, title: String, inBrowserViewController viewController: BrowserViewController)
+    func dismissKeyboard(inBrowserViewController viewController: BrowserViewController)
+    func forceUpdate(url: URL, inBrowserViewController viewController: BrowserViewController)
 }
 
 final class BrowserViewController: UIViewController {
@@ -43,10 +35,6 @@ final class BrowserViewController: UIViewController {
         errorView.delegate = self
         return errorView
     }()
-
-    private var browserNavBar: BrowserNavigationBar? {
-        return navigationController?.navigationBar as? BrowserNavigationBar
-    }
 
     weak var delegate: BrowserViewControllerDelegate?
 
@@ -79,8 +67,6 @@ final class BrowserViewController: UIViewController {
     }()
 
     let server: RPCServer
-
-    var isCloseButtonVisibilityConfigured = false
 
     init(
         account: Wallet,
@@ -118,18 +104,28 @@ final class BrowserViewController: UIViewController {
         ])
         view.backgroundColor = .white
         webView.addObserver(self, forKeyPath: Keys.estimatedProgress, options: .new, context: &myContext)
-        webView.addObserver(self, forKeyPath: Keys.URL, options: [.new, .initial], context: &myContext)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        if let keyboardEndFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let keyboardBeginFrame = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            let keyboardHeight = keyboardEndFrame.size.height
+            webView.scrollView.contentInset.bottom = keyboardEndFrame.size.height
+        }
+    }
 
-        browserNavBar?.browserDelegate = self
-        refreshURL()
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        if let keyboardEndFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let keyboardBeginFrame = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            webView.scrollView.contentInset.bottom = 0
+            //Must exit editing more explicitly (and update the nav bar buttons) because tapping on the web view can hide keyboard
+            delegate?.dismissKeyboard(inBrowserViewController: self)
+        }
     }
 
     private func injectUserAgent() {
@@ -140,6 +136,7 @@ final class BrowserViewController: UIViewController {
     }
 
     func goTo(url: URL) {
+        hideErrorView()
         webView.load(URLRequest(url: url))
     }
 
@@ -155,15 +152,6 @@ final class BrowserViewController: UIViewController {
         webView.evaluateJavaScript(script, completionHandler: nil)
     }
 
-    func goHome() {
-        guard let url = URL(string: Constants.dappsBrowserURL) else { return }
-        var request = URLRequest(url: url)
-        request.cachePolicy = .returnCacheDataElseLoad
-        hideErrorView()
-        webView.load(request)
-        browserNavBar?.textField.text = url.absoluteString
-    }
-
     func reload() {
         hideErrorView()
         webView.reload()
@@ -173,22 +161,9 @@ final class BrowserViewController: UIViewController {
         webView.stopLoading()
     }
 
-    private func refreshURL() {
-        browserNavBar?.textField.text = webView.url?.absoluteString
-        browserNavBar?.backButton.isHidden = !webView.canGoBack
-
-    }
-
     private func recordURL() {
-        guard let url = webView.url else {
-            return
-        }
-        delegate?.didVisitURL(url: url, title: webView.title ?? "")
-    }
-
-    private func changeURL(_ url: URL) {
-        delegate?.runAction(action: .changeURL(url))
-        refreshURL()
+        guard let url = webView.url else { return }
+        delegate?.didVisitURL(url: url, title: webView.title ?? "", inBrowserViewController: self)
     }
 
     private func hideErrorView() {
@@ -206,31 +181,11 @@ final class BrowserViewController: UIViewController {
                 progressView.progress = progress
                 progressView.isHidden = progress == 1
             }
-        } else if keyPath == Keys.URL {
-            if let url = webView.url {
-                browserNavBar?.textField.text = url.absoluteString
-                changeURL(url)
-            }
         }
     }
 
     deinit {
         webView.removeObserver(self, forKeyPath: Keys.estimatedProgress)
-        webView.removeObserver(self, forKeyPath: Keys.URL)
-    }
-
-    func addBookmark() {
-        guard let url = webView.url?.absoluteString else { return }
-        guard let title = webView.title else { return }
-        delegate?.runAction(action: .addBookmark(bookmark: Bookmark(url: url, title: title)))
-    }
-
-    @objc private func showBookmarks() {
-        delegate?.runAction(action: .bookmarks)
-    }
-
-    @objc private func history() {
-        delegate?.runAction(action: .history)
     }
 
     func handleError(error: Error) {
@@ -239,36 +194,9 @@ final class BrowserViewController: UIViewController {
         } else {
             if error.domain == NSURLErrorDomain,
                 let failedURL = (error as NSError).userInfo[NSURLErrorFailingURLErrorKey] as? URL {
-                changeURL(failedURL)
+                delegate?.forceUpdate(url: failedURL, inBrowserViewController: self)
             }
             errorView.show(error: error)
-        }
-    }
-
-    /// This function is expected to be called at most once (hence "setup"), subsequent calls will be ignored. This is important because it's designed to be called from a viewWillAppear(), checking if the browser is being presented and we decide if we want to show the close button then. It shouldn't be changed, e.g. when we present another view controller over the browser and close it (this time the browser wouldn't be presented anymore and hiding the close button will be wrong)
-    func setUpCloseButtonAs(hidden: Bool) {
-        guard !isCloseButtonVisibilityConfigured else { return }
-        isCloseButtonVisibilityConfigured = true
-        browserNavBar?.closeButton.isHidden = hidden
-    }
-}
-
-extension BrowserViewController: BrowserNavigationBarDelegate {
-    func did(action: BrowserNavigation) {
-        delegate?.runAction(action: .navigationAction(action))
-        switch action {
-        case .goBack:
-            break
-        case .more:
-            break
-        case .close:
-            stopLoading()
-        case .home:
-            break
-        case .enter:
-            break
-        case .beginEditing:
-            stopLoading()
         }
     }
 }
@@ -277,7 +205,6 @@ extension BrowserViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         recordURL()
         hideErrorView()
-        refreshURL()
     }
 
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
@@ -301,7 +228,7 @@ extension BrowserViewController: WKScriptMessageHandler {
         let transfer = Transfer(server: server, type: .dapp(token, requester))
         let action = DappAction.fromCommand(command, transfer: transfer)
 
-        delegate?.didCall(action: action, callbackID: command.id)
+        delegate?.didCall(action: action, callbackID: command.id, inBrowserViewController: self)
     }
 }
 
