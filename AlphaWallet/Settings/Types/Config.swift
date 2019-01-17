@@ -102,7 +102,7 @@ struct Config {
             case .main: return "https://api.etherscan.io"
             case .classic: return "https://classic.trustwalletapp.com"
             case .callisto: return "https://callisto.trustwalletapp.com"
-            case .kovan: return "https://kovan.trustwalletapp.com"
+            case .kovan: return "https://api-kovan.etherscan.io"
             case .ropsten: return "https://api-ropsten.etherscan.io"
             case .rinkeby: return "https://api-rinkeby.etherscan.io"
             case .poa: return "https://poa.trustwalletapp.com"
