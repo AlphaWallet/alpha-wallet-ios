@@ -29,7 +29,6 @@ enum Dapps {
                 results[catName] = cat
             }
         }
-        //TODO sort categories by hand
-        return Array(results.values)
+        return results.values.sorted { $0.name < $1.name }
     }()
 }
