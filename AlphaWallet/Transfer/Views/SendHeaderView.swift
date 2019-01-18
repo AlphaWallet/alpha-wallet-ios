@@ -32,14 +32,21 @@ class SendHeaderView: UIView {
 
         let bottomRowStack = [blockchainLabel, issuerLabel].asStackView(spacing: 15)
 
-        let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .fillEqually, spacing: 15)
+        let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .equalCentering, spacing: 15)
 
-        let footerNamesStack = [valuePercentageChangePeriodLabel, valueChangeNameLabel, valueNameLabel].asStackView(distribution: .fillEqually, spacing: 15)
+        //Can't use a stack because we want to vertically center align the values and names labels
+        let footerNamesHolder = UIView()
+        valuePercentageChangePeriodLabel.translatesAutoresizingMaskIntoConstraints = false
+        valueChangeNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        valueNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        footerNamesHolder.addSubview(valuePercentageChangePeriodLabel)
+        footerNamesHolder.addSubview(valueChangeNameLabel)
+        footerNamesHolder.addSubview(valueNameLabel)
 
         footerStackView = [
             .spacer(height: 14),
             footerValuesStack,
-            footerNamesStack,
+            footerNamesHolder,
         ].asStackView(axis: .vertical, perpendicularContentHuggingPriority: .defaultLow)
         footerStackView?.translatesAutoresizingMaskIntoConstraints = false
 
@@ -68,6 +75,14 @@ class SendHeaderView: UIView {
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -7),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
+
+            footerNamesHolder.topAnchor.constraint(equalTo: valuePercentageChangePeriodLabel.topAnchor),
+            footerNamesHolder.bottomAnchor.constraint(equalTo: valuePercentageChangePeriodLabel.bottomAnchor),
+            valuePercentageChangePeriodLabel.centerYAnchor.constraint(equalTo: valueChangeNameLabel.centerYAnchor),
+            valuePercentageChangePeriodLabel.centerYAnchor.constraint(equalTo: valueNameLabel.centerYAnchor),
+            valuePercentageChangePeriodLabel.centerXAnchor.constraint(equalTo: valuePercentageChangeValueLabel.centerXAnchor),
+            valueChangeNameLabel.centerXAnchor.constraint(equalTo: valueChangeLabel.centerXAnchor),
+            valueNameLabel.centerXAnchor.constraint(equalTo: valueLabel.centerXAnchor),
         ])
     }
 
