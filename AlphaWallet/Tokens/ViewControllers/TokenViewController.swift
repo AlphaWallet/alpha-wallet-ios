@@ -85,7 +85,7 @@ class TokenViewController: UIViewController {
             header.verificationStatus = .unverified
         }
         header.sendHeaderView.configure(viewModel: headerViewModel)
-        header.frame.size.height = 200
+        header.frame.size.height = 220
         tableView.tableHeaderView = header
 
         sendButton.setTitle(viewModel.sendButtonTitle, for: .normal)
