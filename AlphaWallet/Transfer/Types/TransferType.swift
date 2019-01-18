@@ -15,6 +15,8 @@ enum TransferType {
             switch token.type {
             case .ether:
                 return .ether(config: Config(), destination: nil)
+            case .xDai:
+                return .xDai(config: Config(), destination: nil)
             case .erc20:
                 return .ERC20Token(token)
             case .erc875:
@@ -26,6 +28,7 @@ enum TransferType {
     }
 
     case ether(config: Config, destination: Address?)
+    case xDai(config: Config, destination: Address?)
     case ERC20Token(TokenObject)
     case ERC875Token(TokenObject)
     case ERC875TokenOrder(TokenObject)
@@ -36,7 +39,7 @@ enum TransferType {
 extension TransferType {
     func symbol(server: RPCServer) -> String {
         switch self {
-        case .ether, .dapp:
+        case .ether, .dapp, .xDai:
             return server.symbol
         case .ERC20Token(let token):
             return token.symbol
@@ -51,7 +54,7 @@ extension TransferType {
 
     func contract() -> Address {
         switch self {
-        case .ether(let config, _):
+        case .ether(let config, _), .xDai(let config, _):
             return Address(uncheckedAgainstNullAddress: TokensDataStore.etherToken(for: config).contract)!
         case .ERC20Token(let token):
             return Address(string: token.contract)!

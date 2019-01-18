@@ -324,3 +324,4 @@
 "dappBrowser.myDapps.edit.url.label" = "Address";
 "dappBrowser.clearMyDapps" = "Remove Dapp?";
 "recent.transactions" = "Recent Transactions";
+"blockchain.XDAI" = "xDAI Chain";

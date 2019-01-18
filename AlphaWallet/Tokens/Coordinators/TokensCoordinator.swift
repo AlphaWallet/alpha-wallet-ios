@@ -340,7 +340,7 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
-            case .ether:
+            case .ether, .xDai:
                 break
             }
         }
@@ -377,7 +377,7 @@ class TokensCoordinator: Coordinator {
 
     private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: TokensCardCoordinator, token: TokenObject) {
         switch token.type {
-        case .ether, .erc20, .erc875:
+        case .ether, .erc20, .erc875, .xDai:
             break
         case .erc721:
             switch OpenSeaNonFungibleTokenHandling(token: token) {
@@ -414,6 +414,12 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         switch token.type {
         case .ether:
             show(fungibleToken: token, transferType: .ether(config: session.config, destination: .none))
+        case .ether, .xDai:
+            if token.name == "xDai" {
+                delegate?.didPress(for: .send(type: .xDai(config: session.config, destination: .none)), in: self)
+            } else {
+                delegate?.didPress(for: .send(type: .ether(config: session.config, destination: .none)), in: self)
+            }
         case .erc20:
             show(fungibleToken: token, transferType: .ERC20Token(token))
         case .erc721:

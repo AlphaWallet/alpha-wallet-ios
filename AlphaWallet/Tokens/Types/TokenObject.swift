@@ -85,7 +85,7 @@ class TokenObject: Object {
         switch type {
         case .erc721:
             return true
-        case .ether, .erc20, .erc875:
+        case .ether, .erc20, .erc875, .xDai:
             return false
         }
     }
