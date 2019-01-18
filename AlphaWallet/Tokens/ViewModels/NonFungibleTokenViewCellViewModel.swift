@@ -6,9 +6,11 @@ import BigInt
 
 struct NonFungibleTokenViewCellViewModel {
     private let token: TokenObject
+    private let chainId: Int
 
-    init(token: TokenObject) {
+    init(token: TokenObject, chainId: Int) {
         self.token = token
+        self.chainId = chainId
     }
 
     var title: String {
@@ -39,7 +41,12 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var blockChainName: String {
-        return R.string.localizable.blockchainEthereum()
+        if chainId == 100 {
+            //xdai network, can create switch statement in future if supporting many chains
+            return R.string.localizable.blockchainXDAI()
+        } else {
+            return R.string.localizable.blockchainEthereum()
+        }
     }
 
     var backgroundColor: UIColor {

@@ -44,7 +44,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         switch transferType {
         case .ERC20Token(let token):
             return token.contract
-        case .ether:
+        case .ether, .xDai:
             return account.address.eip55String
         case .dapp:
             return "0x"
@@ -90,9 +90,12 @@ class SendViewController: UIViewController, CanScanQRCode {
         case .ether:
             ethPrice.subscribe { [weak self] value in
                 if let value = value {
-                    self?.amountTextField.ethToDollarRate = value
+                    self?.amountTextField.cryptoToDollarRate = value
                 }
             }
+        case .xDai:
+            //TODO maybe get this price realtime, however it is supposed to stayed pegged to USD at 1:1
+            self.amountTextField.cryptoToDollarRate = 1
         default:
             amountTextField.alternativeAmountLabel.isHidden = true
             amountTextField.isFiatButtonHidden = true
@@ -211,7 +214,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         let amountString = amountTextField.ethCost
         let parsedValue: BigInt? = {
             switch transferType {
-            case .ether, .dapp:
+            case .ether, .dapp, .xDai:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .ERC20Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)

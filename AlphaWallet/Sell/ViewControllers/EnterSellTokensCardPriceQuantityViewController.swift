@@ -94,9 +94,13 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
 
         pricePerTokenField.translatesAutoresizingMaskIntoConstraints = false
-        ethPrice.subscribe { [weak self] value in
-            if let value = value {
-                self?.pricePerTokenField.ethToDollarRate = value
+        if config.chainID == 100 {
+            self.pricePerTokenField.cryptoToDollarRate = 1
+        } else {
+            ethPrice.subscribe { [weak self] value in
+                if let value = value {
+                    self?.pricePerTokenField.cryptoToDollarRate = value
+                }
             }
         }
         pricePerTokenField.delegate = self
