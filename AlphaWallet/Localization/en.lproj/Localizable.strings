@@ -53,6 +53,7 @@
 "request.myAddressIs.label.title" = "My %1$@ address is: %2$@";
 "Retry" = "Retry";
 "Send" = "Send";
+"Receive" = "Receive";
 "send.error.emptyClipBoard" = "Empty ClipBoard";
 "send.error.invalidAddress" = "Invalid Address";
 "send.error.invalidAmount" = "Invalid Amount";
@@ -160,7 +161,7 @@
 "a.wallet.import.wallet.title" = "Import";
 "a.wallet.import.wallet.bubble.title" = "Have a ticket to import?";
 "a.wallet.import.wallet.bubble.description" = "Check your Email/SMS for the import link. Tap it and it will automatically import to the app!";
-"a.wallet.token.verifiedContract" = "VERIFIED by Stormbird";
+"a.wallet.token.verifiedContract" = "VERIFIED BY STORMBIRD";
 "a.wallet.token.unverifiedContract" = "UNVERIFIED";
 "a.wallet.token.match.vs" = "%@-%@";
 "a.wallet.token.redeem.button.title" = "Redeem";
@@ -322,3 +323,4 @@
 "dappBrowser.myDapps.edit.title.label" = "Title";
 "dappBrowser.myDapps.edit.url.label" = "Address";
 "dappBrowser.clearMyDapps" = "Remove Dapp?";
+"recent.transactions" = "Recent Transactions";

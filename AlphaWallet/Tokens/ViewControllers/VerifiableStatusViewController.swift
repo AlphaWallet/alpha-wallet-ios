@@ -45,10 +45,12 @@ extension VerifiableStatusViewController where Self: UIViewController {
         }
         let button = UIButton(type: .custom)
         button.setTitle(title, for: .normal)
-        button.setImage(image?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
         button.imageView?.tintColor = tintColor
         button.titleLabel?.font = Fonts.regular(size: 11)
         button.setTitleColor(tintColor, for: .normal)
+        button.imageEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 12)
+        button.titleEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: -12)
         button.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
         return button
     }

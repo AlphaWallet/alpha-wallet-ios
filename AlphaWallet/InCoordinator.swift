@@ -594,6 +594,10 @@ extension InCoordinator: TokensCoordinatorDelegate {
     func didPress(for type: PaymentFlow, in coordinator: TokensCoordinator) {
         showPaymentFlow(for: type)
     }
+
+    func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator) {
+        transactionCoordinator?.showTransaction(transaction, inViewController: viewController)
+    }
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
