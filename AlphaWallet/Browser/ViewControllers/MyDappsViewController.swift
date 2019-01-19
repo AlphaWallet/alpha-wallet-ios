@@ -35,7 +35,6 @@ class MyDappsViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        tableView.backgroundColor = Colors.appBackground
         tableView.allowsSelectionDuringEditing = true
         emptyView = {
             let emptyView = DappsHomeEmptyView()
@@ -75,6 +74,9 @@ class MyDappsViewController: UIViewController {
 
     func configure(viewModel: MyDappsViewControllerViewModel) {
         self.viewModel = viewModel
+
+        tableView.backgroundColor = Colors.appWhite
+
         resizeTableViewHeader()
         tableView.reloadData()
         endLoading()
