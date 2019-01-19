@@ -36,8 +36,9 @@ struct BalanceViewModel: BalanceBaseViewModel {
 
     var currencyAmountWithoutSymbol: Double? {
         guard let rate = rate else { return nil }
+        let symbol = mapSymbolToVersionInRates(config.server.symbol)
         guard
-                let currentRate = (rate.rates.filter { $0.code == config.server.symbol }.first),
+                let currentRate = (rate.rates.filter { $0.code == symbol }.first),
                 currentRate.price > 0,
                 amount > 0
                 else { return nil }
@@ -54,5 +55,10 @@ struct BalanceViewModel: BalanceBaseViewModel {
 
     var symbol: String {
         return config.server.symbol
+    }
+
+    private func mapSymbolToVersionInRates(_ symbol: String) -> String {
+        let mapping = ["xDai": "DAI"]
+        return mapping[symbol] ?? symbol
     }
 }
