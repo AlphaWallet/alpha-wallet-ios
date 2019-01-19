@@ -20,6 +20,8 @@ class TokenViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let sendButton = UIButton(type: .system)
     private let receiveButton = UIButton(type: .system)
+    lazy private var sendButtonContainer = ContainerViewWithShadow(aroundView: sendButton)
+    lazy private var receiveButtonContainer = ContainerViewWithShadow(aroundView: receiveButton)
 
     weak var delegate: TokenViewControllerDelegate?
 
@@ -42,7 +44,7 @@ class TokenViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(tableView)
 
-        let buttonsStackView = [.spacerWidth(20), sendButton, .spacerWidth(7), receiveButton, .spacerWidth(20)].asStackView(axis: .horizontal)
+        let buttonsStackView = [.spacerWidth(20), sendButtonContainer, .spacerWidth(7), receiveButtonContainer, .spacerWidth(20)].asStackView(axis: .horizontal)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(buttonsStackView)
 
@@ -87,6 +89,12 @@ class TokenViewController: UIViewController {
         header.sendHeaderView.configure(viewModel: headerViewModel)
         header.frame.size.height = 220
         tableView.tableHeaderView = header
+
+        sendButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius)
+        sendButtonContainer.layer.cornerRadius = viewModel.sendReceiveButtonCornerRadius
+
+        receiveButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius)
+        receiveButtonContainer.layer.cornerRadius = viewModel.sendReceiveButtonCornerRadius
 
         sendButton.setTitle(viewModel.sendButtonTitle, for: .normal)
         sendButton.addTarget(self, action: #selector(send), for: .touchUpInside)
