@@ -26,7 +26,7 @@ class TokensCoordinator: Coordinator {
     private let session: WalletSession
     private let keystore: Keystore
     private let storage: TokensDataStore
-    private let ethPrice: Subscribable<Double>
+    private let cryptoPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
 
     private lazy var tokensViewController: TokensViewController = {
@@ -60,7 +60,7 @@ class TokensCoordinator: Coordinator {
         self.session = session
         self.keystore = keystore
         self.storage = tokensStorage
-        self.ethPrice = ethPrice
+        self.cryptoPrice = ethPrice
         self.assetDefinitionStore = assetDefinitionStore
     }
 
@@ -340,7 +340,7 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
-            case .ether:
+            case .nativeCryptocurrency, .xDai:
                 break
             }
         }
@@ -356,7 +356,7 @@ class TokensCoordinator: Coordinator {
                 session: session,
                 keystore: keystore,
                 tokensStorage: storage,
-                ethPrice: ethPrice,
+                ethPrice: cryptoPrice,
                 token: token,
                 assetDefinitionStore: assetDefinitionStore
         )
@@ -377,7 +377,7 @@ class TokensCoordinator: Coordinator {
 
     private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: TokensCardCoordinator, token: TokenObject) {
         switch token.type {
-        case .ether, .erc20, .erc875:
+        case .nativeCryptocurrency, .erc20, .erc875, .xDai:
             break
         case .erc721:
             switch OpenSeaNonFungibleTokenHandling(token: token) {
@@ -412,8 +412,10 @@ class TokensCoordinator: Coordinator {
 extension TokensCoordinator: TokensViewControllerDelegate {
     func didSelect(token: TokenObject, in viewController: UIViewController) {
         switch token.type {
-        case .ether:
-            show(fungibleToken: token, transferType: .ether(config: session.config, destination: .none))
+        case .nativeCryptocurrency:
+            show(fungibleToken: token, transferType: .nativeCryptocurrency(config: session.config, destination: .none))
+        case .xDai:
+            show(fungibleToken: token, transferType: .xDai(config: session.config, destination: .none))
         case .erc20:
             show(fungibleToken: token, transferType: .ERC20Token(token))
         case .erc721:

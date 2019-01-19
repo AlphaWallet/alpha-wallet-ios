@@ -270,22 +270,23 @@ extension TokensViewController: UITableViewDelegate {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
 
         switch token.type {
-        case .ether:
+        case .nativeCryptocurrency, .xDai:
             let cellViewModel = EthTokenViewCellViewModel(
                     token: token,
                     ticker: viewModel.ticker(for: token),
                     currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
-                    currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
+                    currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
+                    server: session.config.server
             )
             return cellViewModel.cellHeight
         case .erc20:
             let cellViewModel = TokenViewCellViewModel(token: token)
             return cellViewModel.cellHeight
         case .erc721:
-            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token)
+            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: session.config.server)
             return cellViewModel.cellHeight
         case .erc875:
-            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token)
+            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: session.config.server)
             return cellViewModel.cellHeight
         }
     }
@@ -319,14 +320,15 @@ extension TokensViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
         switch token.type {
-        case .ether:
+        case .nativeCryptocurrency, .xDai:
             let cell = tableView.dequeueReusableCell(withIdentifier: EthTokenViewCell.identifier, for: indexPath) as! EthTokenViewCell
             cell.configure(
                     viewModel: .init(
                             token: token,
                             ticker: viewModel.ticker(for: token),
                             currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
-                            currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
+                            currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
+                            server: session.config.server
                     )
             )
             return cell
@@ -336,11 +338,11 @@ extension TokensViewController: UITableViewDataSource {
             return cell
         case .erc721:
             let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
-            cell.configure(viewModel: .init(token: token))
+            cell.configure(viewModel: .init(token: token, server: session.config.server))
             return cell
         case .erc875:
             let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
-            cell.configure(viewModel: .init(token: token))
+            cell.configure(viewModel: .init(token: token, server: session.config.server))
             return cell
         }
     }

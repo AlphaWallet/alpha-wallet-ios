@@ -37,7 +37,7 @@ class RequestCoordinator: Coordinator {
 
     func makeRequestViewController() -> RequestViewController {
         let controller = RequestViewController(viewModel: viewModel)
-        controller.navigationItem.titleView = BalanceTitleView.make(from: session, .ether(config: session.config, destination: .none))
+        controller.navigationItem.titleView = BalanceTitleView.make(from: session, .nativeCryptocurrency(config: session.config, destination: .none))
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share(_:)))
         return controller

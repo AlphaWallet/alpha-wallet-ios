@@ -98,7 +98,7 @@ class TokensDataStore {
             decimals: config.server.decimals,
             value: "0",
             isCustom: false,
-            type: .ether
+            type: .nativeCryptocurrency
         )
     }
 
@@ -111,7 +111,7 @@ class TokensDataStore {
                 decimals: config.server.decimals,
                 value: "0",
                 isCustom: false,
-                type: .ether
+                type: .nativeCryptocurrency
         )
     }
 
@@ -282,7 +282,7 @@ class TokensDataStore {
         }
         for tokenObject in tokens {
             switch tokenObject.type {
-            case .ether:
+            case .nativeCryptocurrency, .xDai:
                 incrementCountAndUpdateDelegate()
             case .erc20:
                 guard let contract = Address(string: tokenObject.contract) else {
@@ -359,7 +359,7 @@ class TokensDataStore {
 
                 if let tokenObject = tokens.first(where: { $0.contract.sameContract(as: contract) }) {
                     switch tokenObject.type {
-                    case .ether, .erc721, .erc875:
+                    case .nativeCryptocurrency, .erc721, .erc875, .xDai:
                         break
                     case .erc20:
                         strongSelf.update(token: tokenObject, action: .type(.erc721))
@@ -434,12 +434,8 @@ class TokensDataStore {
     }
 
     func updatePrices() {
-//        let tokens = objects.map { TokenPrice(contract: $0.contract, symbol: $0.symbol) }
-//        let tokensPrice = TokensPrice(
-//            currency: config.currency.rawValue,
-//            tokens: tokens
-//        )
-        provider.request(.prices) { [weak self] result in
+        let priceToUpdate = getPriceToUpdate()
+        provider.request(priceToUpdate) { [weak self] result in
             guard let strongSelf = self else { return }
             guard case .success(let response) = result else { return }
             do {
@@ -451,6 +447,15 @@ class TokensDataStore {
                 }
                 strongSelf.updateDelegate()
             } catch { }
+        }
+    }
+
+    private func getPriceToUpdate() -> AlphaWalletService {
+        switch self.config.server {
+        case .xDai:
+            return .priceOfDai
+        default:
+            return .priceOfEth
         }
     }
 

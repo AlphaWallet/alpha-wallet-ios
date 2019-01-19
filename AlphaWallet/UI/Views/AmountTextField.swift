@@ -8,10 +8,12 @@ protocol AmountTextFieldDelegate: class {
 }
 
 class AmountTextField: UIControl {
-    enum Currency: String {
-        case eth = "ETH"
-        case usd = "USD"
+
+    enum Currency {
+        case cryptoCurrency(String)
+        case usd(String)
     }
+
     struct Pair {
         let left: Currency
         let right: Currency
@@ -23,9 +25,9 @@ class AmountTextField: UIControl {
 
     private let textField = UITextField()
 
-    var ethToDollarRate: Double? = nil {
+    var cryptoToDollarRate: Double? = nil {
         didSet {
-            if let _ = ethToDollarRate {
+            if let _ = cryptoToDollarRate {
                 updateAlternatePricingDisplay()
             }
         }
@@ -33,16 +35,18 @@ class AmountTextField: UIControl {
     var ethCost: String {
         get {
             switch currentPair.left {
-            case .eth:
+            case .cryptoCurrency(_):
                 return textField.text ?? "0"
-            case .usd:
+            case .usd(_):
                 return convertToAlternateAmount()
             }
         }
         set {
-            if currentPair.left != .eth {
-                currentPair = currentPair.swapPair()
-                updateFiatButtonTitle()
+            switch currentPair.left {
+                case .cryptoCurrency: break
+                case .usd:
+                    currentPair = currentPair.swapPair()
+                    updateFiatButtonTitle()
             }
             textField.text = newValue
             updateAlternatePricingDisplay()
@@ -50,9 +54,9 @@ class AmountTextField: UIControl {
     }
     var dollarCost: Double? {
         switch currentPair.left {
-        case .eth:
+        case .cryptoCurrency(_):
             return convertToAlternateAmountNumeric()
-        case .usd:
+        case .usd(_):
             return Double(textField.text ?? "")
         }
     }
@@ -81,7 +85,14 @@ class AmountTextField: UIControl {
     }()
 
     init() {
-        currentPair = Pair(left: .eth, right: .usd)
+        let server = Config().server
+
+        switch server {
+        case .xDai:
+            currentPair = Pair(left: .cryptoCurrency("xDAI"), right: .usd("USD"))
+        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
+            currentPair = Pair(left: .cryptoCurrency("ETH"), right: .usd("USD"))
+        }
 
         super.init(frame: .zero)
 
@@ -118,7 +129,10 @@ class AmountTextField: UIControl {
 
     private func makeAmountRightView() -> UIView {
         fiatButton.translatesAutoresizingMaskIntoConstraints = false
-        fiatButton.setTitle(currentPair.left.rawValue, for: .normal)
+        switch currentPair.left {
+            case .cryptoCurrency(let symbol), .usd(let symbol):
+                fiatButton.setTitle(symbol, for: .normal)
+        }
         fiatButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
         fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
 
@@ -129,7 +143,7 @@ class AmountTextField: UIControl {
     }
 
     @objc func fiatAction(button: UIButton) {
-        guard ethToDollarRate != nil else { return }
+        guard cryptoToDollarRate != nil else { return }
         let swappedPair = currentPair.swapPair()
         //New pair for future calculation we should swap pair each time we press fiat button.
         currentPair = swappedPair
@@ -141,7 +155,10 @@ class AmountTextField: UIControl {
     }
 
     private func updateFiatButtonTitle() {
-        fiatButton.setTitle(currentPair.left.rawValue, for: .normal)
+        switch currentPair.left {
+            case .cryptoCurrency(let symbol), .usd(let symbol):
+                fiatButton.setTitle(symbol, for: .normal)
+        }
     }
 
     private func activateAmountView() {
@@ -195,21 +212,25 @@ class AmountTextField: UIControl {
             alternativeAmountLabel.text = atLeastOneWhiteSpaceToKeepTextFieldHeight
         } else {
             switch currentPair.left {
-            case .eth:
+            case .cryptoCurrency:
                 alternativeAmountLabel.text = "~ \(amount) USD"
             case .usd:
-                alternativeAmountLabel.text = "~ \(amount) ETH"
+                switch currentPair.right {
+                    case .cryptoCurrency(let symbol):
+                        alternativeAmountLabel.text = "~ \(amount) " + symbol
+                    case .usd: break
+                }
             }
         }
     }
 
     private func convertToAlternateAmount() -> String {
-        if let ethToDollarRate = ethToDollarRate, let string = textField.text, let amount = Double(string) {
+        if let cryptoToDollarRate = cryptoToDollarRate, let string = textField.text, let amount = Double(string) {
             switch currentPair.left {
-            case .eth:
-                return StringFormatter().currency(with: amount * ethToDollarRate, and: "USD")
+            case .cryptoCurrency:
+                return StringFormatter().currency(with: amount * cryptoToDollarRate, and: "USD")
             case .usd:
-                return String(amount / ethToDollarRate)
+                return String(amount / cryptoToDollarRate)
             }
         } else {
             return ""
@@ -217,12 +238,12 @@ class AmountTextField: UIControl {
     }
 
     private func convertToAlternateAmountNumeric() -> Double? {
-        if let ethToDollarRate = ethToDollarRate, let string = textField.text, let amount = Double(string) {
+        if let cryptoToDollarRate = cryptoToDollarRate, let string = textField.text, let amount = Double(string) {
             switch currentPair.left {
-            case .eth:
-                return amount * ethToDollarRate
+            case .cryptoCurrency:
+                return amount * cryptoToDollarRate
             case .usd:
-                return amount / ethToDollarRate
+                return amount / cryptoToDollarRate
             }
         } else {
             return nil

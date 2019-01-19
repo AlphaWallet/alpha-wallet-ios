@@ -44,7 +44,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         switch transferType {
         case .ERC20Token(let token):
             return token.contract
-        case .ether:
+        case .nativeCryptocurrency, .xDai:
             return account.address.eip55String
         case .dapp:
             return "0x"
@@ -63,14 +63,14 @@ class SendViewController: UIViewController, CanScanQRCode {
             session: WalletSession,
             storage: TokensDataStore,
             account: Account,
-            transferType: TransferType = .ether(config: Config(), destination: .none),
-            ethPrice: Subscribable<Double>
+            transferType: TransferType = .nativeCryptocurrency(config: Config(), destination: .none),
+            cryptoPrice: Subscribable<Double>
     ) {
         self.session = session
         self.account = account
         self.transferType = transferType
         self.storage = storage
-        self.ethPrice = ethPrice
+        self.ethPrice = cryptoPrice
         self.config = Config()
 
         super.init(nibName: nil, bundle: nil)
@@ -87,13 +87,13 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
         switch transferType {
-        case .ether:
-            ethPrice.subscribe { [weak self] value in
+        case .nativeCryptocurrency, .xDai:
+            cryptoPrice.subscribe { [weak self] value in
                 if let value = value {
-                    self?.amountTextField.ethToDollarRate = value
+                    self?.amountTextField.cryptoToDollarRate = value
                 }
             }
-        default:
+        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
             amountTextField.alternativeAmountLabel.isHidden = true
             amountTextField.isFiatButtonHidden = true
         }
@@ -211,7 +211,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         let amountString = amountTextField.ethCost
         let parsedValue: BigInt? = {
             switch transferType {
-            case .ether, .dapp:
+            case .nativeCryptocurrency, .dapp, .xDai:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .ERC20Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
@@ -227,7 +227,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             return displayError(error: SendInputErrors.wrongInput)
         }
 
-        if case .ether = transferType, let balance = session.balance, balance.value < value {
+        if case .nativeCryptocurrency = transferType, let balance = session.balance, balance.value < value {
             return displayError(title: R.string.localizable.aSendBalanceInsufficient(), error: Errors.invalidAmount)
         }
 
@@ -260,7 +260,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
     private func configureBalanceViewModel() {
         switch transferType {
-        case .ether:
+        case .nativeCryptocurrency, .xDai:
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
@@ -287,7 +287,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
             }
-        default:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
             break
         }
     }

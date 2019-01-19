@@ -19,7 +19,7 @@ class TokenAdaptor {
 
     public func getTokenHolders() -> [TokenHolder] {
         switch token.type {
-        case .ether, .erc20, .erc875:
+        case .nativeCryptocurrency, .erc20, .erc875, .xDai:
             return getNotSupportedByOpenSeaTokenHolders()
         case .erc721:
             let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
@@ -65,7 +65,7 @@ class TokenAdaptor {
 
     func bundle(tokens: [Token]) -> [TokenHolder] {
         switch token.type {
-        case .ether, .erc20, .erc875:
+        case .nativeCryptocurrency, .erc20, .erc875, .xDai:
             //TODO handle bundling properly for meetup contracts
             if !tokens.isEmpty && tokens[0].values["building"] != nil {
                 return tokens.map { getTokenHolder(for: [$0]) }
