@@ -3,7 +3,8 @@
 import Foundation
 
 enum TokenType: String {
-    case ether = "ether"
+    case nativeCryptocurrency = "ether"
+    case xDai = "xDai"
     case erc20 = "ERC20"
     case erc875 = "ERC875"
     case erc721 = "ERC721"

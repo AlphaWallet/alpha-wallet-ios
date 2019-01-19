@@ -10,17 +10,20 @@ struct EthTokenViewCellViewModel {
     private let currencyAmount: String?
     private let currencyAmountWithoutSymbol: Double?
     private let ticker: CoinTicker?
+    private let server: RPCServer
 
     init(
         token: TokenObject,
         ticker: CoinTicker?,
         currencyAmount: String?,
-        currencyAmountWithoutSymbol: Double?
+        currencyAmountWithoutSymbol: Double?,
+        server: RPCServer
     ) {
         self.token = token
         self.ticker = ticker
         self.currencyAmount = currencyAmount
         self.currencyAmountWithoutSymbol = currencyAmountWithoutSymbol
+        self.server = server
     }
 
     var title: String {
@@ -36,7 +39,12 @@ struct EthTokenViewCellViewModel {
     }
 
     var blockChainName: String {
-        return R.string.localizable.blockchainEthereum()
+        switch server {
+        case .xDai:
+            return R.string.localizable.blockchainXDAI()
+        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
+            return R.string.localizable.blockchainEthereum()
+        }
     }
 
     var backgroundColor: UIColor {

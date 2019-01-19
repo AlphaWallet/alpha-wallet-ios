@@ -173,9 +173,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         transferButton.titleLabel?.font = viewModel.buttonFont
 
         switch tokenObject.type {
-        case .ether:
-            break
-        case .erc20:
+        case .nativeCryptocurrency, .erc20, .xDai:
             break
         case .erc875:
             redeemButton.isHidden = false

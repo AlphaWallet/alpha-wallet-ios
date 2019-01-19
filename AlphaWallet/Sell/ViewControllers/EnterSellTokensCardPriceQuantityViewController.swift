@@ -54,13 +54,13 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             config: Config,
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
-            ethPrice: Subscribable<Double>,
+            cryptoPrice: Subscribable<Double>,
             viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel
     ) {
         self.config = config
         self.storage = storage
         self.paymentFlow = paymentFlow
-        self.ethPrice = ethPrice
+        self.ethPrice = cryptoPrice
         self.viewModel = viewModel
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: viewModel.token)
@@ -92,17 +92,14 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         ethCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
-
         pricePerTokenField.translatesAutoresizingMaskIntoConstraints = false
-        ethPrice.subscribe { [weak self] value in
+        cryptoPrice.subscribe { [weak self] value in
             if let value = value {
-                self?.pricePerTokenField.ethToDollarRate = value
+                self?.pricePerTokenField.cryptoToDollarRate = value
             }
         }
         pricePerTokenField.delegate = self
-
         ethCostLabel.translatesAutoresizingMaskIntoConstraints = false
-
         quantityStepper.translatesAutoresizingMaskIntoConstraints = false
         quantityStepper.minimumValue = 1
         quantityStepper.value = 1

@@ -8,13 +8,19 @@ struct SendHeaderViewViewModel {
     var currencyAmount: String?
     var currencyAmountWithoutSymbol: Double?
     var showAlternativeAmount = false
+    var server = Config().server
 
     var issuer: String {
         return ""
     }
 
     var blockChainName: String {
-        return R.string.localizable.blockchainEthereum()
+        switch server {
+        case .xDai:
+            return R.string.localizable.blockchainXDAI()
+        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
+            return R.string.localizable.blockchainEthereum()
+        }
     }
 
     var backgroundColor: UIColor {

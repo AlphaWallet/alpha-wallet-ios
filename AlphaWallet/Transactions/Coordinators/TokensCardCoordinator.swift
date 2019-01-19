@@ -207,7 +207,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeEnterSellTokensCardPriceQuantityViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
         let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = EnterSellTokensCardPriceQuantityViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, ethPrice: ethPrice, viewModel: viewModel)
+        let controller = EnterSellTokensCardPriceQuantityViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, cryptoPrice: ethPrice, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
@@ -484,8 +484,7 @@ extension TokensCardCoordinator: TransferTokensCardViewControllerDelegate {
             viewController.navigationController?.pushViewController(vc, animated: true)
         case .erc875:
             showEnterQuantityViewController(token: token, for: tokenHolder, in: viewController)
-        case .erc20: break
-        case .ether: break
+        case .nativeCryptocurrency, .erc20, .xDai: break
         }
     }
 
