@@ -6,11 +6,11 @@ import BigInt
 
 struct NonFungibleTokenViewCellViewModel {
     private let token: TokenObject
-    private let chainId: Int
+    private let server: RPCServer
 
-    init(token: TokenObject, chainId: Int) {
+    init(token: TokenObject, server: RPCServer) {
         self.token = token
-        self.chainId = chainId
+        self.server = server
     }
 
     var title: String {
@@ -41,10 +41,10 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var blockChainName: String {
-        if chainId == 100 {
-            //xdai network, can create switch statement in future if supporting many chains
+        switch server {
+        case .xDai:
             return R.string.localizable.blockchainXDAI()
-        } else {
+        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
             return R.string.localizable.blockchainEthereum()
         }
     }

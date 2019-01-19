@@ -92,21 +92,12 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         ethCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
-
         pricePerTokenField.translatesAutoresizingMaskIntoConstraints = false
-        if config.chainID == 100 {
-            self.pricePerTokenField.cryptoToDollarRate = 1
-        } else {
-            ethPrice.subscribe { [weak self] value in
-                if let value = value {
-                    self?.pricePerTokenField.cryptoToDollarRate = value
-                }
-            }
-        }
+
+        setPricesForCoinType(config: config)
+
         pricePerTokenField.delegate = self
-
         ethCostLabel.translatesAutoresizingMaskIntoConstraints = false
-
         quantityStepper.translatesAutoresizingMaskIntoConstraints = false
         quantityStepper.minimumValue = 1
         quantityStepper.value = 1
@@ -258,6 +249,20 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
     @objc func quantityChanged() {
         updateTotalCostsLabels()
+    }
+
+    private func setPricesForCoinType(config: Config) {
+        switch config.server {
+        case .xDai:
+            //TODO fetch price
+            self.pricePerTokenField.cryptoToDollarRate = 1
+        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
+            ethPrice.subscribe { [weak self] value in
+                if let value = value {
+                    self?.pricePerTokenField.cryptoToDollarRate = value
+                }
+            }
+        }
     }
 
     private func updateTotalCostsLabels() {
