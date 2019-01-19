@@ -35,6 +35,7 @@ class InCoordinator: Coordinator {
     private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
     private let appTracker: AppTracker
+    private var tokensStorageForCryptoPriceFetching: TokensDataStore?
     private var callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator? {
         didSet {
             XMLHandler.callForAssetAttributeCoordinator = callForAssetAttributeCoordinator
@@ -110,18 +111,17 @@ class InCoordinator: Coordinator {
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()
         let realm = self.realm(for: migration.config)
-        let tokensStorage = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, assetDefinitionStore: assetDefinitionStore)
-        tokensStorage.updatePrices()
+        tokensStorageForCryptoPriceFetching = TokensDataStore(realm: realm, account: keystore.recentlyUsedWallet!, config: config, assetDefinitionStore: assetDefinitionStore)
+        tokensStorageForCryptoPriceFetching?.updatePrices()
 
         let etherToken = TokensDataStore.etherToken(for: config)
-        tokensStorage.tokensModel.subscribe {[weak self] tokensModel in
-            guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {
-                return
-            }
-            if let ticker = tokensStorage.coinTicker(for: eth) {
+        tokensStorageForCryptoPriceFetching?.tokensModel.subscribe {[weak self] tokensModel in
+            guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else { return }
+            guard let tokensStorageForCryptoPriceFetching = self?.tokensStorageForCryptoPriceFetching else { return }
+            if let ticker = tokensStorageForCryptoPriceFetching.coinTicker(for: eth) {
                 self?.ethPrice.value = Double(ticker.price_usd)
             } else {
-                tokensStorage.updatePricesAfterComingOnline()
+                tokensStorageForCryptoPriceFetching.updatePricesAfterComingOnline()
             }
         }
     }
@@ -311,8 +311,14 @@ class InCoordinator: Coordinator {
         removeAllCoordinators()
         OpenSea.sharedInstance.reset()
         callForAssetAttributeCoordinator = nil
+        restartCryptoPriceFetching()
         showTabBar(for: account)
         fetchXMLAssetDefinitions()
+    }
+
+    private func restartCryptoPriceFetching() {
+        ethPrice =  Subscribable<Double>(nil)
+        fetchCryptoPrice()
     }
 
     private func removeAllCoordinators() {
