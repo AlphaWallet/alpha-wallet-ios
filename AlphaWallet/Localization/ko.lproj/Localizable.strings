@@ -131,7 +131,7 @@
 "welldone.viewmodel.sharing.text" = "AlphaWallet을 확인해보세요. 스마트 계약과 상호 작용하여 실세계에서 이용할 수 있는 최초의 암호화폐 모바일 지갑입니다.";
 "browser.home.button.title" = "홈";
 "browser.reload.button.title" = "다시 불러오기";
-"browser.addbookmark.button.title" = "북마크 추가";
+"browser.addbookmark.button.title" = "Add to My Dapps";
 "browser.tabbar.item.title" = "브라우저";
 "browser.history.confirm.delete.title" = "Remove History?";
 "browser.noHistory.label.title" = "Your browser history appears here.";

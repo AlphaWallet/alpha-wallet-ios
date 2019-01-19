@@ -131,7 +131,7 @@
 "welldone.viewmodel.sharing.text" = "Echa un vistazo a AlphaWallet - El primer monedero criptográfico móvil que puede interactuar con contratos inteligentes para llevar a cabo casos de uso en el mundo real.";
 "browser.home.button.title" = "Inicio";
 "browser.reload.button.title" = "Volver a cargar";
-"browser.addbookmark.button.title" = "Añadir marcador";
+"browser.addbookmark.button.title" = "Add to My Dapps";
 "browser.tabbar.item.title" = "Navegador";
 "browser.history.confirm.delete.title" = "Remove History?";
 "browser.noHistory.label.title" = "Your browser history appears here.";
