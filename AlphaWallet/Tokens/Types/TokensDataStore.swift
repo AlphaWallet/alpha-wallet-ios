@@ -434,12 +434,8 @@ class TokensDataStore {
     }
 
     func updatePrices() {
-//        let tokens = objects.map { TokenPrice(contract: $0.contract, symbol: $0.symbol) }
-//        let tokensPrice = TokensPrice(
-//            currency: config.currency.rawValue,
-//            tokens: tokens
-//        )
-        provider.request(.prices) { [weak self] result in
+        let priceToUpdate = getPriceToUpdate()
+        provider.request(priceToUpdate) { [weak self] result in
             guard let strongSelf = self else { return }
             guard case .success(let response) = result else { return }
             do {
@@ -451,6 +447,15 @@ class TokensDataStore {
                 }
                 strongSelf.updateDelegate()
             } catch { }
+        }
+    }
+
+    private func getPriceToUpdate() -> AlphaWalletService {
+        switch self.config.server {
+        case .xDai:
+            return .priceOfDai
+        default:
+            return .priceOfEth
         }
     }
 

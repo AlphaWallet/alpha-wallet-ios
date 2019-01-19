@@ -70,7 +70,7 @@ class SendCoordinator: Coordinator {
             storage: storage,
             account: account,
             transferType: transferType,
-            ethPrice: ethPrice
+            cryptoPrice: ethPrice
         )
 
         if navigationController.viewControllers.isEmpty {
