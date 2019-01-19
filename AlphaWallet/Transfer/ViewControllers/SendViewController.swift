@@ -44,7 +44,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         switch transferType {
         case .ERC20Token(let token):
             return token.contract
-        case .ether, .xDai:
+        case .nativeCryptocurrency, .xDai:
             return account.address.eip55String
         case .dapp:
             return "0x"
@@ -63,7 +63,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             session: WalletSession,
             storage: TokensDataStore,
             account: Account,
-            transferType: TransferType = .ether(config: Config(), destination: .none),
+            transferType: TransferType = .nativeCryptocurrency(config: Config(), destination: .none),
             cryptoPrice: Subscribable<Double>
     ) {
         self.session = session
@@ -87,7 +87,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
         switch transferType {
-        case .ether, .xDai:
+        case .nativeCryptocurrency:
             cryptoPrice.subscribe { [weak self] value in
                 if let value = value {
                     self?.amountTextField.cryptoToDollarRate = value
@@ -211,7 +211,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         let amountString = amountTextField.ethCost
         let parsedValue: BigInt? = {
             switch transferType {
-            case .ether, .dapp, .xDai:
+            case .nativeCryptocurrency, .dapp, .xDai:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .ERC20Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
@@ -227,7 +227,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             return displayError(error: SendInputErrors.wrongInput)
         }
 
-        if case .ether = transferType, let balance = session.balance, balance.value < value {
+        if case .nativeCryptocurrency = transferType, let balance = session.balance, balance.value < value {
             return displayError(title: R.string.localizable.aSendBalanceInsufficient(), error: Errors.invalidAmount)
         }
 
@@ -260,7 +260,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
     private func configureBalanceViewModel() {
         switch transferType {
-        case .ether, .xDai:
+        case .nativeCryptocurrency:
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort

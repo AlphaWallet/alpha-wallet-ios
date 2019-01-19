@@ -340,7 +340,7 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
-            case .ether, .xDai:
+            case .nativeCryptocurrency, .xDai:
                 break
             }
         }
@@ -377,7 +377,7 @@ class TokensCoordinator: Coordinator {
 
     private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: TokensCardCoordinator, token: TokenObject) {
         switch token.type {
-        case .ether, .erc20, .erc875, .xDai:
+        case .nativeCryptocurrency, .erc20, .erc875, .xDai:
             break
         case .erc721:
             switch OpenSeaNonFungibleTokenHandling(token: token) {
@@ -412,14 +412,10 @@ class TokensCoordinator: Coordinator {
 extension TokensCoordinator: TokensViewControllerDelegate {
     func didSelect(token: TokenObject, in viewController: UIViewController) {
         switch token.type {
-        case .ether:
-            show(fungibleToken: token, transferType: .ether(config: session.config, destination: .none))
-        case .ether, .xDai:
-            if token.name == "xDai" {
-                delegate?.didPress(for: .send(type: .xDai(config: session.config, destination: .none)), in: self)
-            } else {
-                delegate?.didPress(for: .send(type: .ether(config: session.config, destination: .none)), in: self)
-            }
+        case .nativeCryptocurrency:
+                    delegate?.didPress(for: .send(type: .nativeCryptocurrency(config: session.config, destination: .none)), in: self)
+        case .xDai:
+            delegate?.didPress(for: .send(type: .xDai(config: session.config, destination: .none)), in: self)
         case .erc20:
             show(fungibleToken: token, transferType: .ERC20Token(token))
         case .erc721:

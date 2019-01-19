@@ -25,7 +25,7 @@ struct SendViewModel {
 
     var token: TokenObject? {
         switch transferType {
-        case .ether(destination: _), .xDai(destination: _):
+        case .nativeCryptocurrency(destination: _), .xDai:
             return nil
         case .ERC20Token(let token):
             return token
