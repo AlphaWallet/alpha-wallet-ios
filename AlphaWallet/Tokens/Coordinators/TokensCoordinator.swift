@@ -26,7 +26,7 @@ class TokensCoordinator: Coordinator {
     private let session: WalletSession
     private let keystore: Keystore
     private let storage: TokensDataStore
-    private let ethPrice: Subscribable<Double>
+    private let cryptoPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
 
     private lazy var tokensViewController: TokensViewController = {
@@ -60,7 +60,7 @@ class TokensCoordinator: Coordinator {
         self.session = session
         self.keystore = keystore
         self.storage = tokensStorage
-        self.ethPrice = ethPrice
+        self.cryptoPrice = ethPrice
         self.assetDefinitionStore = assetDefinitionStore
     }
 
@@ -356,7 +356,7 @@ class TokensCoordinator: Coordinator {
                 session: session,
                 keystore: keystore,
                 tokensStorage: storage,
-                ethPrice: ethPrice,
+                ethPrice: cryptoPrice,
                 token: token,
                 assetDefinitionStore: assetDefinitionStore
         )

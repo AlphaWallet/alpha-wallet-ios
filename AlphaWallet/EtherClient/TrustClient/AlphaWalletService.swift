@@ -4,7 +4,8 @@ import Foundation
 import Moya
 
 enum AlphaWalletService {
-    case prices
+    case priceOfEth
+    case priceOfDai
     case getTransactions(address: String, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
     case getTransaction(ID: String)
     case register(device: PushDevice)
@@ -22,7 +23,7 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions:
             return Config().transactionInfoEndpoints
-        case .prices:
+        case .priceOfEth, .priceOfDai:
             return Config().priceInfoEndpoints
         case .getTransaction, .register, .unregister, .marketplace:
             //TODO this wouldn't be needed after we remove these unused cases
@@ -40,8 +41,10 @@ extension AlphaWalletService: TargetType {
             return "/push/register"
         case .unregister:
             return "/push/unregister"
-        case .prices:
+        case .priceOfEth:
             return "/v1/ticker/ethereum/"
+        case .priceOfDai:
+            return "/v1/ticker/dai/"
         case .marketplace:
             return "/marketplace"
         }
@@ -53,7 +56,8 @@ extension AlphaWalletService: TargetType {
         case .getTransaction: return .get
         case .register: return .post
         case .unregister: return .delete
-        case .prices: return .get
+        case .priceOfEth: return .get
+        case .priceOfDai: return .get
         case .marketplace: return .get
         }
     }
@@ -75,7 +79,7 @@ extension AlphaWalletService: TargetType {
             return .requestJSONEncodable(device)
         case .unregister(let device):
             return .requestJSONEncodable(device)
-        case .prices:
+        case .priceOfEth, .priceOfDai:
             return .requestPlain
         case .marketplace(let chainID):
             return .requestParameters(parameters: ["chainID": chainID], encoding: URLEncoding())

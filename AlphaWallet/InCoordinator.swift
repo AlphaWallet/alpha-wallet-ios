@@ -61,7 +61,7 @@ class InCoordinator: Coordinator {
     var keystore: Keystore
     lazy var ethPrice: Subscribable<Double> = {
         var value = Subscribable<Double>(nil)
-        fetchEthPrice()
+        fetchCryptoPrice()
         return value
     }()
     var ethBalance = Subscribable<BigInt>(nil)
@@ -106,7 +106,7 @@ class InCoordinator: Coordinator {
         return tokensStorage
     }
 
-    private func fetchEthPrice() {
+    private func fetchCryptoPrice() {
         let migration = MigrationInitializer(account: keystore.recentlyUsedWallet!, chainID: config.chainID)
         migration.perform()
         let realm = self.realm(for: migration.config)

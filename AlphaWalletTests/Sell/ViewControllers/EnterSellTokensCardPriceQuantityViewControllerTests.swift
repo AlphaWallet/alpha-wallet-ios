@@ -19,7 +19,7 @@ class EnterSellTokensCardPriceQuantityViewControllerTests: FBSnapshotTestCase {
                 config: Config(),
                 storage: FakeTokensDataStore(),
                 paymentFlow: .send(type: .ERC875Token(tokenObject)),
-                ethPrice: .init(nil),
+                cryptoPrice: .init(nil),
                 viewModel: .init(token: tokenObject, tokenHolder: tokenHolder)
         )
         controller.configure()

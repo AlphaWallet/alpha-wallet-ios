@@ -64,13 +64,13 @@ class SendViewController: UIViewController, CanScanQRCode {
             storage: TokensDataStore,
             account: Account,
             transferType: TransferType = .ether(config: Config(), destination: .none),
-            ethPrice: Subscribable<Double>
+            cryptoPrice: Subscribable<Double>
     ) {
         self.session = session
         self.account = account
         self.transferType = transferType
         self.storage = storage
-        self.ethPrice = ethPrice
+        self.ethPrice = cryptoPrice
         self.config = Config()
 
         super.init(nibName: nil, bundle: nil)
@@ -87,15 +87,12 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
         switch transferType {
-        case .ether:
-            ethPrice.subscribe { [weak self] value in
+        case .ether, .xDai:
+            cryptoPrice.subscribe { [weak self] value in
                 if let value = value {
                     self?.amountTextField.cryptoToDollarRate = value
                 }
             }
-        case .xDai:
-            //TODO maybe get this price realtime, however it is supposed to stayed pegged to USD at 1:1
-            self.amountTextField.cryptoToDollarRate = 1
         default:
             amountTextField.alternativeAmountLabel.isHidden = true
             amountTextField.isFiatButtonHidden = true

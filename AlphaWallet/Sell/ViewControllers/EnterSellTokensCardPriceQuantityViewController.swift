@@ -54,13 +54,13 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             config: Config,
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
-            ethPrice: Subscribable<Double>,
+            cryptoPrice: Subscribable<Double>,
             viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel
     ) {
         self.config = config
         self.storage = storage
         self.paymentFlow = paymentFlow
-        self.ethPrice = ethPrice
+        self.ethPrice = cryptoPrice
         self.viewModel = viewModel
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: viewModel.token)
@@ -93,9 +93,11 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         dollarCostLabelLabel.translatesAutoresizingMaskIntoConstraints = false
         dollarCostLabel.translatesAutoresizingMaskIntoConstraints = false
         pricePerTokenField.translatesAutoresizingMaskIntoConstraints = false
-
-        setPricesForCoinType(config: config)
-
+        cryptoPrice.subscribe { [weak self] value in
+            if let value = value {
+                self?.pricePerTokenField.cryptoToDollarRate = value
+            }
+        }
         pricePerTokenField.delegate = self
         ethCostLabel.translatesAutoresizingMaskIntoConstraints = false
         quantityStepper.translatesAutoresizingMaskIntoConstraints = false
@@ -249,20 +251,6 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
     @objc func quantityChanged() {
         updateTotalCostsLabels()
-    }
-
-    private func setPricesForCoinType(config: Config) {
-        switch config.server {
-        case .xDai:
-            //TODO fetch price
-            self.pricePerTokenField.cryptoToDollarRate = 1
-        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
-            ethPrice.subscribe { [weak self] value in
-                if let value = value {
-                    self?.pricePerTokenField.cryptoToDollarRate = value
-                }
-            }
-        }
     }
 
     private func updateTotalCostsLabels() {
