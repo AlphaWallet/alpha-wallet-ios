@@ -46,7 +46,7 @@ class MigrationInitializer: Initializer {
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
                     if let contract = oldObject["contract"] as? String, contract == Constants.nullAddress {
-                        newObject["rawType"] = TokenType.ether.rawValue
+                        newObject["rawType"] = TokenType.nativeCryptocurrency.rawValue
                     }
                 }
             }

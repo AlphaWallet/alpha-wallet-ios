@@ -77,7 +77,7 @@ class SendCoordinator: Coordinator {
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
         }
         switch transferType {
-        case .ether(_, let destination), .xDai(_, let destination):
+        case .nativeCryptocurrency(_, let destination), .xDai(_, let destination):
             controller.targetAddressTextField.value = destination?.description ?? ""
         case .ERC20Token: break
         case .ERC875Token: break

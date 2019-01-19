@@ -484,7 +484,7 @@ extension TokensCardCoordinator: TransferTokensCardViewControllerDelegate {
             viewController.navigationController?.pushViewController(vc, animated: true)
         case .erc875:
             showEnterQuantityViewController(token: token, for: tokenHolder, in: viewController)
-        case .ether, .xDai, .erc20: break
+        case .nativeCryptocurrency, .erc20, .xDai: break
         }
     }
 

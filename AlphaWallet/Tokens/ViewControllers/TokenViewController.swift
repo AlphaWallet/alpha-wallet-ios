@@ -79,7 +79,7 @@ class TokenViewController: UIViewController {
         headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
 
         switch transferType {
-        case .ether, .xDai:
+        case .nativeCryptocurrency, .xDai:
             header.verificationStatus = .verified(session.account.address.eip55String)
         case .ERC20Token, .ERC875TokenOrder, .ERC875Token, .ERC721Token, .dapp:
             header.verificationStatus = .unverified
@@ -105,7 +105,7 @@ class TokenViewController: UIViewController {
 
     private func configureBalanceViewModel() {
         switch transferType {
-        case .ether, .xDai:
+        case .nativeCryptocurrency:
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
