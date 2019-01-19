@@ -260,7 +260,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
     private func configureBalanceViewModel() {
         switch transferType {
-        case .ether:
+        case .ether, .xDai:
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
