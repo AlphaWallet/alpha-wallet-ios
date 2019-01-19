@@ -87,13 +87,13 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
         switch transferType {
-        case .nativeCryptocurrency:
+        case .nativeCryptocurrency, .xDai:
             cryptoPrice.subscribe { [weak self] value in
                 if let value = value {
                     self?.amountTextField.cryptoToDollarRate = value
                 }
             }
-        default:
+        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
             amountTextField.alternativeAmountLabel.isHidden = true
             amountTextField.isFiatButtonHidden = true
         }
@@ -260,7 +260,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
     private func configureBalanceViewModel() {
         switch transferType {
-        case .nativeCryptocurrency:
+        case .nativeCryptocurrency, .xDai:
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
@@ -287,7 +287,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
             }
-        default:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
             break
         }
     }

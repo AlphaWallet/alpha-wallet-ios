@@ -413,9 +413,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didSelect(token: TokenObject, in viewController: UIViewController) {
         switch token.type {
         case .nativeCryptocurrency:
-                    delegate?.didPress(for: .send(type: .nativeCryptocurrency(config: session.config, destination: .none)), in: self)
+            show(fungibleToken: token, transferType: .nativeCryptocurrency(config: session.config, destination: .none))
         case .xDai:
-            delegate?.didPress(for: .send(type: .xDai(config: session.config, destination: .none)), in: self)
+            show(fungibleToken: token, transferType: .xDai(config: session.config, destination: .none))
         case .erc20:
             show(fungibleToken: token, transferType: .ERC20Token(token))
         case .erc721:

@@ -105,7 +105,7 @@ class TokenViewController: UIViewController {
 
     private func configureBalanceViewModel() {
         switch transferType {
-        case .nativeCryptocurrency:
+        case .nativeCryptocurrency, .xDai:
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
@@ -132,7 +132,7 @@ class TokenViewController: UIViewController {
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
             }
-        default:
+        case .ERC875Token(_), .ERC875TokenOrder(_), .ERC721Token(_), .dapp(_, _):
             break
         }
     }
