@@ -13,7 +13,6 @@ protocol TransactionsViewControllerDelegate: class {
 
 class TransactionsViewController: UIViewController {
     private var viewModel: TransactionsViewModel
-    private let tokensStorage: TokensDataStore
     private let account: Wallet
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let refreshControl = UIRefreshControl()
@@ -27,19 +26,16 @@ class TransactionsViewController: UIViewController {
         account: Wallet,
         dataCoordinator: TransactionDataCoordinator,
         session: WalletSession,
-        tokensStorage: TokensDataStore,
         viewModel: TransactionsViewModel = TransactionsViewModel(transactions: [])
     ) {
         self.account = account
         self.dataCoordinator = dataCoordinator
         self.session = session
         self.viewModel = viewModel
-        self.tokensStorage = tokensStorage
         super.init(nibName: nil, bundle: nil)
 
         title = R.string.localizable.transactionsTabbarItemTitle()
 
-        tokensStorage.updatePrices()
         view.backgroundColor = viewModel.backgroundColor
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
