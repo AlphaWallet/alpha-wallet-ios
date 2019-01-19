@@ -79,7 +79,7 @@ class TokenViewController: UIViewController {
         headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
 
         switch transferType {
-        case .ether:
+        case .ether, .xDai:
             header.verificationStatus = .verified(session.account.address.eip55String)
         case .ERC20Token, .ERC875TokenOrder, .ERC875Token, .ERC721Token, .dapp:
             header.verificationStatus = .unverified
