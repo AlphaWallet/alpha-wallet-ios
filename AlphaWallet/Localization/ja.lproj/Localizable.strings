@@ -131,7 +131,7 @@
 "welldone.viewmodel.sharing.text" = "AlphaWallet をチェックしてください- 現実の世界のユースケースを実行するスマート契約とのインタラクションを行える、最初の暗号モバイル ウォレット。";
 "browser.home.button.title" = "ホーム";
 "browser.reload.button.title" = "再読み込み";
-"browser.addbookmark.button.title" = "ブックマークを追加";
+"browser.addbookmark.button.title" = "Add to My Dapps";
 "browser.tabbar.item.title" = "ブラウザ";
 "browser.history.confirm.delete.title" = "Remove History?";
 "browser.noHistory.label.title" = "Your browser history appears here.";

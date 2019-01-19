@@ -131,7 +131,7 @@
 "welldone.viewmodel.sharing.text" = "Check out AlphaWallet - The first crypto mobile wallet which can interact with smart contracts to perform real-world use cases.";
 "browser.home.button.title" = "Home";
 "browser.reload.button.title" = "Reload";
-"browser.addbookmark.button.title" = "Add Bookmark";
+"browser.addbookmark.button.title" = "Add to My Dapps";
 "browser.tabbar.item.title" = "Browser";
 "browser.history.confirm.delete.title" = "Remove History?";
 "browser.noHistory.label.title" = "Your browser history appears here.";
