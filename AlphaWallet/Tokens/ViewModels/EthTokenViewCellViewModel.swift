@@ -10,20 +10,20 @@ struct EthTokenViewCellViewModel {
     private let currencyAmount: String?
     private let currencyAmountWithoutSymbol: Double?
     private let ticker: CoinTicker?
-    private let chainId: Int
+    private let server: RPCServer
 
     init(
         token: TokenObject,
         ticker: CoinTicker?,
         currencyAmount: String?,
         currencyAmountWithoutSymbol: Double?,
-        chainId: Int
+        server: RPCServer
     ) {
         self.token = token
         self.ticker = ticker
         self.currencyAmount = currencyAmount
         self.currencyAmountWithoutSymbol = currencyAmountWithoutSymbol
-        self.chainId = chainId
+        self.server = server
     }
 
     var title: String {
@@ -39,10 +39,10 @@ struct EthTokenViewCellViewModel {
     }
 
     var blockChainName: String {
-        if chainId == 100 {
-            //xdai network, can create switch statement in future if supporting many chains
+        switch server {
+        case .xDai:
             return R.string.localizable.blockchainXDAI()
-        } else {
+        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
             return R.string.localizable.blockchainEthereum()
         }
     }

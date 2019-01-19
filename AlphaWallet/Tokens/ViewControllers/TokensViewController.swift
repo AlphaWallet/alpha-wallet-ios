@@ -276,17 +276,17 @@ extension TokensViewController: UITableViewDelegate {
                     ticker: viewModel.ticker(for: token),
                     currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
                     currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                    chainId: session.config.chainID
+                    server: session.config.server
             )
             return cellViewModel.cellHeight
         case .erc20:
             let cellViewModel = TokenViewCellViewModel(token: token)
             return cellViewModel.cellHeight
         case .erc721:
-            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, chainId: session.config.chainID)
+            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: session.config.server)
             return cellViewModel.cellHeight
         case .erc875:
-            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, chainId: session.config.chainID)
+            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: session.config.server)
             return cellViewModel.cellHeight
         }
     }
@@ -328,7 +328,7 @@ extension TokensViewController: UITableViewDataSource {
                             ticker: viewModel.ticker(for: token),
                             currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
                             currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                            chainId: session.config.chainID
+                            server: session.config.server
                     )
             )
             return cell
@@ -338,11 +338,11 @@ extension TokensViewController: UITableViewDataSource {
             return cell
         case .erc721:
             let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
-            cell.configure(viewModel: .init(token: token, chainId: session.config.chainID))
+            cell.configure(viewModel: .init(token: token, server: session.config.server))
             return cell
         case .erc875:
             let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
-            cell.configure(viewModel: .init(token: token, chainId: session.config.chainID))
+            cell.configure(viewModel: .init(token: token, server: session.config.server))
             return cell
         }
     }

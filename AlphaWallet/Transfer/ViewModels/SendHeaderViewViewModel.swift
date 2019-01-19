@@ -8,17 +8,17 @@ struct SendHeaderViewViewModel {
     var currencyAmount: String?
     var currencyAmountWithoutSymbol: Double?
     var showAlternativeAmount = false
-    var chainId = Config().chainID
+    var server = Config().server
 
     var issuer: String {
         return ""
     }
 
     var blockChainName: String {
-        if chainId == 100 {
-            //xdai network, can create switch statement in future if supporting many chains
+        switch server {
+        case .xDai:
             return R.string.localizable.blockchainXDAI()
-        } else {
+        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
             return R.string.localizable.blockchainEthereum()
         }
     }
