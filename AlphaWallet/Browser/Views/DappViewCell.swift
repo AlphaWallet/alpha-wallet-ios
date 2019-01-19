@@ -90,7 +90,7 @@ class DappViewCell: UICollectionViewCell {
             imageView.topAnchor.constraint(equalTo: imageHolder.topAnchor),
             imageView.bottomAnchor.constraint(equalTo: imageHolder.bottomAnchor),
 
-            deleteButton.rightAnchor.constraint(equalTo: contentView.rightAnchor),
+            deleteButton.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -3),
             //Some allowance so the delete button is not clipped while jiggling
             deleteButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
             deleteButton.widthAnchor.constraint(equalToConstant: 22),
