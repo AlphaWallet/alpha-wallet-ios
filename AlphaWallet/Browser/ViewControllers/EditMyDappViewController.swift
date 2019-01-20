@@ -11,8 +11,7 @@ protocol EditMyDappViewControllerDelegate: class {
 class EditMyDappViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let screenTitleLabel = UILabel()
-    private let iconImageView = UIImageView()
-    lazy private var imageHolder = ContainerViewWithShadow(aroundView: iconImageView)
+    private var imageHolder = ContainerViewWithShadow(aroundView: UIImageView())
     private let titleLabel = UILabel()
     private let titleTextField = UITextField()
     private let urlLabel = UILabel()
@@ -115,6 +114,7 @@ class EditMyDappViewController: UIViewController {
 
         imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius)
 
+        let iconImageView = imageHolder.childView
         iconImageView.backgroundColor = viewModel.imageBackgroundColor
         iconImageView.contentMode = .scaleAspectFill
         iconImageView.clipsToBounds = true
@@ -161,7 +161,7 @@ class EditMyDappViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        iconImageView.layer.cornerRadius = iconImageView.frame.size.width / 2
+        imageHolder.childView.layer.cornerRadius = imageHolder.childView.frame.size.width / 2
 
         imageHolder.layer.cornerRadius = imageHolder.frame.size.width / 2
         if let viewModel = viewModel {
