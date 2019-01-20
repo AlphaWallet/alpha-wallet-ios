@@ -84,7 +84,7 @@ class TokenViewController: UIViewController {
         case .nativeCryptocurrency, .xDai:
             header.verificationStatus = .verified(session.account.address.eip55String)
         case .ERC20Token, .ERC875TokenOrder, .ERC875Token, .ERC721Token, .dapp:
-            header.verificationStatus = .unverified
+            header.verificationStatus = .unverified(session.account.address.eip55String)
         }
         header.sendHeaderView.configure(viewModel: headerViewModel)
         header.frame.size.height = 220

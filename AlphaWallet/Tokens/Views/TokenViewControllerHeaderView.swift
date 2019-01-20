@@ -10,7 +10,7 @@ protocol TokenViewControllerHeaderViewDelegate: class {
 class TokenViewControllerHeaderView: UIView {
     enum VerificationStatus {
         case verified(String)
-        case unverified
+        case unverified(String)
     }
 
     private let recentTransactionsLabel = UILabel()
@@ -21,10 +21,11 @@ class TokenViewControllerHeaderView: UIView {
     private let unverifiedButton = UIButton(type: .system)
 
     let sendHeaderView = SendHeaderView()
-    var verificationStatus = VerificationStatus.unverified {
+    var verificationStatus: VerificationStatus? {
         didSet {
+            guard let verificationStatus = verificationStatus else { return }
             switch verificationStatus {
-            case .verified(let contract):
+            case .verified:
                 verifiedStackView.isHidden = false
                 unverifiedStackView.isHidden = true
             case .unverified:
@@ -85,6 +86,7 @@ class TokenViewControllerHeaderView: UIView {
         unverifiedButton.setTitle(R.string.localizable.aWalletTokenUnverifiedContract(), for: .normal)
         unverifiedButton.imageEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 12)
         unverifiedButton.titleEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: -12)
+        unverifiedButton.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
 
         recentTransactionsLabel.textColor = UIColor(red: 77, green: 77, blue: 77)
         recentTransactionsLabel.font = Fonts.semibold(size: 18)
@@ -94,11 +96,10 @@ class TokenViewControllerHeaderView: UIView {
     }
 
     @objc private func showContractWebPage() {
+        guard let verificationStatus = verificationStatus else { return }
         switch verificationStatus {
-        case .verified(let contract):
+        case .verified(let contract), .unverified(let contract):
             delegate?.didPressViewContractWebPage(forContract: contract, inHeaderView: self)
-        case .unverified:
-            break
         }
     }
 }
