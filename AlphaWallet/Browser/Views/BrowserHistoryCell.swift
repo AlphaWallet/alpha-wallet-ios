@@ -45,7 +45,7 @@ class BrowserHistoryCell: UITableViewCell {
         backgroundColor = viewModel.backgroundColor
         contentView.backgroundColor = viewModel.backgroundColor
 
-        iconImageViewHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius)
+        iconImageViewHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius, cornerRadius: iconImageViewHolder.frame.size.width / 2)
 
         let iconImageView = iconImageViewHolder.childView
         iconImageView.backgroundColor = viewModel.backgroundColor
@@ -63,10 +63,7 @@ class BrowserHistoryCell: UITableViewCell {
 
         //TODO ugly hack to get the image view's frame. Can't figure out a good point to retrieve the correct frame otherwise
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            self.iconImageViewHolder.childView.layer.cornerRadius = self.iconImageViewHolder.childView.frame.size.width / 2
-
-            self.iconImageViewHolder.layer.cornerRadius = self.iconImageViewHolder.frame.size.width / 2
-            self.iconImageViewHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius)
+            self.iconImageViewHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius, cornerRadius: self.iconImageViewHolder.frame.size.width / 2)
         }
     }
 }

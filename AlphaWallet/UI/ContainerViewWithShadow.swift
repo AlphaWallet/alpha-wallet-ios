@@ -35,7 +35,10 @@ class ContainerViewWithShadow<T: UIView>: UIView {
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: layer.cornerRadius).cgPath
     }
 
-    func configureShadow(color: UIColor, offset: CGSize, opacity: Float, radius: CGFloat) {
+    func configureShadow(color: UIColor, offset: CGSize, opacity: Float, radius: CGFloat, cornerRadius: CGFloat) {
+        layer.cornerRadius = cornerRadius
+        childView.cornerRadius = cornerRadius
+
         layer.shadowColor = color.cgColor
         layer.shadowOffset = offset
         layer.shadowOpacity = opacity

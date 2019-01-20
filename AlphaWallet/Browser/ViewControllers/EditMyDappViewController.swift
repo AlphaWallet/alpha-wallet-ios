@@ -112,7 +112,7 @@ class EditMyDappViewController: UIViewController {
 
         view.backgroundColor = viewModel.backgroundColor
 
-        imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius)
+        imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius, cornerRadius: imageHolder.frame.size.width / 2)
 
         let iconImageView = imageHolder.childView
         iconImageView.backgroundColor = viewModel.imageBackgroundColor
@@ -161,11 +161,8 @@ class EditMyDappViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        imageHolder.childView.layer.cornerRadius = imageHolder.childView.frame.size.width / 2
-
-        imageHolder.layer.cornerRadius = imageHolder.frame.size.width / 2
         if let viewModel = viewModel {
-            imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius)
+            imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius, cornerRadius: imageHolder.frame.size.width / 2)
         }
     }
 
