@@ -4,6 +4,8 @@ import Foundation
 import UIKit
 
 struct DappsHomeViewControllerHeaderViewViewModel {
+    let isEditing: Bool
+
     var backgroundColor: UIColor {
         return Colors.appWhite
     }
