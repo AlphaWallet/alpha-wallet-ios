@@ -5,9 +5,16 @@ import UIKit
 import UserNotifications
 
 class PushNotificationsCoordinator: NSObject, Coordinator {
-    var coordinators: [Coordinator] = []
+    private let server: RPCServer
     private var notificationCenter: UNUserNotificationCenter {
         return .current()
+    }
+
+    var coordinators: [Coordinator] = []
+
+    init(server: RPCServer) {
+        self.server = server
+        super.init()
     }
 
     func start() {
@@ -19,9 +26,10 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
     }
 
     private func promptToEnableNotification(in navigationController: UINavigationController) {
-        authorizationNotDetermined {
+        authorizationNotDetermined { [weak self] in
+            guard let strongSelf = self else { return }
             navigationController.visibleViewController?.confirm(
-                    title: R.string.localizable.transactionsReceivedEtherNotificationPrompt(),
+                    title: R.string.localizable.transactionsReceivedEtherNotificationPrompt(strongSelf.server.cryptoCurrencyName),
                     message: nil,
                     okTitle: R.string.localizable.oK(),
                     okStyle: .default
@@ -29,8 +37,9 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
                 switch result {
                 case .success:
                     //Give some time for the view controller to show up first. We don't have to be precise, so no need to complicate things with hooking up to the view controller's animation
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        self.requestForAuthorization()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                        guard let strongSelf = self else { return }
+                        strongSelf.requestForAuthorization()
                     }
                 case .failure:
                     break

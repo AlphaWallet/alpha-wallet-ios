@@ -7,9 +7,11 @@ import BigInt
 struct TokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
+    private let server: RPCServer
 
-    init(token: TokenObject) {
+    init(token: TokenObject, server: RPCServer) {
         self.token = token
+        self.server = server
     }
 
     var title: String {
@@ -25,7 +27,12 @@ struct TokenViewCellViewModel {
     }
 
     var blockChainName: String {
-        return R.string.localizable.blockchainEthereum()
+        switch server {
+        case .xDai:
+            return R.string.localizable.blockchainXDAI()
+        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
+            return R.string.localizable.blockchainEthereum()
+        }
     }
 
     var backgroundColor: UIColor {

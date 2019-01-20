@@ -240,11 +240,12 @@ class TransactionDataCoordinator {
     private func notifyUserEtherReceived(for transactionId: String, amount: String) {
         let notificationCenter = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
-        switch AlphaWallet.Config().server {
-        case .main:
-            content.body = R.string.localizable.transactionsReceivedEther(amount)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom, .xDai:
-            content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(AlphaWallet.Config().server.name))")
+        let config = AlphaWallet.Config()
+        switch config.server {
+        case .main, .xDai:
+            content.body = R.string.localizable.transactionsReceivedEther(amount, config.server.symbol)
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+            content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(config.server.name))", config.server.symbol)
         }
         content.sound = .default
         let identifier = Constants.etherReceivedNotificationIdentifier

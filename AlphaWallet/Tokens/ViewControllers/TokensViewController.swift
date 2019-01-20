@@ -280,7 +280,7 @@ extension TokensViewController: UITableViewDelegate {
             )
             return cellViewModel.cellHeight
         case .erc20:
-            let cellViewModel = TokenViewCellViewModel(token: token)
+            let cellViewModel = TokenViewCellViewModel(token: token, server: session.config.server)
             return cellViewModel.cellHeight
         case .erc721:
             let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: session.config.server)
@@ -334,7 +334,7 @@ extension TokensViewController: UITableViewDataSource {
             return cell
         case .erc20:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewCell.identifier, for: indexPath) as! TokenViewCell
-            cell.configure(viewModel: .init(token: token))
+            cell.configure(viewModel: .init(token: token, server: session.config.server))
             return cell
         case .erc721:
             let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
