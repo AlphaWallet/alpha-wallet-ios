@@ -131,7 +131,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
         vc.configure(viewModel: .init(
                 tokenHolder: tokenHolder,
                 ethCost: ethCost,
-                linkExpiryDate: linkExpiryDate
+                linkExpiryDate: linkExpiryDate,
+                server: session.config.server
         ))
         vc.modalPresentationStyle = .overCurrentContext
         return vc
@@ -206,7 +207,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeEnterSellTokensCardPriceQuantityViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
-        let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder)
+        let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder, server: session.config.server)
         let controller = EnterSellTokensCardPriceQuantityViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, cryptoPrice: ethPrice, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
@@ -230,7 +231,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeEnterSellTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, ethCost: Ether, paymentFlow: PaymentFlow) -> SetSellTokensCardExpiryDateViewController {
-        let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost)
+        let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost, server: session.config.server)
         let controller = SetSellTokensCardExpiryDateViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel)
         controller.configure()
         controller.delegate = self

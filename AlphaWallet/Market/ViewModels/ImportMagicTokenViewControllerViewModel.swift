@@ -29,6 +29,7 @@ struct ImportMagicTokenViewControllerViewModel {
     var state: State
     var tokenHolder: TokenHolder?
     var cost: Cost?
+    let server: RPCServer
 
     var backgroundColor: UIColor {
         return Colors.appBackground
@@ -195,7 +196,7 @@ struct ImportMagicTokenViewControllerViewModel {
         case .free:
             return R.string.localizable.aClaimTokenEthCostFreeTitle()
         case .paid(let ethCost, _):
-            return "\(ethCost) ETH"
+            return "\(ethCost) \(server.symbol)"
         }
     }
 
@@ -321,7 +322,8 @@ struct ImportMagicTokenViewControllerViewModel {
         }
     }
 
-    init(state: State) {
+    init(state: State, server: RPCServer) {
         self.state = state
+        self.server = server
     }
 }

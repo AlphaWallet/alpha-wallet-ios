@@ -124,6 +124,15 @@ enum RPCServer: Hashable {
         }
     }
 
+    var cryptoCurrencyName: String {
+        switch self {
+        case .main, .classic, .callisto, .kovan, .ropsten, .rinkeby, .poa, .sokol, .custom:
+            return "Ether"
+        case .xDai:
+            return "xDai"
+        }
+    }
+
     var decimals: Int {
         return 18
     }
