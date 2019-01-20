@@ -6,6 +6,7 @@ import UIKit
 struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     let token: TokenObject
     let tokenHolder: TokenHolder
+    let server: RPCServer
     var ethCost: Ether = .zero
     var dollarCost: String = ""
 
@@ -76,7 +77,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var ethCostLabelText: String {
-        return "\(ethCost.formattedDescription) ETH"
+        return "\(ethCost.formattedDescription) \(server.symbol)"
     }
 
     var ethCostLabelColor: UIColor {
@@ -115,8 +116,9 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
         return dollarCost.trimmed.isEmpty
     }
 
-    init(token: TokenObject, tokenHolder: TokenHolder) {
+    init(token: TokenObject, tokenHolder: TokenHolder, server: RPCServer) {
         self.token = token
         self.tokenHolder = tokenHolder
+        self.server = server
     }
 }

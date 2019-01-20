@@ -5,6 +5,7 @@ import UIKit
 
 struct SetSellTokensCardExpiryDateViewControllerViewModel {
     private let ethCost: Ether
+    private let server: RPCServer
 
     let token: TokenObject
     let tokenHolder: TokenHolder
@@ -79,11 +80,11 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     var perTokenPriceLabelText: String {
         let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.singular, titlecase: .titlecase)
         let amount = ethCost / tokenCount
-        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, tokenTypeName)
+        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, server.symbol, tokenTypeName)
     }
 
     var totalEthLabelText: String {
-        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(ethCost.formattedDescription)
+        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(ethCost.formattedDescription, server.symbol)
     }
 
     var noteTitleLabelText: String {
@@ -119,9 +120,10 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
         return tokenHolder.count
     }
 
-    init(token: TokenObject, tokenHolder: TokenHolder, ethCost: Ether) {
+    init(token: TokenObject, tokenHolder: TokenHolder, ethCost: Ether, server: RPCServer) {
         self.token = token
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost
+        self.server = server
     }
 }

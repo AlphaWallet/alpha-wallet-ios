@@ -131,7 +131,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func handleNotifications() {
         UIApplication.shared.applicationIconBadgeNumber = 0
-        let coordinator = PushNotificationsCoordinator()
+        let coordinator = PushNotificationsCoordinator(server: config.server)
         coordinator.start()
         addCoordinator(coordinator)
     }

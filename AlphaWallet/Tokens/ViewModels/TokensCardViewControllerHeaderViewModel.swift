@@ -5,9 +5,11 @@ import BigInt
 
 struct TokensCardViewControllerHeaderViewModel {
     private let tokenObject: TokenObject
+    private let server: RPCServer
 
-    init(tokenObject: TokenObject) {
+    init(tokenObject: TokenObject, server: RPCServer) {
         self.tokenObject = tokenObject
+        self.server = server
     }
 
     var title: String {
@@ -33,7 +35,12 @@ struct TokensCardViewControllerHeaderViewModel {
     }
 
     var blockChainName: String {
-        return R.string.localizable.blockchainEthereum()
+        switch server {
+        case .xDai:
+            return R.string.localizable.blockchainXDAI()
+        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
+            return R.string.localizable.blockchainEthereum()
+        }
     }
 
     var backgroundColor: UIColor {

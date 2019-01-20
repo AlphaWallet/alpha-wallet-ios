@@ -6,6 +6,7 @@ struct GenerateSellMagicLinkViewControllerViewModel {
     private let tokenHolder: TokenHolder
     private let ethCost: Ether
     private let linkExpiryDate: Date
+    private let server: RPCServer
 
     var contentsBackgroundColor: UIColor {
         return Colors.appWhite
@@ -74,11 +75,11 @@ struct GenerateSellMagicLinkViewControllerViewModel {
     var perTokenPriceLabelText: String {
         let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
         let amount = ethCost / tokenCount
-        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, tokenTypeName)
+        return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, server.symbol, tokenTypeName)
     }
 
     var totalEthLabelText: String {
-        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(ethCost.formattedDescription)
+        return R.string.localizable.aWalletTokenSellTotalEthPriceTitle(ethCost.formattedDescription, server.symbol)
     }
 
     var detailsBackgroundBackgroundColor: UIColor {
@@ -89,9 +90,10 @@ struct GenerateSellMagicLinkViewControllerViewModel {
         return tokenHolder.count
     }
 
-    init(tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date) {
+    init(tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date, server: RPCServer) {
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost
         self.linkExpiryDate = linkExpiryDate
+        self.server = server
     }
 }

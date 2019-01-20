@@ -75,8 +75,8 @@
 "wallet.import.button.title" = "ウォレットをインポート";
 "wallets.backup.alertSheet.title" = "暗号化された秘密鍵のバックアップ";
 "transactions.tabbar.item.title" = "私のトランザクション";
-"transactions.received.ether" = "You have received %@ ETH";
-"transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive Ether?";
+"transactions.received.ether" = "You have received %@ %@";
+"transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";
 "transaction.navigation.title" = "トランザクション";
 "import.navigation.title" = "ウォレットをインポート";
 "configureTransaction.data.label.title" = "トランザクション データ (オプション)";
@@ -185,8 +185,8 @@
 "a.wallet.token.sell.enterLinkExpiryDate.title" = "MagicLink 有効期限の設定";
 "a.wallet.token.sell.singleTokenSelected.title" = "1 つの %@ を選択";
 "a.wallet.token.sell.multipleTokenSelected.title" = "%d 個の %@ を選択";
-"a.wallet.token.sell.perTokenEthPrice.title" = "%@ ETH/%@";
-"a.wallet.token.sell.totalEthPrice.title" = "合計: %@ ETH";
+"a.wallet.token.sell.perTokenEthPrice.title" = "%@ %@/%@";
+"a.wallet.token.sell.totalEthPrice.title" = "合計: %@ %@";
 "a.wallet.token.sell.magicLinkDescription.title" = "MagicLink が作成され、バイヤーがあなたの %@ を購入できるようになります。";
 "a.wallet.token.sell.noteTitleLabel.title" = "重要";
 "a.wallet.token.sell.noteLabel.title" = "リンクの有効期限が切れる前に、MagicLink を持つユーザーはワンクリックであなたの %@ を購入できます";
