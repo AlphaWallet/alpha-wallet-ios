@@ -114,7 +114,7 @@ public class UniversalLinkHandler {
     
     private func handleSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
         var bytes = linkBytes
-        bytes.remove(at: 0)
+        bytes.remove(at: 0) //remove encoding byte
         let price = getPriceFromLinkBytes(linkBytes: bytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: bytes)
         let contractAddress = getContractAddressFromLinkBytes(linkBytes: bytes)
@@ -135,7 +135,9 @@ public class UniversalLinkHandler {
     }
     
     private func getTokenIdsFromSpawnableLink(linkBytes: [UInt8]) -> [BigUInt] {
-        let bytes = Array(linkBytes[84..<linkBytes.count])
+        let sigPos = linkBytes.count - 65; //the last 65 bytes are the signature params
+        let tokenPos = 28 //tokens start at this byte
+        let bytes = Array(linkBytes[tokenPos..<sigPos])
         let tokenIds = bytes.chunked(into: 32)
         return tokenIds.map { BigUInt(Data(bytes: $0)) }
     }
