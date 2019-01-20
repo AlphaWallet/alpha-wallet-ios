@@ -18,10 +18,8 @@ class TokenViewController: UIViewController {
     private let tokensDataStore: TokensDataStore
     private let transferType: TransferType
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private let sendButton = UIButton(type: .system)
-    private let receiveButton = UIButton(type: .system)
-    lazy private var sendButtonContainer = ContainerViewWithShadow(aroundView: sendButton)
-    lazy private var receiveButtonContainer = ContainerViewWithShadow(aroundView: receiveButton)
+    private var sendButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
+    private var receiveButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
 
     weak var delegate: TokenViewControllerDelegate?
 
@@ -60,7 +58,7 @@ class TokenViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: roundedBackground.bottomAnchor),
 
-            sendButton.widthAnchor.constraint(equalTo: receiveButton.widthAnchor),
+            sendButtonContainer.widthAnchor.constraint(equalTo: receiveButtonContainer.widthAnchor),
 
             buttonsStackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             buttonsStackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
@@ -96,12 +94,14 @@ class TokenViewController: UIViewController {
         receiveButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius)
         receiveButtonContainer.layer.cornerRadius = viewModel.sendReceiveButtonCornerRadius
 
+        let sendButton = sendButtonContainer.childView
         sendButton.setTitle(viewModel.sendButtonTitle, for: .normal)
         sendButton.addTarget(self, action: #selector(send), for: .touchUpInside)
         sendButton.setBackgroundColor(viewModel.sendReceiveButtonBackgroundColor, forState: .normal)
         sendButton.setTitleColor(viewModel.sendReceiveButtonTitleColor, for: .normal)
         sendButton.cornerRadius = viewModel.sendReceiveButtonCornerRadius
 
+        let receiveButton = receiveButtonContainer.childView
         receiveButton.setTitle(viewModel.receiveButtonTitle, for: .normal)
         receiveButton.addTarget(self, action: #selector(receive), for: .touchUpInside)
         receiveButton.setBackgroundColor(viewModel.sendReceiveButtonBackgroundColor, forState: .normal)

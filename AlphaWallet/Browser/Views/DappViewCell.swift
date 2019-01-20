@@ -17,8 +17,7 @@ class DappViewCell: UICollectionViewCell {
     private var viewModel: DappViewCellViewModel?
     private var currentDisplayedImageUrl: URL?
     private let background = UIView()
-    private let imageView = UIImageView()
-    lazy private var imageHolder = ContainerViewWithShadow(aroundView: imageView)
+    private var imageHolder = ContainerViewWithShadow(aroundView: UIImageView())
     private let titleLabel = UILabel()
     private let domainLabel = UILabel()
     private let deleteButton = UIButton(type: .system)
@@ -98,7 +97,7 @@ class DappViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        imageView.layer.cornerRadius = imageView.frame.size.width / 2
+        imageHolder.childView.layer.cornerRadius = imageHolder.childView.frame.size.width / 2
 
         imageHolder.layer.cornerRadius = imageHolder.frame.size.width / 2
         if let viewModel = viewModel {
@@ -116,6 +115,7 @@ class DappViewCell: UICollectionViewCell {
 
         imageHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius)
 
+        let imageView = imageHolder.childView
         imageView.backgroundColor = viewModel.backgroundColor
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
