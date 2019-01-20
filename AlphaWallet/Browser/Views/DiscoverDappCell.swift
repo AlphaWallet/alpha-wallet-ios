@@ -15,9 +15,9 @@ class DiscoverDappCell: UITableViewCell {
     private let removeButton = UIButton(type: .system)
     private var viewModel: DiscoverDappCellViewModel?
     private var iconImageViewHolder = ContainerViewWithShadow(aroundView: UIImageView())
+    private let titleLabel = UILabel()
+    private let descriptionLabel = UILabel()
 
-    let titleLabel = UILabel()
-    let descriptionLabel = UILabel()
     weak var delegate: DiscoverDappCellDelegate?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
