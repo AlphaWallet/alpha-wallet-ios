@@ -24,7 +24,11 @@ class TransactionConfigurator {
     private let account: Account
 
     private lazy var calculatedGasPrice: BigInt = {
-        return transaction.gasPrice ?? configuration.gasPrice
+        if let gasPrice = transaction.gasPrice, gasPrice > 0 {
+            return gasPrice
+        } else {
+            return configuration.gasPrice
+        }
     }()
 
     private var requestEstimateGas: Bool {
