@@ -97,11 +97,8 @@ class DappViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        imageHolder.childView.layer.cornerRadius = imageHolder.childView.frame.size.width / 2
-
-        imageHolder.layer.cornerRadius = imageHolder.frame.size.width / 2
         if let viewModel = viewModel {
-            imageHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius)
+            imageHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius, cornerRadius: imageHolder.frame.size.width / 2)
         }
     }
 
@@ -113,7 +110,7 @@ class DappViewCell: UICollectionViewCell {
         background.backgroundColor = viewModel.backgroundColor
         background.clipsToBounds = true
 
-        imageHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius)
+        imageHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius, cornerRadius: imageHolder.frame.size.width / 2)
 
         let imageView = imageHolder.childView
         imageView.backgroundColor = viewModel.backgroundColor

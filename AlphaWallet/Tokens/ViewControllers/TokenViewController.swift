@@ -88,25 +88,21 @@ class TokenViewController: UIViewController {
         header.frame.size.height = 220
         tableView.tableHeaderView = header
 
-        sendButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius)
-        sendButtonContainer.layer.cornerRadius = viewModel.sendReceiveButtonCornerRadius
+        sendButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.sendReceiveButtonCornerRadius)
 
-        receiveButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius)
-        receiveButtonContainer.layer.cornerRadius = viewModel.sendReceiveButtonCornerRadius
+        receiveButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.sendReceiveButtonCornerRadius)
 
         let sendButton = sendButtonContainer.childView
         sendButton.setTitle(viewModel.sendButtonTitle, for: .normal)
         sendButton.addTarget(self, action: #selector(send), for: .touchUpInside)
         sendButton.setBackgroundColor(viewModel.sendReceiveButtonBackgroundColor, forState: .normal)
         sendButton.setTitleColor(viewModel.sendReceiveButtonTitleColor, for: .normal)
-        sendButton.cornerRadius = viewModel.sendReceiveButtonCornerRadius
 
         let receiveButton = receiveButtonContainer.childView
         receiveButton.setTitle(viewModel.receiveButtonTitle, for: .normal)
         receiveButton.addTarget(self, action: #selector(receive), for: .touchUpInside)
         receiveButton.setBackgroundColor(viewModel.sendReceiveButtonBackgroundColor, forState: .normal)
         receiveButton.setTitleColor(viewModel.sendReceiveButtonTitleColor, for: .normal)
-        receiveButton.cornerRadius = viewModel.sendReceiveButtonCornerRadius
 
         tableView.reloadData()
     }
