@@ -8,7 +8,7 @@ class MyDappCell: UITableViewCell {
 
     static let identifier = "MyDappCell"
 
-    private let iconImageViewHolder = UIView()
+    lazy private var iconImageViewHolder = ContainerViewWithShadow(aroundView: iconImageView)
     private var viewModel: MyDappCellViewModel?
 
     let iconImageView = UIImageView()
@@ -21,9 +21,6 @@ class MyDappCell: UITableViewCell {
             titleLabel,
             urlLabel].asStackView(axis: .vertical)
         
-        iconImageView.translatesAutoresizingMaskIntoConstraints = false
-        iconImageViewHolder.addSubview(iconImageView)
-
         let mainStackView = [.spacerWidth(29), iconImageViewHolder, .spacerWidth(26), labelsVerticalStackView, .spacerWidth(29)].asStackView(axis: .horizontal, alignment: .center)
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(mainStackView)
@@ -36,11 +33,6 @@ class MyDappCell: UITableViewCell {
 
             iconImageView.widthAnchor.constraint(equalToConstant: 44),
             iconImageView.widthAnchor.constraint(equalTo: iconImageView.heightAnchor),
-
-            iconImageView.leadingAnchor.constraint(equalTo: iconImageViewHolder.leadingAnchor),
-            iconImageView.trailingAnchor.constraint(equalTo: iconImageViewHolder.trailingAnchor),
-            iconImageView.topAnchor.constraint(equalTo: iconImageViewHolder.topAnchor),
-            iconImageView.bottomAnchor.constraint(equalTo: iconImageViewHolder.bottomAnchor),
         ])
     }
 
@@ -59,10 +51,7 @@ class MyDappCell: UITableViewCell {
         urlLabel.textColor = viewModel.domainNameColor
         urlLabel.text = viewModel.domainName
 
-        iconImageViewHolder.layer.shadowColor = viewModel.imageViewShadowColor.cgColor
-        iconImageViewHolder.layer.shadowOffset = viewModel.imageViewShadowOffset
-        iconImageViewHolder.layer.shadowOpacity = viewModel.imageViewShadowOpacity
-        iconImageViewHolder.layer.shadowRadius = viewModel.imageViewShadowRadius
+        iconImageViewHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius)
 
         iconImageView.backgroundColor = viewModel.backgroundColor
         iconImageView.contentMode = .scaleAspectFill
@@ -72,8 +61,9 @@ class MyDappCell: UITableViewCell {
         //TODO ugly hack to get the image view's frame. Can't figure out a good point to retrieve the correct frame otherwise
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
             self.iconImageView.layer.cornerRadius = self.iconImageView.frame.size.width / 2
+
             self.iconImageViewHolder.layer.cornerRadius = self.iconImageViewHolder.frame.size.width / 2
-            self.iconImageViewHolder.layer.shadowPath = UIBezierPath(roundedRect: self.iconImageViewHolder.bounds, cornerRadius: self.iconImageViewHolder.layer.cornerRadius).cgPath
+            self.iconImageViewHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius)
         }
     }
 }

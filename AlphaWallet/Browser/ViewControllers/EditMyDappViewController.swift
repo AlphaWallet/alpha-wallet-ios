@@ -12,8 +12,7 @@ class EditMyDappViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let screenTitleLabel = UILabel()
     private let iconImageView = UIImageView()
-    //Holder to show the shadow around the image because the UIImageView is clipsToBounds=true
-    private let imageHolder = UIView()
+    lazy private var imageHolder = ContainerViewWithShadow(aroundView: iconImageView)
     private let titleLabel = UILabel()
     private let titleTextField = UITextField()
     private let urlLabel = UILabel()
@@ -29,9 +28,6 @@ class EditMyDappViewController: UIViewController {
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
-
-        iconImageView.translatesAutoresizingMaskIntoConstraints = false
-        imageHolder.addSubview(iconImageView)
 
         titleTextField.delegate = self
 
@@ -71,11 +67,6 @@ class EditMyDappViewController: UIViewController {
 
         let marginToHideBottomRoundedCorners = CGFloat(30)
         NSLayoutConstraint.activate([
-            iconImageView.leadingAnchor.constraint(equalTo: imageHolder.leadingAnchor),
-            iconImageView.trailingAnchor.constraint(equalTo: imageHolder.trailingAnchor),
-            iconImageView.topAnchor.constraint(equalTo: imageHolder.topAnchor),
-            iconImageView.bottomAnchor.constraint(equalTo: imageHolder.bottomAnchor),
-
             imageHolder.widthAnchor.constraint(equalToConstant: 80),
             imageHolder.widthAnchor.constraint(equalTo: imageHolder.heightAnchor),
 
@@ -122,10 +113,7 @@ class EditMyDappViewController: UIViewController {
 
         view.backgroundColor = viewModel.backgroundColor
 
-        imageHolder.layer.shadowColor = viewModel.imageShadowColor.cgColor
-        imageHolder.layer.shadowOffset = viewModel.imageShadowOffset
-        imageHolder.layer.shadowOpacity = viewModel.imageShadowOpacity
-        imageHolder.layer.shadowRadius = viewModel.imageShadowRadius
+        imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius)
 
         iconImageView.backgroundColor = viewModel.imageBackgroundColor
         iconImageView.contentMode = .scaleAspectFill
@@ -173,10 +161,12 @@ class EditMyDappViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        imageHolder.layer.cornerRadius = imageHolder.frame.size.width / 2
         iconImageView.layer.cornerRadius = iconImageView.frame.size.width / 2
 
-        imageHolder.layer.shadowPath = UIBezierPath(roundedRect: imageHolder.bounds, cornerRadius: imageHolder.layer.cornerRadius).cgPath
+        imageHolder.layer.cornerRadius = imageHolder.frame.size.width / 2
+        if let viewModel = viewModel {
+            imageHolder.configureShadow(color: viewModel.imageShadowColor, offset: viewModel.imageShadowOffset, opacity: viewModel.imageShadowOpacity, radius: viewModel.imageShadowRadius)
+        }
     }
 
     @objc private func save() {
