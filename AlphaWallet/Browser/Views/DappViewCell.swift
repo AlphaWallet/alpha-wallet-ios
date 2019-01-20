@@ -18,8 +18,7 @@ class DappViewCell: UICollectionViewCell {
     private var currentDisplayedImageUrl: URL?
     private let background = UIView()
     private let imageView = UIImageView()
-    //Holder to show the shadow around the image because the UIImageView is clipsToBounds=true
-    private let imageHolder = UIView()
+    lazy private var imageHolder = ContainerViewWithShadow(aroundView: imageView)
     private let titleLabel = UILabel()
     private let domainLabel = UILabel()
     private let deleteButton = UIButton(type: .system)
@@ -49,9 +48,6 @@ class DappViewCell: UICollectionViewCell {
 
         background.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(background)
-
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageHolder.addSubview(imageView)
 
         let stackView = [
             .spacer(height: marginAroundImage),
@@ -85,11 +81,6 @@ class DappViewCell: UICollectionViewCell {
             imageHolder.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -marginAroundImage),
             imageHolder.widthAnchor.constraint(equalTo: imageHolder.heightAnchor),
 
-            imageView.leadingAnchor.constraint(equalTo: imageHolder.leadingAnchor),
-            imageView.trailingAnchor.constraint(equalTo: imageHolder.trailingAnchor),
-            imageView.topAnchor.constraint(equalTo: imageHolder.topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: imageHolder.bottomAnchor),
-
             deleteButton.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -3),
             //Some allowance so the delete button is not clipped while jiggling
             deleteButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 5),
@@ -107,10 +98,12 @@ class DappViewCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        imageHolder.layer.cornerRadius = imageHolder.frame.size.width / 2
         imageView.layer.cornerRadius = imageView.frame.size.width / 2
 
-        imageHolder.layer.shadowPath = UIBezierPath(roundedRect: imageHolder.bounds, cornerRadius: imageHolder.layer.cornerRadius).cgPath
+        imageHolder.layer.cornerRadius = imageHolder.frame.size.width / 2
+        if let viewModel = viewModel {
+            imageHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius)
+        }
     }
 
     func configure(viewModel: DappViewCellViewModel) {
@@ -121,10 +114,7 @@ class DappViewCell: UICollectionViewCell {
         background.backgroundColor = viewModel.backgroundColor
         background.clipsToBounds = true
 
-        imageHolder.layer.shadowColor = viewModel.imageViewShadowColor.cgColor
-        imageHolder.layer.shadowOffset = viewModel.imageViewShadowOffset
-        imageHolder.layer.shadowOpacity = viewModel.imageViewShadowOpacity
-        imageHolder.layer.shadowRadius = viewModel.imageViewShadowRadius
+        imageHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius)
 
         imageView.backgroundColor = viewModel.backgroundColor
         imageView.contentMode = .scaleAspectFill

@@ -25,6 +25,10 @@ class ContainerViewWithShadow: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        updateShadowPath()
+    }
+
+    private func updateShadowPath() {
         layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: layer.cornerRadius).cgPath
     }
 
@@ -33,5 +37,6 @@ class ContainerViewWithShadow: UIView {
         layer.shadowOffset = offset
         layer.shadowOpacity = opacity
         layer.shadowRadius = radius
+        updateShadowPath()
     }
 }
