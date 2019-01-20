@@ -27,7 +27,10 @@ class DappsHomeViewController: UIViewController {
                     vibration.prepare()
                     vibration.impactOccurred()
                 }
+                //TODO should this be a state case in the nav bar, but with a flag (associated value?) whether to disable the buttons?
+                browserNavBar?.disableButtons()
                 guard timerToCheckIfStillEditing == nil else { return }
+
                 timerToCheckIfStillEditing = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] timer in
                     guard let strongSelf = self else { return }
                     if strongSelf.isTopViewController {
@@ -36,6 +39,9 @@ class DappsHomeViewController: UIViewController {
                     }
                 }
             } else {
+                //TODO should this be a state case in the nav bar, but with a flag (associated value?) whether to disable the buttons?
+                browserNavBar?.enableButtons()
+
                 timerToCheckIfStillEditing?.invalidate()
                 timerToCheckIfStillEditing = nil
             }
@@ -44,6 +50,9 @@ class DappsHomeViewController: UIViewController {
     }
     private var timerToCheckIfStillEditing: Timer?
     private var viewModel: DappsHomeViewControllerViewModel
+    private var browserNavBar: DappBrowserNavigationBar? {
+        return navigationController?.navigationBar as? DappBrowserNavigationBar
+    }
     lazy private var dappsCollectionView = { () -> UICollectionView in
         let layout = UICollectionViewFlowLayout()
         let fixedGutter = CGFloat(24)
@@ -157,7 +166,8 @@ extension DappsHomeViewController: UICollectionViewDataSource {
 
     public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DappsHomeViewController.headerIdentifier, for: indexPath) as! DappsHomeViewControllerHeaderView
-        headerView.configure()
+        headerView.delegate = self
+        headerView.configure(viewModel: .init(isEditing: isEditingDapps))
         headerView.myDappsButton.addTarget(self, action: #selector(showMyDappsViewController), for: .touchUpInside)
         headerView.discoverDappsButton.addTarget(self, action: #selector(showDiscoverPageViewController), for: .touchUpInside)
         headerView.historyButton.addTarget(self, action: #selector(showBrowserHistoryViewController), for: .touchUpInside)
@@ -201,5 +211,11 @@ extension DappsHomeViewController: DappViewCellDelegate {
 
     func didLongPressed(dapp: Bookmark, onCell cell: DappViewCell) {
         isEditingDapps = true
+    }
+}
+
+extension DappsHomeViewController: DappsHomeViewControllerHeaderViewDelegate {
+    func didExitEditMode(inHeaderView: DappsHomeViewControllerHeaderView) {
+        isEditingDapps = false
     }
 }
