@@ -5,20 +5,24 @@ import TrustKeystore
 import UIKit
 
 struct AccountViewModel {
+    private let server: RPCServer
+
     let wallet: Wallet
     let current: Wallet?
     let walletBalance: Balance?
-    init(wallet: Wallet, current: Wallet?, walletBalance: Balance?) {
+
+    init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, server: RPCServer) {
         self.wallet = wallet
         self.current = current
         self.walletBalance = walletBalance
+        self.server = server
     }
     var showWatchIcon: Bool {
         return wallet.type == .watch(wallet.address)
     }
     var balance: String {
         let amount = walletBalance?.amountFull ?? "--"
-        return "\(amount) ETH"
+        return "\(amount) \(server.symbol)"
     }
     var address: String {
         return wallet.address.description

@@ -75,8 +75,8 @@
 "wallet.import.button.title" = "Importar monedero";
 "wallets.backup.alertSheet.title" = "Copia de seguridad de clave privada cifrada";
 "transactions.tabbar.item.title" = "Mis transacciones";
-"transactions.received.ether" = "You have received %@ ETH";
-"transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive Ether?";
+"transactions.received.ether" = "You have received %@ %@";
+"transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";
 "transaction.navigation.title" = "Transacción";
 "import.navigation.title" = "Importar monedero";
 "configureTransaction.data.label.title" = "Datos de la transacción (opcional)";
@@ -185,8 +185,8 @@
 "a.wallet.token.sell.enterLinkExpiryDate.title" = "Define la expiración del MagicLink";
 "a.wallet.token.sell.singleTokenSelected.title" = "1 %@ seleccionado";
 "a.wallet.token.sell.multipleTokenSelected.title" = "%d %@ seleccionados";
-"a.wallet.token.sell.perTokenEthPrice.title" = "%@ ETH/%@";
-"a.wallet.token.sell.totalEthPrice.title" = "Total: %@ ETH";
+"a.wallet.token.sell.perTokenEthPrice.title" = "%@ %@/%@";
+"a.wallet.token.sell.totalEthPrice.title" = "Total: %@ %@";
 "a.wallet.token.sell.magicLinkDescription.title" = "Se creará un MagicLink para que los compradores puedan adquirir tu %@.";
 "a.wallet.token.sell.noteTitleLabel.title" = "IMPORTANTE";
 "a.wallet.token.sell.noteLabel.title" = "Antes de que expire el enlace, cualquiera que tenga el MagicLink puede comprar tu %@ con un clic";

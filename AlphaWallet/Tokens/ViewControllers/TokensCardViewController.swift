@@ -154,7 +154,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.dataSource = self
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
-        header.configure(viewModel: .init(tokenObject: tokenObject))
+        header.configure(viewModel: .init(tokenObject: tokenObject, server: config.server))
         tableView.tableHeaderView = header
 
         redeemButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)

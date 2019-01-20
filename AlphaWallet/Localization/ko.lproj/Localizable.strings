@@ -75,8 +75,8 @@
 "wallet.import.button.title" = "지갑 가져오기";
 "wallets.backup.alertSheet.title" = "암호화된 개인 키 백업";
 "transactions.tabbar.item.title" = "내 거래";
-"transactions.received.ether" = "You have received %@ ETH";
-"transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive Ether?";
+"transactions.received.ether" = "You have received %@ %@";
+"transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";
 "transaction.navigation.title" = "거래";
 "import.navigation.title" = "지갑 가져오기";
 "configureTransaction.data.label.title" = "거래 데이터 (선택 사항)";
@@ -185,8 +185,8 @@
 "a.wallet.token.sell.enterLinkExpiryDate.title" = "MagicLink 만료 날짜 설정";
 "a.wallet.token.sell.singleTokenSelected.title" = "1개의 %@이 선택됨";
 "a.wallet.token.sell.multipleTokenSelected.title" = "%d개의 %@이 선택됨";
-"a.wallet.token.sell.perTokenEthPrice.title" = "%@ ETH/%@";
-"a.wallet.token.sell.totalEthPrice.title" = "합계: %@ ETH";
+"a.wallet.token.sell.perTokenEthPrice.title" = "%@ %@/%@";
+"a.wallet.token.sell.totalEthPrice.title" = "합계: %@ %@";
 "a.wallet.token.sell.magicLinkDescription.title" = "구매자가 고객님의 %@을(를) 구매할 수 있도록 MagicLink가 생성됩니다.";
 "a.wallet.token.sell.noteTitleLabel.title" = "중요";
 "a.wallet.token.sell.noteLabel.title" = "링크가 만료되기 전에 MagicLink가 있는 사람은 한 번 클릭하여 고객님의 %@을(를) 구매할 수 있습니다";

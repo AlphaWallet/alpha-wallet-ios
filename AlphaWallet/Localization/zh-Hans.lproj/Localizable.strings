@@ -64,8 +64,8 @@
 "wallet.navigation.title" = "钱包";
 "wallets.backup.alertSheet.title" = "备份加密后的私钥文档";
 "transactions.tabbar.item.title" = "我的账单";
-"transactions.received.ether" = "你已收到 %@ ETH";
-"transactions.received.ether.notification.prompt" = "当你收到 Ether 的时候是否允许系统通知?";
+"transactions.received.ether" = "你已收到 %@ %@";
+"transactions.received.ether.notification.prompt" = "当你收到 %@ 的时候是否允许系统通知?";
 "transaction.navigation.title" = "交易";
 "import.navigation.title" = "导入钱包";
 "configureTransaction.data.label.title" = "交易数据(可选)";
@@ -185,8 +185,8 @@
 "a.wallet.token.sell.enterLinkExpiryDate.title" = "设置 MagicLink 的有效期";
 "a.wallet.token.sell.singleTokenSelected.title" = "已选择1张%@";
 "a.wallet.token.sell.multipleTokenSelected.title" = "已选择%d张%@";
-"a.wallet.token.sell.perTokenEthPrice.title" = "%@ ETH/%@";
-"a.wallet.token.sell.totalEthPrice.title" = "总价: %@ ETH";
+"a.wallet.token.sell.perTokenEthPrice.title" = "%@ %@/%@";
+"a.wallet.token.sell.totalEthPrice.title" = "总价: %@ %@";
 "a.wallet.token.sell.magicLinkDescription.title" = "你将创建一个 MagicLink 销售链接，买家可以通过点击 MagicLink 来购买你的%@.";
 "a.wallet.token.sell.noteTitleLabel.title" = "注意";
 "a.wallet.token.sell.noteLabel.title" = "在MagicLink链接失效前，任何人都可以通过点击链接来购买你的%@";

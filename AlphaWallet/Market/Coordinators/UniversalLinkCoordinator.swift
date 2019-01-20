@@ -332,7 +332,7 @@ class UniversalLinkCoordinator: Coordinator {
         importTokenViewController = ImportMagicTokenViewController(config: config)
         guard let vc = importTokenViewController else { return }
         vc.delegate = self
-        vc.configure(viewModel: .init(state: .validating))
+        vc.configure(viewModel: .init(state: .validating, server: config.server))
         viewController.present(UINavigationController(rootViewController: vc), animated: true)
 	}
 

@@ -12,8 +12,9 @@ class ImportTokenViewControllerTests: FBSnapshotTestCase {
     }
 
     func testImportTokenViewControllerDisplay() {
-        let controller = ImportMagicTokenViewController(config: Config())
-        var viewModel: ImportMagicTokenViewControllerViewModel = .init(state: .validating)
+        let config = Config()
+        let controller = ImportMagicTokenViewController(config: config)
+        var viewModel: ImportMagicTokenViewControllerViewModel = .init(state: .validating, server: config.server)
         let token = Token(id: "1", index: 1, name: "", status: .available, values: ["locality": "", "venue": "", "match": 9, "time": GeneralisedTime(string: "20010203160500+0300")!, "numero": 1, "category": "MATCH CLUB", "countryA": "Team A", "countryB": "Team B"])
         let tokenHolder = TokenHolder(tokens: [token], contractAddress: "0x1", hasAssetDefinition: true)
         let cost: ImportMagicTokenViewControllerViewModel.Cost = .paid(eth: Decimal(1), dollar: Decimal(400))
