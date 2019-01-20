@@ -28,4 +28,12 @@ extension UIImage {
         guard let cgImage = image?.cgImage else { return nil }
         self.init(cgImage: cgImage)
     }
+
+    var withMonoEffect: UIImage? {
+        let context = CIContext()
+        guard let filter = CIFilter(name: "CIPhotoEffectMono") else { return nil }
+        filter.setValue(CIImage(image: self), forKey: kCIInputImageKey)
+        guard let output = filter.outputImage, let image = context.createCGImage(output, from: output.extent) else { return nil }
+        return UIImage(cgImage: image, scale: scale, orientation: imageOrientation)
+    }
 }

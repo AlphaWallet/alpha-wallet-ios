@@ -7,6 +7,13 @@ class DappButton: UIControl {
 
     private let imageView = UIImageView()
     private let label = UILabel()
+    private var viewModel: DappButtonViewModel?
+    override var isEnabled: Bool {
+        didSet {
+            guard let viewModel = viewModel else { return }
+            configure(viewModel: viewModel)
+        }
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -34,7 +41,13 @@ class DappButton: UIControl {
     }
 
     func configure(viewModel: DappButtonViewModel) {
-        imageView.image = viewModel.image
+        self.viewModel = viewModel
+
+        if isEnabled {
+            imageView.image = viewModel.imageForEnabledMode
+        } else {
+            imageView.image = viewModel.imageForDisabledMode
+        }
 
         label.font = viewModel.font
         label.textColor = viewModel.textColor
