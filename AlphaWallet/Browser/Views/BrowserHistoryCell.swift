@@ -8,9 +8,8 @@ class BrowserHistoryCell: UITableViewCell {
 
     private var viewModel: BrowserHistoryCellViewModel?
     private var iconImageViewHolder = ContainerViewWithShadow(aroundView: UIImageView())
-
-    let titleLabel = UILabel()
-    let urlLabel = UILabel()
+    private let titleLabel = UILabel()
+    private let urlLabel = UILabel()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)

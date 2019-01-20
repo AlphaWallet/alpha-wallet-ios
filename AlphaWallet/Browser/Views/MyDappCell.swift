@@ -10,9 +10,8 @@ class MyDappCell: UITableViewCell {
 
     private var iconImageViewHolder = ContainerViewWithShadow(aroundView: UIImageView())
     private var viewModel: MyDappCellViewModel?
-
-    let titleLabel = UILabel()
-    let urlLabel = UILabel()
+    private let titleLabel = UILabel()
+    private let urlLabel = UILabel()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
