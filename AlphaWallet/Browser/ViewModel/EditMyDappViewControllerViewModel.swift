@@ -11,7 +11,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var imageShadowColor: UIColor {
-        return .black
+        return Metrics.DappsHome.Icon.shadowColor
     }
 
     var imageShadowOffset: CGSize {

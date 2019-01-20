@@ -82,7 +82,7 @@ struct DiscoverDappCellViewModel {
     }
 
     var imageViewShadowColor: UIColor {
-        return .black
+        return Metrics.DappsHome.Icon.shadowColor
     }
 
     var imageViewShadowOffset: CGSize {
