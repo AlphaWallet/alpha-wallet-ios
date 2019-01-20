@@ -7,11 +7,9 @@ class BrowserHistoryCell: UITableViewCell {
     static let identifier = "BrowserHistoryCell"
 
     private var viewModel: BrowserHistoryCellViewModel?
-    private let iconImageViewHolder = UIView()
-
-    let iconImageView = UIImageView()
-    let titleLabel = UILabel()
-    let urlLabel = UILabel()
+    private var iconImageViewHolder = ContainerViewWithShadow(aroundView: UIImageView())
+    private let titleLabel = UILabel()
+    private let urlLabel = UILabel()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
@@ -20,9 +18,6 @@ class BrowserHistoryCell: UITableViewCell {
             titleLabel,
             urlLabel
         ].asStackView(axis: .vertical)
-
-        iconImageView.translatesAutoresizingMaskIntoConstraints = false
-        iconImageViewHolder.addSubview(iconImageView)
 
         let mainStackView = [.spacerWidth(29), iconImageViewHolder, .spacerWidth(26), labelsVerticalStackView, .spacerWidth(29)].asStackView(axis: .horizontal, alignment: .center)
         mainStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -34,13 +29,8 @@ class BrowserHistoryCell: UITableViewCell {
             mainStackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 7),
             mainStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -7),
 
-            iconImageView.widthAnchor.constraint(equalToConstant: 44),
-            iconImageView.widthAnchor.constraint(equalTo: iconImageView.heightAnchor),
-
-            iconImageView.leadingAnchor.constraint(equalTo: iconImageViewHolder.leadingAnchor),
-            iconImageView.trailingAnchor.constraint(equalTo: iconImageViewHolder.trailingAnchor),
-            iconImageView.topAnchor.constraint(equalTo: iconImageViewHolder.topAnchor),
-            iconImageView.bottomAnchor.constraint(equalTo: iconImageViewHolder.bottomAnchor),
+            iconImageViewHolder.widthAnchor.constraint(equalToConstant: 44),
+            iconImageViewHolder.widthAnchor.constraint(equalTo: iconImageViewHolder.heightAnchor),
         ])
     }
 
@@ -54,11 +44,9 @@ class BrowserHistoryCell: UITableViewCell {
         backgroundColor = viewModel.backgroundColor
         contentView.backgroundColor = viewModel.backgroundColor
 
-        iconImageViewHolder.layer.shadowColor = viewModel.imageViewShadowColor.cgColor
-        iconImageViewHolder.layer.shadowOffset = viewModel.imageViewShadowOffset
-        iconImageViewHolder.layer.shadowOpacity = viewModel.imageViewShadowOpacity
-        iconImageViewHolder.layer.shadowRadius = viewModel.imageViewShadowRadius
+        iconImageViewHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius, cornerRadius: iconImageViewHolder.frame.size.width / 2)
 
+        let iconImageView = iconImageViewHolder.childView
         iconImageView.backgroundColor = viewModel.backgroundColor
         iconImageView.contentMode = .scaleAspectFill
         iconImageView.clipsToBounds = true
@@ -74,9 +62,7 @@ class BrowserHistoryCell: UITableViewCell {
 
         //TODO ugly hack to get the image view's frame. Can't figure out a good point to retrieve the correct frame otherwise
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-            self.iconImageView.layer.cornerRadius = self.iconImageView.frame.size.width / 2
-            self.iconImageViewHolder.layer.cornerRadius = self.iconImageViewHolder.frame.size.width / 2
-            self.iconImageViewHolder.layer.shadowPath = UIBezierPath(roundedRect: self.iconImageViewHolder.bounds, cornerRadius: self.iconImageViewHolder.layer.cornerRadius).cgPath
+            self.iconImageViewHolder.configureShadow(color: viewModel.imageViewShadowColor, offset: viewModel.imageViewShadowOffset, opacity: viewModel.imageViewShadowOpacity, radius: viewModel.imageViewShadowRadius, cornerRadius: self.iconImageViewHolder.frame.size.width / 2)
         }
     }
 }

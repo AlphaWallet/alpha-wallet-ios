@@ -105,6 +105,7 @@ enum Metrics {
             static let shadowOffset = CGSize(width: 0, height: 0)
             static let shadowOpacity = Float(0.15)
             static let shadowRadius = CGFloat(6)
+            static let shadowColor = UIColor.black
         }
     }
 }
