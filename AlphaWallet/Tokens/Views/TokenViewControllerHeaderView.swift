@@ -84,8 +84,8 @@ class TokenViewControllerHeaderView: UIView {
         unverifiedButton.setTitleColor(Colors.appRed, for: .normal)
         unverifiedButton.setImage(R.image.unverified()?.withRenderingMode(.alwaysOriginal), for: .normal)
         unverifiedButton.setTitle(R.string.localizable.aWalletTokenUnverifiedContract(), for: .normal)
-        unverifiedButton.imageEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 12)
-        unverifiedButton.titleEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: -12)
+        unverifiedButton.imageEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 10)
+        unverifiedButton.titleEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: -10)
         unverifiedButton.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
 
         recentTransactionsLabel.textColor = UIColor(red: 77, green: 77, blue: 77)
