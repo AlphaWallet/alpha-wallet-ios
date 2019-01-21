@@ -26,7 +26,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     private let decimalsTextField = TextField()
     private let balanceTextField = TextField()
     private let nameTextField = TextField()
-    private let saveButton = UIButton(type: .system)
+    private var saveButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
 
     private var scrollViewBottomAnchorConstraint: NSLayoutConstraint!
 
@@ -96,15 +96,16 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
+        let saveButton = saveButtonContainer.childView
         saveButton.addTarget(self, action: #selector(addToken), for: .touchUpInside)
         saveButton.isEnabled = true
         saveButton.setTitle(R.string.localizable.done(), for: .normal)
 
-        let buttonsStackView = [saveButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
+        let buttonsStackView = [.spacerWidth(20), saveButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = Colors.appHighlightGreen
+        footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
         let buttonsHeight = Metrics.greenButtonHeight
@@ -130,7 +131,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -169,12 +170,16 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         nameTextField.label.textAlignment = .center
         nameTextField.label.text = viewModel.nameLabel
 
+        saveButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
+        let saveButton = saveButtonContainer.childView
         saveButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         saveButton.setTitleColor(Colors.veryLightGray, for: .disabled)
+        saveButton.backgroundColor = viewModel.buttonBackgroundColor
         saveButton.titleLabel?.font = viewModel.buttonFont
     }
 
     private func updateSaveButtonBasedOnTokenTypeDetected() {
+        let saveButton = saveButtonContainer.childView
         if tokenType == nil {
             saveButton.isEnabled = false
             saveButton.setTitle(R.string.localizable.detectingTokenTypeTitle(), for: .normal)

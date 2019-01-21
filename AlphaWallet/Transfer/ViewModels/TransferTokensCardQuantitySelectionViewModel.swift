@@ -48,4 +48,24 @@ struct TransferTokensCardQuantitySelectionViewModel {
         let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
 		return R.string.localizable.aWalletTokenTransferQuantityTitle(tokenTypeName.localizedUppercase)
     }
+
+    var actionButtonCornerRadius: CGFloat {
+        return 16
+    }
+
+    var actionButtonShadowColor: UIColor {
+        return .black
+    }
+
+    var actionButtonShadowOffset: CGSize {
+        return .init(width: 1, height: 2)
+    }
+
+    var actionButtonShadowOpacity: Float {
+        return 0.3
+    }
+
+    var actionButtonShadowRadius: CGFloat {
+        return 5
+    }
 }
