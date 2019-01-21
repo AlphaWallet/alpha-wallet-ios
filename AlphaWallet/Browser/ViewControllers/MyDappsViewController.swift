@@ -11,6 +11,7 @@ protocol MyDappsViewControllerDelegate: class {
     func didTapToSelect(dapp: Bookmark, inViewController viewController: MyDappsViewController)
     func delete(dapp: Bookmark, inViewController viewController: MyDappsViewController)
     func dismissKeyboard(inViewController viewController: MyDappsViewController)
+    func didReorderDapps(inViewController viewController: MyDappsViewController)
 }
 
 class MyDappsViewController: UIViewController {
@@ -113,6 +114,11 @@ extension MyDappsViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.dappsCount
+    }
+
+    public func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        bookmarksStore.moveBookmark(fromIndex: sourceIndexPath.row, toIndex: destinationIndexPath.row)
+        delegate?.didReorderDapps(inViewController: self)
     }
 }
 

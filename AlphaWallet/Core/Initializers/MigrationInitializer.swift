@@ -20,7 +20,7 @@ class MigrationInitializer: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 50
+        config.schemaVersion = 51
         config.migrationBlock = { migration, oldSchemaVersion in
             if oldSchemaVersion < 33 {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
@@ -61,6 +61,15 @@ class MigrationInitializer: Initializer {
                             newObject["name"] = ""
                         }
                     }
+                }
+            }
+            if oldSchemaVersion < 51 {
+                var bookmarkOrder = 0
+                migration.enumerateObjects(ofType: Bookmark.className()) { oldObject, newObject in
+                    guard let oldObject = oldObject else { return }
+                    guard let newObject = newObject else { return }
+                    newObject["order"] = bookmarkOrder
+                    bookmarkOrder += 1
                 }
             }
         }
