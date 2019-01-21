@@ -56,4 +56,24 @@ struct TokensCardViewModel {
         }
         return changed
     }
+
+    var actionButtonCornerRadius: CGFloat {
+        return 16
+    }
+
+    var actionButtonShadowColor: UIColor {
+        return .black
+    }
+
+    var actionButtonShadowOffset: CGSize {
+        return .init(width: 1, height: 2)
+    }
+
+    var actionButtonShadowOpacity: Float {
+        return 0.3
+    }
+
+    var actionButtonShadowRadius: CGFloat {
+        return 5
+    }
 }

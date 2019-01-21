@@ -24,7 +24,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     private let noteLabel = UILabel()
     private let noteBorderView = UIView()
     private let tokenRowView: TokenRowView & UIView
-    private let nextButton = UIButton(type: .system)
+    private var nextButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
     private let datePicker = UIDatePicker()
     private let timePicker = UIDatePicker()
     private var viewModel: SetSellTokensCardExpiryDateViewControllerViewModel
@@ -71,6 +71,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(scrollView)
 
+        let nextButton = nextButtonContainer.childView
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
@@ -156,12 +157,12 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
-        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
+        let buttonsStackView = [.spacerWidth(20), nextButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = Colors.appHighlightGreen
+        footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
         let buttonsHeight = Metrics.greenButtonHeight
@@ -208,7 +209,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -317,6 +318,8 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
 
         tokenRowView.stateLabel.isHidden = true
 
+        nextButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
+        let nextButton = nextButtonContainer.childView
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor
         nextButton.titleLabel?.font = viewModel.buttonFont
