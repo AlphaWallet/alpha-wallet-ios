@@ -14,7 +14,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     private let header = TokensCardViewControllerTitleHeader()
     private let tokenRowView: TokenRowView & UIView
     private let targetAddressTextField = AddressTextField()
-    private let nextButton = UIButton(type: .system)
+    private var nextButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
     private var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
     private var tokenHolder: TokenHolder
     private var paymentFlow: PaymentFlow
@@ -59,6 +59,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         targetAddressTextField.delegate = self
         targetAddressTextField.returnKeyType = .done
 
+        let nextButton = nextButtonContainer.childView
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
@@ -76,12 +77,12 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
-        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
+        let buttonsStackView = [.spacerWidth(20), nextButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = Colors.appHighlightGreen
+        footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
         let buttonsHeight = Metrics.greenButtonHeight
@@ -107,7 +108,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
@@ -147,11 +148,12 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
         targetAddressTextField.configureOnce()
 
+        nextButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
+        let nextButton = nextButtonContainer.childView
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor
         nextButton.titleLabel?.font = viewModel.buttonFont
     }
-
 }
 
 extension TransferTokensCardViaWalletAddressViewController: QRCodeReaderDelegate {

@@ -24,7 +24,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     private let amountTextField = AmountTextField()
     private let targetAddressLabel = UILabel()
     private let amountLabel = UILabel()
-    private let nextButton = UIButton(type: .system)
+    private var nextButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
     private var viewModel: SendViewModel!
     private var headerViewModel = SendHeaderViewViewModel()
     private var balanceViewModel: BalanceBaseViewModel?
@@ -98,10 +98,11 @@ class SendViewController: UIViewController, CanScanQRCode {
             amountTextField.isFiatButtonHidden = true
         }
 
+        let nextButton = nextButtonContainer.childView
         nextButton.setTitle(R.string.localizable.send(), for: .normal)
         nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
 
-        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
+        let buttonsStackView = [.spacerWidth(20), nextButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [
@@ -122,7 +123,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = Colors.appHighlightGreen
+        footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
         let buttonsHeight = Metrics.greenButtonHeight
@@ -150,7 +151,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
@@ -178,6 +179,8 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
 
+        nextButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
+        let nextButton = nextButtonContainer.childView
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         nextButton.backgroundColor = viewModel.buttonBackgroundColor
         nextButton.titleLabel?.font = viewModel.buttonFont

@@ -20,7 +20,6 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     //We don't actually use the rounded corner here, but it's a useful "content" view here
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
-    private let footerBar = UIView()
     private let tabBar = ImportWalletTabBar()
     private let keystoreJSONTextView = TextView()
     private let passwordTextField = TextField()
@@ -29,7 +28,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private var keystoreJSONControlsStackView: UIStackView!
     private var privateKeyControlsStackView: UIStackView!
     private var watchControlsStackView: UIStackView!
-    private let importButton = UIButton(type: .system)
+    private var importButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
 
     weak var delegate: ImportWalletViewControllerDelegate?
 
@@ -106,14 +105,16 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
+        let importButton = importButtonContainer.childView
         importButton.setTitle(R.string.localizable.importWalletImportButtonTitle(), for: .normal)
         importButton.addTarget(self, action: #selector(importWallet), for: .touchUpInside)
 
-        let buttonsStackView = [importButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
+        let buttonsStackView = [.spacerWidth(20), importButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
+        let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = Colors.appHighlightGreen
+        footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
         let buttonsHeight = Metrics.greenButtonHeight
@@ -147,7 +148,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -191,6 +192,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
         watchAddressTextField.configureOnce()
 
+        importButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
+        let importButton = importButtonContainer.childView
         importButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
         importButton.backgroundColor = viewModel.buttonBackgroundColor
         importButton.titleLabel?.font = viewModel.buttonFont

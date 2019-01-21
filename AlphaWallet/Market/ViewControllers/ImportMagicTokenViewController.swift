@@ -24,9 +24,8 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private let ethCostLabel = UILabel()
     private let dollarCostLabelLabel = UILabel()
     private let dollarCostLabel = PaddedLabel()
-    private let buttonSeparator = UIView()
-    private let actionButton = UIButton(type: .system)
-    private let cancelButton = UIButton(type: .system)
+    private var actionButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
+    private var cancelButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
     private var viewModel: ImportMagicTokenViewControllerViewModel?
 
     let config: Config
@@ -91,11 +90,13 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         ].asStackView(axis: .vertical, alignment: .center)
         costStackView?.translatesAutoresizingMaskIntoConstraints = false
 
+        let actionButton = actionButtonContainer.childView
         actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
 
+        let cancelButton = cancelButtonContainer.childView
         cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
 
-        let buttonsStackView = [actionButton, cancelButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
+        let buttonsStackView = [.spacerWidth(20), actionButtonContainer, .spacerWidth(7), cancelButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [
@@ -114,15 +115,11 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = Colors.appHighlightGreen
+        footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
         let buttonsHeight = Metrics.greenButtonHeight
         footerBar.addSubview(buttonsStackView)
-
-        buttonSeparator.translatesAutoresizingMaskIntoConstraints = false
-        buttonSeparator.backgroundColor = Colors.appLightButtonSeparator
-        footerBar.addSubview(buttonSeparator)
 
         let separatorThickness = CGFloat(1)
 
@@ -145,14 +142,11 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
             buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
             buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
 
-            buttonSeparator.leadingAnchor.constraint(equalTo: actionButton.trailingAnchor, constant: -separatorThickness / 2),
-            buttonSeparator.trailingAnchor.constraint(equalTo: cancelButton.leadingAnchor, constant: separatorThickness / 2),
-            buttonSeparator.topAnchor.constraint(equalTo: buttonsStackView.topAnchor, constant: 8),
-            buttonSeparator.bottomAnchor.constraint(equalTo: buttonsStackView.bottomAnchor, constant: -8),
+            actionButtonContainer.widthAnchor.constraint(equalTo: cancelButtonContainer.widthAnchor),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             statusLabel.widthAnchor.constraint(equalTo: tokenCardRowView.widthAnchor, constant: -20),
@@ -219,18 +213,21 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
                 activityIndicator.stopAnimating()
             }
 
+            actionButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
+            let actionButton = actionButtonContainer.childView
             actionButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
             actionButton.backgroundColor = viewModel.buttonBackgroundColor
             actionButton.titleLabel?.font = viewModel.buttonFont
             actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
 
+            cancelButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
+            let cancelButton = cancelButtonContainer.childView
             cancelButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
             cancelButton.backgroundColor = viewModel.buttonBackgroundColor
             cancelButton.titleLabel?.font = viewModel.buttonFont
             cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
 
             actionButton.isHidden = !viewModel.showActionButton
-            buttonSeparator.isHidden = !viewModel.showActionButton
 
             updateNavigationRightBarButtons(isVerified: isContractVerified, hasShowInfoButton: false)
         }
