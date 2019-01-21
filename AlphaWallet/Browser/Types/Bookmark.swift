@@ -8,6 +8,7 @@ final class Bookmark: Object {
     @objc dynamic var title: String = ""
     @objc dynamic var id: String = UUID().uuidString
     @objc dynamic var createdAt: Date = Date()
+    @objc dynamic var order: Int = 0
 
     convenience init(
         url: String = "",
