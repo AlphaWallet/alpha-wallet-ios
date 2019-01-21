@@ -20,7 +20,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 	private let subtitleLabel = UILabel()
     private let quantityStepper = NumberStepper()
     private let tokenRowView: TokenRowView & UIView
-    private let nextButton = UIButton(type: .system)
+    private var nextButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
     private var viewModel: RedeemTokenCardQuantitySelectionViewModel
 
     let config: Config
@@ -51,6 +51,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
 
+        let nextButton = nextButtonContainer.childView
         nextButton.setTitle(R.string.localizable.aWalletTokenRedeemButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
@@ -73,12 +74,12 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
-        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
+        let buttonsStackView = [.spacerWidth(20), nextButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = Colors.appHighlightGreen
+        footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
         let buttonsHeight = Metrics.greenButtonHeight
@@ -103,7 +104,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
@@ -160,6 +161,8 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
         tokenRowView.stateLabel.isHidden = true
 
+        nextButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
+        let nextButton = nextButtonContainer.childView
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor
         nextButton.titleLabel?.font = viewModel.buttonFont

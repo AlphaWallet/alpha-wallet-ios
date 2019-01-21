@@ -12,7 +12,7 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
     private let tableView = UITableView(frame: .zero, style: .plain)
-	private let nextButton = UIButton(type: .system)
+    private var nextButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
     private var viewModel: SellTokensCardViewModel
 
     let config: Config
@@ -45,15 +45,16 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
         tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
         roundedBackground.addSubview(tableView)
 
+        let nextButton = nextButtonContainer.childView
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
 
-        let buttonsStackView = [nextButton].asStackView(distribution: .fillEqually, contentHuggingPriority: .required)
+        let buttonsStackView = [.spacerWidth(20), nextButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = Colors.appHighlightGreen
+        footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
         let buttonsHeight = Metrics.greenButtonHeight
@@ -72,7 +73,7 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
@@ -91,6 +92,8 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
         header.configure(title: viewModel.title)
         tableView.tableHeaderView = header
 
+        nextButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
+        let nextButton = nextButtonContainer.childView
         nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		nextButton.backgroundColor = viewModel.buttonBackgroundColor
         nextButton.titleLabel?.font = viewModel.buttonFont
