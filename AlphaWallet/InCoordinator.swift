@@ -361,7 +361,11 @@ class InCoordinator: Coordinator {
             coordinator.start()
             addCoordinator(coordinator)
         case (_, _):
-            navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
+            if let topVC = navigationController.presentedViewController {
+                topVC.displayError(error: InCoordinatorError.onlyWatchAccount)
+            } else {
+                navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
+            }
         }
     }
 
