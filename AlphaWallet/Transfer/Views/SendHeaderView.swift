@@ -31,6 +31,7 @@ class SendHeaderView: UIView {
         valueNameLabel.textAlignment = .center
 
         let bottomRowStack = [blockchainLabel, issuerLabel].asStackView(spacing: 15)
+        blockchainLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
         let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .equalCentering, spacing: 15)
 
