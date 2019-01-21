@@ -495,6 +495,10 @@ extension DappBrowserCoordinator: MyDappsViewControllerDelegate {
     func dismissKeyboard(inViewController viewController: MyDappsViewController) {
         browserNavBar?.cancelEditing()
     }
+
+    func didReorderDapps(inViewController viewController: MyDappsViewController) {
+        refreshDapps()
+    }
 }
 
 extension DappBrowserCoordinator: DappsAutoCompletionViewControllerDelegate {
