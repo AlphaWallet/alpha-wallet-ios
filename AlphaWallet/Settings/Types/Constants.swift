@@ -51,6 +51,9 @@ public struct Constants {
     //xDai APIs
     public static let xDaiAPI = "https://blockscout.com/poa/dai/"
 
+    //POA Network
+    public static let poaNetworkCoreAPI = "https://blockscout.com/poa/core/address/"
+
     //xDai contract page
     public static let xDaiContractPage = "https://blockscout.com/poa/dai/address/"
 
