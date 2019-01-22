@@ -105,7 +105,7 @@ struct Config {
             case .kovan: return "https://api-kovan.etherscan.io"
             case .ropsten: return "https://api-ropsten.etherscan.io"
             case .rinkeby: return "https://api-rinkeby.etherscan.io"
-            case .poa: return "https://poa.trustwalletapp.com"
+            case .poa: return "https://blockscout.com/poa/core/api"
             case .xDai: return "https://blockscout.com/poa/dai/api"
             case .sokol: return "https://trust-sokol.herokuapp.com"
             case .custom:
