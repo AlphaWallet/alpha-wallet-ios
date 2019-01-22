@@ -55,7 +55,7 @@ enum RPCServer: Hashable {
         case .ropsten: return Constants.ropstenEtherscanAPI
         case .rinkeby: return Constants.rinkebyEtherscanAPI
         case .kovan: return Constants.kovanEtherscanAPI
-        case .poa: return Constants.mainnetEtherscanAPI
+        case .poa: return Constants.poaNetworkCoreAPI
         case .sokol: return Constants.mainnetEtherscanAPI
         case .classic: return Constants.mainnetEtherscanAPI
         case .callisto: return Constants.mainnetEtherscanAPI
@@ -71,7 +71,8 @@ enum RPCServer: Hashable {
         case .rinkeby: return Constants.rinkebyEtherscanContractDetailsWebPageURL
         case .kovan: return Constants.kovanEtherscanContractDetailsWebPageURL
         case .xDai: return Constants.xDaiContractPage
-        case .poa, .sokol, .classic, .callisto, .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
+        case .poa: return Constants.poaNetworkCoreAPI
+        case .sokol, .classic, .callisto, .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
         }
     }
 
