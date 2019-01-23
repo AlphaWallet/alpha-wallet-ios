@@ -25,11 +25,11 @@ struct ImportMagicTokenViewControllerViewModel {
     }
     private let emptyCity = "N/A"
     private let emptyTeams = "-"
+    private let server: RPCServer
 
     var state: State
     var tokenHolder: TokenHolder?
     var cost: Cost?
-    let server: RPCServer
 
     var backgroundColor: UIColor {
         return Colors.appBackground

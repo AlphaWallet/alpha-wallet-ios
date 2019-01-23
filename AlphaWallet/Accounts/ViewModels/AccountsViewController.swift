@@ -11,22 +11,16 @@ protocol AccountsViewControllerDelegate: class {
 
 class AccountsViewController: UIViewController {
     private let server: RPCServer
-
-    let headerHeight = CGFloat(70)
-    weak var delegate: AccountsViewControllerDelegate?
-    var allowsAccountDeletion: Bool = false
-    let roundedBackground = RoundedBackground()
-    let header = TokensCardViewControllerTitleHeader()
-    let tableView = UITableView(frame: .zero, style: .plain)
-    var viewModel: AccountsViewModel {
+    private let headerHeight = CGFloat(70)
+    private let roundedBackground = RoundedBackground()
+    private let header = TokensCardViewControllerTitleHeader()
+    private let tableView = UITableView(frame: .zero, style: .plain)
+    private var viewModel: AccountsViewModel {
         return AccountsViewModel(
-            wallets: wallets
+                wallets: wallets
         )
     }
-    var hasWallets: Bool {
-        return !keystore.wallets.isEmpty
-    }
-    var wallets: [Wallet] = [] {
+    private var wallets: [Wallet] = [] {
         didSet {
             tableView.reloadData()
             configure(viewModel: viewModel)
@@ -36,6 +30,12 @@ class AccountsViewController: UIViewController {
     private let keystore: Keystore
     private let balanceCoordinator: GetBalanceCoordinator
     private var etherKeystore = try? EtherKeystore()
+
+    weak var delegate: AccountsViewControllerDelegate?
+    var allowsAccountDeletion: Bool = false
+    var hasWallets: Bool {
+        return !keystore.wallets.isEmpty
+    }
 
     init(keystore: Keystore, balanceCoordinator: GetBalanceCoordinator, server: RPCServer) {
         self.keystore = keystore
