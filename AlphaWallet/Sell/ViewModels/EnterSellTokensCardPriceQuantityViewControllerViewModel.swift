@@ -4,9 +4,10 @@ import Foundation
 import UIKit
 
 struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
+    private let server: RPCServer
+
     let token: TokenObject
     let tokenHolder: TokenHolder
-    let server: RPCServer
     var ethCost: Ether = .zero
     var dollarCost: String = ""
 
