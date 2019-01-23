@@ -49,7 +49,7 @@ struct TokenViewControllerViewModel {
     }
 
     var sendReceiveButtonBackgroundColor: UIColor {
-        return Colors.appHighlightGreen
+        return Colors.appActionButtonGreen
     }
 
     var sendReceiveButtonTitleColor: UIColor {
@@ -61,7 +61,7 @@ struct TokenViewControllerViewModel {
     }
 
     var actionButtonShadowColor: UIColor {
-        return .black
+        return Colors.appActionButtonShadow
     }
 
     var actionButtonShadowOffset: CGSize {
