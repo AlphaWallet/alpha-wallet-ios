@@ -167,11 +167,11 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         case .nativeCryptocurrency, .erc20, .xDai:
             break
         case .erc875:
-            redeemButton.isHidden = false
-            sellButton.isHidden = false
+            redeemButtonContainer.isHidden = false
+            sellButtonContainer.isHidden = false
         case .erc721:
-            redeemButton.isHidden = true
-            sellButton.isHidden = true
+            redeemButtonContainer.isHidden = true
+            sellButtonContainer.isHidden = true
         }
         [redeemButton, sellButton, transferButton].forEach { $0.isEnabled = !isReadOnly }
 
