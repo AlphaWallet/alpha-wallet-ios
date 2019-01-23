@@ -58,7 +58,7 @@ struct SendViewModel {
         return Colors.appWhite
     }
     var buttonBackgroundColor: UIColor {
-        return Colors.appHighlightGreen
+        return Colors.appActionButtonGreen
     }
     var buttonFont: UIFont {
         return Fonts.regular(size: 20)!
@@ -69,7 +69,7 @@ struct SendViewModel {
     }
 
     var actionButtonShadowColor: UIColor {
-        return .black
+        return Colors.appActionButtonShadow 
     }
 
     var actionButtonShadowOffset: CGSize {
