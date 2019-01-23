@@ -36,7 +36,7 @@ struct RedeemTokenCardViewModel {
     }
 
     var buttonBackgroundColor: UIColor {
-        return Colors.appHighlightGreen
+        return Colors.appActionButtonGreen
     }
 
     var buttonFont: UIFont {
@@ -66,7 +66,7 @@ struct RedeemTokenCardViewModel {
     }
 
     var actionButtonShadowColor: UIColor {
-        return .black
+        return Colors.appActionButtonShadow
     }
 
     var actionButtonShadowOffset: CGSize {

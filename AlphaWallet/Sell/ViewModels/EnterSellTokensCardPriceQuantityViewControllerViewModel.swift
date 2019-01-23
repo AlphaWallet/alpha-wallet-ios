@@ -27,7 +27,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var buttonBackgroundColor: UIColor {
-        return Colors.appHighlightGreen
+        return Colors.appActionButtonGreen
     }
 
     var buttonFont: UIFont {
@@ -127,7 +127,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var actionButtonShadowColor: UIColor {
-        return .black
+        return Colors.appActionButtonShadow
     }
 
     var actionButtonShadowOffset: CGSize {
