@@ -17,7 +17,7 @@ class EditMyDappViewController: UIViewController {
     private let urlLabel = UILabel()
     private let urlTextField = UITextField()
     private let cancelButton = UIButton(type: .system)
-    private let saveButton = UIButton(type: .system)
+    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: EditMyDappViewControllerViewModel?
 
     weak var delegate: EditMyDappViewControllerDelegate?
@@ -53,12 +53,7 @@ class EditMyDappViewController: UIViewController {
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(footerBar)
 
-        let buttonsHeight = Metrics.greenButtonHeight
-        saveButton.translatesAutoresizingMaskIntoConstraints = false
-        saveButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-        saveButton.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        saveButton.addTarget(self, action: #selector(save), for: .touchUpInside)
-        footerBar.addSubview(saveButton)
+        footerBar.addSubview(buttonsBar)
 
         cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
@@ -79,14 +74,13 @@ class EditMyDappViewController: UIViewController {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            //Additional allowance so there's a margin below the buttons for non-iPhone X devices
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            saveButton.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 15),
-            saveButton.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -15),
-            saveButton.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            saveButton.heightAnchor.constraint(equalToConstant: buttonsHeight),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
 
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 37),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -37),
@@ -148,11 +142,10 @@ class EditMyDappViewController: UIViewController {
         urlTextField.returnKeyType = .done
         urlTextField.text = viewModel.urlTextFieldText
 
-        saveButton.setTitleColor(viewModel.saveButtonTitleColor, for: .normal)
-        saveButton.backgroundColor = viewModel.saveButtonBackgroundColor
-        saveButton.titleLabel?.font = viewModel.saveButtonFont
+        buttonsBar.configure()
+        let saveButton = buttonsBar.buttons[0]
+        saveButton.addTarget(self, action: #selector(save), for: .touchUpInside)
         saveButton.setTitle(viewModel.saveButtonTitle, for: .normal)
-        saveButton.cornerRadius = viewModel.saveButtonCornerRadius
 
         cancelButton.setTitleColor(viewModel.cancelButtonTitleColor, for: .normal)
         cancelButton.titleLabel?.font = viewModel.cancelButtonFont
