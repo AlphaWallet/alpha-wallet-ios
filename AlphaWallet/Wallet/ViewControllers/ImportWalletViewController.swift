@@ -28,7 +28,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private var keystoreJSONControlsStackView: UIStackView!
     private var privateKeyControlsStackView: UIStackView!
     private var watchControlsStackView: UIStackView!
-    private var importButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
+    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
 
     weak var delegate: ImportWalletViewControllerDelegate?
 
@@ -105,20 +105,12 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
-        let importButton = importButtonContainer.childView
-        importButton.setTitle(R.string.localizable.importWalletImportButtonTitle(), for: .normal)
-        importButton.addTarget(self, action: #selector(importWallet), for: .touchUpInside)
-
-        let buttonsStackView = [.spacerWidth(20), importButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
-        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
-        let buttonsHeight = Metrics.greenButtonHeight
-        footerBar.addSubview(buttonsStackView)
+        footerBar.addSubview(buttonsBar)
 
         let xMargin  = CGFloat(7)
         let heightThatFitsPrivateKeyNicely = CGFloat(100)
@@ -141,14 +133,14 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
-            buttonsStackView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -192,11 +184,10 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
         watchAddressTextField.configureOnce()
 
-        importButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
-        let importButton = importButtonContainer.childView
-        importButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-        importButton.backgroundColor = viewModel.buttonBackgroundColor
-        importButton.titleLabel?.font = viewModel.buttonFont
+        buttonsBar.configure()
+        let importButton = buttonsBar.buttons[0]
+        importButton.setTitle(R.string.localizable.importWalletImportButtonTitle(), for: .normal)
+        importButton.addTarget(self, action: #selector(importWallet), for: .touchUpInside)
     }
 
     func didImport(account: Wallet) {

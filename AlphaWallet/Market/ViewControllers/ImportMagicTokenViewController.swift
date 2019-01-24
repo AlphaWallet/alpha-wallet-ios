@@ -24,8 +24,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private let ethCostLabel = UILabel()
     private let dollarCostLabelLabel = UILabel()
     private let dollarCostLabel = PaddedLabel()
-    private var actionButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
-    private var cancelButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
+    private let buttonsBar = ButtonsBar(numberOfButtons: 2)
     private var viewModel: ImportMagicTokenViewControllerViewModel?
 
     let config: Config
@@ -90,15 +89,6 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         ].asStackView(axis: .vertical, alignment: .center)
         costStackView?.translatesAutoresizingMaskIntoConstraints = false
 
-        let actionButton = actionButtonContainer.childView
-        actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
-
-        let cancelButton = cancelButtonContainer.childView
-        cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
-
-        let buttonsStackView = [.spacerWidth(20), actionButtonContainer, .spacerWidth(7), cancelButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
-        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-
         let stackView = [
             header,
             .spacer(height: 1),
@@ -118,8 +108,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
-        let buttonsHeight = Metrics.greenButtonHeight
-        footerBar.addSubview(buttonsStackView)
+        footerBar.addSubview(buttonsBar)
 
         let separatorThickness = CGFloat(1)
 
@@ -137,16 +126,14 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
             separator2.leadingAnchor.constraint(equalTo: tokenCardRowView.background.leadingAnchor),
             separator2.trailingAnchor.constraint(equalTo: tokenCardRowView.background.trailingAnchor),
 
-            buttonsStackView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
-
-            actionButtonContainer.widthAnchor.constraint(equalTo: cancelButtonContainer.widthAnchor),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             statusLabel.widthAnchor.constraint(equalTo: tokenCardRowView.widthAnchor, constant: -20),
@@ -213,19 +200,15 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
                 activityIndicator.stopAnimating()
             }
 
-            actionButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
-            let actionButton = actionButtonContainer.childView
-            actionButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-            actionButton.backgroundColor = viewModel.buttonBackgroundColor
-            actionButton.titleLabel?.font = viewModel.buttonFont
-            actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
+            buttonsBar.configure()
 
-            cancelButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
-            let cancelButton = cancelButtonContainer.childView
-            cancelButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-            cancelButton.backgroundColor = viewModel.buttonBackgroundColor
-            cancelButton.titleLabel?.font = viewModel.buttonFont
+            let actionButton = buttonsBar.buttons[0]
+            actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
+            actionButton.addTarget(self, action: #selector(actionTapped), for: .touchUpInside)
+
+            let cancelButton = buttonsBar.buttons[1]
             cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
+            cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
 
             actionButton.isHidden = !viewModel.showActionButton
 

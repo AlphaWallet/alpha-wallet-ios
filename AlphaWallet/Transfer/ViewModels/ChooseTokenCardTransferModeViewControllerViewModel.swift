@@ -16,39 +16,11 @@ struct ChooseTokenCardTransferModeViewControllerViewModel {
         return Colors.appBackground
     }
 
-    var buttonTitleColor: UIColor {
-        return Colors.appWhite
-    }
-
-    var buttonBackgroundColor: UIColor {
-        return Colors.appActionButtonGreen
-    }
-
     var buttonFont: UIFont {
         if ScreenChecker().isNarrowScreen() {
             return Fonts.regular(size: 13)!
         } else {
             return Fonts.regular(size: 16)!
         }
-    }
-
-    var actionButtonCornerRadius: CGFloat {
-        return 16
-    }
-
-    var actionButtonShadowColor: UIColor {
-        return Colors.appActionButtonShadow 
-    }
-
-    var actionButtonShadowOffset: CGSize {
-        return .init(width: 1, height: 2)
-    }
-
-    var actionButtonShadowOpacity: Float {
-        return 0.3
-    }
-
-    var actionButtonShadowRadius: CGFloat {
-        return 5
     }
 }

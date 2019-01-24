@@ -25,18 +25,6 @@ struct TransferTokensCardViewModel {
         return R.string.localizable.aWalletTokenTransferSelectTokensTitle(tokenTypeName)
     }
 
-    var buttonTitleColor: UIColor {
-        return Colors.appWhite
-    }
-
-    var buttonBackgroundColor: UIColor {
-        return Colors.appActionButtonGreen
-    }
-
-    var buttonFont: UIFont {
-        return Fonts.regular(size: 20)!
-    }
-
     func toggleSelection(for indexPath: IndexPath) -> [IndexPath] {
         let tokenHolder = item(for: indexPath)
         var changed = [indexPath]
@@ -53,25 +41,5 @@ struct TransferTokensCardViewModel {
             tokenHolder.isSelected = true
         }
         return changed
-    }
-
-    var actionButtonCornerRadius: CGFloat {
-        return 16
-    }
-
-    var actionButtonShadowColor: UIColor {
-        return Colors.appActionButtonShadow
-    }
-
-    var actionButtonShadowOffset: CGSize {
-        return .init(width: 1, height: 2)
-    }
-
-    var actionButtonShadowOpacity: Float {
-        return 0.3
-    }
-
-    var actionButtonShadowRadius: CGFloat {
-        return 5
     }
 }
