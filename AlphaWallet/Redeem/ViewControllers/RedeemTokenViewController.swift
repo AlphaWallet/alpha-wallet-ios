@@ -19,7 +19,7 @@ class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewCont
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private var nextButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
+    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: RedeemTokenCardViewModel
 
     let config: Config
@@ -51,20 +51,12 @@ class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewCont
         tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
         roundedBackground.addSubview(tableView)
 
-        let nextButton = nextButtonContainer.childView
-        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
-        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
-
-        let buttonsStackView = [.spacerWidth(20), nextButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
-        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
-        let buttonsHeight = Metrics.greenButtonHeight
-        footerBar.addSubview(buttonsStackView)
+        footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
@@ -72,14 +64,14 @@ class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewCont
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            buttonsStackView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
@@ -98,11 +90,10 @@ class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewCont
         header.configure(title: viewModel.title)
         tableView.tableHeaderView = header
 
-        nextButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
-        let nextButton = nextButtonContainer.childView
-        nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-		nextButton.backgroundColor = viewModel.buttonBackgroundColor
-        nextButton.titleLabel?.font = viewModel.buttonFont
+        buttonsBar.configure()
+        let nextButton = buttonsBar.buttons[0]
+        nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
+        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
     }
 
     @objc

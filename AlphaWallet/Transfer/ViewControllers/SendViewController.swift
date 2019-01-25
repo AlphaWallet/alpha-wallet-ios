@@ -24,7 +24,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     private let amountTextField = AmountTextField()
     private let targetAddressLabel = UILabel()
     private let amountLabel = UILabel()
-    private var nextButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
+    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: SendViewModel!
     private var headerViewModel = SendHeaderViewViewModel()
     private var balanceViewModel: BalanceBaseViewModel?
@@ -98,13 +98,6 @@ class SendViewController: UIViewController, CanScanQRCode {
             amountTextField.isFiatButtonHidden = true
         }
 
-        let nextButton = nextButtonContainer.childView
-        nextButton.setTitle(R.string.localizable.send(), for: .normal)
-        nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
-
-        let buttonsStackView = [.spacerWidth(20), nextButtonContainer, .spacerWidth(20)].asStackView(contentHuggingPriority: .required)
-        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-
         let stackView = [
             header,
             .spacer(height: ScreenChecker().isNarrowScreen() ? 7: 20),
@@ -126,8 +119,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
-        let buttonsHeight = Metrics.greenButtonHeight
-        footerBar.addSubview(buttonsStackView)
+        footerBar.addSubview(buttonsBar)
         
         NSLayoutConstraint.activate([
             header.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
@@ -144,14 +136,14 @@ class SendViewController: UIViewController, CanScanQRCode {
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
 
-            buttonsStackView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
@@ -179,11 +171,10 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
 
-        nextButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
-        let nextButton = nextButtonContainer.childView
-        nextButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-        nextButton.backgroundColor = viewModel.buttonBackgroundColor
-        nextButton.titleLabel?.font = viewModel.buttonFont
+        buttonsBar.configure()
+        let nextButton = buttonsBar.buttons[0]
+        nextButton.setTitle(R.string.localizable.send(), for: .normal)
+        nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
     }
 
     override func viewDidLayoutSubviews() {

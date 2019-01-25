@@ -13,8 +13,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
     private let tokenRowView: TokenRowView & UIView
-    private var generateMagicLinkButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
-    private var transferNowButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
+    private let buttonsBar = ButtonsBar(numberOfButtons: 2)
     private var viewModel: ChooseTokenCardTransferModeViewControllerViewModel
     private let tokenHolder: TokenHolder
 
@@ -51,14 +50,6 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        let generateMagicLinkButton = generateMagicLinkButtonContainer.childView
-        generateMagicLinkButton.setTitle(R.string.localizable.aWalletTokenTransferModeMagicLinkButtonTitle(), for: .normal)
-        generateMagicLinkButton.addTarget(self, action: #selector(generateMagicLinkTapped), for: .touchUpInside)
-
-        let transferNowButton = transferNowButtonContainer.childView
-        transferNowButton.setTitle("    \(R.string.localizable.aWalletTokenTransferModeNowButtonTitle())    ", for: .normal)
-        transferNowButton.addTarget(self, action: #selector(transferNowTapped), for: .touchUpInside)
-
         tokenRowView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tokenRowView)
 
@@ -69,16 +60,12 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
 
-        let buttonsStackView = [.spacerWidth(18), generateMagicLinkButtonContainer, .spacerWidth(5), transferNowButtonContainer, .spacerWidth(18)].asStackView()
-        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
-        let buttonsHeight = Metrics.greenButtonHeight
-        footerBar.addSubview(buttonsStackView)
+        footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
 			header.heightAnchor.constraint(equalToConstant: 90),
@@ -90,14 +77,14 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
 
-            buttonsStackView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
@@ -136,18 +123,18 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
 
         tokenRowView.stateLabel.isHidden = true
 
-        generateMagicLinkButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
-        let generateMagicLinkButton = generateMagicLinkButtonContainer.childView
-        generateMagicLinkButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-		generateMagicLinkButton.backgroundColor = viewModel.buttonBackgroundColor
-        generateMagicLinkButton.titleLabel?.font = viewModel.buttonFont
-        //Hardcode position because text is very long compared to the transferNowButton
-        generateMagicLinkButton.titleEdgeInsets = .init(top: 0, left: horizontalAdjustmentForLongMagicLinkButtonTitle, bottom: 0, right: 0)
+        buttonsBar.configure()
 
-        transferNowButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
-        let transferNowButton = transferNowButtonContainer.childView
-        transferNowButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-        transferNowButton.backgroundColor = viewModel.buttonBackgroundColor
+        let generateMagicLinkButton = buttonsBar.buttons[0]
+        generateMagicLinkButton.setTitle(R.string.localizable.aWalletTokenTransferModeMagicLinkButtonTitle(), for: .normal)
+        generateMagicLinkButton.addTarget(self, action: #selector(generateMagicLinkTapped), for: .touchUpInside)
+
+        let transferNowButton = buttonsBar.buttons[1]
+        transferNowButton.setTitle("    \(R.string.localizable.aWalletTokenTransferModeNowButtonTitle())    ", for: .normal)
+        transferNowButton.addTarget(self, action: #selector(transferNowTapped), for: .touchUpInside)
+
+        //Button fonts have to be smaller because the button title is too long
+        generateMagicLinkButton.titleLabel?.font = viewModel.buttonFont
         transferNowButton.titleLabel?.font = viewModel.buttonFont
     }
 }
