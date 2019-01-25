@@ -18,8 +18,7 @@ class TokenViewController: UIViewController {
     private let tokensDataStore: TokensDataStore
     private let transferType: TransferType
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private var sendButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
-    private var receiveButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
+    private let buttonsBar = ButtonsBar(numberOfButtons: 2)
 
     weak var delegate: TokenViewControllerDelegate?
 
@@ -42,13 +41,10 @@ class TokenViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(tableView)
 
-        let buttonsStackView = [.spacerWidth(20), sendButtonContainer, .spacerWidth(7), receiveButtonContainer, .spacerWidth(20)].asStackView(axis: .horizontal)
-        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(buttonsStackView)
+        roundedBackground.addSubview(buttonsBar)
 
         configureBalanceViewModel()
 
-        let buttonsHeight = Metrics.greenButtonHeight
         NSLayoutConstraint.activate([
             header.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             header.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
@@ -58,13 +54,10 @@ class TokenViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: roundedBackground.bottomAnchor),
 
-            sendButtonContainer.widthAnchor.constraint(equalTo: receiveButtonContainer.widthAnchor),
-
-            buttonsStackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            buttonsStackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
-            //Some gap so it doesn't stick to the bottom of devices without a bottom safe area
-            buttonsStackView.bottomAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -7),
+            buttonsBar.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            buttonsBar.bottomAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.marginAtBottomScreen),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
@@ -88,21 +81,15 @@ class TokenViewController: UIViewController {
         header.frame.size.height = 220
         tableView.tableHeaderView = header
 
-        sendButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.sendReceiveButtonCornerRadius)
+        buttonsBar.configure()
 
-        receiveButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.sendReceiveButtonCornerRadius)
-
-        let sendButton = sendButtonContainer.childView
+        let sendButton = buttonsBar.buttons[0]
         sendButton.setTitle(viewModel.sendButtonTitle, for: .normal)
         sendButton.addTarget(self, action: #selector(send), for: .touchUpInside)
-        sendButton.setBackgroundColor(viewModel.sendReceiveButtonBackgroundColor, forState: .normal)
-        sendButton.setTitleColor(viewModel.sendReceiveButtonTitleColor, for: .normal)
 
-        let receiveButton = receiveButtonContainer.childView
+        let receiveButton = buttonsBar.buttons[1]
         receiveButton.setTitle(viewModel.receiveButtonTitle, for: .normal)
         receiveButton.addTarget(self, action: #selector(receive), for: .touchUpInside)
-        receiveButton.setBackgroundColor(viewModel.sendReceiveButtonBackgroundColor, forState: .normal)
-        receiveButton.setTitleColor(viewModel.sendReceiveButtonTitleColor, for: .normal)
 
         tableView.reloadData()
     }

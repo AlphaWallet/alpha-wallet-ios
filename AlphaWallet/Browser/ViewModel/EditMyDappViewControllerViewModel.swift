@@ -118,24 +118,8 @@ struct EditMyDappViewControllerViewModel {
         return dapp.url
     }
 
-    var saveButtonTitleColor: UIColor {
-        return Colors.appWhite
-    }
-
-    var saveButtonBackgroundColor: UIColor {
-        return Colors.appHighlightGreen
-    }
-
-    var saveButtonFont: UIFont {
-        return Fonts.regular(size: 20)!
-    }
-
     var saveButtonTitle: String {
         return R.string.localizable.save()
-    }
-
-    var saveButtonCornerRadius: CGFloat {
-        return 16
     }
 
     var cancelButtonTitleColor: UIColor {

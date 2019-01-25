@@ -30,9 +30,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     private let header = TokenCardsViewControllerHeader()
     private let roundedBackground = RoundedBackground()
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private var redeemButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
-    private var transferButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
-    private var sellButtonContainer = ContainerViewWithShadow(aroundView: UIButton(type: .system))
+    private let buttonsBar = ButtonsBar(numberOfButtons: 3)
 
     let config: Config
     var contract: String {
@@ -81,28 +79,12 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
         roundedBackground.addSubview(tableView)
 
-        let redeemButton = redeemButtonContainer.childView
-        redeemButton.setTitle(R.string.localizable.aWalletTokenRedeemButtonTitle(), for: .normal)
-        redeemButton.addTarget(self, action: #selector(redeem), for: .touchUpInside)
-
-        let sellButton = sellButtonContainer.childView
-        sellButton.setTitle(R.string.localizable.aWalletTokenSellButtonTitle(), for: .normal)
-        sellButton.addTarget(self, action: #selector(sell), for: .touchUpInside)
-
-        let transferButton = transferButtonContainer.childView
-        transferButton.setTitle(R.string.localizable.aWalletTokenTransferButtonTitle(), for: .normal)
-        transferButton.addTarget(self, action: #selector(transfer), for: .touchUpInside)
-
-        let buttonsStackView = [.spacerWidth(20), redeemButtonContainer, .spacerWidth(7), sellButtonContainer, .spacerWidth(7), transferButtonContainer, .spacerWidth(20)].asStackView()
-        buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
 
-        let buttonsHeight = Metrics.greenButtonHeight
-        footerBar.addSubview(buttonsStackView)
+        footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
@@ -110,17 +92,14 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            buttonsStackView.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsStackView.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsStackView.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsStackView.heightAnchor.constraint(equalToConstant: buttonsHeight),
-
-            redeemButtonContainer.widthAnchor.constraint(equalTo: sellButtonContainer.widthAnchor),
-            redeemButtonContainer.widthAnchor.constraint(equalTo: transferButtonContainer.widthAnchor),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -buttonsHeight - 3),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
@@ -142,36 +121,29 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         header.configure(viewModel: .init(tokenObject: tokenObject, server: config.server))
         tableView.tableHeaderView = header
 
-        redeemButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
-        let redeemButton = redeemButtonContainer.childView
-        redeemButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-        redeemButton.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
-		redeemButton.backgroundColor = viewModel.buttonBackgroundColor
-        redeemButton.titleLabel?.font = viewModel.buttonFont
+        buttonsBar.configure()
 
-        sellButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
-        let sellButton = sellButtonContainer.childView
-        sellButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-        sellButton.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
-        sellButton.backgroundColor = viewModel.buttonBackgroundColor
-        sellButton.titleLabel?.font = viewModel.buttonFont
+        let redeemButton = buttonsBar.buttons[0]
+        redeemButton.setTitle(R.string.localizable.aWalletTokenRedeemButtonTitle(), for: .normal)
+        redeemButton.addTarget(self, action: #selector(redeem), for: .touchUpInside)
 
-        transferButtonContainer.configureShadow(color: viewModel.actionButtonShadowColor, offset: viewModel.actionButtonShadowOffset, opacity: viewModel.actionButtonShadowOpacity, radius: viewModel.actionButtonShadowRadius, cornerRadius: viewModel.actionButtonCornerRadius)
-        let transferButton = transferButtonContainer.childView
-        transferButton.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-        transferButton.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
-        transferButton.backgroundColor = viewModel.buttonBackgroundColor
-        transferButton.titleLabel?.font = viewModel.buttonFont
+        let sellButton = buttonsBar.buttons[1]
+        sellButton.setTitle(R.string.localizable.aWalletTokenSellButtonTitle(), for: .normal)
+        sellButton.addTarget(self, action: #selector(sell), for: .touchUpInside)
+
+        let transferButton = buttonsBar.buttons[2]
+        transferButton.setTitle(R.string.localizable.aWalletTokenTransferButtonTitle(), for: .normal)
+        transferButton.addTarget(self, action: #selector(transfer), for: .touchUpInside)
 
         switch tokenObject.type {
         case .nativeCryptocurrency, .erc20, .xDai:
             break
         case .erc875:
-            redeemButtonContainer.isHidden = false
-            sellButtonContainer.isHidden = false
+            buttonsBar.buttons[0].isHidden = false
+            buttonsBar.buttons[1].isHidden = false
         case .erc721:
-            redeemButtonContainer.isHidden = true
-            sellButtonContainer.isHidden = true
+            buttonsBar.buttons[0].isHidden = true
+            buttonsBar.buttons[1].isHidden = true
         }
         [redeemButton, sellButton, transferButton].forEach { $0.isEnabled = !isReadOnly }
 

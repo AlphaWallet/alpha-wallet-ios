@@ -100,8 +100,6 @@ extension UISegmentedControl {
 }
 
 enum Metrics {
-    static let greenButtonHeight = CGFloat(48)
-
     enum DappsHome {
         enum Icon {
             static let shadowOffset = CGSize(width: 0, height: 0)

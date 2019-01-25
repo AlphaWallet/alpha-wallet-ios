@@ -50,36 +50,4 @@ struct NewTokenViewModel {
     var nameLabel: String {
         return R.string.localizable.name().uppercased()
     }
-
-    var buttonTitleColor: UIColor {
-        return Colors.appWhite
-    }
-
-    var buttonBackgroundColor: UIColor {
-        return Colors.appActionButtonGreen
-    }
-
-    var buttonFont: UIFont {
-        return Fonts.regular(size: 20)!
-    }
-
-    var actionButtonCornerRadius: CGFloat {
-        return 16
-    }
-
-    var actionButtonShadowColor: UIColor {
-        return Colors.appActionButtonShadow
-    }
-
-    var actionButtonShadowOffset: CGSize {
-        return .init(width: 1, height: 2)
-    }
-
-    var actionButtonShadowOpacity: Float {
-        return 0.3
-    }
-
-    var actionButtonShadowRadius: CGFloat {
-        return 5
-    }
 }
