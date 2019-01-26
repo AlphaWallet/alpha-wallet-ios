@@ -57,10 +57,11 @@ public class MarketQueueHandler {
                 indices: indices.hexa2Bytes.map({ UInt16($0) }),
                 expiry: BigUInt(expiry, radix: 16)!,
                 contractAddress: contractAddress,
-                start: BigUInt(orderObj["start"].string!)!,
-                count: orderObj["count"].intValue,
+                count: BigUInt(orderObj["count"].intValue),
+                nonce: BigUInt(0),
                 tokenIds: [BigUInt](),
-                spawnable: false
+                spawnable: false,
+                nativeCurrencyDrop: false
         )
         let signedOrder = SignedOrder(
                 order: order,
@@ -75,9 +76,9 @@ public class MarketQueueHandler {
                                  publicKey: String,
                                  callback: @escaping (_ result: Any) -> Void) {
         //TODO get encoding for count and start
-        let query: String = baseURL + "public-key/" + publicKey + "?start=" +
-                signedOrders[0].order.start.description + ";count=" + signedOrders.count.description
-        var messageBytes: [UInt8] = signedOrders[0].message
+        let query: String = baseURL + "public-key/" + publicKey + "?start=0" +
+                ";count=" + signedOrders.count.description
+        var messageBytes = signedOrders[0].message
         print(signedOrders[0].signature.count)
 
         for i in 0...signedOrders.count - 1 {

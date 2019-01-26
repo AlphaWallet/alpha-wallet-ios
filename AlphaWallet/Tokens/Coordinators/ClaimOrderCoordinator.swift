@@ -1,7 +1,6 @@
 //
 // Created by James Sangalli on 7/3/18.
 // Copyright © 2018 Stormbird PTE. LTD.
-// When someone takes an order and pays for it, we call it "claim an order"
 //
 
 import Foundation
@@ -32,6 +31,10 @@ class ClaimOrderCoordinator {
 
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
             claimSpawnableOrder(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient) { result in
+                completion(result)
+            }
+        } else if signedOrder.order.nativeCurrencyDrop {
+            claimNativeCurrency(signedOrder: signedOrder, v: v, r: r, s: s, recipient: recipient) { result in
                 completion(result)
             }
         } else {
@@ -72,6 +75,37 @@ class ClaimOrderCoordinator {
         let request = ClaimERC875Spawnable(tokenIds: tokenIds, v: v, r: r, s: s, expiry: expiry, recipient: recipient)
         web3.request(request: request) { result in
             switch result {
+            case .success(let res):
+                print(res)
+                completion(.success(res))
+            case .failure(let err):
+                print(err)
+                completion(.failure(AnyError(err)))
+            }
+        }
+    }
+
+    func claimNativeCurrency(
+            signedOrder: SignedOrder,
+            v: UInt8,
+            r: String,
+            s: String,
+            recipient: String,
+            completion: @escaping (Result<String, AnyError>) -> Void
+    ) {
+        let request = ClaimNativeCurrencyOrder(
+                contractAddress: signedOrder.order.contractAddress,
+                nonce: signedOrder.order.nonce,
+                expiry: signedOrder.order.expiry,
+                amount: signedOrder.order.count,
+                v: v,
+                r: r,
+                s: s,
+                receiver: recipient
+        )
+        web3.request(request: request) { result in
+            switch result {
+            //TODO handle cases for UI
             case .success(let res):
                 print(res)
                 completion(.success(res))
