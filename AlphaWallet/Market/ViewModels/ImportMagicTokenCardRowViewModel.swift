@@ -45,9 +45,8 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
         return importMagicTokenViewControllerViewModel.onlyShowTitle
     }
 
-    //TODO should not check for the contract this way
     var isMeetupContract: Bool {
-        return importMagicTokenViewControllerViewModel.tokenHolder?.values["building"] != nil
+        return importMagicTokenViewControllerViewModel.tokenHolder?.isSpawnableMeetupContract ?? false
     }
 
     func subscribeExpired(withBlock block: @escaping (String) -> Void) {

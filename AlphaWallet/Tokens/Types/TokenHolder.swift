@@ -41,4 +41,8 @@ class TokenHolder {
     var status: Token.Status {
         return tokens[0].status
     }
+
+    var isSpawnableMeetupContract: Bool {
+        return tokens[0].isSpawnableMeetupContract
+    }
 }
