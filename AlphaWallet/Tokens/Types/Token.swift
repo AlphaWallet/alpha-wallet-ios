@@ -38,4 +38,9 @@ struct Token {
                 ]
         )
     }
+
+    //TODO have a better way to test for spawnable meetup contracts
+    var isSpawnableMeetupContract: Bool {
+        return values["building"] != nil
+    }
 }

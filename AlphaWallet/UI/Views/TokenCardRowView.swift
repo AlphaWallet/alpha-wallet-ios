@@ -26,18 +26,18 @@ class TokenCardRowView: UIView {
 			detailsRowStack?.isHidden = !areDetailsVisible
 		}
     }
-	private let bottomRowStack: UIStackView
+	private let row3: UIStackView
 	private let spaceAboveBottomRowStack = UIView.spacer(height: 10)
 	private var onlyShowTitle: Bool = false {
 		didSet {
 			if onlyShowTitle {
 				canDetailsBeVisible = false
-				bottomRowStack.isHidden = true
+				row3.isHidden = true
 				venueLabel.isHidden = true
 				spaceAboveBottomRowStack.isHidden = true
 			} else {
 				canDetailsBeVisible = true
-				bottomRowStack.isHidden = false
+				row3.isHidden = false
 				venueLabel.isHidden = false
 				spaceAboveBottomRowStack.isHidden = false
 			}
@@ -47,7 +47,7 @@ class TokenCardRowView: UIView {
 	init(showCheckbox: Bool = false) {
         self.showCheckbox = showCheckbox
 
-		bottomRowStack = [dateImageView, dateLabel, seatRangeImageView, teamsLabel, .spacerWidth(7), categoryImageView, matchLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
+		row3 = [dateImageView, dateLabel, seatRangeImageView, teamsLabel, .spacerWidth(7), categoryImageView, matchLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
 
 		super.init(frame: .zero)
 
@@ -59,8 +59,9 @@ class TokenCardRowView: UIView {
 		background.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(background)
 
-		let topRowStack = [tokenCountLabel, categoryLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
-		let detailsRow0 = [timeLabel, cityLabel].asStackView(contentHuggingPriority: .required)
+		let row0 = [tokenCountLabel, categoryLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
+        timeLabel.setContentHuggingPriority(.required, for: .horizontal)
+		let detailsRow0 = [timeLabel, cityLabel].asStackView(contentHuggingPriority: .required, alignment: .top)
 
 		detailsRowStack = [
 			.spacer(height: 10),
@@ -68,13 +69,13 @@ class TokenCardRowView: UIView {
 		].asStackView(axis: .vertical, contentHuggingPriority: .required)
 		detailsRowStack?.isHidden = true
 
-		//TODO variable names are unwieldy after several rounds of changes, fix them
+		let row1 = venueLabel
 		let stackView = [
 			stateLabel,
-			topRowStack,
-			venueLabel,
+			row0,
+			row1,
             spaceAboveBottomRowStack,
-			bottomRowStack,
+			row3,
 			detailsRowStack!,
 		].asStackView(axis: .vertical, contentHuggingPriority: .required)
 		stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -106,6 +107,8 @@ class TokenCardRowView: UIView {
 			stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
 			stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
 			stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
+
+			detailsRowStack!.widthAnchor.constraint(equalTo: stackView.widthAnchor),
 
 			background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
 			background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
@@ -159,6 +162,7 @@ class TokenCardRowView: UIView {
 
 		cityLabel.textColor = viewModel.subtitleColor
 		cityLabel.font = viewModel.detailsFont
+		cityLabel.numberOfLines = 0
 
 		timeLabel.textColor = viewModel.subtitleColor
 		timeLabel.font = viewModel.detailsFont
@@ -184,47 +188,21 @@ class TokenCardRowView: UIView {
 
 		onlyShowTitle = viewModel.onlyShowTitle
 
-        //TODO this if-else-if is so easy to miss implementing either the if(s) because we aren't taking advantage of type-checking
-		if let vm = viewModel as? TokenCardRowViewModel {
-			vm.subscribeBuilding { [weak self] building in
-				guard let strongSelf = self else { return }
-				strongSelf.categoryLabel.text = building
+		if viewModel.isMeetupContract {
+			teamsLabel.text = viewModel.match
+			matchLabel.text = viewModel.numero
+
+			viewModel.subscribeBuilding { [weak self] building in
+				self?.venueLabel.text = building
 			}
 
-			vm.subscribeLocality { [weak self] locality in
+			viewModel.subscribeStreetLocalityStateCountry { [weak self] streetLocalityStateCountry in
 				guard let strongSelf = self else { return }
-				strongSelf.cityLabel.text = ", \(locality)"
+				strongSelf.timeLabel.text = ""
+				strongSelf.cityLabel.text = "\(viewModel.time), \(streetLocalityStateCountry)"
 			}
-
-			vm.subscribeExpired { [weak self] expired in
-				guard let strongSelf = self else { return }
-				strongSelf.teamsLabel.text = expired
-			}
-
-			vm.subscribeStreetStateCountry { [weak self] streetStateCountry in
-				guard let strongSelf = self else { return }
-				strongSelf.venueLabel.text = streetStateCountry
-			}
-		} else if let vm = viewModel as? ImportMagicTokenCardRowViewModel {
-			vm.subscribeBuilding { [weak self] building in
-				guard let strongSelf = self else { return }
-				strongSelf.categoryLabel.text = building
-			}
-
-			vm.subscribeLocality { [weak self] locality in
-				guard let strongSelf = self else { return }
-				strongSelf.cityLabel.text = ", \(locality)"
-			}
-
-			vm.subscribeExpired { [weak self] expired in
-				guard let strongSelf = self else { return }
-				strongSelf.teamsLabel.text = expired
-			}
-
-			vm.subscribeStreetStateCountry { [weak self] streetStateCountry in
-				guard let strongSelf = self else { return }
-				strongSelf.venueLabel.text = streetStateCountry
-			}
+		} else {
+			//do nothing
 		}
 
 		adjustmentsToHandleWhenCategoryLabelTextIsTooLong()
