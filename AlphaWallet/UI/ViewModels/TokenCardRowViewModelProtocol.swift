@@ -12,7 +12,11 @@ protocol TokenCardRowViewModelProtocol {
     var venue: String { get }
     var date: String { get }
     var time: String { get }
+    var numero: String { get }
     var onlyShowTitle: Bool { get }
+    var isMeetupContract: Bool { get }
+    func subscribeStreetLocalityStateCountry(withBlock block: @escaping (String) -> Void)
+    func subscribeBuilding(withBlock block: @escaping (String) -> Void)
 }
 
 extension TokenCardRowViewModelProtocol {

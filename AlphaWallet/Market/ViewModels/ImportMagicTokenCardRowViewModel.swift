@@ -37,6 +37,10 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
         return importMagicTokenViewControllerViewModel.date
     }
 
+    var numero: String {
+        return importMagicTokenViewControllerViewModel.numero
+    }
+
     var time: String {
         return importMagicTokenViewControllerViewModel.time
     }
@@ -45,9 +49,8 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
         return importMagicTokenViewControllerViewModel.onlyShowTitle
     }
 
-    //TODO should not check for the contract this way
     var isMeetupContract: Bool {
-        return importMagicTokenViewControllerViewModel.tokenHolder?.values["building"] != nil
+        return importMagicTokenViewControllerViewModel.tokenHolder?.isSpawnableMeetupContract ?? false
     }
 
     func subscribeExpired(withBlock block: @escaping (String) -> Void) {
@@ -86,9 +89,9 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    func subscribeStreetStateCountry(withBlock block: @escaping (String) -> Void) {
-        func updateStreetStateCountry(street: String?, state: String?, country: String?) {
-            let values = [street, state, country].compactMap { $0 }
+    func subscribeStreetLocalityStateCountry(withBlock block: @escaping (String) -> Void) {
+        func updateStreetLocalityStateCountry(street: String?, locality: String?, state: String?, country: String?) {
+            let values = [street, locality, state, country].compactMap { $0 }
             let string = values.joined(separator: ", ")
             block(string)
         }
@@ -96,8 +99,9 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
             subscribableAssetAttributeValue.subscribable.subscribe { value in
                 guard let tokenHolder = self.importMagicTokenViewControllerViewModel.tokenHolder else { return }
                 if let value = value as? String {
-                    updateStreetStateCountry(
+                    updateStreetLocalityStateCountry(
                             street: value,
+                            locality: (tokenHolder.values["locality"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                             state: (tokenHolder.values["state"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                             country: tokenHolder.values["country"] as? String
                     )
@@ -108,9 +112,23 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
             subscribableAssetAttributeValue.subscribable.subscribe { value in
                 guard let tokenHolder = self.importMagicTokenViewControllerViewModel.tokenHolder else { return }
                 if let value = value as? String {
-                    updateStreetStateCountry(
+                    updateStreetLocalityStateCountry(
                             street: (tokenHolder.values["street"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                            locality: (tokenHolder.values["locality"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                             state: value,
+                            country: tokenHolder.values["country"] as? String
+                    )
+                }
+            }
+        }
+        if let subscribableAssetAttributeValue = importMagicTokenViewControllerViewModel.tokenHolder?.values["locality"] as? SubscribableAssetAttributeValue {
+            subscribableAssetAttributeValue.subscribable.subscribe { value in
+                guard let tokenHolder = self.importMagicTokenViewControllerViewModel.tokenHolder else { return }
+                if let value = value as? String {
+                    updateStreetLocalityStateCountry(
+                            street: (tokenHolder.values["street"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                            locality: value,
+                            state: (tokenHolder.values["state"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                             country: tokenHolder.values["country"] as? String
                     )
                 }
@@ -118,8 +136,9 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
         if let country = importMagicTokenViewControllerViewModel.tokenHolder?.values["country"] as? String {
             guard let tokenHolder = self.importMagicTokenViewControllerViewModel.tokenHolder else { return }
-            updateStreetStateCountry(
+            updateStreetLocalityStateCountry(
                     street: (tokenHolder.values["street"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                    locality: (tokenHolder.values["locality"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                     state: (tokenHolder.values["state"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                     country: country
             )

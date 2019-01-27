@@ -23,9 +23,8 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    //TODO should not check for the contract this way
     var isMeetupContract: Bool {
-        return tokenHolder.values["building"] != nil
+        return tokenHolder.isSpawnableMeetupContract
     }
 
     var teams: String {
@@ -58,6 +57,14 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
     var date: String {
         let value = tokenHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
         return value.formatAsShortDateString()
+    }
+
+    var numero: String {
+        if let num = tokenHolder.values["numero"] as? Int {
+            return String(num)
+        } else {
+            return "N/A"
+        }
     }
 
     func subscribeExpired(withBlock block: @escaping (String) -> Void) {
@@ -96,17 +103,18 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    func subscribeStreetStateCountry(withBlock block: @escaping (String) -> Void) {
-        func updateStreetStateCountry(street: String?, state: String?, country: String?) {
-            let values = [street, state, country].compactMap { $0 }
+    func subscribeStreetLocalityStateCountry(withBlock block: @escaping (String) -> Void) {
+        func updateStreetLocalityStateCountry(street: String?, locality: String?, state: String?, country: String?) {
+            let values = [street, locality, state, country].compactMap { $0 }
             let string = values.joined(separator: ", ")
             block(string)
         }
         if let subscribableAssetAttributeValue = tokenHolder.values["street"] as? SubscribableAssetAttributeValue {
             subscribableAssetAttributeValue.subscribable.subscribe { value in
                 if let value = value as? String {
-                    updateStreetStateCountry(
+                    updateStreetLocalityStateCountry(
                             street: value,
+                            locality: (self.tokenHolder.values["locality"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                             state: (self.tokenHolder.values["state"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                             country: self.tokenHolder.values["country"] as? String
                     )
@@ -116,17 +124,33 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         if let subscribableAssetAttributeValue = tokenHolder.values["state"] as? SubscribableAssetAttributeValue {
             subscribableAssetAttributeValue.subscribable.subscribe { value in
                 if let value = value as? String {
-                    updateStreetStateCountry(
+                    updateStreetLocalityStateCountry(
                             street: (self.tokenHolder.values["street"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                            locality: (self.tokenHolder.values["locality"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                             state: value,
                             country: self.tokenHolder.values["country"] as? String
                     )
                 }
             }
         }
+
+        if let subscribableAssetAttributeValue = tokenHolder.values["locality"] as? SubscribableAssetAttributeValue {
+            subscribableAssetAttributeValue.subscribable.subscribe { value in
+                if let value = value as? String {
+                    updateStreetLocalityStateCountry(
+                            street: (self.tokenHolder.values["street"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                            locality: value,
+                            state: (self.tokenHolder.values["state"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                            country: self.tokenHolder.values["country"] as? String
+                    )
+                }
+            }
+        }
+
         if let country = tokenHolder.values["country"] as? String {
-            updateStreetStateCountry(
+            updateStreetLocalityStateCountry(
                     street: (self.tokenHolder.values["street"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
+                    locality: (self.tokenHolder.values["locality"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                     state: (self.tokenHolder.values["state"] as? SubscribableAssetAttributeValue)?.subscribable.value as? String,
                     country: country
             )
