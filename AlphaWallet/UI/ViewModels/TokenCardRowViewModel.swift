@@ -23,9 +23,8 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    //TODO should not check for the contract this way
     var isMeetupContract: Bool {
-        return tokenHolder.values["building"] != nil
+        return tokenHolder.isSpawnableMeetupContract
     }
 
     var teams: String {
