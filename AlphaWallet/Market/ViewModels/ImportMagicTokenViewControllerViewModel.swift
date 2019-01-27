@@ -147,6 +147,15 @@ struct ImportMagicTokenViewControllerViewModel {
         }
     }
 
+    var numero: String {
+        guard let tokenHolder = tokenHolder else { return "" }
+        if let num = tokenHolder.values["numero"] as? Int {
+            return String(num)
+        } else {
+            return "N/A"
+        }
+    }
+
     var statusText: String {
         switch state {
         case .validating:
@@ -306,7 +315,16 @@ struct ImportMagicTokenViewControllerViewModel {
         case .validating, .processing:
             return true
         case .promptImport, .succeeded, .failed:
-            return (teams.isEmpty && city.isEmpty) || (teams == emptyTeams && city == emptyCity)
+            if let tokenHolder = tokenHolder, tokenHolder.isSpawnableMeetupContract {
+                //Not the best check, but we assume that even if the data is just partially available, we can show something
+                if let building = (tokenHolder.values["building"] as! SubscribableAssetAttributeValue).subscribable.value as? String {
+                    return false
+                } else {
+                    return true
+                }
+            } else {
+                return (teams.isEmpty && city.isEmpty) || (teams == emptyTeams && city == emptyCity)
+            }
         }
     }
 

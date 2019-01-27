@@ -60,7 +60,7 @@ class TokenCardRowView: UIView {
 		addSubview(background)
 
 		let topRowStack = [tokenCountLabel, categoryLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
-		let detailsRow0 = [timeLabel, cityLabel].asStackView(contentHuggingPriority: .required)
+		let detailsRow0 = [timeLabel, .spacerWidth(2), cityLabel].asStackView(contentHuggingPriority: .required)
 
 		detailsRowStack = [
 			.spacer(height: 10),
@@ -184,47 +184,19 @@ class TokenCardRowView: UIView {
 
 		onlyShowTitle = viewModel.onlyShowTitle
 
-        //TODO this if-else-if is so easy to miss implementing either the if(s) because we aren't taking advantage of type-checking
-		if let vm = viewModel as? TokenCardRowViewModel {
-			vm.subscribeBuilding { [weak self] building in
-				guard let strongSelf = self else { return }
-				strongSelf.categoryLabel.text = building
+		if viewModel.isMeetupContract {
+			teamsLabel.text = viewModel.match
+			matchLabel.text = viewModel.numero
+
+			viewModel.subscribeBuilding { [weak self] building in
+				self?.venueLabel.text = building
 			}
 
-			vm.subscribeLocality { [weak self] locality in
-				guard let strongSelf = self else { return }
-				strongSelf.cityLabel.text = ", \(locality)"
+			viewModel.subscribeStreetLocalityStateCountry { [weak self] streetLocalityStateCountry in
+				self?.cityLabel.text = streetLocalityStateCountry
 			}
-
-			vm.subscribeExpired { [weak self] expired in
-				guard let strongSelf = self else { return }
-				strongSelf.teamsLabel.text = expired
-			}
-
-			vm.subscribeStreetStateCountry { [weak self] streetStateCountry in
-				guard let strongSelf = self else { return }
-				strongSelf.venueLabel.text = streetStateCountry
-			}
-		} else if let vm = viewModel as? ImportMagicTokenCardRowViewModel {
-			vm.subscribeBuilding { [weak self] building in
-				guard let strongSelf = self else { return }
-				strongSelf.categoryLabel.text = building
-			}
-
-			vm.subscribeLocality { [weak self] locality in
-				guard let strongSelf = self else { return }
-				strongSelf.cityLabel.text = ", \(locality)"
-			}
-
-			vm.subscribeExpired { [weak self] expired in
-				guard let strongSelf = self else { return }
-				strongSelf.teamsLabel.text = expired
-			}
-
-			vm.subscribeStreetStateCountry { [weak self] streetStateCountry in
-				guard let strongSelf = self else { return }
-				strongSelf.venueLabel.text = streetStateCountry
-			}
+		} else {
+			//do nothing
 		}
 
 		adjustmentsToHandleWhenCategoryLabelTextIsTooLong()
