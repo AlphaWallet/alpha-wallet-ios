@@ -26,18 +26,18 @@ class TokenCardRowView: UIView {
 			detailsRowStack?.isHidden = !areDetailsVisible
 		}
     }
-	private let bottomRowStack: UIStackView
+	private let row3: UIStackView
 	private let spaceAboveBottomRowStack = UIView.spacer(height: 10)
 	private var onlyShowTitle: Bool = false {
 		didSet {
 			if onlyShowTitle {
 				canDetailsBeVisible = false
-				bottomRowStack.isHidden = true
+				row3.isHidden = true
 				venueLabel.isHidden = true
 				spaceAboveBottomRowStack.isHidden = true
 			} else {
 				canDetailsBeVisible = true
-				bottomRowStack.isHidden = false
+				row3.isHidden = false
 				venueLabel.isHidden = false
 				spaceAboveBottomRowStack.isHidden = false
 			}
@@ -47,7 +47,7 @@ class TokenCardRowView: UIView {
 	init(showCheckbox: Bool = false) {
         self.showCheckbox = showCheckbox
 
-		bottomRowStack = [dateImageView, dateLabel, seatRangeImageView, teamsLabel, .spacerWidth(7), categoryImageView, matchLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
+		row3 = [dateImageView, dateLabel, seatRangeImageView, teamsLabel, .spacerWidth(7), categoryImageView, matchLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
 
 		super.init(frame: .zero)
 
@@ -59,7 +59,7 @@ class TokenCardRowView: UIView {
 		background.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(background)
 
-		let topRowStack = [tokenCountLabel, categoryLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
+		let row0 = [tokenCountLabel, categoryLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
 		let detailsRow0 = [timeLabel, .spacerWidth(2), cityLabel].asStackView(contentHuggingPriority: .required)
 
 		detailsRowStack = [
@@ -68,13 +68,13 @@ class TokenCardRowView: UIView {
 		].asStackView(axis: .vertical, contentHuggingPriority: .required)
 		detailsRowStack?.isHidden = true
 
-		//TODO variable names are unwieldy after several rounds of changes, fix them
+		let row1 = venueLabel
 		let stackView = [
 			stateLabel,
-			topRowStack,
-			venueLabel,
+			row0,
+			row1,
             spaceAboveBottomRowStack,
-			bottomRowStack,
+			row3,
 			detailsRowStack!,
 		].asStackView(axis: .vertical, contentHuggingPriority: .required)
 		stackView.translatesAutoresizingMaskIntoConstraints = false
