@@ -60,7 +60,8 @@ class TokenCardRowView: UIView {
 		addSubview(background)
 
 		let row0 = [tokenCountLabel, categoryLabel].asStackView(spacing: 15, contentHuggingPriority: .required)
-		let detailsRow0 = [timeLabel, .spacerWidth(2), cityLabel].asStackView(contentHuggingPriority: .required)
+        timeLabel.setContentHuggingPriority(.required, for: .horizontal)
+		let detailsRow0 = [timeLabel, cityLabel].asStackView(contentHuggingPriority: .required, alignment: .top)
 
 		detailsRowStack = [
 			.spacer(height: 10),
@@ -106,6 +107,8 @@ class TokenCardRowView: UIView {
 			stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
 			stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
 			stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
+
+			detailsRowStack!.widthAnchor.constraint(equalTo: stackView.widthAnchor),
 
 			background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
 			background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
@@ -159,6 +162,7 @@ class TokenCardRowView: UIView {
 
 		cityLabel.textColor = viewModel.subtitleColor
 		cityLabel.font = viewModel.detailsFont
+		cityLabel.numberOfLines = 0
 
 		timeLabel.textColor = viewModel.subtitleColor
 		timeLabel.font = viewModel.detailsFont
@@ -193,7 +197,9 @@ class TokenCardRowView: UIView {
 			}
 
 			viewModel.subscribeStreetLocalityStateCountry { [weak self] streetLocalityStateCountry in
-				self?.cityLabel.text = streetLocalityStateCountry
+				guard let strongSelf = self else { return }
+				strongSelf.timeLabel.text = ""
+				strongSelf.cityLabel.text = "\(viewModel.time), \(streetLocalityStateCountry)"
 			}
 		} else {
 			//do nothing
