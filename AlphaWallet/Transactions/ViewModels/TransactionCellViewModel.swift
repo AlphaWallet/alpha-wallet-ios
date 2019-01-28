@@ -36,7 +36,7 @@ struct TransactionCellViewModel {
     private var operationTitle: String? {
         guard let operation = transaction.operation else { return .none }
         switch operation.operationType {
-        case .tokenTransfer:
+        case .nativeCurrencyTokenTransfer, .erc20TokenTransfer, .erc721TokenTransfer, .erc875TokenTransfer:
             return R.string.localizable.transactionCellTokenTransferTitle(operation.symbol ?? "")
         case .unknown:
             return .none
@@ -101,13 +101,18 @@ struct TransactionCellViewModel {
 
     var amountAttributedString: NSAttributedString {
         let value = transactionViewModel.shortValue
-
+        let amount: String
+        if let operation = transaction.operation, (operation.operationType == .erc721TokenTransfer || operation.operationType == .erc875TokenTransfer) {
+            amount = transactionViewModel.amountWithSign(for: value.amount)
+        } else {
+            amount = transactionViewModel.amountWithSign(for: value.amount) + " " + value.symbol
+        }
         return NSAttributedString(
-            string: transactionViewModel.amountWithSign(for: value.amount) + " " + value.symbol,
-            attributes: [
-                .font: Fonts.light(size: 25)!,
-                .foregroundColor: transactionViewModel.amountTextColor,
-            ]
+                string: amount,
+                attributes: [
+                    .font: Fonts.light(size: 25)!,
+                    .foregroundColor: transactionViewModel.amountTextColor,
+                ]
         )
     }
 

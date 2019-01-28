@@ -2,12 +2,13 @@
 
 import Foundation
 import UIKit
-import BigInt
-import JSONRPCKit
 import APIKit
+import BigInt
+import Moya
+import JSONRPCKit
+import PromiseKit
 import RealmSwift
 import Result
-import Moya
 import TrustKeystore
 import UserNotifications
 
@@ -28,6 +29,7 @@ class TransactionDataCoordinator {
     private let storage: TransactionsStorage
     private let session: WalletSession
     private let keystore: Keystore
+    private let tokensStorage: TokensDataStore
     private let config = Config()
     private var viewModel: TransactionsViewModel {
         return .init(transactions: storage.objects)
@@ -46,11 +48,13 @@ class TransactionDataCoordinator {
     init(
         session: WalletSession,
         storage: TransactionsStorage,
-        keystore: Keystore
+        keystore: Keystore,
+        tokensStorage: TokensDataStore
     ) {
         self.session = session
         self.storage = storage
         self.keystore = keystore
+        self.tokensStorage = tokensStorage
         NotificationCenter.default.addObserver(self, selector: #selector(stopTimers), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(restartTimers), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
@@ -136,12 +140,16 @@ class TransactionDataCoordinator {
         ) { result in
             switch result {
             case .success(let response):
-                DispatchQueue.global(qos: .userInitiated).async {
+                DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                    guard let strongSelf = self else { return }
                     do {
                         let rawTransactions = try response.map(ArrayResponse<RawTransaction>.self).result
-                        let transactions: [Transaction] = rawTransactions.compactMap { .from(transaction: $0) }
                         DispatchQueue.main.async {
-                            completion(.success(transactions))
+                            let transactionsPromises = rawTransactions.map { Transaction.from(transaction: $0, tokensStorage: strongSelf.tokensStorage) }
+                            when(fulfilled: transactionsPromises).done { results in
+                                let transactions = results.compactMap { $0 }
+                                completion(.success(transactions))
+                            }
                         }
                     } catch {
                         DispatchQueue.main.async {

@@ -174,6 +174,7 @@ class TokensDataStore {
             completion(result)
         }
     }
+
     func getDecimals(for addressString: String,
                      completion: @escaping (ResultResult<UInt8, AnyError>.t) -> Void) {
         let address = Address(string: addressString)
@@ -181,6 +182,57 @@ class TokensDataStore {
             completion(result)
         }
     }
+
+    func getContractName(for addressString: String) -> Promise<String> {
+        let address = Address(string: addressString)
+        return Promise { seal in
+            getNameCoordinator.getName(for: address!) { (result) in
+                switch result {
+                case .success(let name):
+                    seal.fulfill(name)
+                case .failure(let error):
+                    seal.reject(error)
+                }
+            }
+        }
+    }
+
+    func getContractSymbol(for addressString: String) -> Promise<String> {
+        let address = Address(string: addressString)
+        return Promise { seal in
+            getSymbolCoordinator.getSymbol(for: address!) { result in
+                switch result {
+                case .success(let name):
+                    seal.fulfill(name)
+                case .failure(let error):
+                    seal.reject(error)
+                }
+            }
+        }
+    }
+
+    func getDecimals(for addressString: String) -> Promise<UInt8> {
+        let address = Address(string: addressString)
+        return Promise { seal in
+            getDecimalsCoordinator.getDecimals(for: address!) { result in
+                switch result {
+                case .success(let name):
+                    seal.fulfill(name)
+                case .failure(let error):
+                    seal.reject(error)
+                }
+            }
+        }
+    }
+
+    func getTokenType(for addressString: String) -> Promise<TokenType> {
+        return Promise { seal in
+            getTokenType(for: addressString) { tokenType in
+                seal.fulfill(tokenType)
+            }
+        }
+    }
+
 
     func getERC875Balance(for addressString: String,
                           completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
@@ -255,6 +307,10 @@ class TokensDataStore {
                 completion(.erc20)
             }
         }
+    }
+
+    func token(forContract contract: String) -> TokenObject? {
+        return realm.objects(TokenObject.self).first { $0.contract.sameContract(as: contract) }
     }
 
     func refreshBalance() {
