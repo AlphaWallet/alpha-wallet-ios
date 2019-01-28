@@ -42,7 +42,17 @@ class TokensViewModel {
             if lowercasedKeyword.isEmpty {
                 return tokens
             } else {
-                return tokens.filter { $0.name.trimmed.lowercased().contains(lowercasedKeyword) || $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) || $0.contract.lowercased().contains(lowercasedKeyword) }
+                return tokens.filter {
+                    if keyword.lowercased() == "erc20" || keyword.lowercased() == "erc 20" {
+                        return $0.type == .erc20
+                    } else if keyword.lowercased() == "erc721" || keyword.lowercased() == "erc 721" {
+                        return $0.type == .erc721
+                    } else if keyword.lowercased() == "erc875" || keyword.lowercased() == "erc 875" {
+                        return $0.type == .erc875
+                    } else {
+                        return $0.name.trimmed.lowercased().contains(lowercasedKeyword) || $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) || $0.contract.lowercased().contains(lowercasedKeyword)
+                    }
+                }
             }
         }
     }
