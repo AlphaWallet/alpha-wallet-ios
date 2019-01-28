@@ -21,7 +21,8 @@ class TransactionCoordinator: Coordinator {
         let coordinator = TransactionDataCoordinator(
             session: session,
             storage: storage,
-            keystore: keystore
+            keystore: keystore,
+            tokensStorage: tokensStorage
         )
         return coordinator
     }()

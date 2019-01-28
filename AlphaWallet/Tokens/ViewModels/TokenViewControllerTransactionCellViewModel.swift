@@ -28,8 +28,14 @@ struct TokenViewControllerTransactionCellViewModel {
 
     var value: NSAttributedString {
         let value = transactionViewModel.shortValue
+        let amount: String
+        if let operation = transaction.operation, (operation.operationType == .erc721TokenTransfer || operation.operationType == .erc875TokenTransfer) {
+            amount = transactionViewModel.amountWithSign(for: value.amount)
+        } else {
+            amount = transactionViewModel.amountWithSign(for: value.amount) + " " + value.symbol
+        }
         return NSAttributedString(
-                string: transactionViewModel.amountWithSign(for: value.amount) + " " + value.symbol,
+                string: amount,
                 attributes: [
                     .font: Fonts.semibold(size: 16)!,
                     .foregroundColor: transactionViewModel.amountTextColor,

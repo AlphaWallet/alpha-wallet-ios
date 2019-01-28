@@ -20,7 +20,7 @@ class MigrationInitializer: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 51
+        config.schemaVersion = 52
         config.migrationBlock = { migration, oldSchemaVersion in
             if oldSchemaVersion < 33 {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
@@ -71,6 +71,9 @@ class MigrationInitializer: Initializer {
                     newObject["order"] = bookmarkOrder
                     bookmarkOrder += 1
                 }
+            }
+            if oldSchemaVersion < 52 {
+                migration.deleteData(forType: Transaction.className())
             }
         }
     }
