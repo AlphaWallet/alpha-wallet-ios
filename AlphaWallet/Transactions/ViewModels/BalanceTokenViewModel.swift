@@ -17,6 +17,10 @@ struct BalanceTokenViewModel: BalanceBaseViewModel {
         return EtherNumberFormatter.full.string(from: token.valueBigInt, decimals: token.decimals)
     }
 
+    var name: String {
+        return token.name
+    }
+
     var symbol: String {
         return token.symbol
     }
