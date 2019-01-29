@@ -34,9 +34,7 @@ class OpenSea {
         case .main:
             break
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom, .xDai:
-            fetch = Promise { seal in
-                seal.fulfill([:])
-            }
+            fetch = .value([:])
             return fetch
         }
 
