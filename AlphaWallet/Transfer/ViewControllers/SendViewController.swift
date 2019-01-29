@@ -272,7 +272,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         case .ERC20Token(let token):
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
-            headerViewModel.title = "\(amount) \(viewModel.symbol)"
+            headerViewModel.title = "\(amount) \(viewModel.name) (\(viewModel.symbol))"
             let etherToken = TokensDataStore.etherToken(for: session.config)
             let ticker = storage.coinTicker(for: etherToken)
             headerViewModel.ticker = ticker
