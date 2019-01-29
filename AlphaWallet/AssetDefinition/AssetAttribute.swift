@@ -37,7 +37,19 @@ enum AssetAttributeSyntax: String {
     func extract(from string: String, isMapping: Bool) -> Any? {
         switch self {
         case .generalisedTime:
-            return GeneralisedTime(string: string)
+            //TODO fix 2 possible formats of string value at this point. Where it is GeneralisedTime or encoded instead of using an ugly length check
+            //TODO add test case to make sure both formats work
+            //e.g. 20180911190201+0800
+            let lengthOfGeneralisedTime = 19
+            if string.count == lengthOfGeneralisedTime {
+                return GeneralisedTime(string: string)
+            } else {
+                if let value = BigUInt(string), let string = String(data: Data(bytes: String(value, radix: 16).hexa2Bytes), encoding: .utf8) {
+                    return GeneralisedTime(string: string)
+                } else {
+                    return GeneralisedTime()
+                }
+            }
         case .directoryString, .iA5String:
             if isMapping {
                 return string
