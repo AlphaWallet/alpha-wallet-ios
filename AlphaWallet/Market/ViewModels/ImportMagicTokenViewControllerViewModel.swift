@@ -96,6 +96,11 @@ struct ImportMagicTokenViewControllerViewModel {
         }
     }
 
+    var isMeetupContract: Bool {
+        guard let tokenHolder = tokenHolder else { return false }
+        return tokenHolder.isSpawnableMeetupContract
+    }
+
     var time: String {
         guard let tokenHolder = tokenHolder else { return "" }
         if case .validating = state {
@@ -111,21 +116,33 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            let countryA = tokenHolder.values["countryA"] as? String ?? ""
-            let countryB = tokenHolder.values["countryB"] as? String ?? ""
-            //While both will return emptyTeams, we want to be explicit about ising `emptyTeams`
-            if countryA.isEmpty && countryB.isEmpty {
-                return emptyTeams
+            if isMeetupContract && tokenHolder.values["expired"] != nil {
+                return ""
             } else {
-                return R.string.localizable.aWalletTokenMatchVs(countryA, countryB)
+                let countryA = tokenHolder.values["countryA"] as? String ?? ""
+                let countryB = tokenHolder.values["countryB"] as? String ?? ""
+                //While both will return emptyTeams, we want to be explicit about ising `emptyTeams`
+                if countryA.isEmpty && countryB.isEmpty {
+                    return emptyTeams
+                } else {
+                    return R.string.localizable.aWalletTokenMatchVs(countryA, countryB)
+                }
             }
         }
     }
 
     var match: String {
         guard let tokenHolder = tokenHolder else { return "" }
-        let value = tokenHolder.values["match"] as? Int ?? 0
-        return "M\(value)"
+        if tokenHolder.values["section"] != nil {
+            if let section = tokenHolder.values["section"] {
+                return "S\(section)"
+            } else {
+                return "S0"
+            }
+        } else {
+            let value = tokenHolder.values["match"] as? Int ?? 0
+            return "M\(value)"
+        }
     }
 
     var venue: String {
@@ -143,7 +160,7 @@ struct ImportMagicTokenViewControllerViewModel {
             return ""
         } else {
             let value = tokenHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
-            return value.format("dd MMM yyyy")
+            return value.formatAsShortDateString()
         }
     }
 

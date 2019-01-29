@@ -39,7 +39,7 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
 
     var match: String {
         if tokenHolder.values["section"] != nil {
-            if let section = tokenHolder.values["section"] as? Int {
+            if let section = tokenHolder.values["section"] {
                 return "S\(section)"
             } else {
                 return "S0"
