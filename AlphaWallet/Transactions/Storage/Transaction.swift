@@ -53,17 +53,6 @@ class Transaction: Object {
         self.localizedOperations = list
     }
 
-    convenience init(
-        id: String,
-        date: Date,
-        state: TransactionState
-    ) {
-        self.init()
-        self.id = id
-        self.date = date
-        self.internalState = state.rawValue
-    }
-
     override static func primaryKey() -> String? {
         return "id"
     }
