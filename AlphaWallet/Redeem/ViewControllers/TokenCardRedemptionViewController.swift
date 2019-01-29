@@ -80,6 +80,9 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
             imageHolder.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
 			imageHolder.widthAnchor.constraint(equalTo: imageHolder.heightAnchor),
 
+            tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: view.topAnchor),
