@@ -10,6 +10,15 @@ struct TransferTokensCardViewModel {
     init(token: TokenObject) {
         self.token = token
         self.tokenHolders = TokenAdaptor(token: token).getTokenHolders()
+
+        selectSoleTokenHolder()
+    }
+
+    private func selectSoleTokenHolder() {
+        if tokenHolders.count == 1 {
+            tokenHolders[0].isSelected = true
+            tokenHolders[0].areDetailsVisible = true
+        }
     }
 
     func item(for indexPath: IndexPath) -> TokenHolder {
