@@ -84,14 +84,22 @@ struct TransactionViewModel {
 
     private func transactionValue(for formatter: EtherNumberFormatter) -> TransactionValue {
         if let operation = transaction.operation, let symbol = operation.symbol {
+            if operation.operationType == .erc721TokenTransfer || operation.operationType == .erc875TokenTransfer {
+                return TransactionValue(
+                        amount: operation.value,
+                        symbol: symbol
+                )
+            } else {
+                return TransactionValue(
+                        amount: formatter.string(from: BigInt(operation.value) ?? BigInt(), decimals: operation.decimals),
+                        symbol: symbol
+                )
+            }
+        } else {
             return TransactionValue(
-                amount: formatter.string(from: BigInt(operation.value) ?? BigInt(), decimals: operation.decimals),
-                symbol: symbol
+                    amount: formatter.string(from: BigInt(transaction.value) ?? BigInt()),
+                    symbol: config.server.symbol
             )
         }
-        return TransactionValue(
-            amount: formatter.string(from: BigInt(transaction.value) ?? BigInt()),
-            symbol: config.server.symbol
-        )
     }
 }
