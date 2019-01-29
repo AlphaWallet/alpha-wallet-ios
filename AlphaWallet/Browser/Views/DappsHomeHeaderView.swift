@@ -5,7 +5,6 @@ import UIKit
 
 class DappsHomeHeaderView: UIView {
     private let stackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required, alignment: .center)
-    private let buttonsStackView = [].asStackView(distribution: .equalSpacing, contentHuggingPriority: .required)
     private let logoImage = UIImageView()
     private let titleLabel = UILabel()
 
