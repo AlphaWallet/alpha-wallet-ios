@@ -19,8 +19,23 @@ struct TokenViewControllerViewModel {
 
         switch transferType {
         case .nativeCryptocurrency, .xDai:
-            self.recentTransactions = Array(transactionsStore.objects.lazy.filter({ $0.state == .completed || $0.state == .pending }).filter({ $0.value != "" && $0.value != "0" }).prefix(3))
-        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
+            self.recentTransactions = Array(transactionsStore.objects.lazy
+                    .filter({ $0.state == .completed || $0.state == .pending })
+                    .filter({ $0.operation == nil })
+                    .filter({ $0.value != "" && $0.value != "0" })
+                    .prefix(3))
+        case .ERC20Token(let token):
+            self.recentTransactions = Array(transactionsStore.objects.lazy
+                    .filter({ $0.state == .completed || $0.state == .pending })
+                    .filter({
+                        if let operation = $0.operation {
+                            return operation.operationType == .erc20TokenTransfer
+                        } else {
+                            return false
+                        }})
+                    .filter({ $0.operation?.contract?.sameContract(as: token.contract) ?? false })
+                    .prefix(3))
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
             self.recentTransactions = []
         }
     }

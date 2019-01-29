@@ -3,7 +3,10 @@
 import Foundation
 
 enum OperationType: String {
-    case tokenTransfer = "token_transfer"
+    case nativeCurrencyTokenTransfer
+    case erc20TokenTransfer
+    case erc721TokenTransfer
+    case erc875TokenTransfer
     case unknown
 
     init(string: String) {
