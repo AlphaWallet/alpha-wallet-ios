@@ -18,9 +18,9 @@ struct ChooseTokenCardTransferModeViewControllerViewModel {
 
     var buttonFont: UIFont {
         if ScreenChecker().isNarrowScreen() {
-            return Fonts.regular(size: 13)!
+            return Fonts.regular(size: 12)!
         } else {
-            return Fonts.regular(size: 16)!
+            return Fonts.regular(size: 15)!
         }
     }
 }
