@@ -334,7 +334,7 @@ struct ImportMagicTokenViewControllerViewModel {
         case .promptImport, .succeeded, .failed:
             if let tokenHolder = tokenHolder, tokenHolder.isSpawnableMeetupContract {
                 //Not the best check, but we assume that even if the data is just partially available, we can show something
-                if let building = (tokenHolder.values["building"] as! SubscribableAssetAttributeValue).subscribable.value as? String {
+                if let _ = (tokenHolder.values["building"] as! SubscribableAssetAttributeValue).subscribable.value as? String {
                     return false
                 } else {
                     return true
