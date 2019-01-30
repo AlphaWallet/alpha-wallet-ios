@@ -65,8 +65,7 @@ class MigrationInitializer: Initializer {
             }
             if oldSchemaVersion < 51 {
                 var bookmarkOrder = 0
-                migration.enumerateObjects(ofType: Bookmark.className()) { oldObject, newObject in
-                    guard let oldObject = oldObject else { return }
+                migration.enumerateObjects(ofType: Bookmark.className()) { _, newObject in
                     guard let newObject = newObject else { return }
                     newObject["order"] = bookmarkOrder
                     bookmarkOrder += 1

@@ -110,8 +110,6 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
         footerBar.addSubview(buttonsBar)
 
-        let separatorThickness = CGFloat(1)
-
         NSLayoutConstraint.activate([
             header.heightAnchor.constraint(equalToConstant: 90),
 

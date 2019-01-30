@@ -16,7 +16,7 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         let expectation = self.expectation(description: "Wait for ENS name to be resolved")
         expectations.append(expectation)
         let ensName = "b00n.thisisme.eth"
-        var config = makeConfigOnMainnet()
+        let config = makeConfigOnMainnet()
         GetENSOwnerCoordinator(config: config).getENSOwner(for: ensName) { result in
             if let address = result.value, address.address.sameContract(as: "0xbbce83173d5c1D122AE64856b4Af0D5AE07Fa362") {
                 expectation.fulfill()
