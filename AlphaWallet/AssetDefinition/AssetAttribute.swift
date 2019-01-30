@@ -90,7 +90,6 @@ enum AssetAttribute {
     init(attribute: XMLElement, functionElement: XMLElement, rootNamespacePrefix: String, namespaces: [String: String]) {
         self = {
             if let attributeName = attribute["id"],
-               let origin = XMLHandler.getOriginElement(fromAttributeTypeElement: attribute, namespacePrefix: rootNamespacePrefix, namespaces: namespaces),
                let rawSyntax = attribute["syntax"],
                let syntax = AssetAttributeSyntax(rawValue: rawSyntax),
                let functionName = functionElement["name"],

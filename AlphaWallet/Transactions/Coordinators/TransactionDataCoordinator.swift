@@ -149,7 +149,8 @@ class TransactionDataCoordinator {
                             when(fulfilled: transactionsPromises).done { results in
                                 let transactions = results.compactMap { $0 }
                                 completion(.success(transactions))
-                            }
+                            ///like that?
+                            }.cauterize()
                         }
                     } catch {
                         DispatchQueue.main.async {
