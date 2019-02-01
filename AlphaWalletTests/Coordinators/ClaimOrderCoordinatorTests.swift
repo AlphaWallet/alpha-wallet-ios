@@ -39,10 +39,11 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                           indices: indices,
                           expiry: expiry!,
                           contractAddress: token.contract,
-                          start: 0,
                           count: 1,
+                          nonce: BigUInt(0),
                           tokenIds: [BigUInt](),
-                          spawnable: false
+                          spawnable: false,
+                          nativeCurrencyDrop: false
         )
         
         let signedOrder = SignedOrder(order: order, message: [UInt8](), signature: "")
