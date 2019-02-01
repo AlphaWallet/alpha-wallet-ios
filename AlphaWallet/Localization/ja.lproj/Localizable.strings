@@ -325,3 +325,5 @@
 "dappBrowser.clearMyDapps" = "Remove Dapp?";
 "recent.transactions" = "Recent Transactions";
 "blockchain.XDAI" = "xDAI Chain";
+
+"a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";

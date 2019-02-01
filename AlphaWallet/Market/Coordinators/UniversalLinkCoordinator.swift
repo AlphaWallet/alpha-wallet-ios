@@ -251,9 +251,16 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func notEnoughEthForPaidImport(signedOrder: SignedOrder) {
         if ethPrice.value == nil {
+            let errorMessage: String
+            switch config.server {
+            case .xDai:
+                errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
+            default:
+                errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
+            }
             let ethCost = convert(ethCost: signedOrder.order.price)
             showImportError(
-                errorMessage: R.string.localizable.aClaimTokenFailedNotEnoughEthTitle(),
+                errorMessage: errorMessage,
                 cost: .paid(eth: ethCost, dollar: nil)
             )
         }
