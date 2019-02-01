@@ -19,10 +19,11 @@ class OrderSigningTests: XCTestCase {
                                indices: indices,
                                expiry: BigUInt("0")!,
                                contractAddress: contractAddress,
-                               start: BigUInt("91239231313")!,
                                count: 3,
+                               nonce: BigUInt(0),
                                tokenIds: [BigUInt](),
-                               spawnable: false
+                               spawnable: false,
+                               nativeCurrencyDrop: false
         )
         for _ in 0...2015 {
             testOrdersList.append(testOrder1)

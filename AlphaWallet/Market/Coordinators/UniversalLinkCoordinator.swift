@@ -117,6 +117,7 @@ class UniversalLinkCoordinator: Coordinator {
         if signedOrder.order.price == 0 && isStormBirdContract {
             self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
                 if supported {
+                    //TODO add payment server link once in production
                     self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
                 } else {
                     self.handlePaidImports(signedOrder: signedOrder)
@@ -149,6 +150,11 @@ class UniversalLinkCoordinator: Coordinator {
         case .success(let ethereumAddress):
             guard let recoverAddress = Address(string: ethereumAddress.address) else { return false }
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
+            if signedOrder.order.nativeCurrencyDrop {
+                self.makeTokenHolder([""], signedOrder.order.contractAddress)
+                completeOrderHandling(signedOrder: signedOrder, isStormBirdContract: isStormBirdContract)
+                return true
+            }
             //gather signer address balance
             if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
                 let tokenStrings: [String] = tokens.map { String($0, radix: 16) }
