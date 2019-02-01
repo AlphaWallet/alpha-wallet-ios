@@ -264,6 +264,7 @@
 "a.claim.token.invalidLink.tryAgain" = "Invalid Link, please try again";
 "a.claim.token.noConnectivity.tryAgain" = "Not connected to the internet, please try again";
 "a.claim.token.failed.notEnoughEth.title" = "You do not have enough ETH to import this ticket";
+"a.claim.token.failed.notEnoughXDAI.title" = "You do not have enough xDAI to import this ticket";
 "a.claim.token.validating.title" = "Processing...";
 "a.claim.token.promptImport.title" = "Import?";
 "a.claim.token.inProgress.title" = "Importing tickets...";
