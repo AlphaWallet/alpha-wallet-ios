@@ -124,12 +124,31 @@ class TokensCoordinator: Coordinator {
     }
 
     private func autoDetectPartnerTokens() {
-        guard session.config.server == .main else { return }
+        switch session.config.server {
+        case .main:
+            autoDetectMainnetPartnerTokens()
+        case .xDai:
+            autoDetectXDaiPartnerTokens()
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+            break
+        }
+
+    }
+
+    private func autoDetectMainnetPartnerTokens() {
+        autoDetectTokens(withContracts: Constants.partnerContracts)
+    }
+
+    private func autoDetectXDaiPartnerTokens() {
+        autoDetectTokens(withContracts: Constants.ethDeverXDaiPartnerContracts)
+    }
+
+    private func autoDetectTokens(withContracts contractsToDetect: [(name: String, contract: String)]) {
         guard let address = keystore.recentlyUsedWallet?.address else { return }
         let alreadyAddedContracts = storage.enabledObject.map { $0.address.eip55String.lowercased() }
         let deletedContracts = storage.deletedContracts.map { $0.contract.lowercased() }
         let hiddenContracts = storage.hiddenContracts.map { $0.contract.lowercased() }
-        let contracts = Constants.partnerContracts.map { $0.contract.lowercased() } - alreadyAddedContracts - deletedContracts - hiddenContracts
+        let contracts = contractsToDetect.map { $0.contract.lowercased() } - alreadyAddedContracts - deletedContracts - hiddenContracts
         let balanceCoordinator = GetBalanceCoordinator(config: session.config)
         for each in contracts {
             guard let contract = Address(string: each) else { continue }
