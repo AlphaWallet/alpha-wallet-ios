@@ -630,6 +630,7 @@ class TokensDataStore {
 
     private func scheduledTimerForPricesUpdate() {
         guard !config.isAutoFetchingDisabled else { return }
+        updatePrices()
         pricesTimer = Timer.scheduledTimer(timeInterval: intervalToRefreshPrices, target: BlockOperation { [weak self] in
             self?.updatePrices()
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
