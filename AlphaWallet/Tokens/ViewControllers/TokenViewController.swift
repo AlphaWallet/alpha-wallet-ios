@@ -74,7 +74,9 @@ class TokenViewController: UIViewController {
         switch transferType {
         case .nativeCryptocurrency, .xDai:
             header.verificationStatus = .verified(session.account.address.eip55String)
-        case .ERC20Token, .ERC875TokenOrder, .ERC875Token, .ERC721Token, .dapp:
+        case .ERC20Token(let token), .ERC875TokenOrder(let token), .ERC875Token(let token), .ERC721Token(let token):
+            header.verificationStatus = .unverified(token.contract)
+        case .dapp:
             header.verificationStatus = .unverified(session.account.address.eip55String)
         }
         header.sendHeaderView.configure(viewModel: headerViewModel)
