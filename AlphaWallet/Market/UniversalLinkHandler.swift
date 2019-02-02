@@ -220,9 +220,9 @@ public class UniversalLinkHandler {
         let expiryBytes = formatTo4Bytes(expiryInt.serialize().bytes)
         messageWithSzabo.append(contentsOf: priceBytes)
         messageWithSzabo.append(contentsOf: expiryBytes)
-        messageWithSzabo.append(contentsOf: indices)
         //contract address
         messageWithSzabo.append(contentsOf: message[64...83])
+        messageWithSzabo.append(contentsOf: indices)
         messageWithSzabo.insert(LinkFormat.normal.rawValue, at: 0)
         return MarketQueueHandler.bytesToHexa(messageWithSzabo)
     }
