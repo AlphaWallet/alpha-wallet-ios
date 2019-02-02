@@ -27,7 +27,7 @@ class TransactionConfigurator {
         switch session.config.server {
             case .xDai:
                 //xdai transactions are always 1 gwei in gasPrice
-                return GasPriceConfiguration.minPrice
+                return GasPriceConfiguration.xDaiGasPrice
             default:
                 return configureGasPrice()
         }
