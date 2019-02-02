@@ -82,6 +82,15 @@ public struct Constants {
                                             "abc7e6c01237e8eef355bba2bf925a730b714d5f",
                                             "71c118b00759b0851785642541ceb0f4ceea0bd5"]
 
+    static let ethDeverXDaiPartnerContracts = [
+        (name: "DEN", contract: "0x6a814843de5967cf94d7720ce15cba8b0da81967"),
+        (name: "BURN", contract: "0x94819805310cf736198df0de856b0ff5584f0903"),
+        (name: "BURN", contract: "0xdec31651bec1fbbff392aa7de956d6ee4559498b"),
+        (name: "BURN", contract: "0xa95d505e6933cb790ed3431805871efe4e6bbafd"),
+        (name: "DEN", contract: "0xbdc3df563a3959a373916b724c683d69ba4097f7"),
+        (name: "DEN", contract: "0x6e251ee9cadf0145babfd3b64664a9d7f941fcc3")
+    ]
+
     static let partnerContracts = [
         (name: "DAI", contract: "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"),
         (name: "GUSD", contract: "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd"),
