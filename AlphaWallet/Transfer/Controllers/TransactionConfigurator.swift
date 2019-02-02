@@ -24,12 +24,22 @@ class TransactionConfigurator {
     private let account: Account
 
     private lazy var calculatedGasPrice: BigInt = {
+        switch session.config.server {
+            case .xDai:
+                //xdai transactions are always 1 gwei in gasPrice
+                return GasPriceConfiguration.xDaiGasPrice
+            default:
+                return configureGasPrice()
+        }
+    }()
+
+    private func configureGasPrice() -> BigInt {
         if let gasPrice = transaction.gasPrice, gasPrice > 0 {
             return gasPrice
         } else {
             return configuration.gasPrice
         }
-    }()
+    }
 
     private var requestEstimateGas: Bool {
         return transaction.gasLimit == .none
