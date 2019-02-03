@@ -88,7 +88,9 @@ public struct Constants {
         (name: "BURN", contract: "0xdec31651bec1fbbff392aa7de956d6ee4559498b"),
         (name: "BURN", contract: "0xa95d505e6933cb790ed3431805871efe4e6bbafd"),
         (name: "DEN", contract: "0xbdc3df563a3959a373916b724c683d69ba4097f7"),
-        (name: "DEN", contract: "0x6e251ee9cadf0145babfd3b64664a9d7f941fcc3")
+        (name: "DEN", contract: "0x6e251ee9cadf0145babfd3b64664a9d7f941fcc3"),
+        (name: "BUFF", contract: "0x3e50bf6703fc132a94e4baff068db2055655f11b"),
+        (name: "ETHD2019", contract: "0xa16b70E8fAd839E62aBBa2d962E4ca5a28aF9e76")
     ]
 
     static let partnerContracts = [
