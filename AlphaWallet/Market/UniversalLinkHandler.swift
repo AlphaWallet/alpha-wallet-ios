@@ -77,11 +77,11 @@ public class UniversalLinkHandler {
         if let format = LinkFormat(rawValue: encodingByte) {
             switch format {
             case .unassigned:
-                return handleUnSpawnableLink(linkBytes: linkBytes)
+                return handleNormalLink(linkBytes: linkBytes)
             case .normal:
                 //new link format, remove extra byte and continue
                 linkBytes.remove(at: 0)
-                return handleUnSpawnableLink(linkBytes: linkBytes)
+                return handleNormalLink(linkBytes: linkBytes)
             case .spawnable:
                 return handleSpawnableLink(linkBytes: linkBytes)
             case .customizable:
@@ -95,7 +95,7 @@ public class UniversalLinkHandler {
 
     }
 
-    private func handleUnSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
+    private func handleNormalLink(linkBytes: [UInt8]) -> SignedOrder {
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
         let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
