@@ -55,7 +55,6 @@ public class UniversalLinkHandler {
         let link = (message + signature).hexa2Bytes
         let binaryData = Data(bytes: link)
         let base64String = binaryData.base64EncodedString()
-
         return urlPrefix + b64SafeEncoding(base64String)
     }
 
@@ -127,8 +126,8 @@ public class UniversalLinkHandler {
         let expiry = Array(bytes[16...19])
         let contractAddress = Array(bytes[20...39])
         let v = String(bytes[104], radix: 16)
-        let r = Data(bytes: Array(bytes[72...103])).hex()
-        let s = Data(bytes: Array(bytes[40...71])).hex()
+        let r = Data(bytes: Array(bytes[40...71])).hex()
+        let s = Data(bytes: Array(bytes[72...103])).hex()
         let order = Order(
                 price: BigUInt(0),
                 indices: [UInt16](),
@@ -209,8 +208,8 @@ public class UniversalLinkHandler {
         var messageWithSzabo = [UInt8]()
         let price = Array(message[0...31])
         let expiry = Array(message[32...63])
-        let priceHex = MarketQueueHandler.bytesToHexa(price)
-        let expiryHex = MarketQueueHandler.bytesToHexa(expiry)
+        let priceHex = Data(bytes: price).hex()
+        let expiryHex = Data(bytes: expiry).hex()
         //removes leading zeros
         let priceInt = BigUInt(priceHex, radix: 16)!
         let expiryInt = BigUInt(expiryHex, radix: 16)!
@@ -224,7 +223,7 @@ public class UniversalLinkHandler {
         messageWithSzabo.append(contentsOf: message[64...83])
         messageWithSzabo.append(contentsOf: indices)
         messageWithSzabo.insert(LinkFormat.normal.rawValue, at: 0)
-        return MarketQueueHandler.bytesToHexa(messageWithSzabo)
+        return Data(bytes: messageWithSzabo).hex()
     }
     
     private func formatTo4Bytes(_ array: [UInt8]) -> [UInt8] {
@@ -250,14 +249,14 @@ public class UniversalLinkHandler {
 
     private func getPriceFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
         let priceBytes = Array(linkBytes[0...3])
-        let priceHex = MarketQueueHandler.bytesToHexa(priceBytes)
+        let priceHex = Data(bytes: priceBytes).hex()
         let price = BigUInt(priceHex, radix: 16)!
         return price * 1000000000000
     }
 
     private func getExpiryFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
         let expiryBytes = Array(linkBytes[4...7])
-        let expiry = MarketQueueHandler.bytesToHexa(expiryBytes)
+        let expiry = Data(bytes: expiryBytes).hex()
         return BigUInt(expiry, radix: 16)!
     }
 
@@ -266,7 +265,7 @@ public class UniversalLinkHandler {
         for i in 8...27 {
             contractAddrBytes.append(linkBytes[i])
         }
-        return MarketQueueHandler.bytesToHexa(contractAddrBytes)
+        return Data(bytes: contractAddrBytes).hex()
     }
 
     private func getTokenIndicesFromLinkBytes(linkBytes: [UInt8]) -> [UInt16] {
@@ -304,13 +303,13 @@ public class UniversalLinkHandler {
         for i in signatureStart...signatureStart + 31 {
             rBytes.append(linkBytes[i])
         }
-        let r = MarketQueueHandler.bytesToHexa(rBytes)
+        let r = Data(bytes: rBytes).hex()
         signatureStart += 32
         var sBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31 {
             sBytes.append(linkBytes[i])
         }
-        let s = MarketQueueHandler.bytesToHexa(sBytes)
+        let s = Data(bytes: sBytes).hex()
         var v = String(format: "%2X", linkBytes[linkBytes.count - 1]).trimmed
         //handle JB code if he uses non standard format
         if var vInt = Int(v) {

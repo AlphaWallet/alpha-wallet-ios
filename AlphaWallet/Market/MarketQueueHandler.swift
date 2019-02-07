@@ -47,7 +47,7 @@ public class MarketQueueHandler {
 
     func parseOrder(_ orderObj: JSON) -> SignedOrder {
         let orderString = orderObj["message"].string!
-        let message = MarketQueueHandler.bytesToHexa(Array(Data(base64Encoded: orderString)!))
+        let message = Data(base64Encoded: orderString)!.hex()
         let price = message.substring(to: 64)
         let expiry = message.substring(with: Range(uncheckedBounds: (64, 128)))
         let contractAddress = "0x" + message.substring(with: Range(uncheckedBounds: (128, 168)))
@@ -66,7 +66,7 @@ public class MarketQueueHandler {
         let signedOrder = SignedOrder(
                 order: order,
                 message: message.hexa2Bytes,
-                signature: "0x" + MarketQueueHandler.bytesToHexa(Array(Data(base64Encoded: orderObj["signature"].string!)!))
+                signature: "0x" + Data(base64Encoded: orderObj["signature"].string!)!.hex()
         )
         return signedOrder
     }
@@ -96,12 +96,6 @@ public class MarketQueueHandler {
                 callback(data)
             }
         }
-    }
-
-    public static func bytesToHexa(_ bytes: [UInt8]) -> String {
-        return bytes.map {
-            String(format: "%02X", $0)
-        }.joined()
     }
 
 }
