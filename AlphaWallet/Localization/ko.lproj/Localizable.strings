@@ -132,6 +132,7 @@
 "browser.home.button.title" = "홈";
 "browser.reload.button.title" = "다시 불러오기";
 "browser.addbookmark.button.title" = "Add to My Dapps";
+"browser.scanQRCode.button.title" = "Scan QR Code for URL";
 "browser.tabbar.item.title" = "브라우저";
 "browser.history.confirm.delete.title" = "Remove History?";
 "browser.noHistory.label.title" = "Your browser history appears here.";

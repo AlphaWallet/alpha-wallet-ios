@@ -132,6 +132,7 @@
 "browser.home.button.title" = "Inicio";
 "browser.reload.button.title" = "Volver a cargar";
 "browser.addbookmark.button.title" = "Add to My Dapps";
+"browser.scanQRCode.button.title" = "Scan QR Code for URL";
 "browser.tabbar.item.title" = "Navegador";
 "browser.history.confirm.delete.title" = "Remove History?";
 "browser.noHistory.label.title" = "Your browser history appears here.";
