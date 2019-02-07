@@ -6,12 +6,9 @@ import web3swift
 
 public struct Constants {
     public static let keychainKeyPrefix = "alphawallet"
-    
-    //link formats
-    public static let oldFormat: UInt8 = 0x00
-    public static let notSpawnable: UInt8 = 0x01
-    public static let spawnable: UInt8 = 0x02
-    public static let customizable: UInt8 = 0x03
+    public static let xdaiDropPrefix = Data(bytes:
+        Array(arrayLiteral: 0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50)
+    ).hex()
 
     // XML repo
     public static let repoServer = "https://repo.aw.app"
@@ -21,6 +18,7 @@ public struct Constants {
     // fee master
     public static let paymentServer = "https://app.awallet.io:80/api/claimToken"
     public static let paymentServerSupportsContractEndPoint = "https://app.awallet.io:80/api/checkContractIsSupportedForFreeTransfers"
+    public static let currencyDropServer = "https://app.awallet.io:80/api/claimFreeCurrency"
 
     // social
     public static let website = "https://community.alphawallet.com/c/feedback/ios-feedback"
@@ -33,6 +31,7 @@ public struct Constants {
     public static let supportEmail = "support@alphawallet.com"
     public static let dappsBrowserURL = "http://aw.app"
 
+    //Ethereum null variables
     public static let nullTokenId = "0x0000000000000000000000000000000000000000000000000000000000000000"
     public static let nullTokenIdBigUInt = BigUInt(0)
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
@@ -82,7 +81,7 @@ public struct Constants {
                                             "abc7e6c01237e8eef355bba2bf925a730b714d5f",
                                             "71c118b00759b0851785642541ceb0f4ceea0bd5"]
 
-    static let ethDeverXDaiPartnerContracts = [
+    static let ethDenverXDaiPartnerContracts = [
         (name: "DEN", contract: "0x6a814843de5967cf94d7720ce15cba8b0da81967"),
         (name: "BURN", contract: "0x94819805310cf736198df0de856b0ff5584f0903"),
         (name: "BURN", contract: "0xdec31651bec1fbbff392aa7de956d6ee4559498b"),
