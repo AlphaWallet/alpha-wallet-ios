@@ -132,6 +132,7 @@
 "browser.home.button.title" = "主页";
 "browser.reload.button.title" = "刷新";
 "browser.addbookmark.button.title" = "Add to My Dapps";
+"browser.scanQRCode.button.title" = "Scan QR Code for URL";
 "browser.tabbar.item.title" = "浏览器";
 "browser.history.confirm.delete.title" = "确定要删除历史记录吗?";
 "browser.noHistory.label.title" = "目前没有历史记录";
