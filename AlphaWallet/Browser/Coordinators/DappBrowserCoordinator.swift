@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import BigInt
+import QRCodeReaderViewController
 import TrustKeystore
 import RealmSwift
 import WebKit
@@ -203,13 +204,20 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             self?.share()
         }
 
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
         let addBookmarkAction = UIAlertAction(title: R.string.localizable.browserAddbookmarkButtonTitle(), style: .default) { [weak self] _ in
             self?.addCurrentPageAsBookmark()
         }
+
+        let scanQrCodeAction = UIAlertAction(title: R.string.localizable.browserScanQRCodeButtonTitle(), style: .default) { [weak self] _ in
+            self?.scanQrCode()
+        }
+
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+
         alertController.addAction(reloadAction)
         alertController.addAction(shareAction)
         alertController.addAction(addBookmarkAction)
+        alertController.addAction(scanQrCodeAction)
         alertController.addAction(cancelAction)
         return alertController
     }
@@ -273,6 +281,18 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         let bookmark = Bookmark(url: url, title: title)
         bookmarksStore.add(bookmarks: [bookmark])
         refreshDapps()
+    }
+
+    private func scanQrCode() {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            navigationController.promptUserOpenSettingsToChangeCameraPermission()
+            return
+        }
+
+        let coordinator = ScanQRCodeCoordinator(navigationController: NavigationController())
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        navigationController.present(coordinator.qrcodeController, animated: true, completion: nil)
     }
 }
 
@@ -574,5 +594,19 @@ extension DappBrowserCoordinator: EditMyDappViewControllerDelegate {
 
     func didTapCancel(inViewController viewController: EditMyDappViewController) {
         viewController.dismiss(animated: true)
+    }
+}
+
+extension DappBrowserCoordinator: ScanQRCodeCoordinatorDelegate {
+    func didCancel(in coordinator: ScanQRCodeCoordinator) {
+        coordinator.navigationController.dismiss(animated: true, completion: nil)
+        removeCoordinator(coordinator)
+    }
+
+    func didScan(result: String, in coordinator: ScanQRCodeCoordinator) {
+        coordinator.navigationController.dismiss(animated: true, completion: nil)
+        removeCoordinator(coordinator)
+        guard let url = URL(string: result) else { return }
+        open(url: url, animated: false)
     }
 }
