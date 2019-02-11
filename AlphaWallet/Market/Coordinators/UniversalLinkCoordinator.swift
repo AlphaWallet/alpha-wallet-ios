@@ -47,12 +47,35 @@ class UniversalLinkCoordinator: Coordinator {
 
 	func start() {
 	}
-    
-    private func createHTTPParametersForPaymentServer(signedOrder: SignedOrder, isForTransfer: Bool) -> Parameters {
+
+    private func createHTTPParametersForCurrencyLinksToPaymentServer(
+            signedOrder: SignedOrder,
+            recipient: String
+    ) -> Parameters {
+        let signature = signedOrder.signature.drop0x
+        let parameters: Parameters = [
+            "prefix": Constants.xdaiDropPrefix,
+            "recipient": recipient,
+            "amount": signedOrder.order.count.description,
+            "expiry": signedOrder.order.expiry.description,
+            "nonce": signedOrder.order.nonce,
+            "v": signature.substring(from: 128),
+            "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
+            "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
+            "networkId": config.server.chainID.description,
+            "contractAddress": signedOrder.order.contractAddress
+        ]
+        return parameters
+    }
+
+    private func createHTTPParametersForNormalLinksToPaymentServer(
+            signedOrder: SignedOrder,
+            isForTransfer: Bool
+    ) -> Parameters {
         // form the json string out of the order for the paymaster server
         // James S. wrote
         let keystore = try! EtherKeystore()
-        let signature = signedOrder.signature.substring(from: 2)
+        let signature = signedOrder.signature.drop0x
         let indices = signedOrder.order.indices
         let indicesStringEncoded = stringEncodeIndices(indices)
         let address = (keystore.recentlyUsedWallet?.address.eip55String)!
@@ -104,20 +127,38 @@ class UniversalLinkCoordinator: Coordinator {
 
     @discardableResult private func usePaymentServerForFreeTransferLinks(signedOrder: SignedOrder) -> Bool {
         guard isShowingImportUserInterface else { return false }
-
-        let parameters = createHTTPParametersForPaymentServer(signedOrder: signedOrder, isForTransfer: true)
-        let query = Constants.paymentServer
+        guard let (parameters, query) = getParametersAndQuery(signedOrder: signedOrder) else { return false }
         transactionType = .freeTransfer(query: query, parameters: parameters)
         promptImportUniversalLink(cost: .free)
         return true
     }
 
-    func completeOrderHandling(signedOrder: SignedOrder, isStormBirdContract: Bool)
+    private func getParametersAndQuery(signedOrder: SignedOrder) -> (Parameters, String)? {
+        guard let recipient = try! EtherKeystore().recentlyUsedWallet?.address.eip55String else { return nil }
+        let parameters: Parameters
+        let query: String
+        switch signedOrder.order.nativeCurrencyDrop {
+            case true:
+                parameters = createHTTPParametersForCurrencyLinksToPaymentServer(
+                        signedOrder: signedOrder,
+                        recipient: recipient
+                )
+                query = Constants.currencyDropServer
+            case false:
+                parameters = createHTTPParametersForNormalLinksToPaymentServer(
+                        signedOrder: signedOrder,
+                        isForTransfer: true
+                )
+                query = Constants.paymentServer
+        }
+        return (parameters, query)
+    }
+
+    func completeOrderHandling(signedOrder: SignedOrder)
     {
-        if signedOrder.order.price == 0 && isStormBirdContract {
+        if signedOrder.order.price == 0 {
             self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
                 if supported {
-                    //TODO add payment server link once in production
                     self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
                 } else {
                     self.handlePaidImports(signedOrder: signedOrder)
@@ -152,7 +193,7 @@ class UniversalLinkCoordinator: Coordinator {
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             if signedOrder.order.nativeCurrencyDrop {
                 self.makeTokenHolder([""], signedOrder.order.contractAddress)
-                completeOrderHandling(signedOrder: signedOrder, isStormBirdContract: isStormBirdContract)
+                completeOrderHandling(signedOrder: signedOrder)
                 return true
             }
             //gather signer address balance
@@ -162,7 +203,7 @@ class UniversalLinkCoordinator: Coordinator {
                         tokenStrings,
                         signedOrder.order.contractAddress
                 )
-                completeOrderHandling(signedOrder: signedOrder, isStormBirdContract: isStormBirdContract)
+                completeOrderHandling(signedOrder: signedOrder)
             } else {
                 getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(config: config)
                 getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
@@ -191,15 +232,12 @@ class UniversalLinkCoordinator: Coordinator {
                             signedOrder.order.contractAddress
                     )
 
-                    strongSelf.completeOrderHandling(
-                        signedOrder: signedOrder,
-                        isStormBirdContract: isStormBirdContract
-                    )
+                    strongSelf.completeOrderHandling(signedOrder: signedOrder)
                 }
             }
         case .failure(let error):
-            //TODO handle. Show error maybe?
-            NSLog("xxx error during ecrecover: \(error.localizedDescription)")
+            print("ecrecover error: " + error.localizedDescription)
+            self.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }
         return true
@@ -232,7 +270,8 @@ class UniversalLinkCoordinator: Coordinator {
         let vString = "0" + String(vInt)
         let signature = "0x" + signedOrder.signature.drop0x.substring(to: 128) + vString
         let nodeURL = config.rpcURL
-        return web3(provider: Web3HttpProvider(nodeURL, network: config.server.web3Network)!).personal.ecrecover(
+        let provider = Web3HttpProvider(nodeURL, network: config.server.web3Network)!
+        return web3(provider: provider).personal.ecrecover(
                 hash: messageHash,
                 signature: Data(bytes: signature.hexa2Bytes)
         )
