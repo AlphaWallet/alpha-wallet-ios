@@ -258,7 +258,7 @@
 "a.welcome.onboarding.3" = "お気に入りのトークンを購入、売却、送信";
 "a.welcome.onboarding.createwallet.button.title" = "開始";
 "a.marketplace.tabbar.item.title" = "マーケットプレース";
-"a.claim.token.title" = "チケットのインポート";
+"a.claim.token.title" = "トークンをインポートする";
 "a.claim.token.prompt" = "インポート リンク?";
 "a.claim.token.success.title" = "チケットが送信され、残高が間もなく更新されます";
 "a.claim.token.failed.title" = "無効なチケットのリンク";
