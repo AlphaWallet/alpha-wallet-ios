@@ -140,7 +140,7 @@ class TokensCoordinator: Coordinator {
     }
 
     private func autoDetectXDaiPartnerTokens() {
-        autoDetectTokens(withContracts: Constants.ethDeverXDaiPartnerContracts)
+        autoDetectTokens(withContracts: Constants.ethDenverXDaiPartnerContracts)
     }
 
     private func autoDetectTokens(withContracts contractsToDetect: [(name: String, contract: String)]) {
