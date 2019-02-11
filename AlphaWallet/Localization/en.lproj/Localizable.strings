@@ -258,7 +258,7 @@
 "a.welcome.onboarding.3" = "Buy, sell and transfer your favourite tokens";
 "a.welcome.onboarding.createwallet.button.title" = "GET STARTED";
 "a.marketplace.tabbar.item.title" = "Marketplace";
-"a.claim.token.title" = "Importing tickets";
+"a.claim.token.title" = "Importing Tokens";
 "a.claim.token.prompt" = "Import Link?";
 "a.claim.token.success.title" = "Your ticket has been transferred and the balance will be updated shortly";
 "a.claim.token.failed.title" = "Invalid ticket link";
