@@ -262,6 +262,7 @@
 "a.claim.token.prompt" = "Import Link?";
 "a.claim.token.success.title" = "Your ticket has been transferred and the balance will be updated shortly";
 "a.claim.token.failed.title" = "Invalid ticket link";
+"a.claim.token.failed.serverDown" = "Paymaster server down, please try again later";
 "a.claim.token.invalidLink.tryAgain" = "Invalid Link, please try again";
 "a.claim.token.noConnectivity.tryAgain" = "Not connected to the internet, please try again";
 "a.claim.token.failed.notEnoughEth.title" = "You do not have enough ETH to import this ticket";
