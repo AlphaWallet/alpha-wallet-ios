@@ -100,14 +100,14 @@ struct Config {
         let urlString: String = {
             switch server {
             case .main: return "https://api.etherscan.io"
-            case .classic: return "https://classic.trustwalletapp.com"
+            case .classic: return "https://blockscout.com/etc/mainnet/api"
             case .callisto: return "https://callisto.trustwalletapp.com"
             case .kovan: return "https://api-kovan.etherscan.io"
             case .ropsten: return "https://api-ropsten.etherscan.io"
             case .rinkeby: return "https://api-rinkeby.etherscan.io"
             case .poa: return "https://blockscout.com/poa/core/api"
             case .xDai: return "https://blockscout.com/poa/dai/api"
-            case .sokol: return "https://trust-sokol.herokuapp.com"
+            case .sokol: return "https://blockscout.com/poa/sokol/api"
             case .custom:
                 return "" // Enable? make optional
             }
