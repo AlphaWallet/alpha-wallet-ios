@@ -205,7 +205,7 @@ class UniversalLinkCoordinator: Coordinator {
                 let amt: Decimal
                 let szabosPerEth = 10000
                 if let amount = Decimal(exactly: signedOrder.order.count) {
-                    amt = amount / szabosPerEth
+                    amt = amount / Decimal(szabosPerEth)
                 } else {
                     amt = 0
                 }
