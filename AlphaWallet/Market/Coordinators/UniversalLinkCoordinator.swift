@@ -156,8 +156,14 @@ class UniversalLinkCoordinator: Coordinator {
 
     func completeOrderHandling(signedOrder: SignedOrder)
     {
+        let requiresPaymaster = requiresPaymasterForCurrencyLinks(signedOrder: signedOrder)
         if signedOrder.order.price == 0 {
             self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
+                //Currency links on mainnet/classic/xdai without a paymaster should be rejected for security reasons (front running)
+                guard supported || !requiresPaymaster else {
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedServerDown())
+                    return
+                }
                 if supported {
                     self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
                 } else {
@@ -177,6 +183,12 @@ class UniversalLinkCoordinator: Coordinator {
         default:
             return amount.description + " ETH"
         }
+    }
+
+    private func requiresPaymasterForCurrencyLinks(signedOrder: SignedOrder) -> Bool {
+        guard signedOrder.order.nativeCurrencyDrop else { return false }
+        guard signedOrder.order.price == 0 else { return false }
+        return !config.server.isTestnet
     }
 
     //Returns true if handled
@@ -203,7 +215,7 @@ class UniversalLinkCoordinator: Coordinator {
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             if signedOrder.order.nativeCurrencyDrop {
                 let amt: Decimal
-                let szabosPerEth = 10000
+                let szabosPerEth: Decimal = 10000
                 if let amount = Decimal(exactly: signedOrder.order.count) {
                     amt = amount / szabosPerEth
                 } else {

@@ -49,6 +49,15 @@ enum RPCServer: Hashable {
         }
     }
 
+    var isTestnet: Bool {
+        switch self {
+        case .xDai, .classic, .main, .poa, .callisto:
+            return false
+        default:
+            return true
+        }
+    }
+
     var getEtherscanURL: String {
         switch self {
         case .main: return Constants.mainnetEtherscanAPI
