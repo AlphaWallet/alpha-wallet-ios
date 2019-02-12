@@ -258,7 +258,7 @@
 "a.welcome.onboarding.3" = "원하는 토큰을 구매, 판매, 전송하십시오";
 "a.welcome.onboarding.createwallet.button.title" = "시작하기";
 "a.marketplace.tabbar.item.title" = "마켓플레이스";
-"a.claim.token.title" = "티켓 가져오기";
+"a.claim.token.title" = "토큰 가져 오기";
 "a.claim.token.prompt" = "가져오기 링크?";
 "a.claim.token.success.title" = "티켓이 전송되었으며 곧 잔고가 업데이트됩니다";
 "a.claim.token.failed.title" = "잘못된 티켓 링크";

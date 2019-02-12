@@ -169,6 +169,16 @@ class UniversalLinkCoordinator: Coordinator {
         }
     }
 
+    //no need to localise as the labels are universal
+    private func getLabelForCurrencyDrops(amount: Decimal) -> String {
+        switch config.server {
+        case .xDai:
+            return amount.description + " xDAI"
+        default:
+            return amount.description + " ETH"
+        }
+    }
+
     //Returns true if handled
     func handleUniversalLink(url: URL) -> Bool {
         let prefix = UniversalLinkHandler().urlPrefix
@@ -192,7 +202,26 @@ class UniversalLinkCoordinator: Coordinator {
             guard let recoverAddress = Address(string: ethereumAddress.address) else { return false }
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             if signedOrder.order.nativeCurrencyDrop {
-                self.makeTokenHolder([""], signedOrder.order.contractAddress)
+                let amt: Decimal
+                let szabosPerEth = 10000
+                if let amount = Decimal(exactly: signedOrder.order.count) {
+                    amt = amount / szabosPerEth
+                } else {
+                    amt = 0
+                }
+                let label = getLabelForCurrencyDrops(amount: amt)
+                let token = Token(
+                        id: 0,
+                        index: 0,
+                        name: label,
+                        status: .available,
+                        values: [:]
+                )
+                self.tokenHolder = TokenHolder(
+                        tokens: [token],
+                        contractAddress: signedOrder.order.contractAddress,
+                        hasAssetDefinition: false
+                )
                 completeOrderHandling(signedOrder: signedOrder)
                 return true
             }
