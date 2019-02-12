@@ -203,8 +203,9 @@ class UniversalLinkCoordinator: Coordinator {
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             if signedOrder.order.nativeCurrencyDrop {
                 let amt: Decimal
-                if let amount = Decimal(string: signedOrder.order.count.description) {
-                    amt = amount / 10000
+                let szabosPerEth = 10000
+                if let amount = Decimal(exactly: signedOrder.order.count) {
+                    amt = amount / szabosPerEth
                 } else {
                     amt = 0
                 }
