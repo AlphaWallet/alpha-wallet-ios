@@ -348,7 +348,7 @@ extension NewTokenViewController: AddressTextFieldDelegate {
             promptUserOpenSettingsToChangeCameraPermission()
             return
         }
-        let controller = QRCodeReaderViewController()
+        let controller = QRCodeReaderViewController(cancelButtonTitle: nil, chooseFromPhotoLibraryButtonTitle: R.string.localizable.photos())
         controller.delegate = self
         present(controller, animated: true, completion: nil)
     }
