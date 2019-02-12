@@ -258,7 +258,7 @@
 "a.welcome.onboarding.3" = "买，卖，转让各种 token";
 "a.welcome.onboarding.createwallet.button.title" = "开始使用";
 "a.marketplace.tabbar.item.title" = "公共市场";
-"a.claim.token.title" = "导入门票";
+"a.claim.token.title" = "导入令牌";
 "a.claim.token.prompt" = "导入门票?";
 "a.claim.token.success.title" = "你的门票已经被转让，你的剩余门票数量稍后会被更新";
 "a.claim.token.failed.title" = "无效的MagicLink链接";

@@ -258,7 +258,7 @@
 "a.welcome.onboarding.3" = "Compra, vende y transfiere tus tokens favoritos";
 "a.welcome.onboarding.createwallet.button.title" = "EMPEZAR";
 "a.marketplace.tabbar.item.title" = "Mercado";
-"a.claim.token.title" = "Importando tickets";
+"a.claim.token.title" = "Importando simbólico";
 "a.claim.token.prompt" = "¿Importar enlace?";
 "a.claim.token.success.title" = "Tu ticket se ha transferido y el saldo se actualizará en breve";
 "a.claim.token.failed.title" = "Enlace de ticket no válido";
