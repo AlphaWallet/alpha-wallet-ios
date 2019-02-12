@@ -156,12 +156,16 @@ class UniversalLinkCoordinator: Coordinator {
 
     func completeOrderHandling(signedOrder: SignedOrder)
     {
+        let requiresPaymaster = requiresPaymasterForCurrencyLinks(signedOrder: signedOrder)
         if signedOrder.order.price == 0 {
             self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
                 if supported {
                     self.usePaymentServerForFreeTransferLinks(signedOrder: signedOrder)
-                } else {
+                } else if !requiresPaymaster {
                     self.handlePaidImports(signedOrder: signedOrder)
+                } else {
+                    //Currency links on mainnet/classic/xdai without a paymaster should be rejected for security reasons (front running)
+                    self.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedServerDown())
                 }
             }
         } else {
@@ -176,6 +180,18 @@ class UniversalLinkCoordinator: Coordinator {
             return amount.description + " xDAI"
         default:
             return amount.description + " ETH"
+        }
+    }
+
+    private func requiresPaymasterForCurrencyLinks(signedOrder: SignedOrder) -> Bool {
+        if !signedOrder.order.nativeCurrencyDrop || signedOrder.order.price != 0 {
+            return false
+        }
+        switch config.server {
+            case .xDai, .classic, .main:
+                return true
+            default:
+                return false
         }
     }
 
@@ -203,7 +219,7 @@ class UniversalLinkCoordinator: Coordinator {
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             if signedOrder.order.nativeCurrencyDrop {
                 let amt: Decimal
-                let szabosPerEth = 10000
+                let szabosPerEth: Decimal = 10000
                 if let amount = Decimal(exactly: signedOrder.order.count) {
                     amt = amount / szabosPerEth
                 } else {

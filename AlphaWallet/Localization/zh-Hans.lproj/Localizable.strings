@@ -328,3 +328,4 @@
 "blockchain.XDAI" = "xDAI Chain";
 "a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "photos" = "Photos";
+"a.claim.token.failed.serverDown" = "a.claim.token.failed.serverDown";
