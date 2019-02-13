@@ -216,8 +216,8 @@ class UniversalLinkCoordinator: Coordinator {
             if signedOrder.order.nativeCurrencyDrop {
                 let amt: Decimal
                 let szabosPerEth: Decimal = 10000
-                if let amount = Decimal(exactly: signedOrder.order.count) {
-                    amt = amount / Decimal(szabosPerEth)
+                if let amount = Decimal(string: signedOrder.order.count.description) {
+                    amt = amount / szabosPerEth
                 } else {
                     amt = 0
                 }
