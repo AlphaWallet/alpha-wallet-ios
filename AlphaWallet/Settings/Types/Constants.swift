@@ -10,6 +10,20 @@ public struct Constants {
         Array(arrayLiteral: 0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50)
     ).hex()
 
+    // Magic link networks
+    public static let mainnetMagicLinkPrefix = "https://aw.app/"
+    public static let legacyMagicLinkPrefix = "https://app.awallet.io/"
+    public static let classicMagicLinkPrefix = "https://classic.aw.app/"
+    public static let callistoMagicLinkPrefix = "https://callisto.aw.app/"
+    public static let kovanMagicLinkPrefix = "https://kovan.aw.app/"
+    public static let ropstenMagicLinkPrefix = "https://ropsten.aw.app/"
+    public static let rinkebyMagicLinkPrefix = "https://rinkeby.aw.app/"
+    public static let poaMagicLinkPrefix = "https://poa.aw.app/"
+    public static let sokolMagicLinkPrefix = "https://sokol.aw.app/"
+    public static let xDaiMagicLinkPrefix = "https://xdai.aw.app/"
+    public static let customMagicLinkPrefix = "https://custom.aw.app/"
+
+
     // XML repo
     public static let repoServer = "https://repo.aw.app"
     public static let repoClientName = "AlphaWallet"

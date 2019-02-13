@@ -46,16 +46,21 @@ extension Array {
 
 public class UniversalLinkHandler {
 
-    public let urlPrefix = "https://app.awallet.io/"
+    public let urlPrefix: String
+
+    init() {
+        urlPrefix = Config().magicLinkPrefix.description
+    }
 
     //message is with 32 bytes each of price and expiry and is shortened for link
     func createUniversalLink(signedOrder: SignedOrder) -> String {
+        let prefix = Config().magicLinkPrefix.description
         let message = formatMessageForLink(signedOrder: signedOrder)
         let signature = signedOrder.signature
         let link = (message + signature).hexa2Bytes
         let binaryData = Data(bytes: link)
         let base64String = binaryData.base64EncodedString()
-        return urlPrefix + b64SafeEncoding(base64String)
+        return prefix + b64SafeEncoding(base64String)
     }
 
     private func b64SafeEncoding(_ b64String: String) -> String {
@@ -69,8 +74,8 @@ public class UniversalLinkHandler {
     }
 
     //link has shortened price and expiry and must be expanded
-    func parseUniversalLink(url: String) -> SignedOrder? {
-        let linkInfo = b64SafeEncodingToRegularEncoding(url.substring(from: urlPrefix.count))
+    func parseUniversalLink(url: String, prefix: String) -> SignedOrder? {
+        let linkInfo = b64SafeEncodingToRegularEncoding(url.substring(from: prefix.count))
         guard var linkBytes = Data(base64Encoded: linkInfo)?.array else { return nil }
         let encodingByte = linkBytes[0]
         if let format = LinkFormat(rawValue: encodingByte) {
