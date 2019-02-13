@@ -4,6 +4,7 @@ import UIKit
 
 protocol UniversalLinkInPasteboardCoordinatorDelegate: class {
     func importUniversalLink(url: URL, for coordinator: UniversalLinkInPasteboardCoordinator)
+    func showImportError(errorMessage: String, cost: ImportMagicTokenViewControllerViewModel.Cost?)
 }
 
 class UniversalLinkInPasteboardCoordinator: Coordinator {
@@ -12,9 +13,13 @@ class UniversalLinkInPasteboardCoordinator: Coordinator {
     
     func start() {
         guard let contents = UIPasteboard.general.string?.trimmed else { return }
-        guard contents.hasPrefix(UniversalLinkHandler().urlPrefix) else { return }
-        guard contents.count > UniversalLinkHandler().urlPrefix.count else { return }
         guard let url = URL(string: contents) else { return }
+        let isLegacy = contents.hasPrefix(Constants.legacyMagicLinkPrefix)
+        guard contents.hasPrefix(UniversalLinkHandler().urlPrefix) || isLegacy else {
+            let actualNetwork = Config().server.magicLinkNetwork(url: url.description)
+            delegate?.showImportError(errorMessage: R.string.localizable.aClaimTokenWrongNetworkLink(actualNetwork), cost: nil)
+            return
+        }
         UIPasteboard.general.string = ""
         delegate?.importUniversalLink(url: url, for: self)
     }

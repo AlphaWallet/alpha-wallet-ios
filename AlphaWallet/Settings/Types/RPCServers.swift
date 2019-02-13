@@ -33,6 +33,30 @@ enum RPCServer: Hashable {
         }
     }
 
+    func magicLinkNetwork(url: String) -> String {
+        if url.contains(Constants.mainnetMagicLinkPrefix) {
+            return "Ethereum"
+        } else if url.contains(Constants.classicMagicLinkPrefix) {
+            return "Ethereum Classic"
+        } else if url.contains(Constants.callistoMagicLinkPrefix) {
+            return "Callisto"
+        } else if url.contains(Constants.kovanMagicLinkPrefix) {
+            return "Kovan"
+        } else if url.contains(Constants.ropstenMagicLinkPrefix) {
+            return "Ropsten"
+        } else if url.contains(Constants.rinkebyMagicLinkPrefix) {
+            return "Rinkeby"
+        } else if url.contains(Constants.poaMagicLinkPrefix) {
+            return "POA"
+        } else if url.contains(Constants.sokolMagicLinkPrefix) {
+            return "Sokol"
+        } else if url.contains(Constants.xDaiMagicLinkPrefix) {
+            return "xDAI"
+        } else {
+            return "custom"
+        }
+    }
+
     var name: String {
         switch self {
         case .main: return "Ethereum"

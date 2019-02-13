@@ -77,6 +77,24 @@ struct Config {
         return RPCServer(chainID: chainID)
     }
 
+    var magicLinkPrefix: URL {
+        let urlString: String = {
+            switch server {
+            case .main: return Constants.mainnetMagicLinkPrefix
+            case .classic: return Constants.classicMagicLinkPrefix
+            case .callisto: return Constants.callistoMagicLinkPrefix
+            case .kovan: return Constants.kovanMagicLinkPrefix
+            case .ropsten: return Constants.ropstenMagicLinkPrefix
+            case .rinkeby: return Constants.rinkebyMagicLinkPrefix
+            case .poa: return Constants.poaMagicLinkPrefix
+            case .sokol: return Constants.sokolMagicLinkPrefix
+            case .xDai: return Constants.xDaiMagicLinkPrefix
+            case .custom: return Constants.customMagicLinkPrefix
+            }
+        }()
+        return URL(string: urlString)!
+    }
+
     var rpcURL: URL {
         let urlString: String = {
             switch server {
