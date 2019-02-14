@@ -7,6 +7,7 @@ if (danger.github) {
     warnClosureStronglyCapturesSelf()
     failUsingNSLocalizedStringWithoutR()
     failIfRemoveAnyRealmSchemaMigrationBlock()
+    failIfUseDecimalExactlyInit()
     checkForSpacesInOtherwiseEmptyLines()
 }
 
@@ -49,6 +50,17 @@ function failIfRemoveAnyRealmSchemaMigrationBlock() {
         danger.git.diffForFile(each).then(diff => {
             if (diff.removed.includes("if oldSchemaVersion <")) {
                 fail(each + ": removed `if oldSchemaVersion <`. Migration blocks for previous versions should never be removed.")
+            }
+        })
+    })
+}
+
+//Can't use Decimal(exactly: aBigUint). It compiles but crashes at runtime
+function failIfUseDecimalExactlyInit() {
+    modifiedSwiftFiles().forEach(each => {
+        danger.git.diffForFile(each).then(diff => {
+            if (diff.added.includes("Decimal(exactly:")) {
+                fail(each + ": Must not use Decimal(exactly:), especially on BigUInt. Use Decimal(string: aBigUint.description) instead")
             }
         })
     })
