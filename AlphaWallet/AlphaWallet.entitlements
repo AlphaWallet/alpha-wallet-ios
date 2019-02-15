@@ -7,7 +7,16 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:app.awallet.io</string>
-		<string>applinks:blockchainapis.herokuapp.com</string>
+		<string>applinks:aw.app</string>
+		<string>applinks:classic.aw.app</string>
+		<string>applinks:callisto.aw.app</string>
+		<string>applinks:kovan.aw.app</string>
+		<string>applinks:ropsten.aw.app</string>
+		<string>applinks:rinkeby.aw.app</string>
+		<string>applinks:poa.aw.app</string>
+		<string>applinks:sokol.aw.app</string>
+		<string>applinks:xdai.aw.app</string>
+		<string>applinks:custom.aw.app</string>
 	</array>
 	<key>com.apple.developer.default-data-protection</key>
 	<string>NSFileProtectionComplete</string>

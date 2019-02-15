@@ -193,14 +193,19 @@ class UniversalLinkCoordinator: Coordinator {
 
     //Returns true if handled
     func handleUniversalLink(url: URL) -> Bool {
-        let prefix = UniversalLinkHandler().urlPrefix
-        let matchedPrefix = url.description.hasPrefix(prefix)
+        var prefix = config.magicLinkPrefix.description
+        let isLegacyLink = url.description.hasPrefix(Constants.legacyMagicLinkPrefix)
+        let matchedPrefix = url.description.hasPrefix(prefix) || isLegacyLink
         preparingToImportUniversalLink()
         guard matchedPrefix, url.absoluteString.count > prefix.count else {
-            showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+            let actualNetwork = config.server.magicLinkNetwork(url: url.description)
+            showImportError(errorMessage: R.string.localizable.aClaimTokenWrongNetworkLink(actualNetwork))
             return false
         }
-        guard let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString) else {
+        if isLegacyLink {
+            prefix = Constants.legacyMagicLinkPrefix
+        }
+        guard let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString, prefix: prefix) else {
             showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }
