@@ -282,8 +282,9 @@ extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
         guard universalLinkCoordinator == nil else { return }
         handleUniversalLink(url: url)
     }
+    
     func showImportError(errorMessage: String, cost: ImportMagicTokenViewControllerViewModel.Cost?) {
-        guard universalLinkCoordinator == nil else { return }
+        guard universalLinkCoordinator != nil else { return }
         showImportError(errorMessage: errorMessage, cost: cost)
     }
 
