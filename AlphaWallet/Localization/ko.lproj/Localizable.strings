@@ -162,7 +162,7 @@
 "a.wallet.import.wallet.title" = "가져오기";
 "a.wallet.import.wallet.bubble.title" = "가져올 지갑이 있습니까?";
 "a.wallet.import.wallet.bubble.description" = "이메일/SMS에서 가져오기 링크를 확인하십시오. 링크를 탭하면 앱을 자동으로 가져옵니다!";
-"a.wallet.token.verifiedContract" = "Stormbird에서 확인됨";
+"a.wallet.token.verifiedContract" = "AlphaWallet에서 확인됨";
 "a.wallet.token.unverifiedContract" = "미확인";
 "a.wallet.token.match.vs" = "%@-%@";
 "a.wallet.token.redeem.button.title" = "상환";

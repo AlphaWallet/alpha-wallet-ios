@@ -162,7 +162,7 @@
 "a.wallet.import.wallet.title" = "Importar";
 "a.wallet.import.wallet.bubble.title" = "¿Tienes que importar un ticket?";
 "a.wallet.import.wallet.bubble.description" = "Revisa tu correo electrónico/SMS y busca el enlace de importación. ¡Pulsa en él y se importará automáticamente a la aplicación!";
-"a.wallet.token.verifiedContract" = "VERIFICADO por Stormbird";
+"a.wallet.token.verifiedContract" = "VERIFICADO por AlphaWallet";
 "a.wallet.token.unverifiedContract" = "SIN VERIFICAR";
 "a.wallet.token.match.vs" = "%@-%@";
 "a.wallet.token.redeem.button.title" = "Canjear";
