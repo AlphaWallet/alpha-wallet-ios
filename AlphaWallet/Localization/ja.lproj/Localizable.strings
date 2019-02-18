@@ -162,7 +162,7 @@
 "a.wallet.import.wallet.title" = "インポート";
 "a.wallet.import.wallet.bubble.title" = "インポートするチケットがありますか?";
 "a.wallet.import.wallet.bubble.description" = "メール/SMS でインポート リンクを確認します。リンクをタップすると、自動的にアプリにインポートされます!";
-"a.wallet.token.verifiedContract" = "Stormbird で検証されました";
+"a.wallet.token.verifiedContract" = "AlphaWallet で検証されました";
 "a.wallet.token.unverifiedContract" = "未検証";
 "a.wallet.token.match.vs" = "%@-%@";
 "a.wallet.token.redeem.button.title" = "交換";
