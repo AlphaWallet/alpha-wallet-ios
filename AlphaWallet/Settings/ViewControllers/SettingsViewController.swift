@@ -125,6 +125,7 @@ class SettingsViewController: FormViewController {
 
         +++ createSection(withTitle: R.string.localizable.settingsContactUsTitle())
 
+        <<< linkProvider(type: .telegram)
         <<< linkProvider(type: .twitter)
         <<< linkProvider(type: .reddit)
         <<< linkProvider(type: .facebook)
