@@ -10,7 +10,8 @@ struct ParserResult: Equatable {
 
 struct QRURLParser {
     static func from(string: String) -> ParserResult? {
-        let parts = string.components(separatedBy: ":")
+        let result = string.replacingOccurrences(of: "pay-", with: "")
+        let parts = result.components(separatedBy: ":")
         if parts.count == 1, let address = parts.first, CryptoAddressValidator.isValidAddress(address) {
             return ParserResult(
                 protocolName: "",
@@ -20,9 +21,13 @@ struct QRURLParser {
         }
 
         if parts.count == 2, let address = QRURLParser.getAddress(from: parts.last), CryptoAddressValidator.isValidAddress(address) {
-            let uncheckedParamParts = Array(parts[1].components(separatedBy: "?")[1...])
+            let secondHalf = parts[1]
+            let uncheckedParamParts = Array(secondHalf.components(separatedBy: "?")[1...])
             let paramParts = uncheckedParamParts.isEmpty ? [] : Array(uncheckedParamParts[0].components(separatedBy: "&"))
-            let params = QRURLParser.parseParamsFromParamParts(paramParts: paramParts)
+            var params = QRURLParser.parseParamsFromParamParts(paramParts: paramParts)
+            if let chainId = secondHalf.slice(from: "@", to: "/") {
+                params["chainId"] = chainId
+            }
             return ParserResult(
                 protocolName: parts.first ?? "",
                 address: address,
@@ -50,10 +55,21 @@ struct QRURLParser {
             let tokenizedParamParts = paramParts[i].components(separatedBy: "=")
             if tokenizedParamParts.count < 2 {
                 break
+            } else {
+                params[tokenizedParamParts[0]] = tokenizedParamParts[1]
+                i += 1
             }
-            params[tokenizedParamParts[0]] = tokenizedParamParts[1]
-            i += 1
         }
         return params
+    }
+}
+
+extension String {
+    func slice(from: String, to: String) -> String? {
+        return (range(of: from)?.upperBound).flatMap { substringFrom in
+            (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
+                substring(with: substringFrom..<substringTo)
+            }
+        }
     }
 }
