@@ -171,7 +171,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     }
 
     @objc func transfer() {
-        let transferType = TransferType(token: viewModel.token)
+        let transferType = TransferType(config: config, token: viewModel.token)
         delegate?.didPressTransfer(for: .send(type: transferType),
                                    tokenHolders: viewModel.tokenHolders,
                                    in: self)

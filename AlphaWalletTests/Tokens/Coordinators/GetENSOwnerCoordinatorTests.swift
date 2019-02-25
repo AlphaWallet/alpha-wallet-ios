@@ -26,8 +26,6 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
     }
 
     private func makeConfigOnMainnet() -> Config {
-        var config = Config.make()
-        config.chainID = RPCServer.main.chainID
-        return config
+        return Config.make(chainID: RPCServer.main.chainID)
     }
 }

@@ -87,7 +87,7 @@ class CallForAssetAttributeCoordinator {
 
     private func refreshFunctionCallBasedAssetAttributes(forToken token: TokenObject) {
         contractToRefetch = token.contract
-        _ = TokenAdaptor(token: token).getTokenHolders()
+        _ = TokenAdaptor(config: config, token: token).getTokenHolders()
         contractToRefetch = nil
     }
 

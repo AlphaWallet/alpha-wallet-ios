@@ -46,7 +46,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     var contract: String {
         return viewModel.token.contract
     }
-    let pricePerTokenField = AmountTextField()
+    lazy var pricePerTokenField = AmountTextField(config: config)
     let paymentFlow: PaymentFlow
     weak var delegate: EnterSellTokensCardPriceQuantityViewControllerDelegate?
 

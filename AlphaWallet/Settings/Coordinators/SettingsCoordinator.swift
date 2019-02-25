@@ -55,6 +55,7 @@ class SettingsCoordinator: Coordinator {
 
 	@objc func showAccounts() {
 		let coordinator = AccountsCoordinator(
+				config: session.config,
 				navigationController: NavigationController(),
 				keystore: keystore,
 				balanceCoordinator: balanceCoordinator

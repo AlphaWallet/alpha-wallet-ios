@@ -3,19 +3,27 @@
 import UIKit
 
 struct SendHeaderViewViewModel {
-    var title = ""
+    let config: Config
+    var title: String
     var ticker: CoinTicker?
     var currencyAmount: String?
     var currencyAmountWithoutSymbol: Double?
     var showAlternativeAmount = false
-    var server = Config().server
+
+    init(config: Config) {
+        self.config = config
+        title = ""
+        ticker = nil
+        currencyAmount = nil
+        currencyAmountWithoutSymbol = nil
+    }
 
     var issuer: String {
         return ""
     }
 
     var blockChainName: String {
-        switch server {
+        switch config.server {
         case .xDai:
             return R.string.localizable.blockchainXDAI()
         case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:

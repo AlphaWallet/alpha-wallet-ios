@@ -15,6 +15,7 @@ class AddressTextField: UIControl {
     private let textField = UITextField()
     let label = UILabel()
     let ensAddressLabel = UILabel()
+    private let config: Config
 
     var value: String {
         get {
@@ -43,8 +44,9 @@ class AddressTextField: UIControl {
 
     weak var delegate: AddressTextFieldDelegate?
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(config: Config) {
+        self.config = config
+        super.init(frame: .zero)
 
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
@@ -146,7 +148,7 @@ class AddressTextField: UIControl {
             return
         } else {
             textField.text = value
-            GetENSOwnerCoordinator(config: Config()).getENSOwner(for: value) { result in
+            GetENSOwnerCoordinator(config: config).getENSOwner(for: value) { result in
                 guard let address = result.value else {
                     //Don't show an error when pasting what seems like a wrong ENS name for better usability
                     return
@@ -168,7 +170,7 @@ class AddressTextField: UIControl {
     private func queueResolution(ofValue value: String) {
         let value = value.trimmed
         let oldTextValue = textField.text?.trimmed
-        GetENSOwnerCoordinator(config: Config()).queueGetENSOwner(for: value) { [weak self] result in
+        GetENSOwnerCoordinator(config: config).queueGetENSOwner(for: value) { [weak self] result in
             guard let strongSelf = self else { return }
             if let address = result.value {
                 guard CryptoAddressValidator.isValidAddress(address.address) else {

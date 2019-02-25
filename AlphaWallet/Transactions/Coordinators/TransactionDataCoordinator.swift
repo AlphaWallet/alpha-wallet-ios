@@ -29,7 +29,7 @@ class TransactionDataCoordinator {
     private let keystore: Keystore
     private let tokensStorage: TokensDataStore
     private var viewModel: TransactionsViewModel {
-        return .init(transactions: storage.objects)
+        return .init(config: session.config, transactions: storage.objects)
     }
     private var timer: Timer?
     private var updateTransactionsTimer: Timer?
@@ -75,7 +75,7 @@ class TransactionDataCoordinator {
     }
 
     private func runScheduledTimers() {
-        guard !AlphaWallet.Config().isAutoFetchingDisabled else { return }
+        guard !session.config.isAutoFetchingDisabled else { return }
         guard timer == nil, updateTransactionsTimer == nil else {
             return
         }
@@ -129,6 +129,7 @@ class TransactionDataCoordinator {
     ) {
         alphaWalletProvider.request(
                 .getTransactions(
+                        config: session.config,
                         address: address.description,
                         startBlock: startBlock,
                         endBlock: endBlock,
@@ -174,7 +175,7 @@ class TransactionDataCoordinator {
 
     private func updatePendingTransaction(_ transaction: Transaction) {
         let request = GetTransactionRequest(hash: transaction.id)
-        Session.send(EtherServiceRequest(batch: BatchFactory().create(request))) { [weak self] result in
+        Session.send(EtherServiceRequest(config: session.config, batch: BatchFactory().create(request))) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success:
@@ -246,7 +247,7 @@ class TransactionDataCoordinator {
     private func notifyUserEtherReceived(for transactionId: String, amount: String) {
         let notificationCenter = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
-        let config = AlphaWallet.Config()
+        let config = session.config
         switch config.server {
         case .main, .xDai:
             content.body = R.string.localizable.transactionsReceivedEther(amount, config.server.symbol)

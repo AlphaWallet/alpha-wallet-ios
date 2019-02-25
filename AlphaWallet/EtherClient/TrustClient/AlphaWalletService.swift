@@ -4,13 +4,13 @@ import Foundation
 import Moya
 
 enum AlphaWalletService {
-    case priceOfEth
-    case priceOfDai
-    case getTransactions(address: String, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
-    case getTransaction(ID: String)
-    case register(device: PushDevice)
-    case unregister(device: PushDevice)
-    case marketplace(chainID: Int)
+    case priceOfEth(config: Config)
+    case priceOfDai(config: Config)
+    case getTransactions(config: Config, address: String, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
+    case getTransaction(config: Config, ID: String)
+    case register(config: Config, device: PushDevice)
+    case unregister(config: Config, device: PushDevice)
+    case marketplace(config: Config)
 
     enum SortOrder: String {
         case asc
@@ -21,13 +21,14 @@ enum AlphaWalletService {
 extension AlphaWalletService: TargetType {
     var baseURL: URL {
         switch self {
-        case .getTransactions:
-            return Config().transactionInfoEndpoints
-        case .priceOfEth, .priceOfDai:
-            return Config().priceInfoEndpoints
-        case .getTransaction, .register, .unregister, .marketplace:
-            //TODO this wouldn't be needed after we remove these unused cases
-            return Config().priceInfoEndpoints
+        case .getTransactions(let config, _, _, _, _):
+            return config.transactionInfoEndpoints
+        case .priceOfEth(let config), .priceOfDai(let config):
+            return config.priceInfoEndpoints
+        case .getTransaction(let config, _), .register(let config, _), .unregister(let config, _):
+            return config.priceInfoEndpoints
+        case .marketplace(let config):
+            return config.priceInfoEndpoints
         }
     }
 
@@ -64,7 +65,7 @@ extension AlphaWalletService: TargetType {
 
     var task: Task {
         switch self {
-        case .getTransactions(let address, let startBlock, let endBlock, let sortOrder):
+        case .getTransactions(_, let address, let startBlock, let endBlock, let sortOrder):
             return .requestParameters(parameters: [
                 "module": "account",
                 "action": "txlist",
@@ -75,14 +76,14 @@ extension AlphaWalletService: TargetType {
             ], encoding: URLEncoding())
         case .getTransaction:
             return .requestPlain
-        case .register(let device):
+        case .register(_, let device):
             return .requestJSONEncodable(device)
-        case .unregister(let device):
+        case .unregister(_, let device):
             return .requestJSONEncodable(device)
         case .priceOfEth, .priceOfDai:
             return .requestPlain
-        case .marketplace(let chainID):
-            return .requestParameters(parameters: ["chainID": chainID], encoding: URLEncoding())
+        case .marketplace(let config):
+            return .requestParameters(parameters: ["chainID": config.server.chainID], encoding: URLEncoding())
         }
     }
 

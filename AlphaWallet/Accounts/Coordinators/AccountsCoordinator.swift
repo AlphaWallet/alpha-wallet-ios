@@ -31,7 +31,7 @@ class AccountsCoordinator: Coordinator {
     weak var delegate: AccountsCoordinatorDelegate?
 
     init(
-        config: Config = Config(),
+        config: Config,
         navigationController: UINavigationController,
         keystore: Keystore,
         balanceCoordinator: GetBalanceCoordinator
@@ -72,7 +72,7 @@ class AccountsCoordinator: Coordinator {
 	}
 
     func importOrCreateWallet(entryPoint: WalletEntryPoint) {
-        let coordinator = WalletCoordinator(keystore: keystore)
+        let coordinator = WalletCoordinator(config: config, keystore: keystore)
         if case .createInstantWallet = entryPoint {
             coordinator.navigationController = navigationController
         }

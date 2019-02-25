@@ -72,7 +72,7 @@ class SettingsViewController: FormViewController {
             guard let strongSelf = self else { return }
             cell.imageView?.image = R.image.settings_language()?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = strongSelf.viewModel.localeTitle
-            cell.detailTextLabel?.text = AppLocale(id: strongSelf.session.config.locale).displayName
+            cell.detailTextLabel?.text = AppLocale(id: Config.getLocale()).displayName
             cell.accessoryType = .disclosureIndicator
         }
 

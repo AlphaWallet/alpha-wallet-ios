@@ -11,6 +11,8 @@ protocol InCoordinatorDelegate: class {
     func didUpdateAccounts(in coordinator: InCoordinator)
     func didShowWallet(in coordinator: InCoordinator)
     func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController?
+    //TODO remove when we support multi-chain
+    func mayHaveChangeChain(in coordinator: InCoordinator)
 }
 
 enum Tabs {
@@ -32,7 +34,8 @@ enum Tabs {
 
 class InCoordinator: Coordinator {
     private let initialWallet: Wallet
-    private let config: Config
+    //TODO make private or remove once we support multi-chain
+    var config: Config
     private let assetDefinitionStore: AssetDefinitionStore
     private let appTracker: AppTracker
     private var tokensStorageForCryptoPriceFetching: TokensDataStore?
@@ -76,7 +79,7 @@ class InCoordinator: Coordinator {
             wallet: Wallet,
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
-            config: Config = Config(),
+            config: Config,
             appTracker: AppTracker = AppTracker()
     ) {
         self.navigationController = navigationController
@@ -271,7 +274,7 @@ class InCoordinator: Coordinator {
     }
 
     private func promptBackupWallet(withAddress address: String) {
-        let coordinator = PromptBackupCoordinator(walletAddress: address)
+        let coordinator = PromptBackupCoordinator(walletAddress: address, config: config)
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
@@ -311,6 +314,7 @@ class InCoordinator: Coordinator {
         removeAllCoordinators()
         OpenSea.sharedInstance.reset()
         callForAssetAttributeCoordinator = nil
+        delegate?.mayHaveChangeChain(in: self)
         restartCryptoPriceFetching()
         showTabBar(for: account)
         fetchXMLAssetDefinitions()

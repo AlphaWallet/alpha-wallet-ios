@@ -29,8 +29,8 @@ class OpenSea {
     }
 
     ///Uses a promise to make sure we don't fetch from OpenSea multiple times concurrently
-    func makeFetchPromise(owner: String) -> PromiseResult {
-        switch Config().server {
+    func makeFetchPromise(config: Config, owner: String) -> PromiseResult {
+        switch config.server {
         case .main:
             break
         case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom, .xDai:

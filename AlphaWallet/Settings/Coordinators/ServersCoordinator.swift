@@ -42,7 +42,7 @@ class ServersCoordinator: Coordinator {
 
 extension ServersCoordinator: ServersViewControllerDelegate {
     func didSelectServer(server: RPCServer, in viewController: ServersViewController) {
-        config.chainID = server.chainID
+        Config.setChainId(server.chainID)
         delegate?.didSelectServer(server: server, in: self)
     }
 }

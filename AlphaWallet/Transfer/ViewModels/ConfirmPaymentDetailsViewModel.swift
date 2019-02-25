@@ -24,7 +24,7 @@ struct ConfirmPaymentDetailsViewModel {
 
     init(
         transaction: PreviewTransaction,
-        config: Config = Config(),
+        config: Config,
         currentBalance: BalanceProtocol?,
         currencyRate: CurrencyRate?
     ) {

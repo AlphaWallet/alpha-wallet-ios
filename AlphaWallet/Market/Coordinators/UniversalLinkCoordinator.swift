@@ -205,7 +205,7 @@ class UniversalLinkCoordinator: Coordinator {
         if isLegacyLink {
             prefix = Constants.legacyMagicLinkPrefix
         }
-        guard let signedOrder = UniversalLinkHandler().parseUniversalLink(url: url.absoluteString, prefix: prefix) else {
+        guard let signedOrder = UniversalLinkHandler(config: config).parseUniversalLink(url: url.absoluteString, prefix: prefix) else {
             showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }
@@ -409,8 +409,6 @@ class UniversalLinkCoordinator: Coordinator {
     private func makeTokenHolderImpl(name: String, bytes32Tokens: [String], contractAddress: String) {
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress)
-        //TODO should pass Config instance into this func instead
-        let config = Config()
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
@@ -467,7 +465,7 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func promptBackupWallet() {
         guard let keystore = try? EtherKeystore(), let address = keystore.recentlyUsedWallet?.address.eip55String else { return }
-		let coordinator = PromptBackupCoordinator(walletAddress: address)
+		let coordinator = PromptBackupCoordinator(walletAddress: address, config: config)
 		addCoordinator(coordinator)
 		coordinator.delegate = self
 		coordinator.start()

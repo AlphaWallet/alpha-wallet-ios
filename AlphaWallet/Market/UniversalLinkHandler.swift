@@ -45,16 +45,19 @@ extension Array {
 }
 
 public class UniversalLinkHandler {
+    private let config: Config
 
     public let urlPrefix: String
 
-    init() {
-        urlPrefix = Config().magicLinkPrefix.description
+    init(config: Config) {
+        self.config = config
+
+        urlPrefix = config.magicLinkPrefix.description
     }
 
     //message is with 32 bytes each of price and expiry and is shortened for link
     func createUniversalLink(signedOrder: SignedOrder) -> String {
-        let prefix = Config().magicLinkPrefix.description
+        let prefix = config.magicLinkPrefix.description
         let message = formatMessageForLink(signedOrder: signedOrder)
         let signature = signedOrder.signature
         let link = (message + signature).hexa2Bytes

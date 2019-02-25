@@ -6,7 +6,8 @@ import UIKit
 import BigInt
 
 class AppCoordinator: NSObject, Coordinator {
-    private let config: Config
+    //TODO remove once we support multi-chain
+    private var config: Config
     private lazy var welcomeViewController: WelcomeViewController = {
         let controller = WelcomeViewController()
         controller.delegate = self
@@ -48,7 +49,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     init(
-        config: Config = Config(),
+        config: Config = Config(chainID: Config.getChainId()),
         window: UIWindow,
         keystore: Keystore,
         navigationController: UINavigationController = NavigationController()
@@ -98,6 +99,7 @@ class AppCoordinator: NSObject, Coordinator {
                 wallet: wallet,
                 keystore: keystore,
                 assetDefinitionStore: assetDefinitionStore,
+                config: config,
                 appTracker: appTracker
         )
         coordinator.delegate = self
@@ -150,6 +152,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     func showInitialWalletCoordinator(entryPoint: WalletEntryPoint) {
         let coordinator = InitialWalletCreationCoordinator(
+                config: config,
                 navigationController: navigationController,
                 keystore: keystore,
                 entryPoint: entryPoint
@@ -160,7 +163,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private func createInitialWallet() {
-        WalletCoordinator(keystore: keystore).createInitialWallet()
+        WalletCoordinator(config: config, keystore: keystore).createInitialWallet()
     }
 
     @discardableResult func handleUniversalLink(url: URL) -> Bool {
@@ -186,7 +189,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func handleUniversalLinkInPasteboard() {
-        let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator()
+        let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator(config: config)
         universalLinkPasteboardCoordinator.delegate = self
         universalLinkPasteboardCoordinator.start()
     }
@@ -249,6 +252,11 @@ extension AppCoordinator: InCoordinatorDelegate {
 
     func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController? {
         return assetDefinitionStoreCoordinator?.createOverridesViewController()
+    }
+
+    func mayHaveChangeChain(in coordinator: InCoordinator) {
+        config = Config(chainID: Config.getChainId())
+        inCoordinator?.config = config
     }
 }
 

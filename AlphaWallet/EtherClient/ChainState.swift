@@ -28,9 +28,7 @@ class ChainState {
 
     var updateLatestBlock: Timer?
 
-    init(
-        config: Config = Config()
-    ) {
+    init(config: Config) {
         self.config = config
         self.defaults = config.defaults
         if config.isAutoFetchingDisabled {
@@ -50,7 +48,7 @@ class ChainState {
     }
 
     @objc func fetch() {
-        let request = EtherServiceRequest(batch: BatchFactory().create(BlockNumberRequest()))
+        let request = EtherServiceRequest(config: config, batch: BatchFactory().create(BlockNumberRequest()))
         Session.send(request) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
