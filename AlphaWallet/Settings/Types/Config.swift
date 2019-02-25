@@ -68,11 +68,6 @@ struct Config {
         }
     }
 
-    var isCryptoPrimaryCurrency: Bool {
-        get { return defaults.bool(forKey: Keys.isCryptoPrimaryCurrency) }
-        set { defaults.set(newValue, forKey: Keys.isCryptoPrimaryCurrency) }
-    }
-
     var server: RPCServer {
         return RPCServer(chainID: chainID)
     }
