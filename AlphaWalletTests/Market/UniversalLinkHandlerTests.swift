@@ -11,6 +11,11 @@ import TrustKeystore
 class UniversalLinkHandlerTests: XCTestCase {
     
     func testUniversalLinkParser() {
+        guard Config().server == .main else {
+            XCTFail("This test expects itself to be run on Mainnet.")
+            return
+        }
+
         let testUrl = "https://aw.app/AQAAAAAAAACjNHyO0TRETCUWmHLJCmNg1Cs2kQFxEtQiQ269SZP2r2Y6CETiCqCE3HGQa63LYjsaCOccJi0mj9bpsmnZCwFkjVcNaaJ6Ed8lVU83UiGILQZ4CcFhHA=="
         if let signedOrder = UniversalLinkHandler().parseUniversalLink(url: testUrl, prefix: Constants.mainnetMagicLinkPrefix) {
             XCTAssertGreaterThanOrEqual(signedOrder.signature.count, 130)
