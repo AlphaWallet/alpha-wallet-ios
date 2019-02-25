@@ -23,12 +23,6 @@ class ConfigTests: XCTestCase {
         XCTAssertEqual(.kovan, config.server)
     }
 
-    func testTestDefaultisCryptoPrimaryCurrency() {
-        var config: Config = .make()
-
-        XCTAssertEqual(false, config.isCryptoPrimaryCurrency)
-    }
-
     func testSwitchLocale() {
         var config: Config = .make()
 
