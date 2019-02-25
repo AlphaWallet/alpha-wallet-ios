@@ -21,16 +21,13 @@ protocol TransactionDataCoordinatorDelegate: class {
 }
 
 class TransactionDataCoordinator {
-    struct Config {
-        static let deleteMissingInternalSeconds: Double = 60.0
-        static let deleyedTransactionInternalSeconds: Double = 60.0
-    }
+    static let deleteMissingInternalSeconds: Double = 60.0
+    static let delayedTransactionInternalSeconds: Double = 60.0
 
     private let storage: TransactionsStorage
     private let session: WalletSession
     private let keystore: Keystore
     private let tokensStorage: TokensDataStore
-    private let config = Config()
     private var viewModel: TransactionsViewModel {
         return .init(transactions: storage.objects)
     }
@@ -182,7 +179,7 @@ class TransactionDataCoordinator {
             switch result {
             case .success:
                 // NSLog("parsedTransaction \(_parsedTransaction)")
-                if transaction.date > Date().addingTimeInterval(Config.deleyedTransactionInternalSeconds) {
+                if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.delayedTransactionInternalSeconds) {
                     strongSelf.update(state: .completed, for: transaction)
                     strongSelf.update(items: [transaction])
                 }
@@ -197,7 +194,7 @@ class TransactionDataCoordinator {
                         // NSLog("code \(code), error: \(message)")
                         strongSelf.delete(transactions: [transaction])
                     case .resultObjectParseError:
-                        if transaction.date > Date().addingTimeInterval(Config.deleteMissingInternalSeconds) {
+                        if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
                             strongSelf.update(state: .failed, for: transaction)
                         }
                     default: break
