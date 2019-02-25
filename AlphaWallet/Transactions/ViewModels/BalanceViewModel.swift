@@ -4,18 +4,18 @@ import Foundation
 import UIKit
 
 struct BalanceViewModel: BalanceBaseViewModel {
+    private let config: Config
     private let balance: Balance?
     private let rate: CurrencyRate?
-    private let config: Config
 
     init(
+        config: Config,
         balance: Balance? = .none,
-        rate: CurrencyRate? = .none,
-        config: Config = Config()
+        rate: CurrencyRate? = .none
     ) {
+        self.config = config
         self.balance = balance
         self.rate = rate
-        self.config = config
     }
 
     var amount: Double {

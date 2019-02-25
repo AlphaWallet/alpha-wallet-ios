@@ -12,12 +12,14 @@ class ConfigTests: XCTestCase {
         XCTAssertEqual(.main, config.server)
     }
 
+    //TODO remove when we support multi-chain
     func testChangeChainID() {
-        var config: Config = .make()
+        XCTAssertEqual(1, Config.make().chainID)
 
-        XCTAssertEqual(1, config.chainID)
+        let testDefaults = UserDefaults.test
+        Config.setChainId(RPCServer.ropsten.chainID, defaults: testDefaults)
 
-        config.chainID = 42
+        let config = Config(chainID: RPCServer.kovan.chainID)
 
         XCTAssertEqual(42, config.chainID)
         XCTAssertEqual(.kovan, config.server)
@@ -26,7 +28,7 @@ class ConfigTests: XCTestCase {
     func testSwitchLocale() {
         var config: Config = .make()
 
-        config.locale = AppLocale.english.id
+        Config.setLocale(AppLocale.english)
         let vc1 = TokensViewController(
                 session: .make(),
                 account: .make(),
@@ -34,7 +36,7 @@ class ConfigTests: XCTestCase {
         )
         XCTAssertEqual(vc1.title, "Wallet")
 
-        config.locale = AppLocale.simplifiedChinese.id
+        Config.setLocale(AppLocale.simplifiedChinese)
         let vc2 = TokensViewController(
                 session: .make(),
                 account: .make(),
@@ -43,28 +45,28 @@ class ConfigTests: XCTestCase {
         XCTAssertEqual(vc2.title, "我的钱包")
 
         //Must change this back to system, otherwise other tests will break either immediately or the next run
-        config.locale = AppLocale.system.id
+        Config.setLocale(AppLocale.system)
     }
 
     func testNibsAccessAfterSwitchingLocale() {
         var config: Config = .make()
 
-        config.locale = AppLocale.english.id
-        config.locale = AppLocale.simplifiedChinese.id
+        Config.setLocale(AppLocale.english)
+        Config.setLocale(AppLocale.simplifiedChinese)
 
         let tableView = UITableView()
         tableView.register(R.nib.bookmarkViewCell(), forCellReuseIdentifier: R.nib.bookmarkViewCell.name)
         XCTAssertNoThrow(tableView.dequeueReusableCell(withIdentifier: R.nib.bookmarkViewCell.name))
 
         //Must change this back to system, otherwise other tests will break either immediately or the next run
-        config.locale = AppLocale.system.id
+        Config.setLocale(AppLocale.system)
     }
 
     func testWeb3StillLoadsAfterSwitchingLocale() {
         var config: Config = .make()
 
-        config.locale = AppLocale.english.id
-        config.locale = AppLocale.simplifiedChinese.id
+        Config.setLocale(AppLocale.english)
+        Config.setLocale(AppLocale.simplifiedChinese)
 
         let expectation = XCTestExpectation(description: "web3 loaded")
         let web3 = Web3Swift()
@@ -77,6 +79,6 @@ class ConfigTests: XCTestCase {
         wait(for: [expectation], timeout: 4)
 
         //Must change this back to system, otherwise other tests will break either immediately or the next run
-        config.locale = AppLocale.system.id
+        Config.setLocale(AppLocale.system)
     }
 }

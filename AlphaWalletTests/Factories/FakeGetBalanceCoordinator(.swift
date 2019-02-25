@@ -5,6 +5,6 @@ import Foundation
 
 class FakeGetBalanceCoordinator: GetBalanceCoordinator {
     convenience init() {
-        self.init(config: Config())
+        self.init(config: .make())
     }
 }

@@ -11,8 +11,8 @@ struct TransactionsViewModel {
     private let config: Config
 
     init(
-        transactions: [Transaction] = [],
-        config: Config = Config()
+        config: Config,
+        transactions: [Transaction] = []
     ) {
         self.config = config
 

@@ -8,15 +8,21 @@ protocol UniversalLinkInPasteboardCoordinatorDelegate: class {
 }
 
 class UniversalLinkInPasteboardCoordinator: Coordinator {
+    private let config: Config
+
     var coordinators: [Coordinator] = []
     weak var delegate: UniversalLinkInPasteboardCoordinatorDelegate?
+
+    init(config: Config) {
+        self.config = config
+    }
     
     func start() {
         guard let contents = UIPasteboard.general.string?.trimmed else { return }
         guard let url = URL(string: contents) else { return }
         let isLegacy = contents.hasPrefix(Constants.legacyMagicLinkPrefix)
-        guard contents.hasPrefix(UniversalLinkHandler().urlPrefix) || isLegacy else {
-            let actualNetwork = Config().server.magicLinkNetwork(url: url.description)
+        guard contents.hasPrefix(UniversalLinkHandler(config: config).urlPrefix) || isLegacy else {
+            let actualNetwork = config.server.magicLinkNetwork(url: url.description)
             delegate?.showImportError(errorMessage: R.string.localizable.aClaimTokenWrongNetworkLink(actualNetwork), cost: nil)
             return
         }

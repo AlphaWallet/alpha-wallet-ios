@@ -21,7 +21,7 @@ class LocalesCoordinator: Coordinator {
             .japanese
         ]
         let controller = LocalesViewController()
-        controller.configure(viewModel: LocalesViewModel(locales: locales, selectedLocale: AppLocale(id: config.locale)))
+        controller.configure(viewModel: LocalesViewModel(locales: locales, selectedLocale: AppLocale(id: Config.getLocale())))
         controller.delegate = self
         return controller
     }()
@@ -37,7 +37,7 @@ class LocalesCoordinator: Coordinator {
 
 extension LocalesCoordinator: LocalesViewControllerDelegate {
     func didSelect(locale: AppLocale, in viewController: LocalesViewController) {
-        config.locale = locale.id
+        Config.setLocale(locale)
         delegate?.didSelect(locale: locale, in: self)
     }
 }

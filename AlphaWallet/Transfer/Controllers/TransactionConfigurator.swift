@@ -90,7 +90,7 @@ class TransactionConfigurator {
             value: transaction.value,
             data: configuration.data
         )
-        Session.send(EtherServiceRequest(batch: BatchFactory().create(request))) { [weak self] result in
+        Session.send(EtherServiceRequest(config: session.config, batch: BatchFactory().create(request))) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let gasLimit):

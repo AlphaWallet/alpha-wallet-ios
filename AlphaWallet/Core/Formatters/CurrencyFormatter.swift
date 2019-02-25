@@ -7,7 +7,7 @@ class CurrencyFormatter {
         let formatter = NumberFormatter()
         formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 2
-        formatter.currencyCode = Config().currency.rawValue
+        formatter.currencyCode = Config.getCurrency().rawValue
         formatter.numberStyle = .currency
         return formatter
     }

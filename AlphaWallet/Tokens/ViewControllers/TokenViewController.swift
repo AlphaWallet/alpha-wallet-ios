@@ -12,7 +12,7 @@ protocol TokenViewControllerDelegate: class, CanOpenURL {
 class TokenViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let header = TokenViewControllerHeaderView()
-    private var headerViewModel = SendHeaderViewViewModel()
+    lazy private var headerViewModel = SendHeaderViewViewModel(config: session.config)
     private var viewModel: TokenViewControllerViewModel?
     private let session: WalletSession
     private let tokensDataStore: TokensDataStore
