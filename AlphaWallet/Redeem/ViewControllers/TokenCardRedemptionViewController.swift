@@ -19,7 +19,6 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private var timer: Timer!
     private var session: WalletSession
     private let token: TokenObject
-    private let redeemListener = RedeemEventListener()
 
     let config: Config
     var contract: String {
@@ -91,30 +90,6 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override
-    func viewDidLoad() {
-        super.viewDidLoad()
-        timer = Timer.scheduledTimer(timeInterval: 30,
-                                     target: self,
-                                     selector: #selector(configureUI),
-                                     userInfo: nil,
-                                     repeats: true)
-        redeemListener.shouldListen = true
-        redeemListener.start(for: session.account.address,
-                             completion: { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.redeemListener.stop()
-            strongSelf.showSuccessMessage()
-        })
-    }
-
-    override
-    func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        invalidateTimer()
-        redeemListener.stop()
     }
 
     @objc
