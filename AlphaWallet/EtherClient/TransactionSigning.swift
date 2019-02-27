@@ -9,10 +9,10 @@ protocol Signer {
 }
 
 struct EIP155Signer: Signer {
-    private let chainId: BigInt
+    private let server: RPCServer
 
-    init(chainId: BigInt) {
-        self.chainId = chainId
+    init(server: RPCServer) {
+        self.server = server
     }
 
     func hash(transaction: UnsignedTransaction) -> Data {
@@ -23,15 +23,15 @@ struct EIP155Signer: Signer {
             transaction.to?.data ?? Data(),
             transaction.value,
             transaction.data,
-            transaction.chainID, 0, 0,
+            transaction.server.chainID, 0, 0,
         ] as [Any])!
     }
 
     func values(transaction: UnsignedTransaction, signature: Data) -> (r: BigInt, s: BigInt, v: BigInt) {
         let (r, s, v) = HomesteadSigner().values(transaction: transaction, signature: signature)
         let newV: BigInt
-        if chainId != 0 {
-            newV = BigInt(signature[64]) + 35 + chainId + chainId
+        if server.chainID != 0 {
+            newV = BigInt(signature[64]) + 35 + BigInt(server.chainID) + BigInt(server.chainID)
         } else {
             newV = v
         }

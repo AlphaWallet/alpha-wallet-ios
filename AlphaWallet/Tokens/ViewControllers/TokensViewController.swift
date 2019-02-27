@@ -12,7 +12,7 @@ protocol TokensViewControllerDelegate: class {
 }
 
 class TokensViewController: UIViewController {
-    private let dataStore: TokensDataStore
+    private let tokenCollection: TokenCollection
 
     private var viewModel: TokensViewModel {
         didSet {
@@ -20,7 +20,7 @@ class TokensViewController: UIViewController {
             refreshView(viewModel: viewModel)
         }
     }
-    private let session: WalletSession
+    private let sessions: ServerDictionary<WalletSession>
     private let account: Wallet
 	private let filterView = WalletFilterView()
     private var importWalletView: UIView?
@@ -42,19 +42,19 @@ class TokensViewController: UIViewController {
 
     weak var delegate: TokensViewControllerDelegate?
 
-    init(session: WalletSession,
+    init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
-         dataStore: TokensDataStore
+         tokenCollection: TokenCollection
     ) {
-		self.session = session
+		self.sessions = sessions
         self.account = account
-        self.dataStore = dataStore
-        self.viewModel = TokensViewModel(config: session.config, tokens: [], tickers: .none)
+        self.tokenCollection = tokenCollection
+        self.viewModel = TokensViewModel(tokens: [], tickers: .init())
         tableView = UITableView(frame: .zero, style: .plain)
         searchController = UISearchController(searchResultsController: nil)
 
         super.init(nibName: nil, bundle: nil)
-        dataStore.delegate = self
+        handleTokenCollectionUpdates()
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addToken))
 
         view.backgroundColor = Colors.appBackground
@@ -104,14 +104,14 @@ class TokensViewController: UIViewController {
         ])
         errorView = ErrorView(onRetry: { [weak self] in
             self?.startLoading()
-            self?.dataStore.fetch()
+            self?.tokenCollection.fetch()
         })
         loadingView = LoadingView()
         emptyView = EmptyView(
             title: R.string.localizable.emptyViewNoTokensLabelTitle(),
             onRetry: { [weak self] in
                 self?.startLoading()
-                self?.dataStore.fetch()
+                self?.tokenCollection.fetch()
         })
         refreshView(viewModel: viewModel)
 
@@ -132,7 +132,7 @@ class TokensViewController: UIViewController {
 
     func fetch() {
         startLoading()
-        dataStore.fetch()
+        tokenCollection.fetch()
     }
 
     override func viewDidLayoutSubviews() {
@@ -243,6 +243,27 @@ class TokensViewController: UIViewController {
         }
         return contractsForCollectibles
     }
+
+    private func handleTokenCollectionUpdates() {
+        tokenCollection.subscribe { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let viewModel):
+                strongSelf.viewModel = viewModel
+                strongSelf.endLoading()
+            case .failure(let error):
+                strongSelf.endLoading(error: error)
+            }
+            strongSelf.reload()
+
+            if strongSelf.tableViewRefreshControl.isRefreshing {
+                strongSelf.tableViewRefreshControl.endRefreshing()
+            }
+            if strongSelf.collectiblesCollectionViewRefreshControl.isRefreshing {
+                strongSelf.collectiblesCollectionViewRefreshControl.endRefreshing()
+            }
+        }
+    }
 }
 
 extension TokensViewController: StatefulViewController {
@@ -271,6 +292,8 @@ extension TokensViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
+        let server = token.server
+        let session = sessions[server]
 
         switch token.type {
         case .nativeCryptocurrency:
@@ -279,38 +302,18 @@ extension TokensViewController: UITableViewDelegate {
                     ticker: viewModel.ticker(for: token),
                     currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
                     currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                    server: session.config.server
+                    server: server
             )
             return cellViewModel.cellHeight
         case .erc20:
-            let cellViewModel = TokenViewCellViewModel(token: token, server: session.config.server)
+            let cellViewModel = TokenViewCellViewModel(token: token, server: server)
             return cellViewModel.cellHeight
         case .erc721:
-            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: session.config.server)
+            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: server)
             return cellViewModel.cellHeight
         case .erc875:
-            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: session.config.server)
+            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: server)
             return cellViewModel.cellHeight
-        }
-    }
-}
-
-extension TokensViewController: TokensDataStoreDelegate {
-    func didUpdate(result: Result<TokensViewModel, TokenError>) {
-        switch result {
-        case .success(let viewModel):
-            self.viewModel = viewModel
-            endLoading()
-        case .failure(let error):
-            endLoading(error: error)
-        }
-        reload()
-
-        if tableViewRefreshControl.isRefreshing {
-            tableViewRefreshControl.endRefreshing()
-        }
-        if collectiblesCollectionViewRefreshControl.isRefreshing {
-            collectiblesCollectionViewRefreshControl.endRefreshing()
         }
     }
 }
@@ -322,6 +325,8 @@ extension TokensViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
+        let server = token.server
+        let session = sessions[server]
         switch token.type {
         case .nativeCryptocurrency:
             let cell = tableView.dequeueReusableCell(withIdentifier: EthTokenViewCell.identifier, for: indexPath) as! EthTokenViewCell
@@ -331,21 +336,21 @@ extension TokensViewController: UITableViewDataSource {
                             ticker: viewModel.ticker(for: token),
                             currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
                             currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                            server: session.config.server
+                            server: server
                     )
             )
             return cell
         case .erc20:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewCell.identifier, for: indexPath) as! TokenViewCell
-            cell.configure(viewModel: .init(token: token, server: session.config.server))
+            cell.configure(viewModel: .init(token: token, server: server))
             return cell
         case .erc721:
             let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
-            cell.configure(viewModel: .init(token: token, server: session.config.server))
+            cell.configure(viewModel: .init(token: token, server: server))
             return cell
         case .erc875:
             let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
-            cell.configure(viewModel: .init(token: token, server: session.config.server))
+            cell.configure(viewModel: .init(token: token, server: server))
             return cell
         }
     }
@@ -369,6 +374,8 @@ extension TokensViewController: UICollectionViewDataSource {
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
+        let server = token.server
+        let session = sessions[server]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier, for: indexPath) as! OpenSeaNonFungibleTokenViewCell
         cell.configure(viewModel: .init(config: session.config, token: token))
         return cell

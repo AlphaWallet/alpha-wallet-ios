@@ -8,11 +8,9 @@ import BigInt
 import TrustKeystore
 
 class CreateRedeem {
-    private let config: Config
     private let token: TokenObject
 
-    init(config: Config, token: TokenObject) {
-        self.config = config
+    init(token: TokenObject) {
         self.token = token
     }
 

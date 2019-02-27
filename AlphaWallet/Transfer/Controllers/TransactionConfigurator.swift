@@ -22,9 +22,14 @@ public struct PreviewTransaction {
 class TransactionConfigurator {
     private let session: WalletSession
     private let account: Account
+    private lazy var web3: Web3Swift = {
+        let result = Web3Swift(url: session.server.rpcURL)
+        result.start()
+        return result
+    }()
 
     private lazy var calculatedGasPrice: BigInt = {
-        switch session.config.server {
+        switch session.server {
             case .xDai:
                 //xdai transactions are always 1 gwei in gasPrice
                 return GasPriceConfiguration.xDaiGasPrice
@@ -90,7 +95,7 @@ class TransactionConfigurator {
             value: transaction.value,
             data: configuration.data
         )
-        Session.send(EtherServiceRequest(config: session.config, batch: BatchFactory().create(request))) { [weak self] result in
+        Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request))) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let gasLimit):
@@ -125,7 +130,7 @@ class TransactionConfigurator {
             )
             completion(.success(()))
         case .ERC20Token:
-            session.web3.request(request: ContractERC20Transfer(amount: transaction.value, address: transaction.to!.description)) { [unowned self] result in
+            web3.request(request: ContractERC20Transfer(amount: transaction.value, address: transaction.to!.description)) { [unowned self] result in
                 switch result {
                 case .success(let res):
                     let data = Data(hex: res.drop0x)
@@ -141,7 +146,7 @@ class TransactionConfigurator {
             }
                 //TODO clean up
         case .ERC875Token(let token):
-            session.web3.request(request: ContractERC875Transfer(
+            web3.request(request: ContractERC875Transfer(
                     address: transaction.to!.description,
                     contractAddress: token.contract,
                     indices: transaction.indices!
@@ -161,7 +166,7 @@ class TransactionConfigurator {
             }
                 //TODO put order claim tx here somehow, or maybe the same one above
         case .ERC875TokenOrder(let token):
-            session.web3.request(request: ClaimERC875Order(expiry: transaction.expiry!, indices: transaction.indices!,
+            web3.request(request: ClaimERC875Order(expiry: transaction.expiry!, indices: transaction.indices!,
                                                            v: transaction.v!, r: transaction.r!, s: transaction.s!, contractAddress: token.contract)) { [unowned self] result in
                 switch result {
                 case .success(let res):
@@ -178,7 +183,7 @@ class TransactionConfigurator {
             }
 
         case .ERC721Token(let token):
-            session.web3.request(request: ContractERC721Transfer(
+            web3.request(request: ContractERC721Transfer(
                 from: self.account.address.eip55String,
                 to: transaction.to!.eip55String,
                 tokenId: transaction.tokenId!,
@@ -243,7 +248,7 @@ class TransactionConfigurator {
             data: configuration.data,
             gasPrice: configuration.gasPrice,
             gasLimit: configuration.gasLimit,
-            chainID: session.config.chainID
+            server: session.server
         )
 
         return signTransaction

@@ -7,8 +7,6 @@ protocol LocalesCoordinatorDelegate: class {
 }
 
 class LocalesCoordinator: Coordinator {
-    private var config: Config
-
     var coordinators: [Coordinator] = []
 
     lazy var localesViewController: LocalesViewController = {
@@ -26,10 +24,6 @@ class LocalesCoordinator: Coordinator {
         return controller
     }()
     weak var delegate: LocalesCoordinatorDelegate?
-
-    init(config: Config) {
-        self.config = config
-    }
 
     func start() {
     }

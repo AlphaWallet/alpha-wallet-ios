@@ -7,6 +7,6 @@ import RealmSwift
 class FakeTransactionsStorage: TransactionsStorage {
     convenience init() {
         let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealm"))
-        self.init(realm: realm)
+        self.init(realm: realm, server: .main)
     }
 }

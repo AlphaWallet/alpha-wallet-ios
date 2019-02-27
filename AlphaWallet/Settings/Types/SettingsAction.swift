@@ -7,9 +7,5 @@ enum AlphaWalletSettingsAction {
 	case myWalletAddress
 	case wallets
 	case locales
-	case RPCServer
-	case servers
-	case currency
-	case DAppsBrowser
-	case locale
+	case enabledServers
 }

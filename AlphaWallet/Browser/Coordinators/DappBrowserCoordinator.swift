@@ -13,7 +13,10 @@ protocol DappBrowserCoordinatorDelegate: class {
 }
 
 final class DappBrowserCoordinator: NSObject, Coordinator {
-    private let session: WalletSession
+    private var session: WalletSession {
+        return sessions[server]
+    }
+    private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
 
     private var browserNavBar: DappBrowserNavigationBar? {
@@ -28,7 +31,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }()
 
     private lazy var browserViewController: BrowserViewController = {
-        let controller = BrowserViewController(account: session.account, config: session.config, server: server)
+        let controller = BrowserViewController(account: session.account, server: server)
         controller.delegate = self
         controller.webView.uiDelegate = self
         return controller
@@ -36,6 +39,23 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private let sharedRealm: Realm
     private let browserOnly: Bool
+
+    private var nativeCryptoCurrencyBalanceView: NativeCryptoCurrencyBalanceView {
+        //Not the best implementation. Hopefully this will be unnecessary
+        let safeAreaInsetsTop: CGFloat
+        if #available(iOS 11, *) {
+            safeAreaInsetsTop = navigationController.view.safeAreaInsets.top
+        } else {
+            safeAreaInsetsTop = 20
+        }
+        _nativeCryptoCurrencyBalanceView.topMargin = 56 + safeAreaInsetsTop
+        return _nativeCryptoCurrencyBalanceView
+    }
+
+    private lazy var _nativeCryptoCurrencyBalanceView: NativeCryptoCurrencyBalanceView = {
+        return NativeCryptoCurrencyBalanceView(session: session, rightMargin: 16, topMargin: 0)
+    }()
+
     private lazy var bookmarksStore: BookmarksStore = {
         return BookmarksStore(realm: sharedRealm)
     }()
@@ -54,7 +74,13 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private var server: RPCServer {
-        return session.config.server
+        get {
+            return .init(chainID: Config.getChainId())
+        }
+        set {
+            Config.setChainId(newValue.chainID)
+            nativeCryptoCurrencyBalanceView.session = session
+        }
     }
 
     private var enableToolbar: Bool = true {
@@ -75,20 +101,21 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     weak var delegate: DappBrowserCoordinatorDelegate?
 
     init(
-        session: WalletSession,
+        sessions: ServerDictionary<WalletSession>,
         keystore: Keystore,
         sharedRealm: Realm,
         browserOnly: Bool
     ) {
         self.navigationController = NavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
-        self.session = session
+        self.sessions = sessions
         self.keystore = keystore
         self.sharedRealm = sharedRealm
         self.browserOnly = browserOnly
 
         super.init()
 
-        (navigationController.navigationBar as? DappBrowserNavigationBar)?.navigationBarDelegate = self
+        browserNavBar?.navigationBarDelegate = self
+        browserNavBar?.configure(server: server)
     }
 
     func start() {
@@ -147,7 +174,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     func open(url: URL, animated: Bool = true) {
         //TODO maybe not the best idea to check like this. Because it will always create the browserViewController twice the first time (or maybe it's ok. Just once)
         if navigationController.topViewController != browserViewController {
-            browserViewController = BrowserViewController(account: session.account, config: session.config, server: server)
+            browserViewController = BrowserViewController(account: session.account, server: server)
             browserViewController.delegate = self
             browserViewController.webView.uiDelegate = self
             pushOntoNavigationController(viewController: browserViewController, animated: animated)
@@ -301,6 +328,26 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
         navigationController.present(coordinator.qrcodeController, animated: true, completion: nil)
     }
+
+    private func showServers() {
+        let coordinator = ServersCoordinator(defaultServer: server)
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+        navigationController.present(UINavigationController(rootViewController: coordinator.serversViewController), animated: true)
+    }
+
+    private func withCurrentUrl(handler: (URL?) -> ()) {
+        handler(browserNavBar?.url)
+    }
+
+    func willHide() {
+        nativeCryptoCurrencyBalanceView.hide()
+    }
+
+    func didShow() {
+        nativeCryptoCurrencyBalanceView.show()
+    }
 }
 
 extension DappBrowserCoordinator: BrowserViewControllerDelegate {
@@ -312,9 +359,9 @@ extension DappBrowserCoordinator: BrowserViewControllerDelegate {
         }
         switch action {
         case .signTransaction(let unconfirmedTransaction):
-            executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: browserViewController.server)
+            executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
         case .sendTransaction(let unconfirmedTransaction):
-            executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: browserViewController.server)
+            executeTransaction(account: account, action: action, callbackID: callbackID, transaction: unconfirmedTransaction, type: .signThenSend, server: server)
         case .signMessage(let hexMessage):
             let msg = convertMessageToHex(msg: hexMessage)
             signMessage(with: .message(Data(hex: msg)), account: account, callbackID: callbackID)
@@ -567,9 +614,8 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
         dismiss()
     }
 
-    func didTapHome(inNavigationBar navigationBar: DappBrowserNavigationBar) {
-        navigationController.popToRootViewController(animated: true)
-        browserNavBar?.clearDisplay()
+    func didTapChangeServer(inNavigationBar navigationBar: DappBrowserNavigationBar) {
+        showServers()
     }
 
     func didTyped(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar) {
@@ -615,5 +661,33 @@ extension DappBrowserCoordinator: ScanQRCodeCoordinatorDelegate {
         removeCoordinator(coordinator)
         guard let url = URL(string: result) else { return }
         open(url: url, animated: false)
+    }
+}
+
+extension DappBrowserCoordinator: ServersCoordinatorDelegate {
+    func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator) {
+        switch server {
+        case .auto:
+            break
+        case .server(let server):
+            self.server = server
+            coordinator.serversViewController.navigationController?.dismiss(animated: true)
+            removeCoordinator(coordinator)
+
+            withCurrentUrl { url in
+                //TOOD extract method? Clean up
+                browserNavBar?.clearDisplay()
+                browserNavBar?.configure(server: server)
+                start()
+
+                guard let url = url else { return }
+                open(url: url, animated: false)
+            }
+        }
+    }
+
+    func didSelectDismiss(in coordinator: ServersCoordinator) {
+        coordinator.serversViewController.navigationController?.dismiss(animated: true)
+        removeCoordinator(coordinator)
     }
 }

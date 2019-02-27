@@ -4,24 +4,24 @@ import Foundation
 import TrustKeystore
 
 struct ServersViewModel {
-    private let selectedServer: RPCServer
+    private let selectedServer: RPCServerOrAuto
 
-    let servers: [RPCServer]
+    let servers: [RPCServerOrAuto]
 
     var title: String {
         return R.string.localizable.settingsNetworkButtonTitle()
     }
 
-    init(servers: [RPCServer], selectedServer: RPCServer) {
+    init(servers: [RPCServerOrAuto], selectedServer: RPCServerOrAuto) {
         self.servers = servers
         self.selectedServer = selectedServer
     }
 
-    func server(for indexPath: IndexPath) -> RPCServer {
+    func server(for indexPath: IndexPath) -> RPCServerOrAuto {
         return servers[indexPath.row]
     }
 
-    func isServerSelected(_ server: RPCServer) -> Bool {
-        return server.chainID == selectedServer.chainID
+    func isServerSelected(_ server: RPCServerOrAuto) -> Bool {
+        return server == selectedServer
     }
 }

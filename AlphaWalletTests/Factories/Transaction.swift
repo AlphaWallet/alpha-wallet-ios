@@ -20,6 +20,7 @@ extension Transaction {
     ) -> Transaction {
         return Transaction(
             id: id,
+            server: .main,
             blockNumber: blockNumber,
             from: from,
             to: to,

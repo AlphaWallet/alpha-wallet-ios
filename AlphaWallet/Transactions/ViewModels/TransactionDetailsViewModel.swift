@@ -7,25 +7,25 @@ import UIKit
 struct TransactionDetailsViewModel {
     private let transactionViewModel: TransactionViewModel
     private let transaction: Transaction
-    private let config: Config
     private let chainState: ChainState
     private let fullFormatter = EtherNumberFormatter.full
     private let currencyRate: CurrencyRate?
 
+    private var server: RPCServer {
+        return transaction.server
+    }
+
     init(
         transaction: Transaction,
-        config: Config,
         chainState: ChainState,
         currentWallet: Wallet,
         currencyRate: CurrencyRate?
     ) {
         self.transaction = transaction
-        self.config = config
         self.chainState = chainState
         self.currencyRate = currencyRate
         self.transactionViewModel = TransactionViewModel(
             transaction: transaction,
-            config: config,
             chainState: chainState,
             currentWallet: currentWallet
         )
@@ -56,7 +56,7 @@ struct TransactionDetailsViewModel {
     }
 
     var detailsURL: URL? {
-        return ConfigExplorer(server: config.server).transactionURL(for: transaction.id)
+        return ConfigExplorer(server: server).transactionURL(for: transaction.id)
     }
 
     var transactionID: String {
@@ -97,7 +97,7 @@ struct TransactionDetailsViewModel {
             }
         }()
 
-        return GasViewModel(fee: gasFee, symbol: config.server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
+        return GasViewModel(fee: gasFee, symbol: server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
     }
 
     var gasFee: String {

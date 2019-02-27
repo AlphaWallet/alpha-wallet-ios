@@ -4,11 +4,16 @@ import Foundation
 import UIKit
 
 struct ServerViewModel {
-    private let server: RPCServer
+    private let server: RPCServerOrAuto
     private let isSelected: Bool
 
-    init(server: RPCServer, selected: Bool) {
+    init(server: RPCServerOrAuto, selected: Bool) {
         self.server = server
+        self.isSelected = selected
+    }
+
+    init(server: RPCServer, selected: Bool) {
+        self.server = .server(server)
         self.isSelected = selected
     }
 

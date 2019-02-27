@@ -7,6 +7,30 @@ import QRCodeReaderViewController
 protocol NewTokenViewControllerDelegate: class {
     func didAddToken(token: ERCToken, in viewController: NewTokenViewController)
     func didAddAddress(address: String, in viewController: NewTokenViewController)
+    func didTapChangeServer(in viewController: NewTokenViewController)
+}
+
+enum RPCServerOrAuto: Hashable {
+    case auto
+    case server(RPCServer)
+
+    var displayName: String {
+        switch self {
+        case .auto:
+            return R.string.localizable.detectingServerAutomatically()
+        case .server(let server):
+            return server.displayName
+        }
+    }
+
+    var name: String {
+        switch self {
+        case .auto:
+            return R.string.localizable.detectingServerAutomaticallyButtonTitle()
+        case .server(let server):
+            return server.name
+        }
+    }
 }
 
 class NewTokenViewController: UIViewController, CanScanQRCode {
@@ -20,29 +44,24 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
             updateSaveButtonBasedOnTokenTypeDetected()
         }
     }
-    private let config: Config
-    lazy private var addressTextField = AddressTextField(config: config)
+    private let addressTextField = AddressTextField()
     private let symbolTextField = TextField()
     private let decimalsTextField = TextField()
     private let balanceTextField = TextField()
     private let nameTextField = TextField()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
-
+    private let changeServerButton = UIButton()
     private var scrollViewBottomAnchorConstraint: NSLayoutConstraint!
 
+    var server: RPCServerOrAuto
     weak var delegate: NewTokenViewControllerDelegate?
 
-    init(config: Config) {
-        self.config = config
+    init(server: RPCServerOrAuto) {
+        self.server = server
         super.init(nibName: nil, bundle: nil)
-    }
 
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
+        changeServerButton.addTarget(self, action: #selector(changeServerAction(_:)), for: .touchUpInside)
+        navigationItem.rightBarButtonItem = .init(customView: changeServerButton)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -147,10 +166,16 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         resizeViewToAccommodateKeyboard()
     }
 
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     public func configure() {
         view.backgroundColor = viewModel.backgroundColor
 
         header.configure(title: viewModel.title)
+
+        updateChangeServer(title: server.name)
 
         addressTextField.label.text = viewModel.addressLabel
 
@@ -259,6 +284,13 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
     @objc func addToken() {
         guard validate() else { return }
+        let server: RPCServer
+        switch self.server {
+        case .auto:
+            return
+        case .server(let chosenServer):
+            server = chosenServer
+        }
 
         let contract = addressTextField.value
         let name = nameTextField.value
@@ -278,6 +310,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
         let ercToken = ERCToken(
             contract: address,
+            server: server,
             name: name,
             symbol: symbol,
             decimals: decimals,
@@ -286,6 +319,10 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         )
 
         delegate?.didAddToken(token: ercToken, in: self)
+    }
+
+    @objc private func changeServerAction(_ sender: UIView) {
+        delegate?.didTapChangeServer(in: self)
     }
 
     private func updateContractValue(value: String) {
@@ -329,6 +366,19 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+    }
+
+    func redetectToken() {
+        let contract = addressTextField.value
+        if CryptoAddressValidator.isValidAddress(contract) {
+            updateContractValue(value: contract)
+        }
+    }
+
+    private func updateChangeServer(title: String) {
+        changeServerButton.setTitle(title, for: .normal)
+        //Needs to re-create navigationItem.rightBarButtonItem to update button width for new title's length
+        navigationItem.rightBarButtonItem = .init(customView: changeServerButton)
     }
 }
 

@@ -5,17 +5,11 @@ import UIKit
 import UserNotifications
 
 class PushNotificationsCoordinator: NSObject, Coordinator {
-    private let server: RPCServer
     private var notificationCenter: UNUserNotificationCenter {
         return .current()
     }
 
     var coordinators: [Coordinator] = []
-
-    init(server: RPCServer) {
-        self.server = server
-        super.init()
-    }
 
     func start() {
         notificationCenter.delegate = self
@@ -29,7 +23,8 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
         authorizationNotDetermined { [weak self] in
             guard let strongSelf = self else { return }
             navigationController.visibleViewController?.confirm(
-                    title: R.string.localizable.transactionsReceivedEtherNotificationPrompt(strongSelf.server.cryptoCurrencyName),
+                    //TODO We'll just say "Ether" in the prompt. Note that this is not the push notification itself. We could refer to it as "native cryptocurrency", but that's vague. Could be xDai!
+                    title: R.string.localizable.transactionsReceivedEtherNotificationPrompt(RPCServer.main.cryptoCurrencyName),
                     message: nil,
                     okTitle: R.string.localizable.oK(),
                     okStyle: .default

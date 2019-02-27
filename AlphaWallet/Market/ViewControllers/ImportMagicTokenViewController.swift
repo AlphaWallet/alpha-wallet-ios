@@ -27,7 +27,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private let buttonsBar = ButtonsBar(numberOfButtons: 2)
     private var viewModel: ImportMagicTokenViewControllerViewModel?
 
-    let config: Config
+    let server: RPCServer
     weak var delegate: ImportMagicTokenViewControllerDelegate?
 
     var contract: String? {
@@ -49,9 +49,10 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         }
     }
 
-    init(config: Config) {
-        self.config = config
+    init(server: RPCServer) {
+        self.server = server
         super.init(nibName: nil, bundle: nil)
+
         view.backgroundColor = .clear
 
         tokenCardRowView.translatesAutoresizingMaskIntoConstraints = false
@@ -234,12 +235,12 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     }
 
     func showContractWebPage() {
-        if case .main = config.server {
+        if case .main = server {
             guard let url = url else { return }
             delegate?.didPressViewContractWebPage(url, in: self)
         } else {
             guard let contract = contract else { return }
-            delegate?.didPressViewContractWebPage(forContract: contract, in: self)
+            delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
         }
     }
 

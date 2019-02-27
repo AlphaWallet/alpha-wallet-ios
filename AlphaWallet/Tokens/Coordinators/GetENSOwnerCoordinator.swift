@@ -31,10 +31,10 @@ class GetENSOwnerCoordinator {
     private static let DELAY_AFTER_STOP_TYPING_TO_START_RESOLVING_ENS_NAME = TimeInterval(0.5)
 
     private var toStartResolvingEnsNameTimer: Timer?
-    private let config: Config
+    private let server: RPCServer
 
-    init(config: Config) {
-        self.config = config
+    init(server: RPCServer) {
+        self.server = server
     }
 
     func getENSOwner(
@@ -61,11 +61,11 @@ class GetENSOwnerCoordinator {
         }
 
         let function = GetENSOwnerEncode()
-        guard let ensRegistrarContract = Address(string: config.ensRegistrarContract.address) else {
-            completion(.failure(AnyError(Web3Error(description: "Error converting contract address: \(config.ensRegistrarContract.address)"))))
+        guard let ensRegistrarContract = Address(string: server.ensRegistrarContract.address) else {
+            completion(.failure(AnyError(Web3Error(description: "Error converting contract address: \(server.ensRegistrarContract.address)"))))
             return
         }
-        callSmartContract(withConfig: config, contract: ensRegistrarContract, functionName: function.name, abiString: "[\(function.abi)]", parameters: [node] as [AnyObject]).done { result in
+        callSmartContract(withServer: server, contract: ensRegistrarContract, functionName: function.name, abiString: "[\(function.abi)]", parameters: [node] as [AnyObject]).done { result in
             //if null address is returned (as 0) we count it as invalid
             //this is because it is not assigned to an ENS and puts the user in danger of sending funds to null
             if let owner = result["0"] as? EthereumAddress {
@@ -101,10 +101,10 @@ class GetENSOwnerCoordinator {
     }
 
     private func cachedResult(forNode node: String) -> EthereumAddress? {
-        return GetENSOwnerCoordinator.resultsCache[ENSLookupKey(name: node, server: config.server)]
+        return GetENSOwnerCoordinator.resultsCache[ENSLookupKey(name: node, server: server)]
     }
 
     private func cache(forNode node: String, result: EthereumAddress) {
-        GetENSOwnerCoordinator.resultsCache[ENSLookupKey(name: node, server: config.server)] = result
+        GetENSOwnerCoordinator.resultsCache[ENSLookupKey(name: node, server: server)] = result
     }
 }

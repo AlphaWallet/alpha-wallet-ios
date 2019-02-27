@@ -9,10 +9,10 @@ import Result
 import TrustKeystore
 
 class GetERC721BalanceCoordinator {
-    private let config: Config
+    private let server: RPCServer
 
-    init(config: Config) {
-        self.config = config
+    init(forServer server: RPCServer) {
+        self.server = server
     }
 
     func getERC721TokenBalance(
@@ -21,7 +21,7 @@ class GetERC721BalanceCoordinator {
             completion: @escaping (Result<BigUInt, AnyError>) -> Void
     ) {
         let function = GetERC721Balance()
-        callSmartContract(withConfig: config, contract: contract, functionName: function.name, abiString: "[\(function.abi)]", parameters: [address.eip55String] as [AnyObject]).done { balanceResult in
+        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: "[\(function.abi)]", parameters: [address.eip55String] as [AnyObject]).done { balanceResult in
             let balance = self.adapt(balanceResult["0"])
             completion(.success(balance))
         }.catch { error in

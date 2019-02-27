@@ -16,8 +16,8 @@ class TransactionSigningTests: XCTestCase {
             data: Data(),
             gasPrice: BigInt("20000000000"),
             gasLimit: BigInt("21000"),
-            chainID: 1)
-        let signer = EIP155Signer(chainId: 1)
+            server: .main)
+        let signer = EIP155Signer(server: .main)
         let hash = signer.hash(transaction: transaction)
 
         XCTAssertEqual(hash.hex(), "daf5a779ae972f972197303d7b574746c7ef83eadac0f2791ad23db92e4c8e53")
@@ -33,7 +33,7 @@ class TransactionSigningTests: XCTestCase {
             data: Data(),
             gasPrice: BigInt("20000000000"),
             gasLimit: BigInt("21000"),
-            chainID: 1)
+            server: .main)
         let signer = HomesteadSigner()
         let hash = signer.hash(transaction: transaction)
 
@@ -50,10 +50,10 @@ class TransactionSigningTests: XCTestCase {
             data: Data(),
             gasPrice: BigInt(20000000000),
             gasLimit: BigInt(21000),
-            chainID: 1
+            server: .main
         )
 
-        let signer = EIP155Signer(chainId: 1)
+        let signer = EIP155Signer(server: .main)
 
         let hash = signer.hash(transaction: transaction)
         let expectedHash = Data(hexString: "daf5a779ae972f972197303d7b574746c7ef83eadac0f2791ad23db92e4c8e53")!

@@ -6,12 +6,14 @@ import XCTest
 class TokensCoordinatorTests: XCTestCase {
     
     func testRootViewController() {
+        var sessions = ServerDictionary<WalletSession>()
+        sessions[.main] = WalletSession.make()
         let coordinator = TokensCoordinator(
             navigationController: FakeNavigationController(),
-            session: .make(),
+            sessions: sessions,
             keystore: FakeKeystore(),
-            tokensStorage: FakeTokensDataStore(),
-            ethPrice: Subscribable<Double>(nil),
+            tokenCollection: .init(tokenDataStores: []),
+            nativeCryptoCurrencyPrices: .init(),
             assetDefinitionStore: AssetDefinitionStore()
         )
         coordinator.start()

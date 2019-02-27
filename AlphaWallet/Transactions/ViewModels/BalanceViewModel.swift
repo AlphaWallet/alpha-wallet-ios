@@ -4,16 +4,16 @@ import Foundation
 import UIKit
 
 struct BalanceViewModel: BalanceBaseViewModel {
-    private let config: Config
+    private let server: RPCServer
     private let balance: Balance?
     private let rate: CurrencyRate?
 
     init(
-        config: Config,
+        server: RPCServer,
         balance: Balance? = .none,
         rate: CurrencyRate? = .none
     ) {
-        self.config = config
+        self.server = server
         self.balance = balance
         self.rate = rate
     }
@@ -25,8 +25,8 @@ struct BalanceViewModel: BalanceBaseViewModel {
 
     var amountString: String {
         guard let balance = balance else { return "--" }
-        guard !balance.isZero else { return "0.00 \(config.server.symbol)" }
-        return "\(balance.amountFull) \(config.server.symbol)"
+        guard !balance.isZero else { return "0.00 \(server.symbol)" }
+        return "\(balance.amountFull) \(server.symbol)"
     }
 
     var currencyAmount: String? {
@@ -36,7 +36,7 @@ struct BalanceViewModel: BalanceBaseViewModel {
 
     var currencyAmountWithoutSymbol: Double? {
         guard let rate = rate else { return nil }
-        let symbol = mapSymbolToVersionInRates(config.server.symbol)
+        let symbol = mapSymbolToVersionInRates(server.symbol)
         guard
                 let currentRate = (rate.rates.filter { $0.code == symbol }.first),
                 currentRate.price > 0,
@@ -54,7 +54,7 @@ struct BalanceViewModel: BalanceBaseViewModel {
     }
 
     var symbol: String {
-        return config.server.symbol
+        return server.symbol
     }
 
     private func mapSymbolToVersionInRates(_ symbol: String) -> String {

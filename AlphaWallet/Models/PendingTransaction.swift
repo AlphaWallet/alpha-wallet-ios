@@ -40,30 +40,3 @@ extension PendingTransaction {
         )
     }
 }
-
-extension Transaction {
-    static func from(
-        transaction: PendingTransaction
-    ) -> Transaction? {
-        guard
-            let from = Address(string: transaction.from) else {
-                return .none
-        }
-        let to = Address(string: transaction.to)?.description ?? transaction.to
-        return Transaction(
-            id: transaction.hash,
-            blockNumber: Int(transaction.blockNumber) ?? 0,
-            from: from.description,
-            to: to,
-            value: transaction.value,
-            gas: transaction.gas,
-            gasPrice: transaction.gasPrice,
-            gasUsed: "",
-            nonce: transaction.nonce,
-            date: Date(),
-            //TODO we should know what type of transaction (transfer) here and create accordingly if it's ERC20, ERC721, ERC875
-            localizedOperations: [],
-            state: .pending
-        )
-    }
-}

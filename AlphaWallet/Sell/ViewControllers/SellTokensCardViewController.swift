@@ -15,15 +15,16 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: SellTokensCardViewModel
 
-    let config: Config
     var contract: String {
         return viewModel.token.contract
+    }
+    var server: RPCServer {
+        return viewModel.token.server
     }
     let paymentFlow: PaymentFlow
     weak var delegate: SellTokensCardViewControllerDelegate?
 
-    init(config: Config, paymentFlow: PaymentFlow, viewModel: SellTokensCardViewModel) {
-        self.config = config
+    init(paymentFlow: PaymentFlow, viewModel: SellTokensCardViewModel) {
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -111,7 +112,7 @@ class SellTokensCardViewController: UIViewController, TokenVerifiableStatusViewC
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {

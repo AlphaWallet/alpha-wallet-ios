@@ -3,15 +3,15 @@
 import UIKit
 
 struct SendHeaderViewViewModel {
-    let config: Config
+    let server: RPCServer
     var title: String
     var ticker: CoinTicker?
     var currencyAmount: String?
     var currencyAmountWithoutSymbol: Double?
     var showAlternativeAmount = false
 
-    init(config: Config) {
-        self.config = config
+    init(server: RPCServer) {
+        self.server = server
         title = ""
         ticker = nil
         currencyAmount = nil
@@ -22,13 +22,28 @@ struct SendHeaderViewViewModel {
         return ""
     }
 
+    var blockChainNameFont: UIFont {
+        return Fonts.semibold(size: 12)!
+    }
+
+    var blockChainNameColor: UIColor {
+        return Colors.appWhite
+    }
+
+    var blockChainNameBackgroundColor: UIColor {
+        return server.blockChainNameColor
+    }
+
+    var blockChainTag: String {
+        return "  \(server.name)     "
+    }
+
+    var blockChainNameTextAlignment: NSTextAlignment {
+        return .center
+    }
+
     var blockChainName: String {
-        switch config.server {
-        case .xDai:
-            return R.string.localizable.blockchainXDAI()
-        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
-            return R.string.localizable.blockchainEthereum()
-        }
+        return server.blockChainName
     }
 
     var backgroundColor: UIColor {

@@ -10,7 +10,7 @@ enum RefreshType {
 
 class WalletSession {
     let account: Wallet
-    let web3: Web3Swift
+    let server: RPCServer
     let balanceCoordinator: BalanceCoordinator
     let config: Config
     let chainState: ChainState
@@ -19,22 +19,22 @@ class WalletSession {
     }
 
     var sessionID: String {
-        return "\(account.address.description.lowercased())-\(config.chainID)"
+        return "\(account.address.description.lowercased())-\(server.chainID)"
     }
 
     var balanceViewModel: Subscribable<BalanceBaseViewModel> = Subscribable(nil)
 
     init(
         account: Wallet,
+        server: RPCServer,
         config: Config,
-        web3: Web3Swift,
-        balanceCoordinator: BalanceCoordinator
+        tokensDataStore: TokensDataStore
     ) {
         self.account = account
+        self.server = server
         self.config = config
-        self.web3 = web3
-        self.chainState = ChainState(config: config)
-        self.balanceCoordinator = balanceCoordinator
+        self.chainState = ChainState(config: config, server: server)
+        self.balanceCoordinator = BalanceCoordinator(wallet: account, server: server, storage: tokensDataStore)
         self.balanceCoordinator.delegate = self
 
         self.chainState.start()

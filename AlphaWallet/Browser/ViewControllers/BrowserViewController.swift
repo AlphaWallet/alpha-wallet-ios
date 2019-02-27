@@ -16,7 +16,7 @@ protocol BrowserViewControllerDelegate: class {
 final class BrowserViewController: UIViewController {
     private var myContext = 0
     private let account: Wallet
-    private let sessionConfig: Config
+    private let server: RPCServer
 
     private struct Keys {
         static let estimatedProgress = "estimatedProgress"
@@ -61,20 +61,13 @@ final class BrowserViewController: UIViewController {
     }()
 
     lazy var config: WKWebViewConfiguration = {
-        let config = WKWebViewConfiguration.make(for: sessionConfig, address: account.address, with: sessionConfig, in: ScriptMessageProxy(delegate: self))
+        let config = WKWebViewConfiguration.make(forServer: server, address: account.address, in: ScriptMessageProxy(delegate: self))
         config.websiteDataStore = WKWebsiteDataStore.default()
         return config
     }()
 
-    let server: RPCServer
-
-    init(
-        account: Wallet,
-        config: Config,
-        server: RPCServer
-    ) {
+    init(account: Wallet, server: RPCServer) {
         self.account = account
-        self.sessionConfig = config
         self.server = server
 
         super.init(nibName: nil, bundle: nil)
@@ -223,7 +216,7 @@ extension BrowserViewController: WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         guard let command = DappAction.fromMessage(message) else { return }
         let requester = DAppRequester(title: webView.title, url: webView.url)
-        let token = TokensDataStore.token(for: sessionConfig)
+        let token = TokensDataStore.token(forServer: server)
         let transfer = Transfer(server: server, type: .dapp(token, requester))
         let action = DappAction.fromCommand(command, transfer: transfer)
 

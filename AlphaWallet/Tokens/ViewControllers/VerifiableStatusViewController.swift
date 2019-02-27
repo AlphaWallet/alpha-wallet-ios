@@ -58,23 +58,23 @@ extension VerifiableStatusViewController where Self: UIViewController {
 
 protocol TokenVerifiableStatusViewController: VerifiableStatusViewController {
     var contract: String { get }
-    var config: Config { get }
+    var server: RPCServer { get }
 }
 
 extension TokenVerifiableStatusViewController {
     var isContractVerified: Bool {
-        return XMLHandler(contract: contract).isVerified(for: config.server)
+        return XMLHandler(contract: contract).isVerified(for: server)
     }
 }
 
 protocol OptionalTokenVerifiableStatusViewController: VerifiableStatusViewController {
     var contract: String? { get }
-    var config: Config { get }
+    var server: RPCServer { get }
 }
 
 extension OptionalTokenVerifiableStatusViewController {
     var isContractVerified: Bool {
         guard let contract = contract else { return false }
-        return XMLHandler(contract: contract).isVerified(for: config.server)
+        return XMLHandler(contract: contract).isVerified(for: server)
     }
 }

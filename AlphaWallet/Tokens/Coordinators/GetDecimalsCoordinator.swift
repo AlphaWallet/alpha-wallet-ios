@@ -6,10 +6,10 @@ import TrustKeystore
 import web3swift
 
 class GetDecimalsCoordinator {
-    private let config: Config
+    private let server: RPCServer
 
-    init(config: Config) {
-        self.config = config
+    init(forServer server: RPCServer) {
+        self.server = server
     }
 
     func getDecimals(
@@ -17,7 +17,7 @@ class GetDecimalsCoordinator {
         completion: @escaping (Result<UInt8, AnyError>) -> Void
     ) {
         let functionName = "decimals"
-        callSmartContract(withConfig: config, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI).done { dictionary in
+        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI).done { dictionary in
             if let decimalsWithUnknownType = dictionary["0"] {
                 let string = String(describing: decimalsWithUnknownType)
                 if let decimals = UInt8(string) {

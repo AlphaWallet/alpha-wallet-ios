@@ -6,6 +6,12 @@ import BigInt
 import TrustKeystore
 
 class TokenObject: Object {
+    static func generatePrimaryKey(fromContract contract: String, server: RPCServer) -> String {
+        return "\(contract)-\(server.chainID)"
+    }
+
+    @objc dynamic var primaryKey: String = ""
+    @objc dynamic var chainId: Int = 0
     @objc dynamic var contract: String = ""
     @objc dynamic var name: String = ""
     @objc dynamic var symbol: String = ""
@@ -31,6 +37,7 @@ class TokenObject: Object {
 
     convenience init(
             contract: String = "",
+            server: RPCServer,
             name: String = "",
             symbol: String = "",
             decimals: Int = 0,
@@ -40,7 +47,9 @@ class TokenObject: Object {
             type: TokenType
     ) {
         self.init()
+        self.primaryKey = TokenObject.generatePrimaryKey(fromContract: contract, server: server)
         self.contract = contract
+        self.chainId = server.chainID
         self.name = name
         self.symbol = symbol
         self.decimals = decimals
@@ -58,7 +67,7 @@ class TokenObject: Object {
     }
 
     override static func primaryKey() -> String? {
-        return "contract"
+        return "primaryKey"
     }
 
     override static func ignoredProperties() -> [String] {
@@ -88,6 +97,10 @@ class TokenObject: Object {
         case .nativeCryptocurrency, .erc20, .erc875:
             return false
         }
+    }
+
+    var server: RPCServer {
+        return .init(chainID: chainId)
     }
 }
 

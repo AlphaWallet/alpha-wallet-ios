@@ -6,7 +6,7 @@ import XCTest
 class TransactionViewModelTests: XCTestCase {
 
     func testErrorState() {
-        let _ = TransactionViewModel(transaction: .make(state: .error), config: .make(), chainState: .make(), currentWallet: .make())
+        let _ = TransactionViewModel(transaction: .make(state: .error), chainState: .make(), currentWallet: .make())
 
     }
 
@@ -15,7 +15,7 @@ class TransactionViewModelTests: XCTestCase {
         let chainState: ChainState = .make()
         chainState.latestBlock = blockNumber
 
-        let viewModel = TransactionViewModel(transaction: .make(blockNumber: blockNumber), config: .make(), chainState: chainState, currentWallet: .make())
+        let viewModel = TransactionViewModel(transaction: .make(blockNumber: blockNumber), chainState: chainState, currentWallet: .make())
 
         XCTAssertEqual(.none, viewModel.confirmations)
     }
@@ -25,7 +25,7 @@ class TransactionViewModelTests: XCTestCase {
         let chainState: ChainState = .make()
         chainState.latestBlock = blockNumber - 1
 
-        let viewModel = TransactionViewModel(transaction: .make(blockNumber: blockNumber), config: .make(), chainState: chainState, currentWallet: .make())
+        let viewModel = TransactionViewModel(transaction: .make(blockNumber: blockNumber), chainState: chainState, currentWallet: .make())
 
         XCTAssertNil(viewModel.confirmations)
     }
@@ -35,7 +35,7 @@ class TransactionViewModelTests: XCTestCase {
         let chainState: ChainState = .make()
         chainState.latestBlock = blockNumber
 
-        let viewModel = TransactionViewModel(transaction: .make(blockNumber: 1), config: .make(), chainState: chainState, currentWallet: .make())
+        let viewModel = TransactionViewModel(transaction: .make(blockNumber: 1), chainState: chainState, currentWallet: .make())
 
         XCTAssertEqual(2, viewModel.confirmations)
     }

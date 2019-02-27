@@ -7,7 +7,7 @@ import BigInt
 
 extension UnconfirmedTransaction {
     static func make(
-        transferType: TransferType = .nativeCryptocurrency(config: .make(), destination: .none),
+        transferType: TransferType = .nativeCryptocurrency(server: .main, destination: .none),
         value: BigInt = BigInt(1),
         to: Address = .make(),
         data: Data = Data(),

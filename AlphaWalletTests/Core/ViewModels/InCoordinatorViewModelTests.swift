@@ -6,8 +6,7 @@ import XCTest
 class InCoordinatorViewModelTests: XCTestCase {
     
     func testInitialTab() {
-        let viewModel = InCoordinatorViewModel(config: .make())
-
+        let viewModel = InCoordinatorViewModel()
         XCTAssertEqual(.wallet, viewModel.initialTab)
     }
 }

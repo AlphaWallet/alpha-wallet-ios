@@ -20,9 +20,7 @@ class UniversalLinkCoordinator: Coordinator {
         case paid(signedOrder: SignedOrder, tokenObject: TokenObject)
     }
 
-	var coordinators: [Coordinator] = []
     private let config: Config
-	weak var delegate: UniversalLinkCoordinatorDelegate?
 	private var importTokenViewController: ImportMagicTokenViewController?
     private let ethPrice: Subscribable<Double>
     private let ethBalance: Subscribable<BigInt>
@@ -35,15 +33,39 @@ class UniversalLinkCoordinator: Coordinator {
     private var isShowingImportUserInterface: Bool {
         return delegate?.viewControllerForPresenting(in: self) != nil
     }
-    private let tokensDatastore: TokensDataStore
+    private let tokensDatastores: ServerDictionary<TokensDataStore>
     private let assetDefinitionStore: AssetDefinitionStore
+    private let url: URL
 
-    init(config: Config, ethPrice: Subscribable<Double>, ethBalance: Subscribable<BigInt>, tokensDatastore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
+    private var isNotProcessingYet: Bool {
+        guard let importTokenViewController = importTokenViewController else { return false }
+        switch importTokenViewController.state {
+        case .ready(var viewModel):
+            switch viewModel.state {
+            case .validating, .promptImport:
+                return true
+            case .processing, .succeeded, .failed:
+                return false
+            }
+        case .notReady:
+            return false
+        }
+    }
+
+    var coordinators: [Coordinator] = []
+    let server: RPCServer
+    weak var delegate: UniversalLinkCoordinatorDelegate?
+
+    init?(config: Config, ethPrices: ServerDictionary<Subscribable<Double>>, ethBalances: ServerDictionary<Subscribable<BigInt>>, tokensDatastores: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, url: URL) {
+        guard let server = RPCServer(withMagicLink: url) else { return nil }
+
         self.config = config
-        self.ethPrice = ethPrice
-        self.ethBalance = ethBalance
-        self.tokensDatastore = tokensDatastore
+        self.ethPrice = ethPrices[server]
+        self.ethBalance = ethBalances[server]
+        self.tokensDatastores = tokensDatastores
         self.assetDefinitionStore = assetDefinitionStore
+        self.url = url
+        self.server = server
     }
 
 	func start() {
@@ -63,7 +85,7 @@ class UniversalLinkCoordinator: Coordinator {
             "v": signature.substring(from: 128),
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
-            "networkId": config.server.chainID.description,
+            "networkId": server.chainID.description,
             "contractAddress": signedOrder.order.contractAddress
         ]
         return parameters
@@ -89,7 +111,7 @@ class UniversalLinkCoordinator: Coordinator {
             "v": signature.substring(from: 128),
             "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
-            "networkId": config.chainID.description,
+            "networkId": server.chainID.description,
         ]
         
         if isForTransfer {
@@ -104,7 +126,9 @@ class UniversalLinkCoordinator: Coordinator {
 
         //TODO we might not need to pass a TokenObject. Maybe something simpler? Especially since name and symbol is unused
         //TODO: not always ERC875
-        let tokenObject = TokenObject(contract: signedOrder.order.contractAddress,
+        let tokenObject = TokenObject(
+                contract: signedOrder.order.contractAddress,
+                server: server,
                 name: "",
                 symbol: "",
                 decimals: 0,
@@ -121,7 +145,10 @@ class UniversalLinkCoordinator: Coordinator {
             guard let celf = self else { return }
             guard let price = celf.ethPrice.value else { return }
             let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
-            celf.promptImportUniversalLink(cost: .paid(eth: ethCost, dollar: dollarCost))
+            //We should not prompt with an updated price if we are already processing or beyond that. Because this will revert the state back
+            if celf.isNotProcessingYet {
+                celf.promptImportUniversalLink(cost: .paid(eth: ethCost, dollar: dollarCost))
+            }
         }
         return true
     }
@@ -178,7 +205,7 @@ class UniversalLinkCoordinator: Coordinator {
 
     //no need to localise as the labels are universal
     private func getLabelForCurrencyDrops() -> String {
-        switch config.server {
+        switch server {
         case .xDai:
             return "xDAI"
         default:
@@ -189,7 +216,7 @@ class UniversalLinkCoordinator: Coordinator {
     private func requiresPaymasterForCurrencyLinks(signedOrder: SignedOrder) -> Bool {
         guard signedOrder.order.nativeCurrencyDrop else { return false }
         guard signedOrder.order.price == 0 else { return false }
-        return !config.server.isTestnet
+        return !server.isTestnet
     }
 
     private func handleSpawnableLink(signedOrder: SignedOrder, tokens: [BigUInt]) {
@@ -235,7 +262,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func handleNormalLinks(signedOrder: SignedOrder, recoverAddress: Address, contractAsAddress: Address) {
-        getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(config: config)
+        getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(forServer: server)
         getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
             guard let strongSelf = self else { return }
             guard let balance = try? result.dematerialize() else {
@@ -267,20 +294,16 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     //Returns true if handled
-    func handleUniversalLink(url: URL) -> Bool {
-        var prefix = config.magicLinkPrefix.description
-        let isLegacyLink = url.description.hasPrefix(Constants.legacyMagicLinkPrefix)
-        let matchedPrefix = url.description.hasPrefix(prefix) || isLegacyLink
+    func handleUniversalLink() -> Bool {
         preparingToImportUniversalLink()
-        guard matchedPrefix, url.absoluteString.count > prefix.count else {
-            let actualNetwork = config.server.magicLinkNetwork(url: url.description)
-            showImportError(errorMessage: R.string.localizable.aClaimTokenWrongNetworkLink(actualNetwork))
-            return false
-        }
+        let isLegacyLink = url.description.hasPrefix(Constants.legacyMagicLinkPrefix)
+        let prefix: String
         if isLegacyLink {
             prefix = Constants.legacyMagicLinkPrefix
+        } else {
+            prefix = server.magicLinkPrefix.description
         }
-        guard let signedOrder = UniversalLinkHandler(config: config).parseUniversalLink(url: url.absoluteString, prefix: prefix) else {
+        guard let signedOrder = UniversalLinkHandler(server: server).parseUniversalLink(url: url.absoluteString, prefix: prefix) else {
             showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }
@@ -355,8 +378,8 @@ class UniversalLinkCoordinator: Coordinator {
         let vInt = Int(vValue, radix: 16)! - 27
         let vString = "0" + String(vInt)
         let signature = "0x" + signedOrder.signature.drop0x.substring(to: 128) + vString
-        let nodeURL = config.rpcURL
-        let provider = Web3HttpProvider(nodeURL, network: config.server.web3Network)!
+        let nodeURL = server.rpcURL
+        let provider = Web3HttpProvider(nodeURL, network: server.web3Network)!
         return web3(provider: provider).personal.ecrecover(
                 hash: messageHash,
                 signature: Data(bytes: signature.hexa2Bytes)
@@ -376,7 +399,7 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func notEnoughEthForPaidImport(signedOrder: SignedOrder) {
         let errorMessage: String
-        switch config.server {
+        switch server {
         case .xDai:
             errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
         default:
@@ -428,13 +451,14 @@ class UniversalLinkCoordinator: Coordinator {
                 strongSelf.updateTokenFields()
             }
 
-            if let existingToken = strongSelf.tokensDatastore.objects.first(where: { $0.contract.sameContract(as: contractAddress) }) {
+            let tokensDatastore = strongSelf.tokensDatastores[strongSelf.server]
+            if let existingToken = tokensDatastore.token(forContract: contractAddress) {
                 makeTokenHolder(name: existingToken.name)
             } else {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
                 makeTokenHolder(name: localizedTokenTypeName )
 
-                strongSelf.tokensDatastore.getContractName(for: contractAddress) { result in
+                tokensDatastore.getContractName(for: contractAddress) { result in
                     switch result {
                     case .success(let name):
                         makeTokenHolder(name: name)
@@ -452,7 +476,7 @@ class UniversalLinkCoordinator: Coordinator {
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(name: name, fromTokenId: tokenId, index: UInt16(i), config: config)
+                let token = xmlHandler.getToken(name: name, fromTokenId: tokenId, index: UInt16(i), server: server)
                 tokens.append(token)
             }
         }
@@ -465,10 +489,10 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func preparingToImportUniversalLink() {
 		guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
-        importTokenViewController = ImportMagicTokenViewController(config: config)
+        importTokenViewController = ImportMagicTokenViewController(server: server)
         guard let vc = importTokenViewController else { return }
         vc.delegate = self
-        vc.configure(viewModel: .init(state: .validating, server: config.server))
+        vc.configure(viewModel: .init(state: .validating, server: server))
         viewController.present(UINavigationController(rootViewController: vc), animated: true)
 	}
 
@@ -507,7 +531,7 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func promptBackupWallet() {
         guard let keystore = try? EtherKeystore(), let address = keystore.recentlyUsedWallet?.address.eip55String else { return }
-		let coordinator = PromptBackupCoordinator(walletAddress: address, config: config)
+		let coordinator = PromptBackupCoordinator(keystore: keystore, walletAddress: address, config: config)
 		addCoordinator(coordinator)
 		coordinator.delegate = self
 		coordinator.start()
@@ -596,8 +620,8 @@ extension UniversalLinkCoordinator: ImportMagicTokenViewControllerDelegate {
 }
 
 extension UniversalLinkCoordinator: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 
     func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
