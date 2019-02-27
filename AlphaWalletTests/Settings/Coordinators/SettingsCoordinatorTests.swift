@@ -34,6 +34,7 @@ class SettingsCoordinatorTests: XCTestCase {
         XCTAssertEqual(1, storage.count)
         
         let accountCoordinator = AccountsCoordinator(
+            config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(),
             balanceCoordinator: FakeGetBalanceCoordinator()

@@ -10,12 +10,14 @@ protocol PromptBackupCoordinatorDelegate: class {
 ///We allow user to switch wallets, so it's important to know which wallet we are prompting for. It might not be the current wallet
 class PromptBackupCoordinator: Coordinator {
     private var walletAddress: String
+    private let config: Config
 
     var coordinators: [Coordinator] = []
     weak var delegate: PromptBackupCoordinatorDelegate?
 
-    init(walletAddress: String) {
+    init(walletAddress: String, config: Config) {
         self.walletAddress = walletAddress
+        self.config = config
     }
 
     func start() {
@@ -24,7 +26,7 @@ class PromptBackupCoordinator: Coordinator {
             finish()
             return
         }
-        let coordinator = WalletCoordinator(keystore: keystore)
+        let coordinator = WalletCoordinator(config: config, keystore: keystore)
         coordinator.delegate = self
         let proceed = coordinator.start(.backupWallet(address: walletAddress))
         guard proceed else {

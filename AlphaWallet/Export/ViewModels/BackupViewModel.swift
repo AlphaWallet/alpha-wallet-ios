@@ -3,12 +3,9 @@
 import Foundation
 
 struct BackupViewModel {
-
     private let config: Config
 
-    init(
-        config: Config = Config()
-    ) {
+    init(config: Config) {
         self.config = config
     }
 

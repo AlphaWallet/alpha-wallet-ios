@@ -21,7 +21,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: TokenObject
     private lazy var rootViewController: TokensCardViewController = {
-        let viewModel = TokensCardViewModel(token: token)
+        let viewModel = TokensCardViewModel(config: session.config, token: token)
         return makeTokensCardViewController(with: session.account, viewModel: viewModel)
     }()
 
@@ -68,7 +68,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         assetDefinitionStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
             guard contract.sameContract(as: strongSelf.token.contract) else { return }
-            let viewModel = TokensCardViewModel(token: strongSelf.token)
+            let viewModel = TokensCardViewModel(config: strongSelf.session.config, token: strongSelf.token)
             strongSelf.rootViewController.configure(viewModel: viewModel)
         }
     }
@@ -183,7 +183,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeRedeemTokensViewController() -> RedeemTokenViewController {
-        let viewModel = RedeemTokenCardViewModel(token: token)
+        let viewModel = RedeemTokenCardViewModel(config: session.config, token: token)
         let controller = RedeemTokenViewController(config: session.config, token: token, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
@@ -191,7 +191,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeSellTokensCardViewController(paymentFlow: PaymentFlow) -> SellTokensCardViewController {
-        let viewModel = SellTokensCardViewModel(token: token)
+        let viewModel = SellTokensCardViewModel(config: session.config, token: token)
         let controller = SellTokensCardViewController(config: session.config, paymentFlow: paymentFlow, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
@@ -247,7 +247,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeTransferTokensCardViewController(paymentFlow: PaymentFlow) -> TransferTokensCardViewController {
-        let viewModel = TransferTokensCardViewModel(token: token)
+        let viewModel = TransferTokensCardViewModel(config: session.config, token: token)
         let controller = TransferTokensCardViewController(config: session.config, paymentFlow: paymentFlow, token: token, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
@@ -293,7 +293,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
         let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
-        return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
+        return UniversalLinkHandler(config: session.config).createUniversalLink(signedOrder: signedOrders[0])
     }
 
     //note that the price must be in szabo for a sell link, price must be rounded
@@ -319,7 +319,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
         let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
-        return UniversalLinkHandler().createUniversalLink(signedOrder: signedOrders[0])
+        return UniversalLinkHandler(config: session.config).createUniversalLink(signedOrder: signedOrders[0])
     }
 
     private func sellViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {

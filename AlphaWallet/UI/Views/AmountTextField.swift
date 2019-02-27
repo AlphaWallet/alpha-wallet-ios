@@ -84,8 +84,8 @@ class AmountTextField: UIControl {
         return DecimalFormatter()
     }()
 
-    init() {
-        let server = Config().server
+    init(config: Config) {
+        let server = config.server
 
         switch server {
         case .xDai:

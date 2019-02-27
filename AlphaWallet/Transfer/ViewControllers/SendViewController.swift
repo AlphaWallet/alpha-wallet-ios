@@ -21,12 +21,12 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 class SendViewController: UIViewController, CanScanQRCode {
     private let roundedBackground = RoundedBackground()
     private let header = SendHeaderView()
-    private let amountTextField = AmountTextField()
+    lazy private var amountTextField = AmountTextField(config: session.config)
     private let targetAddressLabel = UILabel()
     private let amountLabel = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: SendViewModel!
-    private var headerViewModel = SendHeaderViewViewModel()
+    lazy private var headerViewModel = SendHeaderViewViewModel(config: session.config)
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
     private let account: Account
@@ -37,9 +37,8 @@ class SendViewController: UIViewController, CanScanQRCode {
         return DecimalFormatter()
     }()
 
-    let targetAddressTextField = AddressTextField()
+    lazy var targetAddressTextField = AddressTextField(config: session.config)
     weak var delegate: SendViewControllerDelegate?
-    let config: Config
     var contract: String {
         switch transferType {
         case .ERC20Token(let token):
@@ -63,7 +62,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             session: WalletSession,
             storage: TokensDataStore,
             account: Account,
-            transferType: TransferType = .nativeCryptocurrency(config: Config(), destination: .none),
+            transferType: TransferType,
             cryptoPrice: Subscribable<Double>
     ) {
         self.session = session
@@ -71,7 +70,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         self.transferType = transferType
         self.storage = storage
         self.ethPrice = cryptoPrice
-        self.config = Config()
 
         super.init(nibName: nil, bundle: nil)
 
@@ -187,7 +185,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     }
 
     func getGasPrice() {
-        let request = EtherServiceRequest(batch: BatchFactory().create(GasPriceRequest()))
+        let request = EtherServiceRequest(config: session.config, batch: BatchFactory().create(GasPriceRequest()))
         Session.send(request) { [weak self] result in
             switch result {
             case .success(let balance):

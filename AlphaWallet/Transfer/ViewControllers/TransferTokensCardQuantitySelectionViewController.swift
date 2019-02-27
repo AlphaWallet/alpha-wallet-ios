@@ -25,7 +25,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     weak var delegate: TransferTokenCardQuantitySelectionViewControllerDelegate?
 
     init(
-            config: Config = Config(),
+            config: Config,
             paymentFlow: PaymentFlow,
             token: TokenObject,
             viewModel: TransferTokensCardQuantitySelectionViewModel

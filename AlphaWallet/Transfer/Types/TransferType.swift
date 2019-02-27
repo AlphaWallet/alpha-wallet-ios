@@ -10,11 +10,11 @@ struct Transfer {
 
 enum TransferType {
 
-    init(token: TokenObject) {
+    init(config: Config, token: TokenObject) {
         self = {
             switch token.type {
             case .nativeCryptocurrency, .xDai:
-                return .nativeCryptocurrency(config: Config(), destination: nil)
+                return .nativeCryptocurrency(config: config, destination: nil)
             case .erc20:
                 return .ERC20Token(token)
             case .erc875:

@@ -367,7 +367,7 @@ extension TokensViewController: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier, for: indexPath) as! OpenSeaNonFungibleTokenViewCell
-        cell.configure(viewModel: .init(token: token))
+        cell.configure(viewModel: .init(config: session.config, token: token))
         return cell
     }
 }

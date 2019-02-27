@@ -27,16 +27,15 @@ public extension Date {
     }
 
     public static func formatter(with format: String, withTimeZone timeZone: TimeZone? = nil) -> DateFormatter {
-        let config = Config()
-        if config.locale != formatsMapLocale {
-            formatsMapLocale = config.locale
+        if Config.getLocale() != formatsMapLocale {
+            formatsMapLocale = Config.getLocale()
             formatsMap = Dictionary()
         }
 
         var foundFormatter = formatsMap[format]
         if foundFormatter == nil {
             foundFormatter = DateFormatter()
-            if let locale = config.locale {
+            if let locale = Config.getLocale() {
                 foundFormatter?.locale = Locale(identifier: locale)
             }
             foundFormatter?.setLocalizedDateFormatFromTemplate(format)

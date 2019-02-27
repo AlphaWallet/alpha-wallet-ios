@@ -7,9 +7,9 @@ struct SellTokensCardViewModel {
     let token: TokenObject
     let tokenHolders: [TokenHolder]
 
-    init(token: TokenObject) {
+    init(config: Config, token: TokenObject) {
         self.token = token
-        self.tokenHolders = TokenAdaptor(token: token).getTokenHolders()
+        self.tokenHolders = TokenAdaptor(config: config, token: token).getTokenHolders()
 
         selectSoleTokenHolder()
     }

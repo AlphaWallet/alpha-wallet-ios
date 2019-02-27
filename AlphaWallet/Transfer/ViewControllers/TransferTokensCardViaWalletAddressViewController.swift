@@ -13,7 +13,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
     private let tokenRowView: TokenRowView & UIView
-    private let targetAddressTextField = AddressTextField()
+    lazy private var targetAddressTextField = AddressTextField(config: config)
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
     private var tokenHolder: TokenHolder
