@@ -20,8 +20,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
             updateSaveButtonBasedOnTokenTypeDetected()
         }
     }
-
-    private let addressTextField = AddressTextField()
+    private let config: Config
+    lazy private var addressTextField = AddressTextField(config: config)
     private let symbolTextField = TextField()
     private let decimalsTextField = TextField()
     private let balanceTextField = TextField()
@@ -31,6 +31,15 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     private var scrollViewBottomAnchorConstraint: NSLayoutConstraint!
 
     weak var delegate: NewTokenViewControllerDelegate?
+
+    init(config: Config) {
+        self.config = config
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()

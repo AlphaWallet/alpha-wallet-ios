@@ -26,7 +26,7 @@ class TransactionsViewController: UIViewController {
         account: Wallet,
         dataCoordinator: TransactionDataCoordinator,
         session: WalletSession,
-        viewModel: TransactionsViewModel = TransactionsViewModel(transactions: [])
+        viewModel: TransactionsViewModel
     ) {
         self.account = account
         self.dataCoordinator = dataCoordinator
@@ -36,7 +36,7 @@ class TransactionsViewController: UIViewController {
 
         title = R.string.localizable.transactionsTabbarItemTitle()
 
-        view.backgroundColor = viewModel.backgroundColor
+        view.backgroundColor = self.viewModel.backgroundColor
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
@@ -138,7 +138,7 @@ extension TransactionsViewController: TransactionDataCoordinatorDelegate {
     func didUpdate(result: Result<[Transaction], TransactionError>) {
         switch result {
         case .success(let items):
-        let viewModel = TransactionsViewModel(transactions: items)
+        let viewModel = TransactionsViewModel(config: session.config, transactions: items)
             configure(viewModel: viewModel)
             endLoading()
         case .failure(let error):

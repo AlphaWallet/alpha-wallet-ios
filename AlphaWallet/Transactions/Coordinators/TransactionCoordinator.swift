@@ -55,7 +55,7 @@ class TransactionCoordinator: Coordinator {
     }
 
     private func makeTransactionsController(with account: Wallet) -> TransactionsViewController {
-        let viewModel = TransactionsViewModel()
+        let viewModel = TransactionsViewModel(config: session.config)
         let controller = TransactionsViewController(
             account: account,
             dataCoordinator: dataCoordinator,

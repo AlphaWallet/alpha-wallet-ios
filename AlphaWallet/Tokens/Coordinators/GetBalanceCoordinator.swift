@@ -41,7 +41,7 @@ class GetBalanceCoordinator {
         for address: Address,
         completion: @escaping (ResultResult<Balance, AnyError>.t) -> Void
     ) {
-        let request = EtherServiceRequest(batch: BatchFactory().create(BalanceRequest(address: address.description)))
+        let request = EtherServiceRequest(config: config, batch: BatchFactory().create(BalanceRequest(address: address.description)))
         Session.send(request) { result in
             switch result {
             case .success(let balance):

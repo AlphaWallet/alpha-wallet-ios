@@ -11,9 +11,11 @@ import RealmSwift
 import BigInt
 
 class TokenAdaptor {
+    private let config: Config
     private let token: TokenObject
 
-    init(token: TokenObject) {
+    init(config: Config, token: TokenObject) {
+        self.config = config
         self.token = token
     }
 
@@ -35,8 +37,6 @@ class TokenAdaptor {
     private func getNotSupportedByOpenSeaTokenHolders() -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
-        //TODO should pass Config instance into this func instead
-        let config = Config()
         for (index, item) in balance.enumerated() {
             //id is the value of the bytes32 token
             let id = item.balance

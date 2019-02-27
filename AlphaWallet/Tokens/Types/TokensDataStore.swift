@@ -264,7 +264,7 @@ class TokensDataStore {
 
     private func getTokensFromOpenSea() -> OpenSea.PromiseResult {
         //TODO when we no longer create multiple instances of TokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
-        return OpenSea.sharedInstance.makeFetchPromise(owner: account.address.eip55String)
+        return OpenSea.sharedInstance.makeFetchPromise(config: config, owner: account.address.eip55String)
     }
 
     func getTokenType(for addressString: String,
@@ -507,11 +507,11 @@ class TokensDataStore {
     }
 
     private func getPriceToUpdate() -> AlphaWalletService {
-        switch self.config.server {
+        switch config.server {
         case .xDai:
-            return .priceOfDai
+            return .priceOfDai(config: config)
         default:
-            return .priceOfEth
+            return .priceOfEth(config: config)
         }
     }
 

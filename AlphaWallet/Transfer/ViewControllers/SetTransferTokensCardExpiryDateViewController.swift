@@ -104,7 +104,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         datePicker.minimumDate = Date()
         datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
         datePicker.isHidden = true
-        if let locale = config.locale {
+        if let locale = Config.getLocale() {
             datePicker.locale = Locale(identifier: locale)
         }
 
@@ -112,7 +112,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         timePicker.minimumDate = Date.yesterday
         timePicker.addTarget(self, action: #selector(timePickerValueChanged), for: .valueChanged)
         timePicker.isHidden = true
-        if let locale = config.locale {
+        if let locale = Config.getLocale() {
             timePicker.locale = Locale(identifier: locale)
         }
 

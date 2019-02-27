@@ -12,6 +12,7 @@ protocol BalanceCoordinatorDelegate: class {
 
 class BalanceCoordinator {
     private let wallet: Wallet
+    private let config: Config
     private let storage: TokensDataStore
 
     var balance: Balance?
@@ -20,6 +21,7 @@ class BalanceCoordinator {
 
     var viewModel: BalanceViewModel {
         return BalanceViewModel(
+            config: config,
             balance: balance,
             rate: currencyRate
         )
@@ -31,6 +33,7 @@ class BalanceCoordinator {
             storage: TokensDataStore
     ) {
         self.wallet = wallet
+        self.config = config
         self.storage = storage
         self.storage.refreshBalance()
 

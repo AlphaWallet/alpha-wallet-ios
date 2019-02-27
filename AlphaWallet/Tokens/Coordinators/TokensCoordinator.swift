@@ -229,7 +229,7 @@ class TokensCoordinator: Coordinator {
     }
 
     func newTokenViewController() -> NewTokenViewController {
-        let controller = NewTokenViewController()
+        let controller = NewTokenViewController(config: session.config)
         controller.delegate = self
         return controller
     }

@@ -8,6 +8,7 @@ class WalletCoordinatorTests: XCTestCase {
     
     func testWelcome() {
         let coordinator = WalletCoordinator(
+            config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeKeystore()
         )
@@ -19,6 +20,7 @@ class WalletCoordinatorTests: XCTestCase {
 
     func testImportWallet() {
         let coordinator = WalletCoordinator(
+            config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeKeystore()
         )
@@ -31,6 +33,7 @@ class WalletCoordinatorTests: XCTestCase {
     func testCreateInstantWallet() {
         let delegate = FakeWalletCoordinatorDelegate()
         let coordinator = WalletCoordinator(
+            config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore()
         )
@@ -41,6 +44,7 @@ class WalletCoordinatorTests: XCTestCase {
 
     func testPushImportWallet() {
         let coordinator = WalletCoordinator(
+            config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeKeystore()
         )

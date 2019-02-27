@@ -5,12 +5,12 @@ import APIKit
 import JSONRPCKit
 
 struct EtherServiceRequest<Batch: JSONRPCKit.Batch>: APIKit.Request {
+    let config: Config
     let batch: Batch
 
     typealias Response = Batch.Responses
 
     var baseURL: URL {
-        let config = Config()
         return config.rpcURL
     }
 
