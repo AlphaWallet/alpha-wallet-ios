@@ -26,6 +26,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
 
         let token = TokenObject(
             contract: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0",
+            server: .main,
             name: "MJ Comeback",
             symbol: "MJC",
             decimals: 0,
@@ -69,7 +70,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                     tokenIds: [BigUInt]()
                 )
 
-                let session: WalletSession = .makeStormBirdSession()
+                let session: WalletSession = .makeStormBirdSession(server: .main)
 
                 let configurator = TransactionConfigurator(
                     session: session,
@@ -82,13 +83,13 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                 let account = keystore.createAccount(password: "test")
 
                 let _ = UnsignedTransaction(value: unsignedTransaction.value,
-                                                        account: account,
-                                                        to: unsignedTransaction.to,
-                                                        nonce: unsignedTransaction.nonce,
-                                                        data: unsignedTransaction.data,
-                                                        gasPrice: unsignedTransaction.gasPrice,
-                                                        gasLimit: unsignedTransaction.gasLimit,
-                                                        chainID: 3)
+                        account: account,
+                        to: unsignedTransaction.to,
+                        nonce: unsignedTransaction.nonce,
+                        data: unsignedTransaction.data,
+                        gasPrice: unsignedTransaction.gasPrice,
+                        gasLimit: unsignedTransaction.gasLimit,
+                        server: RPCServer.ropsten)
                 
                 let _ = SendTransactionCoordinator(session: session,
                                                                             keystore: keystore,

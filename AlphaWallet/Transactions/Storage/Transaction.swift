@@ -4,6 +4,8 @@ import Foundation
 import RealmSwift
 
 class Transaction: Object {
+    @objc dynamic var primaryKey: String = ""
+    @objc dynamic var chainId: Int = 0
     @objc dynamic var id: String = ""
     @objc dynamic var blockNumber: Int = 0
     @objc dynamic var from = ""
@@ -19,6 +21,7 @@ class Transaction: Object {
 
     convenience init(
         id: String,
+        server: RPCServer,
         blockNumber: Int,
         from: String,
         to: String,
@@ -33,7 +36,9 @@ class Transaction: Object {
     ) {
 
         self.init()
+        self.primaryKey = "\(id)-\(server.chainID)"
         self.id = id
+        self.chainId = server.chainID
         self.blockNumber = blockNumber
         self.from = from
         self.to = to
@@ -54,7 +59,7 @@ class Transaction: Object {
     }
 
     override static func primaryKey() -> String? {
-        return "id"
+        return "primaryKey"
     }
 
     var state: TransactionState {
@@ -65,5 +70,9 @@ class Transaction: Object {
 extension Transaction {
     var operation: LocalizedOperationObject? {
         return localizedOperations.first
+    }
+
+    var server: RPCServer {
+        return .init(chainID: chainId)
     }
 }

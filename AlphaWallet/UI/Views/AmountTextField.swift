@@ -84,9 +84,7 @@ class AmountTextField: UIControl {
         return DecimalFormatter()
     }()
 
-    init(config: Config) {
-        let server = config.server
-
+    init(server: RPCServer) {
         switch server {
         case .xDai:
             currentPair = Pair(left: .cryptoCurrency("xDAI"), right: .usd("USD"))

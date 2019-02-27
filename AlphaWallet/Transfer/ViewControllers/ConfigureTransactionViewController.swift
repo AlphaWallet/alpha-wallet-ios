@@ -10,7 +10,7 @@ protocol ConfigureTransactionViewControllerDelegate: class {
 
 class ConfigureTransactionViewController: FormViewController {
     private let configuration: TransactionConfiguration
-    private let config: Config
+    private let server: RPCServer
     private let transferType: TransferType
     private let currencyRate: CurrencyRate?
     private let fullFormatter = EtherNumberFormatter.full
@@ -49,12 +49,12 @@ class ConfigureTransactionViewController: FormViewController {
     }
 
     private var gasViewModel: GasViewModel {
-        return GasViewModel(fee: totalFee, symbol: config.server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
+        return GasViewModel(fee: totalFee, symbol: server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
     }
 
     lazy var viewModel: ConfigureTransactionViewModel = {
         return ConfigureTransactionViewModel(
-            config: config,
+            server: server,
             transferType: transferType
         )
     }()
@@ -64,12 +64,12 @@ class ConfigureTransactionViewController: FormViewController {
     init(
         configuration: TransactionConfiguration,
         transferType: TransferType,
-        config: Config,
+        server: RPCServer,
         currencyRate: CurrencyRate?
     ) {
         self.configuration = configuration
         self.transferType = transferType
-        self.config = config
+        self.server = server
         self.currencyRate = currencyRate
 
         super.init(nibName: nil, bundle: nil)

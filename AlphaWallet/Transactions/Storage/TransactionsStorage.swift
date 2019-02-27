@@ -6,9 +6,11 @@ import TrustKeystore
 
 class TransactionsStorage {
     let realm: Realm
+    let server: RPCServer
 
-    init(realm: Realm) {
+    init(realm: Realm, server: RPCServer) {
         self.realm = realm
+        self.server = server
     }
 
     var count: Int {
@@ -16,9 +18,10 @@ class TransactionsStorage {
     }
 
     var objects: [Transaction] {
-        return realm.objects(Transaction.self)
-            .sorted(byKeyPath: "date", ascending: false)
-            .filter { !$0.id.isEmpty }
+        return Array(realm.objects(Transaction.self)
+                .sorted(byKeyPath: "date", ascending: false)
+                .filter("chainId = \(self.server.chainID)")
+                .filter("id != ''"))
     }
 
     var completedObjects: [Transaction] {
@@ -29,12 +32,9 @@ class TransactionsStorage {
         return objects.filter { $0.state == TransactionState.pending }
     }
 
-    func get(forPrimaryKey: String) -> Transaction? {
-        return realm.object(ofType: Transaction.self, forPrimaryKey: forPrimaryKey)
-    }
-
     @discardableResult
     func add(_ items: [Transaction]) -> [Transaction] {
+        guard !items.isEmpty else { return [] }
         realm.beginWrite()
         realm.add(items, update: true)
         try! realm.commitWrite()
@@ -57,6 +57,7 @@ class TransactionsStorage {
                 else { return nil }
             return TokenUpdate(
                 address: contract,
+                server: server,
                 name: name,
                 symbol: symbol,
                 decimals: operation.decimals
@@ -80,7 +81,10 @@ class TransactionsStorage {
     }
 
     func removeTransactions(for states: [TransactionState]) {
-        let objects = realm.objects(Transaction.self).filter { states.contains($0.state) }
+        //TODO improve filtering/matching performance
+        let objects = realm.objects(Transaction.self)
+                .filter("chainId = \(self.server.chainID)")
+                .filter { states.contains($0.state) }
         try! realm.write {
             realm.delete(objects)
         }

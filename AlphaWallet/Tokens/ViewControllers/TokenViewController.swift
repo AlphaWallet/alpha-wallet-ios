@@ -12,7 +12,7 @@ protocol TokenViewControllerDelegate: class, CanOpenURL {
 class TokenViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let header = TokenViewControllerHeaderView()
-    lazy private var headerViewModel = SendHeaderViewViewModel(config: session.config)
+    lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server)
     private var viewModel: TokenViewControllerViewModel?
     private let session: WalletSession
     private let tokensDataStore: TokensDataStore
@@ -102,8 +102,8 @@ class TokenViewController: UIViewController {
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
-                celf.headerViewModel.title = "\(amount) \(celf.session.config.server.name) (\(viewModel.symbol))"
-                let etherToken = TokensDataStore.etherToken(for: celf.session.config)
+                celf.headerViewModel.title = "\(amount) \(celf.session.server.name) (\(viewModel.symbol))"
+                let etherToken = TokensDataStore.etherToken(forServer: celf.session.server)
                 let ticker = celf.tokensDataStore.coinTicker(for: etherToken)
                 celf.headerViewModel.ticker = ticker
                 celf.headerViewModel.currencyAmount = celf.session.balanceCoordinator.viewModel.currencyAmount
@@ -117,7 +117,7 @@ class TokenViewController: UIViewController {
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
             headerViewModel.title = "\(amount) \(viewModel.name) (\(viewModel.symbol))"
-            let etherToken = TokensDataStore.etherToken(for: session.config)
+            let etherToken = TokensDataStore.etherToken(forServer: session.server)
             let ticker = tokensDataStore.coinTicker(for: etherToken)
             headerViewModel.ticker = ticker
             headerViewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
@@ -175,6 +175,6 @@ extension TokenViewController: UITableViewDelegate {
 
 extension TokenViewController: TokenViewControllerHeaderViewDelegate {
     func didPressViewContractWebPage(forContract contract: String, inHeaderView: TokenViewControllerHeaderView) {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
     }
 }

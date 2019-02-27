@@ -6,46 +6,45 @@ import Result
 import TrustKeystore
 
 protocol TransactionCoordinatorDelegate: class, CanOpenURL {
-    func didPress(for type: PaymentFlow, in coordinator: TransactionCoordinator)
 }
 
 class TransactionCoordinator: Coordinator {
     private let keystore: Keystore
-    private let storage: TransactionsStorage
+    private let transactionsCollection: TransactionCollection
 
     lazy var rootViewController: TransactionsViewController = {
-        return makeTransactionsController(with: session.account)
+        return makeTransactionsController()
     }()
 
     lazy var dataCoordinator: TransactionDataCoordinator = {
         let coordinator = TransactionDataCoordinator(
-            session: session,
-            storage: storage,
+            sessions: sessions,
+            transactionCollection: transactionsCollection,
             keystore: keystore,
-            tokensStorage: tokensStorage
+            tokensStorages: tokensStorages
         )
         return coordinator
     }()
 
     weak var delegate: TransactionCoordinatorDelegate?
 
-    let session: WalletSession
-    let tokensStorage: TokensDataStore
+    let sessions: ServerDictionary<WalletSession>
+    let tokensStorages: ServerDictionary<TokensDataStore>
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
     init(
-        session: WalletSession,
+        sessions: ServerDictionary<WalletSession>,
         navigationController: UINavigationController = NavigationController(),
-        storage: TransactionsStorage,
+        transactionsCollection: TransactionCollection,
         keystore: Keystore,
-        tokensStorage: TokensDataStore
+        tokensStorages: ServerDictionary<TokensDataStore>
     ) {
-        self.session = session
+        self.sessions = sessions
         self.keystore = keystore
         self.navigationController = navigationController
-        self.storage = storage
-        self.tokensStorage = tokensStorage
+        self.transactionsCollection = transactionsCollection
+        self.tokensStorages = tokensStorages
 
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
     }
@@ -54,12 +53,11 @@ class TransactionCoordinator: Coordinator {
         navigationController.viewControllers = [rootViewController]
     }
 
-    private func makeTransactionsController(with account: Wallet) -> TransactionsViewController {
-        let viewModel = TransactionsViewModel(config: session.config)
+    private func makeTransactionsController() -> TransactionsViewController {
+        let viewModel = TransactionsViewModel()
         let controller = TransactionsViewController(
-            account: account,
             dataCoordinator: dataCoordinator,
-            session: session,
+            sessions: sessions,
             viewModel: viewModel
         )
         controller.delegate = self
@@ -67,6 +65,7 @@ class TransactionCoordinator: Coordinator {
     }
 
     func showTransaction(_ transaction: Transaction) {
+        let session = sessions[transaction.server]
         let controller = TransactionViewController(
                 session: session,
                 transaction: transaction,
@@ -84,6 +83,7 @@ class TransactionCoordinator: Coordinator {
 
     //TODO duplicate of method showTransaction(_:) to display in a specific UIViewController because we are now showing transactions from outside the transactions tab. Clean up
     func showTransaction(_ transaction: Transaction, inViewController viewController: UIViewController) {
+        let session = sessions[transaction.server]
         let controller = TransactionViewController(
                 session: session,
                 transaction: transaction,
@@ -104,7 +104,10 @@ class TransactionCoordinator: Coordinator {
 
     func stop() {
         dataCoordinator.stop()
-        session.stop()
+        //TODO seems not good to stop here because others call stop too
+        for each in sessions.values {
+            each.stop()
+        }
     }
 }
 
@@ -115,8 +118,8 @@ extension TransactionCoordinator: TransactionsViewControllerDelegate {
 }
 
 extension TransactionCoordinator: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 
     func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {

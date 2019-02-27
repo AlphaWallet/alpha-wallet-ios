@@ -5,10 +5,15 @@ import RealmSwift
 import TrustKeystore
 
 struct RealmConfiguration {
-
-    static func configuration(for account: Wallet, chainID: Int) -> Realm.Configuration {
+    static func configuration(for account: Wallet, server: RPCServer) -> Realm.Configuration {
         var config = Realm.Configuration()
-        config.fileURL = config.fileURL!.deletingLastPathComponent().appendingPathComponent("\(account.address.description.lowercased())-\(chainID).realm")
+        config.fileURL = config.fileURL!.deletingLastPathComponent().appendingPathComponent("\(account.address.description.lowercased())-\(server.chainID).realm")
+        return config
+    }
+
+    static func configuration(for account: Wallet) -> Realm.Configuration {
+        var config = Realm.Configuration()
+        config.fileURL = config.fileURL!.deletingLastPathComponent().appendingPathComponent("\(account.address.description.lowercased()).realm")
         return config
     }
 }

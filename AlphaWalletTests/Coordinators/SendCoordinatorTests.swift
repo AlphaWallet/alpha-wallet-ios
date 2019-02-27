@@ -8,7 +8,7 @@ class SendCoordinatorTests: XCTestCase {
     
     func testRootViewController() {
         let coordinator = SendCoordinator(
-            transferType: .nativeCryptocurrency(config: .make(), destination: .none),
+            transferType: .nativeCryptocurrency(server: .main, destination: .none),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),
@@ -25,7 +25,7 @@ class SendCoordinatorTests: XCTestCase {
     func testDestination() {
         let address: Address = .make()
         let coordinator = SendCoordinator(
-            transferType: .nativeCryptocurrency(config: .make(), destination: address),
+            transferType: .nativeCryptocurrency(server: .main, destination: address),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),

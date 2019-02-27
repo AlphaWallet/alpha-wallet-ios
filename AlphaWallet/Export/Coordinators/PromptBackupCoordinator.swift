@@ -9,19 +9,20 @@ protocol PromptBackupCoordinatorDelegate: class {
 
 ///We allow user to switch wallets, so it's important to know which wallet we are prompting for. It might not be the current wallet
 class PromptBackupCoordinator: Coordinator {
+    private let keystore: Keystore
     private var walletAddress: String
     private let config: Config
 
     var coordinators: [Coordinator] = []
     weak var delegate: PromptBackupCoordinatorDelegate?
 
-    init(walletAddress: String, config: Config) {
+    init(keystore: Keystore, walletAddress: String, config: Config) {
+        self.keystore = keystore
         self.walletAddress = walletAddress
         self.config = config
     }
 
     func start() {
-        let keystore = try! EtherKeystore()
         guard let vc = delegate?.viewControllerForPresenting(in: self) else {
             finish()
             return

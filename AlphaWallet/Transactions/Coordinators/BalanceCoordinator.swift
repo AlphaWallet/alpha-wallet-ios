@@ -12,7 +12,7 @@ protocol BalanceCoordinatorDelegate: class {
 
 class BalanceCoordinator {
     private let wallet: Wallet
-    private let config: Config
+    private let server: RPCServer
     private let storage: TokensDataStore
 
     var balance: Balance?
@@ -21,7 +21,7 @@ class BalanceCoordinator {
 
     var viewModel: BalanceViewModel {
         return BalanceViewModel(
-            config: config,
+            server: server,
             balance: balance,
             rate: currencyRate
         )
@@ -29,15 +29,20 @@ class BalanceCoordinator {
 
     init(
             wallet: Wallet,
-            config: Config,
+            server: RPCServer,
             storage: TokensDataStore
     ) {
         self.wallet = wallet
-        self.config = config
+        self.server = server
         self.storage = storage
-        self.storage.refreshBalance()
+        //Since this is called at launch, we don't want it to block launching
+        DispatchQueue.global().async {
+            DispatchQueue.main.async { [weak self] in
+                self?.storage.refreshBalance()
+            }
+        }
 
-        let etherToken = TokensDataStore.etherToken(for: config)
+        let etherToken = TokensDataStore.etherToken(forServer: server)
 
         storage.tokensModel.subscribe {[weak self] tokensModel in
             guard let tokens = tokensModel, let eth = tokens.first(where: { $0 == etherToken }) else {

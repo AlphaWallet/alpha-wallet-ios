@@ -6,10 +6,10 @@ import TrustKeystore
 import web3swift
 
 class GetSymbolCoordinator {
-    private let config: Config
+    private let server: RPCServer
 
-    init(config: Config) {
-        self.config = config
+    init(forServer server: RPCServer) {
+        self.server = server
     }
 
     func getSymbol(
@@ -17,7 +17,7 @@ class GetSymbolCoordinator {
         completion: @escaping (Result<String, AnyError>) -> Void
     ) {
         let functionName = "symbol"
-        callSmartContract(withConfig: config, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI).done { symbolsResult in
+        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI).done { symbolsResult in
             if let symbol = symbolsResult["0"] as? String {
                 completion(.success(symbol))
             } else {

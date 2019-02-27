@@ -7,11 +7,11 @@ struct ConfirmPaymentDetailsViewModel {
     private let transaction: PreviewTransaction
     private let currentBalance: BalanceProtocol?
     private let currencyRate: CurrencyRate?
-    private let config: Config
+    private let server: RPCServer
     private let fullFormatter = EtherNumberFormatter.full
 
     private var gasViewModel: GasViewModel {
-        return GasViewModel(fee: totalFee, symbol: config.server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
+        return GasViewModel(fee: totalFee, symbol: server.symbol, currencyRate: currencyRate, formatter: fullFormatter)
     }
 
     private var totalFee: BigInt {
@@ -24,13 +24,13 @@ struct ConfirmPaymentDetailsViewModel {
 
     init(
         transaction: PreviewTransaction,
-        config: Config,
+        server: RPCServer,
         currentBalance: BalanceProtocol?,
         currencyRate: CurrencyRate?
     ) {
         self.transaction = transaction
         self.currentBalance = currentBalance
-        self.config = config
+        self.server = server
         self.currencyRate = currencyRate
     }
 
@@ -131,7 +131,7 @@ struct ConfirmPaymentDetailsViewModel {
         )
 
         let currency = NSAttributedString(
-            string: " \(transaction.transferType.symbol(server: config.server))",
+            string: " \(transaction.transferType.symbol)",
             attributes: [
                 .font: Fonts.regular(size: 20) as Any,
             ]

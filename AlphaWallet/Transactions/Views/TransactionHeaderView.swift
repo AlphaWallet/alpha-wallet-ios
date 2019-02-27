@@ -4,20 +4,39 @@ import Foundation
 import UIKit
 
 class TransactionHeaderView: UIView {
-    let amountLabel = UILabel(frame: .zero)
+    private let server: RPCServer
+    private let amountLabel = UILabel()
+    private let blockchainLabel = UILabel()
 
-    override init(frame: CGRect = .zero) {
-        super.init(frame: frame)
+    init(server: RPCServer) {
+        self.server = server
+        super.init(frame: .zero)
 
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
         amountLabel.textAlignment = .center
 
-        addSubview(amountLabel)
+        let stackView = [
+            blockchainLabel,
+            amountLabel,
+        ].asStackView(axis: .vertical, alignment: .center)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(stackView)
 
-        amountLabel.anchor(to: self, margin: 15)
+        stackView.anchor(to: self, margin: 15)
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func configure(amount: NSAttributedString) {
+        amountLabel.attributedText = amount
+
+        blockchainLabel.textAlignment = .center
+        blockchainLabel.cornerRadius = 7
+        blockchainLabel.backgroundColor = server.blockChainNameColor
+        blockchainLabel.textColor = Colors.appWhite
+        blockchainLabel.font = Fonts.semibold(size: 12)!
+        blockchainLabel.text = " \(server.name)     "
     }
 }

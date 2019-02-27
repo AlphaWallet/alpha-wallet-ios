@@ -21,7 +21,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: TokenObject
     private lazy var rootViewController: TokensCardViewController = {
-        let viewModel = TokensCardViewModel(config: session.config, token: token)
+        let viewModel = TokensCardViewModel(token: token)
         return makeTokensCardViewController(with: session.account, viewModel: viewModel)
     }()
 
@@ -68,13 +68,13 @@ class TokensCardCoordinator: NSObject, Coordinator {
         assetDefinitionStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
             guard contract.sameContract(as: strongSelf.token.contract) else { return }
-            let viewModel = TokensCardViewModel(config: strongSelf.session.config, token: strongSelf.token)
+            let viewModel = TokensCardViewModel(token: strongSelf.token)
             strongSelf.rootViewController.configure(viewModel: viewModel)
         }
     }
 
     private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
-        let controller = TokensCardViewController(config: session.config, tokenObject: token, account: account, tokensStorage: tokensStorage, viewModel: viewModel)
+        let controller = TokensCardViewController(tokenObject: token, account: account, tokensStorage: tokensStorage, viewModel: viewModel)
         controller.delegate = self
         return controller
     }
@@ -132,7 +132,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
                 tokenHolder: tokenHolder,
                 ethCost: ethCost,
                 linkExpiryDate: linkExpiryDate,
-                server: session.config.server
+                server: session.server
         ))
         vc.modalPresentationStyle = .overCurrentContext
         return vc
@@ -183,16 +183,16 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func makeRedeemTokensViewController() -> RedeemTokenViewController {
-        let viewModel = RedeemTokenCardViewModel(config: session.config, token: token)
-        let controller = RedeemTokenViewController(config: session.config, token: token, viewModel: viewModel)
+        let viewModel = RedeemTokenCardViewModel(token: token)
+        let controller = RedeemTokenViewController(token: token, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeSellTokensCardViewController(paymentFlow: PaymentFlow) -> SellTokensCardViewController {
-        let viewModel = SellTokensCardViewModel(config: session.config, token: token)
-        let controller = SellTokensCardViewController(config: session.config, paymentFlow: paymentFlow, viewModel: viewModel)
+        let viewModel = SellTokensCardViewModel(token: token)
+        let controller = SellTokensCardViewController(paymentFlow: paymentFlow, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
@@ -200,15 +200,15 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeRedeemTokensCardQuantitySelectionViewController(token: TokenObject, for tokenHolder: TokenHolder) -> RedeemTokenCardQuantitySelectionViewController {
         let viewModel = RedeemTokenCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = RedeemTokenCardQuantitySelectionViewController(config: session.config, token: token, viewModel: viewModel)
+        let controller = RedeemTokenCardQuantitySelectionViewController(token: token, viewModel: viewModel)
 		controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeEnterSellTokensCardPriceQuantityViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
-        let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder, server: session.config.server)
-        let controller = EnterSellTokensCardPriceQuantityViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, cryptoPrice: ethPrice, viewModel: viewModel)
+        let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder, server: session.server)
+        let controller = EnterSellTokensCardPriceQuantityViewController(storage: tokensStorage, paymentFlow: paymentFlow, cryptoPrice: ethPrice, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
@@ -216,7 +216,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeEnterTransferTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> SetTransferTokensCardExpiryDateViewController {
         let viewModel = SetTransferTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = SetTransferTokensCardExpiryDateViewController(config: session.config, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+        let controller = SetTransferTokensCardExpiryDateViewController(tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
@@ -224,15 +224,15 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
         let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = TransferTokensCardViaWalletAddressViewController(config: session.config, token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+        let controller = TransferTokensCardViaWalletAddressViewController(token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeEnterSellTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, ethCost: Ether, paymentFlow: PaymentFlow) -> SetSellTokensCardExpiryDateViewController {
-        let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost, server: session.config.server)
-        let controller = SetSellTokensCardExpiryDateViewController(config: session.config, storage: tokensStorage, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel)
+        let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost, server: session.server)
+        let controller = SetSellTokensCardExpiryDateViewController(storage: tokensStorage, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
@@ -240,15 +240,15 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeTokenCardRedemptionViewController(token: TokenObject, for tokenHolder: TokenHolder) -> TokenCardRedemptionViewController {
         let viewModel = TokenCardRedemptionViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = TokenCardRedemptionViewController(config: session.config, session: session, token: token, viewModel: viewModel)
+        let controller = TokenCardRedemptionViewController(session: session, token: token, viewModel: viewModel)
 		controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeTransferTokensCardViewController(paymentFlow: PaymentFlow) -> TransferTokensCardViewController {
-        let viewModel = TransferTokensCardViewModel(config: session.config, token: token)
-        let controller = TransferTokensCardViewController(config: session.config, paymentFlow: paymentFlow, token: token, viewModel: viewModel)
+        let viewModel = TransferTokensCardViewModel(token: token)
+        let controller = TransferTokensCardViewController(paymentFlow: paymentFlow, token: token, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
@@ -263,7 +263,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeTransferTokensCardQuantitySelectionViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardQuantitySelectionViewController {
         let viewModel = TransferTokensCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = TransferTokensCardQuantitySelectionViewController(config: session.config, paymentFlow: paymentFlow, token: token, viewModel: viewModel)
+        let controller = TransferTokensCardQuantitySelectionViewController(paymentFlow: paymentFlow, token: token, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
@@ -271,13 +271,13 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeChooseTokenCardTransferModeViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> ChooseTokenCardTransferModeViewController {
         let viewModel = ChooseTokenCardTransferModeViewControllerViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = ChooseTokenCardTransferModeViewController(config: session.config, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+        let controller = ChooseTokenCardTransferModeViewController(tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
-    private func generateTransferLink(tokenHolder: TokenHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow) -> String {
+    private func generateTransferLink(tokenHolder: TokenHolder, linkExpiryDate: Date, server: RPCServer) -> String {
         let order = Order(
             price: BigUInt("0")!,
             indices: tokenHolder.indices,
@@ -293,14 +293,14 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
         let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
-        return UniversalLinkHandler(config: session.config).createUniversalLink(signedOrder: signedOrders[0])
+        return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0])
     }
 
     //note that the price must be in szabo for a sell link, price must be rounded
     private func generateSellLink(tokenHolder: TokenHolder,
                                   linkExpiryDate: Date,
                                   ethCost: Ether,
-                                  paymentFlow: PaymentFlow) -> String {
+                                  server: RPCServer) -> String {
         let ethCostRoundedTo5dp = String(format: "%.5f", Float(string: String(ethCost))!)
         let cost = Decimal(string: ethCostRoundedTo5dp)! * Decimal(string: "1000000000000000000")!
         let wei = BigUInt(cost.description)!
@@ -319,15 +319,22 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
         let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
-        return UniversalLinkHandler(config: session.config).createUniversalLink(signedOrder: signedOrders[0])
+        return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0])
     }
 
     private func sellViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
+        let server: RPCServer
+        switch paymentFlow {
+        case .send(let transferType):
+            server = transferType.server
+        case .request:
+            return
+        }
         let url = generateSellLink(
             tokenHolder: tokenHolder,
             linkExpiryDate: linkExpiryDate,
             ethCost: ethCost,
-            paymentFlow: paymentFlow
+            server: server
         )
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
@@ -344,7 +351,15 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func transferViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {
-        let url = generateTransferLink(tokenHolder: tokenHolder, linkExpiryDate: linkExpiryDate, paymentFlow: paymentFlow)
+        let server: RPCServer
+        switch paymentFlow {
+        case .send(let transferType):
+            server = transferType.server
+        case .request:
+            return
+        }
+
+        let url = generateTransferLink(tokenHolder: tokenHolder, linkExpiryDate: linkExpiryDate, server: server)
         let vc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         vc.popoverPresentationController?.sourceView = sender
         vc.completionWithItemsHandler = { [weak self] activityType, completed, returnedItems, error in
@@ -596,8 +611,8 @@ extension TokensCardCoordinator: TokenCardRedemptionViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 
     func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {

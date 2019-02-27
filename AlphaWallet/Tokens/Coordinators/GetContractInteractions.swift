@@ -12,26 +12,32 @@ class GetContractInteractions {
     //if you have not transacted with the contract then it will not show up
     //there is currently no efficient way to get all your tokens but it might be for the best
     //as people spam via sending tokens
-    func getContractList(address: String, chainId: Int, completion: @escaping ([String]) -> Void) {
-        let etherscanURL = RPCServer(chainID: chainId).etherscanAPIURLForTransactionList(for: address)
+    func getContractList(address: String, server: RPCServer, completion: @escaping ([String]) -> Void) {
+        let etherscanURL = server.etherscanAPIURLForTransactionList(for: address)
         Alamofire.request(etherscanURL).validate().responseJSON { response in
             switch response.result {
             case .success(let value):
-                let json = JSON(value)
-                let contracts: [String] = json["result"].map { _, transactionJson in
-                    if transactionJson["input"] != "0x" {
-                        //every transaction that has input is by default a transaction to a contract
-                        if transactionJson["contractAddress"].description == "" {
-                            return transactionJson["to"].description
-                        } else {
-                            return transactionJson["contractAddress"].description
+                //Performance: process in background so UI don't have a chance of blocking if there's a long list of contracts
+                DispatchQueue.global().async {
+                    let json = JSON(value)
+                    let c = json["result"]
+                    let contracts: [String] = json["result"].map { _, transactionJson in
+                        if transactionJson["input"] != "0x" {
+                            //every transaction that has input is by default a transaction to a contract
+                            if transactionJson["contractAddress"].description == "" {
+                                return transactionJson["to"].description
+                            } else {
+                                return transactionJson["contractAddress"].description
+                            }
                         }
+                        return ""
                     }
-                    return ""
+                    let nonEmptyContracts = contracts.filter { !$0.isEmpty }
+                    let uniqueNonEmptyContracts = Array(Set(nonEmptyContracts))
+                    DispatchQueue.main.async {
+                        completion(uniqueNonEmptyContracts)
+                    }
                 }
-                let nonEmptyContracts = contracts.filter { !$0.isEmpty }
-                let uniqueNonEmptyContracts = Array(Set(nonEmptyContracts))
-                completion(uniqueNonEmptyContracts)
             case .failure(let error):
                 print(error)
                 completion([])

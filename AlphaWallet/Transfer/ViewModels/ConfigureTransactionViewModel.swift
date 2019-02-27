@@ -3,14 +3,14 @@
 import Foundation
 
 struct ConfigureTransactionViewModel {
-    private let config: Config
+    private let server: RPCServer
     private let transferType: TransferType
 
     init(
-        config: Config,
+        server: RPCServer,
         transferType: TransferType
     ) {
-        self.config = config
+        self.server = server
         self.transferType = transferType
     }
 
@@ -19,11 +19,11 @@ struct ConfigureTransactionViewModel {
     }
 
     var gasPriceFooterText: String {
-        return R.string.localizable.configureTransactionGasPriceLabelDescription(config.server.name)
+        return R.string.localizable.configureTransactionGasPriceLabelDescription(server.name)
     }
 
     var gasLimitFooterText: String {
-        return R.string.localizable.configureTransactionGasLimitLabelDescription(config.server.name)
+        return R.string.localizable.configureTransactionGasLimitLabelDescription(server.name)
     }
 
     var isDataInputHidden: Bool {

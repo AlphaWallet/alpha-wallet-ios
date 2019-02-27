@@ -12,5 +12,5 @@ public struct UnsignedTransaction {
     let data: Data
     let gasPrice: BigInt
     let gasLimit: BigInt
-    let chainID: Int
+    let server: RPCServer
 }

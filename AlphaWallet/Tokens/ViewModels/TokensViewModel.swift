@@ -6,7 +6,7 @@ import UIKit
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
     private let tokens: [TokenObject]
-    private let tickers: [String: CoinTicker]?
+    private let tickers: [RPCServer: [String: CoinTicker]]
 
     private var amount: String? {
         var totalAmount: Double = 0
@@ -18,14 +18,13 @@ class TokensViewModel {
     }
 
     private func amount(for token: TokenObject) -> Double {
-        guard let tickers = tickers else { return 0 }
+        guard let tickers = tickers[token.server] else { return 0 }
         guard !token.valueBigInt.isZero, let tickersSymbol = tickers[token.contract] else { return 0 }
         let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
         let price = Double(tickersSymbol.price_usd) ?? 0
         return tokenValue * price
     }
 
-    let etherTokenContract: String
     var filter: WalletFilter = .all
     var filteredTokens: [TokenObject] {
         switch filter {
@@ -104,23 +103,18 @@ class TokensViewModel {
     }
 
     func ticker(for token: TokenObject) -> CoinTicker? {
-        return tickers?[token.contract]
+        return tickers[token.server]?[token.contract]
     }
 
     func canDelete(for row: Int, section: Int) -> Bool {
         let token = item(for: row, section: section)
-        if etherTokenContract.sameContract(as: token.contract) {
+        if token.contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
             return false
         }
         return true
     }
 
-    init(
-        config: Config,
-        tokens: [TokenObject],
-        tickers: [String: CoinTicker]?
-    ) {
-        self.etherTokenContract = TokensDataStore.etherToken(for: config).contract
+    init(tokens: [TokenObject], tickers: [RPCServer: [String: CoinTicker]]) {
         self.tokens = tokens
         self.tickers = tickers
     }

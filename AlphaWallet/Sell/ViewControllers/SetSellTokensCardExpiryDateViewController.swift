@@ -31,22 +31,22 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     private let tokenHolder: TokenHolder
     private let ethCost: Ether
 
-    let config: Config
     var contract: String {
         return viewModel.token.contract
+    }
+    var server: RPCServer {
+        return viewModel.token.server
     }
     let paymentFlow: PaymentFlow
     weak var delegate: SetSellTokensCardExpiryDateViewControllerDelegate?
 
     init(
-            config: Config,
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
             tokenHolder: TokenHolder,
             ethCost: Ether,
             viewModel: SetSellTokensCardExpiryDateViewControllerViewModel
     ) {
-        self.config = config
         self.storage = storage
         self.paymentFlow = paymentFlow
         self.tokenHolder = tokenHolder
@@ -247,7 +247,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
     }
 
     func configure(viewModel newViewModel: SetSellTokensCardExpiryDateViewControllerViewModel? = nil) {

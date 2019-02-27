@@ -13,7 +13,7 @@ class TokenAdaptorTest: XCTestCase {
             Token(id: "2", index: 2, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
             Token(id: "3", index: 3, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 4, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
         ]
-        let bundles = TokenAdaptor(config: .make(), token: TokenObject()).bundle(tokens: tokens)
+        let bundles = TokenAdaptor(token: TokenObject()).bundle(tokens: tokens)
         XCTAssertEqual(bundles.count, 2)
     }
 
@@ -25,7 +25,7 @@ class TokenAdaptorTest: XCTestCase {
             Token(id: "3", index: 3, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 4, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
             Token(id: "4", index: 4, name: "Name", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
         ]
-        let bundles = TokenAdaptor(config: .make(), token: TokenObject()).bundle(tokens: tokens)
+        let bundles = TokenAdaptor(token: TokenObject()).bundle(tokens: tokens)
         XCTAssertEqual(bundles.count, 2)
     }
 

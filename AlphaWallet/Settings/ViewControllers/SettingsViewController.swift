@@ -19,12 +19,12 @@ class SettingsViewController: FormViewController {
     private lazy var viewModel: SettingsViewModel = {
         return SettingsViewModel(isDebug: isDebug)
     }()
-    private let session: WalletSession
+    private let account: Wallet
 
     weak var delegate: SettingsViewControllerDelegate?
 
-    init(session: WalletSession) {
-        self.session = session
+    init(account: Wallet) {
+        self.account = account
         super.init(style: .plain)
         title = R.string.localizable.aSettingsNavigationTitle()
     }
@@ -57,7 +57,7 @@ class SettingsViewController: FormViewController {
             guard let strongSelf = self else { return }
             cell.imageView?.image = R.image.settings_wallet()?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
-            cell.detailTextLabel?.text = strongSelf.session.account.address.description
+            cell.detailTextLabel?.text = strongSelf.account.address.description
             cell.detailTextLabel?.lineBreakMode = .byTruncatingMiddle
             cell.accessoryType = .disclosureIndicator
         }
@@ -94,20 +94,16 @@ class SettingsViewController: FormViewController {
         }
 
         +++ createSection(withTitle: R.string.localizable.settingsAdvancedTitle())
-
         <<< AppFormAppearance.alphaWalletSettingsButton { button in
             button.cellStyle = .value1
         }.onCellSelection { [unowned self] _, _ in
-            self.run(action: .servers)
+            self.run(action: .enabledServers)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
         }.cellUpdate { [weak self] cell, _ in
-            guard let strongSelf = self else {
-                return
-            }
+            guard let strongSelf = self else { return }
             cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = R.string.localizable.settingsNetworkButtonTitle()
-            cell.detailTextLabel?.text = RPCServer(chainID: strongSelf.session.config.chainID).displayName
+            cell.textLabel?.text = R.string.localizable.settingsEnabledNetworksButtonTitle()
             cell.accessoryType = .disclosureIndicator
         }
         <<< AppFormAppearance.alphaWalletSettingsButton { row in
@@ -203,8 +199,8 @@ extension SettingsViewController: HelpViewControllerDelegate {
 }
 
 extension SettingsViewController: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 
     func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {

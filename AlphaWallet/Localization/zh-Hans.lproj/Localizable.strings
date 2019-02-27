@@ -32,7 +32,7 @@
 "export.backup.button.title" = "备份钱包";
 "export.controlYourMoney.label.title" = "因为只有你能控制你的货币，为了防止应用被删而丢失，你需要备份你的备份 Keystore。";
 "export.neverStored.label.title" = "你的钱包永远不会被保存到云存储或者系统的标准设备备份里。";
-"export.noBackup.label.title" = "无备份，没%@";
+"export.noBackup.label.title" = "Be safe, back up your wallet";
 "export.presentBackupOptions.label.title" = "正在准备备份选项..。";
 "importWallet.importingIndicator.label.title" = "导入钱包...";
 "Loading" = "加载";
@@ -55,6 +55,7 @@
 "settings.biometricsEnabled.label.title" = "密码 / %@";
 "settings.error.failedToSendEmail" = "无法发送邮件。请确保你已经安装了邮件应用。";
 "settings.network.button.title" = "网络";
+"settings.enabledNetworks.button.title" = "Enabled Networks";
 "settings.language.button.title" = "语言";
 "settings.language.useSystem.title" = "使用系统设置";
 "settings.version.label.title" = "版本";
@@ -75,6 +76,8 @@
 "Decimals" = "位数";
 "warning.fieldRequired" = "必填字段!";
 "detecting.token.type.title" = "正在检查通证类型…";
+"detecting.serverAutomatically" = "Detect Automatically";
+"detecting.serverAutomatically.buttonTitle" = "Auto";
 "editTokens.searchBar.placeholder.title" = "搜索通证";
 "importWallet.import.alertSheet.option.title" = "iCloud/Dropbox/Google Drive";
 "importWallet.import.alertSheet.title" = "导入钱包选项";
@@ -329,5 +332,3 @@
 "a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "photos" = "Photos";
 "a.claim.token.failed.serverDown" = "a.claim.token.failed.serverDown";
-
-"a.claim.token.wrongNetworkLink" = "a.claim.token.wrongNetworkLink";

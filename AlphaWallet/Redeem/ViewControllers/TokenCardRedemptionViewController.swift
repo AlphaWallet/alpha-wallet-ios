@@ -20,14 +20,15 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private var session: WalletSession
     private let token: TokenObject
 
-    let config: Config
     var contract: String {
         return token.contract
     }
+    var server: RPCServer {
+        return token.server
+    }
     weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
-    init(config: Config, session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel) {
-        self.config = config
+    init(session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel) {
 		self.session = session
         self.token = token
         self.viewModel = viewModel
@@ -94,7 +95,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
 
     @objc
     private func configureUI() {
-        let redeem = CreateRedeem(config: session.config, token: token)
+        let redeem = CreateRedeem(token: token)
         let redeemData = redeem.redeemMessage(tokenIndices: viewModel.tokenHolder.indices)
         switch session.account.type {
         case .real(let account):
@@ -111,7 +112,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: viewModel.token.contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: viewModel.token.contract, server: server, in: self)
     }
 
     private func showSuccessMessage() {
@@ -163,8 +164,8 @@ extension TokenCardRedemptionViewController: StaticHTMLViewControllerDelegate {
 }
 
 extension TokenCardRedemptionViewController: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 
     func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {

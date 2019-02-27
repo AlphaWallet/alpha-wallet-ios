@@ -10,7 +10,7 @@ import TrustKeystore
 import web3swift
 
 class GetIsERC721ContractCoordinator {
-    private let config: Config
+    private let server: RPCServer
 
     private struct DoesNotSupportERC165Querying {
         static let bitizen = "0xb891c4d89c1bf012f0014f56ce523f248a07f714"
@@ -25,8 +25,8 @@ class GetIsERC721ContractCoordinator {
         static let onlyCryptoKitty = "0x9a20483d"
     }
 
-    init(config: Config) {
-        self.config = config
+    init(forServer server: RPCServer) {
+        self.server = server
     }
 
     func getIsERC721Contract(
@@ -47,8 +47,8 @@ class GetIsERC721ContractCoordinator {
             return
         }
 
-        guard let webProvider = Web3HttpProvider(config.rpcURL, network: config.server.web3Network) else {
-            completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(config.rpcURL) + \(config.server.web3Network)"))))
+        guard let webProvider = Web3HttpProvider(server.rpcURL, network: server.web3Network) else {
+            completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(server.rpcURL) + \(server.web3Network)"))))
             return
         }
 

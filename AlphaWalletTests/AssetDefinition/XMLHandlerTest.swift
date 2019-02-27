@@ -22,7 +22,7 @@ class XMLHandlerTest: XCTestCase {
                 name: "",
                 fromTokenId: BigUInt(tokenHex, radix: 16)!,
                 index: UInt16(1),
-                config: .make()
+                server: .main
         )
         XCTAssertNotNil(token)
     }
@@ -76,8 +76,8 @@ class XMLHandlerTest: XCTestCase {
         store[contractAddress] = xml
         let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
-        let config = Config.make()
-        let token = xmlHandler.getToken(name: "Some name", fromTokenId: tokenId, index: 1, config: config)
+        let server: RPCServer = .main
+        let token = xmlHandler.getToken(name: "Some name", fromTokenId: tokenId, index: 1, server: server)
         let values = token.values
         XCTAssertEqual(values["locality"] as? String, "Saint Petersburg")
     }
@@ -86,8 +86,8 @@ class XMLHandlerTest: XCTestCase {
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
         let xmlHandler = XMLHandler(contract: "0x1", assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
-        let config = Config.make()
-        let token = xmlHandler.getToken(name: "Some name", fromTokenId: tokenId, index: 1, config: config)
+        let server: RPCServer = .main
+        let token = xmlHandler.getToken(name: "Some name", fromTokenId: tokenId, index: 1, server: server)
         let values = token.values
         XCTAssertTrue(values.isEmpty)
     }

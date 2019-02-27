@@ -6,30 +6,29 @@ import UIKit
 
 struct TransactionCellViewModel {
     private let transaction: Transaction
-    private let config: Config
     private let chainState: ChainState
     private let currentWallet: Wallet
     private let transactionViewModel: TransactionViewModel
+    private let server: RPCServer
 
     init(
         transaction: Transaction,
-        config: Config,
         chainState: ChainState,
-        currentWallet: Wallet
+        currentWallet: Wallet,
+        server: RPCServer
     ) {
         self.transaction = transaction
-        self.config = config
         self.chainState = chainState
         self.currentWallet = currentWallet
+        self.server = server
         self.transactionViewModel = TransactionViewModel(
             transaction: transaction,
-            config: config,
             chainState: chainState,
             currentWallet: currentWallet
         )
     }
 
-    var confirmations: Int? {
+    private var confirmations: Int? {
         return chainState.confirmations(fromBlock: transaction.blockNumber)
     }
 
@@ -127,5 +126,25 @@ struct TransactionCellViewModel {
         case .pending:
             return R.image.transaction_pending()
         }
+    }
+
+    var blockChainNameFont: UIFont {
+        return Fonts.semibold(size: 12)!
+    }
+
+    var blockChainNameColor: UIColor {
+        return Colors.appWhite
+    }
+
+    var blockChainNameBackgroundColor: UIColor {
+        return server.blockChainNameColor
+    }
+
+    var blockChainName: String {
+        return "  \(server.name)     "
+    }
+
+    var blockChainNameTextAlignment: NSTextAlignment {
+        return .center
     }
 }

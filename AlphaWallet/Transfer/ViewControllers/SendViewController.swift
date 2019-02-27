@@ -21,12 +21,12 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 class SendViewController: UIViewController, CanScanQRCode {
     private let roundedBackground = RoundedBackground()
     private let header = SendHeaderView()
-    lazy private var amountTextField = AmountTextField(config: session.config)
+    lazy private var amountTextField = AmountTextField(server: session.server)
     private let targetAddressLabel = UILabel()
     private let amountLabel = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: SendViewModel!
-    lazy private var headerViewModel = SendHeaderViewViewModel(config: session.config)
+    lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server)
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
     private let account: Account
@@ -37,7 +37,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         return DecimalFormatter()
     }()
 
-    lazy var targetAddressTextField = AddressTextField(config: session.config)
+    let targetAddressTextField = AddressTextField()
     weak var delegate: SendViewControllerDelegate?
     var contract: String {
         switch transferType {
@@ -185,7 +185,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     }
 
     func getGasPrice() {
-        let request = EtherServiceRequest(config: session.config, batch: BatchFactory().create(GasPriceRequest()))
+        let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(GasPriceRequest()))
         Session.send(request) { [weak self] result in
             switch result {
             case .success(let balance):
@@ -256,8 +256,8 @@ class SendViewController: UIViewController, CanScanQRCode {
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
-                celf.headerViewModel.title = "\(amount) \(celf.session.config.server.name) (\(viewModel.symbol))"
-                let etherToken = TokensDataStore.etherToken(for: celf.session.config)
+                celf.headerViewModel.title = "\(amount) \(celf.session.server.name) (\(viewModel.symbol))"
+                let etherToken = TokensDataStore.etherToken(forServer: celf.session.server)
                 let ticker = celf.storage.coinTicker(for: etherToken)
                 celf.headerViewModel.ticker = ticker
                 celf.headerViewModel.currencyAmount = celf.session.balanceCoordinator.viewModel.currencyAmount
@@ -271,7 +271,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
             headerViewModel.title = "\(amount) \(viewModel.name) (\(viewModel.symbol))"
-            let etherToken = TokensDataStore.etherToken(for: session.config)
+            let etherToken = TokensDataStore.etherToken(forServer: session.server)
             let ticker = storage.coinTicker(for: etherToken)
             headerViewModel.ticker = ticker
             headerViewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
@@ -306,7 +306,7 @@ extension SendViewController: QRCodeReaderDelegate {
         //The contract address can be compared to the one in the token card and if it matches will proceed else fail
         //this protects the user from sending funds to the wrong address
         if let chainId = result.params["chainId"] {
-            guard self.session.config.chainID == Int(chainId) else { return false }
+            guard self.session.server.chainID == Int(chainId) else { return false }
         }
         //if erc20 (eip861 qr code)
         if let recipient = result.params["address"], let amt = result.params["uint256"] {

@@ -26,13 +26,28 @@ struct TokenViewCellViewModel {
         return ""
     }
 
+    var blockChainNameFont: UIFont {
+        return Fonts.semibold(size: 12)!
+    }
+
+    var blockChainNameColor: UIColor {
+        return Colors.appWhite
+    }
+
+    var blockChainNameBackgroundColor: UIColor {
+        return server.blockChainNameColor
+    }
+
+    var blockChainTag: String {
+        return "  \(server.name)     "
+    }
+
+    var blockChainNameTextAlignment: NSTextAlignment {
+        return .center
+    }
+
     var blockChainName: String {
-        switch server {
-        case .xDai:
-            return R.string.localizable.blockchainXDAI()
-        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
-            return R.string.localizable.blockchainEthereum()
-        }
+        return server.blockChainName
     }
 
     var backgroundColor: UIColor {
