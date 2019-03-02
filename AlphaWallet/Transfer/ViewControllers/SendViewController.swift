@@ -296,23 +296,38 @@ extension SendViewController: QRCodeReaderDelegate {
         reader.dismiss(animated: true) { [weak self] in
             self?.activateAmountView()
         }
+        guard let result = QRURLParser.from(string: result) else { return }
+        guard checkAndFillEIP861Details(result: result) else { return }
+    }
 
-        guard let result = QRURLParser.from(string: result) else {
-            return
+    func checkAndFillEIP861Details(result: ParserResult) -> Bool {
+        //TODO error display on returns
+        //Note: not checking the 'transferType' since erc20 is implied by whether it has uint256 and address.
+        //The contract address can be compared to the one in the token card and if it matches will proceed else fail
+        //this protects the user from sending funds to the wrong address
+        if let chainId = result.params["chainId"] {
+            guard self.config.chainID == Int(chainId) else { return false }
         }
-        targetAddressTextField.value = result.address
-
-        if let dataString = result.params["data"] {
-            data = Data(hex: dataString.drop0x)
+        //if erc20 (eip861 qr code)
+        if let recipient = result.params["address"], let amt = result.params["uint256"] {
+            guard recipient != "0" && amt != "0" else { return false }
+            //address will be set as contract address if erc token, therefore need to ensure the QR code has set the same contract address
+            //as the user is using
+            guard transferType.contract().eip55String.sameContract(as: result.address) else { return false }
+            amountTextField.ethCost = EtherNumberFormatter.full.string(from: BigInt(amt) ?? BigInt(), units: .ether)
+            targetAddressTextField.value = recipient
+            return true
         } else {
-            data = Data()
+            targetAddressTextField.value = result.address
         }
-
-        if let value = result.params["amount"] {
-            amountTextField.ethCost = EtherNumberFormatter.full.string(from: BigInt(value) ?? BigInt(), units: .ether)
+        //if ether transfer (eip861 qr code)
+        if let value = result.params["value"], let amountToSend = Double(value) {
+            guard value != "0" else { return false }
+            amountTextField.ethCost = EtherNumberFormatter.full.string(from: BigInt(amountToSend), units: .ether)
         } else {
             amountTextField.ethCost = ""
         }
+        return true
     }
 }
 
