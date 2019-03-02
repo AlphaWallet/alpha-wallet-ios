@@ -306,7 +306,7 @@ extension SendViewController: QRCodeReaderDelegate {
         //The contract address can be compared to the one in the token card and if it matches will proceed else fail
         //this protects the user from sending funds to the wrong address
         if let chainId = result.params["chainId"] {
-            guard self.config.chainID == Int(chainId) else { return false }
+            guard self.session.config.chainID == Int(chainId) else { return false }
         }
         //if erc20 (eip861 qr code)
         if let recipient = result.params["address"], let amt = result.params["uint256"] {
