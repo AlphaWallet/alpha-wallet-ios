@@ -111,7 +111,7 @@ struct Config {
         let urlString: String = {
             switch server {
             case .main: return "https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk"
-            case .classic: return "https://web3.gastracker.io"
+            case .classic: return "https://ethereumclassic.network"
             case .callisto: return "https://callisto.network/" //TODO Add endpoint
             case .kovan: return "https://kovan.infura.io/llyrtzQ3YhkdESt2Fzrk"
             case .ropsten: return "https://ropsten.infura.io/llyrtzQ3YhkdESt2Fzrk"
