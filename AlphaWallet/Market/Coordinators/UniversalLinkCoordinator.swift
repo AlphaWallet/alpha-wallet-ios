@@ -30,6 +30,7 @@ class UniversalLinkCoordinator: Coordinator {
     private var getERC875TokenBalanceCoordinator: GetERC875BalanceCoordinator?
     //TODO better to make sure tokenHolder is non-optional. But be careful that ImportMagicTokenViewController also handles when viewModel always has a TokenHolder. Needs good defaults in TokenHolder that can be displayed
     private var tokenHolder: TokenHolder?
+    private var count: Decimal?
     private var transactionType: TransactionType?
     private var isShowingImportUserInterface: Bool {
         return delegate?.viewControllerForPresenting(in: self) != nil
@@ -176,12 +177,12 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     //no need to localise as the labels are universal
-    private func getLabelForCurrencyDrops(amount: Decimal) -> String {
+    private func getLabelForCurrencyDrops() -> String {
         switch config.server {
         case .xDai:
-            return amount.description + " xDAI"
+            return "xDAI"
         default:
-            return amount.description + " ETH"
+            return "ETH"
         }
     }
 
@@ -220,13 +221,15 @@ class UniversalLinkCoordinator: Coordinator {
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             if signedOrder.order.nativeCurrencyDrop {
                 let amt: Decimal
-                let szabosPerEth: Decimal = 10000
+                let szabosPerEth: Decimal = Decimal(EthereumUnit.ether.rawValue / EthereumUnit.szabo.rawValue)
+                //TODO should be better to put this into the tokenCount that is displayed in green
                 if let amount = Decimal(string: signedOrder.order.count.description) {
                     amt = amount / szabosPerEth
                 } else {
                     amt = 0
                 }
-                let label = getLabelForCurrencyDrops(amount: amt)
+                count = amt
+                let label = getLabelForCurrencyDrops()
                 let token = Token(
                         id: 0,
                         index: 0,
@@ -436,6 +439,7 @@ class UniversalLinkCoordinator: Coordinator {
         guard let tokenHolder = tokenHolder else { return }
         guard let vc = importTokenViewController, case .ready(var viewModel) = vc.state else { return }
         viewModel.tokenHolder = tokenHolder
+        viewModel.count = count
         vc.configure(viewModel: viewModel)
     }
 
@@ -445,6 +449,7 @@ class UniversalLinkCoordinator: Coordinator {
             viewModel.state = state
             if let tokenHolder = tokenHolder {
                 viewModel.tokenHolder = tokenHolder
+                viewModel.count = count
             }
             if let cost = cost {
                 viewModel.cost = cost
