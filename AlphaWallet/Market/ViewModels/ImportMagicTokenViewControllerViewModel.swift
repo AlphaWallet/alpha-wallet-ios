@@ -29,6 +29,7 @@ struct ImportMagicTokenViewControllerViewModel {
 
     var state: State
     var tokenHolder: TokenHolder?
+    var count: Decimal?
     var cost: Cost?
 
     var backgroundColor: UIColor {
@@ -69,7 +70,11 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return "x\(tokenHolder.tokens.count)"
+            if let count = count {
+                return "x\(count)"
+            } else {
+                return "x\(tokenHolder.tokens.count)"
+            }
         }
     }
 
