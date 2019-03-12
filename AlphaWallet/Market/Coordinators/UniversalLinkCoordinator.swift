@@ -338,14 +338,14 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func notEnoughEthForPaidImport(signedOrder: SignedOrder) {
+        let errorMessage: String
+        switch config.server {
+        case .xDai:
+            errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
+        default:
+            errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
+        }
         if ethPrice.value == nil {
-            let errorMessage: String
-            switch config.server {
-            case .xDai:
-                errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughXDAITitle()
-            default:
-                errorMessage = R.string.localizable.aClaimTokenFailedNotEnoughEthTitle()
-            }
             let ethCost = convert(ethCost: signedOrder.order.price)
             showImportError(
                 errorMessage: errorMessage,
@@ -356,7 +356,7 @@ class UniversalLinkCoordinator: Coordinator {
             guard let celf = self else { return }
             guard let price = celf.ethPrice.value else { return }
             let (ethCost, dollarCost) = celf.convert(ethCost: signedOrder.order.price, rate: price)
-            celf.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedNotEnoughEthTitle(),
+            celf.showImportError(errorMessage: errorMessage,
                     cost: .paid(eth: ethCost, dollar: dollarCost))
         }
     }
