@@ -55,26 +55,21 @@ public struct Constants {
     public static let ticketContractAddress = "0xA66A3F08068174e8F005112A8b2c7A507a822335"
     public static let ticketContractAddressRopsten = "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3"
 
-    //etherscan APIs
+    //etherscan-compatible APIs
     public static let mainnetEtherscanAPI = "https://api.etherscan.io/api?module=account&action=txlist&address="
     public static let ropstenEtherscanAPI = "https://ropsten.etherscan.io/api?module=account&action=txlist&address="
     public static let kovanEtherscanAPI = "https://api-kovan.etherscan.io/api?module=account&action=txlist&address="
     public static let rinkebyEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
+    public static let xDaiAPI = "https://blockscout.com/poa/dai/api?module=account&action=txlist&address="
+    public static let poaNetworkCoreAPI = "https://blockscout.com/poa/core/api?module=account&action=txlist&address="
 
-    //xDai APIs
-    public static let xDaiAPI = "https://blockscout.com/poa/dai/"
-
-    //POA Network
-    public static let poaNetworkCoreAPI = "https://blockscout.com/poa/core/address/"
-
-    //xDai contract page
-    public static let xDaiContractPage = "https://blockscout.com/poa/dai/address/"
-
-    //etherscan contract details web page
+    //etherscan-compatible contract details web page
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"
     public static let kovanEtherscanContractDetailsWebPageURL = "https://kovan.etherscan.io/address/"
     public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
     public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"
+    public static let xDaiContractPage = "https://blockscout.com/poa/dai/address/"
+    public static let poaContractPage = "https://blockscout.com/poa/core/address/"
 
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
