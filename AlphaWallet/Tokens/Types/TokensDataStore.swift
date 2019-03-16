@@ -63,6 +63,7 @@ class TokensDataStore {
     private let intervalToETHRefresh = 10.0
 
     weak var delegate: TokensDataStoreDelegate?
+    //TODO why is this a dictionary? There seems to be only at most 1 key-value pair in the dictionary
     var tickers: [String: CoinTicker]? = .none
     var tokensModel: Subscribable<[TokenObject]> = Subscribable(nil)
 
@@ -490,7 +491,7 @@ class TokensDataStore {
     }
 
     func updatePrices() {
-        let priceToUpdate = getPriceToUpdate()
+        guard let priceToUpdate = getPriceToUpdate() else { return }
         provider.request(priceToUpdate) { [weak self] result in
             guard let strongSelf = self else { return }
             guard case .success(let response) = result else { return }
@@ -506,12 +507,14 @@ class TokensDataStore {
         }
     }
 
-    private func getPriceToUpdate() -> AlphaWalletService {
+    private func getPriceToUpdate() -> AlphaWalletService? {
         switch config.server {
+        case .main:
+            return .priceOfEth(config: config)
         case .xDai:
             return .priceOfDai(config: config)
-        default:
-            return .priceOfEth(config: config)
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+            return nil
         }
     }
 
