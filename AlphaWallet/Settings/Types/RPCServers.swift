@@ -104,7 +104,7 @@ enum RPCServer: Hashable {
         case .rinkeby: return Constants.rinkebyEtherscanContractDetailsWebPageURL
         case .kovan: return Constants.kovanEtherscanContractDetailsWebPageURL
         case .xDai: return Constants.xDaiContractPage
-        case .poa: return Constants.poaNetworkCoreAPI
+        case .poa: return Constants.poaContractPage
         case .sokol, .classic, .callisto, .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
         }
     }
