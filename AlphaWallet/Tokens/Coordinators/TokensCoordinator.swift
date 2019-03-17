@@ -359,7 +359,7 @@ class TokensCoordinator: Coordinator {
                         callCompletionFailed()
                     }
                 }
-            case .nativeCryptocurrency, .xDai:
+            case .nativeCryptocurrency:
                 break
             }
         }
@@ -396,7 +396,7 @@ class TokensCoordinator: Coordinator {
 
     private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: TokensCardCoordinator, token: TokenObject) {
         switch token.type {
-        case .nativeCryptocurrency, .erc20, .erc875, .xDai:
+        case .nativeCryptocurrency, .erc20, .erc875:
             break
         case .erc721:
             switch OpenSeaNonFungibleTokenHandling(token: token) {
@@ -433,8 +433,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         switch token.type {
         case .nativeCryptocurrency:
             show(fungibleToken: token, transferType: .nativeCryptocurrency(config: session.config, destination: .none))
-        case .xDai:
-            show(fungibleToken: token, transferType: .xDai(config: session.config, destination: .none))
         case .erc20:
             show(fungibleToken: token, transferType: .ERC20Token(token))
         case .erc721:

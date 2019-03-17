@@ -270,7 +270,7 @@ extension TokensViewController: UITableViewDelegate {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
 
         switch token.type {
-        case .nativeCryptocurrency, .xDai:
+        case .nativeCryptocurrency:
             let cellViewModel = EthTokenViewCellViewModel(
                     token: token,
                     ticker: viewModel.ticker(for: token),
@@ -320,7 +320,7 @@ extension TokensViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
         switch token.type {
-        case .nativeCryptocurrency, .xDai:
+        case .nativeCryptocurrency:
             let cell = tableView.dequeueReusableCell(withIdentifier: EthTokenViewCell.identifier, for: indexPath) as! EthTokenViewCell
             cell.configure(
                     viewModel: .init(

@@ -136,7 +136,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         transferButton.addTarget(self, action: #selector(transfer), for: .touchUpInside)
 
         switch tokenObject.type {
-        case .nativeCryptocurrency, .erc20, .xDai:
+        case .nativeCryptocurrency, .erc20:
             break
         case .erc875:
             buttonsBar.buttons[0].isHidden = false

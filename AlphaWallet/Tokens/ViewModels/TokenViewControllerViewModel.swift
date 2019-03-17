@@ -18,7 +18,7 @@ struct TokenViewControllerViewModel {
         self.transactionsStore = transactionsStore
 
         switch transferType {
-        case .nativeCryptocurrency, .xDai:
+        case .nativeCryptocurrency:
             self.recentTransactions = Array(transactionsStore.objects.lazy
                     .filter({ $0.state == .completed || $0.state == .pending })
                     .filter({ $0.operation == nil })
