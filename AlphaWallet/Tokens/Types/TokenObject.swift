@@ -79,10 +79,18 @@ class TokenObject: Object {
         return object.contract.sameContract(as: contract)
     }
 
-    var title: String {
-        let localizedNameFromAssetDefinition = XMLHandler(contract: contract).getName()
-        let compositeName = compositeTokenName(fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+    func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
+        let localizedNameFromAssetDefinition = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).getName(fallback: name)
+        return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+    }
 
+    func titleInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
+        let localizedNameFromAssetDefinition = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: name)
+        return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+    }
+
+    private func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore, localizedNameFromAssetDefinition: String) -> String {
+        let compositeName = compositeTokenName(forContract: contract, fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
         if compositeName.isEmpty {
             return symbol
         } else {
@@ -115,17 +123,18 @@ func isZeroBalance(_ balance: String) -> Bool {
     return false
 }
 
-func compositeTokenName(fromContractName contractName: String, localizedNameFromAssetDefinition: String) -> String {
+func compositeTokenName(forContract contract: String, fromContractName contractName: String, localizedNameFromAssetDefinition: String) -> String {
     let compositeName: String
     //TODO improve and remove the check for "N/A". Maybe a constant
-    if localizedNameFromAssetDefinition.isEmpty || localizedNameFromAssetDefinition == "N/A" {
-        compositeName = contractName
-    } else {
+    //Special case for FIFA tickets, otherwise, we just show the name from the XML
+    if contract.sameContract(as: Constants.ticketContractAddress) || contract.sameContract(as: Constants.ticketContractAddressRopsten) {
         if contractName.isEmpty {
             compositeName = localizedNameFromAssetDefinition
         } else {
             compositeName = "\(contractName) \(localizedNameFromAssetDefinition)"
         }
+    } else {
+        compositeName = localizedNameFromAssetDefinition
     }
     return compositeName
 }

@@ -2,8 +2,16 @@
 
 import UIKit
 
+//TODO separate file
+enum TokenView {
+    case view
+    case viewIconified
+}
+
 struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
     let tokenHolder: TokenHolder
+    let tokenView: TokenView
+    let assetDefinitionStore: AssetDefinitionStore
 
     var tokenCount: String {
         return "x\(tokenHolder.tokens.count)"
@@ -164,5 +172,20 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
 
     var onlyShowTitle: Bool {
         return !tokenHolder.hasAssetDefinition
+    }
+
+    var tokenScriptHtml: String {
+        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        switch tokenView {
+        case .view:
+            return wrapWithHtmlViewport(xmlHandler.tokenViewHtml)
+        case .viewIconified:
+            return wrapWithHtmlViewport(xmlHandler.tokenViewIconifiedHtml)
+        }
+    }
+
+    var hasTokenScriptHtml: Bool {
+        //TODO improve performance? Because it is generated again when used
+        return !tokenScriptHtml.isEmpty
     }
 }

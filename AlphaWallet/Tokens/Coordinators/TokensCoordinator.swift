@@ -40,11 +40,13 @@ class TokensCoordinator: Coordinator {
         queue.maxConcurrentOperationCount = 1
         return queue
     }()
+
     private lazy var tokensViewController: TokensViewController = {
         let controller = TokensViewController(
                 sessions: sessions,
                 account: sessions.anyValue.account,
-                tokenCollection: tokenCollection
+                tokenCollection: tokenCollection,
+                assetDefinitionStore: assetDefinitionStore
         )
         controller.delegate = self
         return controller

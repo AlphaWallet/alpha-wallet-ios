@@ -12,9 +12,11 @@ import BigInt
 
 class TokenAdaptor {
     private let token: TokenObject
+    private let assetDefinitionStore: AssetDefinitionStore
 
-    init(token: TokenObject) {
+    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     public func getTokenHolders() -> [TokenHolder] {
@@ -41,7 +43,7 @@ class TokenAdaptor {
             guard isNonZeroBalance(id) else { continue }
             if let tokenInt = BigUInt(id.drop0x, radix: 16) {
                 let server = self.token.server
-                let token = getToken(name: self.token.name, for: tokenInt, index: UInt16(index), server: server)
+                let token = getToken(name: self.token.name, symbol: self.token.symbol, for: tokenInt, index: UInt16(index), server: server)
                 tokens.append(token)
             }
         }
@@ -136,8 +138,8 @@ class TokenAdaptor {
     }
 
     //TODO pass lang into here
-    private func getToken(name: String, for id: BigUInt, index: UInt16, server: RPCServer) -> Token {
-        return XMLHandler(contract: token.contract).getToken(name: name, fromTokenId: id, index: index, server: server)
+    private func getToken(name: String, symbol: String, for id: BigUInt, index: UInt16, server: RPCServer) -> Token {
+        return XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenId: id, index: index, server: server)
     }
 
     private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String) -> Token? {
@@ -164,6 +166,7 @@ class TokenAdaptor {
                 id: BigUInt(nonFungible.tokenId)!,
                 index: 0,
                 name: nonFungible.contractName,
+                symbol: "",
                 status: status,
                 values: values
         )
@@ -173,7 +176,7 @@ class TokenAdaptor {
         return TokenHolder(
                 tokens: tokens,
                 contractAddress: token.contract,
-                hasAssetDefinition: XMLHandler(contract: token.contract).hasAssetDefinition
+                hasAssetDefinition: XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore).hasAssetDefinition
         )
     }
 

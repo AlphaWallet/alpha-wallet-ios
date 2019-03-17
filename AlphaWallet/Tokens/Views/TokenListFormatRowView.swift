@@ -7,11 +7,13 @@ protocol TokenListFormatRowViewDelegate: class {
     func didTapURL(url: URL)
 }
 
+//TODO probably remove this class
 class TokenListFormatRowView: UIView {
     let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
     weak var delegate: TokenListFormatRowViewDelegate?
     let background = UIView()
     let stateLabel = UILabel()
+    let tokenView: TokenView = .viewIconified
     //TODO We don't display this for now. Maybe should have flag to show/hide it
     let tokenCountLabel = UILabel()
     private let thumbnailImageView = UIImageView()

@@ -6,18 +6,20 @@ import BigInt
 struct TokensCardViewControllerHeaderViewModel {
     private let tokenObject: TokenObject
     private let server: RPCServer
+    private let assetDefinitionStore: AssetDefinitionStore
 
-    init(tokenObject: TokenObject, server: RPCServer) {
+    init(tokenObject: TokenObject, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.tokenObject = tokenObject
         self.server = server
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     var title: String {
-        return "\((totalValidTokenCount)) \(tokenObject.title)"
+        return "\((totalValidTokenCount)) \(tokenObject.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
     }
 
     var issuer: String {
-        let xmlHandler = XMLHandler(contract: tokenObject.address.eip55String)
+        let xmlHandler = XMLHandler(contract: tokenObject.address.eip55String, assetDefinitionStore: assetDefinitionStore)
         let issuer = xmlHandler.getIssuer()
         if issuer.isEmpty {
             return ""

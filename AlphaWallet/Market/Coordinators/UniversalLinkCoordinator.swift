@@ -3,6 +3,7 @@
 import Foundation
 import Alamofire
 import BigInt
+import PromiseKit
 import RealmSwift
 import TrustKeystore
 import web3swift
@@ -242,6 +243,7 @@ class UniversalLinkCoordinator: Coordinator {
                 id: 0,
                 index: 0,
                 name: label,
+                symbol: "",
                 status: .available,
                 values: [:]
         )
@@ -445,37 +447,37 @@ class UniversalLinkCoordinator: Coordinator {
         assetDefinitionStore.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
             guard let strongSelf = self else { return }
 
-            func makeTokenHolder(name: String) {
-                strongSelf.makeTokenHolderImpl(name: name, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
+            func makeTokenHolder(name: String, symbol: String) {
+                strongSelf.makeTokenHolderImpl(name: name, symbol: symbol, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
                 strongSelf.updateTokenFields()
             }
 
             let tokensDatastore = strongSelf.tokensDatastores[strongSelf.server]
             if let existingToken = tokensDatastore.token(forContract: contractAddress) {
-                makeTokenHolder(name: existingToken.name)
+                let name = XMLHandler(contract: existingToken.contract, assetDefinitionStore: strongSelf.assetDefinitionStore).getName(fallback: existingToken.name)
+                makeTokenHolder(name: name, symbol: existingToken.symbol)
             } else {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
-                makeTokenHolder(name: localizedTokenTypeName )
+                makeTokenHolder(name: localizedTokenTypeName, symbol: "")
 
-                tokensDatastore.getContractName(for: contractAddress) { result in
-                    switch result {
-                    case .success(let name):
-                        makeTokenHolder(name: name)
-                    case .failure:
-                        break
-                    }
+                let getContractName = tokensDatastore.getContractName(for: contractAddress)
+                let getContractSymbol = tokensDatastore.getContractSymbol(for: contractAddress)
+                firstly {
+                    when(fulfilled: getContractName, getContractSymbol)
+                }.done { name, symbol in
+                    makeTokenHolder(name: name, symbol: symbol)
                 }
             }
         }
     }
 
-    private func makeTokenHolderImpl(name: String, bytes32Tokens: [String], contractAddress: String) {
+    private func makeTokenHolderImpl(name: String, symbol: String, bytes32Tokens: [String], contractAddress: String) {
         var tokens = [Token]()
-        let xmlHandler = XMLHandler(contract: contractAddress)
+        let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore)
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(name: name, fromTokenId: tokenId, index: UInt16(i), server: server)
+                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: UInt16(i), server: server)
                 tokens.append(token)
             }
         }
@@ -488,7 +490,7 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func preparingToImportUniversalLink() {
 		guard let viewController = delegate?.viewControllerForPresenting(in: self) else { return }
-        importTokenViewController = ImportMagicTokenViewController(server: server)
+        importTokenViewController = ImportMagicTokenViewController(server: server, assetDefinitionStore: assetDefinitionStore)
         guard let vc = importTokenViewController else { return }
         vc.delegate = self
         vc.configure(viewModel: .init(state: .validating, server: server))

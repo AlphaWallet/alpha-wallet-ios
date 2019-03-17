@@ -81,6 +81,7 @@ class TokenViewController: UIViewController {
         }
         header.sendHeaderView.configure(viewModel: headerViewModel)
         header.frame.size.height = 220
+
         tableView.tableHeaderView = header
 
         buttonsBar.configure()

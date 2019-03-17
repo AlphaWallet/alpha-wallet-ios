@@ -698,20 +698,20 @@ class TokensDataStore {
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
+    //This is related to Realm migration for version 49
     func fetchTokenNamesForNonFungibleTokensIfEmpty() {
         assetDefinitionStore.forEachContractWithXML { [weak self] contract in
             guard let strongSelf = self else { return }
-            let localizedName = XMLHandler(contract: contract).getName()
-            if localizedName != "N/A" {
-                if let storedToken = strongSelf.enabledObject.first(where: { $0.contract.sameContract(as: contract) }), storedToken.name.isEmpty {
-                    getContractName(for: contract) { result in
-                        switch result {
-                        case .success(let name):
-                            //TODO multiple realm writes in a loop. Should we group them together?
-                            strongSelf.updateTokenName(token: storedToken, to: name)
-                        case .failure:
-                            break
-                        }
+            let localizedName = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).getName(fallback: "")
+            guard !localizedName.isEmpty else { return }
+            if let storedToken = strongSelf.enabledObject.first(where: { $0.contract.sameContract(as: contract) }), storedToken.name.isEmpty {
+                getContractName(for: contract) { result in
+                    switch result {
+                    case .success(let name):
+                        //TODO multiple realm writes in a loop. Should we group them together?
+                        strongSelf.updateTokenName(token: storedToken, to: name)
+                    case .failure:
+                        break
                     }
                 }
             }

@@ -36,6 +36,14 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         return officialStore.isOfficial(contract: contract)
     }
 
+    func isCanonicalized(contract: String) -> Bool {
+        if overridesStore[contract] != nil {
+            return overridesStore.isCanonicalized(contract: contract)
+        } else {
+            return officialStore.isCanonicalized(contract: contract)
+        }
+    }
+
     func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
         //Even with an override, we just want to fetch the latest official version. Doesn't imply we'll use the official version
         return officialStore.lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)

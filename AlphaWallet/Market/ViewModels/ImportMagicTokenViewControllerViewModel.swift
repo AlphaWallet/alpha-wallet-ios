@@ -41,7 +41,11 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var headerTitle: String {
-        return R.string.localizable.aClaimTokenTitle()
+        if let tokenHolder = tokenHolder {
+            return R.string.localizable.aClaimTokenTitle(tokenHolder.name)
+        } else {
+            return R.string.localizable.aClaimTokenTitle(R.string.localizable.tokensTitlecase())
+        }
     }
 
     var activityIndicatorColor: UIColor {

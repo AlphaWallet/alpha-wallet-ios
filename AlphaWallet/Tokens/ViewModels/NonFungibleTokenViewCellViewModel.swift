@@ -7,14 +7,16 @@ import BigInt
 struct NonFungibleTokenViewCellViewModel {
     private let token: TokenObject
     private let server: RPCServer
+    private let assetDefinitionStore: AssetDefinitionStore
 
-    init(token: TokenObject, server: RPCServer) {
+    init(token: TokenObject, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
         self.server = server
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     var title: String {
-        return token.title
+        return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
     }
 
     var amount: String {
@@ -23,7 +25,7 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var issuer: String {
-        let xmlHandler = XMLHandler(contract: token.address.eip55String)
+        let xmlHandler = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore)
         let issuer = xmlHandler.getIssuer()
         if issuer.isEmpty {
             return ""

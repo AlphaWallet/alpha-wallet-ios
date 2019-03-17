@@ -13,6 +13,7 @@ protocol TokensViewControllerDelegate: class {
 
 class TokensViewController: UIViewController {
     private let tokenCollection: TokenCollection
+    private let assetDefinitionStore: AssetDefinitionStore
 
     private var viewModel: TokensViewModel {
         didSet {
@@ -44,11 +45,13 @@ class TokensViewController: UIViewController {
 
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
-         tokenCollection: TokenCollection
+         tokenCollection: TokenCollection,
+         assetDefinitionStore: AssetDefinitionStore
     ) {
 		self.sessions = sessions
         self.account = account
         self.tokenCollection = tokenCollection
+        self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = TokensViewModel(tokens: [], tickers: .init())
         tableView = UITableView(frame: .zero, style: .plain)
         searchController = UISearchController(searchResultsController: nil)
@@ -302,17 +305,18 @@ extension TokensViewController: UITableViewDelegate {
                     ticker: viewModel.ticker(for: token),
                     currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
                     currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                    server: server
+                    server: server,
+                    assetDefinitionStore: assetDefinitionStore
             )
             return cellViewModel.cellHeight
         case .erc20:
-            let cellViewModel = TokenViewCellViewModel(token: token, server: server)
+            let cellViewModel = TokenViewCellViewModel(token: token, server: server, assetDefinitionStore: assetDefinitionStore)
             return cellViewModel.cellHeight
         case .erc721:
-            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: server)
+            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: server, assetDefinitionStore: assetDefinitionStore)
             return cellViewModel.cellHeight
         case .erc875:
-            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: server)
+            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: server, assetDefinitionStore: assetDefinitionStore)
             return cellViewModel.cellHeight
         }
     }
@@ -336,21 +340,22 @@ extension TokensViewController: UITableViewDataSource {
                             ticker: viewModel.ticker(for: token),
                             currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
                             currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                            server: server
+                            server: server,
+                            assetDefinitionStore: assetDefinitionStore
                     )
             )
             return cell
         case .erc20:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewCell.identifier, for: indexPath) as! TokenViewCell
-            cell.configure(viewModel: .init(token: token, server: server))
+            cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             return cell
         case .erc721:
             let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
-            cell.configure(viewModel: .init(token: token, server: server))
+            cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             return cell
         case .erc875:
             let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
-            cell.configure(viewModel: .init(token: token, server: server))
+            cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             return cell
         }
     }
@@ -377,7 +382,7 @@ extension TokensViewController: UICollectionViewDataSource {
         let server = token.server
         let session = sessions[server]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier, for: indexPath) as! OpenSeaNonFungibleTokenViewCell
-        cell.configure(viewModel: .init(config: session.config, token: token))
+        cell.configure(viewModel: .init(config: session.config, token: token, assetDefinitionStore: assetDefinitionStore))
         return cell
     }
 }

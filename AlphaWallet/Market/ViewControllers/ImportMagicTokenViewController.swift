@@ -16,7 +16,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
-    private let tokenCardRowView = TokenCardRowView()
+    lazy private var tokenCardRowView = TokenCardRowView(server: server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
     private let statusLabel = UILabel()
     private let activityIndicator = UIActivityIndicatorView(style: .whiteLarge)
     private var costStackView: UIStackView?
@@ -28,17 +28,18 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private var viewModel: ImportMagicTokenViewControllerViewModel?
 
     let server: RPCServer
+    let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: ImportMagicTokenViewControllerDelegate?
 
     var contract: String? {
         didSet {
             guard url != nil else { return }
-            updateNavigationRightBarButtons(isVerified: isContractVerified, hasShowInfoButton: false)
+            updateNavigationRightBarButtons(withVerificationType: verificationType, hasShowInfoButton: false)
         }
     }
     var url: URL? {
         didSet {
-            updateNavigationRightBarButtons(isVerified: true, hasShowInfoButton: false)
+            updateNavigationRightBarButtons(withVerificationType: .unverified, hasShowInfoButton: false)
         }
     }
     var state: State {
@@ -49,8 +50,9 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         }
     }
 
-    init(server: RPCServer) {
+    init(server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
+        self.assetDefinitionStore = assetDefinitionStore
         super.init(nibName: nil, bundle: nil)
 
         view.backgroundColor = .clear
@@ -154,7 +156,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
             header.configure(title: viewModel.headerTitle)
 
-            tokenCardRowView.configure(viewModel: ImportMagicTokenCardRowViewModel(importMagicTokenViewControllerViewModel: viewModel))
+            tokenCardRowView.configure(viewModel: ImportMagicTokenCardRowViewModel(importMagicTokenViewControllerViewModel: viewModel, assetDefinitionStore: assetDefinitionStore))
 
             tokenCardRowView.isHidden = !viewModel.showTokenRow
             tokenCardRowView.stateLabel.isHidden = true
@@ -211,7 +213,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
             actionButton.isHidden = !viewModel.showActionButton
 
-            updateNavigationRightBarButtons(isVerified: isContractVerified, hasShowInfoButton: false)
+            updateNavigationRightBarButtons(withVerificationType: verificationType, hasShowInfoButton: false)
         }
     }
 

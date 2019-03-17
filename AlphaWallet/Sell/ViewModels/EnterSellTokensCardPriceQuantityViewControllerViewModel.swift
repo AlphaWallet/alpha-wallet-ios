@@ -5,6 +5,7 @@ import UIKit
 
 struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     private let server: RPCServer
+    private let assetDefinitionStore: AssetDefinitionStore
 
     let token: TokenObject
     let tokenHolder: TokenHolder
@@ -36,12 +37,12 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var quantityLabelText: String {
-        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
 		return R.string.localizable.aWalletTokenSellQuantityTitle(tokenTypeName.localizedUppercase)
     }
 
     var pricePerTokenLabelText: String {
-        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.singular)
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getName()
         return R.string.localizable.aWalletTokenSellPricePerTokenTitle(tokenTypeName.localizedUppercase)
     }
 
@@ -105,9 +106,10 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
         return dollarCost.trimmed.isEmpty
     }
 
-    init(token: TokenObject, tokenHolder: TokenHolder, server: RPCServer) {
+    init(token: TokenObject, tokenHolder: TokenHolder, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
         self.tokenHolder = tokenHolder
         self.server = server
+        self.assetDefinitionStore = assetDefinitionStore
     }
 }

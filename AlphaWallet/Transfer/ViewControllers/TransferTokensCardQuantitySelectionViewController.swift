@@ -23,29 +23,32 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     var server: RPCServer {
         return token.server
     }
+    let assetDefinitionStore: AssetDefinitionStore
     let paymentFlow: PaymentFlow
     weak var delegate: TransferTokenCardQuantitySelectionViewControllerDelegate?
 
     init(
             paymentFlow: PaymentFlow,
             token: TokenObject,
-            viewModel: TransferTokensCardQuantitySelectionViewModel
+            viewModel: TransferTokensCardQuantitySelectionViewModel,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.paymentFlow = paymentFlow
         self.token = token
         self.viewModel = viewModel
+        self.assetDefinitionStore = assetDefinitionStore
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
         switch tokenType {
         case .supportedByOpenSea:
-            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notSupportedByOpenSea:
-            tokenRowView = TokenCardRowView()
+            tokenRowView = TokenCardRowView(server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(isVerified: true)
+        updateNavigationRightBarButtons(withVerificationType: .unverified)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -109,7 +112,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     @objc
     func nextButtonTapped() {
         if quantityStepper.value == 0 {
-            let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+            let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTokenTransferSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],
@@ -133,7 +136,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(isVerified: isContractVerified)
+        updateNavigationRightBarButtons(withVerificationType: verificationType)
 
         view.backgroundColor = viewModel.backgroundColor
 

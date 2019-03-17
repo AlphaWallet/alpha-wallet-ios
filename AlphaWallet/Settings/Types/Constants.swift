@@ -26,10 +26,13 @@ public struct Constants {
     // Magic link networks
     public static let legacyMagicLinkPrefix = "https://app.awallet.io/"
 
-    // XML repo
-    public static let repoServer = "https://repo.aw.app"
+    // TokenScript
+    public static let repoServer = "https://repo.tokenscript.org"
     public static let repoClientName = "AlphaWallet"
     public static let repoPlatformName = "iOS"
+    public static let tokenScriptNamespacePrefix = "http://tokenscript.org/"
+    public static let supportedTokenScriptNamespaceVersion = "2019/04"
+    public static let supportedTokenScriptNamespace = "\(tokenScriptNamespacePrefix)\(supportedTokenScriptNamespaceVersion)/tokenscript"
 
     // fee master
     
@@ -128,6 +131,8 @@ public struct Constants {
     ]
 
     static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .classic, .poa]
+
+    static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"
 }
 
 public struct UnitConfiguration {

@@ -15,6 +15,8 @@ protocol TokenCardRowViewModelProtocol {
     var numero: String { get }
     var onlyShowTitle: Bool { get }
     var isMeetupContract: Bool { get }
+    var tokenScriptHtml: String { get }
+    var hasTokenScriptHtml: Bool { get }
     func subscribeStreetLocalityStateCountry(withBlock block: @escaping (String) -> Void)
     func subscribeBuilding(withBlock block: @escaping (String) -> Void)
 }
@@ -70,5 +72,21 @@ extension TokenCardRowViewModelProtocol {
 
     var detailsFont: UIFont {
         return Fonts.light(size: 16)!
+    }
+
+    var buttonTitleColor: UIColor {
+        return Colors.appWhite
+    }
+
+    var disabledButtonTitleColor: UIColor {
+        return Colors.darkGray
+    }
+
+    var buttonBackgroundColor: UIColor {
+        return Colors.appHighlightGreen
+    }
+
+    var buttonFont: UIFont {
+        return Fonts.regular(size: 20)!
     }
 }

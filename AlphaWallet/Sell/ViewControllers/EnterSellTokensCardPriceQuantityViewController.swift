@@ -48,6 +48,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     var server: RPCServer {
         return viewModel.token.server
     }
+    let assetDefinitionStore: AssetDefinitionStore
     lazy var pricePerTokenField = AmountTextField(server: server)
     let paymentFlow: PaymentFlow
     weak var delegate: EnterSellTokensCardPriceQuantityViewControllerDelegate?
@@ -56,24 +57,26 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
             cryptoPrice: Subscribable<Double>,
-            viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel
+            viewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.storage = storage
         self.paymentFlow = paymentFlow
         self.ethPrice = cryptoPrice
         self.viewModel = viewModel
+        self.assetDefinitionStore = assetDefinitionStore
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: viewModel.token)
         switch tokenType {
         case .supportedByOpenSea:
-            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notSupportedByOpenSea:
-            tokenRowView = TokenCardRowView()
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(isVerified: true)
+        updateNavigationRightBarButtons(withVerificationType: .unverified)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -211,7 +214,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     @objc
     func nextButtonTapped() {
         guard quantityStepper.value > 0 else {
-            let tokenTypeName = XMLHandler(contract: contract).getTokenTypeName()
+            let tokenTypeName = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                     message: R.string.localizable.aWalletTokenSellSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                     alertButtonTitles: [R.string.localizable.oK()],
@@ -229,7 +232,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         }
 
         guard !noPrice else {
-            let tokenTypeName = XMLHandler(contract: contract).getTokenTypeName(.plural, titlecase: .notTitlecase)
+            let tokenTypeName = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                     message: R.string.localizable.aWalletTokenSellPriceProvideTitle(tokenTypeName),
                     alertButtonTitles: [R.string.localizable.oK()],
@@ -264,7 +267,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(isVerified: isContractVerified)
+        updateNavigationRightBarButtons(withVerificationType: verificationType)
 
         view.backgroundColor = viewModel.backgroundColor
 

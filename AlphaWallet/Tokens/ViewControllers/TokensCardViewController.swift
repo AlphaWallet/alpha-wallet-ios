@@ -12,14 +12,17 @@ import Result
 import TrustKeystore
 
 protocol TokensCardViewControllerDelegate: class, CanOpenURL {
-    func didPressRedeem(token: TokenObject, in viewController: TokensCardViewController)
-    func didPressSell(for paymentFlow: PaymentFlow, in viewController: TokensCardViewController)
-    func didPressTransfer(for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController)
+    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokensCardViewController)
+    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokensCardViewController)
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController)
     func didCancel(in viewController: TokensCardViewController)
     func didPressViewRedemptionInfo(in viewController: TokensCardViewController)
     func didTapURL(url: URL, in viewController: TokensCardViewController)
+    func didTapTokenInstanceIconified(tokenHolder: TokenHolder, in viewController: TokensCardViewController)
+    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokensCardViewController)
 }
 
+//TODO rename to be appropriate for TokenScript
 class TokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
     static let anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
 
@@ -31,6 +34,19 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     private let roundedBackground = RoundedBackground()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(numberOfButtons: 3)
+    private var isMultipleSelectionMode = false {
+        didSet {
+            if isMultipleSelectionMode {
+                tableView.reloadData()
+            } else {
+                //We don't handle setting it to false
+            }
+        }
+    }
+    private var selectedTokenHolder: TokenHolder? {
+        let selectedTokenHolders = viewModel.tokenHolders.filter { $0.isSelected }
+        return selectedTokenHolders.first
+    }
 
     var server: RPCServer {
         return tokenObject.server
@@ -38,6 +54,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     var contract: String {
         return tokenObject.contract
     }
+    let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokensCardViewControllerDelegate?
 
     var isReadOnly = false {
@@ -56,22 +73,23 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         }
     }
 
-    init(tokenObject: TokenObject, account: Wallet, tokensStorage: TokensDataStore, viewModel: TokensCardViewModel) {
+    init(tokenObject: TokenObject, account: Wallet, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, viewModel: TokensCardViewModel) {
         self.tokenObject = tokenObject
         self.account = account
         self.tokensStorage = tokensStorage
         self.viewModel = viewModel
+        self.assetDefinitionStore = assetDefinitionStore
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(isVerified: true)
+        updateNavigationRightBarButtons(withVerificationType: .unverified)
 
         view.backgroundColor = Colors.appBackground
 		
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        tableView.register(TokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier)
-        tableView.register(OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.identifier)
+        tableView.register(TokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithCheckbox.identifier)
+        tableView.register(OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
@@ -91,7 +109,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -117,36 +135,28 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             viewModel = newViewModel
         }
         tableView.dataSource = self
-        updateNavigationRightBarButtons(isVerified: isContractVerified)
+        updateNavigationRightBarButtons(withVerificationType: verificationType)
 
-        header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server))
+        header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server, assetDefinitionStore: assetDefinitionStore))
         tableView.tableHeaderView = header
 
-        buttonsBar.configure()
-
-        let redeemButton = buttonsBar.buttons[0]
-        redeemButton.setTitle(R.string.localizable.aWalletTokenRedeemButtonTitle(), for: .normal)
-        redeemButton.addTarget(self, action: #selector(redeem), for: .touchUpInside)
-
-        let sellButton = buttonsBar.buttons[1]
-        sellButton.setTitle(R.string.localizable.aWalletTokenSellButtonTitle(), for: .normal)
-        sellButton.addTarget(self, action: #selector(sell), for: .touchUpInside)
-
-        let transferButton = buttonsBar.buttons[2]
-        transferButton.setTitle(R.string.localizable.aWalletTokenTransferButtonTitle(), for: .normal)
-        transferButton.addTarget(self, action: #selector(transfer), for: .touchUpInside)
-
-        switch tokenObject.type {
-        case .nativeCryptocurrency, .erc20:
-            break
-        case .erc875:
-            buttonsBar.buttons[0].isHidden = false
-            buttonsBar.buttons[1].isHidden = false
-        case .erc721:
-            buttonsBar.buttons[0].isHidden = true
-            buttonsBar.buttons[1].isHidden = true
+        if let selectedTokenHolder = selectedTokenHolder {
+            let actions = viewModel.actions
+            buttonsBar.numberOfButtons = actions.count
+            buttonsBar.configure()
+            for (action, button) in zip(actions, buttonsBar.buttons) {
+                button.setTitle(action.name, for: .normal)
+                button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
+                switch account.type {
+                case .real:
+                    button.isEnabled = true
+                case .watch:
+                    button.isEnabled = false
+                }
+            }
+        } else {
+            buttonsBar.numberOfButtons = 0
         }
-        [redeemButton, sellButton, transferButton].forEach { $0.isEnabled = !isReadOnly }
 
         tableView.reloadData()
     }
@@ -157,25 +167,39 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(didTapCancelButton))
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard let buttonsBarHolder = buttonsBar.superview else {
+            tableView.contentInset = .zero
+            return
+        }
+        //TODO We are basically calculating the bottom safe area here. Don't rely on the internals of how buttonsBar and it's parent are laid out
+        tableView.contentInset = .init(top: 0, left: 0, bottom: buttonsBarHolder.frame.size.height - buttonsBar.frame.size.height, right: 0)
+        if buttonsBar.isEmpty {
+        } else {
+            tableView.contentInset = .init(top: 0, left: 0, bottom: tableView.frame.size.height - buttonsBarHolder.frame.origin.y, right: 0)
+        }
+    }
+
     @IBAction
     func didTapCancelButton(_ sender: UIBarButtonItem) {
         delegate?.didCancel(in: self)
     }
 
-    @objc func redeem() {
-        delegate?.didPressRedeem(token: viewModel.token,
-                                 in: self)
+    func redeem() {
+        guard let selectedTokenHolder = selectedTokenHolder else { return }
+        delegate?.didPressRedeem(token: viewModel.token, tokenHolder: selectedTokenHolder, in: self)
     }
 
-    @objc func sell() {
-        delegate?.didPressSell(for: .send(type: .ERC875Token(viewModel.token)), in: self)
+    func sell() {
+        guard let selectedTokenHolder = selectedTokenHolder else { return }
+        delegate?.didPressSell(tokenHolder: selectedTokenHolder, for: .send(type: .ERC875Token(viewModel.token)), in: self)
     }
 
-    @objc func transfer() {
+    func transfer() {
+        guard let selectedTokenHolder = selectedTokenHolder else { return }
         let transferType = TransferType(token: viewModel.token)
-        delegate?.didPressTransfer(for: .send(type: transferType),
-                                   tokenHolders: viewModel.tokenHolders,
-                                   in: self)
+        delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: transferType), tokenHolders: viewModel.tokenHolders, in: self)
     }
 
     func showInfo() {
@@ -184,6 +208,27 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
 
     func showContractWebPage() {
         delegate?.didPressViewContractWebPage(forContract: tokenObject.contract, server: server, in: self)
+    }
+
+    //TODO multi-selection. Only supports selecting one tokenHolder for now
+    @objc private func actionButtonTapped(sender: UIButton) {
+        guard let tokenHolder = selectedTokenHolder else { return }
+        let actions = viewModel.actions
+        for (action, button) in zip(actions, buttonsBar.buttons) {
+            if button == sender {
+                switch action.type {
+                case .erc875Redeem:
+                    redeem()
+                case .erc875Sell:
+                    sell()
+                case .nonFungibleTransfer:
+                    transfer()
+                case .tokenScript:
+                    delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+                }
+                break
+            }
+        }
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {
@@ -220,6 +265,24 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             return false
         }
     }
+
+    @objc private func longPressedTokenInstanceIconified(sender: UILongPressGestureRecognizer) {
+       switch sender.state {
+       case .began:
+           isMultipleSelectionMode = true
+           guard let indexPaths = tableView.indexPathsForVisibleRows else { return }
+           for each in indexPaths {
+               guard let cell = tableView.cellForRow(at: each) else { continue }
+               if let hasGestureRecognizer = cell.gestureRecognizers?.contains(sender), hasGestureRecognizer {
+                   viewModel.toggleSelection(for: each)
+                   configure()
+                   break
+               }
+           }
+       case .possible, .changed, .ended, .cancelled, .failed:
+           break
+       }
+    }
 }
 
 extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
@@ -236,19 +299,37 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
         let tokenType = OpenSeaNonFungibleTokenHandling(token: tokenObject)
         switch tokenType {
         case .supportedByOpenSea:
-            let cell = tableView.dequeueReusableCell(withIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox
+            let cell = tableView.dequeueReusableCell(withIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox
             cell.delegate = self
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width))
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified))
+            cell.isCheckboxVisible  = isMultipleSelectionMode
+            let hasAddedGestureRecognizer = cell.gestureRecognizers?.contains { $0 is UILongPressGestureRecognizer} ?? false
+            if !hasAddedGestureRecognizer {
+                cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
+            }
             return cell
         case .notSupportedByOpenSea:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithoutCheckbox
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width))
+            let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithCheckbox
+            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), assetDefinitionStore: assetDefinitionStore)
+            cell.isCheckboxVisible  = isMultipleSelectionMode
+            let hasAddedGestureRecognizer = cell.gestureRecognizers?.contains { $0 is UILongPressGestureRecognizer} ?? false
+            if !hasAddedGestureRecognizer {
+                cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
+            }
             return cell
         }
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        toggleDetailsVisibility(forIndexPath: indexPath)
+        if isMultipleSelectionMode {
+            let changedIndexPaths = viewModel.toggleSelection(for: indexPath)
+            //TODO maybe still needed for ERC721
+//            animateRowHeightChanges(for: changedIndexPaths, in: tableView)
+            configure()
+        } else {
+            let tokenHolder = viewModel.item(for: indexPath)
+            delegate?.didTapTokenInstanceIconified(tokenHolder: tokenHolder, in: self)
+        }
     }
 }
 
@@ -280,5 +361,4 @@ extension TokensCardViewController: UIViewControllerPreviewingDelegate {
         toggleDetailsVisibility(forIndexPath: viewController.indexPath)
     }
 }
-
 

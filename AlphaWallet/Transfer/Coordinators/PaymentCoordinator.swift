@@ -16,6 +16,7 @@ class PaymentCoordinator: Coordinator {
     private let storage: TokensDataStore
     private let ethPrice: Subscribable<Double>
     private let tokenHolders: [TokenHolder]!
+    private let assetDefinitionStore: AssetDefinitionStore
 
     weak var delegate: PaymentCoordinatorDelegate?
     var coordinators: [Coordinator] = []
@@ -28,7 +29,8 @@ class PaymentCoordinator: Coordinator {
             keystore: Keystore,
             storage: TokensDataStore,
             ethPrice: Subscribable<Double>,
-            tokenHolders: [TokenHolder] = []
+            tokenHolders: [TokenHolder] = [],
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
@@ -38,6 +40,7 @@ class PaymentCoordinator: Coordinator {
         self.storage = storage
         self.ethPrice = ethPrice
         self.tokenHolders = tokenHolders
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     func start() {
@@ -51,7 +54,8 @@ class PaymentCoordinator: Coordinator {
                 storage: storage,
                 account: account,
                 ethPrice: ethPrice,
-                tokenHolders: tokenHolders!
+                tokenHolders: tokenHolders!,
+                assetDefinitionStore: assetDefinitionStore
             )
             coordinator.delegate = self
             coordinator.start()

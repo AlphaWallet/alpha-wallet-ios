@@ -23,7 +23,7 @@ class TransferNFTCoordinator: Coordinator {
     private var status = StatusViewControllerViewModel.State.processing {
         didSet {
             guard let address = address else { return }
-            let tokenTypeName = XMLHandler(contract: address.eip55String).getTokenTypeName(.singular)
+            let tokenTypeName = XMLHandler(contract: address.eip55String, assetDefinitionStore: assetDefinitionStore).getName()
             statusViewController?.configure(viewModel: .init(
                     state: status,
                     inProgressText: R.string.localizable.aWalletTokenTransferInProgressTitle(tokenTypeName),
@@ -32,17 +32,19 @@ class TransferNFTCoordinator: Coordinator {
             ))
         }
     }
+    private let assetDefinitionStore: AssetDefinitionStore
 
     var coordinators: [Coordinator] = []
     weak var delegate: TransferNFTCoordinatorDelegate?
 
-    init(tokenHolder: TokenHolder, walletAddress: String, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: Account, on viewController: UIViewController) {
+    init(tokenHolder: TokenHolder, walletAddress: String, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: Account, assetDefinitionStore: AssetDefinitionStore, on viewController: UIViewController) {
         self.tokenHolder = tokenHolder
         self.walletAddress = walletAddress
         self.paymentFlow = paymentFlow
         self.keystore = keystore
         self.session = session
         self.account = account
+        self.assetDefinitionStore = assetDefinitionStore
         self.viewController = viewController
     }
 
@@ -57,7 +59,7 @@ class TransferNFTCoordinator: Coordinator {
         statusViewController = StatusViewController()
         if let vc = statusViewController {
             vc.delegate = self
-            let tokenTypeName = XMLHandler(contract: address.eip55String).getTokenTypeName(.singular)
+            let tokenTypeName = XMLHandler(contract: address.eip55String, assetDefinitionStore: assetDefinitionStore).getName()
             vc.configure(viewModel: .init(
                     state: .processing,
                     inProgressText: R.string.localizable.aWalletTokenTransferInProgressTitle(tokenTypeName),

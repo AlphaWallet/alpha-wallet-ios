@@ -67,7 +67,6 @@ class AppCoordinator: NSObject, Coordinator {
                 return true
             }
         }
-
         guard let inCoordinator = inCoordinator else { return false }
         let urlSchemeHandler = CustomUrlSchemeCoordinator(tokensDatastores: inCoordinator.tokensStorages)
         urlSchemeHandler.delegate = self
@@ -76,6 +75,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func setupAssetDefinitionStore() {
         let coordinator = AssetDefinitionStoreCoordinator()
+        coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
     }
@@ -280,8 +280,19 @@ extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
         handleUniversalLink(url: url)
     }
 }
+
 extension AppCoordinator: CustomUrlSchemeCoordinatorDelegate {
     func openSendPaymentFlow(_ paymentFlow: PaymentFlow, server: RPCServer, inCoordinator coordinator: CustomUrlSchemeCoordinator) {
         inCoordinator?.showPaymentFlow(for: paymentFlow, server: server)
+    }
+}
+
+extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
+    func show(error: Error, for viewController: AssetDefinitionStoreCoordinator) {
+        inCoordinator?.show(error: error)
+    }
+
+    func addedTokenScript(forContract contract: String, forServer server: RPCServer) {
+        inCoordinator?.addImported(contract: contract, forServer: server)
     }
 }

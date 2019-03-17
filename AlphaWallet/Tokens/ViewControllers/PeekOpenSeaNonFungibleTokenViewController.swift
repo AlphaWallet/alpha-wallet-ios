@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 class PeekOpenSeaNonFungibleTokenViewController: UIViewController {
-    private let tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+    private let tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
     private let scrollView = UIScrollView()
     let indexPath: IndexPath
 
