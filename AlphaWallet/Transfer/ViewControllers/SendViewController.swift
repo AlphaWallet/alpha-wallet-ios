@@ -43,7 +43,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         switch transferType {
         case .ERC20Token(let token):
             return token.contract
-        case .nativeCryptocurrency, .xDai:
+        case .nativeCryptocurrency:
             return account.address.eip55String
         case .dapp:
             return "0x"
@@ -85,7 +85,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
         switch transferType {
-        case .nativeCryptocurrency, .xDai:
+        case .nativeCryptocurrency:
             cryptoPrice.subscribe { [weak self] value in
                 if let value = value {
                     self?.amountTextField.cryptoToDollarRate = value
@@ -203,7 +203,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         let amountString = amountTextField.ethCost
         let parsedValue: BigInt? = {
             switch transferType {
-            case .nativeCryptocurrency, .dapp, .xDai:
+            case .nativeCryptocurrency, .dapp:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
             case .ERC20Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
@@ -252,7 +252,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
     private func configureBalanceViewModel() {
         switch transferType {
-        case .nativeCryptocurrency, .xDai:
+        case .nativeCryptocurrency:
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort

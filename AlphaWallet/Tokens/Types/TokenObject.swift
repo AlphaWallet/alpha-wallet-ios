@@ -22,11 +22,7 @@ class TokenObject: Object {
 
     var type: TokenType {
         get {
-            if name == "xDai" {
-                return .xDai
-            } else {
-                return TokenType(rawValue: rawType)!
-            }
+            return TokenType(rawValue: rawType)!
         }
         set {
             rawType = newValue.rawValue
@@ -89,7 +85,7 @@ class TokenObject: Object {
         switch type {
         case .erc721:
             return true
-        case .nativeCryptocurrency, .erc20, .erc875, .xDai:
+        case .nativeCryptocurrency, .erc20, .erc875:
             return false
         }
     }

@@ -338,7 +338,7 @@ class TokensDataStore {
         }
         for tokenObject in tokens {
             switch tokenObject.type {
-            case .nativeCryptocurrency, .xDai:
+            case .nativeCryptocurrency:
                 incrementCountAndUpdateDelegate()
             case .erc20:
                 guard let contract = Address(string: tokenObject.contract) else {
@@ -415,7 +415,7 @@ class TokensDataStore {
 
                 if let tokenObject = tokens.first(where: { $0.contract.sameContract(as: contract) }) {
                     switch tokenObject.type {
-                    case .nativeCryptocurrency, .erc721, .erc875, .xDai:
+                    case .nativeCryptocurrency, .erc721, .erc875:
                         break
                     case .erc20:
                         strongSelf.update(token: tokenObject, action: .type(.erc721))
