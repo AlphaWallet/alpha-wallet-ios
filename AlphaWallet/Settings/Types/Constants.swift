@@ -35,7 +35,7 @@ public struct Constants {
     public static let currencyDropServer = "https://app.awallet.io:80/api/claimFreeCurrency"
 
     // social
-    public static let website = "https://community.alphawallet.com/c/feedback/ios-feedback"
+    public static let website = "https://www.tokenscript.org/c/AlphaWallet/ios-feedback"
     public static let twitterUsername = "Alpha_wallet"
     public static let redditGroupName = "r/AlphaWallet/"
     public static let facebookUsername = "AlphaWallet"
