@@ -11,23 +11,26 @@ struct EthTokenViewCellViewModel {
     private let currencyAmountWithoutSymbol: Double?
     private let ticker: CoinTicker?
     private let server: RPCServer
+    private let assetDefinitionStore: AssetDefinitionStore
 
     init(
         token: TokenObject,
         ticker: CoinTicker?,
         currencyAmount: String?,
         currencyAmountWithoutSymbol: Double?,
-        server: RPCServer
+        server: RPCServer,
+        assetDefinitionStore: AssetDefinitionStore
     ) {
         self.token = token
         self.ticker = ticker
         self.currencyAmount = currencyAmount
         self.currencyAmountWithoutSymbol = currencyAmountWithoutSymbol
         self.server = server
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     var title: String {
-        return token.title
+        return token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
     }
 
     var amount: String {

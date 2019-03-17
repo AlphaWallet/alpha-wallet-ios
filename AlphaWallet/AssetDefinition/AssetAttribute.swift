@@ -60,35 +60,52 @@ enum AssetAttributeSyntax: String {
         case .integer:
             return Int(string)
         case .bool:
-            return string == "1"
+            return string == "TRUE"
         }
     }
 }
 
 enum AssetAttribute {
-    case mapping(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], syntax: AssetAttributeSyntax, lang: String, bitmask: BigUInt, bitShift: Int)
-    case direct(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], syntax: AssetAttributeSyntax, bitmask: BigUInt, bitShift: Int)
-    case function(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], syntax: AssetAttributeSyntax, attributeName: String, functionName: String, inputs: [CallForAssetAttribute.Argument], output: CallForAssetAttribute.ReturnType)
+    case mapping(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], name: String, syntax: AssetAttributeSyntax, lang: String, bitmask: BigUInt, bitShift: Int)
+    case direct(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], name: String, syntax: AssetAttributeSyntax, bitmask: BigUInt, bitShift: Int)
+    case function(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], name: String, syntax: AssetAttributeSyntax, attributeName: String, functionName: String, inputs: [CallForAssetAttribute.Argument], output: CallForAssetAttribute.ReturnType)
+
+    var name: String {
+        switch self {
+        case .mapping(_, _, _, let name, _, _, _, _):
+            return name
+        case .direct(_, _, _, let name, _, _, _):
+            return name
+        case .function(_, _, _, let name, _, _, _, _, _):
+            return name
+        }
+    }
 
     init(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], lang: String) {
         self = {
             //TODO show error if syntax attribute is missing
             if let origin = XMLHandler.getOriginElement(fromAttributeTypeElement: attribute, namespacePrefix: rootNamespacePrefix, namespaces: namespaces), let rawSyntax = attribute["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let type = origin["as"], let bitmask = XMLHandler.getBitMaskFrom(fromAttributeTypeElement: attribute, namespacePrefix: rootNamespacePrefix, namespaces: namespaces) {
+                let nameElement = XMLHandler.getNameElement(fromAttributeTypeElement: attribute, namespacePrefix: rootNamespacePrefix, namespaces: namespaces, lang: lang)
+                let name = nameElement?.text ?? ""
+
                 let bitShift = AssetAttribute.bitShiftCount(forBitMask: bitmask)
                 switch type {
                 case "mapping":
-                    return .mapping(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, syntax: syntax, lang: lang, bitmask: bitmask, bitShift: bitShift)
+                    return .mapping(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, name: name, syntax: syntax, lang: lang, bitmask: bitmask, bitShift: bitShift)
                 default:
-                    return .direct(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, syntax: syntax, bitmask: bitmask, bitShift: bitShift)
+                    return .direct(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, name: name, syntax: syntax, bitmask: bitmask, bitShift: bitShift)
                 }
             }
             //TODO maybe return an optional to indicate error instead?
-            return .direct(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, syntax: .iA5String, bitmask: BigUInt(0), bitShift: 0)
+            return .direct(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, name: "", syntax: .iA5String, bitmask: BigUInt(0), bitShift: 0)
         }()
     }
 
-    init(attribute: XMLElement, functionElement: XMLElement, rootNamespacePrefix: String, namespaces: [String: String]) {
+    init(attribute: XMLElement, functionElement: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], lang: String) {
         self = {
+            let nameElement = XMLHandler.getNameElement(fromAttributeTypeElement: attribute, namespacePrefix: rootNamespacePrefix, namespaces: namespaces, lang: lang)
+            let name = nameElement?.text ?? ""
+
             if let attributeName = attribute["id"],
                let rawSyntax = attribute["syntax"],
                let syntax = AssetAttributeSyntax(rawValue: rawSyntax),
@@ -103,15 +120,15 @@ enum AssetAttribute {
                     inputs = []
                 }
 
-                return .function(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, syntax: syntax, attributeName: attributeName, functionName: functionName, inputs: inputs, output: output)
+                return .function(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, name: name, syntax: syntax, attributeName: attributeName, functionName: functionName, inputs: inputs, output: output)
             } else {
                 //TODO maybe return an optional to indicate error instead?
-                return .direct(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, syntax: .iA5String, bitmask: BigUInt(0), bitShift: 0)
+                return .direct(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, name: name, syntax: .iA5String, bitmask: BigUInt(0), bitShift: 0)
             }
         }()
     }
 
-    private static func extractInputs(fromInputsElement inputsElement: XMLElement) -> [CallForAssetAttribute.Argument] {
+    public static func extractInputs(fromInputsElement inputsElement: XMLElement) -> [CallForAssetAttribute.Argument] {
         return XMLHandler.getInputs(fromInputsElement: inputsElement).compactMap {
             if let inputTypeString = $0.tagName, !inputTypeString.isEmpty, let inputName = $0["ref"], !inputName.isEmpty, let inputType = CallForAssetAttribute.SolidityType(rawValue: inputTypeString) {
                 return .init(name: inputName, type: inputType)
@@ -123,7 +140,7 @@ enum AssetAttribute {
 
     func extract(from tokenValue: BigUInt, ofContract contract: String, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> AssetAttributeValue {
         switch self {
-        case .mapping(_, _, _, let syntax, _, _, _), .direct(_, _, _, let syntax, _, _):
+        case .mapping(_, _, _, _, let syntax, _, _, _), .direct(_, _, _, _, let syntax, _, _):
             switch syntax {
             case .directoryString, .iA5String:
                 let value: String = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? "N/A"
@@ -138,7 +155,7 @@ enum AssetAttribute {
                 let value: Bool = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? false
                 return value
             }
-        case .function(_, _, _, let syntax, _, _, _, _):
+        case .function(_, _, _, _, let syntax, _, _, _, _):
             if let subscribableAttributeValue: SubscribableAssetAttributeValue = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) {
                 return subscribableAttributeValue
             } else {
@@ -158,14 +175,14 @@ enum AssetAttribute {
 
     private func extract<T>(from tokenValue: BigUInt, ofContract contract: String, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> T? where T: AssetAttributeValue {
         switch self {
-        case .mapping(let attribute, let rootNamespacePrefix, let namespaces, let syntax, let lang, _, _):
+        case .mapping(let attribute, let rootNamespacePrefix, let namespaces, _, let syntax, let lang, _, _):
             guard let key = parseValue(tokenValue: tokenValue) else { return nil }
             guard let value = XMLHandler.getMappingOptionValue(fromAttributeElement: attribute, namespacePrefix: rootNamespacePrefix, namespaces: namespaces, withKey: String(key), forLang: lang) else { return nil }
             return syntax.extract(from: value, isMapping: true) as? T
-        case .direct(_, _, _, let syntax, _, _):
+        case .direct(_, _, _, _, let syntax, _, _):
             guard let value = parseValue(tokenValue: tokenValue) else { return nil }
             return syntax.extract(from: String(value), isMapping: false) as? T
-        case .function(_, _, _, _, let attributeName, let functionName, let inputs, let output):
+        case .function(_, _, _, _, _, let attributeName, let functionName, let inputs, let output):
             let arguments: [AnyObject]
             //TODO we only support tokenID for now
             if inputs.count == 1 && (inputs[0].name == "tokenID" || inputs[0].name == "TokenID") {
@@ -195,7 +212,7 @@ enum AssetAttribute {
 
     private func parseValue(tokenValue: BigUInt) -> BigUInt? {
         switch self {
-        case .direct(_, _, _, _, let bitmask, let bitShift), .mapping(_, _, _, _, _, let bitmask, let bitShift):
+        case .direct(_, _, _, _, _, let bitmask, let bitShift), .mapping(_, _, _, _, _, _, let bitmask, let bitShift):
             return (bitmask & tokenValue) >> bitShift
         case .function:
             return nil

@@ -26,24 +26,26 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     var server: RPCServer {
         return token.server
     }
+    let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenCardRedemptionViewControllerDelegate?
 
-    init(session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel) {
+    init(session: WalletSession, token: TokenObject, viewModel: TokenCardRedemptionViewModel, assetDefinitionStore: AssetDefinitionStore) {
 		self.session = session
         self.token = token
         self.viewModel = viewModel
+        self.assetDefinitionStore = assetDefinitionStore
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
         switch tokenType {
         case .supportedByOpenSea:
-            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notSupportedByOpenSea:
-            tokenRowView = TokenCardRowView()
+            tokenRowView = TokenCardRowView(server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(isVerified: true)
+        updateNavigationRightBarButtons(withVerificationType: .unverified)
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -118,7 +120,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private func showSuccessMessage() {
         invalidateTimer()
 
-        let tokenTypeName = XMLHandler(contract: contract).getTokenTypeName()
+        let tokenTypeName = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
         UIAlertController.alert(title: R.string.localizable.aWalletTokenRedeemSuccessfulTitle(),
                                 message: R.string.localizable.aWalletTokenRedeemSuccessfulDescription(tokenTypeName),
                                 alertButtonTitles: [R.string.localizable.oK()],
@@ -142,7 +144,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(isVerified: isContractVerified)
+        updateNavigationRightBarButtons(withVerificationType: verificationType)
 
         view.backgroundColor = viewModel.backgroundColor
 

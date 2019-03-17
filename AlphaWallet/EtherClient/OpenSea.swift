@@ -23,7 +23,6 @@ class OpenSea {
         }
     }
 
-    //TODO OpenSea should support Ropsten now
     static func isServerSupported(_ server: RPCServer) -> Bool {
         switch server {
         case .main, .rinkeby:

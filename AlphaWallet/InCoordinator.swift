@@ -147,7 +147,7 @@ class InCoordinator: NSObject, Coordinator {
         do {
             try realm.write {
                 for each in RPCServer.allCases {
-                    let migration = MigrationInitializerForOneChainPerDatabase(account: wallet, server: each)
+                    let migration = MigrationInitializerForOneChainPerDatabase(account: wallet, server: each, assetDefinitionStore: assetDefinitionStore)
                     migration.perform()
                     let oldPerChainDatabase = try! Realm(configuration: migration.config)
                     for each in oldPerChainDatabase.objects(Bookmark.self) {
@@ -174,7 +174,7 @@ class InCoordinator: NSObject, Coordinator {
                 }
             }
             for each in RPCServer.allCases {
-                let migration = MigrationInitializerForOneChainPerDatabase(account: wallet, server: each)
+                let migration = MigrationInitializerForOneChainPerDatabase(account: wallet, server: each, assetDefinitionStore: assetDefinitionStore)
                 let realmUrl = migration.config.fileURL!
                 let realmUrls = [
                     realmUrl,
@@ -197,7 +197,7 @@ class InCoordinator: NSObject, Coordinator {
         callForAssetAttributeCoordinators = .init()
         for each in RPCServer.allCases {
             let tokensDataStore = tokensStorages[each]
-            let callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator(server: each, tokensDataStore: tokensDataStore)
+            let callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator(server: each, tokensDataStore: tokensDataStore, assetDefinitionStore: self.assetDefinitionStore)
             callForAssetAttributeCoordinators[each] = callForAssetAttributeCoordinator
             //Since this is called at launch, we don't want it to block launching
             DispatchQueue.global().async {
@@ -445,7 +445,8 @@ class InCoordinator: NSObject, Coordinator {
                     session: session,
                     keystore: keystore,
                     storage: tokenStorage,
-                    ethPrice: nativeCryptoCurrencyPrices[server]
+                    ethPrice: nativeCryptoCurrencyPrices[server],
+                    assetDefinitionStore: assetDefinitionStore
             )
             coordinator.delegate = self
             if let topVC = navigationController.presentedViewController {
@@ -577,6 +578,15 @@ class InCoordinator: NSObject, Coordinator {
     private func isViewControllerDappBrowserTab(_ viewController: UIViewController) -> Bool {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return false }
         return dappBrowserCoordinator.rootViewController.navigationController == viewController
+    }
+
+    func show(error: Error) {
+        //TODO Not comprehensive. Example, if we are showing a token instance view and tap on unverified to open browser, this wouldn't owrk
+        if let topVC = navigationController.presentedViewController {
+            topVC.displayError(error: error)
+        } else {
+            navigationController.displayError(error: error)
+        }
     }
 }
 

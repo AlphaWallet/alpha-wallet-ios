@@ -5,6 +5,7 @@ import UIKit
 struct GenerateTransferMagicLinkViewControllerViewModel {
     private let tokenHolder: TokenHolder
     private let linkExpiryDate: Date
+    private let assetDefinitionStore: AssetDefinitionStore
 
     var contentsBackgroundColor: UIColor {
         return Colors.appWhite
@@ -62,10 +63,10 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
 
     var tokenCountLabelText: String {
         if tokenCount == 1 {
-            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getName()
             return R.string.localizable.aWalletTokenSellConfirmSingleTokenSelectedTitle(tokenTypeName)
         } else {
-            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.plural, titlecase: .titlecase)
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             return R.string.localizable.aWalletTokenSellConfirmMultipleTokenSelectedTitle(tokenHolder.count, tokenTypeName)
         }
     }
@@ -78,8 +79,9 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return tokenHolder.count
     }
 
-    init(tokenHolder: TokenHolder, linkExpiryDate: Date) {
+    init(tokenHolder: TokenHolder, linkExpiryDate: Date, assetDefinitionStore: AssetDefinitionStore) {
         self.tokenHolder = tokenHolder
         self.linkExpiryDate = linkExpiryDate
+        self.assetDefinitionStore = assetDefinitionStore
     }
 }

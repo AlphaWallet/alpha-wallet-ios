@@ -4,17 +4,18 @@ import UIKit
 
 protocol AssetDefinitionsOverridesViewControllerDelegate: class {
     func didDelete(overrideFileForContract file: URL, in viewController: AssetDefinitionsOverridesViewController)
+    func didTapShare(file: URL, in viewController: AssetDefinitionsOverridesViewController)
 }
 
 class AssetDefinitionsOverridesViewController: UIViewController {
     private let tableView = UITableView()
+    private let fileExtension: String
     private var overriddenURLs: [URL] = []
     weak var delegate: AssetDefinitionsOverridesViewControllerDelegate?
 
-    init() {
+    init(fileExtension: String) {
+        self.fileExtension = fileExtension
         super.init(nibName: nil, bundle: nil)
-
-        title = R.string.localizable.aHelpAssetDefinitionOverridesTitle()
 
         view.backgroundColor = Colors.appBackground
 
@@ -54,12 +55,16 @@ extension AssetDefinitionsOverridesViewController: UITableViewDelegate {
             delegate?.didDelete(overrideFileForContract: overriddenURLs[indexPath.row], in: self)
         }
     }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        delegate?.didTapShare(file: overriddenURLs[indexPath.row], in: self)
+    }
 }
 
 extension AssetDefinitionsOverridesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: AssetDefinitionsOverridesViewCell.identifier, for: indexPath) as! AssetDefinitionsOverridesViewCell
-        cell.configure(viewModel: .init(url: overriddenURLs[indexPath.row]))
+        cell.configure(viewModel: .init(url: overriddenURLs[indexPath.row], fileExtension: fileExtension))
         return cell
     }
 

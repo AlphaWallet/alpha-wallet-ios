@@ -8,14 +8,16 @@ import TrustKeystore
 class MigrationInitializerForOneChainPerDatabase: Initializer {
     private let account: Wallet
     private let server: RPCServer
+    private let assetDefinitionStore: AssetDefinitionStore
 
     lazy var config: Realm.Configuration = {
         return RealmConfiguration.configuration(for: account, server: server)
     }()
 
-    init(account: Wallet, server: RPCServer) {
+    init(account: Wallet, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.account = account
         self.server = server
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     func perform() {
@@ -55,8 +57,8 @@ class MigrationInitializerForOneChainPerDatabase: Initializer {
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
                     if let contract = oldObject["contract"] as? String {
-                        let tokenTypeName = XMLHandler(contract: contract).getName()
-                        if tokenTypeName != "N/A" {
+                        let tokenTypeName = XMLHandler(contract: contract, assetDefinitionStore: self.assetDefinitionStore).getName(fallback: "")
+                        if !tokenTypeName.isEmpty {
                             newObject["name"] = ""
                         }
                     }

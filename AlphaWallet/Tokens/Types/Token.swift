@@ -17,6 +17,7 @@ struct Token {
     let id: BigUInt
     let index: UInt16
     let name: String
+    let symbol: String
     let status: Status
     let values: [String: AssetAttributeValue]
 
@@ -25,6 +26,7 @@ struct Token {
                 id: Constants.nullTokenIdBigUInt,
                 index: 0,
                 name: R.string.localizable.tokensTitlecase(),
+                symbol: "",
                 status: .available,
                 values: [
                     "locality": "N/A",

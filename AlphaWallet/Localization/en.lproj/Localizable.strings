@@ -114,6 +114,7 @@
 "tickets.titlecase" = "Tickets";
 "cryptokitties.lowercase" = "cryptokitties";
 "cryptokitties.titlecase" = "Cryptokitties";
+"cryptokitty.titlecase" = "Cryptokitty";
 "tokens.newtoken.navigation.title" = "Add Custom Token";
 "transaction.cell.error.title" = "Error";
 "transaction.cell.received.title" = "Received";
@@ -167,6 +168,7 @@
 "a.wallet.import.wallet.bubble.description" = "Check your Email/SMS for the import link. Tap it and it will automatically import to the app!";
 "a.wallet.token.verifiedContract" = "VERIFIED BY AlphaWallet";
 "a.wallet.token.unverifiedContract" = "UNVERIFIED";
+"a.wallet.token.debugContract" = "DEBUG";
 "a.wallet.token.match.vs" = "%@-%@";
 "a.wallet.token.redeem.button.title" = "Redeem";
 "a.wallet.token.redeem.selectTokens.title" = "Select %@ To Redeem:";
@@ -238,7 +240,7 @@
 "a.wallet.next.button.title" = "Next";
 "a.wallet.no.tokens" = "You don't have any tokens";
 "a.help.navigation.title" = "Help & FAQs";
-"a.help.assetDefinitionOverrides.title" = "Asset Definition Overrides";
+"a.help.assetDefinitionOverrides.title" = "TokenScript Overrides";
 "a.help.contact.footer.button.title" = "Still need help? Contact Us";
 "a.help.contact.email.subject" = "Help/Feedback for AlphaWallet";
 "a.help.contact.email.helpfulToDevelopers" = "Helpful information to developers:";
@@ -261,7 +263,7 @@
 "a.welcome.onboarding.3" = "Buy, sell and transfer your favourite tokens";
 "a.welcome.onboarding.createwallet.button.title" = "GET STARTED";
 "a.marketplace.tabbar.item.title" = "Marketplace";
-"a.claim.token.title" = "Importing Tokens";
+"a.claim.token.title" = "Importing %@";
 "a.claim.token.prompt" = "Import Link?";
 "a.claim.token.success.title" = "Your ticket has been transferred and the balance will be updated shortly";
 "a.claim.token.failed.title" = "Invalid ticket link";
@@ -332,3 +334,4 @@
 "recent.transactions" = "Recent Transactions";
 "blockchain.XDAI" = "xDAI Chain";
 "photos" = "Photos";
+"tokenScript.notSupportedSchema.error" = "Please upgrade AlphaWallet to support this TokenScript file";

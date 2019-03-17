@@ -34,6 +34,10 @@ class TokenHolder {
         return tokens[0].name
     }
 
+    var symbol: String {
+        return tokens[0].symbol
+    }
+
     var values: [String: AssetAttributeValue] {
         return tokens[0].values
     }

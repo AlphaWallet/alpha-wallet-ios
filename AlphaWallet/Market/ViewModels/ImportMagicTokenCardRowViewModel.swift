@@ -4,9 +4,15 @@ import Foundation
 
 struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
     private var importMagicTokenViewControllerViewModel: ImportMagicTokenViewControllerViewModel
+    private let assetDefinitionStore: AssetDefinitionStore
 
-    init(importMagicTokenViewControllerViewModel: ImportMagicTokenViewControllerViewModel) {
+    init(importMagicTokenViewControllerViewModel: ImportMagicTokenViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore) {
         self.importMagicTokenViewControllerViewModel = importMagicTokenViewControllerViewModel
+        self.assetDefinitionStore = assetDefinitionStore
+    }
+
+    var tokenHolder: TokenHolder? {
+        return importMagicTokenViewControllerViewModel.tokenHolder
     }
 
     var tokenCount: String {
@@ -143,5 +149,16 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
                     country: country
             )
         }
+    }
+
+    var tokenScriptHtml: String {
+        guard let tokenHolder = importMagicTokenViewControllerViewModel.tokenHolder else { return "" }
+        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        return wrapWithHtmlViewport(xmlHandler.tokenViewIconifiedHtml)
+    }
+
+    var hasTokenScriptHtml: Bool {
+        //TODO improve performance? Because it is generated again when used
+        return !tokenScriptHtml.isEmpty
     }
 }

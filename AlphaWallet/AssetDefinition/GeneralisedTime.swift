@@ -3,6 +3,8 @@
 import Foundation
 
 struct GeneralisedTime {
+    static var formattersForLocalTime = [TimeZone: DateFormatter]()
+
     var date: Date
     var timeZone: TimeZone
     private static let formatter: DateFormatter = {
@@ -10,6 +12,27 @@ struct GeneralisedTime {
         formatter.dateFormat = "yyyyMMddHHmmssz"
         return formatter
     }()
+    var formatAsGeneralisedTime: String {
+        let df = DateFormatter()
+        df.dateFormat = "yyyyMMddHHmmssZ"
+        df.timeZone = timeZone
+        return df.string(from: date)
+    }
+
+    //Return value is JavaScript dictionary with venue and locale as keys. If the TokenScript author wants to display the venue/event date, just display venue in their device locale, otherwise use the locale value
+    var formatTimeToLocaleAndVenueStringEquivalent: String {
+        let utcTimeZone = TimeZone.init(abbreviation: "UTC")
+        let dfForUtc = formatterForLocalTime(forTimeZone: utcTimeZone!)
+        let dateStringForUtc = dfForUtc.string(from: date)
+        let generalisedTime = formatAsGeneralisedTime
+        let result = """
+                     {
+                     date: new Date(\"\(dateStringForUtc)\"),
+                     generalizedTime: \"\(generalisedTime)\"
+                     }\n
+                     """
+        return result
+    }
 
     //TODO be good to remove this and use an optional instead
     public init() {
@@ -55,6 +78,18 @@ struct GeneralisedTime {
 
     public func format(_ string: String) -> String {
         return date.format(string, withTimeZone: timeZone)
+    }
+
+    private func formatterForLocalTime(forTimeZone timeZone: TimeZone) -> DateFormatter {
+        if let formatter = GeneralisedTime.formattersForLocalTime[timeZone] {
+            return formatter
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            formatter.timeZone = timeZone
+            GeneralisedTime.formattersForLocalTime[timeZone] = formatter
+            return formatter
+        }
     }
 }
 

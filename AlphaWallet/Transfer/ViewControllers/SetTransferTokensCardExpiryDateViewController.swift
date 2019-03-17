@@ -32,29 +32,32 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     var server: RPCServer {
         return viewModel.token.server
     }
+    let assetDefinitionStore: AssetDefinitionStore
     let paymentFlow: PaymentFlow
     weak var delegate: SetTransferTokensCardExpiryDateViewControllerDelegate?
 
     init(
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
-            viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
+            viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
+        self.assetDefinitionStore = assetDefinitionStore
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: viewModel.token)
         switch tokenType {
         case .supportedByOpenSea:
-            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notSupportedByOpenSea:
-            tokenRowView = TokenCardRowView()
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(isVerified: true)
+        updateNavigationRightBarButtons(withVerificationType: .unverified)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -249,7 +252,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(isVerified: isContractVerified)
+        updateNavigationRightBarButtons(withVerificationType: verificationType)
 
         view.backgroundColor = viewModel.backgroundColor
 

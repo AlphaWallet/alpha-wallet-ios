@@ -8,9 +8,10 @@ import UIKit
 }
 
 extension VerifiableStatusViewController where Self: UIViewController {
-    func updateNavigationRightBarButtons(isVerified: Bool, hasShowInfoButton: Bool = true) {
-        let verifiedStatusButton = UIBarButtonItem(customView: createVerifiedStatusButton(isVerified: isVerified))
-        if isVerified {
+    func updateNavigationRightBarButtons(withVerificationType verificationType: TokenScriptVerificationType, hasShowInfoButton: Bool = true) {
+        let verificationStatusBar = UIBarButtonItem(customView: createVerificationStatusButton(withVerificationType: verificationType))
+        switch verificationType {
+        case .verified:
             var showInfoButton = hasShowInfoButton
             //TODO ugly
             if let tokenVerifiableVC = self as? TokenVerifiableStatusViewController {
@@ -18,28 +19,30 @@ extension VerifiableStatusViewController where Self: UIViewController {
             }
             if showInfoButton {
                 let infoButton = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
-                navigationItem.rightBarButtonItems = [
-                    infoButton,
-                    verifiedStatusButton
-                ]
+                navigationItem.rightBarButtonItems = [infoButton, verificationStatusBar]
             } else {
-                navigationItem.rightBarButtonItems = [verifiedStatusButton]
+                navigationItem.rightBarButtonItems = [verificationStatusBar]
             }
-        } else {
-            navigationItem.rightBarButtonItems = [verifiedStatusButton]
+        case .unverified, .notCanonicalized:
+            navigationItem.rightBarButtonItems = [verificationStatusBar]
         }
     }
 
-    private func createVerifiedStatusButton(isVerified: Bool) -> UIButton {
+    private func createVerificationStatusButton(withVerificationType verificationType: TokenScriptVerificationType) -> UIButton {
         let title: String
         let image: UIImage?
         let tintColor: UIColor
-        if isVerified {
+        switch verificationType {
+        case .verified:
             title = R.string.localizable.aWalletTokenVerifiedContract()
             image = R.image.verified()
             tintColor = Colors.appGreenContrastBackground
-        } else {
+        case .unverified:
             title = R.string.localizable.aWalletTokenUnverifiedContract()
+            image = R.image.unverified()
+            tintColor = Colors.appRed
+        case .notCanonicalized:
+            title = R.string.localizable.aWalletTokenDebugContract()
             image = R.image.unverified()
             tintColor = Colors.appRed
         }
@@ -49,6 +52,7 @@ extension VerifiableStatusViewController where Self: UIViewController {
         button.imageView?.tintColor = tintColor
         button.titleLabel?.font = Fonts.regular(size: 11)
         button.setTitleColor(tintColor, for: .normal)
+        //TODO hardcoded margins don't work well across languages, e.g. for Chinese
         button.imageEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 12)
         button.titleEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: -12)
         button.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
@@ -59,22 +63,24 @@ extension VerifiableStatusViewController where Self: UIViewController {
 protocol TokenVerifiableStatusViewController: VerifiableStatusViewController {
     var contract: String { get }
     var server: RPCServer { get }
+    var assetDefinitionStore: AssetDefinitionStore { get }
 }
 
 extension TokenVerifiableStatusViewController {
-    var isContractVerified: Bool {
-        return XMLHandler(contract: contract).isVerified(for: server)
+    var verificationType: TokenScriptVerificationType {
+        return XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).verificationType(for: server)
     }
 }
 
 protocol OptionalTokenVerifiableStatusViewController: VerifiableStatusViewController {
     var contract: String? { get }
     var server: RPCServer { get }
+    var assetDefinitionStore: AssetDefinitionStore { get }
 }
 
 extension OptionalTokenVerifiableStatusViewController {
-    var isContractVerified: Bool {
-        guard let contract = contract else { return false }
-        return XMLHandler(contract: contract).isVerified(for: server)
+    var verificationType: TokenScriptVerificationType {
+        guard let contract = contract else { return .unverified }
+        return XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).verificationType(for: server)
     }
 }

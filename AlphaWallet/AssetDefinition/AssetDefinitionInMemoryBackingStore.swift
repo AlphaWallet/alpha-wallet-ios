@@ -29,4 +29,8 @@ class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
     func isOfficial(contract: String) -> Bool {
         return false
     }
+
+    func isCanonicalized(contract: String) -> Bool {
+        return true
+    }
 }

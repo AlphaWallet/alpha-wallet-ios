@@ -15,13 +15,15 @@ class CallForAssetAttributeCoordinator {
 
     private let server: RPCServer
     private let tokensDataStore: TokensDataStore
+    private let assetDefinitionStore: AssetDefinitionStore
     private var promiseCache = [AssetAttributeFunctionCall: Promise<AssetAttributeValue>]()
 
     var contractToRefetch: String?
 
-    init(server: RPCServer, tokensDataStore: TokensDataStore) {
+    init(server: RPCServer, tokensDataStore: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
         self.tokensDataStore = tokensDataStore
+        self.assetDefinitionStore = assetDefinitionStore
 
         NotificationCenter.default.addObserver(self, selector: #selector(refreshFunctionCallBasedAssetAttributesForAllTokens), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
@@ -86,7 +88,7 @@ class CallForAssetAttributeCoordinator {
 
     private func refreshFunctionCallBasedAssetAttributes(forToken token: TokenObject) {
         contractToRefetch = token.contract
-        _ = TokenAdaptor(token: token).getTokenHolders()
+        _ = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore).getTokenHolders()
         contractToRefetch = nil
     }
 

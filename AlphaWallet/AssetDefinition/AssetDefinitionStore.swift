@@ -31,6 +31,34 @@ class AssetDefinitionStore {
     private var subscribers: [(String) -> Void] = []
     private var backingStore: AssetDefinitionBackingStore
 
+    //TODO move
+    static var standardTokenScriptStyles: String {
+        return """
+               <style type="text/css">
+               @font-face {
+               font-family: 'SourceSansPro';
+               src: url('\(Constants.tokenScriptUrlSchemeForResources)SourceSansPro-Light.otf') format('opentype');
+               font-weight: lighter;
+               }
+               @font-face {
+               font-family: 'SourceSansPro';
+               src: url('\(Constants.tokenScriptUrlSchemeForResources)SourceSansPro-Regular.otf') format('opentype');
+               font-weight: normal;
+               }
+               @font-face {
+               font-family: 'SourceSansPro';
+               src: url('\(Constants.tokenScriptUrlSchemeForResources)SourceSansPro-Semibold.otf') format('opentype');
+               font-weight: bolder;
+               }
+               @font-face {
+               font-family: 'SourceSansPro';
+               src: url('\(Constants.tokenScriptUrlSchemeForResources)SourceSansPro-Bold.otf') format('opentype');
+               font-weight: bold;
+               }
+               </style>
+               """
+    }
+
     init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides()) {
         self.backingStore = backingStore
         self.backingStore.delegate = self
@@ -57,6 +85,10 @@ class AssetDefinitionStore {
 
     func isOfficial(contract: String) -> Bool {
         return backingStore.isOfficial(contract: contract)
+    }
+
+    func isCanonicalized(contract: String) -> Bool {
+        return backingStore.isCanonicalized(contract: contract)
     }
 
     func subscribe(_ subscribe: @escaping (_ contract: String) -> Void) {

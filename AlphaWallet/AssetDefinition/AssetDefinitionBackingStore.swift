@@ -9,6 +9,7 @@ protocol AssetDefinitionBackingStore {
     func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date?
     func forEachContractWithXML(_ body: (String) -> Void)
     func isOfficial(contract: String) -> Bool
+    func isCanonicalized(contract: String) -> Bool
 }
 
 extension AssetDefinitionBackingStore {

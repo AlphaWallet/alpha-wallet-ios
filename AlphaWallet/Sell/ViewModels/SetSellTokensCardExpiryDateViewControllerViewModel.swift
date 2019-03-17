@@ -6,6 +6,7 @@ import UIKit
 struct SetSellTokensCardExpiryDateViewControllerViewModel {
     private let ethCost: Ether
     private let server: RPCServer
+    private let assetDefinitionStore: AssetDefinitionStore
 
     let token: TokenObject
     let tokenHolder: TokenHolder
@@ -43,7 +44,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var descriptionLabelText: String {
-        let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.plural, titlecase: .notTitlecase)
+        let tokenTypeName = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
         return R.string.localizable.aWalletTokenSellMagicLinkDescriptionTitle(tokenTypeName)
     }
 
@@ -57,16 +58,16 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
 
     var tokenCountLabelText: String {
         if tokenCount == 1 {
-            let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.singular, titlecase: .titlecase)
+            let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getName()
             return R.string.localizable.aWalletTokenSellSingleTokenSelectedTitle(tokenTypeName)
         } else {
-            let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName(.plural, titlecase: .titlecase)
+            let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             return R.string.localizable.aWalletTokenSellMultipleTokenSelectedTitle(tokenHolder.count, tokenTypeName)
         }
     }
 
     var perTokenPriceLabelText: String {
-        let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.singular, titlecase: .titlecase)
+        let tokenTypeName = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore).getName()
         let amount = ethCost / tokenCount
         return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, server.symbol, tokenTypeName)
     }
@@ -88,7 +89,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteLabelText: String {
-        let tokenTypeName = XMLHandler(contract: token.contract).getTokenTypeName(.plural, titlecase: .notTitlecase)
+        let tokenTypeName = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
         return R.string.localizable.aWalletTokenSellNoteLabelTitle(tokenTypeName)
     }
 
@@ -108,10 +109,11 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
         return tokenHolder.count
     }
 
-    init(token: TokenObject, tokenHolder: TokenHolder, ethCost: Ether, server: RPCServer) {
+    init(token: TokenObject, tokenHolder: TokenHolder, ethCost: Ether, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost
         self.server = server
+        self.assetDefinitionStore = assetDefinitionStore
     }
 }

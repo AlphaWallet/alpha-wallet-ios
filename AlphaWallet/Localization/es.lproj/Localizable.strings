@@ -113,7 +113,8 @@
 "tickets.lowercase" = "tickets";
 "tickets.titlecase" = "Tickets";
 "cryptokitties.lowercase" = "cryptokitties";
-"cryptokitties.titlecase" = "Cryptokitties";
+"cryptokitties.titlecase" = "CryptoKitties";
+"cryptokitty.titlecase" = "CryptoKitty";
 "tokens.newtoken.navigation.title" = "Añadir token personalizado";
 "transaction.cell.error.title" = "Error";
 "transaction.cell.received.title" = "Recibido";
@@ -167,6 +168,7 @@
 "a.wallet.import.wallet.bubble.description" = "Revisa tu correo electrónico/SMS y busca el enlace de importación. ¡Pulsa en él y se importará automáticamente a la aplicación!";
 "a.wallet.token.verifiedContract" = "VERIFICADO por AlphaWallet";
 "a.wallet.token.unverifiedContract" = "SIN VERIFICAR";
+"a.wallet.token.debugContract" = "DEBUG";
 "a.wallet.token.match.vs" = "%@-%@";
 "a.wallet.token.redeem.button.title" = "Canjear";
 "a.wallet.token.redeem.selectTokens.title" = "Selecciona %@ para canjear:";
@@ -238,7 +240,7 @@
 "a.wallet.next.button.title" = "Siguiente";
 "a.wallet.no.tokens" = "No tienes ningún token";
 "a.help.navigation.title" = "Ayuda y preguntas frecuentes";
-"a.help.assetDefinitionOverrides.title" = "Asset Definition Overrides";
+"a.help.assetDefinitionOverrides.title" = "TokenScript Overrides";
 "a.help.contact.footer.button.title" = "¿Sigues necesitando ayuda? Contacta con nosotros";
 "a.help.contact.email.subject" = "Ayuda/Comentarios de AlphaWallet";
 "a.help.contact.email.helpfulToDevelopers" = "Información útil para desarrolladores:";
@@ -261,7 +263,7 @@
 "a.welcome.onboarding.3" = "Compra, vende y transfiere tus tokens favoritos";
 "a.welcome.onboarding.createwallet.button.title" = "EMPEZAR";
 "a.marketplace.tabbar.item.title" = "Mercado";
-"a.claim.token.title" = "Importando simbólico";
+"a.claim.token.title" = "Importando %@";
 "a.claim.token.prompt" = "¿Importar enlace?";
 "a.claim.token.success.title" = "Tu ticket se ha transferido y el saldo se actualizará en breve";
 "a.claim.token.failed.title" = "Enlace de ticket no válido";
@@ -332,3 +334,4 @@
 "a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "photos" = "Photos";
 "a.claim.token.failed.serverDown" = "a.claim.token.failed.serverDown";
+"tokenScript.notSupportedSchema.error" = "Please upgrade AlphaWallet to support this TokenScript file";
