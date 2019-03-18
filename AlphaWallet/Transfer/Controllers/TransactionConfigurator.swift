@@ -73,7 +73,7 @@ class TransactionConfigurator {
     func estimateGasLimit() {
         let to: Address? = {
             switch transaction.transferType {
-            case .nativeCryptocurrency, .dapp, .xDai: return transaction.to
+            case .nativeCryptocurrency, .dapp: return transaction.to
             case .ERC20Token(let token):
                 return Address(string: token.contract)
             case .ERC875Token(let token):
@@ -113,7 +113,7 @@ class TransactionConfigurator {
 
     func load(completion: @escaping (Result<Void, AnyError>) -> Void) {
         switch transaction.transferType {
-        case .nativeCryptocurrency, .dapp, .xDai:
+        case .nativeCryptocurrency, .dapp:
             guard requestEstimateGas else {
                 return completion(.success(()))
             }
@@ -219,7 +219,7 @@ class TransactionConfigurator {
     func formUnsignedTransaction() -> UnsignedTransaction {
         let value: BigInt = {
             switch transaction.transferType {
-            case .nativeCryptocurrency, .dapp, .xDai: return transaction.value
+            case .nativeCryptocurrency, .dapp: return transaction.value
             case .ERC20Token: return 0
             case .ERC875Token: return 0
             case .ERC875TokenOrder: return transaction.value
@@ -228,7 +228,7 @@ class TransactionConfigurator {
         }()
         let address: Address? = {
             switch transaction.transferType {
-            case .nativeCryptocurrency, .dapp, .xDai: return transaction.to
+            case .nativeCryptocurrency, .dapp: return transaction.to
             case .ERC20Token(let token): return token.address
             case .ERC875Token(let token): return token.address
             case .ERC875TokenOrder(let token): return token.address

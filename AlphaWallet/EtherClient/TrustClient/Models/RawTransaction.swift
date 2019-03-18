@@ -116,7 +116,7 @@ extension Transaction {
 
     static private func mapTokenTypeToTransferOperationType(_ tokenType: TokenType) -> OperationType {
         switch tokenType {
-        case .nativeCryptocurrency, .xDai:
+        case .nativeCryptocurrency:
             return .nativeCurrencyTokenTransfer
         case .erc20:
             return .erc20TokenTransfer

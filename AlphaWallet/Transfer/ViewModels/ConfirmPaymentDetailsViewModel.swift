@@ -102,7 +102,7 @@ struct ConfirmPaymentDetailsViewModel {
             return amountAttributedText(
                 string: fullFormatter.string(from: transaction.value, decimals: token.decimals)
             )
-        case .nativeCryptocurrency, .dapp, .xDai:
+        case .nativeCryptocurrency, .dapp:
             return amountAttributedText(
                 string: fullFormatter.string(from: transaction.value)
             )
