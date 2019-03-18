@@ -30,9 +30,10 @@ public struct Constants {
     public static let repoPlatformName = "iOS"
 
     // fee master
-    public static let paymentServer = "https://app.awallet.io:80/api/claimToken"
-    public static let paymentServerSupportsContractEndPoint = "https://app.awallet.io:80/api/checkContractIsSupportedForFreeTransfers"
-    public static let currencyDropServer = "https://app.awallet.io:80/api/claimFreeCurrency"
+    public static let paymentServer = "https://aw.app:80/api/claimToken"
+    public static let paymentServerSupportsContractEndPoint = "https://aw.app:80/api/checkContractIsSupportedForFreeTransfers"
+    public static let paymentServerClaimedToken = "https://aw.app:80/api/checkIfSignatureIsUsed"
+    public static let currencyDropServer = "https://aw.app:80/api/claimFreeCurrency"
 
     // social
     public static let website = "https://www.tokenscript.org/c/AlphaWallet/ios-feedback"
