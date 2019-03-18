@@ -213,7 +213,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     public func updateForm(forTokenType tokenType: TokenType) {
         self.tokenType = tokenType
         switch tokenType {
-        case .nativeCryptocurrency, .erc20, .xDai:
+        case .nativeCryptocurrency, .erc20:
             decimalsTextField.isHidden = false
             balanceTextField.isHidden = true
             decimalsTextField.label.isHidden = false
@@ -242,7 +242,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         guard let tokenType = tokenType else { return false }
 
         switch tokenType {
-        case .nativeCryptocurrency, .erc20, .xDai:
+        case .nativeCryptocurrency, .erc20:
             guard !decimalsTextField.value.trimmed.isEmpty else {
                 displayError(title: R.string.localizable.decimals(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
                 return false

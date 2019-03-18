@@ -13,7 +13,7 @@ enum TransferType {
     init(config: Config, token: TokenObject) {
         self = {
             switch token.type {
-            case .nativeCryptocurrency, .xDai:
+			case .nativeCryptocurrency:
                 return .nativeCryptocurrency(config: config, destination: nil)
             case .erc20:
                 return .ERC20Token(token)
@@ -26,7 +26,6 @@ enum TransferType {
     }
 
     case nativeCryptocurrency(config: Config, destination: Address?)
-    case xDai(config: Config, destination: Address?)
     case ERC20Token(TokenObject)
     case ERC875Token(TokenObject)
     case ERC875TokenOrder(TokenObject)
@@ -37,7 +36,7 @@ enum TransferType {
 extension TransferType {
     func symbol(server: RPCServer) -> String {
         switch self {
-        case .nativeCryptocurrency, .dapp, .xDai:
+        case .nativeCryptocurrency, .dapp:
             return server.symbol
         case .ERC20Token(let token):
             return token.symbol
@@ -52,7 +51,7 @@ extension TransferType {
 
     func contract() -> Address {
         switch self {
-        case .nativeCryptocurrency(let config, _), .xDai(let config, _):
+        case .nativeCryptocurrency(let config, _):
             return Address(uncheckedAgainstNullAddress: TokensDataStore.etherToken(for: config).contract)!
         case .ERC20Token(let token):
             return Address(string: token.contract)!
