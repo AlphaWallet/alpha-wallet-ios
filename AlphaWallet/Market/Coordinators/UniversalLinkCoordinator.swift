@@ -192,6 +192,80 @@ class UniversalLinkCoordinator: Coordinator {
         return !config.server.isTestnet
     }
 
+    private func handleSpawnableLink(signedOrder: SignedOrder, tokens: [BigUInt]) {
+        let tokenStrings: [String] = tokens.map { String($0, radix: 16) }
+        self.makeTokenHolder(
+                tokenStrings,
+                signedOrder.order.contractAddress
+        )
+        completeOrderHandling(signedOrder: signedOrder)
+    }
+
+    private func handleNativeCurrencyDrop(signedOrder: SignedOrder) {
+        let amt: Decimal
+        let szabosPerEth: Decimal = Decimal(EthereumUnit.ether.rawValue / EthereumUnit.szabo.rawValue)
+        //TODO should be better to put this into the tokenCount that is displayed in green
+        if let amount = Decimal(string: signedOrder.order.count.description) {
+            amt = amount / szabosPerEth
+        } else {
+            amt = 0
+        }
+        count = amt
+        let label = getLabelForCurrencyDrops()
+        let token = Token(
+                id: 0,
+                index: 0,
+                name: label,
+                status: .available,
+                values: [:]
+        )
+        self.tokenHolder = TokenHolder(
+                tokens: [token],
+                contractAddress: signedOrder.order.contractAddress,
+                hasAssetDefinition: false
+        )
+        let r = signedOrder.signature.substring(with: Range(uncheckedBounds: (2, 66)))
+        checkIfLinkClaimed(r: r) { claimed in
+            if claimed {
+                self.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+            } else {
+                self.completeOrderHandling(signedOrder: signedOrder)
+            }
+        }
+    }
+
+    private func handleNormalLinks(signedOrder: SignedOrder, recoverAddress: Address, contractAsAddress: Address) {
+        getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(config: config)
+        getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
+            guard let strongSelf = self else { return }
+            guard let balance = try? result.dematerialize() else {
+                if let reachabilityManager = NetworkReachabilityManager(), !reachabilityManager.isReachable {
+                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
+                } else {
+                    strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                }
+                return
+            }
+
+            let filteredTokens: [String] = strongSelf.checkERC875TokensAreAvailable(
+                    indices: signedOrder.order.indices,
+                    balance: balance
+            )
+
+            if filteredTokens.isEmpty {
+                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                return
+            }
+
+            strongSelf.makeTokenHolder(
+                    filteredTokens,
+                    signedOrder.order.contractAddress
+            )
+
+            strongSelf.completeOrderHandling(signedOrder: signedOrder)
+        }
+    }
+
     //Returns true if handled
     func handleUniversalLink(url: URL) -> Bool {
         var prefix = config.magicLinkPrefix.description
@@ -210,8 +284,6 @@ class UniversalLinkCoordinator: Coordinator {
             showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
             return false
         }
-        let isVerified = XMLHandler(contract: signedOrder.order.contractAddress).isVerified(for: config.server)
-        let isStormBirdContract = isVerified
         importTokenViewController?.url = url
         importTokenViewController?.contract = signedOrder.order.contractAddress
         let recoveredSigner = ecrecover(signedOrder: signedOrder)
@@ -220,69 +292,15 @@ class UniversalLinkCoordinator: Coordinator {
             guard let recoverAddress = Address(string: ethereumAddress.address) else { return false }
             let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
             if signedOrder.order.nativeCurrencyDrop {
-                let amt: Decimal
-                let szabosPerEth: Decimal = Decimal(EthereumUnit.ether.rawValue / EthereumUnit.szabo.rawValue)
-                //TODO should be better to put this into the tokenCount that is displayed in green
-                if let amount = Decimal(string: signedOrder.order.count.description) {
-                    amt = amount / szabosPerEth
-                } else {
-                    amt = 0
-                }
-                count = amt
-                let label = getLabelForCurrencyDrops()
-                let token = Token(
-                        id: 0,
-                        index: 0,
-                        name: label,
-                        status: .available,
-                        values: [:]
-                )
-                self.tokenHolder = TokenHolder(
-                        tokens: [token],
-                        contractAddress: signedOrder.order.contractAddress,
-                        hasAssetDefinition: false
-                )
-                completeOrderHandling(signedOrder: signedOrder)
-                return true
-            }
-            //gather signer address balance
-            if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
-                let tokenStrings: [String] = tokens.map { String($0, radix: 16) }
-                self.makeTokenHolder(
-                        tokenStrings,
-                        signedOrder.order.contractAddress
-                )
-                completeOrderHandling(signedOrder: signedOrder)
+                handleNativeCurrencyDrop(signedOrder: signedOrder)
+            } else if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
+                handleSpawnableLink(signedOrder: signedOrder, tokens: tokens)
             } else {
-                getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(config: config)
-                getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
-                    guard let strongSelf = self else { return }
-                    guard let balance = try? result.dematerialize() else {
-                        if let reachabilityManager = NetworkReachabilityManager(), !reachabilityManager.isReachable {
-                            strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenNoConnectivityTryAgain())
-                        } else {
-                            strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
-                        }
-                        return
-                    }
-
-                    let filteredTokens: [String] = strongSelf.checkERC875TokensAreAvailable(
-                                indices: signedOrder.order.indices,
-                                balance: balance
-                    )
-
-                    if filteredTokens.isEmpty {
-                        strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
-                        return
-                    }
-
-                    strongSelf.makeTokenHolder(
-                            filteredTokens,
-                            signedOrder.order.contractAddress
-                    )
-
-                    strongSelf.completeOrderHandling(signedOrder: signedOrder)
-                }
+                handleNormalLinks(
+                        signedOrder: signedOrder,
+                        recoverAddress: recoverAddress,
+                        contractAsAddress: contractAsAddress
+                )
             }
         case .failure(let error):
             print("ecrecover error: " + error.localizedDescription)
@@ -304,6 +322,25 @@ class UniversalLinkCoordinator: Coordinator {
             if let response = result.response {
                 let supported = response.statusCode >= 200 && response.statusCode <= 299
                 completionHandler(supported)
+            } else {
+                completionHandler(false)
+            }
+        }
+    }
+
+    private func checkIfLinkClaimed(r: String, completionHandler: @escaping (Bool) -> Void) {
+        let parameters: Parameters = [ "r": r ]
+        Alamofire.request(
+                Constants.paymentServerClaimedToken,
+                method: .get,
+                parameters: parameters
+        ).responseJSON { result in
+            if let response = result.response {
+                if response.statusCode == 208 || response.statusCode > 299 {
+                    completionHandler(true)
+                } else {
+                    completionHandler(false)
+                }
             } else {
                 completionHandler(false)
             }
