@@ -37,6 +37,8 @@ class TransactionsViewController: UIViewController {
         title = R.string.localizable.transactionsTabbarItemTitle()
 
         view.backgroundColor = self.viewModel.backgroundColor
+
+        tableView.register(TransactionViewCell.self, forCellReuseIdentifier: TransactionViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
@@ -159,7 +161,7 @@ extension TransactionsViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let transaction = viewModel.item(for: indexPath.row, section: indexPath.section)
-        let cell = TransactionViewCell(style: .default, reuseIdentifier: TransactionViewCell.identifier)
+        let cell = tableView.dequeueReusableCell(withIdentifier: TransactionViewCell.identifier, for: indexPath) as! TransactionViewCell
         cell.configure(viewModel: .init(
                 transaction: transaction,
                 config: session.config,
