@@ -43,6 +43,12 @@ class QRURLParserTests: XCTestCase {
         XCTAssertEqual("0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c", result?.address)
     }
 
+    func testExtractChain() {
+        let result = QRURLParser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c@3?value=1")
+
+        XCTAssertEqual("3", result?.params["chainId"])
+    }
+
     func testOMGAddress() {
         let result = QRURLParser.from(string: "omg:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c")
 
