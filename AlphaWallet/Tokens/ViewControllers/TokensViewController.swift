@@ -155,6 +155,9 @@ class TokensViewController: UIViewController {
                     currentCollectiblesContractsDisplayed = contractsForCollectibles
                     collectiblesCollectionView.reloadData()
                 }
+                tableView.dataSource = nil
+            } else {
+                tableView.dataSource = self
             }
             hideImportWalletImage()
         } else {
