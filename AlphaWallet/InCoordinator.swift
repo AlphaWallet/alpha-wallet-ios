@@ -211,7 +211,7 @@ class InCoordinator: Coordinator {
     }
 
     private func createBrowserCoordinator(session: WalletSession, keystore: Keystore, realm: Realm) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
+        let coordinator = DappBrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm, browserOnly: false)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.dapps_icon(), selectedImage: nil)
@@ -546,13 +546,13 @@ extension InCoordinator: CanOpenURL {
                 balanceCoordinator: balance
         )
 
-        let browserCoordinator = DappBrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm)
+        let browserCoordinator = DappBrowserCoordinator(session: session, keystore: keystore, sharedRealm: realm, browserOnly: true)
         browserCoordinator.delegate = self
         browserCoordinator.start()
         addCoordinator(browserCoordinator)
 
         let controller = browserCoordinator.navigationController
-        browserCoordinator.open(url: url, browserOnly: true, animated: false)
+        browserCoordinator.open(url: url, animated: false)
         viewController.present(controller, animated: true, completion: nil)
     }
 
