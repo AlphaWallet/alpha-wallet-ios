@@ -27,6 +27,8 @@ struct QRURLParser {
             var params = QRURLParser.parseParamsFromParamParts(paramParts: paramParts)
             if let chainId = secondHalf.slice(from: "@", to: "/") {
                 params["chainId"] = chainId
+            } else if let chainId = secondHalf.slice(from: "@", to: "?") {
+                params["chainId"] = chainId
             }
             return ParserResult(
                 protocolName: parts.first ?? "",
