@@ -35,6 +35,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }()
 
     private let sharedRealm: Realm
+    private let browserOnly: Bool
     private lazy var bookmarksStore: BookmarksStore = {
         return BookmarksStore(realm: sharedRealm)
     }()
@@ -76,12 +77,14 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     init(
         session: WalletSession,
         keystore: Keystore,
-        sharedRealm: Realm
+        sharedRealm: Realm,
+        browserOnly: Bool
     ) {
         self.navigationController = NavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.session = session
         self.keystore = keystore
         self.sharedRealm = sharedRealm
+        self.browserOnly = browserOnly
 
         super.init()
 
@@ -141,7 +144,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         navigationController.present(coordinator.navigationController, animated: true, completion: nil)
     }
 
-    func open(url: URL, browserOnly: Bool = false, animated: Bool = true) {
+    func open(url: URL, animated: Bool = true) {
         //TODO maybe not the best idea to check like this. Because it will always create the browserViewController twice the first time (or maybe it's ok. Just once)
         if navigationController.topViewController != browserViewController {
             browserViewController = BrowserViewController(account: session.account, config: session.config, server: server)
@@ -217,7 +220,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         alertController.addAction(reloadAction)
         alertController.addAction(shareAction)
         alertController.addAction(addBookmarkAction)
-        alertController.addAction(scanQrCodeAction)
+        if browserOnly {
+            //no-op
+        } else {
+            alertController.addAction(scanQrCodeAction)
+        }
         alertController.addAction(cancelAction)
         return alertController
     }
