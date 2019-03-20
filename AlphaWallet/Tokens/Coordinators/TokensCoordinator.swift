@@ -143,30 +143,64 @@ class TokensCoordinator: Coordinator {
         autoDetectTokens(withContracts: Constants.ethDenverXDaiPartnerContracts)
     }
 
+    private func addERC20Balance(address: Address, contract: Address) {
+        let balanceCoordinator = GetBalanceCoordinator(config: session.config)
+        balanceCoordinator.getBalance(for: address, contract: contract) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let balance):
+                if balance > 0 {
+                    strongSelf.addToken(for: contract.eip55String) {
+                        DispatchQueue.main.async {
+                            strongSelf.tokensViewController.fetch()
+                        }
+                    }
+                }
+            case .failure:
+                break
+            }
+        }
+    }
+
+    private func addERC875Balance(address: Address, contract: Address) {
+        let balanceCoordinator = GetERC875BalanceCoordinator(config: session.config)
+        balanceCoordinator.getERC875TokenBalance(for: address, contract: contract) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case .success(let balance):
+                if !balance.isEmpty {
+                    strongSelf.addToken(for: contract.eip55String) {
+                        DispatchQueue.main.async {
+                            strongSelf.tokensViewController.fetch()
+                        }
+                    }
+                }
+            case .failure:
+                break
+            }
+        }
+    }
+
     private func autoDetectTokens(withContracts contractsToDetect: [(name: String, contract: String)]) {
         guard let address = keystore.recentlyUsedWallet?.address else { return }
         let alreadyAddedContracts = storage.enabledObject.map { $0.address.eip55String.lowercased() }
         let deletedContracts = storage.deletedContracts.map { $0.contract.lowercased() }
         let hiddenContracts = storage.hiddenContracts.map { $0.contract.lowercased() }
         let contracts = contractsToDetect.map { $0.contract.lowercased() } - alreadyAddedContracts - deletedContracts - hiddenContracts
-        let balanceCoordinator = GetBalanceCoordinator(config: session.config)
         for each in contracts {
             guard let contract = Address(string: each) else { continue }
-            balanceCoordinator.getBalance(for: address, contract: contract) { [weak self] result in
-                guard let strongSelf = self else { return }
+            storage.getTokenType(for: each) { result in
                 switch result {
-                case .success(let balance):
-                    if balance > 0 {
-                        strongSelf.addToken(for: contract.eip55String) {
-                            DispatchQueue.main.async {
-                                strongSelf.tokensViewController.fetch()
-                            }
-                        }
-                    }
-                case .failure:
-                    break
+                    case .erc20:
+                        self.addERC20Balance(address: address, contract: contract)
+                        break
+                    case .erc875:
+                        self.addERC875Balance(address: address, contract: contract)
+                        break
+                    default: break
                 }
             }
+
         }
     }
 
