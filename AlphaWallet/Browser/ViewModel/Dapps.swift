@@ -47,6 +47,8 @@ enum Dapps {
         Dapp(name: "AirSwap", description: "Peer-to-Peer trading on Ethereum", url: "https://airswap.io", cat: "Exchange"),
         Dapp(name: "Chibi Fighters", description: "Chibi Fighters are fierce little warriors that know no mercy", url: "https://chibifighters.io", cat: "Games"),
         Dapp(name: "CryptoKitties", description: "Collect and breed digital cats!", url: "https://cryptokitties.co", cat: "Games"),
+        Dapp(name: "Zerion", description: "Trade and manage your digital assets across different wallets in one interface", url: "https://zerion.io", cat: "Financial"),
+
     ]
 
     struct Category {
