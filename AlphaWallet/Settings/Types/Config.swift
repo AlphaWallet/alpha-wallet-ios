@@ -110,12 +110,12 @@ struct Config {
     var rpcURL: URL {
         let urlString: String = {
             switch server {
-            case .main: return "https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk"
-            case .classic: return "https://ethereumclassic.network"
+            case .main: return "https://mainnet.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
+            case .classic: return "https://mewapi.epool.io/"
             case .callisto: return "https://callisto.network/" //TODO Add endpoint
-            case .kovan: return "https://kovan.infura.io/llyrtzQ3YhkdESt2Fzrk"
-            case .ropsten: return "https://ropsten.infura.io/llyrtzQ3YhkdESt2Fzrk"
-            case .rinkeby: return "https://rinkeby.infura.io/llyrtzQ3YhkdESt2Fzrk"
+            case .kovan: return "https://kovan.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
+            case .ropsten: return "https://ropsten.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
+            case .rinkeby: return "https://rinkeby.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
             case .poa: return "https://core.poa.network"
             case .sokol: return "https://sokol.poa.network"
             case .xDai: return "https://dai.poa.network"
