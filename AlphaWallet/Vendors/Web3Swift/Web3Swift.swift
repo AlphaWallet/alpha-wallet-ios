@@ -29,9 +29,9 @@ class Web3Swift: NSObject {
 
     func request<T: Web3Request>(request: T, completion: @escaping (Result<T.Response, AnyError>) -> Void) {
         guard isLoaded else {
-            DispatchQueue.main.asyncAfter(deadline: DispatchTime(uptimeNanoseconds: 250)) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.request(request: request, completion: completion)
+            //Have to strongly retain `self` otherwise this dispatch hack will not retry when `self` is destroyed
+            DispatchQueue.main.asyncAfter(deadline: DispatchTime(uptimeNanoseconds: 250)) {
+                self.request(request: request, completion: completion)
             }
             return
         }
