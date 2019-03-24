@@ -31,9 +31,9 @@ class OpenSea {
     ///Uses a promise to make sure we don't fetch from OpenSea multiple times concurrently
     func makeFetchPromise(config: Config, owner: String) -> PromiseResult {
         switch config.server {
-        case .main:
+        case .main, .rinkeby:
             break
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom, .xDai:
+        case .kovan, .poa, .sokol, .classic, .callisto, .custom, .xDai, .ropsten:
             fetch = .value([:])
             return fetch
         }
@@ -59,9 +59,22 @@ class OpenSea {
         return fetch
     }
 
+    private func getBaseURLForOpensea() -> String {
+        let config = Config(chainID: Config.getChainId())
+        switch config.server {
+        case .main:
+            return Constants.openseaAPI
+        case .rinkeby:
+            return Constants.openseaRinkebyAPI
+        default:
+            return Constants.openseaAPI
+        }
+    }
+
     private func fetchPage(forOwner owner: String, offset: Int, sum: [String: [OpenSeaNonFungible]] = [:], completion: @escaping (ResultResult<[String: [OpenSeaNonFungible]], AnyError>.t) -> Void) {
-        guard let url = URL(string: "\(Constants.openseaAPI)api/v1/assets/?owner=\(owner)&order_by=current_price&order_direction=asc&limit=200&offset=\(offset)") else {
-            completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(Constants.openseaAPI) API \(Thread.isMainThread)"))))
+        let baseURL = getBaseURLForOpensea()
+        guard let url = URL(string: "\(baseURL)api/v1/assets/?owner=\(owner)&order_by=current_price&order_direction=asc&limit=200&offset=\(offset)") else {
+            completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))))
             return
         }
         Alamofire.request(
@@ -70,7 +83,7 @@ class OpenSea {
                 headers: ["X-API-KEY": Constants.openseaAPIKEY]
         ).responseJSON { response in
             guard let data = response.data, let json = try? JSON(data: data) else {
-                completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(Constants.openseaAPI) API: \(String(describing: response.error))"))))
+                completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API: \(String(describing: response.error))"))))
                 return
             }
             DispatchQueue.global(qos: .userInitiated).async {
