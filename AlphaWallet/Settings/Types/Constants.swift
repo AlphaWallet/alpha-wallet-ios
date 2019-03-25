@@ -74,6 +74,7 @@ public struct Constants {
 
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
+    public static let openseaRinkebyAPI = "https://rinkeby-api.opensea.io/"
     public static let openseaAPIKEY = "11ba1b4f0c4246aeb07b1f8e5a20525f" // X-API-KEY
     public static let cryptoKittiesContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 
