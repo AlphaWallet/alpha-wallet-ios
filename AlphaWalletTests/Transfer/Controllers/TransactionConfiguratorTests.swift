@@ -34,7 +34,7 @@ class TransactionConfiguratorTests: XCTestCase {
     func testLoadEtherConfiguration() {
         let configurator = TransactionConfigurator(session: .make(), account: .make(), transaction: .make(gasLimit: BigInt(90000), gasPrice: .none))
 
-        configurator.load { _ in }
+        configurator.loadTransactionConfiguration { _ in }
         
         XCTAssertEqual(BigInt(GasPriceConfiguration.defaultPrice), configurator.configuration.gasPrice)
         XCTAssertEqual(BigInt(90000), configurator.configuration.gasLimit)

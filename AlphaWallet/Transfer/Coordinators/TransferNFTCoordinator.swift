@@ -73,7 +73,7 @@ class TransferNFTCoordinator: Coordinator {
         if case .send(let transferType) = paymentFlow {
             let transaction = UnconfirmedTransaction(
                     transferType: transferType,
-                    value: BigInt(0),
+                    amount: BigInt(0),
                     to: address,
                     data: Data(),
                     gasLimit: .none,
@@ -93,7 +93,7 @@ class TransferNFTCoordinator: Coordinator {
                     account: account,
                     transaction: transaction
             )
-            configurator.load { [weak self] result in
+            configurator.loadTransactionConfiguration { [weak self] result in
                 guard let strongSelf = self else { return }
                 switch result {
                 case .success:

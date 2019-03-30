@@ -6,6 +6,7 @@ import Result
 import TrustKeystore
 import JSONRPCKit
 import APIKit
+import web3swift
 
 public struct PreviewTransaction {
     let value: BigInt
@@ -92,7 +93,7 @@ class TransactionConfigurator {
         let request = EstimateGasRequest(
             from: session.account.address,
             to: to,
-            value: transaction.value,
+            value: transaction.amount,
             data: configuration.data
         )
         Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request))) { [weak self] result in
@@ -116,7 +117,7 @@ class TransactionConfigurator {
         }
     }
 
-    func load(completion: @escaping (Result<Void, AnyError>) -> Void) {
+    func loadTransactionConfiguration(completion: @escaping (Result<Void, AnyError>) -> Void) {
         switch transaction.transferType {
         case .nativeCryptocurrency, .dapp:
             guard requestEstimateGas else {
@@ -128,88 +129,104 @@ class TransactionConfigurator {
                     gasLimit: GasLimitConfiguration.maxGasLimit,
                     data: transaction.data ?? configuration.data
             )
-            completion(.success(()))
-        case .ERC20Token:
-            web3.request(request: ContractERC20Transfer(amount: transaction.value, address: transaction.to!.description)) { [unowned self] result in
-                switch result {
-                case .success(let res):
-                    let data = Data(hex: res.drop0x)
-                    self.configuration = TransactionConfiguration(
-                            gasPrice: self.calculatedGasPrice,
-                            gasLimit: GasLimitConfiguration.maxGasLimit,
-                            data: data
-                    )
-                    completion(.success(()))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
-                //TODO clean up
-        case .ERC875Token(let token):
-            web3.request(request: ContractERC875Transfer(
-                    address: transaction.to!.description,
-                    contractAddress: token.contract,
-                    indices: transaction.indices!
-            )) { [unowned self] result in
-                switch result {
-                case .success(let res):
-                    let data = Data(hex: res.drop0x)
-                    self.configuration = TransactionConfiguration(
-                            gasPrice: self.calculatedGasPrice,
-                            gasLimit: GasLimitConfiguration.maxGasLimit,
-                            data: data
-                    )
-                    completion(.success(()))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
-                //TODO put order claim tx here somehow, or maybe the same one above
-        case .ERC875TokenOrder(let token):
-            web3.request(request: ClaimERC875Order(expiry: transaction.expiry!, indices: transaction.indices!,
-                                                           v: transaction.v!, r: transaction.r!, s: transaction.s!, contractAddress: token.contract)) { [unowned self] result in
-                switch result {
-                case .success(let res):
-                    let data = Data(hex: res.drop0x)
-                    self.configuration = TransactionConfiguration(
-                            gasPrice: self.calculatedGasPrice,
-                            gasLimit: GasLimitConfiguration.maxGasLimit,
-                            data: data
-                    )
-                    completion(.success(()))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+            return completion(.success(()))
+        case .ERC20Token(_):
+            do {
+                let encoder = ABIEncoder()
+                let parameters = [
+                    try ABIValue(transaction.to!, type: ABIType.address),
+                    try ABIValue(BigUInt(transaction.amount), type: ABIType.uint(bits: 256))
+                ] as [Any]
+                try encoder.encode(signature: "transfer(address,uint256)")
+                try encoder.encode(Data(fromArray: parameters), static: false)
+                self.configuration = TransactionConfiguration(
+                        gasPrice: self.calculatedGasPrice,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        data: encoder.data
+                )
+                return completion(.success(()))
+            } catch {
+                return completion(.failure(AnyError(Web3Error(description: ""))))
             }
 
-        case .ERC721Token(let token):
-            web3.request(request: ContractERC721Transfer(
-                from: self.account.address.eip55String,
-                to: transaction.to!.eip55String,
-                tokenId: transaction.tokenId!,
-                contractAddress: token.address.eip55String
-            )) {
-                [weak self] result in
-                guard let celf = self else { return }
-                switch result {
-                case .success(let res):
-                    let data = Data(hex: res.drop0x)
-                    celf.configuration = TransactionConfiguration(
-                            gasPrice: celf.calculatedGasPrice,
-                            gasLimit: GasLimitConfiguration.maxGasLimit,
-                            data: data
-                    )
-                    completion(.success(()))
-                case .failure(let error):
-                    completion(.failure(error))
+        case .ERC875Token(let token):
+            do {
+                let encoder = ABIEncoder()
+                let toParam = try ABIValue(transaction.to!, type: ABIType.address)
+                if token.contract.isLegacy875Contract {
+                    try encoder.encode(signature: "transfer(address,uint16[])")
+                    let tokenIndices = try transaction.indices!.map({ try ABIValue(BigUInt($0), type: ABIType.uint(bits: 16)) })
+                    let parameters = [toParam, tokenIndices] as [Any]
+                    try encoder.encode(Data(fromArray: parameters), static: false)
+                } else {
+                    try encoder.encode(signature: "transfer(address,uint256[])")
+                    let tokenIndices = try transaction.indices!.map({ try ABIValue(BigUInt($0), type: ABIType.uint(bits: 256)) })
+                    let parameters = [toParam, tokenIndices] as [Any]
+                    try encoder.encode(Data(fromArray: parameters), static: false)
                 }
+                self.configuration = TransactionConfiguration(
+                        gasPrice: self.calculatedGasPrice,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        data: encoder.data
+                )
+                return completion(.success(()))
+            } catch {
+                return completion(.failure(AnyError(Web3Error(description: ""))))
             }
+        case .ERC875TokenOrder(let token):
+            //note: this is under the assumption that spawnables are handled by the paymaster
+            do {
+                let expiry = transaction.expiry!
+                let v = try ABIValue(BigUInt(transaction.v!), type: ABIType.uint(bits: 8))
+                let r = try ABIValue(Data(hexString: transaction.r!)!, type: ABIType.bytes(32))
+                let s = try ABIValue(Data(hexString: transaction.s!)!, type: ABIType.bytes(32))
+                let encoder = ABIEncoder()
+                if token.contract.isLegacy875Contract {
+                    let tokenIndices = try transaction.indices!.map( { try ABIValue(BigUInt($0), type: ABIType.uint(bits: 16)) })
+                    let parameters = [expiry, tokenIndices, v, r, s] as [Any]
+                    try encoder.encode(signature: "trade(uint256,uint16[],uint8,bytes32,bytes32)")
+                    try encoder.encode(Data(fromArray: parameters), static: false)
+                } else {
+                    let tokenIndices = try transaction.indices!.map( { try ABIValue(BigUInt($0), type: ABIType.uint(bits: 256)) })
+                    let parameters = [expiry, tokenIndices, v, r, s] as [Any]
+                    try encoder.encode(signature: "trade(uint256,uint256[],uint8,bytes32,bytes32)")
+                    try encoder.encode(Data(fromArray: parameters), static: false)
+                }
+                self.configuration = TransactionConfiguration(
+                        gasPrice: self.calculatedGasPrice,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        data: encoder.data
+                )
+                return completion(.success(()))
+            } catch {
+                return completion(.failure(AnyError(Web3Error(description: ""))))
+            }
+        case .ERC721Token(_):
+            do {
+                let encoder = ABIEncoder()
+                let parameters = [
+                    try ABIValue(self.session.account.address, type: ABIType.address),
+                    try ABIValue(transaction.to!, type: ABIType.address),
+                    try ABIValue(BigUInt(transaction.tokenId!, radix: 16)!, type: ABIType.uint(bits: 256))
+                ] as [Any]
+                try encoder.encode(signature: "transferFrom(address,address,uint256)")
+                try encoder.encode(Data(fromArray: parameters), static: false)
+                self.configuration = TransactionConfiguration(
+                        gasPrice: self.calculatedGasPrice,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        data: encoder.data
+                )
+                return completion(.success(()))
+            } catch {
+                return completion(.failure(AnyError(Web3Error(description: ""))))
+            }
+
         }
     }
 
     func previewTransaction() -> PreviewTransaction {
         return PreviewTransaction(
-            value: transaction.value,
+            value: transaction.amount,
             account: account,
             address: transaction.to,
             contract: .none,
@@ -224,10 +241,10 @@ class TransactionConfigurator {
     func formUnsignedTransaction() -> UnsignedTransaction {
         let value: BigInt = {
             switch transaction.transferType {
-            case .nativeCryptocurrency, .dapp: return transaction.value
+            case .nativeCryptocurrency, .dapp: return transaction.amount
             case .ERC20Token: return 0
             case .ERC875Token: return 0
-            case .ERC875TokenOrder: return transaction.value
+            case .ERC875TokenOrder: return transaction.amount
             case .ERC721Token: return 0
             }
         }()

@@ -225,7 +225,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         let transaction = UnconfirmedTransaction(
                 transferType: transferType,
-                value: value,
+                amount: value,
                 to: address,
                 data: data,
                 gasLimit: .none,

@@ -55,7 +55,7 @@ class ConfirmPaymentViewController: UIViewController {
         stackViewController.view.backgroundColor = viewModel.backgroundColor
         navigationItem.title = viewModel.title
 
-        configurator.load { [weak self] result in
+        configurator.loadTransactionConfiguration { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success:

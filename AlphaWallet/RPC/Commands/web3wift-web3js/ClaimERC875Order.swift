@@ -17,44 +17,18 @@ import Foundation
 import TrustKeystore
 import BigInt
 
-struct ClaimERC875Order: Web3Request {
-    typealias Response = String
-
-    let expiry: BigUInt
-    //we still use indices in the trade but interpret the tokens from their hex values
-    //TODO switch to BigUInt
-    let indices: [UInt16]
-    let v: UInt8
-    let r: String
-    let s: String
-    let contractAddress: String
-
-    var type: Web3RequestType {
-        var abi = ""
+struct ClaimERC875OrderEncode {
+    func getAbi(contractAddress: String) -> String {
         if contractAddress.isLegacy875Contract {
-            abi = "{\"constant\":false,\"inputs\":[{\"name\":\"expiry\",\"type\":\"uint256\"},{\"name\":\"indices\",\"type\":\"uint16[]\"},{\"name\":\"v\",\"type\":\"uint8\"},{\"name\":\"r\",\"type\":\"bytes32\"},{\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"trade\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}, [\"\(expiry)\", \(indices), \(v), \"\(r)\", \"\(s)\"]"
+            return "[{\"constant\":false,\"inputs\":[{\"name\":\"expiry\",\"type\":\"uint256\"},{\"name\":\"indices\",\"type\":\"uint16[]\"},{\"name\":\"v\",\"type\":\"uint8\"},{\"name\":\"r\",\"type\":\"bytes32\"},{\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"trade\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}]"
         } else {
-            abi = "{\"constant\":false,\"inputs\":[{\"name\":\"expiry\",\"type\":\"uint256\"},{\"name\":\"indices\",\"type\":\"uint256[]\"},{\"name\":\"v\",\"type\":\"uint8\"},{\"name\":\"r\",\"type\":\"bytes32\"},{\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"trade\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}, [\"\(expiry)\", \(indices), \(v), \"\(r)\", \"\(s)\"]"
+            return "[{\"constant\":false,\"inputs\":[{\"name\":\"expiry\",\"type\":\"uint256\"},{\"name\":\"indices\",\"type\":\"uint256[]\"},{\"name\":\"v\",\"type\":\"uint8\"},{\"name\":\"r\",\"type\":\"bytes32\"},{\"name\":\"s\",\"type\":\"bytes32\"}],\"name\":\"trade\",\"outputs\":[],\"payable\":true,\"stateMutability\":\"payable\",\"type\":\"function\"}]"
         }
-        let run = "web3.eth.abi.encodeFunctionCall(" + abi + ")"
-        return .script(command: run)
     }
+    let name = "trade"
 }
 
-struct ClaimERC875Spawnable: Web3Request {
-    typealias Response = String
-    let tokenIds: [BigUInt]
-    let v: UInt8
-    let r: String
-    let s: String
-    let expiry: BigUInt
-    let recipient: String
-
-    var type: Web3RequestType {
-        //BigUInt is cast incorrectly, must be converted to hex string values
-        let tokenStrings: [String] = tokenIds.map { token in String(token, radix: 16) }
-        let abi = "{ \"constant\": false, \"inputs\": [ { \"name\": \"expiry\", \"type\": \"uint256\" }, { \"name\": \"tickets\", \"type\": \"uint256[]\" }, { \"name\": \"v\", \"type\": \"uint8\" }, { \"name\": \"r\", \"type\": \"bytes32\" }, { \"name\": \"s\", \"type\": \"bytes32\" }, { \"name\": \"recipient\", \"type\": \"address\" } ], \"name\": \"spawnPassTo\", \"outputs\": [], \"payable\": false, \"stateMutability\": \"nonpayable\", \"type\": \"function\" }, [\"\(expiry)\", \(tokenStrings), \(v), \"\(r)\", \"\(s)\", \"\(recipient)\"]"
-        let run = "web3.eth.abi.encodeFunctionCall(" + abi + ")"
-        return .script(command: run)
-    }
+struct ClaimERC875SpawnableEncode {
+    let abi = "[{ \"constant\": false, \"inputs\": [ { \"name\": \"expiry\", \"type\": \"uint256\" }, { \"name\": \"tickets\", \"type\": \"uint256[]\" }, { \"name\": \"v\", \"type\": \"uint8\" }, { \"name\": \"r\", \"type\": \"bytes32\" }, { \"name\": \"s\", \"type\": \"bytes32\" }, { \"name\": \"recipient\", \"type\": \"address\" } ], \"name\": \"spawnPassTo\", \"outputs\": [], \"payable\": false, \"stateMutability\": \"nonpayable\", \"type\": \"function\" }]"
+    let name = "spawnablePassTo"
 }

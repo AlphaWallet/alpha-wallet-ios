@@ -507,7 +507,7 @@ class InCoordinator: NSObject, Coordinator {
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
         guard let wallet = keystore.recentlyUsedWallet else { return }
 
-        claimOrderCoordinator = ClaimOrderCoordinator(web3: web3)
+        claimOrderCoordinator = ClaimOrderCoordinator(web3: web3, server: server)
         claimOrderCoordinator?.claimOrder(
                 signedOrder: signedOrder,
                 expiry: signedOrder.order.expiry,
@@ -517,65 +517,11 @@ class InCoordinator: NSObject, Coordinator {
                 contractAddress: signedOrder.order.contractAddress,
                 recipient: wallet.address.eip55String
         ) { result in
-            let strongSelf = self
             switch result {
-            case .success(let payload):
-                let address: Address = strongSelf.wallet.address
-                let transaction = UnconfirmedTransaction(
-                        transferType: .ERC875TokenOrder(tokenObject),
-                        value: BigInt(signedOrder.order.price),
-                        to: address,
-                        data: Data(bytes: payload.hexa2Bytes),
-                        gasLimit: GasLimitConfiguration.maxGasLimit,
-                        tokenId: .none,
-                        gasPrice: GasPriceConfiguration.defaultPrice,
-                        nonce: .none,
-                        v: v,
-                        r: r,
-                        s: s,
-                        expiry: signedOrder.order.expiry,
-                        indices: signedOrder.order.indices,
-                        tokenIds: signedOrder.order.tokenIds
-                )
-
-                let session = strongSelf.walletSessions[server]
-                let account = try! EtherKeystore().getAccount(for: wallet.address)!
-                let configurator = TransactionConfigurator(
-                        session: session,
-                        account: account,
-                        transaction: transaction
-                )
-
-                let signTransaction = configurator.formUnsignedTransaction()
-
-                //TODO why is the gas price loaded in twice?
-                let signedTransaction = UnsignedTransaction(
-                        value: signTransaction.value,
-                        account: account,
-                        to: signTransaction.to,
-                        nonce: signTransaction.nonce,
-                        data: signTransaction.data,
-                        gasPrice: GasPriceConfiguration.defaultPrice,
-                        gasLimit: signTransaction.gasLimit,
-                        server: server
-                )
-                let sendTransactionCoordinator = SendTransactionCoordinator(
-                        session: session,
-                        keystore: strongSelf.keystore,
-                        confirmType: .signThenSend
-                )
-
-                sendTransactionCoordinator.send(transaction: signedTransaction) { result in
-                    switch result {
-                    case .success(let res):
-                        completion(true)
-                        print(res)
-                    case .failure(let error):
-                        completion(false)
-                        print(error)
-                    }
-                }
-            case .failure: break
+            case .success(_):
+                completion(true)
+            case .failure: 
+                completion(false)
             }
         }
     }

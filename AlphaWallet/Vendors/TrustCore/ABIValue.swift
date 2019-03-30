@@ -122,7 +122,7 @@ public indirect enum ABIValue: Equatable {
     /// - Throws: `ABIError.invalidArgumentType` if a value doesn't match the expected type.
     public init(_ value: Any, type: ABIType) throws {
         switch (type, value) {
-        case (.uint(let bits), let value as Int):
+        case (.uint(let bits), let value as UInt):
             self = .uint(bits: bits, BigUInt(value))
         case (.uint(let bits), let value as UInt):
             self = .uint(bits: bits, BigUInt(value))

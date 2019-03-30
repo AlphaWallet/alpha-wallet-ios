@@ -5,7 +5,7 @@ import Foundation
 
 class FakeClaimOrderCoordinator: ClaimOrderCoordinator {
     convenience init() {
-        self.init(web3: Web3Swift())
+        self.init(web3: Web3Swift(), server: .ropsten)
         startWeb3()
     }
 }

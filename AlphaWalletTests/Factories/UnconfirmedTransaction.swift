@@ -17,7 +17,7 @@ extension UnconfirmedTransaction {
     ) -> UnconfirmedTransaction {
         return UnconfirmedTransaction(
             transferType: transferType,
-            value: value,
+            amount: value,
             to: to,
             data: data,
             gasLimit: gasLimit,

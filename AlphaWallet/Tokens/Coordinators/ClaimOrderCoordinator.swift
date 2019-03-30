@@ -14,11 +14,14 @@ import Result
 
 class ClaimOrderCoordinator {
     private let web3: Web3Swift
+    private let server: RPCServer
 
-    init(web3: Web3Swift) {
+    init(web3: Web3Swift, server: RPCServer) {
         self.web3 = web3
+        self.server = server
     }
 
+    //TODO indices are represented as UInt16 values, the new spec uses uint256. This is ok so long as the indices remain small enough
     func claimOrder(signedOrder: SignedOrder,
                     expiry: BigUInt,
                     v: UInt8,
@@ -30,7 +33,7 @@ class ClaimOrderCoordinator {
         ) {
 
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
-            claimSpawnableOrder(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient) { result in
+            claimSpawnableOrder(expiry: expiry, tokenIds: tokenIds, v: v, r: r, s: s, recipient: recipient, contractAddress: contractAddress) { result in
                 completion(result)
             }
         } else if signedOrder.order.nativeCurrencyDrop {
@@ -51,18 +54,36 @@ class ClaimOrderCoordinator {
                           s: String,
                           contractAddress: String,
                           completion: @escaping (Result<String, AnyError>) -> Void) {
-        let request = ClaimERC875Order(expiry: expiry, indices: indices, v: v, r: r, s: s, contractAddress: contractAddress)
-        web3.request(request: request) { result in
-            switch result {
-            //TODO handle cases for UI
-            case .success(let res):
-                print(res)
-                completion(.success(res))
-            case .failure(let err):
-                print(err)
-                completion(.failure(AnyError(err)))
+        do {
+            let function = ClaimERC875OrderEncode()
+            let expiryParam = try ABIValue(expiry, type: ABIType.uint(bits: 256))
+            let tokenIndices: [ABIValue]
+            if contractAddress.isLegacy875Contract {
+                tokenIndices = try indices.map({ try ABIValue(BigUInt($0), type: ABIType.uint(bits: 16)) })
+            } else {
+                tokenIndices = try indices.map({ try ABIValue(BigUInt($0), type: ABIType.uint(bits: 256)) })
             }
+            let v = try ABIValue(BigUInt(v), type: ABIType.uint(bits: 8))
+            let r = try ABIValue(Data(hexString: r)!, type: ABIType.bytes(32))
+            let s = try ABIValue(Data(hexString: s)!, type: ABIType.bytes(32))
+            let parameters = [expiryParam, tokenIndices, v, r, s] as [AnyObject]
+            callSmartContract(
+                    withServer: server,
+                    contract: Address(string: contractAddress)!,
+                    functionName: function.name,
+                    abiString: function.getAbi(contractAddress: contractAddress),
+                    parameters: parameters
+            ).done { result in
+                if let res = result["0"] as? String {
+                    completion(.success(res))
+                } else {
+                    completion(.failure(AnyError(Web3Error(description: "Error"))))
+                }
+            }
+        } catch {
+            completion(.failure(AnyError(Web3Error(description: "Error"))))
         }
+
     }
 
     func claimSpawnableOrder(expiry: BigUInt,
@@ -71,17 +92,37 @@ class ClaimOrderCoordinator {
                              r: String,
                              s: String,
                              recipient: String,
+                             contractAddress: String,
                              completion: @escaping (Result<String, AnyError>) -> Void) {
-        let request = ClaimERC875Spawnable(tokenIds: tokenIds, v: v, r: r, s: s, expiry: expiry, recipient: recipient)
-        web3.request(request: request) { result in
-            switch result {
-            case .success(let res):
-                print(res)
-                completion(.success(res))
-            case .failure(let err):
-                print(err)
-                completion(.failure(AnyError(err)))
+        do {
+            let expiryParam = try ABIValue(expiry, type: ABIType.uint(bits: 256))
+            let tokenIdsEncoded: [ABIValue]
+            if contractAddress.isLegacy875Contract {
+                tokenIdsEncoded = try tokenIds.map({ try ABIValue($0, type: ABIType.uint(bits: 16)) })
+            } else {
+                tokenIdsEncoded = try tokenIds.map({ try ABIValue($0, type: ABIType.uint(bits: 256)) })
             }
+            let vParam = try ABIValue(v, type: ABIType.uint(bits: 8))
+            let rParam = try ABIValue(r, type: ABIType.bytes(32))
+            let sParam = try ABIValue(s, type: ABIType.bytes(32))
+            let recipientEncoded = try ABIValue(Address(string: recipient)!, type: ABIType.address)
+            let parameters = [expiryParam, tokenIdsEncoded, vParam, rParam, sParam, recipientEncoded] as [AnyObject]
+            let function = ClaimERC875SpawnableEncode()
+            callSmartContract(
+                    withServer: server,
+                    contract: Address(string: contractAddress)!,
+                    functionName: function.name,
+                    abiString: function.abi,
+                    parameters: parameters
+            ).done { result in
+                if let res = result["0"] as? String {
+                    completion(.success(res))
+                } else {
+                    completion(.failure(AnyError(Web3Error(description: "Error"))))
+                }
+            }
+        } catch {
+            completion(.failure(AnyError(Web3Error(description: "Error"))))
         }
     }
 
@@ -93,26 +134,32 @@ class ClaimOrderCoordinator {
             recipient: String,
             completion: @escaping (Result<String, AnyError>) -> Void
     ) {
-        let request = ClaimNativeCurrencyOrder(
-                contractAddress: signedOrder.order.contractAddress,
-                nonce: signedOrder.order.nonce,
-                expiry: signedOrder.order.expiry,
-                amount: signedOrder.order.count,
-                v: v,
-                r: r,
-                s: s,
-                receiver: recipient
-        )
-        web3.request(request: request) { result in
-            switch result {
-            //TODO handle cases for UI
-            case .success(let res):
-                print(res)
-                completion(.success(res))
-            case .failure(let err):
-                print(err)
-                completion(.failure(AnyError(err)))
+        do {
+            let function = ClaimNativeCurrencyOrder()
+            let parameters = [
+                try ABIValue(signedOrder.order.nonce, type: ABIType.uint(bits: 32)),
+                try ABIValue(signedOrder.order.expiry, type: ABIType.uint(bits: 32)),
+                try ABIValue(signedOrder.order.count, type: ABIType.uint(bits: 32)),
+                try ABIValue(BigUInt(v), type: ABIType.uint(bits: 8)),
+                try ABIValue(Data(hexString: r)!, type: ABIType.bytes(32)),
+                try ABIValue(Data(hexString: s)!, type: ABIType.bytes(32)),
+                try ABIValue(Address(string: recipient)!, type: ABIType.address)
+            ] as [AnyObject]
+            callSmartContract(
+                    withServer: server,
+                    contract: Address(string: signedOrder.order.contractAddress)!,
+                    functionName: function.name,
+                    abiString: function.abi,
+                    parameters: parameters
+            ).done { result in
+                if let res = result["0"] as? String {
+                    completion(.success(res))
+                } else {
+                    completion(.failure(AnyError(Web3Error(description: "Error"))))
+                }
             }
+        } catch {
+            completion(.failure(AnyError(Web3Error(description: "Error"))))
         }
     }
 
