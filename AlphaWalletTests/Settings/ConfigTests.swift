@@ -61,24 +61,4 @@ class ConfigTests: XCTestCase {
         //Must change this back to system, otherwise other tests will break either immediately or the next run
         Config.setLocale(AppLocale.system)
     }
-
-    func testWeb3StillLoadsAfterSwitchingLocale() {
-        var config: Config = .make()
-
-        Config.setLocale(AppLocale.english)
-        Config.setLocale(AppLocale.simplifiedChinese)
-
-        let expectation = XCTestExpectation(description: "web3 loaded")
-        let web3 = Web3Swift()
-        web3.start()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            if web3.isLoaded {
-                expectation.fulfill()
-            }
-        }
-        wait(for: [expectation], timeout: 4)
-
-        //Must change this back to system, otherwise other tests will break either immediately or the next run
-        Config.setLocale(AppLocale.system)
-    }
 }
