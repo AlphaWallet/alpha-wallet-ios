@@ -5,7 +5,7 @@ import UIKit
 protocol DappBrowserNavigationBarDelegate: class {
     func didTyped(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar)
     func didEnter(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar)
-    func didTapHome(inNavigationBar navigationBar: DappBrowserNavigationBar)
+    func didTapChangeServer(inNavigationBar navigationBar: DappBrowserNavigationBar)
     func didTapBack(inNavigationBar navigationBar: DappBrowserNavigationBar)
     func didTapForward(inNavigationBar navigationBar: DappBrowserNavigationBar)
     func didTapMore(sender: UIView, inNavigationBar navigationBar: DappBrowserNavigationBar)
@@ -25,7 +25,7 @@ fileprivate struct Layout {
 
 final class DappBrowserNavigationBar: UINavigationBar {
     private let moreButton = UIButton()
-    private let homeButton = UIButton()
+    private let changeServerButton = UIButton()
     private let cancelEditingButton = UIButton()
     private let closeButton = UIButton()
 
@@ -59,6 +59,11 @@ final class DappBrowserNavigationBar: UINavigationBar {
         return state == .browserOnly
     }
 
+    var url: URL? {
+        guard let url = textField.text else { return nil }
+        return URL(string: url)
+    }
+
     weak var navigationBarDelegate: DappBrowserNavigationBarDelegate?
 
     override init(frame: CGRect) {
@@ -90,8 +95,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         closeButton.setContentHuggingPriority(.required, for: .horizontal)
 
-        homeButton.setImage(R.image.browserHome()?.withRenderingMode(.alwaysTemplate), for: .normal)
-        homeButton.addTarget(self, action: #selector(homeAction(_:)), for: .touchUpInside)
+        changeServerButton.addTarget(self, action: #selector(changeServerAction(_:)), for: .touchUpInside)
 
         backButton.setImage(R.image.toolbarBack(), for: .normal)
         backButton.addTarget(self, action: #selector(goBackAction), for: .touchUpInside)
@@ -107,12 +111,14 @@ final class DappBrowserNavigationBar: UINavigationBar {
         let spacer0 = UIView.spacerWidth()
         let spacer1 = UIView.spacerWidth()
         let spacer2 = UIView.spacerWidth()
-        viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backButton, forwardButton, textField, homeButton, spacer2, moreButton])
+        viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backButton, forwardButton, textField, changeServerButton, spacer2, moreButton])
         viewsToShowWhenEditing.append(contentsOf: [textField, cancelEditingButton])
         viewsToShowWhenBrowserOnly.append(contentsOf: [spacer0, backButton, forwardButton, domainNameLabel, spacer1, closeButton, spacer2, moreButton])
 
         cancelEditingButton.isHidden = true
 
+        changeServerButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        changeServerButton.setContentHuggingPriority(.required, for: .horizontal)
         let stackView = UIStackView(arrangedSubviews: [
             spacer0,
             backButton,
@@ -120,7 +126,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
             textField,
             domainNameLabel,
             spacer1,
-            homeButton,
+            changeServerButton,
             closeButton,
             spacer2,
             moreButton,
@@ -139,28 +145,27 @@ final class DappBrowserNavigationBar: UINavigationBar {
             stackView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: -10),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
 
-            homeButton.widthAnchor.constraint(equalToConstant: Layout.width),
             backButton.widthAnchor.constraint(equalToConstant: Layout.width),
             forwardButton.widthAnchor.constraint(equalToConstant: Layout.width),
             moreButton.widthAnchor.constraint(equalToConstant: Layout.moreButtonWidth),
         ])
-
-        configure()
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func configure() {
+    func configure(server: RPCServer) {
         let color = Colors.appWhite
         backButton.imageView?.tintColor = color
         forwardButton.imageView?.tintColor = color
-        homeButton.imageView?.tintColor = color
+        changeServerButton.tintColor = color
         moreButton.imageView?.tintColor = color
 
         domainNameLabel.textColor = color
         domainNameLabel.textAlignment = .center
+
+        changeServerButton.setTitle(server.name, for: .normal)
 
         cancelEditingButton.setTitle(R.string.localizable.cancel(), for: .normal)
     }
@@ -180,9 +185,9 @@ final class DappBrowserNavigationBar: UINavigationBar {
         navigationBarDelegate?.didTapMore(sender: sender, inNavigationBar: self)
     }
 
-    @objc private func homeAction(_ sender: UIView) {
+    @objc private func changeServerAction(_ sender: UIView) {
         cancelEditing()
-        navigationBarDelegate?.didTapHome(inNavigationBar: self)
+        navigationBarDelegate?.didTapChangeServer(inNavigationBar: self)
     }
 
     @objc private func closeAction(_ sender: UIView) {
@@ -228,7 +233,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     func disableButtons() {
         backButton.isEnabled = false
         forwardButton.isEnabled = false
-        homeButton.isEnabled = false
+        changeServerButton.isEnabled = false
         moreButton.isEnabled = false
         textField.isEnabled = false
         cancelEditingButton.isEnabled = false
@@ -238,7 +243,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     func enableButtons() {
         backButton.isEnabled = true
         forwardButton.isEnabled = true
-        homeButton.isEnabled = true
+        changeServerButton.isEnabled = true
         moreButton.isEnabled = true
         textField.isEnabled = true
         cancelEditingButton.isEnabled = true

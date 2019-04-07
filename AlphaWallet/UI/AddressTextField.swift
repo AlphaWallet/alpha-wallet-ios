@@ -13,9 +13,11 @@ protocol AddressTextFieldDelegate: class {
 class AddressTextField: UIControl {
     private var isConfigured = false
     private let textField = UITextField()
+    //Always resolve on mainnet
+    private let serverToResolveEns = RPCServer.main
+
     let label = UILabel()
     let ensAddressLabel = UILabel()
-    private let config: Config
 
     var value: String {
         get {
@@ -44,8 +46,7 @@ class AddressTextField: UIControl {
 
     weak var delegate: AddressTextFieldDelegate?
 
-    init(config: Config) {
-        self.config = config
+    init() {
         super.init(frame: .zero)
 
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -148,7 +149,7 @@ class AddressTextField: UIControl {
             return
         } else {
             textField.text = value
-            GetENSOwnerCoordinator(config: config).getENSOwner(for: value) { result in
+            GetENSOwnerCoordinator(server: serverToResolveEns).getENSOwner(for: value) { result in
                 guard let address = result.value else {
                     //Don't show an error when pasting what seems like a wrong ENS name for better usability
                     return
@@ -170,7 +171,7 @@ class AddressTextField: UIControl {
     private func queueResolution(ofValue value: String) {
         let value = value.trimmed
         let oldTextValue = textField.text?.trimmed
-        GetENSOwnerCoordinator(config: config).queueGetENSOwner(for: value) { [weak self] result in
+        GetENSOwnerCoordinator(server: serverToResolveEns).queueGetENSOwner(for: value) { [weak self] result in
             guard let strongSelf = self else { return }
             if let address = result.value {
                 guard CryptoAddressValidator.isValidAddress(address.address) else {

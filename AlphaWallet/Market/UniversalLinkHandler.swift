@@ -45,19 +45,15 @@ extension Array {
 }
 
 public class UniversalLinkHandler {
-    private let config: Config
+    private let server: RPCServer
 
-    public let urlPrefix: String
-
-    init(config: Config) {
-        self.config = config
-
-        urlPrefix = config.magicLinkPrefix.description
+    init(server: RPCServer) {
+        self.server = server
     }
 
     //message is with 32 bytes each of price and expiry and is shortened for link
     func createUniversalLink(signedOrder: SignedOrder) -> String {
-        let prefix = config.magicLinkPrefix.description
+        let prefix = server.magicLinkPrefix.description
         let message = formatMessageForLink(signedOrder: signedOrder)
         let signature = signedOrder.signature
         let link = (message + signature).hexa2Bytes

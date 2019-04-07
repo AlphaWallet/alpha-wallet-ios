@@ -13,26 +13,26 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
     private let tokenRowView: TokenRowView & UIView
-    lazy private var targetAddressTextField = AddressTextField(config: config)
+    private let targetAddressTextField = AddressTextField()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
     private var tokenHolder: TokenHolder
     private var paymentFlow: PaymentFlow
 
-    let config: Config
     var contract: String {
         return token.contract
+    }
+    var server: RPCServer {
+        return token.server
     }
     weak var delegate: TransferTokensCardViaWalletAddressViewControllerDelegate?
 
     init(
-            config: Config,
             token: TokenObject,
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
             viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
     ) {
-        self.config = config
         self.token = token
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
@@ -119,7 +119,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
     }
 
     func configure(viewModel newViewModel: TransferTokensCardViaWalletAddressViewControllerViewModel? = nil) {

@@ -12,7 +12,6 @@ class TransactionViewController: UIViewController {
     private lazy var viewModel: TransactionDetailsViewModel = {
         return .init(
             transaction: transaction,
-            config: session.config,
             chainState: session.chainState,
             currentWallet: session.account,
             currencyRate: session.balanceCoordinator.currencyRate
@@ -41,9 +40,9 @@ class TransactionViewController: UIViewController {
         title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
 
-        let header = TransactionHeaderView()
+        let header = TransactionHeaderView(server: session.server)
         header.translatesAutoresizingMaskIntoConstraints = false
-        header.amountLabel.attributedText = viewModel.amountAttributedString
+        header.configure(amount: viewModel.amountAttributedString)
 
         var items: [UIView] = [
             .spacer(),

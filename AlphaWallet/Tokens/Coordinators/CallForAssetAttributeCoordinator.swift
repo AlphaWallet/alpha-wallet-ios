@@ -13,18 +13,17 @@ import TrustKeystore
 class CallForAssetAttributeCoordinator {
     private static var functionCallCache = [AssetAttributeFunctionCall: Subscribable<AssetAttributeValue>]()
 
-    private let config: Config
+    private let server: RPCServer
     private let tokensDataStore: TokensDataStore
     private var promiseCache = [AssetAttributeFunctionCall: Promise<AssetAttributeValue>]()
 
     var contractToRefetch: String?
 
-    init(config: Config, tokensDataStore: TokensDataStore) {
-        self.config = config
+    init(server: RPCServer, tokensDataStore: TokensDataStore) {
+        self.server = server
         self.tokensDataStore = tokensDataStore
 
         NotificationCenter.default.addObserver(self, selector: #selector(refreshFunctionCallBasedAssetAttributesForAllTokens), name: UIApplication.didBecomeActiveNotification, object: nil)
-        refreshFunctionCallBasedAssetAttributesForAllTokens()
     }
 
     func getValue(
@@ -87,7 +86,7 @@ class CallForAssetAttributeCoordinator {
 
     private func refreshFunctionCallBasedAssetAttributes(forToken token: TokenObject) {
         contractToRefetch = token.contract
-        _ = TokenAdaptor(config: config, token: token).getTokenHolders()
+        _ = TokenAdaptor(token: token).getTokenHolders()
         contractToRefetch = nil
     }
 
@@ -131,7 +130,7 @@ class CallForAssetAttributeCoordinator {
             }
 
             //Fine to store a strong reference to self here because it's still useful to cache the function call result
-            callSmartContract(withConfig: config, contract: contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments).done { dictionary in
+            callSmartContract(withServer: server, contract: contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments).done { dictionary in
                 if let value = dictionary["0"] {
                     switch functionCall.output.type {
                     case .bool:

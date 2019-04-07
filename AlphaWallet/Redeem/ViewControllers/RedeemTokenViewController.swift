@@ -22,14 +22,15 @@ class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewCont
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: RedeemTokenCardViewModel
 
-    let config: Config
+    var server: RPCServer {
+        return token.server
+    }
     var contract: String {
         return token.contract
     }
     weak var delegate: RedeemTokenViewControllerDelegate?
 
-    init(config: Config, token: TokenObject, viewModel: RedeemTokenCardViewModel) {
-        self.config = config
+    init(token: TokenObject, viewModel: RedeemTokenCardViewModel) {
         self.token = token
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -117,7 +118,7 @@ class RedeemTokenViewController: UIViewController, TokenVerifiableStatusViewCont
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {

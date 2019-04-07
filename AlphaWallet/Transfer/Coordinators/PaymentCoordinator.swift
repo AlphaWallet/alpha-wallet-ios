@@ -98,8 +98,8 @@ extension PaymentCoordinator: RequestCoordinatorDelegate {
 }
 
 extension PaymentCoordinator: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 
     func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {

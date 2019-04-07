@@ -5,15 +5,18 @@ import Foundation
 class FetchAssetDefinitionsCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     private let assetDefinitionStore: AssetDefinitionStore
-    private let tokensDataStore: TokensDataStore
+    private let tokensDataStores: ServerDictionary<TokensDataStore>
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokensDataStore: TokensDataStore) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokensDataStores: ServerDictionary<TokensDataStore>) {
         self.assetDefinitionStore = assetDefinitionStore
-        self.tokensDataStore = tokensDataStore
+        self.tokensDataStores = tokensDataStores
     }
 
     func start() {
-        let contracts = tokensDataStore.enabledObject.filter { $0.type == .erc875 || $0.type == .erc721 }.map { $0.contract }
+        var contracts = [String]()
+        for each in tokensDataStores.values {
+            contracts.append(contentsOf: each.enabledObject.filter { $0.type == .erc875 || $0.type == .erc721 }.map { $0.contract })
+        }
         assetDefinitionStore.fetchXMLs(forContracts: contracts)
     }
 }

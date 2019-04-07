@@ -13,9 +13,9 @@ struct TokensCardViewModel {
     let token: TokenObject
     let tokenHolders: [TokenHolder]
 
-    init(config: Config, token: TokenObject) {
+    init(token: TokenObject) {
         self.token = token
-        self.tokenHolders = TokenAdaptor(config: config, token: token).getTokenHolders()
+        self.tokenHolders = TokenAdaptor(token: token).getTokenHolders()
     }
 
     func item(for indexPath: IndexPath) -> TokenHolder {

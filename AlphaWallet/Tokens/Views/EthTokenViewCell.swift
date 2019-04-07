@@ -12,6 +12,7 @@ class EthTokenViewCell: UITableViewCell {
     private let blockchainLabel = UILabel()
     private let separator = UILabel()
     private let issuerLabel = UILabel()
+    private let blockChainTagLabel = UILabel()
 
     private let middleBorder = UIView()
     private let valuePercentageChangeValueLabel = UILabel()
@@ -34,7 +35,7 @@ class EthTokenViewCell: UITableViewCell {
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
 
-        let bottomRowStack = [blockchainLabel, separator, issuerLabel].asStackView(spacing: 15)
+        let bottomRowStack = [blockchainLabel, separator, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
         let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .fillEqually, spacing: 15)
         let footerNamesStack = [valuePercentageChangePeriodLabel, valueChangeNameLabel, valueNameLabel].asStackView(distribution: .fillEqually, spacing: 15)
         let footerStackView = [
@@ -43,8 +44,11 @@ class EthTokenViewCell: UITableViewCell {
             footerValuesStack,
             footerNamesStack,
         ].asStackView(axis: .vertical, perpendicularContentHuggingPriority: .defaultLow)
+        blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
+        let titleRowStack = [titleLabel, blockChainTagLabel].asStackView(axis: .horizontal, spacing: 7, alignment: .center)
         let stackView = [
-            titleLabel,
+            titleRowStack,
             bottomRowStack,
             footerStackView
         ].asStackView(axis: .vertical, spacing: 15)
@@ -86,6 +90,13 @@ class EthTokenViewCell: UITableViewCell {
         titleLabel.font = viewModel.titleFont
         titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
         titleLabel.adjustsFontSizeToFitWidth = true
+
+        blockChainTagLabel.textAlignment = viewModel.blockChainNameTextAlignment
+        blockChainTagLabel.cornerRadius = 7
+        blockChainTagLabel.backgroundColor = viewModel.blockChainNameBackgroundColor
+        blockChainTagLabel.textColor = viewModel.blockChainNameColor
+        blockChainTagLabel.font = viewModel.blockChainNameFont
+        blockChainTagLabel.text = viewModel.blockChainTag
 
         blockchainLabel.textColor = viewModel.subtitleColor
         blockchainLabel.font = viewModel.subtitleFont

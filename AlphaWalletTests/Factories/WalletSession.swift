@@ -7,29 +7,27 @@ import TrustKeystore
 extension WalletSession {
     static func make(
         account: Wallet = .make(),
-        config: Config = .make(),
-        web3: Web3Swift = Web3Swift()
+        server: RPCServer = .main,
+        config: Config = .make()
     ) -> WalletSession {
-        let balance =  BalanceCoordinator(wallet: account, config: config, storage: FakeTokensDataStore())
         return WalletSession(
             account: account,
+            server: server,
             config: config,
-            web3: web3,
-            balanceCoordinator: balance
+            tokensDataStore: FakeTokensDataStore()
         )
     }
 
     static func makeStormBirdSession(
         account: Wallet = .makeStormBird(),
-        config: Config = .make(),
-        web3: Web3Swift = Web3Swift()
+        server: RPCServer,
+        config: Config = .make()
     ) -> WalletSession {
-        let balance =  BalanceCoordinator(wallet: account, config: config, storage: FakeTokensDataStore())
         return WalletSession(
             account: account,
+            server: server,
             config: config,
-            web3: web3,
-            balanceCoordinator: balance
+            tokensDataStore: FakeTokensDataStore()
         )
     }
 }

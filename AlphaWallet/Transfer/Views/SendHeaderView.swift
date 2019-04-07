@@ -6,6 +6,7 @@ class SendHeaderView: UIView {
     private let titleLabel = UILabel()
     private let blockchainLabel = UILabel()
     private let issuerLabel = UILabel()
+    private let blockChainTagLabel = UILabel()
     private let middleBorder = UIView()
     private var footerStackView: UIStackView?
     private let valuePercentageChangeValueLabel = UILabel()
@@ -30,7 +31,9 @@ class SendHeaderView: UIView {
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
 
-        let bottomRowStack = [blockchainLabel, issuerLabel].asStackView(spacing: 15)
+        blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
+        let bottomRowStack = [blockchainLabel, issuerLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
         blockchainLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
         let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .equalCentering, spacing: 15)
@@ -111,6 +114,13 @@ class SendHeaderView: UIView {
         } else {
             issuerLabel.text = "\(R.string.localizable.aWalletContentsIssuerTitle()): \(issuer)"
         }
+
+        blockChainTagLabel.textAlignment = viewModel.blockChainNameTextAlignment
+        blockChainTagLabel.cornerRadius = 7
+        blockChainTagLabel.backgroundColor = viewModel.blockChainNameBackgroundColor
+        blockChainTagLabel.textColor = viewModel.blockChainNameColor
+        blockChainTagLabel.font = viewModel.blockChainNameFont
+        blockChainTagLabel.text = viewModel.blockChainTag
 
         middleBorder.backgroundColor = viewModel.borderColor
 

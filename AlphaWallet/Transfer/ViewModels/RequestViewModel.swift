@@ -7,14 +7,11 @@ import UIKit
 
 struct RequestViewModel {
 	private let account: Wallet
-	private let config: Config
+    private let server: RPCServer
 
-	init(
-			account: Wallet,
-			config: Config
-	) {
+	init(account: Wallet, server: RPCServer) {
 		self.account = account
-		self.config = config
+		self.server = server
 	}
 
 	var myAddressText: String {
@@ -22,11 +19,11 @@ struct RequestViewModel {
 	}
 
 	var shareMyAddressText: String {
-		return R.string.localizable.requestMyAddressIsLabelTitle(config.server.name, myAddressText)
+		return R.string.localizable.requestMyAddressIsLabelTitle(server.name, myAddressText)
 	}
 
 	var headlineText: String {
-		return R.string.localizable.aWalletAddressTitle(config.server.name)
+		return R.string.localizable.aWalletAddressTitle(server.name)
 	}
 
 	var copyWalletText: String {

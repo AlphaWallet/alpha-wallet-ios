@@ -55,6 +55,7 @@ extension Transaction {
         }.then { operations -> Promise<Transaction?> in
             let result = Transaction(
                     id: transaction.hash,
+                    server: tokensStorage.server,
                     blockNumber: Int(transaction.blockNumber)!,
                     from: from.description,
                     to: to,

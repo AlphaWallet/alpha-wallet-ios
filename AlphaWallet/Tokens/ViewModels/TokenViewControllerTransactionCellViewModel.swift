@@ -16,7 +16,6 @@ struct TokenViewControllerTransactionCellViewModel {
         self.transaction = transaction
         self.transactionViewModel = TransactionViewModel(
                 transaction: transaction,
-                config: config,
                 chainState: chainState,
                 currentWallet: currentWallet
         )

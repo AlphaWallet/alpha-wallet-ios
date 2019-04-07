@@ -6,8 +6,7 @@ import UIKit
 import BigInt
 
 class AppCoordinator: NSObject, Coordinator {
-    //TODO remove once we support multi-chain
-    private var config: Config
+    private let config = Config()
     private lazy var welcomeViewController: WelcomeViewController = {
         let controller = WelcomeViewController()
         controller.delegate = self
@@ -27,20 +26,6 @@ class AppCoordinator: NSObject, Coordinator {
     private var universalLinkCoordinator: UniversalLinkCoordinator? {
         return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
     }
-    private var ethPrice: Subscribable<Double>? {
-        if let inCoordinator = inCoordinator {
-            return inCoordinator.ethPrice
-        } else {
-            return nil
-        }
-    }
-    private var ethBalance: Subscribable<BigInt>? {
-        if let inCoordinator = inCoordinator {
-            return inCoordinator.ethBalance
-        } else {
-            return nil
-        }
-    }
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -49,12 +34,10 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     init(
-        config: Config = Config(chainID: Config.getChainId()),
         window: UIWindow,
         keystore: Keystore,
         navigationController: UINavigationController = NavigationController()
     ) {
-        self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
         self.window = window
@@ -133,7 +116,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func handleNotifications() {
         UIApplication.shared.applicationIconBadgeNumber = 0
-        let coordinator = PushNotificationsCoordinator(server: config.server)
+        let coordinator = PushNotificationsCoordinator()
         coordinator.start()
         addCoordinator(coordinator)
     }
@@ -169,19 +152,21 @@ class AppCoordinator: NSObject, Coordinator {
     @discardableResult func handleUniversalLink(url: URL) -> Bool {
         createInitialWallet()
         closeWelcomeWindow()
-        guard let ethPrice = self.ethPrice, let ethBalance = self.ethBalance else { return false }
-        guard let inCoordinator = self.inCoordinator, let tokensDatastore = inCoordinator.createTokensDatastore() else { return false }
-
-        let universalLinkCoordinator = UniversalLinkCoordinator(
+        //TODO refactor. Some of these should be moved into InCoordinator instead of reaching into its internals
+        guard let inCoordinator = self.inCoordinator else { return false }
+        let prices = inCoordinator.nativeCryptoCurrencyPrices
+        let balances = inCoordinator.nativeCryptoCurrencyBalances
+        guard let universalLinkCoordinator = UniversalLinkCoordinator(
                 config: config,
-                ethPrice: ethPrice,
-                ethBalance: ethBalance,
-                tokensDatastore: tokensDatastore,
-                assetDefinitionStore: assetDefinitionStore
-        )
+                ethPrices: prices,
+                ethBalances: balances,
+                tokensDatastores: inCoordinator.tokensStorages,
+                assetDefinitionStore: assetDefinitionStore,
+                url: url
+        ) else { return false }
         universalLinkCoordinator.delegate = self
         universalLinkCoordinator.start()
-        let handled = universalLinkCoordinator.handleUniversalLink(url: url)
+        let handled = universalLinkCoordinator.handleUniversalLink()
         if handled {
             addCoordinator(universalLinkCoordinator)
         }
@@ -189,13 +174,13 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     func handleUniversalLinkInPasteboard() {
-        let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator(config: config)
+        let universalLinkPasteboardCoordinator = UniversalLinkInPasteboardCoordinator()
         universalLinkPasteboardCoordinator.delegate = self
         universalLinkPasteboardCoordinator.start()
     }
 
-    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController) {
-        inCoordinator?.didPressViewContractWebPage(forContract: contract, in: viewController)
+    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+        inCoordinator?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 
     func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {
@@ -253,11 +238,6 @@ extension AppCoordinator: InCoordinatorDelegate {
     func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController? {
         return assetDefinitionStoreCoordinator?.createOverridesViewController()
     }
-
-    func mayHaveChangeChain(in coordinator: InCoordinator) {
-        config = Config(chainID: Config.getChainId())
-        inCoordinator?.config = config
-    }
 }
 
 extension AppCoordinator: UniversalLinkCoordinatorDelegate {
@@ -281,7 +261,7 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
     }
 
     func didImported(contract: String, in coordinator: UniversalLinkCoordinator) {
-        inCoordinator?.addImported(contract: contract)
+        inCoordinator?.addImported(contract: contract, forServer: coordinator.server)
     }
 }
 
@@ -290,10 +270,4 @@ extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
         guard universalLinkCoordinator == nil else { return }
         handleUniversalLink(url: url)
     }
-    
-    func showImportError(errorMessage: String, cost: ImportMagicTokenViewControllerViewModel.Cost?) {
-        guard universalLinkCoordinator != nil else { return }
-        showImportError(errorMessage: errorMessage, cost: cost)
-    }
-
 }

@@ -54,8 +54,7 @@ struct Config {
         LiveLocaleSwitcherBundle.switchLocale(to: locale)
     }
 
-    //TODO remove when we support multi-chain
-    //TODO we should also look for where Config instances are created
+    //TODO Only Dapp browser uses this. Shall we move it?
     static func setChainId(_ chainId: Int, defaults: UserDefaults = UserDefaults.standard) {
         defaults.set(chainId, forKey: Keys.chainID)
     }
@@ -74,85 +73,29 @@ struct Config {
         static let dAppBrowser = "dAppBrowser"
         static let walletAddressesAlreadyPromptedForBackUp = "walletAddressesAlreadyPromptedForBackUp "
         static let locale = "locale"
+        static let enabledServers = "enabledChains"
     }
 
     let defaults: UserDefaults
 
-    init(chainID: Int, defaults: UserDefaults = UserDefaults.standard) {
-        self.chainID = chainID
-        self.defaults = defaults
-    }
-
-    let chainID: Int
-
-    var server: RPCServer {
-        return RPCServer(chainID: chainID)
-    }
-
-    var magicLinkPrefix: URL {
-        let urlString: String = {
-            switch server {
-            case .main: return Constants.mainnetMagicLinkPrefix
-            case .classic: return Constants.classicMagicLinkPrefix
-            case .callisto: return Constants.callistoMagicLinkPrefix
-            case .kovan: return Constants.kovanMagicLinkPrefix
-            case .ropsten: return Constants.ropstenMagicLinkPrefix
-            case .rinkeby: return Constants.rinkebyMagicLinkPrefix
-            case .poa: return Constants.poaMagicLinkPrefix
-            case .sokol: return Constants.sokolMagicLinkPrefix
-            case .xDai: return Constants.xDaiMagicLinkPrefix
-            case .custom: return Constants.customMagicLinkPrefix
+    var enabledServers: [RPCServer] {
+        get {
+            var addresses: [String]
+            if let chainIds = defaults.array(forKey: Keys.enabledServers) as? [Int] {
+                return chainIds.map { .init(chainID: $0) }
+            } else {
+                return Constants.defaultEnabledServers
             }
-        }()
-        return URL(string: urlString)!
-    }
-
-    var rpcURL: URL {
-        let urlString: String = {
-            switch server {
-            case .main: return "https://mainnet.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
-            case .classic: return "https://mewapi.epool.io/"
-            case .callisto: return "https://callisto.network/" //TODO Add endpoint
-            case .kovan: return "https://kovan.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
-            case .ropsten: return "https://ropsten.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
-            case .rinkeby: return "https://rinkeby.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
-            case .poa: return "https://core.poa.network"
-            case .sokol: return "https://sokol.poa.network"
-            case .xDai: return "https://dai.poa.network"
-            case .custom(let custom):
-                return custom.endpoint
-            }
-        }()
-        return URL(string: urlString)!
-    }
-
-    var transactionInfoEndpoints: URL {
-        let urlString: String = {
-            switch server {
-            case .main: return "https://api.etherscan.io"
-            case .classic: return "https://blockscout.com/etc/mainnet/api"
-            case .callisto: return "https://callisto.trustwalletapp.com"
-            case .kovan: return "https://api-kovan.etherscan.io"
-            case .ropsten: return "https://api-ropsten.etherscan.io"
-            case .rinkeby: return "https://api-rinkeby.etherscan.io"
-            case .poa: return "https://blockscout.com/poa/core/api"
-            case .xDai: return "https://blockscout.com/poa/dai/api"
-            case .sokol: return "https://blockscout.com/poa/sokol/api"
-            case .custom:
-                return "" // Enable? make optional
-            }
-        }()
-        return URL(string: urlString)!
-    }
-
-    var ensRegistrarContract: EthereumAddress {
-        switch server {
-        case .main: return Constants.ENSRegistrarAddress
-        case .ropsten: return Constants.ENSRegistrarRopsten
-        case .rinkeby: return Constants.ENSRegistrarRinkeby
-        case .xDai: return Constants.ENSRegistrarXDAI
-        default: return Constants.ENSRegistrarAddress
         }
+        set {
+            let chainIds = newValue.map { $0.chainID }
+            defaults.set(chainIds, forKey: Keys.enabledServers)
+        }
+    }
+
+
+    init(defaults: UserDefaults = UserDefaults.standard) {
+        self.defaults = defaults
     }
 
     let priceInfoEndpoints = URL(string: "https://api.coinmarketcap.com")!
@@ -187,5 +130,4 @@ struct Config {
             return false
         }
     }
-
 }

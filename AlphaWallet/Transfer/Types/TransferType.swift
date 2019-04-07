@@ -9,12 +9,11 @@ struct Transfer {
 }
 
 enum TransferType {
-
-    init(config: Config, token: TokenObject) {
+    init(token: TokenObject) {
         self = {
             switch token.type {
 			case .nativeCryptocurrency:
-                return .nativeCryptocurrency(config: config, destination: nil)
+                return .nativeCryptocurrency(server: token.server, destination: nil)
             case .erc20:
                 return .ERC20Token(token)
             case .erc875:
@@ -25,7 +24,7 @@ enum TransferType {
         }()
     }
 
-    case nativeCryptocurrency(config: Config, destination: Address?)
+    case nativeCryptocurrency(server: RPCServer, destination: Address?)
     case ERC20Token(TokenObject)
     case ERC875Token(TokenObject)
     case ERC875TokenOrder(TokenObject)
@@ -34,10 +33,12 @@ enum TransferType {
 }
 
 extension TransferType {
-    func symbol(server: RPCServer) -> String {
+    var symbol: String {
         switch self {
-        case .nativeCryptocurrency, .dapp:
+        case .nativeCryptocurrency(let server, _):
             return server.symbol
+        case .dapp(let token, _):
+            return token.symbol
         case .ERC20Token(let token):
             return token.symbol
         case .ERC875Token(let token):
@@ -49,10 +50,27 @@ extension TransferType {
         }
     }
 
+    var server: RPCServer {
+        switch self {
+        case .nativeCryptocurrency(let server, _):
+            return server
+        case .dapp(let token, _):
+            return token.server
+        case .ERC20Token(let token):
+            return token.server
+        case .ERC875Token(let token):
+            return token.server
+        case .ERC875TokenOrder(let token):
+            return token.server
+        case .ERC721Token(let token):
+            return token.server
+        }
+    }
+
     func contract() -> Address {
         switch self {
-        case .nativeCryptocurrency(let config, _):
-            return Address(uncheckedAgainstNullAddress: TokensDataStore.etherToken(for: config).contract)!
+        case .nativeCryptocurrency:
+            return Address(uncheckedAgainstNullAddress: Constants.nativeCryptoAddressInDatabase)!
         case .ERC20Token(let token):
             return Address(string: token.contract)!
         case .ERC875Token(let token):

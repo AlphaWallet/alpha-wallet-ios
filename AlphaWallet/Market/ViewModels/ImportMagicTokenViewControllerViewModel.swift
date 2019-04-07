@@ -323,13 +323,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var hideDollarCost: Bool {
-        guard let cost = cost else { return true }
-        switch cost {
-        case .free:
-            return true
-        case .paid:
-            return false
-        }
+        return dollarCostLabelText.isEmpty
     }
 
     var onlyShowTitle: Bool {

@@ -9,6 +9,6 @@ class FakeTokensDataStore: TokensDataStore {
         let realm = try! Realm(configuration: Realm.Configuration(inMemoryIdentifier: "MyInMemoryRealmTest"))
         let account: Wallet = .make()
         let config: Config = .make()
-        self.init(realm: realm, account: account, config: config, assetDefinitionStore: AssetDefinitionStore())
+        self.init(realm: realm, account: account, server: .main, config: config, assetDefinitionStore: AssetDefinitionStore())
     }
 }

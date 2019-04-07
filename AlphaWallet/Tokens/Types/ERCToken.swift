@@ -4,6 +4,7 @@ import TrustKeystore
 
 struct ERCToken {
     let contract: Address
+    let server: RPCServer
     let name: String
     let symbol: String
     let decimals: Int

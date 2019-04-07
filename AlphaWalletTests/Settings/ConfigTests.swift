@@ -4,43 +4,29 @@ import XCTest
 @testable import AlphaWallet
 
 class ConfigTests: XCTestCase {
-        
-    func testChainIDDefault() {
-        var config: Config = .make()
 
-        XCTAssertEqual(1, config.chainID)
-        XCTAssertEqual(.main, config.server)
-    }
-
-    //TODO remove when we support multi-chain
+    //This is still used by Dapp browser
     func testChangeChainID() {
-        XCTAssertEqual(1, Config.make().chainID)
-
         let testDefaults = UserDefaults.test
+        XCTAssertEqual(1, Config.getChainId(defaults: testDefaults))
         Config.setChainId(RPCServer.ropsten.chainID, defaults: testDefaults)
-
-        let config = Config(chainID: RPCServer.kovan.chainID)
-
-        XCTAssertEqual(42, config.chainID)
-        XCTAssertEqual(.kovan, config.server)
+        XCTAssertEqual(RPCServer.ropsten.chainID, Config.getChainId(defaults: testDefaults))
     }
 
     func testSwitchLocale() {
-        var config: Config = .make()
-
         Config.setLocale(AppLocale.english)
         let vc1 = TokensViewController(
-                session: .make(),
+                sessions: .init(),
                 account: .make(),
-                dataStore: FakeTokensDataStore()
+                tokenCollection: .init(tokenDataStores: [FakeTokensDataStore()])
         )
         XCTAssertEqual(vc1.title, "Wallet")
 
         Config.setLocale(AppLocale.simplifiedChinese)
         let vc2 = TokensViewController(
-                session: .make(),
+                sessions: .init(),
                 account: .make(),
-                dataStore: FakeTokensDataStore()
+                tokenCollection: .init(tokenDataStores: [FakeTokensDataStore()])
         )
         XCTAssertEqual(vc2.title, "我的钱包")
 
@@ -49,8 +35,6 @@ class ConfigTests: XCTestCase {
     }
 
     func testNibsAccessAfterSwitchingLocale() {
-        var config: Config = .make()
-
         Config.setLocale(AppLocale.english)
         Config.setLocale(AppLocale.simplifiedChinese)
 

@@ -29,7 +29,7 @@ class SendTransactionCoordinator {
         if transaction.nonce >= 0 {
             signAndSend(transaction: transaction, completion: completion)
         } else {
-            let request = EtherServiceRequest(config: session.config, batch: BatchFactory().create(GetTransactionCountRequest(
+            let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(GetTransactionCountRequest(
                 address: session.account.address.description,
                 state: "pending"
             )))
@@ -56,7 +56,7 @@ class SendTransactionCoordinator {
             data: to.data,
             gasPrice: to.gasPrice,
             gasLimit: to.gasLimit,
-            chainID: to.chainID
+            server: to.server
         )
     }
 
@@ -72,7 +72,7 @@ class SendTransactionCoordinator {
             case .sign:
                 completion(.success(.signedTransaction(data)))
             case .signThenSend:
-                let request = EtherServiceRequest(config: session.config, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: data.hexEncoded)))
+                let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: data.hexEncoded)))
                 Session.send(request) { result in
                     switch result {
                     case .success(let transactionID):

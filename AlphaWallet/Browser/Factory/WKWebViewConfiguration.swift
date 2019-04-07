@@ -7,7 +7,7 @@ import TrustKeystore
 
 extension WKWebViewConfiguration {
 
-    static func make(for config: Config, address: Address, with sessionConfig: Config, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
+    static func make(forServer server: RPCServer, address: Address, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
         let webViewConfig = WKWebViewConfiguration()
         var js = ""
 
@@ -24,8 +24,8 @@ extension WKWebViewConfiguration {
         js +=
         """
         const addressHex = "\(address.description.lowercased())"
-        const rpcURL = "\(config.rpcURL.absoluteString)"
-        const chainID = "\(config.chainID)"
+        const rpcURL = "\(server.rpcURL.absoluteString)"
+        const chainID = "\(server.chainID)"
 
         function executeCallback (id, error, value) {
             AlphaWallet.executeCallback(id, error, value)

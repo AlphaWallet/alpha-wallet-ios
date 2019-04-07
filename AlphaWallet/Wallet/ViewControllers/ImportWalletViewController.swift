@@ -15,7 +15,6 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         }
     }
 
-    private let config: Config
     private let keystore: Keystore
     private let viewModel = ImportWalletViewModel()
     //We don't actually use the rounded corner here, but it's a useful "content" view here
@@ -25,7 +24,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private let keystoreJSONTextView = TextView()
     private let passwordTextField = TextField()
     private let privateKeyTextView = TextView()
-    lazy private var watchAddressTextField = AddressTextField(config: config)
+    private let watchAddressTextField = AddressTextField()
     private var keystoreJSONControlsStackView: UIStackView!
     private var privateKeyControlsStackView: UIStackView!
     private var watchControlsStackView: UIStackView!
@@ -33,8 +32,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     weak var delegate: ImportWalletViewControllerDelegate?
 
-    init(config: Config, keystore: Keystore) {
-        self.config = config
+    init(keystore: Keystore) {
         self.keystore = keystore
 
         super.init(nibName: nil, bundle: nil)

@@ -17,20 +17,20 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     private var viewModel: TransferTokensCardQuantitySelectionViewModel
     private let token: TokenObject
 
-    let config: Config
     var contract: String {
         return token.contract
+    }
+    var server: RPCServer {
+        return token.server
     }
     let paymentFlow: PaymentFlow
     weak var delegate: TransferTokenCardQuantitySelectionViewControllerDelegate?
 
     init(
-            config: Config,
             paymentFlow: PaymentFlow,
             token: TokenObject,
             viewModel: TransferTokensCardQuantitySelectionViewModel
     ) {
-        self.config = config
         self.paymentFlow = paymentFlow
         self.token = token
         self.viewModel = viewModel
@@ -126,7 +126,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
     }
 
     func configure(viewModel newViewModel: TransferTokensCardQuantitySelectionViewModel? = nil) {

@@ -14,13 +14,15 @@ protocol AccountsCoordinatorDelegate: class {
 class AccountsCoordinator: Coordinator {
 
     private let config: Config
+    //Only show Ether balances from mainnet for now
+    private let balanceCoordinator = GetBalanceCoordinator(forServer: .main)
+    private let keystore: Keystore
+
     let navigationController: UINavigationController
-    let keystore: Keystore
-    let balanceCoordinator: GetBalanceCoordinator
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
-        let controller = AccountsViewController(keystore: keystore, balanceCoordinator: balanceCoordinator, server: config.server)
+        let controller = AccountsViewController(keystore: keystore, balanceCoordinator: balanceCoordinator)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(dismiss))
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
         controller.allowsAccountDeletion = true
@@ -33,14 +35,12 @@ class AccountsCoordinator: Coordinator {
     init(
         config: Config,
         navigationController: UINavigationController,
-        keystore: Keystore,
-        balanceCoordinator: GetBalanceCoordinator
+        keystore: Keystore
     ) {
         self.config = config
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
-        self.balanceCoordinator = balanceCoordinator
     }
 
     func start() {

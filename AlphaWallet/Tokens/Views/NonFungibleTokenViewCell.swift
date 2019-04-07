@@ -12,6 +12,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
     private let blockchainLabel = UILabel()
     private let separator = UILabel()
     private let issuerLabel = UILabel()
+    private let blockChainTagLabel = UILabel()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -19,12 +20,16 @@ class NonFungibleTokenViewCell: UITableViewCell {
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
-        let bottomRowStack = [blockchainLabel, separator, issuerLabel].asStackView(spacing: 15)
+        //TODO write snapshot test to ensure separator + issueLabel is positioned correctly, in particular. Doesn't display at the right edge of the screen. Do it for every cell class used in TokensViewController
+        let bottomRowStack = [blockchainLabel, separator, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
 
+        blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
+        let titleRowStack = [titleLabel, blockChainTagLabel].asStackView(axis: .horizontal, spacing: 7, alignment: .center)
         let stackView = [
-            titleLabel,
+            titleRowStack,
             bottomRowStack,
-        ].asStackView(axis: .vertical, spacing: 15, alignment: .leading)
+        ].asStackView(axis: .vertical, spacing: 15)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
 
@@ -61,6 +66,13 @@ class NonFungibleTokenViewCell: UITableViewCell {
         titleLabel.font = viewModel.titleFont
         titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
         titleLabel.adjustsFontSizeToFitWidth = true
+
+        blockChainTagLabel.textAlignment = viewModel.blockChainNameTextAlignment
+        blockChainTagLabel.cornerRadius = 7
+        blockChainTagLabel.backgroundColor = viewModel.blockChainNameBackgroundColor
+        blockChainTagLabel.textColor = viewModel.blockChainNameColor
+        blockChainTagLabel.font = viewModel.blockChainNameFont
+        blockChainTagLabel.text = viewModel.blockChainTag
 
         blockchainLabel.textColor = viewModel.subtitleColor
         blockchainLabel.font = viewModel.subtitleFont

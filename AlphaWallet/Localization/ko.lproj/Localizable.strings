@@ -39,7 +39,7 @@
 "export.backup.button.title" = "지갑 백업";
 "export.controlYourMoney.label.title" = "고객님의 돈은 고객님 본인만 통제할 수 있으므로 이 앱이 삭제될 경우에 대비하여 백업 키스토어를 저장해 놓아야 합니다.";
 "export.neverStored.label.title" = "고객님의 지갑은 절대로 클라우드 스토리지 또는 표준 장치 백업에 저장되지 않습니다.";
-"export.noBackup.label.title" = "백업이 없으면, %@도 없습니다.";
+"export.noBackup.label.title" = "Be safe, back up your wallet";
 "export.presentBackupOptions.label.title" = "백업 옵션 준비 중...";
 "importWallet.importingIndicator.label.title" = "지갑을 가져오는 중...";
 "Loading" = "불러오는 중";
@@ -63,6 +63,7 @@
 "settings.biometricsEnabled.label.title" = "암호 / %@";
 "settings.error.failedToSendEmail" = "이메일을 전송하지 못했습니다. 메일 앱이 설치되어 있는지 확인하십시오.";
 "settings.network.button.title" = "네트워크";
+"settings.enabledNetworks.button.title" = "Enabled Networks";
 "settings.language.button.title" = "언어";
 "settings.language.useSystem.title" = "시스템 설정 사용";
 "settings.version.label.title" = "버전";
@@ -86,6 +87,8 @@
 "Decimals" = "소수점";
 "warning.fieldRequired" = "필수 필드!";
 "detecting.token.type.title" = "토큰 유형 검색 중...";
+"detecting.serverAutomatically" = "Detect Automatically";
+"detecting.serverAutomatically.buttonTitle" = "Auto";
 "editTokens.searchBar.placeholder.title" = "토큰 검색";
 "importWallet.import.alertSheet.option.title" = "iCloud/Dropbox/Google Drive";
 "importWallet.import.alertSheet.title" = "지갑 옵션 가져오기";
@@ -329,5 +332,3 @@
 "a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "photos" = "Photos";
 "a.claim.token.failed.serverDown" = "a.claim.token.failed.serverDown";
-
-"a.claim.token.wrongNetworkLink" = "a.claim.token.wrongNetworkLink";

@@ -18,41 +18,40 @@ protocol TokensDataStoreDelegate: class {
 
 class TokensDataStore {
     private lazy var getBalanceCoordinator: GetBalanceCoordinator = {
-        return GetBalanceCoordinator(config: config)
+        return GetBalanceCoordinator(forServer: server)
     }()
 
     private lazy var getNameCoordinator: GetNameCoordinator = {
-        return GetNameCoordinator(config: config)
+        return GetNameCoordinator(forServer: server)
     }()
 
     private lazy var getSymbolCoordinator: GetSymbolCoordinator = {
-        return GetSymbolCoordinator(config: config)
+        return GetSymbolCoordinator(forServer: server)
     }()
 
     private lazy var getERC875BalanceCoordinator: GetERC875BalanceCoordinator = {
-        return GetERC875BalanceCoordinator(config: config)
+        return GetERC875BalanceCoordinator(forServer: server)
     }()
 
     private lazy var getIsERC875ContractCoordinator: GetIsERC875ContractCoordinator = {
-        return GetIsERC875ContractCoordinator(config: config)
+        return GetIsERC875ContractCoordinator(forServer: server)
     }()
 
     private lazy var getERC721BalanceCoordinator: GetERC721BalanceCoordinator = {
-        return GetERC721BalanceCoordinator(config: config)
+        return GetERC721BalanceCoordinator(forServer: server)
     }()
 
     private lazy var getIsERC721ContractCoordinator: GetIsERC721ContractCoordinator = {
-        return GetIsERC721ContractCoordinator(config: config)
+        return GetIsERC721ContractCoordinator(forServer: server)
     }()
 
     private lazy var getDecimalsCoordinator: GetDecimalsCoordinator = {
-        return GetDecimalsCoordinator(config: config)
+        return GetDecimalsCoordinator(forServer: server)
     }()
 
     private let provider = AlphaWalletProviderFactory.makeProvider()
 
     private let account: Wallet
-    private let config: Config
     private let assetDefinitionStore: AssetDefinitionStore
     private let realm: Realm
     private var pricesTimer = Timer()
@@ -62,41 +61,54 @@ class TokensDataStore {
     //We should refresh balance of the ETH every 10 seconds.
     private let intervalToETHRefresh = 10.0
 
+    private var chainId: Int {
+        return server.chainID
+    }
+
+    let server: RPCServer
+    private let config: Config
     weak var delegate: TokensDataStoreDelegate?
     //TODO why is this a dictionary? There seems to be only at most 1 key-value pair in the dictionary
     var tickers: [String: CoinTicker]? = .none
     var tokensModel: Subscribable<[TokenObject]> = Subscribable(nil)
 
     var objects: [TokenObject] {
-        return realm.objects(TokenObject.self)
-                .sorted(byKeyPath: "contract", ascending: true)
-                .filter { !$0.contract.isEmpty }
+        return Array(
+                realm.objects(TokenObject.self)
+                        .filter("chainId = \(self.chainId)")
+                        .filter("contract != ''")
+        )
     }
 
+    //TODO might be good to change `enabledObject` to just return the streaming list from Realm instead of a Swift native Array and other properties/callers can convert to Array if necessary
     var enabledObject: [TokenObject] {
-        return realm.objects(TokenObject.self)
-                .sorted(byKeyPath: "contract", ascending: true)
-                .filter { !$0.isDisabled }
+        return Array(realm.objects(TokenObject.self)
+                .filter("chainId = \(self.chainId)")
+                .filter("isDisabled = false"))
     }
 
     var deletedContracts: [DeletedContract] {
-        return Array(realm.objects(DeletedContract.self))
+        return Array(realm.objects(DeletedContract.self)
+                .filter("chainId = \(self.chainId)"))
     }
 
     var delegateContracts: [DelegateContract] {
-        return Array(realm.objects(DelegateContract.self))
+        return Array(realm.objects(DelegateContract.self)
+                .filter("chainId = \(self.chainId)"))
     }
 
     var hiddenContracts: [HiddenContract] {
-        return Array(realm.objects(HiddenContract.self))
+        return Array(realm.objects(HiddenContract.self)
+                .filter("chainId = \(self.chainId)"))
     }
 
-    static func etherToken(for config: Config) -> TokenObject {
+    static func etherToken(forServer server: RPCServer) -> TokenObject {
         return TokenObject(
-            contract: Constants.nullAddress,
-            name: config.server.name,
-            symbol: config.server.symbol,
-            decimals: config.server.decimals,
+            contract: Constants.nativeCryptoAddressInDatabase,
+            server: server,
+            name: server.name,
+            symbol: server.symbol,
+            decimals: server.decimals,
             value: "0",
             isCustom: false,
             type: .nativeCryptocurrency
@@ -104,12 +116,13 @@ class TokensDataStore {
     }
 
     //TODO might be best to remove ethToken(for:) and just use token(for:) if possible, but careful with the contract value returned for .ether
-    static func token(for config: Config) -> TokenObject {
+    static func token(forServer server: RPCServer) -> TokenObject {
         return TokenObject(
-                contract: config.server.priceID.description,
-                name: config.server.name,
-                symbol: config.server.symbol,
-                decimals: config.server.decimals,
+                contract: server.priceID.description,
+                server: server,
+                name: server.name,
+                symbol: server.symbol,
+                decimals: server.decimals,
                 value: "0",
                 isCustom: false,
                 type: .nativeCryptocurrency
@@ -119,23 +132,32 @@ class TokensDataStore {
     init(
             realm: Realm,
             account: Wallet,
+            server: RPCServer,
             config: Config,
             assetDefinitionStore: AssetDefinitionStore
     ) {
         self.account = account
+        self.server = server
         self.config = config
         self.assetDefinitionStore = assetDefinitionStore
         self.realm = realm
         self.addEthToken()
+
+        //TODO not needed for setupCallForAssetAttributeCoordinators? Look for other callers of DataStore.updateDelegate
         self.scheduledTimerForPricesUpdate()
         self.scheduledTimerForEthBalanceUpdate()
 
-        fetchTokenNamesForNonFungibleTokensIfEmpty()
+        //Since this is called at launch, we don't want it to block launching
+        DispatchQueue.global().async {
+            DispatchQueue.main.async { [weak self] in
+                self?.fetchTokenNamesForNonFungibleTokensIfEmpty()
+            }
+        }
     }
 
     private func addEthToken() {
-        //Check if we have previos values.
-        let etherToken = TokensDataStore.etherToken(for: config)
+        //Check if we have previous values.
+        let etherToken = TokensDataStore.etherToken(forServer: server)
         if objects.first(where: { $0 == etherToken }) == nil {
             add(tokens: [etherToken])
         }
@@ -144,8 +166,11 @@ class TokensDataStore {
     static func update(in realm: Realm, tokens: [TokenUpdate]) {
         realm.beginWrite()
         for token in tokens {
+            //Even though primaryKey is provided, it is important to specific contract because this might be creating a new TokenObject instance from transactions
             let update: [String: Any] = [
+                "primaryKey": token.primaryKey,
                 "contract": token.address.description,
+                "chainId": token.server.chainID,
                 "name": token.name,
                 "symbol": token.symbol,
                 "decimals": token.decimals,
@@ -265,7 +290,7 @@ class TokensDataStore {
 
     private func getTokensFromOpenSea() -> OpenSea.PromiseResult {
         //TODO when we no longer create multiple instances of TokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
-        return OpenSea.sharedInstance.makeFetchPromise(config: config, owner: account.address.eip55String)
+        return OpenSea.sharedInstance.makeFetchPromise(server: server, owner: account.address.eip55String)
     }
 
     func getTokenType(for addressString: String,
@@ -311,15 +336,18 @@ class TokensDataStore {
     }
 
     func token(forContract contract: String) -> TokenObject? {
-        return realm.objects(TokenObject.self).first { $0.contract.sameContract(as: contract) }
+        //TODO improved performance if contract is always stored as EIP55
+        return realm.objects(TokenObject.self).first { $0.contract.sameContract(as: contract) && $0.chainId == chainId }
     }
 
     func refreshBalance() {
+        //TODO updateDelegate() is needed so the data (eg. tokens in Wallet tab when app launches) can appear immediately (by reading from the database) while updated data is downloaded. Thought it probably doesn't need to be called an additional everytime
         updateDelegate()
         guard !enabledObject.isEmpty else {
             return
         }
-        let etherToken = TokensDataStore.etherToken(for: config)
+        //TODO While we might want to improve it such as enabledObject still returning Realm's streaming list instead of a Swift array and filtering using predicates, it doesn't affect much here, yet.
+        let etherToken = TokensDataStore.etherToken(forServer: server)
         let updateTokens = enabledObject.filter { $0 != etherToken }
         let nonERC721Tokens = updateTokens.filter { !$0.isERC721 }
         let erc721Tokens = updateTokens.filter { $0.isERC721 }
@@ -366,7 +394,6 @@ class TokensDataStore {
                     case .failure:
                         break
                     }
-
                 })
             case .erc721:
                 //We'll check with OpenSea below and an ERC721 token isn't found there, then we get the balance of each token ourselves
@@ -377,6 +404,7 @@ class TokensDataStore {
 
     private func refreshBalanceForERC721Tokens(tokens: [TokenObject]) {
         assert(!tokens.contains { !$0.isERC721 })
+        guard OpenSea.isServerSupported(server) else { return }
         getTokensFromOpenSea().done { [weak self] contractToOpenSeaNonFungibles in
             guard let strongSelf = self else { return }
             let erc721ContractsFoundInOpenSea = Array(contractToOpenSeaNonFungibles.keys).map { $0.lowercased() }
@@ -429,6 +457,7 @@ class TokensDataStore {
                     if let address = Address(string: contract) {
                         let token = ERCToken(
                                 contract: address,
+                                server: strongSelf.server,
                                 name: openSeaNonFungibles[0].contractName,
                                 symbol: openSeaNonFungibles[0].symbol,
                                 decimals: 0,
@@ -452,8 +481,9 @@ class TokensDataStore {
             guard let strongSelf = self else { return }
             switch result {
             case .success(let balance):
-                let etherToken = TokensDataStore.etherToken(for: strongSelf.config)
-                strongSelf.update(token: strongSelf.objects.first (where: { $0.contract.sameContract(as: etherToken.contract) })!, action: .value(balance.value))
+                let token = strongSelf.token(forContract: Constants.nativeCryptoAddressInDatabase)
+                //TODO why is each chain's balance updated so many times? (if we add console logs)
+                strongSelf.update(token: token!, action: .value(balance.value))
                 strongSelf.updateDelegate()
             case .failure: break
             }
@@ -462,7 +492,9 @@ class TokensDataStore {
 
     private func updateDelegate() {
         tokensModel.value = enabledObject
-        let tokensViewModel = TokensViewModel(config: config, tokens: enabledObject, tickers: tickers)
+        var tickersForThisServer = [RPCServer: [String: CoinTicker]]()
+        tickersForThisServer[server] = tickers
+        let tokensViewModel = TokensViewModel(tokens: enabledObject, tickers: tickersForThisServer)
         delegate?.didUpdate(result: .success( tokensViewModel ))
     }
 
@@ -473,6 +505,7 @@ class TokensDataStore {
     func addCustom(token: ERCToken) {
         let newToken = TokenObject(
             contract: token.contract.description,
+            server: token.server,
             name: token.name,
             symbol: token.symbol,
             decimals: token.decimals,
@@ -502,13 +535,14 @@ class TokensDataStore {
                     dict[ticker.contract] = ticker
                     return dict
                 }
+                //TODO is it better if we pass in an enum to indicate what's the change? if crypto price change, we only need to refresh the native crypto currency cards?
                 strongSelf.updateDelegate()
             } catch { }
         }
     }
 
     private func getPriceToUpdate() -> AlphaWalletService? {
-        switch config.server {
+        switch server {
         case .main:
             return .priceOfEth(config: config)
         case .xDai:
@@ -520,19 +554,19 @@ class TokensDataStore {
 
     func add(deadContracts: [DeletedContract]) {
         try! realm.write {
-            realm.add(deadContracts, update: false)
+            realm.add(deadContracts, update: true)
         }
     }
 
     func add(delegateContracts: [DelegateContract]) {
         try! realm.write {
-            realm.add(delegateContracts, update: false)
+            realm.add(delegateContracts, update: true)
         }
     }
 
     func add(hiddenContracts: [HiddenContract]) {
         try! realm.write {
-            realm.add(hiddenContracts, update: false)
+            realm.add(hiddenContracts, update: true)
         }
     }
 
@@ -566,13 +600,21 @@ class TokensDataStore {
 
     func update(token: TokenObject, action: TokenUpdateAction) {
         guard !token.isInvalidated else { return }
-        try! realm.write {
-            switch action {
-            case .value(let value):
+        switch action {
+        case .value(let value):
+            try! realm.write {
                 token.value = value.description
-            case .isDisabled(let value):
+            }
+        case .isDisabled(let value):
+            try! realm.write {
                 token.isDisabled = value
-            case .nonFungibleBalance(let balance):
+            }
+        case .nonFungibleBalance(let balance):
+            //Performance: if we use realm.write {} directly, the UI will block for a few seconds because we are reading from Realm, appending to an array and writing back to Realm many times (once for each token) in the main thread. Instead, we do this for each token in a background thread
+            let primaryKey = token.primaryKey
+            DispatchQueue.global().async {
+                let realmInBackground = try! Realm(configuration: self.realm.configuration)
+                let token = realmInBackground.object(ofType: TokenObject.self, forPrimaryKey: primaryKey)!
                 var newBalance = [TokenBalance]()
                 if !balance.isEmpty {
                     for i in 0...balance.count - 1 {
@@ -583,11 +625,17 @@ class TokensDataStore {
                         }
                     }
                 }
-                realm.delete(token.balance)
-                token.balance.append(objectsIn: newBalance)
-            case .name(let name):
+                try! realmInBackground.write {
+                    realmInBackground.delete(token.balance)
+                    token.balance.append(objectsIn: newBalance)
+                }
+            }
+        case .name(let name):
+            try! realm.write {
                 token.name = name
-            case .type(let type):
+            }
+        case .type(let type):
+            try! realm.write {
                 token.type = type
             }
         }
@@ -599,7 +647,7 @@ class TokensDataStore {
 
     ///Note that it's possible for a contract to have the same tokenId repeated
     func update(contract: String, tokenId: String, action: TokenBalanceUpdateAction) {
-        guard let token = objects.first(where: { $0.contract.sameContract(as: contract) }) else { return }
+        guard let token = token(forContract: contract) else { return }
         let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
         let balances = token.balance.filter { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt }
 
@@ -620,7 +668,7 @@ class TokensDataStore {
     }
 
     func jsonAttributeValue(forContract contract: String, tokenId: String, attributeName: String) -> Any? {
-        guard let token = objects.first(where: { $0.contract.sameContract(as: contract) }) else { return nil }
+        guard let token = token(forContract: contract) else { return nil }
         let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
         guard let balance = token.balance.first(where: { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt }) else { return nil }
         let json = balance.json

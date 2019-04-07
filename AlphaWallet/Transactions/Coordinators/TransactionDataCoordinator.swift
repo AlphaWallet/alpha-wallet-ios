@@ -2,15 +2,6 @@
 
 import Foundation
 import UIKit
-import APIKit
-import BigInt
-import Moya
-import JSONRPCKit
-import PromiseKit
-import RealmSwift
-import Result
-import TrustKeystore
-import UserNotifications
 
 enum TransactionError: Error {
     case failedToFetch
@@ -20,293 +11,116 @@ protocol TransactionDataCoordinatorDelegate: class {
     func didUpdate(result: ResultResult<[Transaction], TransactionError>.t)
 }
 
-class TransactionDataCoordinator {
+class TransactionDataCoordinator: Coordinator {
     static let deleteMissingInternalSeconds: Double = 60.0
     static let delayedTransactionInternalSeconds: Double = 60.0
 
-    private let storage: TransactionsStorage
-    private let session: WalletSession
+    private let transactionCollection: TransactionCollection
+    private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
-    private let tokensStorage: TokensDataStore
-    private var viewModel: TransactionsViewModel {
-        return .init(config: session.config, transactions: storage.objects)
+    private let tokensStorages: ServerDictionary<TokensDataStore>
+    private var singleChainTransactionDataCoordinators: [SingleChainTransactionDataCoordinator] {
+        return coordinators.compactMap { $0 as? SingleChainTransactionDataCoordinator }
     }
-    private var timer: Timer?
-    private var updateTransactionsTimer: Timer?
-
-    private lazy var transactionsTracker: TransactionsTracker = {
-        return TransactionsTracker(sessionID: session.sessionID)
+    private var config: Config {
+        return sessions.anyValue.config
+    }
+    private let fetchLatestTransactionsQueue: OperationQueue = {
+        let queue = OperationQueue()
+        queue.name = "Fetch Latest Transactions"
+        queue.maxConcurrentOperationCount = 3
+        return queue
     }()
-    private let alphaWalletProvider = AlphaWalletProviderFactory.makeProvider()
-    private var isFetchingLatestTransactions = false
 
     weak var delegate: TransactionDataCoordinatorDelegate?
+    var coordinators: [Coordinator] = []
 
     init(
-        session: WalletSession,
-        storage: TransactionsStorage,
-        keystore: Keystore,
-        tokensStorage: TokensDataStore
+            sessions: ServerDictionary<WalletSession>,
+            transactionCollection: TransactionCollection,
+            keystore: Keystore,
+            tokensStorages: ServerDictionary<TokensDataStore>
     ) {
-        self.session = session
-        self.storage = storage
+        self.sessions = sessions
+        self.transactionCollection = transactionCollection
         self.keystore = keystore
-        self.tokensStorage = tokensStorage
+        self.tokensStorages = tokensStorages
+        setupSingleChainTransactionDataCoordinators()
         NotificationCenter.default.addObserver(self, selector: #selector(stopTimers), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(restartTimers), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
-    func start() {
-        runScheduledTimers()
-        if transactionsTracker.fetchingState != .done {
-            fetchOlderTransactions(for: session.account.address)
+    private func setupSingleChainTransactionDataCoordinators() {
+        for each in transactionCollection.transactionsStorages {
+            let server = each.server
+            let session = sessions[server]
+            let tokensDataStore = tokensStorages[server]
+            let coordinator = SingleChainTransactionDataCoordinator(session: session, storage: each, keystore: keystore, tokensStorage: tokensDataStore, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
+            coordinator.delegate = self
+            addCoordinator(coordinator)
         }
     }
 
-    @objc func stopTimers() {
-        timer?.invalidate()
-        timer = nil
-        updateTransactionsTimer?.invalidate()
-        updateTransactionsTimer = nil
+    func start() {
+        for each in singleChainTransactionDataCoordinators {
+            each.start()
+        }
+        //Since start() is called at launch, and user don't see the Transactions tab immediately, we don't want it to block launching
+        DispatchQueue.global().async {
+            DispatchQueue.main.async { [weak self] in
+                self?.handleUpdateItems()
+            }
+        }
     }
 
-    @objc func restartTimers() {
+    @objc private func stopTimers() {
+        for each in singleChainTransactionDataCoordinators {
+            each.stopTimers()
+        }
+    }
+
+    @objc private func restartTimers() {
         runScheduledTimers()
     }
 
     private func runScheduledTimers() {
-        guard !session.config.isAutoFetchingDisabled else { return }
-        guard timer == nil, updateTransactionsTimer == nil else {
-            return
+        guard !config.isAutoFetchingDisabled else { return }
+        for each in singleChainTransactionDataCoordinators {
+            each.runScheduledTimers()
         }
-        timer = Timer.scheduledTimer(timeInterval: 5, target: BlockOperation { [weak self] in
-            self?.fetchPending()
-        }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
-        updateTransactionsTimer = Timer.scheduledTimer(timeInterval: 15, target: BlockOperation { [weak self] in
-            self?.fetchLatestTransactions()
-        }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
     func fetch() {
-        session.refresh(.balance)
-        fetchLatestTransactions()
-        fetchPendingTransactions()
-    }
-
-    ///Fetching transactions might take a long time, we use a flag to make sure we only pull the latest transactions 1 "page" at a time, otherwise we'd end up pulling the same "page" multiple times
-    @objc private func fetchLatestTransactions() {
-        guard !isFetchingLatestTransactions else { return }
-        isFetchingLatestTransactions = true
-
-        let startBlock: Int
-        let sortOrder: AlphaWalletService.SortOrder
-        if let newestCachedTransaction = storage.completedObjects.first {
-            startBlock = newestCachedTransaction.blockNumber + 1
-            sortOrder = .asc
-        } else {
-            startBlock = 1
-            sortOrder = .desc
+        guard !config.isAutoFetchingDisabled else { return }
+        for each in singleChainTransactionDataCoordinators {
+            each.fetch()
         }
-        fetchTransactions(for: session.account.address, startBlock: startBlock, sortOrder: sortOrder) { [weak self] result in
-            guard let strongSelf = self else { return }
-            defer { strongSelf.isFetchingLatestTransactions = false }
-            switch result {
-            case .success(let transactions):
-                strongSelf.notifyUserEtherReceived(inNewTransactions: transactions)
-                strongSelf.update(items: transactions)
-            case .failure(let error):
-                strongSelf.handleError(error: error)
-            }
-        }
-    }
-
-    private func fetchTransactions(
-        for address: Address,
-        startBlock: Int,
-        endBlock: Int = 999_999_999,
-        sortOrder: AlphaWalletService.SortOrder,
-        completion: @escaping (ResultResult<[Transaction], AnyError>.t) -> Void
-    ) {
-        alphaWalletProvider.request(
-                .getTransactions(
-                        config: session.config,
-                        address: address.description,
-                        startBlock: startBlock,
-                        endBlock: endBlock,
-                        sortOrder: sortOrder
-                )
-        ) { result in
-            switch result {
-            case .success(let response):
-                DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-                    guard let strongSelf = self else { return }
-                    do {
-                        let rawTransactions = try response.map(ArrayResponse<RawTransaction>.self).result
-                        DispatchQueue.main.async {
-                            let transactionsPromises = rawTransactions.map { Transaction.from(transaction: $0, tokensStorage: strongSelf.tokensStorage) }
-                            when(fulfilled: transactionsPromises).done { results in
-                                let transactions = results.compactMap { $0 }
-                                completion(.success(transactions))
-                            ///like that?
-                            }.cauterize()
-                        }
-                    } catch {
-                        DispatchQueue.main.async {
-                            completion(.failure(AnyError(error)))
-                        }
-                    }
-                }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    completion(.failure(AnyError(error)))
-                }
-            }
-        }
-    }
-
-    func update(items: [PendingTransaction]) {
-        let transactionItems: [Transaction] = items.compactMap { .from(transaction: $0) }
-        update(items: transactionItems)
-    }
-
-    func fetchPendingTransactions() {
-        storage.pendingObjects.forEach { updatePendingTransaction($0) }
-    }
-
-    private func updatePendingTransaction(_ transaction: Transaction) {
-        let request = GetTransactionRequest(hash: transaction.id)
-        Session.send(EtherServiceRequest(config: session.config, batch: BatchFactory().create(request))) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success:
-                // NSLog("parsedTransaction \(_parsedTransaction)")
-                if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.delayedTransactionInternalSeconds) {
-                    strongSelf.update(state: .completed, for: transaction)
-                    strongSelf.update(items: [transaction])
-                }
-            case .failure(let error):
-                // NSLog("error: \(error)")
-                switch error {
-                case .responseError(let error):
-                    // TODO: Think about the logic to handle pending transactions.
-                    guard let error = error as? JSONRPCError else { return }
-                    switch error {
-                    case .responseError:
-                        // NSLog("code \(code), error: \(message)")
-                        strongSelf.delete(transactions: [transaction])
-                    case .resultObjectParseError:
-                        if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
-                            strongSelf.update(state: .failed, for: transaction)
-                        }
-                    default: break
-                    }
-                default: break
-                }
-            }
-        }
-    }
-
-    @objc func fetchPending() {
-        fetchPendingTransactions()
-    }
-
-    func update(items: [Transaction]) {
-        storage.add(items)
-        handleUpdateItems()
-    }
-
-    func handleError(error: Error) {
-        //delegate?.didUpdate(result: .failure(TransactionError.failedToFetch))
-        // Avoid showing an error on failed request, instead show cached transactions.
-    }
-
-    private func notifyUserEtherReceived(inNewTransactions transactions: [Transaction]) {
-        guard let wallet = keystore.recentlyUsedWallet else { return }
-        var toNotify: [Transaction]
-        if let newestCached = storage.objects.first {
-            toNotify = transactions.filter { $0.blockNumber > newestCached.blockNumber }
-        } else {
-            toNotify = transactions
-        }
-        //Beyond a certain number, it's too noisy and a performance nightmare. Eg. the first time we fetch transactions for a newly imported wallet, we might get 10,000 of them
-        let maximumNumberOfNotifications = 10
-        if toNotify.count > maximumNumberOfNotifications {
-            toNotify = Array(toNotify[0..<maximumNumberOfNotifications])
-        }
-        let newIncomingEthTransactions = toNotify.filter { $0.to.sameContract(as: wallet.address.eip55String) }
-        let formatter = EtherNumberFormatter.short
-        let thresholdToShowNotification = Date.yesterday
-        for each in newIncomingEthTransactions {
-            let amount = formatter.string(from: BigInt(each.value) ?? BigInt(), decimals: 18)
-            if each.date > thresholdToShowNotification {
-                notifyUserEtherReceived(for: each.id, amount: amount)
-            }
-        }
-    }
-
-    private func notifyUserEtherReceived(for transactionId: String, amount: String) {
-        let notificationCenter = UNUserNotificationCenter.current()
-        let content = UNMutableNotificationContent()
-        let config = session.config
-        switch config.server {
-        case .main, .xDai:
-            content.body = R.string.localizable.transactionsReceivedEther(amount, config.server.symbol)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
-            content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(config.server.name))", config.server.symbol)
-        }
-        content.sound = .default
-        let identifier = Constants.etherReceivedNotificationIdentifier
-        let request = UNNotificationRequest(identifier: "\(identifier):\(transactionId)", content: content, trigger: nil)
-        notificationCenter.add(request)
-    }
-
-    func handleUpdateItems() {
-        delegate?.didUpdate(result: .success(storage.objects))
     }
 
     func addSentTransaction(_ transaction: SentTransaction) {
+        let session = sessions[transaction.original.server]
         let transaction = SentTransaction.from(from: session.account.address, transaction: transaction)
-        storage.add([transaction])
+        transactionCollection.add([transaction])
         handleUpdateItems()
-    }
-
-    func update(state: TransactionState, for transaction: Transaction) {
-        storage.update(state: state, for: transaction)
-        handleUpdateItems()
-    }
-
-    func delete(transactions: [Transaction]) {
-        storage.delete(transactions)
-        handleUpdateItems()
-    }
-
-    private func fetchOlderTransactions(for address: Address) {
-        guard let oldestCachedTransaction = storage.completedObjects.last else { return }
-
-        fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc) { [weak self] result in
-            guard let strongSelf = self else { return }
-            switch result {
-            case .success(let transactions):
-                strongSelf.update(items: transactions)
-                if !transactions.isEmpty {
-                    let timeout = DispatchTime.now() + .milliseconds(300)
-                    DispatchQueue.main.asyncAfter(deadline: timeout) { [weak self] in
-                        self?.fetchOlderTransactions(for: address)
-                    }
-                } else {
-                    strongSelf.transactionsTracker.fetchingState = .done
-                }
-            case .failure:
-                strongSelf.transactionsTracker.fetchingState = .failed
-            }
-        }
     }
 
     func stop() {
-        timer?.invalidate()
-        timer = nil
+        for each in singleChainTransactionDataCoordinators {
+            each.stop()
+        }
+    }
 
-        updateTransactionsTimer?.invalidate()
-        updateTransactionsTimer = nil
+    private func singleChainTransactionDataCoordinator(forServer server: RPCServer) -> SingleChainTransactionDataCoordinator? {
+        return singleChainTransactionDataCoordinators.first { $0.isServer(server) }
+    }
+
+    private func handleUpdateItems() {
+        delegate?.didUpdate(result: .success(transactionCollection.objects))
+    }
+}
+
+extension TransactionDataCoordinator: SingleChainTransactionDataCoordinatorDelegate {
+    func handleUpdateItems(inCoordinator: SingleChainTransactionDataCoordinator) {
+        handleUpdateItems()
     }
 }

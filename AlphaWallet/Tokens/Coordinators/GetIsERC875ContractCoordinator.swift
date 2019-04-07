@@ -5,10 +5,10 @@ import Result
 import TrustKeystore
 
 class GetIsERC875ContractCoordinator {
-    private let config: Config
+    private let server: RPCServer
 
-    init(config: Config) {
-        self.config = config
+    init(forServer server: RPCServer) {
+        self.server = server
     }
 
     func getIsERC875Contract(
@@ -16,7 +16,7 @@ class GetIsERC875ContractCoordinator {
         completion: @escaping (Result<Bool, AnyError>) -> Void
     ) {
         let function = GetIsERC875()
-        callSmartContract(withConfig: config, contract: contract, functionName: function.name, abiString: "[\(function.abi)]").done { dictionary in
+        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: "[\(function.abi)]").done { dictionary in
             if let isERC875 = dictionary["0"] as? Bool {
                 completion(.success(isERC875))
             } else {
