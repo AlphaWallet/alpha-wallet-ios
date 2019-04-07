@@ -6,11 +6,11 @@ import Moya
 enum AlphaWalletService {
     case priceOfEth(config: Config)
     case priceOfDai(config: Config)
-    case getTransactions(config: Config, address: String, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
+    case getTransactions(config: Config, server: RPCServer, address: String, startBlock: Int, endBlock: Int, sortOrder: SortOrder)
     case getTransaction(config: Config, ID: String)
     case register(config: Config, device: PushDevice)
     case unregister(config: Config, device: PushDevice)
-    case marketplace(config: Config)
+    case marketplace(config: Config, server: RPCServer)
 
     enum SortOrder: String {
         case asc
@@ -21,13 +21,13 @@ enum AlphaWalletService {
 extension AlphaWalletService: TargetType {
     var baseURL: URL {
         switch self {
-        case .getTransactions(let config, _, _, _, _):
-            return config.transactionInfoEndpoints
+        case .getTransactions(let config, let server, _, _, _, _):
+            return server.transactionInfoEndpoints
         case .priceOfEth(let config), .priceOfDai(let config):
             return config.priceInfoEndpoints
         case .getTransaction(let config, _), .register(let config, _), .unregister(let config, _):
             return config.priceInfoEndpoints
-        case .marketplace(let config):
+        case .marketplace(let config, _):
             return config.priceInfoEndpoints
         }
     }
@@ -65,7 +65,7 @@ extension AlphaWalletService: TargetType {
 
     var task: Task {
         switch self {
-        case .getTransactions(_, let address, let startBlock, let endBlock, let sortOrder):
+        case .getTransactions(_, _, let address, let startBlock, let endBlock, let sortOrder):
             return .requestParameters(parameters: [
                 "module": "account",
                 "action": "txlist",
@@ -82,8 +82,8 @@ extension AlphaWalletService: TargetType {
             return .requestJSONEncodable(device)
         case .priceOfEth, .priceOfDai:
             return .requestPlain
-        case .marketplace(let config):
-            return .requestParameters(parameters: ["chainID": config.server.chainID], encoding: URLEncoding())
+        case .marketplace(_, let server):
+            return .requestParameters(parameters: ["chainID": server.chainID], encoding: URLEncoding())
         }
     }
 

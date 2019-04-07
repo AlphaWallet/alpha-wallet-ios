@@ -3,7 +3,7 @@
 import UIKit
 
 protocol CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, in viewController: UIViewController)
+    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController)
     func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController)
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController)
 }

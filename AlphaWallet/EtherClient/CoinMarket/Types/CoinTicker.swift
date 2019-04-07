@@ -10,7 +10,7 @@ struct CoinTicker: Codable {
 
     let price_usd: String
     let percent_change_24h: String
-    let contract: String = Constants.nullAddress
+    let contract: String = Constants.nativeCryptoAddressInDatabase
 
     lazy var rate: CurrencyRate = {
         CurrencyRate(

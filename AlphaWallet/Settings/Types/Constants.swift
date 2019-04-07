@@ -10,19 +10,20 @@ public struct Constants {
         Array(arrayLiteral: 0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50)
     ).hex()
 
-    // Magic link networks
-    public static let mainnetMagicLinkPrefix = "https://aw.app/"
-    public static let legacyMagicLinkPrefix = "https://app.awallet.io/"
-    public static let classicMagicLinkPrefix = "https://classic.aw.app/"
-    public static let callistoMagicLinkPrefix = "https://callisto.aw.app/"
-    public static let kovanMagicLinkPrefix = "https://kovan.aw.app/"
-    public static let ropstenMagicLinkPrefix = "https://ropsten.aw.app/"
-    public static let rinkebyMagicLinkPrefix = "https://rinkeby.aw.app/"
-    public static let poaMagicLinkPrefix = "https://poa.aw.app/"
-    public static let sokolMagicLinkPrefix = "https://sokol.aw.app/"
-    public static let xDaiMagicLinkPrefix = "https://xdai.aw.app/"
-    public static let customMagicLinkPrefix = "https://custom.aw.app/"
+    public static let mainnetMagicLinkHost = "aw.app"
+    public static let legacyMagicLinkHost = "app.awallet.io"
+    public static let classicMagicLinkHost = "classic.aw.app"
+    public static let callistoMagicLinkHost = "callisto.aw.app"
+    public static let kovanMagicLinkHost = "kovan.aw.app"
+    public static let ropstenMagicLinkHost = "ropsten.aw.app"
+    public static let rinkebyMagicLinkHost = "rinkeby.aw.app"
+    public static let poaMagicLinkHost = "poa.aw.app"
+    public static let sokolMagicLinkHost = "sokol.aw.app"
+    public static let xDaiMagicLinkHost = "xdai.aw.app"
+    public static let customMagicLinkHost = "custom.aw.app"
 
+    // Magic link networks
+    public static let legacyMagicLinkPrefix = "https://app.awallet.io/"
 
     // XML repo
     public static let repoServer = "https://repo.aw.app"
@@ -51,6 +52,7 @@ public struct Constants {
     public static let nullTokenIdBigUInt = BigUInt(0)
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
     public static let nullAddress = "0x0000000000000000000000000000000000000000"
+    public static let nativeCryptoAddressInDatabase = nullAddress
 
     // FIFA hardcoded FIFA token address
     public static let ticketContractAddress = "0xA66A3F08068174e8F005112A8b2c7A507a822335"
@@ -111,6 +113,8 @@ public struct Constants {
         (name: "USDC", contract: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
         (name: "USDO", contract: "0x98f2ab72198f2e64527bdb28931f60c0f77ac2fc")
     ]
+
+    static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .classic, .poa]
 }
 
 public struct UnitConfiguration {

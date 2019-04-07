@@ -26,20 +26,20 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     private var viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
     private let tokenHolder: TokenHolder
 
-    let config: Config
     var contract: String {
         return viewModel.token.contract
+    }
+    var server: RPCServer {
+        return viewModel.token.server
     }
     let paymentFlow: PaymentFlow
     weak var delegate: SetTransferTokensCardExpiryDateViewControllerDelegate?
 
     init(
-            config: Config,
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
             viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
     ) {
-        self.config = config
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
@@ -228,7 +228,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
     }
 
     override func viewDidLayoutSubviews() {

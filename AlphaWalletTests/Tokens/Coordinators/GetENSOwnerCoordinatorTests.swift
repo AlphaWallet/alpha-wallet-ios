@@ -16,16 +16,16 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         let expectation = self.expectation(description: "Wait for ENS name to be resolved")
         expectations.append(expectation)
         let ensName = "b00n.thisisme.eth"
-        let config = makeConfigOnMainnet()
-        GetENSOwnerCoordinator(config: config).getENSOwner(for: ensName) { result in
+        let server = makeServerForMainnet()
+        GetENSOwnerCoordinator(server: server).getENSOwner(for: ensName) { result in
             if let address = result.value, address.address.sameContract(as: "0xbbce83173d5c1D122AE64856b4Af0D5AE07Fa362") {
                 expectation.fulfill()
             }
         }
-        wait(for: expectations, timeout: 3)
+        wait(for: expectations, timeout: 10)
     }
 
-    private func makeConfigOnMainnet() -> Config {
-        return Config.make(chainID: RPCServer.main.chainID)
+    private func makeServerForMainnet() -> RPCServer {
+        return .main
     }
 }

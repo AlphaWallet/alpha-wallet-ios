@@ -9,14 +9,12 @@ protocol BackupViewControllerDelegate: class {
 }
 
 class BackupViewController: UIViewController {
-    private let config: Config
     private let account: Account
-    lazy private var viewModel = BackupViewModel(config: config)
+    lazy private var viewModel = BackupViewModel()
 
     weak var delegate: BackupViewControllerDelegate?
 
-    init(config: Config, account: Account) {
-        self.config = config
+    init(account: Account) {
         self.account = account
 
         super.init(nibName: nil, bundle: nil)

@@ -11,11 +11,9 @@ import RealmSwift
 import BigInt
 
 class TokenAdaptor {
-    private let config: Config
     private let token: TokenObject
 
-    init(config: Config, token: TokenObject) {
-        self.config = config
+    init(token: TokenObject) {
         self.token = token
     }
 
@@ -42,7 +40,8 @@ class TokenAdaptor {
             let id = item.balance
             guard isNonZeroBalance(id) else { continue }
             if let tokenInt = BigUInt(id.drop0x, radix: 16) {
-                let token = getToken(name: self.token.name, for: tokenInt, index: UInt16(index), config: config)
+                let server = self.token.server
+                let token = getToken(name: self.token.name, for: tokenInt, index: UInt16(index), server: server)
                 tokens.append(token)
             }
         }
@@ -137,8 +136,8 @@ class TokenAdaptor {
     }
 
     //TODO pass lang into here
-    private func getToken(name: String, for id: BigUInt, index: UInt16, config: Config) -> Token {
-        return XMLHandler(contract: token.contract).getToken(name: name, fromTokenId: id, index: index, config: config)
+    private func getToken(name: String, for id: BigUInt, index: UInt16, server: RPCServer) -> Token {
+        return XMLHandler(contract: token.contract).getToken(name: name, fromTokenId: id, index: index, server: server)
     }
 
     private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String) -> Token? {

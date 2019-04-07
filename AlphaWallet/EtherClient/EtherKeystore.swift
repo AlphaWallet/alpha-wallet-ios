@@ -389,10 +389,10 @@ open class EtherKeystore: Keystore {
         }
 
         let signer: Signer
-        if transaction.chainID == 0 {
+        if transaction.server.chainID == 0 {
             signer = HomesteadSigner()
         } else {
-            signer = EIP155Signer(chainId: BigInt(transaction.chainID))
+            signer = EIP155Signer(server: transaction.server)
         }
 
         do {

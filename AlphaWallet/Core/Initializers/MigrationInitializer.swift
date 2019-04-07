@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
 import RealmSwift
@@ -6,73 +6,28 @@ import TrustKeystore
 
 class MigrationInitializer: Initializer {
     private let account: Wallet
-    private let chainID: Int
 
     lazy var config: Realm.Configuration = {
-        return RealmConfiguration.configuration(for: account, chainID: chainID)
+        return RealmConfiguration.configuration(for: account)
     }()
 
-    init(
-            account: Wallet, chainID: Int
-    ) {
+    init(account: Wallet) {
         self.account = account
-        self.chainID = chainID
     }
 
     func perform() {
-        config.schemaVersion = 52
+        config.schemaVersion = 2
         config.migrationBlock = { migration, oldSchemaVersion in
-            if oldSchemaVersion < 33 {
+            if oldSchemaVersion < 2 {
+                //Fix bug created during multi-chain implementation. Where TokenObject instances are created from transfer Transaction instances, with the primaryKey as a empty string; so instead of updating an existing TokenObject, a duplicate TokenObject instead was created but with primaryKey empty
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
-                    guard let value = oldObject["contract"] as? String else { return }
-                    guard let address = Address(string: value) else { return }
-
-                    newObject["contract"] = address.description
-                }
-            }
-            if oldSchemaVersion < 44 {
-                migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
-                    guard let oldObject = oldObject else { return }
-                    guard let newObject = newObject else { return }
-                    if let isStormbird = oldObject["isStormBird"] as? Bool {
-                        newObject["rawType"] = isStormbird ? TokenType.erc875.rawValue : TokenType.erc20.rawValue
+                    if let primaryKey = newObject["primaryKey"] as? String, primaryKey.isEmpty {
+                        migration.delete(newObject)
+                        return
                     }
                 }
-            }
-            if oldSchemaVersion < 48 {
-                migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
-                    guard let oldObject = oldObject else { return }
-                    guard let newObject = newObject else { return }
-                    if let contract = oldObject["contract"] as? String, contract == Constants.nullAddress {
-                        newObject["rawType"] = TokenType.nativeCryptocurrency.rawValue
-                    }
-                }
-            }
-            if oldSchemaVersion < 49 {
-                //In schemaVersion 49, we clear the token's `name` because we want it to only contain the name returned by the RPC name call and not the localized text
-                migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
-                    guard let oldObject = oldObject else { return }
-                    guard let newObject = newObject else { return }
-                    if let contract = oldObject["contract"] as? String {
-                        let tokenTypeName = XMLHandler(contract: contract).getName()
-                        if tokenTypeName != "N/A" {
-                            newObject["name"] = ""
-                        }
-                    }
-                }
-            }
-            if oldSchemaVersion < 51 {
-                var bookmarkOrder = 0
-                migration.enumerateObjects(ofType: Bookmark.className()) { _, newObject in
-                    guard let newObject = newObject else { return }
-                    newObject["order"] = bookmarkOrder
-                    bookmarkOrder += 1
-                }
-            }
-            if oldSchemaVersion < 52 {
-                migration.deleteData(forType: Transaction.className())
             }
         }
     }

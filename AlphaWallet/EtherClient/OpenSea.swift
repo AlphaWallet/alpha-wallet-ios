@@ -23,17 +23,24 @@ class OpenSea {
         }
     }
 
+    //TODO OpenSea should support Ropsten now
+    static func isServerSupported(_ server: RPCServer) -> Bool {
+        switch server {
+        case .main, .rinkeby:
+            return true
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .xDai:
+            return false
+        }
+    }
+
     ///Call this after switching wallets, otherwise when the current promise is fulfilled, the switched to wallet will think the API results are for them
     func reset() {
         fetch = OpenSea.makeEmptyFulfilledPromise()
     }
 
     ///Uses a promise to make sure we don't fetch from OpenSea multiple times concurrently
-    func makeFetchPromise(config: Config, owner: String) -> PromiseResult {
-        switch config.server {
-        case .main, .rinkeby:
-            break
-        case .kovan, .poa, .sokol, .classic, .callisto, .custom, .xDai, .ropsten:
+    func makeFetchPromise(server: RPCServer, owner: String) -> PromiseResult {
+        guard OpenSea.isServerSupported(server) else {
             fetch = .value([:])
             return fetch
         }
@@ -46,7 +53,7 @@ class OpenSea {
         if fetch.isResolved {
             fetch = Promise { seal in
                 let offset = 0
-                fetchPage(forOwner: owner, offset: offset) { result in
+                fetchPage(forServer: server, owner: owner, offset: offset) { result in
                     switch result {
                     case .success(let result):
                         seal.fulfill(result)
@@ -59,9 +66,8 @@ class OpenSea {
         return fetch
     }
 
-    private func getBaseURLForOpensea() -> String {
-        let config = Config(chainID: Config.getChainId())
-        switch config.server {
+    private func getBaseURLForOpensea(server: RPCServer) -> String {
+        switch server {
         case .main:
             return Constants.openseaAPI
         case .rinkeby:
@@ -71,8 +77,8 @@ class OpenSea {
         }
     }
 
-    private func fetchPage(forOwner owner: String, offset: Int, sum: [String: [OpenSeaNonFungible]] = [:], completion: @escaping (ResultResult<[String: [OpenSeaNonFungible]], AnyError>.t) -> Void) {
-        let baseURL = getBaseURLForOpensea()
+    private func fetchPage(forServer server: RPCServer, owner: String, offset: Int, sum: [String: [OpenSeaNonFungible]] = [:], completion: @escaping (ResultResult<[String: [OpenSeaNonFungible]], AnyError>.t) -> Void) {
+        let baseURL = getBaseURLForOpensea(server: server)
         guard let url = URL(string: "\(baseURL)api/v1/assets/?owner=\(owner)&order_by=current_price&order_direction=asc&limit=200&offset=\(offset)") else {
             completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))))
             return
@@ -126,7 +132,7 @@ class OpenSea {
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
                     if currentPageCount > 0 {
-                        strongSelf.fetchPage(forOwner: owner, offset: offset + currentPageCount, sum: results) { results in
+                        strongSelf.fetchPage(forServer: server, owner: owner, offset: offset + currentPageCount, sum: results) { results in
                             completion(results)
                         }
                     } else {

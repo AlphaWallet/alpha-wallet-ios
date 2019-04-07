@@ -73,9 +73,9 @@ class ConfirmPaymentViewController: UIViewController {
     func configure(for detailsViewModel: ConfirmPaymentDetailsViewModel) {
         stackViewController.items.forEach { stackViewController.removeItem($0) }
 
-        let header = TransactionHeaderView()
+        let header = TransactionHeaderView(server: session.server)
         header.translatesAutoresizingMaskIntoConstraints = false
-        header.amountLabel.attributedText = detailsViewModel.amountAttributedString
+        header.configure(amount: detailsViewModel.amountAttributedString)
 
         let items: [UIView] = [
             .spacer(),
@@ -135,7 +135,7 @@ class ConfirmPaymentViewController: UIViewController {
     private func reloadView() {
         let viewModel = ConfirmPaymentDetailsViewModel(
             transaction: configurator.previewTransaction(),
-            config: session.config,
+            server: session.server,
             currentBalance: session.balance,
             currencyRate: session.balanceCoordinator.currencyRate
         )
@@ -150,7 +150,7 @@ class ConfirmPaymentViewController: UIViewController {
         let controller = ConfigureTransactionViewController(
             configuration: configurator.configuration,
             transferType: configurator.transaction.transferType,
-            config: session.config,
+            server: session.server,
             currencyRate: session.balanceCoordinator.currencyRate
         )
         controller.delegate = self

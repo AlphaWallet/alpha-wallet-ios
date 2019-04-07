@@ -10,10 +10,10 @@ class ChainState {
         static let latestBlock = "chainID"
     }
 
-    let config: Config
+    private let server: RPCServer
 
     private var latestBlockKey: String {
-        return "\(config.chainID)-" + Keys.latestBlock
+        return "\(server.chainID)-" + Keys.latestBlock
     }
 
     var latestBlock: Int {
@@ -28,8 +28,8 @@ class ChainState {
 
     var updateLatestBlock: Timer?
 
-    init(config: Config) {
-        self.config = config
+    init(config: Config, server: RPCServer) {
+        self.server = server
         self.defaults = config.defaults
         if config.isAutoFetchingDisabled {
             //No-op
@@ -48,7 +48,7 @@ class ChainState {
     }
 
     @objc func fetch() {
-        let request = EtherServiceRequest(config: config, batch: BatchFactory().create(BlockNumberRequest()))
+        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BlockNumberRequest()))
         Session.send(request) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {

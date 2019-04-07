@@ -26,6 +26,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
 
         let token = TokenObject(
             contract: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0",
+            server: .main,
             name: "MJ Comeback",
             symbol: "MJC",
             decimals: 0,

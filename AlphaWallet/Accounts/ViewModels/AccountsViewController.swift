@@ -10,7 +10,6 @@ protocol AccountsViewControllerDelegate: class {
 }
 
 class AccountsViewController: UIViewController {
-    private let server: RPCServer
     private let headerHeight = CGFloat(70)
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
@@ -37,10 +36,9 @@ class AccountsViewController: UIViewController {
         return !keystore.wallets.isEmpty
     }
 
-    init(keystore: Keystore, balanceCoordinator: GetBalanceCoordinator, server: RPCServer) {
+    init(keystore: Keystore, balanceCoordinator: GetBalanceCoordinator) {
         self.keystore = keystore
         self.balanceCoordinator = balanceCoordinator
-        self.server = server
         super.init(nibName: nil, bundle: nil)
 
         view.backgroundColor = Colors.appBackground
@@ -131,7 +129,7 @@ class AccountsViewController: UIViewController {
     private func getAccountViewModels(for path: IndexPath) -> AccountViewModel {
         let account = self.account(for: path)
         let balance = self.balances[account.address].flatMap { $0 }
-        let model = AccountViewModel(wallet: account, current: etherKeystore?.recentlyUsedWallet, walletBalance: balance, server: server)
+        let model = AccountViewModel(wallet: account, current: etherKeystore?.recentlyUsedWallet, walletBalance: balance, server: balanceCoordinator.server)
         return model
     }
 

@@ -11,16 +11,11 @@ import TrustKeystore
 class UniversalLinkHandlerTests: XCTestCase {
     
     func testUniversalLinkParser() {
-        let config = Config.make()
-        guard config.server == .main else {
-            XCTFail("This test expects itself to be run on Mainnet.")
-            return
-        }
-
+        let server: RPCServer = .main
         let testUrl = "https://aw.app/AQAAAAAAAACjNHyO0TRETCUWmHLJCmNg1Cs2kQFxEtQiQ269SZP2r2Y6CETiCqCE3HGQa63LYjsaCOccJi0mj9bpsmnZCwFkjVcNaaJ6Ed8lVU83UiGILQZ4CcFhHA=="
-        if let signedOrder = UniversalLinkHandler(config: config).parseUniversalLink(url: testUrl, prefix: Constants.mainnetMagicLinkPrefix) {
+        if let signedOrder = UniversalLinkHandler(server: server).parseUniversalLink(url: testUrl, prefix: RPCServer.main.magicLinkPrefix.absoluteString) {
             XCTAssertGreaterThanOrEqual(signedOrder.signature.count, 130)
-            let url = UniversalLinkHandler(config: config).createUniversalLink(signedOrder: signedOrder)
+            let url = UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrder)
             print(url)
             XCTAssertEqual(testUrl, url)
         }

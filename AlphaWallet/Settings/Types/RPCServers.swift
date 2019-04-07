@@ -5,7 +5,7 @@ import web3swift
 import BigInt
 import TrustKeystore
 
-enum RPCServer: Hashable {
+enum RPCServer: Hashable, CaseIterable {
     case main
     case kovan
     case ropsten
@@ -30,30 +30,6 @@ enum RPCServer: Hashable {
         case .xDai: return 100
         case .custom(let custom):
             return custom.chainID
-        }
-    }
-
-    func magicLinkNetwork(url: String) -> String {
-        if url.contains(Constants.mainnetMagicLinkPrefix) {
-            return "Ethereum"
-        } else if url.contains(Constants.classicMagicLinkPrefix) {
-            return "Ethereum Classic"
-        } else if url.contains(Constants.callistoMagicLinkPrefix) {
-            return "Callisto"
-        } else if url.contains(Constants.kovanMagicLinkPrefix) {
-            return "Kovan"
-        } else if url.contains(Constants.ropstenMagicLinkPrefix) {
-            return "Ropsten"
-        } else if url.contains(Constants.rinkebyMagicLinkPrefix) {
-            return "Rinkeby"
-        } else if url.contains(Constants.poaMagicLinkPrefix) {
-            return "POA"
-        } else if url.contains(Constants.sokolMagicLinkPrefix) {
-            return "Sokol"
-        } else if url.contains(Constants.xDaiMagicLinkPrefix) {
-            return "xDAI"
-        } else {
-            return "custom"
         }
     }
 
@@ -184,6 +160,116 @@ enum RPCServer: Hashable {
         }
     }
 
+    var magicLinkPrefix: URL {
+        let urlString = "https://\(magicLinkHost)/"
+        return URL(string: urlString)!
+    }
+
+    var magicLinkHost: String {
+        switch self {
+        case .main:
+            return Constants.mainnetMagicLinkHost
+        case .kovan:
+            return Constants.kovanMagicLinkHost
+        case .ropsten:
+            return Constants.ropstenMagicLinkHost
+        case .rinkeby:
+            return Constants.rinkebyMagicLinkHost
+        case .poa:
+            return Constants.poaMagicLinkHost
+        case .sokol:
+            return Constants.sokolMagicLinkHost
+        case .classic:
+            return Constants.classicMagicLinkHost
+        case .callisto:
+            return Constants.callistoMagicLinkHost
+        case .xDai:
+            return Constants.xDaiMagicLinkHost
+        case .custom:
+            return Constants.customMagicLinkHost
+        }
+    }
+
+    var rpcURL: URL {
+        let urlString: String = {
+            switch self {
+            case .main: return "https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk"
+            case .classic: return "https://ethereumclassic.network"
+            case .callisto: return "https://callisto.network/" //TODO Add endpoint
+            case .kovan: return "https://kovan.infura.io/llyrtzQ3YhkdESt2Fzrk"
+            case .ropsten: return "https://ropsten.infura.io/llyrtzQ3YhkdESt2Fzrk"
+            case .rinkeby: return "https://rinkeby.infura.io/llyrtzQ3YhkdESt2Fzrk"
+            case .poa: return "https://core.poa.network"
+            case .sokol: return "https://sokol.poa.network"
+            case .xDai: return "https://dai.poa.network"
+            case .custom(let custom):
+                return custom.endpoint
+            }
+        }()
+        return URL(string: urlString)!
+    }
+
+    var transactionInfoEndpoints: URL {
+        let urlString: String = {
+            switch self {
+            case .main: return "https://api.etherscan.io"
+            case .classic: return "https://blockscout.com/etc/mainnet/api"
+            case .callisto: return "https://callisto.trustwalletapp.com"
+            case .kovan: return "https://api-kovan.etherscan.io"
+            case .ropsten: return "https://api-ropsten.etherscan.io"
+            case .rinkeby: return "https://api-rinkeby.etherscan.io"
+            case .poa: return "https://blockscout.com/poa/core/api"
+            case .xDai: return "https://blockscout.com/poa/dai/api"
+            case .sokol: return "https://blockscout.com/poa/sokol/api"
+            case .custom:
+                return "" // Enable? make optional
+            }
+        }()
+        return URL(string: urlString)!
+    }
+
+    var ensRegistrarContract: EthereumAddress {
+        switch self {
+        case .main: return Constants.ENSRegistrarAddress
+        case .ropsten: return Constants.ENSRegistrarRopsten
+        case .rinkeby: return Constants.ENSRegistrarRinkeby
+        case .xDai: return Constants.ENSRegistrarXDAI
+        default: return Constants.ENSRegistrarAddress
+        }
+    }
+
+    var networkRequestsQueuePriority: Operation.QueuePriority {
+        switch self {
+        case .main, .xDai:
+            return .normal
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+            return .low
+        }
+    }
+
+    var blockChainName: String {
+        switch self {
+        case .xDai:
+            return R.string.localizable.blockchainXDAI()
+        case .main, .rinkeby, .ropsten, .custom, .callisto, .classic, .kovan, .sokol, .poa:
+            return R.string.localizable.blockchainEthereum()
+        }
+    }
+
+    var blockChainNameColor: UIColor {
+        switch self {
+        case .main: return .init(red: 41, green: 134, blue: 175)
+        case .classic: return .init(red: 55, green: 137, blue: 55)
+        case .callisto: return .init(red: 88, green: 56, blue: 163)
+        case .kovan: return .init(red: 112, green: 87, blue: 141)
+        case .ropsten, .custom: return .init(red: 255, green: 74, blue: 141)
+        case .rinkeby: return .init(red: 246, green: 195, blue: 67)
+        case .poa: return .init(red: 88, green: 56, blue: 163)
+        case .sokol: return .init(red: 107, green: 53, blue: 162)
+        case .xDai: return .init(red: 253, green: 176, blue: 61)
+        }
+    }
+
     init(name: String) {
         self = {
             switch name {
@@ -216,5 +302,47 @@ enum RPCServer: Hashable {
             default: return .main
             }
         }()
+    }
+
+    init?(withMagicLinkHost magicLinkHost: String) {
+        var server: RPCServer? = {
+            switch magicLinkHost {
+            case RPCServer.main.magicLinkHost: return .main
+            case RPCServer.classic.magicLinkHost: return .classic
+            case RPCServer.callisto.magicLinkHost: return .callisto
+            case RPCServer.kovan.magicLinkHost: return .kovan
+            case RPCServer.ropsten.magicLinkHost: return .ropsten
+            case RPCServer.rinkeby.magicLinkHost: return .rinkeby
+            case RPCServer.poa.magicLinkHost: return .poa
+            case RPCServer.sokol.magicLinkHost: return .sokol
+            case RPCServer.xDai.magicLinkHost: return .xDai
+            default: return nil
+            }
+        }()
+        //Special case to support legacy host name
+        if magicLinkHost == Constants.legacyMagicLinkHost {
+            server = .main
+        }
+        guard let createdServer = server else { return nil }
+        self = createdServer
+    }
+
+    init?(withMagicLink url: URL) {
+        guard let host = url.host, let server = RPCServer(withMagicLinkHost: host) else { return nil }
+        self = server
+    }
+
+    //We'll have to manually new cases here
+    static var allCases: [RPCServer] {
+        return [
+            .main,
+            .kovan,
+            .ropsten,
+            .rinkeby,
+            .poa,
+            .sokol,
+            .classic,
+            .xDai
+        ]
     }
 }

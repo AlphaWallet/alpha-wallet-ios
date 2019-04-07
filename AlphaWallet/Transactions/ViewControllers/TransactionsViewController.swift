@@ -13,24 +13,21 @@ protocol TransactionsViewControllerDelegate: class {
 
 class TransactionsViewController: UIViewController {
     private var viewModel: TransactionsViewModel
-    private let account: Wallet
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let refreshControl = UIRefreshControl()
     private let dataCoordinator: TransactionDataCoordinator
-    private let session: WalletSession
+    private let sessions: ServerDictionary<WalletSession>
 
     var paymentType: PaymentFlow?
     weak var delegate: TransactionsViewControllerDelegate?
 
     init(
-        account: Wallet,
         dataCoordinator: TransactionDataCoordinator,
-        session: WalletSession,
+        sessions: ServerDictionary<WalletSession>,
         viewModel: TransactionsViewModel
     ) {
-        self.account = account
         self.dataCoordinator = dataCoordinator
-        self.session = session
+        self.sessions = sessions
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
 
@@ -57,6 +54,7 @@ class TransactionsViewController: UIViewController {
         dataCoordinator.delegate = self
         dataCoordinator.start()
 
+        tableView.refreshControl = refreshControl
         refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         tableView.addSubview(refreshControl)
 
@@ -84,10 +82,6 @@ class TransactionsViewController: UIViewController {
         fetch()
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
-
     @objc func pullToRefresh() {
         refreshControl.beginRefreshing()
         fetch()
@@ -95,7 +89,12 @@ class TransactionsViewController: UIViewController {
 
     func fetch() {
         startLoading()
-        dataCoordinator.fetch()
+        //Since this is called at launch, we don't want it to block launching
+        DispatchQueue.global().async {
+            DispatchQueue.main.async { [weak self] in
+                self?.dataCoordinator.fetch()
+            }
+        }
     }
 
     func configure(viewModel: TransactionsViewModel) {
@@ -140,7 +139,7 @@ extension TransactionsViewController: TransactionDataCoordinatorDelegate {
     func didUpdate(result: Result<[Transaction], TransactionError>) {
         switch result {
         case .success(let items):
-        let viewModel = TransactionsViewModel(config: session.config, transactions: items)
+        let viewModel = TransactionsViewModel(transactions: items)
             configure(viewModel: viewModel)
             endLoading()
         case .failure(let error):
@@ -162,11 +161,12 @@ extension TransactionsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let transaction = viewModel.item(for: indexPath.row, section: indexPath.section)
         let cell = tableView.dequeueReusableCell(withIdentifier: TransactionViewCell.identifier, for: indexPath) as! TransactionViewCell
+        let session = sessions[transaction.server]
         cell.configure(viewModel: .init(
                 transaction: transaction,
-                config: session.config,
                 chainState: session.chainState,
-                currentWallet: session.account
+                currentWallet: session.account,
+                server: transaction.server
             )
         )
         return cell
@@ -184,4 +184,3 @@ extension TransactionsViewController: UITableViewDataSource {
         return 30
     }
 }
-

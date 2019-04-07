@@ -32,7 +32,9 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(numberOfButtons: 3)
 
-    let config: Config
+    var server: RPCServer {
+        return tokenObject.server
+    }
     var contract: String {
         return tokenObject.contract
     }
@@ -54,8 +56,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         }
     }
 
-    init(config: Config, tokenObject: TokenObject, account: Wallet, tokensStorage: TokensDataStore, viewModel: TokensCardViewModel) {
-        self.config = config
+    init(tokenObject: TokenObject, account: Wallet, tokensStorage: TokensDataStore, viewModel: TokensCardViewModel) {
         self.tokenObject = tokenObject
         self.account = account
         self.tokensStorage = tokensStorage
@@ -118,7 +119,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.dataSource = self
         updateNavigationRightBarButtons(isVerified: isContractVerified)
 
-        header.configure(viewModel: .init(tokenObject: tokenObject, server: config.server))
+        header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server))
         tableView.tableHeaderView = header
 
         buttonsBar.configure()
@@ -171,7 +172,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     }
 
     @objc func transfer() {
-        let transferType = TransferType(config: config, token: viewModel.token)
+        let transferType = TransferType(token: viewModel.token)
         delegate?.didPressTransfer(for: .send(type: transferType),
                                    tokenHolders: viewModel.tokenHolders,
                                    in: self)
@@ -182,7 +183,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: tokenObject.contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: tokenObject.contract, server: server, in: self)
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {

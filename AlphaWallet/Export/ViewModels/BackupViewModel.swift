@@ -3,13 +3,7 @@
 import Foundation
 
 struct BackupViewModel {
-    private let config: Config
-
-    init(config: Config) {
-        self.config = config
-    }
-
     var headlineText: String {
-        return R.string.localizable.exportNoBackupLabelTitle(config.server.name)
+        return R.string.localizable.exportNoBackupLabelTitle()
     }
 }

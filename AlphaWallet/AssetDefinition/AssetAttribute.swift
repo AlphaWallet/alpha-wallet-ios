@@ -121,25 +121,25 @@ enum AssetAttribute {
         }
     }
 
-    func extract(from tokenValue: BigUInt, ofContract contract: String, config: Config, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> AssetAttributeValue {
+    func extract(from tokenValue: BigUInt, ofContract contract: String, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> AssetAttributeValue {
         switch self {
         case .mapping(_, _, _, let syntax, _, _, _), .direct(_, _, _, let syntax, _, _):
             switch syntax {
             case .directoryString, .iA5String:
-                let value: String = extract(from: tokenValue, ofContract: contract, config: config, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? "N/A"
+                let value: String = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? "N/A"
                 return value
             case .generalisedTime:
-                let value: GeneralisedTime = extract(from: tokenValue, ofContract: contract, config: config, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? .init()
+                let value: GeneralisedTime = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? .init()
                 return value
             case .integer:
-                let value: Int = extract(from: tokenValue, ofContract: contract, config: config, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? 0
+                let value: Int = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? 0
                 return value
             case .bool:
-                let value: Bool = extract(from: tokenValue, ofContract: contract, config: config, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? false
+                let value: Bool = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? false
                 return value
             }
         case .function(_, _, _, let syntax, _, _, _, _):
-            if let subscribableAttributeValue: SubscribableAssetAttributeValue = extract(from: tokenValue, ofContract: contract, config: config, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) {
+            if let subscribableAttributeValue: SubscribableAssetAttributeValue = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) {
                 return subscribableAttributeValue
             } else {
                 switch syntax {
@@ -156,7 +156,7 @@ enum AssetAttribute {
         }
     }
 
-    private func extract<T>(from tokenValue: BigUInt, ofContract contract: String, config: Config, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> T? where T: AssetAttributeValue {
+    private func extract<T>(from tokenValue: BigUInt, ofContract contract: String, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> T? where T: AssetAttributeValue {
         switch self {
         case .mapping(let attribute, let rootNamespacePrefix, let namespaces, let syntax, let lang, _, _):
             guard let key = parseValue(tokenValue: tokenValue) else { return nil }
@@ -176,7 +176,7 @@ enum AssetAttribute {
             }
 
             let functionCall = AssetAttributeFunctionCall(
-                    server: config.server,
+                    server: server,
                     contract: contract,
                     functionName: functionName,
                     inputs: inputs,

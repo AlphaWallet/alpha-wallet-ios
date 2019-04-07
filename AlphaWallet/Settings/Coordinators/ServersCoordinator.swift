@@ -3,46 +3,66 @@
 import UIKit
 
 protocol ServersCoordinatorDelegate: class {
-    func didSelectServer(server: RPCServer, in coordinator: ServersCoordinator)
+    func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator)
+    func didSelectDismiss(in coordinator: ServersCoordinator)
 }
 
 class ServersCoordinator: Coordinator {
-    private var config: Config
+    static let serversOrdered: [RPCServer] = [
+        .main,
+        .xDai,
+        .classic,
+        .poa,
+        .ropsten,
+        //.callisto, TODO: Enable.
+        .kovan,
+        .rinkeby,
+        .sokol,
+    ]
+
+    private let defaultServer: RPCServerOrAuto
+    private let includeAny: Bool
+
+    private var serverChoices: [RPCServerOrAuto] {
+        let servers: [RPCServerOrAuto] = ServersCoordinator.serversOrdered.map { .server($0) }
+        if includeAny {
+            return [.auto] + servers
+        } else {
+            return servers
+        }
+    }
 
     var coordinators: [Coordinator] = []
 
     lazy var serversViewController: ServersViewController = {
-        let servers: [RPCServer] = {
-            return [
-                RPCServer.main,
-                RPCServer.classic,
-                RPCServer.poa,
-                RPCServer.xDai,
-                // RPCServer.callisto, TODO: Enable.
-                RPCServer.kovan,
-                RPCServer.ropsten,
-                RPCServer.rinkeby,
-                RPCServer.sokol,
-            ]
-        }()
         let controller = ServersViewController()
-        controller.configure(viewModel: ServersViewModel(servers: servers, selectedServer: config.server))
+        controller.configure(viewModel: ServersViewModel(servers: serverChoices, selectedServer: defaultServer))
         controller.delegate = self
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .done, target: self, action: #selector(dismiss))
         return controller
     }()
     weak var delegate: ServersCoordinatorDelegate?
 
-    init(config: Config) {
-        self.config = config
+    init(defaultServer: RPCServerOrAuto) {
+        self.defaultServer = defaultServer
+        self.includeAny = true
+    }
+
+    init(defaultServer: RPCServer) {
+        self.defaultServer = .server(defaultServer)
+        self.includeAny = false
     }
 
     func start() {
     }
+
+    @objc private func dismiss() {
+        delegate?.didSelectDismiss(in: self)
+    }
 }
 
 extension ServersCoordinator: ServersViewControllerDelegate {
-    func didSelectServer(server: RPCServer, in viewController: ServersViewController) {
-        Config.setChainId(server.chainID)
+    func didSelectServer(server: RPCServerOrAuto, in viewController: ServersViewController) {
         delegate?.didSelectServer(server: server, in: self)
     }
 }

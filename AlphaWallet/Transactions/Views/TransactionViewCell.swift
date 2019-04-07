@@ -10,6 +10,7 @@ class TransactionViewCell: UITableViewCell {
     private let titleLabel = UILabel()
     private let amountLabel = UILabel()
     private let subTitleLabel = UILabel()
+    private let blockchainLabel = UILabel()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -34,7 +35,12 @@ class TransactionViewCell: UITableViewCell {
         ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 0)
         leftStackView.translatesAutoresizingMaskIntoConstraints = false
 
-        let rightStackView = [amountLabel].asStackView(axis: .vertical)
+        blockchainLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        blockchainLabel.setContentHuggingPriority(.required, for: .vertical)
+        let rightStackView = [
+            blockchainLabel,
+            amountLabel,
+        ].asStackView(axis: .vertical, alignment: .trailing)
         rightStackView.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [statusImageView, leftStackView, rightStackView].asStackView(spacing: 15)
@@ -54,6 +60,7 @@ class TransactionViewCell: UITableViewCell {
         let yMargin  = CGFloat(7)
         NSLayoutConstraint.activate([
             statusImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 26),
+
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: StyleLayout.sideMargin),
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
             stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -StyleLayout.sideMargin),
@@ -83,6 +90,13 @@ class TransactionViewCell: UITableViewCell {
         subTitleLabel.text = viewModel.subTitle
         subTitleLabel.textColor = viewModel.subTitleTextColor
         subTitleLabel.font = viewModel.subTitleFont
+
+        blockchainLabel.textAlignment = viewModel.blockChainNameTextAlignment
+        blockchainLabel.cornerRadius = 7
+        blockchainLabel.backgroundColor = viewModel.blockChainNameBackgroundColor
+        blockchainLabel.textColor = viewModel.blockChainNameColor
+        blockchainLabel.font = viewModel.blockChainNameFont
+        blockchainLabel.text = viewModel.blockChainName
 
         amountLabel.attributedText = viewModel.amountAttributedString
         amountLabel.font = viewModel.amountFont

@@ -39,7 +39,7 @@ class WalletCoordinator: Coordinator {
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             navigationController.viewControllers = [controller]
         case .importWallet:
-            let controller = ImportWalletViewController(config: config, keystore: keystore)
+            let controller = ImportWalletViewController(keystore: keystore)
             controller.delegate = self
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             navigationController.viewControllers = [controller]
@@ -60,7 +60,7 @@ class WalletCoordinator: Coordinator {
     }
 
     func pushImportWallet() {
-        let controller = ImportWalletViewController(config: config, keystore: keystore)
+        let controller = ImportWalletViewController(keystore: keystore)
         controller.delegate = self
         navigationController.pushViewController(controller, animated: true)
     }
@@ -90,7 +90,7 @@ class WalletCoordinator: Coordinator {
     }
 
     func pushBackup(for account: Account) {
-        let controller = BackupViewController(config: config, account: account)
+        let controller = BackupViewController(account: account)
         controller.delegate = self
         controller.navigationItem.backBarButtonItem = nil
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)

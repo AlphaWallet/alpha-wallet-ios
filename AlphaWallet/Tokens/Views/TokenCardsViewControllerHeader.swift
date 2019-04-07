@@ -8,6 +8,7 @@ class TokenCardsViewControllerHeader: UIView {
     private let blockchainLabel = UILabel()
     private let separator = UILabel()
     private let issuerLabel = UILabel()
+    private let blockChainTagLabel = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -17,7 +18,9 @@ class TokenCardsViewControllerHeader: UIView {
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        let bottomRowStack = [blockchainLabel, separator, issuerLabel].asStackView(spacing: 15)
+        blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
+        let bottomRowStack = [blockchainLabel, separator, issuerLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
         let stackView = [
             titleLabel,
             bottomRowStack
@@ -68,5 +71,12 @@ class TokenCardsViewControllerHeader: UIView {
         separator.textColor = viewModel.subtitleColor
         separator.font = viewModel.subtitleFont
         separator.text = viewModel.issuerSeparator
+
+        blockChainTagLabel.textAlignment = viewModel.blockChainNameTextAlignment
+        blockChainTagLabel.cornerRadius = 7
+        blockChainTagLabel.backgroundColor = viewModel.blockChainNameBackgroundColor
+        blockChainTagLabel.textColor = viewModel.blockChainNameColor
+        blockChainTagLabel.font = viewModel.blockChainNameFont
+        blockChainTagLabel.text = viewModel.blockChainTag
     }
 }

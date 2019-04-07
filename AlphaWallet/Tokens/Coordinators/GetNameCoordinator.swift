@@ -6,10 +6,10 @@ import TrustKeystore
 import web3swift
 
 class GetNameCoordinator {
-    private let config: Config
+    private let server: RPCServer
 
-    init(config: Config) {
-        self.config = config
+    init(forServer server: RPCServer) {
+        self.server = server
     }
 
     func getName(
@@ -17,7 +17,7 @@ class GetNameCoordinator {
         completion: @escaping (Result<String, AnyError>) -> Void
     ) {
         let functionName = "name"
-        callSmartContract(withConfig: config, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI).done { nameResult in
+        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI).done { nameResult in
             if let name = nameResult["0"] as? String {
                 completion(.success(name))
             } else {

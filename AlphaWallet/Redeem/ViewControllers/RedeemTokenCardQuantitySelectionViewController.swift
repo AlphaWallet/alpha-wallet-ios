@@ -23,14 +23,15 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: RedeemTokenCardQuantitySelectionViewModel
 
-    let config: Config
     var contract: String {
         return token.contract
     }
+    var server: RPCServer {
+        return token.server
+    }
     weak var delegate: RedeemTokenCardQuantitySelectionViewControllerDelegate?
 
-    init(config: Config, token: TokenObject, viewModel: RedeemTokenCardQuantitySelectionViewModel) {
-        self.config = config
+    init(token: TokenObject, viewModel: RedeemTokenCardQuantitySelectionViewModel) {
         self.token = token
         self.viewModel = viewModel
 
@@ -125,7 +126,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
     }
 
     func configure(viewModel newViewModel: RedeemTokenCardQuantitySelectionViewModel? = nil) {

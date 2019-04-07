@@ -16,15 +16,16 @@ class TransferTokensCardViewController: UIViewController, TokenVerifiableStatusV
     private var viewModel: TransferTokensCardViewModel
     private let token: TokenObject
 
-    let config: Config
     var contract: String {
         return viewModel.token.contract
+    }
+    var server: RPCServer {
+        return token.server
     }
     var paymentFlow: PaymentFlow
     weak var delegate: TransferTokensCardViewControllerDelegate?
 
-    init(config: Config, paymentFlow: PaymentFlow, token: TokenObject, viewModel: TransferTokensCardViewModel) {
-        self.config = config
+    init(paymentFlow: PaymentFlow, token: TokenObject, viewModel: TransferTokensCardViewModel) {
         self.paymentFlow = paymentFlow
         self.token = token
         self.viewModel = viewModel
@@ -113,7 +114,7 @@ class TransferTokensCardViewController: UIViewController, TokenVerifiableStatusV
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, in: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
     }
 
     private func animateRowHeightChanges(for indexPaths: [IndexPath], in tableview: UITableView) {

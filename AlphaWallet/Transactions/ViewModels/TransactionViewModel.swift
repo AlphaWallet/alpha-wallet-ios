@@ -6,20 +6,21 @@ import BigInt
 
 struct TransactionViewModel {
     private let transaction: Transaction
-    private let config: Config
     private let chainState: ChainState
     private let currentWallet: Wallet
     private let shortFormatter = EtherNumberFormatter.short
     private let fullFormatter = EtherNumberFormatter.full
 
+    private var server: RPCServer {
+        return transaction.server
+    }
+
     init(
         transaction: Transaction,
-        config: Config,
         chainState: ChainState,
         currentWallet: Wallet
     ) {
         self.transaction = transaction
-        self.config = config
         self.chainState = chainState
         self.currentWallet = currentWallet
     }
@@ -98,7 +99,7 @@ struct TransactionViewModel {
         } else {
             return TransactionValue(
                     amount: formatter.string(from: BigInt(transaction.value) ?? BigInt()),
-                    symbol: config.server.symbol
+                    symbol: server.symbol
             )
         }
     }
