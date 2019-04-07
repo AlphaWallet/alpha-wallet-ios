@@ -166,7 +166,6 @@ class SingleChainTokenCoordinator: Coordinator {
         let deletedContracts = storage.deletedContracts.map { $0.contract.lowercased() }
         let hiddenContracts = storage.hiddenContracts.map { $0.contract.lowercased() }
         let contracts = contractsToDetect.map { $0.contract.lowercased() } - alreadyAddedContracts - deletedContracts - hiddenContracts
-        let balanceCoordinator = GetBalanceCoordinator(forServer: session.server)
         var contractsProcessed = 0
         guard !contracts.isEmpty else {
             completion()
@@ -180,31 +179,71 @@ class SingleChainTokenCoordinator: Coordinator {
                 }
                 continue
             }
-            balanceCoordinator.getBalance(for: address, contract: contract) { [weak self] result in
-                guard let strongSelf = self else {
-                    contractsProcessed += 1
-                    if contractsProcessed == contracts.count {
-                        completion()
-                    }
-                    return
-                }
-                switch result {
-                case .success(let balance):
-                    if balance > 0 {
-                        strongSelf.addToken(for: contract.eip55String) {
-                            DispatchQueue.main.async {
-                                strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+            storage.getTokenType(for: each) { tokenType in
+                switch tokenType {
+                case .erc875:
+                    //TODO long and very similar code below. Extract function
+                    let balanceCoordinator = GetERC875BalanceCoordinator(forServer: self.session.server)
+                    balanceCoordinator.getERC875TokenBalance(for: address, contract: contract) { [weak self] result in
+                        guard let strongSelf = self else {
+                            contractsProcessed += 1
+                            if contractsProcessed == contracts.count {
+                                completion()
                             }
+                            return
+                        }
+                        switch result {
+                        case .success(let balance):
+                            if !balance.isEmpty {
+                                strongSelf.addToken(for: contract.eip55String) {
+                                    DispatchQueue.main.async {
+                                        strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+                                    }
+                                }
+                            }
+                        case .failure:
+                            break
+                        }
+                        contractsProcessed += 1
+                        if contractsProcessed == contracts.count {
+                            completion()
                         }
                     }
-                case .failure:
+                case .erc20:
+                    let balanceCoordinator = GetBalanceCoordinator(forServer: self.session.server)
+                    balanceCoordinator.getBalance(for: address, contract: contract) { [weak self] result in
+                        guard let strongSelf = self else {
+                            contractsProcessed += 1
+                            if contractsProcessed == contracts.count {
+                                completion()
+                            }
+                            return
+                        }
+                        switch result {
+                        case .success(let balance):
+                            if balance > 0 {
+                                strongSelf.addToken(for: contract.eip55String) {
+                                    DispatchQueue.main.async {
+                                        strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+                                    }
+                                }
+                            }
+                        case .failure:
+                            break
+                        }
+                        contractsProcessed += 1
+                        if contractsProcessed == contracts.count {
+                            completion()
+                        }
+                    }
+                case .erc721:
+                    //TODO should auto-detect ERC721 too
+                        break
+                case .nativeCryptocurrency:
                     break
                 }
-                contractsProcessed += 1
-                if contractsProcessed == contracts.count {
-                    completion()
-                }
             }
+
         }
     }
 
