@@ -20,9 +20,27 @@ class GetENSOwnerCoordinatorTests: XCTestCase {
         GetENSAddressCoordinator(server: server).getENSAddressFromResolver(for: ensName) { result in
             if let address = result.value, address.address.sameContract(as: "0xbbce83173d5c1D122AE64856b4Af0D5AE07Fa362") {
                 expectation.fulfill()
+            } else {
+                XCTFail("ENS name did not resolve correctly")
             }
         }
-        wait(for: expectations, timeout: 10)
+        wait(for: expectations, timeout: 20)
+    }
+
+    func testResolutionThatHasDifferentOwnerAndResolver() {
+        var expectations = [XCTestExpectation]()
+        let expectation = self.expectation(description: "Wait for ENS name to be resolved")
+        expectations.append(expectation)
+        let ensName = "ethereum.eth"
+        let server = makeServerForMainnet()
+        GetENSAddressCoordinator(server: server).getENSAddressFromResolver(for: ensName) { result in
+            if let address = result.value, address.address.sameContract(as: "0xfb6916095ca1df60bb79ce92ce3ea74c37c5d359") {
+                expectation.fulfill()
+            } else {
+                XCTFail("ENS name did not resolve correctly")
+            }
+        }
+        wait(for: expectations, timeout: 20)
     }
 
     private func makeServerForMainnet() -> RPCServer {
