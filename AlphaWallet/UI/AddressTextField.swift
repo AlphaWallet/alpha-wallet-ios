@@ -149,7 +149,7 @@ class AddressTextField: UIControl {
             return
         } else {
             textField.text = value
-            GetENSOwnerCoordinator(server: serverToResolveEns).getENSOwner(for: value) { result in
+            GetENSAddressCoordinator(server: serverToResolveEns).getENSAddressFromResolver(for: value) { result in
                 guard let address = result.value else {
                     //Don't show an error when pasting what seems like a wrong ENS name for better usability
                     return
@@ -171,7 +171,7 @@ class AddressTextField: UIControl {
     private func queueResolution(ofValue value: String) {
         let value = value.trimmed
         let oldTextValue = textField.text?.trimmed
-        GetENSOwnerCoordinator(server: serverToResolveEns).queueGetENSOwner(for: value) { [weak self] result in
+        GetENSAddressCoordinator(server: serverToResolveEns).queueGetENSOwner(for: value) { [weak self] result in
             guard let strongSelf = self else { return }
             if let address = result.value {
                 guard CryptoAddressValidator.isValidAddress(address.address) else {
