@@ -54,7 +54,7 @@ class GetIsERC721ContractCoordinator {
 
         let web3 = web3swift.web3(provider: webProvider)
         let function = GetIsERC721()
-        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: "[\(function.abi)]", at: contractAddress, options: web3.options) else {
+        guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: function.abi, at: contractAddress, options: web3.options) else {
             completion(.failure(AnyError(Web3Error(description: "Error creating web3swift contract instance to call \(function.name)()"))))
             return
         }
