@@ -540,7 +540,7 @@
 		76F1D7F08263A663C3A67926 /* GetIsERC721ContractCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D4F77311FBF3A442E4B5 /* GetIsERC721ContractCoordinator.swift */; };
 		76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
-		76F1D9BBB4ACAA00C8391172 /* GetENSNameEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DC4B9964504DA12D8D3C /* GetENSNameEncode.swift */; };
+		76F1D9BBB4ACAA00C8391172 /* GetENSInfoEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DC4B9964504DA12D8D3C /* GetENSInfoEncode.swift */; };
 		76F1DA1D816C1D6759FAAB5D /* ClaimNativeCurrencyOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D00BB549E72210412062 /* ClaimNativeCurrencyOrder.swift */; };
 		76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */; };
 		76F1DBCA8BAAA42BAEB14719 /* GetERC721BalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D473FF303828D93C95EB /* GetERC721BalanceCoordinator.swift */; };
@@ -1161,7 +1161,7 @@
 		76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderHandler.swift; sourceTree = "<group>"; };
 		76F1DAFCBB43B6639472A229 /* BrowserHistoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserHistoryViewController.swift; sourceTree = "<group>"; };
 		76F1DB8034ACC2FC91F818F9 /* MyDappsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyDappsViewController.swift; sourceTree = "<group>"; };
-		76F1DC4B9964504DA12D8D3C /* GetENSNameEncode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetENSNameEncode.swift; sourceTree = "<group>"; };
+		76F1DC4B9964504DA12D8D3C /* GetENSInfoEncode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetENSInfoEncode.swift; sourceTree = "<group>"; };
 		76F1DCD54618349AC91C6DF8 /* UniversalLinkHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandler.swift; sourceTree = "<group>"; };
 		76F1DD09B44FD653C1500DA8 /* DappsHomeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeViewController.swift; sourceTree = "<group>"; };
 		76F1DE7BEE799DDFB68D0F54 /* GetENSOwnerCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetENSOwnerCoordinator.swift; sourceTree = "<group>"; };
@@ -2817,7 +2817,7 @@
 				5E7C7CA7D65743AEE3411F3A /* GetIsERC721Encode.swift */,
 				5E7C7DCB0BDDD30D10130AE7 /* GetIsERC875Encode.swift */,
 				5E7C72CD0C22247A6AF7C95E /* GetERC721BalanceEncode.swift */,
-				76F1DC4B9964504DA12D8D3C /* GetENSNameEncode.swift */,
+				76F1DC4B9964504DA12D8D3C /* GetENSInfoEncode.swift */,
 				5E7C787CA216AFED8023A35F /* CallForAssetAttribute.swift */,
 			);
 			path = "web3swift-pod";
@@ -4038,7 +4038,7 @@
 				5E7C7E7AEF01B9D170228342 /* TimeEntryField.swift in Sources */,
 				5E7C7719948721FE9120B5B2 /* PeekOpenSeaNonFungibleTokenViewController.swift in Sources */,
 				76F1D5ECC391A932C96CAC13 /* GetENSOwnerCoordinator.swift in Sources */,
-				76F1D9BBB4ACAA00C8391172 /* GetENSNameEncode.swift in Sources */,
+				76F1D9BBB4ACAA00C8391172 /* GetENSInfoEncode.swift in Sources */,
 				5E7C73CA81FB2CE9BCAFC992 /* CallForAssetAttribute.swift in Sources */,
 				5E7C77552A957D1B144D9209 /* CallForAssetAttributeCoordinator.swift in Sources */,
 				5E7C7C8BC4763CFDD3EE119D /* AssetAttributeFunctionCall.swift in Sources */,

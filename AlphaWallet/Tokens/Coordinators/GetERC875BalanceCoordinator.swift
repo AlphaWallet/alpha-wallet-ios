@@ -17,7 +17,7 @@ class GetERC875BalanceCoordinator {
         completion: @escaping (Result<[String], AnyError>) -> Void
     ) {
         let function = GetERC875Balance()
-        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: "[\(function.abi)]", parameters: [address.eip55String] as [AnyObject]).done { balanceResult in
+        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject]).done { balanceResult in
             let balances = self.adapt(balanceResult["0"])
             completion(.success(balances))
         }.catch {
