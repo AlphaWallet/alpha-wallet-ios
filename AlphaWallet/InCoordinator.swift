@@ -11,6 +11,7 @@ protocol InCoordinatorDelegate: class {
     func didUpdateAccounts(in coordinator: InCoordinator)
     func didShowWallet(in coordinator: InCoordinator)
     func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController?
+    func importUniversalLink(url: URL, forCoordinator coordinator: InCoordinator)
 }
 
 enum Tabs {
@@ -674,6 +675,10 @@ extension InCoordinator: PromptBackupCoordinatorDelegate {
 extension InCoordinator: DappBrowserCoordinatorDelegate{
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator) {
         handlePendingTransaction(transaction: transaction)
+    }
+
+    func importUniversalLink(url: URL, forCoordinator coordinator: DappBrowserCoordinator) {
+        delegate?.importUniversalLink(url: url, forCoordinator: self)
     }
 }
 
