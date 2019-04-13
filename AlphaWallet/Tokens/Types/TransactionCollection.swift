@@ -20,11 +20,10 @@ class TransactionCollection {
 
     var objects: [Transaction] {
         var transactions = [Transaction]()
-        //Concatenate arrays of hundreds/thousands of elements and then sort them. Room for speed improvement, but it seems good enough so far. It'll be much more efficient if we do a single read from Realm directly and sort with Realm
+        //Concatenate arrays of hundreds/thousands of elements. Room for speed improvement, but it seems good enough so far. It'll be much more efficient if we do a single read from Realm directly
         for each in transactionsStorages {
             transactions.append(contentsOf: Array(each.objects))
         }
-        transactions.sort { $0.date < $1.date }
         return transactions
     }
 }
