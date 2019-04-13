@@ -28,7 +28,11 @@ class NativeCryptoCurrencyBalanceView: UIView {
         return amountAttributedString(for: amount)
     }
 
-    var topMargin: CGFloat
+    var topMargin: CGFloat {
+        didSet {
+            configure()
+        }
+    }
 
     init(session: WalletSession, rightMargin: CGFloat, topMargin: CGFloat) {
         self.session = session
