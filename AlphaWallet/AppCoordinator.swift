@@ -238,6 +238,11 @@ extension AppCoordinator: InCoordinatorDelegate {
     func assetDefinitionsOverrideViewController(for coordinator: InCoordinator) -> UIViewController? {
         return assetDefinitionStoreCoordinator?.createOverridesViewController()
     }
+
+    func importUniversalLink(url: URL, forCoordinator coordinator: InCoordinator) {
+        guard universalLinkCoordinator == nil else { return }
+        handleUniversalLink(url: url)
+    }
 }
 
 extension AppCoordinator: UniversalLinkCoordinatorDelegate {
