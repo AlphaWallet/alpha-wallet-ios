@@ -640,7 +640,7 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
     }
 
     func didEnter(text: String, inNavigationBar navigationBar: DappBrowserNavigationBar) {
-        guard let url = urlParser.url(from: text) else { return }
+        guard let url = urlParser.url(from: text.trimmed) else { return }
         open(url: url, animated: false)
     }
 }
