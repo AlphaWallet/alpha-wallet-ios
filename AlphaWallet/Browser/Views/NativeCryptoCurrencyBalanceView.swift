@@ -18,6 +18,8 @@ class NativeCryptoCurrencyBalanceView: UIView {
     //TODO should let someone else fetch the balance instead of doing it here
     private lazy var balanceCoordinator = GetBalanceCoordinator(forServer: server)
     private let label = UILabel()
+    private let horizontalMarginAroundLabel = CGFloat(7)
+    private let verticalMarginAroundLabel = CGFloat(4)
 
     private var server: RPCServer {
         return session.server
@@ -34,6 +36,11 @@ class NativeCryptoCurrencyBalanceView: UIView {
         }
     }
 
+    private var desiredSizeBasedOnLabelInstrinsicContentSize: CGSize {
+        let size = label.intrinsicContentSize
+        return .init(width: size.width + horizontalMarginAroundLabel * 2, height: size.height + verticalMarginAroundLabel * 2)
+    }
+
     init(session: WalletSession, rightMargin: CGFloat, topMargin: CGFloat) {
         self.session = session
         self.rightMargin = rightMargin
@@ -45,10 +52,10 @@ class NativeCryptoCurrencyBalanceView: UIView {
         addSubview(label)
 
         NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: leadingAnchor),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor),
-            label.topAnchor.constraint(equalTo: topAnchor),
-            label.bottomAnchor.constraint(equalTo: bottomAnchor),
+            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: horizontalMarginAroundLabel),
+            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -horizontalMarginAroundLabel),
+            label.topAnchor.constraint(equalTo: topAnchor, constant: verticalMarginAroundLabel ),
+            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -verticalMarginAroundLabel),
         ])
 
         float()
@@ -61,9 +68,13 @@ class NativeCryptoCurrencyBalanceView: UIView {
     }
 
     private func configure() {
+        backgroundColor = Colors.appWhite
+        alpha = 0.7
+        cornerRadius = 3
+
         label.attributedText = attributedBalanceText
 
-        let size = label.intrinsicContentSize
+        let size = desiredSizeBasedOnLabelInstrinsicContentSize
         let currentWindow = UIApplication.shared.keyWindow!
         frame = .init(x: currentWindow.frame.width - size.width - rightMargin, y: topMargin, width: size.width, height: size.height)
     }
@@ -92,19 +103,12 @@ class NativeCryptoCurrencyBalanceView: UIView {
     }
 
     private func amountAttributedString(for value: String) -> NSAttributedString {
-        let amount = NSAttributedString(
-                string: value,
+        return NSAttributedString(
+                string: "\(value) \(server.symbol)",
                 attributes: [
-                    .font: Fonts.regular(size: 14) as Any,
+                    .font: Fonts.semibold(size: 12) as Any,
+                    .foregroundColor: UIColor(red: 71, green: 71, blue: 71)
                 ]
         )
-        let currency = NSAttributedString(
-                string: " " + server.symbol,
-                attributes: [
-                    .font: Fonts.regular(size: 14) as Any,
-                    .foregroundColor: Colors.appBackground,
-                ]
-        )
-        return amount + currency
     }
 }
