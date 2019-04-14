@@ -30,12 +30,16 @@ class NativeCryptoCurrencyBalanceView: UIView {
         return amountAttributedString(for: amount)
     }
 
+    var topMargin: CGFloat {
+        didSet {
+            configure()
+        }
+    }
+
     private var desiredSizeBasedOnLabelInstrinsicContentSize: CGSize {
         let size = label.intrinsicContentSize
         return .init(width: size.width + horizontalMarginAroundLabel * 2, height: size.height + verticalMarginAroundLabel * 2)
     }
-
-    var topMargin: CGFloat
 
     init(session: WalletSession, rightMargin: CGFloat, topMargin: CGFloat) {
         self.session = session
