@@ -309,7 +309,8 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createTransactionCoordinator() -> TransactionCoordinator {
-        let transactionsCollection = TransactionCollection(transactionsStorages: transactionsStorages.values)
+        let transactionsStoragesForEnabledServers = config.enabledServers.map { transactionsStorages[$0] }
+        let transactionsCollection = TransactionCollection(transactionsStorages: transactionsStoragesForEnabledServers)
         let coordinator = TransactionCoordinator(
                 sessions: walletSessions,
                 transactionsCollection: transactionsCollection,
