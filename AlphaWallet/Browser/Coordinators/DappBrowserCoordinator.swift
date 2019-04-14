@@ -10,6 +10,7 @@ import WebKit
 
 protocol DappBrowserCoordinatorDelegate: class {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator)
+    func importUniversalLink(url: URL, forCoordinator coordinator: DappBrowserCoordinator)
 }
 
 final class DappBrowserCoordinator: NSObject, Coordinator {
@@ -172,6 +173,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     func open(url: URL, animated: Bool = true) {
+        if isMagicLink(url) {
+            delegate?.importUniversalLink(url: url, forCoordinator: self)
+            return
+        }
+
         //TODO maybe not the best idea to check like this. Because it will always create the browserViewController twice the first time (or maybe it's ok. Just once)
         if navigationController.topViewController != browserViewController {
             browserViewController = BrowserViewController(account: session.account, server: server)
@@ -347,6 +353,10 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     func didShow() {
         nativeCryptoCurrencyBalanceView.show()
+    }
+
+    func isMagicLink(_ url: URL) -> Bool {
+        return RPCServer.allCases.contains { $0.magicLinkHost == url.host }
     }
 }
 
