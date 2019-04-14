@@ -63,10 +63,10 @@ class ClaimOrderCoordinator {
             } else {
                 tokenIndices = try indices.map({ try ABIValue(BigUInt($0), type: ABIType.uint(bits: 256)) })
             }
-            let v = try ABIValue(BigUInt(v), type: ABIType.uint(bits: 8))
-            let r = try ABIValue(Data(hexString: r)!, type: ABIType.bytes(32))
-            let s = try ABIValue(Data(hexString: s)!, type: ABIType.bytes(32))
-            let parameters = [expiryParam, tokenIndices, v, r, s] as [AnyObject]
+            let vParam = try ABIValue(BigUInt(v), type: ABIType.uint(bits: 8))
+            let rParam = try ABIValue(Data(hexString: r)!, type: ABIType.bytes(32))
+            let sParam = try ABIValue(Data(hexString: s)!, type: ABIType.bytes(32))
+            let parameters = [expiryParam, tokenIndices, vParam, rParam, sParam] as [AnyObject]
             callSmartContract(
                     withServer: server,
                     contract: Address(string: contractAddress)!,
@@ -96,12 +96,7 @@ class ClaimOrderCoordinator {
                              completion: @escaping (Result<String, AnyError>) -> Void) {
         do {
             let expiryParam = try ABIValue(expiry, type: ABIType.uint(bits: 256))
-            let tokenIdsEncoded: [ABIValue]
-            if contractAddress.isLegacy875Contract {
-                tokenIdsEncoded = try tokenIds.map({ try ABIValue($0, type: ABIType.uint(bits: 16)) })
-            } else {
-                tokenIdsEncoded = try tokenIds.map({ try ABIValue($0, type: ABIType.uint(bits: 256)) })
-            }
+            let tokenIdsEncoded = tokenIdsEncoded = try tokenIds.map({ try ABIValue($0, type: ABIType.uint(bits: 256)) })
             let vParam = try ABIValue(v, type: ABIType.uint(bits: 8))
             let rParam = try ABIValue(r, type: ABIType.bytes(32))
             let sParam = try ABIValue(s, type: ABIType.bytes(32))

@@ -174,7 +174,6 @@ class TransactionConfigurator {
                 return completion(.failure(AnyError(Web3Error(description: ""))))
             }
         case .ERC875TokenOrder(let token):
-            //note: this is under the assumption that spawnables are handled by the paymaster
             do {
                 let expiry = transaction.expiry!
                 let v = try ABIValue(BigUInt(transaction.v!), type: ABIType.uint(bits: 8))
@@ -220,7 +219,6 @@ class TransactionConfigurator {
             } catch {
                 return completion(.failure(AnyError(Web3Error(description: ""))))
             }
-
         }
     }
 
