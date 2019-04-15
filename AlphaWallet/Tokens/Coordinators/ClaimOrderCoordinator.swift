@@ -55,24 +55,27 @@ class ClaimOrderCoordinator {
                           contractAddress: String,
                           completion: @escaping (Result<String, AnyError>) -> Void) {
         do {
+            let encoder = ABIEncoder()
             let function = ClaimERC875OrderEncode()
-            let expiryParam = try ABIValue(expiry, type: ABIType.uint(bits: 256))
-            let tokenIndices: [ABIValue]
             if contractAddress.isLegacy875Contract {
-                tokenIndices = try indices.map({ try ABIValue(BigUInt($0), type: ABIType.uint(bits: 16)) })
+                try encoder.encode(signature: "trade(uint256,[uint16],uint8,bytes32,bytes32)")
+                let tokenIndices = try indices.map({ BigUInt($0) })
+                try encoder.encode(ABIValue(tokenIndices, type: ABIType.array(ABIType.uint(bits: 16), tokenIndices.count)))
             } else {
-                tokenIndices = try indices.map({ try ABIValue(BigUInt($0), type: ABIType.uint(bits: 256)) })
+                try encoder.encode(signature: "trade(uint256,[uint256],uint8,bytes32,bytes32)")
+                let tokenIndices = try indices.map({ BigUInt($0) })
+                try encoder.encode(ABIValue(tokenIndices, type: ABIType.array(ABIType.uint(bits: 256), tokenIndices.count)))
             }
-            let vParam = try ABIValue(BigUInt(v), type: ABIType.uint(bits: 8))
-            let rParam = try ABIValue(Data(hexString: r)!, type: ABIType.bytes(32))
-            let sParam = try ABIValue(Data(hexString: s)!, type: ABIType.bytes(32))
-            let parameters = [expiryParam, tokenIndices, vParam, rParam, sParam] as [AnyObject]
+            let expiryParam = try encoder.encode(ABIValue(expiry, type: ABIType.uint(bits: 256)))
+            let vParam = try encoder.encode(ABIValue(BigUInt(v), type: ABIType.uint(bits: 8)))
+            let rParam = try encoder.encode(ABIValue(Data(hexString: r)!, type: ABIType.bytes(32)))
+            let sParam = try encoder.encode(ABIValue(Data(hexString: s)!, type: ABIType.bytes(32)))
             callSmartContract(
                     withServer: server,
                     contract: Address(string: contractAddress)!,
                     functionName: function.name,
                     abiString: function.getAbi(contractAddress: contractAddress),
-                    parameters: parameters
+                    data: encoder.data
             ).done { result in
                 if let res = result["0"] as? String {
                     completion(.success(res))
@@ -95,20 +98,21 @@ class ClaimOrderCoordinator {
                              contractAddress: String,
                              completion: @escaping (Result<String, AnyError>) -> Void) {
         do {
-            let expiryParam = try ABIValue(expiry, type: ABIType.uint(bits: 256))
-            let tokenIdsEncoded = tokenIdsEncoded = try tokenIds.map({ try ABIValue($0, type: ABIType.uint(bits: 256)) })
-            let vParam = try ABIValue(v, type: ABIType.uint(bits: 8))
-            let rParam = try ABIValue(r, type: ABIType.bytes(32))
-            let sParam = try ABIValue(s, type: ABIType.bytes(32))
-            let recipientEncoded = try ABIValue(Address(string: recipient)!, type: ABIType.address)
-            let parameters = [expiryParam, tokenIdsEncoded, vParam, rParam, sParam, recipientEncoded] as [AnyObject]
+            let encoder = ABIEncoder()
+            try encoder.encode(signature: "spawnPassTo(uint256,[uint256],uint8,bytes32,bytes32,address")
+            let expiryParam = try encoder.encode(ABIValue(expiry, type: ABIType.uint(bits: 256)))
+            let tokenIdsEncoded = try encoder.encode(ABIValue(tokenIds, type: ABIType.array(ABIType.uint(bits: 256), tokenIds.count)))
+            let vParam = try encoder.encode(ABIValue(v, type: ABIType.uint(bits: 8)))
+            let rParam = try encoder.encode(ABIValue(r, type: ABIType.bytes(32)))
+            let sParam = try encoder.encode(ABIValue(s, type: ABIType.bytes(32)))
+            let recipientEncoded = try encoder.encode(ABIValue(Address(string: recipient)!, type: ABIType.address))
             let function = ClaimERC875SpawnableEncode()
             callSmartContract(
                     withServer: server,
                     contract: Address(string: contractAddress)!,
                     functionName: function.name,
                     abiString: function.abi,
-                    parameters: parameters
+                    data: encoder.data
             ).done { result in
                 if let res = result["0"] as? String {
                     completion(.success(res))
@@ -131,21 +135,20 @@ class ClaimOrderCoordinator {
     ) {
         do {
             let function = ClaimNativeCurrencyOrder()
-            let parameters = [
-                try ABIValue(signedOrder.order.nonce, type: ABIType.uint(bits: 32)),
-                try ABIValue(signedOrder.order.expiry, type: ABIType.uint(bits: 32)),
-                try ABIValue(signedOrder.order.count, type: ABIType.uint(bits: 32)),
-                try ABIValue(BigUInt(v), type: ABIType.uint(bits: 8)),
-                try ABIValue(Data(hexString: r)!, type: ABIType.bytes(32)),
-                try ABIValue(Data(hexString: s)!, type: ABIType.bytes(32)),
-                try ABIValue(Address(string: recipient)!, type: ABIType.address)
-            ] as [AnyObject]
+            let encoder = ABIEncoder()
+            try encoder.encode(ABIValue(signedOrder.order.nonce, type: ABIType.uint(bits: 32)))
+            try encoder.encode(ABIValue(signedOrder.order.expiry, type: ABIType.uint(bits: 32)))
+            try encoder.encode(ABIValue(signedOrder.order.count, type: ABIType.uint(bits: 32)))
+            try encoder.encode(ABIValue(BigUInt(v), type: ABIType.uint(bits: 8)))
+            try encoder.encode(ABIValue(Data(hexString: r)!, type: ABIType.bytes(32)))
+            try encoder.encode(ABIValue(Data(hexString: s)!, type: ABIType.bytes(32)))
+            try encoder.encode(ABIValue(Address(string: recipient)!, type: ABIType.address))
             callSmartContract(
                     withServer: server,
                     contract: Address(string: signedOrder.order.contractAddress)!,
                     functionName: function.name,
                     abiString: function.abi,
-                    parameters: parameters
+                    data: encoder.data
             ).done { result in
                 if let res = result["0"] as? String {
                     completion(.success(res))

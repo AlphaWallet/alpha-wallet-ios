@@ -16,12 +16,24 @@ class GetERC875BalanceCoordinator {
         contract: Address,
         completion: @escaping (Result<[String], AnyError>) -> Void
     ) {
-        let function = GetERC875Balance()
-        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject]).done { balanceResult in
-            let balances = self.adapt(balanceResult["0"])
-            completion(.success(balances))
-        }.catch {
-            completion(.failure(AnyError($0)))
+        do {
+            let function = GetERC875Balance()
+            let encoder = ABIEncoder()
+            try encoder.encode(signature: "balanceOf(address)")
+            try encoder.encode(ABIValue(address.eip55String, type: ABIType.address))
+            callSmartContract(
+                    withServer: server,
+                    contract: contract,
+                    functionName: function.name,
+                    abiString: function.abi,
+                    data: encoder.data).done { balanceResult in
+                let balances = self.adapt(balanceResult["0"])
+                completion(.success(balances))
+            }.catch {
+                completion(.failure(AnyError($0)))
+            }
+        } catch {
+
         }
     }
 

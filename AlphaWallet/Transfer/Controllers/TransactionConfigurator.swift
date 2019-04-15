@@ -133,12 +133,9 @@ class TransactionConfigurator {
         case .ERC20Token(_):
             do {
                 let encoder = ABIEncoder()
-                let parameters = [
-                    try ABIValue(transaction.to!, type: ABIType.address),
-                    try ABIValue(BigUInt(transaction.amount), type: ABIType.uint(bits: 256))
-                ] as [Any]
                 try encoder.encode(signature: "transfer(address,uint256)")
-                try encoder.encode(Data(fromArray: parameters), static: false)
+                try encoder.encode(ABIValue(transaction.to!, type: ABIType.address))
+                try encoder.encode(ABIValue(BigUInt(transaction.amount), type: ABIType.uint(bits: 256)))
                 self.configuration = TransactionConfiguration(
                         gasPrice: self.calculatedGasPrice,
                         gasLimit: GasLimitConfiguration.maxGasLimit,
@@ -152,18 +149,16 @@ class TransactionConfigurator {
         case .ERC875Token(let token):
             do {
                 let encoder = ABIEncoder()
-                let toParam = try ABIValue(transaction.to!, type: ABIType.address)
                 if token.contract.isLegacy875Contract {
                     try encoder.encode(signature: "transfer(address,uint16[])")
-                    let tokenIndices = try transaction.indices!.map({ try ABIValue(BigUInt($0), type: ABIType.uint(bits: 16)) })
-                    let parameters = [toParam, tokenIndices] as [Any]
-                    try encoder.encode(Data(fromArray: parameters), static: false)
+                    let tokenIndices = try transaction.indices!.map({ BigUInt($0) })
+                    let indicesEncoded = try encoder.encode(ABIValue(tokenIndices, type: ABIType.array(ABIType.uint(bits: 16), tokenIndices.count)))
                 } else {
                     try encoder.encode(signature: "transfer(address,uint256[])")
-                    let tokenIndices = try transaction.indices!.map({ try ABIValue(BigUInt($0), type: ABIType.uint(bits: 256)) })
-                    let parameters = [toParam, tokenIndices] as [Any]
-                    try encoder.encode(Data(fromArray: parameters), static: false)
+                    let tokenIndices = try transaction.indices!.map({ BigUInt($0) })
+                    let indicesEncoded = try encoder.encode(ABIValue(tokenIndices, type: ABIType.array(ABIType.uint(bits: 256), tokenIndices.count)))
                 }
+                let toParam = try encoder.encode(ABIValue(transaction.to!, type: ABIType.address))
                 self.configuration = TransactionConfiguration(
                         gasPrice: self.calculatedGasPrice,
                         gasLimit: GasLimitConfiguration.maxGasLimit,
@@ -175,22 +170,20 @@ class TransactionConfigurator {
             }
         case .ERC875TokenOrder(let token):
             do {
-                let expiry = transaction.expiry!
-                let v = try ABIValue(BigUInt(transaction.v!), type: ABIType.uint(bits: 8))
-                let r = try ABIValue(Data(hexString: transaction.r!)!, type: ABIType.bytes(32))
-                let s = try ABIValue(Data(hexString: transaction.s!)!, type: ABIType.bytes(32))
                 let encoder = ABIEncoder()
                 if token.contract.isLegacy875Contract {
-                    let tokenIndices = try transaction.indices!.map( { try ABIValue(BigUInt($0), type: ABIType.uint(bits: 16)) })
-                    let parameters = [expiry, tokenIndices, v, r, s] as [Any]
                     try encoder.encode(signature: "trade(uint256,uint16[],uint8,bytes32,bytes32)")
-                    try encoder.encode(Data(fromArray: parameters), static: false)
+                    let tokenIndices = try transaction.indices!.map({ BigUInt($0) })
+                    try encoder.encode(ABIValue(tokenIndices, type: ABIType.array(ABIType.uint(bits: 16), tokenIndices.count)))
                 } else {
-                    let tokenIndices = try transaction.indices!.map( { try ABIValue(BigUInt($0), type: ABIType.uint(bits: 256)) })
-                    let parameters = [expiry, tokenIndices, v, r, s] as [Any]
                     try encoder.encode(signature: "trade(uint256,uint256[],uint8,bytes32,bytes32)")
-                    try encoder.encode(Data(fromArray: parameters), static: false)
+                    let tokenIndices = try transaction.indices!.map({ BigUInt($0) })
+                    try encoder.encode(ABIValue(tokenIndices, type: ABIType.array(ABIType.uint(bits: 256), tokenIndices.count)))
                 }
+                let v = try encoder.encode(ABIValue(BigUInt(transaction.v!), type: ABIType.uint(bits: 8)))
+                let r = try encoder.encode(ABIValue(Data(hexString: transaction.r!)!, type: ABIType.bytes(32)))
+                let s = try encoder.encode(ABIValue(Data(hexString: transaction.s!)!, type: ABIType.bytes(32)))
+                let expiry = try encoder.encode(ABIValue(transaction.expiry!, type: ABIType.uint(bits: 256)))
                 self.configuration = TransactionConfiguration(
                         gasPrice: self.calculatedGasPrice,
                         gasLimit: GasLimitConfiguration.maxGasLimit,
@@ -203,13 +196,10 @@ class TransactionConfigurator {
         case .ERC721Token(_):
             do {
                 let encoder = ABIEncoder()
-                let parameters = [
-                    try ABIValue(self.session.account.address, type: ABIType.address),
-                    try ABIValue(transaction.to!, type: ABIType.address),
-                    try ABIValue(BigUInt(transaction.tokenId!, radix: 16)!, type: ABIType.uint(bits: 256))
-                ] as [Any]
                 try encoder.encode(signature: "transferFrom(address,address,uint256)")
-                try encoder.encode(Data(fromArray: parameters), static: false)
+                try encoder.encode(ABIValue(self.session.account.address, type: ABIType.address))
+                try encoder.encode(ABIValue(transaction.to!, type: ABIType.address))
+                try encoder.encode(ABIValue(BigUInt(transaction.tokenId!, radix: 16)!, type: ABIType.uint(bits: 256)))
                 self.configuration = TransactionConfiguration(
                         gasPrice: self.calculatedGasPrice,
                         gasLimit: GasLimitConfiguration.maxGasLimit,
