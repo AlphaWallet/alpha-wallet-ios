@@ -39,7 +39,7 @@ enum Dapps {
         Dapp(name: "KyberSwap", description: "Instant and Secure Token to Token Swaps", url: "https://kyber.network/swap/eth_knc", cat: "Exchange"),
         Dapp(name: "localethereum", description: "Peer-to-peer marketplace allowing to trade eth to fiat", url: "https://localethereum.com/", cat: "Exchange"),
         Dapp(name: "Totle", description: "Aggregating the liquidity of the top decentralized exchanges", url: "https://app.totle.com/", cat: "Exchange"),
-        Dapp(name: "Uniswap", description: "Protocol for automated token exchange", url: "https://uniswap.exchange/swap", cat: "Exchange"),
+        Dapp(name: "Uniswap", description: "Protocol for automated token exchange", url: "https://uniswap.exchange", cat: "Exchange"),
         Dapp(name: "Compound", description: "Algorithmic money markets", url: "https://app.compound.finance/", cat: "Finance"),
         Dapp(name: "expo", description: "Short/Leverag ETH", url: "https://www.expotrading.com/trade", cat: "Finance"),
         Dapp(name: "MakerDAO CDP Portal", description: "Where you can interact with the Dai Credit System", url: "https://cdp.makerdao.com/", cat: "Finance"),
