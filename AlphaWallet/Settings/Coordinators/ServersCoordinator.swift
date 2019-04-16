@@ -14,7 +14,7 @@ class ServersCoordinator: Coordinator {
         .classic,
         .poa,
         .ropsten,
-        //.callisto, TODO: Enable.
+        .goerli,
         .kovan,
         .rinkeby,
         .sokol,

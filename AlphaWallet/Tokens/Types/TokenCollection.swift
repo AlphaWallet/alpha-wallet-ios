@@ -77,7 +77,8 @@ fileprivate extension RPCServer {
         case .rinkeby: return 7
         case .sokol: return 8
         case .callisto: return 9
-        case .custom: return 10
+        case .goerli: return 10
+        case .custom: return 11
         }
     }
 }

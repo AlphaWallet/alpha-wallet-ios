@@ -138,7 +138,7 @@ class SingleChainTokenCoordinator: Coordinator {
             autoDetectMainnetPartnerTokens()
         case .xDai:
             autoDetectXDaiPartnerTokens()
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .custom:
             break
         }
     }
