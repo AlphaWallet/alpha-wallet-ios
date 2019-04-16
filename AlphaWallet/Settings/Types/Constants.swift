@@ -20,6 +20,7 @@ public struct Constants {
     public static let poaMagicLinkHost = "poa.aw.app"
     public static let sokolMagicLinkHost = "sokol.aw.app"
     public static let xDaiMagicLinkHost = "xdai.aw.app"
+    public static let goerliMagicLinkHost = "goerli.aw.app"
     public static let customMagicLinkHost = "custom.aw.app"
 
     // Magic link networks
@@ -65,6 +66,7 @@ public struct Constants {
     public static let rinkebyEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
     public static let xDaiAPI = "https://blockscout.com/poa/dai/api?module=account&action=txlist&address="
     public static let poaNetworkCoreAPI = "https://blockscout.com/poa/core/api?module=account&action=txlist&address="
+    public static let goerliEtherscanAPI = "https://api-goerli.etherscan.io/api?module=account&action=txlist&address="
 
     //etherscan-compatible contract details web page
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"
@@ -73,6 +75,7 @@ public struct Constants {
     public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"
     public static let xDaiContractPage = "https://blockscout.com/poa/dai/address/"
     public static let poaContractPage = "https://blockscout.com/poa/core/address/"
+    public static let goerliContractPage = "https://goerli.etherscan.io/address/"
 
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"

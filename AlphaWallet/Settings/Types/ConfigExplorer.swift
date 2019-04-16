@@ -15,24 +15,12 @@ struct ConfigExplorer {
         guard let endpoint = explorer(for: server) else { return .none }
         let urlString: String? = {
             switch server {
-            case .main:
-                return endpoint + "/tx/" + ID
-            case .classic:
-                return endpoint + "/tx/" + ID
-            case .kovan:
-                return endpoint + "/tx/" + ID
-            case .ropsten:
-                return endpoint + "/tx/" + ID
-            case .rinkeby:
-                return endpoint + "/tx/" + ID
             case .poa:
                 return endpoint + "/txid/search/" + ID
-            case .sokol:
-                return endpoint + "/tx/" + ID
-            case .xDai:
-                return endpoint + "/tx/" + ID
             case .custom, .callisto:
                 return .none
+            default:
+                return endpoint + "/tx/" + ID
             }
         }()
         guard let string = urlString else { return .none }
@@ -57,6 +45,8 @@ struct ConfigExplorer {
             return "https://sokol-explorer.poa.network"
         case .xDai:
             return "https://blockscout.com/poa/dai/"
+        case .goerli:
+            return "https://goerli.etherscan.io"
         case .custom, .callisto:
             return .none
         }
