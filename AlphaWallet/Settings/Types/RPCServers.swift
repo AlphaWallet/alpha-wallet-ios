@@ -230,7 +230,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .poa: return "https://blockscout.com/poa/core/api"
             case .xDai: return "https://blockscout.com/poa/dai/api"
             case .sokol: return "https://blockscout.com/poa/sokol/api"
-            case .goerli: return "https://api-goerli.etherscan.io/"
+            case .goerli: return "https://api-goerli.etherscan.io"
             case .custom:
                 return "" // Enable? make optional
             }
