@@ -28,7 +28,7 @@ class OpenSea {
         switch server {
         case .main, .rinkeby:
             return true
-        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .xDai:
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .custom, .goerli, .xDai:
             return false
         }
     }

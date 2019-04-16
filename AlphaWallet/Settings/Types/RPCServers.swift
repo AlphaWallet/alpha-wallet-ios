@@ -15,6 +15,7 @@ enum RPCServer: Hashable, CaseIterable {
     case classic
     case callisto
     case xDai
+    case goerli
     case custom(CustomRPC)
 
     var chainID: Int {
@@ -28,6 +29,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .classic: return 61
         case .callisto: return 104729
         case .xDai: return 100
+        case .goerli: return 5
         case .custom(let custom):
             return custom.chainID
         }
@@ -44,6 +46,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .classic: return "Ethereum Classic"
         case .callisto: return "Callisto"
         case .xDai: return "xDai"
+        case .goerli: return "Goerli"
         case .custom(let custom):
             return custom.name
         }
@@ -68,6 +71,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .sokol: return Constants.mainnetEtherscanAPI
         case .classic: return Constants.mainnetEtherscanAPI
         case .callisto: return Constants.mainnetEtherscanAPI
+        case .goerli: return Constants.goerliEtherscanAPI
         case .xDai: return Constants.xDaiAPI
         case .custom: return Constants.mainnetEtherscanAPI
         }
@@ -80,6 +84,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .rinkeby: return Constants.rinkebyEtherscanContractDetailsWebPageURL
         case .kovan: return Constants.kovanEtherscanContractDetailsWebPageURL
         case .xDai: return Constants.xDaiContractPage
+        case .goerli: return Constants.goerliContractPage
         case .poa: return Constants.poaContractPage
         case .sokol, .classic, .callisto, .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
         }
@@ -95,7 +100,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var priceID: Address {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai:
+        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .goerli:
             return Address(string: "0x000000000000000000000000000000000000003c")!
         case .poa:
             return Address(string: "0x00000000000000000000000000000000000000AC")!
@@ -117,7 +122,7 @@ enum RPCServer: Hashable, CaseIterable {
     var isTestNetwork: Bool {
         switch self {
         case .main, .poa, .classic, .callisto, .custom, .xDai: return false
-        case .kovan, .ropsten, .rinkeby, .sokol: return true
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli: return true
         }
     }
 
@@ -129,6 +134,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .kovan, .ropsten, .rinkeby: return "ETH"
         case .poa, .sokol: return "POA"
         case .xDai: return "xDai"
+        case .goerli: return "Goerli"
         case .custom(let custom):
             return custom.symbol
         }
@@ -136,7 +142,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var cryptoCurrencyName: String {
         switch self {
-        case .main, .classic, .callisto, .kovan, .ropsten, .rinkeby, .poa, .sokol, .custom:
+        case .main, .classic, .callisto, .kovan, .ropsten, .rinkeby, .poa, .sokol, .goerli, .custom:
             return "Ether"
         case .xDai:
             return "xDai"
@@ -153,7 +159,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .kovan: return .Kovan
         case .ropsten: return .Ropsten
         case .rinkeby: return .Rinkeby
-        case .poa, .sokol, .classic, .callisto, .xDai:
+        case .poa, .sokol, .classic, .callisto, .xDai, .goerli:
             return .Custom(networkID: BigUInt(chainID))
         case .custom:
             return .Custom(networkID: BigUInt(chainID))
@@ -183,6 +189,8 @@ enum RPCServer: Hashable, CaseIterable {
             return Constants.classicMagicLinkHost
         case .callisto:
             return Constants.callistoMagicLinkHost
+        case .goerli:
+            return Constants.goerliMagicLinkHost
         case .xDai:
             return Constants.xDaiMagicLinkHost
         case .custom:
@@ -193,14 +201,15 @@ enum RPCServer: Hashable, CaseIterable {
     var rpcURL: URL {
         let urlString: String = {
             switch self {
-            case .main: return "https://mainnet.infura.io/llyrtzQ3YhkdESt2Fzrk"
+            case .main: return "https://mainnet.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
             case .classic: return "https://ethereumclassic.network"
             case .callisto: return "https://callisto.network/" //TODO Add endpoint
-            case .kovan: return "https://kovan.infura.io/llyrtzQ3YhkdESt2Fzrk"
-            case .ropsten: return "https://ropsten.infura.io/llyrtzQ3YhkdESt2Fzrk"
-            case .rinkeby: return "https://rinkeby.infura.io/llyrtzQ3YhkdESt2Fzrk"
+            case .kovan: return "https://kovan.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
+            case .ropsten: return "https://ropsten.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
+            case .rinkeby: return "https://rinkeby.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
             case .poa: return "https://core.poa.network"
             case .sokol: return "https://sokol.poa.network"
+            case .goerli: return "https://goerli.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
             case .xDai: return "https://dai.poa.network"
             case .custom(let custom):
                 return custom.endpoint
@@ -221,6 +230,7 @@ enum RPCServer: Hashable, CaseIterable {
             case .poa: return "https://blockscout.com/poa/core/api"
             case .xDai: return "https://blockscout.com/poa/dai/api"
             case .sokol: return "https://blockscout.com/poa/sokol/api"
+            case .goerli: return "https://api-goerli.etherscan.io/"
             case .custom:
                 return "" // Enable? make optional
             }
@@ -242,7 +252,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main, .xDai:
             return .normal
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .custom:
             return .low
         }
     }
@@ -251,7 +261,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .xDai:
             return R.string.localizable.blockchainXDAI()
-        case .main, .rinkeby, .ropsten, .custom, .callisto, .classic, .kovan, .sokol, .poa:
+        case .main, .rinkeby, .ropsten, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
             return R.string.localizable.blockchainEthereum()
         }
     }
@@ -266,6 +276,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .rinkeby: return .init(red: 246, green: 195, blue: 67)
         case .poa: return .init(red: 88, green: 56, blue: 163)
         case .sokol: return .init(red: 107, green: 53, blue: 162)
+        case .goerli: return .init(red: 187, green: 174, blue: 154)
         case .xDai: return .init(red: 253, green: 176, blue: 61)
         }
     }
@@ -282,6 +293,7 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.poa.name: return .poa
             case RPCServer.sokol.name: return .sokol
             case RPCServer.xDai.name: return .xDai
+            case RPCServer.goerli.name: return .goerli
             default: return .main
             }
         }()
@@ -299,6 +311,7 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.poa.chainID: return .poa
             case RPCServer.sokol.chainID: return .sokol
             case RPCServer.xDai.chainID: return .xDai
+            case RPCServer.goerli.chainID: return .goerli
             default: return .main
             }
         }()
@@ -316,6 +329,7 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.poa.magicLinkHost: return .poa
             case RPCServer.sokol.magicLinkHost: return .sokol
             case RPCServer.xDai.magicLinkHost: return .xDai
+            case RPCServer.goerli.magicLinkHost: return .goerli
             default: return nil
             }
         }()
@@ -342,7 +356,8 @@ enum RPCServer: Hashable, CaseIterable {
             .poa,
             .sokol,
             .classic,
-            .xDai
+            .xDai,
+            .goerli
         ]
     }
 }

@@ -88,7 +88,7 @@ class AmountTextField: UIControl {
         switch server {
         case .xDai:
             currentPair = Pair(left: .cryptoCurrency("xDAI"), right: .usd("USD"))
-        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa:
+        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
             currentPair = Pair(left: .cryptoCurrency("ETH"), right: .usd("USD"))
         }
 
