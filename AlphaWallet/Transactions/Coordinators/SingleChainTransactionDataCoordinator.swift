@@ -188,7 +188,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
         switch session.server {
         case .main, .xDai:
             content.body = R.string.localizable.transactionsReceivedEther(amount, session.server.symbol)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .custom:
             content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(session.server.name))", session.server.symbol)
         }
         content.sound = .default
