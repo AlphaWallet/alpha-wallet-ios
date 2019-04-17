@@ -67,20 +67,32 @@ class WalletCoordinator: Coordinator {
     
     func createInitialWallet() {
         if !keystore.hasWallets {
-            let account = keystore.createAccount(password: PasswordGenerator.generateRandom())
-            keystore.recentlyUsedWallet = Wallet(type: WalletType.real(account))
+            completeInstantWallet(password: PasswordGenerator.generateRandom(), initial: true)
         }
     }
 
     func createInstantWallet() {
         navigationController.displayLoading(text: R.string.localizable.walletCreateInProgress(), animated: false)
-        let password = PasswordGenerator.generateRandom()
+        completeInstantWallet(password: PasswordGenerator.generateRandom(), initial: false)
+    }
+
+    //since creating an ICAP key will require about 256 tries, we should only have to make the password once
+    private func completeInstantWallet(password: String, initial: Bool) {
         keystore.createAccount(with: password) { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let account):
-                let wallet = Wallet(type: WalletType.real(account))
-                strongSelf.delegate?.didFinish(with: wallet, in: strongSelf)
+                //Ensure that an ICAP compatible address is always generated
+                //See https://ethereum.stackexchange.com/questions/1085/what-is-an-icap-address
+                if account.address.data.array[0] == UInt8(0x00) {
+                    let wallet = Wallet(type: WalletType.real(account))
+                    strongSelf.delegate?.didFinish(with: wallet, in: strongSelf)
+                    if initial {
+                        strongSelf.keystore.recentlyUsedWallet = Wallet(type: WalletType.real(account))
+                    }
+                } else {
+                    return strongSelf.completeInstantWallet(password: password, initial: initial)
+                }
             case .failure(let error):
                 //TODO this wouldn't work since navigationController isn't shown anymore
                 strongSelf.navigationController.displayError(error: error)
