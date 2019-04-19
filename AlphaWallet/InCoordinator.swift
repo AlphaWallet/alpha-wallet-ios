@@ -474,10 +474,6 @@ class InCoordinator: NSObject, Coordinator {
         return try! Realm(configuration: migration.config)
     }
 
-    private func web3(forServer server: RPCServer) -> Web3Swift {
-        return Web3Swift(url: server.rpcURL)
-    }
-
     private func showTransactionSent(transaction: SentTransaction) {
         let alertController = UIAlertController(title: R.string.localizable.sendActionTransactionSent(), message: R.string.localizable.sendActionTransactionSentWait(), preferredStyle: .alert)
         let copyAction = UIAlertAction(title: R.string.localizable.sendActionCopyTransactionTitle(), style: UIAlertAction.Style.default, handler: { _ in
@@ -494,22 +490,14 @@ class InCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
-    // When a user clicks a Universal Link, either the user pays to publish a
-    // transaction or, if the token price = 0 (new purchase or incoming
-    // transfer from a buddy), the user can send the data to a paymaster.
-    // This function deal with the special case that the token price = 0
-    // but not sent to the paymaster because the user has ether.
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void) {
         let server = tokenObject.server
-        let web3 = self.web3(forServer: server)
-        web3.start()
         let signature = signedOrder.signature.substring(from: 2)
         let v = UInt8(signature.substring(from: 128), radix: 16)!
         let r = "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64)))
         let s = "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128)))
         guard let wallet = keystore.recentlyUsedWallet else { return }
-
-        claimOrderCoordinator = ClaimOrderCoordinator(web3: web3)
+        claimOrderCoordinator = ClaimOrderCoordinator()
         claimOrderCoordinator?.claimOrder(
                 signedOrder: signedOrder,
                 expiry: signedOrder.order.expiry,
@@ -523,42 +511,17 @@ class InCoordinator: NSObject, Coordinator {
             switch result {
             case .success(let payload):
                 let address: Address = strongSelf.wallet.address
-                let transaction = UnconfirmedTransaction(
-                        transferType: .ERC875TokenOrder(tokenObject),
-                        value: BigInt(signedOrder.order.price),
-                        to: address,
-                        data: Data(bytes: payload.hexa2Bytes),
-                        gasLimit: GasLimitConfiguration.maxGasLimit,
-                        tokenId: .none,
-                        gasPrice: GasPriceConfiguration.defaultPrice,
-                        nonce: .none,
-                        v: v,
-                        r: r,
-                        s: s,
-                        expiry: signedOrder.order.expiry,
-                        indices: signedOrder.order.indices,
-                        tokenIds: signedOrder.order.tokenIds
-                )
-
                 let session = strongSelf.walletSessions[server]
                 let account = try! EtherKeystore().getAccount(for: wallet.address)!
-                let configurator = TransactionConfigurator(
-                        session: session,
+                //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
+                let transactionToSign = UnsignedTransaction(
+                        value: BigInt(signedOrder.order.price),
                         account: account,
-                        transaction: transaction
-                )
-
-                let signTransaction = configurator.formUnsignedTransaction()
-
-                //TODO why is the gas price loaded in twice?
-                let signedTransaction = UnsignedTransaction(
-                        value: signTransaction.value,
-                        account: account,
-                        to: signTransaction.to,
-                        nonce: signTransaction.nonce,
-                        data: signTransaction.data,
+                        to: Address(string: signedOrder.order.contractAddress)!,
+                        nonce: -1,
+                        data: payload,
                         gasPrice: GasPriceConfiguration.defaultPrice,
-                        gasLimit: signTransaction.gasLimit,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
                         server: server
                 )
                 let sendTransactionCoordinator = SendTransactionCoordinator(
@@ -566,8 +529,7 @@ class InCoordinator: NSObject, Coordinator {
                         keystore: strongSelf.keystore,
                         confirmType: .signThenSend
                 )
-
-                sendTransactionCoordinator.send(transaction: signedTransaction) { result in
+                sendTransactionCoordinator.send(transaction: transactionToSign) { result in
                     switch result {
                     case .success(let res):
                         completion(true)

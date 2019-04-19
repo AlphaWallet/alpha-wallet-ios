@@ -111,6 +111,10 @@ extension String {
         return Constants.legacy875Addresses.contains { $0.sameContract(as: self) }
     }
 
+    var isLegacy732Contract: Bool {
+        return Constants.legacy721Addresses.contains { $0.sameContract(as: self) }
+    }
+
 }
 
 extension String {

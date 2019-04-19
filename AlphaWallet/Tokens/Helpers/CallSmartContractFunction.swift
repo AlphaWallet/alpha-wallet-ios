@@ -12,7 +12,6 @@ func callSmartContract(withServer server: RPCServer, contract: Address, function
         guard let data = Data.fromHex(contract.eip55String), let contractAddress = EthereumAddress(data) else {
             return Promise(error: Web3Error(description: "Error converting contract address: \(contract.eip55String)"))
         }
-
         return .value(contractAddress)
     }.then { contractAddress -> Promise<[String: Any]> in
         guard let webProvider = Web3HttpProvider(server.rpcURL, network: server.web3Network) else {
