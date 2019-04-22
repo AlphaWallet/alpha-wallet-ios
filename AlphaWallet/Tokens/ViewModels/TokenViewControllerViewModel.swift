@@ -24,7 +24,7 @@ struct TokenViewControllerViewModel {
                     .filter({ $0.operation == nil })
                     .filter({ $0.value != "" && $0.value != "0" })
                     .prefix(3))
-        case .ERC20Token(let token):
+        case .ERC20Token(let token, _, _):
             self.recentTransactions = Array(transactionsStore.objects.lazy
                     .filter({ $0.state == .completed || $0.state == .pending })
                     .filter({

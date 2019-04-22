@@ -2,6 +2,7 @@
 
 import Foundation
 import TrustKeystore
+import BigInt
 
 struct Transfer {
     let server: RPCServer
@@ -13,9 +14,9 @@ enum TransferType {
         self = {
             switch token.type {
 			case .nativeCryptocurrency:
-                return .nativeCryptocurrency(server: token.server, destination: nil)
+                return .nativeCryptocurrency(server: token.server, destination: nil, amount: nil)
             case .erc20:
-                return .ERC20Token(token)
+                return .ERC20Token(token, destination: nil, amount: nil)
             case .erc875:
                 return .ERC875Token(token)
             case .erc721:
@@ -24,8 +25,8 @@ enum TransferType {
         }()
     }
 
-    case nativeCryptocurrency(server: RPCServer, destination: Address?)
-    case ERC20Token(TokenObject)
+    case nativeCryptocurrency(server: RPCServer, destination: Address?, amount: BigInt?)
+    case ERC20Token(TokenObject, destination: Address?, amount: String?)
     case ERC875Token(TokenObject)
     case ERC875TokenOrder(TokenObject)
     case ERC721Token(TokenObject)
@@ -35,11 +36,11 @@ enum TransferType {
 extension TransferType {
     var symbol: String {
         switch self {
-        case .nativeCryptocurrency(let server, _):
+        case .nativeCryptocurrency(let server, _, _):
             return server.symbol
         case .dapp(let token, _):
             return token.symbol
-        case .ERC20Token(let token):
+        case .ERC20Token(let token, _, _):
             return token.symbol
         case .ERC875Token(let token):
             return token.symbol
@@ -52,11 +53,11 @@ extension TransferType {
 
     var server: RPCServer {
         switch self {
-        case .nativeCryptocurrency(let server, _):
+        case .nativeCryptocurrency(let server, _, _):
             return server
         case .dapp(let token, _):
             return token.server
-        case .ERC20Token(let token):
+        case .ERC20Token(let token, _, _):
             return token.server
         case .ERC875Token(let token):
             return token.server
@@ -71,7 +72,7 @@ extension TransferType {
         switch self {
         case .nativeCryptocurrency:
             return Address(uncheckedAgainstNullAddress: Constants.nativeCryptoAddressInDatabase)!
-        case .ERC20Token(let token):
+        case .ERC20Token(let token, _, _):
             return Address(string: token.contract)!
         case .ERC875Token(let token):
             return Address(string: token.contract)!

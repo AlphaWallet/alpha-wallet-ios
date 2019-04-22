@@ -69,7 +69,7 @@ class InCoordinatorTests: XCTestCase {
         )
         coordinator.showTabBar(for: .make())
 
-        coordinator.showPaymentFlow(for: .send(type: .nativeCryptocurrency(server: .main, destination: .none)), server: .main)
+        coordinator.showPaymentFlow(for: .send(type: .nativeCryptocurrency(server: .main, destination: .none, amount: nil)), server: .main)
 
         let controller = (coordinator.navigationController.presentedViewController as? UINavigationController)?.viewControllers[0]
 

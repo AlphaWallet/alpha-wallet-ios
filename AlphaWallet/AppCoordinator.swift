@@ -1,9 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import UIKit
-import BigInt
 
 class AppCoordinator: NSObject, Coordinator {
     private let config = Config()
@@ -64,10 +62,16 @@ class AppCoordinator: NSObject, Coordinator {
     /// Return true if handled
     func handleOpen(url: URL) -> Bool {
         if let assetDefinitionStoreCoordinator = assetDefinitionStoreCoordinator {
-            return assetDefinitionStoreCoordinator.handleOpen(url: url)
-        } else {
-            return false
+            let handled = assetDefinitionStoreCoordinator.handleOpen(url: url)
+            if handled {
+                return true
+            }
         }
+
+        guard let inCoordinator = inCoordinator else { return false }
+        let urlSchemeHandler = CustomUrlSchemeCoordinator(tokensDatastores: inCoordinator.tokensStorages)
+        urlSchemeHandler.delegate = self
+        return urlSchemeHandler.handleOpen(url: url)
     }
 
     private func setupAssetDefinitionStore() {
@@ -274,5 +278,10 @@ extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
     func importUniversalLink(url: URL, for coordinator: UniversalLinkInPasteboardCoordinator) {
         guard universalLinkCoordinator == nil else { return }
         handleUniversalLink(url: url)
+    }
+}
+extension AppCoordinator: CustomUrlSchemeCoordinatorDelegate {
+    func openSendPaymentFlow(_ paymentFlow: PaymentFlow, server: RPCServer, inCoordinator coordinator: CustomUrlSchemeCoordinator) {
+        inCoordinator?.showPaymentFlow(for: paymentFlow, server: server)
     }
 }
