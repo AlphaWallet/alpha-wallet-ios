@@ -202,9 +202,9 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         let config = sessions[server].config
         switch token.type {
         case .nativeCryptocurrency:
-            coordinator.show(fungibleToken: token, transferType: .nativeCryptocurrency(server: server, destination: .none))
+            coordinator.show(fungibleToken: token, transferType: .nativeCryptocurrency(server: server, destination: .none, amount: nil))
         case .erc20:
-            coordinator.show(fungibleToken: token, transferType: .ERC20Token(token))
+            coordinator.show(fungibleToken: token, transferType: .ERC20Token(token, destination: nil, amount: nil))
         case .erc721:
             coordinator.showTokenList(for: .send(type: .ERC721Token(token)), token: token)
         case .erc875:

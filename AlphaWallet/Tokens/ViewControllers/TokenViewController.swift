@@ -74,7 +74,7 @@ class TokenViewController: UIViewController {
         switch transferType {
         case .nativeCryptocurrency:
             header.verificationStatus = .verified(session.account.address.eip55String)
-        case .ERC20Token(let token), .ERC875TokenOrder(let token), .ERC875Token(let token), .ERC721Token(let token):
+        case .ERC20Token(let token, _, _), .ERC875TokenOrder(let token), .ERC875Token(let token), .ERC721Token(let token):
             header.verificationStatus = .unverified(token.contract)
         case .dapp:
             header.verificationStatus = .unverified(session.account.address.eip55String)
@@ -113,7 +113,7 @@ class TokenViewController: UIViewController {
                 }
             }
             session.refresh(.ethBalance)
-        case .ERC20Token(let token):
+        case .ERC20Token(let token, _, _):
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
             headerViewModel.title = "\(amount) \(viewModel.name) (\(viewModel.symbol))"
