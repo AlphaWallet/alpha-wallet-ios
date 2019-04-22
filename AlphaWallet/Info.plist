@@ -39,6 +39,14 @@
 				<string>awallet</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Ethereum Links</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>ethereum</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>269 </string>

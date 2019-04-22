@@ -10,7 +10,7 @@ class PaymentCoordinatorTests: XCTestCase {
         let address: Address = .make()
         let coordinator = PaymentCoordinator(
             navigationController: FakeNavigationController(),
-            flow: .send(type: .nativeCryptocurrency(server: .main, destination: address)),
+            flow: .send(type: .nativeCryptocurrency(server: .main, destination: address, amount: nil)),
             session: .make(),
             keystore: FakeKeystore(),
             storage: FakeTokensDataStore(),

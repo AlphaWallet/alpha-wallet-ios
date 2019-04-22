@@ -102,7 +102,7 @@ extension BalanceTitleView {
                 guard let viewModel = viewModel else { return }
                 view?.viewModel = viewModel
             }
-        case .ERC20Token(let token):
+        case .ERC20Token(let token, _, _):
             view.viewModel = BalanceTokenViewModel(token: token)
         case .ERC875Token(let token):
             view.viewModel = BalanceTokenViewModel(token: token)
