@@ -22,12 +22,6 @@ public struct PreviewTransaction {
 class TransactionConfigurator {
     private let session: WalletSession
     private let account: Account
-    private lazy var web3: Web3Swift = {
-        let result = Web3Swift(url: session.server.rpcURL)
-        result.start()
-        return result
-    }()
-
     private lazy var calculatedGasPrice: BigInt = {
         switch session.server {
             case .xDai:
@@ -129,80 +123,102 @@ class TransactionConfigurator {
                     data: transaction.data ?? configuration.data
             )
             completion(.success(()))
-        case .ERC20Token:
-            web3.request(request: ContractERC20Transfer(amount: transaction.value, address: transaction.to!.description)) { [unowned self] result in
-                switch result {
-                case .success(let res):
-                    let data = Data(hex: res.drop0x)
-                    self.configuration = TransactionConfiguration(
-                            gasPrice: self.calculatedGasPrice,
-                            gasLimit: GasLimitConfiguration.maxGasLimit,
-                            data: data
-                    )
-                    completion(.success(()))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+        case .ERC20Token(let token):
+            do {
+                let function = Function(name: "transfer", parameters: [ABIType.address, ABIType.uint(bits: 256)])
+                //Note: be careful here with the BigUInt and BigInt, the type needs to be exact
+                let parameters: [Any] = [transaction.to!, BigUInt(transaction.value)]
+                let encoder = ABIEncoder()
+                try encoder.encode(function: function, arguments: parameters)
+                self.configuration = TransactionConfiguration(
+                        gasPrice: self.calculatedGasPrice,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        data: encoder.data
+                )
+                completion(.success(()))
+            } catch {
+                completion(.failure(AnyError(Web3Error(description: "malformed tx"))))
             }
-                //TODO clean up
         case .ERC875Token(let token):
-            web3.request(request: ContractERC875Transfer(
-                    address: transaction.to!.description,
-                    contractAddress: token.contract,
-                    indices: transaction.indices!
-            )) { [unowned self] result in
-                switch result {
-                case .success(let res):
-                    let data = Data(hex: res.drop0x)
-                    self.configuration = TransactionConfiguration(
-                            gasPrice: self.calculatedGasPrice,
-                            gasLimit: GasLimitConfiguration.maxGasLimit,
-                            data: data
-                    )
-                    completion(.success(()))
-                case .failure(let error):
-                    completion(.failure(error))
+            do {
+                let parameters: [Any] = [transaction.to!, transaction.indices!.map({ BigUInt($0) })]
+                let arrayType: ABIType
+                if token.address.eip55String.isLegacy875Contract {
+                    arrayType = ABIType.uint(bits: 16)
+                } else {
+                    arrayType = ABIType.uint(bits: 256)
                 }
+                let functionEncoder = Function(name: "transfer", parameters: [
+                        .address,
+                        .dynamicArray(arrayType)
+                    ]
+                )
+                let encoder = ABIEncoder()
+                try encoder.encode(function: functionEncoder, arguments: parameters)
+                self.configuration = TransactionConfiguration(
+                        gasPrice: self.calculatedGasPrice,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        data: encoder.data
+                )
+                completion(.success(()))
+            } catch {
+                completion(.failure(AnyError(Web3Error(description: "malformed tx"))))
             }
-                //TODO put order claim tx here somehow, or maybe the same one above
         case .ERC875TokenOrder(let token):
-            web3.request(request: ClaimERC875Order(expiry: transaction.expiry!, indices: transaction.indices!,
-                                                           v: transaction.v!, r: transaction.r!, s: transaction.s!, contractAddress: token.contract)) { [unowned self] result in
-                switch result {
-                case .success(let res):
-                    let data = Data(hex: res.drop0x)
-                    self.configuration = TransactionConfiguration(
-                            gasPrice: self.calculatedGasPrice,
-                            gasLimit: GasLimitConfiguration.maxGasLimit,
-                            data: data
-                    )
-                    completion(.success(()))
-                case .failure(let error):
-                    completion(.failure(error))
+            do {
+                let parameters: [Any] = [
+                    transaction.expiry!,
+                    transaction.indices!.map({ BigUInt($0) }),
+                    BigUInt(transaction.v!),
+                    Data(hex: transaction.r!),
+                    Data(hex: transaction.s!)
+                ]
+                let arrayType: ABIType
+                if token.address.eip55String.isLegacy875Contract {
+                    arrayType = ABIType.uint(bits: 16)
+                } else {
+                    arrayType = ABIType.uint(bits: 256)
                 }
+                let functionEncoder = Function(name: "trade", parameters: [
+                    .uint(bits: 256),
+                    .dynamicArray(arrayType),
+                    .uint(bits: 8),
+                    .bytes(32),
+                    .bytes(32)
+                ])
+                let encoder = ABIEncoder()
+                try encoder.encode(function: functionEncoder, arguments: parameters)
+                self.configuration = TransactionConfiguration(
+                        gasPrice: self.calculatedGasPrice,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        data: encoder.data
+                )
+                completion(.success(()))
+            } catch {
+                completion(.failure(AnyError(Web3Error(description: "malformed tx"))))
             }
 
         case .ERC721Token(let token):
-            web3.request(request: ContractERC721Transfer(
-                from: self.account.address.eip55String,
-                to: transaction.to!.eip55String,
-                tokenId: transaction.tokenId!,
-                contractAddress: token.address.eip55String
-            )) {
-                [weak self] result in
-                guard let celf = self else { return }
-                switch result {
-                case .success(let res):
-                    let data = Data(hex: res.drop0x)
-                    celf.configuration = TransactionConfiguration(
-                            gasPrice: celf.calculatedGasPrice,
-                            gasLimit: GasLimitConfiguration.maxGasLimit,
-                            data: data
-                    )
-                    completion(.success(()))
-                case .failure(let error):
-                    completion(.failure(error))
+            do {
+                let function: Function
+                let parameters: [Any]
+                if transaction.to!.eip55String.isLegacy732Contract {
+                    function = Function(name: "transfer", parameters: [.address, .uint(bits: 256)])
+                    parameters = [transaction.to!, BigUInt(transaction.tokenId!)!]
+                } else {
+                    function = Function(name: "safeTransferFrom", parameters: [.address, .address, .uint(bits: 256)])
+                    parameters = [self.account.address, transaction.to!, BigUInt(transaction.tokenId!)!]
                 }
+                let encoder = ABIEncoder()
+                try encoder.encode(function: function, arguments: parameters)
+                self.configuration = TransactionConfiguration(
+                        gasPrice: self.calculatedGasPrice,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        data: encoder.data
+                )
+                completion(.success(()))
+            } catch {
+                completion(.failure(AnyError(Web3Error(description: "malformed tx"))))
             }
         }
     }

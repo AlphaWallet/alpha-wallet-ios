@@ -14,7 +14,8 @@ class ClaimOrderCoordinatorTests: XCTestCase {
 
     func testClaimOrder() {
         let keystore = try! EtherKeystore()
-        let claimOrderCoordinator = FakeClaimOrderCoordinator()
+        //TODO doesn't actually test anything
+//        let claimOrderCoordinator = FakeClaimOrderCoordinator()
         let expectation = self.expectation(description: "wait til callback")
         expectations.append(expectation)
         var indices = [UInt16]()
