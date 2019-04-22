@@ -65,7 +65,6 @@ class SendTransactionCoordinator {
         completion: @escaping (Result<ConfirmResult, AnyError>) -> Void
     ) {
         let signedTransaction = keystore.signTransaction(transaction)
-
         switch signedTransaction {
         case .success(let data):
             switch confirmType {

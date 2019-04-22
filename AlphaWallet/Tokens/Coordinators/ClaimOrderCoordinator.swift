@@ -13,12 +13,6 @@ import JavaScriptKit
 import Result
 
 class ClaimOrderCoordinator {
-    private let web3: Web3Swift
-
-    init(web3: Web3Swift) {
-        self.web3 = web3
-    }
-
     func claimOrder(signedOrder: SignedOrder,
                     expiry: BigUInt,
                     v: UInt8,
@@ -26,7 +20,7 @@ class ClaimOrderCoordinator {
                     s: String,
                     contractAddress: String,
                     recipient: String,
-                    completion: @escaping (Result<String, AnyError>) -> Void
+                    completion: @escaping (Result<Data, AnyError>) -> Void
         ) {
 
         if let tokenIds = signedOrder.order.tokenIds, !tokenIds.isEmpty {
@@ -43,25 +37,35 @@ class ClaimOrderCoordinator {
             }
         }
     }
-    
+
     func claimNormalOrder(expiry: BigUInt,
                           indices: [UInt16],
                           v: UInt8,
                           r: String,
                           s: String,
                           contractAddress: String,
-                          completion: @escaping (Result<String, AnyError>) -> Void) {
-        let request = ClaimERC875Order(expiry: expiry, indices: indices, v: v, r: r, s: s, contractAddress: contractAddress)
-        web3.request(request: request) { result in
-            switch result {
-            //TODO handle cases for UI
-            case .success(let res):
-                print(res)
-                completion(.success(res))
-            case .failure(let err):
-                print(err)
-                completion(.failure(AnyError(err)))
+                          completion: @escaping (Result<Data, AnyError>) -> Void) {
+        do {
+            let parameters: [Any] = [expiry, indices.map({ BigUInt($0) }), BigUInt(v), Data(hex: r), Data(hex: s)]
+            let arrayType: ABIType
+            if contractAddress.isLegacy875Contract {
+                arrayType = ABIType.uint(bits: 16)
+            } else {
+                arrayType = ABIType.uint(bits: 256)
             }
+            //trade(uint256,uint16[],uint8,bytes32,bytes32)
+            let functionEncoder = Function(name: "trade", parameters: [
+                .uint(bits: 256),
+                .dynamicArray(arrayType),
+                .uint(bits: 8),
+                .bytes(32),
+                .bytes(32)
+            ])
+            let encoder = ABIEncoder()
+            try encoder.encode(function: functionEncoder, arguments: parameters)
+            completion(.success(encoder.data))
+        } catch {
+            completion(.failure(AnyError(Web3Error(description: "malformed transaction"))))
         }
     }
 
@@ -71,17 +75,23 @@ class ClaimOrderCoordinator {
                              r: String,
                              s: String,
                              recipient: String,
-                             completion: @escaping (Result<String, AnyError>) -> Void) {
-        let request = ClaimERC875Spawnable(tokenIds: tokenIds, v: v, r: r, s: s, expiry: expiry, recipient: recipient)
-        web3.request(request: request) { result in
-            switch result {
-            case .success(let res):
-                print(res)
-                completion(.success(res))
-            case .failure(let err):
-                print(err)
-                completion(.failure(AnyError(err)))
-            }
+                             completion: @escaping (Result<Data, AnyError>) -> Void) {
+
+        do {
+            let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(hex: r), Data(hex: s), Address(string: recipient)]
+            let functionEncoder = Function(name: "spawnPassTo", parameters: [
+                .uint(bits: 256),
+                .dynamicArray(.uint(bits: 256)),
+                .uint(bits: 8),
+                .bytes(32),
+                .bytes(32),
+                .address
+            ])
+            let encoder = ABIEncoder()
+            try encoder.encode(function: functionEncoder, arguments: parameters)
+            completion(.success(encoder.data))
+        } catch {
+            completion(.failure(AnyError(Web3Error(description: "malformed transaction"))))
         }
     }
 
@@ -91,34 +101,32 @@ class ClaimOrderCoordinator {
             r: String,
             s: String,
             recipient: String,
-            completion: @escaping (Result<String, AnyError>) -> Void
+            completion: @escaping (Result<Data, AnyError>) -> Void
     ) {
-        let request = ClaimNativeCurrencyOrder(
-                contractAddress: signedOrder.order.contractAddress,
-                nonce: signedOrder.order.nonce,
-                expiry: signedOrder.order.expiry,
-                amount: signedOrder.order.count,
-                v: v,
-                r: r,
-                s: s,
-                receiver: recipient
-        )
-        web3.request(request: request) { result in
-            switch result {
-            //TODO handle cases for UI
-            case .success(let res):
-                print(res)
-                completion(.success(res))
-            case .failure(let err):
-                print(err)
-                completion(.failure(AnyError(err)))
-            }
+        do {
+            let parameters: [Any] = [
+                signedOrder.order.nonce,
+                signedOrder.order.expiry,
+                signedOrder.order.count,
+                BigUInt(v),
+                Data(hex: r),
+                Data(hex: s),
+                Address(string: recipient)!
+            ]
+            let functionEncoder = Function(name: "dropCurrency", parameters: [
+                .uint(bits: 256),
+                .uint(bits: 256),
+                .uint(bits: 256),
+                .uint(bits: 8),
+                .bytes(32),
+                .bytes(32),
+                .address
+            ])
+            let encoder = ABIEncoder()
+            try encoder.encode(function: functionEncoder, arguments: parameters)
+            completion(.success(encoder.data))
+        } catch {
+            completion(.failure(AnyError(Web3Error(description: "malformed transaction"))))
         }
     }
-
-    // TODO: Testing purposes only. Remove this when it is fully functional
-    func startWeb3() {
-        web3.start()
-    }
-
 }
