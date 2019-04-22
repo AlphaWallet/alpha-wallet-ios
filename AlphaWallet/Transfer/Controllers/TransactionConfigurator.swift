@@ -73,7 +73,7 @@ class TransactionConfigurator {
         let to: Address? = {
             switch transaction.transferType {
             case .nativeCryptocurrency, .dapp: return transaction.to
-            case .ERC20Token(let token):
+            case .ERC20Token(let token, _, _):
                 return Address(string: token.contract)
             case .ERC875Token(let token):
                 return Address(string: token.contract)
@@ -250,7 +250,7 @@ class TransactionConfigurator {
         let address: Address? = {
             switch transaction.transferType {
             case .nativeCryptocurrency, .dapp: return transaction.to
-            case .ERC20Token(let token): return token.address
+            case .ERC20Token(let token, _, _): return token.address
             case .ERC875Token(let token): return token.address
             case .ERC875TokenOrder(let token): return token.address
             case .ERC721Token(let token): return token.address

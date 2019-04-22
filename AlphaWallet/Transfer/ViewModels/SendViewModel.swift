@@ -27,7 +27,7 @@ struct SendViewModel {
         switch transferType {
         case .nativeCryptocurrency:
             return nil
-        case .ERC20Token(let token):
+        case .ERC20Token(let token, _, _):
             return token
         case .ERC875Token(let token):
             return token

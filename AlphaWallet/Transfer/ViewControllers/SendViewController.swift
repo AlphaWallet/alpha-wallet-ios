@@ -21,7 +21,6 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 class SendViewController: UIViewController, CanScanQRCode {
     private let roundedBackground = RoundedBackground()
     private let header = SendHeaderView()
-    lazy private var amountTextField = AmountTextField(server: session.server)
     private let targetAddressLabel = UILabel()
     private let amountLabel = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
@@ -38,10 +37,11 @@ class SendViewController: UIViewController, CanScanQRCode {
     }()
 
     let targetAddressTextField = AddressTextField()
+    lazy var amountTextField = AmountTextField(server: session.server)
     weak var delegate: SendViewControllerDelegate?
     var contract: String {
         switch transferType {
-        case .ERC20Token(let token):
+        case .ERC20Token(let token, _, _):
             return token.contract
         case .nativeCryptocurrency:
             return account.address.eip55String
@@ -205,7 +205,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             switch transferType {
             case .nativeCryptocurrency, .dapp:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
-            case .ERC20Token(let token):
+            case .ERC20Token(let token, _, _):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             case .ERC875Token(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
@@ -267,7 +267,7 @@ class SendViewController: UIViewController, CanScanQRCode {
                 }
             }
             session.refresh(.ethBalance)
-        case .ERC20Token(let token):
+        case .ERC20Token(let token, _, _):
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
             headerViewModel.title = "\(amount) \(viewModel.name) (\(viewModel.symbol))"
