@@ -23,4 +23,12 @@ struct ServerDictionary<T> {
     var anyValue: T {
         return backingStore.values.first!
     }
+
+    var count: Int {
+        return backingStore.count
+    }
+
+    var isEmpty: Bool {
+        return backingStore.isEmpty
+    }
 }

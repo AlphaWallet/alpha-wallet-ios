@@ -38,7 +38,6 @@ class InCoordinator: NSObject, Coordinator {
     private let appTracker: AppTracker
     private var transactionsStorages = ServerDictionary<TransactionsStorage>()
     private var walletSessions = ServerDictionary<WalletSession>()
-    private var tokensStoragesForCryptoPriceFetching = ServerDictionary<TokensDataStore>()
     private var callForAssetAttributeCoordinators = ServerDictionary<CallForAssetAttributeCoordinator>() {
         didSet {
             XMLHandler.callForAssetAttributeCoordinators = callForAssetAttributeCoordinators
@@ -114,10 +113,9 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func fetchCryptoPrice(forServer server: RPCServer) {
-        let tokensStorage = createTokensDatastore(forConfig: config, server: server)
-        tokensStoragesForCryptoPriceFetching[server] = tokensStorage
-        tokensStorage.updatePrices()
+        assert(!tokensStorages.isEmpty)
 
+        let tokensStorage = tokensStorages[server]
         let etherToken = TokensDataStore.etherToken(forServer: server)
         tokensStorage.tokensModel.subscribe {[weak self, weak tokensStorage] tokensModel in
             guard let strongSelf = self else { return }
@@ -194,9 +192,11 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func setupCallForAssetAttributeCoordinators() {
+        assert(!tokensStorages.isEmpty)
+
         callForAssetAttributeCoordinators = .init()
         for each in RPCServer.allCases {
-            let tokensDataStore = createTokensDatastore(forConfig: config, server: each)
+            let tokensDataStore = tokensStorages[each]
             let callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator(server: each, tokensDataStore: tokensDataStore)
             callForAssetAttributeCoordinators[each] = callForAssetAttributeCoordinator
             //Since this is called at launch, we don't want it to block launching
@@ -264,8 +264,8 @@ class InCoordinator: NSObject, Coordinator {
 
     private func setupResourcesOnMultiChain() {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
-        setupCallForAssetAttributeCoordinators()
         setupTokenDataStores()
+        setupCallForAssetAttributeCoordinators()
         setupTransactionsStorages()
         setupEtherBalances()
         setupWalletSessions()
