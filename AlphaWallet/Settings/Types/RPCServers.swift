@@ -134,7 +134,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .kovan, .ropsten, .rinkeby: return "ETH"
         case .poa, .sokol: return "POA"
         case .xDai: return "xDai"
-        case .goerli: return "Goerli"
+        case .goerli: return "ETH"
         case .custom(let custom):
             return custom.symbol
         }
