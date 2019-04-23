@@ -234,20 +234,6 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         }
     }
 
-    func showContractWebPage() {
-        if case .main = server {
-            guard let url = url else { return }
-            delegate?.didPressViewContractWebPage(url, in: self)
-        } else {
-            guard let contract = contract else { return }
-            delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-        }
-    }
-
-    //Just for protocol conformance. Do nothing
-    func showInfo() {
-    }
-
     class PaddedLabel: UILabel {
         override var intrinsicContentSize: CGSize {
             let size = super.intrinsicContentSize
@@ -256,3 +242,13 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     }
 }
 
+extension ImportMagicTokenViewController: VerifiableStatusViewController {
+    func showContractWebPage() {
+        guard let url = url else { return }
+        delegate?.didPressViewContractWebPage(url, in: self)
+    }
+
+    //Just for protocol conformance. Do nothing
+    func showInfo() {
+    }
+}
