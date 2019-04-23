@@ -414,7 +414,7 @@ extension NewTokenViewController: AddressTextFieldDelegate {
 
     func didPaste(in textField: AddressTextField) {
         updateContractValue(value: textField.value)
-        _ = symbolTextField.becomeFirstResponder()
+        view.endEditing(true)
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
