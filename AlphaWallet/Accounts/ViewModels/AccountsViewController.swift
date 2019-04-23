@@ -73,7 +73,7 @@ class AccountsViewController: UIViewController {
         refreshWalletBalances()
     }
     func fetch() {
-        wallets = keystore.wallets
+        wallets = keystore.wallets.sorted { $0.address.eip55String < $1.address.eip55String }
     }
     func configure(viewModel: AccountsViewModel) {
         tableView.dataSource = self
