@@ -173,7 +173,8 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     func open(url: URL, animated: Bool = true) {
-        if isMagicLink(url) {
+        //If users tap on the verified button in the import MagicLink UI, we don't want to treat it as a MagicLink to import and show the UI again. Just open in browser. This check means when we tap MagicLinks in browserOnly mode, the import UI doesn't show up; which is probably acceptable
+        if !browserOnly && isMagicLink(url) {
             delegate?.importUniversalLink(url: url, forCoordinator: self)
             return
         }
