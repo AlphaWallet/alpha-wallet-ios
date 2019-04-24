@@ -64,9 +64,10 @@ class TokensDataStore {
     private var chainId: Int {
         return server.chainID
     }
+    private var isFetchingPrices = false
+    private let config: Config
 
     let server: RPCServer
-    private let config: Config
     weak var delegate: TokensDataStoreDelegate?
     //TODO why is this a dictionary? There seems to be only at most 1 key-value pair in the dictionary
     var tickers: [String: CoinTicker]? = .none
@@ -525,8 +526,13 @@ class TokensDataStore {
 
     func updatePrices() {
         guard let priceToUpdate = getPriceToUpdate() else { return }
+        guard !isFetchingPrices else { return }
+        isFetchingPrices = true
         provider.request(priceToUpdate) { [weak self] result in
             guard let strongSelf = self else { return }
+            defer {
+                strongSelf.isFetchingPrices = false
+            }
             guard case .success(let response) = result else { return }
             do {
                 let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
