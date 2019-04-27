@@ -21,7 +21,7 @@ enum AlphaWalletService {
 extension AlphaWalletService: TargetType {
     var baseURL: URL {
         switch self {
-        case .getTransactions(let config, let server, _, _, _, _):
+        case .getTransactions(_, let server, _, _, _, _):
             return server.transactionInfoEndpoints
         case .priceOfEth(let config), .priceOfDai(let config):
             return config.priceInfoEndpoints

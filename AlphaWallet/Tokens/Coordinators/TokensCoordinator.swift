@@ -199,7 +199,6 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didSelect(token: TokenObject, in viewController: UIViewController) {
         let server = token.server
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
-        let config = sessions[server].config
         switch token.type {
         case .nativeCryptocurrency:
             coordinator.show(fungibleToken: token, transferType: .nativeCryptocurrency(server: server, destination: .none, amount: nil))

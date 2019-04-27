@@ -80,7 +80,6 @@ struct Config {
 
     var enabledServers: [RPCServer] {
         get {
-            var addresses: [String]
             if let chainIds = defaults.array(forKey: Keys.enabledServers) as? [Int] {
                 return chainIds.map { .init(chainID: $0) }
             } else {
