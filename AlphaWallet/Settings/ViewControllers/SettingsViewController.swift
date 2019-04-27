@@ -100,8 +100,7 @@ class SettingsViewController: FormViewController {
             self.run(action: .enabledServers)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
-        }.cellUpdate { [weak self] cell, _ in
-            guard let strongSelf = self else { return }
+        }.cellUpdate { cell, _ in
             cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.settingsEnabledNetworksButtonTitle()
             cell.accessoryType = .disclosureIndicator

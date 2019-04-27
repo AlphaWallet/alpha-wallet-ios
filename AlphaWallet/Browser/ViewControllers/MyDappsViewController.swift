@@ -62,7 +62,6 @@ class MyDappsViewController: UIViewController {
 
     @objc private func keyboardWillShow(notification: NSNotification) {
         if let keyboardEndFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let keyboardBeginFrame = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
-            let keyboardHeight = keyboardEndFrame.size.height
             tableView.contentInset.bottom = keyboardEndFrame.size.height
         }
     }

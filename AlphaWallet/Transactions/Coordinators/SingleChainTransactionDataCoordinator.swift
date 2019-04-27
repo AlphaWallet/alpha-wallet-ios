@@ -184,7 +184,6 @@ class SingleChainTransactionDataCoordinator: Coordinator {
     private func notifyUserEtherReceived(for transactionId: String, amount: String) {
         let notificationCenter = UNUserNotificationCenter.current()
         let content = UNMutableNotificationContent()
-        let config = session.config
         switch session.server {
         case .main, .xDai:
             content.body = R.string.localizable.transactionsReceivedEther(amount, session.server.symbol)
