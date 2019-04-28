@@ -20,7 +20,6 @@ class GetContractInteractions {
                 //Performance: process in background so UI don't have a chance of blocking if there's a long list of contracts
                 DispatchQueue.global().async {
                     let json = JSON(value)
-                    let c = json["result"]
                     let contracts: [String] = json["result"].map { _, transactionJson in
                         if transactionJson["input"] != "0x" {
                             //every transaction that has input is by default a transaction to a contract

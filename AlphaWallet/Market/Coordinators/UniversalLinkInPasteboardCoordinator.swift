@@ -13,7 +13,7 @@ class UniversalLinkInPasteboardCoordinator: Coordinator {
     func start() {
         guard let contents = UIPasteboard.general.string?.trimmed else { return }
         guard let url = URL(string: contents) else { return }
-        guard let server = RPCServer(withMagicLink: url) else { return }
+        guard RPCServer(withMagicLink: url) != nil else { return }
         UIPasteboard.general.string = ""
         delegate?.importUniversalLink(url: url, for: self)
     }
