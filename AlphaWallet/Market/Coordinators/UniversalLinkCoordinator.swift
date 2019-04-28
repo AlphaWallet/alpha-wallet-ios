@@ -40,7 +40,7 @@ class UniversalLinkCoordinator: Coordinator {
     private var isNotProcessingYet: Bool {
         guard let importTokenViewController = importTokenViewController else { return false }
         switch importTokenViewController.state {
-        case .ready(var viewModel):
+        case .ready(let viewModel):
             switch viewModel.state {
             case .validating, .promptImport:
                 return true

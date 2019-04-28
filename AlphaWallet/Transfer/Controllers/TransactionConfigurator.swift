@@ -123,7 +123,7 @@ class TransactionConfigurator {
                     data: transaction.data ?? configuration.data
             )
             completion(.success(()))
-        case .ERC20Token(let token):
+        case .ERC20Token:
             do {
                 let function = Function(name: "transfer", parameters: [ABIType.address, ABIType.uint(bits: 256)])
                 //Note: be careful here with the BigUInt and BigInt, the type needs to be exact
@@ -198,7 +198,7 @@ class TransactionConfigurator {
                 completion(.failure(AnyError(Web3Error(description: "malformed tx"))))
             }
 
-        case .ERC721Token(let token):
+        case .ERC721Token:
             do {
                 let function: Function
                 let parameters: [Any]

@@ -21,7 +21,6 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
 
     private func promptToEnableNotification(in navigationController: UINavigationController) {
         authorizationNotDetermined { [weak self] in
-            guard let strongSelf = self else { return }
             navigationController.visibleViewController?.confirm(
                     //TODO We'll just say "Ether" in the prompt. Note that this is not the push notification itself. We could refer to it as "native cryptocurrency", but that's vague. Could be xDai!
                     title: R.string.localizable.transactionsReceivedEtherNotificationPrompt(RPCServer.main.cryptoCurrencyName),

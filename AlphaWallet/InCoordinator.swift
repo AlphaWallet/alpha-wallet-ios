@@ -201,7 +201,7 @@ class InCoordinator: NSObject, Coordinator {
             callForAssetAttributeCoordinators[each] = callForAssetAttributeCoordinator
             //Since this is called at launch, we don't want it to block launching
             DispatchQueue.global().async {
-                DispatchQueue.main.async { [weak self] in
+                DispatchQueue.main.async {
                     callForAssetAttributeCoordinator.refreshFunctionCallBasedAssetAttributesForAllTokens()
                 }
             }
@@ -510,7 +510,6 @@ class InCoordinator: NSObject, Coordinator {
             let strongSelf = self
             switch result {
             case .success(let payload):
-                let address: Address = strongSelf.wallet.address
                 let session = strongSelf.walletSessions[server]
                 let account = try! EtherKeystore().getAccount(for: wallet.address)!
                 //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
@@ -586,7 +585,7 @@ extension InCoordinator: CanOpenURL {
         guard let account = keystore.recentlyUsedWallet else { return }
 
         //TODO duplication of code to set up a BrowserCoordinator when creating the application's tabbar
-        let realm = self.realm(forAccount: keystore.recentlyUsedWallet!)
+        let realm = self.realm(forAccount: account)
         let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: true)
         let controller = browserCoordinator.navigationController
         browserCoordinator.open(url: url, animated: false)
