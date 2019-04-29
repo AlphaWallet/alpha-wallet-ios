@@ -48,6 +48,9 @@ class NativeCryptoCurrencyBalanceView: UIView {
 
         super.init(frame: .zero)
 
+        //So we can tap through to the content in the dapp browser
+        isUserInteractionEnabled = false
+
         label.translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
 
