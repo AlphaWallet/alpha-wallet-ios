@@ -79,7 +79,11 @@ class SendCoordinator: Coordinator {
         switch transferType {
         case .nativeCryptocurrency(_, let destination, let amount):
             controller.targetAddressTextField.value = destination?.eip55String ?? ""
-            controller.amountTextField.ethCost = EtherNumberFormatter.full.string(from: amount ?? BigInt(), units: .ether)
+            if let amount = amount {
+                controller.amountTextField.ethCost = EtherNumberFormatter.full.string(from: amount, units: .ether)
+            } else {
+                //do nothing, especially not set it to a default BigInt() / 0
+            }
         case .ERC20Token(_, let destination, let amount):
             controller.targetAddressTextField.value = destination?.eip55String ?? ""
             controller.amountTextField.ethCost = amount ?? ""
