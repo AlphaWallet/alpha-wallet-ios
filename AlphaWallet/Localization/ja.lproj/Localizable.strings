@@ -166,7 +166,7 @@
 "a.wallet.import.wallet.title" = "インポート";
 "a.wallet.import.wallet.bubble.title" = "インポートするチケットがありますか?";
 "a.wallet.import.wallet.bubble.description" = "メール/SMS でインポート リンクを確認します。リンクをタップすると、自動的にアプリにインポートされます!";
-"a.wallet.token.verifiedContract" = "AlphaWallet で検証されました";
+"a.wallet.token.verifiedContract" = "検証されました";
 "a.wallet.token.unverifiedContract" = "未検証";
 "a.wallet.token.debugContract" = "DEBUG";
 "a.wallet.token.match.vs" = "%@-%@";
@@ -241,6 +241,7 @@
 "a.wallet.no.tokens" = "まだトークンがありません";
 "a.help.navigation.title" = "ヘルプ・よくある質問";
 "a.help.assetDefinitionOverrides.title" = "TokenScript Overrides";
+"a.console.title" = "Console";
 "a.help.contact.footer.button.title" = "まだヘルプが必要ですか? 当社にお問い合わせください";
 "a.help.contact.email.subject" = "AlphaWallet のヘルプ/フィードバック";
 "a.help.contact.email.helpfulToDevelopers" = "開発者に役立つ情報:";
@@ -335,3 +336,10 @@
 "photos" = "Photos";
 "a.claim.token.failed.serverDown" = "a.claim.token.failed.serverDown";
 "tokenScript.notSupportedSchema.error" = "Please upgrade AlphaWallet to support this TokenScript file";
+"TokenScript.verifying" = "Verifying...";
+"TokenScript.showErrors" = "Show errors";
+"TokenScript.type1.supportedAndSigned" = "Verified";
+"TokenScript.type1.supportedNotCanonicalizedAndUnsigned" = "Unsigned";
+"TokenScript.type2.conflictingFiles" = "Conflicting TokenScript Files";
+"TokenScript.type2.oldSchemaVersion" = "Old TokenScript Version";
+"TokenScript.type2.invalidSignature" = "Invalid Signature";

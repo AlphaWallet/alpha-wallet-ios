@@ -14,6 +14,7 @@ protocol TokenCardRowViewModelProtocol {
     var time: String { get }
     var numero: String { get }
     var onlyShowTitle: Bool { get }
+    ///TODO get rid of this at some point
     var isMeetupContract: Bool { get }
     var tokenScriptHtml: String { get }
     var hasTokenScriptHtml: Bool { get }

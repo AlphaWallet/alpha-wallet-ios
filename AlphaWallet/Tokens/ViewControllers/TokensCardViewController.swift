@@ -81,12 +81,14 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         self.assetDefinitionStore = assetDefinitionStore
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(withVerificationType: .unverified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         view.backgroundColor = Colors.appBackground
 		
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
+
+        header.delegate = self
 
         tableView.register(TokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithCheckbox.identifier)
         tableView.register(OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.identifier)
@@ -135,12 +137,12 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             viewModel = newViewModel
         }
         tableView.dataSource = self
-        updateNavigationRightBarButtons(withVerificationType: verificationType)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server, assetDefinitionStore: assetDefinitionStore))
         tableView.tableHeaderView = header
 
-        if let selectedTokenHolder = selectedTokenHolder {
+        if selectedTokenHolder != nil {
             let actions = viewModel.actions
             buttonsBar.numberOfButtons = actions.count
             buttonsBar.configure()
@@ -202,14 +204,6 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: transferType), tokenHolders: viewModel.tokenHolders, in: self)
     }
 
-    func showInfo() {
-		delegate?.didPressViewRedemptionInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: tokenObject.contract, server: server, in: self)
-    }
-
     //TODO multi-selection. Only supports selecting one tokenHolder for now
     @objc private func actionButtonTapped(sender: UIButton) {
         guard let tokenHolder = selectedTokenHolder else { return }
@@ -217,6 +211,8 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         for (action, button) in zip(actions, buttonsBar.buttons) {
             if button == sender {
                 switch action.type {
+                case .erc20Send, .erc20Receive:
+                    break
                 case .erc875Redeem:
                     redeem()
                 case .erc875Sell:
@@ -259,7 +255,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     private func canPeek(at indexPath: IndexPath) -> Bool {
         guard canPeekToken else { return false }
         let tokenHolder = viewModel.item(for: indexPath)
-        if let url = tokenHolder.values["imageUrl"] as? String, !url.isEmpty {
+        if let url = tokenHolder.values["imageUrl"]?.stringValue, !url.isEmpty {
             return true
         } else {
             return false
@@ -274,7 +270,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
            for each in indexPaths {
                guard let cell = tableView.cellForRow(at: each) else { continue }
                if let hasGestureRecognizer = cell.gestureRecognizers?.contains(sender), hasGestureRecognizer {
-                   viewModel.toggleSelection(for: each)
+                   let _ = viewModel.toggleSelection(for: each)
                    configure()
                    break
                }
@@ -282,6 +278,19 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
        case .possible, .changed, .ended, .cancelled, .failed:
            break
        }
+    }
+}
+extension TokensCardViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewRedemptionInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: tokenObject.contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }
 
@@ -322,7 +331,7 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if isMultipleSelectionMode {
-            let changedIndexPaths = viewModel.toggleSelection(for: indexPath)
+            let _ = viewModel.toggleSelection(for: indexPath)
             //TODO maybe still needed for ERC721
 //            animateRowHeightChanges(for: changedIndexPaths, in: tableView)
             configure()
@@ -362,3 +371,8 @@ extension TokensCardViewController: UIViewControllerPreviewingDelegate {
     }
 }
 
+extension TokensCardViewController: TokenCardsViewControllerHeaderDelegate {
+    func didPressViewContractWebPage(inHeaderView: TokenCardsViewControllerHeader) {
+        showContractWebPage()
+    }
+}

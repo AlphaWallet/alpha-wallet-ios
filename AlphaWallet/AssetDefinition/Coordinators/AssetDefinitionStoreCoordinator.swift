@@ -5,7 +5,7 @@ import UIKit
 
 protocol AssetDefinitionStoreCoordinatorDelegate: class {
     func show(error: Error, for viewController: AssetDefinitionStoreCoordinator)
-    func addedTokenScript(forContract contract: String, forServer server: RPCServer)
+    func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer)
 }
 
 struct SchemaCheckError: LocalizedError {
@@ -33,12 +33,17 @@ class AssetDefinitionStoreCoordinator: Coordinator {
         guard let documentDirectory = paths.first else { return nil }
         return documentDirectory.appendingPathComponent(AssetDefinitionDiskBackingStoreWithOverrides.overridesDirectoryName)
     }
-    var coordinators: [Coordinator] = []
+    private let assetDefinitionStore: AssetDefinitionStore
     private var directoryWatcher: DirectoryContentsWatcherProtocol?
     //Holds an array of weak references. This exists basically because we didn't implement a way to detect when view controllers in this list are destroyed
     private var viewControllers: [WeakRef<AssetDefinitionsOverridesViewController>] = []
 
     weak var delegate: AssetDefinitionStoreCoordinatorDelegate?
+    var coordinators: [Coordinator] = []
+
+    init(assetDefinitionStore: AssetDefinitionStore) {
+        self.assetDefinitionStore = assetDefinitionStore
+    }
 
     deinit {
         try? directoryWatcher?.stop()
@@ -87,7 +92,10 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     private func overrides() -> [URL]? {
         guard let overridesDirectory = AssetDefinitionStoreCoordinator.overridesDirectory else { return nil }
         let urls = try? FileManager.default.contentsOfDirectory(at: overridesDirectory, includingPropertiesForKeys: nil)
-        if let urls = urls {
+        if var urls = urls {
+            if let index = urls.firstIndex(where: { $0.lastPathComponent == TokenScript.indicesFileName }) {
+                urls.remove(at: index)
+            }
             return urls.sorted { $0.path.caseInsensitiveCompare($1.path) == .orderedAscending }
         } else {
             return nil
@@ -106,11 +114,12 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     /// Return true if handled
     func handleOpen(url: URL) -> Bool {
         guard let overridesDirectory = AssetDefinitionStoreCoordinator.overridesDirectory else { return false }
+        //TODO improve or remove checking here. getHoldingContracts() below already check for schema support. We might have to show the error in wallet if we keep the file instead. We are deleting the files for now
         let isTokenScriptOrXml: Bool
-        switch XMLHandler.isValidAssetDefinitionContent(forPath: url) {
+        switch XMLHandler.checkTokenScriptSchema(forPath: url) {
         case .supportedTokenScriptVersion:
             isTokenScriptOrXml = true
-        case .unsupportedTokenScriptVersion:
+        case .unsupportedTokenScriptVersion(let isOld):
             try? FileManager.default.removeItem(at: url)
             delegate?.show(error: SchemaCheckError(msg: R.string.localizable.tokenScriptNotSupportedSchemaError()), for: self)
             return true
@@ -119,7 +128,6 @@ class AssetDefinitionStoreCoordinator: Coordinator {
             return true
         case .others:
             isTokenScriptOrXml = false
-            break
         }
 
         let filename = url.lastPathComponent
@@ -127,12 +135,12 @@ class AssetDefinitionStoreCoordinator: Coordinator {
         do {
             try? FileManager.default.removeItem(at: destinationFileName )
             try FileManager.default.moveItem(at: url, to: destinationFileName )
-
             if isTokenScriptOrXml, let contents = try? String(contentsOf: destinationFileName) {
-                let contracts = XMLHandler.getContracts(forTokenScript: contents)
-                for (contract, chainId) in contracts {
-                    let server = RPCServer(chainID: chainId)
-                    delegate?.addedTokenScript(forContract: contract, forServer: server)
+                if let contracts = XMLHandler.getHoldingContracts(forTokenScript: contents) {
+                    for (contract, chainId) in contracts {
+                        let server = RPCServer(chainID: chainId)
+                        delegate?.addedTokenScript(forContract: contract, forServer: server)
+                    }
                 }
             }
         } catch {

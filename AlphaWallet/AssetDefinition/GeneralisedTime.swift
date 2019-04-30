@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct GeneralisedTime {
+struct GeneralisedTime: Codable {
     static var formattersForLocalTime = [TimeZone: DateFormatter]()
 
     var date: Date
@@ -19,8 +19,8 @@ struct GeneralisedTime {
         return df.string(from: date)
     }
 
-    //Return value is JavaScript dictionary with venue and locale as keys. If the TokenScript author wants to display the venue/event date, just display venue in their device locale, otherwise use the locale value
-    var formatTimeToLocaleAndVenueStringEquivalent: String {
+    //Return value is JavaScript dictionary with 2 keys
+    var formatAsTokenScriptJavaScript: String {
         let utcTimeZone = TimeZone.init(abbreviation: "UTC")
         let dfForUtc = formatterForLocalTime(forTimeZone: utcTimeZone!)
         let dateStringForUtc = dfForUtc.string(from: date)

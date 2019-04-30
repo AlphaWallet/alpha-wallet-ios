@@ -11,6 +11,7 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 	func didCancel(in coordinator: SettingsCoordinator)
 	func didPressShowWallet(in coordinator: SettingsCoordinator)
 	func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController?
+	func consoleViewController(for: SettingsCoordinator) -> UIViewController?
 	func delete(account: Wallet, in coordinator: SettingsCoordinator)
 }
 
@@ -104,6 +105,10 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 
 	func assetDefinitionsOverrideViewController(for: SettingsViewController) -> UIViewController? {
         return delegate?.assetDefinitionsOverrideViewController(for: self)
+	}
+
+	func consoleViewController(for: SettingsViewController) -> UIViewController? {
+		return delegate?.consoleViewController(for: self)
 	}
 }
 

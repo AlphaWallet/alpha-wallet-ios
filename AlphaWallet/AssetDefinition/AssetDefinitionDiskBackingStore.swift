@@ -13,6 +13,19 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
     weak var delegate: AssetDefinitionBackingStoreDelegate?
     private var directoryWatcher: DirectoryContentsWatcherProtocol?
     private var tokenScriptFileIndices = TokenScriptFileIndices()
+    private var cachedVersionOfXDaiBridgeTokenScript: String?
+
+    private var indicesFileUrl: URL {
+        return directory.appendingPathComponent(TokenScript.indicesFileName)
+    }
+
+    var badTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
+        return tokenScriptFileIndices.badTokenScriptFileNames
+    }
+
+    var conflictingTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
+        return tokenScriptFileIndices.conflictingTokenScriptFileNames
+    }
 
     init(directoryName: String = officialDirectoryName) {
         self.assetDefinitionsDirectoryName = directoryName
@@ -27,40 +40,81 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
     }
 
     private func loadTokenScriptFileIndices() {
+        let previousTokenScriptFileIndices = TokenScriptFileIndices.load(fromUrl: indicesFileUrl) ?? .init()
         tokenScriptFileIndices = .init()
         guard let urls = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return }
 
         for eachUrl in urls {
             guard eachUrl.pathExtension == AssetDefinitionDiskBackingStore.fileExtension || eachUrl.pathExtension == "xml" else { continue }
             guard let contents = try? String(contentsOf: eachUrl) else { continue }
+            let fileName = eachUrl.lastPathComponent
             //TODO don't use regex. When we finally use XMLHandler to extract entities, we have to be careful not to create AssetDefinitionStore instances within XMLHandler otherwise infinite recursion by calling this func again
-            let contracts = XMLHandler.getContracts(forTokenScript: contents)
-            var entities = XMLHandler.getEntities(forTokenScript: contents)
-            for (eachContract, _) in contracts {
-                tokenScriptFileIndices.contractsToFileNames[eachContract] = eachUrl.lastPathComponent
-                tokenScriptFileIndices.contractsToEntities[eachContract] = entities
+            if let contracts = XMLHandler.getHoldingContracts(forTokenScript: contents) {
+                let entities = XMLHandler.getEntities(forTokenScript: contents)
+                for (eachContract, _) in contracts {
+                    tokenScriptFileIndices.contractsToFileNames[eachContract, default: []] += [fileName]
+                }
+                tokenScriptFileIndices.contractsToEntities[fileName] = entities
+                tokenScriptFileIndices.trackHash(forFile: fileName, contents: contents)
+            } else {
+                var isOldTokenScriptVersion = false
+                for (contract, fileNames) in previousTokenScriptFileIndices.contractsToOldTokenScriptFileNames {
+                    if fileNames.contains(fileName) {
+                        let newHash = tokenScriptFileIndices.hash(contents: contents)
+                        if newHash == previousTokenScriptFileIndices.fileHashes[fileName] {
+                            tokenScriptFileIndices.contractsToOldTokenScriptFileNames[contract, default: []] += [fileName]
+                            tokenScriptFileIndices.trackHash(forFile: fileName, contents: contents)
+                            isOldTokenScriptVersion = true
+                        }
+                    }
+                }
+                if !isOldTokenScriptVersion {
+                    for (contract, fileNames) in previousTokenScriptFileIndices.contractsToFileNames {
+                        if fileNames.contains(fileName) {
+                            let newHash = tokenScriptFileIndices.hash(contents: contents)
+                            if newHash == previousTokenScriptFileIndices.fileHashes[fileName] {
+                                tokenScriptFileIndices.contractsToOldTokenScriptFileNames[contract, default: []] += [fileName]
+                                tokenScriptFileIndices.trackHash(forFile: fileName, contents: contents)
+                                isOldTokenScriptVersion = true
+                            }
+                        }
+                    }
+                }
+                if !isOldTokenScriptVersion {
+                    tokenScriptFileIndices.badTokenScriptFileNames += [fileName]
+                    delegate?.badTokenScriptFilesChanged(in: self)
+                }
             }
         }
+
+        writeIndicesToDisk()
     }
 
-    private func localURLOfXML(for contract: String) -> URL {
-        if let filename = tokenScriptFileIndices.contractsToFileNames[standardizedName(ofContract: contract)] {
-            return directory.appendingPathComponent(filename)
-        } else {
-            return directory.appendingPathComponent(filename(fromContract: contract))
-        }
+    private func writeIndicesToDisk() {
+        tokenScriptFileIndices.write(toUrl: indicesFileUrl)
     }
 
-    private func filename(fromContract contract: String) -> String {
-        let name = standardizedName(ofContract: contract)
-        return "\(name).\(AssetDefinitionDiskBackingStore.fileExtension)"
+    private func localURLOfXML(for contract: AlphaWallet.Address) -> URL {
+        assert(isOfficial)
+        return directory.appendingPathComponent(filename(fromContract: contract))
     }
 
-    subscript(contract: String) -> String? {
+    ///Only return XML contents if there is exactly 1 file that matches the contract
+    private func xml(forContract contract: AlphaWallet.Address) -> String? {
+        guard let fileName = tokenScriptFileIndices.nonConflictingFileName(forContract: contract) else { return nil }
+        let path = directory.appendingPathComponent(fileName)
+        return try? String(contentsOf: path)
+    }
+
+    private func filename(fromContract contract: AlphaWallet.Address) -> String {
+        return "\(contract.eip55String).\(AssetDefinitionDiskBackingStore.fileExtension)"
+    }
+
+    subscript(contract: AlphaWallet.Address) -> String? {
         get {
-            let path = localURLOfXML(for: contract)
-            guard var xmlContents = try? String(contentsOf: path) else { return nil }
-            guard let entities = tokenScriptFileIndices.contractsToEntities[standardizedName(ofContract: contract)] else { return xmlContents }
+            guard var xmlContents = xml(forContract: contract) else { return nil }
+            guard let fileName = tokenScriptFileIndices.nonConflictingFileName(forContract: contract) else { return xmlContents }
+            guard let entities = tokenScriptFileIndices.contractsToEntities[fileName] else { return xmlContents }
             for each in entities {
                 let url = directory.appendingPathComponent(each.fileName)
                 guard let contents = try? String(contentsOf: url) else { continue }
@@ -69,45 +123,49 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
             return xmlContents
         }
         set(xml) {
-            guard let xml = xml else {
-                return
-            }
-            //TODO validate XML signature first
+            guard let xml = xml else { return }
             let path = localURLOfXML(for: contract)
             try? xml.write(to: path, atomically: true, encoding: .utf8)
             handleTokenScriptFileChanged(withFilename: path.lastPathComponent, changeHandler: { _ in })
         }
     }
 
-    func isOfficial(contract: String) -> Bool {
+    func isOfficial(contract: AlphaWallet.Address) -> Bool {
         return isOfficial
     }
 
-    func isCanonicalized(contract: String) -> Bool {
-        //TODO improve that that we can standard contract names better. EIP55? Is it too slow because of the "Address" classes we use to generate it?
-        if let filename = tokenScriptFileIndices.contractsToFileNames[contract.lowercased()] {
+    ///We don't bother to check if there's a conflict inside this function because if there's a conflict, the files should be ignored anyway
+    func isCanonicalized(contract: AlphaWallet.Address) -> Bool {
+        if let filename = tokenScriptFileIndices.contractsToFileNames[contract]?.first {
             return filename.hasSuffix(".\(AssetDefinitionDiskBackingStore.fileExtension)")
-        } else  {
+        } else {
             //We return true because then it'll be treated as needing a higher security level rather than a non-canonicalized (debug version)
             return true
         }
     }
 
-    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+    func hasConflictingFile(forContract contract: AlphaWallet.Address) -> Bool {
+        return tokenScriptFileIndices.hasConflictingFile(forContract: contract)
+    }
+
+    func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool {
+        return !tokenScriptFileIndices.contractsToOldTokenScriptFileNames[contract].isEmpty
+    }
+
+    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
+        assert(isOfficial)
         let path = localURLOfXML(for: contract)
-        guard let lastModified = try? path.resourceValues(forKeys: [.contentModificationDateKey]) else {
-            return nil
-        }
+        guard let lastModified = try? path.resourceValues(forKeys: [.contentModificationDateKey]) else { return nil }
         return lastModified.contentModificationDate
     }
 
-    func forEachContractWithXML(_ body: (String) -> Void) {
+    func forEachContractWithXML(_ body: (AlphaWallet.Address) -> Void) {
         for (contract, _) in tokenScriptFileIndices.contractsToFileNames {
             body(contract)
         }
     }
 
-    func watchDirectoryContents(changeHandler: @escaping (String) -> Void) {
+    func watchDirectoryContents(changeHandler: @escaping (AlphaWallet.Address) -> Void) {
         guard directoryWatcher == nil else { return }
         directoryWatcher = DirectoryContentsWatcher.Local(path: directory.path)
         try? directoryWatcher?.start { [weak self] results in
@@ -123,40 +181,62 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         }
     }
 
-    private func handleTokenScriptFileChanged(withFilename filename: String, changeHandler: @escaping (String) -> Void) {
-        let url = directory.appendingPathComponent(filename)
-        var contractsAffected: [String]
+    private func handleTokenScriptFileChanged(withFilename fileName: String, changeHandler: @escaping (AlphaWallet.Address) -> Void) {
+        let url = directory.appendingPathComponent(fileName)
+        var contractsAffected: [AlphaWallet.Address]
         if url.pathExtension == AssetDefinitionDiskBackingStore.fileExtension || url.pathExtension == "xml" {
-            let contractsPreviouslyForThisXmlFile = tokenScriptFileIndices.contractsToFileNames.filter { eachContract, eachFileName in
-                return eachFileName == filename
+            let contractsPreviouslyForThisXmlFile = tokenScriptFileIndices.contractsToFileNames.filter { eachContract, fileNames in
+                return fileNames.contains(fileName)
             }.map { $0.key }
             for eachContract in contractsPreviouslyForThisXmlFile {
-                tokenScriptFileIndices.contractsToFileNames.removeValue(forKey: eachContract)
-            }
-
-            let contracts: [String]
-            if let contents = try? String(contentsOf: url) {
-                contracts = XMLHandler.getContracts(forTokenScript: contents).map { $0.0 }
-                var entities = XMLHandler.getEntities(forTokenScript: contents)
-                for eachContract in contracts {
-                    tokenScriptFileIndices.contractsToFileNames[eachContract] = url.lastPathComponent
-                    tokenScriptFileIndices.contractsToEntities[eachContract] = entities
+                if var fileNames = tokenScriptFileIndices.contractsToFileNames[eachContract], fileNames.count > 1 {
+                    fileNames.removeAll { $0 == fileName }
+                    tokenScriptFileIndices.contractsToFileNames[eachContract] = fileNames
+                } else {
+                    tokenScriptFileIndices.contractsToFileNames.removeValue(forKey: eachContract)
                 }
+            }
+            tokenScriptFileIndices.contractsToEntities.removeValue(forKey: fileName)
+            tokenScriptFileIndices.removeHash(forFile: fileName)
+
+            let contracts: [AlphaWallet.Address]
+            if let contents = try? String(contentsOf: url) {
+                if let holdingContracts = XMLHandler.getHoldingContracts(forTokenScript: contents)?.map({ $0.0 }) {
+                    contracts = holdingContracts
+                    let entities = XMLHandler.getEntities(forTokenScript: contents)
+                    for eachContract in contracts {
+                        tokenScriptFileIndices.contractsToFileNames[eachContract, default: []] += [fileName]
+                    }
+                    tokenScriptFileIndices.contractsToEntities[fileName] = entities
+                    tokenScriptFileIndices.trackHash(forFile: fileName, contents: contents)
+                    tokenScriptFileIndices.removeBadTokenScriptFileName(fileName)
+                    tokenScriptFileIndices.removeOldTokenScriptFileName(fileName)
+                } else {
+                    contracts = []
+                    tokenScriptFileIndices.badTokenScriptFileNames += [fileName]
+                }
+                delegate?.badTokenScriptFilesChanged(in: self)
             } else {
                 contracts = []
+                tokenScriptFileIndices.removeHash(forFile: fileName)
+                tokenScriptFileIndices.removeBadTokenScriptFileName(fileName)
+                tokenScriptFileIndices.removeOldTokenScriptFileName(fileName)
+                delegate?.badTokenScriptFilesChanged(in: self)
             }
 
             contractsAffected = contracts + contractsPreviouslyForThisXmlFile
         } else {
-            contractsAffected = [String]()
-            for (contract, entities) in tokenScriptFileIndices.contractsToEntities {
-                if entities.contains(where: { $0.fileName == filename }) {
-                    contractsAffected.append(contract)
+            contractsAffected = [AlphaWallet.Address]()
+            for (xmlFileName, entities) in tokenScriptFileIndices.contractsToEntities {
+                if entities.contains(where: { $0.fileName == fileName }) {
+                    let contracts = tokenScriptFileIndices.contracts(inFileName: xmlFileName)
+                    contractsAffected.append(contentsOf: contracts)
                 }
             }
         }
         for each in Array(Set(contractsAffected)) {
             changeHandler(each)
         }
+        writeIndicesToDisk()
     }
 }

@@ -28,6 +28,7 @@ class SettingsCoordinatorTests: XCTestCase {
             func didCancel(in coordinator: SettingsCoordinator) {}
             func didPressShowWallet(in coordinator: SettingsCoordinator) {}
             func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController? { return nil }
+            func consoleViewController(for: SettingsCoordinator) -> UIViewController? { return nil }
             func delete(account: Wallet, in coordinator: SettingsCoordinator) {
                 deleteDelegateMethodCalled = true
             }

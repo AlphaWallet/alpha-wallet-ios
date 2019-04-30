@@ -12,9 +12,10 @@ class AssetDefinitionStoreTests: XCTestCase {
 
     func testXMLAccess() {
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
-        XCTAssertNil(store["0x1"])
-        store["0x1"] = "xml1"
-        XCTAssertEqual(store["0x1"], "xml1")
+        let address = AlphaWallet.Address.ethereumAddress(eip55String: "0x0000000000000000000000000000000000000001")
+        XCTAssertNil(store[address])
+        store[address] = "xml1"
+        XCTAssertEqual(store[address], "xml1")
     }
 
     func testShouldNotCallCompletionBlockWithCacheCaseIfNotAlreadyCached() {
@@ -35,7 +36,7 @@ class AssetDefinitionStoreTests: XCTestCase {
     }
 
     func testShouldCallCompletionBlockWithCacheCaseIfAlreadyCached() {
-        let contractAddress = "0x1"
+        let contractAddress = AlphaWallet.Address.ethereumAddress(eip55String: "0x0000000000000000000000000000000000000001")
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
         store[contractAddress] = "something"
         let expectation = XCTestExpectation(description: "cached case should be called")

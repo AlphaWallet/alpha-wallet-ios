@@ -166,7 +166,7 @@
 "a.wallet.import.wallet.title" = "가져오기";
 "a.wallet.import.wallet.bubble.title" = "가져올 지갑이 있습니까?";
 "a.wallet.import.wallet.bubble.description" = "이메일/SMS에서 가져오기 링크를 확인하십시오. 링크를 탭하면 앱을 자동으로 가져옵니다!";
-"a.wallet.token.verifiedContract" = "AlphaWallet에서 확인됨";
+"a.wallet.token.verifiedContract" = "검증된";
 "a.wallet.token.unverifiedContract" = "미확인";
 "a.wallet.token.debugContract" = "DEBUG";
 "a.wallet.token.match.vs" = "%@-%@";
@@ -241,6 +241,7 @@
 "a.wallet.no.tokens" = "토큰이 없습니다";
 "a.help.navigation.title" = "도움말 및 자주 묻는 질문";
 "a.help.assetDefinitionOverrides.title" = "TokenScript Overrides";
+"a.console.title" = "Console";
 "a.help.contact.footer.button.title" = "아직 도움이 필요하세요? 고객 문의";
 "a.help.contact.email.subject" = "AlphaWallet 전용 도움말/피드백";
 "a.help.contact.email.helpfulToDevelopers" = "개발자에게 유용한 정보:";
@@ -335,3 +336,10 @@
 "photos" = "Photos";
 "a.claim.token.failed.serverDown" = "a.claim.token.failed.serverDown";
 "tokenScript.notSupportedSchema.error" = "Please upgrade AlphaWallet to support this TokenScript file";
+"TokenScript.verifying" = "Verifying...";
+"TokenScript.showErrors" = "Show errors";
+"TokenScript.type1.supportedAndSigned" = "Verified";
+"TokenScript.type1.supportedNotCanonicalizedAndUnsigned" = "Unsigned";
+"TokenScript.type2.conflictingFiles" = "Conflicting TokenScript Files";
+"TokenScript.type2.oldSchemaVersion" = "Old TokenScript Version";
+"TokenScript.type2.invalidSignature" = "Invalid Signature";

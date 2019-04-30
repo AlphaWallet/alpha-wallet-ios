@@ -38,8 +38,18 @@ class TokenHolder {
         return tokens[0].symbol
     }
 
-    var values: [String: AssetAttributeValue] {
+    var values: [String: AssetAttributeSyntaxValue] {
         return tokens[0].values
+    }
+
+    var openSeaNonFungibleTraits: [OpenSeaNonFungibleTrait]? {
+        guard let traitsValue = values["traits"]?.value else { return nil }
+        switch traitsValue {
+        case .openSeaNonFungibleTraits(let traits):
+            return traits
+        case .address, .string, .int, .uint, .generalisedTime, .bool, .subscribable:
+            return nil
+        }
     }
 
     var status: Token.Status {

@@ -76,7 +76,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(withVerificationType: .unverified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -255,19 +255,11 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         configure(viewModel: viewModel)
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     func configure(viewModel newViewModel: EnterSellTokensCardPriceQuantityViewControllerViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(withVerificationType: verificationType)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -348,6 +340,20 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             let size = super.intrinsicContentSize
             return CGSize(width: size.width + 30, height: size.height + 10)
         }
+    }
+}
+
+extension EnterSellTokensCardPriceQuantityViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }
 

@@ -48,7 +48,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(withVerificationType: .unverified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -124,19 +124,11 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         }
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     func configure(viewModel newViewModel: TransferTokensCardQuantitySelectionViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(withVerificationType: verificationType)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -176,5 +168,19 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         quantityStepper.layer.cornerRadius = quantityStepper.frame.size.height / 2
+    }
+}
+
+extension TransferTokensCardQuantitySelectionViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }

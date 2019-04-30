@@ -50,13 +50,16 @@ class AppCoordinator: NSObject, Coordinator {
         handleNotifications()
         applyStyle()
         resetToWelcomeScreen()
-        setupAssetDefinitionStore()
+        setupAssetDefinitionStoreCoordinator()
 
         if keystore.hasWallets {
             showTransactions(for: keystore.recentlyUsedWallet ?? keystore.wallets.first!)
         } else {
             resetToWelcomeScreen()
         }
+
+        assetDefinitionStore.delegate = self
+        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles)
     }
 
     /// Return true if handled
@@ -73,8 +76,8 @@ class AppCoordinator: NSObject, Coordinator {
         return urlSchemeHandler.handleOpen(url: url)
     }
 
-    private func setupAssetDefinitionStore() {
-        let coordinator = AssetDefinitionStoreCoordinator()
+    private func setupAssetDefinitionStoreCoordinator() {
+        let coordinator = AssetDefinitionStoreCoordinator(assetDefinitionStore: assetDefinitionStore)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
@@ -292,7 +295,13 @@ extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
         inCoordinator?.show(error: error)
     }
 
-    func addedTokenScript(forContract contract: String, forServer server: RPCServer) {
-        inCoordinator?.addImported(contract: contract, forServer: server)
+    func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer) {
+        inCoordinator?.addImported(contract: contract.eip55String, forServer: server)
+    }
+}
+
+extension AppCoordinator: AssetDefinitionStoreDelegate {
+    func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore ) {
+        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles)
     }
 }

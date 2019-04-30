@@ -16,7 +16,6 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     static let anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
 
     private let tokenObject: TokenObject
-    private let tokenHolder: TokenHolder
     private var viewModel: TokenInstanceViewModel
     private let tokensStorage: TokensDataStore
     private let account: Wallet
@@ -26,6 +25,9 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(numberOfButtons: 3)
 
+    var tokenHolder: TokenHolder {
+        return viewModel.tokenHolder
+    }
     var server: RPCServer {
         return tokenObject.server
     }
@@ -53,19 +55,20 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
 
     init(tokenObject: TokenObject, tokenHolder: TokenHolder, account: Wallet, tokensStorage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore) {
         self.tokenObject = tokenObject
-        self.tokenHolder = tokenHolder
         self.account = account
         self.tokensStorage = tokensStorage
         self.assetDefinitionStore = assetDefinitionStore
         self.viewModel = .init(token: tokenObject, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(withVerificationType: .unverified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         view.backgroundColor = Colors.appBackground
 		
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
+
+        header.delegate = self
 
         tableView.register(TokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier)
         tableView.register(OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.identifier)
@@ -111,7 +114,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             viewModel = newViewModel
         }
         tableView.dataSource = self
-        updateNavigationRightBarButtons(withVerificationType: verificationType)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server, assetDefinitionStore: assetDefinitionStore))
         tableView.tableHeaderView = header
@@ -132,6 +135,10 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         tableView.reloadData()
     }
 
+    func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
+        return tokenHolders.first { $0.tokens[0].id == tokenHolder.tokens[0].id }
+    }
+
     func redeem() {
         delegate?.didPressRedeem(token: tokenObject, tokenHolder: tokenHolder, in: self)
     }
@@ -150,6 +157,9 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         for (action, button) in zip(actions, buttonsBar.buttons) {
             if button == sender {
                 switch action.type {
+                case .erc20Send, .erc20Receive:
+                    //TODO when we support TokenScript views for ERC20s, we need to perform the action here
+                    break
                 case .erc875Redeem:
                     redeem()
                 case .erc875Sell:
@@ -163,13 +173,19 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             }
         }
     }
+}
 
+extension TokenInstanceViewController: VerifiableStatusViewController {
     func showInfo() {
-		delegate?.didPressViewRedemptionInfo(in: self)
+        delegate?.didPressViewRedemptionInfo(in: self)
     }
 
     func showContractWebPage() {
         delegate?.didPressViewContractWebPage(forContract: tokenObject.contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }
 
@@ -192,7 +208,7 @@ extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSourc
             return cell
         case .notSupportedByOpenSea:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithoutCheckbox
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .view), assetDefinitionStore: assetDefinitionStore)
+            cell.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .view), assetDefinitionStore: assetDefinitionStore)
             //TODO move into configure()
             cell.isWebViewInteractionEnabled = true
             return cell
@@ -200,7 +216,7 @@ extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSourc
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let changedIndexPaths = viewModel.toggleSelection(for: indexPath)
+        viewModel.toggleSelection(for: indexPath)
         configure()
     }
 }
@@ -208,5 +224,11 @@ extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSourc
 extension TokenInstanceViewController: BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate {
     func didTapURL(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
+    }
+}
+
+extension TokenInstanceViewController: TokenCardsViewControllerHeaderDelegate {
+    func didPressViewContractWebPage(inHeaderView: TokenCardsViewControllerHeader) {
+        showContractWebPage()
     }
 }

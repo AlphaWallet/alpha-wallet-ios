@@ -2,7 +2,8 @@
 
 import Foundation
 import UIKit
-import Result
+import BigInt
+import PromiseKit
 import TrustKeystore
 import WebKit
 
@@ -15,13 +16,12 @@ protocol TokenInstanceWebViewDelegate: class {
 
 class TokenInstanceWebView: UIView {
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
-    private var subscribedAttributes = [Subscribable<AssetAttributeValue>]()
     private let server: RPCServer
-    private let walletAddress: Address
+    private let walletAddress: AlphaWallet.Address
     private let assetDefinitionStore: AssetDefinitionStore
     lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
     lazy private var webView: WKWebView = {
-        let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, server: server, address: walletAddress, in: ScriptMessageProxy(delegate: self))
+        let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, server: server, address: .init(address: walletAddress), in: ScriptMessageProxy(delegate: self))
         webViewConfig.websiteDataStore = .default()
         return .init(frame: .zero, configuration: webViewConfig)
     }()
@@ -35,7 +35,7 @@ class TokenInstanceWebView: UIView {
 
     init(server: RPCServer, walletAddress: Address, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
-        self.walletAddress = walletAddress
+        self.walletAddress = .init(address: walletAddress)
         self.assetDefinitionStore = assetDefinitionStore
         super.init(frame: .zero)
 
@@ -61,55 +61,39 @@ class TokenInstanceWebView: UIView {
     }
 
     //Implementation: String concatentation is slow, but it's not obvious at all
-    func update(withTokenHolder tokenHolder: TokenHolder, asUserScript: Bool = false) {
-        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
-
+    func update(withTokenHolder tokenHolder: TokenHolder, isFungible: Bool, isFirstUpdate: Bool = true) {
         var token = [String: String]()
         token["_count"] = String(tokenHolder.count)
-        for (name, value): (String, AssetAttributeValue) in tokenHolder.values {
-            if let value = value as? SubscribableAssetAttributeValue {
-                let subscribable = value.subscribable
-                if let subscribedValue = subscribable.value {
-                    if let value = formatValueAsJavaScriptValue(value: subscribedValue) {
-                        token[name] = value
-                    }
-                } else {
-                    if !subscribedAttributes.contains(where: { $0 === subscribable }) {
-                        subscribedAttributes.append(subscribable)
-                        subscribable.subscribe { [weak self] value in
-                            guard let strongSelf = self else { return }
-                            strongSelf.update(withTokenHolder: tokenHolder)
-                        }
-                    }
-                }
-            } else {
-                if let value = formatValueAsJavaScriptValue(value: value) {
-                    token[name] = value
-                }
+
+        let attributeValues = AssetAttributeValues(attributeNameValues: tokenHolder.values)
+        let resolvedAttributeNameValues = attributeValues.resolve { [weak self] _ in
+            guard let strongSelf = self else { return }
+            guard isFirstUpdate else { return }
+            strongSelf.update(withTokenHolder: tokenHolder, isFungible: isFungible, isFirstUpdate: false)
+        }.merging(implicitAttributes(tokenHolder: tokenHolder, isFungible: isFungible)) { (_, new) in new }
+
+        let convertor = AssetAttributeToJavaScriptConvertor()
+        for (name, value) in resolvedAttributeNameValues {
+            if let value = convertor.formatAsTokenScriptJavaScript(value: value) {
+                token[name] = value
             }
         }
-        let localizedNameFromAssetDefinition = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getName(fallback: tokenHolder.name)
-        var string = "\nweb3.tokens.data.currentInstance = "
-        string += """
-                  {
-                  name: \"\(localizedNameFromAssetDefinition)\",
-                  symbol: \"\(tokenHolder.symbol)\",
-                  contractAddress: \"\(contractAddressAsEip55(tokenHolder.contractAddress))\",
-                  """
+
+        var string = "\nweb3.tokens.data.currentInstance = {\n"
         for (name, value) in token {
             string += "\(name): \(value),"
         }
         string += "\n}"
 
-        var attributes = "{"
-        //TODO this seems wrong? Should we remove name and symbol? See the API spec
-        attributes += "name: {value: \"\(tokenHolder.name)\"}, "
-        attributes += "symbol: {value: \"\(tokenHolder.symbol)\"}, "
-        for (id, name) in xmlHandler.fieldIdsAndNames {
-            attributes += "\(id): {name: \"\(name)\"}, "
-        }
-        attributes += "}"
         //TODO include attribute type definitions
+//        var attributes = "{"
+//        //TODO this seems wrong? Should we remove name and symbol? See the API spec
+//        attributes += "name: {value: \"\(tokenHolder.name)\"}, "
+//        attributes += "symbol: {value: \"\(tokenHolder.symbol)\"}, "
+//        for (id, name) in xmlHandler.fieldIdsAndNames {
+//            attributes += "\(id): {name: \"\(name)\"}, "
+//        }
+//        attributes += "}"
 //        string += "\nweb3.tokens.definition = {"
 //        string += "\n\"\(contractAddressAsEip55(tokenHolder.contractAddress))\": {"
 //        string += "\nattributes: \(attributes)"
@@ -120,46 +104,56 @@ class TokenInstanceWebView: UIView {
                   \nweb3.tokens.dataChanged(oldTokens, web3.tokens.data)
                   """
         let javaScript = """
+                         console.log('update() ran')
                          const oldTokens = web3.tokens.data
                          """ + string
-        inject(javaScript: javaScript, asUserScript: asUserScript)
+
+        //Important to inject JavaScript differently depending on whether this is the first time it's loaded because the HTML document may not be ready yet
+        inject(javaScript: javaScript, afterDocumentIsLoaded: isFirstUpdate)
     }
 
-    func inject(javaScript: String, asUserScript: Bool = false) {
+    private func implicitAttributes(tokenHolder: TokenHolder, isFungible: Bool) -> [String: AssetInternalValue] {
+        var results = [String: AssetInternalValue]()
+        for each in AssetImplicitAttributes.allCases {
+            guard each.shouldInclude(forAddress: tokenHolder.contractAddress, isFungible: isFungible) else { continue }
+            switch each {
+            case .ownerAddress:
+                results[each.javaScriptName] = .address(walletAddress)
+            case .tokenId:
+                results[each.javaScriptName] = .uint(tokenHolder.tokens[0].id)
+            case .name:
+                let localizedNameFromAssetDefinition = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getName(fallback: tokenHolder.name)
+                results[each.javaScriptName] = .string(localizedNameFromAssetDefinition)
+            case .symbol:
+                results[each.javaScriptName] = .string(tokenHolder.symbol)
+            case .contractAddress:
+                //TODO remove forced unwrap once we get TokenHolder to use AlphaWallet.Address instead
+                results[each.javaScriptName] = .address(AlphaWallet.Address(uncheckedAgainstNullAddress: tokenHolder.contractAddress)!)
+            }
+        }
+        return results
+    }
+
+    @discardableResult func inject(javaScript: String, afterDocumentIsLoaded: Bool = false) -> Promise<Any?>? {
         let javaScriptWrappedInScope = """
                                        {
                                           \(javaScript)
                                        }
                                        """
-        if asUserScript {
+        if afterDocumentIsLoaded {
             let userScript = WKUserScript(source: javaScriptWrappedInScope, injectionTime: .atDocumentEnd, forMainFrameOnly: false)
             webView.configuration.userContentController.addUserScript(userScript)
-        } else {
-            webView.evaluateJavaScript(javaScriptWrappedInScope) { something, error in
-                //no-op
-            }
-        }
-    }
-
-    //TODO we shouldn't need this once we don't don't pass arouund contract addresses as string
-    private func contractAddressAsEip55(_ contractAddress: String) -> String {
-        return Address(string: contractAddress)!.eip55String
-    }
-
-    private func formatValueAsJavaScriptValue(value: AssetAttributeValue) -> String? {
-        if let value = value as? String {
-            return "\"\(value)\""
-        } else if let value = value as? Int {
-            return String(value)
-        } else if let value = value as? GeneralisedTime {
-            return value.formatTimeToLocaleAndVenueStringEquivalent
-            //TODO how does array work? Do we need to worry about the type of the elements?
-//        } else if let value = value as? Array {
-//            return String(value)
-        } else if let value = value as? Bool {
-            return value ? "true" : "false"
-        } else {
             return nil
+        } else {
+            return Promise { seal in
+                webView.evaluateJavaScript(javaScriptWrappedInScope) { something, error in
+                    if let error = error {
+                        seal.reject(error)
+                    } else {
+                        seal.fulfill(something)
+                    }
+                }
+            }
         }
     }
 
@@ -276,7 +270,7 @@ extension TokenInstanceWebView {
 
 //TODO this contains functions duplicated and modified from BrowserViewController. Clean this up. Or move it somewhere, to a coordinator?
 extension TokenInstanceWebView {
-    func notifyFinish(callbackID: Int, value: Result<DappCallback, DAppError>) {
+    func notifyFinish(callbackID: Int, value: ResultResult<DappCallback, DAppError>.t) {
         let script: String = {
             switch value {
             case .success(let result):

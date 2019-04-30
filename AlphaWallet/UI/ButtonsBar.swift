@@ -67,6 +67,9 @@ class ButtonsBar: UIView {
             button.setTitleColor(viewModel.buttonTitleColor, for: .normal)
             button.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
             button.titleLabel?.font = viewModel.buttonFont
+            button.titleLabel?.adjustsFontSizeToFitWidth = true
+            //So long titles (that cause font to be adjusted) have some margins on the left and right
+            button.contentEdgeInsets = .init(top: 0, left: 3, bottom: 0, right: 3)
         }
     }
 

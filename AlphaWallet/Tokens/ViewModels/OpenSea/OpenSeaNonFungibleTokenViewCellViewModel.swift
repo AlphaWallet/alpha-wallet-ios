@@ -13,17 +13,17 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
         return token.name
     }
 
-    init(config: Config, token: TokenObject, assetDefinitionStore: AssetDefinitionStore) {
+    init(config: Config, token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
         //We use the contract's image and fallback to the first token ID's image if the former is not available
-        if let tokenHolder = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore).getTokenHolders().first {
-            var url = tokenHolder.values["contractImageUrl"] as? String ?? ""
+        if let tokenHolder = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore).getTokenHolders(forWallet: account).first {
+            var url = tokenHolder.values["contractImageUrl"]?.stringValue ?? ""
             if url.isEmpty {
-                url = tokenHolder.values["imageUrl"] as? String ?? ""
+                url = tokenHolder.values["imageUrl"]?.stringValue ?? ""
             }
             self.imageUrl = URL(string: url)
             if imageUrl != nil {
-                let tokenId = tokenHolder.values["tokenId"] as? String
+                let tokenId = tokenHolder.values["tokenId"]?.stringValue
                 self.image = OpenSeaNonFungibleTokenViewCellViewModel.imageGenerator.withDownloadedImage(fromURL: imageUrl, forTokenId: tokenId, withPrefix: tokenHolder.contractAddress)
             } else {
                 self.imageUrl = nil

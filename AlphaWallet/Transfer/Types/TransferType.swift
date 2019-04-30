@@ -13,7 +13,7 @@ enum TransferType {
     init(token: TokenObject) {
         self = {
             switch token.type {
-			case .nativeCryptocurrency:
+            case .nativeCryptocurrency:
                 return .nativeCryptocurrency(server: token.server, destination: nil, amount: nil)
             case .erc20:
                 return .ERC20Token(token, destination: nil, amount: nil)

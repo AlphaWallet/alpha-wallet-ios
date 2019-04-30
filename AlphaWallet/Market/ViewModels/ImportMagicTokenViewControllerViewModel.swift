@@ -87,7 +87,7 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return tokenHolder.values["locality"] as? String ?? emptyCity
+            return tokenHolder.values["locality"]?.stringValue ?? emptyCity
         }
     }
 
@@ -97,7 +97,7 @@ struct ImportMagicTokenViewControllerViewModel {
             return ""
         } else {
             if tokenHolder.hasAssetDefinition {
-                return tokenHolder.values["category"] as? String ?? "N/A"
+                return tokenHolder.values["category"]?.stringValue ?? "N/A"
             } else {
                 //For ERC75 tokens, display the contract's name as the "title". https://github.com/alpha-wallet/alpha-wallet-ios/issues/664
                 return tokenHolder.name
@@ -115,7 +115,7 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            let value = tokenHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+            let value = tokenHolder.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
             return value.format("hh:mm")
         }
     }
@@ -128,8 +128,8 @@ struct ImportMagicTokenViewControllerViewModel {
             if isMeetupContract && tokenHolder.values["expired"] != nil {
                 return ""
             } else {
-                let countryA = tokenHolder.values["countryA"] as? String ?? ""
-                let countryB = tokenHolder.values["countryB"] as? String ?? ""
+                let countryA = tokenHolder.values["countryA"]?.stringValue ?? ""
+                let countryB = tokenHolder.values["countryB"]?.stringValue ?? ""
                 //While both will return emptyTeams, we want to be explicit about ising `emptyTeams`
                 if countryA.isEmpty && countryB.isEmpty {
                     return emptyTeams
@@ -149,7 +149,7 @@ struct ImportMagicTokenViewControllerViewModel {
                 return "S0"
             }
         } else {
-            let value = tokenHolder.values["match"] as? Int ?? 0
+            let value = tokenHolder.values["match"]?.intValue ?? 0
             return "M\(value)"
         }
     }
@@ -159,7 +159,7 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            return tokenHolder.values["venue"] as? String ?? "N/A"
+            return tokenHolder.values["venue"]?.stringValue ?? ""
         }
     }
 
@@ -168,14 +168,14 @@ struct ImportMagicTokenViewControllerViewModel {
         if case .validating = state {
             return ""
         } else {
-            let value = tokenHolder.values["time"] as? GeneralisedTime ?? GeneralisedTime()
+            let value = tokenHolder.values["time"]?.generalisedTimeValue ?? GeneralisedTime()
             return value.formatAsShortDateString()
         }
     }
 
     var numero: String {
         guard let tokenHolder = tokenHolder else { return "" }
-        if let num = tokenHolder.values["numero"] as? Int {
+        if let num = tokenHolder.values["numero"]?.intValue {
             return String(num)
         } else {
             return "N/A"
@@ -337,7 +337,7 @@ struct ImportMagicTokenViewControllerViewModel {
         case .promptImport, .succeeded, .failed:
             if let tokenHolder = tokenHolder, tokenHolder.isSpawnableMeetupContract {
                 //Not the best check, but we assume that even if the data is just partially available, we can show something
-                if let _ = (tokenHolder.values["building"] as! SubscribableAssetAttributeValue).subscribable.value as? String {
+                if case .some(.subscribable(let subscribable)) = tokenHolder.values["building"]?.value, subscribable.value is String {
                     return false
                 } else {
                     return true

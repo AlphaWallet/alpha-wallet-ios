@@ -8,11 +8,13 @@
 
 import Foundation
 import UIKit
+import PromiseKit
 
 struct TokensCardViewModel {
+    private let assetDefinitionStore: AssetDefinitionStore
+
     let token: TokenObject
     let tokenHolders: [TokenHolder]
-    let assetDefinitionStore: AssetDefinitionStore
 
     var actions: [TokenInstanceAction] {
         let xmlHandler = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore)
@@ -37,9 +39,14 @@ struct TokensCardViewModel {
         }
     }
 
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore) {
+    var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
+        let xmlHandler = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore)
+        return xmlHandler.tokenScriptStatus
+    }
+
+    init(token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
-        self.tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore).getTokenHolders()
+        self.tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore).getTokenHolders(forWallet: account)
         self.assetDefinitionStore = assetDefinitionStore
     }
 

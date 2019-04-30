@@ -51,7 +51,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(withVerificationType: .unverified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -117,19 +117,11 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         delegate?.didEnterWalletAddress(tokenHolder: tokenHolder, to: address, paymentFlow: paymentFlow, in: self)
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     func configure(viewModel newViewModel: TransferTokensCardViaWalletAddressViewControllerViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(withVerificationType: verificationType)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -147,6 +139,20 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         let nextButton = buttonsBar.buttons[0]
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+    }
+}
+
+extension TransferTokensCardViaWalletAddressViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }
 

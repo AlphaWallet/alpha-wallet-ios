@@ -1,6 +1,11 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Alamofire
+import TrustKeystore
+
+protocol AssetDefinitionStoreDelegate: class {
+    func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore )
+}
 
 /// Manage access to and cache asset definition XML files
 class AssetDefinitionStore {
@@ -14,10 +19,10 @@ class AssetDefinitionStore {
     private var httpHeaders: HTTPHeaders = {
         guard let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else { return [:] }
         return [
-            "Accept": "text/xml; charset=UTF-8",
-            "X-Client-Name": Constants.repoClientName,
+            "Accept": "application/tokenscript+xml; charset=UTF-8",
+            "X-Client-Name": TokenScript.repoClientName,
             "X-Client-Version": appVersion,
-            "X-Platform-Name": Constants.repoPlatformName,
+            "X-Platform-Name": TokenScript.repoPlatformName,
             "X-Platform-Version": UIDevice.current.systemVersion
         ]
     }()
@@ -28,8 +33,17 @@ class AssetDefinitionStore {
         return df
     }()
     private var lastContractInPasteboard: String?
-    private var subscribers: [(String) -> Void] = []
+    private var subscribers: [(AlphaWallet.Address) -> Void] = []
     private var backingStore: AssetDefinitionBackingStore
+
+    lazy var assetAttributesCache: AssetAttributesCache = AssetAttributesCache(assetDefinitionStore: self)
+    weak var delegate: AssetDefinitionStoreDelegate?
+    var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] {
+        return backingStore.badTokenScriptFileNames
+    }
+    var listOfConflictingTokenScriptFiles: [TokenScriptFileIndices.FileName] {
+        return backingStore.conflictingTokenScriptFileNames
+    }
 
     //TODO move
     static var standardTokenScriptStyles: String {
@@ -64,17 +78,25 @@ class AssetDefinitionStore {
         self.backingStore.delegate = self
     }
 
+    func hasConflict(forContract contract: AlphaWallet.Address) -> Bool {
+        return backingStore.hasConflictingFile(forContract: contract)
+    }
+
+    func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool {
+        return backingStore.hasOutdatedTokenScript(forContract: contract)
+    }
+
     func enableFetchXMLForContractInPasteboard() {
         NotificationCenter.default.addObserver(self, selector: #selector(fetchXMLForContractInPasteboard), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
 
-    func fetchXMLs(forContracts contracts: [String]) {
+    func fetchXMLs(forContracts contracts: [AlphaWallet.Address]) {
         for each in contracts {
             fetchXML(forContract: each)
         }
     }
 
-    subscript(contract: String) -> String? {
+    subscript(contract: AlphaWallet.Address) -> String? {
         get {
             return backingStore[contract]
         }
@@ -83,23 +105,28 @@ class AssetDefinitionStore {
         }
     }
 
-    func isOfficial(contract: String) -> Bool {
+    func isOfficial(contract: AlphaWallet.Address) -> Bool {
         return backingStore.isOfficial(contract: contract)
     }
 
-    func isCanonicalized(contract: String) -> Bool {
+    func isCanonicalized(contract: AlphaWallet.Address) -> Bool {
         return backingStore.isCanonicalized(contract: contract)
     }
 
-    func subscribe(_ subscribe: @escaping (_ contract: String) -> Void) {
+    func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {
         subscribers.append(subscribe)
+    }
+
+    //TODO remove this when as we use AlphaWallet.Address across the app
+    func fetchXML(forContract contract: String, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
+        guard let address = AlphaWallet.Address(string: contract) else { return }
+        fetchXML(forContract: address, useCacheAndFetch: useCacheAndFetch, completionHandler: completionHandler)
     }
 
     /// useCacheAndFetch: when true, the completionHandler will be called immediately and a second time if an updated XML is fetched. When false, the completionHandler will only be called up fetching an updated XML
     ///
     /// IMPLEMENTATION NOTE: Current implementation will fetch the same XML multiple times if this function is called again before the previous attempt has completed. A check (which requires tracking completion handlers) hasn't been implemented because this doesn't usually happen in practice
-    func fetchXML(forContract contract: String, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
-        let contract = contract.add0x.lowercased()
+    func fetchXML(forContract contract: AlphaWallet.Address, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
         if useCacheAndFetch && self[contract] != nil {
             completionHandler?(.cached)
         }
@@ -114,12 +141,19 @@ class AssetDefinitionStore {
                 completionHandler?(.unmodified)
             } else if response.response?.statusCode == 406 {
                 completionHandler?(.error)
-            } else {
-                if let data = response.data, let xml = String(data: data, encoding: .utf8), !xml.isEmpty {
-                    strongSelf[contract] = xml
-                    XMLHandler.invalidate(forContract: contract)
-                    completionHandler?(.updated)
-                    strongSelf.subscribers.forEach { $0(contract) }
+            } else if response.response?.statusCode == 404 {
+                completionHandler?(.error)
+            } else if response.response?.statusCode == 200 {
+                if let xml = response.data.flatMap({ String(data: $0, encoding: .utf8) }).nilIfEmpty {
+                    //Note that Alamofire converts the 304 to a 200 if caching is enabled (which it is, by default). So we'll never get a 304 here. Checking against Charles proxy will show that a 304 is indeed returned by the server with an empty body. So we compare the contents instead. https://github.com/Alamofire/Alamofire/issues/615
+                    if xml == strongSelf[contract] {
+                        completionHandler?(.unmodified)
+                    } else {
+                        strongSelf[contract] = xml
+                        XMLHandler.invalidate(forContract: contract)
+                        completionHandler?(.updated)
+                        strongSelf.subscribers.forEach { $0(contract) }
+                    }
                 } else {
                     completionHandler?(.error)
                 }
@@ -131,20 +165,21 @@ class AssetDefinitionStore {
         guard let contents = UIPasteboard.general.string?.trimmed else { return }
         guard lastContractInPasteboard != contents else { return }
         guard CryptoAddressValidator.isValidAddress(contents) else { return }
+        guard let address = AlphaWallet.Address(string: contents) else { return }
         defer { lastContractInPasteboard = contents }
-        fetchXML(forContract: contents)
+        fetchXML(forContract: address)
     }
 
-    private func urlToFetch(contract: String) -> URL? {
-        let name = backingStore.standardizedName(ofContract: contract)
-        return URL(string: Constants.repoServer)?.appendingPathComponent(name)
+    private func urlToFetch(contract: AlphaWallet.Address) -> URL? {
+        let name = contract.eip55String
+        return URL(string: TokenScript.repoServer)?.appendingPathComponent(name)
     }
 
-    private func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+    private func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
         return backingStore.lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
     }
 
-    private func httpHeadersWithLastModifiedTimestamp(forContract contract: String) -> HTTPHeaders {
+    private func httpHeadersWithLastModifiedTimestamp(forContract contract: AlphaWallet.Address) -> HTTPHeaders {
         var result = httpHeaders
         if let lastModified = lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract) {
             result["IF-Modified-Since"] = string(fromLastModifiedDate: lastModified)
@@ -158,15 +193,22 @@ class AssetDefinitionStore {
         return lastModifiedDateFormatter.string(from: date)
     }
 
-    func forEachContractWithXML(_ body: (String) -> Void) {
+    func forEachContractWithXML(_ body: (AlphaWallet.Address) -> Void) {
         backingStore.forEachContractWithXML(body)
     }
 }
 
 extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
-    func invalidateAssetDefinition(forContract contract: String) {
+    func invalidateAssetDefinition(forContract contract: AlphaWallet.Address) {
         XMLHandler.invalidate(forContract: contract)
         subscribers.forEach { $0(contract) }
         fetchXML(forContract: contract)
+    }
+
+    func badTokenScriptFilesChanged(in: AssetDefinitionBackingStore) {
+        //Careful to not fire immediately because even though we are on the main thread; while we are modifying the indices, we can't read from it or there'll be a crash
+        DispatchQueue.main.async {
+            self.delegate?.listOfBadTokenScriptFilesChanged(in: self)
+        }
     }
 }
