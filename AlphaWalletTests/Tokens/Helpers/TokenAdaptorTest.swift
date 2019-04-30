@@ -9,25 +9,92 @@ class TokenAdaptorTest: XCTestCase {
     func testBundlesAreBrokenIntoContinuousSeatRanges() {
         let date = GeneralisedTime()
         let tokens = [
-            Token(id: "1", index: 1, name: "Name", symbol: "SYM", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 1, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
-            Token(id: "2", index: 2, name: "Name", symbol: "SYM", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
-            Token(id: "3", index: 3, name: "Name", symbol: "SYM", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 4, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
+            Token(id: .init(1), index: UInt16(1), name: "Name", symbol: "SYM", status: .available, values: [
+                "city": .init(directoryString: "City"),
+                "venue": .init(directoryString: "Venue"),
+                "match": .init(int: 1),
+                "time": .init(generalisedTime: date),
+                "numero": .init(int: 1),
+                "category": .init(directoryString: "1"),
+                "countryA": .init(directoryString: "Team A"),
+                "countryB": .init(directoryString: "Team B")
+            ]),
+            Token(id: .init(2), index: UInt16(2), name: "Name", symbol: "SYM", status: .available, values: [
+                "city": .init(directoryString: "City"),
+                "venue": .init(directoryString: "Venue"),
+                "match": .init(int: 1),
+                "time": .init(generalisedTime: date),
+                "numero": .init(int: 2),
+                "category": .init(directoryString: "1"),
+                "countryA": .init(directoryString: "Team A"),
+                "countryB": .init(directoryString: "Team B")
+            ]),
+            Token(id: .init(3), index: UInt16(3), name: "Name", symbol: "SYM", status: .available, values: [
+                "city": .init(directoryString: "City"),
+                "venue": .init(directoryString: "Venue"),
+                "match": .init(int: 1),
+                "time": .init(generalisedTime: date),
+                "numero": .init(int: 4),
+                "category": .init(directoryString: "1"),
+                "countryA": .init(directoryString: "Team A"),
+                "countryB": .init(directoryString: "Team B")
+            ]),
         ]
         let assetDefinitionStore = AssetDefinitionStore()
-        let bundles = TokenAdaptor(token: TokenObject(), assetDefinitionStore: assetDefinitionStore).bundle(tokens: tokens)
+        let token = TokenObject()
+        token.contract = Constants.nullAddress
+        let bundles = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore).bundle(tokens: tokens)
         XCTAssertEqual(bundles.count, 2)
     }
 
     func testBundlesGroupIdenticalSeatIDsTogether() {
         let date = GeneralisedTime()
         let tokens = [
-            Token(id: "1", index: 1, name: "Name", symbol: "SYM", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 1, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
-            Token(id: "2", index: 2, name: "Name", symbol: "SYM", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
-            Token(id: "3", index: 3, name: "Name", symbol: "SYM", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 4, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
-            Token(id: "4", index: 4, name: "Name", symbol: "SYM", status: .available, values: ["city": "City", "venue": "Venue", "match": 1, "time": date, "numero": 2, "category": "1", "countryA": "Team A", "countryB": "Team B"]),
+            Token(id: .init(1), index: UInt16(1), name: "Name", symbol: "SYM", status: .available, values: [
+                "city": .init(directoryString: "City"),
+                "venue": .init(directoryString: "Venue"),
+                "match": .init(int: 1),
+                "time": .init(generalisedTime: date),
+                "numero": .init(int: 1),
+                "category": .init(directoryString: "1"),
+                "countryA": .init(directoryString: "Team A"),
+                "countryB": .init(directoryString: "Team B")
+            ]),
+            Token(id: .init(2), index: UInt16(2), name: "Name", symbol: "SYM", status: .available, values: [
+                "city": .init(directoryString: "City"),
+                "venue": .init(directoryString: "Venue"),
+                "match": .init(int: 1),
+                "time": .init(generalisedTime: date),
+                "numero": .init(int: 2),
+                "category": .init(directoryString: "1"),
+                "countryA": .init(directoryString: "Team A"),
+                "countryB": .init(directoryString: "Team B")
+            ]),
+            Token(id: .init(3), index: UInt16(3), name: "Name", symbol: "SYM", status: .available, values: [
+                "city": .init(directoryString: "City"),
+                "venue": .init(directoryString: "Venue"),
+                "match": .init(int: 1),
+                "time": .init(generalisedTime: date),
+                "numero": .init(int: 4),
+                "category": .init(directoryString: "1"),
+                "countryA": .init(directoryString: "Team A"),
+                "countryB": .init(directoryString: "Team B")
+            ]),
+            Token(id: .init(4), index: UInt16(4), name: "Name", symbol: "SYM", status: .available, values: [
+                "city": .init(directoryString: "City"),
+                "venue": .init(directoryString: "Venue"),
+                "match": .init(int: 1),
+                "time": .init(generalisedTime: date),
+                "numero": .init(int: 2),
+                "category": .init(directoryString: "1"),
+                "countryA": .init(directoryString: "Team A"),
+                "countryB": .init(directoryString: "Team B")
+            ])
         ]
         let assetDefinitionStore = AssetDefinitionStore()
-        let bundles = TokenAdaptor(token: TokenObject(), assetDefinitionStore: assetDefinitionStore).bundle(tokens: tokens)
+        let token = TokenObject()
+        token.contract = Constants.nullAddress
+        let bundles = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore).bundle(tokens: tokens)
         XCTAssertEqual(bundles.count, 2)
     }
 

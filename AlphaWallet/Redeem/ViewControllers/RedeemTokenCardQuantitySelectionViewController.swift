@@ -47,7 +47,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(withVerificationType: .unverified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -123,20 +123,12 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
         }
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     func configure(viewModel newViewModel: RedeemTokenCardQuantitySelectionViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
 
-        updateNavigationRightBarButtons(withVerificationType: verificationType)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -177,5 +169,18 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
         super.viewDidLayoutSubviews()
         quantityStepper.layer.cornerRadius = quantityStepper.frame.size.height / 2
     }
+}
 
+extension RedeemTokenCardQuantitySelectionViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
+    }
 }

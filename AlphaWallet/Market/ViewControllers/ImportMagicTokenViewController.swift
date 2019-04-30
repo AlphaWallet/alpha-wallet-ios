@@ -34,12 +34,12 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     var contract: String? {
         didSet {
             guard url != nil else { return }
-            updateNavigationRightBarButtons(withVerificationType: verificationType, hasShowInfoButton: false)
+            updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus, hasShowInfoButton: false)
         }
     }
     var url: URL? {
         didSet {
-            updateNavigationRightBarButtons(withVerificationType: .unverified, hasShowInfoButton: false)
+            updateNavigationRightBarButtons(withTokenScriptFileStatus: nil, hasShowInfoButton: false)
         }
     }
     var state: State {
@@ -213,7 +213,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
 
             actionButton.isHidden = !viewModel.showActionButton
 
-            updateNavigationRightBarButtons(withVerificationType: verificationType, hasShowInfoButton: false)
+            updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus, hasShowInfoButton: false)
         }
     }
 
@@ -252,5 +252,9 @@ extension ImportMagicTokenViewController: VerifiableStatusViewController {
 
     //Just for protocol conformance. Do nothing
     func showInfo() {
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }

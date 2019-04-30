@@ -57,7 +57,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(withVerificationType: .unverified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -226,14 +226,6 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         }
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         linkExpiryDateField.layer.cornerRadius = linkExpiryDateField.frame.size.height / 2
@@ -252,7 +244,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(withVerificationType: verificationType)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -297,6 +289,20 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         let nextButton = buttonsBar.buttons[0]
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+    }
+}
+
+extension SetTransferTokensCardExpiryDateViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }
 

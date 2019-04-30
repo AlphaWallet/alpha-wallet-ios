@@ -4,9 +4,18 @@ import Foundation
 
 class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore {
     private let officialStore = AssetDefinitionDiskBackingStore()
-    private let overridesStore: AssetDefinitionBackingStore
+    //TODO make this be a `let`
+    private var overridesStore: AssetDefinitionBackingStore
     weak var delegate: AssetDefinitionBackingStoreDelegate?
     static let overridesDirectoryName = "assetDefinitionsOverrides"
+
+    var badTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
+        return officialStore.badTokenScriptFileNames + overridesStore.badTokenScriptFileNames
+    }
+
+    var conflictingTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
+        return officialStore.conflictingTokenScriptFileNames + overridesStore.conflictingTokenScriptFileNames
+    }
 
     init(overridesStore: AssetDefinitionBackingStore? = nil) {
         if let overridesStore = overridesStore {
@@ -18,9 +27,12 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
                 self?.delegate?.invalidateAssetDefinition(forContract: contract)
             }
         }
+
+        self.officialStore.delegate = self
+        self.overridesStore.delegate = self
     }
 
-    subscript(contract: String) -> String? {
+    subscript(contract: AlphaWallet.Address) -> String? {
         get {
             return overridesStore[contract] ?? officialStore[contract]
         }
@@ -29,14 +41,14 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         }
     }
 
-    func isOfficial(contract: String) -> Bool {
+    func isOfficial(contract: AlphaWallet.Address) -> Bool {
         if overridesStore[contract] != nil {
             return false
         }
         return officialStore.isOfficial(contract: contract)
     }
 
-    func isCanonicalized(contract: String) -> Bool {
+    func isCanonicalized(contract: AlphaWallet.Address) -> Bool {
         if overridesStore[contract] != nil {
             return overridesStore.isCanonicalized(contract: contract)
         } else {
@@ -44,13 +56,33 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         }
     }
 
-    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+    func hasConflictingFile(forContract contract: AlphaWallet.Address) -> Bool {
+        let official = officialStore.hasConflictingFile(forContract: contract)
+        let overrides = overridesStore.hasConflictingFile(forContract: contract)
+        if overrides {
+            return true
+        } else {
+            return official
+        }
+    }
+
+    func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool {
+        let official = officialStore.hasOutdatedTokenScript(forContract: contract)
+        let overrides = overridesStore.hasOutdatedTokenScript(forContract: contract)
+        if overrides {
+            return true
+        } else {
+            return official
+        }
+    }
+
+    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
         //Even with an override, we just want to fetch the latest official version. Doesn't imply we'll use the official version
         return officialStore.lastModifiedDateOfCachedAssetDefinitionFile(forContract: contract)
     }
 
-    func forEachContractWithXML(_ body: (String) -> Void) {
-        var overriddenContracts = [String]()
+    func forEachContractWithXML(_ body: (AlphaWallet.Address) -> Void) {
+        var overriddenContracts = [AlphaWallet.Address]()
         overridesStore.forEachContractWithXML { contract in
             overriddenContracts.append(contract)
             body(contract)
@@ -60,5 +92,15 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
                 body(contract)
             }
         }
+    }
+}
+
+extension AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStoreDelegate {
+    func invalidateAssetDefinition(forContract contract: AlphaWallet.Address) {
+        //do nothing
+    }
+
+    func badTokenScriptFilesChanged(in: AssetDefinitionBackingStore) {
+        delegate?.badTokenScriptFilesChanged(in: self)
     }
 }

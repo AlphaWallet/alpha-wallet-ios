@@ -11,7 +11,9 @@ struct TokenInstanceViewModel {
     var actions: [TokenInstanceAction] {
         let xmlHandler = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
-        if actionsFromTokenScript.isEmpty {
+        if xmlHandler.hasAssetDefinition {
+            return actionsFromTokenScript
+        } else {
             switch token.type {
             case .erc875:
                 return [
@@ -26,8 +28,6 @@ struct TokenInstanceViewModel {
             case .nativeCryptocurrency, .erc20:
                 return []
             }
-        } else {
-            return actionsFromTokenScript
         }
     }
 

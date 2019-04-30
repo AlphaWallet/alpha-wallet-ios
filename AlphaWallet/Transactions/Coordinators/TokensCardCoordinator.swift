@@ -21,7 +21,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: TokenObject
     private lazy var rootViewController: TokensCardViewController = {
-        let viewModel = TokensCardViewModel(token: token, assetDefinitionStore: assetDefinitionStore)
+        let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore)
         return makeTokensCardViewController(with: session.account, viewModel: viewModel)
     }()
 
@@ -71,10 +71,15 @@ class TokensCardCoordinator: NSObject, Coordinator {
             for each in strongSelf.navigationController.viewControllers {
                 switch each {
                 case let vc as TokensCardViewController:
-                    let viewModel = TokensCardViewModel(token: strongSelf.token, assetDefinitionStore: strongSelf.assetDefinitionStore)
+                    let viewModel = TokensCardViewModel(token: strongSelf.token, forWallet: strongSelf.session.account, assetDefinitionStore: strongSelf.assetDefinitionStore)
                     vc.configure(viewModel: viewModel)
                 case let vc as TokenInstanceViewController:
-                    vc.configure()
+                    let updatedTokenHolders = TokenAdaptor(token: strongSelf.token, assetDefinitionStore: strongSelf.assetDefinitionStore).getTokenHolders(forWallet: strongSelf.session.account)
+                    let tokenHolder = vc.firstMatchingTokenHolder(fromTokenHolders: updatedTokenHolders)
+                    if let tokenHolder = tokenHolder {
+                        let viewModel: TokenInstanceViewModel = .init(token: strongSelf.token, tokenHolder: tokenHolder, assetDefinitionStore: strongSelf.assetDefinitionStore)
+                        vc.configure(viewModel: viewModel)
+                    }
                 case let vc as TokenInstanceActionViewController:
                     //TODO it reloads, but doesn't live-reload the changes because the action contains the HTML and it doesn't change
                     vc.configure()
@@ -369,7 +374,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: UIViewController) {
-        let vc = TokenInstanceActionViewController(tokenObject: token, tokenHolder: tokenHolder, account: session.account, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore, action: action)
+        let vc = TokenInstanceActionViewController(tokenObject: token, tokenHolder: tokenHolder, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
         vc.delegate = self
         vc.configure()
         viewController.navigationController?.pushViewController(vc, animated: true)
@@ -419,7 +424,7 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
         switch action.type {
         case .tokenScript:
             showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
-        case .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
+        case .erc20Send, .erc20Receive, .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
             //Couldn't have reached here
             break
         }

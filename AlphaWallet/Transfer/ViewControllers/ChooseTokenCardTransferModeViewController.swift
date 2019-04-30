@@ -48,7 +48,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(withVerificationType: .unverified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -104,19 +104,11 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         delegate?.didChooseTransferNow(token: viewModel.token, tokenHolder: tokenHolder, in: self)
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     func configure(viewModel newViewModel: ChooseTokenCardTransferModeViewControllerViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(withVerificationType: verificationType)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -139,5 +131,19 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         //Button fonts have to be smaller because the button title is too long
         generateMagicLinkButton.titleLabel?.font = viewModel.buttonFont
         transferNowButton.titleLabel?.font = viewModel.buttonFont
+    }
+}
+
+extension ChooseTokenCardTransferModeViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }

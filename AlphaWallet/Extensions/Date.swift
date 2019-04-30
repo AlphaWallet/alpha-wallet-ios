@@ -9,7 +9,6 @@
 import Foundation
 
 public extension Date {
-
     private static var formatsMap: [String: DateFormatter] = [:]
     private static var formatsMapLocale: String?
 
@@ -22,6 +21,7 @@ public extension Date {
         return nil
     }
 
+    //TODO fix function name. It's returning a string
     func format(_ format: String, withTimeZone timezone: TimeZone? = nil) -> String {
         return Date.formatter(with: format, withTimeZone: timezone).string(from: self)
     }

@@ -89,7 +89,7 @@ DEPENDENCIES:
   - iOSSnapshotTestCase
   - JavaScriptKit
   - JSONRPCKit (~> 2.0.0)
-  - Kanna (from `https://github.com/AlphaWallet/Kanna.git`, commit `bea8508c4fd0c146e4a21e55b34eb50ef15f03d7`)
+  - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
   - KeychainSwift
   - Kingfisher (~> 4.0)
   - Macaw (from `https://github.com/alpha-wallet/Macaw.git`, commit `c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8`)
@@ -148,8 +148,8 @@ EXTERNAL SOURCES:
     :commit: 1c1aafb566361e7067e69f6e38b0fdc30b801429
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
   Kanna:
-    :commit: bea8508c4fd0c146e4a21e55b34eb50ef15f03d7
-    :git: https://github.com/AlphaWallet/Kanna.git
+    :commit: 06a04bc28783ccbb40efba355dee845a024033e8
+    :git: https://github.com/tid-kijyun/Kanna.git
   Macaw:
     :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
     :git: https://github.com/alpha-wallet/Macaw.git
@@ -173,8 +173,8 @@ CHECKOUT OPTIONS:
     :commit: 1c1aafb566361e7067e69f6e38b0fdc30b801429
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
   Kanna:
-    :commit: bea8508c4fd0c146e4a21e55b34eb50ef15f03d7
-    :git: https://github.com/AlphaWallet/Kanna.git
+    :commit: 06a04bc28783ccbb40efba355dee845a024033e8
+    :git: https://github.com/tid-kijyun/Kanna.git
   Macaw:
     :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
     :git: https://github.com/alpha-wallet/Macaw.git
@@ -234,6 +234,6 @@ SPEC CHECKSUMS:
   TrustKeystore: 26efa8079f6451d02ce64b906d3ff240fd71d7ca
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: e21ca9b32faa5ddbc82224acf3f944420ef861ae
+PODFILE CHECKSUM: c9725cc64a472ca0a8c73463de9ccf6d5e379e1e
 
 COCOAPODS: 1.5.3

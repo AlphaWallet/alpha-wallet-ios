@@ -52,6 +52,10 @@ class UniversalLinkCoordinator: Coordinator {
             return false
         }
     }
+    private var walletAddress: String {
+        //TODO pass in the wallet instead
+        return (try! EtherKeystore()).recentlyUsedWallet!.address.eip55String
+    }
 
     var coordinators: [Coordinator] = []
     let server: RPCServer
@@ -102,9 +106,8 @@ class UniversalLinkCoordinator: Coordinator {
         let signature = signedOrder.signature.drop0x
         let indices = signedOrder.order.indices
         let indicesStringEncoded = stringEncodeIndices(indices)
-        let address = (keystore.recentlyUsedWallet?.address.eip55String)!
         var parameters: Parameters = [
-            "address": address,
+            "address": walletAddress,
             "contractAddress": signedOrder.order.contractAddress,
             "indices": indicesStringEncoded,
             "price": signedOrder.order.price.description,
@@ -163,22 +166,21 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func getParametersAndQuery(signedOrder: SignedOrder) -> (Parameters, String)? {
-        guard let recipient = try! EtherKeystore().recentlyUsedWallet?.address.eip55String else { return nil }
         let parameters: Parameters
         let query: String
         switch signedOrder.order.nativeCurrencyDrop {
-        case true:
-            parameters = createHTTPParametersForCurrencyLinksToPaymentServer(
-                    signedOrder: signedOrder,
-                    recipient: recipient
-            )
-            query = Constants.currencyDropServer
-        case false:
-            parameters = createHTTPParametersForNormalLinksToPaymentServer(
-                    signedOrder: signedOrder,
-                    isForTransfer: true
-            )
-            query = Constants.paymentServer
+            case true:
+                parameters = createHTTPParametersForCurrencyLinksToPaymentServer(
+                        signedOrder: signedOrder,
+                        recipient: walletAddress
+                )
+                query = Constants.currencyDropServer
+            case false:
+                parameters = createHTTPParametersForNormalLinksToPaymentServer(
+                        signedOrder: signedOrder,
+                        isForTransfer: true
+                )
+                query = Constants.paymentServer
         }
         return (parameters, query)
     }
@@ -472,12 +474,14 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func makeTokenHolderImpl(name: String, symbol: String, bytes32Tokens: [String], contractAddress: String) {
+        //TODO pass in the wallet instead
+        let account = (try! EtherKeystore()).recentlyUsedWallet!
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore)
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: UInt16(i), server: server)
+                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: UInt16(i), inWallet: account, server: server)
                 tokens.append(token)
             }
         }
@@ -531,8 +535,8 @@ class UniversalLinkCoordinator: Coordinator {
 	}
 
     private func promptBackupWallet() {
-        guard let keystore = try? EtherKeystore(), let address = keystore.recentlyUsedWallet?.address.eip55String else { return }
-		let coordinator = PromptBackupCoordinator(keystore: keystore, walletAddress: address, config: config)
+        guard let keystore = try? EtherKeystore() else { return }
+		let coordinator = PromptBackupCoordinator(keystore: keystore, walletAddress: walletAddress, config: config)
 		addCoordinator(coordinator)
 		coordinator.delegate = self
 		coordinator.start()

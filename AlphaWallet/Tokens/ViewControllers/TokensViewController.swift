@@ -9,6 +9,7 @@ protocol TokensViewControllerDelegate: class {
     func didPressAddToken( in viewController: UIViewController)
     func didSelect(token: TokenObject, in viewController: UIViewController)
     func didDelete(token: TokenObject, in viewController: UIViewController)
+    func didTapOpenConsole(in viewController: UIViewController)
 }
 
 class TokensViewController: UIViewController {
@@ -40,8 +41,21 @@ class TokensViewController: UIViewController {
     }()
     private var currentCollectiblesContractsDisplayed = [String]()
     private let searchController: UISearchController
+    private let consoleButton = UIButton(type: .system)
 
     weak var delegate: TokensViewControllerDelegate?
+    var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] = .init() {
+        didSet {
+            if listOfBadTokenScriptFiles.isEmpty {
+                consoleButton.isHidden = true
+            } else {
+                consoleButton.isHidden = false
+                consoleButton.titleLabel?.font = Fonts.light(size: 22)!
+                consoleButton.setTitleColor(Colors.appWhite, for: .normal)
+                consoleButton.setTitle(R.string.localizable.tokenScriptShowErrors(), for: .normal)
+            }
+        }
+    }
 
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
@@ -66,10 +80,11 @@ class TokensViewController: UIViewController {
         filterView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(filterView)
 
+        consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
+
         tableView.register(TokenViewCell.self, forCellReuseIdentifier: TokenViewCell.identifier)
         tableView.register(EthTokenViewCell.self, forCellReuseIdentifier: EthTokenViewCell.identifier)
         tableView.register(NonFungibleTokenViewCell.self, forCellReuseIdentifier: NonFungibleTokenViewCell.identifier)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.estimatedRowHeight = 0
         tableView.delegate = self
         tableView.dataSource = self
@@ -77,7 +92,13 @@ class TokensViewController: UIViewController {
         tableView.backgroundColor = Colors.appBackground
         tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         tableView.addSubview(tableViewRefreshControl)
-        view.addSubview(tableView)
+
+        let bodyStackView = [
+            consoleButton,
+            tableView,
+        ].asStackView(axis: .vertical)
+        bodyStackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bodyStackView)
 
         collectiblesCollectionView.backgroundColor = Colors.appBackground
         collectiblesCollectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -94,16 +115,16 @@ class TokensViewController: UIViewController {
             filterView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             filterView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             filterView.topAnchor.constraint(equalTo: view.topAnchor),
-            filterView.bottomAnchor.constraint(equalTo: tableView.topAnchor, constant: -7),
+            filterView.bottomAnchor.constraint(equalTo: bodyStackView.topAnchor, constant: -7),
 
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            bodyStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bodyStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bodyStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            tableView.leadingAnchor.constraint(equalTo: collectiblesCollectionView.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: collectiblesCollectionView.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: collectiblesCollectionView.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: collectiblesCollectionView.bottomAnchor),
+            bodyStackView.leadingAnchor.constraint(equalTo: collectiblesCollectionView.leadingAnchor),
+            bodyStackView.trailingAnchor.constraint(equalTo: collectiblesCollectionView.trailingAnchor),
+            bodyStackView.topAnchor.constraint(equalTo: collectiblesCollectionView.topAnchor),
+            bodyStackView.bottomAnchor.constraint(equalTo: collectiblesCollectionView.bottomAnchor),
         ])
         errorView = ErrorView(onRetry: { [weak self] in
             self?.startLoading()
@@ -131,6 +152,10 @@ class TokensViewController: UIViewController {
         tableViewRefreshControl.beginRefreshing()
         collectiblesCollectionViewRefreshControl.beginRefreshing()
         fetch()
+    }
+
+    @objc func openConsole() {
+        delegate?.didTapOpenConsole(in: self)
     }
 
     func fetch() {
@@ -382,7 +407,7 @@ extension TokensViewController: UICollectionViewDataSource {
         let server = token.server
         let session = sessions[server]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier, for: indexPath) as! OpenSeaNonFungibleTokenViewCell
-        cell.configure(viewModel: .init(config: session.config, token: token, assetDefinitionStore: assetDefinitionStore))
+        cell.configure(viewModel: .init(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore))
         return cell
     }
 }

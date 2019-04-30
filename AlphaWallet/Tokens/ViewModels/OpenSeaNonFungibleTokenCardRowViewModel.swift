@@ -20,7 +20,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
         self.displayHelper = OpenSeaNonFungibleTokenDisplayHelper(contract: tokenHolder.contractAddress)
         self.convertHtmlInDescription = convertHtmlInDescription
 
-        let tokenId = tokenHolder.values["tokenId"] as? String
+        let tokenId = tokenHolder.values["tokenId"]?.stringValue
         self.bigImage = OpenSeaNonFungibleTokenCardRowViewModel.imageGenerator.withDownloadedImage(fromURL: imageUrl, forTokenId: tokenId, withPrefix: tokenHolder.contractAddress)
     }
 
@@ -33,7 +33,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
         if displayHelper.imageHasBackgroundColor {
             return .clear
         } else {
-            if let color = tokenHolder.values["backgroundColor"] as? String, !color.isEmpty {
+            if let color = tokenHolder.values["backgroundColor"]?.stringValue.nilIfEmpty {
                 return UIColor(hex: color)
             } else {
                 return UIColor(red: 247, green: 197, blue: 196)
@@ -82,8 +82,8 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var title: String {
-        let tokenId = tokenHolder.values["tokenId"] as? String ?? ""
-        if let name = tokenHolder.values["name"] as? String, !name.isEmpty {
+        let tokenId = tokenHolder.values["tokenId"]?.stringValue ?? ""
+        if let name = tokenHolder.values["name"]?.stringValue.nilIfEmpty {
             return name
         } else {
             return displayHelper.title(fromTokenName: tokenHolder.name, tokenId: tokenId)
@@ -159,12 +159,12 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var tokenId: String {
-        return tokenHolder.values["tokenId"] as? String ?? ""
+        return tokenHolder.values["tokenId"]?.stringValue ?? ""
     }
 
     var subtitle1: String? {
         guard let name = displayHelper.subtitle1TraitName else { return nil }
-        let traits =  tokenHolder.values["traits"] as? [OpenSeaNonFungibleTrait] ?? []
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         guard let generation = traits.first(where: { $0.type == name }) else { return nil }
         let value = displayHelper.mapTraitsToDisplayValue(name: name, value: generation.value)
         return value
@@ -172,7 +172,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
 
     var subtitle2: String? {
         guard let name = displayHelper.subtitle2TraitName else { return nil }
-        let traits =  tokenHolder.values["traits"] as? [OpenSeaNonFungibleTrait] ?? []
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         guard let cooldown = traits.first(where: { $0.type == name }) else { return nil }
         let value = displayHelper.mapTraitsToDisplayValue(name: name, value: cooldown.value)
         return value
@@ -180,7 +180,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
 
     var subtitle3: String? {
         guard let name = displayHelper.subtitle3TraitName else { return nil }
-        let traits =  tokenHolder.values["traits"] as? [OpenSeaNonFungibleTrait] ?? []
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         guard let cooldown = traits.first(where: { $0.type == name }) else { return nil }
         let value = displayHelper.mapTraitsToDisplayValue(name: name, value: cooldown.value)
         return value
@@ -196,17 +196,17 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var thumbnailImageUrl: URL? {
-        guard let url = tokenHolder.values["thumbnailUrl"] as? String else { return nil }
+        guard let url = tokenHolder.values["thumbnailUrl"]?.stringValue else { return nil }
         return URL(string: url)
     }
 
     var imageUrl: URL? {
-        guard let url = tokenHolder.values["imageUrl"] as? String else { return nil }
+        guard let url = tokenHolder.values["imageUrl"]?.stringValue else { return nil }
         return URL(string: url)
     }
 
     var externalLink: URL? {
-        guard let url = tokenHolder.values["externalLink"] as? String else { return nil }
+        guard let url = tokenHolder.values["externalLink"]?.stringValue else { return nil }
         return URL(string: url)
     }
 
@@ -215,19 +215,19 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var attributes: [OpenSeaNonFungibleTokenAttributeCellViewModel] {
-        let traits = tokenHolder.values["traits"] as? [OpenSeaNonFungibleTrait] ?? []
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         let traitsToDisplay = traits.filter { displayHelper.shouldDisplayAttribute(name: $0.type) }
         return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value) }
     }
 
     var rankings: [OpenSeaNonFungibleTokenAttributeCellViewModel] {
-        let traits = tokenHolder.values["traits"] as? [OpenSeaNonFungibleTrait] ?? []
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         let traitsToDisplay = traits.filter { displayHelper.shouldDisplayRanking(name: $0.type) }
         return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value) }
     }
 
     var stats: [OpenSeaNonFungibleTokenAttributeCellViewModel] {
-        let traits = tokenHolder.values["traits"] as? [OpenSeaNonFungibleTrait] ?? []
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         let traitsToDisplay = traits.filter { displayHelper.shouldDisplayStat(name: $0.type) }
         return traitsToDisplay.map { mapTraitsToProperName(name: $0.type, value: $0.value) }
     }
@@ -253,7 +253,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     private func convertDescriptionToAttributedString(asHTML: Bool) -> NSAttributedString {
-        let string = tokenHolder.values["description"] as? String ?? ""
+        let string = tokenHolder.values["description"]?.stringValue ?? ""
         //.unicode, not .utf8, otherwise Chinese will turn garbage
         let htmlData = string.data(using: .unicode)
         let options: [NSAttributedString.DocumentReadingOptionKey: NSAttributedString.DocumentType]

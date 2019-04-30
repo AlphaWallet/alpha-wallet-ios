@@ -166,7 +166,7 @@
 "a.wallet.import.wallet.title" = "Import";
 "a.wallet.import.wallet.bubble.title" = "Have a ticket to import?";
 "a.wallet.import.wallet.bubble.description" = "Check your Email/SMS for the import link. Tap it and it will automatically import to the app!";
-"a.wallet.token.verifiedContract" = "VERIFIED BY AlphaWallet";
+"a.wallet.token.verifiedContract" = "VERIFIED";
 "a.wallet.token.unverifiedContract" = "UNVERIFIED";
 "a.wallet.token.debugContract" = "DEBUG";
 "a.wallet.token.match.vs" = "%@-%@";
@@ -241,6 +241,7 @@
 "a.wallet.no.tokens" = "You don't have any tokens";
 "a.help.navigation.title" = "Help & FAQs";
 "a.help.assetDefinitionOverrides.title" = "TokenScript Overrides";
+"a.console.title" = "Console";
 "a.help.contact.footer.button.title" = "Still need help? Contact Us";
 "a.help.contact.email.subject" = "Help/Feedback for AlphaWallet";
 "a.help.contact.email.helpfulToDevelopers" = "Helpful information to developers:";
@@ -335,3 +336,10 @@
 "blockchain.XDAI" = "xDAI Chain";
 "photos" = "Photos";
 "tokenScript.notSupportedSchema.error" = "Please upgrade AlphaWallet to support this TokenScript file";
+"TokenScript.verifying" = "Verifying...";
+"TokenScript.showErrors" = "Show errors";
+"TokenScript.type1.supportedAndSigned" = "Verified";
+"TokenScript.type1.supportedNotCanonicalizedAndUnsigned" = "Unsigned";
+"TokenScript.type2.conflictingFiles" = "Conflicting TokenScript Files";
+"TokenScript.type2.oldSchemaVersion" = "Old TokenScript Version";
+"TokenScript.type2.invalidSignature" = "Invalid Signature";

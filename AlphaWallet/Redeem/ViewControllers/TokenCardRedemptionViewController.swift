@@ -45,7 +45,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(withVerificationType: .unverified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
 
@@ -108,15 +108,6 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         }
     }
 
-    func showInfo() {
-        let controller = TokenCardRedemptionInfoViewController(delegate: self)
-        navigationController?.pushViewController(controller, animated: true)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: viewModel.token.contract, server: server, in: self)
-    }
-
     private func showSuccessMessage() {
         invalidateTimer()
 
@@ -144,7 +135,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(withVerificationType: verificationType)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -160,7 +151,22 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
 
         tokenRowView.stateLabel.isHidden = true
     }
- }
+}
+
+extension TokenCardRedemptionViewController: VerifiableStatusViewController {
+    func showInfo() {
+        let controller = TokenCardRedemptionInfoViewController(delegate: self)
+        navigationController?.pushViewController(controller, animated: true)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: viewModel.token.contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
+    }
+}
 
 extension TokenCardRedemptionViewController: StaticHTMLViewControllerDelegate {
 }

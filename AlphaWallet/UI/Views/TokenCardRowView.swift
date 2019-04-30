@@ -252,9 +252,9 @@ class TokenCardRowView: UIView {
 			tokenScriptRendererView.loadHtml(html)
 			//TODO not good to explicitly check for different types. Easy to miss
 			if let viewModel = viewModel as? TokenCardRowViewModel {
-				tokenScriptRendererView.update(withTokenHolder: viewModel.tokenHolder, asUserScript: true)
+				tokenScriptRendererView.update(withTokenHolder: viewModel.tokenHolder, isFungible: false)
 			} else if let viewModel = viewModel as? ImportMagicTokenCardRowViewModel, let tokenHolder = viewModel.tokenHolder {
-				tokenScriptRendererView.update(withTokenHolder: tokenHolder, asUserScript: true)
+				tokenScriptRendererView.update(withTokenHolder: tokenHolder, isFungible: false)
 			}
 		} else {
 			nativelyRenderedAttributeViews.showAll()

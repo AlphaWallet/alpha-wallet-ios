@@ -26,16 +26,7 @@ public struct Constants {
     // Magic link networks
     public static let legacyMagicLinkPrefix = "https://app.awallet.io/"
 
-    // TokenScript
-    public static let repoServer = "https://repo.tokenscript.org"
-    public static let repoClientName = "AlphaWallet"
-    public static let repoPlatformName = "iOS"
-    public static let tokenScriptNamespacePrefix = "http://tokenscript.org/"
-    public static let supportedTokenScriptNamespaceVersion = "2019/04"
-    public static let supportedTokenScriptNamespace = "\(tokenScriptNamespacePrefix)\(supportedTokenScriptNamespaceVersion)/tokenscript"
-
     // fee master
-    
     public static let paymentServer = "https://paymaster.stormbird.sg/api/claimToken"
     public static let paymentServerSupportsContractEndPoint = "https://paymaster.stormbird.sg/api/checkContractIsSupportedForFreeTransfers"
     public static let paymentServerClaimedToken = "https://paymaster.stormbird.sg/api/checkIfSignatureIsUsed"
