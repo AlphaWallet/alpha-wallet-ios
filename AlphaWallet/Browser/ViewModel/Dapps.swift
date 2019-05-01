@@ -49,6 +49,7 @@ enum Dapps {
         Dapp(name: "CryptoKitties", description: "Collect and breed digital cats!", url: "https://cryptokitties.co", cat: "Games"),
         Dapp(name: "Zerion", description: "Trade and manage your digital assets across different wallets in one interface", url: "https://zerion.io", cat: "Finance"),
         Dapp(name: "BTU Hotel", description: "BTU Hotel is a hotel booking Dapp takes 0% commission. Dapp user earns 100% of the hotel commission directly in crypto into their preferred browser wallet", url: "https://btu-hotel.com", cat: "Travel"),
+        Dapp(name: "Bidali", description: "Buy from top brands with crypto", url: "https://commerce.bidali.com/dapp", cat: "Marketplace")
 
     ]
 
