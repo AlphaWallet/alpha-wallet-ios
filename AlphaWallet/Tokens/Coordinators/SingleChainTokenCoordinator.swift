@@ -5,6 +5,7 @@ import UIKit
 import Alamofire
 import RealmSwift
 import TrustKeystore
+import PromiseKit
 
 enum ContractData {
     case name(String)
@@ -92,39 +93,43 @@ class SingleChainTokenCoordinator: Coordinator {
         autoDetectTransactedTokensQueue.addOperation(operation)
     }
 
-    private func autoDetectTransactedTokensImpl(wallet: Address, completion: @escaping () -> ()) {
-        GetContractInteractions().getContractList(address: wallet.eip55String, server: session.server) { [weak self] contracts in
-            defer { completion() }
-            guard let strongSelf = self else { return }
-            guard let currentAddress = strongSelf.keystore.recentlyUsedWallet?.address, currentAddress.eip55String.sameContract(as: wallet.eip55String) else { return }
-            let detectedContracts = contracts.map { $0.lowercased() }
-            let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.address.eip55String.lowercased() }
-            let deletedContracts = strongSelf.storage.deletedContracts.map { $0.contract.lowercased() }
-            let hiddenContracts = strongSelf.storage.hiddenContracts.map { $0.contract.lowercased() }
-            let delegateContracts = strongSelf.storage.delegateContracts.map { $0.contract.lowercased() }
-            let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
-            var contractsPulled = 0
-            var hasRefreshedAfterAddingAllContracts = false
-
-            if contractsToAdd.isEmpty { return }
-
-            DispatchQueue.global().async { [weak self] in
+    private func autoDetectTransactedTokensImpl(wallet: Address, erc20: Bool) -> Promise<Void> {
+        return Promise<Void> { seal in
+            GetContractInteractions().getContractList(address: wallet.eip55String, server: session.server, erc20: erc20) { [weak self] contracts in
+                defer {
+                    seal.fulfill(())
+                }
                 guard let strongSelf = self else { return }
-                for eachContract in contractsToAdd {
-                    strongSelf.addToken(for: eachContract) {
-                        contractsPulled += 1
-                        if contractsPulled == contractsToAdd.count {
-                            hasRefreshedAfterAddingAllContracts = true
-                            DispatchQueue.main.async {
-                                strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+                guard let currentAddress = strongSelf.keystore.recentlyUsedWallet?.address, currentAddress.eip55String.sameContract(as: wallet.eip55String) else { return }
+                let detectedContracts = contracts.map { $0.lowercased() }
+                let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.address.eip55String.lowercased() }
+                let deletedContracts = strongSelf.storage.deletedContracts.map { $0.contract.lowercased() }
+                let hiddenContracts = strongSelf.storage.hiddenContracts.map { $0.contract.lowercased() }
+                let delegateContracts = strongSelf.storage.delegateContracts.map { $0.contract.lowercased() }
+                let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
+                var contractsPulled = 0
+                var hasRefreshedAfterAddingAllContracts = false
+
+                if contractsToAdd.isEmpty { return }
+
+                DispatchQueue.global().async { [weak self] in
+                    guard let strongSelf = self else { return }
+                    for eachContract in contractsToAdd {
+                        strongSelf.addToken(for: eachContract) {
+                            contractsPulled += 1
+                            if contractsPulled == contractsToAdd.count {
+                                hasRefreshedAfterAddingAllContracts = true
+                                DispatchQueue.main.async {
+                                    strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+                                }
                             }
                         }
                     }
-                }
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                    if !hasRefreshedAfterAddingAllContracts {
-                        strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        if !hasRefreshedAfterAddingAllContracts {
+                            strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
+                        }
                     }
                 }
             }
@@ -522,13 +527,15 @@ class SingleChainTokenCoordinator: Coordinator {
         }
 
         override func main() {
-            coordinator?.autoDetectTransactedTokensImpl(wallet: wallet) { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.willChangeValue(forKey: "isExecuting")
-                strongSelf.willChangeValue(forKey: "isFinished")
-                strongSelf.coordinator?.isAutoDetectingTransactedTokens = false
-                strongSelf.didChangeValue(forKey: "isExecuting")
-                strongSelf.didChangeValue(forKey: "isFinished")
+            guard let strongCoordinator = coordinator else { return }
+            let fetchErc20Tokens = strongCoordinator.autoDetectTransactedTokensImpl(wallet: wallet, erc20: true)
+            let fetchNonErc20Tokens = strongCoordinator.autoDetectTransactedTokensImpl(wallet: wallet, erc20: false)
+            when(fulfilled: [fetchErc20Tokens, fetchNonErc20Tokens]).done { _ in
+                self.willChangeValue(forKey: "isExecuting")
+                self.willChangeValue(forKey: "isFinished")
+                self.coordinator?.isAutoDetectingTransactedTokens = false
+                self.didChangeValue(forKey: "isExecuting")
+                self.didChangeValue(forKey: "isFinished")
             }
         }
     }

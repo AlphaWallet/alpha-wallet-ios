@@ -24,7 +24,8 @@ extension SentTransaction {
             date: Date(),
             //TODO we should know what type of transaction (transfer) here and create accordingly if it's ERC20, ERC721, ERC875
             localizedOperations: [],
-            state: .pending
+            state: .pending,
+            isErc20Interaction: false
         )
     }
 }

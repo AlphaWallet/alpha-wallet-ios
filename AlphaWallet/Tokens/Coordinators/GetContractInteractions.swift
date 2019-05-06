@@ -8,12 +8,57 @@ import Alamofire
 import SwiftyJSON
 
 class GetContractInteractions {
-    //This function only gets a list of contracts you have transacted with
-    //if you have not transacted with the contract then it will not show up
-    //there is currently no efficient way to get all your tokens but it might be for the best
-    //as people spam via sending tokens
-    func getContractList(address: String, server: RPCServer, completion: @escaping ([String]) -> Void) {
-        let etherscanURL = server.etherscanAPIURLForTransactionList(for: address)
+
+    func getErc20Interactions(contractAddress: String, address: String, server: RPCServer, completion: @escaping ([Transaction]) -> Void) {
+        let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address)
+        Alamofire.request(etherscanURL).validate().responseJSON { response in
+            switch response.result {
+            case .success(let value):
+                let json = JSON(value)
+                let filteredResult = json["result"].filter { $0.1["contractAddress"].description == contractAddress.lowercased() }
+                let transactions: [Transaction] = filteredResult.map { result in
+                    let transactionJson = result.1
+                    let localizedTokenObj = LocalizedOperationObject(
+                            from: transactionJson["from"].description, 
+                            to: transactionJson["to"].description, 
+                            contract: transactionJson["contractAddress"].description, 
+                            type: "erc20TokenTransfer", 
+                            value: transactionJson["value"].description, 
+                            symbol: transactionJson["tokenSymbol"].description, 
+                            name: transactionJson["tokenName"].description, 
+                            decimals: transactionJson["tokenDecimal"].intValue
+                    )
+                    return Transaction(
+                            id: transactionJson["hash"].description,
+                            server: server,
+                            blockNumber: transactionJson["blockNumber"].intValue,
+                            from: transactionJson["from"].description,
+                            to: transactionJson["to"].description,
+                            value: transactionJson["value"].description,
+                            gas: transactionJson["gas"].description,
+                            gasPrice: transactionJson["gasPrice"].description,
+                            gasUsed: transactionJson["gasUsed"].description,
+                            nonce: transactionJson["nonce"].description,
+                            date: Date(timeIntervalSince1970: Double(string: transactionJson["timeStamp"].description) ?? Double(0)),
+                            localizedOperations: [localizedTokenObj], state: TransactionState(int: 0),
+                            isErc20Interaction: true
+                    )
+                }
+                completion(transactions)
+            case .failure(let error):
+                print(error)
+                completion([])
+            }
+        }
+    }
+
+    func getContractList(address: String, server: RPCServer, erc20: Bool, completion: @escaping ([String]) -> Void) {
+        let etherscanURL: URL
+        if erc20 {
+            etherscanURL = server.etherscanAPIURLForERC20TxList(for: address)
+        } else {
+            etherscanURL = server.etherscanAPIURLForTransactionList(for: address)
+        }
         Alamofire.request(etherscanURL).validate().responseJSON { response in
             switch response.result {
             case .success(let value):
@@ -23,6 +68,8 @@ class GetContractInteractions {
                     let contracts: [String] = json["result"].map { _, transactionJson in
                         if transactionJson["input"] != "0x" {
                             //every transaction that has input is by default a transaction to a contract
+                            //Note: etherscan API only returns contractAddress for this call
+                            //if it is an initialisation of a contract
                             if transactionJson["contractAddress"].description == "" {
                                 return transactionJson["to"].description
                             } else {
