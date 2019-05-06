@@ -77,6 +77,23 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    //TODO fix up all the networks
+    var getEtherscanURLERC20Events: String {
+        switch self {
+        case .main: return Constants.mainnetEtherscanAPIErc20Events
+        case .ropsten: return Constants.ropstenEtherscanAPIErc20Events
+        case .rinkeby: return Constants.rinkebyEtherscanAPIErc20Events
+        case .kovan: return Constants.kovanEtherscanAPIErc20Events
+        case .poa: return Constants.poaNetworkCoreAPIErc20Events
+        case .sokol: return Constants.mainnetEtherscanAPIErc20Events
+        case .classic: return Constants.mainnetEtherscanAPIErc20Events
+        case .callisto: return Constants.mainnetEtherscanAPIErc20Events
+        case .goerli: return Constants.goerliEtherscanAPIErc20Events
+        case .xDai: return Constants.xDaiAPIErc20Events
+        case .custom: return Constants.mainnetEtherscanAPIErc20Events
+        }
+    }
+
     var etherscanContractDetailsWebPageURL: String {
         switch self {
         case .main: return Constants.mainnetEtherscanContractDetailsWebPageURL
@@ -92,6 +109,10 @@ enum RPCServer: Hashable, CaseIterable {
 
     func etherscanAPIURLForTransactionList(for address: String) -> URL {
         return URL(string: getEtherscanURL + address)!
+    }
+
+    func etherscanAPIURLForERC20TxList(for address: String) -> URL {
+        return URL(string: getEtherscanURLERC20Events + address)!
     }
 
     func etherscanContractDetailsWebPageURL(for address: String) -> URL {

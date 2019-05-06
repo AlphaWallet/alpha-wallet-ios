@@ -17,6 +17,7 @@ class Transaction: Object {
     @objc dynamic var nonce: String = ""
     @objc dynamic var date = Date()
     @objc dynamic var internalState: Int = TransactionState.completed.rawValue
+    @objc dynamic var isERC20Interaction: Bool = false
     var localizedOperations = List<LocalizedOperationObject>()
 
     convenience init(
@@ -32,7 +33,8 @@ class Transaction: Object {
         nonce: String,
         date: Date,
         localizedOperations: [LocalizedOperationObject],
-        state: TransactionState
+        state: TransactionState,
+        isErc20Interaction: Bool
     ) {
 
         self.init()
@@ -49,6 +51,7 @@ class Transaction: Object {
         self.nonce = nonce
         self.date = date
         self.internalState = state.rawValue
+        self.isERC20Interaction = isErc20Interaction
 
         let list = List<LocalizedOperationObject>()
         localizedOperations.forEach { element in
