@@ -3,16 +3,13 @@
 import Foundation
 import UIKit
 import TrustKeystore
-import web3swift
-import Alamofire
-import PromiseKit
 
-class TokenViewControllerViewModel {
+struct TokenViewControllerViewModel {
     private let transferType: TransferType
     private let session: WalletSession
     private let tokensStore: TokensDataStore
     private let transactionsStore: TransactionsStorage
-    var recentTransactions: [Transaction] = []
+    let recentTransactions: [Transaction]
 
     init(transferType: TransferType, session: WalletSession, tokensStore: TokensDataStore, transactionsStore: TransactionsStorage) {
         self.transferType = transferType

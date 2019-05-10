@@ -28,6 +28,15 @@ class TransactionsStorage {
         return objects.filter { $0.state == .completed }
     }
 
+    var transactionObjectsThatDoNotComeFromEventLogs: Results<Transaction> {
+        return realm.objects(Transaction.self)
+                .sorted(byKeyPath: "date", ascending: false)
+                .filter("chainId = \(self.server.chainID)")
+                .filter("id != ''")
+                .filter("internalState == \(TransactionState.completed.rawValue)")
+                .filter("isERC20Interaction == false")
+    }
+
     var pendingObjects: [Transaction] {
         return objects.filter { $0.state == TransactionState.pending }
     }

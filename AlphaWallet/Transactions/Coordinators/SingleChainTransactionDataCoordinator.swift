@@ -49,6 +49,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
         runScheduledTimers()
         if transactionsTracker.fetchingState != .done {
             fetchOlderTransactions(for: session.account.address)
+            autoDetectERC20Transactions()
         }
     }
 
@@ -68,11 +69,22 @@ class SingleChainTransactionDataCoordinator: Coordinator {
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
         updateTransactionsTimer = Timer.scheduledTimer(timeInterval: 15, target: BlockOperation { [weak self] in
             self?.fetchLatestTransactions()
+            self?.autoDetectERC20Transactions()
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
     private func fetchPending() {
         fetchPendingTransactions()
+    }
+
+    //TODO should this be added to the queue?
+    private func autoDetectERC20Transactions() {
+        GetContractInteractions().getErc20Interactions(
+                address: session.account.address.eip55String,
+                server: session.server
+        ) { result in
+            self.update(items: result)
+        }
     }
 
     func fetch() {
@@ -140,7 +152,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
 
         let startBlock: Int
         let sortOrder: AlphaWalletService.SortOrder
-        if let newestCachedTransaction = storage.completedObjects.first {
+        if let newestCachedTransaction = storage.transactionObjectsThatDoNotComeFromEventLogs.first {
             startBlock = newestCachedTransaction.blockNumber + 1
             sortOrder = .asc
         } else {
@@ -156,6 +168,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
         // Avoid showing an error on failed request, instead show cached transactions.
     }
 
+    //TODO notify user of received tokens too
     private func notifyUserEtherReceived(inNewTransactions transactions: [Transaction]) {
         guard !transactions.isEmpty else { return }
         guard let wallet = keystore.recentlyUsedWallet else { return }

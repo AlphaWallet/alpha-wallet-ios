@@ -16,7 +16,7 @@ class MigrationInitializer: Initializer {
     }
 
     func perform() {
-        config.schemaVersion = 2
+        config.schemaVersion = 3
         config.migrationBlock = { migration, oldSchemaVersion in
             if oldSchemaVersion < 2 {
                 //Fix bug created during multi-chain implementation. Where TokenObject instances are created from transfer Transaction instances, with the primaryKey as a empty string; so instead of updating an existing TokenObject, a duplicate TokenObject instead was created but with primaryKey empty
@@ -27,6 +27,15 @@ class MigrationInitializer: Initializer {
                         migration.delete(newObject)
                         return
                     }
+                }
+            }
+        }
+        config.migrationBlock = { migration, oldSchemaVersion in
+            if oldSchemaVersion < 3 {
+                migration.enumerateObjects(ofType: Transaction.className()) { oldObject, newObject in
+                    guard let oldObject = oldObject else { return }
+                    guard let newObject = newObject else { return }
+                    newObject["isERC20Interaction"] = false 
                 }
             }
         }
