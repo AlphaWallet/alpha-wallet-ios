@@ -31,7 +31,8 @@ extension Transaction {
             nonce: nonce,
             date: date,
             localizedOperations: localizedOperations,
-            state: state
+            state: state,
+            isErc20Interaction: false 
         )
     }
 }

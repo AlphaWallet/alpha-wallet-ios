@@ -66,7 +66,9 @@ extension Transaction {
                     nonce: transaction.nonce,
                     date: NSDate(timeIntervalSince1970: TimeInterval(transaction.timeStamp) ?? 0) as Date,
                     localizedOperations: operations,
-                    state: state)
+                    state: state,
+                    isErc20Interaction: false
+            )
             return .value(result)
         }
     }
