@@ -237,8 +237,8 @@ class SingleChainTokenCoordinator: Coordinator {
                         }
                     }
                 case .erc721:
-                    //TODO should auto-detect ERC721 too
-                        break
+                    //Handled in TokensDataStore.refreshBalanceForERC721Tokens()
+                    break
                 case .nativeCryptocurrency:
                     break
                 }
