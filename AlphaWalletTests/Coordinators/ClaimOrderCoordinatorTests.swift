@@ -20,7 +20,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
         expectations.append(expectation)
         var indices = [UInt16]()
         indices.append(14)
-        let expiry = BigUInt("0")
+        let expiry = BigUInt("0")!
         let v = UInt8(27)
         let r = "0x2d8e40406bf6175036ab1e1099b48590438bf48d429a8b209120fecd07894566"
         let s = "0x59ccf58ca36f681976228309fdd9de7e30e860084d9d63014fa79d48a25bb93d"
@@ -39,7 +39,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
         
         let order = Order(price: BigUInt(0),
                           indices: indices,
-                          expiry: expiry!,
+                          expiry: expiry,
                           contractAddress: token.contract,
                           count: 1,
                           nonce: BigUInt(0),
