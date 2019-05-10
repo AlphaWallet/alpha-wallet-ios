@@ -9,13 +9,19 @@ import SwiftyJSON
 
 class GetContractInteractions {
 
-    func getErc20Interactions(contractAddress: String, address: String, server: RPCServer, completion: @escaping ([Transaction]) -> Void) {
+    func getErc20Interactions(contractAddress: String = "", address: String, server: RPCServer, completion: @escaping ([Transaction]) -> Void) {
         let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address)
         Alamofire.request(etherscanURL).validate().responseJSON { response in
             switch response.result {
             case .success(let value):
                 let json = JSON(value)
-                let filteredResult = json["result"].filter { $0.1["contractAddress"].description == contractAddress.lowercased() }
+                let filteredResult: [(String, JSON)]
+                if contractAddress != "" {
+                    //filter based on what contract you are after
+                    filteredResult = json["result"].filter { $0.1["contractAddress"].description == contractAddress.lowercased() }
+                } else {
+                    filteredResult = json["result"].filter { $0.1["to"].description.contains("0x") }
+                }
                 let transactions: [Transaction] = filteredResult.map { result in
                     let transactionJson = result.1
                     let localizedTokenObj = LocalizedOperationObject(
@@ -40,7 +46,8 @@ class GetContractInteractions {
                             gasUsed: transactionJson["gasUsed"].description,
                             nonce: transactionJson["nonce"].description,
                             date: Date(timeIntervalSince1970: Double(string: transactionJson["timeStamp"].description) ?? Double(0)),
-                            localizedOperations: [localizedTokenObj], state: TransactionState(int: 0),
+                            localizedOperations: [localizedTokenObj],
+                            state: .completed,
                             isErc20Interaction: true
                     )
                 }
