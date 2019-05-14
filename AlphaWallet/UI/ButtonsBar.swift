@@ -54,7 +54,7 @@ class ButtonsBar: UIView {
     }
 }
 
-fileprivate struct ButtonsBarViewModel {
+private struct ButtonsBarViewModel {
     var buttonBackgroundColor: UIColor {
         return Colors.appActionButtonGreen
     }

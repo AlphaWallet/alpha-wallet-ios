@@ -687,7 +687,7 @@ extension InCoordinator: PromptBackupCoordinatorDelegate {
     }
 }
 
-extension InCoordinator: DappBrowserCoordinatorDelegate{
+extension InCoordinator: DappBrowserCoordinatorDelegate {
     func didSentTransaction(transaction: SentTransaction, inCoordinator coordinator: DappBrowserCoordinator) {
         handlePendingTransaction(transaction: transaction)
     }
