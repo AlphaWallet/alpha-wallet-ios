@@ -166,24 +166,23 @@ class UniversalLinkCoordinator: Coordinator {
         let parameters: Parameters
         let query: String
         switch signedOrder.order.nativeCurrencyDrop {
-            case true:
-                parameters = createHTTPParametersForCurrencyLinksToPaymentServer(
-                        signedOrder: signedOrder,
-                        recipient: recipient
-                )
-                query = Constants.currencyDropServer
-            case false:
-                parameters = createHTTPParametersForNormalLinksToPaymentServer(
-                        signedOrder: signedOrder,
-                        isForTransfer: true
-                )
-                query = Constants.paymentServer
+        case true:
+            parameters = createHTTPParametersForCurrencyLinksToPaymentServer(
+                    signedOrder: signedOrder,
+                    recipient: recipient
+            )
+            query = Constants.currencyDropServer
+        case false:
+            parameters = createHTTPParametersForNormalLinksToPaymentServer(
+                    signedOrder: signedOrder,
+                    isForTransfer: true
+            )
+            query = Constants.paymentServer
         }
         return (parameters, query)
     }
 
-    func completeOrderHandling(signedOrder: SignedOrder)
-    {
+    func completeOrderHandling(signedOrder: SignedOrder) {
         let requiresPaymaster = requiresPaymasterForCurrencyLinks(signedOrder: signedOrder)
         if signedOrder.order.price == 0 {
             self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in

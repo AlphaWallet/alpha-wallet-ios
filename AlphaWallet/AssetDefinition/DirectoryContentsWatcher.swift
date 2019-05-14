@@ -56,7 +56,7 @@ public protocol DirectoryContentsWatcherProtocol {
 
 public extension DirectoryContentsWatcher {
     // We don't necessary need the structure of a Local class within an enum as the "namespace", but just keeping it to be similar to the original codebase' structure
-    public final class Local: DirectoryContentsWatcherProtocol {
+    final class Local: DirectoryContentsWatcherProtocol {
         private typealias CancelBlock = () -> Void
 
         private enum State {
