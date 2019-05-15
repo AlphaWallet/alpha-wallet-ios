@@ -22,7 +22,7 @@ class GetERC721BalanceCoordinator {
     ) {
         let function = GetERC721Balance()
         callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject]).done { balanceResult in
-            let balance = self.adapt(balanceResult["0"])
+            let balance = self.adapt(balanceResult["0"] as Any)
             completion(.success(balance))
         }.catch { error in
             completion(.failure(AnyError(Web3Error(description: "Error extracting result from \(contract.eip55String).\(function.name)(): \(error)"))))

@@ -18,7 +18,7 @@ import Eureka
             }
         }
         set {
-            accessibilityLabel = newValue
+            self.accessibilityLabel = newValue
         }
     }
 

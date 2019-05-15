@@ -3,7 +3,6 @@
 import Foundation
 import UIKit
 
-
 class MyDappCell: UITableViewCell {
 
     static let identifier = "MyDappCell"

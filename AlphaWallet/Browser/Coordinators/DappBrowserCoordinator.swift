@@ -558,7 +558,6 @@ extension DappBrowserCoordinator: DiscoverDappsViewControllerDelegate {
     }
 }
 
-
 extension DappBrowserCoordinator: MyDappsViewControllerDelegate {
     func didTapToEdit(dapp: Bookmark, inViewController viewController: MyDappsViewController) {
         let vc = EditMyDappViewController()

@@ -8,7 +8,7 @@ enum WalletType: Equatable {
     case watch(Address)
 }
 
-struct Wallet: Equatable  {
+struct Wallet: Equatable {
     let type: WalletType
 
     var address: Address {

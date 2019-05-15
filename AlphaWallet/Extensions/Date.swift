@@ -13,7 +13,7 @@ public extension Date {
     private static var formatsMap: [String: DateFormatter] = [:]
     private static var formatsMapLocale: String?
 
-    public init?(string: String, format: String) {
+    init?(string: String, format: String) {
         let date = Date.formatter(with: format).date(from: string)
         if date != nil {
             self = date!
@@ -22,11 +22,11 @@ public extension Date {
         return nil
     }
 
-    public func format(_ format: String, withTimeZone timezone: TimeZone? = nil) -> String {
+    func format(_ format: String, withTimeZone timezone: TimeZone? = nil) -> String {
         return Date.formatter(with: format, withTimeZone: timezone).string(from: self)
     }
 
-    public static func formatter(with format: String, withTimeZone timeZone: TimeZone? = nil) -> DateFormatter {
+    static func formatter(with format: String, withTimeZone timeZone: TimeZone? = nil) -> DateFormatter {
         if Config.getLocale() != formatsMapLocale {
             formatsMapLocale = Config.getLocale()
             formatsMap = Dictionary()
@@ -49,15 +49,15 @@ public extension Date {
         return foundFormatter!
     }
 
-    public static var yesterday: Date {
+    static var yesterday: Date {
         return Calendar.current.date(byAdding: .day, value: -1, to: Date())!
     }
 
-    public static var tomorrow: Date {
+    static var tomorrow: Date {
         return Calendar.current.date(byAdding: .day, value: 1, to: Date())!
     }
 
-    public func formatAsShortDateString(withTimezone timezone: TimeZone? = nil) -> String {
+    func formatAsShortDateString(withTimezone timezone: TimeZone? = nil) -> String {
         return format("dd MMM yyyy", withTimeZone: timezone)
     }
 }

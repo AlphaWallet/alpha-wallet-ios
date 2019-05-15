@@ -12,13 +12,13 @@ protocol DappBrowserNavigationBarDelegate: class {
     func didTapClose(inNavigationBar navigationBar: DappBrowserNavigationBar)
 }
 
-fileprivate enum State {
+private enum State {
     case editingURLTextField
     case notEditingURLTextField
     case browserOnly
 }
 
-fileprivate struct Layout {
+private struct Layout {
     static let width: CGFloat = 34
     static let moreButtonWidth: CGFloat = 24
 }
