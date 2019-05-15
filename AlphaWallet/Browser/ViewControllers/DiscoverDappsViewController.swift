@@ -129,7 +129,7 @@ extension DiscoverDappsViewController: DiscoverDappCellDelegate {
     }
 }
 
-fileprivate class SectionHeaderView: UIView {
+private class SectionHeaderView: UIView {
     private let label = UILabel()
 
     var title: String {

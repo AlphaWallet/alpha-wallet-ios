@@ -260,7 +260,6 @@ class TokensDataStore {
         }
     }
 
-
     func getERC875Balance(for addressString: String,
                           completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
         let address = Address(string: addressString)
