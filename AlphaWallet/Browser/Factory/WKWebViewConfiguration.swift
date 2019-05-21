@@ -78,6 +78,8 @@ extension WKWebViewConfiguration {
         web3.eth.getCoinbase = function(cb) {
             return cb(null, addressHex)
         }
+
+        window.ethereum = web3.currentProvider
         """
         let userScript = WKUserScript(source: js, injectionTime: .atDocumentStart, forMainFrameOnly: false)
         webViewConfig.userContentController.add(messageHandler, name: Method.signTransaction.rawValue)
