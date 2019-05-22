@@ -59,6 +59,12 @@ extension WKWebViewConfiguration {
                 console.log("signing a typed message", msgParams)
                 AlphaWallet.addCallback(id, cb)
                 webkit.messageHandlers.signTypedMessage.postMessage({"name": "signTypedMessage", "object": { data }, id: id})
+            },
+            enable: function() { 
+                return new Promise(function(resolve, reject) {
+                    //send back the coinbase account as an array of one
+                    resolve([addressHex])
+                })
             }
         }, {
             address: addressHex,
