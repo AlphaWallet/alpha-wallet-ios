@@ -80,7 +80,7 @@ PODS:
     - secp256k1_ios (~> 0.1.3)
 
 DEPENDENCIES:
-  - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `f25206c50009d1eb922c3cc8c0ba91594155e8b6`)
+  - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `1c1aafb566361e7067e69f6e38b0fdc30b801429`)
   - APIKit
   - AWSSNS
   - BigInt (~> 3.0)
@@ -146,7 +146,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
-    :commit: f25206c50009d1eb922c3cc8c0ba91594155e8b6
+    :commit: 1c1aafb566361e7067e69f6e38b0fdc30b801429
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
   Macaw:
     :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
@@ -168,7 +168,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   AlphaWalletWeb3Provider:
-    :commit: f25206c50009d1eb922c3cc8c0ba91594155e8b6
+    :commit: 1c1aafb566361e7067e69f6e38b0fdc30b801429
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
   Macaw:
     :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
@@ -229,6 +229,6 @@ SPEC CHECKSUMS:
   TrustKeystore: 26efa8079f6451d02ce64b906d3ff240fd71d7ca
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: a8c8eb4d672348d7ca84f5bb6833bdfda9a8fd8e
+PODFILE CHECKSUM: 73a127d2606889066f1806ba748f54bef70ac2ff
 
 COCOAPODS: 1.5.3
