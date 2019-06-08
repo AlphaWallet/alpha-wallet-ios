@@ -112,6 +112,14 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
 
     subscript(contract: AlphaWallet.Address) -> String? {
         get {
+            //TODO this is the bundled version of the XDai bridge. Should remove it when the repo server can server action-only TokenScripts
+            if isOfficial && contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+                if cachedVersionOfXDaiBridgeTokenScript == nil {
+                    cachedVersionOfXDaiBridgeTokenScript = Bundle.main.url(forResource: "XDAI-bridge.canonicalized", withExtension: ".tsml").flatMap { try? String(contentsOf: $0) }
+                }
+                return cachedVersionOfXDaiBridgeTokenScript
+            }
+
             guard var xmlContents = xml(forContract: contract) else { return nil }
             guard let fileName = tokenScriptFileIndices.nonConflictingFileName(forContract: contract) else { return xmlContents }
             guard let entities = tokenScriptFileIndices.contractsToEntities[fileName] else { return xmlContents }
