@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import Alamofire
+import BigInt
 import RealmSwift
 import TrustKeystore
 import PromiseKit
@@ -481,12 +482,22 @@ class SingleChainTokenCoordinator: Coordinator {
     func show(fungibleToken token: TokenObject, transferType: TransferType) {
         guard let transactionsStore = createTransactionsStore() else { return }
 
-        let viewController = TokenViewController(session: session, tokensDataStore: storage, transferType: transferType)
+        let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transferType: transferType)
         viewController.delegate = self
-        let viewModel = TokenViewControllerViewModel(transferType: transferType, session: session, tokensStore: storage, transactionsStore: transactionsStore)
+        let viewModel = TokenViewControllerViewModel(transferType: transferType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore)
         viewController.configure(viewModel: viewModel)
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
         navigationController.present(UINavigationController(rootViewController: viewController), animated: true, completion: nil)
+        refreshTokenViewControllerUponAssetDefinitionChanges(viewController, forTransferType: transferType, transactionsStore: transactionsStore)
+    }
+
+    private func refreshTokenViewControllerUponAssetDefinitionChanges(_ viewController: TokenViewController, forTransferType transferType: TransferType, transactionsStore: TransactionsStorage) {
+        assetDefinitionStore.subscribe { [weak self] contract in
+            guard let strongSelf = self else { return }
+            guard contract.sameContract(as: transferType.contract().eip55String) else { return }
+            let viewModel = TokenViewControllerViewModel(transferType: transferType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore)
+            viewController.configure(viewModel: viewModel)
+        }
     }
 
     @objc func dismiss() {
@@ -536,7 +547,7 @@ class SingleChainTokenCoordinator: Coordinator {
                 self.coordinator?.isAutoDetectingTransactedTokens = false
                 self.didChangeValue(forKey: "isExecuting")
                 self.didChangeValue(forKey: "isFinished")
-            }
+            }.cauterize()
         }
     }
 
@@ -578,6 +589,17 @@ class SingleChainTokenCoordinator: Coordinator {
             }
         }
     }
+
+    private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, viewController: UIViewController) {
+        //TODO id 1 for fungibles. Might come back to bite us?
+        let hardcodedTokenIdForFungibles = BigUInt(1)
+        let token = XMLHandler(contract: tokenObject.contract, assetDefinitionStore: assetDefinitionStore).getToken(name: tokenObject.name, symbol: tokenObject.symbol, fromTokenId: hardcodedTokenIdForFungibles, index: 0, inWallet: session.account, server: session.server)
+        let tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contract, hasAssetDefinition: true)
+        let vc = TokenInstanceActionViewController(tokenObject: tokenObject, tokenHolder: tokenHolder, tokensStorage: storage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
+        vc.delegate = self
+        vc.configure()
+        viewController.navigationController?.pushViewController(vc, animated: true)
+    }
 }
 
 extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
@@ -599,6 +621,27 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
     func didTap(transaction: Transaction, inViewController viewController: TokenViewController) {
         delegate?.didTap(transaction: transaction, inViewController: viewController, in: self)
     }
+
+    func didTap(action: TokenInstanceAction, transferType: TransferType, viewController: TokenViewController) {
+        let token: TokenObject
+        switch transferType {
+        case .ERC20Token(let erc20Token, _, _):
+            token = erc20Token
+        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
+            return
+        case .nativeCryptocurrency:
+            token = TokensDataStore.etherToken(forServer: session.server)
+            showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, viewController: viewController)
+            return
+        }
+        switch action.type {
+        case .tokenScript:
+            showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, viewController: viewController)
+        case .erc20Send, .erc20Receive, .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
+            //Couldn't have reached here
+            break
+        }
+    }
 }
 
 extension SingleChainTokenCoordinator: CanOpenURL {
@@ -612,5 +655,15 @@ extension SingleChainTokenCoordinator: CanOpenURL {
 
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
+    }
+}
+
+extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
+    func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {
+        //TODO: do nothing. We can probably even remove show redemption info?
+    }
+
+    func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController) {
+        viewController.navigationController?.popViewController(animated: true)
     }
 }

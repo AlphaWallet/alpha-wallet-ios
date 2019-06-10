@@ -11,4 +11,5 @@ protocol TokenRowView: class {
     //TODO getting rid of these will be good
     var background: UIView { get }
     var stateLabel: UILabel { get }
+    var tokenView: TokenView { get }
 }

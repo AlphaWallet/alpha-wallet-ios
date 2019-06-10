@@ -3,36 +3,6 @@
 import Foundation
 
 struct CallForAssetAttribute {
-    enum SolidityType: String {
-        //TODO do we need to support the "odd" ones like uint24 in all steps of 8?
-        //TODO support address, enums, etc?
-        case bool
-        case int
-        case int8
-        case int16
-        case int32
-        case int64
-        case int128
-        case int256
-        case uint
-        case uint8
-        case uint16
-        case uint32
-        case uint64
-        case uint128
-        case uint256
-        case string
-    }
-
-    struct Argument: Equatable {
-        let name: String
-        let type: SolidityType
-    }
-
-    struct ReturnType {
-        let type: SolidityType
-    }
-
     static private let abiTemplate: [String: Any] = [
         "type": "function",
         "name": "<to provide>",
@@ -46,12 +16,12 @@ struct CallForAssetAttribute {
     let abi: String
     let name: String
 
-    init?(functionName: String, inputs: [Argument], output: ReturnType) {
+    init?(functionName: String, inputs: [AssetFunctionCall.Argument], output: AssetFunctionCall.ReturnType) {
         var abiDictionary = CallForAssetAttribute.abiTemplate
         abiDictionary["name" ] = functionName
         abiDictionary["inputs"] = inputs.map {
             [
-                "name": $0.name,
+                "name": "",
                 "type": $0.type.rawValue,
             ]
         }
@@ -66,4 +36,3 @@ struct CallForAssetAttribute {
         self.abi = abi
     }
 }
-

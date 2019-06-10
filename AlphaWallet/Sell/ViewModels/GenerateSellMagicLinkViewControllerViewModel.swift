@@ -7,6 +7,7 @@ struct GenerateSellMagicLinkViewControllerViewModel {
     private let ethCost: Ether
     private let linkExpiryDate: Date
     private let server: RPCServer
+    private let assetDefinitionStore: AssetDefinitionStore
 
     var contentsBackgroundColor: UIColor {
         return Colors.appWhite
@@ -64,16 +65,16 @@ struct GenerateSellMagicLinkViewControllerViewModel {
 
     var tokenCountLabelText: String {
         if tokenCount == 1 {
-            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getName()
             return R.string.localizable.aWalletTokenSellConfirmSingleTokenSelectedTitle(tokenTypeName)
         } else {
-            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.plural, titlecase: .titlecase)
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             return R.string.localizable.aWalletTokenSellConfirmMultipleTokenSelectedTitle(tokenHolder.count, tokenTypeName)
         }
     }
 
     var perTokenPriceLabelText: String {
-        let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress).getTokenTypeName(.singular, titlecase: .titlecase)
+        let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getName()
         let amount = ethCost / tokenCount
         return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, server.symbol, tokenTypeName)
     }
@@ -90,10 +91,11 @@ struct GenerateSellMagicLinkViewControllerViewModel {
         return tokenHolder.count
     }
 
-    init(tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date, server: RPCServer) {
+    init(tokenHolder: TokenHolder, ethCost: Ether, linkExpiryDate: Date, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost
         self.linkExpiryDate = linkExpiryDate
         self.server = server
+        self.assetDefinitionStore = assetDefinitionStore
     }
 }

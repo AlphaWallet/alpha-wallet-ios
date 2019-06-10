@@ -8,20 +8,37 @@ class ButtonsBar: UIView {
     //A gap so it doesn't stick to the bottom of devices without a bottom safe area
     static let marginAtBottomScreen = CGFloat(3)
 
-    private let buttonContainerViews: [ContainerViewWithShadow<UIButton>]
+    private var buttonContainerViews: [ContainerViewWithShadow<UIButton>]
+    private let buttonsStackView: UIStackView
+
+    var numberOfButtons: Int {
+        didSet {
+            buttonContainerViews = ButtonsBar.bar(numberOfButtons: numberOfButtons)
+            for each in buttonsStackView.arrangedSubviews {
+                each.removeFromSuperview()
+            }
+            buttonsStackView.addArrangedSubviews(buttons)
+        }
+    }
 
     var buttons: [UIButton] {
         return buttonContainerViews.map { $0.childView }
     }
 
+    var isEmpty: Bool {
+        return numberOfButtons == 0
+    }
+
     init(numberOfButtons: Int, buttonsDistribution: UIStackView.Distribution = .fillEqually) {
-        buttonContainerViews = (0..<numberOfButtons).map { _ in ContainerViewWithShadow(aroundView: UIButton(type: .system)) }
+        self.numberOfButtons = numberOfButtons
+        buttonsStackView =  [UIView]().asStackView(axis: .horizontal, distribution: buttonsDistribution, spacing: 7)
+        buttonContainerViews = ButtonsBar.bar(numberOfButtons: numberOfButtons)
 
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
 
-        let buttonsStackView = (buttons as [UIView]).asStackView(axis: .horizontal, distribution: buttonsDistribution, spacing: 7)
+        buttonsStackView.addArrangedSubviews(buttons)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(buttonsStackView)
 
@@ -50,7 +67,14 @@ class ButtonsBar: UIView {
             button.setTitleColor(viewModel.buttonTitleColor, for: .normal)
             button.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
             button.titleLabel?.font = viewModel.buttonFont
+            button.titleLabel?.adjustsFontSizeToFitWidth = true
+            //So long titles (that cause font to be adjusted) have some margins on the left and right
+            button.contentEdgeInsets = .init(top: 0, left: 3, bottom: 0, right: 3)
         }
+    }
+
+    private static func bar(numberOfButtons: Int) -> [ContainerViewWithShadow<UIButton>] {
+        return (0..<numberOfButtons).map { _ in ContainerViewWithShadow(aroundView: UIButton(type: .system)) }
     }
 }
 

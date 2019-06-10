@@ -26,13 +26,7 @@ public struct Constants {
     // Magic link networks
     public static let legacyMagicLinkPrefix = "https://app.awallet.io/"
 
-    // XML repo
-    public static let repoServer = "https://repo.aw.app"
-    public static let repoClientName = "AlphaWallet"
-    public static let repoPlatformName = "iOS"
-
     // fee master
-    
     public static let paymentServer = "https://paymaster.stormbird.sg/api/claimToken"
     public static let paymentServerSupportsContractEndPoint = "https://paymaster.stormbird.sg/api/checkContractIsSupportedForFreeTransfers"
     public static let paymentServerClaimedToken = "https://paymaster.stormbird.sg/api/checkIfSignatureIsUsed"
@@ -128,6 +122,8 @@ public struct Constants {
     ]
 
     static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .classic, .poa]
+
+    static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"
 }
 
 public struct UnitConfiguration {

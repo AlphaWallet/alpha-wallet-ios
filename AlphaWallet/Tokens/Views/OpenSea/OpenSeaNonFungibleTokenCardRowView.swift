@@ -78,7 +78,6 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
     lazy private var statsCollectionViewHeightConstraint = statsCollectionView.heightAnchor.constraint(equalToConstant: 100)
     private let urlButton = UIButton(type: .system)
     private let urlButtonHolder = [].asStackView(axis: .horizontal, alignment: .leading)
-    private let showCheckbox: Bool
     private var viewModel: OpenSeaNonFungibleTokenCardRowViewModel?
     private var thumbnailRelatedConstraints = [NSLayoutConstraint]()
     //Sets a default which is ignored. At runtime, we recalculate constant based on image's aspect ratio so the image can always fill the width
@@ -91,21 +90,36 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
     private var viewsVisibleWhenDetailsAreVisibleImagesNotAvailable = [UIView]()
     private var viewsVisibleWhenDetailsAreNotVisibleImagesNotAvailable = [UIView]()
     private var currentDisplayedImageUrl: URL?
+    private var checkboxRelatedConstraintsWhenShown = [NSLayoutConstraint]()
+    private var checkboxRelatedConstraintsWhenHidden = [NSLayoutConstraint]()
 
     var background = UIView()
     var stateLabel = UILabel()
+    var tokenView: TokenView
+    var showCheckbox: Bool {
+        didSet {
+            checkboxImageView.isHidden = !showCheckbox
+            if showCheckbox {
+                NSLayoutConstraint.deactivate(checkboxRelatedConstraintsWhenHidden)
+                NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenShown)
+            } else {
+                NSLayoutConstraint.deactivate(checkboxRelatedConstraintsWhenShown)
+                NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenHidden)
+            }
+        }
+    }
 
     let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
     weak var delegate: OpenSeaNonFungibleTokenCardRowViewDelegate?
 
-    init(showCheckbox: Bool = false) {
+    init(tokenView: TokenView, showCheckbox: Bool = false) {
         self.showCheckbox = showCheckbox
-        
+        self.tokenView = tokenView
+
         super.init(frame: .zero)
 
-        if showCheckbox {
-            addSubview(checkboxImageView)
-        }
+        addSubview(checkboxImageView)
+        checkboxImageView.isHidden = !showCheckbox
 
         bigImageView.translatesAutoresizingMaskIntoConstraints = false
         bigImageHolder.addSubview(bigImageView)
@@ -199,21 +213,22 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         // TODO extract constant. Maybe StyleLayout.sideMargin
         let xMargin = CGFloat(7)
         let yMargin = CGFloat(5)
-        var checkboxRelatedConstraints = [NSLayoutConstraint]()
-        if showCheckbox {
-            checkboxRelatedConstraints.append(checkboxImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
-            checkboxRelatedConstraints.append(checkboxImageView.centerYAnchor.constraint(equalTo: centerYAnchor))
-            checkboxRelatedConstraints.append(background.leadingAnchor.constraint(equalTo: checkboxImageView.trailingAnchor, constant: xMargin))
-            if ScreenChecker().isNarrowScreen() {
-                checkboxRelatedConstraints.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 20))
-                checkboxRelatedConstraints.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 20))
-            } else {
-                //Have to be hardcoded and not rely on the image's size because different string lengths for the text fields can force the checkbox to shrink
-                checkboxRelatedConstraints.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 28))
-                checkboxRelatedConstraints.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 28))
-            }
+        checkboxRelatedConstraintsWhenShown.append(checkboxImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
+        checkboxRelatedConstraintsWhenShown.append(checkboxImageView.centerYAnchor.constraint(equalTo: centerYAnchor))
+        checkboxRelatedConstraintsWhenShown.append(background.leadingAnchor.constraint(equalTo: checkboxImageView.trailingAnchor, constant: xMargin))
+        if ScreenChecker().isNarrowScreen() {
+            checkboxRelatedConstraintsWhenShown.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 20))
+            checkboxRelatedConstraintsWhenShown.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 20))
         } else {
-            checkboxRelatedConstraints.append(background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
+            //Have to be hardcoded and not rely on the image's size because different string lengths for the text fields can force the checkbox to shrink
+            checkboxRelatedConstraintsWhenShown.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 28))
+            checkboxRelatedConstraintsWhenShown.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 28))
+        }
+        checkboxRelatedConstraintsWhenHidden.append(background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
+        if showCheckbox {
+            NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenShown)
+        } else {
+            NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenHidden)
         }
 
         thumbnailRelatedConstraints = [
@@ -275,7 +290,6 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         ] +
                 bigImageViewRelatedConstraintsWithPositiveBleed +
                 bigImageViewRelatedConstraintsWithNegativeBleed +
-                checkboxRelatedConstraints +
                 thumbnailRelatedConstraints
         )
 

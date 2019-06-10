@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import PromiseKit
 import TrustKeystore
 
 struct TokenViewControllerViewModel {
@@ -9,13 +10,78 @@ struct TokenViewControllerViewModel {
     private let session: WalletSession
     private let tokensStore: TokensDataStore
     private let transactionsStore: TransactionsStorage
+    private let assetDefinitionStore: AssetDefinitionStore
+    private var token: TokenObject? {
+        switch transferType {
+        case .nativeCryptocurrency:
+            //TODO might as well just make .nativeCryptocurrency hold the TokenObject instance too
+            return TokensDataStore.etherToken(forServer: session.server)
+        case .ERC20Token(let token, _, _):
+            return token
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
+            return nil
+        }
+    }
+
     let recentTransactions: [Transaction]
 
-    init(transferType: TransferType, session: WalletSession, tokensStore: TokensDataStore, transactionsStore: TransactionsStorage) {
+    var actions: [TokenInstanceAction] {
+        guard let token = token else { return [] }
+        let xmlHandler = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore)
+        let actionsFromTokenScript = xmlHandler.actions
+        if actionsFromTokenScript.isEmpty {
+            switch token.type {
+            case .erc875:
+                return []
+            case .erc721:
+                return []
+            case .nativeCryptocurrency:
+                //TODO .erc20Send and .erc20Receive names aren't appropriate
+                return [
+                    .init(type: .erc20Send),
+                    .init(type: .erc20Receive)
+                ]
+            case .erc20:
+                return [
+                    .init(type: .erc20Send),
+                    .init(type: .erc20Receive)
+                ]
+            }
+        } else {
+            switch token.type {
+            case .erc875, .erc721, .erc20:
+                return actionsFromTokenScript
+            case .nativeCryptocurrency:
+                //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
+                if xmlHandler.server == token.server {
+                    return actionsFromTokenScript
+                } else {
+                    //TODO .erc20Send and .erc20Receive names aren't appropriate
+                    return [
+                        .init(type: .erc20Send),
+                        .init(type: .erc20Receive)
+                    ]
+                }
+            }
+        }
+    }
+
+    var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
+        if let token = token {
+            let xmlHandler = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore)
+            return xmlHandler.tokenScriptStatus
+        } else {
+            assertImpossibleCodePath()
+            return .value(.type2BadTokenScript(isDebugMode: false, message: "Unknown", reason: nil))
+        }
+    }
+
+    init(transferType: TransferType, session: WalletSession, tokensStore: TokensDataStore, transactionsStore: TransactionsStorage, assetDefinitionStore: AssetDefinitionStore) {
         self.transferType = transferType
         self.session = session
         self.tokensStore = tokensStore
         self.transactionsStore = transactionsStore
+        self.assetDefinitionStore = assetDefinitionStore
 
         switch transferType {
         case .nativeCryptocurrency:

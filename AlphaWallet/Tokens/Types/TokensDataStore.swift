@@ -672,13 +672,13 @@ class TokensDataStore {
         }
     }
 
-    func jsonAttributeValue(forContract contract: String, tokenId: String, attributeName: String) -> Any? {
-        guard let token = token(forContract: contract) else { return nil }
+    func jsonAttributeValue(forContract contract: AlphaWallet.Address, tokenId: String, attributeId: String) -> Any? {
+        guard let token = token(forContract: contract.eip55String) else { return nil }
         let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
         guard let balance = token.balance.first(where: { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt }) else { return nil }
         let json = balance.json
         if let data = json.data(using: .utf8), var dictionary = ((try? JSONSerialization.jsonObject(with: data)) as? [String: Any]) {
-            return dictionary[attributeName]
+            return dictionary[attributeId]
         } else {
             return nil
         }
@@ -698,20 +698,20 @@ class TokensDataStore {
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
+    //This is related to Realm migration for version 49
     func fetchTokenNamesForNonFungibleTokensIfEmpty() {
         assetDefinitionStore.forEachContractWithXML { [weak self] contract in
             guard let strongSelf = self else { return }
-            let localizedName = XMLHandler(contract: contract).getName()
-            if localizedName != "N/A" {
-                if let storedToken = strongSelf.enabledObject.first(where: { $0.contract.sameContract(as: contract) }), storedToken.name.isEmpty {
-                    getContractName(for: contract) { result in
-                        switch result {
-                        case .success(let name):
-                            //TODO multiple realm writes in a loop. Should we group them together?
-                            strongSelf.updateTokenName(token: storedToken, to: name)
-                        case .failure:
-                            break
-                        }
+            let localizedName = XMLHandler(contract: contract.eip55String, assetDefinitionStore: assetDefinitionStore).getName(fallback: "")
+            guard !localizedName.isEmpty else { return }
+            if let storedToken = strongSelf.enabledObject.first(where: { contract.sameContract(as: $0.contract) }), storedToken.name.isEmpty {
+                getContractName(for: contract.eip55String) { result in
+                    switch result {
+                    case .success(let name):
+                        //TODO multiple realm writes in a loop. Should we group them together?
+                        strongSelf.updateTokenName(token: storedToken, to: name)
+                    case .failure:
+                        break
                     }
                 }
             }

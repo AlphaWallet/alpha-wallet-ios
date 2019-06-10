@@ -5,6 +5,7 @@ import UIKit
 struct BaseTokenCardTableViewCellViewModel {
     let tokenHolder: TokenHolder
     let cellWidth: CGFloat
+    let tokenView: TokenView
 
     var backgroundColor: UIColor {
         return Colors.appWhite

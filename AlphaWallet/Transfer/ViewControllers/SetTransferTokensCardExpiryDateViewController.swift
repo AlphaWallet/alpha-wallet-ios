@@ -32,29 +32,32 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     var server: RPCServer {
         return viewModel.token.server
     }
+    let assetDefinitionStore: AssetDefinitionStore
     let paymentFlow: PaymentFlow
     weak var delegate: SetTransferTokensCardExpiryDateViewControllerDelegate?
 
     init(
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
-            viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
+            viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
+        self.assetDefinitionStore = assetDefinitionStore
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: viewModel.token)
         switch tokenType {
         case .supportedByOpenSea:
-            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notSupportedByOpenSea:
-            tokenRowView = TokenCardRowView()
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(isVerified: true)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -223,14 +226,6 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         }
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         linkExpiryDateField.layer.cornerRadius = linkExpiryDateField.frame.size.height / 2
@@ -249,7 +244,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(isVerified: isContractVerified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -294,6 +289,20 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         let nextButton = buttonsBar.buttons[0]
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+    }
+}
+
+extension SetTransferTokensCardExpiryDateViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }
 

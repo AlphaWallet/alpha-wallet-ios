@@ -37,6 +37,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     var server: RPCServer {
         return viewModel.token.server
     }
+    let assetDefinitionStore: AssetDefinitionStore
     let paymentFlow: PaymentFlow
     weak var delegate: SetSellTokensCardExpiryDateViewControllerDelegate?
 
@@ -45,25 +46,27 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
             paymentFlow: PaymentFlow,
             tokenHolder: TokenHolder,
             ethCost: Ether,
-            viewModel: SetSellTokensCardExpiryDateViewControllerViewModel
+            viewModel: SetSellTokensCardExpiryDateViewControllerViewModel,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.storage = storage
         self.paymentFlow = paymentFlow
         self.tokenHolder = tokenHolder
         self.ethCost = ethCost
         self.viewModel = viewModel
+        self.assetDefinitionStore = assetDefinitionStore
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: viewModel.token)
         switch tokenType {
         case .supportedByOpenSea:
-            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notSupportedByOpenSea:
-            tokenRowView = TokenCardRowView()
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(isVerified: true)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -242,19 +245,11 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         }
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     func configure(viewModel newViewModel: SetSellTokensCardExpiryDateViewControllerViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(isVerified: isContractVerified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -329,6 +324,20 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
 
     @objc func timePickerValueChanged() {
         linkExpiryTimeField.value = timePicker.date
+    }
+}
+
+extension SetSellTokensCardExpiryDateViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }
 

@@ -70,12 +70,12 @@ struct TokenListFormatRowViewModel {
     }
 
     var title: String {
-        let tokenId = tokenHolder.values["tokenId"] as? String ?? ""
+        let tokenId = tokenHolder.values["tokenId"]?.stringValue  ?? ""
         return "\(tokenHolder.name) #\(tokenId)"
     }
 
     var subtitle: String {
-        let traits =  tokenHolder.values["traits"] as? [OpenSeaNonFungibleTrait] ?? []
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         let generationText: String
         let cooldownText: String
         if let generation = traits.first(where: { $0.type == OpenSeaNonFungible.generationTraitName }) {
@@ -98,22 +98,22 @@ struct TokenListFormatRowViewModel {
     }
 
     var description: String {
-        return tokenHolder.values["description"] as? String ?? ""
+        return tokenHolder.values["description"]?.stringValue ?? ""
     }
 
     var thumbnailImageUrl: URL? {
-        guard let url = tokenHolder.values["thumbnailUrl"] as? String else { return nil }
+        guard let url = tokenHolder.values["thumbnailUrl"]?.stringValue else { return nil }
         return URL(string: url)
     }
 
     var externalLink: URL? {
-        guard let url = tokenHolder.values["externalLink"] as? String else { return nil }
+        guard let url = tokenHolder.values["externalLink"]?.stringValue else { return nil }
         return URL(string: url)
     }
 
     //TODO using CryptoKitty struct here, not good
     var details: [String] {
-        let traits =  tokenHolder.values["traits"] as? [OpenSeaNonFungibleTrait] ?? []
+        let traits = tokenHolder.openSeaNonFungibleTraits ?? []
         let withoutGenerationAndCooldownIndex = traits.filter { $0.type != OpenSeaNonFungible.generationTraitName && $0.type != OpenSeaNonFungible.cooldownIndexTraitName }
         return withoutGenerationAndCooldownIndex.map { "\($0.type): \($0.value)" }
     }

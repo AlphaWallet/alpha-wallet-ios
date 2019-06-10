@@ -1,11 +1,11 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import WebKit
 
 class TokenCardRowView: UIView {
-	let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
-	let background = UIView()
-	let stateLabel = UILabel()
+    private let server: RPCServer
+	private let assetDefinitionStore: AssetDefinitionStore
 	private let tokenCountLabel = UILabel()
 	private let venueLabel = UILabel()
 	private let dateLabel = UILabel()
@@ -18,16 +18,12 @@ class TokenCardRowView: UIView {
 	private let timeLabel = UILabel()
 	private let teamsLabel = UILabel()
 	private var detailsRowStack: UIStackView?
-    private let showCheckbox: Bool
 	private var canDetailsBeVisible = true
-    var areDetailsVisible = false {
-		didSet {
-			guard canDetailsBeVisible else { return }
-			detailsRowStack?.isHidden = !areDetailsVisible
-		}
-    }
+	private var nativelyRenderedAttributeViews = [UIView]()
 	private let row3: UIStackView
 	private let spaceAboveBottomRowStack = UIView.spacer(height: 10)
+	private var checkboxRelatedConstraintsWhenShown = [NSLayoutConstraint]()
+	private var checkboxRelatedConstraintsWhenHidden = [NSLayoutConstraint]()
 	private var onlyShowTitle: Bool = false {
 		didSet {
 			if onlyShowTitle {
@@ -43,18 +39,55 @@ class TokenCardRowView: UIView {
 			}
 		}
 	}
+	lazy private var tokenScriptRendererView: TokenInstanceWebView = {
+		//TODO pass in keystore or wallet address instead
+		let walletAddress = try! EtherKeystore().recentlyUsedWallet!.address
+		//TODO this can't sign personal message because we didn't set a delegate, but we don't need it also
+		return TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
+	}()
 
-	init(showCheckbox: Bool = false) {
+	let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
+	let background = UIView()
+	let stateLabel = UILabel()
+	var tokenView: TokenView
+	var showCheckbox: Bool {
+		didSet {
+			checkboxImageView.isHidden = !showCheckbox
+			if showCheckbox {
+				NSLayoutConstraint.deactivate(checkboxRelatedConstraintsWhenHidden)
+				NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenShown)
+			} else {
+				NSLayoutConstraint.deactivate(checkboxRelatedConstraintsWhenShown)
+				NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenHidden)
+			}
+		}
+	}
+	var areDetailsVisible = false {
+		didSet {
+			guard canDetailsBeVisible else { return }
+			detailsRowStack?.isHidden = !areDetailsVisible
+		}
+	}
+
+	var isWebViewInteractionEnabled: Bool = false {
+		didSet {
+			tokenScriptRendererView.isWebViewInteractionEnabled = isWebViewInteractionEnabled
+		}
+	}
+
+	init(server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore) {
+		self.server = server
+		self.tokenView = tokenView
         self.showCheckbox = showCheckbox
+		self.assetDefinitionStore = assetDefinitionStore
 
 		row3 = [dateImageView, dateLabel, seatRangeImageView, teamsLabel, .spacerWidth(7), categoryImageView, matchLabel].asStackView(spacing: 7, contentHuggingPriority: .required)
 
 		super.init(frame: .zero)
 
 		checkboxImageView.translatesAutoresizingMaskIntoConstraints = false
-        if showCheckbox {
-            addSubview(checkboxImageView)
-        }
+		addSubview(checkboxImageView)
+		checkboxImageView.isHidden = !showCheckbox
 
 		background.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(background)
@@ -71,6 +104,7 @@ class TokenCardRowView: UIView {
 
 		let row1 = venueLabel
 		let stackView = [
+			tokenScriptRendererView,
 			stateLabel,
 			row0,
 			row1,
@@ -82,24 +116,27 @@ class TokenCardRowView: UIView {
 		stackView.alignment = .leading
 		background.addSubview(stackView)
 
+		nativelyRenderedAttributeViews = [stateLabel, row0, row1, spaceAboveBottomRowStack, row3, detailsRowStack!]
+
 		// TODO extract constant. Maybe StyleLayout.sideMargin
 		let xMargin  = CGFloat(7)
 		let yMargin  = CGFloat(5)
-		var checkboxRelatedConstraints = [NSLayoutConstraint]()
-		if showCheckbox {
-			checkboxRelatedConstraints.append(checkboxImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
-			checkboxRelatedConstraints.append(checkboxImageView.centerYAnchor.constraint(equalTo: centerYAnchor))
-			checkboxRelatedConstraints.append(background.leadingAnchor.constraint(equalTo: checkboxImageView.trailingAnchor, constant: xMargin))
-			if ScreenChecker().isNarrowScreen() {
-				checkboxRelatedConstraints.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 20))
-				checkboxRelatedConstraints.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 20))
-			} else {
-				//Have to be hardcoded and not rely on the image's size because different string lengths for the text fields can force the checkbox to shrink
-				checkboxRelatedConstraints.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 28))
-				checkboxRelatedConstraints.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 28))
-			}
+		checkboxRelatedConstraintsWhenShown.append(checkboxImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
+		checkboxRelatedConstraintsWhenShown.append(checkboxImageView.centerYAnchor.constraint(equalTo: centerYAnchor))
+		checkboxRelatedConstraintsWhenShown.append(background.leadingAnchor.constraint(equalTo: checkboxImageView.trailingAnchor, constant: xMargin))
+		if ScreenChecker().isNarrowScreen() {
+			checkboxRelatedConstraintsWhenShown.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 20))
+			checkboxRelatedConstraintsWhenShown.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 20))
 		} else {
-			checkboxRelatedConstraints.append(background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
+			//Have to be hardcoded and not rely on the image's size because different string lengths for the text fields can force the checkbox to shrink
+			checkboxRelatedConstraintsWhenShown.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 28))
+			checkboxRelatedConstraintsWhenShown.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 28))
+		}
+		checkboxRelatedConstraintsWhenHidden.append(background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
+		if showCheckbox {
+			NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenShown)
+		} else {
+			NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenHidden)
 		}
 
 		NSLayoutConstraint.activate([
@@ -114,8 +151,10 @@ class TokenCardRowView: UIView {
 			background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
 			background.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -yMargin),
 
+			tokenScriptRendererView.widthAnchor.constraint(equalTo: stackView.widthAnchor),
+
 			stateLabel.heightAnchor.constraint(equalToConstant: 22),
-		] + checkboxRelatedConstraints)
+		])
 	}
 
 	required init?(coder aDecoder: NSCoder) {
@@ -124,7 +163,7 @@ class TokenCardRowView: UIView {
 
 	func configure(viewModel: TokenCardRowViewModelProtocol) {
 		background.backgroundColor = viewModel.contentsBackgroundColor
-		background.layer.cornerRadius = 20
+		background.layer.cornerRadius = 10
 		background.layer.shadowRadius = 3
 		background.layer.shadowColor = UIColor.black.cgColor
 		background.layer.shadowOffset = CGSize(width: 0, height: 0)
@@ -205,6 +244,25 @@ class TokenCardRowView: UIView {
 			//do nothing
 		}
 
+		if viewModel.hasTokenScriptHtml {
+			canDetailsBeVisible = false
+			nativelyRenderedAttributeViews.hideAll()
+			tokenScriptRendererView.isHidden = false
+			let html = viewModel.tokenScriptHtml
+			tokenScriptRendererView.loadHtml(html)
+			//TODO not good to explicitly check for different types. Easy to miss
+			if let viewModel = viewModel as? TokenCardRowViewModel {
+				tokenScriptRendererView.update(withTokenHolder: viewModel.tokenHolder, isFungible: false)
+			} else if let viewModel = viewModel as? ImportMagicTokenCardRowViewModel, let tokenHolder = viewModel.tokenHolder {
+				tokenScriptRendererView.update(withTokenHolder: tokenHolder, isFungible: false)
+			}
+		} else {
+			nativelyRenderedAttributeViews.showAll()
+			//TODO we can't change it here. Because it is set (correctly) earlier. Fix this inconsistency
+//			canDetailsBeVisible = true
+			tokenScriptRendererView.isHidden = true
+		}
+
 		adjustmentsToHandleWhenCategoryLabelTextIsTooLong()
 	}
 
@@ -216,6 +274,6 @@ class TokenCardRowView: UIView {
 
 extension TokenCardRowView: TokenRowView {
 	func configure(tokenHolder: TokenHolder) {
-		configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder))
+		configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
 	}
 }

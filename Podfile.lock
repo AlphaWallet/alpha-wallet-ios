@@ -21,7 +21,7 @@ PODS:
     - Result (~> 3.1)
   - JSONRPCKit (2.0.3):
     - Result (~> 3.0)
-  - Kanna (4.0.2)
+  - Kanna (5.0.0)
   - KeychainSwift (10.0.0)
   - Kingfisher (4.6.1)
   - libsodium (1.0.12)
@@ -89,7 +89,7 @@ DEPENDENCIES:
   - iOSSnapshotTestCase
   - JavaScriptKit
   - JSONRPCKit (~> 2.0.0)
-  - Kanna (~> 4.0.0)
+  - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
   - KeychainSwift
   - Kingfisher (~> 4.0)
   - Macaw (from `https://github.com/alpha-wallet/Macaw.git`, commit `c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8`)
@@ -123,7 +123,6 @@ SPEC REPOS:
     - iOSSnapshotTestCase
     - JavaScriptKit
     - JSONRPCKit
-    - Kanna
     - KeychainSwift
     - Kingfisher
     - libsodium
@@ -148,6 +147,9 @@ EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
     :commit: 1c1aafb566361e7067e69f6e38b0fdc30b801429
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
+  Kanna:
+    :commit: 06a04bc28783ccbb40efba355dee845a024033e8
+    :git: https://github.com/tid-kijyun/Kanna.git
   Macaw:
     :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
     :git: https://github.com/alpha-wallet/Macaw.git
@@ -170,6 +172,9 @@ CHECKOUT OPTIONS:
   AlphaWalletWeb3Provider:
     :commit: 1c1aafb566361e7067e69f6e38b0fdc30b801429
     :git: https://github.com/AlphaWallet/AlphaWallet-web3-provider
+  Kanna:
+    :commit: 06a04bc28783ccbb40efba355dee845a024033e8
+    :git: https://github.com/tid-kijyun/Kanna.git
   Macaw:
     :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
     :git: https://github.com/alpha-wallet/Macaw.git
@@ -202,7 +207,7 @@ SPEC CHECKSUMS:
   iOSSnapshotTestCase: 23984ffe05289728d646cbb6a7a10b4fb1c93440
   JavaScriptKit: 9ff565209e6efe21bcb9c6d6ca3e863a67a8ecf7
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
-  Kanna: c60b61d72554bf04ed1ee074f9b379855cab4892
+  Kanna: a32875df62975f8f4b871e933b4ea1a5c3b8be0f
   KeychainSwift: f9f7910449a0c0fd2cabc889121530dd2c477c33
   Kingfisher: 1f9157d9c02b380cbd0b7cc890161195164eb634
   libsodium: 9a8faa5ef2fa0d2d57bd7f7d79bf8fb7c1a9f0ea
@@ -229,6 +234,6 @@ SPEC CHECKSUMS:
   TrustKeystore: 26efa8079f6451d02ce64b906d3ff240fd71d7ca
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: 73a127d2606889066f1806ba748f54bef70ac2ff
+PODFILE CHECKSUM: c9725cc64a472ca0a8c73463de9ccf6d5e379e1e
 
 COCOAPODS: 1.5.3

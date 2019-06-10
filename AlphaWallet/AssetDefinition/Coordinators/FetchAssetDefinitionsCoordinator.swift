@@ -17,6 +17,6 @@ class FetchAssetDefinitionsCoordinator: Coordinator {
         for each in tokensDataStores.values {
             contracts.append(contentsOf: each.enabledObject.filter { $0.type == .erc875 || $0.type == .erc721 }.map { $0.contract })
         }
-        assetDefinitionStore.fetchXMLs(forContracts: contracts)
+        assetDefinitionStore.fetchXMLs(forContracts: contracts.compactMap { AlphaWallet.Address(string: $0) })
     }
 }

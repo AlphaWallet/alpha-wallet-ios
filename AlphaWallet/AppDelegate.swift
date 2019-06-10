@@ -5,8 +5,6 @@ import AWSSNS
 //import AWSCognito
 import AWSCore
 import UserNotifications
-import TrustKeystore
-import web3swift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -166,3 +164,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return handled
     }
 }
+

@@ -1,10 +1,15 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 import UIKit
 
+protocol SendHeaderViewDelegate: class {
+    func didPressViewContractWebPage(inHeaderView: SendHeaderView)
+}
+
 class SendHeaderView: UIView {
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let blockchainLabel = UILabel()
+    //TODO rename? Button now
+    private let blockchainLabel = UIButton(type: .system)
     private let issuerLabel = UILabel()
     private let blockChainTagLabel = UILabel()
     private let middleBorder = UIView()
@@ -15,6 +20,8 @@ class SendHeaderView: UIView {
     private let valueChangeNameLabel = UILabel()
     private let valueLabel = UILabel()
     private let valueNameLabel = UILabel()
+
+    weak var delegate: SendHeaderViewDelegate?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,6 +37,8 @@ class SendHeaderView: UIView {
         valueChangeNameLabel.textAlignment = .center
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
+
+        blockchainLabel.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
 
         blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
@@ -102,9 +111,9 @@ class SendHeaderView: UIView {
         titleLabel.text = viewModel.title
         titleLabel.adjustsFontSizeToFitWidth = true
 
-        blockchainLabel.textColor = viewModel.subtitleColor
-        blockchainLabel.font = viewModel.subtitleFont
-        blockchainLabel.text = viewModel.blockChainName
+        blockchainLabel.setTitleColor(viewModel.subtitleColor, for: .normal)
+        blockchainLabel.titleLabel?.font = viewModel.subtitleFont
+        blockchainLabel.setTitle(viewModel.blockChainName, for: .normal)
 
         issuerLabel.textColor = viewModel.subtitleColor
         issuerLabel.font = viewModel.subtitleFont
@@ -145,5 +154,9 @@ class SendHeaderView: UIView {
         valueLabel.text = viewModel.value
 
         footerStackView?.isHidden = !viewModel.showAlternativeAmount
+    }
+
+    @objc private func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(inHeaderView: self)
     }
 }

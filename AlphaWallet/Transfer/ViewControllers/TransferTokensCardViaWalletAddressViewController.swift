@@ -25,30 +25,33 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     var server: RPCServer {
         return token.server
     }
+    let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TransferTokensCardViaWalletAddressViewControllerDelegate?
 
     init(
             token: TokenObject,
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
-            viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
+            viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.token = token
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
+        self.assetDefinitionStore = assetDefinitionStore
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
         switch tokenType {
         case .supportedByOpenSea:
-            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notSupportedByOpenSea:
-            tokenRowView = TokenCardRowView()
+            tokenRowView = TokenCardRowView(server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(isVerified: true)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -114,19 +117,11 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         delegate?.didEnterWalletAddress(tokenHolder: tokenHolder, to: address, paymentFlow: paymentFlow, in: self)
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     func configure(viewModel newViewModel: TransferTokensCardViaWalletAddressViewControllerViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(isVerified: isContractVerified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -144,6 +139,20 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         let nextButton = buttonsBar.buttons[0]
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+    }
+}
+
+extension TransferTokensCardViaWalletAddressViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }
 

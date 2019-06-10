@@ -21,7 +21,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: TokenObject
     private lazy var rootViewController: TokensCardViewController = {
-        let viewModel = TokensCardViewModel(token: token)
+        let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore)
         return makeTokensCardViewController(with: session.account, viewModel: viewModel)
     }()
 
@@ -68,34 +68,36 @@ class TokensCardCoordinator: NSObject, Coordinator {
         assetDefinitionStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
             guard contract.sameContract(as: strongSelf.token.contract) else { return }
-            let viewModel = TokensCardViewModel(token: strongSelf.token)
-            strongSelf.rootViewController.configure(viewModel: viewModel)
+            for each in strongSelf.navigationController.viewControllers {
+                switch each {
+                case let vc as TokensCardViewController:
+                    let viewModel = TokensCardViewModel(token: strongSelf.token, forWallet: strongSelf.session.account, assetDefinitionStore: strongSelf.assetDefinitionStore)
+                    vc.configure(viewModel: viewModel)
+                case let vc as TokenInstanceViewController:
+                    let updatedTokenHolders = TokenAdaptor(token: strongSelf.token, assetDefinitionStore: strongSelf.assetDefinitionStore).getTokenHolders(forWallet: strongSelf.session.account)
+                    let tokenHolder = vc.firstMatchingTokenHolder(fromTokenHolders: updatedTokenHolders)
+                    if let tokenHolder = tokenHolder {
+                        let viewModel: TokenInstanceViewModel = .init(token: strongSelf.token, tokenHolder: tokenHolder, assetDefinitionStore: strongSelf.assetDefinitionStore)
+                        vc.configure(viewModel: viewModel)
+                    }
+                case let vc as TokenInstanceActionViewController:
+                    //TODO it reloads, but doesn't live-reload the changes because the action contains the HTML and it doesn't change
+                    vc.configure()
+                default:
+                    break
+                }
+            }
         }
     }
 
     private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
-        let controller = TokensCardViewController(tokenObject: token, account: account, tokensStorage: tokensStorage, viewModel: viewModel)
+        let controller = TokensCardViewController(tokenObject: token, account: account, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore, viewModel: viewModel)
         controller.delegate = self
         return controller
     }
 
     func stop() {
         session.stop()
-    }
-
-    private func showRedeemViewController() {
-        let redeemViewController = makeRedeemTokensViewController()
-        navigationController.pushViewController(redeemViewController, animated: true)
-    }
-
-    func showSellViewController(for paymentFlow: PaymentFlow) {
-        let sellViewController = makeSellTokensCardViewController(paymentFlow: paymentFlow)
-        navigationController.pushViewController(sellViewController, animated: true)
-    }
-
-    private func showTransferViewController(for paymentFlow: PaymentFlow, tokenHolders: [TokenHolder]) {
-        let transferViewController = makeTransferTokensCardViewController(paymentFlow: paymentFlow)
-        navigationController.pushViewController(transferViewController, animated: true)
     }
 
     private func showChooseTokensCardTransferModeViewController(token: TokenObject,
@@ -132,7 +134,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
                 tokenHolder: tokenHolder,
                 ethCost: ethCost,
                 linkExpiryDate: linkExpiryDate,
-                server: session.server
+                server: session.server,
+                assetDefinitionStore: assetDefinitionStore
         ))
         vc.modalPresentationStyle = .overCurrentContext
         return vc
@@ -147,7 +150,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
         vc.delegate = self
         vc.configure(viewModel: .init(
                 tokenHolder: tokenHolder,
-                linkExpiryDate: linkExpiryDate
+                linkExpiryDate: linkExpiryDate,
+                assetDefinitionStore: assetDefinitionStore
         ))
         vc.modalPresentationStyle = .overCurrentContext
         return vc
@@ -162,16 +166,25 @@ class TokensCardCoordinator: NSObject, Coordinator {
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
-    private func showEnterQuantityViewController(token: TokenObject,
+    private func showEnterQuantityViewControllerForRedeem(token: TokenObject,
                                                  for tokenHolder: TokenHolder,
-                                                 in viewController: RedeemTokenViewController) {
+                                                 in viewController: UIViewController) {
         let quantityViewController = makeRedeemTokensCardQuantitySelectionViewController(token: token, for: tokenHolder)
-        viewController.navigationController?.pushViewController(quantityViewController, animated: true)
+        navigationController.pushViewController(quantityViewController, animated: true)
     }
 
-    private func showEnterPriceQuantityViewController(for tokenHolder: TokenHolder,
-                                                      in viewController: SellTokensCardViewController) {
-        let vc = makeEnterSellTokensCardPriceQuantityViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
+    private func showEnterQuantityViewControllerForTransfer(token: TokenObject,
+                                                          for tokenHolder: TokenHolder,
+                                                          forPaymentFlow paymentFlow: PaymentFlow,
+                                                          in viewController: UIViewController) {
+        let vc = makeTransferTokensCardQuantitySelectionViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
+        viewController.navigationController?.pushViewController(vc, animated: true)
+    }
+
+    private func showEnterPriceQuantityViewController(tokenHolder: TokenHolder,
+                                                      forPaymentFlow paymentFlow: PaymentFlow,
+                                                      in viewController: UIViewController) {
+        let vc = makeEnterSellTokensCardPriceQuantityViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -182,57 +195,41 @@ class TokensCardCoordinator: NSObject, Coordinator {
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
 
-    private func makeRedeemTokensViewController() -> RedeemTokenViewController {
-        let viewModel = RedeemTokenCardViewModel(token: token)
-        let controller = RedeemTokenViewController(token: token, viewModel: viewModel)
-        controller.configure()
-        controller.delegate = self
-        return controller
-    }
-
-    private func makeSellTokensCardViewController(paymentFlow: PaymentFlow) -> SellTokensCardViewController {
-        let viewModel = SellTokensCardViewModel(token: token)
-        let controller = SellTokensCardViewController(paymentFlow: paymentFlow, viewModel: viewModel)
-        controller.configure()
-        controller.delegate = self
-        return controller
-    }
-
     private func makeRedeemTokensCardQuantitySelectionViewController(token: TokenObject, for tokenHolder: TokenHolder) -> RedeemTokenCardQuantitySelectionViewController {
-        let viewModel = RedeemTokenCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = RedeemTokenCardQuantitySelectionViewController(token: token, viewModel: viewModel)
+        let viewModel = RedeemTokenCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+        let controller = RedeemTokenCardQuantitySelectionViewController(token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
 		controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeEnterSellTokensCardPriceQuantityViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> EnterSellTokensCardPriceQuantityViewController {
-        let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder, server: session.server)
-        let controller = EnterSellTokensCardPriceQuantityViewController(storage: tokensStorage, paymentFlow: paymentFlow, cryptoPrice: ethPrice, viewModel: viewModel)
+        let viewModel = EnterSellTokensCardPriceQuantityViewControllerViewModel(token: token, tokenHolder: tokenHolder, server: session.server, assetDefinitionStore: assetDefinitionStore)
+        let controller = EnterSellTokensCardPriceQuantityViewController(storage: tokensStorage, paymentFlow: paymentFlow, cryptoPrice: ethPrice, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeEnterTransferTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> SetTransferTokensCardExpiryDateViewController {
-        let viewModel = SetTransferTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = SetTransferTokensCardExpiryDateViewController(tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+        let viewModel = SetTransferTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+        let controller = SetTransferTokensCardExpiryDateViewController(tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeTransferTokensCardViaWalletAddressViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardViaWalletAddressViewController {
-        let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = TransferTokensCardViaWalletAddressViewController(token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+        let viewModel = TransferTokensCardViaWalletAddressViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+        let controller = TransferTokensCardViaWalletAddressViewController(token: token, tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeEnterSellTokensCardExpiryDateViewController(token: TokenObject, for tokenHolder: TokenHolder, ethCost: Ether, paymentFlow: PaymentFlow) -> SetSellTokensCardExpiryDateViewController {
-        let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost, server: session.server)
-        let controller = SetSellTokensCardExpiryDateViewController(storage: tokensStorage, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel)
+        let viewModel = SetSellTokensCardExpiryDateViewControllerViewModel(token: token, tokenHolder: tokenHolder, ethCost: ethCost, server: session.server, assetDefinitionStore: assetDefinitionStore)
+        let controller = SetSellTokensCardExpiryDateViewController(storage: tokensStorage, paymentFlow: paymentFlow, tokenHolder: tokenHolder, ethCost: ethCost, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -240,38 +237,23 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func makeTokenCardRedemptionViewController(token: TokenObject, for tokenHolder: TokenHolder) -> TokenCardRedemptionViewController {
         let viewModel = TokenCardRedemptionViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = TokenCardRedemptionViewController(session: session, token: token, viewModel: viewModel)
+        let controller = TokenCardRedemptionViewController(session: session, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
 		controller.configure()
         controller.delegate = self
         return controller
     }
 
-    private func makeTransferTokensCardViewController(paymentFlow: PaymentFlow) -> TransferTokensCardViewController {
-        let viewModel = TransferTokensCardViewModel(token: token)
-        let controller = TransferTokensCardViewController(paymentFlow: paymentFlow, token: token, viewModel: viewModel)
-        controller.configure()
-        controller.delegate = self
-        return controller
-    }
-
-    private func showEnterQuantityViewController(token: TokenObject,
-                                                 for tokenHolder: TokenHolder,
-                                                 in viewController: TransferTokensCardViewController) {
-        let quantityViewController = makeTransferTokensCardQuantitySelectionViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
-        viewController.navigationController?.pushViewController(quantityViewController, animated: true)
-    }
-
     private func makeTransferTokensCardQuantitySelectionViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> TransferTokensCardQuantitySelectionViewController {
-        let viewModel = TransferTokensCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = TransferTokensCardQuantitySelectionViewController(paymentFlow: paymentFlow, token: token, viewModel: viewModel)
+        let viewModel = TransferTokensCardQuantitySelectionViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+        let controller = TransferTokensCardQuantitySelectionViewController(paymentFlow: paymentFlow, token: token, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
         controller.delegate = self
         return controller
     }
 
     private func makeChooseTokenCardTransferModeViewController(token: TokenObject, for tokenHolder: TokenHolder, paymentFlow: PaymentFlow) -> ChooseTokenCardTransferModeViewController {
-        let viewModel = ChooseTokenCardTransferModeViewControllerViewModel(token: token, tokenHolder: tokenHolder)
-        let controller = ChooseTokenCardTransferModeViewController(tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel)
+        let viewModel = ChooseTokenCardTransferModeViewControllerViewModel(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
+        let controller = ChooseTokenCardTransferModeViewController(tokenHolder: tokenHolder, paymentFlow: paymentFlow, viewModel: viewModel, assetDefinitionStore: assetDefinitionStore)
         controller.configure()
         controller.delegate = self
         return controller
@@ -374,15 +356,6 @@ class TokensCardCoordinator: NSObject, Coordinator {
         viewController.present(vc, animated: true)
     }
 
-    private func showPaymentFlow(for paymentFlow: PaymentFlow, tokenHolders: [TokenHolder] = []) {
-        switch (paymentFlow, session.account.type) {
-        case (.send, .real), (.request, _):
-            showTransferViewController(for: paymentFlow, tokenHolders: tokenHolders)
-        case (_, _):
-            navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
-        }
-    }
-
     private func showViewRedemptionInfo(in viewController: UIViewController) {
         let controller = TokenCardRedemptionInfoViewController(delegate: self)
         viewController.navigationController?.pushViewController(controller, animated: true)
@@ -392,19 +365,41 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let controller = WhatIsEthereumInfoViewController(delegate: self)
         viewController.navigationController?.pushViewController(controller, animated: true)
     }
+
+    private func showTokenInstanceViewController(tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
+        let vc = TokenInstanceViewController(tokenObject: token, tokenHolder: tokenHolder, account: session.account, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore)
+        vc.delegate = self
+        vc.configure()
+        viewController.navigationController?.pushViewController(vc, animated: true)
+    }
+
+    private func showTokenInstanceActionView(forAction action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: UIViewController) {
+        let vc = TokenInstanceActionViewController(tokenObject: token, tokenHolder: tokenHolder, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
+        vc.delegate = self
+        vc.configure()
+        viewController.navigationController?.pushViewController(vc, animated: true)
+    }
 }
 
 extension TokensCardCoordinator: TokensCardViewControllerDelegate {
-    func didPressRedeem(token: TokenObject, in viewController: TokensCardViewController) {
-        showRedeemViewController()
+    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
+        showEnterQuantityViewControllerForRedeem(token: token, for: tokenHolder, in: viewController)
     }
 
-    func didPressSell(for paymentFlow: PaymentFlow, in viewController: TokensCardViewController) {
-        showSellViewController(for: paymentFlow)
+    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokensCardViewController) {
+        showEnterPriceQuantityViewController(tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
     }
 
-    func didPressTransfer(for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController) {
-        showPaymentFlow(for: type, tokenHolders: tokenHolders)
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, for type: PaymentFlow, tokenHolders: [TokenHolder], in viewController: TokensCardViewController) {
+        switch token.type {
+        case .erc721:
+            let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: type)
+            viewController.navigationController?.pushViewController(vc, animated: true)
+        case .erc875:
+            showEnterQuantityViewControllerForTransfer(token: token, for: tokenHolder, forPaymentFlow: type, in: viewController)
+        case .nativeCryptocurrency, .erc20:
+            break
+        }
     }
 
     func didCancel(in viewController: TokensCardViewController) {
@@ -420,21 +415,55 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
         viewController.present(controller, animated: true, completion: nil)
     }
-}
 
-extension TokensCardCoordinator: RedeemTokenViewControllerDelegate {
-    func didSelectTokenHolder(token: TokenObject, tokenHolder: TokenHolder, in viewController: RedeemTokenViewController) {
-        showEnterQuantityViewController(token: token, for: tokenHolder, in: viewController)
+    func didTapTokenInstanceIconified(tokenHolder: TokenHolder, in viewController: TokensCardViewController) {
+        showTokenInstanceViewController(tokenHolder: tokenHolder, in: viewController)
     }
 
-    func didPressViewInfo(in viewController: RedeemTokenViewController) {
+    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokensCardViewController) {
+        switch action.type {
+        case .tokenScript:
+            showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
+        case .erc20Send, .erc20Receive, .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
+            //Couldn't have reached here
+            break
+        }
+    }
+}
+
+extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
+    func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokenInstanceViewController) {
+        showEnterQuantityViewControllerForRedeem(token: token, for: tokenHolder, in: viewController)
+    }
+
+    func didPressSell(tokenHolder: TokenHolder, for paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController) {
+        showEnterPriceQuantityViewController(tokenHolder: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
+    }
+
+    func didPressTransfer(token: TokenObject, tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: TokenInstanceViewController) {
+        switch token.type {
+        case .erc721:
+            let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
+            viewController.navigationController?.pushViewController(vc, animated: true)
+        case .erc875:
+            showEnterQuantityViewControllerForTransfer(token: token, for: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
+        case .nativeCryptocurrency, .erc20:
+            break
+        }
+    }
+
+    func didPressViewRedemptionInfo(in viewController: TokenInstanceViewController) {
         showViewRedemptionInfo(in: viewController)
     }
 
-    func didTapURL(url: URL, in viewController: RedeemTokenViewController) {
+    func didTapURL(url: URL, in viewController: TokenInstanceViewController) {
         let controller = SFSafariViewController(url: url)
         // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
         viewController.present(controller, animated: true, completion: nil)
+    }
+
+    func didTap(action: TokenInstanceAction, tokenHolder: TokenHolder, viewController: TokenInstanceViewController) {
+        showTokenInstanceActionView(forAction: action, tokenHolder: tokenHolder, viewController: viewController)
     }
 }
 
@@ -445,22 +474,6 @@ extension TokensCardCoordinator: RedeemTokenCardQuantitySelectionViewControllerD
 
     func didPressViewInfo(in viewController: RedeemTokenCardQuantitySelectionViewController) {
         showViewRedemptionInfo(in: viewController)
-    }
-}
-
-extension TokensCardCoordinator: SellTokensCardViewControllerDelegate {
-    func didSelectTokenHolder(tokenHolder: TokenHolder, in viewController: SellTokensCardViewController) {
-        showEnterPriceQuantityViewController(for: tokenHolder, in: viewController)
-    }
-
-    func didPressViewInfo(in viewController: SellTokensCardViewController) {
-        showViewEthereumInfo(in: viewController)
-    }
-
-    func didTapURL(url: URL, in viewController: SellTokensCardViewController) {
-        let controller = SFSafariViewController(url: url)
-        // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
-        viewController.present(controller, animated: true, completion: nil)
     }
 }
 
@@ -491,29 +504,6 @@ extension TokensCardCoordinator: SetSellTokensCardExpiryDateViewControllerDelega
 
     func didPressViewInfo(in viewController: SetSellTokensCardExpiryDateViewController) {
         showViewEthereumInfo(in: viewController)
-    }
-}
-
-extension TokensCardCoordinator: TransferTokensCardViewControllerDelegate {
-    func didSelectTokenHolder(token: TokenObject, tokenHolder: TokenHolder, in viewController: TransferTokensCardViewController) {
-        switch token.type {
-        case .erc721:
-            let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
-            viewController.navigationController?.pushViewController(vc, animated: true)
-        case .erc875:
-            showEnterQuantityViewController(token: token, for: tokenHolder, in: viewController)
-        case .nativeCryptocurrency, .erc20: break
-        }
-    }
-
-    func didPressViewInfo(in viewController: TransferTokensCardViewController) {
-        showViewRedemptionInfo(in: viewController)
-    }
-
-    func didTapURL(url: URL, in viewController: TransferTokensCardViewController) {
-        let controller = SFSafariViewController(url: url)
-        // Don't attempt to change tint colors for SFSafariViewController. It doesn't well correctly especially because the controller sets more than 1 color for the title
-        viewController.present(controller, animated: true, completion: nil)
     }
 }
 
@@ -594,7 +584,7 @@ extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControlle
             }
 
             if case .real(let account) = strongSelf.session.account.type {
-                let coordinator = TransferNFTCoordinator(tokenHolder: tokenHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: strongSelf.keystore, session: strongSelf.session, account: account, on: strongSelf.navigationController)
+                let coordinator = TransferNFTCoordinator(tokenHolder: tokenHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: strongSelf.keystore, session: strongSelf.session, account: account, assetDefinitionStore: strongSelf.assetDefinitionStore, on: strongSelf.navigationController)
                 coordinator.delegate = self
                 coordinator.start()
                 strongSelf.addCoordinator(coordinator)
@@ -625,4 +615,14 @@ extension TokensCardCoordinator: CanOpenURL {
 }
 
 extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
+}
+
+extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
+    func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {
+        showViewRedemptionInfo(in: viewController)
+    }
+
+    func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController) {
+        viewController.navigationController?.popViewController(animated: true)
+    }
 }

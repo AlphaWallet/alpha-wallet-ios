@@ -2,13 +2,20 @@
 
 import UIKit
 
+protocol TokenCardsViewControllerHeaderDelegate: class {
+    func didPressViewContractWebPage(inHeaderView: TokenCardsViewControllerHeader)
+}
+
 class TokenCardsViewControllerHeader: UIView {
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let blockchainLabel = UILabel()
+    //TODO rename? Button now
+    private let blockchainLabel = UIButton(type: .system)
     private let separator = UILabel()
     private let issuerLabel = UILabel()
     private let blockChainTagLabel = UILabel()
+
+    weak var delegate: TokenCardsViewControllerHeaderDelegate?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -17,6 +24,8 @@ class TokenCardsViewControllerHeader: UIView {
         addSubview(background)
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        blockchainLabel.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
 
         blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
@@ -56,9 +65,9 @@ class TokenCardsViewControllerHeader: UIView {
         titleLabel.text = viewModel.title
         titleLabel.adjustsFontSizeToFitWidth = true
 
-        blockchainLabel.textColor = viewModel.subtitleColor
-        blockchainLabel.font = viewModel.subtitleFont
-        blockchainLabel.text = viewModel.blockChainName
+        blockchainLabel.setTitleColor(viewModel.subtitleColor, for: .normal)
+        blockchainLabel.titleLabel?.font = viewModel.subtitleFont
+        blockchainLabel.setTitle(viewModel.blockChainName, for: .normal)
 
         issuerLabel.textColor = viewModel.subtitleColor
         issuerLabel.font = viewModel.subtitleFont
@@ -78,5 +87,9 @@ class TokenCardsViewControllerHeader: UIView {
         blockChainTagLabel.textColor = viewModel.blockChainNameColor
         blockChainTagLabel.font = viewModel.blockChainNameFont
         blockChainTagLabel.text = viewModel.blockChainTag
+    }
+
+    @objc private func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(inHeaderView: self)
     }
 }

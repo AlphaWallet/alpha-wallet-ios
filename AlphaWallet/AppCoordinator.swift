@@ -50,13 +50,16 @@ class AppCoordinator: NSObject, Coordinator {
         handleNotifications()
         applyStyle()
         resetToWelcomeScreen()
-        setupAssetDefinitionStore()
+        setupAssetDefinitionStoreCoordinator()
 
         if keystore.hasWallets {
             showTransactions(for: keystore.recentlyUsedWallet ?? keystore.wallets.first!)
         } else {
             resetToWelcomeScreen()
         }
+
+        assetDefinitionStore.delegate = self
+        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles)
     }
 
     /// Return true if handled
@@ -67,15 +70,15 @@ class AppCoordinator: NSObject, Coordinator {
                 return true
             }
         }
-
         guard let inCoordinator = inCoordinator else { return false }
         let urlSchemeHandler = CustomUrlSchemeCoordinator(tokensDatastores: inCoordinator.tokensStorages)
         urlSchemeHandler.delegate = self
         return urlSchemeHandler.handleOpen(url: url)
     }
 
-    private func setupAssetDefinitionStore() {
-        let coordinator = AssetDefinitionStoreCoordinator()
+    private func setupAssetDefinitionStoreCoordinator() {
+        let coordinator = AssetDefinitionStoreCoordinator(assetDefinitionStore: assetDefinitionStore)
+        coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
     }
@@ -280,8 +283,25 @@ extension AppCoordinator: UniversalLinkInPasteboardCoordinatorDelegate {
         handleUniversalLink(url: url)
     }
 }
+
 extension AppCoordinator: CustomUrlSchemeCoordinatorDelegate {
     func openSendPaymentFlow(_ paymentFlow: PaymentFlow, server: RPCServer, inCoordinator coordinator: CustomUrlSchemeCoordinator) {
         inCoordinator?.showPaymentFlow(for: paymentFlow, server: server)
+    }
+}
+
+extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
+    func show(error: Error, for viewController: AssetDefinitionStoreCoordinator) {
+        inCoordinator?.show(error: error)
+    }
+
+    func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer) {
+        inCoordinator?.addImported(contract: contract.eip55String, forServer: server)
+    }
+}
+
+extension AppCoordinator: AssetDefinitionStoreDelegate {
+    func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore ) {
+        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles)
     }
 }

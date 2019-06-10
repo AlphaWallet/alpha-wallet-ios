@@ -5,13 +5,15 @@ import UIKit
 
 struct AssetDefinitionsOverridesViewCellViewModel {
     private let url: URL
+    private let fileExtension: String
 
-    init(url: URL) {
+    init(url: URL, fileExtension: String) {
         self.url = url
+        self.fileExtension = fileExtension
     }
 
     var text: String {
-        return AssetDefinitionDiskBackingStore.contract(fromPath: url) ?? "N/A"
+        return url.lastPathComponent
     }
 
     let backgroundColor = Colors.appBackground

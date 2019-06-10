@@ -28,10 +28,10 @@ class SettingsCoordinatorTests: XCTestCase {
             func didCancel(in coordinator: SettingsCoordinator) {}
             func didPressShowWallet(in coordinator: SettingsCoordinator) {}
             func assetDefinitionsOverrideViewController(for: SettingsCoordinator) -> UIViewController? { return nil }
+            func consoleViewController(for: SettingsCoordinator) -> UIViewController? { return nil }
             func delete(account: Wallet, in coordinator: SettingsCoordinator) {
                 deleteDelegateMethodCalled = true
             }
-
             func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {}
             func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {}
             func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {}

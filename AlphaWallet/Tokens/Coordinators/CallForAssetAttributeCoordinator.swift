@@ -5,70 +5,41 @@ import BigInt
 import PromiseKit
 import Result
 import TrustKeystore
+import web3swift
 
-///This class uses 2 caches:
-///
-///1. Store the promises used to make function calls. This is so we don't make the same function calls (over network) + arguments combination multiple times concurrently. Once the call completes, we remove it from the cache.
-///2. Store function call result as a subscribable. This makes it easier to display the data fetched from the database as well as function call and when when a refresh (another function call) updates the value.
+///This class temporarily stores the promises used to make function calls. This is so we don't make the same function calls (over network) + arguments combination multiple times concurrently. Once the call completes, we remove it from the cache.
 class CallForAssetAttributeCoordinator {
-    private static var functionCallCache = [AssetAttributeFunctionCall: Subscribable<AssetAttributeValue>]()
-
     private let server: RPCServer
-    private let tokensDataStore: TokensDataStore
-    private var promiseCache = [AssetAttributeFunctionCall: Promise<AssetAttributeValue>]()
+    private let session: WalletSession
+    private let assetDefinitionStore: AssetDefinitionStore
+    private var promiseCache = [AssetFunctionCall: Promise<AssetInternalValue>]()
 
-    var contractToRefetch: String?
-
-    init(server: RPCServer, tokensDataStore: TokensDataStore) {
+    init(server: RPCServer, session: WalletSession, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
-        self.tokensDataStore = tokensDataStore
-
-        NotificationCenter.default.addObserver(self, selector: #selector(refreshFunctionCallBasedAssetAttributesForAllTokens), name: UIApplication.didBecomeActiveNotification, object: nil)
+        self.session = session
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     func getValue(
-            forAttributeName attributeName: String,
-            tokenId: BigUInt,
-            functionCall: AssetAttributeFunctionCall
-    ) -> Subscribable<AssetAttributeValue> {
-        let refreshContract = shouldRefresh(functionCall: functionCall)
-        let subscribable: Subscribable<AssetAttributeValue>
-        if let cachedResult = cache(forFunctionCall: functionCall) {
-            if refreshContract {
-                subscribable = cachedResult
-            } else {
-                return cachedResult
-            }
-        } else {
-            subscribable = Subscribable<AssetAttributeValue>(nil)
-        }
-
-        cache(functionCall: functionCall, result: subscribable)
-
-        if !refreshContract {
-            if let value = jsonAttributeValueInDatabase(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName) {
-                //Needed because types like NSTaggedPointerString and __NSCFBoolean (which are parsed from JSON) aren't convertible directly to AssetAttributeValue if we don't cast to String and Bool first
-                if let value = value as? Bool {
-                    subscribable.value = value
-                    return subscribable
-                } else if let value = value as? String {
-                    subscribable.value = value
-                    return subscribable
-                }
-            }
-        }
-
-        if promiseCache[functionCall] != nil {
+            forAttributeId attributeId: AttributeId,
+            tokenId: TokenId,
+            functionCall: AssetFunctionCall
+    ) -> Subscribable<AssetInternalValue> {
+        let subscribable = Subscribable<AssetInternalValue>(nil)
+        if let promise = promiseCache[functionCall] {
+            promise.done { result in
+                subscribable.value = result
+            }.cauterize()
             return subscribable
         }
 
-        let promise = makeRpcPromise(forAttributeName: attributeName, tokenId: tokenId, functionCall: functionCall)
+        let promise = makeRpcPromise(forAttributeId: attributeId, tokenId: tokenId, functionCall: functionCall)
         promiseCache[functionCall] = promise
 
         //TODO need to throttle smart contract function calls?
         promise.done { [weak self] result in
             guard let strongSelf = self else { return }
-            subscribable.value = result as AssetAttributeValue
+            subscribable.value = result
             strongSelf.promiseCache.removeValue(forKey: functionCall)
         }.catch { [weak self] _ in
             guard let strongSelf = self else { return }
@@ -78,76 +49,48 @@ class CallForAssetAttributeCoordinator {
         return subscribable
     }
 
-    @objc func refreshFunctionCallBasedAssetAttributesForAllTokens() {
-        for each in tokensDataStore.objects {
-            refreshFunctionCallBasedAssetAttributes(forToken: each)
-        }
-    }
-
-    private func refreshFunctionCallBasedAssetAttributes(forToken token: TokenObject) {
-        contractToRefetch = token.contract
-        _ = TokenAdaptor(token: token).getTokenHolders()
-        contractToRefetch = nil
-    }
-
-    private func updateDataStore(forContract contract: String, tokenId: BigUInt, attributeName: String, value: AssetAttributeValue) {
-        tokensDataStore.update(contract: contract, tokenId: String(tokenId, radix: 16).add0x, action: .updateJsonProperty(attributeName, value))
-    }
-
-    private func jsonAttributeValueInDatabase(forContract contract: String, tokenId: BigUInt, attributeName: String) -> Any? {
-        return tokensDataStore.jsonAttributeValue(forContract: contract, tokenId: String(tokenId, radix: 16).add0x, attributeName: attributeName)
-    }
-
-    private func cache(functionCall: AssetAttributeFunctionCall, result: Subscribable<AssetAttributeValue>) {
-        CallForAssetAttributeCoordinator.functionCallCache[functionCall] = result
-    }
-
-    private func cache(forFunctionCall functionCall: AssetAttributeFunctionCall) -> Subscribable<AssetAttributeValue>? {
-        return CallForAssetAttributeCoordinator.functionCallCache[functionCall]
-    }
-
-    private func shouldRefresh(functionCall: AssetAttributeFunctionCall) -> Bool {
-        if let contractToRefetch = contractToRefetch, contractToRefetch.sameContract(as: functionCall.contract) {
-            return true
-        } else {
-            return false
-        }
-    }
-
     private func makeRpcPromise(
-            forAttributeName attributeName: String,
-            tokenId: BigUInt,
-            functionCall: AssetAttributeFunctionCall) -> Promise<AssetAttributeValue> {
-        return Promise<AssetAttributeValue> { seal in
-            guard let contract = Address(string: functionCall.contract) else {
-                seal.reject(Web3Error(description: "Error converting contract address: \(functionCall.contract)"))
-                return
-            }
-
+            forAttributeId attributeId: AttributeId?,
+            tokenId: TokenId,
+            functionCall: AssetFunctionCall) -> Promise<AssetInternalValue> {
+        return Promise<AssetInternalValue> { seal in
             guard let function = CallForAssetAttribute(functionName: functionCall.functionName, inputs: functionCall.inputs, output: functionCall.output) else {
                 seal.reject(AnyError(Web3Error(description: "Failed to create CallForAssetAttribute instance for function: \(functionCall.functionName)")))
                 return
             }
+            let contract = Address(address: functionCall.contract)
 
             //Fine to store a strong reference to self here because it's still useful to cache the function call result
             callSmartContract(withServer: server, contract: contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments).done { dictionary in
                 if let value = dictionary["0"] {
                     switch functionCall.output.type {
+                    case .address:
+                        if let value = value as? EthereumAddress {
+                            let result = AlphaWallet.Address(address: value)
+                            seal.fulfill(.address(result))
+                        }
                     case .bool:
                         let result = value as? Bool ?? false
-                        seal.fulfill(result)
-                        self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
+                        seal.fulfill(.bool(result))
                     case .string:
                         let result = value as? String ?? ""
-                        seal.fulfill(result)
-                        self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
-                    case .int, .int8, .int16, .int32, .int64, .int128, .int256, .uint, .uint8, .uint16, .uint32, .uint64, .uint128, .uint256:
-                        let result = value as? Int ?? 0
-                        seal.fulfill(result)
-                        self.updateDataStore(forContract: functionCall.contract, tokenId: tokenId, attributeName: attributeName, value: result)
+                        seal.fulfill(.string(result))
+                    case .uint, .uint8, .uint16, .uint24, .uint32, .uint40, .uint48, .uint56, .uint64, .uint72, .uint80, .uint88, .uint96, .uint104, .uint112, .uint120, .uint128, .uint136, .uint144, .uint152, .uint160, .uint168, .uint176, .uint184, .uint192, .uint200, .uint208, .uint216, .uint224, .uint232, .uint240, .uint248, .uint256:
+                        let result = value as? BigUInt ?? BigUInt(0)
+                        seal.fulfill(.uint(result))
+                    case .int, .int8, .int16, .int24, .int32, .int40, .int48, .int56, .int64, .int72, .int80, .int88, .int96, .int104, .int112, .int120, .int128, .int136, .int144, .int152, .int160, .int168, .int176, .int184, .int192, .int200, .int208, .int216, .int224, .int232, .int240, .int248, .int256:
+                        let result = value as? BigInt ?? BigInt(0)
+                        seal.fulfill(.int(result))
+                    case .void:
+                        //Don't expect to reach here
+                        seal.fulfill(.bool(false))
                     }
                 } else {
-                    seal.reject(Web3Error(description: "nil result from calling: \(function.name)() on contract: \(functionCall.contract)"))
+                    if case SolidityType.void = functionCall.output.type {
+                        seal.fulfill(.bool(false))
+                    } else {
+                        seal.reject(Web3Error(description: "nil result from calling: \(function.name)() on contract: \(functionCall.contract.eip55String)"))
+                    }
                 }
             }.catch {
                 seal.reject(AnyError($0))
