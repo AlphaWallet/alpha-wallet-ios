@@ -7,6 +7,7 @@ import PromiseKit
 protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
+    func openConsole(inCoordinator coordinator: TokensCoordinator)
 }
 
 fileprivate struct NoContractDetailsDetected: Error {
@@ -40,11 +41,13 @@ class TokensCoordinator: Coordinator {
         queue.maxConcurrentOperationCount = 1
         return queue
     }()
+
     private lazy var tokensViewController: TokensViewController = {
         let controller = TokensViewController(
                 sessions: sessions,
                 account: sessions.anyValue.account,
-                tokenCollection: tokenCollection
+                tokenCollection: tokenCollection,
+                assetDefinitionStore: assetDefinitionStore
         )
         controller.delegate = self
         return controller
@@ -193,6 +196,10 @@ class TokensCoordinator: Coordinator {
             }
         }
     }
+
+    func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
+        tokensViewController.listOfBadTokenScriptFiles = fileNames
+    }
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
@@ -214,6 +221,10 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     func didDelete(token: TokenObject, in viewController: UIViewController) {
         guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
         coordinator.delete(token: token)
+    }
+
+    func didTapOpenConsole(in viewController: UIViewController) {
+        delegate?.openConsole(inCoordinator: self)
     }
 
     func didPressAddToken(in viewController: UIViewController) {

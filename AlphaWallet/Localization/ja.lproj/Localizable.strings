@@ -113,7 +113,8 @@
 "tickets.lowercase" = "チケット";
 "tickets.titlecase" = "チケット";
 "cryptokitties.lowercase" = "cryptokitties";
-"cryptokitties.titlecase" = "Cryptokitties";
+"cryptokitties.titlecase" = "CryptoKitties";
+"cryptokitty.titlecase" = "CryptoKitty";
 "tokens.newtoken.navigation.title" = "カスタム トークンを追加";
 "transaction.cell.error.title" = "エラー";
 "transaction.cell.received.title" = "受信しました";
@@ -165,8 +166,9 @@
 "a.wallet.import.wallet.title" = "インポート";
 "a.wallet.import.wallet.bubble.title" = "インポートするチケットがありますか?";
 "a.wallet.import.wallet.bubble.description" = "メール/SMS でインポート リンクを確認します。リンクをタップすると、自動的にアプリにインポートされます!";
-"a.wallet.token.verifiedContract" = "AlphaWallet で検証されました";
+"a.wallet.token.verifiedContract" = "検証されました";
 "a.wallet.token.unverifiedContract" = "未検証";
+"a.wallet.token.debugContract" = "DEBUG";
 "a.wallet.token.match.vs" = "%@-%@";
 "a.wallet.token.redeem.button.title" = "交換";
 "a.wallet.token.redeem.selectTokens.title" = "交換する %@ を選択:";
@@ -238,7 +240,8 @@
 "a.wallet.next.button.title" = "次へ";
 "a.wallet.no.tokens" = "まだトークンがありません";
 "a.help.navigation.title" = "ヘルプ・よくある質問";
-"a.help.assetDefinitionOverrides.title" = "Asset Definition Overrides";
+"a.help.assetDefinitionOverrides.title" = "TokenScript Overrides";
+"a.console.title" = "Console";
 "a.help.contact.footer.button.title" = "まだヘルプが必要ですか? 当社にお問い合わせください";
 "a.help.contact.email.subject" = "AlphaWallet のヘルプ/フィードバック";
 "a.help.contact.email.helpfulToDevelopers" = "開発者に役立つ情報:";
@@ -261,7 +264,7 @@
 "a.welcome.onboarding.3" = "お気に入りのトークンを購入、売却、送信";
 "a.welcome.onboarding.createwallet.button.title" = "開始";
 "a.marketplace.tabbar.item.title" = "マーケットプレース";
-"a.claim.token.title" = "トークンをインポートする";
+"a.claim.token.title" = "Importing %@";
 "a.claim.token.prompt" = "インポート リンク?";
 "a.claim.token.success.title" = "チケットが送信され、残高が間もなく更新されます";
 "a.claim.token.failed.title" = "無効なチケットのリンク";
@@ -332,3 +335,11 @@
 "a.claim.token.failed.notEnoughXDAI.title" = "a.claim.token.failed.notEnoughXDAI.title";
 "photos" = "Photos";
 "a.claim.token.failed.serverDown" = "a.claim.token.failed.serverDown";
+"tokenScript.notSupportedSchema.error" = "Please upgrade AlphaWallet to support this TokenScript file";
+"TokenScript.verifying" = "Verifying...";
+"TokenScript.showErrors" = "Show errors";
+"TokenScript.type1.supportedAndSigned" = "Verified";
+"TokenScript.type1.supportedNotCanonicalizedAndUnsigned" = "Unsigned";
+"TokenScript.type2.conflictingFiles" = "Conflicting TokenScript Files";
+"TokenScript.type2.oldSchemaVersion" = "Old TokenScript Version";
+"TokenScript.type2.invalidSignature" = "Invalid Signature";

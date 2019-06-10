@@ -17,30 +17,32 @@ struct Token {
     let id: BigUInt
     let index: UInt16
     let name: String
+    let symbol: String
     let status: Status
-    let values: [String: AssetAttributeValue]
+    let values: [String: AssetAttributeSyntaxValue]
 
     static var empty: Token {
         return Token(
                 id: Constants.nullTokenIdBigUInt,
                 index: 0,
                 name: R.string.localizable.tokensTitlecase(),
+                symbol: "",
                 status: .available,
                 values: [
-                    "locality": "N/A",
-                    "venue": "N/A",
-                    "match": 0,
-                    "time": GeneralisedTime.init(),
-                    "numero": 0,
-                    "category": "N/A",
-                    "countryA": "N/A",
-                    "countryB": "N/A"
+                    "locality": .init(defaultValueWithSyntax: .directoryString),
+                    "venue": .init(defaultValueWithSyntax: .directoryString),
+                    "match": .init(defaultValueWithSyntax: .integer),
+                    "time": .init(defaultValueWithSyntax: .generalisedTime),
+                    "numero": .init(defaultValueWithSyntax: .integer),
+                    "category": .init(defaultValueWithSyntax: .directoryString),
+                    "countryA": .init(defaultValueWithSyntax: .directoryString),
+                    "countryB": .init(defaultValueWithSyntax: .directoryString)
                 ]
         )
     }
 
     //TODO have a better way to test for spawnable meetup contracts
     var isSpawnableMeetupContract: Bool {
-        return values["building"] != nil
+        return values["expired"] != nil && values["locality"] != nil && values["building"] != nil
     }
 }

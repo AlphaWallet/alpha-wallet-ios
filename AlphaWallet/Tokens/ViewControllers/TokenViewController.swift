@@ -7,24 +7,29 @@ protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSend(forTransferType transferType: TransferType, inViewController viewController: TokenViewController)
     func didTapReceive(forTransferType transferType: TransferType, inViewController viewController: TokenViewController)
     func didTap(transaction: Transaction, inViewController viewController: TokenViewController)
+    func didTap(action: TokenInstanceAction, transferType: TransferType, viewController: TokenViewController)
 }
 
 class TokenViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
-    private let header = TokenViewControllerHeaderView()
+    lazy private var header = {
+        return TokenViewControllerHeaderView(contract: transferType.contract())
+    }()
     lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server)
     private var viewModel: TokenViewControllerViewModel?
     private let session: WalletSession
     private let tokensDataStore: TokensDataStore
+    private let assetDefinitionStore: AssetDefinitionStore
     private let transferType: TransferType
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(numberOfButtons: 2)
 
     weak var delegate: TokenViewControllerDelegate?
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, transferType: TransferType) {
+    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transferType: TransferType) {
         self.session = session
         self.tokensDataStore = tokensDataStore
+        self.assetDefinitionStore = assetDefinition
         self.transferType = transferType
 
         super.init(nibName: nil, bundle: nil)
@@ -71,27 +76,36 @@ class TokenViewController: UIViewController {
 
         headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
 
-        switch transferType {
-        case .nativeCryptocurrency:
-            header.verificationStatus = .verified(session.account.address.eip55String)
-        case .ERC20Token(let token, _, _), .ERC875TokenOrder(let token), .ERC875Token(let token), .ERC721Token(let token):
-            header.verificationStatus = .unverified(token.contract)
-        case .dapp:
-            header.verificationStatus = .unverified(session.account.address.eip55String)
+        let xmlHandler = XMLHandler(contract: transferType.contract().eip55String, assetDefinitionStore: assetDefinitionStore)
+        if xmlHandler.server == session.server {
+            let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
+            if tokenScriptStatusPromise.isPending {
+                tokenScriptStatusPromise.done { _ in
+                    self.configure(viewModel: viewModel)
+                }
+            }
+            header.tokenScriptFileStatus = tokenScriptStatusPromise.value
+        } else {
+            header.tokenScriptFileStatus = .type0NoTokenScript
         }
         header.sendHeaderView.configure(viewModel: headerViewModel)
-        header.frame.size.height = 220
+        header.frame.size.height = header.systemLayoutSizeFitting(.zero).height + 30
+
         tableView.tableHeaderView = header
 
+        let actions = viewModel.actions
+        buttonsBar.numberOfButtons = actions.count
         buttonsBar.configure()
-
-        let sendButton = buttonsBar.buttons[0]
-        sendButton.setTitle(viewModel.sendButtonTitle, for: .normal)
-        sendButton.addTarget(self, action: #selector(send), for: .touchUpInside)
-
-        let receiveButton = buttonsBar.buttons[1]
-        receiveButton.setTitle(viewModel.receiveButtonTitle, for: .normal)
-        receiveButton.addTarget(self, action: #selector(receive), for: .touchUpInside)
+        for (action, button) in zip(actions, buttonsBar.buttons) {
+            button.setTitle(action.name, for: .normal)
+            button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
+            switch session.account.type {
+            case .real:
+                button.isEnabled = true
+            case .watch:
+                button.isEnabled = false
+            }
+        }
 
         tableView.reloadData()
     }
@@ -137,6 +151,26 @@ class TokenViewController: UIViewController {
     @objc private func receive() {
         delegate?.didTapReceive(forTransferType: transferType, inViewController: self)
     }
+
+    @objc private func actionButtonTapped(sender: UIButton) {
+        guard let viewModel = viewModel else { return }
+        let actions = viewModel.actions
+        for (action, button) in zip(actions, buttonsBar.buttons) {
+            if button == sender {
+                switch action.type {
+                case .erc20Send:
+                    send()
+                case .erc20Receive:
+                    receive()
+                case .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
+                    break
+                case .tokenScript:
+                    delegate?.didTap(action: action, transferType: transferType, viewController: self)
+                }
+                break
+            }
+        }
+    }
 }
 
 extension TokenViewController: UITableViewDataSource {
@@ -176,5 +210,9 @@ extension TokenViewController: UITableViewDelegate {
 extension TokenViewController: TokenViewControllerHeaderViewDelegate {
     func didPressViewContractWebPage(forContract contract: String, inHeaderView: TokenViewControllerHeaderView) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
+    }
+
+    func didPressViewWebPage(url: URL, inHeaderView: TokenViewControllerHeaderView) {
+        delegate?.didPressOpenWebPage(url, in: self)
     }
 }

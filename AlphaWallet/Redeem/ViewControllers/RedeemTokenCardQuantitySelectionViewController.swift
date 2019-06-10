@@ -29,23 +29,25 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     var server: RPCServer {
         return token.server
     }
+    let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: RedeemTokenCardQuantitySelectionViewControllerDelegate?
 
-    init(token: TokenObject, viewModel: RedeemTokenCardQuantitySelectionViewModel) {
+    init(token: TokenObject, viewModel: RedeemTokenCardQuantitySelectionViewModel, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
         self.viewModel = viewModel
+        self.assetDefinitionStore = assetDefinitionStore
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
         switch tokenType {
         case .supportedByOpenSea:
-            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notSupportedByOpenSea:
-            tokenRowView = TokenCardRowView()
+            tokenRowView = TokenCardRowView(server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(isVerified: true)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -109,7 +111,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     @objc
     func nextButtonTapped() {
         if quantityStepper.value == 0 {
-            let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+            let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTokenRedeemSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],
@@ -121,20 +123,12 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
         }
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     func configure(viewModel newViewModel: RedeemTokenCardQuantitySelectionViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
 
-        updateNavigationRightBarButtons(isVerified: isContractVerified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -175,5 +169,18 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
         super.viewDidLayoutSubviews()
         quantityStepper.layer.cornerRadius = quantityStepper.frame.size.height / 2
     }
+}
 
+extension RedeemTokenCardQuantitySelectionViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
+    }
 }

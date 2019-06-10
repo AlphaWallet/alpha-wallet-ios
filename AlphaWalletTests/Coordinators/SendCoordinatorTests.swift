@@ -14,7 +14,8 @@ class SendCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(),
             storage: FakeTokensDataStore(),
             account: .make(),
-            ethPrice: Subscribable<Double>(nil)
+            ethPrice: Subscribable<Double>(nil),
+            assetDefinitionStore: AssetDefinitionStore()
         )
 
         coordinator.start()
@@ -31,7 +32,8 @@ class SendCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(),
             storage: FakeTokensDataStore(),
             account: .make(),
-            ethPrice: Subscribable<Double>(nil)
+            ethPrice: Subscribable<Double>(nil),
+            assetDefinitionStore: AssetDefinitionStore()
         )
         coordinator.start()
 

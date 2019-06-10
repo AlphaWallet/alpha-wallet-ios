@@ -4,19 +4,19 @@ import Foundation
 
 protocol AssetDefinitionBackingStore {
     var delegate: AssetDefinitionBackingStoreDelegate? { get set }
+    var badTokenScriptFileNames: [TokenScriptFileIndices.FileName] { get }
+    var conflictingTokenScriptFileNames: [TokenScriptFileIndices.FileName] { get }
 
-    subscript(contract: String) -> String? { get set }
-    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date?
-    func forEachContractWithXML(_ body: (String) -> Void)
-    func isOfficial(contract: String) -> Bool
-}
-
-extension AssetDefinitionBackingStore {
-    func standardizedName(ofContract contract: String) -> String {
-        return contract.add0x.lowercased()
-    }
+    subscript(contract: AlphaWallet.Address) -> String? { get set }
+    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date?
+    func forEachContractWithXML(_ body: (AlphaWallet.Address) -> Void)
+    func isOfficial(contract: AlphaWallet.Address) -> Bool
+    func isCanonicalized(contract: AlphaWallet.Address) -> Bool
+    func hasConflictingFile(forContract contract: AlphaWallet.Address) -> Bool
+    func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool
 }
 
 protocol AssetDefinitionBackingStoreDelegate: class {
-    func invalidateAssetDefinition(forContract contract: String)
+    func invalidateAssetDefinition(forContract contract: AlphaWallet.Address)
+    func badTokenScriptFilesChanged(in: AssetDefinitionBackingStore)
 }

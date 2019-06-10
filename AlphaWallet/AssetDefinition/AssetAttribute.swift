@@ -5,221 +5,125 @@ import BigInt
 import PromiseKit
 //TODO make only XMLHandler import Kanna and hence be the only file to handle XML parsing
 import Kanna
+import TrustKeystore
 
-protocol AssetAttributeValue {}
-extension String: AssetAttributeValue {}
-extension Int: AssetAttributeValue {}
-extension GeneralisedTime: AssetAttributeValue {}
-extension Array: AssetAttributeValue {}
-extension Bool: AssetAttributeValue {}
-struct SubscribableAssetAttributeValue: AssetAttributeValue {
-    let subscribable: Subscribable<AssetAttributeValue>
-}
+///Handles:
+///
+///1) origin (function call, token-id, user-entry)
+///2) then an optional mapping
+///3) then enforce syntax
+struct AssetAttribute {
+    private let attribute: XMLElement
+    private let xmlContext: XmlContext
+    private let origin: Origin
+    private let mapping: AssetAttributeMapping?
 
-enum AssetAttributeSyntax: String {
-    case directoryString = "1.3.6.1.4.1.1466.115.121.1.15"
-    case generalisedTime = "1.3.6.1.4.1.1466.115.121.1.24"
-    case iA5String = "1.3.6.1.4.1.1466.115.121.1.26"
-    case integer = "1.3.6.1.4.1.1466.115.121.1.27"
-    case bool = "1.3.6.1.4.1.1466.115.121.1.7"
+    let syntax: AssetAttributeSyntax
 
-    var solidityReturnType: CallForAssetAttribute.SolidityType {
-        switch self {
-        case .directoryString, .generalisedTime, .iA5String:
-            return .string
-        case .integer:
-            return .int
-        case .bool:
-            return .bool
+    var userEntryId: String? {
+        return origin.userEntryId
+    }
+    var isUserEntryOriginBased: Bool {
+        switch origin {
+        case .userEntry:
+            return true
+        case .tokenId, .function:
+            return false
         }
     }
-
-    func extract(from string: String, isMapping: Bool) -> Any? {
-        switch self {
-        case .generalisedTime:
-            //TODO fix 2 possible formats of string value at this point. Where it is GeneralisedTime or encoded instead of using an ugly length check
-            //TODO add test case to make sure both formats work
-            //e.g. 20180911190201+0800
-            let lengthOfGeneralisedTime = 19
-            if string.count == lengthOfGeneralisedTime {
-                return GeneralisedTime(string: string)
-            } else {
-                if let value = BigUInt(string), let string = String(data: Data(bytes: String(value, radix: 16).hexa2Bytes), encoding: .utf8) {
-                    return GeneralisedTime(string: string)
-                } else {
-                    return GeneralisedTime()
-                }
-            }
-        case .directoryString, .iA5String:
-            if isMapping {
-                return string
-            } else {
-                guard let value = BigUInt(string) else { return "" }
-                return String(data: Data(bytes: String(value, radix: 16).hexa2Bytes), encoding: .utf8)
-            }
-        case .integer:
-            return Int(string)
-        case .bool:
-            return string == "1"
+    var isTokenIdOriginBased: Bool {
+        switch origin {
+        case .tokenId:
+            return true
+        case .userEntry, .function:
+            return false
         }
     }
-}
-
-enum AssetAttribute {
-    case mapping(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], syntax: AssetAttributeSyntax, lang: String, bitmask: BigUInt, bitShift: Int)
-    case direct(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], syntax: AssetAttributeSyntax, bitmask: BigUInt, bitShift: Int)
-    case function(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], syntax: AssetAttributeSyntax, attributeName: String, functionName: String, inputs: [CallForAssetAttribute.Argument], output: CallForAssetAttribute.ReturnType)
-
-    init(attribute: XMLElement, rootNamespacePrefix: String, namespaces: [String: String], lang: String) {
-        self = {
-            //TODO show error if syntax attribute is missing
-            if let origin = XMLHandler.getOriginElement(fromAttributeTypeElement: attribute, namespacePrefix: rootNamespacePrefix, namespaces: namespaces), let rawSyntax = attribute["syntax"], let syntax = AssetAttributeSyntax(rawValue: rawSyntax), let type = origin["as"], let bitmask = XMLHandler.getBitMaskFrom(fromAttributeTypeElement: attribute, namespacePrefix: rootNamespacePrefix, namespaces: namespaces) {
-                let bitShift = AssetAttribute.bitShiftCount(forBitMask: bitmask)
-                switch type {
-                case "mapping":
-                    return .mapping(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, syntax: syntax, lang: lang, bitmask: bitmask, bitShift: bitShift)
-                default:
-                    return .direct(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, syntax: syntax, bitmask: bitmask, bitShift: bitShift)
-                }
-            }
-            //TODO maybe return an optional to indicate error instead?
-            return .direct(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, syntax: .iA5String, bitmask: BigUInt(0), bitShift: 0)
-        }()
-    }
-
-    init(attribute: XMLElement, functionElement: XMLElement, rootNamespacePrefix: String, namespaces: [String: String]) {
-        self = {
-            if let attributeName = attribute["id"],
-               let rawSyntax = attribute["syntax"],
-               let syntax = AssetAttributeSyntax(rawValue: rawSyntax),
-               let functionName = functionElement["name"],
-               !functionName.isEmpty {
-                let inputs: [CallForAssetAttribute.Argument]
-                let returnType = syntax.solidityReturnType
-                let output = CallForAssetAttribute.ReturnType(type: returnType)
-                if let inputsElement = XMLHandler.getInputsElement(fromFunctionElement: functionElement, namespacePrefix: rootNamespacePrefix, namespaces: namespaces) {
-                    inputs = AssetAttribute.extractInputs(fromInputsElement: inputsElement)
-                } else {
-                    inputs = []
-                }
-
-                return .function(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, syntax: syntax, attributeName: attributeName, functionName: functionName, inputs: inputs, output: output)
-            } else {
-                //TODO maybe return an optional to indicate error instead?
-                return .direct(attribute: attribute, rootNamespacePrefix: rootNamespacePrefix, namespaces: namespaces, syntax: .iA5String, bitmask: BigUInt(0), bitShift: 0)
-            }
-        }()
-    }
-
-    private static func extractInputs(fromInputsElement inputsElement: XMLElement) -> [CallForAssetAttribute.Argument] {
-        return XMLHandler.getInputs(fromInputsElement: inputsElement).compactMap {
-            if let inputTypeString = $0.tagName, !inputTypeString.isEmpty, let inputName = $0["ref"], !inputName.isEmpty, let inputType = CallForAssetAttribute.SolidityType(rawValue: inputTypeString) {
-                return .init(name: inputName, type: inputType)
-            } else {
-                return nil
-            }
-        }
-    }
-
-    func extract(from tokenValue: BigUInt, ofContract contract: String, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> AssetAttributeValue {
-        switch self {
-        case .mapping(_, _, _, let syntax, _, _, _), .direct(_, _, _, let syntax, _, _):
-            switch syntax {
-            case .directoryString, .iA5String:
-                let value: String = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? "N/A"
-                return value
-            case .generalisedTime:
-                let value: GeneralisedTime = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? .init()
-                return value
-            case .integer:
-                let value: Int = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? 0
-                return value
-            case .bool:
-                let value: Bool = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) ?? false
-                return value
-            }
-        case .function(_, _, _, let syntax, _, _, _, _):
-            if let subscribableAttributeValue: SubscribableAssetAttributeValue = extract(from: tokenValue, ofContract: contract, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator) {
-                return subscribableAttributeValue
-            } else {
-                switch syntax {
-                case .directoryString, .iA5String:
-                    return "N/A"
-                case .generalisedTime:
-                    return GeneralisedTime()
-                case .integer:
-                    return 0
-                case .bool:
-                    return false
-                }
-            }
-        }
-    }
-
-    private func extract<T>(from tokenValue: BigUInt, ofContract contract: String, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?) -> T? where T: AssetAttributeValue {
-        switch self {
-        case .mapping(let attribute, let rootNamespacePrefix, let namespaces, let syntax, let lang, _, _):
-            guard let key = parseValue(tokenValue: tokenValue) else { return nil }
-            guard let value = XMLHandler.getMappingOptionValue(fromAttributeElement: attribute, namespacePrefix: rootNamespacePrefix, namespaces: namespaces, withKey: String(key), forLang: lang) else { return nil }
-            return syntax.extract(from: value, isMapping: true) as? T
-        case .direct(_, _, _, let syntax, _, _):
-            guard let value = parseValue(tokenValue: tokenValue) else { return nil }
-            return syntax.extract(from: String(value), isMapping: false) as? T
-        case .function(_, _, _, _, let attributeName, let functionName, let inputs, let output):
-            let arguments: [AnyObject]
-            //TODO we only support tokenID for now
-            if inputs.count == 1 && (inputs[0].name == "tokenID" || inputs[0].name == "TokenID") {
-                //TODO what format do we need to pass the tokenValue in?
-                arguments = [String(tokenValue) as NSString]
-            } else {
-                arguments = []
-            }
-
-            let functionCall = AssetAttributeFunctionCall(
-                    server: server,
-                    contract: contract,
-                    functionName: functionName,
-                    inputs: inputs,
-                    output: output,
-                    arguments: arguments
-            )
-            let subscribable = callSmartContractFunction(
-                    forAttributeName: attributeName,
-                    tokenId: tokenValue,
-                    functionCall: functionCall,
-                    callForAssetAttributeCoordinator: callForAssetAttributeCoordinator
-            )
-            return SubscribableAssetAttributeValue(subscribable: subscribable) as? T
-        }
-    }
-
-    private func parseValue(tokenValue: BigUInt) -> BigUInt? {
-        switch self {
-        case .direct(_, _, _, _, let bitmask, let bitShift), .mapping(_, _, _, _, _, let bitmask, let bitShift):
-            return (bitmask & tokenValue) >> bitShift
+    var isFunctionOriginBased: Bool {
+        switch origin {
         case .function:
-            return nil
+            return true
+        case .tokenId, .userEntry:
+            return false
         }
     }
-
-    ///Used to truncate bits to the right of the bitmask
-    private static func bitShiftCount(forBitMask bitmask: BigUInt) -> Int {
-        var count = 0
-        repeat {
-            count += 1
-        } while bitmask % (1 << count) == 0
-        return count - 1
+    var name: String {
+        return XMLHandler.getNameElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext)?.text ?? ""
     }
 
-    private func callSmartContractFunction(
-            forAttributeName attributeName: String,
-            tokenId: BigUInt,
-            functionCall: AssetAttributeFunctionCall,
-            callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator?
-    ) -> Subscribable<AssetAttributeValue> {
-        guard let callForAssetAttributeCoordinator = callForAssetAttributeCoordinator else {
-            return Subscribable<AssetAttributeValue>(nil)
+    init?(attribute: XMLElement, xmlContext: XmlContext, server: RPCServer, contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]]) {
+        guard let rawSyntax = attribute["syntax"],
+              let syntax = AssetAttributeSyntax(rawValue: rawSyntax) else { return nil }
+
+        var originFound: Origin? = nil
+        if let tokenIdElement = XMLHandler.getTokenIdElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
+           XMLHandler.getBitMask(fromTokenIdElement: tokenIdElement) != nil {
+            originFound = Origin(forTokenIdElement: tokenIdElement, xmlContext: xmlContext)
+        } else if let ethereumFunctionElement = XMLHandler.getOriginFunctionElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
+                  ethereumFunctionElement["function"] != nil,
+                  let attributeId = attribute["id"],
+                  let functionOriginContractName = ethereumFunctionElement["contract"].nilIfEmpty,
+                  let contract = XMLHandler.getNonTokenHoldingContract(byName: functionOriginContractName, server: server, fromContractNamesAndAddresses: contractNamesAndAddresses) {
+            originFound = Origin(forEthereumFunctionElement: ethereumFunctionElement, attributeId: attributeId, originContract: contract, xmlContext: xmlContext)
+        } else if let userEntryElement = XMLHandler.getOriginUserEntryElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
+                  let attributeId = attribute["id"] {
+            originFound = Origin(forUserEntryElement: userEntryElement, attributeId: attributeId, xmlContext: xmlContext)
         }
-        return callForAssetAttributeCoordinator.getValue(forAttributeName: attributeName, tokenId: tokenId, functionCall: functionCall)
+
+        guard let origin = originFound else { return nil }
+        self.attribute = attribute
+        self.xmlContext = xmlContext
+        self.syntax = syntax
+        self.origin = origin
+        self.mapping = origin.extractMapping()
+    }
+
+    func value(from tokenId: TokenId, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator, userEntryValues: [String: String], tokenLevelNonSubscribableAttributesAndValues: [String: AssetInternalValue]) -> AssetAttributeSyntaxValue {
+        let valueFromOriginOptional: AssetInternalValue?
+        valueFromOriginOptional = origin.extractValue(fromTokenId: tokenId, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, userEntryValues: userEntryValues, tokenLevelNonSubscribableAttributesAndValues: tokenLevelNonSubscribableAttributesAndValues)
+        guard let valueFromOrigin = valueFromOriginOptional else { return .init(defaultValueWithSyntax: syntax) }
+
+        let valueAfterMapping: AssetInternalValue
+        if let mapping = mapping {
+            guard let output = mapping.map(fromKey: valueFromOrigin) else { return .init(defaultValueWithSyntax: syntax) }
+            valueAfterMapping = output
+        } else {
+            valueAfterMapping = valueFromOrigin
+        }
+        return .init(syntax: syntax, value: valueAfterMapping)
+    }
+}
+
+extension Dictionary where Key == String, Value == AssetAttribute {
+    //This is useful for implementing 3-phase resolution of attributes: resolve the immediate ones (non-function origins), then use those values to resolve the function-origins
+    var splitAttributesByOrigin: (tokenIdBased: [Key: Value], userEntryBased: [Key: Value], functionBased: [Key: Value]) {
+        return (
+                tokenIdBased: filter { $0.value.isTokenIdOriginBased },
+                userEntryBased: filter { $0.value.isUserEntryOriginBased },
+                functionBased: filter { $0.value.isFunctionOriginBased }
+        )
+    }
+
+    //Order of resolution is important: token-id, user-entry, functions. For now, we don't support functions that have args based on attributes that are also function-based
+    func resolve(withTokenId tokenId: TokenId, userEntryValues: [String: String], server: RPCServer, account: Wallet, additionalValues: [String: AssetAttributeSyntaxValue]) -> [String: AssetAttributeSyntaxValue] {
+        var attributeNameValues = [String: AssetAttributeSyntaxValue]()
+        let (tokenIdBased, userEntryBased, functionBased) = splitAttributesByOrigin
+        //TODO get rid of the forced unwrap
+        let callForAssetAttributeCoordinator = (XMLHandler.callForAssetAttributeCoordinators?[server])!
+        for (name, attribute) in tokenIdBased {
+            let value = attribute.value(from: tokenId, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, userEntryValues: userEntryValues, tokenLevelNonSubscribableAttributesAndValues: .init())
+            attributeNameValues[name] = value
+        }
+        for (name, attribute) in userEntryBased {
+            let resolvedAttributes = attributeNameValues.merging(additionalValues) { (_, new) in new }
+            let value = attribute.value(from: tokenId, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, userEntryValues: userEntryValues, tokenLevelNonSubscribableAttributesAndValues: resolvedAttributes.mapValues { $0.value })
+            attributeNameValues[name] = value
+        }
+        for (name, attribute) in functionBased {
+            let resolvedAttributes = attributeNameValues.merging(additionalValues) { (_, new) in new }
+            let value = attribute.value(from: tokenId, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, userEntryValues: userEntryValues, tokenLevelNonSubscribableAttributesAndValues: resolvedAttributes.mapValues { $0.value })
+            attributeNameValues[name] = value
+        }
+        return attributeNameValues
     }
 }

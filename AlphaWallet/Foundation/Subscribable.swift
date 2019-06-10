@@ -2,6 +2,7 @@
 
 import Foundation
 
+//TODO probably should have an ID which is really good for debugging
 open class Subscribable<T> {
     private var _value: T?
     private var _subscribers: [(T?) -> Void] = []

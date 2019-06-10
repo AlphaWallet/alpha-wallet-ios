@@ -12,9 +12,10 @@ import UIKit
 struct RedeemTokenCardQuantitySelectionViewModel {
     let token: TokenObject
     let tokenHolder: TokenHolder
+    let assetDefinitionStore: AssetDefinitionStore
 
     var headerTitle: String {
-        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
 		return R.string.localizable.aWalletTokenRedeemSelectQuantityTitle(tokenTypeName)
     }
 
@@ -39,7 +40,7 @@ struct RedeemTokenCardQuantitySelectionViewModel {
     }
 
     var subtitleText: String {
-        let tokenTypeName = XMLHandler(contract: token.address.eip55String).getTokenTypeName()
+        let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
 		return R.string.localizable.aWalletTokenRedeemQuantityTitle(tokenTypeName.localizedUppercase)
     }
 }

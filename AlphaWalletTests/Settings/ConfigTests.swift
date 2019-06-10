@@ -14,11 +14,13 @@ class ConfigTests: XCTestCase {
     }
 
     func testSwitchLocale() {
+        let assetDefinitionStore = AssetDefinitionStore()
         Config.setLocale(AppLocale.english)
         let vc1 = TokensViewController(
                 sessions: .init(),
                 account: .make(),
-                tokenCollection: .init(tokenDataStores: [FakeTokensDataStore()])
+                tokenCollection: .init(tokenDataStores: [FakeTokensDataStore()]),
+                assetDefinitionStore: assetDefinitionStore
         )
         XCTAssertEqual(vc1.title, "Wallet")
 
@@ -26,7 +28,8 @@ class ConfigTests: XCTestCase {
         let vc2 = TokensViewController(
                 sessions: .init(),
                 account: .make(),
-                tokenCollection: .init(tokenDataStores: [FakeTokensDataStore()])
+                tokenCollection: .init(tokenDataStores: [FakeTokensDataStore()]),
+                assetDefinitionStore: assetDefinitionStore
         )
         XCTAssertEqual(vc2.title, "我的钱包")
 

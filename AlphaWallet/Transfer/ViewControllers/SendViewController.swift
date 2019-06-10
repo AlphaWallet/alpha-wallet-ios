@@ -20,22 +20,23 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 
 class SendViewController: UIViewController, CanScanQRCode {
     private let roundedBackground = RoundedBackground()
-    private let header = SendHeaderView()
+    private let scrollView = UIScrollView()
+    private let header = SendHeaderViewWithIntroduction()
     private let targetAddressLabel = UILabel()
     private let amountLabel = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: SendViewModel!
-    lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server)
+    lazy private var headerViewModel = SendHeaderViewViewModelWithIntroduction(server: session.server, assetDefinitionStore: assetDefinitionStore)
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
     private let account: Account
     private let ethPrice: Subscribable<Double>
+    private let assetDefinitionStore: AssetDefinitionStore
     private var gasPrice: BigInt?
     private var data = Data()
     private lazy var decimalFormatter: DecimalFormatter = {
         return DecimalFormatter()
     }()
-
     let targetAddressTextField = AddressTextField()
     lazy var amountTextField = AmountTextField(server: session.server)
     weak var delegate: SendViewControllerDelegate?
@@ -63,13 +64,15 @@ class SendViewController: UIViewController, CanScanQRCode {
             storage: TokensDataStore,
             account: Account,
             transferType: TransferType,
-            cryptoPrice: Subscribable<Double>
+            cryptoPrice: Subscribable<Double>,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.session = session
         self.account = account
         self.transferType = transferType
         self.storage = storage
         self.ethPrice = cryptoPrice
+        self.assetDefinitionStore = assetDefinitionStore
 
         super.init(nibName: nil, bundle: nil)
 
@@ -77,6 +80,9 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
+
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.addSubview(scrollView)
 
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
@@ -110,7 +116,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             amountTextField.alternativeAmountLabel,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(stackView)
+        scrollView.addSubview(stackView)
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
@@ -118,7 +124,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         roundedBackground.addSubview(footerBar)
 
         footerBar.addSubview(buttonsBar)
-        
+
         NSLayoutConstraint.activate([
             header.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             header.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
@@ -132,7 +138,8 @@ class SendViewController: UIViewController, CanScanQRCode {
 
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -143,6 +150,11 @@ class SendViewController: UIViewController, CanScanQRCode {
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         storage.updatePrices()
@@ -276,6 +288,10 @@ class SendViewController: UIViewController, CanScanQRCode {
             headerViewModel.ticker = ticker
             headerViewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
             headerViewModel.currencyAmountWithoutSymbol = session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
+
+            //TODO is this the best place to put it? because this func is called configureBalanceViewModel() "balance"
+            headerViewModel.contractAddress = token.address.eip55String
+
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
             }

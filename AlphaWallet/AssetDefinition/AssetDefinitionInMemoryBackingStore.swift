@@ -3,10 +3,17 @@
 import Foundation
 
 class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
-    private var xmls = [String: String]()
-    weak var delegate: AssetDefinitionBackingStoreDelegate?
+    private var xmls = [AlphaWallet.Address: String]()
 
-    subscript(contract: String) -> String? {
+    weak var delegate: AssetDefinitionBackingStoreDelegate?
+    var badTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
+        return .init()
+    }
+    var conflictingTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
+        return .init()
+    }
+
+    subscript(contract: AlphaWallet.Address) -> String? {
         get {
             return xmls[contract]
         }
@@ -16,17 +23,29 @@ class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
         }
     }
 
-    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: String) -> Date? {
+    func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
         return nil
     }
 
-    func forEachContractWithXML(_ body: (String) -> Void) {
+    func forEachContractWithXML(_ body: (AlphaWallet.Address) -> Void) {
         xmls.forEach { contract, _ in
             body(contract)
         }
     }
 
-    func isOfficial(contract: String) -> Bool {
+    func isOfficial(contract: AlphaWallet.Address) -> Bool {
+        return false
+    }
+
+    func isCanonicalized(contract: AlphaWallet.Address) -> Bool {
+        return true
+    }
+
+    func hasConflictingFile(forContract contract: AlphaWallet.Address) -> Bool {
+        return false
+    }
+
+    func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool {
         return false
     }
 }

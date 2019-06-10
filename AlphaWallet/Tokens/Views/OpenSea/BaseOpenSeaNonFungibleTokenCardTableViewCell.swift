@@ -11,11 +11,13 @@ protocol BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate: class {
 class BaseOpenSeaNonFungibleTokenCardTableViewCell: UITableViewCell {
     static let identifier = "BaseOpenSeaNonFungibleTokenCardTableViewCell"
 
+    //TODO it's ok to hardcode to.viewIconified for now, we are setting it to the correct value in configure()
     private lazy var rowView: OpenSeaNonFungibleTokenCardRowView = {
-        let result = OpenSeaNonFungibleTokenCardRowView(showCheckbox: showCheckbox())
+        let result = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified, showCheckbox: showCheckbox())
         result.delegate = self
         return result
     }()
+
     weak var delegate: BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -42,6 +44,7 @@ class BaseOpenSeaNonFungibleTokenCardTableViewCell: UITableViewCell {
 
         contentView.backgroundColor = viewModel.backgroundColor
 
+        rowView.tokenView = viewModel.tokenView
         rowView.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder, areDetailsVisible: viewModel.areDetailsVisible, width: viewModel.cellWidth))
 
         if showCheckbox() {
@@ -55,6 +58,10 @@ class BaseOpenSeaNonFungibleTokenCardTableViewCell: UITableViewCell {
 
     func showCheckbox() -> Bool {
         return true
+    }
+
+    func reflectCheckboxVisibility() {
+        rowView.showCheckbox = showCheckbox()
     }
 }
 

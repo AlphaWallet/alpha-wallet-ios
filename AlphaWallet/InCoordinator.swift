@@ -57,6 +57,9 @@ class InCoordinator: NSObject, Coordinator {
             $0 as? TransactionCoordinator
         }.first
     }
+    private var tokensCoordinator: TokensCoordinator? {
+        return coordinators.compactMap { $0 as? TokensCoordinator }.first
+    }
     private var dappBrowserCoordinator: DappBrowserCoordinator? {
         return coordinators.compactMap { $0 as? DappBrowserCoordinator }.first
     }
@@ -147,7 +150,7 @@ class InCoordinator: NSObject, Coordinator {
         do {
             try realm.write {
                 for each in RPCServer.allCases {
-                    let migration = MigrationInitializerForOneChainPerDatabase(account: wallet, server: each)
+                    let migration = MigrationInitializerForOneChainPerDatabase(account: wallet, server: each, assetDefinitionStore: assetDefinitionStore)
                     migration.perform()
                     let oldPerChainDatabase = try! Realm(configuration: migration.config)
                     for each in oldPerChainDatabase.objects(Bookmark.self) {
@@ -174,7 +177,7 @@ class InCoordinator: NSObject, Coordinator {
                 }
             }
             for each in RPCServer.allCases {
-                let migration = MigrationInitializerForOneChainPerDatabase(account: wallet, server: each)
+                let migration = MigrationInitializerForOneChainPerDatabase(account: wallet, server: each, assetDefinitionStore: assetDefinitionStore)
                 let realmUrl = migration.config.fileURL!
                 let realmUrls = [
                     realmUrl,
@@ -192,19 +195,10 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func setupCallForAssetAttributeCoordinators() {
-        assert(!tokensStorages.isEmpty)
-
         callForAssetAttributeCoordinators = .init()
         for each in RPCServer.allCases {
-            let tokensDataStore = tokensStorages[each]
-            let callForAssetAttributeCoordinator = CallForAssetAttributeCoordinator(server: each, tokensDataStore: tokensDataStore)
-            callForAssetAttributeCoordinators[each] = callForAssetAttributeCoordinator
-            //Since this is called at launch, we don't want it to block launching
-            DispatchQueue.global().async {
-                DispatchQueue.main.async {
-                    callForAssetAttributeCoordinator.refreshFunctionCallBasedAssetAttributesForAllTokens()
-                }
-            }
+            let session = walletSessions[each]
+            callForAssetAttributeCoordinators[each] = CallForAssetAttributeCoordinator(server: each, session: session, assetDefinitionStore: self.assetDefinitionStore)
         }
     }
 
@@ -262,13 +256,14 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
+    //Setup functions has to be called in the right order as they may rely on eg. wallet sessions being available. Wrong order should be immediately apparent with crash on startup. So don't worry
     private func setupResourcesOnMultiChain() {
         oneTimeCreationOfOneDatabaseToHoldAllChains()
         setupTokenDataStores()
-        setupCallForAssetAttributeCoordinators()
         setupTransactionsStorages()
         setupEtherBalances()
         setupWalletSessions()
+        setupCallForAssetAttributeCoordinators()
     }
 
     func showTabBar(for account: Wallet) {
@@ -445,7 +440,8 @@ class InCoordinator: NSObject, Coordinator {
                     session: session,
                     keystore: keystore,
                     storage: tokenStorage,
-                    ethPrice: nativeCryptoCurrencyPrices[server]
+                    ethPrice: nativeCryptoCurrencyPrices[server],
+                    assetDefinitionStore: assetDefinitionStore
             )
             coordinator.delegate = self
             if let topVC = navigationController.presentedViewController {
@@ -544,6 +540,8 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     func addImported(contract: String, forServer server: RPCServer) {
+        //Useful to check because we are/might action-only TokenScripts for native crypto currency
+        guard !contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) else { return }
         let tokensCoordinator = coordinators.first { $0 is TokensCoordinator } as? TokensCoordinator
         tokensCoordinator?.addImportedToken(forContract: contract, server: server)
     }
@@ -578,6 +576,34 @@ class InCoordinator: NSObject, Coordinator {
         guard let dappBrowserCoordinator = dappBrowserCoordinator else { return false }
         return dappBrowserCoordinator.rootViewController.navigationController == viewController
     }
+
+    func show(error: Error) {
+        //TODO Not comprehensive. Example, if we are showing a token instance view and tap on unverified to open browser, this wouldn't owrk
+        if let topVC = navigationController.presentedViewController {
+            topVC.displayError(error: error)
+        } else {
+            navigationController.displayError(error: error)
+        }
+    }
+
+    func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
+        tokensCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: fileNames)
+    }
+
+    private func showConsole() {
+        let viewController = createConsoleViewController()
+        viewController.navigationItem.rightBarButtonItem =  .init(barButtonSystemItem: .done, target: viewController, action: #selector(viewController.dismissConsole))
+        if let topVC = navigationController.presentedViewController {
+            topVC.present(viewController, animated: true)
+        } else {
+            navigationController.present(UINavigationController(rootViewController: viewController), animated: true)
+        }
+    }
+
+    private func createConsoleViewController() -> ConsoleViewController {
+        let coordinator = ConsoleCoordinator(assetDefinitionStore: assetDefinitionStore)
+        return coordinator.createConsoleViewController()
+    }
 }
 
 extension InCoordinator: CanOpenURL {
@@ -593,8 +619,13 @@ extension InCoordinator: CanOpenURL {
     }
 
     func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
-        let url = server.etherscanContractDetailsWebPageURL(for: contract)
-        open(url: url, in: viewController)
+        if contract == Constants.nativeCryptoAddressInDatabase {
+            let url = server.etherscanContractDetailsWebPageURL(for: wallet.address.eip55String)
+            open(url: url, in: viewController)
+        } else {
+            let url = server.etherscanContractDetailsWebPageURL(for: contract)
+            open(url: url, in: viewController)
+        }
     }
 
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
@@ -637,6 +668,10 @@ extension InCoordinator: SettingsCoordinatorDelegate {
         return delegate?.assetDefinitionsOverrideViewController(for: self)
     }
 
+    func consoleViewController(for: SettingsCoordinator) -> UIViewController? {
+        return createConsoleViewController()
+    }
+
     func delete(account: Wallet, in coordinator: SettingsCoordinator) {
         let realm = self.realm(forAccount: account)
         for each in RPCServer.allCases {
@@ -653,6 +688,10 @@ extension InCoordinator: TokensCoordinatorDelegate {
 
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator) {
         transactionCoordinator?.showTransaction(transaction, inViewController: viewController)
+    }
+
+    func openConsole(inCoordinator coordinator: TokensCoordinator) {
+        showConsole()
     }
 }
 

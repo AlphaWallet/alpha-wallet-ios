@@ -23,29 +23,32 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     var server: RPCServer {
         return viewModel.token.server
     }
+    let assetDefinitionStore: AssetDefinitionStore
     let paymentFlow: PaymentFlow
     weak var delegate: ChooseTokenCardTransferModeViewControllerDelegate?
 
     init(
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
-            viewModel: ChooseTokenCardTransferModeViewControllerViewModel
+            viewModel: ChooseTokenCardTransferModeViewControllerViewModel,
+            assetDefinitionStore: AssetDefinitionStore
     ) {
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
         self.viewModel = viewModel
+        self.assetDefinitionStore = assetDefinitionStore
 
         let tokenType = OpenSeaNonFungibleTokenHandling(token: viewModel.token)
         switch tokenType {
         case .supportedByOpenSea:
-            tokenRowView = OpenSeaNonFungibleTokenCardRowView()
+            tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
         case .notSupportedByOpenSea:
-            tokenRowView = TokenCardRowView()
+            tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
         super.init(nibName: nil, bundle: nil)
 
-        updateNavigationRightBarButtons(isVerified: true)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -101,19 +104,11 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         delegate?.didChooseTransferNow(token: viewModel.token, tokenHolder: tokenHolder, in: self)
     }
 
-    func showInfo() {
-        delegate?.didPressViewInfo(in: self)
-    }
-
-    func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
-    }
-
     func configure(viewModel newViewModel: ChooseTokenCardTransferModeViewControllerViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        updateNavigationRightBarButtons(isVerified: isContractVerified)
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -136,5 +131,19 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         //Button fonts have to be smaller because the button title is too long
         generateMagicLinkButton.titleLabel?.font = viewModel.buttonFont
         transferNowButton.titleLabel?.font = viewModel.buttonFont
+    }
+}
+
+extension ChooseTokenCardTransferModeViewController: VerifiableStatusViewController {
+    func showInfo() {
+        delegate?.didPressViewInfo(in: self)
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }

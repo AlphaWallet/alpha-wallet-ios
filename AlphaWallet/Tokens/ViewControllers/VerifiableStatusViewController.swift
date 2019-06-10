@@ -1,16 +1,39 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import PromiseKit
 
-@objc protocol VerifiableStatusViewController {
-    @objc func showContractWebPage()
-    @objc func showInfo()
+@objc protocol VerifiableStatusViewController: CanOpenURL2 {
+    func showContractWebPage()
+    func showInfo()
 }
 
 extension VerifiableStatusViewController where Self: UIViewController {
-    func updateNavigationRightBarButtons(isVerified: Bool, hasShowInfoButton: Bool = true) {
-        let verifiedStatusButton = UIBarButtonItem(customView: createVerifiedStatusButton(isVerified: isVerified))
-        if isVerified {
+    func updateNavigationRightBarButtons(withTokenScriptFileStatus statusPromise: Promise<TokenLevelTokenScriptDisplayStatus>?, hasShowInfoButton: Bool = true) {
+        guard let status = statusPromise?.value else {
+            let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
+            var showInfoButton = hasShowInfoButton
+            //TODO ugly. And duplicated below
+            if let tokenVerifiableVC = self as? TokenVerifiableStatusViewController {
+                showInfoButton = tokenVerifiableVC.contract == Constants.ticketContractAddress || tokenVerifiableVC.contract == Constants.ticketContractAddressRopsten
+            }
+            if showInfoButton {
+                let infoButton = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
+                navigationItem.rightBarButtonItems = [infoButton, label]
+            } else {
+                navigationItem.rightBarButtonItems = [label]
+            }
+            statusPromise?.done { _ in
+                self.updateNavigationRightBarButtons(withTokenScriptFileStatus: statusPromise, hasShowInfoButton: hasShowInfoButton)
+            }
+            return
+        }
+        let button = createTokenScriptFileStatusButton(withStatus: status, urlOpener: self)
+        let verificationStatusBar = UIBarButtonItem(customView: button)
+        switch status {
+        case .type0NoTokenScript:
+            navigationItem.rightBarButtonItems = []
+        case .type1GoodTokenScriptSignatureGoodOrOptional:
             var showInfoButton = hasShowInfoButton
             //TODO ugly
             if let tokenVerifiableVC = self as? TokenVerifiableStatusViewController {
@@ -18,63 +41,117 @@ extension VerifiableStatusViewController where Self: UIViewController {
             }
             if showInfoButton {
                 let infoButton = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
-                navigationItem.rightBarButtonItems = [
-                    infoButton,
-                    verifiedStatusButton
-                ]
+                navigationItem.rightBarButtonItems = [infoButton, verificationStatusBar]
             } else {
-                navigationItem.rightBarButtonItems = [verifiedStatusButton]
+                navigationItem.rightBarButtonItems = [verificationStatusBar]
             }
-        } else {
-            navigationItem.rightBarButtonItems = [verifiedStatusButton]
+        case .type2BadTokenScript(_, let message, _):
+            navigationItem.rightBarButtonItems = [verificationStatusBar]
         }
+    }
+}
+
+class TokenScriptStatusButton: UIButton {
+    var handler: ((CanOpenURL2) -> ())? = nil
+    weak var urlOpener: CanOpenURL2?
+
+    init(urlOpener: CanOpenURL2) {
+        self.urlOpener = urlOpener
+        super.init(frame: .zero)
     }
 
-    private func createVerifiedStatusButton(isVerified: Bool) -> UIButton {
-        let title: String
-        let image: UIImage?
-        let tintColor: UIColor
-        if isVerified {
-            title = R.string.localizable.aWalletTokenVerifiedContract()
-            image = R.image.verified()
-            tintColor = Colors.appGreenContrastBackground
-        } else {
-            title = R.string.localizable.aWalletTokenUnverifiedContract()
-            image = R.image.unverified()
-            tintColor = Colors.appRed
-        }
-        let button = UIButton(type: .custom)
-        button.setTitle(title, for: .normal)
-        button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
-        button.imageView?.tintColor = tintColor
-        button.titleLabel?.font = Fonts.regular(size: 11)
-        button.setTitleColor(tintColor, for: .normal)
-        button.imageEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 12)
-        button.titleEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: -12)
-        button.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
-        return button
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
+
+    @objc func tapped() {
+        guard let urlOpener = urlOpener else { return }
+        handler?(urlOpener)
+    }
+}
+
+
+//TODO move
+func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptDisplayStatus, urlOpener: CanOpenURL2) -> TokenScriptStatusButton {
+    let title: String
+    let image: UIImage?
+    let tintColor: UIColor
+    let button = TokenScriptStatusButton(urlOpener: urlOpener)
+    button.addTarget(button, action: #selector(TokenScriptStatusButton.tapped), for: .touchUpInside)
+    switch status {
+    case .type0NoTokenScript:
+        return button
+    case .type1GoodTokenScriptSignatureGoodOrOptional(let isDebugMode, let isSigned, let domain, let rawMessage):
+        let message: String
+        if let domain = domain {
+            button.handler = { urlOpener in URL(string: "https://\(domain)").flatMap { urlOpener.open(url: $0) } }
+            message = "\(rawMessage) by \(domain)"
+        } else {
+            message = rawMessage
+        }
+        if isDebugMode {
+            title = "[DEBUG] \(message)"
+        } else {
+            title = message
+        }
+        image = R.image.verified()
+        tintColor = Colors.appGreenContrastBackground
+    case .type2BadTokenScript(let isDebugMode, let message, let reason):
+        switch reason {
+        case .some(.oldTokenScriptVersion):
+            //TODO have to reload from repo. But we don't have access to an AssetDefinitionStore for now
+//            button.handler = { urlOpener in urlOpener.open(url: URL(string: "https://alphawallet.com")!) }
+            break
+        case .some(.invalidSignature):
+            break
+        case .some(.conflictWithAnotherFile):
+            //TODO open console here
+//            button.handler = { urlOpener in  }
+            break
+        case .none:
+            break
+        }
+
+        if isDebugMode {
+            title = "[DEBUG] \(message)"
+        } else {
+            title = message
+        }
+        image = R.image.unverified()
+        tintColor = Colors.appRed
+    }
+    button.setTitle(title, for: .normal)
+    button.setImage(image?.withRenderingMode(.alwaysOriginal), for: .normal)
+    button.imageView?.tintColor = tintColor
+    button.titleLabel?.font = Fonts.regular(size: 11)
+    button.setTitleColor(tintColor, for: .normal)
+    //TODO hardcoded margins don't work well across languages, e.g. for Chinese
+    button.imageEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 12)
+    button.titleEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: -12)
+    return button
 }
 
 protocol TokenVerifiableStatusViewController: VerifiableStatusViewController {
     var contract: String { get }
     var server: RPCServer { get }
+    var assetDefinitionStore: AssetDefinitionStore { get }
 }
 
 extension TokenVerifiableStatusViewController {
-    var isContractVerified: Bool {
-        return XMLHandler(contract: contract).isVerified(for: server)
+    var tokenScriptFileStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
+        return XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).tokenScriptStatus
     }
 }
 
 protocol OptionalTokenVerifiableStatusViewController: VerifiableStatusViewController {
     var contract: String? { get }
     var server: RPCServer { get }
+    var assetDefinitionStore: AssetDefinitionStore { get }
 }
 
 extension OptionalTokenVerifiableStatusViewController {
-    var isContractVerified: Bool {
-        guard let contract = contract else { return false }
-        return XMLHandler(contract: contract).isVerified(for: server)
+    var tokenScriptFileStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
+        guard let contract = contract else { return .value(.type0NoTokenScript) }
+        return XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).tokenScriptStatus
     }
 }
