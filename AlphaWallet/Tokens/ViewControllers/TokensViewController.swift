@@ -44,6 +44,7 @@ class TokensViewController: UIViewController {
     private let consoleButton = UIButton(type: .system)
 
     weak var delegate: TokensViewControllerDelegate?
+    //TODO The name "bad" isn't correct. Because it includes "conflicts" too
     var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] = .init() {
         didSet {
             if listOfBadTokenScriptFiles.isEmpty {
