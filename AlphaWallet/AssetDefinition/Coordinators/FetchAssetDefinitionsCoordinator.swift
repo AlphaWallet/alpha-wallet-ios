@@ -15,7 +15,14 @@ class FetchAssetDefinitionsCoordinator: Coordinator {
     func start() {
         var contracts = [String]()
         for each in tokensDataStores.values {
-            contracts.append(contentsOf: each.enabledObject.filter { $0.type == .erc875 || $0.type == .erc721 }.map { $0.contract })
+            contracts.append(contentsOf: each.enabledObject.filter {
+                switch $0.type {
+                case .erc20, .erc721, .erc875:
+                    return true
+                case .nativeCryptocurrency:
+                    return false
+                }
+            }.map { $0.contract })
         }
         assetDefinitionStore.fetchXMLs(forContracts: contracts.compactMap { AlphaWallet.Address(string: $0) })
     }
