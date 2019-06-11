@@ -27,29 +27,6 @@
 			</array>
 		</dict>
 	</array>
-
-	<key>UTExportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.xml</string>
-			</array>
-			<key>UTTypeDescription</key>
-			<string>TokenScript file</string>
-			<key>UTTypeIdentifier</key>
-			<string>com.stormbird.alphawallet.tsml</string>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<string>tsml</string>
-				<key>public.mime-type</key>
-				<string>text/xml</string>
-			</dict>
-		</dict>
-	</array>
-
-
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -61,7 +38,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0</string>
+	<string>2.02</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -82,7 +59,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>276</string>
+	<string>282</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSApplicationQueriesSchemes</key>
@@ -158,6 +135,26 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.xml</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>TokenScript file</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.stormbird.alphawallet.tsml</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<string>tsml</string>
+				<key>public.mime-type</key>
+				<string>text/xml</string>
+			</dict>
+		</dict>
+	</array>
 	<key>com.apple.security.get-task-allow</key>
 	<true/>
 </dict>
