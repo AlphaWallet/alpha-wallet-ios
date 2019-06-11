@@ -20,7 +20,12 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
     }
 
     var badTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
-        return tokenScriptFileIndices.badTokenScriptFileNames
+        if isOfficial {
+            //We exclude .xml in the directory for files downloaded from the repo. Because this are based on pre 2019/04 schemas. We should just delete them
+            return tokenScriptFileIndices.badTokenScriptFileNames.filter { !$0.hasSuffix(".xml") }
+        } else {
+            return tokenScriptFileIndices.badTokenScriptFileNames
+        }
     }
 
     var conflictingTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
