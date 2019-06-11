@@ -59,7 +59,7 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         assetDefinitionStore.delegate = self
-        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles)
+        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.listOfConflictingTokenScriptFiles)
     }
 
     /// Return true if handled
@@ -302,6 +302,6 @@ extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
 
 extension AppCoordinator: AssetDefinitionStoreDelegate {
     func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore ) {
-        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles)
+        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.listOfConflictingTokenScriptFiles)
     }
 }

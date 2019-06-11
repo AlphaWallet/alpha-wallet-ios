@@ -228,13 +228,11 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
                     contracts = []
                     tokenScriptFileIndices.badTokenScriptFileNames += [fileName]
                 }
-                delegate?.badTokenScriptFilesChanged(in: self)
             } else {
                 contracts = []
                 tokenScriptFileIndices.removeHash(forFile: fileName)
                 tokenScriptFileIndices.removeBadTokenScriptFileName(fileName)
                 tokenScriptFileIndices.removeOldTokenScriptFileName(fileName)
-                delegate?.badTokenScriptFilesChanged(in: self)
             }
 
             contractsAffected = contracts + contractsPreviouslyForThisXmlFile
@@ -251,5 +249,6 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
             changeHandler(each)
         }
         writeIndicesToDisk()
+        delegate?.badTokenScriptFilesChanged(in: self)
     }
 }
