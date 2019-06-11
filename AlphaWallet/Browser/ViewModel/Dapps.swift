@@ -31,7 +31,7 @@ enum Dapps {
         Dapp(name: "Gitcoin", description: "Incentivize or monetize work.", url: "https://gitcoin.co/", cat: "Tools"),
         Dapp(name: "Is that my Contract?", description: "Find and use all your smart contracts", url: "https://alphawallet.github.io/dude-where-is-my-dapp/", cat: "Tools"),
         Dapp(name: "Kickback", description: "Event management platform", url: "https://kickback.events/", cat: "Tools"),
-        Dapp(name: "NFT Token Factory", description: "Ccreate an ERC875 NFT contract at the click of a button", url: "https://tf.alphawallet.com/", cat: "Tools"),
+        Dapp(name: "NFT Token Factory", description: "Create an ERC875 NFT contract at the click of a button", url: "https://tf.alphawallet.com/", cat: "Tools"),
         Dapp(name: "SmartDrops", description: "A platform that lets people earn crypto by joining new token projects.", url: "https://www.smartdrops.io/", cat: "Tools"),
         Dapp(name: "xDai Bridge", description: "xDai/Ethereum bridge for self transfers of Dai to xDai", url: "https://dai-bridge.poa.network/", cat: "Tools"),
         Dapp(name: "0x Instant", description: "A free and flexible way to offer simple crypto purchasing", url: "http://0x-instant-staging.s3-website-us-east-1.amazonaws.com/", cat: "Exchange"),
