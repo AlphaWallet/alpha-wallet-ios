@@ -20,8 +20,8 @@ struct TokenScriptFileIndices: Codable {
 
     var conflictingTokenScriptFileNames: [FileName] {
         var result = [FileName]()
-        for (_, fileNames) in contractsToFileNames {
-            if fileNames.count > 1 {
+        for (contract, fileNames) in contractsToFileNames {
+            if nonConflictingFileName(forContract: contract) == nil {
                 result.append(contentsOf: fileNames)
             }
         }
