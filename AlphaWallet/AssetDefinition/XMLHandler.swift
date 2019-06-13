@@ -56,7 +56,7 @@ private class PrivateXMLHandler {
     private var xml: XMLDocument
     private let signatureNamespacePrefix = "ds:"
     private let xhtmlNamespacePrefix = "xhtml:"
-    lazy private var xmlContext = PrivateXMLHandler.createXmlContext(withLang: getLang())
+    lazy private var xmlContext = PrivateXMLHandler.createXmlContext(withLang: lang)
     private let contractAddress: AlphaWallet.Address
     private weak var assetDefinitionStore: AssetDefinitionStore?
     lazy var server: RPCServer = { () -> RPCServer in
@@ -97,7 +97,6 @@ private class PrivateXMLHandler {
 
     var tokenViewIconifiedHtml: String {
         guard hasValidTokenScriptFile else { return "" }
-        let lang = getLang()
         if let element = XMLHandler.getTokenScriptTokenViewIconifiedHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
             let html = element.innerHTML ?? ""
             if let sanitizedHtml = sanitize(html: html).nilIfEmpty {
@@ -153,7 +152,6 @@ private class PrivateXMLHandler {
 
     var actions: [TokenInstanceAction] {
         guard hasValidTokenScriptFile else { return [] }
-        let lang = getLang()
         var results = [TokenInstanceAction]()
         let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceActionElements(fromRoot: xml, xmlContext: xmlContext))
         let fromActionAsTopLevel = Array(XMLHandler.getTokenScriptActionOnlyActionElements(fromRoot: xml, xmlContext: xmlContext))
@@ -216,7 +214,6 @@ private class PrivateXMLHandler {
             return R.string.localizable.cryptokittyTitlecase()
         }
 
-        let lang = getLang()
         if  let nameStringElement = XMLHandler.getNameStringElement(fromTokenElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
             return name
         } else {
@@ -229,11 +226,33 @@ private class PrivateXMLHandler {
             return R.string.localizable.cryptokittiesTitlecase()
         }
 
-        let lang = getLang()
         if  let nameElement = XMLHandler.getNameElementForPluralForm(fromTokenElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
             return name
         } else {
             return nameInSingularForm
+        }
+    }
+
+    private var lang: String {
+        let lang = Locale.preferredLanguages[0]
+        if lang.hasPrefix("en") {
+            return "en"
+        } else if lang.hasPrefix("zh") {
+            return "zh"
+        } else if lang.hasPrefix("es") {
+            return "es"
+        } else if lang.hasPrefix("ru") {
+            return "ru"
+        }
+        return "en"
+    }
+
+    //TODO may need to support action-only. Is it the same? Do along with signature verification
+    var issuer: String {
+        if let keyNameElement = XMLHandler.getKeyNameElement(fromRoot: xml, xmlContext: xmlContext, signatureNamespacePrefix: signatureNamespacePrefix), let issuer = keyNameElement.text {
+            return issuer
+        } else {
+            return ""
         }
     }
 
@@ -438,7 +457,6 @@ private class PrivateXMLHandler {
     }
 
     private func extractFields(fromElement element: XMLElement) -> [String: AssetAttribute] {
-        let lang = getLang()
         var fields = [String: AssetAttribute]()
         for each in XMLHandler.getAttributeTypeElements(fromElement: element, xmlContext: xmlContext) {
             guard let id = each["id"] else { continue }
@@ -447,29 +465,6 @@ private class PrivateXMLHandler {
             fields[id] = attribute
         }
         return fields
-    }
-
-    private func getLang() -> String {
-        let lang = Locale.preferredLanguages[0]
-        if lang.hasPrefix("en") {
-            return "en"
-        } else if lang.hasPrefix("zh") {
-            return "zh"
-        } else if lang.hasPrefix("es") {
-            return "es"
-        } else if lang.hasPrefix("ru") {
-            return "ru"
-        }
-        return "en"
-    }
-
-    //TODO may need to support action-only. Is it the same? Do along with signature verification
-    func getIssuer() -> String {
-        if let keyNameElement = XMLHandler.getKeyNameElement(fromRoot: xml, xmlContext: xmlContext, signatureNamespacePrefix: signatureNamespacePrefix), let issuer = keyNameElement.text {
-            return issuer
-        } else {
-            return ""
-        }
     }
 
     //TODOis it still necessary to santize? Maybe we still need to strip a, button, html?
@@ -563,6 +558,10 @@ public class XMLHandler {
         return privateXMLHandler.fieldIdsAndNames
     }
 
+    var issuer: String {
+        return privateXMLHandler.issuer
+    }
+
     //TODO accept AlphaWallet.Address instead
     init(contract: String, assetDefinitionStore: AssetDefinitionStore) {
         let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
@@ -622,10 +621,6 @@ public class XMLHandler {
 
     func getNameInPluralForm(fallback: String = R.string.localizable.tokensTitlecase()) -> String {
         return privateXMLHandler.nameInPluralForm ?? fallback
-    }
-
-    func getIssuer() -> String {
-        return privateXMLHandler.getIssuer()
     }
 
     static func checkTokenScriptSchema(forPath path: URL) -> TokenScriptSchema {

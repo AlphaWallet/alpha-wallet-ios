@@ -41,6 +41,17 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     let paymentFlow: PaymentFlow
     weak var delegate: SetSellTokensCardExpiryDateViewControllerDelegate?
 
+    private var linkExpiryDate: Date {
+        let hour = NSCalendar.current.component(.hour, from: linkExpiryTimeField.value)
+        let minutes = NSCalendar.current.component(.minute, from: linkExpiryTimeField.value)
+        let seconds = NSCalendar.current.component(.second, from: linkExpiryTimeField.value)
+        if let date = NSCalendar.current.date(bySettingHour: hour, minute: minutes, second: seconds, of: linkExpiryDateField.value) {
+            return date
+        } else {
+            return Date()
+        }
+    }
+
     init(
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
@@ -219,7 +230,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     }
 
     @objc func nextButtonTapped() {
-        let expiryDate = linkExpiryDate()
+        let expiryDate = linkExpiryDate
         guard expiryDate > Date() else {
             UIAlertController.alert(title: "",
                     message: R.string.localizable.aWalletTokenSellLinkExpiryTimeAtLeastNowTitle(),
@@ -231,18 +242,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         }
 
         //TODO be good if we check if date chosen is not too far into the future. Example 1 year ahead. Common error?
-        delegate?.didSetSellTokensExpiryDate(tokenHolder: tokenHolder, linkExpiryDate: linkExpiryDate(), ethCost: ethCost, in: self)
-    }
-
-    private func linkExpiryDate() -> Date {
-        let hour = NSCalendar.current.component(.hour, from: linkExpiryTimeField.value)
-        let minutes = NSCalendar.current.component(.minute, from: linkExpiryTimeField.value)
-        let seconds = NSCalendar.current.component(.second, from: linkExpiryTimeField.value)
-        if let date = NSCalendar.current.date(bySettingHour: hour, minute: minutes, second: seconds, of: linkExpiryDateField.value) {
-            return date
-        } else {
-            return Date()
-        }
+        delegate?.didSetSellTokensExpiryDate(tokenHolder: tokenHolder, linkExpiryDate: expiryDate, ethCost: ethCost, in: self)
     }
 
     func configure(viewModel newViewModel: SetSellTokensCardExpiryDateViewControllerViewModel? = nil) {

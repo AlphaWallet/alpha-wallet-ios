@@ -50,7 +50,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var titleFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
+        if ScreenChecker().isNarrowScreen {
             return Fonts.semibold(size: 13)!
         } else {
             return Fonts.semibold(size: 17)!
@@ -66,7 +66,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var stateFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
+        if ScreenChecker().isNarrowScreen {
             return Fonts.semibold(size: 10)!
         } else {
             return Fonts.semibold(size: 12)!
@@ -91,7 +91,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var attributesTitleFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
+        if ScreenChecker().isNarrowScreen {
             return Fonts.semibold(size: 11)!
         } else {
             return Fonts.semibold(size: 15)!
@@ -123,7 +123,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     }
 
     var subtitleFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
+        if ScreenChecker().isNarrowScreen {
             return Fonts.semibold(size: 11)!
         } else {
             return Fonts.semibold(size: 14)!
@@ -290,7 +290,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
     //We let the big image bleed out of its container view because CryptoKitty images has a huge empty marge around the kitties. Careful that this also fits iPhone 5s
     var bleedForBigImage: CGFloat {
         if displayHelper.hasLotsOfEmptySpaceAroundBigImage {
-            if ScreenChecker().isNarrowScreen() {
+            if ScreenChecker().isNarrowScreen {
                 return 24
             } else {
                 return 34

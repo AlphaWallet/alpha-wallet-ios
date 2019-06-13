@@ -494,7 +494,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private func refreshTokenViewControllerUponAssetDefinitionChanges(_ viewController: TokenViewController, forTransferType transferType: TransferType, transactionsStore: TransactionsStorage) {
         assetDefinitionStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
-            guard contract.sameContract(as: transferType.contract().eip55String) else { return }
+            guard contract.sameContract(as: transferType.contract.eip55String) else { return }
             let viewModel = TokenViewControllerViewModel(transferType: transferType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore)
             viewController.configure(viewModel: viewModel)
         }

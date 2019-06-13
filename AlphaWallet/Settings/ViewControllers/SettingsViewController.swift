@@ -15,7 +15,7 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
 class SettingsViewController: FormViewController {
     private let lock = Lock()
     private var isPasscodeEnabled: Bool {
-        return lock.isPasscodeSet()
+        return lock.isPasscodeSet
     }
     private lazy var viewModel: SettingsViewModel = {
         return SettingsViewModel(isDebug: isDebug)

@@ -107,7 +107,7 @@ struct TokenViewControllerViewModel {
     }
 
     var destinationAddress: Address {
-        return transferType.contract()
+        return transferType.contract
     }
 
     var backgroundColor: UIColor {

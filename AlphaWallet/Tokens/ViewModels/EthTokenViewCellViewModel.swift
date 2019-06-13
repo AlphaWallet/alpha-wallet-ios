@@ -86,7 +86,7 @@ struct EthTokenViewCellViewModel {
     }
 
     var titleFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
+        if ScreenChecker().isNarrowScreen {
             return Fonts.light(size: 22)!
         } else {
             return Fonts.light(size: 25)!

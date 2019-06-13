@@ -68,7 +68,7 @@ extension TransferType {
         }
     }
 
-    func contract() -> Address {
+    var contract: Address {
         switch self {
         case .nativeCryptocurrency:
             return Address(uncheckedAgainstNullAddress: Constants.nativeCryptoAddressInDatabase)!

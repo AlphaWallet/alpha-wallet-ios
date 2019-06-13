@@ -26,7 +26,7 @@ struct NonFungibleTokenViewCellViewModel {
 
     var issuer: String {
         let xmlHandler = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore)
-        let issuer = xmlHandler.getIssuer()
+        let issuer = xmlHandler.issuer
         if issuer.isEmpty {
             return ""
         } else {
@@ -83,7 +83,7 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var titleFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
+        if ScreenChecker().isNarrowScreen {
             return Fonts.light(size: 22)!
         } else {
             return Fonts.light(size: 25)!

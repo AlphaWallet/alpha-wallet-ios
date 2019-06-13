@@ -72,7 +72,7 @@ class AddressTextField: UIControl {
             textField.trailingAnchor.constraint(equalTo: trailingAnchor),
             textField.topAnchor.constraint(equalTo: topAnchor),
             textField.bottomAnchor.constraint(equalTo: bottomAnchor),
-            heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen() ? 30 : 50),
+            heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
         ])
     }
 
@@ -107,7 +107,7 @@ class AddressTextField: UIControl {
         textField.leftView = .spacerWidth(22)
         textField.rightView = makeTargetAddressRightView()
         textField.textColor = Colors.appText
-        textField.font = ScreenChecker().isNarrowScreen() ? Fonts.light(size: 11)! : Fonts.light(size: 15)!
+        textField.font = ScreenChecker().isNarrowScreen ? Fonts.light(size: 11)! : Fonts.light(size: 15)!
         textField.layer.borderColor = Colors.appBackground.cgColor
         textField.layer.borderWidth = 1
         textField.placeholder = R.string.localizable.addressEnsLabelMessage()
