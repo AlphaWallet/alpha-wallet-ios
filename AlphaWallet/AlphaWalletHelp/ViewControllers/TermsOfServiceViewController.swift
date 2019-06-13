@@ -3,7 +3,7 @@
 import UIKit
 
 class TermsOfServiceViewController: HelpContentsViewController {
-	override func url() -> URL? {
+	override var url: URL? {
 		return R.file.termsOfServiceHtml()
 	}
 }

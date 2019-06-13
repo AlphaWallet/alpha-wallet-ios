@@ -58,7 +58,7 @@ class DappsHomeViewController: UIViewController {
         let fixedGutter = CGFloat(24)
         let availableWidth = UIScreen.main.bounds.size.width - (2 * fixedGutter)
         let numberOfColumns: CGFloat
-        if ScreenChecker().isBigScreen() {
+        if ScreenChecker().isBigScreen {
             numberOfColumns = 6
         } else {
             numberOfColumns = 3

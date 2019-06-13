@@ -7,6 +7,17 @@ class LockView: UIView {
 	private var characterView = UIStackView()
 	private var model: LockViewModel
 
+	private var passcodeCharacters: [PasscodeCharacterView] {
+		var characters = [PasscodeCharacterView]()
+		for _ in 0..<model.charCount {
+			let passcodeCharacterView = PasscodeCharacterView()
+			passcodeCharacterView.heightAnchor.constraint(equalToConstant: 20.0).isActive = true
+			passcodeCharacterView.widthAnchor.constraint(equalToConstant: 20).isActive = true
+			characters.append(passcodeCharacterView)
+		}
+		return characters
+	}
+
 	var lockTitle = UILabel()
 	var characters: [PasscodeCharacterView]!
 
@@ -37,21 +48,11 @@ class LockView: UIView {
 		addSubview(lockTitle)
 		addSubview(characterView)
 	}
-	private func passcodeCharacters() -> [PasscodeCharacterView] {
-		var characters = [PasscodeCharacterView]()
-		for _ in 0..<model.charCount() {
-			let passcodeCharacterView = PasscodeCharacterView()
-			passcodeCharacterView.heightAnchor.constraint(equalToConstant: 20.0).isActive = true
-			passcodeCharacterView.widthAnchor.constraint(equalToConstant: 20).isActive = true
-			characters.append(passcodeCharacterView)
-		}
-		return characters
-	}
 
 	init(_ model: LockViewModel) {
 		self.model = model
 		super.init(frame: CGRect.zero)
-		self.characters = passcodeCharacters()
+		self.characters = passcodeCharacters
 		configCharacterView()
 		configLabel()
 		addUiElements()

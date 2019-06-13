@@ -8,8 +8,13 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
 	private lazy var lockEnterPasscodeViewModel: LockEnterPasscodeViewModel? = {
 		return model as? LockEnterPasscodeViewModel
 	}()
-	var unlockWithResult: ((_ success: Bool, _ bioUnlock: Bool) -> Void)?
 	private var context: LAContext!
+	private var canEvaluatePolicy: Bool {
+		return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
+	}
+
+	var unlockWithResult: ((_ success: Bool, _ bioUnlock: Bool) -> Void)?
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		lockView.lockTitle.text = lockEnterPasscodeViewModel?.initialLabelText
@@ -17,7 +22,7 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
 		//If max attempt limit is reached we should valdiate if one minute gone.
-		if lock.incorrectMaxAttemptTimeIsSet() {
+		if lock.isIncorrectMaxAttemptTimeSet {
 			lockView.lockTitle.text = lockEnterPasscodeViewModel?.tryAfterOneMinute
 			maxAttemptTimerValidation()
 		}
@@ -34,8 +39,8 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
 			lockView.lockTitle.text = lockEnterPasscodeViewModel?.initialLabelText
 			unlock(withResult: true, bioUnlock: false)
 		} else {
-			let numberOfAttempts = lock.numberOfAttempts()
-			let passcodeAttemptLimit = model.passcodeAttemptLimit()
+			let numberOfAttempts = lock.numberOfAttempts
+			let passcodeAttemptLimit = model.passcodeAttemptLimit
 			let text = R.string.localizable.lockEnterPasscodeViewModelIncorrectPasscode(passcodeAttemptLimit - numberOfAttempts)
 			lockView.lockTitle.text = text
 			lockView.shake()
@@ -53,7 +58,7 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
 	}
 	private func maxAttemptTimerValidation() {
 		let now = Date()
-		let maxAttemptTimer = lock.recordedMaxAttemptTime()
+		let maxAttemptTimer = lock.recordedMaxAttemptTime
 		let interval = now.timeIntervalSince(maxAttemptTimer)
 		//if interval is greater or equal 60 seconds we give 1 attempt.
 		if interval >= 60 {
@@ -67,11 +72,9 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
 			unlock(success, bioUnlock)
 		}
 	}
-	private func canEvaluatePolicy() -> Bool {
-		return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
-	}
+
 	private func touchValidation() {
-		guard canEvaluatePolicy(), let reason = lockEnterPasscodeViewModel?.loginReason else {
+		guard canEvaluatePolicy, let reason = lockEnterPasscodeViewModel?.loginReason else {
 			return
 		}
 		hideKeyboard()

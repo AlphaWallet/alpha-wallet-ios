@@ -3,7 +3,7 @@
 import UIKit
 
 class HowDoIGetMyMoneyInfoViewController: HelpContentsViewController {
-    override func url() -> URL? {
+    override var url: URL? {
         return R.file.howDoIGetMyMoneyInfoHtml()
     }
 }

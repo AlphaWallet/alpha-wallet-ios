@@ -30,7 +30,7 @@ class CheckDeviceCoordinator: Coordinator {
     }
 
     func start() {
-        if jailbreakChecker.isJailbroken() {
+        if jailbreakChecker.isJailbroken {
             navigationController.present(alertViewController, animated: true, completion: nil)
         }
     }

@@ -13,7 +13,7 @@ protocol TokenViewControllerDelegate: class, CanOpenURL {
 class TokenViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     lazy private var header = {
-        return TokenViewControllerHeaderView(contract: transferType.contract())
+        return TokenViewControllerHeaderView(contract: transferType.contract)
     }()
     lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server)
     private var viewModel: TokenViewControllerViewModel?
@@ -76,7 +76,7 @@ class TokenViewController: UIViewController {
 
         headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
 
-        let xmlHandler = XMLHandler(contract: transferType.contract().eip55String, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: transferType.contract.eip55String, assetDefinitionStore: assetDefinitionStore)
         if xmlHandler.server == session.server {
             let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
             if tokenScriptStatusPromise.isPending {
