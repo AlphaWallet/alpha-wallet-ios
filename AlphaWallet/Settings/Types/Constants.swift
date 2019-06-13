@@ -40,7 +40,7 @@ public struct Constants {
     public static let appstoreURL = "itms-apps://itunes.apple.com/app/id1358230430"
 
     // support
-    public static let supportEmail = "support@alphawallet.com"
+    public static let supportEmail = "feedback+ios@alphawallet.com"
     public static let dappsBrowserURL = "http://aw.app"
 
     //Ethereum null variables
