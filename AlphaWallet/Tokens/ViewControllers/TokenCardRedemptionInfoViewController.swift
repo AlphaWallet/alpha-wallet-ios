@@ -3,7 +3,7 @@
 import UIKit
 
 class TokenCardRedemptionInfoViewController: StaticHTMLViewController {
-    override func url() -> URL? {
+    override var url: URL? {
         return R.file.redeemInfoHtml()
     }
 }

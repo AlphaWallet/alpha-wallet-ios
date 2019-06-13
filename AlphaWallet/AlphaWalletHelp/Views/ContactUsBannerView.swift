@@ -15,6 +15,18 @@ class ContactUsBannerView: UIView {
     weak var delegate: ContactUsBannerViewDelegate?
     let bannerHeight = CGFloat(60)
 
+    private var emailTemplate: String {
+        return """
+               \n\n\n
+
+               \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
+               \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
+               \(R.string.localizable.aHelpContactEmailDeviceModel(UIDevice.current.model))
+               \(R.string.localizable.aHelpContactEmailAppVersion(Bundle.main.fullVersion))
+               \(R.string.localizable.aHelpContactEmailLocale(Locale.preferredLanguages.first ?? ""))
+               """
+    }
+
     override init(frame: CGRect) {
         super.init(frame: CGRect())
 
@@ -62,23 +74,11 @@ class ContactUsBannerView: UIView {
         composerController.mailComposeDelegate = self
         composerController.setToRecipients([Constants.supportEmail])
         composerController.setSubject(R.string.localizable.aHelpContactEmailSubject())
-        composerController.setMessageBody(emailTemplate(), isHTML: false)
+        composerController.setMessageBody(emailTemplate, isHTML: false)
 
         if MFMailComposeViewController.canSendMail() {
             delegate?.present(composerController, for: self)
         }
-    }
-
-    private func emailTemplate() -> String {
-        return """
-        \n\n\n
-
-        \(R.string.localizable.aHelpContactEmailHelpfulToDevelopers())
-        \(R.string.localizable.aHelpContactEmailIosVersion(UIDevice.current.systemVersion))
-        \(R.string.localizable.aHelpContactEmailDeviceModel(UIDevice.current.model))
-        \(R.string.localizable.aHelpContactEmailAppVersion(Bundle.main.fullVersion))
-        \(R.string.localizable.aHelpContactEmailLocale(Locale.preferredLanguages.first ?? ""))
-        """
     }
 }
 

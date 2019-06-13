@@ -20,7 +20,7 @@ struct TokensCardViewControllerHeaderViewModel {
 
     var issuer: String {
         let xmlHandler = XMLHandler(contract: tokenObject.address.eip55String, assetDefinitionStore: assetDefinitionStore)
-        let issuer = xmlHandler.getIssuer()
+        let issuer = xmlHandler.issuer
         if issuer.isEmpty {
             return ""
         } else {

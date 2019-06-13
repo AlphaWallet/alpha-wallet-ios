@@ -64,7 +64,7 @@ extension TokenCardRowViewModelProtocol {
     }
 
     var subtitleFont: UIFont {
-        if ScreenChecker().isNarrowScreen() {
+        if ScreenChecker().isNarrowScreen {
             return Fonts.semibold(size: 12)!
         } else {
             return Fonts.semibold(size: 15)!

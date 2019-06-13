@@ -5,6 +5,10 @@ import UIKit
 class HelpContentsViewController: StaticHTMLViewController {
     private let banner = ContactUsBannerView()
 
+    override var footerHeight: CGFloat {
+        return banner.bannerHeight
+    }
+
     override init(delegate: StaticHTMLViewControllerDelegate?) {
         super.init(delegate: delegate)
 
@@ -28,10 +32,6 @@ class HelpContentsViewController: StaticHTMLViewController {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func footerHeight() -> CGFloat {
-        return banner.bannerHeight
     }
 }
 

@@ -24,7 +24,7 @@ class LockPasscodeViewController: UIViewController {
 	}
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		if !invisiblePasscodeField.isFirstResponder && !lock.incorrectMaxAttemptTimeIsSet() {
+		if !invisiblePasscodeField.isFirstResponder && !lock.isIncorrectMaxAttemptTimeSet {
 			invisiblePasscodeField.becomeFirstResponder()
 		}
 	}
@@ -106,7 +106,7 @@ extension LockPasscodeViewController: UITextFieldDelegate {
 		}
 		let newString: String? = (textField.text as NSString?)?.replacingCharacters(in: range, with: string)
 		let newLength: Int = newString?.count ?? 0
-		if newLength > model.charCount() {
+		if newLength > model.charCount {
 			lockView.shake()
 			textField.text = ""
 			return false
@@ -124,7 +124,7 @@ extension LockPasscodeViewController: UITextFieldDelegate {
 		}
 		let newString: String? = textField.text
 		let newLength: Int = newString?.count ?? 0
-		if newLength == model.charCount() {
+		if newLength == model.charCount {
 			shouldIgnoreTextFieldDelegateCalls = true
 			textField.text = ""
 			perform(#selector(enteredPasscode), with: newString, afterDelay: 0.3)

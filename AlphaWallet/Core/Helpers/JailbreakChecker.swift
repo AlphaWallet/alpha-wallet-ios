@@ -3,5 +3,5 @@
 import Foundation
 
 protocol JailbreakChecker {
-    func isJailbroken() -> Bool
+    var isJailbroken: Bool { get }
 }
