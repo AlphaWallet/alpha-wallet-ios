@@ -22,7 +22,7 @@ class LockEnterPasscodeCoordinator: Coordinator {
 		}
 	}
 	func start() {
-		guard lock.isPasscodeSet() else { return }
+		guard lock.isPasscodeSet else { return }
 		window.rootViewController = lockEnterPasscodeViewController
 		window.makeKeyAndVisible()
 	}
@@ -31,7 +31,7 @@ class LockEnterPasscodeCoordinator: Coordinator {
 	}
 
 	func showAuthentication() {
-		guard lock.isPasscodeSet() else { return }
+		guard lock.isPasscodeSet else { return }
 		lockEnterPasscodeViewController.showKeyboard()
 		lockEnterPasscodeViewController.showBioMerickAuth()
 	}

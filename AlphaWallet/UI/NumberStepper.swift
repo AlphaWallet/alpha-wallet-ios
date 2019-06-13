@@ -66,7 +66,7 @@ class NumberStepper: UIControl {
         }
     }
 
-    public var labelFont = Fonts.semibold(size: ScreenChecker().isNarrowScreen() ? 14: 21)! {
+    public var labelFont = Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 14: 21)! {
         didSet {
             label.font = labelFont
         }

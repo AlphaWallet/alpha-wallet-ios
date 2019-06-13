@@ -6,11 +6,11 @@ import Foundation
 class FakeJailbreakChecker: JailbreakChecker {
     let jailbroken: Bool
 
-    init(jailbroken: Bool) {
-        self.jailbroken = jailbroken
+    var isJailbroken: Bool {
+        return jailbroken
     }
 
-    func isJailbroken() -> Bool {
-        return jailbroken
+    init(jailbroken: Bool) {
+        self.jailbroken = jailbroken
     }
 }

@@ -41,6 +41,24 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     weak var delegate: AssetDefinitionStoreCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
+    private var inboxContents: [URL]? {
+        guard let inboxDirectory = AssetDefinitionStoreCoordinator.inboxDirectory else { return nil }
+        return try? FileManager.default.contentsOfDirectory(at: inboxDirectory, includingPropertiesForKeys: nil)
+    }
+
+    private var overrides: [URL]? {
+        guard let overridesDirectory = AssetDefinitionStoreCoordinator.overridesDirectory else { return nil }
+        let urls = try? FileManager.default.contentsOfDirectory(at: overridesDirectory, includingPropertiesForKeys: nil)
+        if var urls = urls {
+            if let index = urls.firstIndex(where: { $0.lastPathComponent == TokenScript.indicesFileName }) {
+                urls.remove(at: index)
+            }
+            return urls.sorted { $0.path.caseInsensitiveCompare($1.path) == .orderedAscending }
+        } else {
+            return nil
+        }
+    }
+
     init(assetDefinitionStore: AssetDefinitionStore) {
         self.assetDefinitionStore = assetDefinitionStore
     }
@@ -59,7 +77,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     }
 
     func configure(overridesViewController: AssetDefinitionsOverridesViewController) {
-        if let contents = overrides() {
+        if let contents = overrides {
             overridesViewController.configure(overriddenURLs: contents)
         } else {
             overridesViewController.configure(overriddenURLs: [])
@@ -78,33 +96,15 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     }
 
     private func deleteInboxContents() {
-        guard let contents = inboxContents() else { return }
+        guard let contents = inboxContents else { return }
         for each in contents {
             try? FileManager.default.removeItem(at: each)
          }
     }
 
-    private func inboxContents() -> [URL]? {
-        guard let inboxDirectory = AssetDefinitionStoreCoordinator.inboxDirectory else { return nil }
-        return try? FileManager.default.contentsOfDirectory(at: inboxDirectory, includingPropertiesForKeys: nil)
-    }
-
-    private func overrides() -> [URL]? {
-        guard let overridesDirectory = AssetDefinitionStoreCoordinator.overridesDirectory else { return nil }
-        let urls = try? FileManager.default.contentsOfDirectory(at: overridesDirectory, includingPropertiesForKeys: nil)
-        if var urls = urls {
-            if let index = urls.firstIndex(where: { $0.lastPathComponent == TokenScript.indicesFileName }) {
-                urls.remove(at: index)
-            }
-            return urls.sorted { $0.path.caseInsensitiveCompare($1.path) == .orderedAscending }
-        } else {
-            return nil
-        }
-    }
-
     ///For development
     private func printInboxContents() {
-        guard let contents = inboxContents() else { return }
+        guard let contents = inboxContents else { return }
         NSLog("Contents of inbox:")
         for each in contents {
             NSLog("  In inbox: \(each)")

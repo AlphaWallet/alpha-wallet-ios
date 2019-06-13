@@ -104,14 +104,14 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         let stackView = [
             header,
-            .spacer(height: ScreenChecker().isNarrowScreen() ? 7: 20),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 20),
             targetAddressLabel,
-            .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             targetAddressTextField,
             targetAddressTextField.ensAddressLabel,
-            .spacer(height: ScreenChecker().isNarrowScreen() ? 7 : 14),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 14),
             amountLabel,
-            .spacer(height: ScreenChecker().isNarrowScreen() ? 2 : 4),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             amountTextField,
             amountTextField.alternativeAmountLabel,
         ].asStackView(axis: .vertical, alignment: .center)
@@ -134,7 +134,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
             amountTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             amountTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
-            amountTextField.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen() ? 30 : 50),
+            amountTextField.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
 
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
@@ -329,7 +329,7 @@ extension SendViewController: QRCodeReaderDelegate {
             guard recipient != "0" && amt != "0" else { return false }
             //address will be set as contract address if erc token, therefore need to ensure the QR code has set the same contract address
             //as the user is using
-            guard transferType.contract().eip55String.sameContract(as: result.address) else { return false }
+            guard transferType.contract.eip55String.sameContract(as: result.address) else { return false }
             amountTextField.ethCost = EtherNumberFormatter.full.string(from: BigInt(amt) ?? BigInt(), units: .ether)
             targetAddressTextField.value = recipient
             return true

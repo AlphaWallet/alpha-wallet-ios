@@ -61,6 +61,16 @@ class UniversalLinkCoordinator: Coordinator {
     let server: RPCServer
     weak var delegate: UniversalLinkCoordinatorDelegate?
 
+    //no need to localise as the labels are universal
+    private var labelForCurrencyDrops: String {
+        switch server {
+        case .xDai:
+            return "xDAI"
+        default:
+            return "ETH"
+        }
+    }
+
     init?(config: Config, ethPrices: ServerDictionary<Subscribable<Double>>, ethBalances: ServerDictionary<Subscribable<BigInt>>, tokensDatastores: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore, url: URL) {
         guard let server = RPCServer(withMagicLink: url) else { return nil }
 
@@ -205,16 +215,6 @@ class UniversalLinkCoordinator: Coordinator {
         }
     }
 
-    //no need to localise as the labels are universal
-    private func getLabelForCurrencyDrops() -> String {
-        switch server {
-        case .xDai:
-            return "xDAI"
-        default:
-            return "ETH"
-        }
-    }
-
     private func requiresPaymasterForCurrencyLinks(signedOrder: SignedOrder) -> Bool {
         guard signedOrder.order.nativeCurrencyDrop else { return false }
         guard signedOrder.order.price == 0 else { return false }
@@ -240,11 +240,10 @@ class UniversalLinkCoordinator: Coordinator {
             amt = 0
         }
         count = amt
-        let label = getLabelForCurrencyDrops()
         let token = Token(
                 id: 0,
                 index: 0,
-                name: label,
+                name: labelForCurrencyDrops,
                 symbol: "",
                 status: .available,
                 values: [:]

@@ -3,7 +3,7 @@
 import UIKit
 
 class PrivacyPolicyViewController: HelpContentsViewController {
-	override func url() -> URL? {
+	override var url: URL? {
 		return R.file.privacyPolicyHtml()
 	}
 }
