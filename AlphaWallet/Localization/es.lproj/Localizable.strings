@@ -258,6 +258,7 @@
 "a.wallet.address.title" = "La dirección de mi monedero de %@";
 "a.settings.navigation.title" = "Ajustes";
 "a.settings.contents.myWalletAddress" = "La dirección de mi monedero";
+"a.settings.contents.clearDappBrowserCache" = "Clear Dapp Browser cache";
 "a.welcome.navigation.title" = "Bienvenido";
 "a.welcome.onboarding.1" = "Almacena todos tus activos criptográficos en un solo lugar";
 "a.welcome.onboarding.2" = "Con tecnología de cadena de bloques, tickets inteligentes, sin fraudes";

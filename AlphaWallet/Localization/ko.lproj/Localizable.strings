@@ -258,6 +258,7 @@
 "a.wallet.address.title" = "내 %@ 지갑 주소";
 "a.settings.navigation.title" = "설정";
 "a.settings.contents.myWalletAddress" = "내 지갑 주소";
+"a.settings.contents.clearDappBrowserCache" = "Clear Dapp Browser cache";
 "a.welcome.navigation.title" = "환영합니다";
 "a.welcome.onboarding.1" = "모든 암호화폐 자산을 한 곳에서 관리하십시오";
 "a.welcome.onboarding.2" = "블록체인 기술 기반, 스마트 티켓, 사기 방지";

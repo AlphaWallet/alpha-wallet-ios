@@ -258,6 +258,7 @@
 "a.wallet.address.title" = "私の %@ ウォレットのアドレス";
 "a.settings.navigation.title" = "設定";
 "a.settings.contents.myWalletAddress" = "私のウォレットのアドレス";
+"a.settings.contents.clearDappBrowserCache" = "Clear Dapp Browser cache";
 "a.welcome.navigation.title" = "ようこそ";
 "a.welcome.onboarding.1" = "あなたのすべての暗号資産を1か所に保持します";
 "a.welcome.onboarding.2" = "ブロッキチェーン技術、スマート チケットを使用、不正行為なし";

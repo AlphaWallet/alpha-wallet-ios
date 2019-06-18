@@ -8,4 +8,5 @@ enum AlphaWalletSettingsAction {
 	case wallets
 	case locales
 	case enabledServers
+	case clearDappBrowserCache
 }
