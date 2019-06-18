@@ -7,14 +7,14 @@ import JSONRPCKit
 struct BalanceRequest: JSONRPCKit.Request {
     typealias Response = Balance
 
-    let address: String
+    let address: AlphaWallet.Address
 
     var method: String {
         return "eth_getBalance"
     }
 
     var parameters: Any? {
-        return [address, "latest"]
+        return [address.eip55String, "latest"]
     }
 
     func response(from resultObject: Any) throws -> Response {

@@ -23,8 +23,8 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: RedeemTokenCardQuantitySelectionViewModel
 
-    var contract: String {
-        return token.contract
+    var contract: AlphaWallet.Address {
+        return token.contractAddress
     }
     var server: RPCServer {
         return token.server
@@ -111,7 +111,7 @@ class RedeemTokenCardQuantitySelectionViewController: UIViewController, TokenVer
     @objc
     func nextButtonTapped() {
         if quantityStepper.value == 0 {
-            let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTokenRedeemSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],

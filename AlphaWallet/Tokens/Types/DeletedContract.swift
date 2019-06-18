@@ -8,14 +8,18 @@ class DeletedContract: Object {
     @objc dynamic var chainId: Int = 0
     @objc dynamic var contract: String = ""
 
-    convenience init(contract: String, server: RPCServer) {
+    convenience init(contractAddress: AlphaWallet.Address, server: RPCServer) {
         self.init()
-        self.contract = contract
+        self.contract = contractAddress.eip55String
         self.chainId = server.chainID
-        self.primaryKey = "\(contract)-\(server.chainID)"
+        self.primaryKey = "\(self.contract)-\(server.chainID)"
     }
 
     override static func primaryKey() -> String? {
         return "primaryKey"
+    }
+
+    var contractAddress: AlphaWallet.Address {
+        return AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
     }
 }

@@ -76,7 +76,7 @@ class TokenViewController: UIViewController {
 
         headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
 
-        let xmlHandler = XMLHandler(contract: transferType.contract.eip55String, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: transferType.contract, assetDefinitionStore: assetDefinitionStore)
         if xmlHandler.server == session.server {
             let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
             if tokenScriptStatusPromise.isPending {
@@ -208,7 +208,7 @@ extension TokenViewController: UITableViewDelegate {
 }
 
 extension TokenViewController: TokenViewControllerHeaderViewDelegate {
-    func didPressViewContractWebPage(forContract contract: String, inHeaderView: TokenViewControllerHeaderView) {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, inHeaderView: TokenViewControllerHeaderView) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
     }
 

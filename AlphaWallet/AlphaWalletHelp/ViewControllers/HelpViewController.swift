@@ -96,7 +96,7 @@ extension HelpViewController: StaticHTMLViewControllerDelegate {
 }
 
 extension HelpViewController: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 

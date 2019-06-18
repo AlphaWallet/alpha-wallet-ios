@@ -5,16 +5,16 @@ import TrustKeystore
 
 enum WalletType: Equatable {
     case real(Account)
-    case watch(Address)
+    case watch(AlphaWallet.Address)
 }
 
 struct Wallet: Equatable {
     let type: WalletType
 
-    var address: Address {
+    var address: AlphaWallet.Address {
         switch type {
         case .real(let account):
-            return account.address
+            return AlphaWallet.Address(address: account.address)
         case .watch(let address):
             return address
         }

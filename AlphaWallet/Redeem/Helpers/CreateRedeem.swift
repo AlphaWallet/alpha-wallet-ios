@@ -5,7 +5,6 @@
 
 import Foundation
 import BigInt
-import TrustKeystore
 
 class CreateRedeem {
     private let token: TokenObject
@@ -22,7 +21,7 @@ class CreateRedeem {
     }
 
     func redeemMessage(tokenIndices: [UInt16]) -> (message: String, qrCode: String) {
-        let contractAddress = token.contract.add0x.lowercased()
+        let contractAddress = token.contractAddress.eip55String.lowercased()
         let messageForSigning = formIndicesSelection(indices: tokenIndices)
                 + "," + generateTimeStamp() + "," + contractAddress
         let qrCodeData = formIndicesSelection(indices: tokenIndices)

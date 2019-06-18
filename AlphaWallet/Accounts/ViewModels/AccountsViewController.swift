@@ -1,6 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import TrustKeystore
 import UIKit
 
 protocol AccountsViewControllerDelegate: class {
@@ -25,7 +24,7 @@ class AccountsViewController: UIViewController {
             configure(viewModel: viewModel)
         }
     }
-    private var balances: [Address: Balance?] = [:]
+    private var balances: [AlphaWallet.Address: Balance?] = [:]
     private let keystore: Keystore
     private let balanceCoordinator: GetBalanceCoordinator
     private var etherKeystore = try? EtherKeystore()

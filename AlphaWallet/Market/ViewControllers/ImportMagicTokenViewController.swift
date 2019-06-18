@@ -31,7 +31,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: ImportMagicTokenViewControllerDelegate?
 
-    var contract: String? {
+    var contract: AlphaWallet.Address? {
         didSet {
             guard url != nil else { return }
             updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus, hasShowInfoButton: false)

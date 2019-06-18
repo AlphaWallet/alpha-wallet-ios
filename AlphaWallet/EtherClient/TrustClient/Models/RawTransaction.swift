@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import BigInt
 import PromiseKit
 
@@ -18,6 +17,11 @@ struct RawTransaction: Decodable {
     let input: String
     let gasUsed: String
     let error: String?
+
+    var toAddress: AlphaWallet.Address {
+        //TODO We use the unchecked version because it was easier to provide an Address instance this way. Good to remove it
+        return AlphaWallet.Address(uncheckedAgainstNullAddress: to)!
+    }
 
     enum CodingKeys: String, CodingKey {
         case hash = "hash"
@@ -40,7 +44,7 @@ struct RawTransaction: Decodable {
 
 extension Transaction {
     static func from(transaction: RawTransaction, tokensStorage: TokensDataStore) -> Promise<Transaction?> {
-        guard let from = Address(string: transaction.from) else {
+        guard let from = AlphaWallet.Address(string: transaction.from) else {
             return Promise.value(nil)
         }
         let state: TransactionState = {
@@ -49,7 +53,7 @@ extension Transaction {
             }
             return .completed
         }()
-        let to = Address(string: transaction.to)?.description ?? transaction.to
+        let to = AlphaWallet.Address(string: transaction.to)?.eip55String ?? transaction.to
         return firstly {
             createOperationForTokenTransfer(forTransaction: transaction, tokensStorage: tokensStorage)
         }.then { operations -> Promise<Transaction?> in
@@ -90,8 +94,8 @@ extension Transaction {
             let amount = BigInt(amount1, radix: 16)
             //Extract the address and strip the first 12 (x2 = 24) characters of 0s
             let to = "0x\(transaction.input[transaction.input.index(transaction.input.startIndex, offsetBy: 10 + 24)..<transaction.input.index(transaction.input.startIndex, offsetBy: 10 + 64)])"
-            if let amount = amount, let to = Address(string: to)?.eip55String {
-                let contract = transaction.to
+            if let amount = amount, let to = AlphaWallet.Address(string: to)?.eip55String {
+                let contract = transaction.toAddress
                 if let token = tokensStorage.token(forContract: contract) {
                     let operationType = mapTokenTypeToTransferOperationType(token.type)
                     let result = LocalizedOperationObject(from: transaction.from, to: to, contract: contract, type: operationType.rawValue, value: String(amount), symbol: token.symbol, name: token.name, decimals: token.decimals)

@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import UIKit
 
 protocol InitialWalletCreationCoordinatorDelegate: class {

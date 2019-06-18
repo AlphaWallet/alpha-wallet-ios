@@ -5,14 +5,13 @@ import Alamofire
 import BigInt
 import PromiseKit
 import RealmSwift
-import TrustKeystore
 import web3swift
 
 protocol UniversalLinkCoordinatorDelegate: class, CanOpenURL {
 	func viewControllerForPresenting(in coordinator: UniversalLinkCoordinator) -> UIViewController?
 	func completed(in coordinator: UniversalLinkCoordinator)
     func importPaidSignedOrder(signedOrder: SignedOrder, tokenObject: TokenObject, completion: @escaping (Bool) -> Void)
-    func didImported(contract: String, in coordinator: UniversalLinkCoordinator)
+    func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator)
 }
 
 class UniversalLinkCoordinator: Coordinator {
@@ -52,9 +51,9 @@ class UniversalLinkCoordinator: Coordinator {
             return false
         }
     }
-    private var walletAddress: String {
+    private var walletAddress: AlphaWallet.Address {
         //TODO pass in the wallet instead
-        return (try! EtherKeystore()).recentlyUsedWallet!.address.eip55String
+        return (try! EtherKeystore()).recentlyUsedWallet!.address
     }
 
     var coordinators: [Coordinator] = []
@@ -88,12 +87,12 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func createHTTPParametersForCurrencyLinksToPaymentServer(
             signedOrder: SignedOrder,
-            recipient: String
+            recipient: AlphaWallet.Address
     ) -> Parameters {
         let signature = signedOrder.signature.drop0x
         let parameters: Parameters = [
             "prefix": Constants.xdaiDropPrefix,
-            "recipient": recipient,
+            "recipient": recipient.eip55String,
             "amount": signedOrder.order.count.description,
             "expiry": signedOrder.order.expiry.description,
             "nonce": signedOrder.order.nonce,
@@ -198,7 +197,7 @@ class UniversalLinkCoordinator: Coordinator {
     func completeOrderHandling(signedOrder: SignedOrder) {
         let requiresPaymaster = requiresPaymasterForCurrencyLinks(signedOrder: signedOrder)
         if signedOrder.order.price == 0 {
-            self.checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
+            checkPaymentServerSupportsContract(contractAddress: signedOrder.order.contractAddress) { supported in
                 //Currency links on mainnet/classic/xdai without a paymaster should be rejected for security reasons (front running)
                 guard supported || !requiresPaymaster else {
                     self.showImportError(errorMessage: R.string.localizable.aClaimTokenFailedServerDown())
@@ -263,7 +262,7 @@ class UniversalLinkCoordinator: Coordinator {
         }
     }
 
-    private func handleNormalLinks(signedOrder: SignedOrder, recoverAddress: Address, contractAsAddress: Address) {
+    private func handleNormalLinks(signedOrder: SignedOrder, recoverAddress: AlphaWallet.Address, contractAsAddress: AlphaWallet.Address) {
         getERC875TokenBalanceCoordinator = GetERC875BalanceCoordinator(forServer: server)
         getERC875TokenBalanceCoordinator?.getERC875TokenBalance(for: recoverAddress, contract: contractAsAddress) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -314,8 +313,7 @@ class UniversalLinkCoordinator: Coordinator {
         let recoveredSigner = ecrecover(signedOrder: signedOrder)
         switch recoveredSigner {
         case .success(let ethereumAddress):
-            guard let recoverAddress = Address(string: ethereumAddress.address) else { return false }
-            let contractAsAddress = Address(string: signedOrder.order.contractAddress)!
+            let recoverAddress = AlphaWallet.Address(address: ethereumAddress)
             if signedOrder.order.nativeCurrencyDrop {
                 handleNativeCurrencyDrop(signedOrder: signedOrder)
             } else if signedOrder.order.spawnable, let tokens = signedOrder.order.tokenIds {
@@ -324,7 +322,7 @@ class UniversalLinkCoordinator: Coordinator {
                 handleNormalLinks(
                         signedOrder: signedOrder,
                         recoverAddress: recoverAddress,
-                        contractAsAddress: contractAsAddress
+                        contractAsAddress: signedOrder.order.contractAddress
                 )
             }
         case .failure(let error):
@@ -335,9 +333,9 @@ class UniversalLinkCoordinator: Coordinator {
         return true
     }
 
-    private func checkPaymentServerSupportsContract(contractAddress: String, completionHandler: @escaping (Bool) -> Void) {
+    private func checkPaymentServerSupportsContract(contractAddress: AlphaWallet.Address, completionHandler: @escaping (Bool) -> Void) {
         let parameters: Parameters = [
-            "contractAddress": contractAddress
+            "contractAddress": contractAddress.eip55String
         ]
         Alamofire.request(
                 Constants.paymentServerSupportsContractEndPoint,
@@ -444,7 +442,7 @@ class UniversalLinkCoordinator: Coordinator {
         return filteredTokens
     }
 
-    private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: String) {
+    private func makeTokenHolder(_ bytes32Tokens: [String], _ contractAddress: AlphaWallet.Address) {
         assetDefinitionStore.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
             guard let strongSelf = self else { return }
 
@@ -455,7 +453,7 @@ class UniversalLinkCoordinator: Coordinator {
 
             let tokensDatastore = strongSelf.tokensDatastores[strongSelf.server]
             if let existingToken = tokensDatastore.token(forContract: contractAddress) {
-                let name = XMLHandler(contract: existingToken.contract, assetDefinitionStore: strongSelf.assetDefinitionStore).getName(fallback: existingToken.name)
+                let name = XMLHandler(contract: existingToken.contractAddress, assetDefinitionStore: strongSelf.assetDefinitionStore).getName(fallback: existingToken.name)
                 makeTokenHolder(name: name, symbol: existingToken.symbol)
             } else {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
@@ -472,7 +470,7 @@ class UniversalLinkCoordinator: Coordinator {
         }
     }
 
-    private func makeTokenHolderImpl(name: String, symbol: String, bytes32Tokens: [String], contractAddress: String) {
+    private func makeTokenHolderImpl(name: String, symbol: String, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
         //TODO pass in the wallet instead
         let account = (try! EtherKeystore()).recentlyUsedWallet!
         var tokens = [Token]()
@@ -574,7 +572,7 @@ class UniversalLinkCoordinator: Coordinator {
             if let response = result.response {
                 if response.statusCode < 300 {
                     successful = true
-                    if let contract = parameters["contractAddress"] as? String {
+                    if let contract = (parameters["contractAddress"] as? String).flatMap({ AlphaWallet.Address(string: $0) }) {
                         strongSelf.delegate?.didImported(contract: contract, in: strongSelf)
                     }
                 }
@@ -624,7 +622,7 @@ extension UniversalLinkCoordinator: ImportMagicTokenViewControllerDelegate {
 }
 
 extension UniversalLinkCoordinator: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 

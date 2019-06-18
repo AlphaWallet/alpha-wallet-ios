@@ -2,7 +2,6 @@
 
 import Foundation
 import RealmSwift
-import TrustKeystore
 
 class TransactionsStorage {
     let realm: Realm
@@ -60,7 +59,7 @@ class TransactionsStorage {
         let tokens: [TokenUpdate] = transactions.compactMap { transaction in
             guard
                 let operation = transaction.localizedOperations.first,
-                let contract = Address(string: operation.contract ?? ""),
+                let contract = operation.contractAddress,
                 let name = operation.name,
                 let symbol = operation.symbol
                 else { return nil }

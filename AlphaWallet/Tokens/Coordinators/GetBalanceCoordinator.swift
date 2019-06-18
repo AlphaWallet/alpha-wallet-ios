@@ -5,7 +5,6 @@ import BigInt
 import JSONRPCKit
 import APIKit
 import Result
-import TrustKeystore
 import web3swift
 
 class GetBalanceCoordinator {
@@ -16,8 +15,8 @@ class GetBalanceCoordinator {
     }
 
     func getBalance(
-        for address: Address,
-        contract: Address,
+        for address: AlphaWallet.Address,
+        contract: AlphaWallet.Address,
         completion: @escaping (ResultResult<BigInt, AnyError>.t) -> Void
     ) {
         let functionName = "balanceOf"
@@ -38,10 +37,10 @@ class GetBalanceCoordinator {
     }
 
     func getEthBalance(
-        for address: Address,
+        for address: AlphaWallet.Address,
         completion: @escaping (ResultResult<Balance, AnyError>.t) -> Void
     ) {
-        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BalanceRequest(address: address.description)))
+        let request = EtherServiceRequest(server: server, batch: BatchFactory().create(BalanceRequest(address: address)))
         Session.send(request) { result in
             switch result {
             case .success(let balance):

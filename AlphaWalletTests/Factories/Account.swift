@@ -6,11 +6,11 @@ import TrustKeystore
 
 extension Account {
     static func make(
-        address: Address = .make(),
+        address: AlphaWallet.Address = .make(),
         url: URL = URL(fileURLWithPath: "")
     ) -> Account {
         return Account(
-            address: address,
+            address: Address(address: address),
             url: url
         )
     }

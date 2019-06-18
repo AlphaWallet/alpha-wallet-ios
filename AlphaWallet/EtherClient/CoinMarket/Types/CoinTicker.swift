@@ -10,7 +10,8 @@ struct CoinTicker: Codable {
 
     let price_usd: String
     let percent_change_24h: String
-    let contract: String = Constants.nativeCryptoAddressInDatabase
+    //TODO use AlphaWallet.Address? Note that the containing struct is Codable
+    let contract: String = Constants.nativeCryptoAddressInDatabase.eip55String
 
     lazy var rate: CurrencyRate = {
         CurrencyRate(

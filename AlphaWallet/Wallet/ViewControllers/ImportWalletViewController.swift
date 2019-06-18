@@ -1,6 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
 import UIKit
-import TrustKeystore
 import QRCodeReaderViewController
 
 protocol ImportWalletViewControllerDelegate: class {
@@ -254,7 +253,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             case .privateKey:
                 return .privateKey(privateKey: privateKeyInput)
             case .watch:
-                let address = Address(string: watchInput)! // Address validated by form view.
+                let address = AlphaWallet.Address(string: watchInput)! // Address validated by form view.
                 return .watch(address: address)
             }
         }()
@@ -273,7 +272,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     @objc func demo() {
         //Used for taking screenshots to the App Store by snapshot
-        let demoWallet = Wallet(type: .watch(Address(string: "0xD663bE6b87A992C5245F054D32C7f5e99f5aCc47")!))
+        let demoWallet = Wallet(type: .watch(AlphaWallet.Address(string: "0xD663bE6b87A992C5245F054D32C7f5e99f5aCc47")!))
         delegate?.didImportAccount(account: demoWallet, in: self)
     }
 

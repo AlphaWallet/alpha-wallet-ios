@@ -10,7 +10,6 @@ import Foundation
 import BigInt
 import Kanna
 import PromiseKit
-import TrustKeystore
 
 enum SingularOrPlural {
     case singular
@@ -485,7 +484,7 @@ private class PrivateXMLHandler {
                 }
         let fromActionAsTopLevel: [(AlphaWallet.Address, Int)]
         if let server = XMLHandler.getServerForNativeCurrencyAction(fromRoot: xml, xmlContext: xmlContext) {
-            fromActionAsTopLevel = [(.ethereumAddress(eip55String: Constants.nativeCryptoAddressInDatabase), server.chainID)]
+            fromActionAsTopLevel = [(Constants.nativeCryptoAddressInDatabase, server.chainID)]
         } else {
             fromActionAsTopLevel = []
         }
@@ -562,9 +561,7 @@ public class XMLHandler {
         return privateXMLHandler.issuer
     }
 
-    //TODO accept AlphaWallet.Address instead
-    init(contract: String, assetDefinitionStore: AssetDefinitionStore) {
-        let contract = AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
+    init(contract: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) {
         if let handler = XMLHandler.xmlHandlers[contract] {
             privateXMLHandler = handler
         } else {

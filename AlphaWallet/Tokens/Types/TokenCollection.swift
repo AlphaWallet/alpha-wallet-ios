@@ -2,7 +2,6 @@
 
 import Foundation
 import Result
-import TrustKeystore
 
 ///This contains tokens across multiple-chains
 class TokenCollection {
@@ -31,7 +30,7 @@ class TokenCollection {
 extension TokenCollection: TokensDataStoreDelegate {
     func didUpdate(result: Result<TokensViewModel, TokenError>) {
         //TODO not efficient. But how many elements can we actually have. Not that many?
-        var tickers = [RPCServer: [String: CoinTicker]]()
+        var tickers = [RPCServer: [AlphaWallet.Address: CoinTicker]]()
         var tokens = [TokenObject]()
         //TODO this might still be slowing things down. Especially if it runs too many times unnecessarily
         for each in tokenDataStores {
@@ -43,13 +42,14 @@ extension TokenCollection: TokensDataStoreDelegate {
             tokens.append(contentsOf: each.enabledObject)
         }
 
+        let nativeCryptoAddressInDatabase = Constants.nativeCryptoAddressInDatabase.eip55String
         tokens.sort {
             //Performance: Don't need to use sameContract(as:) because it's all 0s and we want to be fast
-            if $0.contract == Constants.nativeCryptoAddressInDatabase && $1.contract == Constants.nativeCryptoAddressInDatabase {
+            if $0.contractAddress.eip55String == nativeCryptoAddressInDatabase && $1.contractAddress.eip55String == nativeCryptoAddressInDatabase {
                 return $0.server.displayOrderPriority < $1.server.displayOrderPriority
-            } else if $0.contract == Constants.nativeCryptoAddressInDatabase {
+            } else if $0.contractAddress.eip55String == nativeCryptoAddressInDatabase {
                 return true
-            } else if $1.contract == Constants.nativeCryptoAddressInDatabase {
+            } else if $1.contractAddress.eip55String == nativeCryptoAddressInDatabase {
                 return false
             } else if $0.server != $1.server {
                 return $0.server.displayOrderPriority < $1.server.displayOrderPriority

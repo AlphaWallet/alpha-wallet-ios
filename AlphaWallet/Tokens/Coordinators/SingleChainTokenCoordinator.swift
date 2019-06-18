@@ -94,19 +94,19 @@ class SingleChainTokenCoordinator: Coordinator {
         autoDetectTransactedTokensQueue.addOperation(operation)
     }
 
-    private func autoDetectTransactedTokensImpl(wallet: Address, erc20: Bool) -> Promise<Void> {
+    private func autoDetectTransactedTokensImpl(wallet: AlphaWallet.Address, erc20: Bool) -> Promise<Void> {
         return Promise<Void> { seal in
-            GetContractInteractions().getContractList(address: wallet.eip55String, server: session.server, erc20: erc20) { [weak self] contracts in
+            GetContractInteractions().getContractList(address: wallet, server: session.server, erc20: erc20) { [weak self] contracts in
                 defer {
                     seal.fulfill(())
                 }
                 guard let strongSelf = self else { return }
-                guard let currentAddress = strongSelf.keystore.recentlyUsedWallet?.address, currentAddress.eip55String.sameContract(as: wallet.eip55String) else { return }
-                let detectedContracts = contracts.map { $0.lowercased() }
-                let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.address.eip55String.lowercased() }
-                let deletedContracts = strongSelf.storage.deletedContracts.map { $0.contract.lowercased() }
-                let hiddenContracts = strongSelf.storage.hiddenContracts.map { $0.contract.lowercased() }
-                let delegateContracts = strongSelf.storage.delegateContracts.map { $0.contract.lowercased() }
+                guard let currentAddress = strongSelf.keystore.recentlyUsedWallet?.address, currentAddress.sameContract(as: wallet) else { return }
+                let detectedContracts = contracts
+                let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.contractAddress }
+                let deletedContracts = strongSelf.storage.deletedContracts.map { $0.contractAddress }
+                let hiddenContracts = strongSelf.storage.hiddenContracts.map { $0.contractAddress }
+                let delegateContracts = strongSelf.storage.delegateContracts.map { $0.contractAddress }
                 let contractsToAdd = detectedContracts - alreadyAddedContracts - deletedContracts - hiddenContracts - delegateContracts
                 var contractsPulled = 0
                 var hasRefreshedAfterAddingAllContracts = false
@@ -157,7 +157,7 @@ class SingleChainTokenCoordinator: Coordinator {
         autoDetectTokens(withContracts: Constants.ethDenverXDaiPartnerContracts)
     }
 
-    private func autoDetectTokens(withContracts contractsToDetect: [(name: String, contract: String)]) {
+    private func autoDetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)]) {
         guard let address = keystore.recentlyUsedWallet?.address else { return }
         guard !isAutoDetectingTokens else { return }
 
@@ -166,31 +166,24 @@ class SingleChainTokenCoordinator: Coordinator {
         autoDetectTokensQueue.addOperation(operation)
     }
 
-    private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: String)], completion: @escaping () -> ()) {
+    private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], completion: @escaping () -> ()) {
         guard let address = keystore.recentlyUsedWallet?.address else { return }
-        let alreadyAddedContracts = storage.enabledObject.map { $0.address.eip55String.lowercased() }
-        let deletedContracts = storage.deletedContracts.map { $0.contract.lowercased() }
-        let hiddenContracts = storage.hiddenContracts.map { $0.contract.lowercased() }
-        let contracts = contractsToDetect.map { $0.contract.lowercased() } - alreadyAddedContracts - deletedContracts - hiddenContracts
+        let alreadyAddedContracts = storage.enabledObject.map { $0.contractAddress }
+        let deletedContracts = storage.deletedContracts.map { $0.contractAddress }
+        let hiddenContracts = storage.hiddenContracts.map { $0.contractAddress }
+        let contracts = contractsToDetect.map { $0.contract } - alreadyAddedContracts - deletedContracts - hiddenContracts
         var contractsProcessed = 0
         guard !contracts.isEmpty else {
             completion()
             return
         }
         for each in contracts {
-            guard let contract = Address(string: each) else {
-                contractsProcessed += 1
-                if contractsProcessed == contracts.count {
-                    completion()
-                }
-                continue
-            }
             storage.getTokenType(for: each) { tokenType in
                 switch tokenType {
                 case .erc875:
                     //TODO long and very similar code below. Extract function
                     let balanceCoordinator = GetERC875BalanceCoordinator(forServer: self.session.server)
-                    balanceCoordinator.getERC875TokenBalance(for: address, contract: contract) { [weak self] result in
+                    balanceCoordinator.getERC875TokenBalance(for: address, contract: each) { [weak self] result in
                         guard let strongSelf = self else {
                             contractsProcessed += 1
                             if contractsProcessed == contracts.count {
@@ -201,7 +194,7 @@ class SingleChainTokenCoordinator: Coordinator {
                         switch result {
                         case .success(let balance):
                             if !balance.isEmpty {
-                                strongSelf.addToken(for: contract.eip55String) {
+                                strongSelf.addToken(for: each) {
                                     DispatchQueue.main.async {
                                         strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
                                     }
@@ -217,7 +210,7 @@ class SingleChainTokenCoordinator: Coordinator {
                     }
                 case .erc20:
                     let balanceCoordinator = GetBalanceCoordinator(forServer: self.session.server)
-                    balanceCoordinator.getBalance(for: address, contract: contract) { [weak self] result in
+                    balanceCoordinator.getBalance(for: address, contract: each) { [weak self] result in
                         guard let strongSelf = self else {
                             contractsProcessed += 1
                             if contractsProcessed == contracts.count {
@@ -228,7 +221,7 @@ class SingleChainTokenCoordinator: Coordinator {
                         switch result {
                         case .success(let balance):
                             if balance > 0 {
-                                strongSelf.addToken(for: contract.eip55String) {
+                                strongSelf.addToken(for: each) {
                                     DispatchQueue.main.async {
                                         strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
                                     }
@@ -253,46 +246,42 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    private func addToken(for contract: String, completion: @escaping () -> Void) {
+    private func addToken(for contract: AlphaWallet.Address, completion: @escaping () -> Void) {
         fetchContractData(for: contract) { [weak self] data in
             guard let strongSelf = self else { return }
             switch data {
             case .name, .symbol, .balance, .decimals:
                 break
             case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
-                if let address = Address(string: contract) {
-                    let token = ERCToken(
-                            contract: address,
-                            server: strongSelf.session.server,
-                            name: name,
-                            symbol: symbol,
-                            decimals: 0,
-                            type: tokenType,
-                            balance: balance
-                    )
-                    strongSelf.storage.addCustom(token: token)
-                    completion()
-                }
+                let token = ERCToken(
+                        contract: contract,
+                        server: strongSelf.session.server,
+                        name: name,
+                        symbol: symbol,
+                        decimals: 0,
+                        type: tokenType,
+                        balance: balance
+                )
+                strongSelf.storage.addCustom(token: token)
+                completion()
             case .fungibleTokenComplete(let name, let symbol, let decimals):
-                if let address = Address(string: contract) {
-                    let token = TokenObject(
-                            contract: address.eip55String,
-                            server: strongSelf.session.server,
-                            name: name,
-                            symbol: symbol,
-                            decimals: Int(decimals),
-                            value: "0",
-                            type: .erc20
-                    )
-                    strongSelf.storage.add(tokens: [token])
-                    completion()
-                }
+                let token = TokenObject(
+                        contract: contract,
+                        server: strongSelf.session.server,
+                        name: name,
+                        symbol: symbol,
+                        decimals: Int(decimals),
+                        value: "0",
+                        type: .erc20
+                )
+                strongSelf.storage.add(tokens: [token])
+                completion()
             case .delegateTokenComplete:
-                strongSelf.storage.add(delegateContracts: [DelegateContract(contract: contract, server: strongSelf.session.server)])
+                strongSelf.storage.add(delegateContracts: [DelegateContract(contractAddress: contract, server: strongSelf.session.server)])
                 completion()
             case .failed(let networkReachable):
                 if let networkReachable = networkReachable, networkReachable {
-                    strongSelf.storage.add(deadContracts: [DeletedContract(contract: contract, server: strongSelf.session.server)])
+                    strongSelf.storage.add(deadContracts: [DeletedContract(contractAddress: contract, server: strongSelf.session.server)])
                 }
                 completion()
             }
@@ -300,7 +289,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
-    func addImportedToken(forContract contract: String) {
+    func addImportedToken(forContract contract: AlphaWallet.Address) {
         delete(hiddenContract: contract)
         addToken(for: contract) { [weak self] in
             guard let strongSelf = self else { return }
@@ -308,14 +297,14 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    private func delete(hiddenContract contract: String) {
-        guard let hiddenContract = storage.hiddenContracts.first(where: { $0.contract.sameContract(as: contract) }) else { return }
+    private func delete(hiddenContract contract: AlphaWallet.Address) {
+        guard let hiddenContract = storage.hiddenContracts.first(where: { contract.sameContract(as: $0.contract) }) else { return }
         //TODO we need to make sure it's all uppercase?
         storage.delete(hiddenContracts: [hiddenContract])
     }
 
     /// Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
-    func fetchContractData(for address: String, completion: @escaping (ContractData) -> Void) {
+    func fetchContractData(for address: AlphaWallet.Address, completion: @escaping (ContractData) -> Void) {
         var completedName: String?
         var completedSymbol: String?
         var completedBalance: [String]?
@@ -494,7 +483,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private func refreshTokenViewControllerUponAssetDefinitionChanges(_ viewController: TokenViewController, forTransferType transferType: TransferType, transactionsStore: TransactionsStorage) {
         assetDefinitionStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
-            guard contract.sameContract(as: transferType.contract.eip55String) else { return }
+            guard contract.sameContract(as: transferType.contract) else { return }
             let viewModel = TokenViewControllerViewModel(transferType: transferType, session: strongSelf.session, tokensStore: strongSelf.storage, transactionsStore: transactionsStore, assetDefinitionStore: strongSelf.assetDefinitionStore)
             viewController.configure(viewModel: viewModel)
         }
@@ -505,7 +494,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     func delete(token: TokenObject) {
-        storage.add(hiddenContracts: [HiddenContract(contract: token.contract, server: session.server)])
+        storage.add(hiddenContracts: [HiddenContract(contractAddress: token.contractAddress, server: session.server)])
         storage.delete(tokens: [token])
         delegate?.tokensDidChange(inCoordinator: self)
     }
@@ -518,7 +507,7 @@ class SingleChainTokenCoordinator: Coordinator {
     class AutoDetectTransactedTokensOperation: Operation {
         private let session: WalletSession
         weak private var coordinator: SingleChainTokenCoordinator?
-        private let wallet: Address
+        private let wallet: AlphaWallet.Address
         override var isExecuting: Bool {
             return coordinator?.isAutoDetectingTransactedTokens ?? false
         }
@@ -529,7 +518,7 @@ class SingleChainTokenCoordinator: Coordinator {
             return true
         }
 
-        init(forSession session: WalletSession, coordinator: SingleChainTokenCoordinator, wallet: Address) {
+        init(forSession session: WalletSession, coordinator: SingleChainTokenCoordinator, wallet: AlphaWallet.Address) {
             self.session = session
             self.coordinator = coordinator
             self.wallet = wallet
@@ -554,8 +543,8 @@ class SingleChainTokenCoordinator: Coordinator {
     class AutoDetectTokensOperation: Operation {
         private let session: WalletSession
         weak private var coordinator: SingleChainTokenCoordinator?
-        private let wallet: Address
-        private let tokens: [(name: String, contract: String)]
+        private let wallet: AlphaWallet.Address
+        private let tokens: [(name: String, contract: AlphaWallet.Address)]
         override var isExecuting: Bool {
             return coordinator?.isAutoDetectingTokens ?? false
         }
@@ -566,7 +555,7 @@ class SingleChainTokenCoordinator: Coordinator {
             return true
         }
 
-        init(forSession session: WalletSession, coordinator: SingleChainTokenCoordinator, wallet: Address, tokens: [(name: String, contract: String)]) {
+        init(forSession session: WalletSession, coordinator: SingleChainTokenCoordinator, wallet: AlphaWallet.Address, tokens: [(name: String, contract: AlphaWallet.Address)]) {
             self.session = session
             self.coordinator = coordinator
             self.wallet = wallet
@@ -593,8 +582,8 @@ class SingleChainTokenCoordinator: Coordinator {
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, viewController: UIViewController) {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
-        let token = XMLHandler(contract: tokenObject.contract, assetDefinitionStore: assetDefinitionStore).getToken(name: tokenObject.name, symbol: tokenObject.symbol, fromTokenId: hardcodedTokenIdForFungibles, index: 0, inWallet: session.account, server: session.server)
-        let tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contract, hasAssetDefinition: true)
+        let token = XMLHandler(contract: tokenObject.contractAddress, assetDefinitionStore: assetDefinitionStore).getToken(name: tokenObject.name, symbol: tokenObject.symbol, fromTokenId: hardcodedTokenIdForFungibles, index: 0, inWallet: session.account, server: session.server)
+        let tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)
         let vc = TokenInstanceActionViewController(tokenObject: tokenObject, tokenHolder: tokenHolder, tokensStorage: storage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
         vc.delegate = self
         vc.configure()
@@ -645,7 +634,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
 }
 
 extension SingleChainTokenCoordinator: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 

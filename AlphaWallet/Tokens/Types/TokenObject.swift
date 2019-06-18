@@ -3,16 +3,15 @@
 import Foundation
 import RealmSwift
 import BigInt
-import TrustKeystore
 
 class TokenObject: Object {
-    static func generatePrimaryKey(fromContract contract: String, server: RPCServer) -> String {
-        return "\(contract)-\(server.chainID)"
+    static func generatePrimaryKey(fromContract contract: AlphaWallet.Address, server: RPCServer) -> String {
+        return "\(contract.eip55String)-\(server.chainID)"
     }
 
     @objc dynamic var primaryKey: String = ""
     @objc dynamic var chainId: Int = 0
-    @objc dynamic var contract: String = ""
+    @objc dynamic var contract: String = Constants.nullAddress.eip55String
     @objc dynamic var name: String = ""
     @objc dynamic var symbol: String = ""
     @objc dynamic var decimals: Int = 0
@@ -36,7 +35,7 @@ class TokenObject: Object {
     }
 
     convenience init(
-            contract: String = "",
+            contract: AlphaWallet.Address = Constants.nullAddress,
             server: RPCServer,
             name: String = "",
             symbol: String = "",
@@ -48,7 +47,7 @@ class TokenObject: Object {
     ) {
         self.init()
         self.primaryKey = TokenObject.generatePrimaryKey(fromContract: contract, server: server)
-        self.contract = contract
+        self.contract = contract.eip55String
         self.chainId = server.chainID
         self.name = name
         self.symbol = symbol
@@ -58,8 +57,13 @@ class TokenObject: Object {
         self.type = type
     }
 
-    var address: Address {
-        return Address(uncheckedAgainstNullAddress: contract)!
+    var contractAddress: AlphaWallet.Address {
+        get {
+            return AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
+        }
+        set {
+            contract = contractAddress.eip55String
+        }
     }
 
     var valueBigInt: BigInt {
@@ -76,21 +80,21 @@ class TokenObject: Object {
 
     override func isEqual(_ object: Any?) -> Bool {
         guard let object = object as? TokenObject else { return false }
-        return object.contract.sameContract(as: contract)
+        return object.contractAddress.sameContract(as: contractAddress)
     }
 
     func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
-        let localizedNameFromAssetDefinition = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).getName(fallback: name)
+        let localizedNameFromAssetDefinition = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore).getName(fallback: name)
         return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
     }
 
     func titleInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
-        let localizedNameFromAssetDefinition = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: name)
+        let localizedNameFromAssetDefinition = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: name)
         return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
     }
 
     private func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore, localizedNameFromAssetDefinition: String) -> String {
-        let compositeName = compositeTokenName(forContract: contract, fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+        let compositeName = compositeTokenName(forContract: contractAddress, fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
         if compositeName.isEmpty {
             return symbol
         } else {
@@ -123,11 +127,11 @@ func isZeroBalance(_ balance: String) -> Bool {
     return false
 }
 
-func compositeTokenName(forContract contract: String, fromContractName contractName: String, localizedNameFromAssetDefinition: String) -> String {
+func compositeTokenName(forContract contract: AlphaWallet.Address, fromContractName contractName: String, localizedNameFromAssetDefinition: String) -> String {
     let compositeName: String
     //TODO improve and remove the check for "N/A". Maybe a constant
     //Special case for FIFA tickets, otherwise, we just show the name from the XML
-    if contract.sameContract(as: Constants.ticketContractAddress) || contract.sameContract(as: Constants.ticketContractAddressRopsten) {
+    if contract.isFifaTicketcontract {
         if contractName.isEmpty {
             compositeName = localizedNameFromAssetDefinition
         } else {

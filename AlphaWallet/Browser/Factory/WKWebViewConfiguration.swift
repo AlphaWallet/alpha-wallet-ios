@@ -3,7 +3,6 @@
 import Foundation
 import WebKit
 import JavaScriptCore
-import TrustKeystore
 
 enum WebViewType {
     case dappBrowser
@@ -12,7 +11,7 @@ enum WebViewType {
 
 extension WKWebViewConfiguration {
 
-    static func make(forType type: WebViewType, server server: RPCServer, address: Address, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
+    static func make(forType type: WebViewType, server server: RPCServer, address: AlphaWallet.Address, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
         let webViewConfig = WKWebViewConfiguration()
         var js = ""
 
@@ -74,9 +73,9 @@ extension WKWebViewConfiguration {
         return webViewConfig
     }
 
-    fileprivate static func javaScriptForDappBrowser(server server: RPCServer, address: Address) -> String {
+    fileprivate static func javaScriptForDappBrowser(server server: RPCServer, address: AlphaWallet.Address) -> String {
         return """
-               const addressHex = "\(address.description.lowercased())"
+               const addressHex = "\(address.eip55String)"
                const rpcURL = "\(server.rpcURL.absoluteString)"
                const chainID = "\(server.chainID)"
 
@@ -141,7 +140,7 @@ extension WKWebViewConfiguration {
              """
     }
 
-    fileprivate static func javaScriptForTokenScriptRenderer(server server: RPCServer, address: Address) -> String {
+    fileprivate static func javaScriptForTokenScriptRenderer(server server: RPCServer, address: AlphaWallet.Address) -> String {
         return """
                window.web3CallBacks = {}
 

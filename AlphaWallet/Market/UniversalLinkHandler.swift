@@ -98,10 +98,10 @@ public class UniversalLinkHandler {
 
     }
 
-    private func handleNormalLink(linkBytes: [UInt8]) -> SignedOrder {
+    private func handleNormalLink(linkBytes: [UInt8]) -> SignedOrder? {
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
-        let contractAddress = getContractAddressFromLinkBytes(linkBytes: linkBytes)
+        guard let contractAddress = AlphaWallet.Address(string: getContractAddressFromLinkBytes(linkBytes: linkBytes)) else { return nil }
         let tokenIndices = getTokenIndicesFromLinkBytes(linkBytes: linkBytes)
         let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes)
         let order = Order(
@@ -121,14 +121,15 @@ public class UniversalLinkHandler {
 
     //Note: native currency links can use szabo directly and
     //don't need to be compressed into szabo from wei and vice versa
-    private func handleNativeCurrencyDropLinks(linkBytes: [UInt8]) -> SignedOrder {
+    private func handleNativeCurrencyDropLinks(linkBytes: [UInt8]) -> SignedOrder? {
         var bytes = linkBytes
         bytes.remove(at: 0) //remove encoding byte
         let prefix = Array(bytes[0...7])
         let nonce = Array(bytes[8...11])
         let amount = Array(bytes[12...15])
         let expiry = Array(bytes[16...19])
-        let contractAddress = Array(bytes[20...39])
+        let contractBytes = Array(bytes[20...39])
+        guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: Data(bytes: contractBytes).hex()) else { return nil }
         let v = String(bytes[104], radix: 16)
         let r = Data(bytes: Array(bytes[40...71])).hex()
         let s = Data(bytes: Array(bytes[72...103])).hex()
@@ -136,7 +137,7 @@ public class UniversalLinkHandler {
                 price: BigUInt(0),
                 indices: [UInt16](),
                 expiry: BigUInt(Data(bytes: expiry)),
-                contractAddress: Data(bytes: contractAddress).hex(),
+                contractAddress: contractAddress,
                 count: BigUInt(Data(bytes: amount)),
                 nonce: BigUInt(Data(bytes: nonce)),
                 tokenIds: [BigUInt](),
@@ -148,17 +149,17 @@ public class UniversalLinkHandler {
                 nonce: nonce,
                 amount: amount,
                 expiry: expiry,
-                contractAddress: contractAddress
+                contractAddress: contractBytes
         )
         return SignedOrder(order: order, message: message, signature: "0x" + r + s + v)
     }
-    
-    private func handleSpawnableLink(linkBytes: [UInt8]) -> SignedOrder {
+
+    private func handleSpawnableLink(linkBytes: [UInt8]) -> SignedOrder? {
         var bytes = linkBytes
         bytes.remove(at: 0) //remove encoding byte
         let price = getPriceFromLinkBytes(linkBytes: bytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: bytes)
-        let contractAddress = getContractAddressFromLinkBytes(linkBytes: bytes)
+        guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: getContractAddressFromLinkBytes(linkBytes: bytes)) else { return nil }
         let tokenIds = getTokenIdsFromSpawnableLink(linkBytes: bytes)
         let (v, r, s) = getVRSFromLinkBytes(linkBytes: bytes)
         let order = Order(
@@ -350,7 +351,7 @@ public class UniversalLinkHandler {
         message.append(contentsOf: priceBytes)
         let expiryBytes = padTo32(order.expiry.serialize().array)
         message.append(contentsOf: expiryBytes)
-        let contractBytes = order.contractAddress.hexa2Bytes
+        let contractBytes = order.contractAddress.eip55String.hexa2Bytes
         message.append(contentsOf: contractBytes)
         let indices = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: order.indices)
         message.append(contentsOf: indices)

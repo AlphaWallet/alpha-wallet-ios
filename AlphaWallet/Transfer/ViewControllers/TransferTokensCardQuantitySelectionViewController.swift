@@ -17,8 +17,8 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     private var viewModel: TransferTokensCardQuantitySelectionViewModel
     private let token: TokenObject
 
-    var contract: String {
-        return token.contract
+    var contract: AlphaWallet.Address {
+        return token.contractAddress
     }
     var server: RPCServer {
         return token.server
@@ -112,7 +112,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
     @objc
     func nextButtonTapped() {
         if quantityStepper.value == 0 {
-            let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             UIAlertController.alert(title: "",
                                     message: R.string.localizable.aWalletTokenTransferSelectTokenQuantityAtLeastOneTitle(tokenTypeName),
                                     alertButtonTitles: [R.string.localizable.oK()],

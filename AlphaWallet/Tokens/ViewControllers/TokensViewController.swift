@@ -39,7 +39,7 @@ class TokensViewController: UIViewController {
         layout.minimumInteritemSpacing = 0
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
-    private var currentCollectiblesContractsDisplayed = [String]()
+    private var currentCollectiblesContractsDisplayed = [AlphaWallet.Address]()
     private let searchController: UISearchController
     private let consoleButton = UIButton(type: .system)
 
@@ -264,11 +264,11 @@ class TokensViewController: UIViewController {
     }
 
     //Reloading the collectibles tab is very obvious visually, with the flashing images even if there are no changes. So we used this to check if the list of collectibles have changed, if not, don't refresh. We could have used a library that tracks diff, but that is overkill and one more dependency
-    private func contractsForCollectiblesFromViewModel() -> [String] {
-        var contractsForCollectibles = [String]()
+    private func contractsForCollectiblesFromViewModel() -> [AlphaWallet.Address] {
+        var contractsForCollectibles = [AlphaWallet.Address]()
         for i in (0..<viewModel.numberOfItems(for: 0)) {
             let token = viewModel.item(for: i, section: 0)
-            contractsForCollectibles.append(token.contract.lowercased())
+            contractsForCollectibles.append(token.contractAddress)
         }
         return contractsForCollectibles
     }

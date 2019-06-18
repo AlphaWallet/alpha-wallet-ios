@@ -7,7 +7,6 @@ import BigInt
 import JSONRPCKit
 import PromiseKit
 import Result
-import TrustKeystore
 import UserNotifications
 
 protocol SingleChainTransactionDataCoordinatorDelegate: class {
@@ -80,7 +79,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
     //TODO should this be added to the queue?
     private func autoDetectERC20Transactions() {
         GetContractInteractions().getErc20Interactions(
-                address: session.account.address.eip55String,
+                address: session.account.address,
                 server: session.server
         ) { result in
             self.update(items: result)
@@ -183,7 +182,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
         if toNotify.count > maximumNumberOfNotifications {
             toNotify = Array(toNotify[0..<maximumNumberOfNotifications])
         }
-        let newIncomingEthTransactions = toNotify.filter { $0.to.sameContract(as: wallet.address.eip55String) }
+        let newIncomingEthTransactions = toNotify.filter { wallet.address.sameContract(as: $0.to) }
         let formatter = EtherNumberFormatter.short
         let thresholdToShowNotification = Date.yesterday
         for each in newIncomingEthTransactions {
@@ -210,7 +209,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
     }
 
     private func fetchTransactions(
-            for address: Address,
+            for address: AlphaWallet.Address,
             startBlock: Int,
             endBlock: Int = 999_999_999,
             sortOrder: AlphaWalletService.SortOrder,
@@ -220,7 +219,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
                 .getTransactions(
                         config: session.config,
                         server: session.server,
-                        address: address.description,
+                        address: address,
                         startBlock: startBlock,
                         endBlock: endBlock,
                         sortOrder: sortOrder
@@ -253,7 +252,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
         }
     }
 
-    private func fetchOlderTransactions(for address: Address) {
+    private func fetchOlderTransactions(for address: AlphaWallet.Address) {
         guard let oldestCachedTransaction = storage.completedObjects.last else { return }
 
         fetchTransactions(for: address, startBlock: 1, endBlock: oldestCachedTransaction.blockNumber - 1, sortOrder: .desc) { [weak self] result in

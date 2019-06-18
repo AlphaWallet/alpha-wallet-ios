@@ -2,7 +2,6 @@
 
 import Foundation
 import Result
-import TrustKeystore
 
 class GetERC875BalanceCoordinator {
     private let server: RPCServer
@@ -12,8 +11,8 @@ class GetERC875BalanceCoordinator {
     }
 
     func getERC875TokenBalance(
-        for address: Address,
-        contract: Address,
+        for address: AlphaWallet.Address,
+        contract: AlphaWallet.Address,
         completion: @escaping (Result<[String], AnyError>) -> Void
     ) {
         let function = GetERC875Balance()

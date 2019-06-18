@@ -31,8 +31,8 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     private let tokenHolder: TokenHolder
     private let ethCost: Ether
 
-    var contract: String {
-        return viewModel.token.contract
+    var contract: AlphaWallet.Address {
+        return viewModel.token.contractAddress
     }
     var server: RPCServer {
         return viewModel.token.server

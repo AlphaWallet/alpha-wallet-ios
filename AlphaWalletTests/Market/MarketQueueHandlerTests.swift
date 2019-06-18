@@ -1,7 +1,6 @@
 import Foundation
 import XCTest
 @testable import AlphaWallet
-import TrustKeystore
 import BigInt
 
 class MarketQueueHandlerTests: XCTestCase {

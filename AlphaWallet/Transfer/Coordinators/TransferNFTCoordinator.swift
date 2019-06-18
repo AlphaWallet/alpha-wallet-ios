@@ -12,18 +12,16 @@ protocol TransferNFTCoordinatorDelegate: class {
 
 class TransferNFTCoordinator: Coordinator {
     private let tokenHolder: TokenHolder
-    private let walletAddress: String
+    private let walletAddress: AlphaWallet.Address
     private let paymentFlow: PaymentFlow
     private let keystore: Keystore
     private let session: WalletSession
     private let account: Account
     private let viewController: UIViewController
     private var statusViewController: StatusViewController?
-    private var address: Address?
     private var status = StatusViewControllerViewModel.State.processing {
         didSet {
-            guard let address = address else { return }
-            let tokenTypeName = XMLHandler(contract: address.eip55String, assetDefinitionStore: assetDefinitionStore).getName()
+            let tokenTypeName = XMLHandler(contract: walletAddress, assetDefinitionStore: assetDefinitionStore).getName()
             statusViewController?.configure(viewModel: .init(
                     state: status,
                     inProgressText: R.string.localizable.aWalletTokenTransferInProgressTitle(tokenTypeName),
@@ -37,7 +35,7 @@ class TransferNFTCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: TransferNFTCoordinatorDelegate?
 
-    init(tokenHolder: TokenHolder, walletAddress: String, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: Account, assetDefinitionStore: AssetDefinitionStore, on viewController: UIViewController) {
+    init(tokenHolder: TokenHolder, walletAddress: AlphaWallet.Address, paymentFlow: PaymentFlow, keystore: Keystore, session: WalletSession, account: Account, assetDefinitionStore: AssetDefinitionStore, on viewController: UIViewController) {
         self.tokenHolder = tokenHolder
         self.walletAddress = walletAddress
         self.paymentFlow = paymentFlow
@@ -49,17 +47,15 @@ class TransferNFTCoordinator: Coordinator {
     }
 
     func start() {
-        guard let address = validateAddress() else { return }
-        self.address = address
-        showProgressViewController(address: address)
-        transfer(address: address)
+        showProgressViewController()
+        transfer()
     }
 
-    private func showProgressViewController(address: Address) {
+    private func showProgressViewController() {
         statusViewController = StatusViewController()
         if let vc = statusViewController {
             vc.delegate = self
-            let tokenTypeName = XMLHandler(contract: address.eip55String, assetDefinitionStore: assetDefinitionStore).getName()
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getName()
             vc.configure(viewModel: .init(
                     state: .processing,
                     inProgressText: R.string.localizable.aWalletTokenTransferInProgressTitle(tokenTypeName),
@@ -71,12 +67,12 @@ class TransferNFTCoordinator: Coordinator {
         }
     }
 
-    private func transfer(address: Address) {
+    private func transfer() {
         if case .send(let transferType) = paymentFlow {
             let transaction = UnconfirmedTransaction(
                     transferType: transferType,
                     value: BigInt(0),
-                    to: address,
+                    to: walletAddress,
                     data: Data(),
                     gasLimit: .none,
                     tokenId: String(tokenHolder.tokens[0].id),
@@ -96,7 +92,9 @@ class TransferNFTCoordinator: Coordinator {
                     transaction: transaction
             )
             configurator.load { [weak self] result in
-                guard let strongSelf = self else { return }
+                guard let strongSelf = self else {
+                    return
+                }
                 switch result {
                 case .success:
                     strongSelf.sendTransaction(with: configurator)
@@ -133,10 +131,6 @@ class TransferNFTCoordinator: Coordinator {
 
     private func processFailed() {
         status = .failed
-    }
-
-    private func validateAddress() -> Address? {
-        return Address(string: walletAddress)
     }
 }
 

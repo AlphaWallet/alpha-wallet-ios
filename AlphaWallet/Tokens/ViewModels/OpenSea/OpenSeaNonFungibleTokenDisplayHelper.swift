@@ -4,7 +4,7 @@ import Foundation
 
 // swiftlint:disable type_body_length
 enum OpenSeaNonFungibleTokenDisplayHelper: String {
-    //Make sure contracts are all lowercased. The cases don't always match the token symbol since they are name-clashes
+    //Make sure contracts are all lowercased. The cases don't always match the token symbol since there are name-clashes
     case axie = "0xf5b0a3efb8e8e4c201e2a935f110eaaf3ffecb8d"
     case bc = "0xd73be539d6b2076bab83ca6ba62dfe189abc6bbe"
     case cbt = "0xf7a6e15dfd5cdd9ef12711bd757a9b6021abf643"
@@ -79,8 +79,8 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
         "3 days"
     ]
 
-    init(contract: String) {
-        self = OpenSeaNonFungibleTokenDisplayHelper(rawValue: contract.lowercased()) ?? .others
+    init(contract: AlphaWallet.Address) {
+        self = OpenSeaNonFungibleTokenDisplayHelper(rawValue: contract.eip55String.lowercased()) ?? .others
     }
 
     var imageHasBackgroundColor: Bool {

@@ -9,16 +9,16 @@ import SwiftyJSON
 
 class GetContractInteractions {
 
-    func getErc20Interactions(contractAddress: String = "", address: String, server: RPCServer, completion: @escaping ([Transaction]) -> Void) {
+    func getErc20Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, completion: @escaping ([Transaction]) -> Void) {
         let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address)
         Alamofire.request(etherscanURL).validate().responseJSON { response in
             switch response.result {
             case .success(let value):
                 let json = JSON(value)
                 let filteredResult: [(String, JSON)]
-                if contractAddress != "" {
+                if let contractAddress = contractAddress {
                     //filter based on what contract you are after
-                    filteredResult = json["result"].filter { $0.1["contractAddress"].description == contractAddress.lowercased() }
+                    filteredResult = json["result"].filter { $0.1["contractAddress"].description == contractAddress.eip55String.lowercased() }
                 } else {
                     filteredResult = json["result"].filter { $0.1["to"].description.contains("0x") }
                 }
@@ -27,7 +27,7 @@ class GetContractInteractions {
                     let localizedTokenObj = LocalizedOperationObject(
                             from: transactionJson["from"].description, 
                             to: transactionJson["to"].description, 
-                            contract: transactionJson["contractAddress"].description, 
+                            contract: AlphaWallet.Address(uncheckedAgainstNullAddress: transactionJson["contractAddress"].description),
                             type: "erc20TokenTransfer", 
                             value: transactionJson["value"].description, 
                             symbol: transactionJson["tokenSymbol"].description, 
@@ -59,7 +59,7 @@ class GetContractInteractions {
         }
     }
 
-    func getContractList(address: String, server: RPCServer, erc20: Bool, completion: @escaping ([String]) -> Void) {
+    func getContractList(address: AlphaWallet.Address, server: RPCServer, erc20: Bool, completion: @escaping ([AlphaWallet.Address]) -> Void) {
         let etherscanURL: URL
         if erc20 {
             etherscanURL = server.etherscanAPIURLForERC20TxList(for: address)
@@ -86,7 +86,7 @@ class GetContractInteractions {
                         return ""
                     }
                     let nonEmptyContracts = contracts.filter { !$0.isEmpty }
-                    let uniqueNonEmptyContracts = Array(Set(nonEmptyContracts))
+                    let uniqueNonEmptyContracts = Set(nonEmptyContracts).compactMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0) }
                     DispatchQueue.main.async {
                         completion(uniqueNonEmptyContracts)
                     }

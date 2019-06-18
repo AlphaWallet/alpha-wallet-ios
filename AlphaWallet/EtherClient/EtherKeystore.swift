@@ -57,11 +57,11 @@ open class EtherKeystore: Keystore {
 
     var recentlyUsedWallet: Wallet? {
         set {
-            keychain.set(newValue?.address.description ?? "", forKey: Keys.recentlyUsedAddress, withAccess: defaultKeychainAccess)
+            keychain.set(newValue?.address.eip55String ?? "", forKey: Keys.recentlyUsedAddress, withAccess: defaultKeychainAccess)
         }
         get {
             guard let address = keychain.get(Keys.recentlyUsedAddress) else { return nil }
-            return wallets.filter { $0.address.description.sameContract(as: address) }.first
+            return wallets.filter { $0.address.sameContract(as: address) }.first
         }
     }
 
@@ -146,11 +146,11 @@ open class EtherKeystore: Keystore {
                 }
             }
         case .watch(let address):
-            guard !watchAddresses.contains(where: { $0.sameContract(as: address.eip55String) }) else {
+            guard !watchAddresses.contains(where: { address.sameContract(as: $0) }) else {
                 completion(.failure(.duplicateAccount))
                 return
             }
-            watchAddresses = [watchAddresses, [address.description]].flatMap { $0 }
+            watchAddresses = [watchAddresses, [address.eip55String]].flatMap { $0 }
             completion(.success(Wallet(type: .watch(address))))
         }
     }
@@ -212,7 +212,7 @@ open class EtherKeystore: Keystore {
     }
 
     var wallets: [Wallet] {
-        let addresses = watchAddresses.compactMap { Address(string: $0) }
+        let addresses = watchAddresses.compactMap { AlphaWallet.Address(string: $0) }
         return [
             keyStore.accounts.map { Wallet(type: .real($0)) },
             addresses.map { Wallet(type: .watch($0)) },
@@ -284,7 +284,7 @@ open class EtherKeystore: Keystore {
                 return .failure(.failedToDeleteAccount)
             }
         case .watch(let address):
-            watchAddresses = watchAddresses.filter { $0 != address.description }
+            watchAddresses = watchAddresses.filter { $0 != address.eip55String }
             return .success(())
         }
     }
@@ -415,12 +415,16 @@ open class EtherKeystore: Keystore {
     }
 
     func getPassword(for account: Account) -> String? {
-        return keychain.get(account.address.description.lowercased())
+        return keychain.get(account.address.eip55String.lowercased())
     }
 
     @discardableResult
     func setPassword(_ password: String, for account: Account) -> Bool {
-        return keychain.set(password, forKey: account.address.description.lowercased(), withAccess: defaultKeychainAccess)
+        return keychain.set(password, forKey: account.address.eip55String.lowercased(), withAccess: defaultKeychainAccess)
+    }
+
+    func getAccount(for address: AlphaWallet.Address) -> Account? {
+        return getAccount(for: .init(address: address))
     }
 
     func getAccount(for address: Address) -> Account? {

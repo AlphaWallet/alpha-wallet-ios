@@ -18,8 +18,8 @@ class ClaimOrderCoordinator {
                     v: UInt8,
                     r: String,
                     s: String,
-                    contractAddress: String,
-                    recipient: String,
+                    contractAddress: AlphaWallet.Address,
+                    recipient: AlphaWallet.Address,
                     completion: @escaping (Result<Data, AnyError>) -> Void
         ) {
 
@@ -43,7 +43,7 @@ class ClaimOrderCoordinator {
                           v: UInt8,
                           r: String,
                           s: String,
-                          contractAddress: String,
+                          contractAddress: AlphaWallet.Address,
                           completion: @escaping (Result<Data, AnyError>) -> Void) {
         do {
             let parameters: [Any] = [expiry, indices.map({ BigUInt($0) }), BigUInt(v), Data(hex: r), Data(hex: s)]
@@ -74,11 +74,11 @@ class ClaimOrderCoordinator {
                              v: UInt8,
                              r: String,
                              s: String,
-                             recipient: String,
+                             recipient: AlphaWallet.Address,
                              completion: @escaping (Result<Data, AnyError>) -> Void) {
 
         do {
-            let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(hex: r), Data(hex: s), Address(string: recipient) as Any]
+            let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(hex: r), Data(hex: s), recipient as Any]
             let functionEncoder = Function(name: "spawnPassTo", parameters: [
                 .uint(bits: 256),
                 .dynamicArray(.uint(bits: 256)),
@@ -100,7 +100,7 @@ class ClaimOrderCoordinator {
             v: UInt8,
             r: String,
             s: String,
-            recipient: String,
+            recipient: AlphaWallet.Address,
             completion: @escaping (Result<Data, AnyError>) -> Void
     ) {
         do {
@@ -111,7 +111,7 @@ class ClaimOrderCoordinator {
                 BigUInt(v),
                 Data(hex: r),
                 Data(hex: s),
-                Address(string: recipient)!
+                Address(address: recipient)
             ]
             let functionEncoder = Function(name: "dropCurrency", parameters: [
                 .uint(bits: 256),

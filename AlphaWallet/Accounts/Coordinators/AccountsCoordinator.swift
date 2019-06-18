@@ -120,7 +120,7 @@ class AccountsCoordinator: Coordinator {
             title: R.string.localizable.copyAddress(),
             style: .default
         ) { _ in
-            UIPasteboard.general.string = account.address.description
+            UIPasteboard.general.string = account.address.eip55String
         }
         let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
 

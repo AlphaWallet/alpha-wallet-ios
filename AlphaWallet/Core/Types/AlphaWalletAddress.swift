@@ -17,12 +17,14 @@ extension AlphaWallet {
         }
 
         init?(string: String) {
+            guard string.count == 42 else { return nil }
             guard let address = TrustKeystore.Address(string: string) else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
         }
 
         //TODO not sure if we should keep this
         init?(uncheckedAgainstNullAddress string: String) {
+            guard string.count == 42 else { return nil }
             guard let address = TrustKeystore.Address(uncheckedAgainstNullAddress: string) else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
         }
@@ -55,10 +57,15 @@ extension AlphaWallet {
         func sameContract(as contract: String) -> Bool {
             return eip55String.drop0x.lowercased() == contract.drop0x.lowercased()
         }
+
+        func sameContract(as contract: AlphaWallet.Address) -> Bool {
+            return eip55String == contract.eip55String
+        }
     }
 }
 
 extension AlphaWallet.Address: CustomStringConvertible {
+    //TODO should not be using this in production code
     public var description: String {
         return eip55String
     }
@@ -70,5 +77,21 @@ extension AlphaWallet.Address: CustomDebugStringConvertible {
         case .ethereumAddress(let eip55String):
             return "ethereumAddress: \(eip55String)"
         }
+    }
+}
+
+extension AlphaWallet.Address {
+    var isLegacy875Contract: Bool {
+        let contractString = eip55String
+        return Constants.legacy875Addresses.contains { $0.sameContract(as: contractString) }
+    }
+
+    var isLegacy721Contract: Bool {
+        return Constants.legacy721Addresses.contains { sameContract(as: $0) }
+    }
+
+    //Useful for special case for FIFA tickets
+    var isFifaTicketcontract: Bool {
+        return sameContract(as: Constants.ticketContractAddress) || sameContract(as: Constants.ticketContractAddressRopsten)
     }
 }

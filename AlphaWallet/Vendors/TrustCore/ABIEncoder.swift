@@ -156,6 +156,7 @@ public final class ABIEncoder {
         data.append(Data(repeating: 0, count: padding))
     }
 
+    //TODO change this to use AlphaWallet.Address?
     /// Encodes an address
     public func encode(_ address: Address) throws {
         let padding = ((address.data.count + 31) / 32) * 32 - address.data.count

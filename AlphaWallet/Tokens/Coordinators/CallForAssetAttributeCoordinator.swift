@@ -4,7 +4,6 @@ import Foundation
 import BigInt
 import PromiseKit
 import Result
-import TrustKeystore
 import web3swift
 
 ///This class temporarily stores the promises used to make function calls. This is so we don't make the same function calls (over network) + arguments combination multiple times concurrently. Once the call completes, we remove it from the cache.
@@ -58,7 +57,7 @@ class CallForAssetAttributeCoordinator {
                 seal.reject(AnyError(Web3Error(description: "Failed to create CallForAssetAttribute instance for function: \(functionCall.functionName)")))
                 return
             }
-            let contract = Address(address: functionCall.contract)
+            let contract = functionCall.contract
 
             //Fine to store a strong reference to self here because it's still useful to cache the function call result
             callSmartContract(withServer: server, contract: contract, functionName: functionCall.functionName, abiString: "[\(function.abi)]", parameters: functionCall.arguments).done { dictionary in
