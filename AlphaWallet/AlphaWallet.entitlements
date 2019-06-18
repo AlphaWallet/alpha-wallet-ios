@@ -17,6 +17,7 @@
 		<string>applinks:sokol.aw.app</string>
 		<string>applinks:xdai.aw.app</string>
 		<string>applinks:custom.aw.app</string>
+		<string>applinks:goerli.aw.app</string>
 	</array>
 	<key>com.apple.developer.default-data-protection</key>
 	<string>NSFileProtectionComplete</string>
