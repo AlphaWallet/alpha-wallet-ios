@@ -140,7 +140,7 @@ import Eureka
         title.alpha = 0.0
         title.font = titleFont
         title.textColor = titleTextColour
-        if let str = placeholder, !str.isEmpty {
+        if let str = placeholder?.nilIfEmpty {
             title.text = str
             title.sizeToFit()
         }

@@ -25,7 +25,7 @@ class CustomUrlSchemeCoordinator: Coordinator {
         guard let result = QRURLParser.from(string: url.absoluteString) else { return false }
 
         let server: RPCServer
-        if let chainIdStr = result.params["chainId"], let chainId = Int(chainIdStr) {
+        if let chainId = result.params["chainId"].flatMap({ Int($0) }) {
             server = .init(chainID: chainId)
         } else {
             server = .main
