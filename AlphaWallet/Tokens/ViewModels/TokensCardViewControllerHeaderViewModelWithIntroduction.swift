@@ -18,7 +18,7 @@ struct TokensCardViewControllerHeaderViewModelWithIntroduction {
     }
 
     var issuer: String {
-        let xmlHandler = XMLHandler(contract: tokenObject.address.eip55String)
+        let xmlHandler = XMLHandler(contract: tokenObject.contractAddress)
         let issuer = xmlHandler.getIssuer()
         if issuer.isEmpty {
             return ""

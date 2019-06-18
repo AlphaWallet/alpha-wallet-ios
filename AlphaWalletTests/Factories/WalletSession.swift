@@ -2,7 +2,6 @@
 
 import Foundation
 @testable import AlphaWallet
-import TrustKeystore
 
 extension WalletSession {
     static func make(

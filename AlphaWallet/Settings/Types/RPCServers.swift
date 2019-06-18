@@ -3,7 +3,6 @@
 import Foundation
 import web3swift
 import BigInt
-import TrustKeystore
 
 enum RPCServer: Hashable, CaseIterable {
     case main
@@ -107,28 +106,28 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    func etherscanAPIURLForTransactionList(for address: String) -> URL {
-        return URL(string: getEtherscanURL + address)!
+    func etherscanAPIURLForTransactionList(for address: AlphaWallet.Address) -> URL {
+        return URL(string: getEtherscanURL + address.eip55String)!
     }
 
-    func etherscanAPIURLForERC20TxList(for address: String) -> URL {
-        return URL(string: getEtherscanURLERC20Events + address)!
+    func etherscanAPIURLForERC20TxList(for address: AlphaWallet.Address) -> URL {
+        return URL(string: getEtherscanURLERC20Events + address.eip55String)!
     }
 
-    func etherscanContractDetailsWebPageURL(for address: String) -> URL {
-        return URL(string: etherscanContractDetailsWebPageURL + address)!
+    func etherscanContractDetailsWebPageURL(for address: AlphaWallet.Address) -> URL {
+        return URL(string: etherscanContractDetailsWebPageURL + address.eip55String)!
     }
 
-    var priceID: Address {
+    var priceID: AlphaWallet.Address {
         switch self {
         case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .goerli:
-            return Address(string: "0x000000000000000000000000000000000000003c")!
+            return AlphaWallet.Address(string: "0x000000000000000000000000000000000000003c")!
         case .poa:
-            return Address(string: "0x00000000000000000000000000000000000000AC")!
+            return AlphaWallet.Address(string: "0x00000000000000000000000000000000000000AC")!
         case .classic:
-            return Address(string: "0x000000000000000000000000000000000000003D")!
+            return AlphaWallet.Address(string: "0x000000000000000000000000000000000000003D")!
         case .callisto:
-            return Address(string: "0x0000000000000000000000000000000000000334")!
+            return AlphaWallet.Address(string: "0x0000000000000000000000000000000000000334")!
         }
     }
 
@@ -259,7 +258,7 @@ enum RPCServer: Hashable, CaseIterable {
         return URL(string: urlString)!
     }
 
-    var ensRegistrarContract: EthereumAddress {
+    var ensRegistrarContract: AlphaWallet.Address {
         switch self {
         case .main: return Constants.ENSRegistrarAddress
         case .ropsten: return Constants.ENSRegistrarRopsten

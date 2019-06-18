@@ -58,7 +58,7 @@ class SettingsViewController: FormViewController {
             guard let strongSelf = self else { return }
             cell.imageView?.image = R.image.settings_wallet()?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
-            cell.detailTextLabel?.text = strongSelf.account.address.description
+            cell.detailTextLabel?.text = strongSelf.account.address.eip55String
             cell.detailTextLabel?.lineBreakMode = .byTruncatingMiddle
             cell.accessoryType = .disclosureIndicator
         }
@@ -211,7 +211,7 @@ extension SettingsViewController: HelpViewControllerDelegate {
 }
 
 extension SettingsViewController: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 

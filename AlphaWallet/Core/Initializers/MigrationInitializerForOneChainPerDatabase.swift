@@ -2,7 +2,6 @@
 
 import Foundation
 import RealmSwift
-import TrustKeystore
 
 ///This class shouldn't be modified since we have migrated to a Realm database that contains data from all chains
 class MigrationInitializerForOneChainPerDatabase: Initializer {
@@ -28,9 +27,9 @@ class MigrationInitializerForOneChainPerDatabase: Initializer {
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
                     guard let value = oldObject["contract"] as? String else { return }
-                    guard let address = Address(string: value) else { return }
+                    guard let address = AlphaWallet.Address(string: value) else { return }
 
-                    newObject["contract"] = address.description
+                    newObject["contract"] = address.eip55String
                 }
             }
             if oldSchemaVersion < 44 {
@@ -46,7 +45,7 @@ class MigrationInitializerForOneChainPerDatabase: Initializer {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
-                    if let contract = oldObject["contract"] as? String, contract == Constants.nativeCryptoAddressInDatabase {
+                    if let contract = oldObject["contract"] as? String, Constants.nativeCryptoAddressInDatabase.sameContract(as: contract) {
                         newObject["rawType"] = TokenType.nativeCryptocurrency.rawValue
                     }
                 }
@@ -56,7 +55,7 @@ class MigrationInitializerForOneChainPerDatabase: Initializer {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
-                    if let contract = oldObject["contract"] as? String {
+                    if let contract = (oldObject["contract"] as? String).flatMap({ AlphaWallet.Address(uncheckedAgainstNullAddress: $0) }) {
                         let tokenTypeName = XMLHandler(contract: contract, assetDefinitionStore: self.assetDefinitionStore).getName(fallback: "")
                         if !tokenTypeName.isEmpty {
                             newObject["name"] = ""

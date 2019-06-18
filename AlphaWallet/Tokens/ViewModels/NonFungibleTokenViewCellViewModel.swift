@@ -25,7 +25,7 @@ struct NonFungibleTokenViewCellViewModel {
     }
 
     var issuer: String {
-        let xmlHandler = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
         let issuer = xmlHandler.issuer
         if issuer.isEmpty {
             return ""

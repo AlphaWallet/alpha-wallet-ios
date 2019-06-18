@@ -31,8 +31,8 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     var server: RPCServer {
         return tokenObject.server
     }
-    var contract: String {
-        return tokenObject.contract
+    var contract: AlphaWallet.Address {
+        return tokenObject.contractAddress
     }
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenInstanceViewControllerDelegate?
@@ -181,7 +181,7 @@ extension TokenInstanceViewController: VerifiableStatusViewController {
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: tokenObject.contract, server: server, in: self)
+        delegate?.didPressViewContractWebPage(forContract: tokenObject.contractAddress, server: server, in: self)
     }
 
     func open(url: URL) {

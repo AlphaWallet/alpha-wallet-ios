@@ -4,7 +4,6 @@ import Foundation
 import BigInt
 import Kanna
 import PromiseKit
-import TrustKeystore
 
 enum FunctionError: LocalizedError {
     case formPayload
@@ -155,7 +154,7 @@ struct FunctionOrigin {
         let transactionToSign = UnsignedTransaction(
                 value: BigInt(value),
                 account: account,
-                to: Address(address: originContractOrRecipientAddress),
+                to: originContractOrRecipientAddress,
                 nonce: -1,
                 data: payload,
                 gasPrice: GasPriceConfiguration.defaultPrice,
@@ -187,7 +186,7 @@ struct FunctionOrigin {
                 let ref = AssetFunctionCall.ArgumentReferences(string: ref)
                 switch ref {
                 case .ownerAddress:
-                    return AssetAttributeValueUsableAsFunctionArguments.address(.init(address: account.address)).coerce(toArgumentType: solidityType, forFunctionType: functionType)
+                    return AssetAttributeValueUsableAsFunctionArguments.address(account.address).coerce(toArgumentType: solidityType, forFunctionType: functionType)
                 case .tokenId, .tokenID:
                     return AssetAttributeValueUsableAsFunctionArguments.uint(tokenId).coerce(toArgumentType: solidityType, forFunctionType: functionType)
                 case .attribute(let attributId):

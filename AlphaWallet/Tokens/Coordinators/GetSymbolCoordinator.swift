@@ -2,7 +2,6 @@
 
 import Foundation
 import Result
-import TrustKeystore
 import web3swift
 
 class GetSymbolCoordinator {
@@ -13,7 +12,7 @@ class GetSymbolCoordinator {
     }
 
     func getSymbol(
-        for contract: Address,
+        for contract: AlphaWallet.Address,
         completion: @escaping (Result<String, AnyError>) -> Void
     ) {
         let functionName = "symbol"

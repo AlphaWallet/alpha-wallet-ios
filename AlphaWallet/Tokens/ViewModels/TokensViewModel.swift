@@ -6,7 +6,7 @@ import UIKit
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
     private let tokens: [TokenObject]
-    private let tickers: [RPCServer: [String: CoinTicker]]
+    private let tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
 
     private var amount: String? {
         var totalAmount: Double = 0
@@ -19,7 +19,7 @@ class TokensViewModel {
 
     private func amount(for token: TokenObject) -> Double {
         guard let tickers = tickers[token.server] else { return 0 }
-        guard !token.valueBigInt.isZero, let tickersSymbol = tickers[token.contract] else { return 0 }
+        guard !token.valueBigInt.isZero, let tickersSymbol = tickers[token.contractAddress] else { return 0 }
         let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
         let price = Double(tickersSymbol.price_usd) ?? 0
         return tokenValue * price
@@ -49,7 +49,7 @@ class TokensViewModel {
                     } else if keyword.lowercased() == "erc875" || keyword.lowercased() == "erc 875" {
                         return $0.type == .erc875
                     } else {
-                        return $0.name.trimmed.lowercased().contains(lowercasedKeyword) || $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) || $0.contract.lowercased().contains(lowercasedKeyword)
+                        return $0.name.trimmed.lowercased().contains(lowercasedKeyword) || $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) || $0.contractAddress.eip55String.lowercased().contains(lowercasedKeyword)
                     }
                 }
             }
@@ -103,18 +103,18 @@ class TokensViewModel {
     }
 
     func ticker(for token: TokenObject) -> CoinTicker? {
-        return tickers[token.server]?[token.contract]
+        return tickers[token.server]?[token.contractAddress]
     }
 
     func canDelete(for row: Int, section: Int) -> Bool {
         let token = item(for: row, section: section)
-        if token.contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+        if token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
             return false
         }
         return true
     }
 
-    init(tokens: [TokenObject], tickers: [RPCServer: [String: CoinTicker]]) {
+    init(tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
         self.tokens = tokens
         self.tickers = tickers
     }

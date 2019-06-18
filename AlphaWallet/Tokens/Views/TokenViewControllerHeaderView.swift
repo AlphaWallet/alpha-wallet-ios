@@ -2,15 +2,14 @@
 
 import Foundation
 import UIKit
-import TrustKeystore
 
 protocol TokenViewControllerHeaderViewDelegate: class {
-    func didPressViewContractWebPage(forContract contract: String, inHeaderView: TokenViewControllerHeaderView)
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, inHeaderView: TokenViewControllerHeaderView)
     func didPressViewWebPage(url: URL, inHeaderView: TokenViewControllerHeaderView)
 }
 
 class TokenViewControllerHeaderView: UIView {
-    private let contract: Address
+    private let contract: AlphaWallet.Address
     private let recentTransactionsLabel = UILabel()
     private let border = UIView()
     private let tokenScriptFileStatusStackView = [].asStackView()
@@ -35,7 +34,7 @@ class TokenViewControllerHeaderView: UIView {
     }
     weak var delegate: TokenViewControllerHeaderViewDelegate?
 
-    init(contract: Address) {
+    init(contract: AlphaWallet.Address) {
         self.contract = contract
         super.init(frame: .zero)
 
@@ -78,7 +77,7 @@ class TokenViewControllerHeaderView: UIView {
     }
 
     @objc private func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract.eip55String, inHeaderView: self)
+        delegate?.didPressViewContractWebPage(forContract: contract, inHeaderView: self)
     }
 }
 

@@ -6,7 +6,6 @@ import Foundation
 import XCTest
 @testable import AlphaWallet
 import BigInt
-import TrustKeystore
 
 class ClaimOrderCoordinatorTests: XCTestCase {
 
@@ -26,7 +25,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
         let s = "0x59ccf58ca36f681976228309fdd9de7e30e860084d9d63014fa79d48a25bb93d"
 
         let token = TokenObject(
-            contract: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0",
+            contract: AlphaWallet.Address(string: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0")!,
             server: .main,
             name: "MJ Comeback",
             symbol: "MJC",
@@ -40,7 +39,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
         let order = Order(price: BigUInt(0),
                           indices: indices,
                           expiry: expiry,
-                          contractAddress: token.contract,
+                          contractAddress: token.contractAddress,
                           count: 1,
                           nonce: BigUInt(0),
                           tokenIds: [BigUInt](),

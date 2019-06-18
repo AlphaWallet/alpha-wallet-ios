@@ -79,10 +79,10 @@ class XMLHandlerTest: XCTestCase {
           </ts:attribute-types>
         </ts:token>
         """
-        let contractAddress = AlphaWallet.Address.ethereumAddress(eip55String: "0x0000000000000000000000000000000000000001")
+        let contractAddress = AlphaWallet.Address.make()
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
         store[contractAddress] = xml
-        let xmlHandler = XMLHandler(contract: contractAddress.eip55String, assetDefinitionStore: store)
+        let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main
         let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenId: tokenId, index: 1, inWallet: .make(), server: server)

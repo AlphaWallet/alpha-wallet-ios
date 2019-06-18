@@ -102,19 +102,6 @@ extension String {
     func isNotNumeric() -> Bool {
         return !isNumeric()
     }
-
-    func sameContract(as contract: String) -> Bool {
-        return drop0x.lowercased() == contract.drop0x.lowercased()
-    }
-
-    var isLegacy875Contract: Bool {
-        return Constants.legacy875Addresses.contains { $0.sameContract(as: self) }
-    }
-
-    var isLegacy732Contract: Bool {
-        return Constants.legacy721Addresses.contains { $0.sameContract(as: self) }
-    }
-
 }
 
 extension String {

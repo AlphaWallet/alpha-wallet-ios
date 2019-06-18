@@ -62,7 +62,7 @@ enum AssetAttributeValueUsableAsFunctionArguments {
         case .string(let string):
             switch functionType {
             case .functionCall:
-                return Address(string: string)?.eip55String as AnyObject
+                return AlphaWallet.Address(string: string)?.eip55String as AnyObject
             case .functionTransaction, .paymentTransaction:
                 return Address(string: string) as AnyObject
             }

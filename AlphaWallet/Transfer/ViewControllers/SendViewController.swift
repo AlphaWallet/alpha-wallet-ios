@@ -40,22 +40,6 @@ class SendViewController: UIViewController, CanScanQRCode {
     let targetAddressTextField = AddressTextField()
     lazy var amountTextField = AmountTextField(server: session.server)
     weak var delegate: SendViewControllerDelegate?
-    var contract: String {
-        switch transferType {
-        case .ERC20Token(let token, _, _):
-            return token.contract
-        case .nativeCryptocurrency:
-            return account.address.eip55String
-        case .dapp:
-            return "0x"
-        case .ERC875Token:
-            return "0x"
-        case .ERC875TokenOrder:
-            return "0x"
-        case .ERC721Token:
-            return "0x"
-        }
-    }
     let transferType: TransferType
     let storage: TokensDataStore
 
@@ -209,9 +193,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
     @objc func send() {
         let input = targetAddressTextField.value
-        guard let address = Address(string: input) else {
-            return displayError(error: Errors.invalidAddress)
-        }
+        guard let address = AlphaWallet.Address(string: input) else { return displayError(error: Errors.invalidAddress) }
         let amountString = amountTextField.ethCost
         let parsedValue: BigInt? = {
             switch transferType {
@@ -290,7 +272,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             headerViewModel.currencyAmountWithoutSymbol = session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
 
             //TODO is this the best place to put it? because this func is called configureBalanceViewModel() "balance"
-            headerViewModel.contractAddress = token.address.eip55String
+            headerViewModel.contractAddress = token.contractAddress
 
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
@@ -329,12 +311,12 @@ extension SendViewController: QRCodeReaderDelegate {
             guard recipient != "0" && amt != "0" else { return false }
             //address will be set as contract address if erc token, therefore need to ensure the QR code has set the same contract address
             //as the user is using
-            guard transferType.contract.eip55String.sameContract(as: result.address) else { return false }
+            guard transferType.contract.sameContract(as: result.address) else { return false }
             amountTextField.ethCost = EtherNumberFormatter.full.string(from: BigInt(amt) ?? BigInt(), units: .ether)
             targetAddressTextField.value = recipient
             return true
         } else {
-            targetAddressTextField.value = result.address
+            targetAddressTextField.value = result.address.eip55String
         }
         //if ether transfer (eip861 qr code)
         if let value = result.params["value"], let amountToSend = Double(value) {

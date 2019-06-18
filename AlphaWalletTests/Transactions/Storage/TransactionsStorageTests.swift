@@ -2,7 +2,6 @@
 
 import XCTest
 @testable import AlphaWallet
-import TrustKeystore
 import RealmSwift
 
 class TransactionsStorageTests: XCTestCase {

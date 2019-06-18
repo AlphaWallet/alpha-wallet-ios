@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import BigInt
 
 struct Transfer {
@@ -25,8 +24,8 @@ enum TransferType {
         }()
     }
 
-    case nativeCryptocurrency(server: RPCServer, destination: Address?, amount: BigInt?)
-    case ERC20Token(TokenObject, destination: Address?, amount: String?)
+    case nativeCryptocurrency(server: RPCServer, destination: AlphaWallet.Address?, amount: BigInt?)
+    case ERC20Token(TokenObject, destination: AlphaWallet.Address?, amount: String?)
     case ERC875Token(TokenObject)
     case ERC875TokenOrder(TokenObject)
     case ERC721Token(TokenObject)
@@ -68,20 +67,20 @@ extension TransferType {
         }
     }
 
-    var contract: Address {
+    var contract: AlphaWallet.Address {
         switch self {
         case .nativeCryptocurrency:
-            return Address(uncheckedAgainstNullAddress: Constants.nativeCryptoAddressInDatabase)!
+            return Constants.nativeCryptoAddressInDatabase
         case .ERC20Token(let token, _, _):
-            return Address(string: token.contract)!
+            return token.contractAddress
         case .ERC875Token(let token):
-            return Address(string: token.contract)!
+            return token.contractAddress
         case .ERC875TokenOrder(let token):
-            return Address(string: token.contract)!
+            return token.contractAddress
         case .ERC721Token(let token):
-            return Address(string: token.contract)!
+            return token.contractAddress
         case .dapp(let token, _):
-            return Address(string: token.contract)!
+            return token.contractAddress
         }
     }
 }

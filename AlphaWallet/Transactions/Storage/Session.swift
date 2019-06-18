@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 
 enum RefreshType {
     case balance
@@ -19,7 +18,7 @@ class WalletSession {
     }
 
     var sessionID: String {
-        return "\(account.address.description.lowercased())-\(server.chainID)"
+        return "\(account.address.eip55String.lowercased())-\(server.chainID)"
     }
 
     var balanceViewModel: Subscribable<BalanceBaseViewModel> = Subscribable(nil)

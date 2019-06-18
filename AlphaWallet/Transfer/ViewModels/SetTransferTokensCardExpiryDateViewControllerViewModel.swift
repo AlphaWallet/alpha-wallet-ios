@@ -9,7 +9,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     let assetDefinitionStore: AssetDefinitionStore
 
     var headerTitle: String {
-        let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
 		return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 

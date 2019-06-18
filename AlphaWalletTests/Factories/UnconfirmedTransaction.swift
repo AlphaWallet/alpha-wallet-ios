@@ -2,14 +2,13 @@
 
 import Foundation
 @testable import AlphaWallet
-import TrustKeystore
 import BigInt
 
 extension UnconfirmedTransaction {
     static func make(
         transferType: TransferType = .nativeCryptocurrency(server: .main, destination: .none, amount: nil),
         value: BigInt = BigInt(1),
-        to: Address = .make(),
+        to: AlphaWallet.Address = .make(),
         data: Data = Data(),
         gasLimit: BigInt? = BigInt(100000),
         gasPrice: BigInt? = BigInt(1000),

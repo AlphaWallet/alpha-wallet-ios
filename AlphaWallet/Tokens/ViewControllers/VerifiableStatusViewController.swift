@@ -15,7 +15,7 @@ extension VerifiableStatusViewController where Self: UIViewController {
             var showInfoButton = hasShowInfoButton
             //TODO ugly. And duplicated below
             if let tokenVerifiableVC = self as? TokenVerifiableStatusViewController {
-                showInfoButton = tokenVerifiableVC.contract == Constants.ticketContractAddress || tokenVerifiableVC.contract == Constants.ticketContractAddressRopsten
+                showInfoButton = tokenVerifiableVC.contract.isFifaTicketcontract
             }
             if showInfoButton {
                 let infoButton = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
@@ -37,7 +37,7 @@ extension VerifiableStatusViewController where Self: UIViewController {
             var showInfoButton = hasShowInfoButton
             //TODO ugly
             if let tokenVerifiableVC = self as? TokenVerifiableStatusViewController {
-                showInfoButton = tokenVerifiableVC.contract == Constants.ticketContractAddress || tokenVerifiableVC.contract == Constants.ticketContractAddressRopsten
+                showInfoButton = tokenVerifiableVC.contract.isFifaTicketcontract
             }
             if showInfoButton {
                 let infoButton = UIBarButtonItem(image: R.image.location(), style: .plain, target: self, action: #selector(showInfo))
@@ -132,7 +132,7 @@ func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptD
 }
 
 protocol TokenVerifiableStatusViewController: VerifiableStatusViewController {
-    var contract: String { get }
+    var contract: AlphaWallet.Address { get }
     var server: RPCServer { get }
     var assetDefinitionStore: AssetDefinitionStore { get }
 }
@@ -144,7 +144,7 @@ extension TokenVerifiableStatusViewController {
 }
 
 protocol OptionalTokenVerifiableStatusViewController: VerifiableStatusViewController {
-    var contract: String? { get }
+    var contract: AlphaWallet.Address? { get }
     var server: RPCServer { get }
     var assetDefinitionStore: AssetDefinitionStore { get }
 }

@@ -2,12 +2,11 @@
 
 import Foundation
 import BigInt
-import TrustKeystore
 
 struct UnconfirmedTransaction {
     let transferType: TransferType
     let value: BigInt
-    let to: Address?
+    let to: AlphaWallet.Address?
     let data: Data?
     let gasLimit: BigInt?
     let tokenId: String?

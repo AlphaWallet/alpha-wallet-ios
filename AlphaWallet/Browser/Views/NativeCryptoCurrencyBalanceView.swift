@@ -2,7 +2,6 @@
 
 import Foundation
 import UIKit
-import TrustKeystore
 
 //TODO create view model to clean up
 class NativeCryptoCurrencyBalanceView: UIView {
@@ -14,7 +13,7 @@ class NativeCryptoCurrencyBalanceView: UIView {
         }
     }
     private let rightMargin: CGFloat
-    private var balances: [Address: Balance] = [:]
+    private var balances: [AlphaWallet.Address: Balance] = [:]
     //TODO should let someone else fetch the balance instead of doing it here
     private lazy var balanceCoordinator = GetBalanceCoordinator(forServer: server)
     private let label = UILabel()

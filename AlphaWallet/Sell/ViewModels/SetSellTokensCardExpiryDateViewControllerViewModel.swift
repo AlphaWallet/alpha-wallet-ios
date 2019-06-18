@@ -44,7 +44,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var descriptionLabelText: String {
-        let tokenTypeName = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
         return R.string.localizable.aWalletTokenSellMagicLinkDescriptionTitle(tokenTypeName)
     }
 
@@ -58,16 +58,16 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
 
     var tokenCountLabelText: String {
         if tokenCount == 1 {
-            let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getName()
+            let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getName()
             return R.string.localizable.aWalletTokenSellSingleTokenSelectedTitle(tokenTypeName)
         } else {
-            let tokenTypeName = XMLHandler(contract: token.address.eip55String, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+            let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
             return R.string.localizable.aWalletTokenSellMultipleTokenSelectedTitle(tokenHolder.count, tokenTypeName)
         }
     }
 
     var perTokenPriceLabelText: String {
-        let tokenTypeName = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore).getName()
+        let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getName()
         let amount = ethCost / tokenCount
         return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, server.symbol, tokenTypeName)
     }
@@ -89,7 +89,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var noteLabelText: String {
-        let tokenTypeName = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
         return R.string.localizable.aWalletTokenSellNoteLabelTitle(tokenTypeName)
     }
 

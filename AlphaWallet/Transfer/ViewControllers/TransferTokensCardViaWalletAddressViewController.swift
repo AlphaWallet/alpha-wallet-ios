@@ -4,7 +4,7 @@ import UIKit
 import QRCodeReaderViewController
 
 protocol TransferTokensCardViaWalletAddressViewControllerDelegate: class, CanOpenURL {
-    func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
+    func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController)
     func didPressViewInfo(in viewController: TransferTokensCardViaWalletAddressViewController)
 }
 
@@ -19,8 +19,8 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     private var tokenHolder: TokenHolder
     private var paymentFlow: PaymentFlow
 
-    var contract: String {
-        return token.contract
+    var contract: AlphaWallet.Address {
+        return token.contractAddress
     }
     var server: RPCServer {
         return token.server
@@ -113,7 +113,11 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     }
 
     @objc func nextButtonTapped() {
-        let address = targetAddressTextField.value.trimmed
+        guard let address = AlphaWallet.Address(string: targetAddressTextField.value.trimmed) else {
+            navigationController?.displayError(error: Errors.invalidAddress)
+            return
+        }
+
         delegate?.didEnterWalletAddress(tokenHolder: tokenHolder, to: address, paymentFlow: paymentFlow, in: self)
     }
 
@@ -169,7 +173,7 @@ extension TransferTokensCardViaWalletAddressViewController: QRCodeReaderDelegate
         guard let result = QRURLParser.from(string: result) else {
             return
         }
-        targetAddressTextField.value = result.address
+        targetAddressTextField.value = result.address.eip55String
     }
 }
 

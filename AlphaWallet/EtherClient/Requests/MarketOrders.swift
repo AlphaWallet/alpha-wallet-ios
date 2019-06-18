@@ -14,7 +14,7 @@ public struct Order {
     var price: BigInt?
     var tokenIndices: [Int]?
     var expiryBuffer: BigInt?
-    var contractAddress: String?
+    var contractAddress: AlphaWallet.Address?
 }
 
 class MarketOrders {

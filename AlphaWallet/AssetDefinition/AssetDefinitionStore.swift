@@ -1,7 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Alamofire
-import TrustKeystore
 
 protocol AssetDefinitionStoreDelegate: class {
     func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore )
@@ -115,12 +114,6 @@ class AssetDefinitionStore {
 
     func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {
         subscribers.append(subscribe)
-    }
-
-    //TODO remove this when as we use AlphaWallet.Address across the app
-    func fetchXML(forContract contract: String, useCacheAndFetch: Bool = false, completionHandler: ((Result) -> Void)? = nil) {
-        guard let address = AlphaWallet.Address(string: contract) else { return }
-        fetchXML(forContract: address, useCacheAndFetch: useCacheAndFetch, completionHandler: completionHandler)
     }
 
     /// useCacheAndFetch: when true, the completionHandler will be called immediately and a second time if an updated XML is fetched. When false, the completionHandler will only be called up fetching an updated XML

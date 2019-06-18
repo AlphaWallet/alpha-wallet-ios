@@ -21,7 +21,7 @@ struct OpenSeaNonFungibleTokenCardRowViewModel {
         self.convertHtmlInDescription = convertHtmlInDescription
 
         let tokenId = tokenHolder.values["tokenId"]?.stringValue
-        self.bigImage = OpenSeaNonFungibleTokenCardRowViewModel.imageGenerator.withDownloadedImage(fromURL: imageUrl, forTokenId: tokenId, withPrefix: tokenHolder.contractAddress)
+        self.bigImage = OpenSeaNonFungibleTokenCardRowViewModel.imageGenerator.withDownloadedImage(fromURL: imageUrl, forTokenId: tokenId, withPrefix: tokenHolder.contractAddress.eip55String)
     }
 
     var contentsBackgroundColor: UIColor {

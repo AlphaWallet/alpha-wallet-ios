@@ -30,7 +30,7 @@ class SendTransactionCoordinator {
             signAndSend(transaction: transaction, completion: completion)
         } else {
             let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(GetTransactionCountRequest(
-                address: session.account.address.description,
+                address: session.account.address,
                 state: "pending"
             )))
             //TODO Verify we need a strong reference to self

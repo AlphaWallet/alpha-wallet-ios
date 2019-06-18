@@ -2,7 +2,6 @@
 
 import XCTest
 @testable import AlphaWallet
-import TrustKeystore
 
 class RequestViewModelTests: XCTestCase {
     
@@ -11,7 +10,7 @@ class RequestViewModelTests: XCTestCase {
         let server: RPCServer = .main
         let viewModel = RequestViewModel(account: account, server: server)
 
-        XCTAssertEqual(account.address.description, viewModel.myAddressText)
+        XCTAssertEqual(account.address.eip55String, viewModel.myAddressText)
     }
 
     func testShareMyAddressText() {
@@ -20,6 +19,6 @@ class RequestViewModelTests: XCTestCase {
         let viewModel = RequestViewModel(account: account, server: server)
 
         LiveLocaleSwitcherBundle.switchLocale(to: "en")
-        XCTAssertEqual("My \(server.name) address is: \(account.address.description)", viewModel.shareMyAddressText)
+        XCTAssertEqual("My \(server.name) address is: \(account.address.eip55String)", viewModel.shareMyAddressText)
     }
 }
