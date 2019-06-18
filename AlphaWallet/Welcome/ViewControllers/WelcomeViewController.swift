@@ -88,7 +88,7 @@ class WelcomeViewController: UIViewController {
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.heightAnchor.constraint(equalToConstant: walletButtonHeight),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -walletButtonHeight),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
