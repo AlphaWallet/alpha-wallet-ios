@@ -75,6 +75,12 @@ class SettingsCoordinator: Coordinator {
 		navigationController.pushViewController(coordinator.localesViewController, animated: true)
 	}
 
+	func clearDappBrowserCache() {
+		let coordinator = ClearDappBrowserCacheCoordinator(inViewController: rootViewController)
+		coordinator.start()
+		addCoordinator(coordinator)
+	}
+
 	func showEnabledServers() {
 		let coordinator = EnabledServersCoordinator(selectedServers: config.enabledServers)
 		coordinator.delegate = self
@@ -99,6 +105,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 			showLocales()
 		case .enabledServers:
             showEnabledServers()
+		case .clearDappBrowserCache:
+			clearDappBrowserCache()
 		}
 	}
 
