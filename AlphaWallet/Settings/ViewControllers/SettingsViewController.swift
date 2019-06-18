@@ -130,6 +130,13 @@ class SettingsViewController: FormViewController {
             cell.textLabel?.text = "    \(R.string.localizable.aConsoleTitle())"
             cell.accessoryType = .disclosureIndicator
         }
+        <<< AppFormAppearance.alphaWalletSettingsButton {
+            $0.title = "    \(R.string.localizable.aSettingsContentsClearDappBrowserCache())"
+        }.onCellSelection { [unowned self] _, _ in
+            self.delegate?.didAction(action: .clearDappBrowserCache, in: self)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }
 
         +++ createSection(withTitle: R.string.localizable.settingsContactUsTitle())
 
