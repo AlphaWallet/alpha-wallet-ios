@@ -38,19 +38,21 @@ public class MarketQueueHandler {
                         callback("no orders")
                         return
                     }
-                    orders.append(strongSelf.parseOrder(orderObj))
+                    guard let order = strongSelf.parseOrder(orderObj) else { continue }
+                    orders.append(order)
                 }
                 callback(orders)
             }
         }
     }
 
-    func parseOrder(_ orderObj: JSON) -> SignedOrder {
+    func parseOrder(_ orderObj: JSON) -> SignedOrder? {
         let orderString = orderObj["message"].string!
         let message = Data(base64Encoded: orderString)!.hex()
         let price = message.substring(to: 64)
         let expiry = message.substring(with: Range(uncheckedBounds: (64, 128)))
-        let contractAddress = "0x" + message.substring(with: Range(uncheckedBounds: (128, 168)))
+        let contract = "0x" + message.substring(with: Range(uncheckedBounds: (128, 168)))
+        guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: contractAddress) else { return nil }
         let indices = message.substring(from: 168)
         let order = Order(
                 price: BigUInt(price, radix: 16)!,

@@ -1,12 +1,11 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import QRCodeReaderViewController
 
 protocol NewTokenViewControllerDelegate: class {
     func didAddToken(token: ERCToken, in viewController: NewTokenViewController)
-    func didAddAddress(address: String, in viewController: NewTokenViewController)
+    func didAddAddress(address: AlphaWallet.Address, in viewController: NewTokenViewController)
     func didTapChangeServer(in viewController: NewTokenViewController)
 }
 
@@ -300,7 +299,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         //TODO looks wrong to mention ERC875TokenBalance specifically
         var balance: [String] = viewModel.ERC875TokenBalance
         
-        guard let address = Address(string: contract) else {
+        guard let address = AlphaWallet.Address(string: contract) else {
             return displayError(error: Errors.invalidAddress)
         }
         
@@ -328,7 +327,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     private func updateContractValue(value: String) {
         tokenType = nil
         addressTextField.value = value
-        delegate?.didAddAddress(address: value, in: self)
+        guard let address = AlphaWallet.Address(string: value) else { return }
+        delegate?.didAddAddress(address: address, in: self)
     }
 
     struct ValidationError: LocalizedError {
@@ -370,8 +370,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
     func redetectToken() {
         let contract = addressTextField.value
-        if CryptoAddressValidator.isValidAddress(contract) {
-            updateContractValue(value: contract)
+        if let contract = AlphaWallet.Address(string: addressTextField.value) {
+            updateContractValue(value: contract.eip55String)
         }
     }
 
@@ -393,7 +393,7 @@ extension NewTokenViewController: QRCodeReaderDelegate {
         reader.dismiss(animated: true, completion: nil)
 
         guard let result = QRURLParser.from(string: result) else { return }
-        updateContractValue(value: result.address)
+        updateContractValue(value: result.address.eip55String)
     }
 }
 

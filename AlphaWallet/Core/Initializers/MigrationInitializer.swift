@@ -2,7 +2,6 @@
 
 import Foundation
 import RealmSwift
-import TrustKeystore
 
 class MigrationInitializer: Initializer {
     private let account: Wallet

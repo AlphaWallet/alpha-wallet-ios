@@ -2,12 +2,11 @@
 
 import XCTest
 @testable import AlphaWallet
-import TrustKeystore
 
 class PaymentCoordinatorTests: XCTestCase {
 
     func testSendFlow() {
-        let address: Address = .make()
+        let address: AlphaWallet.Address = .make()
         let coordinator = PaymentCoordinator(
             navigationController: FakeNavigationController(),
             flow: .send(type: .nativeCryptocurrency(server: .main, destination: address, amount: nil)),

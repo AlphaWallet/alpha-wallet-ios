@@ -5,7 +5,6 @@ import BigInt
 import PromiseKit
 //TODO make only XMLHandler import Kanna and hence be the only file to handle XML parsing
 import Kanna
-import TrustKeystore
 
 ///Handles:
 ///

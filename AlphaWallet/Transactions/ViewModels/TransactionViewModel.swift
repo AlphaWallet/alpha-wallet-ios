@@ -26,7 +26,7 @@ struct TransactionViewModel {
     }
 
     var direction: TransactionDirection {
-        if currentWallet.address.description.sameContract(as: transaction.from) {
+        if currentWallet.address.sameContract(as: transaction.from) {
             return .outgoing
         } else {
             return .incoming

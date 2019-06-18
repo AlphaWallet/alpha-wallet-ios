@@ -7,7 +7,7 @@ public struct Order {
     var price: BigUInt
     var indices: [UInt16]
     var expiry: BigUInt
-    var contractAddress: String
+    var contractAddress: AlphaWallet.Address
     var count: BigUInt
     var nonce: BigUInt
     var tokenIds: [BigUInt]?
@@ -87,7 +87,7 @@ public class OrderHandler {
     func encodeMessageForTrade(price: BigUInt,
                                expiryBuffer: BigUInt,
                                tokens: [UInt16],
-                               contractAddress: String) -> [UInt8] {
+                               contractAddress: AlphaWallet.Address) -> [UInt8] {
         //token count * 2 because it is 16 bits not 8
         let arrayLength: Int = 84 + tokens.count * 2
         var buffer = [UInt8]()
@@ -111,7 +111,7 @@ public class OrderHandler {
             buffer.append(expiry[i])
         }
         //no leading zeros issue here
-        var contractAddr = contractAddress.hexa2Bytes
+        var contractAddr = contractAddress.eip55String.hexa2Bytes
 
         for i in 0...19 {
             buffer.append(contractAddr[i])

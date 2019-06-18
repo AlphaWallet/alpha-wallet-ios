@@ -6,5 +6,5 @@ enum WalletEntryPoint {
     case welcome
     case createInstantWallet
     case importWallet
-    case backupWallet(address: String)
+    case backupWallet(address: AlphaWallet.Address)
 }

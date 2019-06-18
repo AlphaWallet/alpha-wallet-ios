@@ -2,9 +2,9 @@
 
 import Foundation
 import RealmSwift
-import TrustKeystore
 
 class LocalizedOperationObject: Object {
+    //TODO good to have getters/setter computed properties for `from` and `to` too that is typed AlphaWallet.Address. But have to be careful and check if they can be empty or "0x"
     @objc dynamic var from: String = ""
     @objc dynamic var to: String = ""
     @objc dynamic var contract: String? = .none
@@ -17,7 +17,7 @@ class LocalizedOperationObject: Object {
     convenience init(
         from: String,
         to: String,
-        contract: String?,
+        contract: AlphaWallet.Address?,
         type: String,
         value: String,
         symbol: String?,
@@ -27,7 +27,7 @@ class LocalizedOperationObject: Object {
         self.init()
         self.from = from
         self.to = to
-        self.contract = contract
+        self.contract = contract?.eip55String
         self.type = type
         self.value = value
         self.symbol = symbol
@@ -38,21 +38,21 @@ class LocalizedOperationObject: Object {
     var operationType: OperationType {
         return OperationType(string: type)
     }
+
+    var contractAddress: AlphaWallet.Address? {
+        return contract.flatMap { AlphaWallet.Address(uncheckedAgainstNullAddress: $0) }
+    }
 }
 
 extension LocalizedOperationObject {
     static func from(operations: [LocalizedOperation]?) -> [LocalizedOperationObject] {
         guard let operations = operations else { return [] }
         return operations.compactMap { operation in
-            guard
-                let from = Address(string: operation.from),
-                let to = Address(string: operation.to) else {
-                    return .none
-            }
+            guard let from = operation.fromAddress, let to = operation.toAddress else { return nil }
             return LocalizedOperationObject(
                 from: from.description,
                 to: to.description,
-                contract: operation.contract.address,
+                contract: operation.contract.contractAddress,
                 type: operation.type.rawValue,
                 value: operation.value,
                 symbol: operation.contract.symbol,

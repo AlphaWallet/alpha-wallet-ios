@@ -6,7 +6,6 @@ import PromiseKit
 import Result
 import RealmSwift
 import SwiftyJSON
-import TrustKeystore
 
 enum TokenError: Error {
     case failedToFetch
@@ -70,7 +69,7 @@ class TokensDataStore {
     let server: RPCServer
     weak var delegate: TokensDataStoreDelegate?
     //TODO why is this a dictionary? There seems to be only at most 1 key-value pair in the dictionary
-    var tickers: [String: CoinTicker]? = .none
+    var tickers: [AlphaWallet.Address: CoinTicker]? = .none
     var tokensModel: Subscribable<[TokenObject]> = Subscribable(nil)
 
     var objects: [TokenObject] {
@@ -119,7 +118,7 @@ class TokensDataStore {
     //TODO might be best to remove ethToken(for:) and just use token(for:) if possible, but careful with the contract value returned for .ether
     static func token(forServer server: RPCServer) -> TokenObject {
         return TokenObject(
-                contract: server.priceID.description,
+                contract: server.priceID,
                 server: server,
                 name: server.name,
                 symbol: server.symbol,
@@ -170,7 +169,7 @@ class TokensDataStore {
             //Even though primaryKey is provided, it is important to specific contract because this might be creating a new TokenObject instance from transactions
             let update: [String: Any] = [
                 "primaryKey": token.primaryKey,
-                "contract": token.address.description,
+                "contract": token.address.eip55String,
                 "chainId": token.server.chainID,
                 "name": token.name,
                 "symbol": token.symbol,
@@ -186,34 +185,30 @@ class TokensDataStore {
         refreshBalance()
     }
 
-    func getContractName(for addressString: String,
+    func getContractName(for address: AlphaWallet.Address,
                          completion: @escaping (ResultResult<String, AnyError>.t) -> Void) {
-        let address = Address(string: addressString)
-        getNameCoordinator.getName(for: address!) { (result) in
+        getNameCoordinator.getName(for: address) { (result) in
             completion(result)
         }
     }
 
-    func getContractSymbol(for addressString: String,
+    func getContractSymbol(for address: AlphaWallet.Address,
                            completion: @escaping (ResultResult<String, AnyError>.t) -> Void) {
-        let address = Address(string: addressString)
-        getSymbolCoordinator.getSymbol(for: address!) { result in
+        getSymbolCoordinator.getSymbol(for: address) { result in
             completion(result)
         }
     }
 
-    func getDecimals(for addressString: String,
+    func getDecimals(for address: AlphaWallet.Address,
                      completion: @escaping (ResultResult<UInt8, AnyError>.t) -> Void) {
-        let address = Address(string: addressString)
-        getDecimalsCoordinator.getDecimals(for: address!) { result in
+        getDecimalsCoordinator.getDecimals(for: address) { result in
             completion(result)
         }
     }
 
-    func getContractName(for addressString: String) -> Promise<String> {
-        let address = Address(string: addressString)
+    func getContractName(for address: AlphaWallet.Address) -> Promise<String> {
         return Promise { seal in
-            getNameCoordinator.getName(for: address!) { (result) in
+            getNameCoordinator.getName(for: address) { (result) in
                 switch result {
                 case .success(let name):
                     seal.fulfill(name)
@@ -224,10 +219,9 @@ class TokensDataStore {
         }
     }
 
-    func getContractSymbol(for addressString: String) -> Promise<String> {
-        let address = Address(string: addressString)
+    func getContractSymbol(for address: AlphaWallet.Address) -> Promise<String> {
         return Promise { seal in
-            getSymbolCoordinator.getSymbol(for: address!) { result in
+            getSymbolCoordinator.getSymbol(for: address) { result in
                 switch result {
                 case .success(let name):
                     seal.fulfill(name)
@@ -238,10 +232,9 @@ class TokensDataStore {
         }
     }
 
-    func getDecimals(for addressString: String) -> Promise<UInt8> {
-        let address = Address(string: addressString)
+    func getDecimals(for address: AlphaWallet.Address) -> Promise<UInt8> {
         return Promise { seal in
-            getDecimalsCoordinator.getDecimals(for: address!) { result in
+            getDecimalsCoordinator.getDecimals(for: address) { result in
                 switch result {
                 case .success(let name):
                     seal.fulfill(name)
@@ -252,33 +245,30 @@ class TokensDataStore {
         }
     }
 
-    func getTokenType(for addressString: String) -> Promise<TokenType> {
+    func getTokenType(for address: AlphaWallet.Address) -> Promise<TokenType> {
         return Promise { seal in
-            getTokenType(for: addressString) { tokenType in
+            getTokenType(for: address) { tokenType in
                 seal.fulfill(tokenType)
             }
         }
     }
 
-    func getERC875Balance(for addressString: String,
+    func getERC875Balance(for address: AlphaWallet.Address,
                           completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
-        let address = Address(string: addressString)
-        getERC875BalanceCoordinator.getERC875TokenBalance(for: account.address, contract: address!) { result in
+        getERC875BalanceCoordinator.getERC875TokenBalance(for: account.address, contract: address) { result in
             completion(result)
         }
     }
 
-    func getIsERC875Contract(for addressString: String,
+    func getIsERC875Contract(for address: AlphaWallet.Address,
                              completion: @escaping (ResultResult<Bool, AnyError>.t) -> Void) {
-        let address = Address(string: addressString)
-        getIsERC875ContractCoordinator.getIsERC875Contract(for: address!) { result in
+        getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { result in
             completion(result)
         }
     }
 
-    func getERC721Balance(for addressString: String, completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
-        let address = Address(string: addressString)
-        getERC721BalanceCoordinator.getERC721TokenBalance(for: account.address, contract: address!) { result in
+    func getERC721Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
+        getERC721BalanceCoordinator.getERC721TokenBalance(for: account.address, contract: address) { result in
             switch result {
             case .success(let balance):
                 completion(.success([String](repeating: "0", count: Int(balance))))
@@ -290,15 +280,14 @@ class TokensDataStore {
 
     private func getTokensFromOpenSea() -> OpenSea.PromiseResult {
         //TODO when we no longer create multiple instances of TokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
-        return OpenSea.sharedInstance.makeFetchPromise(server: server, owner: account.address.eip55String)
+        return OpenSea.sharedInstance.makeFetchPromise(server: server, owner: account.address)
     }
 
-    func getTokenType(for addressString: String,
+    func getTokenType(for address: AlphaWallet.Address,
                       completion: @escaping (TokenType) -> Void) {
-        let address = Address(string: addressString)
         var knownToBeNotERC721 = false
         var knownToBeNotERC875 = false
-        getIsERC875ContractCoordinator.getIsERC875Contract(for: address!) { [weak self] result in
+        getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { [weak self] result in
             guard self != nil else { return }
             switch result {
             case .success(let isERC875):
@@ -316,7 +305,7 @@ class TokensDataStore {
             }
         }
 
-        getIsERC721ContractCoordinator.getIsERC721Contract(for: address!) { [weak self] result in
+        getIsERC721ContractCoordinator.getIsERC721Contract(for: address) { [weak self] result in
             guard self != nil else { return }
             switch result {
             case .success(let isERC721):
@@ -335,9 +324,9 @@ class TokensDataStore {
         }
     }
 
-    func token(forContract contract: String) -> TokenObject? {
+    func token(forContract contract: AlphaWallet.Address) -> TokenObject? {
         //TODO improved performance if contract is always stored as EIP55
-        return realm.objects(TokenObject.self).first { $0.contract.sameContract(as: contract) && $0.chainId == chainId }
+        return realm.objects(TokenObject.self).first { contract.sameContract(as: $0.contract) && $0.chainId == chainId }
     }
 
     func refreshBalance() {
@@ -370,11 +359,7 @@ class TokensDataStore {
             case .nativeCryptocurrency:
                 incrementCountAndUpdateDelegate()
             case .erc20:
-                guard let contract = Address(string: tokenObject.contract) else {
-                    incrementCountAndUpdateDelegate()
-                    return
-                }
-                getBalanceCoordinator.getBalance(for: account.address, contract: contract) { [weak self] result in
+                getBalanceCoordinator.getBalance(for: account.address, contract: tokenObject.contractAddress) { [weak self] result in
                     defer { incrementCountAndUpdateDelegate() }
                     guard let strongSelf = self else { return }
                     switch result {
@@ -385,7 +370,7 @@ class TokensDataStore {
                     }
                 }
             case .erc875:
-                getERC875Balance(for: tokenObject.contract, completion: { [weak self] result in
+                getERC875Balance(for: tokenObject.contractAddress, completion: { [weak self] result in
                     defer { incrementCountAndUpdateDelegate() }
                     guard let strongSelf = self else { return }
                     switch result {
@@ -407,11 +392,11 @@ class TokensDataStore {
         guard OpenSea.isServerSupported(server) else { return }
         getTokensFromOpenSea().done { [weak self] contractToOpenSeaNonFungibles in
             guard let strongSelf = self else { return }
-            let erc721ContractsFoundInOpenSea = Array(contractToOpenSeaNonFungibles.keys).map { $0.lowercased() }
-            let erc721ContractsNotFoundInOpenSea = tokens.map { $0.contract.lowercased() } - erc721ContractsFoundInOpenSea
+            let erc721ContractsFoundInOpenSea = Array(contractToOpenSeaNonFungibles.keys).map { $0 }
+            let erc721ContractsNotFoundInOpenSea = tokens.map { $0.contractAddress } - erc721ContractsFoundInOpenSea
             var count = 0
-            for each in erc721ContractsNotFoundInOpenSea {
-                strongSelf.getERC721Balance(for: each) { [weak self] result in
+            for address in erc721ContractsNotFoundInOpenSea {
+                strongSelf.getERC721Balance(for: address) { [weak self] result in
                     guard let strongSelf = self else { return }
                     defer {
                         count += 1
@@ -421,7 +406,7 @@ class TokensDataStore {
                     }
                     switch result {
                     case .success(let balance):
-                        if let token = tokens.first(where: { $0.contract.sameContract(as: each) }) {
+                        if let token = tokens.first(where: { $0.contractAddress.sameContract(as: address) }) {
                             strongSelf.update(token: token, action: .nonFungibleBalance(balance))
                         }
                     case .failure:
@@ -442,7 +427,7 @@ class TokensDataStore {
                     }
                 }
 
-                if let tokenObject = tokens.first(where: { $0.contract.sameContract(as: contract) }) {
+                if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) {
                     switch tokenObject.type {
                     case .nativeCryptocurrency, .erc721, .erc875:
                         break
@@ -454,20 +439,16 @@ class TokensDataStore {
                         strongSelf.update(token: tokenObject, action: .name(anyNonFungible.contractName))
                     }
                 } else {
-                    if let address = Address(string: contract) {
-                        let token = ERCToken(
-                                contract: address,
-                                server: strongSelf.server,
-                                name: openSeaNonFungibles[0].contractName,
-                                symbol: openSeaNonFungibles[0].symbol,
-                                decimals: 0,
-                                type: .erc721,
-                                balance: listOfJson
-                        )
-                        strongSelf.addCustom(token: token)
-                    } else {
-                        NSLog("Failed to add token from OpenSea: \(contract)")
-                    }
+                    let token = ERCToken(
+                            contract: contract,
+                            server: strongSelf.server,
+                            name: openSeaNonFungibles[0].contractName,
+                            symbol: openSeaNonFungibles[0].symbol,
+                            decimals: 0,
+                            type: .erc721,
+                            balance: listOfJson
+                    )
+                    strongSelf.addCustom(token: token)
                 }
             }
             strongSelf.updateDelegate()
@@ -492,19 +473,19 @@ class TokensDataStore {
 
     private func updateDelegate() {
         tokensModel.value = enabledObject
-        var tickersForThisServer = [RPCServer: [String: CoinTicker]]()
+        var tickersForThisServer = [RPCServer: [AlphaWallet.Address: CoinTicker]]()
         tickersForThisServer[server] = tickers
         let tokensViewModel = TokensViewModel(tokens: enabledObject, tickers: tickersForThisServer)
         delegate?.didUpdate(result: .success( tokensViewModel ))
     }
 
     func coinTicker(for token: TokenObject) -> CoinTicker? {
-        return tickers?[token.contract]
+        return tickers?[token.contractAddress]
     }
 
     func addCustom(token: ERCToken) {
         let newToken = TokenObject(
-            contract: token.contract.description,
+            contract: token.contract,
             server: token.server,
             name: token.name,
             symbol: token.symbol,
@@ -535,11 +516,17 @@ class TokensDataStore {
             guard case .success(let response) = result else { return }
             do {
                 let tickers = try response.map([CoinTicker].self, using: JSONDecoder())
-                strongSelf.tickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
+                let tempTickers = tickers.reduce([String: CoinTicker]()) { (dict, ticker) -> [String: CoinTicker] in
                     var dict = dict
                     dict[ticker.contract] = ticker
                     return dict
                 }
+                var resultTickers = [AlphaWallet.Address: CoinTicker]()
+                for (contract, ticker) in tempTickers {
+                    guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: contract) else { continue }
+                    resultTickers[contractAddress] = ticker
+                }
+                strongSelf.tickers = resultTickers
                 //TODO is it better if we pass in an enum to indicate what's the change? if crypto price change, we only need to refresh the native crypto currency cards?
                 strongSelf.updateDelegate()
             } catch { }
@@ -651,7 +638,7 @@ class TokensDataStore {
     }
 
     ///Note that it's possible for a contract to have the same tokenId repeated
-    func update(contract: String, tokenId: String, action: TokenBalanceUpdateAction) {
+    func update(contract: AlphaWallet.Address, tokenId: String, action: TokenBalanceUpdateAction) {
         guard let token = token(forContract: contract) else { return }
         let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
         let balances = token.balance.filter { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt }
@@ -673,7 +660,7 @@ class TokensDataStore {
     }
 
     func jsonAttributeValue(forContract contract: AlphaWallet.Address, tokenId: String, attributeId: String) -> Any? {
-        guard let token = token(forContract: contract.eip55String) else { return nil }
+        guard let token = token(forContract: contract) else { return nil }
         let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
         guard let balance = token.balance.first(where: { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt }) else { return nil }
         let json = balance.json
@@ -702,10 +689,10 @@ class TokensDataStore {
     func fetchTokenNamesForNonFungibleTokensIfEmpty() {
         assetDefinitionStore.forEachContractWithXML { [weak self] contract in
             guard let strongSelf = self else { return }
-            let localizedName = XMLHandler(contract: contract.eip55String, assetDefinitionStore: assetDefinitionStore).getName(fallback: "")
+            let localizedName = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).getName(fallback: "")
             guard !localizedName.isEmpty else { return }
-            if let storedToken = strongSelf.enabledObject.first(where: { contract.sameContract(as: $0.contract) }), storedToken.name.isEmpty {
-                getContractName(for: contract.eip55String) { result in
+            if let storedToken = strongSelf.enabledObject.first(where: { contract.sameContract(as: $0.contractAddress) }), storedToken.name.isEmpty {
+                getContractName(for: contract) { result in
                     switch result {
                     case .success(let name):
                         //TODO multiple realm writes in a loop. Should we group them together?

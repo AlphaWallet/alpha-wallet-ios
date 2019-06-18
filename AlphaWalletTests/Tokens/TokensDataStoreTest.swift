@@ -7,7 +7,7 @@ import Foundation
 class TokensDataStoreTest: XCTestCase {
     private let storage = FakeTokensDataStore()
     private let token = TokenObject(
-            contract: "0x001",
+            contract: AlphaWallet.Address.make(),
             server: .main,
             value: "0",
             type: .erc20
@@ -30,8 +30,8 @@ class TokensDataStoreTest: XCTestCase {
     //4. Swipe to hide that token.
     //5. BOOM.
     func testHideContractTwiceDoesNotCrash() {
-        let contract = "0x66F08Ca6892017A45Da6FB792a8E946FcBE3d865"
-        storage.add(hiddenContracts: [HiddenContract(contract: contract, server: .ropsten)])
-        XCTAssertNoThrow(storage.add(hiddenContracts: [HiddenContract(contract: contract, server: .ropsten)]))
+        let contract = AlphaWallet.Address(string: "0x66F08Ca6892017A45Da6FB792a8E946FcBE3d865")!
+        storage.add(hiddenContracts: [HiddenContract(contractAddress: contract, server: .ropsten)])
+        XCTAssertNoThrow(storage.add(hiddenContracts: [HiddenContract(contractAddress: contract, server: .ropsten)]))
     }
 }

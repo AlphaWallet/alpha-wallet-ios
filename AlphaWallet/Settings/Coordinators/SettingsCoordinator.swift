@@ -2,7 +2,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import TrustKeystore
 import UIKit
 
 protocol SettingsCoordinatorDelegate: class, CanOpenURL {
@@ -113,7 +112,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 }
 
 extension SettingsCoordinator: CanOpenURL {
-	func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+	func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
 		delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
 	}
 

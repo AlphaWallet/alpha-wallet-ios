@@ -21,7 +21,7 @@ class TokenInstanceWebView: UIView {
     private let assetDefinitionStore: AssetDefinitionStore
     lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
     lazy private var webView: WKWebView = {
-        let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, server: server, address: .init(address: walletAddress), in: ScriptMessageProxy(delegate: self))
+        let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, server: server, address: walletAddress, in: ScriptMessageProxy(delegate: self))
         webViewConfig.websiteDataStore = .default()
         return .init(frame: .zero, configuration: webViewConfig)
     }()
@@ -33,9 +33,9 @@ class TokenInstanceWebView: UIView {
     }
     weak var delegate: TokenInstanceWebViewDelegate?
 
-    init(server: RPCServer, walletAddress: Address, assetDefinitionStore: AssetDefinitionStore) {
+    init(server: RPCServer, walletAddress: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
-        self.walletAddress = .init(address: walletAddress)
+        self.walletAddress = walletAddress
         self.assetDefinitionStore = assetDefinitionStore
         super.init(frame: .zero)
 
@@ -128,7 +128,7 @@ class TokenInstanceWebView: UIView {
                 results[each.javaScriptName] = .string(tokenHolder.symbol)
             case .contractAddress:
                 //TODO remove forced unwrap once we get TokenHolder to use AlphaWallet.Address instead
-                results[each.javaScriptName] = .address(AlphaWallet.Address(uncheckedAgainstNullAddress: tokenHolder.contractAddress)!)
+                results[each.javaScriptName] = .address(tokenHolder.contractAddress)
             }
         }
         return results

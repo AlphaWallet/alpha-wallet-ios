@@ -7,7 +7,7 @@ import XCTest
 
 class TransactionSigningTests: XCTestCase {
     func testEIP155SignHash() {
-        let address = Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!
+        let address = AlphaWallet.Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!
         let transaction = UnsignedTransaction(
             value: BigInt("1000000000000000000"),
             account: .make(address: address),
@@ -24,7 +24,7 @@ class TransactionSigningTests: XCTestCase {
     }
 
     func testHomesteadSignHash() {
-        let address = Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!
+        let address = AlphaWallet.Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!
         let transaction = UnsignedTransaction(
             value: BigInt("1000000000000000000"),
             account: .make(address: address),
@@ -41,11 +41,11 @@ class TransactionSigningTests: XCTestCase {
     }
 
     func testSignTransaction() {
-        let account: Account = .make(address: Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!)
+        let account: Account = .make(address: AlphaWallet.Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!)
         let transaction = UnsignedTransaction(
             value: BigInt("1000000000000000000"),
             account: account,
-            to: Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!,
+            to: AlphaWallet.Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!,
             nonce: 9,
             data: Data(),
             gasPrice: BigInt(20000000000),

@@ -2,7 +2,6 @@
 
 import Foundation
 import ObjectiveC
-import TrustKeystore
 import web3swift
 
 struct Config {
@@ -110,21 +109,21 @@ struct Config {
     ///Debugging flag. Set to false to disable auto fetching prices, etc to cut down on network calls
     let isAutoFetchingDisabled = false
 
-    func addToWalletAddressesAlreadyPromptedForBackup(address: String) {
+    func addToWalletAddressesAlreadyPromptedForBackup(address: AlphaWallet.Address) {
         var addresses: [String]
         if let value = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
             addresses = value as! [String]
         } else {
             addresses = [String]()
         }
-        addresses.append(address)
+        addresses.append(address.eip55String)
         defaults.setValue(addresses, forKey: Keys.walletAddressesAlreadyPromptedForBackUp)
     }
 
-    func isWalletAddressAlreadyPromptedForBackUp(address: String) -> Bool {
+    func isWalletAddressAlreadyPromptedForBackUp(address: AlphaWallet.Address) -> Bool {
         if let value = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
             let addresses = value as! [String]
-            return addresses.contains(address)
+            return addresses.contains(address.eip55String)
         } else {
             return false
         }

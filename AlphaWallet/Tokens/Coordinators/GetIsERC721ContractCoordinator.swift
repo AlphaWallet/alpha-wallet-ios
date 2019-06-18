@@ -6,7 +6,6 @@
 import Foundation
 import PromiseKit
 import Result
-import TrustKeystore
 import web3swift
 
 class GetIsERC721ContractCoordinator {
@@ -30,20 +29,15 @@ class GetIsERC721ContractCoordinator {
     }
 
     func getIsERC721Contract(
-            for contract: Address,
+            for contract: AlphaWallet.Address,
             completion: @escaping (ResultResult<Bool, AnyError>.t) -> Void
     ) {
-        if contract.eip55String.sameContract(as: DoesNotSupportERC165Querying.bitizen) {
+        if contract.sameContract(as: DoesNotSupportERC165Querying.bitizen) {
             completion(.success(true))
             return
         }
-        if contract.eip55String.sameContract(as: DoesNotSupportERC165Querying.cryptoSaga) {
+        if contract.sameContract(as: DoesNotSupportERC165Querying.cryptoSaga) {
             completion(.success(true))
-            return
-        }
-
-        guard let contractAddress = EthereumAddress(contract.eip55String) else {
-            completion(.failure(AnyError(Web3Error(description: "Error converting contract address: \(contract.eip55String)"))))
             return
         }
 
@@ -52,6 +46,7 @@ class GetIsERC721ContractCoordinator {
             return
         }
 
+        let contractAddress = EthereumAddress(address: contract)
         let web3 = web3swift.web3(provider: webProvider)
         let function = GetIsERC721()
         guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: function.abi, at: contractAddress, options: web3.options) else {

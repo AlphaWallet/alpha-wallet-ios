@@ -13,11 +13,17 @@ extension AlphaWallet.Address {
     init(address: Address) {
         self = .ethereumAddress(eip55String: address.eip55String)
     }
+
+    func sameContract(as contract: EthereumAddress) -> Bool {
+        return eip55String == contract.address
+    }
 }
 
 extension EthereumAddress {
     init(address: AlphaWallet.Address) {
-        self.init(address.eip55String)!
+        //EthereumAddress(Data) is much faster than EthereumAddress(String). This is significant because we can make a few hungred calls
+        let data = Data.fromHex(address.eip55String)!
+        self.init(data)!
     }
 }
 

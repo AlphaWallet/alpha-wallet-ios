@@ -1,5 +1,5 @@
 // Copyright SIX DAY LLC. All rights reserved.
-import TrustKeystore
+
 import UIKit
 
 protocol AccountViewCellDelegate: class {
@@ -107,7 +107,7 @@ class AccountViewCell: UITableViewCell {
 
         addressLabel.font = viewModel.addressFont
         addressLabel.textColor = viewModel.addressTextColor
-        addressLabel.text = viewModel.address
+        addressLabel.text = viewModel.address.eip55String
 
         infoButton.tintColor = Colors.appBackground
 

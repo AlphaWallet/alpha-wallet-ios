@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import UIKit
 
 struct AccountViewModel {
@@ -24,8 +23,8 @@ struct AccountViewModel {
         let amount = walletBalance?.amountFull ?? "--"
         return "\(amount) \(server.symbol)"
     }
-    var address: String {
-        return wallet.address.description
+    var address: AlphaWallet.Address {
+        return wallet.address
     }
     var showActiveIcon: Bool {
         return wallet == current

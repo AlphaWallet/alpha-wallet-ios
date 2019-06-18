@@ -20,8 +20,8 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private var session: WalletSession
     private let token: TokenObject
 
-    var contract: String {
-        return token.contract
+    var contract: AlphaWallet.Address {
+        return token.contractAddress
     }
     var server: RPCServer {
         return token.server
@@ -160,7 +160,7 @@ extension TokenCardRedemptionViewController: VerifiableStatusViewController {
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: viewModel.token.contract, server: server, in: self)
+        delegate?.didPressViewContractWebPage(forContract: viewModel.token.contractAddress, server: server, in: self)
     }
 
     func open(url: URL) {
@@ -172,7 +172,7 @@ extension TokenCardRedemptionViewController: StaticHTMLViewControllerDelegate {
 }
 
 extension TokenCardRedemptionViewController: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 

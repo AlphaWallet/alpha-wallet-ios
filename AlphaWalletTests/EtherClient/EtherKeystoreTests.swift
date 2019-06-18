@@ -59,7 +59,7 @@ class EtherKeystoreTests: XCTestCase {
             return XCTFail()
         }
 
-        XCTAssertEqual("0x5E9c27156a612a2D516C74c7a80af107856F8539", account.address.description)
+        XCTAssertEqual("0x5E9c27156a612a2D516C74c7a80af107856F8539", account.address.eip55String)
         XCTAssertEqual(1, keystore.wallets.count)
     }
 
@@ -86,7 +86,7 @@ class EtherKeystoreTests: XCTestCase {
             return XCTFail()
         }
 
-        XCTAssertEqual("0x5E9c27156a612a2D516C74c7a80af107856F8539", account.address.description)
+        XCTAssertEqual("0x5E9c27156a612a2D516C74c7a80af107856F8539", account.address.eip55String)
         XCTAssertEqual(1, keystore.wallets.count)
     }
 
@@ -124,7 +124,7 @@ class EtherKeystoreTests: XCTestCase {
         let retreivePassword = keystore.getPassword(for: account)
 
         XCTAssertEqual(newPassword, retreivePassword)
-        XCTAssertEqual("0x5E9c27156a612a2D516C74c7a80af107856F8539", account.address.description)
+        XCTAssertEqual("0x5E9c27156a612a2D516C74c7a80af107856F8539", account.address.eip55String)
         XCTAssertEqual(1, keystore.wallets.count)
 
         let exportResult = keystore.export(account: account, password: newPassword, newPassword: "test2")
@@ -275,7 +275,7 @@ class EtherKeystoreTests: XCTestCase {
 
     func testAddWatchAddress() {
         let keystore = FakeEtherKeystore()
-        let address: Address = .make()
+        let address: AlphaWallet.Address = .make()
         keystore.importWallet(type: ImportType.watch(address: address)) { _  in }
 
         XCTAssertEqual(1, keystore.wallets.count)
@@ -284,7 +284,7 @@ class EtherKeystoreTests: XCTestCase {
 
     func testDeleteWatchAddress() {
         let keystore = FakeEtherKeystore()
-        let address: Address = .make()
+        let address: AlphaWallet.Address = .make()
 
         // TODO. Move this into sync calls
         keystore.importWallet(type: ImportType.watch(address: address)) { result  in

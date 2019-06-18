@@ -46,8 +46,8 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     var server: RPCServer {
         return tokenObject.server
     }
-    var contract: String {
-        return tokenObject.contract
+    var contract: AlphaWallet.Address {
+        return tokenObject.contractAddress
     }
     var tokenId: TokenId {
         return tokenHolder.tokens[0].id
@@ -254,7 +254,7 @@ extension TokenInstanceActionViewController: VerifiableStatusViewController {
     }
 
     func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: tokenObject.contract, server: server, in: self)
+        delegate?.didPressViewContractWebPage(forContract: tokenObject.contractAddress, server: server, in: self)
     }
 
     func open(url: URL) {

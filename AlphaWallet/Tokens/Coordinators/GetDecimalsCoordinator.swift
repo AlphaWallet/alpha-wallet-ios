@@ -2,7 +2,6 @@
 
 import Foundation
 import Result
-import TrustKeystore
 import web3swift
 
 class GetDecimalsCoordinator {
@@ -13,7 +12,7 @@ class GetDecimalsCoordinator {
     }
 
     func getDecimals(
-        for contract: Address,
+        for contract: AlphaWallet.Address,
         completion: @escaping (Result<UInt8, AnyError>) -> Void
     ) {
         let functionName = "decimals"
