@@ -47,12 +47,12 @@ public struct Constants {
     public static let nullTokenId = "0x0000000000000000000000000000000000000000000000000000000000000000"
     public static let nullTokenIdBigUInt = BigUInt(0)
     public static let burnAddressString = "0x000000000000000000000000000000000000dEaD"
-    public static let nullAddress = "0x0000000000000000000000000000000000000000"
-    public static let nativeCryptoAddressInDatabase = nullAddress
+    static let nullAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: "0x0000000000000000000000000000000000000000")!
+    static let nativeCryptoAddressInDatabase = nullAddress
 
     // FIFA hardcoded FIFA token address
-    public static let ticketContractAddress = "0xA66A3F08068174e8F005112A8b2c7A507a822335"
-    public static let ticketContractAddressRopsten = "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3"
+    static let ticketContractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
+    static let ticketContractAddressRopsten = AlphaWallet.Address(string: "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3")!
 
     //etherscan-compatible APIs
     public static let mainnetEtherscanAPI = "https://api.etherscan.io/api?module=account&action=txlist&address="
@@ -88,37 +88,37 @@ public struct Constants {
     public static let cryptoKittiesContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 
     //ENS
-    public static let ENSRegistrarAddress = EthereumAddress("0x314159265dD8dbb310642f98f50C066173C1259b")!
-    public static let ENSRegistrarRopsten = EthereumAddress("0x112234455c3a32fd11230c42e7bccd4a84e02010")!
-    public static let ENSRegistrarRinkeby = EthereumAddress("0xe7410170f87102df0055eb195163a03b7f2bff4a")!
-    public static let ENSRegistrarXDAI = EthereumAddress("0x17734f3709486b1d7015f941c069cebf8017a833")!
+    static let ENSRegistrarAddress = AlphaWallet.Address(string: "0x314159265dD8dbb310642f98f50C066173C1259b")!
+    static let ENSRegistrarRopsten = AlphaWallet.Address(string: "0x112234455c3a32fd11230c42e7bccd4a84e02010")!
+    static let ENSRegistrarRinkeby = AlphaWallet.Address(string: "0xe7410170f87102df0055eb195163a03b7f2bff4a")!
+    static let ENSRegistrarXDAI = AlphaWallet.Address(string: "0x17734f3709486b1d7015f941c069cebf8017a833")!
 
     //Misc
     public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
-    public static let legacy875Addresses = ["830e1650a87a754e37ca7ed76b700395a7c61614",
-                                            "a66a3f08068174e8f005112a8b2c7a507a822335"]
-    public static let legacy721Addresses = ["06012c8cf97bead5deae237070f9587f8e7a266d",
-                                            "abc7e6c01237e8eef355bba2bf925a730b714d5f",
-                                            "71c118b00759b0851785642541ceb0f4ceea0bd5"]
+    static let legacy875Addresses = [AlphaWallet.Address(string: "0x830e1650a87a754e37ca7ed76b700395a7c61614")!,
+                                            AlphaWallet.Address(string: "0xa66a3f08068174e8f005112a8b2c7a507a822335")!]
+    static let legacy721Addresses = [AlphaWallet.Address(string: "0x06012c8cf97bead5deae237070f9587f8e7a266d")!,
+                                            AlphaWallet.Address(string: "0xabc7e6c01237e8eef355bba2bf925a730b714d5f")!,
+                                            AlphaWallet.Address(string: "0x71c118b00759b0851785642541ceb0f4ceea0bd5")!]
 
     static let ethDenverXDaiPartnerContracts = [
-        (name: "DEN", contract: "0x6a814843de5967cf94d7720ce15cba8b0da81967"),
-        (name: "BURN", contract: "0x94819805310cf736198df0de856b0ff5584f0903"),
-        (name: "BURN", contract: "0xdec31651bec1fbbff392aa7de956d6ee4559498b"),
-        (name: "BURN", contract: "0xa95d505e6933cb790ed3431805871efe4e6bbafd"),
-        (name: "DEN", contract: "0xbdc3df563a3959a373916b724c683d69ba4097f7"),
-        (name: "DEN", contract: "0x6e251ee9cadf0145babfd3b64664a9d7f941fcc3"),
-        (name: "BUFF", contract: "0x3e50bf6703fc132a94e4baff068db2055655f11b"),
-        (name: "ETHD2019", contract: "0xa16b70E8fAd839E62aBBa2d962E4ca5a28aF9e76")
+        (name: "DEN", contract: AlphaWallet.Address(string: "0x6a814843de5967cf94d7720ce15cba8b0da81967")!),
+        (name: "BURN", contract: AlphaWallet.Address(string: "0x94819805310cf736198df0de856b0ff5584f0903")!),
+        (name: "BURN", contract: AlphaWallet.Address(string: "0xdec31651bec1fbbff392aa7de956d6ee4559498b")!),
+        (name: "BURN", contract: AlphaWallet.Address(string: "0xa95d505e6933cb790ed3431805871efe4e6bbafd")!),
+        (name: "DEN", contract: AlphaWallet.Address(string: "0xbdc3df563a3959a373916b724c683d69ba4097f7")!),
+        (name: "DEN", contract: AlphaWallet.Address(string: "0x6e251ee9cadf0145babfd3b64664a9d7f941fcc3")!),
+        (name: "BUFF", contract: AlphaWallet.Address(string: "0x3e50bf6703fc132a94e4baff068db2055655f11b")!),
+        (name: "ETHD2019", contract: AlphaWallet.Address(string: "0xa16b70E8fAd839E62aBBa2d962E4ca5a28aF9e76")!)
     ]
 
     static let partnerContracts = [
-        (name: "DAI", contract: "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359"),
-        (name: "GUSD", contract: "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd"),
-        (name: "PAX", contract: "0x8e870d67f660d95d5be530380d0ec0bd388289e1"),
-        (name: "TUSD", contract: "0x8dd5fbce2f6a956c3022ba3663759011dd51e73e"),
-        (name: "USDC", contract: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
-        (name: "USDO", contract: "0x98f2ab72198f2e64527bdb28931f60c0f77ac2fc")
+        (name: "DAI", contract: AlphaWallet.Address(string: "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359")!),
+        (name: "GUSD", contract: AlphaWallet.Address(string: "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd")!),
+        (name: "PAX", contract: AlphaWallet.Address(string: "0x8e870d67f660d95d5be530380d0ec0bd388289e1")!),
+        (name: "TUSD", contract: AlphaWallet.Address(string: "0x8dd5fbce2f6a956c3022ba3663759011dd51e73e")!),
+        (name: "USDC", contract: AlphaWallet.Address(string: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")!),
+        (name: "USDO", contract: AlphaWallet.Address(string: "0x98f2ab72198f2e64527bdb28931f60c0f77ac2fc")!)
     ]
 
     static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .classic, .poa]

@@ -17,7 +17,7 @@ struct TokensCardViewModel {
     let tokenHolders: [TokenHolder]
 
     var actions: [TokenInstanceAction] {
-        let xmlHandler = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
         if actionsFromTokenScript.isEmpty {
             switch token.type {
@@ -40,7 +40,7 @@ struct TokensCardViewModel {
     }
 
     var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
-        let xmlHandler = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
         return xmlHandler.tokenScriptStatus
     }
 

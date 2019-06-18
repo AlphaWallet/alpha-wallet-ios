@@ -2,14 +2,13 @@
 
 import Foundation
 import JSONRPCKit
-import TrustKeystore
 import BigInt
 
 struct EstimateGasRequest: JSONRPCKit.Request {
     typealias Response = String
 
-    let from: Address
-    let to: Address?
+    let from: AlphaWallet.Address
+    let to: AlphaWallet.Address?
     let value: BigInt
     let data: Data
 

@@ -12,7 +12,7 @@ struct SendHeaderViewViewModelWithIntroduction {
     var currencyAmount: String?
     var currencyAmountWithoutSymbol: Double?
     var showAlternativeAmount = false
-    var contractAddress: String?
+    var contractAddress: AlphaWallet.Address?
 
     var issuer: String {
         return ""

@@ -186,7 +186,7 @@ class AppCoordinator: NSObject, Coordinator {
         universalLinkPasteboardCoordinator.start()
     }
 
-    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         inCoordinator?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 
@@ -272,7 +272,7 @@ extension AppCoordinator: UniversalLinkCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didImported(contract: String, in coordinator: UniversalLinkCoordinator) {
+    func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator) {
         inCoordinator?.addImported(contract: contract, forServer: coordinator.server)
     }
 }
@@ -296,7 +296,7 @@ extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
     }
 
     func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer) {
-        inCoordinator?.addImported(contract: contract.eip55String, forServer: server)
+        inCoordinator?.addImported(contract: contract, forServer: server)
     }
 }
 

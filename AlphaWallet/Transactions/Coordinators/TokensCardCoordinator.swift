@@ -67,7 +67,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private func refreshUponAssetDefinitionChanges() {
         assetDefinitionStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
-            guard contract.sameContract(as: strongSelf.token.contract) else { return }
+            guard contract.sameContract(as: strongSelf.token.contractAddress) else { return }
             for each in strongSelf.navigationController.viewControllers {
                 switch each {
                 case let vc as TokensCardViewController:
@@ -573,16 +573,10 @@ extension TokensCardCoordinator: GenerateTransferMagicLinkViewControllerDelegate
 }
 
 extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControllerDelegate {
-    func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: String, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
-        UIAlertController.alert(title: "", message: R.string.localizable.aWalletTokenTransferModeWalletAddressConfirmation(walletAddress), alertButtonTitles: [R.string.localizable.aWalletTokenTransferButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: navigationController) { [weak self] in
+    func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
+        UIAlertController.alert(title: "", message: R.string.localizable.aWalletTokenTransferModeWalletAddressConfirmation(walletAddress.eip55String), alertButtonTitles: [R.string.localizable.aWalletTokenTransferButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: navigationController) { [weak self] in
             guard let strongSelf = self else { return }
             guard $0 == 0 else { return }
-
-            //Defensive. Should already be checked before this
-            guard let _ = Address(string: walletAddress) else {
-                return strongSelf.navigationController.displayError(error: Errors.invalidAddress)
-            }
-
             if case .real(let account) = strongSelf.session.account.type {
                 let coordinator = TransferNFTCoordinator(tokenHolder: tokenHolder, walletAddress: walletAddress, paymentFlow: paymentFlow, keystore: strongSelf.keystore, session: strongSelf.session, account: account, assetDefinitionStore: strongSelf.assetDefinitionStore, on: strongSelf.navigationController)
                 coordinator.delegate = self
@@ -601,7 +595,7 @@ extension TokensCardCoordinator: TokenCardRedemptionViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: CanOpenURL {
-    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 

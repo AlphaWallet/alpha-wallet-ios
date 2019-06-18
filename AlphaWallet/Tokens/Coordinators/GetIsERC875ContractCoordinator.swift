@@ -2,7 +2,6 @@
 
 import Foundation
 import Result
-import TrustKeystore
 
 class GetIsERC875ContractCoordinator {
     private let server: RPCServer
@@ -12,7 +11,7 @@ class GetIsERC875ContractCoordinator {
     }
 
     func getIsERC875Contract(
-        for contract: Address,
+        for contract: AlphaWallet.Address,
         completion: @escaping (Result<Bool, AnyError>) -> Void
     ) {
         let function = GetIsERC875()

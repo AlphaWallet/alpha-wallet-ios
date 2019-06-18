@@ -1,7 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
-import TrustKeystore
 
 struct ServersViewModel {
     private let selectedServer: RPCServerOrAuto

@@ -3,7 +3,6 @@
 import Foundation
 import UIKit
 import PromiseKit
-import TrustKeystore
 
 struct TokenViewControllerViewModel {
     private let transferType: TransferType
@@ -27,7 +26,7 @@ struct TokenViewControllerViewModel {
 
     var actions: [TokenInstanceAction] {
         guard let token = token else { return [] }
-        let xmlHandler = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
         if actionsFromTokenScript.isEmpty {
             switch token.type {
@@ -68,7 +67,7 @@ struct TokenViewControllerViewModel {
 
     var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
         if let token = token {
-            let xmlHandler = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore)
+            let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
             return xmlHandler.tokenScriptStatus
         } else {
             assertImpossibleCodePath()
@@ -99,14 +98,14 @@ struct TokenViewControllerViewModel {
                         } else {
                             return false
                         }})
-                    .filter({ $0.operation?.contract?.sameContract(as: token.contract) ?? false })
+                    .filter({ $0.operation?.contract.flatMap { token.contractAddress.sameContract(as: $0) } ?? false })
                     .prefix(3))
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
             self.recentTransactions = []
         }
     }
 
-    var destinationAddress: Address {
+    var destinationAddress: AlphaWallet.Address {
         return transferType.contract
     }
 
@@ -115,7 +114,7 @@ struct TokenViewControllerViewModel {
     }
 
     var showAlternativeAmount: Bool {
-        guard let currentTokenInfo = tokensStore.tickers?[destinationAddress.description], let price = Double(currentTokenInfo.price_usd), price > 0 else {
+        guard let currentTokenInfo = tokensStore.tickers?[destinationAddress], let price = Double(currentTokenInfo.price_usd), price > 0 else {
             return false
         }
         return true

@@ -24,7 +24,7 @@ class SendCoordinatorTests: XCTestCase {
     }
 
     func testDestination() {
-        let address: Address = .make()
+        let address: AlphaWallet.Address = .make()
         let coordinator = SendCoordinator(
             transferType: .nativeCryptocurrency(server: .main, destination: address, amount: nil),
             navigationController: FakeNavigationController(),
@@ -37,7 +37,7 @@ class SendCoordinatorTests: XCTestCase {
         )
         coordinator.start()
 
-        XCTAssertEqual(address.description, coordinator.sendViewController.targetAddressTextField.value)
+        XCTAssertEqual(address.eip55String, coordinator.sendViewController.targetAddressTextField.value)
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is SendViewController)
     }
 

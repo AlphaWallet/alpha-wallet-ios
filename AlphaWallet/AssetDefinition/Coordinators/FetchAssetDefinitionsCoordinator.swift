@@ -13,7 +13,7 @@ class FetchAssetDefinitionsCoordinator: Coordinator {
     }
 
     func start() {
-        var contracts = [String]()
+        var contracts = [AlphaWallet.Address]()
         for each in tokensDataStores.values {
             contracts.append(contentsOf: each.enabledObject.filter {
                 switch $0.type {
@@ -22,8 +22,8 @@ class FetchAssetDefinitionsCoordinator: Coordinator {
                 case .nativeCryptocurrency:
                     return false
                 }
-            }.map { $0.contract })
+            }.map { $0.contractAddress })
         }
-        assetDefinitionStore.fetchXMLs(forContracts: contracts.compactMap { AlphaWallet.Address(string: $0) })
+        assetDefinitionStore.fetchXMLs(forContracts: contracts)
     }
 }

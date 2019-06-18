@@ -8,7 +8,7 @@ class AssetDefinitionDiskBackingStoreWithOverridesTests: XCTestCase {
     func testBackingStoreWithOverrides() {
         let overridesStore = AssetDefinitionInMemoryBackingStore()
         let store = AssetDefinitionDiskBackingStoreWithOverrides(overridesStore: overridesStore)
-        let address = AlphaWallet.Address.ethereumAddress(eip55String: "0x0000000000000000000000000000000000000001")
+        let address = AlphaWallet.Address.make()
         XCTAssertNil(store[address])
         overridesStore[address] = "xml1"
         XCTAssertEqual(store[address], "xml1")

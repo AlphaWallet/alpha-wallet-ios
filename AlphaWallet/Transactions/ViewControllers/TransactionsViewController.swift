@@ -5,7 +5,6 @@ import APIKit
 import JSONRPCKit
 import StatefulViewController
 import Result
-import TrustKeystore
 
 protocol TransactionsViewControllerDelegate: class {
     func didPressTransaction(transaction: Transaction, in viewController: TransactionsViewController)

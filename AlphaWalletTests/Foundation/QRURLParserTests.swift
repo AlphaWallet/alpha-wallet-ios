@@ -15,14 +15,14 @@ class QRURLParserTests: XCTestCase {
         let address = "0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c"
         let result = QRURLParser.from(string: address)
 
-        XCTAssertEqual(address, result?.address)
+        XCTAssertTrue(result!.address.sameContract(as: address))
     }
 
     func testJustAddressString2() {
         let address = "0x6973dbabeb06dd60f1c50ed688fe11e742bc123e"
         let result = QRURLParser.from(string: address)
 
-        XCTAssertEqual(address, result?.address)
+        XCTAssertTrue(result!.address.sameContract(as: address))
     }
 
     func testProtocolAndAddress() {
@@ -34,13 +34,13 @@ class QRURLParserTests: XCTestCase {
     func testEthereumAddress() {
         let result = QRURLParser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c")
 
-        XCTAssertEqual("0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c", result?.address)
+        XCTAssertTrue(result!.address.sameContract(as: "0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c"))
     }
 
     func testEthereumAddressWithValue() {
         let result = QRURLParser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c?value=1")
 
-        XCTAssertEqual("0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c", result?.address)
+        XCTAssertTrue(result!.address.sameContract(as: "0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c"))
     }
 
     func testExtractChain() {
@@ -53,14 +53,14 @@ class QRURLParserTests: XCTestCase {
         let result = QRURLParser.from(string: "omg:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c")
 
         XCTAssertEqual("omg", result?.protocolName)
-        XCTAssertEqual("0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c", result?.address)
+        XCTAssertTrue(result!.address.sameContract(as: "0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c"))
     }
 
     func testBancorAddress() {
         let result = QRURLParser.from(string: "bancor:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c")
 
         XCTAssertEqual("bancor", result?.protocolName)
-        XCTAssertEqual("0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c", result?.address)
+        XCTAssertTrue(result!.address.sameContract(as: "0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c"))
     }
 
     func testParseData() {

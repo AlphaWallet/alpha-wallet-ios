@@ -9,7 +9,7 @@ struct TokenInstanceViewModel {
     let assetDefinitionStore: AssetDefinitionStore
 
     var actions: [TokenInstanceAction] {
-        let xmlHandler = XMLHandler(contract: token.contract, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
         if xmlHandler.hasAssetDefinition {
             return actionsFromTokenScript

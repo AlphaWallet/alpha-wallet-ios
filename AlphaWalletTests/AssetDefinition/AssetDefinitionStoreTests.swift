@@ -12,14 +12,14 @@ class AssetDefinitionStoreTests: XCTestCase {
 
     func testXMLAccess() {
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
-        let address = AlphaWallet.Address.ethereumAddress(eip55String: "0x0000000000000000000000000000000000000001")
+        let address = AlphaWallet.Address.make()
         XCTAssertNil(store[address])
         store[address] = "xml1"
         XCTAssertEqual(store[address], "xml1")
     }
 
     func testShouldNotCallCompletionBlockWithCacheCaseIfNotAlreadyCached() {
-        let contractAddress = "0x1"
+        let contractAddress = AlphaWallet.Address.make()
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
         let expectation = XCTestExpectation(description: "cached case should not be called")
         expectation.isInverted = true

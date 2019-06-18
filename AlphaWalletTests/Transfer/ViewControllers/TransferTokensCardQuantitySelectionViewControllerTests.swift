@@ -3,7 +3,6 @@
 import FBSnapshotTestCase
 @testable import AlphaWallet
 import UIKit
-import TrustKeystore
 
 class TransferTokensCardQuantitySelectionViewControllerTests: FBSnapshotTestCase {
     override func setUp() {

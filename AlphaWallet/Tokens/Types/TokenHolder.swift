@@ -10,13 +10,13 @@ import Foundation
 
 class TokenHolder {
     let tokens: [Token]
-    let contractAddress: String
+    let contractAddress: AlphaWallet.Address
     let hasAssetDefinition: Bool
 
     var isSelected = false
     var areDetailsVisible = false
 
-    init(tokens: [Token], contractAddress: String, hasAssetDefinition: Bool) {
+    init(tokens: [Token], contractAddress: AlphaWallet.Address, hasAssetDefinition: Bool) {
         self.tokens = tokens
         self.contractAddress = contractAddress
         self.hasAssetDefinition = hasAssetDefinition

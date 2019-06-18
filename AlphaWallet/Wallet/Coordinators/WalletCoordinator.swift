@@ -49,8 +49,8 @@ class WalletCoordinator: Coordinator {
         case .backupWallet(let address):
             if let type = keystore.recentlyUsedWallet?.type, case let .real(account) = type {
                 guard address.sameContract(as: account.address.eip55String) else { return false }
-                guard !config.isWalletAddressAlreadyPromptedForBackUp(address: account.address.eip55String) else { return false }
-                config.addToWalletAddressesAlreadyPromptedForBackup(address: account.address.eip55String)
+                guard !config.isWalletAddressAlreadyPromptedForBackUp(address: AlphaWallet.Address(address: account.address)) else { return false }
+                config.addToWalletAddressesAlreadyPromptedForBackup(address: AlphaWallet.Address(address: account.address))
                 pushBackup(for: account)
             } else {
                 return false
@@ -137,7 +137,7 @@ extension WalletCoordinator: WelcomeViewControllerDelegate {
 
 extension WalletCoordinator: ImportWalletViewControllerDelegate {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController) {
-        config.addToWalletAddressesAlreadyPromptedForBackup(address: account.address.eip55String)
+        config.addToWalletAddressesAlreadyPromptedForBackup(address: account.address)
         didCreateAccount(account: account)
     }
 }

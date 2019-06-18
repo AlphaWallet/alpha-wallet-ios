@@ -10,8 +10,8 @@ import APIKit
 public struct PreviewTransaction {
     let value: BigInt
     let account: Account
-    let address: Address?
-    let contract: Address?
+    let address: AlphaWallet.Address?
+    let contract: AlphaWallet.Address?
     let nonce: Int
     let data: Data
     let gasPrice: BigInt
@@ -70,17 +70,17 @@ class TransactionConfigurator {
         )
     }
     func estimateGasLimit() {
-        let to: Address? = {
+        let to: AlphaWallet.Address? = {
             switch transaction.transferType {
             case .nativeCryptocurrency, .dapp: return transaction.to
             case .ERC20Token(let token, _, _):
-                return Address(string: token.contract)
+                return token.contractAddress
             case .ERC875Token(let token):
-                return Address(string: token.contract)
+                return token.contractAddress
             case .ERC875TokenOrder(let token):
-                return Address(string: token.contract)
+                return token.contractAddress
             case .ERC721Token(let token):
-                return Address(string: token.contract)
+                return token.contractAddress
             }
         }()
         let request = EstimateGasRequest(
@@ -143,7 +143,7 @@ class TransactionConfigurator {
             do {
                 let parameters: [Any] = [transaction.to!, transaction.indices!.map({ BigUInt($0) })]
                 let arrayType: ABIType
-                if token.address.eip55String.isLegacy875Contract {
+                if token.contractAddress.isLegacy875Contract {
                     arrayType = ABIType.uint(bits: 16)
                 } else {
                     arrayType = ABIType.uint(bits: 256)
@@ -174,7 +174,7 @@ class TransactionConfigurator {
                     Data(hex: transaction.s!)
                 ]
                 let arrayType: ABIType
-                if token.address.eip55String.isLegacy875Contract {
+                if token.contractAddress.isLegacy875Contract {
                     arrayType = ABIType.uint(bits: 16)
                 } else {
                     arrayType = ABIType.uint(bits: 256)
@@ -202,7 +202,7 @@ class TransactionConfigurator {
             do {
                 let function: Function
                 let parameters: [Any]
-                if transaction.to!.eip55String.isLegacy732Contract {
+                if transaction.to!.isLegacy721Contract {
                     function = Function(name: "transfer", parameters: [.address, .uint(bits: 256)])
                     parameters = [transaction.to!, BigUInt(transaction.tokenId!)!]
                 } else {
@@ -247,13 +247,13 @@ class TransactionConfigurator {
             case .ERC721Token: return 0
             }
         }()
-        let address: Address? = {
+        let address: AlphaWallet.Address? = {
             switch transaction.transferType {
             case .nativeCryptocurrency, .dapp: return transaction.to
-            case .ERC20Token(let token, _, _): return token.address
-            case .ERC875Token(let token): return token.address
-            case .ERC875TokenOrder(let token): return token.address
-            case .ERC721Token(let token): return token.address
+            case .ERC20Token(let token, _, _): return token.contractAddress
+            case .ERC875Token(let token): return token.contractAddress
+            case .ERC875TokenOrder(let token): return token.contractAddress
+            case .ERC721Token(let token): return token.contractAddress
             }
         }()
         let signTransaction = UnsignedTransaction(

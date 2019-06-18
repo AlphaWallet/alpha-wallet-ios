@@ -32,7 +32,7 @@ class SettingsCoordinatorTests: XCTestCase {
             func delete(account: Wallet, in coordinator: SettingsCoordinator) {
                 deleteDelegateMethodCalled = true
             }
-            func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {}
+            func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {}
             func didPressViewContractWebPage(_ url: URL, in viewController: UIViewController) {}
             func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {}
         }

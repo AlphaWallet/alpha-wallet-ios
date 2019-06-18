@@ -1,9 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import TrustKeystore
+import Foundation
 
 struct ERCToken {
-    let contract: Address
+    let contract: AlphaWallet.Address
     let server: RPCServer
     let name: String
     let symbol: String

@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import UIKit
 import RealmSwift
 import BigInt
@@ -235,7 +234,7 @@ class InCoordinator: NSObject, Coordinator {
                     guard !(balance.isZero) else { return }
                     //TODO we don'backup wallets if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
                     guard ProcessInfo.processInfo.environment["XCInjectBundleInto"] == nil else { return }
-                    strongSelf.promptBackupWallet(withAddress: strongSelf.wallet.address.description)
+                    strongSelf.promptBackupWallet(withAddress: strongSelf.wallet.address)
                 }
             }
             nativeCryptoCurrencyBalances[each] = price
@@ -369,7 +368,7 @@ class InCoordinator: NSObject, Coordinator {
         return tabBarController
     }
 
-    private func promptBackupWallet(withAddress address: String) {
+    private func promptBackupWallet(withAddress address: AlphaWallet.Address) {
         //TODo wallet or Address instead?
         let coordinator = PromptBackupCoordinator(keystore: keystore, walletAddress: address, config: config)
         addCoordinator(coordinator)
@@ -501,7 +500,7 @@ class InCoordinator: NSObject, Coordinator {
                 r: r,
                 s: s,
                 contractAddress: signedOrder.order.contractAddress,
-                recipient: wallet.address.eip55String
+                recipient: wallet.address
         ) { result in
             let strongSelf = self
             switch result {
@@ -512,7 +511,7 @@ class InCoordinator: NSObject, Coordinator {
                 let transactionToSign = UnsignedTransaction(
                         value: BigInt(signedOrder.order.price),
                         account: account,
-                        to: Address(string: signedOrder.order.contractAddress)!,
+                        to: signedOrder.order.contractAddress,
                         nonce: -1,
                         data: payload,
                         gasPrice: GasPriceConfiguration.defaultPrice,
@@ -539,7 +538,7 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
-    func addImported(contract: String, forServer server: RPCServer) {
+    func addImported(contract: AlphaWallet.Address, forServer server: RPCServer) {
         //Useful to check because we are/might action-only TokenScripts for native crypto currency
         guard !contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) else { return }
         let tokensCoordinator = coordinators.first { $0 is TokensCoordinator } as? TokensCoordinator
@@ -618,9 +617,9 @@ extension InCoordinator: CanOpenURL {
         viewController.present(controller, animated: true, completion: nil)
     }
 
-    func didPressViewContractWebPage(forContract contract: String, server: RPCServer, in viewController: UIViewController) {
-        if contract == Constants.nativeCryptoAddressInDatabase {
-            let url = server.etherscanContractDetailsWebPageURL(for: wallet.address.eip55String)
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
+        if contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+            let url = server.etherscanContractDetailsWebPageURL(for: wallet.address)
             open(url: url, in: viewController)
         } else {
             let url = server.etherscanContractDetailsWebPageURL(for: contract)
