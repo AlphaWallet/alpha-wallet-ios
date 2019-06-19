@@ -56,7 +56,7 @@ enum Origin {
             return origin.xmlContext
         }
     }
-    var userEntryId: String? {
+    var userEntryId: AttributeId? {
         switch self {
         case .tokenId, .function:
             return nil
@@ -101,7 +101,7 @@ enum Origin {
         return count - 1
     }
 
-    func extractValue(fromTokenId tokenId: TokenId, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator, userEntryValues: [String: String], tokenLevelNonSubscribableAttributesAndValues: [String: AssetInternalValue]) -> AssetInternalValue? {
+    func extractValue(fromTokenId tokenId: TokenId, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator, userEntryValues: [AttributeId: String], tokenLevelNonSubscribableAttributesAndValues: [AttributeId: AssetInternalValue]) -> AssetInternalValue? {
         switch self {
         case .tokenId(let origin):
             return origin.extractValue(fromTokenId: tokenId)

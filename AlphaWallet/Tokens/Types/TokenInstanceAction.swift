@@ -10,7 +10,7 @@ struct TokenInstanceAction {
         case erc875Redeem
         case erc875Sell
         case nonFungibleTransfer
-        case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: String, attributes: [String: AssetAttribute], transactionFunction: FunctionOrigin?)
+        case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: String, attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?)
     }
     var name: String {
         switch type {
@@ -28,7 +28,7 @@ struct TokenInstanceAction {
             return title
         }
     }
-    var attributes: [String: AssetAttribute] {
+    var attributes: [AttributeId: AssetAttribute] {
         switch type {
         case .erc20Send, .erc20Receive:
             return .init()
