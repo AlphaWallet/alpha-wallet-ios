@@ -127,7 +127,6 @@ class TokenInstanceWebView: UIView {
             case .symbol:
                 results[each.javaScriptName] = .string(tokenHolder.symbol)
             case .contractAddress:
-                //TODO remove forced unwrap once we get TokenHolder to use AlphaWallet.Address instead
                 results[each.javaScriptName] = .address(tokenHolder.contractAddress)
             }
         }
