@@ -83,7 +83,7 @@ class TokensViewController: UIViewController {
 
         consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
 
-        tableView.register(TokenViewCell.self, forCellReuseIdentifier: TokenViewCell.identifier)
+        tableView.register(FungibleTokenViewCell.self, forCellReuseIdentifier: FungibleTokenViewCell.identifier)
         tableView.register(EthTokenViewCell.self, forCellReuseIdentifier: EthTokenViewCell.identifier)
         tableView.register(NonFungibleTokenViewCell.self, forCellReuseIdentifier: NonFungibleTokenViewCell.identifier)
         tableView.estimatedRowHeight = 0
@@ -336,7 +336,7 @@ extension TokensViewController: UITableViewDelegate {
             )
             return cellViewModel.cellHeight
         case .erc20:
-            let cellViewModel = TokenViewCellViewModel(token: token, server: server, assetDefinitionStore: assetDefinitionStore)
+            let cellViewModel = FungibleTokenViewCellViewModel(token: token, server: server, assetDefinitionStore: assetDefinitionStore)
             return cellViewModel.cellHeight
         case .erc721:
             let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: server, assetDefinitionStore: assetDefinitionStore)
@@ -372,7 +372,7 @@ extension TokensViewController: UITableViewDataSource {
             )
             return cell
         case .erc20:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewCell.identifier, for: indexPath) as! TokenViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: FungibleTokenViewCell.identifier, for: indexPath) as! FungibleTokenViewCell
             cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             return cell
         case .erc721:
