@@ -196,7 +196,7 @@
 		29FC0CB61F8298820036089F /* TransactionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC0CB51F8298820036089F /* TransactionCoordinator.swift */; };
 		29FC0CB81F8299510036089F /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC0CB71F8299510036089F /* Coordinator.swift */; };
 		29FC9BC61F830899000209CD /* MigrationInitializerForOneChainPerDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC9BC51F830880000209CD /* MigrationInitializerForOneChainPerDatabase.swift */; };
-		29FC9BCC1F831860000209CD /* PaymentCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC9BCB1F831860000209CD /* PaymentCoordinator.swift */; };
+		29FC9BCC1F831860000209CD /* PaymentCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FC9BCB1F831860000209CD /* PaymentCoordinatorTests.swift */; };
 		29FF12F61F74799D00AFD326 /* NSAttributedString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF12F51F74799D00AFD326 /* NSAttributedString.swift */; };
 		29FF12F81F747D6C00AFD326 /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF12F71F747D6C00AFD326 /* Error.swift */; };
 		29FF12FB1F74CC8200AFD326 /* EthereumAddressRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29FF12FA1F74CC8200AFD326 /* EthereumAddressRule.swift */; };
@@ -842,7 +842,7 @@
 		29FC0CB51F8298820036089F /* TransactionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionCoordinator.swift; sourceTree = "<group>"; };
 		29FC0CB71F8299510036089F /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		29FC9BC51F830880000209CD /* MigrationInitializerForOneChainPerDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationInitializerForOneChainPerDatabase.swift; sourceTree = "<group>"; };
-		29FC9BCB1F831860000209CD /* PaymentCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentCoordinator.swift; sourceTree = "<group>"; };
+		29FC9BCB1F831860000209CD /* PaymentCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentCoordinatorTests.swift; sourceTree = "<group>"; };
 		29FF12F51F74799D00AFD326 /* NSAttributedString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSAttributedString.swift; sourceTree = "<group>"; };
 		29FF12F71F747D6C00AFD326 /* Error.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		29FF12FA1F74CC8200AFD326 /* EthereumAddressRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAddressRule.swift; sourceTree = "<group>"; };
@@ -2362,7 +2362,7 @@
 		29FC9BCA1F831849000209CD /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				29FC9BCB1F831860000209CD /* PaymentCoordinator.swift */,
+				29FC9BCB1F831860000209CD /* PaymentCoordinatorTests.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -4199,7 +4199,7 @@
 				29AD8A0E1F93FF28008E10E7 /* WalletSession.swift in Sources */,
 				CCA4FE331FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift in Sources */,
 				29FF13011F75EAD900AFD326 /* FakeKeystore.swift in Sources */,
-				29FC9BCC1F831860000209CD /* PaymentCoordinator.swift in Sources */,
+				29FC9BCC1F831860000209CD /* PaymentCoordinatorTests.swift in Sources */,
 				732E0F522022754600B39C1F /* FakeLockProtocol.swift in Sources */,
 				2961BD091FB14B6D00C4B840 /* Config.swift in Sources */,
 				290B2B6E1F92C3980053C83E /* UserDefaults.swift in Sources */,
