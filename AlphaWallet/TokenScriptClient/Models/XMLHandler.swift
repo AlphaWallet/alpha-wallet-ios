@@ -202,7 +202,7 @@ private class PrivateXMLHandler {
         return results
     }
 
-    lazy var fieldIdsAndNames: [String: String] = {
+    lazy var fieldIdsAndNames: [AttributeId: String] = {
         return Dictionary(uniqueKeysWithValues: fields.map { idAndAttribute in
             return (idAndAttribute.0, idAndAttribute.1.name)
         })
@@ -300,7 +300,7 @@ private class PrivateXMLHandler {
 
     func getToken(name: String, symbol: String, fromTokenId tokenId: TokenId, index: UInt16, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator) -> Token {
         guard tokenId != 0 else { return .empty }
-        let values: [String: AssetAttributeSyntaxValue]
+        let values: [AttributeId: AssetAttributeSyntaxValue]
         if fields.isEmpty {
             values = .init()
         } else {
@@ -335,7 +335,7 @@ private class PrivateXMLHandler {
         )
     }
 
-    func resolveAttributesBypassingCache(withTokenId tokenId: TokenId, server: RPCServer, account: Wallet) -> [String: AssetAttributeSyntaxValue] {
+    func resolveAttributesBypassingCache(withTokenId tokenId: TokenId, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
         return fields.resolve(withTokenId: tokenId, userEntryValues: .init(), server: server, account: account, additionalValues: .init())
     }
 
@@ -443,7 +443,7 @@ private class PrivateXMLHandler {
         return result
     }
 
-    private func extractFieldsForToken() -> [String: AssetAttribute] {
+    private func extractFieldsForToken() -> [AttributeId: AssetAttribute] {
         if let tokenElement = XMLHandler.getTokenAttributeTypesElement(fromRoot: xml, xmlContext: xmlContext) {
             return extractFields(fromElement: tokenElement)
         } else {
@@ -451,12 +451,12 @@ private class PrivateXMLHandler {
         }
     }
 
-    private func extractFields(forActionElement actionElement: XMLElement) -> [String: AssetAttribute] {
+    private func extractFields(forActionElement actionElement: XMLElement) -> [AttributeId: AssetAttribute] {
         return extractFields(fromElement: actionElement)
     }
 
-    private func extractFields(fromElement element: XMLElement) -> [String: AssetAttribute] {
-        var fields = [String: AssetAttribute]()
+    private func extractFields(fromElement element: XMLElement) -> [AttributeId: AssetAttribute] {
+        var fields = [AttributeId: AssetAttribute]()
         for each in XMLHandler.getAttributeTypeElements(fromElement: element, xmlContext: xmlContext) {
             guard let id = each["id"] else { continue }
             //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
@@ -553,7 +553,7 @@ public class XMLHandler {
         return privateXMLHandler.server
     }
 
-    var fieldIdsAndNames: [String: String] {
+    var fieldIdsAndNames: [AttributeId: String] {
         return privateXMLHandler.fieldIdsAndNames
     }
 
@@ -660,7 +660,7 @@ public class XMLHandler {
         }
     }
 
-    func resolveAttributesBypassingCache(withTokenId tokenId: TokenId, server: RPCServer, account: Wallet) -> [String: AssetAttributeSyntaxValue] {
+    func resolveAttributesBypassingCache(withTokenId tokenId: TokenId, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
         return privateXMLHandler.resolveAttributesBypassingCache(withTokenId: tokenId, server: server, account: account)
     }
 }

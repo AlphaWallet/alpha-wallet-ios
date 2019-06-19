@@ -144,7 +144,7 @@ class TokenAdaptor {
 
     private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String) -> Token? {
         guard let data = jsonString.data(using: .utf8), let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: data) else { return nil }
-        var values = [String: AssetAttributeSyntaxValue ]()
+        var values = [AttributeId: AssetAttributeSyntaxValue ]()
         values["tokenId"] = .init(directoryString: nonFungible.tokenId)
         values["name"] = .init(directoryString: nonFungible.name)
         values["description"] = .init(directoryString: nonFungible.description)
