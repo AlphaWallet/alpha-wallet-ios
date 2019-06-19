@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 import BigInt
 
-struct TokenViewCellViewModel {
+struct FungibleTokenViewCellViewModel {
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
     private let server: RPCServer

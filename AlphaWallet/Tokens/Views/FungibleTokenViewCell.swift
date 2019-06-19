@@ -4,8 +4,8 @@ import Foundation
 import UIKit
 import Kingfisher
 
-class TokenViewCell: UITableViewCell {
-    static let identifier = "TokenViewCell"
+class FungibleTokenViewCell: UITableViewCell {
+    static let identifier = "FungibleTokenViewCell"
 
     private let background = UIView()
     private let titleLabel = UILabel()
@@ -52,7 +52,7 @@ class TokenViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure(viewModel: TokenViewCellViewModel) {
+    func configure(viewModel: FungibleTokenViewCellViewModel) {
         selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
 
