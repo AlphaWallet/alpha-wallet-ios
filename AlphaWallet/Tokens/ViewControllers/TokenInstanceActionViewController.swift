@@ -159,20 +159,20 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             when(fulfilled: resolveTokenLevelSubscribableAttributes)
         }.then {
             when(fulfilled: fetchUserEntries)
-        }.map { (userEntryValues: [Any?]) -> [String: String] in
+        }.map { (userEntryValues: [Any?]) -> [AttributeId: String] in
             guard let values = userEntryValues as? [String] else { return .init() }
-            let zippedIdsAndValues = zip(userEntryIds, values).map { (userEntryId, value) -> (String, String)? in
+            let zippedIdsAndValues = zip(userEntryIds, values).map { (userEntryId, value) -> (AttributeId, String)? in
                 //Should always find a matching attribute
                 guard let attribute = self.action.attributes.values.first(where: { $0.userEntryId == userEntryId }) else { return nil }
                 return (userEntryId, value)
             }.compactMap { $0 }
             return Dictionary(uniqueKeysWithValues: zippedIdsAndValues)
-        }.then { userEntryValues -> Promise<[String: AssetInternalValue]> in
+        }.then { userEntryValues -> Promise<[AttributeId: AssetInternalValue]> in
             //Make sure to resolve every attribute before actionsheet appears without hitting the cache. Both action and token-level attributes (especially function-origins)
             //TODO also have to monitor for changes to the attributes, be able to flag it and update actionsheet. Maybe just a matter of getting a list of AssetAttributes and their subscribables (AssetInternalValue?), subscribing to them so that we can indicate changes?
             let (_, tokenIdBased) = tokenLevelAttributeValues.splitAttributesIntoSubscribablesAndNonSubscribables
             return self.resolveActionAttributeValues(withUserEntryValues: userEntryValues, tokenLevelTokenIdOriginAttributeValues: tokenIdBased)
-        }.map { (values: [String: AssetInternalValue]) -> [String: AssetInternalValue] in
+        }.map { (values: [AttributeId: AssetInternalValue]) -> [AttributeId: AssetInternalValue] in
             //Force unwrap because we know they have been resolved earlier in this promise chain
             let allAttributesAndValues = values.merging(tokenLevelAttributeValues.mapValues { $0.value.resolvedValue! }) { (_, new) in new }
             return allAttributesAndValues
@@ -229,12 +229,12 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         //TODO catch
     }
 
-    private func resolveActionAttributeValues(withUserEntryValues userEntryValues: [String: String], tokenLevelTokenIdOriginAttributeValues: [String: AssetAttributeSyntaxValue]) -> Promise<[String: AssetInternalValue]> {
+    private func resolveActionAttributeValues(withUserEntryValues userEntryValues: [AttributeId: String], tokenLevelTokenIdOriginAttributeValues: [AttributeId: AssetAttributeSyntaxValue]) -> Promise<[AttributeId: AssetInternalValue]> {
         return Promise { seal in
             //TODO Not reading/writing from/to cache here because we haven't worked out volatility of attributes yet. So we assume all attributes used by an action as volatile, have to fetch the latest
             let attributeNameValues = action.attributes.resolve(withTokenId: tokenId, userEntryValues: userEntryValues, server: server, account: session.account, additionalValues: tokenLevelTokenIdOriginAttributeValues).mapValues { $0.value }
             var allResolved = false
-            let attributes = AssetAttributeValues(attributeNameValues: attributeNameValues)
+            let attributes = AssetAttributeValues(attributeValues: attributeNameValues)
             let resolvedAttributeNameValues = attributes.resolve() { updatedValues in
                 guard !allResolved && attributes.isAllResolved else { return }
                 allResolved = true

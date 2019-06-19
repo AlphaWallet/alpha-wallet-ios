@@ -38,7 +38,7 @@ class TokenHolder {
         return tokens[0].symbol
     }
 
-    var values: [String: AssetAttributeSyntaxValue] {
+    var values: [AttributeId: AssetAttributeSyntaxValue] {
         return tokens[0].values
     }
 

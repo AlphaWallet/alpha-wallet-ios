@@ -4,41 +4,41 @@ import Foundation
 
 //This class makes it easier to listen to when all the attribute values are available (specifically values from smart contract function calls are available asynchronously)
 class AssetAttributeValues {
-    private let attributeNameValues: [String: AssetInternalValue]
-    private var resolvedAttributeNameValues = [String: AssetInternalValue]()
+    private let attributeValues: [AttributeId: AssetInternalValue]
+    private var resolvedAttributeValues = [AttributeId: AssetInternalValue]()
 
     var isAllResolved: Bool {
-        return resolvedAttributeNameValues.count == attributeNameValues.count
+        return resolvedAttributeValues.count == attributeValues.count
     }
 
-    init(attributeNameValues: [String: AssetInternalValue]) {
-        self.attributeNameValues = attributeNameValues
+    init(attributeValues: [AttributeId: AssetInternalValue]) {
+        self.attributeValues = attributeValues
     }
 
-    convenience init(attributeNameValues: [String: AssetAttributeSyntaxValue]) {
-        self.init(attributeNameValues: attributeNameValues.mapValues { $0.value })
+    convenience init(attributeValues: [AttributeId: AssetAttributeSyntaxValue]) {
+        self.init(attributeValues: attributeValues.mapValues { $0.value })
     }
 
-    func resolve(withUpdatedBlock block: @escaping ([String: AssetInternalValue]) -> Void) -> [String: AssetInternalValue] {
+    func resolve(withUpdatedBlock block: @escaping ([AttributeId: AssetInternalValue]) -> Void) -> [AttributeId: AssetInternalValue] {
         var subscribedAttributes = [Subscribable<AssetInternalValue>]()
-        for (name, value) in attributeNameValues {
+        for (name, value) in attributeValues {
             if case .subscribable(let subscribable) = value {
                 if let subscribedValue = subscribable.value {
-                    resolvedAttributeNameValues[name] = subscribedValue
+                    resolvedAttributeValues[name] = subscribedValue
                 } else {
                     if !subscribedAttributes.contains(where: { $0 === subscribable }) {
                         subscribedAttributes.append(subscribable)
                         subscribable.subscribe { value in
                             guard let value = value else { return }
-                            self.resolvedAttributeNameValues[name] = value
-                            block(self.resolvedAttributeNameValues)
+                            self.resolvedAttributeValues[name] = value
+                            block(self.resolvedAttributeValues)
                         }
                     }
                 }
             } else {
-                resolvedAttributeNameValues[name] = value
+                resolvedAttributeValues[name] = value
             }
         }
-        return resolvedAttributeNameValues
+        return resolvedAttributeValues
     }
 }

@@ -150,14 +150,14 @@ enum AssetAttributeValueUsableAsFunctionArguments {
         }
     }
 
-    static func dictionary(fromAssetAttributeKeyValues assetAttributeKeyValues: [String: AssetInternalValue]) -> [String: AssetAttributeValueUsableAsFunctionArguments] {
-        let availableKeyValues: [(String, AssetAttributeValueUsableAsFunctionArguments)] = assetAttributeKeyValues.map { key, value in
+    static func dictionary(fromAssetAttributeKeyValues assetAttributeKeyValues: [AttributeId: AssetInternalValue]) -> [AttributeId: AssetAttributeValueUsableAsFunctionArguments] {
+        let availableKeyValues: [(AttributeId, AssetAttributeValueUsableAsFunctionArguments)] = assetAttributeKeyValues.map { key, value in
             if let value = AssetAttributeValueUsableAsFunctionArguments(assetAttribute: value) {
                 return (key, value)
             } else {
                 return nil
             }
         }.compactMap { $0 }
-        return Dictionary(uniqueKeysWithValues: availableKeyValues )
+        return Dictionary(uniqueKeysWithValues: availableKeyValues)
     }
 }
