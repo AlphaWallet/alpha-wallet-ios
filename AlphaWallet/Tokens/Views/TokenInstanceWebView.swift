@@ -62,10 +62,10 @@ class TokenInstanceWebView: UIView {
 
     //Implementation: String concatentation is slow, but it's not obvious at all
     func update(withTokenHolder tokenHolder: TokenHolder, isFungible: Bool, isFirstUpdate: Bool = true) {
-        var token = [String: String]()
+        var token = [AttributeId: String]()
         token["_count"] = String(tokenHolder.count)
 
-        let attributeValues = AssetAttributeValues(attributeNameValues: tokenHolder.values)
+        let attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
         let resolvedAttributeNameValues = attributeValues.resolve { [weak self] _ in
             guard let strongSelf = self else { return }
             guard isFirstUpdate else { return }

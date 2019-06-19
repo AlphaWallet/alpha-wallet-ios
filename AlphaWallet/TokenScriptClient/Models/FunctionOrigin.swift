@@ -128,7 +128,7 @@ struct FunctionOrigin {
         self.functionType = functionType
     }
 
-    func extractValue(withTokenId tokenId: TokenId, account: Wallet, server: RPCServer, attributeAndValues: [String: AssetInternalValue], callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator) -> AssetInternalValue? {
+    func extractValue(withTokenId tokenId: TokenId, account: Wallet, server: RPCServer, attributeAndValues: [AttributeId: AssetInternalValue], callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator) -> AssetInternalValue? {
         guard let functionName = functionType.functionName else { return nil }
         guard let subscribable = callSmartContractFunction(
                 forAttributeId: attributeId,
@@ -179,7 +179,7 @@ struct FunctionOrigin {
     }
 
     //We encode slightly differently depending on whether the function is a call or a transaction. Specifically addresses should be a string (actually EthereumAddress would do too, but we don't it so we don't have to import the framework here) for calls, which uses Web3Swift, and Address for calls (which uses vendored TrustCore)
-    private func formArguments(withTokenId tokenId: TokenId, attributeAndValues: [String: AssetInternalValue], account: Wallet) -> [AnyObject]? {
+    private func formArguments(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], account: Wallet) -> [AnyObject]? {
         let arguments: [AnyObject] = functionType.inputs.compactMap {
             switch $0 {
             case .ref(let ref, let solidityType):
@@ -189,9 +189,9 @@ struct FunctionOrigin {
                     return AssetAttributeValueUsableAsFunctionArguments.address(account.address).coerce(toArgumentType: solidityType, forFunctionType: functionType)
                 case .tokenId, .tokenID:
                     return AssetAttributeValueUsableAsFunctionArguments.uint(tokenId).coerce(toArgumentType: solidityType, forFunctionType: functionType)
-                case .attribute(let attributId):
+                case .attribute(let attributeId):
                     let availableAttributes = AssetAttributeValueUsableAsFunctionArguments.dictionary(fromAssetAttributeKeyValues: attributeAndValues)
-                    guard let value = availableAttributes[attributId] else { return nil }
+                    guard let value = availableAttributes[attributeId] else { return nil }
                     return value.coerce(toArgumentType: solidityType, forFunctionType: functionType)
                 }
             case .value(let value, let solidityType):
@@ -202,7 +202,7 @@ struct FunctionOrigin {
         return arguments
     }
 
-    private func formTransactionPayload(withTokenId tokenId: TokenId, attributeAndValues: [String: AssetInternalValue], server: RPCServer, account: Wallet) -> Data? {
+    private func formTransactionPayload(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> Data? {
         assert(functionType.isFunctionTransaction)
         guard let functionName = functionType.functionName else { return nil }
         guard let arguments = formArguments(withTokenId: tokenId, attributeAndValues: attributeAndValues, account: account) else { return nil }
@@ -218,7 +218,7 @@ struct FunctionOrigin {
         }
     }
 
-    private func formValue(withTokenId tokenId: TokenId, attributeAndValues: [String: AssetInternalValue], server: RPCServer, account: Wallet) -> BigUInt? {
+    private func formValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> BigUInt? {
         guard let value = functionType.inputValue else { return nil }
         switch value {
         case .ref(let ref, let solidityType):
@@ -239,7 +239,7 @@ struct FunctionOrigin {
     }
 
     //TODO duplicated from InCoordinator.importPaidSignedOrder. Extract
-    func postTransaction(withTokenId tokenId: TokenId, attributeAndValues: [String: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<Void> {
+    func postTransaction(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<Void> {
         assert(functionType.isTransaction)
         let payload: Data
         let value: BigUInt
@@ -258,7 +258,7 @@ struct FunctionOrigin {
         return postTransaction(withPayload: payload, value: value, server: server, session: session, keystore: keystore)
     }
 
-    func generateDataAndValue(withTokenId tokenId: TokenId, attributeAndValues: [String: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> (Data?, BigUInt)? {
+    func generateDataAndValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> (Data?, BigUInt)? {
         assert(functionType.isTransaction)
         let payload: Data?
         let value: BigUInt
@@ -297,7 +297,7 @@ struct FunctionOrigin {
     private func callSmartContractFunction(
             forAttributeId attributeId: AttributeId,
             tokenId: TokenId,
-            attributeAndValues: [String: AssetInternalValue],
+            attributeAndValues: [AttributeId: AssetInternalValue],
             account: Wallet,
             server: RPCServer,
             originContract: AlphaWallet.Address,

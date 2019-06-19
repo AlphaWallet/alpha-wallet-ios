@@ -19,7 +19,7 @@ struct Token {
     let name: String
     let symbol: String
     let status: Status
-    let values: [String: AssetAttributeSyntaxValue]
+    let values: [AttributeId: AssetAttributeSyntaxValue]
 
     static var empty: Token {
         return Token(

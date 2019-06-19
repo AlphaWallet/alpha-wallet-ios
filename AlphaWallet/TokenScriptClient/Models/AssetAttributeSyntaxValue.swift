@@ -61,7 +61,7 @@ struct AssetAttributeSyntaxValue {
     }
 }
 
-extension Dictionary where Key == String, Value == AssetAttributeSyntaxValue {
+extension Dictionary where Key == AttributeId, Value == AssetAttributeSyntaxValue {
     //This is useful for implementing 3-phase resolution of attributes: resolve the immediate ones (non-function origins), then use those values to resolve the function-origins. There are no user-entry origins at the token level, so we don't need to check for them
     var splitAttributesIntoSubscribablesAndNonSubscribables: (subscribables: [Key: Value], nonSubscribables: [Key: Value]) {
         return (
