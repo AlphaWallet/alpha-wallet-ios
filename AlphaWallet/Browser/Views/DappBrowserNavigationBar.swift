@@ -24,6 +24,7 @@ private struct Layout {
 }
 
 final class DappBrowserNavigationBar: UINavigationBar {
+    private let stackView = UIStackView()
     private let moreButton = UIButton()
     private let changeServerButton = UIButton()
     private let cancelEditingButton = UIButton()
@@ -53,6 +54,9 @@ final class DappBrowserNavigationBar: UINavigationBar {
             }
             hide.hideAll()
             show.showAll()
+            UIView.animate(withDuration: 0.3) {
+                self.stackView.layoutIfNeeded()
+            }
         }
     }
     var isBrowserOnly: Bool {
@@ -119,7 +123,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
 
         changeServerButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         changeServerButton.setContentHuggingPriority(.required, for: .horizontal)
-        let stackView = UIStackView(arrangedSubviews: [
+        stackView.addArrangedSubviews([
             spacer0,
             backButton,
             forwardButton,
@@ -136,7 +140,6 @@ final class DappBrowserNavigationBar: UINavigationBar {
         stackView.axis = .horizontal
         stackView.distribution = .fill
         stackView.spacing = 4
-
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
@@ -200,9 +203,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         dismissKeyboard()
         switch state {
         case .editingURLTextField:
-            UIView.animate(withDuration: 0.3) {
-                self.state = .notEditingURLTextField
-            }
+            self.state = .notEditingURLTextField
         case .notEditingURLTextField, .browserOnly:
             //We especially don't want to switch (and animate) to .notEditingURLTextField when we are closing .browserOnly mode
             break
@@ -280,9 +281,7 @@ extension DappBrowserNavigationBar: UITextFieldDelegate {
     }
 
     public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
-        UIView.animate(withDuration: 0.3) {
-            self.state = .editingURLTextField
-        }
+        self.state = .editingURLTextField
         return true
     }
 }
