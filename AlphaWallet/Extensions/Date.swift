@@ -60,4 +60,8 @@ public extension Date {
     func formatAsShortDateString(withTimezone timezone: TimeZone? = nil) -> String {
         return format("dd MMM yyyy", withTimeZone: timezone)
     }
+
+    func isEarlierThan(date: Date) -> Bool {
+        return date.timeIntervalSince(self) > 0
+    }
 }
