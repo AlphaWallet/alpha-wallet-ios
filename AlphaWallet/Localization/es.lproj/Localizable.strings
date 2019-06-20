@@ -271,6 +271,8 @@
 "a.claim.token.failed.title" = "Enlace de ticket no válido";
 "a.claim.token.invalidLink.tryAgain" = "Enlace no válido, inténtalo de nuevo";
 "a.claim.token.noConnectivity.tryAgain" = "No estás conectado a internet, inténtalo de nuevo";
+"a.claim.token.linkExpired" = "Link has expired";
+"a.claim.token.linkAlreadyRedeemed" = "Link has already been redeemed";
 "a.claim.token.failed.notEnoughEth.title" = "No tienes suficiente ETH para importar este ticket";
 "a.claim.token.validating.title" = "Procesando...";
 "a.claim.token.promptImport.title" = "¿Importar?";
