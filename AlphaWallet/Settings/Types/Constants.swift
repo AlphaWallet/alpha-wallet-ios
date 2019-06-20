@@ -77,8 +77,9 @@ public struct Constants {
     public static let kovanEtherscanContractDetailsWebPageURL = "https://kovan.etherscan.io/address/"
     public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
     public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"
-    public static let xDaiContractPage = "https://blockscout.com/poa/dai/address/"
-    public static let poaContractPage = "https://blockscout.com/poa/core/address/"
+    //Can't use https://blockscout.com/poa/dai/address/ even though it ultimately redirects there because blockscout (tested on 20190620), blockscout.com is only able to show that URL after the address has been searched (with the ?q= URL)
+    public static let xDaiContractPage = "https://blockscout.com/poa/dai/search?q="
+    public static let poaContractPage = "https://blockscout.com/poa/core/search?q="
     public static let goerliContractPage = "https://goerli.etherscan.io/address/"
 
     //OpenSea links for erc721 assets
