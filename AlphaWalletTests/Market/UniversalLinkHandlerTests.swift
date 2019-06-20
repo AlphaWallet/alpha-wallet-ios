@@ -12,12 +12,13 @@ class UniversalLinkHandlerTests: XCTestCase {
     func testUniversalLinkParser() {
         let server: RPCServer = .main
         let testUrl = "https://aw.app/AQAAAAAAAACjNHyO0TRETCUWmHLJCmNg1Cs2kQFxEtQiQ269SZP2r2Y6CETiCqCE3HGQa63LYjsaCOccJi0mj9bpsmnZCwFkjVcNaaJ6Ed8lVU83UiGILQZ4CcFhHA=="
-        if let signedOrder = UniversalLinkHandler(server: server).parseUniversalLink(url: testUrl, prefix: RPCServer.main.magicLinkPrefix.absoluteString) {
-            XCTAssertGreaterThanOrEqual(signedOrder.signature.count, 130)
-            let url = UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrder)
-            print(url)
-            XCTAssertEqual(testUrl, url)
+        guard let signedOrder = UniversalLinkHandler(server: server).parseUniversalLink(url: testUrl, prefix: RPCServer.main.magicLinkPrefix.absoluteString) else {
+            XCTFail("Not able to extract an order from MagicLink")
+            return
         }
+        XCTAssertGreaterThanOrEqual(signedOrder.signature.count, 130)
+        let url = UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrder)
+        XCTAssertEqual(testUrl, url)
     }
     
     func testCreateUniversalLink() {
@@ -40,7 +41,6 @@ class UniversalLinkHandlerTests: XCTestCase {
 //        let account = try! EtherKeystore().getAccount(for: Address(string: "0x007bEe82BDd9e866b2bd114780a47f2261C684E3")!)
 //        let signedOrder = try! OrderHandler().signOrders(orders: testOrders, account: account!)
 //        let url = UniversalLinkHandler().createUniversalLink(signedOrder: signedOrder[0])
-//        print(url)
     }
 
 }
