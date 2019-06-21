@@ -255,7 +255,7 @@ class UniversalLinkCoordinator: Coordinator {
         let r = signedOrder.signature.substring(with: Range(uncheckedBounds: (2, 66)))
         checkIfLinkClaimed(r: r) { claimed in
             if claimed {
-                self.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                self.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed())
             } else {
                 self.completeOrderHandling(signedOrder: signedOrder)
             }
@@ -279,9 +279,8 @@ class UniversalLinkCoordinator: Coordinator {
                     indices: signedOrder.order.indices,
                     balance: balance
             )
-
             if filteredTokens.isEmpty {
-                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenInvalidLinkTryAgain())
+                strongSelf.showImportError(errorMessage: R.string.localizable.aClaimTokenLinkAlreadyRedeemed())
                 return
             }
 
@@ -292,6 +291,10 @@ class UniversalLinkCoordinator: Coordinator {
 
             strongSelf.completeOrderHandling(signedOrder: signedOrder)
         }
+    }
+
+    private func isOrderExpired(_ signedOrder: SignedOrder) -> Bool {
+        return Date(timeIntervalSince1970: TimeInterval(signedOrder.order.expiry)).isEarlierThan(date: Date())
     }
 
     //Returns true if handled
@@ -310,6 +313,12 @@ class UniversalLinkCoordinator: Coordinator {
         }
         importTokenViewController?.url = url
         importTokenViewController?.contract = signedOrder.order.contractAddress
+
+        if isOrderExpired(signedOrder) {
+            showImportError(errorMessage: R.string.localizable.aClaimTokenLinkExpired())
+            return true
+        }
+
         let recoveredSigner = ecrecover(signedOrder: signedOrder)
         switch recoveredSigner {
         case .success(let ethereumAddress):
@@ -424,7 +433,7 @@ class UniversalLinkCoordinator: Coordinator {
     private func stringEncodeIndices(_ indices: [UInt16]) -> String {
         return indices.map(String.init).joined(separator: ",")
     }
-    
+
     private func checkERC875TokensAreAvailable(indices: [UInt16], balance: [String]) -> [String] {
         var filteredTokens = [String]()
         if balance.count < indices.count {

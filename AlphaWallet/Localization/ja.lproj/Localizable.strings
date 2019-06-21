@@ -271,6 +271,8 @@
 "a.claim.token.failed.title" = "無効なチケットのリンク";
 "a.claim.token.invalidLink.tryAgain" = "無効なリンクです。もう一度試してください";
 "a.claim.token.noConnectivity.tryAgain" = "インターネットに接続していません。もう一度試してください";
+"a.claim.token.linkExpired" = "Link has expired";
+"a.claim.token.linkAlreadyRedeemed" = "Link has already been redeemed";
 "a.claim.token.failed.notEnoughEth.title" = "このチケットをインポートするのに十分な ETH がありません";
 "a.claim.token.validating.title" = "処理しています...";
 "a.claim.token.promptImport.title" = "インポート?";
