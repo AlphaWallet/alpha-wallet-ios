@@ -192,7 +192,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     }
 
     @objc func send() {
-        let input = targetAddressTextField.value
+        let input = targetAddressTextField.value.trimmed
         guard let address = AlphaWallet.Address(string: input) else { return displayError(error: Errors.invalidAddress) }
         let amountString = amountTextField.ethCost
         let parsedValue: BigInt? = {
