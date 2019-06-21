@@ -271,6 +271,8 @@
 "a.claim.token.failed.title" = "无效的MagicLink链接";
 "a.claim.token.invalidLink.tryAgain" = "链接无效，请重试";
 "a.claim.token.noConnectivity.tryAgain" = "Not connected to the internet, please try again";
+"a.claim.token.linkExpired" = "Link has expired";
+"a.claim.token.linkAlreadyRedeemed" = "Link has already been redeemed";
 "a.claim.token.failed.notEnoughEth.title" = "你没有足够的以太币来购买 MagicLink 内的门票";
 "a.claim.token.validating.title" = "处理中...";
 "a.claim.token.promptImport.title" = "导入?";
