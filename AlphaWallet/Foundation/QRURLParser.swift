@@ -10,6 +10,8 @@ struct ParserResult: Equatable {
 
 struct QRURLParser {
     static func from(string: String) -> ParserResult? {
+        let string = string.trimmed
+        //TODO improve parsing. At least only replace the prefix pay- instead of the whole string
         let result = string.replacingOccurrences(of: "pay-", with: "")
         let parts = result.components(separatedBy: ":")
         if parts.count == 1, let address = parts.first.flatMap({ AlphaWallet.Address(string: $0) }) {

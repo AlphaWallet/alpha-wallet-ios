@@ -436,7 +436,7 @@ private class PrivateXMLHandler {
             guard let name = eachContractElement["name"] else { continue }
             let addressElements = XMLHandler.getAddressElements(fromContractElement: eachContractElement, xmlContext: xmlContext)
             result[name] = addressElements.compactMap {
-                guard let address = $0.text.flatMap({ AlphaWallet.Address(string: $0) }), let chainId = $0["network"].flatMap({ Int($0) }) else { return nil }
+                guard let address = $0.text.flatMap({ AlphaWallet.Address(string: $0.trimmed) }), let chainId = $0["network"].flatMap({ Int($0) }) else { return nil }
                 return (address: address, server: RPCServer(chainID: chainId))
             }
         }
@@ -811,7 +811,7 @@ extension XMLHandler {
     }
 
     fileprivate static func getRecipientAddress(fromEthereumFunctionElement ethereumFunctionElement: XMLElement, xmlContext: XmlContext) -> AlphaWallet.Address? {
-        return ethereumFunctionElement.at_xpath("to".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?.text.flatMap { AlphaWallet.Address(string: $0) }
+        return ethereumFunctionElement.at_xpath("to".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?.text.flatMap { AlphaWallet.Address(string: $0.trimmed) }
     }
 
     static func getTokenScriptTokenViewIconifiedHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
