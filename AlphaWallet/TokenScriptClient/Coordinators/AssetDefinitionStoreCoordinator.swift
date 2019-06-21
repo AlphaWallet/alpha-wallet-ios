@@ -114,6 +114,12 @@ class AssetDefinitionStoreCoordinator: Coordinator {
     /// Return true if handled
     func handleOpen(url: URL) -> Bool {
         guard let overridesDirectory = AssetDefinitionStoreCoordinator.overridesDirectory else { return false }
+        //Guard against replacing the indices file. This shouldn't be possible because we should have configured the app to only accept AirDrops for files with known extensions. This is purely defensive
+        guard url.lastPathComponent != TokenScript.indicesFileName else {
+            try? FileManager.default.removeItem(at: url)
+            return true
+        }
+
         //TODO improve or remove checking here. getHoldingContracts() below already check for schema support. We might have to show the error in wallet if we keep the file instead. We are deleting the files for now
         let isTokenScriptOrXml: Bool
         switch XMLHandler.checkTokenScriptSchema(forPath: url) {
