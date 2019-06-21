@@ -17,6 +17,7 @@ extension AlphaWallet {
         }
 
         init?(string: String) {
+            let string = string.add0x
             guard string.count == 42 else { return nil }
             guard let address = TrustKeystore.Address(string: string) else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
@@ -24,6 +25,7 @@ extension AlphaWallet {
 
         //TODO not sure if we should keep this
         init?(uncheckedAgainstNullAddress string: String) {
+            let string = string.add0x
             guard string.count == 42 else { return nil }
             guard let address = TrustKeystore.Address(uncheckedAgainstNullAddress: string) else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
