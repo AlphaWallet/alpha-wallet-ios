@@ -129,6 +129,8 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
             guard let fileName = tokenScriptFileIndices.nonConflictingFileName(forContract: contract) else { return xmlContents }
             guard let entities = tokenScriptFileIndices.contractsToEntities[fileName] else { return xmlContents }
             for each in entities {
+                //Guard against XML entity injection
+                guard !each.fileName.contains("/") else { continue }
                 let url = directory.appendingPathComponent(each.fileName)
                 guard let contents = try? String(contentsOf: url) else { continue }
                 xmlContents = (xmlContents as NSString).replacingOccurrences(of: "&\(each.name);", with: contents)
