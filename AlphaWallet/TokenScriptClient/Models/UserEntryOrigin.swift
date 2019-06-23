@@ -21,7 +21,7 @@ struct UserEntryOrigin {
     func extractValue(fromUserEntry userEntry: String) -> AssetInternalValue? {
         switch asType {
         case .address:
-            return AlphaWallet.Address(string: userEntry).flatMap { .address($0) }
+            return AlphaWallet.Address(string: userEntry.trimmed).flatMap { .address($0) }
         case .uint:
             return BigUInt(userEntry).flatMap { .uint($0) }
         case .utf8:

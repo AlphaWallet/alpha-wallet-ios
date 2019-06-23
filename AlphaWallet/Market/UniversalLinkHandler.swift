@@ -101,7 +101,7 @@ public class UniversalLinkHandler {
     private func handleNormalLink(linkBytes: [UInt8]) -> SignedOrder? {
         let price = getPriceFromLinkBytes(linkBytes: linkBytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
-        guard let contractAddress = AlphaWallet.Address(string: getContractAddressFromLinkBytes(linkBytes: linkBytes)) else { return nil }
+        guard let contractAddress = getNonNullContractAddressFromLinkBytes(linkBytes: linkBytes) else { return nil }
         let tokenIndices = getTokenIndicesFromLinkBytes(linkBytes: linkBytes)
         let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes)
         let order = Order(
@@ -159,7 +159,7 @@ public class UniversalLinkHandler {
         bytes.remove(at: 0) //remove encoding byte
         let price = getPriceFromLinkBytes(linkBytes: bytes)
         let expiry = getExpiryFromLinkBytes(linkBytes: bytes)
-        guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: getContractAddressFromLinkBytes(linkBytes: bytes)) else { return nil }
+        guard let contractAddress = getNonNullContractAddressFromLinkBytes(linkBytes: bytes) else { return nil }
         let tokenIds = getTokenIdsFromSpawnableLink(linkBytes: bytes)
         let (v, r, s) = getVRSFromLinkBytes(linkBytes: bytes)
         let order = Order(
@@ -265,12 +265,13 @@ public class UniversalLinkHandler {
         return BigUInt(expiry, radix: 16)!
     }
 
-    private func getContractAddressFromLinkBytes(linkBytes: [UInt8]) -> String {
+    //Specifically not for null (0x0...0) address
+    private func getNonNullContractAddressFromLinkBytes(linkBytes: [UInt8]) -> AlphaWallet.Address? {
         var contractAddrBytes = [UInt8]()
         for i in 8...27 {
             contractAddrBytes.append(linkBytes[i])
         }
-        return Data(bytes: contractAddrBytes).hex()
+        return AlphaWallet.Address(string: Data(bytes: contractAddrBytes).hex())
     }
 
     private func getTokenIndicesFromLinkBytes(linkBytes: [UInt8]) -> [UInt16] {
