@@ -91,7 +91,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -133,6 +133,20 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             }
         }
         tableView.reloadData()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard let buttonsBarHolder = buttonsBar.superview else {
+            tableView.contentInset = .zero
+            return
+        }
+        //TODO We are basically calculating the bottom safe area here. Don't rely on the internals of how buttonsBar and it's parent are laid out
+        if buttonsBar.isEmpty {
+            tableView.contentInset = .init(top: 0, left: 0, bottom: buttonsBarHolder.frame.size.height - buttonsBar.frame.size.height, right: 0)
+        } else {
+            tableView.contentInset = .init(top: 0, left: 0, bottom: tableView.frame.size.height - buttonsBarHolder.frame.origin.y, right: 0)
+        }
     }
 
     func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
