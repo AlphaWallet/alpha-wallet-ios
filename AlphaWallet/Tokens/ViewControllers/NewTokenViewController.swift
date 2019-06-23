@@ -369,8 +369,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     }
 
     func redetectToken() {
-        let contract = addressTextField.value
-        if let contract = AlphaWallet.Address(string: addressTextField.value) {
+        let contract = addressTextField.value.trimmed
+        if let contract = AlphaWallet.Address(string: contract) {
             updateContractValue(value: contract.eip55String)
         }
     }
@@ -413,7 +413,7 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     }
 
     func didPaste(in textField: AddressTextField) {
-        updateContractValue(value: textField.value)
+        updateContractValue(value: textField.value.trimmed)
         view.endEditing(true)
     }
 
