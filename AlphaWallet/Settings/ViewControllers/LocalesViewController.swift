@@ -56,10 +56,6 @@ class LocalesViewController: UIViewController {
 }
 
 extension LocalesViewController: UITableViewDelegate, UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
-    }
-
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         guard let viewModel = viewModel else { return 0 }
         return viewModel.locales.count
