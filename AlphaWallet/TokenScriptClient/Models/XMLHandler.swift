@@ -415,7 +415,11 @@ private class PrivateXMLHandler {
         case .erc721:
             actions = [.nonFungibleTransfer]
         case .erc875:
-            actions = [.erc875Redeem, .erc875Sell, .nonFungibleTransfer]
+            if contractAddress.isFifaTicketcontract {
+                actions = [.erc875Redeem, .erc875Sell, .nonFungibleTransfer]
+            } else {
+                actions = [.erc875Sell, .nonFungibleTransfer]
+            }
         }
         return actions.map { .init(type: $0) }
     }
