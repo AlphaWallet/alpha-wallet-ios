@@ -44,7 +44,7 @@ enum Dapps {
         Dapp(name: "expo", description: "Short/Leverag ETH", url: "https://www.expotrading.com/trade", cat: "Finance"),
         Dapp(name: "MakerDAO CDP Portal", description: "Where you can interact with the Dai Credit System", url: "https://cdp.makerdao.com/", cat: "Finance"),
         Dapp(name: "Nexo", description: "Instant Crypto Loans", url: "https://nexo.io/", cat: "Finance"),
-        Dapp(name: "AirSwap", description: "Peer-to-Peer trading on Ethereum", url: "https://airswap.io", cat: "Exchange"),
+        Dapp(name: "AirSwap", description: "Peer-to-Peer trading on Ethereum", url: "https://instant.airswap.io", cat: "Exchange"),
         Dapp(name: "Chibi Fighters", description: "Chibi Fighters are fierce little warriors that know no mercy", url: "https://chibifighters.io", cat: "Games"),
         Dapp(name: "CryptoKitties", description: "Collect and breed digital cats!", url: "https://cryptokitties.co", cat: "Games"),
         Dapp(name: "Zerion", description: "Trade and manage your digital assets across different wallets in one interface", url: "https://zerion.io", cat: "Finance"),
