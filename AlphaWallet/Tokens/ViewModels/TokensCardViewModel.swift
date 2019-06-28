@@ -23,7 +23,6 @@ struct TokensCardViewModel {
             switch token.type {
             case .erc875:
                 return [
-                    .init(type: .erc875Redeem),
                     .init(type: .erc875Sell),
                     .init(type: .nonFungibleTransfer)
                 ]
