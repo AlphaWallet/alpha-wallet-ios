@@ -142,10 +142,16 @@ final class DappBrowserNavigationBar: UINavigationBar {
         stackView.spacing = 4
         addSubview(stackView)
 
+        let leadingAnchorConstraint = stackView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: 10)
+        let trailingAnchorConstraint = stackView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: -10)
+        //We really want these constraints to be `.required`, but can't because it AutoLayout complains the instance `this` is created, as it probably starts with a frame of zero and can't fulfill the constants
+        leadingAnchorConstraint.priority = .required - 1
+        trailingAnchorConstraint.priority = .required - 1
+
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
-            stackView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: 10),
-            stackView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: -10),
+            leadingAnchorConstraint,
+            trailingAnchorConstraint,
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
 
             backButton.widthAnchor.constraint(equalToConstant: Layout.width),
