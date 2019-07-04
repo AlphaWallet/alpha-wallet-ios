@@ -17,7 +17,11 @@ public struct PrivateKeyRule<T: Equatable>: RuleType {
         if let str = value as? String {
             //allows for private key import to have 0x or not
             let drop0xKey = str.drop0x
-            return (drop0xKey.count != 64) ? validationError : nil
+            let regex = try! NSRegularExpression(pattern: "^[0-9a-fA-F]{64}$")
+            let range = NSRange(location: 0, length: drop0xKey.utf16.count)
+            let result = regex.matches(in: drop0xKey, range: range)
+            let matched = !result.isEmpty
+            return matched ? nil : validationError
         }
         return value != nil ? nil : validationError
     }

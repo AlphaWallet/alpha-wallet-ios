@@ -2,7 +2,6 @@
 
 import Foundation
 import UIKit
-import TrustKeystore
 import Result
 
 protocol ConfirmCoordinatorDelegate: class {
@@ -11,7 +10,7 @@ protocol ConfirmCoordinatorDelegate: class {
 
 class ConfirmCoordinator: Coordinator {
     private let session: WalletSession
-    private let account: Account
+    private let account: EthereumAccount
     private let keystore: Keystore
     private let configurator: TransactionConfigurator
     private let type: ConfirmType
@@ -26,7 +25,7 @@ class ConfirmCoordinator: Coordinator {
         session: WalletSession,
         configurator: TransactionConfigurator,
         keystore: Keystore,
-        account: Account,
+        account: EthereumAccount,
         type: ConfirmType
     ) {
         self.navigationController = navigationController

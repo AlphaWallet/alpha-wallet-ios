@@ -41,7 +41,7 @@ class TransactionSigningTests: XCTestCase {
     }
 
     func testSignTransaction() {
-        let account: Account = .make(address: AlphaWallet.Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!)
+        let account: EthereumAccount = .make(address: AlphaWallet.Address(uncheckedAgainstNullAddress: "0x3535353535353535353535353535353535353535")!)
         let transaction = UnsignedTransaction(
             value: BigInt("1000000000000000000"),
             account: account,

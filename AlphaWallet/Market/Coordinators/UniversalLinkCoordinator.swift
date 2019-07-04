@@ -53,7 +53,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
     private var walletAddress: AlphaWallet.Address {
         //TODO pass in the wallet instead
-        return (try! EtherKeystore()).recentlyUsedWallet!.address
+        return EtherKeystore.current!.address
     }
 
     var coordinators: [Coordinator] = []
@@ -481,7 +481,7 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func makeTokenHolderImpl(name: String, symbol: String, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
         //TODO pass in the wallet instead
-        let account = (try! EtherKeystore()).recentlyUsedWallet!
+        let account = EtherKeystore.current!
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore)
         for i in 0..<bytes32Tokens.count {
@@ -537,15 +537,6 @@ class UniversalLinkCoordinator: Coordinator {
 
 	private func showImportSuccessful() {
 		updateImportTokenController(with: .succeeded)
-		promptBackupWallet()
-	}
-
-    private func promptBackupWallet() {
-        guard let keystore = try? EtherKeystore() else { return }
-		let coordinator = PromptBackupCoordinator(keystore: keystore, walletAddress: walletAddress, config: config)
-		addCoordinator(coordinator)
-		coordinator.delegate = self
-		coordinator.start()
 	}
 
     private func showImportError(errorMessage: String, cost: ImportMagicTokenViewControllerViewModel.Cost? = nil) {
@@ -642,14 +633,4 @@ extension UniversalLinkCoordinator: CanOpenURL {
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
     }
-}
-
-extension UniversalLinkCoordinator: PromptBackupCoordinatorDelegate {
-	func viewControllerForPresenting(in coordinator: PromptBackupCoordinator) -> UIViewController? {
-		return delegate?.viewControllerForPresenting(in: self)
-	}
-
-	func didFinish(in coordinator: PromptBackupCoordinator) {
-		removeCoordinator(coordinator)
-	}
 }

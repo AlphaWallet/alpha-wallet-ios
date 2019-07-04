@@ -33,10 +33,12 @@ class InitialWalletCreationCoordinator: Coordinator {
         switch entryPoint {
         case .createInstantWallet, .welcome:
             showCreateWallet()
+        case .addInitialWallet:
+            presentAddInitialWallet()
         case .importWallet:
-            presentImportWallet()
-        case .backupWallet:
-            break
+            presentImportOrWatchWallet()
+        case .watchWallet:
+            presentImportOrWatchWallet()
         }
     }
 
@@ -47,7 +49,15 @@ class InitialWalletCreationCoordinator: Coordinator {
         addCoordinator(coordinator)
     }
 
-    func presentImportWallet() {
+    func presentImportOrWatchWallet() {
+        let coordinator = WalletCoordinator(config: config, keystore: keystore)
+        coordinator.delegate = self
+        let _ = coordinator.start(entryPoint)
+        navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+        addCoordinator(coordinator)
+    }
+
+    func presentAddInitialWallet() {
         let coordinator = WalletCoordinator(config: config, keystore: keystore)
         coordinator.delegate = self
         let _ = coordinator.start(entryPoint)

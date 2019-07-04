@@ -4,15 +4,25 @@ import XCTest
 @testable import AlphaWallet
 
 class BackupCoordinatorTests: XCTestCase {
-    
-    func testStart() {
+    func testStartWithHdWallet() {
         let coordinator = BackupCoordinator(
             navigationController: FakeNavigationController(),
-            keystore: FakeKeystore(),
+            keystore: FakeKeystore(assumeAllWalletsType: .hdWallet),
             account: .make()
         )
         coordinator.start()
 
-        XCTAssertTrue((coordinator.navigationController.presentedViewController as? UINavigationController)?.viewControllers[0] is EnterPasswordViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is ShowSeedPhraseViewController)
+    }
+
+    func testStartWithKeystoreWallet() {
+        let coordinator = BackupCoordinator(
+                navigationController: FakeNavigationController(),
+                keystore: FakeKeystore(assumeAllWalletsType: .keyStoreWallet),
+                account: .make()
+        )
+        coordinator.start()
+
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is KeystoreBackupIntroductionViewController)
     }
 }

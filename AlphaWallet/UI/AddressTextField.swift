@@ -213,11 +213,9 @@ extension AddressTextField: UITextFieldDelegate {
 
     private func informDelegateDidChange(to string: String) {
         //DispatchQueue because the textfield hasn't been updated yet
-        DispatchQueue.global().async { [weak self] in
-            DispatchQueue.main.sync { [weak self] in
-                guard let strongSelf = self else { return }
-                strongSelf.delegate?.didChange(to: string, in: strongSelf)
-            }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.delegate?.didChange(to: string, in: strongSelf)
         }
     }
 }

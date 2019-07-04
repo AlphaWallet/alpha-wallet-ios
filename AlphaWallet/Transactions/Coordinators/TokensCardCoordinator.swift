@@ -9,7 +9,6 @@ import Foundation
 import UIKit
 import Result
 import SafariServices
-import TrustKeystore
 import MessageUI
 import BigInt
 

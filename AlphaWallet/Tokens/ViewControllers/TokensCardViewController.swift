@@ -9,7 +9,6 @@
 import Foundation
 import UIKit
 import Result
-import TrustKeystore
 
 protocol TokensCardViewControllerDelegate: class, CanOpenURL {
     func didPressRedeem(token: TokenObject, tokenHolder: TokenHolder, in viewController: TokensCardViewController)
