@@ -3,9 +3,12 @@
 import Foundation
 
 struct EnterPasswordViewModel {
-
     var title: String {
-        return R.string.localizable.enterPasswordNavigationTitle()
+        if ScreenChecker().isNarrowScreen {
+            return R.string.localizable.enterPasswordNavigationTitleShorter()
+        } else {
+            return R.string.localizable.enterPasswordNavigationTitle()
+        }
     }
 
     var headerSectionText: String {
@@ -13,10 +16,10 @@ struct EnterPasswordViewModel {
     }
 
     var passwordFieldPlaceholder: String {
-        return R.string.localizable.enterPasswordPasswordTextFieldPlaceholder()
-    }
-
-    var confirmPasswordFieldPlaceholder: String {
-        return R.string.localizable.enterPasswordConfirmPasswordTextFieldPlaceholder()
+        if ScreenChecker().isNarrowScreen {
+            return R.string.localizable.enterPasswordPasswordTextFieldPlaceholderShorter()
+        } else {
+            return R.string.localizable.enterPasswordPasswordTextFieldPlaceholder()
+        }
     }
 }

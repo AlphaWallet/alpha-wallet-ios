@@ -4,7 +4,6 @@ import Foundation
 import UIKit
 import BigInt
 import QRCodeReaderViewController
-import TrustKeystore
 import RealmSwift
 import WebKit
 
@@ -127,7 +126,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         navigationController.dismiss(animated: true, completion: nil)
     }
 
-    private func executeTransaction(account: Account, action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
+    private func executeTransaction(account: EthereumAccount, action: DappAction, callbackID: Int, transaction: UnconfirmedTransaction, type: ConfirmType, server: RPCServer) {
         let configurator = TransactionConfigurator(
             session: session,
             account: account,
@@ -193,7 +192,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         browserViewController.goTo(url: url)
     }
 
-    func signMessage(with type: SignMessageType, account: Account, callbackID: Int) {
+    func signMessage(with type: SignMessageType, account: EthereumAccount, callbackID: Int) {
         let coordinator = SignMessageCoordinator(
             navigationController: navigationController,
             keystore: keystore,

@@ -53,7 +53,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
     private var walletAddress: AlphaWallet.Address {
         //TODO pass in the wallet instead
-        return (try! EtherKeystore()).recentlyUsedWallet!.address
+        return EtherKeystore.current!.address
     }
 
     var coordinators: [Coordinator] = []
@@ -481,7 +481,7 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func makeTokenHolderImpl(name: String, symbol: String, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
         //TODO pass in the wallet instead
-        let account = (try! EtherKeystore()).recentlyUsedWallet!
+        let account = EtherKeystore.current!
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore)
         for i in 0..<bytes32Tokens.count {

@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import UIKit
 
 protocol WalletCoordinatorDelegate: class {
@@ -49,8 +48,8 @@ class WalletCoordinator: Coordinator {
         case .backupWallet(let address):
             if let type = keystore.recentlyUsedWallet?.type, case let .real(account) = type {
                 guard address.sameContract(as: account.address.eip55String) else { return false }
-                guard !config.isWalletAddressAlreadyPromptedForBackUp(address: AlphaWallet.Address(address: account.address)) else { return false }
-                config.addToWalletAddressesAlreadyPromptedForBackup(address: AlphaWallet.Address(address: account.address))
+                guard !config.isWalletAddressAlreadyPromptedForBackUp(address: account.address) else { return false }
+                config.addToWalletAddressesAlreadyPromptedForBackup(address: account.address)
                 pushBackup(for: account)
             } else {
                 return false
@@ -67,15 +66,20 @@ class WalletCoordinator: Coordinator {
     
     func createInitialWallet() {
         if !keystore.hasWallets {
-            let account = keystore.createAccount(password: PasswordGenerator.generateRandom())
-            keystore.recentlyUsedWallet = Wallet(type: WalletType.real(account))
+            let result = keystore.createAccount()
+            switch result {
+            case .success(let account):
+                keystore.recentlyUsedWallet = Wallet(type: WalletType.real(account))
+            case .failure:
+                //TODO handle initial wallet creation error. App can't be used!
+                break
+            }
         }
     }
 
     func createInstantWallet() {
         navigationController.displayLoading(text: R.string.localizable.walletCreateInProgress(), animated: false)
-        let password = PasswordGenerator.generateRandom()
-        keystore.createAccount(with: password) { [weak self] result in
+        keystore.createAccount() { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let account):
@@ -89,7 +93,7 @@ class WalletCoordinator: Coordinator {
         }
     }
 
-    func pushBackup(for account: Account) {
+    func pushBackup(for account: EthereumAccount) {
         let controller = BackupViewController(account: account)
         controller.delegate = self
         controller.navigationItem.backBarButtonItem = nil
@@ -106,7 +110,7 @@ class WalletCoordinator: Coordinator {
         delegate?.didFinish(with: account, in: self)
     }
 
-    func backup(account: Account) {
+    func backup(account: EthereumAccount) {
         let coordinator = BackupCoordinator(
             navigationController: navigationController,
             keystore: keystore,
@@ -143,7 +147,7 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
 }
 
 extension WalletCoordinator: BackupViewControllerDelegate {
-    func didPressBackup(account: Account, in viewController: BackupViewController) {
+    func didPressBackup(account: EthereumAccount, in viewController: BackupViewController) {
         backup(account: account)
     }
 }
@@ -153,7 +157,7 @@ extension WalletCoordinator: BackupCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didFinish(account: Account, in coordinator: BackupCoordinator) {
+    func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)
         didCreateAccount(account: Wallet(type: .real(account)))
     }

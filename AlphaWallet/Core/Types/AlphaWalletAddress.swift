@@ -3,6 +3,7 @@
 import Foundation
 //TODO remove all dependencies
 import TrustKeystore
+import TrustWalletCore
 
 ///Use an enum as a namespace until Swift has proper namespaces
 enum AlphaWallet {}
@@ -29,6 +30,11 @@ extension AlphaWallet {
             guard string.count == 42 else { return nil }
             guard let address = TrustKeystore.Address(uncheckedAgainstNullAddress: string) else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
+        }
+
+        init(fromPrivateKey privateKey: Data) {
+            let publicKey = Secp256k1.shared.pubicKey(from: privateKey)
+            self = Address.deriveEthereumAddress(fromPublicKey: publicKey)
         }
 
         init(from decoder: Decoder) throws {
@@ -79,6 +85,16 @@ extension AlphaWallet.Address: CustomDebugStringConvertible {
         case .ethereumAddress(let eip55String):
             return "ethereumAddress: \(eip55String)"
         }
+    }
+}
+
+extension AlphaWallet.Address {
+    private static func deriveEthereumAddress(fromPublicKey publicKey: Data) -> AlphaWallet.Address {
+        precondition(publicKey.count == 65, "Expect 64-byte public key")
+        precondition(publicKey[0] == 4, "Invalid public key")
+        let sha3 = publicKey[1...].sha3(.keccak256)
+        let eip55String = sha3[12..<32].hex()
+        return AlphaWallet.Address(string: eip55String)!
     }
 }
 

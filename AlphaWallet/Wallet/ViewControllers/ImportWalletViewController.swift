@@ -1,6 +1,8 @@
 // Copyright SIX DAY LLC. All rights reserved.
+
 import UIKit
 import QRCodeReaderViewController
+import TrustWalletCore
 
 protocol ImportWalletViewControllerDelegate: class {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController)
@@ -20,10 +22,12 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
     private let tabBar = ImportWalletTabBar()
+    private let mnemonicTextView = TextView()
     private let keystoreJSONTextView = TextView()
     private let passwordTextField = TextField()
     private let privateKeyTextView = TextView()
     private let watchAddressTextField = AddressTextField()
+    private var mnemonicControlsStackView: UIStackView!
     private var keystoreJSONControlsStackView: UIStackView!
     private var privateKeyControlsStackView: UIStackView!
     private var watchControlsStackView: UIStackView!
@@ -48,14 +52,25 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         tabBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tabBar)
 
+        mnemonicTextView.label.translatesAutoresizingMaskIntoConstraints = false
+        mnemonicTextView.delegate = self
+        mnemonicTextView.translatesAutoresizingMaskIntoConstraints = false
+        mnemonicTextView.returnKeyType = .done
+        mnemonicTextView.textView.autocorrectionType = .no
+        mnemonicTextView.textView.autocapitalizationType = .none
+
         keystoreJSONTextView.label.translatesAutoresizingMaskIntoConstraints = false
         keystoreJSONTextView.delegate = self
         keystoreJSONTextView.translatesAutoresizingMaskIntoConstraints = false
         keystoreJSONTextView.returnKeyType = .next
+        keystoreJSONTextView.textView.autocorrectionType = .no
+        keystoreJSONTextView.textView.autocapitalizationType = .none
 
         passwordTextField.label.translatesAutoresizingMaskIntoConstraints = false
         passwordTextField.delegate = self
         passwordTextField.translatesAutoresizingMaskIntoConstraints = false
+        passwordTextField.textField.autocorrectionType = .no
+        passwordTextField.textField.autocapitalizationType = .none
         passwordTextField.returnKeyType = .done
         passwordTextField.isSecureTextEntry = true
 
@@ -63,10 +78,19 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         privateKeyTextView.delegate = self
         privateKeyTextView.translatesAutoresizingMaskIntoConstraints = false
         privateKeyTextView.returnKeyType = .done
+        privateKeyTextView.textView.autocorrectionType = .no
+        privateKeyTextView.textView.autocapitalizationType = .none
 
         watchAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         watchAddressTextField.delegate = self
         watchAddressTextField.returnKeyType = .done
+
+        mnemonicControlsStackView = [
+            mnemonicTextView.label,
+            .spacer(height: 4),
+            mnemonicTextView,
+        ].asStackView(axis: .vertical)
+        mnemonicControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         keystoreJSONControlsStackView = [
             keystoreJSONTextView.label,
@@ -97,6 +121,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         let stackView = [
             tabBar,
             .spacer(height: 10),
+            mnemonicControlsStackView,
             keystoreJSONControlsStackView,
             privateKeyControlsStackView,
             watchControlsStackView,
@@ -114,12 +139,15 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         let xMargin  = CGFloat(7)
         let heightThatFitsPrivateKeyNicely = CGFloat(100)
         NSLayoutConstraint.activate([
+            mnemonicTextView.heightAnchor.constraint(equalToConstant: heightThatFitsPrivateKeyNicely),
             keystoreJSONTextView.heightAnchor.constraint(equalToConstant: heightThatFitsPrivateKeyNicely),
             privateKeyTextView.heightAnchor.constraint(equalToConstant: heightThatFitsPrivateKeyNicely),
 
             tabBar.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             tabBar.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
 
+            mnemonicControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
+            mnemonicControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
             keystoreJSONControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
             keystoreJSONControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
             privateKeyControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
@@ -149,7 +177,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         configure()
-        showKeystoreControlsOnly()
+        showMnemonicControlsOnly()
 
         navigationItem.rightBarButtonItems = [
             UIBarButtonItem(image: R.image.import_options(), style: .done, target: self, action: #selector(importOptions)),
@@ -166,6 +194,10 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     func configure() {
         view.backgroundColor = viewModel.backgroundColor
+
+        mnemonicTextView.configureOnce()
+        mnemonicTextView.label.textAlignment = .center
+        mnemonicTextView.label.text = viewModel.mnemonicLabel
 
         keystoreJSONTextView.configureOnce()
         keystoreJSONTextView.label.textAlignment = .center
@@ -196,6 +228,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     ///Returns true only if valid
     private func validate() -> Bool {
         switch tabBar.tab {
+        case .mnemonic:
+            return validateMnemonic()
         case .keystore:
             return validateKeystore()
         case .privateKey:
@@ -203,6 +237,15 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         case .watch:
             return validateWatch()
         }
+    }
+
+    ///Returns true only if valid
+    private func validateMnemonic() -> Bool {
+        if let validationError = MnemonicRule().isValid(value: mnemonicTextView.value) {
+            displayError(error: ValidationError(msg: validationError.msg))
+            return false
+        }
+        return true
     }
 
     ///Returns true only if valid
@@ -239,6 +282,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     @objc func importWallet() {
         guard validate() else { return }
 
+        let mnemonicInput = mnemonicTextView.value.trimmed
         let keystoreInput = keystoreJSONTextView.value.trimmed
         let privateKeyInput = privateKeyTextView.value.trimmed.drop0x
         let password = passwordTextField.value.trimmed
@@ -246,17 +290,25 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
         displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(), animated: false)
 
-        let importType: ImportType = {
+        let importTypeOptional: ImportType? = {
             switch tabBar.tab {
+            case .mnemonic:
+                return .mnemonic(words: mnemonicInput.split(separator: " ").map { String($0) }, password: "")
             case .keystore:
                 return .keystore(string: keystoreInput, password: password)
             case .privateKey:
-                return .privateKey(privateKey: privateKeyInput)
+                guard let data = Data(hexString: privateKeyInput) else {
+                    hideLoading(animated: false)
+                    displayError(error: ValidationError(msg: R.string.localizable.importWalletImportInvalidPrivateKey()))
+                    return nil
+                }
+                return .privateKey(privateKey: data)
             case .watch:
                 let address = AlphaWallet.Address(string: watchInput)! // Address validated by form view.
                 return .watch(address: address)
             }
         }()
+        guard let importType = importTypeOptional else { return }
 
         keystore.importWallet(type: importType) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -313,6 +365,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     func setValueForCurrentField(string: String) {
         switch tabBar.tab {
+        case .mnemonic:
+            mnemonicTextView.value = string
         case .keystore:
             keystoreJSONTextView.value = string
         case .privateKey:
@@ -326,17 +380,26 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private func showMnemonicControlsOnly() {
+        mnemonicControlsStackView.isHidden = false
+        keystoreJSONControlsStackView.isHidden = true
+        privateKeyControlsStackView.isHidden = true
+        watchControlsStackView.isHidden = true
+    }
     private func showKeystoreControlsOnly() {
+        mnemonicControlsStackView.isHidden = true
         keystoreJSONControlsStackView.isHidden = false
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = true
     }
     private func showPrivateKeyControlsOnly() {
+        mnemonicControlsStackView.isHidden = true
         keystoreJSONControlsStackView.isHidden = true
         privateKeyControlsStackView.isHidden = false
         watchControlsStackView.isHidden = true
     }
     private func showWatchControlsOnly() {
+        mnemonicControlsStackView.isHidden = true
         keystoreJSONControlsStackView.isHidden = true
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = false
@@ -344,6 +407,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     private func moveFocusToTextEntryField(after textInput: UIView) {
         switch textInput {
+        case mnemonicTextView:
+            view.endEditing(true)
         case keystoreJSONTextView:
             _ = passwordTextField.becomeFirstResponder()
         case passwordTextField:
@@ -435,6 +500,8 @@ extension ImportWalletViewController: AddressTextFieldDelegate {
 extension ImportWalletViewController: ImportWalletTabBarDelegate {
     func didPressImportWalletTab(tab: ImportWalletTab, in tabBar: ImportWalletTabBar) {
         switch tab {
+        case .mnemonic:
+            showMnemonicControlsOnly()
         case .keystore:
             showKeystoreControlsOnly()
         case .privateKey:

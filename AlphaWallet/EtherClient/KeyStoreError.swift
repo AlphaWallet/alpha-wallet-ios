@@ -8,7 +8,6 @@ public enum KeystoreError: LocalizedError {
     case failedToImport(Error)
     case duplicateAccount
     case failedToSignTransaction
-    case failedToUpdatePassword
     case failedToCreateWallet
     case failedToImportPrivateKey
     case failedToParseJSON
@@ -28,8 +27,6 @@ public enum KeystoreError: LocalizedError {
             return R.string.localizable.accountsDeleteErrorDuplicateAccount()
         case .failedToSignTransaction:
             return R.string.localizable.accountsDeleteErrorFailedToSignTransaction()
-        case .failedToUpdatePassword:
-            return R.string.localizable.accountsDeleteErrorFailedToUpdatePassword()
         case .failedToCreateWallet:
             return R.string.localizable.accountsDeleteErrorFailedToCreateWallet()
         case .failedToImportPrivateKey:

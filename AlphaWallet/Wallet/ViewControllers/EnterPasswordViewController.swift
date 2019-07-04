@@ -2,10 +2,9 @@
 
 import UIKit
 import Eureka
-import TrustKeystore
 
 protocol EnterPasswordViewControllerDelegate: class {
-    func didEnterPassword(password: String, for account: Account, in viewController: EnterPasswordViewController)
+    func didEnterPassword(password: String, for account: EthereumAccount, inViewController viewController: EnterPasswordViewController)
 }
 
 class EnterPasswordViewController: FormViewController {
@@ -18,29 +17,25 @@ class EnterPasswordViewController: FormViewController {
 
     struct Values {
         static var password = "password"
-        static var confirmPassword = "confirmPassword"
     }
 
     private let viewModel = EnterPasswordViewModel()
+    private let account: EthereumAccount
+    private var passwordTextField: UITextField?
 
     private var passwordRow: TextFloatLabelRow? {
         return form.rowBy(tag: Values.password) as? TextFloatLabelRow
     }
 
-    private var confirmPasswordRow: TextFloatLabelRow? {
-        return form.rowBy(tag: Values.confirmPassword) as? TextFloatLabelRow
-    }
-
-    private let account: Account
-
     weak var delegate: EnterPasswordViewControllerDelegate?
 
-    init(
-        account: Account
-    ) {
+    init(account: EthereumAccount) {
         self.account = account
-
         super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func viewDidLoad() {
@@ -59,18 +54,19 @@ class EnterPasswordViewController: FormViewController {
                 $0.add(rule: RuleRequired())
                 $0.add(rule: ruleMin)
                 $0.validationOptions = .validatesOnDemand
-            }.cellUpdate { [unowned self] cell, _ in
-                cell.textField.isSecureTextEntry = true
+            }.cellUpdate { cell, _ in
+                cell.textField.isSecureTextEntry = false
                 cell.textField.placeholder = self.viewModel.passwordFieldPlaceholder
-            }
-
-            <<< AppFormAppearance.textFieldFloat(tag: Values.confirmPassword) {
-                $0.add(rule: RuleRequired())
-                $0.add(rule: ruleMin)
-                $0.validationOptions = .validatesOnDemand
-            }.cellUpdate { [unowned self] cell, _ in
-                cell.textField.isSecureTextEntry = true
-                cell.textField.placeholder = self.viewModel.confirmPasswordFieldPlaceholder
+                cell.textField.rightView = {
+                    let button = UIButton(type: .system)
+                    button.frame = .init(x: 0, y: 0, width: 30, height: 30)
+                    button.setImage(R.image.togglePassword(), for: .normal)
+                    button.tintColor = .init(red: 111, green: 111, blue: 111)
+                    button.addTarget(self, action: #selector(self.toggleMaskPassword), for: .touchUpInside)
+                    return button
+                }()
+                cell.textField.rightViewMode = .unlessEditing
+                self.passwordTextField = cell.textField
             }
 
             +++ Section()
@@ -78,25 +74,22 @@ class EnterPasswordViewController: FormViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
         passwordRow?.cell.textField.becomeFirstResponder()
     }
 
     @objc func done() {
-        guard
-            form.validate().isEmpty,
-            let password = passwordRow?.value,
-            let confirmPassword = confirmPasswordRow?.value
-        else { return }
-        guard password == confirmPassword else {
-            displayError(error: ValidationError(msg: R.string.localizable.backupPasswordConfirmationMustMatch()))
-            return
-        }
-
-        delegate?.didEnterPassword(password: password, for: account, in: self)
+        guard form.validate().isEmpty, let password = passwordRow?.value else { return }
+        delegate?.didEnterPassword(password: password, for: account, inViewController: self)
     }
 
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    @objc private func toggleMaskPassword() {
+        guard let passwordTextField = passwordTextField else { return }
+        passwordTextField.isSecureTextEntry = !passwordTextField.isSecureTextEntry
+        guard let button = passwordTextField.rightView as? UIButton else { return }
+        if passwordTextField.isSecureTextEntry {
+            button.tintColor = Colors.appBackground
+        } else {
+            button.tintColor = .init(red: 111, green: 111, blue: 111)
+        }
     }
 }

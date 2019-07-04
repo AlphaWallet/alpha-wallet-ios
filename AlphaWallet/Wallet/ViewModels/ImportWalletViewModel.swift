@@ -11,6 +11,10 @@ struct ImportWalletViewModel {
         return R.string.localizable.importNavigationTitle()
     }
 
+    var mnemonicLabel: String {
+        return R.string.localizable.mnemonic().uppercased()
+    }
+
     var keystoreJSONLabel: String {
         return R.string.localizable.keystoreJSON().uppercased()
     }

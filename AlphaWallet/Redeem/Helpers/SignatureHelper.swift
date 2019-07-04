@@ -7,11 +7,10 @@
 //
 
 import Foundation
-import TrustKeystore
 import BigInt
 
 class SignatureHelper {
-    class func signatureAsHex(for message: String, account: Account) -> String? {
+    class func signatureAsHex(for message: String, account: EthereumAccount) -> String? {
         let keystore = try! EtherKeystore()
         let signature = keystore.signMessageData(message.data(using: String.Encoding.utf8), for: account)
         let signatureHex = try? signature.dematerialize().hex(options: .upperCase)
@@ -21,7 +20,7 @@ class SignatureHelper {
         return data
     }
 
-    class func signatureAsDecimal(for message: String, account: Account) -> String? {
+    class func signatureAsDecimal(for message: String, account: EthereumAccount) -> String? {
         let signatureHex = signatureAsHex(for: message, account: account)!
         return BigInt(signatureHex, radix: 16)!.description
     }

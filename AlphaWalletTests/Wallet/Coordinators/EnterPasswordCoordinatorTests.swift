@@ -10,6 +10,6 @@ class EnterPasswordCoordinatorTests: XCTestCase {
 
         coordinator.start()
 
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is EnterPasswordViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is KeystoreBackupIntroductionViewController)
     }
 }

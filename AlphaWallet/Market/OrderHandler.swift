@@ -1,7 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import BigInt
-import TrustKeystore
+import TrustWalletCore
 
 public struct Order {
     var price: BigUInt
@@ -52,7 +52,7 @@ public class OrderHandler {
 
     private let keyStore = try! EtherKeystore()
 
-    func signOrders(orders: [Order], account: Account) throws -> [SignedOrder] {
+    func signOrders(orders: [Order], account: EthereumAccount) throws -> [SignedOrder] {
         var signedOrders = [SignedOrder]()
         var messages = [Data]()
 

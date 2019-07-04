@@ -2,7 +2,6 @@
 
 import Foundation
 import UIKit
-import TrustKeystore
 
 protocol PaymentCoordinatorDelegate: class, CanOpenURL {
     func didFinish(_ result: ConfirmResult, in coordinator: PaymentCoordinator)

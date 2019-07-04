@@ -108,7 +108,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func initializers() {
         var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).compactMap { URL(fileURLWithPath: $0) }
-        paths.append(keystore.keystoreDirectory)
+        paths.append((try! LegacyFileBasedKeystore()).keystoreDirectory)
 
         let initializers: [Initializer] = [
             SkipBackupFilesInitializer(paths: paths),

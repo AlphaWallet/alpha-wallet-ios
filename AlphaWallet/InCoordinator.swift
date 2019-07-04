@@ -93,9 +93,16 @@ class InCoordinator: NSObject, Coordinator {
         self.appTracker = appTracker
         self.assetDefinitionStore = assetDefinitionStore
         self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
+
+        super.init()
+    }
+
+    private func migrateToStoringRawPrivateKeysInKeychain() {
+        (try? LegacyFileBasedKeystore())?.migrateKeystoreFilesToRawPrivateKeysInKeychain()
     }
 
     func start() {
+        migrateToStoringRawPrivateKeysInKeychain()
         showTabBar(for: wallet)
         checkDevice()
 

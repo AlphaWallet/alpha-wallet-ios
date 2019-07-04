@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import UIKit
 
 protocol AccountsCoordinatorDelegate: class {
@@ -47,15 +46,15 @@ class AccountsCoordinator: Coordinator {
         navigationController.pushViewController(accountsViewController, animated: false)
     }
 
-    @objc func dismiss() {
+    @objc private func dismiss() {
         delegate?.didCancel(in: self)
     }
 
-    @objc func add() {
+    @objc private func add() {
         chooseImportOrCreateWallet()
     }
 
-    func chooseImportOrCreateWallet() {
+    private func chooseImportOrCreateWallet() {
         UIAlertController.alert(title: nil,
                 message: nil,
                 alertButtonTitles: [R.string.localizable.walletCreateButtonTitle(), R.string.localizable.walletImportButtonTitle(), R.string.localizable.cancel()],
@@ -71,7 +70,7 @@ class AccountsCoordinator: Coordinator {
         }
 	}
 
-    func importOrCreateWallet(entryPoint: WalletEntryPoint) {
+    private func importOrCreateWallet(entryPoint: WalletEntryPoint) {
         let coordinator = WalletCoordinator(config: config, keystore: keystore)
         if case .createInstantWallet = entryPoint {
             coordinator.navigationController = navigationController
@@ -84,28 +83,33 @@ class AccountsCoordinator: Coordinator {
         }
     }
 
-	func showCreateWallet() {
+	private func showCreateWallet() {
         importOrCreateWallet(entryPoint: .createInstantWallet)
     }
 
-    func showImportWallet() {
+    private func showImportWallet() {
         importOrCreateWallet(entryPoint: .importWallet)
     }
 
-    func showInfoSheet(for account: Wallet, sender: UIView) {
+    private func showInfoSheet(for account: Wallet, sender: UIView) {
         let controller = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         controller.popoverPresentationController?.sourceView = sender
         controller.popoverPresentationController?.sourceRect = sender.centerRect
 
         switch account.type {
         case .real(let account):
-            let actionTitle = R.string.localizable.walletsBackupAlertSheetTitle()
+            let actionTitle: String
+            if keystore.isHdWallet(account: account) {
+                actionTitle = R.string.localizable.walletsBackupHdWalletAlertSheetTitle()
+            } else {
+                actionTitle = R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitle()
+            }
             let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
                 let coordinator = BackupCoordinator(
-                    navigationController: strongSelf.navigationController,
-                    keystore: strongSelf.keystore,
-                    account: account
+                        navigationController: strongSelf.navigationController,
+                        keystore: strongSelf.keystore,
+                        account: account
                 )
                 coordinator.delegate = strongSelf
                 coordinator.start()
@@ -173,7 +177,7 @@ extension AccountsCoordinator: BackupCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didFinish(account: Account, in coordinator: BackupCoordinator) {
+    func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)
     }
 }

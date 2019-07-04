@@ -11,7 +11,11 @@ enum ImportSelectionType {
     var title: String {
         switch self {
         case .keystore:
-            return R.string.localizable.keystore()
+            if ScreenChecker().isNarrowScreen {
+                return R.string.localizable.keystoreShorter()
+            } else {
+                return R.string.localizable.keystore()
+            }
         case .privateKey:
             return R.string.localizable.privateKey()
         case .mnemonic:

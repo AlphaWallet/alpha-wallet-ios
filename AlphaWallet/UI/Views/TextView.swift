@@ -15,8 +15,7 @@ class TextView: UIControl {
         case none
     }
 
-    private let textView = UITextView()
-
+    let textView = UITextView()
     let label = UILabel()
     var value: String {
         get {

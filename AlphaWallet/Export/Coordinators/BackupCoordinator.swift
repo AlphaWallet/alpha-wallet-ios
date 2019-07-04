@@ -3,27 +3,21 @@
 import Foundation
 import UIKit
 import Result
-import TrustKeystore
-import Result
 
 protocol BackupCoordinatorDelegate: class {
     func didCancel(coordinator: BackupCoordinator)
-    func didFinish(account: Account, in coordinator: BackupCoordinator)
+    func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator)
 }
 
 class BackupCoordinator: Coordinator {
     private let keystore: Keystore
-    private let account: Account
+    private let account: EthereumAccount
 
     let navigationController: UINavigationController
     weak var delegate: BackupCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
-    init(
-        navigationController: UINavigationController,
-        keystore: Keystore,
-        account: Account
-    ) {
+    init(navigationController: UINavigationController, keystore: Keystore, account: EthereumAccount) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account
@@ -42,17 +36,17 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    func presentActivityViewController(for account: Account, password: String, newPassword: String, completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    func presentActivityViewController(for account: EthereumAccount, newPassword: String, coordinator: CoordinatorThatEnds, completion: @escaping (Result<Bool, AnyError>) -> Void) {
         navigationController.displayLoading(
             text: R.string.localizable.exportPresentBackupOptionsLabelTitle()
         )
-        keystore.export(account: account, password: password, newPassword: newPassword) { [weak self] result in
+        keystore.exportRawPrivateKeyForNonHdWallet(forAccount: account, newPassword: newPassword) { [weak self] result in
             guard let strongSelf = self else { return }
-            strongSelf.handleExport(result: result, completion: completion)
+            strongSelf.handleExport(result: result, coordinator: coordinator, completion: completion)
         }
     }
 
-    private func handleExport(result: (Result<String, KeystoreError>), completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    private func handleExport(result: (Result<String, KeystoreError>), coordinator: CoordinatorThatEnds, completion: @escaping (Result<Bool, AnyError>) -> Void) {
         switch result {
         case .success(let value):
             let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("alphawallet_backup_\(account.address.eip55String).json"))
@@ -67,14 +61,18 @@ class BackupCoordinator: Coordinator {
                 applicationActivities: nil
             )
             activityViewController.completionWithItemsHandler = { _, result, _, error in
-                do { try FileManager.default.removeItem(at: url)
-            } catch { }
+                do {
+                    try FileManager.default.removeItem(at: url)
+                } catch {
+                    //no-op
+                }
                 completion(.success(result))
+                coordinator.end(animated: true)
             }
             activityViewController.popoverPresentationController?.sourceView = navigationController.view
             activityViewController.popoverPresentationController?.sourceRect = navigationController.view.centerRect
-            navigationController.present(activityViewController, animated: true) { [unowned self] in
-                self.navigationController.hideLoading()
+            navigationController.present(activityViewController, animated: true) { [weak self] in
+                self?.navigationController.hideLoading()
             }
         case .failure(let error):
             navigationController.hideLoading()
@@ -82,19 +80,25 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    func presentShareActivity(for account: Account, password: String, newPassword: String) {
-        presentActivityViewController(for: account, password: password, newPassword: newPassword) { [weak self] result in
+    func presentShareActivity(for account: EthereumAccount, newPassword: String, coordinator: CoordinatorThatEnds) {
+        presentActivityViewController(for: account, newPassword: newPassword, coordinator: coordinator) { [weak self] result in
             guard let strongSelf = self else { return }
             strongSelf.finish(result: result)
         }
     }
 
-    func export(for account: Account) {
-        let coordinator = EnterPasswordCoordinator(account: account)
-        coordinator.delegate = self
-        coordinator.start()
-        navigationController.present(coordinator.navigationController, animated: true, completion: nil)
-        addCoordinator(coordinator)
+    func export(for account: EthereumAccount) {
+        if keystore.isHdWallet(account: account) {
+            let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account)
+            coordinator.delegate = self
+            coordinator.start()
+            addCoordinator(coordinator)
+        } else {
+            let coordinator = EnterPasswordCoordinator(navigationController: navigationController, account: account)
+            coordinator.delegate = self
+            coordinator.start()
+            addCoordinator(coordinator)
+        }
     }
 }
 
@@ -104,14 +108,31 @@ extension BackupCoordinator: EnterPasswordCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didEnterPassword(password: String, account: Account, in coordinator: EnterPasswordCoordinator) {
-        coordinator.navigationController.dismiss(animated: true) { [unowned self] in
-            if let currentPassword = self.keystore.getPassword(for: account) {
-                self.presentShareActivity(for: account, password: currentPassword, newPassword: password)
-            } else {
-                self.presentShareActivity(for: account, password: password, newPassword: password)
-            }
-        }
+    func didEnterPassword(password: String, account: EthereumAccount, in coordinator: EnterPasswordCoordinator) {
+        presentShareActivity(for: account, newPassword: password, coordinator: coordinator)
         removeCoordinator(coordinator)
+    }
+}
+
+extension BackupCoordinator: BackupSeedPhraseCoordinatorDelegate {
+    func didTapTestSeedPhrase(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
+        let coordinator = VerifySeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account)
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+    }
+
+    func didClose(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
+        removeCoordinator(coordinator)
+    }
+}
+
+extension BackupCoordinator: VerifySeedPhraseCoordinatorDelegate {
+    func didVerifySeedPhraseSuccessfully(forAccount account: EthereumAccount, inCoordinator coordinator: VerifySeedPhraseCoordinator) {
+        let backupSeedPhraseCoordinator = coordinators.first { $0 is BackupSeedPhraseCoordinator } as? BackupSeedPhraseCoordinator
+        defer { backupSeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
+        defer { removeCoordinator(coordinator) }
+        backupSeedPhraseCoordinator?.end(animated: false)
+        coordinator.end(animated: true)
     }
 }

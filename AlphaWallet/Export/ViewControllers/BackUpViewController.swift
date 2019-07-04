@@ -1,20 +1,19 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import UIKit
 
 protocol BackupViewControllerDelegate: class {
-    func didPressBackup(account: Account, in viewController: BackupViewController)
+    func didPressBackup(account: EthereumAccount, in viewController: BackupViewController)
 }
 
 class BackupViewController: UIViewController {
-    private let account: Account
+    private let account: EthereumAccount
     lazy private var viewModel = BackupViewModel()
 
     weak var delegate: BackupViewControllerDelegate?
 
-    init(account: Account) {
+    init(account: EthereumAccount) {
         self.account = account
 
         super.init(nibName: nil, bundle: nil)
