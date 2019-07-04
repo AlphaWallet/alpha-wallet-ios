@@ -21,7 +21,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private let roundedBackground = RoundedBackground()
     lazy private var tokenScriptRendererView: TokenInstanceWebView = {
         //TODO pass in keystore or wallet address instead
-        let walletAddress = try! EtherKeystore().recentlyUsedWallet!.address
+        let walletAddress = EtherKeystore.current!.address
         let webView = TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self

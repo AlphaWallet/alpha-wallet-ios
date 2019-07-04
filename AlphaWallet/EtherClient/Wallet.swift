@@ -1,10 +1,9 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 
 enum WalletType: Equatable {
-    case real(Account)
+    case real(EthereumAccount)
     case watch(AlphaWallet.Address)
 }
 
@@ -14,7 +13,7 @@ struct Wallet: Equatable {
     var address: AlphaWallet.Address {
         switch type {
         case .real(let account):
-            return AlphaWallet.Address(address: account.address)
+            return account.address
         case .watch(let address):
             return address
         }

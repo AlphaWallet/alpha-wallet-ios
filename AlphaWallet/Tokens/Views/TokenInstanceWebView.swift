@@ -4,7 +4,6 @@ import Foundation
 import UIKit
 import BigInt
 import PromiseKit
-import TrustKeystore
 import WebKit
 
 protocol TokenInstanceWebViewDelegate: class {
@@ -192,7 +191,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         let action = DappAction.fromCommand(command, transfer: transfer)
 
         //TODO pass this in instead
-        let wallet = (try! EtherKeystore()).recentlyUsedWallet!
+        let wallet = EtherKeystore.current!
 
         guard case .real(let account) = wallet.type else { return }
 
@@ -235,7 +234,7 @@ extension TokenInstanceWebView {
         }
     }
 
-    func signMessage(with type: SignMessageType, account: Account, callbackID: Int) {
+    func signMessage(with type: SignMessageType, account: EthereumAccount, callbackID: Int) {
         guard let navigationController = delegate?.navigationControllerFor(tokenInstanceWebView: self) else { return }
 
         //TODO pass in keystore

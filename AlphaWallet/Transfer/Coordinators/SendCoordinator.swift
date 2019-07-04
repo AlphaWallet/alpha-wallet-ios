@@ -3,7 +3,6 @@
 import Foundation
 import UIKit
 import BigInt
-import TrustKeystore
 
 protocol SendCoordinatorDelegate: class, CanOpenURL {
     func didFinish(_ result: ConfirmResult, in coordinator: SendCoordinator)
@@ -13,7 +12,7 @@ protocol SendCoordinatorDelegate: class, CanOpenURL {
 class SendCoordinator: Coordinator {
     private let transferType: TransferType
     private let session: WalletSession
-    private let account: Account
+    private let account: EthereumAccount
     private let keystore: Keystore
     private let storage: TokensDataStore
     private let ethPrice: Subscribable<Double>
@@ -34,7 +33,7 @@ class SendCoordinator: Coordinator {
             session: WalletSession,
             keystore: Keystore,
             storage: TokensDataStore,
-            account: Account,
+            account: EthereumAccount,
             ethPrice: Subscribable<Double>,
             tokenHolders: [TokenHolder] = [],
             assetDefinitionStore: AssetDefinitionStore

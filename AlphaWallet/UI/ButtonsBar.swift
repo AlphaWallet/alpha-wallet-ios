@@ -73,6 +73,28 @@ class ButtonsBar: UIView {
         }
     }
 
+    func configureSecondary() {
+        let viewModel = ButtonsBarViewModel()
+
+        for each in buttonContainerViews {
+            each.configureShadow(color: viewModel.buttonShadowColor, offset: viewModel.buttonShadowOffset, opacity: viewModel.buttonShadowOpacity, radius: viewModel.buttonShadowRadius, cornerRadius: viewModel.buttonCornerRadius)
+
+            let button = each.childView
+            button.setBackgroundColor(viewModel.buttonSecondaryBackgroundColor, forState: .normal)
+            button.setBackgroundColor(viewModel.disabledButtonBackgroundColor, forState: .disabled)
+            button.setTitleColor(viewModel.buttonSecondaryTitleColor, for: .normal)
+            button.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
+            button.titleLabel?.font = viewModel.buttonFont
+            button.titleLabel?.adjustsFontSizeToFitWidth = true
+            //So long titles (that cause font to be adjusted) have some margins on the left and right
+            button.contentEdgeInsets = .init(top: 0, left: 3, bottom: 0, right: 3)
+
+            button.cornerRadius = viewModel.buttonSecondaryCornerRadius
+            button.borderColor = viewModel.buttonSecondaryBorderColor
+            button.borderWidth = viewModel.buttonSecondaryBorderWidth
+        }
+    }
+
     private static func bar(numberOfButtons: Int) -> [ContainerViewWithShadow<UIButton>] {
         return (0..<numberOfButtons).map { _ in ContainerViewWithShadow(aroundView: UIButton(type: .system)) }
     }
@@ -117,5 +139,25 @@ private struct ButtonsBarViewModel {
 
     var buttonFont: UIFont {
         return Fonts.regular(size: 20)!
+    }
+
+    var buttonSecondaryBackgroundColor: UIColor {
+        return Colors.appWhite
+    }
+
+    var buttonSecondaryTitleColor: UIColor? {
+        return nil
+    }
+
+    var buttonSecondaryCornerRadius: CGFloat {
+        return 16
+    }
+
+    var buttonSecondaryBorderColor: UIColor {
+        return .init(red: 202, green: 202, blue: 202)
+    }
+
+    var buttonSecondaryBorderWidth: CGFloat {
+        return 1
     }
 }
