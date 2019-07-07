@@ -2,15 +2,17 @@
   "images" : [
     {
       "idiom" : "universal",
+      "filename" : "d-apps.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
+      "filename" : "d-apps@2x.png",
       "scale" : "2x"
     },
     {
       "idiom" : "universal",
-      "filename" : "dapps_icon.png",
+      "filename" : "d-apps@3x.png",
       "scale" : "3x"
     }
   ],

@@ -75,7 +75,7 @@
 "wallet.create.inProgress" = "Creating wallet...";
 "wallet.import.button.title" = "Import Wallet";
 "wallets.backup.alertSheet.title" = "Backup Encrypted Private Key";
-"transactions.tabbar.item.title" = "My Transactions";
+"transactions.tabbar.item.title" = "Transactions";
 "transactions.received.ether" = "You have received %@ %@";
 "transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";
 "transaction.navigation.title" = "Transaction";
