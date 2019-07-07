@@ -364,7 +364,6 @@ class InCoordinator: NSObject, Coordinator {
         tabBarController.tabBar.isTranslucent = false
         tabBarController.viewControllers = viewControllers
         tabBarController.delegate = self
-        hideTitlesInTabBarController(tabBarController: tabBarController)
         return tabBarController
     }
 
@@ -374,16 +373,6 @@ class InCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
         coordinator.delegate = self
         coordinator.start()
-    }
-
-    private func hideTitlesInTabBarController(tabBarController: UITabBarController) {
-        guard let items = tabBarController.tabBar.items else { return }
-		for each in items {
-            if UIDevice.current.userInterfaceIdiom == .phone {
-                each.imageInsets = UIEdgeInsets(top: 6, left: 0, bottom: -6, right: 0)
-            }
-			each.title = ""
-        }
     }
 
     @objc private func dismissTransactions() {
