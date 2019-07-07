@@ -2,7 +2,7 @@
 import UIKit
 import RealmSwift
 import AWSSNS
-//import AWSCognito
+import UserExperior
 import AWSCore
 import UserNotifications
 
@@ -32,7 +32,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         //Status bar hidden at launch so launch screen is not distorted when call/tether bar is activated in phones without a notch, like iPhone 8 and earlier
         application.isStatusBarHidden = false
         protectionCoordinator.didFinishLaunchingWithOptions()
-
+        //TODO when we support seed phrases we must explicitly block recording during the recovery and generation process
+        UserExperior.initialize("b96f2b04-99a7-45e8-9354-006b9f9fe770")
         return true
     }
 

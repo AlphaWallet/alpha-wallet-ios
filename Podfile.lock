@@ -69,6 +69,7 @@ PODS:
     - CryptoSwift (~> 0.10.0)
     - secp256k1_ios (~> 0.1.0)
     - TrezorCrypto
+  - UserExperior (4.1.29)
   - web3swift (0.9.0):
     - Alamofire (~> 4.7)
     - Alamofire-Synchronous (~> 4.0)
@@ -108,6 +109,7 @@ DEPENDENCIES:
   - SwiftyXMLParser (from `https://github.com/yahoojapan/SwiftyXMLParser.git`)
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, commit `9abdc1a63f1baf17facb26a3e049b5e335a95816`)
+  - UserExperior (= 4.1.29)
   - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, commit `2b3c5ee878212ce70768568def7e727f0f1ebf86`)
 
 SPEC REPOS:
@@ -142,6 +144,7 @@ SPEC REPOS:
     - SwiftLint
     - SwiftyJSON
     - SWXMLHash
+    - UserExperior
 
 EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
@@ -232,8 +235,9 @@ SPEC CHECKSUMS:
   SWXMLHash: b35739a5cfd915c3b482977aa720d6708e260a90
   TrezorCrypto: bfeea47a052dca2c77d4a39e1e183865e52de14d
   TrustKeystore: 26efa8079f6451d02ce64b906d3ff240fd71d7ca
+  UserExperior: a59bf784032c7e12ce323e4a512ec7ac6b9b808b
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: c9725cc64a472ca0a8c73463de9ccf6d5e379e1e
+PODFILE CHECKSUM: a554c9a649d28b8caa3f0707bac192fac698e0dd
 
 COCOAPODS: 1.5.3

@@ -32,6 +32,7 @@ target 'AlphaWallet' do
   pod "Macaw", :git => 'https://github.com/alpha-wallet/Macaw.git', :commit => 'c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8'
   pod "Kanna", :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
   pod 'AWSSNS'
+  pod 'UserExperior', '4.1.29'
   # pod 'AWSCognito'
   target 'AlphaWalletTests' do
       inherit! :search_paths
