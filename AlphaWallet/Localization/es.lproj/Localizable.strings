@@ -75,7 +75,7 @@
 "wallet.create.inProgress" = "Creando monedero...";
 "wallet.import.button.title" = "Importar monedero";
 "wallets.backup.alertSheet.title" = "Copia de seguridad de clave privada cifrada";
-"transactions.tabbar.item.title" = "Mis transacciones";
+"transactions.tabbar.item.title" = "transacciones";
 "transactions.received.ether" = "You have received %@ %@";
 "transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";
 "transaction.navigation.title" = "Transacción";
