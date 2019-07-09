@@ -5,6 +5,9 @@ import Foundation
 enum Dapps {
     static let masterList = [
         Dapp(name: "State of the ÐApps", description: "Directory of Decentralized Applications", url: "https://www.stateofthedapps.com/", cat: "Directory"),
+        Dapp(name: "Token Multisender", description: "Batch sending of tokens", url: "https://multisender.app/", cat: "Finance"),
+        Dapp(name: "ERC20 Faucet", description: "Receive free erc20 token for testing", url: "https://erc20faucet.com/", cat: "Tool"),
+        Dapp(name: "Find The Rabbit", description: "Provable shell game", url: "https://multisender.app/", cat: "Game"),
         Dapp(name: "Axie Infinity", description: "Collect and raise fantasy creatures", url: "https://axieinfinity.com/", cat: "Games"),
         Dapp(name: "ChickenHunt", description: "character-growing IDLE game", url: "https://chickenhunt.io/", cat: "Games"),
         Dapp(name: "CryptoCare", description: "Social Impact Collectibles", url: "https://cryptocare.tech/adopt/cryptocare", cat: "Games"),
