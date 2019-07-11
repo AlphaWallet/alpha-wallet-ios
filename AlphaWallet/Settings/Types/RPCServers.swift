@@ -102,7 +102,10 @@ enum RPCServer: Hashable, CaseIterable {
         case .xDai: return Constants.xDaiContractPage
         case .goerli: return Constants.goerliContractPage
         case .poa: return Constants.poaContractPage
-        case .sokol, .classic, .callisto, .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
+        case .sokol: return Constants.sokolContractPage
+        case .classic: return Constants.etcContractPage
+        case .callisto: return Constants.callistoContractPage
+        case .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
         }
     }
 
