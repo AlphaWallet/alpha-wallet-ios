@@ -10,7 +10,7 @@ import SwiftyJSON
 class GetContractInteractions {
 
     func getErc20Interactions(contractAddress: AlphaWallet.Address? = nil, address: AlphaWallet.Address, server: RPCServer, completion: @escaping ([Transaction]) -> Void) {
-        let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address)
+        guard let etherscanURL = server.etherscanAPIURLForERC20TxList(for: address) else { return }
         Alamofire.request(etherscanURL).validate().responseJSON { response in
             switch response.result {
             case .success(let value):
@@ -62,9 +62,17 @@ class GetContractInteractions {
     func getContractList(address: AlphaWallet.Address, server: RPCServer, erc20: Bool, completion: @escaping ([AlphaWallet.Address]) -> Void) {
         let etherscanURL: URL
         if erc20 {
-            etherscanURL = server.etherscanAPIURLForERC20TxList(for: address)
+            if let url = server.etherscanAPIURLForERC20TxList(for: address) {
+                etherscanURL = url
+            } else {
+                return
+            }
         } else {
-            etherscanURL = server.etherscanAPIURLForTransactionList(for: address)
+            if let url = server.etherscanAPIURLForTransactionList(for: address) {
+                etherscanURL = url
+            } else {
+                return
+            }
         }
         Alamofire.request(etherscanURL).validate().responseJSON { response in
             switch response.result {

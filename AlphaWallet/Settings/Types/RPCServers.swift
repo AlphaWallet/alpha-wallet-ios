@@ -60,36 +60,36 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    var getEtherscanURL: String {
+    var getEtherscanURL: String? {
         switch self {
         case .main: return Constants.mainnetEtherscanAPI
         case .ropsten: return Constants.ropstenEtherscanAPI
         case .rinkeby: return Constants.rinkebyEtherscanAPI
         case .kovan: return Constants.kovanEtherscanAPI
         case .poa: return Constants.poaNetworkCoreAPI
-        case .sokol: return Constants.mainnetEtherscanAPI
-        case .classic: return Constants.mainnetEtherscanAPI
-        case .callisto: return Constants.mainnetEtherscanAPI
+        case .sokol: return nil
+        case .classic: return nil
+        case .callisto: return nil
         case .goerli: return Constants.goerliEtherscanAPI
         case .xDai: return Constants.xDaiAPI
-        case .custom: return Constants.mainnetEtherscanAPI
+        case .custom: return nil
         }
     }
 
     //TODO fix up all the networks
-    var getEtherscanURLERC20Events: String {
+    var getEtherscanURLERC20Events: String? {
         switch self {
         case .main: return Constants.mainnetEtherscanAPIErc20Events
         case .ropsten: return Constants.ropstenEtherscanAPIErc20Events
         case .rinkeby: return Constants.rinkebyEtherscanAPIErc20Events
         case .kovan: return Constants.kovanEtherscanAPIErc20Events
         case .poa: return Constants.poaNetworkCoreAPIErc20Events
-        case .sokol: return Constants.mainnetEtherscanAPIErc20Events
-        case .classic: return Constants.mainnetEtherscanAPIErc20Events
-        case .callisto: return Constants.mainnetEtherscanAPIErc20Events
+        case .sokol: return nil
+        case .classic: return nil
+        case .callisto: return nil
         case .goerli: return Constants.goerliEtherscanAPIErc20Events
         case .xDai: return Constants.xDaiAPIErc20Events
-        case .custom: return Constants.mainnetEtherscanAPIErc20Events
+        case .custom: return nil
         }
     }
 
@@ -106,12 +106,12 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    func etherscanAPIURLForTransactionList(for address: AlphaWallet.Address) -> URL {
-        return URL(string: getEtherscanURL + address.eip55String)!
+    func etherscanAPIURLForTransactionList(for address: AlphaWallet.Address) -> URL? {
+        return getEtherscanURL.flatMap { URL(string: $0 + address.eip55String) }
     }
 
-    func etherscanAPIURLForERC20TxList(for address: AlphaWallet.Address) -> URL {
-        return URL(string: getEtherscanURLERC20Events + address.eip55String)!
+    func etherscanAPIURLForERC20TxList(for address: AlphaWallet.Address) -> URL? {
+        return getEtherscanURLERC20Events.flatMap { URL(string: $0 + address.eip55String) }
     }
 
     func etherscanContractDetailsWebPageURL(for address: AlphaWallet.Address) -> URL {
