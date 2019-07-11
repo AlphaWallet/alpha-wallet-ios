@@ -81,6 +81,9 @@ public struct Constants {
     public static let xDaiContractPage = "https://blockscout.com/poa/dai/search?q="
     public static let poaContractPage = "https://blockscout.com/poa/core/search?q="
     public static let goerliContractPage = "https://goerli.etherscan.io/address/"
+    public static let sokolContractPage = "https://blockscout.com/poa/sokol/search?q="
+    public static let etcContractPage = "https://blockscout.com/etc/mainnet/search?q="
+    public static let callistoContractPage = "https://blockscout.com/callisto/mainnet/search?q="
 
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"
