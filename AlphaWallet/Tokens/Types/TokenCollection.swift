@@ -44,12 +44,15 @@ extension TokenCollection: TokensDataStoreDelegate {
 
         let nativeCryptoAddressInDatabase = Constants.nativeCryptoAddressInDatabase.eip55String
         tokens.sort {
+            //Use `$0.contract` instead of `$0.contractAddress.eip55String` for performance in a loop since we know the former must be in EIP55
+            let contract0 = $0.contract
+            let contract1 = $1.contract
             //Performance: Don't need to use sameContract(as:) because it's all 0s and we want to be fast
-            if $0.contractAddress.eip55String == nativeCryptoAddressInDatabase && $1.contractAddress.eip55String == nativeCryptoAddressInDatabase {
+            if contract0 == nativeCryptoAddressInDatabase && contract1 == nativeCryptoAddressInDatabase {
                 return $0.server.displayOrderPriority < $1.server.displayOrderPriority
-            } else if $0.contractAddress.eip55String == nativeCryptoAddressInDatabase {
+            } else if contract0 == nativeCryptoAddressInDatabase {
                 return true
-            } else if $1.contractAddress.eip55String == nativeCryptoAddressInDatabase {
+            } else if contract1 == nativeCryptoAddressInDatabase {
                 return false
             } else if $0.server != $1.server {
                 return $0.server.displayOrderPriority < $1.server.displayOrderPriority
