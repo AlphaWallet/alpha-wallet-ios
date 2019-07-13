@@ -127,7 +127,7 @@ class TransactionConfigurator {
             do {
                 let function = Function(name: "transfer", parameters: [ABIType.address, ABIType.uint(bits: 256)])
                 //Note: be careful here with the BigUInt and BigInt, the type needs to be exact
-                let parameters: [Any] = [transaction.to!, BigUInt(transaction.value)]
+                let parameters: [Any] = [Address(address: transaction.to!), BigUInt(transaction.value)]
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)
                 self.configuration = TransactionConfiguration(
