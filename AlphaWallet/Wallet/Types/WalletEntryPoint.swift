@@ -4,6 +4,7 @@ import Foundation
 
 enum WalletEntryPoint {
     case welcome
+    case addInitialWallet
     case createInstantWallet
     case importWallet
     case watchWallet

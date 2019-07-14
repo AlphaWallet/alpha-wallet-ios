@@ -210,8 +210,8 @@ class AppCoordinator: NSObject, Coordinator {
 //}
 
 extension AppCoordinator: WelcomeViewControllerDelegate {
-    func didPressCreateWallet(in viewController: WelcomeViewController) {
-        showInitialWalletCoordinator(entryPoint: .createInstantWallet)
+    func didPressGettingStartedButton(in viewController: WelcomeViewController) {
+        showInitialWalletCoordinator(entryPoint: .addInitialWallet)
     }
 }
 
@@ -222,9 +222,9 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
     }
 
     func didAddAccount(_ account: Wallet, in coordinator: InitialWalletCreationCoordinator) {
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
-        removeCoordinator(coordinator)
-        showTransactions(for: account)
+        navigationController.dismiss(animated: true, completion: nil)
+        self.removeCoordinator(coordinator)
+        self.showTransactions(for: account)
     }
 }
 

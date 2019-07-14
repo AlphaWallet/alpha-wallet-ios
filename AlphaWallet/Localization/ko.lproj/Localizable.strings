@@ -364,3 +364,6 @@
 "TokenScript.type2.conflictingFiles" = "Conflicting TokenScript Files";
 "TokenScript.type2.oldSchemaVersion" = "Old TokenScript Version";
 "TokenScript.type2.invalidSignature" = "Invalid Signature";
+"gettingStarted.subtitle" = "Welcome to AlphaWallet";
+"gettingStarted.newWallet" = "Create a New Wallet";
+"gettingStarted.alreadyHaveWallet" = "I already have a wallet:";

@@ -51,6 +51,11 @@ class WalletCoordinator: Coordinator {
         case .createInstantWallet:
             createInstantWallet()
             return false
+        case .addInitialWallet:
+            let controller = CreateInitialWalletViewController(keystore: keystore)
+            controller.delegate = self
+            controller.configure()
+            navigationController.viewControllers = [controller]
         case .backupWallet(let address):
             if let type = keystore.recentlyUsedWallet?.type, case let .real(account) = type {
                 guard address.sameContract(as: account.address.eip55String) else { return false }
@@ -99,6 +104,15 @@ class WalletCoordinator: Coordinator {
         }
     }
 
+    private func addWalletWith(entryPoint: WalletEntryPoint) {
+        //Intentionally creating an instance of myself
+        let coordinator = WalletCoordinator(config: config, keystore: keystore)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        let showUI = coordinator.start(entryPoint)
+        navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+    }
+
     func pushBackup(for account: EthereumAccount) {
         let controller = BackupViewController(account: account)
         controller.delegate = self
@@ -140,7 +154,7 @@ class WalletCoordinator: Coordinator {
 //}
 
 extension WalletCoordinator: WelcomeViewControllerDelegate {
-    func didPressCreateWallet(in viewController: WelcomeViewController) {
+    func didPressGettingStartedButton(in viewController: WelcomeViewController) {
 //        showInitialWalletCoordinator(entryPoint: .createInstantWallet)
     }
 }
@@ -166,5 +180,32 @@ extension WalletCoordinator: BackupCoordinatorDelegate {
     func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)
         didCreateAccount(account: Wallet(type: .real(account)))
+    }
+}
+
+extension WalletCoordinator: CreateInitialWalletViewControllerDelegate {
+    func didTapCreateWallet(inViewController viewController: CreateInitialWalletViewController) {
+        createInstantWallet()
+    }
+
+    func didTapWatchWallet(inViewController viewController: CreateInitialWalletViewController) {
+        addWalletWith(entryPoint: .watchWallet)
+    }
+
+    func didTapImportWallet(inViewController viewController: CreateInitialWalletViewController) {
+        addWalletWith(entryPoint: .importWallet)
+    }
+}
+
+extension WalletCoordinator: WalletCoordinatorDelegate {
+    func didFinish(with account: Wallet, in coordinator: WalletCoordinator) {
+        coordinator.navigationController.dismiss(animated: false, completion: nil)
+        self.removeCoordinator(coordinator)
+        self.delegate?.didFinish(with: account, in: self)
+    }
+
+    func didCancel(in coordinator: WalletCoordinator) {
+        coordinator.navigationController.dismiss(animated: true, completion: nil)
+        self.removeCoordinator(coordinator)
     }
 }
