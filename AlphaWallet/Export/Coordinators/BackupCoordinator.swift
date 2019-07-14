@@ -27,7 +27,7 @@ class BackupCoordinator: Coordinator {
         export(for: account)
     }
 
-    func finish(result: Result<Bool, AnyError>) {
+    private func finish(result: Result<Bool, AnyError>) {
         switch result {
         case .success:
             delegate?.didFinish(account: account, in: self)
@@ -36,7 +36,7 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    func presentActivityViewController(for account: EthereumAccount, newPassword: String, coordinator: CoordinatorThatEnds, completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    private func presentActivityViewController(for account: EthereumAccount, newPassword: String, coordinator: CoordinatorThatEnds, completion: @escaping (Result<Bool, AnyError>) -> Void) {
         navigationController.displayLoading(
             text: R.string.localizable.exportPresentBackupOptionsLabelTitle()
         )
@@ -80,14 +80,14 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    func presentShareActivity(for account: EthereumAccount, newPassword: String, coordinator: CoordinatorThatEnds) {
+    private func presentShareActivity(for account: EthereumAccount, newPassword: String, coordinator: CoordinatorThatEnds) {
         presentActivityViewController(for: account, newPassword: newPassword, coordinator: coordinator) { [weak self] result in
             guard let strongSelf = self else { return }
             strongSelf.finish(result: result)
         }
     }
 
-    func export(for account: EthereumAccount) {
+    private func export(for account: EthereumAccount) {
         if keystore.isHdWallet(account: account) {
             let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account)
             coordinator.delegate = self
