@@ -98,6 +98,7 @@
 "importWallet.import.invalidAddress" = "无效的以太坊地址";
 "importWallet.import.invalidPrivateKey" = "私钥长度必须为64个字符";
 "importWallet.import.invalidMnemonic" = "Seed phrase has to be 12 words";
+"importWallet.import.fromCloud.title" = "Import from iCloud/Dropbox/Google Drive";
 "Keystore JSON" = "Keystore JSON";
 "More Details" = "更多详情";
 "Keystore" = "Keystore JSON";

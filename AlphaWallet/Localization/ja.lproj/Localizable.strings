@@ -110,6 +110,7 @@
 "importWallet.import.invalidAddress" = "無効な Ethereum アドレス";
 "importWallet.import.invalidPrivateKey" = "秘密鍵は64文字でなければなりません";
 "importWallet.import.invalidMnemonic" = "Seed phrase has to be 12 words";
+"importWallet.import.fromCloud.title" = "Import from iCloud/Dropbox/Google Drive";
 "Keystore JSON" = "Keystore JSON";
 "More Details" = "詳細";
 "Keystore" = "Keystore JSON";

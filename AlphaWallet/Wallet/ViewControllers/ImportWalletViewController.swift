@@ -31,6 +31,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private var keystoreJSONControlsStackView: UIStackView!
     private var privateKeyControlsStackView: UIStackView!
     private var watchControlsStackView: UIStackView!
+    private let importKeystoreJsonFromCloudButton = UIButton(type: .system)
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
 
     weak var delegate: ImportWalletViewControllerDelegate?
@@ -129,6 +130,10 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
+        importKeystoreJsonFromCloudButton.isHidden = true
+        importKeystoreJsonFromCloudButton.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.addSubview(importKeystoreJsonFromCloudButton)
+
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = .clear
@@ -160,6 +165,10 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
+            importKeystoreJsonFromCloudButton.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 10),
+            importKeystoreJsonFromCloudButton.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -10),
+            importKeystoreJsonFromCloudButton.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -20),
+
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
@@ -179,10 +188,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         configure()
         showMnemonicControlsOnly()
 
-        navigationItem.rightBarButtonItems = [
-            UIBarButtonItem(image: R.image.import_options(), style: .done, target: self, action: #selector(importOptions)),
-            UIBarButtonItem(image: R.image.qr_code_icon(), style: .done, target: self, action: #selector(openReader)),
-        ]
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.qr_code_icon(), style: .done, target: self, action: #selector(openReader))
 
         if UserDefaults.standard.bool(forKey: "FASTLANE_SNAPSHOT") {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
@@ -218,6 +224,11 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         watchAddressTextField.label.text = viewModel.watchAddressLabel
 
         watchAddressTextField.configureOnce()
+
+        importKeystoreJsonFromCloudButton.addTarget(self, action: #selector(importOptions), for: .touchUpInside)
+        importKeystoreJsonFromCloudButton.setTitle(R.string.localizable.importWalletImportFromCloudTitle(), for: .normal)
+        importKeystoreJsonFromCloudButton.titleLabel?.font = viewModel.importKeystoreJsonButtonFont
+        importKeystoreJsonFromCloudButton.titleLabel?.adjustsFontSizeToFitWidth = true
 
         buttonsBar.configure()
         let importButton = buttonsBar.buttons[0]
@@ -395,6 +406,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
+        importKeystoreJsonFromCloudButton.isHidden = true
     }
 
     private func showKeystoreControlsOnly() {
@@ -403,6 +415,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
+        importKeystoreJsonFromCloudButton.isHidden = false
     }
 
     private func showPrivateKeyControlsOnly() {
@@ -411,6 +424,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         privateKeyControlsStackView.isHidden = false
         watchControlsStackView.isHidden = true
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
+        importKeystoreJsonFromCloudButton.isHidden = true
     }
 
     private func showWatchControlsOnly() {
@@ -419,6 +433,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = false
         configureImportButtonTitle(R.string.localizable.walletWatchButtonTitle())
+        importKeystoreJsonFromCloudButton.isHidden = true
     }
 
     private func moveFocusToTextEntryField(after textInput: UIView) {

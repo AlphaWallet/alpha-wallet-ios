@@ -30,4 +30,8 @@ struct ImportWalletViewModel {
     var watchAddressLabel: String {
         return R.string.localizable.ethereumAddress().uppercased()
     }
+
+    var importKeystoreJsonButtonFont: UIFont {
+        return Fonts.regular(size: 20)!
+    }
 }
