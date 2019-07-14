@@ -192,6 +192,10 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         }
     }
 
+    func showWatchTab() {
+        tabBar.showWatchTab()
+    }
+
     func configure() {
         view.backgroundColor = viewModel.backgroundColor
 
@@ -217,8 +221,13 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
         buttonsBar.configure()
         let importButton = buttonsBar.buttons[0]
-        importButton.setTitle(R.string.localizable.importWalletImportButtonTitle(), for: .normal)
         importButton.addTarget(self, action: #selector(importWallet), for: .touchUpInside)
+        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
+    }
+
+    private func configureImportButtonTitle(_ title: String) {
+        let importButton = buttonsBar.buttons[0]
+        importButton.setTitle(title, for: .normal)
     }
 
     func didImport(account: Wallet) {
@@ -385,24 +394,31 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         keystoreJSONControlsStackView.isHidden = true
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = true
+        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
     }
+
     private func showKeystoreControlsOnly() {
         mnemonicControlsStackView.isHidden = true
         keystoreJSONControlsStackView.isHidden = false
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = true
+        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
     }
+
     private func showPrivateKeyControlsOnly() {
         mnemonicControlsStackView.isHidden = true
         keystoreJSONControlsStackView.isHidden = true
         privateKeyControlsStackView.isHidden = false
         watchControlsStackView.isHidden = true
+        configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
     }
+
     private func showWatchControlsOnly() {
         mnemonicControlsStackView.isHidden = true
         keystoreJSONControlsStackView.isHidden = true
         privateKeyControlsStackView.isHidden = true
         watchControlsStackView.isHidden = false
+        configureImportButtonTitle(R.string.localizable.walletWatchButtonTitle())
     }
 
     private func moveFocusToTextEntryField(after textInput: UIView) {

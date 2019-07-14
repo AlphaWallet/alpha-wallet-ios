@@ -75,6 +75,7 @@
 "wallet.types.keystoreWallets" = "Keystore Wallets";
 "wallet.types.watchedWallets" = "Watched Wallets";
 "wallet.create.button.title" = "Create Wallet";
+"wallet.watch.button.title" = "Watch Wallet";
 "wallet.create.inProgress" = "Creating wallet...";
 "wallet.import.button.title" = "Import Wallet";
 "wallets.backupKeystoreWallet.alertSheet.title" = "Export Keystore JSON";

@@ -147,6 +147,7 @@
 "transaction.blockNumber.label.title" = "区块#";
 "send.error.invalidAmount" = "错误数额";
 "wallet.create.button.title" = "创建钱包";
+"wallet.watch.button.title" = "Watch Wallet";
 "wallet.create.inProgress" = "创建钱包...";
 "wallet.import.button.title" = "导入钱包";
 "browser.home.button.title" = "主页";

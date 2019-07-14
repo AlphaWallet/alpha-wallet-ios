@@ -75,6 +75,7 @@
 "wallet.types.keystoreWallets" = "Keystore Wallets";
 "wallet.types.watchedWallets" = "Watched Wallets";
 "wallet.create.button.title" = "Crear monedero";
+"wallet.watch.button.title" = "Watch Wallet";
 "wallet.create.inProgress" = "Creando monedero...";
 "wallet.import.button.title" = "Importar monedero";
 "wallets.backupKeystoreWallet.alertSheet.title" = "Export Keystore JSON";

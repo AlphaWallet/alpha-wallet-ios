@@ -23,7 +23,7 @@ class AccountsCoordinator: Coordinator {
     lazy var accountsViewController: AccountsViewController = {
         let controller = AccountsViewController(keystore: keystore, balanceCoordinator: balanceCoordinator)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(dismiss))
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
+        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addWallet))
         controller.allowsAccountDeletion = true
         controller.delegate = self
         return controller
@@ -50,15 +50,21 @@ class AccountsCoordinator: Coordinator {
         delegate?.didCancel(in: self)
     }
 
-    @objc private func add() {
-        chooseImportOrCreateWallet()
-    }
-
-    private func chooseImportOrCreateWallet() {
+    @objc private func addWallet() {
         UIAlertController.alert(title: nil,
                 message: nil,
-                alertButtonTitles: [R.string.localizable.walletCreateButtonTitle(), R.string.localizable.walletImportButtonTitle(), R.string.localizable.cancel()],
-                alertButtonStyles: [.default, .default, .cancel],
+                alertButtonTitles: [
+                    R.string.localizable.walletCreateButtonTitle(),
+                    R.string.localizable.walletImportButtonTitle(),
+                    R.string.localizable.walletWatchButtonTitle(),
+                    R.string.localizable.cancel()
+                ],
+                alertButtonStyles: [
+                    .default,
+                    .default,
+                    .default,
+                    .cancel
+                ],
                 viewController: navigationController,
                 preferredStyle: .actionSheet) { [weak self] index in
                     guard let strongSelf = self else { return }
@@ -66,6 +72,8 @@ class AccountsCoordinator: Coordinator {
                         strongSelf.showCreateWallet()
                     } else if index == 1 {
                         strongSelf.showImportWallet()
+                    } else if index == 2 {
+                        strongSelf.showWatchWallet()
                     }
         }
 	}
@@ -89,6 +97,10 @@ class AccountsCoordinator: Coordinator {
 
     private func showImportWallet() {
         importOrCreateWallet(entryPoint: .importWallet)
+    }
+
+    private func showWatchWallet() {
+        importOrCreateWallet(entryPoint: .watchWallet)
     }
 
     private func showInfoSheet(for account: Wallet, sender: UIView) {
