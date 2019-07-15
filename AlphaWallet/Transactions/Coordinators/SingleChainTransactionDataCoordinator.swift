@@ -93,7 +93,13 @@ class SingleChainTransactionDataCoordinator: Coordinator {
     }
 
     private func update(items: [Transaction]) {
-        storage.add(items)
+        let alreadyAddedContracts = tokensStorage.enabledObject.map { $0.contractAddress }
+        let deletedContracts = tokensStorage.deletedContracts.map { $0.contractAddress }
+        let hiddenContracts = tokensStorage.hiddenContracts.map { $0.contractAddress }
+        let delegateContracts = tokensStorage.delegateContracts.map { $0.contractAddress }
+        let contractsToAvoid = alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts
+        let filteredTransactions = items.filter { !contractsToAvoid.contains(AlphaWallet.Address(string: $0.to)!) }
+        storage.add(items, filteredTransactions)
         delegate?.handleUpdateItems(inCoordinator: self)
     }
 

@@ -40,18 +40,31 @@ class TransactionsStorage {
         return objects.filter { $0.state == TransactionState.pending }
     }
 
+    private func addTransactionContractAddresses(_ transactions: [Transaction]) {
+        // store contract addresses associated with transactions
+        let tokens = self.tokens(from: transactions)
+        if !tokens.isEmpty {
+            TokensDataStore.update(in: realm, tokens: tokens)
+        }
+    }
+
+    @discardableResult
+    func add(_ items: [Transaction], _ filteredTransactions: [Transaction]) -> [Transaction] {
+        guard !items.isEmpty else { return [] }
+        realm.beginWrite()
+        realm.add(items, update: true)
+        try! realm.commitWrite()
+        addTransactionContractAddresses(filteredTransactions)
+        return items
+    }
+
     @discardableResult
     func add(_ items: [Transaction]) -> [Transaction] {
         guard !items.isEmpty else { return [] }
         realm.beginWrite()
         realm.add(items, update: true)
         try! realm.commitWrite()
-
-        // store contract addresses associated with transactions
-        let tokens = self.tokens(from: items)
-        if !tokens.isEmpty {
-            TokensDataStore.update(in: realm, tokens: tokens)
-        }
+        addTransactionContractAddresses(items)
         return items
     }
 
