@@ -131,6 +131,9 @@ public struct Constants {
     static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .classic, .poa]
 
     static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"
+
+    //validator API
+    static let tokenScriptValidatorAPI = "https://aw.app/api/v1/verifyXMLDSig"
 }
 
 public struct UnitConfiguration {
