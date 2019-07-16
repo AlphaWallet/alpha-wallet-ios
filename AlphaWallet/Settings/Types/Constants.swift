@@ -101,9 +101,12 @@ public struct Constants {
     public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
     static let legacy875Addresses = [AlphaWallet.Address(string: "0x830e1650a87a754e37ca7ed76b700395a7c61614")!,
                                             AlphaWallet.Address(string: "0xa66a3f08068174e8f005112a8b2c7a507a822335")!]
-    static let legacy721Addresses = [AlphaWallet.Address(string: "0x06012c8cf97bead5deae237070f9587f8e7a266d")!,
-                                            AlphaWallet.Address(string: "0xabc7e6c01237e8eef355bba2bf925a730b714d5f")!,
-                                            AlphaWallet.Address(string: "0x71c118b00759b0851785642541ceb0f4ceea0bd5")!]
+    static let legacy721Addresses = [
+        AlphaWallet.Address(string: "0x06012c8cf97bead5deae237070f9587f8e7a266d")!,
+        AlphaWallet.Address(string: "0xabc7e6c01237e8eef355bba2bf925a730b714d5f")!,
+        AlphaWallet.Address(string: "0x71c118b00759b0851785642541ceb0f4ceea0bd5")!,
+        AlphaWallet.Address(string: "0x7fdcd2a1e52f10c28cb7732f46393e297ecadda1")!
+    ]
 
     static let ethDenverXDaiPartnerContracts = [
         (name: "DEN", contract: AlphaWallet.Address(string: "0x6a814843de5967cf94d7720ce15cba8b0da81967")!),
