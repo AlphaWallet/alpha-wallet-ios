@@ -23,7 +23,7 @@ class TokenScriptSignatureVerifier {
         }
     }
 
-    private func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (Bool) -> Void) {
+    func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (Bool) -> Void) {
         guard let xmlAsData = xml.data(using: String.Encoding.utf8) else {
             completion(false)
             return

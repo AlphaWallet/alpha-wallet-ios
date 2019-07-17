@@ -548,6 +548,7 @@
 		73ED85A520349BE400593BF3 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A420349BE400593BF3 /* StringFormatter.swift */; };
 		73ED85A72034BFEF00593BF3 /* UITextFieldAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A62034BFEF00593BF3 /* UITextFieldAdditions.swift */; };
 		73ED85A92034C42D00593BF3 /* StringFormatterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */; };
+		76F1D09ED5C81F9B420FACD4 /* TokenScriptSignatureVerifierTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D7C0B5043312AADA668A /* TokenScriptSignatureVerifierTest.swift */; };
 		76F1D0A410FCFEB38307F7F9 /* DappsHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DD09B44FD653C1500DA8 /* DappsHomeViewController.swift */; };
 		76F1D12A7ED6E35000B1B020 /* DappBrowserCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D4E689C3ECFD38CBBC47 /* DappBrowserCoordinator.swift */; };
 		76F1D137B10D8309E513BBDD /* OrderSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE8ADA3176D0277EDF20 /* OrderSigningTests.swift */; };
@@ -1197,6 +1198,7 @@
 		76F1D473FF303828D93C95EB /* GetERC721BalanceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721BalanceCoordinator.swift; sourceTree = "<group>"; };
 		76F1D4E689C3ECFD38CBBC47 /* DappBrowserCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappBrowserCoordinator.swift; sourceTree = "<group>"; };
 		76F1D4F77311FBF3A442E4B5 /* GetIsERC721ContractCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC721ContractCoordinator.swift; sourceTree = "<group>"; };
+		76F1D7C0B5043312AADA668A /* TokenScriptSignatureVerifierTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptSignatureVerifierTest.swift; sourceTree = "<group>"; };
 		76F1D8877226D5DD086B135D /* CreateRedeemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeemTests.swift; sourceTree = "<group>"; };
 		76F1D8A3F2F0F86B632BFBCE /* DiscoverDappsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverDappsViewController.swift; sourceTree = "<group>"; };
 		76F1D948016AAE8470099748 /* MyDappCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyDappCell.swift; sourceTree = "<group>"; };
@@ -2880,6 +2882,7 @@
 				5E7C7FE30D58E4022AF04E48 /* AssetDefinitionStoreTests.swift */,
 				5E7C702300BB7DB0FD7788EF /* XMLHandlerTest.swift */,
 				5E7C79EF9D2C12F396364B92 /* AssetDefinitionDiskBackingStoreWithOverridesTests.swift */,
+				76F1D7C0B5043312AADA668A /* TokenScriptSignatureVerifierTest.swift */,
 			);
 			path = TokenScriptClient;
 			sourceTree = "<group>";
@@ -4247,6 +4250,7 @@
 				5E7C7507CC97BDE973FD4F0E /* GetENSOwnerCoordinatorTests.swift in Sources */,
 				5E7C7FC3D8846843465B0F90 /* ServersCoordinatorTests.swift in Sources */,
 				5E7C74A655E5D34953FFEBF2 /* AlphaWalletAddressTests.swift in Sources */,
+				76F1D09ED5C81F9B420FACD4 /* TokenScriptSignatureVerifierTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
