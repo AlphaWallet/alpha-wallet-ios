@@ -56,15 +56,6 @@ class WalletCoordinator: Coordinator {
             controller.delegate = self
             controller.configure()
             navigationController.viewControllers = [controller]
-        case .backupWallet(let address):
-            if let type = keystore.recentlyUsedWallet?.type, case let .real(account) = type {
-                guard address.sameContract(as: account.address.eip55String) else { return false }
-                guard !config.isWalletAddressAlreadyPromptedForBackUp(address: account.address) else { return false }
-                config.addToWalletAddressesAlreadyPromptedForBackup(address: account.address)
-                pushBackup(for: account)
-            } else {
-                return false
-            }
         }
         return true
     }
@@ -113,15 +104,6 @@ class WalletCoordinator: Coordinator {
         navigationController.present(coordinator.navigationController, animated: true, completion: nil)
     }
 
-    func pushBackup(for account: EthereumAccount) {
-        let controller = BackupViewController(account: account)
-        controller.delegate = self
-        controller.navigationItem.backBarButtonItem = nil
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
-        navigationController.setNavigationBarHidden(true, animated: false)
-        navigationController.pushViewController(controller, animated: true)
-    }
-
     @objc func dismiss() {
         delegate?.didCancel(in: self)
     }
@@ -163,12 +145,6 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController) {
         config.addToWalletAddressesAlreadyPromptedForBackup(address: account.address)
         didCreateAccount(account: account)
-    }
-}
-
-extension WalletCoordinator: BackupViewControllerDelegate {
-    func didPressBackup(account: EthereumAccount, in viewController: BackupViewController) {
-        backup(account: account)
     }
 }
 

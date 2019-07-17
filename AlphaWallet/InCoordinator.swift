@@ -242,7 +242,6 @@ class InCoordinator: NSObject, Coordinator {
                     guard !(balance.isZero) else { return }
                     //TODO we don'backup wallets if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
                     guard ProcessInfo.processInfo.environment["XCInjectBundleInto"] == nil else { return }
-                    strongSelf.promptBackupWallet(withAddress: strongSelf.wallet.address)
                 }
             }
             nativeCryptoCurrencyBalances[each] = price
@@ -293,15 +292,17 @@ class InCoordinator: NSObject, Coordinator {
         showTab(inCoordinatorViewModel.initialTab)
     }
 
-    private func createTokensCoordinator() -> TokensCoordinator {
+    private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator) -> TokensCoordinator {
         let tokensStoragesForEnabledServers = config.enabledServers.map { tokensStorages[$0] }
         let tokenCollection = TokenCollection(tokenDataStores: tokensStoragesForEnabledServers)
+        promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(withTokenCollection: tokenCollection)
         let coordinator = TokensCoordinator(
                 sessions: walletSessions,
                 keystore: keystore,
                 tokenCollection: tokenCollection,
                 nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices,
-                assetDefinitionStore: assetDefinitionStore
+                assetDefinitionStore: assetDefinitionStore,
+                promptBackupCoordinator: promptBackupCoordinator
         )
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_wallet())
         coordinator.delegate = self
@@ -310,14 +311,15 @@ class InCoordinator: NSObject, Coordinator {
         return coordinator
     }
 
-    private func createTransactionCoordinator() -> TransactionCoordinator {
+    private func createTransactionCoordinator(promptBackupCoordinator: PromptBackupCoordinator) -> TransactionCoordinator {
         let transactionsStoragesForEnabledServers = config.enabledServers.map { transactionsStorages[$0] }
         let transactionsCollection = TransactionCollection(transactionsStorages: transactionsStoragesForEnabledServers)
         let coordinator = TransactionCoordinator(
                 sessions: walletSessions,
                 transactionsCollection: transactionsCollection,
                 keystore: keystore,
-                tokensStorages: tokensStorages
+                tokensStorages: tokensStorages,
+                promptBackupCoordinator: promptBackupCoordinator
         )
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.transactionsTabbarItemTitle(), image: R.image.feed()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.feed())
         coordinator.delegate = self
@@ -335,11 +337,12 @@ class InCoordinator: NSObject, Coordinator {
         return coordinator
     }
 
-    private func createSettingsCoordinator(keystore: Keystore) -> SettingsCoordinator {
+    private func createSettingsCoordinator(keystore: Keystore, promptBackupCoordinator: PromptBackupCoordinator) -> SettingsCoordinator {
         let coordinator = SettingsCoordinator(
                 keystore: keystore,
                 config: config,
-                sessions: walletSessions
+                sessions: walletSessions,
+                promptBackupCoordinator: promptBackupCoordinator
         )
         coordinator.rootViewController.tabBarItem = UITabBarItem(
                 title: R.string.localizable.aSettingsNavigationTitle(),
@@ -356,31 +359,29 @@ class InCoordinator: NSObject, Coordinator {
     private func createTabBarController(realm: Realm) -> UITabBarController {
         var viewControllers = [UIViewController]()
 
-        let tokensCoordinator = createTokensCoordinator()
+        let promptBackupCoordinator = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config)
+        addCoordinator(promptBackupCoordinator)
+
+        let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator)
         viewControllers.append(tokensCoordinator.navigationController)
 
-        let transactionCoordinator = createTransactionCoordinator()
+        let transactionCoordinator = createTransactionCoordinator(promptBackupCoordinator: promptBackupCoordinator)
         viewControllers.append(transactionCoordinator.navigationController)
 
         let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: false)
         viewControllers.append(browserCoordinator.navigationController)
 
-        let settingsCoordinator = createSettingsCoordinator(keystore: keystore)
+        let settingsCoordinator = createSettingsCoordinator(keystore: keystore, promptBackupCoordinator: promptBackupCoordinator)
         viewControllers.append(settingsCoordinator.navigationController)
 
         let tabBarController = TabBarController()
         tabBarController.tabBar.isTranslucent = false
         tabBarController.viewControllers = viewControllers
         tabBarController.delegate = self
-        return tabBarController
-    }
 
-    private func promptBackupWallet(withAddress address: AlphaWallet.Address) {
-        //TODo wallet or Address instead?
-        let coordinator = PromptBackupCoordinator(keystore: keystore, walletAddress: address, config: config)
-        addCoordinator(coordinator)
-        coordinator.delegate = self
-        coordinator.start()
+        promptBackupCoordinator.start()
+
+        return tabBarController
     }
 
     @objc private func dismissTransactions() {
@@ -709,16 +710,6 @@ extension InCoordinator: PaymentCoordinatorDelegate {
 
     func didCancel(in coordinator: PaymentCoordinator) {
         coordinator.navigationController.dismiss(animated: true, completion: nil)
-        removeCoordinator(coordinator)
-    }
-}
-
-extension InCoordinator: PromptBackupCoordinatorDelegate {
-    func viewControllerForPresenting(in coordinator: PromptBackupCoordinator) -> UIViewController? {
-        return navigationController
-    }
-
-    func didFinish(in coordinator: PromptBackupCoordinator) {
         removeCoordinator(coordinator)
     }
 }

@@ -129,6 +129,13 @@ open class EtherKeystore: Keystore {
 
     func importWallet(type: ImportType, completion: @escaping (Result<Wallet, KeystoreError>) -> Void) {
         let results = importWallet(type: type)
+        switch results {
+        case .success(let wallet):
+            //TODO not the best way to do this but let's see if there's a better way to inform the coordinator that a wallet has been imported to avoid it being prompted for back
+            PromptBackupCoordinator(keystore: self, wallet: wallet, config: .init()).markWalletAsImported()
+        case .failure:
+            break
+        }
         completion(results)
     }
 
@@ -256,6 +263,8 @@ open class EtherKeystore: Keystore {
             ethereumAddressesWithSeedPhrases = ethereumAddressesWithSeedPhrases.filter {
                 $0 != account.address.eip55String
             }
+            //TODO not the best way to do this but let's see if there's a better way to inform the coordinator that a wallet has been deleted
+            PromptBackupCoordinator(keystore: self, wallet: wallet, config: .init()).deleteWallet()
         case .watch(let address):
             watchAddresses = watchAddresses.filter {
                 $0 != address.eip55String

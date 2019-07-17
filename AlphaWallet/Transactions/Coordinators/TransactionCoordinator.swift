@@ -10,6 +10,7 @@ protocol TransactionCoordinatorDelegate: class, CanOpenURL {
 class TransactionCoordinator: Coordinator {
     private let keystore: Keystore
     private let transactionsCollection: TransactionCollection
+    private let promptBackupCoordinator: PromptBackupCoordinator
 
     lazy var rootViewController: TransactionsViewController = {
         return makeTransactionsController()
@@ -20,7 +21,8 @@ class TransactionCoordinator: Coordinator {
             sessions: sessions,
             transactionCollection: transactionsCollection,
             keystore: keystore,
-            tokensStorages: tokensStorages
+            tokensStorages: tokensStorages,
+            promptBackupCoordinator: promptBackupCoordinator
         )
         return coordinator
     }()
@@ -37,13 +39,15 @@ class TransactionCoordinator: Coordinator {
         navigationController: UINavigationController = NavigationController(),
         transactionsCollection: TransactionCollection,
         keystore: Keystore,
-        tokensStorages: ServerDictionary<TokensDataStore>
+        tokensStorages: ServerDictionary<TokensDataStore>,
+        promptBackupCoordinator: PromptBackupCoordinator
     ) {
         self.sessions = sessions
         self.keystore = keystore
         self.navigationController = navigationController
         self.transactionsCollection = transactionsCollection
         self.tokensStorages = tokensStorages
+        self.promptBackupCoordinator = promptBackupCoordinator
 
         NotificationCenter.default.addObserver(self, selector: #selector(didEnterForeground), name: UIApplication.willEnterForegroundNotification, object: nil)
     }

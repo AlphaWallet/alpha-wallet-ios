@@ -134,5 +134,6 @@ extension BackupCoordinator: VerifySeedPhraseCoordinatorDelegate {
         defer { removeCoordinator(coordinator) }
         backupSeedPhraseCoordinator?.end(animated: false)
         coordinator.end(animated: true)
+        finish(result: .success(true))
     }
 }

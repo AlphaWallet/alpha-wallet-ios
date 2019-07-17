@@ -17,14 +17,6 @@ class TokensViewModel {
         return CurrencyFormatter.formatter.string(from: NSNumber(value: totalAmount))
     }
 
-    private func amount(for token: TokenObject) -> Double {
-        guard let tickers = tickers[token.server] else { return 0 }
-        guard !token.valueBigInt.isZero, let tickersSymbol = tickers[token.contractAddress] else { return 0 }
-        let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
-        let price = Double(tickersSymbol.price_usd) ?? 0
-        return tokenValue * price
-    }
-
     var filter: WalletFilter = .all
     var filteredTokens: [TokenObject] {
         switch filter {
@@ -77,6 +69,17 @@ class TokensViewModel {
         }
     }
 
+    var shouldShowBackupPromptViewHolder: Bool {
+        //TODO show the prompt in both ASSETS and COLLECTIBLES tab too
+        switch filter {
+        case .all, .currencyOnly, .keyword:
+            return true
+        case .assetsOnly, .collectiblesOnly:
+            return false
+        }
+    }
+
+
     var shouldShowCollectiblesCollectionView: Bool {
         switch filter {
         case .all, .currencyOnly, .assetsOnly, .keyword:
@@ -117,5 +120,17 @@ class TokensViewModel {
     init(tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
         self.tokens = tokens
         self.tickers = tickers
+    }
+
+    func nativeCryptoCurrencyToken(forServer server: RPCServer) -> TokenObject? {
+        return tokens.first(where: { $0.primaryKey == TokensDataStore.etherToken(forServer: .main).primaryKey })
+    }
+
+    func amount(for token: TokenObject) -> Double {
+        guard let tickers = tickers[token.server] else { return 0 }
+        guard !token.valueBigInt.isZero, let tickersSymbol = tickers[token.contractAddress] else { return 0 }
+        let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
+        let price = Double(tickersSymbol.price_usd) ?? 0
+        return tokenValue * price
     }
 }

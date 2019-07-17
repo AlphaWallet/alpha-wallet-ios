@@ -42,6 +42,8 @@ class TokensViewController: UIViewController {
     private var currentCollectiblesContractsDisplayed = [AlphaWallet.Address]()
     private let searchController: UISearchController
     private let consoleButton = UIButton(type: .system)
+    private let promptBackupWalletViewHolder = UIView()
+    private var shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = false
 
     weak var delegate: TokensViewControllerDelegate?
     //TODO The name "bad" isn't correct. Because it includes "conflicts" too
@@ -54,6 +56,24 @@ class TokensViewController: UIViewController {
                 consoleButton.titleLabel?.font = Fonts.light(size: 22)!
                 consoleButton.setTitleColor(Colors.appWhite, for: .normal)
                 consoleButton.setTitle(R.string.localizable.tokenScriptShowErrors(), for: .normal)
+            }
+        }
+    }
+    var promptBackupWalletView: UIView? {
+        didSet {
+            oldValue?.removeFromSuperview()
+            if let promptBackupWalletView = promptBackupWalletView {
+                promptBackupWalletViewHolder.isHidden = shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive
+                promptBackupWalletView.translatesAutoresizingMaskIntoConstraints = false
+                promptBackupWalletViewHolder.addSubview(promptBackupWalletView)
+                NSLayoutConstraint.activate([
+                    promptBackupWalletView.leadingAnchor.constraint(equalTo: promptBackupWalletViewHolder.leadingAnchor, constant: 7),
+                    promptBackupWalletView.trailingAnchor.constraint(equalTo: promptBackupWalletViewHolder.trailingAnchor, constant: -7),
+                    promptBackupWalletView.topAnchor.constraint(equalTo: promptBackupWalletViewHolder.topAnchor, constant: 7),
+                    promptBackupWalletView.bottomAnchor.constraint(equalTo: promptBackupWalletViewHolder.bottomAnchor, constant: -4),
+                ])
+            } else {
+                promptBackupWalletViewHolder.isHidden = true
             }
         }
     }
@@ -94,8 +114,11 @@ class TokensViewController: UIViewController {
         tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         tableView.addSubview(tableViewRefreshControl)
 
+        promptBackupWalletViewHolder.isHidden = true
+
         let bodyStackView = [
             consoleButton,
+            promptBackupWalletViewHolder,
             tableView,
         ].asStackView(axis: .vertical)
         bodyStackView.translatesAutoresizingMaskIntoConstraints = false
@@ -173,6 +196,7 @@ class TokensViewController: UIViewController {
 
     private func reload() {
         tableView.isHidden = !viewModel.shouldShowTable
+        promptBackupWalletViewHolder.isHidden = !(viewModel.shouldShowBackupPromptViewHolder && !promptBackupWalletViewHolder.subviews.isEmpty) || shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive
         collectiblesCollectionView.isHidden = !viewModel.shouldShowCollectiblesCollectionView
         if viewModel.hasContent {
             if viewModel.shouldShowTable {
@@ -423,6 +447,11 @@ extension TokensViewController: UICollectionViewDelegate {
 
 extension TokensViewController: UISearchResultsUpdating {
     public func updateSearchResults(for searchController: UISearchController) {
+        if searchController.isActive {
+            shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = true
+        } else {
+            shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = false
+        }
         let keyword = searchController.searchBar.text ?? ""
         filterView.searchFor(keyword: keyword)
     }

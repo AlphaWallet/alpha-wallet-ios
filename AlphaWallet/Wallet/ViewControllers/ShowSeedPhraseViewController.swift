@@ -100,6 +100,8 @@ class ShowSeedPhraseViewController: UIViewController {
 
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignsActive), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+
+        hidesBottomBarWhenPushed = true
     }
 
     required init?(coder aDecoder: NSCoder) {

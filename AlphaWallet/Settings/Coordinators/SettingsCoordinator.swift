@@ -18,6 +18,7 @@ class SettingsCoordinator: Coordinator {
 	private let keystore: Keystore
 	var config: Config
 	private let sessions: ServerDictionary<WalletSession>
+    private let promptBackupCoordinator: PromptBackupCoordinator
 
 	private var account: Wallet {
 		return sessions.anyValue.account
@@ -38,13 +39,16 @@ class SettingsCoordinator: Coordinator {
 			navigationController: UINavigationController = NavigationController(),
 			keystore: Keystore,
 			config: Config,
-			sessions: ServerDictionary<WalletSession>
+			sessions: ServerDictionary<WalletSession>,
+			promptBackupCoordinator: PromptBackupCoordinator
 	) {
 		self.navigationController = navigationController
 		self.navigationController.modalPresentationStyle = .formSheet
 		self.keystore = keystore
 		self.config = config
 		self.sessions = sessions
+        self.promptBackupCoordinator = promptBackupCoordinator
+		promptBackupCoordinator.subtlePromptDelegate = self
 	}
 
 	func start() {
@@ -187,5 +191,15 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 	func didSelectDismiss(in coordinator: EnabledServersCoordinator) {
 		coordinator.enabledServersViewController.navigationController?.popViewController(animated: true)
 		removeCoordinator(coordinator)
+	}
+}
+
+extension SettingsCoordinator: PromptBackupCoordinatorSubtlePromptDelegate {
+	var viewControllerToShowBackupLaterAlert: UIViewController {
+		return rootViewController
+	}
+
+	func updatePrompt(inCoordinator coordinator: PromptBackupCoordinator) {
+		rootViewController.promptBackupWalletView = coordinator.subtlePromptView
 	}
 }

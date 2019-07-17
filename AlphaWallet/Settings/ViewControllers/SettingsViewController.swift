@@ -21,8 +21,27 @@ class SettingsViewController: FormViewController {
         return SettingsViewModel(isDebug: isDebug)
     }()
     private let account: Wallet
+    private let promptBackupWalletViewHolder = UIView()
 
     weak var delegate: SettingsViewControllerDelegate?
+    var promptBackupWalletView: UIView? {
+        didSet {
+            oldValue?.removeFromSuperview()
+            if let promptBackupWalletView = promptBackupWalletView {
+                promptBackupWalletViewHolder.isHidden = false
+                promptBackupWalletView.translatesAutoresizingMaskIntoConstraints = false
+                promptBackupWalletViewHolder.addSubview(promptBackupWalletView)
+                NSLayoutConstraint.activate([
+                    promptBackupWalletView.leadingAnchor.constraint(equalTo: promptBackupWalletViewHolder.leadingAnchor, constant: 7),
+                    promptBackupWalletView.trailingAnchor.constraint(equalTo: promptBackupWalletViewHolder.trailingAnchor, constant: -7),
+                    promptBackupWalletView.topAnchor.constraint(equalTo: promptBackupWalletViewHolder.topAnchor, constant: 7),
+                    promptBackupWalletView.bottomAnchor.constraint(equalTo: promptBackupWalletViewHolder.bottomAnchor, constant: 0),
+                ])
+            } else {
+                promptBackupWalletViewHolder.isHidden = true
+            }
+        }
+    }
 
     init(account: Wallet) {
         self.account = account
@@ -167,6 +186,25 @@ class SettingsViewController: FormViewController {
             cell.mainLabel.text = R.string.localizable.settingsVersionLabelTitle()
             cell.subLabel.text = Bundle.main.fullVersion
         }
+
+        //Check for nil is important because the prompt might have been shown before viewDidLoad
+        if promptBackupWalletView == nil {
+            promptBackupWalletViewHolder.isHidden = true
+        }
+
+        let bodyStackView = [
+            promptBackupWalletViewHolder,
+            tableView,
+        ].asStackView(axis: .vertical)
+        bodyStackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(bodyStackView)
+
+        NSLayoutConstraint.activate([
+            bodyStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bodyStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bodyStackView.topAnchor.constraint(equalTo: view.topAnchor),
+            bodyStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
     }
 
     func setPasscode(completion: ((Bool) -> Void)? = .none) {

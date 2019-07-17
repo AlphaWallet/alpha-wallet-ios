@@ -39,8 +39,6 @@ class InitialWalletCreationCoordinator: Coordinator {
             presentImportOrWatchWallet()
         case .watchWallet:
             presentImportOrWatchWallet()
-        case .backupWallet:
-            break
         }
     }
 

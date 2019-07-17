@@ -368,3 +368,13 @@
 "gettingStarted.subtitle" = "Welcome to AlphaWallet";
 "gettingStarted.newWallet" = "Create a New Wallet";
 "gettingStarted.alreadyHaveWallet" = "I already have a wallet:";
+"backup.prompt.title" = "Your Wallet is not backed up!";
+"backup.prompt.description.withAmount" = "You have not backed up your wallet yet. You have %@ USD net. Act now.";
+"backup.prompt.backupButton.title" = "Back up Wallet";
+"backup.prompt.backup.remindLater" = "Remind me to back up later?";
+"backup.prompt.afterReceivingEther.title" = "Just received %@ ETH?";
+"backup.prompt.description.withoutAmount" = "Remember to back up your wallet by a secure seed phrase.";
+"backup.prompt.afterInterval.title" = "Time to back up your Wallet";
+"backup.prompt.afterInterval.description" = "We highly recommend to back up your wallet";
+"backup.prompt.afterHittingThreshold.title" = "Your Wallet is at risk!";
+"backup.prompt.afterHittingThreshold.description" = "You have not backed up your wallet yet. You have %@ USD net. Act now. ";

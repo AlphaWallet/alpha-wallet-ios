@@ -10,7 +10,8 @@ class SettingsCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(),
             config: .make(),
-            sessions: .init()
+            sessions: .init(),
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make())
         )
         
         coordinator.showAccounts()
@@ -45,7 +46,8 @@ class SettingsCoordinatorTests: XCTestCase {
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(),
             config: .make(),
-            sessions: .init()
+            sessions: .init(),
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make())
         )
         let delegate = Delegate()
         coordinator.delegate = delegate

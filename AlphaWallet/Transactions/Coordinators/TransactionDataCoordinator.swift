@@ -19,6 +19,7 @@ class TransactionDataCoordinator: Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
     private let tokensStorages: ServerDictionary<TokensDataStore>
+    private let promptBackupCoordinator: PromptBackupCoordinator
     private var singleChainTransactionDataCoordinators: [SingleChainTransactionDataCoordinator] {
         return coordinators.compactMap { $0 as? SingleChainTransactionDataCoordinator }
     }
@@ -39,12 +40,14 @@ class TransactionDataCoordinator: Coordinator {
             sessions: ServerDictionary<WalletSession>,
             transactionCollection: TransactionCollection,
             keystore: Keystore,
-            tokensStorages: ServerDictionary<TokensDataStore>
+            tokensStorages: ServerDictionary<TokensDataStore>,
+            promptBackupCoordinator: PromptBackupCoordinator
     ) {
         self.sessions = sessions
         self.transactionCollection = transactionCollection
         self.keystore = keystore
         self.tokensStorages = tokensStorages
+        self.promptBackupCoordinator = promptBackupCoordinator
         setupSingleChainTransactionDataCoordinators()
         NotificationCenter.default.addObserver(self, selector: #selector(stopTimers), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(restartTimers), name: UIApplication.didBecomeActiveNotification, object: nil)
@@ -55,7 +58,7 @@ class TransactionDataCoordinator: Coordinator {
             let server = each.server
             let session = sessions[server]
             let tokensDataStore = tokensStorages[server]
-            let coordinator = SingleChainTransactionDataCoordinator(session: session, storage: each, keystore: keystore, tokensStorage: tokensDataStore, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
+            let coordinator = SingleChainTransactionDataCoordinator(session: session, storage: each, keystore: keystore, tokensStorage: tokensDataStore, promptBackupCoordinator: promptBackupCoordinator, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
