@@ -64,7 +64,6 @@ class TransactionsStorage {
         realm.beginWrite()
         realm.add(items, update: true)
         try! realm.commitWrite()
-        addTransactionContractAddresses(items)
         return items
     }
 
