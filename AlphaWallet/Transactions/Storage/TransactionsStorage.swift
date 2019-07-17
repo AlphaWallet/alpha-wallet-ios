@@ -48,11 +48,18 @@ class TransactionsStorage {
         }
     }
 
+    private func removeAlreadyAddedTransactions(_ items: [Transaction]) -> [Transaction] {
+        return items.filter {
+            !objects.contains($0)
+        }
+    }
+
     @discardableResult
     func add(_ items: [Transaction], _ filteredTransactions: [Transaction]) -> [Transaction] {
         guard !items.isEmpty else { return [] }
+        let transactionsToAdd = removeAlreadyAddedTransactions(items)
         realm.beginWrite()
-        realm.add(items, update: true)
+        realm.add(transactionsToAdd, update: true)
         try! realm.commitWrite()
         addTransactionContractAddresses(filteredTransactions)
         return items
@@ -61,8 +68,9 @@ class TransactionsStorage {
     @discardableResult
     func add(_ items: [Transaction]) -> [Transaction] {
         guard !items.isEmpty else { return [] }
+        let transactionsToAdd = removeAlreadyAddedTransactions(items)
         realm.beginWrite()
-        realm.add(items, update: true)
+        realm.add(transactionsToAdd, update: true)
         try! realm.commitWrite()
         return items
     }
