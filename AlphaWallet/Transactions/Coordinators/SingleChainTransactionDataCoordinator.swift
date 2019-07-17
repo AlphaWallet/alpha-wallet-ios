@@ -98,7 +98,10 @@ class SingleChainTransactionDataCoordinator: Coordinator {
         let hiddenContracts = tokensStorage.hiddenContracts.map { $0.contractAddress }
         let delegateContracts = tokensStorage.delegateContracts.map { $0.contractAddress }
         let contractsToAvoid = alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts
-        let filteredTransactions = items.filter { !contractsToAvoid.contains(AlphaWallet.Address(string: $0.to)!) }
+        let filteredTransactions = items.filter {
+            guard let addressToCheck = AlphaWallet.Address(string: $0.to) else { return false }
+            return !contractsToAvoid.contains(addressToCheck)
+        }
         storage.add(items, filteredTransactions)
         delegate?.handleUpdateItems(inCoordinator: self)
     }
