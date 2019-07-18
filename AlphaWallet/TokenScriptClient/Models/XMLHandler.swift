@@ -352,11 +352,11 @@ private class PrivateXMLHandler {
         let result = XMLHandler.checkTokenScriptSchema(xmlString)
         switch result {
         case .supportedTokenScriptVersion:
-            return verificationType(forXml: xmlString, isOfficial: isOfficial, isCanonicalized: isCanonicalized, contractAddress: contract).then { verificationStatus -> Promise<TokenLevelTokenScriptDisplayStatus> in
+            return verificationType(forXml: xmlString, isCanonicalized: isCanonicalized, contractAddress: contract).then { verificationStatus -> Promise<TokenLevelTokenScriptDisplayStatus> in
                 return Promise { seal in
                     switch verificationStatus {
                     case .verified(let domainName):
-                        seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: true, validatedDomain: domainName, message: R.string.localizable.tokenScriptType1SupportedAndSigned()))
+                    seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: true, validatedDomain: domainName, message: R.string.localizable.tokenScriptType1SupportedAndSigned()))
                     case .verificationFailed:
                         seal.fulfill(.type2BadTokenScript(isDebugMode: !isOfficial, message: R.string.localizable.tokenScriptType2InvalidSignature(), reason: .invalidSignature))
                     case .notCanonicalizedAndNotSigned:
@@ -402,9 +402,9 @@ private class PrivateXMLHandler {
         cache.cache(attributes: fields, values: valuesAsDictionary, forContract: contractAddress, tokenId: tokenId)
     }
 
-    private static func verificationType(forXml xmlString: String, isOfficial: Bool, isCanonicalized: Bool, contractAddress: AlphaWallet.Address) -> Promise<TokenScriptSignatureVerificationType> {
+    private static func verificationType(forXml xmlString: String, isCanonicalized: Bool, contractAddress: AlphaWallet.Address) -> Promise<TokenScriptSignatureVerificationType> {
         let verifier = TokenScriptSignatureVerifier()
-        return verifier.verify(xml: xmlString, isOfficial: isOfficial)
+        return verifier.verify(xml: xmlString)
     }
 
     private func defaultActions(forTokenType tokenType: TokenInterfaceType) -> [TokenInstanceAction] {
