@@ -222,7 +222,7 @@ extension AccountsViewController: UITableViewDelegate {
         let shouldHideSectionHeaders = shouldHideAllSectionHeaders()
         switch AccountViewTableSectionHeader.HeaderType(rawValue: section) {
         case .some(.hdWallet):
-            v.configure(type: .hdWallet, shouldHide: shouldHideSectionHeaders || viewModel.hdWallets.isEmpty)
+            v.configure(type: .hdWallet, shouldHide: true)
         case .some(.keystoreWallet):
             v.configure(type: .keystoreWallet, shouldHide: shouldHideSectionHeaders || viewModel.keystoreWallets.isEmpty)
         case .some(.watchedWallet):
