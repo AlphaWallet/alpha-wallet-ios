@@ -7,18 +7,14 @@ import SwiftyJSON
 
 class TokenScriptSignatureVerifier {
 
-    func verify(xml: String, isOfficial: Bool) -> Promise<TokenScriptSignatureVerificationType> {
+    func verify(xml: String) -> Promise<TokenScriptSignatureVerificationType> {
         return Promise { seal in
-            if isOfficial {
-                verifyXMLSignatureViaAPI(xml: xml) { result in
-                    if result == "failed" {
-                        seal.fulfill(.verificationFailed)
-                    } else {
-                        seal.fulfill(.verified(domainName: result))
-                    }
+            verifyXMLSignatureViaAPI(xml: xml) { result in
+                if result == "failed" {
+                    seal.fulfill(.verificationFailed)
+                } else {
+                    seal.fulfill(.verified(domainName: result))
                 }
-            } else {
-                seal.fulfill(.notCanonicalizedAndNotSigned)
             }
         }
     }
