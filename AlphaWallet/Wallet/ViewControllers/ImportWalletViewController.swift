@@ -218,6 +218,19 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         }
     }
 
+    private func showCorrectTab() {
+        switch tabBar.tab {
+        case .mnemonic:
+            showMnemonicControlsOnly()
+        case .keystore:
+            showKeystoreControlsOnly()
+        case .privateKey:
+            showPrivateKeyControlsOnly()
+        case .watch:
+            showWatchControlsOnly()
+        }
+    }
+
     func showWatchTab() {
         tabBar.showWatchTab()
     }
@@ -433,6 +446,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
         importKeystoreJsonFromCloudButton.isHidden = true
         importSeedDescriptionLabel.isHidden = false
+        let importButton = buttonsBar.buttons[0]
+        importButton.isEnabled = !mnemonicTextView.value.isEmpty
     }
 
     private func showKeystoreControlsOnly() {
@@ -443,6 +458,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
         importKeystoreJsonFromCloudButton.isHidden = false
         importSeedDescriptionLabel.isHidden = true
+        let importButton = buttonsBar.buttons[0]
+        importButton.isEnabled = !keystoreJSONTextView.value.isEmpty && !passwordTextField.value.isEmpty
     }
 
     private func showPrivateKeyControlsOnly() {
@@ -453,6 +470,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         configureImportButtonTitle(R.string.localizable.importWalletImportButtonTitle())
         importKeystoreJsonFromCloudButton.isHidden = true
         importSeedDescriptionLabel.isHidden = true
+        let importButton = buttonsBar.buttons[0]
+        importButton.isEnabled = !privateKeyTextView.value.isEmpty
     }
 
     private func showWatchControlsOnly() {
@@ -463,6 +482,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         configureImportButtonTitle(R.string.localizable.walletWatchButtonTitle())
         importKeystoreJsonFromCloudButton.isHidden = true
         importSeedDescriptionLabel.isHidden = true
+        let importButton = buttonsBar.buttons[0]
+        importButton.isEnabled = !watchAddressTextField.value.isEmpty
     }
 
     private func moveFocusToTextEntryField(after textInput: UIView) {
@@ -528,6 +549,14 @@ extension ImportWalletViewController: TextFieldDelegate {
     func nextButtonTapped(for textField: TextField) {
         moveFocusToTextEntryField(after: textField)
     }
+
+    func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
+        //Just easier to dispatch
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.showCorrectTab()
+        }
+        return true
+    }
 }
 
 extension ImportWalletViewController: TextViewDelegate {
@@ -542,6 +571,10 @@ extension ImportWalletViewController: TextViewDelegate {
 
     func nextButtonTapped(for textView: TextView) {
         moveFocusToTextEntryField(after: textView)
+    }
+
+    func didChange(inTextView textView: TextView) {
+        showCorrectTab()
     }
 }
 
@@ -564,20 +597,12 @@ extension ImportWalletViewController: AddressTextFieldDelegate {
     }
 
     func didChange(to string: String, in textField: AddressTextField) {
+        showCorrectTab()
     }
 }
 
 extension ImportWalletViewController: ImportWalletTabBarDelegate {
     func didPressImportWalletTab(tab: ImportWalletTab, in tabBar: ImportWalletTabBar) {
-        switch tab {
-        case .mnemonic:
-            showMnemonicControlsOnly()
-        case .keystore:
-            showKeystoreControlsOnly()
-        case .privateKey:
-            showPrivateKeyControlsOnly()
-        case .watch:
-            showWatchControlsOnly()
-        }
+        showCorrectTab()
     }
 }

@@ -6,6 +6,13 @@ protocol TextFieldDelegate: class {
     func shouldReturn(in textField: TextField) -> Bool
     func doneButtonTapped(for textField: TextField)
     func nextButtonTapped(for textField: TextField)
+    func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool
+}
+
+extension TextFieldDelegate {
+    func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
+        return true
+    }
 }
 
 class TextField: UIControl {
@@ -161,5 +168,9 @@ extension TextField: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let delegate = delegate else { return true }
         return delegate.shouldReturn(in: self)
+    }
+
+    public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        return delegate?.shouldChangeCharacters(inRange: range, replacementString: string, for: self) ?? true
     }
 }

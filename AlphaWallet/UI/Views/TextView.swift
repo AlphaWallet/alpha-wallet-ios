@@ -6,6 +6,13 @@ protocol TextViewDelegate: class {
     func shouldReturn(in textView: TextView) -> Bool
     func doneButtonTapped(for textView: TextView)
     func nextButtonTapped(for textView: TextView)
+    func didChange(inTextView textView: TextView)
+}
+
+extension TextViewDelegate {
+    func didChange(inTextView textView: TextView) {
+        //do nothing
+    }
 }
 
 class TextView: UIControl {
@@ -135,5 +142,9 @@ extension TextView: UITextViewDelegate {
         } else {
             return true
         }
+    }
+
+    public func textViewDidChange(_ textView: UITextView) {
+        delegate?.didChange(inTextView: self)
     }
 }
