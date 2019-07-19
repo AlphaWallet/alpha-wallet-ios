@@ -16,7 +16,6 @@ class TextField: UIControl {
     }
 
     private var isConfigured = false
-    private let textField = UITextField()
 
     var returnKeyType: UIReturnKeyType {
         get {
@@ -46,6 +45,7 @@ class TextField: UIControl {
     }
 
     let label = UILabel()
+    let textField = UITextField()
     weak var delegate: TextFieldDelegate?
 
     var value: String {
@@ -82,8 +82,8 @@ class TextField: UIControl {
         addSubview(textField)
 
         NSLayoutConstraint.activate([
-            textField.leadingAnchor.constraint(equalTo: leadingAnchor),
-            textField.trailingAnchor.constraint(equalTo: trailingAnchor),
+            textField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 22),
+            textField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -22),
             textField.topAnchor.constraint(equalTo: topAnchor),
             textField.bottomAnchor.constraint(equalTo: bottomAnchor),
             heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
@@ -97,12 +97,10 @@ class TextField: UIControl {
         label.font = Fonts.regular(size: 10)!
         label.textColor = Colors.appGrayLabelColor
 
-        textField.leftView = .spacerWidth(22)
-        textField.rightView = .spacerWidth(22)
         textField.textColor = Colors.appBackground
         textField.font = Fonts.bold(size: 21)
-        textField.layer.borderColor = Colors.appBackground.cgColor
-        textField.layer.borderWidth = 1
+        layer.borderColor = Colors.appBackground.cgColor
+        layer.borderWidth = 1
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -115,7 +113,7 @@ class TextField: UIControl {
     }
 
     private func roundCornersBasedOnHeight() {
-        textField.layer.cornerRadius = textField.frame.size.height / 2
+        layer.cornerRadius = frame.size.height / 2
     }
 
     private func makeToolbarWithDoneButton() -> UIToolbar {

@@ -74,7 +74,17 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         passwordTextField.textField.autocorrectionType = .no
         passwordTextField.textField.autocapitalizationType = .none
         passwordTextField.returnKeyType = .done
-        passwordTextField.isSecureTextEntry = true
+        passwordTextField.isSecureTextEntry = false
+        passwordTextField.textField.clearButtonMode = .whileEditing
+        passwordTextField.textField.rightView = {
+            let button = UIButton(type: .system)
+            button.frame = .init(x: 0, y: 0, width: 30, height: 30)
+            button.setImage(R.image.togglePassword(), for: .normal)
+            button.tintColor = .init(red: 111, green: 111, blue: 111)
+            button.addTarget(self, action: #selector(self.toggleMaskPassword), for: .touchUpInside)
+            return button
+        }()
+        passwordTextField.textField.rightViewMode = .unlessEditing
 
         privateKeyTextView.label.translatesAutoresizingMaskIntoConstraints = false
         privateKeyTextView.delegate = self
@@ -469,6 +479,16 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             view.endEditing(true)
         default:
             break
+        }
+    }
+
+    @objc private func toggleMaskPassword() {
+        passwordTextField.isSecureTextEntry = !passwordTextField.isSecureTextEntry
+        guard let button = passwordTextField.textField.rightView as? UIButton else { return }
+        if passwordTextField.isSecureTextEntry {
+            button.tintColor = Colors.appBackground
+        } else {
+            button.tintColor = .init(red: 111, green: 111, blue: 111)
         }
     }
 }
