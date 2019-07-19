@@ -15,7 +15,11 @@ class ShowSeedPhraseViewController: UIViewController {
         case errorDisplaySeedPhrase(KeystoreError)
     }
 
-    private var viewModel: ShowSeedPhraseViewModel
+    private var viewModel: ShowSeedPhraseViewModel {
+        didSet {
+            seedPhraseCollectionView.viewModel = .init(words: viewModel.words)
+        }
+    }
     private let keystore: Keystore
     private let account: EthereumAccount
     private let roundedBackground = RoundedBackground()
@@ -35,14 +39,7 @@ class ShowSeedPhraseViewController: UIViewController {
             configure()
         }
     }
-    private let seedPhraseCollectionView = { () -> UICollectionView in
-        let layout = CollectionViewLeftAlignedFlowLayout()
-        layout.sectionInset = .init(top: 0, left: 0, bottom: 0, right: 0)
-        layout.minimumInteritemSpacing = 7
-        layout.minimumLineSpacing = 7
-        layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-        return UICollectionView(frame: .zero, collectionViewLayout: layout)
-    }()
+    private let seedPhraseCollectionView = SeedPhraseCollectionView()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
 
     weak var delegate: ShowSeedPhraseViewControllerDelegate?
@@ -58,9 +55,6 @@ class ShowSeedPhraseViewController: UIViewController {
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
-
-        seedPhraseCollectionView.register(SeedPhraseCell.self, forCellWithReuseIdentifier: SeedPhraseCell.identifier)
-        seedPhraseCollectionView.dataSource = self
 
         let stackView = [
             UIView.spacer(height: 30),
@@ -163,8 +157,7 @@ class ShowSeedPhraseViewController: UIViewController {
         errorLabel.font = viewModel.errorFont
         errorLabel.text = viewModel.errorMessage
 
-        seedPhraseCollectionView.backgroundColor = viewModel.backgroundColor
-        seedPhraseCollectionView.reloadData()
+        seedPhraseCollectionView.configure()
 
         buttonsBar.configure()
         let testSeedPhraseButton = buttonsBar.buttons[0]
@@ -178,18 +171,5 @@ class ShowSeedPhraseViewController: UIViewController {
 
     private func removeSeedPhraseFromDisplay() {
         state = .notDisplayedSeedPhrase
-    }
-}
-
-extension ShowSeedPhraseViewController: UICollectionViewDataSource {
-    public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.seedPhraseWordCount
-    }
-
-    public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SeedPhraseCell.identifier, for: indexPath) as! SeedPhraseCell
-        let word = viewModel.seedPhraseWord(atIndex: indexPath.item)
-        cell.configure(viewModel: .init(word: word))
-        return cell
     }
 }

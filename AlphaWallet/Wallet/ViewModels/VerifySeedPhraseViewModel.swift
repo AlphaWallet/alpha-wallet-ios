@@ -40,7 +40,21 @@ struct VerifySeedPhraseViewModel {
         return Colors.appRed
     }
 
+    //Make it the same as the background. Trick to maintain the height of the error label even when there's no error by putting some dummy text. The dummy text must still make sense for accessibility
+    var noErrorColor: UIColor {
+        return backgroundColor
+    }
+
     var errorFont: UIFont {
         return Fonts.regular(size: 18)!
+    }
+
+    var noErrorText: String {
+        //Don't need to localize. But still good to, for accessibility
+        return "No error"
+    }
+
+    var importKeystoreJsonButtonFont: UIFont {
+        return Fonts.regular(size: 20)!
     }
 }

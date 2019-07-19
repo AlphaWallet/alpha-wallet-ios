@@ -30,12 +30,19 @@ class SeedPhraseCell: UICollectionViewCell {
 
     func configure(viewModel: SeedPhraseCellViewModel) {
         cornerRadius = 7
-        contentView.backgroundColor = viewModel.backgroundColor
-        backgroundColor = viewModel.backgroundColor
 
-        label.textColor = viewModel.textColor
         label.textAlignment = .center
         label.font = viewModel.font
         label.text = viewModel.word
+
+        if viewModel.isSelected {
+            contentView.backgroundColor = viewModel.selectedBackgroundColor
+            backgroundColor = viewModel.selectedBackgroundColor
+            label.textColor = viewModel.selectedTextColor
+        } else {
+            contentView.backgroundColor = viewModel.backgroundColor
+            backgroundColor = viewModel.backgroundColor
+            label.textColor = viewModel.textColor
+        }
     }
 }

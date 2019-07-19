@@ -4,16 +4,9 @@ import Foundation
 import UIKit
 
 struct ShowSeedPhraseViewModel {
-    private let words: [String]
     private let error: KeystoreError?
 
-    var seedPhraseWordCount: Int {
-        return words.count
-    }
-
-    var backgroundColor: UIColor {
-        return Colors.appWhite
-    }
+    let words: [String]
 
     var title: String {
         return R.string.localizable.walletsShowSeedPhraseTitle()
@@ -63,9 +56,5 @@ struct ShowSeedPhraseViewModel {
     init(error: KeystoreError) {
         self.words = []
         self.error = error
-    }
-
-    func seedPhraseWord(atIndex index: Int) -> String {
-        return words[index]
     }
 }
