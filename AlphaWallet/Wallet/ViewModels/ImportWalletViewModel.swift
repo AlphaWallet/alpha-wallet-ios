@@ -34,4 +34,12 @@ struct ImportWalletViewModel {
     var importKeystoreJsonButtonFont: UIFont {
         return Fonts.regular(size: 20)!
     }
+
+    var importSeedDescriptionFont: UIFont {
+        return Fonts.light(size: 16)!
+    }
+
+    var importSeedDescriptionColor: UIColor {
+        return .init(red: 116, green: 116, blue: 116)
+    }
 }

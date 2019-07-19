@@ -111,6 +111,7 @@
 "importWallet.import.invalidPrivateKey" = "秘密鍵は64文字でなければなりません";
 "importWallet.import.invalidMnemonic" = "Seed phrase has to be 12 words";
 "importWallet.import.fromCloud.title" = "Import from iCloud/Dropbox/Google Drive";
+"importWallet.import.seedPhrase.description" = "If your seed phrase is not in English, please convert it to English first";
 "Keystore JSON" = "Keystore JSON";
 "More Details" = "詳細";
 "Keystore" = "Keystore JSON";
