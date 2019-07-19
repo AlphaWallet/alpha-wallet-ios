@@ -321,7 +321,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     ///Returns true only if valid
     private func validatePrivateKey() -> Bool {
-        if let validationError = PrivateKeyRule().isValid(value: privateKeyTextView.value) {
+        if let validationError = PrivateKeyRule().isValid(value: privateKeyTextView.value.trimmed) {
             displayError(error: ValidationError(msg: validationError.msg))
             return false
         }
