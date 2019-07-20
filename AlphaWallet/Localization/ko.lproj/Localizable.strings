@@ -379,3 +379,5 @@
 "backup.prompt.afterInterval.description" = "We highly recommend to back up your wallet";
 "backup.prompt.afterHittingThreshold.title" = "Your Wallet is at risk!";
 "backup.prompt.afterHittingThreshold.description" = "You have not backed up your wallet yet. You have %@ USD net. Act now. ";
+"onboarding.newWallet.findAddress.title" = "Find your Wallet Address";
+"onboarding.newWallet.findAddress.description" = "Tap here to find your Ethereum Wallet address";

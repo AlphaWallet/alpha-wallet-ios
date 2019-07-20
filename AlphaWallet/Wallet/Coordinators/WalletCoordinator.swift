@@ -65,7 +65,8 @@ class WalletCoordinator: Coordinator {
         controller.delegate = self
         navigationController.pushViewController(controller, animated: true)
     }
-    
+
+    //TODO Rename this is creating wallet automatically
     func createInitialWallet() {
         if !keystore.hasWallets {
             let result = keystore.createAccount()
@@ -83,6 +84,7 @@ class WalletCoordinator: Coordinator {
         }
     }
 
+    //TODO Rename this is create in both settings and new install
     func createInstantWallet() {
         navigationController.displayLoading(text: R.string.localizable.walletCreateInProgress(), animated: false)
         keystore.createAccount() { [weak self] result in
@@ -92,7 +94,7 @@ class WalletCoordinator: Coordinator {
                 let wallet = Wallet(type: WalletType.real(account))
                 //Bit of delay to wait for the UI animation to almost finish
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                    SuccessOverlayView.show()
+                    WhereIsWalletAddressFoundOverlayView.show()
                 }
                 strongSelf.delegate?.didFinish(with: wallet, in: strongSelf)
             case .failure(let error):
@@ -116,6 +118,7 @@ class WalletCoordinator: Coordinator {
         delegate?.didCancel(in: self)
     }
 
+    //TODO Rename this is import in both settings and new install
     func didCreateAccount(account: Wallet) {
         delegate?.didFinish(with: account, in: self)
         //Bit of delay to wait for the UI animation to almost finish

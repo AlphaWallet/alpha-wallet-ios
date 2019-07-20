@@ -37,8 +37,10 @@ class SettingsViewController: FormViewController {
                     promptBackupWalletView.topAnchor.constraint(equalTo: promptBackupWalletViewHolder.topAnchor, constant: 7),
                     promptBackupWalletView.bottomAnchor.constraint(equalTo: promptBackupWalletViewHolder.bottomAnchor, constant: 0),
                 ])
+                tabBarItem.badgeValue = "1"
             } else {
                 promptBackupWalletViewHolder.isHidden = true
+                tabBarItem.badgeValue = nil
             }
         }
     }
