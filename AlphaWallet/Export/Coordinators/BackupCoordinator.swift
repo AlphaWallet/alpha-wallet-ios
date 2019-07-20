@@ -135,5 +135,9 @@ extension BackupCoordinator: VerifySeedPhraseCoordinatorDelegate {
         backupSeedPhraseCoordinator?.end(animated: false)
         coordinator.end(animated: true)
         finish(result: .success(true))
+        //Bit of delay to wait for the UI animation to almost finish
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            SuccessOverlayView.show()
+        }
     }
 }

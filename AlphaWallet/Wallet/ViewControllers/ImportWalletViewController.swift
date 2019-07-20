@@ -432,6 +432,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         case .watch:
             watchAddressTextField.value = string
         }
+        showCorrectTab()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -529,6 +530,7 @@ extension ImportWalletViewController: QRCodeReaderDelegate {
         reader.stopScanning()
         reader.dismiss(animated: true, completion: nil)
     }
+
     func reader(_ reader: QRCodeReaderViewController!, didScanResult result: String!) {
         reader.stopScanning()
         setValueForCurrentField(string: result)
@@ -589,6 +591,7 @@ extension ImportWalletViewController: AddressTextFieldDelegate {
 
     func didPaste(in textField: AddressTextField) {
         view.endEditing(true)
+        showCorrectTab()
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {

@@ -71,6 +71,10 @@ class WalletCoordinator: Coordinator {
             let result = keystore.createAccount()
             switch result {
             case .success(let account):
+                //Bit of delay to wait for the UI animation to almost finish
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    SuccessOverlayView.show()
+                }
                 keystore.recentlyUsedWallet = Wallet(type: WalletType.real(account))
             case .failure:
                 //TODO handle initial wallet creation error. App can't be used!
@@ -86,6 +90,10 @@ class WalletCoordinator: Coordinator {
             switch result {
             case .success(let account):
                 let wallet = Wallet(type: WalletType.real(account))
+                //Bit of delay to wait for the UI animation to almost finish
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    SuccessOverlayView.show()
+                }
                 strongSelf.delegate?.didFinish(with: wallet, in: strongSelf)
             case .failure(let error):
                 //TODO this wouldn't work since navigationController isn't shown anymore
@@ -110,6 +118,10 @@ class WalletCoordinator: Coordinator {
 
     func didCreateAccount(account: Wallet) {
         delegate?.didFinish(with: account, in: self)
+        //Bit of delay to wait for the UI animation to almost finish
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            SuccessOverlayView.show()
+        }
     }
 
     func backup(account: EthereumAccount) {
