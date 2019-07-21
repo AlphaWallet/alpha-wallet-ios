@@ -305,6 +305,7 @@
 "a.send.receive.button.title" = "보내기/받기";
 "a.send.recipient.address.title" = "주소";
 "a.send.balance.insufficient" = "잔고 부족";
+"accounts.confirm.delete.action" = "Lose this Wallet";
 "accounts.confirm.delete.title" = "이 지갑을 삭제하시겠습니까?";
 "accounts.confirm.delete.message" = "지갑이 백업되어 있는지 확인하십시오.";
 "accounts.confirm.delete.okTitle" = "삭제";

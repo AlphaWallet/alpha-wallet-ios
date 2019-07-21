@@ -305,6 +305,7 @@
 "a.send.receive.button.title" = "Enviar/Recibir";
 "a.send.recipient.address.title" = "DIRECCIÓN";
 "a.send.balance.insufficient" = "Saldo insuficiente";
+"accounts.confirm.delete.action" = "Lose this Wallet";
 "accounts.confirm.delete.title" = "¿Seguro que deseas eliminar este monedero?";
 "accounts.confirm.delete.message" = "Asegúrate de tener una copia de seguridad de tu monedero.";
 "accounts.confirm.delete.okTitle" = "Eliminar";

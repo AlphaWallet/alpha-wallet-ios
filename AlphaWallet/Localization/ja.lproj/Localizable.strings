@@ -305,6 +305,7 @@
 "a.send.receive.button.title" = "送信/受信";
 "a.send.recipient.address.title" = "アドレス";
 "a.send.balance.insufficient" = "残高不足";
+"accounts.confirm.delete.action" = "Lose this Wallet";
 "accounts.confirm.delete.title" = "このウォレットを削除してもよろしいですか?";
 "accounts.confirm.delete.message" = "あなたのウォレットのバックアップがあることを確認してください。";
 "accounts.confirm.delete.okTitle" = "削除";

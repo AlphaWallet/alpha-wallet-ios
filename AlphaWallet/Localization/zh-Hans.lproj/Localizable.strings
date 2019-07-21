@@ -305,6 +305,7 @@
 "a.send.receive.button.title" = "发送/接收";
 "a.send.recipient.address.title" = "地址";
 "a.send.balance.insufficient" = "余额不足";
+"accounts.confirm.delete.action" = "Lose this Wallet";
 "accounts.confirm.delete.title" = "你确认要删除这个钱包么?";
 "accounts.confirm.delete.message" = "请确认你已经做好钱包备份.";
 "accounts.confirm.delete.okTitle" = "删除";

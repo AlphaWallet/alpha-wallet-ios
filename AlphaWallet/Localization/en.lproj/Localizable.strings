@@ -307,6 +307,7 @@
 "a.send.receive.button.title" = "Send/Receive";
 "a.send.recipient.address.title" = "ADDRESS";
 "a.send.balance.insufficient" = "Insufficient balance";
+"accounts.confirm.delete.action" = "Lose this Wallet";
 "accounts.confirm.delete.title" = "Are you sure you would like to delete this wallet?";
 "accounts.confirm.delete.message" = "Make sure you have backup of your wallet.";
 "accounts.confirm.delete.okTitle" = "Delete";

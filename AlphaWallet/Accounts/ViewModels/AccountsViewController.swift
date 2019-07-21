@@ -193,13 +193,6 @@ extension AccountsViewController: UITableViewDataSource {
             return false
         }
     }
-
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let account = self.account(for: indexPath)
-            confirmDelete(account: account)
-        }
-    }
 }
 
 extension AccountsViewController: UITableViewDelegate {
@@ -231,6 +224,14 @@ extension AccountsViewController: UITableViewDelegate {
             return nil
         }
         return v
+    }
+
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let action = UITableViewRowAction(style: .destructive, title: R.string.localizable.accountsConfirmDeleteAction()) { rowAction, indexPath in
+            let account = self.account(for: indexPath)
+            self.confirmDelete(account: account)
+        }
+        return [action]
     }
 }
 
