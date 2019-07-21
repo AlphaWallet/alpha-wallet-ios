@@ -17,7 +17,7 @@ class ShowSeedPhraseViewController: UIViewController {
 
     private var viewModel: ShowSeedPhraseViewModel {
         didSet {
-            seedPhraseCollectionView.viewModel = .init(words: viewModel.words)
+            seedPhraseCollectionView.viewModel = .init(words: viewModel.words, shouldShowSequenceNumber: true)
         }
     }
     private let keystore: Keystore

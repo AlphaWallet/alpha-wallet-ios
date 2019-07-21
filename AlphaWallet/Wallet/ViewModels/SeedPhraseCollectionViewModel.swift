@@ -8,6 +8,7 @@ struct SeedPhraseCollectionViewModel {
     private var selectedIndices: [Int] = .init()
 
     let isSelectable: Bool
+    let shouldShowSequenceNumber: Bool
 
     var backgroundColor: UIColor {
         return Colors.appWhite
@@ -17,9 +18,10 @@ struct SeedPhraseCollectionViewModel {
         return words.count
     }
 
-    init(words: [String] = [], isSelectable: Bool = false) {
+    init(words: [String] = [], isSelectable: Bool = false, shouldShowSequenceNumber: Bool = false) {
         self.words = words
         self.isSelectable = isSelectable
+        self.shouldShowSequenceNumber = shouldShowSequenceNumber
     }
 
     func seedPhraseWord(atIndex index: Int) -> String {

@@ -6,6 +6,7 @@ import UIKit
 struct SeedPhraseCellViewModel {
     let word: String
     let isSelected: Bool
+    let index: Int?
 
     var backgroundColor: UIColor {
         return UIColor(red: 234, green: 234, blue: 234)
@@ -29,5 +30,17 @@ struct SeedPhraseCellViewModel {
         } else {
             return Fonts.regular(size: 18)!
         }
+    }
+
+    var sequenceFont: UIFont {
+        return Fonts.regular(size: 12)!
+    }
+
+    var sequenceColor: UIColor {
+        return UIColor(red: 200, green: 200, blue: 200)
+    }
+
+    var sequence: String? {
+        return index.flatMap { String(describing: $0 + 1) }
     }
 }

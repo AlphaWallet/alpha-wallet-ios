@@ -8,7 +8,7 @@ protocol SeedPhraseCollectionViewDelegate: class {
 }
 
 class SeedPhraseCollectionView: UICollectionView {
-    var viewModel: SeedPhraseCollectionViewModel = .init(isSelectable: true) {
+    var viewModel: SeedPhraseCollectionViewModel = .init(isSelectable: true, shouldShowSequenceNumber: true) {
         didSet {
             reloadData()
         }
@@ -52,7 +52,7 @@ extension SeedPhraseCollectionView: UICollectionViewDataSource {
         let index = indexPath.item
         let word = viewModel.seedPhraseWord(atIndex: index)
         let isSelected = viewModel.isWordSelected(atIndex: index)
-        cell.configure(viewModel: .init(word: word, isSelected: isSelected))
+        cell.configure(viewModel: .init(word: word, isSelected: isSelected, index: viewModel.shouldShowSequenceNumber ? index : nil))
         return cell
     }
 }
