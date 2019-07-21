@@ -12,7 +12,7 @@ target 'AlphaWallet' do
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
   pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :branch=>'alphawallet'
-  pod 'KeychainSwift'
+  pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :branch=>'alphawallet'
   pod 'SwiftLint'
   pod 'SeedStackViewController'
   pod 'RealmSwift', '~> 3.9'

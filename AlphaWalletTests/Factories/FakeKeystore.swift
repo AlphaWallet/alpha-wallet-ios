@@ -27,7 +27,6 @@ struct FakeKeystore: Keystore {
         self.assumeAllWalletsType = assumeAllWalletsType
     }
 
-
     func verifySeedPhraseOfHdWallet(_ seedPhrase: String, forAccount account: EthereumAccount, completion: @escaping (Result<Bool, KeystoreError>) -> Void) {
     }
 
@@ -96,10 +95,10 @@ struct FakeKeystore: Keystore {
         return .success(.make())
     }
 
-    func exportRawPrivateKeyForNonHdWallet(forAccount: EthereumAccount, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+    func exportRawPrivateKeyForNonHdWalletForBackup(forAccount: EthereumAccount, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
     }
 
-    func exportSeedPhraseHdWallet(forAccount account: EthereumAccount, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+    func exportSeedPhraseHdWallet(forAccount account: EthereumAccount, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
     }
 }
 

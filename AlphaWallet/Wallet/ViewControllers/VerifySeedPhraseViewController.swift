@@ -68,6 +68,30 @@ class VerifySeedPhraseViewController: UIViewController {
             }
         }
     }
+    private var notDisplayingSeedPhrase: Bool {
+        switch state {
+        case .editingSeedPhrase:
+            return false
+        case .seedPhraseMatched:
+            return false
+        case .seedPhraseNotMatched:
+            return false
+        case .keystoreError(let error):
+            return false
+        case .notDisplayedSeedPhrase:
+            return true
+        case .errorDisplaySeedPhrase:
+            return false
+        }
+
+    }
+    //We have this flag because when prompted for Touch ID/Face ID, the app becomes inactive, and the order is:
+    //1. we read the seed, thus the prompt shows up, making the app inactive
+    //2. user authenticates and we get the seed
+    //3. app is now notified as inactive! (note that this is after authentication succeeds)
+    //4. app becomes active
+    //Without this flag, we will be removing the seed in (3) and trying to read it in (4) again and triggering (1), thus going into an infinite loop of reading
+    private var isInactiveBecauseWeAccessingBiometrics = false
 
     weak var delegate: VerifySeedPhraseViewControllerDelegate?
 
@@ -79,7 +103,6 @@ class VerifySeedPhraseViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         seedPhraseCollectionView.seedPhraseDelegate = self
-        showSeedPhrases()
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -150,21 +173,29 @@ class VerifySeedPhraseViewController: UIViewController {
         removeSeedPhraseFromDisplay()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        showSeedPhrases()
-    }
-    
-    @objc private func appDidBecomeActive() {
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         showSeedPhrases()
     }
 
+    @objc private func appDidBecomeActive() {
+        if isTopViewController {
+            showSeedPhrases()
+        }
+    }
+
     @objc private func appWillResignsActive() {
+        if isInactiveBecauseWeAccessingBiometrics {
+            isInactiveBecauseWeAccessingBiometrics = false
+            return
+        }
         removeSeedPhraseFromDisplay()
     }
 
     private func showSeedPhrases() {
-        keystore.exportSeedPhraseHdWallet(forAccount: account) { result in
+        guard notDisplayingSeedPhrase else { return }
+        isInactiveBecauseWeAccessingBiometrics = true
+        keystore.exportSeedPhraseHdWallet(forAccount: account, reason: .prepareForVerification) { result in
             switch result {
             case .success(let words):
                 self.state = .editingSeedPhrase(words: words.split(separator: " ").map { String($0) }.shuffled())
@@ -216,6 +247,7 @@ class VerifySeedPhraseViewController: UIViewController {
     }
 
     @objc func verify() {
+        isInactiveBecauseWeAccessingBiometrics = true
         keystore.verifySeedPhraseOfHdWallet(seedPhraseTextView.text.lowercased().trimmed, forAccount: account) { result in
             switch result {
             case .success(let isMatched):
@@ -255,7 +287,7 @@ extension VerifySeedPhraseViewController: UITextViewDelegate {
             return true
         }
     }
-    
+
 }
 
 extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
@@ -268,3 +300,4 @@ extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
         clearChooseSeedPhraseButton.isHidden = false
     }
 }
+

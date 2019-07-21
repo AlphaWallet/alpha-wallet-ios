@@ -15,7 +15,7 @@ class LegacyFileBasedKeystore {
     private let keychain: KeychainSwift
     private let datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
     private let keyStore: KeyStore
-    private let defaultKeychainAccess: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly
+    private let defaultKeychainAccess: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
     private let userDefaults: UserDefaults
 
     let keystoreDirectory: URL

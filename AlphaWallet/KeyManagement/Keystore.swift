@@ -3,6 +3,20 @@
 import Foundation
 import Result
 
+enum KeystoreExportReason {
+    case backup
+    case prepareForVerification
+
+    var prompt: String {
+        switch self {
+        case .backup:
+            return R.string.localizable.keystoreAccessKeyHdBackup()
+        case .prepareForVerification:
+            return R.string.localizable.keystoreAccessKeyHdPrepareToVerify()
+        }
+    }
+}
+
 protocol Keystore {
     static var current: Wallet? { get }
 
@@ -14,8 +28,8 @@ protocol Keystore {
     func createAccount(completion: @escaping (Result<EthereumAccount, KeystoreError>) -> Void)
     func importWallet(type: ImportType, completion: @escaping (Result<Wallet, KeystoreError>) -> Void)
     func createAccount() -> Result<EthereumAccount, KeystoreError>
-    func exportRawPrivateKeyForNonHdWallet(forAccount: EthereumAccount, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void)
-    func exportSeedPhraseHdWallet(forAccount account: EthereumAccount, completion: @escaping (Result<String, KeystoreError>) -> Void)
+    func exportRawPrivateKeyForNonHdWalletForBackup(forAccount: EthereumAccount, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void)
+    func exportSeedPhraseHdWallet(forAccount account: EthereumAccount, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void)
     func verifySeedPhraseOfHdWallet(_ seedPhrase: String, forAccount account: EthereumAccount, completion: @escaping (Result<Bool, KeystoreError>) -> Void)
     func delete(wallet: Wallet, completion: @escaping (Result<Void, KeystoreError>) -> Void)
     func isHdWallet(account: EthereumAccount) -> Bool

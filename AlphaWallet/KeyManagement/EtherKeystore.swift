@@ -22,7 +22,8 @@ open class EtherKeystore: Keystore {
 
     private let emptyPassphrase = ""
     private let keychain: KeychainSwift
-    private let defaultKeychainAccess: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly
+    private let defaultKeychainAccessUserPresenceRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: true)
+    private let defaultKeychainAccessUserPresenceNotRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
     private let userDefaults: UserDefaults
 
     private var watchAddresses: [String] {
@@ -81,7 +82,7 @@ open class EtherKeystore: Keystore {
 
     var recentlyUsedWallet: Wallet? {
         set {
-            keychain.set(newValue?.address.eip55String ?? "", forKey: Keys.recentlyUsedAddress, withAccess: defaultKeychainAccess)
+            keychain.set(newValue?.address.eip55String ?? "", forKey: Keys.recentlyUsedAddress, withAccess: defaultKeychainAccessUserPresenceNotRequired)
         }
         get {
             guard let address = keychain.get(Keys.recentlyUsedAddress) else {
@@ -160,7 +161,7 @@ open class EtherKeystore: Keystore {
             guard !hasEthereumAddressAlready else {
                 return .failure(.duplicateAccount)
             }
-            keychain.set(privateKey.hex(), forKey: "\(Keys.ethereumRawPrivateKeyPrefix)\(address.eip55String)", withAccess: defaultKeychainAccess)
+            keychain.set(privateKey.hex(), forKey: "\(Keys.ethereumRawPrivateKeyPrefix)\(address.eip55String)", withAccess: defaultKeychainAccessUserPresenceRequired)
             addToListOfEthereumAddressesWithPrivateKeys(address)
             return .success(Wallet(type: .real(.init(address: address))))
         case .mnemonic(let mnemonic, _):
@@ -174,7 +175,7 @@ open class EtherKeystore: Keystore {
             guard !hasEthereumAddressAlready else {
                 return .failure(.duplicateAccount)
             }
-            keychain.set(mnemonicString, forKey: "\(Keys.ethereumSeedPhrasesPrefix)\(address.eip55String)", withAccess: defaultKeychainAccess)
+            keychain.set(mnemonicString, forKey: "\(Keys.ethereumSeedPhrasesPrefix)\(address.eip55String)", withAccess: defaultKeychainAccessUserPresenceRequired)
             addToListOfEthereumAddressesWithSeedPhrases(address)
             return .success(Wallet(type: .real(.init(address: address))))
         case .watch(let address):
@@ -221,8 +222,8 @@ open class EtherKeystore: Keystore {
         return privateKey.data
     }
 
-    func exportRawPrivateKeyForNonHdWallet(forAccount account: EthereumAccount, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
-        guard let key = getPrivateKeyFromNonHdWallet(forAccount: account) else {
+    func exportRawPrivateKeyForNonHdWalletForBackup(forAccount account: EthereumAccount, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+        guard let key = getPrivateKeyFromNonHdWallet(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyNonHdBackup()) else {
             return completion(.failure(.failedToDecryptKey))
         }
         //Careful to not replace the if-let with a flatMap(). Because the value is a Result and it has flatMap() defined to "resolve" only when it's .success
@@ -233,8 +234,8 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func exportSeedPhraseHdWallet(forAccount account: EthereumAccount, completion: @escaping (Result<String, KeystoreError>) -> Void) {
-        if let seedPhrase = getSeedPhraseForHdWallet(forAccount: account) {
+    func exportSeedPhraseHdWallet(forAccount account: EthereumAccount, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+        if let seedPhrase = getSeedPhraseForHdWallet(forAccount: account, prompt: reason.prompt) {
             completion(.success(seedPhrase))
         } else {
             completion(.failure(.failedToExportPrivateKey))
@@ -242,14 +243,11 @@ open class EtherKeystore: Keystore {
     }
 
     func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: EthereumAccount, completion: @escaping (Result<Bool, KeystoreError>) -> Void) {
-        exportSeedPhraseHdWallet(forAccount: account) { result in
-            switch result {
-            case .success(let actualSeedPhrase):
-                let matched = inputSeedPhrase.lowercased() == actualSeedPhrase.lowercased()
-                completion(.success(matched))
-            case .failure(let error):
-                completion(.failure(error))
-            }
+        if let actualSeedPhrase = getSeedPhraseForHdWallet(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyHdVerify()) {
+            let matched = inputSeedPhrase.lowercased() == actualSeedPhrase.lowercased()
+            completion(.success(matched))
+        } else {
+            completion(.failure(.failedToExportPrivateKey))
         }
     }
 
@@ -405,27 +403,29 @@ open class EtherKeystore: Keystore {
         }
     }
 
+    //TODO should and can we check if the keychain has that entry without prompting for user-presence?
     func getAccount(for address: AlphaWallet.Address) -> EthereumAccount? {
         return .init(address: address)
     }
 
     private func getPrivateKeyForSigning(forAccount account: EthereumAccount) -> Data? {
-        let keyStoredAsRawPrivateKey = getPrivateKeyFromNonHdWallet(forAccount: account)
+        let prompt = R.string.localizable.keystoreAccessKeySign()
+        let keyStoredAsRawPrivateKey = getPrivateKeyFromNonHdWallet(forAccount: account, prompt: prompt)
         if let keyStoredAsRawPrivateKey = keyStoredAsRawPrivateKey {
             return keyStoredAsRawPrivateKey
         } else {
-            guard let mnemonicString = getSeedPhraseForHdWallet(forAccount: account) else { return nil }
+            guard let mnemonicString = getSeedPhraseForHdWallet(forAccount: account, prompt: prompt) else { return nil }
             let wallet = HDWallet(mnemonic: mnemonicString, passphrase: emptyPassphrase)
             let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
             return privateKey
         }
     }
 
-    private func getPrivateKeyFromNonHdWallet(forAccount account: EthereumAccount) -> Data? {
-        return keychain.get("\(Keys.ethereumRawPrivateKeyPrefix)\(account.address.eip55String)").flatMap { Data(hexString: $0) }
+    private func getPrivateKeyFromNonHdWallet(forAccount account: EthereumAccount, prompt: String) -> Data? {
+        return keychain.get("\(Keys.ethereumRawPrivateKeyPrefix)\(account.address.eip55String)", prompt: prompt).flatMap { Data(hexString: $0) }
     }
 
-    private func getSeedPhraseForHdWallet(forAccount account: EthereumAccount) -> String? {
-        return keychain.get("\(Keys.ethereumSeedPhrasesPrefix)\(account.address.eip55String)")
+    private func getSeedPhraseForHdWallet(forAccount account: EthereumAccount, prompt: String) -> String? {
+        return keychain.get("\(Keys.ethereumSeedPhrasesPrefix)\(account.address.eip55String)", prompt: prompt)
     }
 }

@@ -41,6 +41,23 @@ class ShowSeedPhraseViewController: UIViewController {
     }
     private let seedPhraseCollectionView = SeedPhraseCollectionView()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private var notDisplayingSeedPhrase: Bool {
+        switch state {
+        case .notDisplayedSeedPhrase:
+            return true
+        case .displayingSeedPhrase:
+            return false
+        case .errorDisplaySeedPhrase:
+            return false
+        }
+    }
+    //We have this flag because when prompted for Touch ID/Face ID, the app becomes inactive, and the order is:
+    //1. we read the seed, thus the prompt shows up, making the app inactive
+    //2. user authenticates and we get the seed
+    //3. app is now notified as inactive! (note that this is after authentication succeeds)
+    //4. app becomes active
+    //Without this flag, we will be removing the seed in (3) and trying to read it in (4) again and triggering (1), thus going into an infinite loop of reading
+    private var isInactiveBecauseWeAccessingBiometrics = false
 
     weak var delegate: ShowSeedPhraseViewControllerDelegate?
 
@@ -51,7 +68,6 @@ class ShowSeedPhraseViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
 
         hidesBottomBarWhenPushed = true
-        showSeedPhrases()
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -111,21 +127,29 @@ class ShowSeedPhraseViewController: UIViewController {
         removeSeedPhraseFromDisplay()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         showSeedPhrases()
     }
 
     @objc private func appWillResignsActive() {
+        if isInactiveBecauseWeAccessingBiometrics {
+            isInactiveBecauseWeAccessingBiometrics = false
+            return
+        }
         removeSeedPhraseFromDisplay()
     }
 
     @objc private func appDidBecomeActive() {
-        showSeedPhrases()
+        if isTopViewController {
+            showSeedPhrases()
+        }
     }
 
     private func showSeedPhrases() {
-        keystore.exportSeedPhraseHdWallet(forAccount: account) { result in
+        guard notDisplayingSeedPhrase else { return }
+        isInactiveBecauseWeAccessingBiometrics = true
+        keystore.exportSeedPhraseHdWallet(forAccount: account, reason: .backup) { result in
             switch result {
             case .success(let words):
                 self.state = .displayingSeedPhrase(words: words.split(separator: " ").map { String($0) })

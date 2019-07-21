@@ -93,7 +93,7 @@ DEPENDENCIES:
   - JavaScriptKit
   - JSONRPCKit (~> 2.0.0)
   - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
-  - KeychainSwift
+  - KeychainSwift (from `https://github.com/AlphaWallet/keychain-swift.git`, branch `alphawallet`)
   - Kingfisher (~> 4.0)
   - Macaw (from `https://github.com/alpha-wallet/Macaw.git`, commit `c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8`)
   - MBProgressHUD
@@ -127,7 +127,6 @@ SPEC REPOS:
     - iOSSnapshotTestCase
     - JavaScriptKit
     - JSONRPCKit
-    - KeychainSwift
     - Kingfisher
     - libsodium
     - MBProgressHUD
@@ -156,6 +155,9 @@ EXTERNAL SOURCES:
   Kanna:
     :commit: 06a04bc28783ccbb40efba355dee845a024033e8
     :git: https://github.com/tid-kijyun/Kanna.git
+  KeychainSwift:
+    :branch: alphawallet
+    :git: https://github.com/AlphaWallet/keychain-swift.git
   Macaw:
     :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
     :git: https://github.com/alpha-wallet/Macaw.git
@@ -181,6 +183,9 @@ CHECKOUT OPTIONS:
   Kanna:
     :commit: 06a04bc28783ccbb40efba355dee845a024033e8
     :git: https://github.com/tid-kijyun/Kanna.git
+  KeychainSwift:
+    :commit: d35f94d37cec2ec66edec3390ea065a8da9aa229
+    :git: https://github.com/AlphaWallet/keychain-swift.git
   Macaw:
     :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
     :git: https://github.com/alpha-wallet/Macaw.git
@@ -214,7 +219,7 @@ SPEC CHECKSUMS:
   JavaScriptKit: 9ff565209e6efe21bcb9c6d6ca3e863a67a8ecf7
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
   Kanna: a32875df62975f8f4b871e933b4ea1a5c3b8be0f
-  KeychainSwift: f9f7910449a0c0fd2cabc889121530dd2c477c33
+  KeychainSwift: c0d1b0c2901b9873f07f0e560fde92929069e863
   Kingfisher: 1f9157d9c02b380cbd0b7cc890161195164eb634
   libsodium: 9a8faa5ef2fa0d2d57bd7f7d79bf8fb7c1a9f0ea
   Macaw: 6db42cb10c1e018ee940a906b42a1ead5557e080
@@ -242,6 +247,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: dd8c81d5958f1eb737abea1e14675efcc6a104aa
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: 8d26f4eb4bfc1f3860ad279a920f2858d2649aa8
+PODFILE CHECKSUM: 3ced005aa9515481c60ee43d39109ba5461c4d89
 
 COCOAPODS: 1.5.3
