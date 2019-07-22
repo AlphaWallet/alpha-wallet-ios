@@ -105,6 +105,8 @@ class VerifySeedPhraseViewController: UIViewController {
         view.addSubview(roundedBackground)
 
         seedPhraseTextView.isEditable = false
+        //Disable copying
+        seedPhraseTextView.isUserInteractionEnabled = false
         seedPhraseTextView.delegate = self
 
         let stackView = [
