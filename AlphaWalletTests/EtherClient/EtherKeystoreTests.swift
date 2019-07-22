@@ -83,7 +83,7 @@ class EtherKeystoreTests: XCTestCase {
         let result = keystore.createAccount()
         let account = try! result.dematerialize()
         let expectation = self.expectation(description: "completion block called")
-        keystore.exportSeedPhraseHdWallet(forAccount: account, reason: .backup) { result in
+        keystore.exportSeedPhraseOfHdWallet(forAccount: account, reason: .backup) { result in
             expectation.fulfill()
             let seedPhrase = try! result.dematerialize()
             XCTAssertEqual(seedPhrase.split(separator: " ").count, HDWallet.mnemonicWordCount)

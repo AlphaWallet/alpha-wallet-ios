@@ -171,7 +171,7 @@ class ShowSeedPhraseViewController: UIViewController {
         guard isTopViewController else { return }
         guard notDisplayingSeedPhrase else { return }
         isInactiveBecauseWeAccessingBiometrics = true
-        keystore.exportSeedPhraseHdWallet(forAccount: account, reason: .backup) { result in
+        keystore.exportSeedPhraseOfHdWallet(forAccount: account, reason: .backup) { result in
             switch result {
             case .success(let words):
                 self.state = .displayingSeedPhrase(words: words.split(separator: " ").map { String($0) })

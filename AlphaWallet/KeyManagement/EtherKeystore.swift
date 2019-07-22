@@ -15,9 +15,9 @@ open class EtherKeystore: Keystore {
         static let recentlyUsedAddress: String = "recentlyUsedAddress"
         static let watchAddresses = "watchAddresses"
         static let ethereumAddressesWithPrivateKeys = "ethereumAddressesWithPrivateKeys"
-        static let ethereumAddressesWithSeedPhrases = "ethereumAddressesWithSeedPhrases"
+        static let ethereumAddressesWithSeed = "ethereumAddressesWithSeed"
         static let ethereumRawPrivateKeyPrefix = "ethereumRawPrivateKey-"
-        static let ethereumSeedPhrasesPrefix = "ethereumSeedPhrases-"
+        static let ethereumSeedPrefix = "ethereumSeed-"
     }
 
     private let emptyPassphrase = ""
@@ -52,13 +52,13 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    private var ethereumAddressesWithSeedPhrases: [String] {
+    private var ethereumAddressesWithSeed: [String] {
         set {
             let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
-            return userDefaults.set(data, forKey: Keys.ethereumAddressesWithSeedPhrases)
+            return userDefaults.set(data, forKey: Keys.ethereumAddressesWithSeed)
         }
         get {
-            guard let data = userDefaults.data(forKey: Keys.ethereumAddressesWithSeedPhrases) else {
+            guard let data = userDefaults.data(forKey: Keys.ethereumAddressesWithSeed) else {
                 return []
             }
             return NSKeyedUnarchiver.unarchiveObject(with: data) as? [String] ?? []
@@ -72,8 +72,8 @@ open class EtherKeystore: Keystore {
     var wallets: [Wallet] {
         let watchAddresses = self.watchAddresses.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .watch($0)) }
         let addressesWithPrivateKeys = ethereumAddressesWithPrivateKeys.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real(.init(address: $0))) }
-        let addressesWithSeedPhrases = ethereumAddressesWithSeedPhrases.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real(.init(address: $0))) }
-        return addressesWithSeedPhrases + addressesWithPrivateKeys + watchAddresses
+        let addressesWithSeed = ethereumAddressesWithSeed.compactMap { AlphaWallet.Address(string: $0) }.map { Wallet(type: .real(.init(address: $0))) }
+        return addressesWithSeed + addressesWithPrivateKeys + watchAddresses
     }
 
     var hasMigratedFromKeystoreFiles: Bool {
@@ -175,8 +175,9 @@ open class EtherKeystore: Keystore {
             guard !hasEthereumAddressAlready else {
                 return .failure(.duplicateAccount)
             }
-            keychain.set(mnemonicString, forKey: "\(Keys.ethereumSeedPhrasesPrefix)\(address.eip55String)", withAccess: defaultKeychainAccessUserPresenceRequired)
-            addToListOfEthereumAddressesWithSeedPhrases(address)
+            let seed = HDWallet.computeSeedWithChecksum(fromSeedPhrase: mnemonicString)
+            keychain.set(seed, forKey: "\(Keys.ethereumSeedPrefix)\(address.eip55String)", withAccess: defaultKeychainAccessUserPresenceRequired)
+            addToListOfEthereumAddressesWithSeed(address)
             return .success(Wallet(type: .real(.init(address: address))))
         case .watch(let address):
             guard !watchAddresses.contains(where: { address.sameContract(as: $0) }) else {
@@ -194,9 +195,9 @@ open class EtherKeystore: Keystore {
         ethereumAddressesWithPrivateKeys = updatedOwnedAddresses
     }
 
-    private func addToListOfEthereumAddressesWithSeedPhrases(_ address: AlphaWallet.Address) {
-        let updated = Array(Set(ethereumAddressesWithSeedPhrases + [address.eip55String]))
-        ethereumAddressesWithSeedPhrases = updated
+    private func addToListOfEthereumAddressesWithSeed(_ address: AlphaWallet.Address) {
+        let updated = Array(Set(ethereumAddressesWithSeed + [address.eip55String]))
+        ethereumAddressesWithSeed = updated
     }
 
     func createAccount() -> Result<EthereumAccount, KeystoreError> {
@@ -234,7 +235,7 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func exportSeedPhraseHdWallet(forAccount account: EthereumAccount, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+    func exportSeedPhraseOfHdWallet(forAccount account: EthereumAccount, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
         if let seedPhrase = getSeedPhraseForHdWallet(forAccount: account, prompt: reason.prompt) {
             completion(.success(seedPhrase))
         } else {
@@ -258,7 +259,7 @@ open class EtherKeystore: Keystore {
             ethereumAddressesWithPrivateKeys = ethereumAddressesWithPrivateKeys.filter {
                 $0 != account.address.eip55String
             }
-            ethereumAddressesWithSeedPhrases = ethereumAddressesWithSeedPhrases.filter {
+            ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter {
                 $0 != account.address.eip55String
             }
             //TODO not the best way to do this but let's see if there's a better way to inform the coordinator that a wallet has been deleted
@@ -285,13 +286,13 @@ open class EtherKeystore: Keystore {
     }
 
     func isHdWallet(account: EthereumAccount) -> Bool {
-        return ethereumAddressesWithSeedPhrases.contains(account.address.eip55String)
+        return ethereumAddressesWithSeed.contains(account.address.eip55String)
     }
 
     func isHdWallet(wallet: Wallet) -> Bool {
         switch wallet.type {
         case .real(let account):
-            return ethereumAddressesWithSeedPhrases.contains(account.address.eip55String)
+            return ethereumAddressesWithSeed.contains(account.address.eip55String)
         case .watch:
             return false
         }
@@ -414,8 +415,8 @@ open class EtherKeystore: Keystore {
         if let keyStoredAsRawPrivateKey = keyStoredAsRawPrivateKey {
             return keyStoredAsRawPrivateKey
         } else {
-            guard let mnemonicString = getSeedPhraseForHdWallet(forAccount: account, prompt: prompt) else { return nil }
-            let wallet = HDWallet(mnemonic: mnemonicString, passphrase: emptyPassphrase)
+            guard let seed = getSeedForHdWallet(forAccount: account, prompt: prompt) else { return nil }
+            let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase)
             let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
             return privateKey
         }
@@ -426,6 +427,12 @@ open class EtherKeystore: Keystore {
     }
 
     private func getSeedPhraseForHdWallet(forAccount account: EthereumAccount, prompt: String) -> String? {
-        return keychain.get("\(Keys.ethereumSeedPhrasesPrefix)\(account.address.eip55String)", prompt: prompt)
+        guard let seed = getSeedForHdWallet(forAccount: account, prompt: prompt) else { return nil }
+        let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase)
+        return wallet.mnemonic
+    }
+
+    private func getSeedForHdWallet(forAccount account: EthereumAccount, prompt: String) -> String? {
+        return keychain.get("\(Keys.ethereumSeedPrefix)\(account.address.eip55String)", prompt: prompt)
     }
 }
