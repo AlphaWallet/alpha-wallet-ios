@@ -180,9 +180,7 @@ class VerifySeedPhraseViewController: UIViewController {
     }
 
     @objc private func appDidBecomeActive() {
-        if isTopViewController {
-            showSeedPhrases()
-        }
+        showSeedPhrases()
     }
 
     @objc private func didTakeScreenShot() {
@@ -198,6 +196,7 @@ class VerifySeedPhraseViewController: UIViewController {
     }
 
     private func showSeedPhrases() {
+        guard isTopViewController else { return }
         guard notDisplayingSeedPhrase else { return }
         isInactiveBecauseWeAccessingBiometrics = true
         keystore.exportSeedPhraseHdWallet(forAccount: account, reason: .prepareForVerification) { result in

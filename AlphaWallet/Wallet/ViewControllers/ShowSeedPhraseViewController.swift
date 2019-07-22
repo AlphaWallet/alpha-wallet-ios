@@ -13,6 +13,7 @@ class ShowSeedPhraseViewController: UIViewController {
         case notDisplayedSeedPhrase
         case displayingSeedPhrase(words: [String])
         case errorDisplaySeedPhrase(KeystoreError)
+        case done
     }
 
     private var viewModel: ShowSeedPhraseViewModel {
@@ -35,6 +36,8 @@ class ShowSeedPhraseViewController: UIViewController {
                 viewModel = .init(words: words)
             case .errorDisplaySeedPhrase(let error):
                 viewModel = .init(error: error)
+            case .done:
+                viewModel = .init(words: [])
             }
             configure()
         }
@@ -49,6 +52,20 @@ class ShowSeedPhraseViewController: UIViewController {
             return false
         case .errorDisplaySeedPhrase:
             return false
+        case .done:
+            return false
+        }
+    }
+    private var isDone: Bool {
+        switch state {
+        case .notDisplayedSeedPhrase:
+            return false
+        case .displayingSeedPhrase:
+            return false
+        case .errorDisplaySeedPhrase:
+            return false
+        case .done:
+            return true
         }
     }
     //We have this flag because when prompted for Touch ID/Face ID, the app becomes inactive, and the order is:
@@ -142,9 +159,7 @@ class ShowSeedPhraseViewController: UIViewController {
     }
 
     @objc private func appDidBecomeActive() {
-        if isTopViewController {
-            showSeedPhrases()
-        }
+        showSeedPhrases()
     }
 
     @objc private func didTakeScreenShot() {
@@ -152,6 +167,8 @@ class ShowSeedPhraseViewController: UIViewController {
     }
 
     private func showSeedPhrases() {
+        guard !isDone else { return }
+        guard isTopViewController else { return }
         guard notDisplayingSeedPhrase else { return }
         isInactiveBecauseWeAccessingBiometrics = true
         keystore.exportSeedPhraseHdWallet(forAccount: account, reason: .backup) { result in
@@ -199,6 +216,11 @@ class ShowSeedPhraseViewController: UIViewController {
     }
 
     private func removeSeedPhraseFromDisplay() {
+        guard !isDone else { return }
         state = .notDisplayedSeedPhrase
+    }
+
+    func markDone() {
+        state = .done
     }
 }

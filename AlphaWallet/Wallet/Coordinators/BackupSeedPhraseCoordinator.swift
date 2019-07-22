@@ -33,7 +33,8 @@ class BackupSeedPhraseCoordinator: Coordinator {
     }
 
     func end(animated: Bool) {
-       navigationController.popViewController(animated: animated)
+        rootViewController.markDone()
+        navigationController.popViewController(animated: animated)
     }
 }
 
