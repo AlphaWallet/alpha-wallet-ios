@@ -39,9 +39,7 @@ class VerifySeedPhraseViewController: UIViewController {
             switch state {
             case .editingSeedPhrase(let words):
                 seedPhraseCollectionView.viewModel = .init(words: words, isSelectable: true)
-                errorLabel.text = viewModel.noErrorText
-                errorLabel.textColor = viewModel.noErrorColor
-                seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderNormalColor
+                clearError()
             case .seedPhraseMatched(let words):
                 seedPhraseCollectionView.viewModel = .init(words: words, isSelectable: true)
                 errorLabel.text = viewModel.noErrorText
@@ -49,7 +47,6 @@ class VerifySeedPhraseViewController: UIViewController {
                 seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderNormalColor
                 delegate?.didVerifySeedPhraseSuccessfully(for: account, in: self)
             case .seedPhraseNotMatched(let words):
-                seedPhraseCollectionView.viewModel = .init(words: words, isSelectable: true)
                 errorLabel.text = R.string.localizable.walletsVerifySeedPhraseWrong()
                 errorLabel.textColor = viewModel.errorColor
                 seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderErrorColor
@@ -277,6 +274,12 @@ class VerifySeedPhraseViewController: UIViewController {
     private func removeSeedPhraseFromDisplay() {
         state = .notDisplayedSeedPhrase
     }
+
+    private func clearError() {
+        errorLabel.text = viewModel.noErrorText
+        errorLabel.textColor = viewModel.noErrorColor
+        seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderNormalColor
+    }
 }
 
 
@@ -302,6 +305,6 @@ extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
             seedPhraseTextView.text += " \(word)"
         }
         clearChooseSeedPhraseButton.isHidden = false
+        clearError()
     }
 }
-
