@@ -126,17 +126,6 @@ class WalletCoordinator: Coordinator {
             SuccessOverlayView.show()
         }
     }
-
-    func backup(account: EthereumAccount) {
-        let coordinator = BackupCoordinator(
-            navigationController: navigationController,
-            keystore: keystore,
-            account: account
-        )
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-        coordinator.start()
-    }
 }
 
 //Disable creating and importing wallets from welcome screen
@@ -160,17 +149,6 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController) {
         config.addToWalletAddressesAlreadyPromptedForBackup(address: account.address)
         didCreateAccount(account: account)
-    }
-}
-
-extension WalletCoordinator: BackupCoordinatorDelegate {
-    func didCancel(coordinator: BackupCoordinator) {
-        removeCoordinator(coordinator)
-    }
-
-    func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator) {
-        removeCoordinator(coordinator)
-        didCreateAccount(account: Wallet(type: .real(account)))
     }
 }
 

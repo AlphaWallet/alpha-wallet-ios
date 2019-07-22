@@ -16,6 +16,7 @@ class AccountsCoordinator: Coordinator {
     //Only show Ether balances from mainnet for now
     private let balanceCoordinator = GetBalanceCoordinator(forServer: .main)
     private let keystore: Keystore
+    private let promptBackupCoordinator: PromptBackupCoordinator
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -34,12 +35,14 @@ class AccountsCoordinator: Coordinator {
     init(
         config: Config,
         navigationController: UINavigationController,
-        keystore: Keystore
+        keystore: Keystore,
+        promptBackupCoordinator: PromptBackupCoordinator
     ) {
         self.config = config
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
+        self.promptBackupCoordinator = promptBackupCoordinator
     }
 
     func start() {
@@ -190,6 +193,8 @@ extension AccountsCoordinator: BackupCoordinatorDelegate {
     }
 
     func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator) {
+        promptBackupCoordinator.markBackupDone()
+        promptBackupCoordinator.showHideCurrentPrompt()
         removeCoordinator(coordinator)
     }
 }

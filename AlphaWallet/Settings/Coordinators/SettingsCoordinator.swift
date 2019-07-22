@@ -63,7 +63,8 @@ class SettingsCoordinator: Coordinator {
 		let coordinator = AccountsCoordinator(
 				config: config,
 				navigationController: NavigationController(),
-				keystore: keystore
+				keystore: keystore,
+				promptBackupCoordinator: promptBackupCoordinator
 		)
 		coordinator.delegate = self
 		coordinator.start()

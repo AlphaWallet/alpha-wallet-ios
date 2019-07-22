@@ -57,7 +57,7 @@ class PromptBackupCoordinator: Coordinator {
         showCreateBackupAfterWalletCreationPrompt()
     }
 
-    private func showHideCurrentPrompt() {
+    func showHideCurrentPrompt() {
         if let prompt = readState()?.prompt[wallet.address] {
             switch prompt {
             case .newWallet:
@@ -227,7 +227,7 @@ class PromptBackupCoordinator: Coordinator {
         }
     }
 
-    private func markBackupDone() {
+    func markBackupDone() {
         guard canBackupWallet else { return }
         updateState { state in
             state.prompt[wallet.address] = nil
