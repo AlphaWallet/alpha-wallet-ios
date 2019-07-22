@@ -75,6 +75,8 @@ extension WKWebViewConfiguration {
 
     fileprivate static func javaScriptForDappBrowser(server server: RPCServer, address: AlphaWallet.Address) -> String {
         return """
+               //Space is needed here because it is sometimes cut off by websites. 
+               
                const addressHex = "\(address.eip55String)"
                const rpcURL = "\(server.rpcURL.absoluteString)"
                const chainID = "\(server.chainID)"
