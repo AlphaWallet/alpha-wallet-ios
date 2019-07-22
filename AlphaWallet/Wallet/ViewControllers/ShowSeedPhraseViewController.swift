@@ -110,6 +110,7 @@ class ShowSeedPhraseViewController: UIViewController {
 
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignsActive), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didTakeScreenShot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
 
         hidesBottomBarWhenPushed = true
     }
@@ -144,6 +145,10 @@ class ShowSeedPhraseViewController: UIViewController {
         if isTopViewController {
             showSeedPhrases()
         }
+    }
+
+    @objc private func didTakeScreenShot() {
+        displaySuccess(message: R.string.localizable.walletsShowSeedPhraseDoNotTakeScreenshotDescription())
     }
 
     private func showSeedPhrases() {

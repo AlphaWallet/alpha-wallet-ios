@@ -159,6 +159,7 @@ class VerifySeedPhraseViewController: UIViewController {
 
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignsActive), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didTakeScreenShot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -182,6 +183,10 @@ class VerifySeedPhraseViewController: UIViewController {
         if isTopViewController {
             showSeedPhrases()
         }
+    }
+
+    @objc private func didTakeScreenShot() {
+        displaySuccess(message: R.string.localizable.walletsVerifySeedPhraseDoNotTakeScreenshotDescription())
     }
 
     @objc private func appWillResignsActive() {

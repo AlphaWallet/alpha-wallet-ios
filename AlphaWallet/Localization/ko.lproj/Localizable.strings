@@ -87,8 +87,10 @@
 "wallets.showSeedPhrase.subtitle" = "Making a backup is very simple and safe:";
 "wallets.showSeedPhrase.description" = "just write down 12 words and keep them in a safe place, offline";
 "wallets.showSeedPhrase.testSeedPhrase" = "Test My Seed Phrase";
+"wallets.showSeedPhrase.doNotTakeScreenshotDescription" = "It's not a good idea to take a screenshot of your seed phrase";
 "wallets.verifySeedPhrase.title" = "Verify Seed Phrase";
 "wallets.verifySeedPhrase.wrong" = "Invalid seed phrase. Please check and try again.";
+"wallets.verifySeedPhrase.doNotTakeScreenshotDescription" = "It's not a good idea to take a screenshot of your seed phrase";
 "transactions.tabbar.item.title" = "내 거래";
 "transactions.received.ether" = "You have received %@ %@";
 "transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";

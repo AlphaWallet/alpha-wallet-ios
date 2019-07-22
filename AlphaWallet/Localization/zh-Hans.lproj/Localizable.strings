@@ -75,8 +75,10 @@
 "wallets.showSeedPhrase.subtitle" = "Making a backup is very simple and safe:";
 "wallets.showSeedPhrase.description" = "just write down 12 words and keep them in a safe place, offline";
 "wallets.showSeedPhrase.testSeedPhrase" = "Test My Seed Phrase";
+"wallets.showSeedPhrase.doNotTakeScreenshotDescription" = "It's not a good idea to take a screenshot of your seed phrase";
 "wallets.verifySeedPhrase.title" = "Verify Seed Phrase";
 "wallets.verifySeedPhrase.wrong" = "Invalid seed phrase. Please check and try again.";
+"wallets.verifySeedPhrase.doNotTakeScreenshotDescription" = "It's not a good idea to take a screenshot of your seed phrase";
 "transactions.tabbar.item.title" = "我的账单";
 "transactions.received.ether" = "你已收到 %@ %@";
 "transactions.received.ether.notification.prompt" = "当你收到 %@ 的时候是否允许系统通知?";
