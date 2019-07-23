@@ -70,11 +70,12 @@ class SettingsViewController: FormViewController {
         }
 
         <<< AppFormAppearance.alphaWalletSettingsButton { button in
-            button.cellStyle = .value1
+            button.cellStyle = .subtitle
         }.onCellSelection { [unowned self] _, _ in
             self.run(action: .wallets)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
+            cell.detailTextLabel?.textColor = Colors.settingsSubtitleColor
         }.cellUpdate { [weak self] cell, _ in
             guard let strongSelf = self else { return }
             cell.imageView?.image = R.image.settings_wallet()?.withRenderingMode(.alwaysTemplate)
@@ -85,11 +86,12 @@ class SettingsViewController: FormViewController {
         }
 
         <<< AppFormAppearance.alphaWalletSettingsButton { button in
-            button.cellStyle = .value1
+            button.cellStyle = .subtitle
         }.onCellSelection { [unowned self] _, _ in
             self.run(action: .locales)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
+            cell.detailTextLabel?.textColor = Colors.settingsSubtitleColor
         }.cellUpdate { [weak self] cell, _ in
             guard let strongSelf = self else { return }
             cell.imageView?.image = R.image.settings_language()?.withRenderingMode(.alwaysTemplate)

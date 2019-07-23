@@ -65,13 +65,13 @@
 "settings.error.failedToSendEmail" = "メールを送信できませんでした。メール アプリのインストールを確認してください。";
 "settings.network.button.title" = "ネットワーク";
 "settings.enabledNetworks.button.title" = "Enabled Networks";
-"settings.language.button.title" = "言語";
+"settings.language.button.title" = "Change Language";
 "settings.language.useSystem.title" = "システム設定を使用";
 "settings.version.label.title" = "バージョン";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "トランザクションはまだありません!";
-"wallet.navigation.title" = "ウォレット";
+"wallet.navigation.title" = "Change Wallet";
 "wallet.types.hdWallets" = "HD Wallets";
 "wallet.types.keystoreWallets" = "Keystore Wallets";
 "wallet.types.watchedWallets" = "Watched Wallets";
@@ -122,7 +122,7 @@
 "Private Key" = "秘密鍵";
 "settings.currency.button.title" = "通貨";
 "settings.network.test.label.title" = "テスト";
-"settings.wallets.button.title" = "ウォレット";
+"settings.wallets.button.title" = "Change Wallet";
 "Symbol" = "シンボル";
 "Today" = "今日";
 "token.lowercase" = "トークン";
