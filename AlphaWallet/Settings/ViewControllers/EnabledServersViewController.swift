@@ -57,11 +57,8 @@ class EnabledServersViewController: UIViewController {
     }
 
     @objc private func done() {
-        if let viewModel = viewModel {
-            delegate?.didSelectServers(servers: viewModel.selectedServers, in: self)
-        } else {
-            delegate?.didSelectServers(servers: [], in: self)
-        }
+        guard let viewModel = viewModel else { return }
+        delegate?.didSelectServers(servers: viewModel.selectedServers, in: self)
     }
 }
 
@@ -93,5 +90,6 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
         }
         configure(viewModel: .init(servers: viewModel.servers, selectedServers: servers))
         tableView.reloadRows(at: [indexPath], with: .none)
+        navigationItem.rightBarButtonItem?.isEnabled = !servers.isEmpty
     }
 }

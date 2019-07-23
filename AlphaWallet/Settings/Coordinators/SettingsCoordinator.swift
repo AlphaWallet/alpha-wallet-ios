@@ -171,6 +171,9 @@ extension SettingsCoordinator: LocalesCoordinatorDelegate {
 
 extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 	func didSelectServers(servers: [RPCServer], in coordinator: EnabledServersCoordinator) {
+		//Defensive. Shouldn't allow no server to be selected
+		guard !servers.isEmpty else { return }
+
 		let unchanged = config.enabledServers.sorted(by: { $0.chainID < $1.chainID }) == servers.sorted(by: { $0.chainID < $1.chainID })
         if unchanged {
 			coordinator.enabledServersViewController.navigationController?.popViewController(animated: true)
