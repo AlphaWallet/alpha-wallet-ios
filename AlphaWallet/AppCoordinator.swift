@@ -94,7 +94,6 @@ class AppCoordinator: NSObject, Coordinator {
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
-        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.listOfConflictingTokenScriptFiles)
     }
 
     private func closeWelcomeWindow() {
