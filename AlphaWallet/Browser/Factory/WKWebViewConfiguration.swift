@@ -13,38 +13,23 @@ extension WKWebViewConfiguration {
 
     static func make(forType type: WebViewType, server server: RPCServer, address: AlphaWallet.Address, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
         let webViewConfig = WKWebViewConfiguration()
-        var js = ""
-
         switch type {
         case .dappBrowser:
-            guard
-                    let bundlePath = Bundle.main.path(forResource: "AlphaWalletWeb3Provider", ofType: "bundle"),
-                    let bundle = Bundle(path: bundlePath) else { return webViewConfig }
-
-            if let filepath = bundle.path(forResource: "AlphaWallet-min", ofType: "js") {
-                do {
-                    js += try String(contentsOfFile: filepath)
-                } catch { }
-            }
-            js += javaScriptForDappBrowser(server: server, address: address)
+            //TODO add privacy mode switch
+            let config = WKUserScriptConfig(
+                address: address.eip55String,
+                chainId: server.chainID,
+                rpcUrl: server.rpcURL.absoluteString,
+                privacyMode: false
+            )
+            webViewConfig.userContentController.addUserScript(config.providerScript)
+            webViewConfig.userContentController.addUserScript(config.injectedScript)
             break
         case .tokenScriptRenderer:
-            js += javaScriptForTokenScriptRenderer(server: server, address: address)
-            js += """
-                  \n
-                  web3.tokens = {
-                      data: {
-                          currentInstance: {
-                          },
-                      },
-                      dataChanged: (tokens) => {
-                        console.log(\"web3.tokens.data changed. You should assign a function to `web3.tokens.dataChanged` to monitor for changes like this:\\n    `web3.tokens.dataChanged = (oldTokens, updatedTokens) => { //do something }`\")
-                      }
-                  }
-                  """
+            let script = javaScriptForTokenScriptRenderer(server: server, address: address)
+            webViewConfig.userContentController.addUserScript(script)
+            break
         }
-        let userScript = WKUserScript(source: js, injectionTime: .atDocumentStart, forMainFrameOnly: false)
-        webViewConfig.userContentController.addUserScript(userScript)
 
         switch type {
         case .dappBrowser:
@@ -73,77 +58,8 @@ extension WKWebViewConfiguration {
         return webViewConfig
     }
 
-    fileprivate static func javaScriptForDappBrowser(server server: RPCServer, address: AlphaWallet.Address) -> String {
-        return """
-               //Space is needed here because it is sometimes cut off by websites. 
-               
-               const addressHex = "\(address.eip55String)"
-               const rpcURL = "\(server.rpcURL.absoluteString)"
-               const chainID = "\(server.chainID)"
-
-               function executeCallback (id, error, value) {
-                   AlphaWallet.executeCallback(id, error, value)
-               }
-
-               AlphaWallet.init(rpcURL, {
-                   getAccounts: function (cb) { cb(null, [addressHex]) },
-                   processTransaction: function (tx, cb){
-                       console.log('signing a transaction', tx)
-                       const { id = 8888 } = tx
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.signTransaction.postMessage({"name": "signTransaction", "object":     tx, id: id})
-                   },
-                   signMessage: function (msgParams, cb) {
-                       const { data } = msgParams
-                       const { id = 8888 } = msgParams
-                       console.log("signing a message", msgParams)
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.signMessage.postMessage({"name": "signMessage", "object": { data }, id:    id} )
-                   },
-                   signPersonalMessage: function (msgParams, cb) {
-                       const { data } = msgParams
-                       const { id = 8888 } = msgParams
-                       console.log("signing a personal message", msgParams)
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.signPersonalMessage.postMessage({"name": "signPersonalMessage", "object":  { data }, id: id})
-                   },
-                   signTypedMessage: function (msgParams, cb) {
-                       const { data } = msgParams
-                       const { id = 8888 } = msgParams
-                       console.log("signing a typed message", msgParams)
-                       AlphaWallet.addCallback(id, cb)
-                       webkit.messageHandlers.signTypedMessage.postMessage({"name": "signTypedMessage", "object":     { data }, id: id})
-                   },
-                   enable: function() {
-                      return new Promise(function(resolve, reject) {
-                          //send back the coinbase account as an array of one
-                          resolve([addressHex])
-                      })
-                   }
-               }, {
-                   address: addressHex,
-                   networkVersion: chainID
-               })
-
-               web3.setProvider = function () {
-                   console.debug('AlphaWallet Wallet - overrode web3.setProvider')
-               }
-
-               web3.eth.defaultAccount = addressHex
-
-               web3.version.getNetwork = function(cb) {
-                   cb(null, chainID)
-               }
-
-              web3.eth.getCoinbase = function(cb) {
-               return cb(null, addressHex)
-             }
-             window.ethereum = web3.currentProvider
-             """
-    }
-
-    fileprivate static func javaScriptForTokenScriptRenderer(server server: RPCServer, address: AlphaWallet.Address) -> String {
-        return """
+    fileprivate static func javaScriptForTokenScriptRenderer(server server: RPCServer, address: AlphaWallet.Address) -> WKUserScript {
+        let js = """
                window.web3CallBacks = {}
 
                function executeCallback (id, error, value) {
@@ -161,7 +77,20 @@ extension WKWebViewConfiguration {
                    }
                  }
                }
+
+                \n
+                  web3.tokens = {
+                      data: {
+                          currentInstance: {
+                          },
+                      },
+                      dataChanged: (tokens) => {
+                        console.log(\"web3.tokens.data changed. You should assign a function to `web3.tokens.dataChanged` to monitor for changes like this:\\n    `web3.tokens.dataChanged = (oldTokens, updatedTokens) => { //do something }`\")
+                      }
+                  }
+
                """
+        return WKUserScript(source: js, injectionTime: .atDocumentStart, forMainFrameOnly: false)
     }
 
     fileprivate static func contentBlockingRulesJson() -> String {
@@ -226,3 +155,5 @@ extension WKWebViewConfiguration: WKURLSchemeHandler {
         //Do nothing
     }
 }
+
+

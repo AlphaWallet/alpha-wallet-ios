@@ -548,6 +548,7 @@
 		73ED85A520349BE400593BF3 /* StringFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A420349BE400593BF3 /* StringFormatter.swift */; };
 		73ED85A72034BFEF00593BF3 /* UITextFieldAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A62034BFEF00593BF3 /* UITextFieldAdditions.swift */; };
 		73ED85A92034C42D00593BF3 /* StringFormatterTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */; };
+		76F1D03FA3FA38AE4F090900 /* WKUserScriptConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D38D08A7F5E35F73EFC2 /* WKUserScriptConfig.swift */; };
 		76F1D09ED5C81F9B420FACD4 /* TokenScriptSignatureVerifierTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D7C0B5043312AADA668A /* TokenScriptSignatureVerifierTest.swift */; };
 		76F1D0A410FCFEB38307F7F9 /* DappsHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DD09B44FD653C1500DA8 /* DappsHomeViewController.swift */; };
 		76F1D12A7ED6E35000B1B020 /* DappBrowserCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D4E689C3ECFD38CBBC47 /* DappBrowserCoordinator.swift */; };
@@ -1193,6 +1194,7 @@
 		73ED85A420349BE400593BF3 /* StringFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatter.swift; sourceTree = "<group>"; };
 		73ED85A62034BFEF00593BF3 /* UITextFieldAdditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITextFieldAdditions.swift; sourceTree = "<group>"; };
 		73ED85A82034C42D00593BF3 /* StringFormatterTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringFormatterTest.swift; sourceTree = "<group>"; };
+		76F1D38D08A7F5E35F73EFC2 /* WKUserScriptConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WKUserScriptConfig.swift; sourceTree = "<group>"; };
 		76F1D3AB33F1310B03B18E37 /* MyDappsViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyDappsViewControllerViewModel.swift; sourceTree = "<group>"; };
 		76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimOrderCoordinator.swift; sourceTree = "<group>"; };
 		76F1D473FF303828D93C95EB /* GetERC721BalanceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721BalanceCoordinator.swift; sourceTree = "<group>"; };
@@ -2169,6 +2171,7 @@
 			isa = PBXGroup;
 			children = (
 				29C70C7E20199AEB0072E454 /* WKWebViewConfiguration.swift */,
+				76F1D38D08A7F5E35F73EFC2 /* WKUserScriptConfig.swift */,
 			);
 			path = Factory;
 			sourceTree = "<group>";
@@ -4167,6 +4170,7 @@
 				5E7C75421C08B96E8872722C /* GeneralisedTime.swift in Sources */,
 				5E7C767595F664FF33157ADF /* FunctionOrigin.swift in Sources */,
 				5E7C7FC4F00168189F1623C7 /* TokenInterfaceType.swift in Sources */,
+				76F1D03FA3FA38AE4F090900 /* WKUserScriptConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
