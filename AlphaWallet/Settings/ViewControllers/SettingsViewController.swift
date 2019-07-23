@@ -21,6 +21,7 @@ class SettingsViewController: FormViewController {
     private lazy var viewModel: SettingsViewModel = {
         return SettingsViewModel(isDebug: isDebug)
     }()
+    private let keystore: Keystore
     private let account: Wallet
     private let promptBackupWalletViewHolder = UIView()
 
@@ -46,11 +47,13 @@ class SettingsViewController: FormViewController {
         }
     }
 
-    init(account: Wallet) {
+    init(keystore: Keystore, account: Wallet) {
+        self.keystore = keystore
         self.account = account
         super.init(style: .plain)
         title = R.string.localizable.aSettingsNavigationTitle()
     }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -58,7 +61,7 @@ class SettingsViewController: FormViewController {
         tableView.separatorStyle = .none
         tableView.backgroundColor = Colors.appBackground
 
-        form = createSection(withTitle: "")
+        let firstSection = createSection(withTitle: "")
 
         <<< AppFormAppearance.alphaWalletSettingsButton {
             $0.title = R.string.localizable.aSettingsContentsMyWalletAddress()
@@ -85,6 +88,32 @@ class SettingsViewController: FormViewController {
             cell.detailTextLabel?.lineBreakMode = .byTruncatingMiddle
             cell.accessoryType = .disclosureIndicator
         }
+
+        switch account.type {
+        case .real(let account):
+            firstSection
+            <<< AppFormAppearance.alphaWalletSettingsButton { [weak self] in
+                guard let strongSelf = self else { return }
+                $0.title = R.string.localizable.settingsBackupWalletButtonTitle()
+            }.onCellSelection { [unowned self] _, _ in
+                self.delegate?.didAction(action: .backupWallet, in: self)
+            }.cellSetup { [weak self] cell, _ in
+                guard let strongSelf = self else { return }
+                cell.imageView?.tintColor = Colors.appBackground
+                cell.imageView?.image = R.image.settings_wallet_backup()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
+                let walletSecurityLevel = PromptBackupCoordinator(keystore: strongSelf.keystore, wallet: strongSelf.account, config: .init()).securityLevel
+                cell.accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
+            }.cellUpdate { [weak self] cell, _ in
+                guard let strongSelf = self else { return }
+                cell.textLabel?.textAlignment = .left
+                let walletSecurityLevel = PromptBackupCoordinator(keystore: strongSelf.keystore, wallet: strongSelf.account, config: .init()).securityLevel
+                cell.accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
+            }
+        case .watch:
+            break
+        }
+
+        firstSection
 
         <<< AppFormAppearance.alphaWalletSettingsButton { button in
             button.cellStyle = .subtitle
@@ -117,6 +146,8 @@ class SettingsViewController: FormViewController {
             cell.imageView?.tintColor = Colors.appBackground
             cell.imageView?.image = R.image.settings_lock()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
         }
+
+        form = firstSection
 
         +++ createSection(withTitle: R.string.localizable.settingsAdvancedTitle())
         <<< AppFormAppearance.alphaWalletSettingsButton { button in
@@ -215,6 +246,15 @@ class SettingsViewController: FormViewController {
             bodyStackView.topAnchor.constraint(equalTo: view.topAnchor),
             bodyStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        reflectCurrentWalletSecurityLevel()
+    }
+
+    private func reflectCurrentWalletSecurityLevel() {
+        tableView.reloadData()
     }
 
     func setPasscode(completion: ((Bool) -> Void)? = .none) {

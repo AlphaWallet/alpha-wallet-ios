@@ -66,6 +66,7 @@
 "settings.network.button.title" = "네트워크";
 "settings.enabledNetworks.button.title" = "Enabled Networks";
 "settings.language.button.title" = "Change Language";
+"settings.backupWallet.button.title" = "Back up this Wallet";
 "settings.language.useSystem.title" = "시스템 설정 사용";
 "settings.version.label.title" = "버전";
 "settings.advanced.title" = "Advanced";
@@ -402,3 +403,6 @@
 "keystore.lock.wallet.privateKey.description" = "AlphaWallet security is being upgraded to the best achievable. Lock your private key with biometrics";
 "keystore.lock.wallet.seed.button" = "Lock Seed Phrase";
 "keystore.lock.wallet.privateKey.button" = "Lock Private Key";
+"wallet.security.level.red" = "BACK UP NOW!";
+"wallet.security.level.orange" = "NOT LOCKED";
+"wallet.security.level.green" = "100% SECURE";
