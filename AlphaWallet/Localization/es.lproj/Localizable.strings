@@ -65,13 +65,13 @@
 "settings.error.failedToSendEmail" = "Error al enviar el correo electrónico. Asegúrate de que tienes una aplicación de correo instalada.";
 "settings.network.button.title" = "Red";
 "settings.enabledNetworks.button.title" = "Enabled Networks";
-"settings.language.button.title" = "Idioma";
+"settings.language.button.title" = "Change Language";
 "settings.language.useSystem.title" = "Usar la configuración del sistema";
 "settings.version.label.title" = "Versión";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "¡Todavía no hay transacciones!";
-"wallet.navigation.title" = "Monederos";
+"wallet.navigation.title" = "Change Wallet";
 "wallet.types.hdWallets" = "HD Wallets";
 "wallet.types.keystoreWallets" = "Keystore Wallets";
 "wallet.types.watchedWallets" = "Watched Wallets";
@@ -122,7 +122,7 @@
 "Private Key" = "Clave privada";
 "settings.currency.button.title" = "Moneda";
 "settings.network.test.label.title" = "Prueba";
-"settings.wallets.button.title" = "Monederos";
+"settings.wallets.button.title" = "Change Wallet";
 "Symbol" = "Símbolo";
 "Today" = "Hoy";
 "token.lowercase" = "token";

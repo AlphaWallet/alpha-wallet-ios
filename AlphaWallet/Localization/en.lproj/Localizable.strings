@@ -65,13 +65,13 @@
 "settings.error.failedToSendEmail" = "Failed to send email. Make sure you have Mail app installed.";
 "settings.network.button.title" = "Network";
 "settings.enabledNetworks.button.title" = "Enabled Networks";
-"settings.language.button.title" = "Language";
+"settings.language.button.title" = "Change Language";
 "settings.language.useSystem.title" = "Use System Setting";
 "settings.version.label.title" = "Version";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "No Transactions Yet!";
-"wallet.navigation.title" = "Wallets";
+"wallet.navigation.title" = "Change Wallet";
 "wallet.types.hdWallets" = "HD Wallets";
 "wallet.types.keystoreWallets" = "Keystore Wallets";
 "wallet.types.watchedWallets" = "Watched Wallets";
@@ -122,7 +122,7 @@
 "Private Key" = "Private Key";
 "settings.currency.button.title" = "Currency";
 "settings.network.test.label.title" = "Test";
-"settings.wallets.button.title" = "Wallets";
+"settings.wallets.button.title" = "Change Wallet";
 "Symbol" = "Symbol";
 "Today" = "Today";
 "token.lowercase" = "token";
