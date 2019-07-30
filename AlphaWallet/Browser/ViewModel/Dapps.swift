@@ -54,7 +54,8 @@ enum Dapps {
         Dapp(name: "BTU Hotel", description: "BTU Hotel is a hotel booking Dapp takes 0% commission. Dapp user earns 100% of the hotel commission directly in crypto into their preferred browser wallet", url: "https://btu-hotel.com", cat: "Travel"),
         Dapp(name: "Bidali", description: "Buy from top brands with crypto", url: "https://commerce.bidali.com/dapp", cat: "Marketplace"),
         Dapp(name: "ENS domain manager", description: "Manage ENS domains", url: "https://manager.ens.domains", cat: "Tool"),
-        Dapp(name: "Humanity", description: "Human Identity on Ethereum", url: "https://humanitydao.org", cat: "Social Media")
+        Dapp(name: "Humanity", description: "Human Identity on Ethereum", url: "https://humanitydao.org", cat: "Social Media"),
+        Dapp(name: "DEX.AG", description: "Trade cryptoassets at the best price", url: "https://dex.ag", cat: "Exchange")
 
     ]
 
