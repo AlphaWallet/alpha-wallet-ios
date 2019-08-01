@@ -97,12 +97,7 @@ class InCoordinator: NSObject, Coordinator {
         super.init()
     }
 
-    private func migrateToStoringRawPrivateKeysInKeychain() {
-        (try? LegacyFileBasedKeystore())?.migrateKeystoreFilesToRawPrivateKeysInKeychain()
-    }
-
     func start() {
-        migrateToStoringRawPrivateKeysInKeychain()
         showTabBar(for: wallet)
         checkDevice()
 

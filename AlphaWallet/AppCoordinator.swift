@@ -51,6 +51,7 @@ class AppCoordinator: NSObject, Coordinator {
         applyStyle()
         resetToWelcomeScreen()
         setupAssetDefinitionStoreCoordinator()
+        migrateToStoringRawPrivateKeysInKeychain()
 
         if keystore.hasWallets {
             showTransactions(for: keystore.recentlyUsedWallet ?? keystore.wallets.first!)
@@ -59,6 +60,10 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         assetDefinitionStore.delegate = self
+    }
+
+    private func migrateToStoringRawPrivateKeysInKeychain() {
+        (try? LegacyFileBasedKeystore())?.migrateKeystoreFilesToRawPrivateKeysInKeychain()
     }
 
     /// Return true if handled
