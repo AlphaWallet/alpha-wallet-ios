@@ -68,6 +68,7 @@ class SignMessageCoordinator: Coordinator {
         case .success(let data):
             didComplete?(.success(data))
         case .failure(let error):
+            navigationController.displaySuccess(message: error.errorDescription)
             didComplete?(.failure(AnyError(error)))
         }
     }

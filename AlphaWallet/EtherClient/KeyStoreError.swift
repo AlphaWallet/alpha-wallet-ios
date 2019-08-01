@@ -14,6 +14,8 @@ public enum KeystoreError: LocalizedError {
     case accountNotFound
     case failedToSignMessage
     case failedToExportPrivateKey
+    case failedToExportSeed
+    case accountMayNeedImportingAgainOrEnablePasscode
 
     public var errorDescription: String? {
         switch self {
@@ -39,6 +41,10 @@ public enum KeystoreError: LocalizedError {
             return R.string.localizable.accountsDeleteErrorFailedToSignMessage()
         case .failedToExportPrivateKey:
             return R.string.localizable.accountsDeleteErrorFailedToExportPrivateKey()
+        case .failedToExportSeed:
+            return R.string.localizable.accountsDeleteErrorFailedToExportSeed()
+        case .accountMayNeedImportingAgainOrEnablePasscode:
+            return R.string.localizable.keystoreAccessKeyNeedImportOrPasscode()
         }
     }
 }

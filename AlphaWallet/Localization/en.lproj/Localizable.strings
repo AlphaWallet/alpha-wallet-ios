@@ -324,6 +324,7 @@
 "accounts.delete.error.accountNotFound" = "Account not found";
 "accounts.delete.error.failedToSignMessage" = "Failed to sign message";
 "accounts.delete.error.failedToExportPrivateKey" = "Failed to export private key";
+"accounts.delete.error.failedToExportSeed" = "Failed to export wallet seed";
 "Chain ID" = "Chain ID";
 "Endpoint" = "Endpoint";
 "settings.preferences.button.title" = "Show Tokens on Launch";
@@ -389,3 +390,5 @@
 "keystore.accessKey.hd.verify" = "Accessing your wallet seed phrase to verify against it";
 "keystore.accessKey.hd.prepareToVerify" = "Accessing your wallet seed phrase to let you verify against it";
 "keystore.accessKey.sign" = "Accessing your wallet key to sign";
+"keystore.accessKey.needImportOrPasscode" = "Can't access your wallet. Import your wallet again or enable passcode";
+"keystore.accessKey.lock.fail" = "Can't lock your wallet key. Maybe your iOS Passcode is not enabled?";

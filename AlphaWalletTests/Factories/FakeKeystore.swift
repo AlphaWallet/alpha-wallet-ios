@@ -95,6 +95,10 @@ struct FakeKeystore: Keystore {
         return .success(.make())
     }
 
+    func elevateSecurity(forAccount account: EthereumAccount) -> Bool {
+        return false
+    }
+
     func exportRawPrivateKeyForNonHdWalletForBackup(forAccount: EthereumAccount, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void) {
     }
 

@@ -28,6 +28,7 @@ protocol Keystore {
     func createAccount(completion: @escaping (Result<EthereumAccount, KeystoreError>) -> Void)
     func importWallet(type: ImportType, completion: @escaping (Result<Wallet, KeystoreError>) -> Void)
     func createAccount() -> Result<EthereumAccount, KeystoreError>
+    func elevateSecurity(forAccount account: EthereumAccount) -> Bool
     func exportRawPrivateKeyForNonHdWalletForBackup(forAccount: EthereumAccount, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void)
     func exportSeedPhraseOfHdWallet(forAccount account: EthereumAccount, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void)
     func verifySeedPhraseOfHdWallet(_ seedPhrase: String, forAccount account: EthereumAccount, completion: @escaping (Result<Bool, KeystoreError>) -> Void)

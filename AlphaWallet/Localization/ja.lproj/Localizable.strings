@@ -322,6 +322,7 @@
 "accounts.delete.error.accountNotFound" = "アカウントが見つかりません";
 "accounts.delete.error.failedToSignMessage" = "メッセージの署名に失敗しました";
 "accounts.delete.error.failedToExportPrivateKey" = "秘密鍵をエクスポートできませんでした";
+"accounts.delete.error.failedToExportSeed" = "Failed to export wallet seed";
 "Chain ID" = "チェーン ID";
 "Endpoint" = "エンドポイント";
 "settings.preferences.button.title" = "起動時にトークンを表示";
@@ -389,3 +390,5 @@
 "keystore.accessKey.hd.verify" = "Accessing your wallet seed phrase to verify against it";
 "keystore.accessKey.hd.prepareToVerify" = "Accessing your wallet seed phrase to let you verify against it";
 "keystore.accessKey.sign" = "Accessing your wallet key to sign";
+"keystore.accessKey.needImportOrPasscode" = "Can't access your wallet. Import your wallet again or enable passcode";
+"keystore.accessKey.lock.fail" = "Can't lock your wallet key. Maybe your iOS Passcode is not enabled?";
