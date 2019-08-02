@@ -92,7 +92,7 @@ open class EtherKeystore: Keystore {
     }
 
     //i.e if passcode is enabled. Face ID/Touch ID wouldn't work without passcode being enabled and we can't write to the keychain or generate a key in secure enclave when passcode is disabled
-    private var isUserPresenceCheckPossible: Bool {
+    var isUserPresenceCheckPossible: Bool {
         let authContext = LAContext()
         return authContext.canEvaluatePolicy(.deviceOwnerAuthentication, error: nil)
     }
@@ -612,15 +612,24 @@ open class EtherKeystore: Keystore {
     func elevateSecurity(forAccount account: EthereumAccount) -> Bool {
         guard !isProtectedByUserPresence(account: account) else { return true }
         guard isUserPresenceCheckPossible else { return false }
-        //Text isn't shown since we don't have user presence set yet. Don't need to localize
-        let prompt = "To elevate security for your wallet key"
-        let isSuccessful: Bool
+        let prompt: String
+        var isSuccessful: Bool
         if isHdWallet(account: account) {
+            prompt = R.string.localizable.keystoreAccessKeyHdLock()
             guard let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, withUserPresence: false) else { return false }
             isSuccessful = saveSeedForHdWallet(seed, forAccount: account, withUserPresence: true)
+            if isSuccessful {
+                //Read it back, forcing iOS to check for user-presence
+                isSuccessful = getSeedForHdWallet(forAccount: account, prompt: prompt, withUserPresence: true) != nil
+            }
         } else {
+            prompt = R.string.localizable.keystoreAccessKeyNonHdLock()
             guard let keyStoredAsRawPrivateKey = getPrivateKeyFromNonHdWallet(forAccount: account, prompt: prompt, withUserPresence: false) else { return false }
             isSuccessful = savePrivateKeyForNonHdWallet(keyStoredAsRawPrivateKey, forAccount: account, withUserPresence: true)
+            if isSuccessful {
+                //Read it back, forcing iOS to check for user-presence
+                isSuccessful = getPrivateKeyFromNonHdWallet(forAccount: account, prompt: prompt, withUserPresence: true) != nil
+            }
         }
         if isSuccessful {
             addToListOfEthereumAddressesProtectedByUserPresence(account.address)

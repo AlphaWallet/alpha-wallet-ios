@@ -21,6 +21,7 @@ protocol Keystore {
     static var current: Wallet? { get }
 
     var hasWallets: Bool { get }
+    var isUserPresenceCheckPossible: Bool { get }
     var wallets: [Wallet] { get }
     var recentlyUsedWallet: Wallet? { get set }
 
@@ -37,6 +38,7 @@ protocol Keystore {
     func isHdWallet(wallet: Wallet) -> Bool
     func isKeystore(wallet: Wallet) -> Bool
     func isWatched(wallet: Wallet) -> Bool
+    func isProtectedByUserPresence(account: EthereumAccount) -> Bool
     func signPersonalMessage(_ data: Data, for account: EthereumAccount) -> Result<Data, KeystoreError>
     func signTypedMessage(_ datas: [EthTypedData], for account: EthereumAccount) -> Result<Data, KeystoreError>
     func signMessage(_ data: Data, for account: EthereumAccount) -> Result<Data, KeystoreError>

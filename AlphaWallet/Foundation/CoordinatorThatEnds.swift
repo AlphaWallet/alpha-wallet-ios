@@ -3,5 +3,6 @@
 import Foundation
 
 protocol CoordinatorThatEnds: Coordinator {
-    func end(animated: Bool)
+    func endUserInterface(animated: Bool)
+    func end()
 }

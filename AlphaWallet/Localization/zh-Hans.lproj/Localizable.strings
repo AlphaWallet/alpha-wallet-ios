@@ -3,6 +3,7 @@
 "app.device.jailbreak.title" = "设备安全受损";
 "Done" = "完成";
 "Cancel" = "取消";
+"Skip" = "Skip";
 "Save" = "保存";
 "Delete" = "删除";
 "Reload" = "刷新";
@@ -392,3 +393,11 @@
 "keystore.accessKey.sign" = "Accessing your wallet key to sign";
 "keystore.accessKey.needImportOrPasscode" = "Can't access your wallet. Import your wallet again or enable passcode";
 "keystore.accessKey.lock.fail" = "Can't lock your wallet key. Maybe your iOS Passcode is not enabled?";
+"keystore.accessKey.hd.lock" = "To lock your seed phrase to increase security";
+"keystore.accessKey.nonHd.lock" = "To lock your private key to increase security";
+"keystore.lock.wallet.seed.title" = "Lock your Seed Phrase to Increase Security";
+"keystore.lock.wallet.privateKey.title" = "Lock your Private Key to Increase Security";
+"keystore.lock.wallet.seed.description" = "AlphaWallet security is being upgraded to the best achievable. Lock your seed phrase with biometrics";
+"keystore.lock.wallet.privateKey.description" = "AlphaWallet security is being upgraded to the best achievable. Lock your private key with biometrics";
+"keystore.lock.wallet.seed.button" = "Lock Seed Phrase";
+"keystore.lock.wallet.privateKey.button" = "Lock Private Key";

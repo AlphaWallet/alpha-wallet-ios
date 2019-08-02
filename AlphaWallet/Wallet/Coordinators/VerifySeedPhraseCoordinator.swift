@@ -31,7 +31,11 @@ class VerifySeedPhraseCoordinator: Coordinator {
         navigationController.pushViewController(rootViewController, animated: true)
     }
 
-    func end(animated: Bool) {
+    func end() {
+        //do nothing
+    }
+
+    func endUserInterface(animated: Bool) {
         navigationController.popViewController(animated: animated)
     }
 }

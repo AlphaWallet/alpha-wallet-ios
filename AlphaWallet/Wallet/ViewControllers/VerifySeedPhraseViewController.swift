@@ -254,6 +254,8 @@ class VerifySeedPhraseViewController: UIViewController {
         keystore.verifySeedPhraseOfHdWallet(seedPhraseTextView.text.lowercased().trimmed, forAccount: account) { result in
             switch result {
             case .success(let isMatched):
+                //Safety precaution, we clear the seed phrase. The next screen may be the prompt to elevate security of wallet screen which the user can go back from
+                self.clearChosenSeedPhrases()
                 self.updateStateWithVerificationResult(isMatched)
             case .failure(let error):
                 self.reflectError(error)

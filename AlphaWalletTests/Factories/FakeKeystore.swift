@@ -18,6 +18,9 @@ struct FakeKeystore: Keystore {
     var hasWallets: Bool {
         return !wallets.isEmpty
     }
+    var isUserPresenceCheckPossible: Bool {
+        return true
+    }
     var wallets: [Wallet]
     var recentlyUsedWallet: Wallet?
 
@@ -49,6 +52,10 @@ struct FakeKeystore: Keystore {
     }
 
     func isWatched(wallet: Wallet) -> Bool {
+        return false
+    }
+
+    func isProtectedByUserPresence(account: EthereumAccount) -> Bool {
         return false
     }
 

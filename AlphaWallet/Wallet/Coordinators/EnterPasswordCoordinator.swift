@@ -33,7 +33,11 @@ class EnterPasswordCoordinator: CoordinatorThatEnds {
         navigationController.pushViewController(rootViewController, animated: true)
     }
 
-    func end(animated: Bool) {
+    func end() {
+        //do nothing
+    }
+
+    func endUserInterface(animated: Bool) {
         navigationController.viewControllers.firstIndex(of: rootViewController)
                 .flatMap { navigationController.viewControllers[$0 - 1] }
                 .flatMap { navigationController.popToViewController($0, animated: animated) }

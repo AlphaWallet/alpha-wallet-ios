@@ -36,17 +36,17 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    private func presentActivityViewController(for account: EthereumAccount, newPassword: String, coordinator: CoordinatorThatEnds, completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    private func presentActivityViewController(for account: EthereumAccount, newPassword: String, completion: @escaping (Result<Bool, AnyError>) -> Void) {
         navigationController.displayLoading(
             text: R.string.localizable.exportPresentBackupOptionsLabelTitle()
         )
         keystore.exportRawPrivateKeyForNonHdWalletForBackup(forAccount: account, newPassword: newPassword) { [weak self] result in
             guard let strongSelf = self else { return }
-            strongSelf.handleExport(result: result, coordinator: coordinator, completion: completion)
+            strongSelf.handleExport(result: result, completion: completion)
         }
     }
 
-    private func handleExport(result: (Result<String, KeystoreError>), coordinator: CoordinatorThatEnds, completion: @escaping (Result<Bool, AnyError>) -> Void) {
+    private func handleExport(result: (Result<String, KeystoreError>), completion: @escaping (Result<Bool, AnyError>) -> Void) {
         switch result {
         case .success(let value):
             let url = URL(fileURLWithPath: NSTemporaryDirectory().appending("alphawallet_backup_\(account.address.eip55String).json"))
@@ -67,7 +67,6 @@ class BackupCoordinator: Coordinator {
                     //no-op
                 }
                 completion(.success(result))
-                coordinator.end(animated: true)
             }
             activityViewController.popoverPresentationController?.sourceView = navigationController.view
             activityViewController.popoverPresentationController?.sourceRect = navigationController.view.centerRect
@@ -80,11 +79,28 @@ class BackupCoordinator: Coordinator {
         }
     }
 
-    private func presentShareActivity(for account: EthereumAccount, newPassword: String, coordinator: CoordinatorThatEnds) {
-        presentActivityViewController(for: account, newPassword: newPassword, coordinator: coordinator) { [weak self] result in
+    private func presentShareActivity(for account: EthereumAccount, newPassword: String ) {
+        presentActivityViewController(for: account, newPassword: newPassword) { [weak self] result in
             guard let strongSelf = self else { return }
-            strongSelf.finish(result: result)
+            switch result {
+            case .success(let isBackedUp):
+                if isBackedUp {
+                    self?.promptElevateSecurityOrEnd()
+                }
+            case .failure:
+                break
+            }
         }
+    }
+
+    private func promptElevateSecurityOrEnd() {
+        guard keystore.isUserPresenceCheckPossible else { return cleanUpAfterBackupAndNotPromptedToElevateSecurity() }
+        guard !keystore.isProtectedByUserPresence(account: account) else { return cleanUpAfterBackupAndNotPromptedToElevateSecurity() }
+
+        let coordinator = ElevateWalletSecurityCoordinator(navigationController: navigationController, keystore: keystore, account: account)
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
     }
 
     private func export(for account: EthereumAccount) {
@@ -100,6 +116,57 @@ class BackupCoordinator: Coordinator {
             addCoordinator(coordinator)
         }
     }
+
+    private func cleanUpAfterBackupAndPromptedToElevateSecurity() {
+        let backupSeedPhraseCoordinator = coordinators.first { $0 is BackupSeedPhraseCoordinator } as? BackupSeedPhraseCoordinator
+        defer { backupSeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
+        let elevateWalletSecurityCoordinator = coordinators.first { $0 is ElevateWalletSecurityCoordinator } as? ElevateWalletSecurityCoordinator
+        defer { elevateWalletSecurityCoordinator.flatMap { removeCoordinator($0) } }
+        let verifySeedPhraseCoordinator = coordinators.first { $0 is VerifySeedPhraseCoordinator } as? VerifySeedPhraseCoordinator
+        defer { verifySeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
+        let enterPasswordCoordinator = coordinators.first { $0 is EnterPasswordCoordinator } as? EnterPasswordCoordinator
+        defer { enterPasswordCoordinator.flatMap { removeCoordinator($0) } }
+
+        enterPasswordCoordinator?.end()
+        backupSeedPhraseCoordinator?.end()
+        verifySeedPhraseCoordinator?.end()
+        elevateWalletSecurityCoordinator?.end()
+
+        //Must only call endUserInterface() on the coordinators managing the bottom-most view controller
+        //Only one of these 2 coordinators will be nil
+        backupSeedPhraseCoordinator?.endUserInterface(animated: true)
+        enterPasswordCoordinator?.endUserInterface(animated: true)
+
+        finish(result: .success(true))
+        //Bit of delay to wait for the UI animation to almost finish
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            SuccessOverlayView.show()
+        }
+    }
+
+    private func cleanUpAfterBackupAndNotPromptedToElevateSecurity() {
+        let backupSeedPhraseCoordinator = coordinators.first { $0 is BackupSeedPhraseCoordinator } as? BackupSeedPhraseCoordinator
+        defer { backupSeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
+        let verifySeedPhraseCoordinator = coordinators.first { $0 is VerifySeedPhraseCoordinator } as? VerifySeedPhraseCoordinator
+        defer { verifySeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
+        let enterPasswordCoordinator = coordinators.first { $0 is EnterPasswordCoordinator } as? EnterPasswordCoordinator
+        defer { enterPasswordCoordinator.flatMap { removeCoordinator($0) } }
+
+        enterPasswordCoordinator?.end()
+        backupSeedPhraseCoordinator?.end()
+        verifySeedPhraseCoordinator?.end()
+
+        //Must only call endUserInterface() on the coordinators managing the bottom-most view controller
+        //Only one of these 2 coordinators will be nil
+        backupSeedPhraseCoordinator?.endUserInterface(animated: true)
+        enterPasswordCoordinator?.endUserInterface(animated: true)
+
+        finish(result: .success(true))
+        //Bit of delay to wait for ttoree UI animation to almost finish
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            SuccessOverlayView.show()
+        }
+    }
 }
 
 extension BackupCoordinator: EnterPasswordCoordinatorDelegate {
@@ -109,8 +176,7 @@ extension BackupCoordinator: EnterPasswordCoordinatorDelegate {
     }
 
     func didEnterPassword(password: String, account: EthereumAccount, in coordinator: EnterPasswordCoordinator) {
-        presentShareActivity(for: account, newPassword: password, coordinator: coordinator)
-        removeCoordinator(coordinator)
+        presentShareActivity(for: account, newPassword: password)
     }
 }
 
@@ -129,15 +195,16 @@ extension BackupCoordinator: BackupSeedPhraseCoordinatorDelegate {
 
 extension BackupCoordinator: VerifySeedPhraseCoordinatorDelegate {
     func didVerifySeedPhraseSuccessfully(forAccount account: EthereumAccount, inCoordinator coordinator: VerifySeedPhraseCoordinator) {
-        let backupSeedPhraseCoordinator = coordinators.first { $0 is BackupSeedPhraseCoordinator } as? BackupSeedPhraseCoordinator
-        defer { backupSeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
-        defer { removeCoordinator(coordinator) }
-        backupSeedPhraseCoordinator?.end(animated: false)
-        coordinator.end(animated: true)
-        finish(result: .success(true))
-        //Bit of delay to wait for the UI animation to almost finish
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-            SuccessOverlayView.show()
-        }
+        promptElevateSecurityOrEnd()
+    }
+}
+
+extension BackupCoordinator: ElevateWalletSecurityCoordinatorDelegate {
+    func didLockWalletSuccessfully(forAccount account: EthereumAccount, inCoordinator coordinator: ElevateWalletSecurityCoordinator) {
+        cleanUpAfterBackupAndPromptedToElevateSecurity()
+    }
+
+    func didCancelLock(forAccount account: EthereumAccount, inCoordinator coordinator: ElevateWalletSecurityCoordinator) {
+        cleanUpAfterBackupAndPromptedToElevateSecurity()
     }
 }

@@ -4,11 +4,8 @@ import Foundation
 
 struct EnterPasswordViewModel {
     var title: String {
-        if ScreenChecker().isNarrowScreen {
-            return R.string.localizable.enterPasswordNavigationTitleShorter()
-        } else {
-            return R.string.localizable.enterPasswordNavigationTitle()
-        }
+        //Have to use the short version otherwise the next screen's back button might be distorted
+        return R.string.localizable.enterPasswordNavigationTitleShorter()
     }
 
     var headerSectionText: String {

@@ -50,7 +50,6 @@ class SecureEnclave {
     }
 
     private func getPrivateKey(withName name: String) throws -> SecKey {
-
         let params: [String: Any] = [
             kSecClass as String: kSecClassKey,
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
@@ -134,6 +133,7 @@ class SecureEnclave {
             ]
         ]
         if isSimulator {
+            //do nothing
         } else {
             attributes[kSecAttrTokenID as String] = kSecAttrTokenIDSecureEnclave
         }
