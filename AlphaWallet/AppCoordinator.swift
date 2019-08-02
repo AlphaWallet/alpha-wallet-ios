@@ -156,12 +156,12 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
-    private func createInitialWallet() {
-        WalletCoordinator(config: config, keystore: keystore).createInitialWallet()
+    private func createInitialWalletIfMissing() {
+        WalletCoordinator(config: config, keystore: keystore).createInitialWalletIfMissing()
     }
 
     @discardableResult func handleUniversalLink(url: URL) -> Bool {
-        createInitialWallet()
+        createInitialWalletIfMissing()
         closeWelcomeWindow()
         //TODO refactor. Some of these should be moved into InCoordinator instead of reaching into its internals
         guard let inCoordinator = self.inCoordinator else { return false }

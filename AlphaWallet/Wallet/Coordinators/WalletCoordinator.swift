@@ -66,16 +66,11 @@ class WalletCoordinator: Coordinator {
         navigationController.pushViewController(controller, animated: true)
     }
 
-    //TODO Rename this is creating wallet automatically
-    func createInitialWallet() {
+    func createInitialWalletIfMissing() {
         if !keystore.hasWallets {
             let result = keystore.createAccount()
             switch result {
             case .success(let account):
-                //Bit of delay to wait for the UI animation to almost finish
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    SuccessOverlayView.show()
-                }
                 keystore.recentlyUsedWallet = Wallet(type: WalletType.real(account))
             case .failure:
                 //TODO handle initial wallet creation error. App can't be used!
