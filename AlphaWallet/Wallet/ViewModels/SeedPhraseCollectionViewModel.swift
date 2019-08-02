@@ -21,7 +21,8 @@ struct SeedPhraseCollectionViewModel {
     init(words: [String] = [], isSelectable: Bool = false, shouldShowSequenceNumber: Bool = false) {
         self.words = words
         self.isSelectable = isSelectable
-        self.shouldShowSequenceNumber = shouldShowSequenceNumber
+        //TODO show the sequence depending on the valued passed in once design is confirmed (to have the sequence number)
+        self.shouldShowSequenceNumber = false
     }
 
     func seedPhraseWord(atIndex index: Int) -> String {
