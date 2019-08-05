@@ -74,6 +74,8 @@ enum AssetAttributeSyntax: String {
             return .string(address.eip55String)
         case .string:
             return value
+        case .bytes:
+            return value
         case .int(let int):
             return .string(String(int))
         case .uint(let bigUInt):
@@ -94,7 +96,7 @@ enum AssetAttributeSyntax: String {
         case .generalisedTime:
             //TODO but actually impossible for TokenScript's asType to be GeneralizedTime. But maybe it's ok? We might support that in the future?
             return value
-        case .int, .uint, .subscribable, .bool, .openSeaNonFungibleTraits:
+        case .int, .uint, .subscribable, .bool, .openSeaNonFungibleTraits, .bytes:
             return nil
         }
     }
@@ -105,6 +107,8 @@ enum AssetAttributeSyntax: String {
             return nil
         case .string(let string):
             return BigInt(string).flatMap { .int($0) }
+        case .bytes(let data):
+            return .uint(BigUInt(data))
         case .int:
             return value
         case .uint(let bigUInt):
@@ -144,6 +148,9 @@ enum AssetAttributeSyntax: String {
             }
         case .uint(let bigUInt):
             return coerceToBoolean(.int(BigInt(bigUInt)))
+        case .bytes(let bytes):
+            let bytesAsBigUInt = BigUInt(bytes)
+            return coerceToBoolean(.int(BigInt(bytesAsBigUInt)))
         case .bool:
             return value
         case .generalisedTime, .subscribable, .openSeaNonFungibleTraits:
@@ -157,6 +164,8 @@ enum AssetAttributeSyntax: String {
             return nil
         case .string(let string):
             return BigUInt(string).flatMap { .uint($0) }
+        case .bytes(let data):
+            return .uint(BigUInt(data))
         case .int(let int):
             return .uint(BigUInt(int))
         case .uint:

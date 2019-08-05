@@ -38,6 +38,9 @@ struct AssetAttributeSyntaxValue {
     var stringValue: String? {
         return value.stringValue
     }
+    var bytesValue: Data? {
+        return value.bytesValue
+    }
     var intValue: BigInt? {
         return value.intValue
     }

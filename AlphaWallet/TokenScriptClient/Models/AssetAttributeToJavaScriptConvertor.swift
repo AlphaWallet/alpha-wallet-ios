@@ -10,6 +10,8 @@ struct AssetAttributeToJavaScriptConvertor {
             return "\"\(address.eip55String)\""
         case .string(let string):
             return "\"\(string)\""
+        case .bytes(let bytes):
+            return "\"\(bytes.hexString)\""
         case .int(let int):
             return "\"\(String(int))\""
         case .uint(let uint):

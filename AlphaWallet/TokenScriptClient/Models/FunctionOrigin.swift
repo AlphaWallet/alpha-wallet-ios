@@ -80,11 +80,13 @@ struct FunctionOrigin {
     private let originContractOrRecipientAddress: AlphaWallet.Address
     private let attributeId: AttributeId
     private let functionType: FunctionType
+    private let bitmask: BigUInt
+    private let bitShift: Int
 
     let originElement: XMLElement
     let xmlContext: XmlContext
 
-    init?(forEthereumFunctionTransactionElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext) {
+    init?(forEthereumFunctionTransactionElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt, bitShift: Int) {
         guard let functionName = ethereumFunctionElement["function"].nilIfEmpty else { return nil }
         let inputs: [AssetFunctionCall.Argument]
         if let dataElement = XMLHandler.getDataElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext) {
@@ -94,19 +96,19 @@ struct FunctionOrigin {
         }
         let value = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext).flatMap { FunctionOrigin.createInput(fromInputElement: $0, withInputType: .uint) }
         let functionType = FunctionType.functionTransaction(functionName: functionName, inputs: inputs, inputValue: value)
-        self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, attributeId: attributeId, functionType: functionType)
+        self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
     }
 
-    init?(forEthereumPaymentElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, recipientAddress: AlphaWallet.Address, xmlContext: XmlContext) {
+    init?(forEthereumPaymentElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, recipientAddress: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt, bitShift: Int) {
         if let valueElement = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext), let value = FunctionOrigin.createInput(fromInputElement: valueElement, withInputType: .uint) {
             let functionType = FunctionType.paymentTransaction(inputValue: value)
-            self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: recipientAddress, attributeId: attributeId, functionType: functionType)
+            self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: recipientAddress, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
         } else {
             return nil
         }
     }
 
-    init?(forEthereumFunctionCallElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext) {
+    init?(forEthereumFunctionCallElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt, bitShift: Int) {
         guard let functionName = ethereumFunctionElement["function"].nilIfEmpty else { return nil }
         guard let asType: OriginAsType = ethereumFunctionElement["as"].flatMap({ OriginAsType(rawValue: $0) }) else { return nil }
         let inputs: [AssetFunctionCall.Argument]
@@ -117,15 +119,17 @@ struct FunctionOrigin {
             inputs = []
         }
         let functionType = FunctionType.functionCall(functionName: functionName, inputs: inputs, output: output)
-        self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, attributeId: attributeId, functionType: functionType)
+        self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
     }
 
-    init(originElement: XMLElement, xmlContext: XmlContext, originalContractOrRecipientAddress: AlphaWallet.Address, attributeId: AttributeId, functionType: FunctionType) {
+    init(originElement: XMLElement, xmlContext: XmlContext, originalContractOrRecipientAddress: AlphaWallet.Address, attributeId: AttributeId, functionType: FunctionType, bitmask: BigUInt, bitShift: Int) {
         self.originElement = originElement
         self.xmlContext = xmlContext
         self.originContractOrRecipientAddress = originalContractOrRecipientAddress
         self.attributeId = attributeId
         self.functionType = functionType
+        self.bitmask = bitmask
+        self.bitShift = bitShift
     }
 
     func extractValue(withTokenId tokenId: TokenId, account: Wallet, server: RPCServer, attributeAndValues: [AttributeId: AssetInternalValue], callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator) -> AssetInternalValue? {
@@ -143,9 +147,23 @@ struct FunctionOrigin {
         let resultSubscribable = Subscribable<AssetInternalValue>(nil)
         subscribable.subscribe { value in
             guard let value = value else { return }
-            resultSubscribable.value = value
+            resultSubscribable.value = self.castReturnValue(value: value)
         }
         return .subscribable(resultSubscribable)
+    }
+
+    private func castReturnValue(value: AssetInternalValue) -> AssetInternalValue {
+        switch value {
+        case .uint(let value):
+            return .uint(BigUInt((bitmask & value) >> bitShift))
+        case .int(let value):
+            return .int(BigInt((bitmask & BigUInt(value)) >> bitShift))
+        case .bytes(let value):
+            let shiftedValue = BigUInt((bitmask & BigUInt(value)) >> bitShift)
+            return .bytes(shiftedValue.serialize())
+        case .address, .string, .subscribable, .bool, .generalisedTime, .openSeaNonFungibleTraits:
+            return value
+        }
     }
 
     private func postTransaction(withPayload payload: Data, value: BigUInt, server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<Void> {
