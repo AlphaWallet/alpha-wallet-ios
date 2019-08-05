@@ -43,9 +43,9 @@ class XMLHandlerTest: XCTestCase {
     func testExtractingAttributesWithNamespaceInXML() {
         let xml = """
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-        <ts:token xmlns:ts="http://tokenscript.org/2019/05/tokenscript"
+        <ts:token xmlns:ts="http://tokenscript.org/2019/07/tokenscript"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="http://tokenscript.org/2019/05/tokenscript ../../tsml.xsd"
+                    xsi:schemaLocation="http://tokenscript.org/2019/07/tokenscript ../../tsml.xsd"
                     xmlns:xml="http://www.w3.org/XML/1998/namespace">
           <ts:contract id="holding_contract" type="holding">
             <ts:address network="1">0x830E1650a87a754e37ca7ED76b700395A7C61614</ts:address>

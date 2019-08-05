@@ -47,7 +47,7 @@ class TokenHolder {
         switch traitsValue {
         case .openSeaNonFungibleTraits(let traits):
             return traits
-        case .address, .string, .int, .uint, .generalisedTime, .bool, .subscribable:
+        case .address, .string, .int, .uint, .generalisedTime, .bool, .subscribable, .bytes:
             return nil
         }
     }

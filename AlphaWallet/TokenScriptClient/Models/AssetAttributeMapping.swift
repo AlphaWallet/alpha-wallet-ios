@@ -40,7 +40,7 @@ struct AssetAttributeMapping {
         switch key {
         case .address(let address):
             return address.eip55String
-        case .string(let string):
+        case .string(let string), .bytes(let string):
             return string
         case .int(let int):
             return String(int)

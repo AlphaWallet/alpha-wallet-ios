@@ -367,7 +367,7 @@ private class PrivateXMLHandler {
             }
         case .unsupportedTokenScriptVersion(let isOld):
             if isOld {
-                assertImpossibleCodePath()
+                //assertImpossibleCodePath()
                 return .value(.type2BadTokenScript(isDebugMode: !isOfficial, message: "type 2 or bad? Mismatch version. Old version", reason: .oldTokenScriptVersion))
             } else {
                 assertImpossibleCodePath()

@@ -7,6 +7,7 @@ import PromiseKit
 enum AssetInternalValue: Codable {
     case address(AlphaWallet.Address)
     case string(String)
+    case bytes(String)
     case int(BigInt)
     case uint(BigUInt)
     case generalisedTime(GeneralisedTime)
@@ -16,7 +17,7 @@ enum AssetInternalValue: Codable {
 
     var resolvedValue: AssetInternalValue? {
         switch self {
-        case .address, .string, .int, .uint, .generalisedTime, .bool:
+        case .address, .string, .int, .uint, .generalisedTime, .bool, .bytes:
             return self
         case .subscribable(let subscribable):
             return subscribable.value
@@ -64,6 +65,7 @@ enum AssetInternalValue: Codable {
     enum Key: CodingKey {
         case address
         case string
+        case bytes
         case int
         case uint
         case generalisedTime
@@ -84,6 +86,10 @@ enum AssetInternalValue: Codable {
         }
         if let string = try? container.decode(String.self, forKey: .string) {
             self = .string(string)
+            return
+        }
+        if let bytes = try? container.decode(String.self, forKey: .bytes) {
+            self = .bytes(bytes)
             return
         }
         if let int = try? container.decode(BigInt.self, forKey: .int) {
@@ -122,6 +128,8 @@ enum AssetInternalValue: Codable {
             try container.encode(value, forKey: .bool)
         case .subscribable, .openSeaNonFungibleTraits:
             throw AssetIntervalValueCodingError.cannotEncode(self)
+        case .bytes(let value):
+            try container.encode(value, forKey: .bytes)
         }
     }
 }
