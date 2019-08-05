@@ -66,7 +66,7 @@ class AssetAttributesCache {
                     }
                     tokenData[attributeId] = CachedAssetAttribute(type: .token, id: attributeId, value: value)
                 }
-            case .address, .string, .int, .uint, .generalisedTime, .bool:
+            case .address, .string, .int, .uint, .generalisedTime, .bool, .bytes:
                 break
             case .openSeaNonFungibleTraits:
                 break
