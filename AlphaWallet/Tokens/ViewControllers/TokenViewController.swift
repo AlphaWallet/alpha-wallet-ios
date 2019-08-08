@@ -77,7 +77,7 @@ class TokenViewController: UIViewController {
         headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
 
         let xmlHandler = XMLHandler(contract: transferType.contract, assetDefinitionStore: assetDefinitionStore)
-        if xmlHandler.server == session.server {
+        if let server = xmlHandler.server, server == session.server {
             let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
             if tokenScriptStatusPromise.isPending {
                 tokenScriptStatusPromise.done { _ in
