@@ -84,7 +84,11 @@ func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptD
     case .type1GoodTokenScriptSignatureGoodOrOptional(let isDebugMode, let isSigned, let domain, let rawMessage):
         let message: String
         if let domain = domain {
-            button.handler = { urlOpener in URL(string: "https://\(domain)").flatMap { urlOpener.open(url: $0) } }
+            button.handler = { urlOpener in
+                if !domain.starts(with: "*.") {
+                    URL(string: "https://\(domain)").flatMap { urlOpener.open(url: $0) }
+                }
+            }
             message = "\(rawMessage) by \(domain)"
         } else {
             message = rawMessage
