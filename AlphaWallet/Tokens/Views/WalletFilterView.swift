@@ -12,17 +12,19 @@ class WalletFilterView: UIView {
 	private let assetsButton = UIButton(type: .system)
 	private let collectiblesButton = UIButton(type: .system)
 	private let highlightedBar = UIView()
-	private var filter: WalletFilter = .all {
+	private var highlightBarHorizontalConstraints: [NSLayoutConstraint]?
+	private lazy var viewModel = WalletFilterViewModel(filter: filter)
+
+	weak var delegate: WalletFilterViewDelegate?
+	var filter: WalletFilter = .all {
 		didSet {
+			if oldValue == filter { return }
 			viewModel.currentFilter = filter
-			delegate?.didPressWalletFilter(filter: filter, in: self)
 			configureButtonColors()
 			configureHighlightedBar()
+			delegate?.didPressWalletFilter(filter: filter, in: self)
 		}
 	}
-	private var highlightBarHorizontalConstraints: [NSLayoutConstraint]?
-	weak var delegate: WalletFilterViewDelegate?
-	private lazy var viewModel = WalletFilterViewModel(filter: filter)
 
 	override init(frame: CGRect) {
 		super.init(frame: frame)
