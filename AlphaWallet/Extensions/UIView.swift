@@ -74,4 +74,16 @@ extension UIView {
 
         view.addMotionEffect(motionEffectGroup)
     }
+
+    func firstSubview<T>(ofType type: T.Type) -> T? {
+        if let viewFound = subviews.first(where: { $0 is T }) {
+            return viewFound as? T
+        }
+        for each in subviews {
+            if let viewFound = each.firstSubview(ofType: T.self) {
+                return viewFound
+            }
+        }
+        return nil
+    }
 }
