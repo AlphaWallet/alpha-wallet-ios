@@ -266,6 +266,7 @@
 		5E7C71DBB4AD309920C45556 /* ConfirmSignMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78421F01D14741DDF5BF /* ConfirmSignMessageViewController.swift */; };
 		5E7C71DC13B2040F5408BF3C /* ImportMagicTokenCardRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C781F82F9E4903C460E33 /* ImportMagicTokenCardRowViewModel.swift */; };
 		5E7C71F8050CCF990539B293 /* LockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79D674D45A07E694CE31 /* LockView.swift */; };
+		5E7C720C2A5CA7D41B12D666 /* RateLimiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A92352937F37294F12C /* RateLimiter.swift */; };
 		5E7C72402E57B627B6E56934 /* TokenInstanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75506A766DF9B746E62F /* TokenInstanceViewModel.swift */; };
 		5E7C724638271FD2FA0EB93C /* BaseTokenListFormatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C734D61C0347C1638A1F7 /* BaseTokenListFormatTableViewCell.swift */; };
 		5E7C725AC96979DEF4DE8B85 /* ConvertSVGToPNG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BCCCFE7B99162518FB7 /* ConvertSVGToPNG.swift */; };
@@ -1051,6 +1052,7 @@
 		5E7C79FE0C70AC4198F2AEB7 /* ResultResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResultResult.swift; sourceTree = "<group>"; };
 		5E7C7A16ABC8BD5D508AA641 /* ImportWalletHelpBubbleViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportWalletHelpBubbleViewViewModel.swift; sourceTree = "<group>"; };
 		5E7C7A3D7408DC690C0F601C /* SingleChainTokenCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleChainTokenCoordinator.swift; sourceTree = "<group>"; };
+		5E7C7A92352937F37294F12C /* RateLimiter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RateLimiter.swift; sourceTree = "<group>"; };
 		5E7C7A9876B43B1D9D17A9A9 /* OpenSeaNonFungibleTokenDisplayHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSeaNonFungibleTokenDisplayHelper.swift; sourceTree = "<group>"; };
 		5E7C7AB3440C01136DF4F3E9 /* LockCreatePasscodeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockCreatePasscodeCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7AB4464F82391AAD68C1 /* BookmarksStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BookmarksStore.swift; sourceTree = "<group>"; };
@@ -2255,6 +2257,7 @@
 				5E7C77A1F1399FD7EE2812E8 /* ServerDictionary.swift */,
 				5E7C7F8F3CB3847D0E4E977B /* AlphaWalletAddress.swift */,
 				5E7C7EE6BFC8BB79CD1C5565 /* AlphaWalletAddressExtension.swift */,
+				5E7C7A92352937F37294F12C /* RateLimiter.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -4167,6 +4170,7 @@
 				5E7C75421C08B96E8872722C /* GeneralisedTime.swift in Sources */,
 				5E7C767595F664FF33157ADF /* FunctionOrigin.swift in Sources */,
 				5E7C7FC4F00168189F1623C7 /* TokenInterfaceType.swift in Sources */,
+				5E7C720C2A5CA7D41B12D666 /* RateLimiter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
