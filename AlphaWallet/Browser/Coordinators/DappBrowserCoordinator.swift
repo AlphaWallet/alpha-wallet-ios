@@ -90,6 +90,14 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
     }
 
+    private var currentUrl: URL? {
+        return browserViewController.webView.url
+    }
+
+    private var hasWebPageLoaded: Bool {
+        return currentUrl != nil
+    }
+
     var coordinators: [Coordinator] = []
     let navigationController: NavigationController
 
@@ -236,14 +244,17 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         let reloadAction = UIAlertAction(title: R.string.localizable.reload(), style: .default) { [weak self] _ in
             self?.browserViewController.reload()
         }
+        reloadAction.isEnabled = hasWebPageLoaded
 
         let shareAction = UIAlertAction(title: R.string.localizable.share(), style: .default) { [weak self] _ in
             self?.share()
         }
+        shareAction.isEnabled = hasWebPageLoaded
 
         let addBookmarkAction = UIAlertAction(title: R.string.localizable.browserAddbookmarkButtonTitle(), style: .default) { [weak self] _ in
             self?.addCurrentPageAsBookmark()
         }
+        addBookmarkAction.isEnabled = hasWebPageLoaded
 
         let scanQrCodeAction = UIAlertAction(title: R.string.localizable.browserScanQRCodeButtonTitle(), style: .default) { [weak self] _ in
             self?.scanQrCode()
@@ -264,7 +275,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func share() {
-        guard let url = browserViewController.webView.url else { return }
+        guard let url = currentUrl else { return }
         rootViewController.displayLoading()
         rootViewController.showShareActivity(from: UIView(), with: [url]) { [weak self] in
             self?.rootViewController.hideLoading()
@@ -317,7 +328,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func addCurrentPageAsBookmark() {
-        guard let url = browserViewController.webView.url?.absoluteString else { return }
+        guard let url = currentUrl?.absoluteString else { return }
         guard let title = browserViewController.webView.title else { return }
         let bookmark = Bookmark(url: url, title: title)
         bookmarksStore.add(bookmarks: [bookmark])
