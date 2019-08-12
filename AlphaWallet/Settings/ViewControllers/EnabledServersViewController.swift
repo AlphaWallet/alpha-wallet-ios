@@ -89,7 +89,7 @@ extension EnabledServersViewController: UITableViewDelegate, UITableViewDataSour
             servers = viewModel.selectedServers + [server]
         }
         configure(viewModel: .init(servers: viewModel.servers, selectedServers: servers))
-        tableView.reloadRows(at: [indexPath], with: .none)
+        tableView.reloadData()
         navigationItem.rightBarButtonItem?.isEnabled = !servers.isEmpty
     }
 }
