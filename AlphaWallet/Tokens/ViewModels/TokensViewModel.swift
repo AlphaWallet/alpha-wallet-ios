@@ -25,36 +25,15 @@ class TokensViewModel {
         return tokenValue * price
     }
 
-    var filter: WalletFilter = .all
-    var filteredTokens: [TokenObject] {
-        switch filter {
-        case .all:
-            return tokens
-        case .currencyOnly:
-            return tokens.filter { $0.type == .nativeCryptocurrency || $0.type == .erc20 }
-        case .assetsOnly:
-            return tokens.filter { $0.type != .nativeCryptocurrency && $0.type != .erc20 }
-        case .collectiblesOnly:
-            return tokens.filter { $0.type == .erc721 && !$0.balance.isEmpty }
-        case .keyword(let keyword):
-            let lowercasedKeyword = keyword.trimmed.lowercased()
-            if lowercasedKeyword.isEmpty {
-                return tokens
-            } else {
-                return tokens.filter {
-                    if keyword.lowercased() == "erc20" || keyword.lowercased() == "erc 20" {
-                        return $0.type == .erc20
-                    } else if keyword.lowercased() == "erc721" || keyword.lowercased() == "erc 721" {
-                        return $0.type == .erc721
-                    } else if keyword.lowercased() == "erc875" || keyword.lowercased() == "erc 875" {
-                        return $0.type == .erc875
-                    } else {
-                        return $0.name.trimmed.lowercased().contains(lowercasedKeyword) || $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) || $0.contractAddress.eip55String.lowercased().contains(lowercasedKeyword)
-                    }
-                }
-            }
+    var filter: WalletFilter = .all {
+        didSet {
+            filteredTokens = getFilteredtokens()
         }
     }
+
+    lazy var filteredTokens: [TokenObject] = {
+        return getFilteredtokens()
+    }()
 
     var headerBackgroundColor: UIColor {
         return .white
@@ -117,5 +96,35 @@ class TokensViewModel {
     init(tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
         self.tokens = tokens
         self.tickers = tickers
+    }
+
+    private func getFilteredtokens() -> [TokenObject] {
+        switch filter {
+        case .all:
+            return tokens
+        case .currencyOnly:
+            return tokens.filter { $0.type == .nativeCryptocurrency || $0.type == .erc20 }
+        case .assetsOnly:
+            return tokens.filter { $0.type != .nativeCryptocurrency && $0.type != .erc20 }
+        case .collectiblesOnly:
+            return tokens.filter { $0.type == .erc721 && !$0.balance.isEmpty }
+        case .keyword(let keyword):
+            let lowercasedKeyword = keyword.trimmed.lowercased()
+            if lowercasedKeyword.isEmpty {
+                return tokens
+            } else {
+                return tokens.filter {
+                    if keyword.lowercased() == "erc20" || keyword.lowercased() == "erc 20" {
+                        return $0.type == .erc20
+                    } else if keyword.lowercased() == "erc721" || keyword.lowercased() == "erc 721" {
+                        return $0.type == .erc721
+                    } else if keyword.lowercased() == "erc875" || keyword.lowercased() == "erc 875" {
+                        return $0.type == .erc875
+                    } else {
+                        return $0.name.trimmed.lowercased().contains(lowercasedKeyword) || $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) || $0.contractAddress.eip55String.lowercased().contains(lowercasedKeyword)
+                    }
+                }
+            }
+        }
     }
 }
