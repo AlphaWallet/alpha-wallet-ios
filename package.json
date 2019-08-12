@@ -1,8 +1,10 @@
 {
   "devDependencies": {
-    "danger": "^3.7.14"
+    "danger": "^9.1.5"
   },
   "dependencies": {
-    "npm": "^6.1.0"
+    "lodash": "^4.17.13",
+    "mem": "^4.0.0",
+    "npm": "^6.10.3"
   }
 }
