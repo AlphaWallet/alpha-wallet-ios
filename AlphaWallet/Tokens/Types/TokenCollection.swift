@@ -6,6 +6,7 @@ import Result
 ///This contains tokens across multiple-chains
 class TokenCollection {
     private var subscribers: [(Result<TokensViewModel, TokenError>) -> Void] = []
+    private var rateLimitedUpdater: RateLimiter?
 
     let tokenDataStores: [TokensDataStore]
 
@@ -29,10 +30,22 @@ class TokenCollection {
 
 extension TokenCollection: TokensDataStoreDelegate {
     func didUpdate(result: Result<TokensViewModel, TokenError>) {
+        //The first time, we notify the subscribers and hence load the data in the UI immediately, otherwise the list of tokens in the Wallet tab will be empty for a few seconds after launch
+        if rateLimitedUpdater == nil {
+            rateLimitedUpdater = RateLimiter(limit: 2) { [weak self] in
+                self?.notifySubscribersOfUpdatedTokens()
+            }
+            notifySubscribersOfUpdatedTokens()
+        } else {
+            rateLimitedUpdater?.run()
+        }
+    }
+
+    private func notifySubscribersOfUpdatedTokens() {
         //TODO not efficient. But how many elements can we actually have. Not that many?
         var tickers = [RPCServer: [AlphaWallet.Address: CoinTicker]]()
         var tokens = [TokenObject]()
-        //TODO this might still be slowing things down. Especially if it runs too many times unnecessarily
+        //This might slow things down. Especially if it runs too many times unnecessarily
         for each in tokenDataStores {
             if let singleChainTickers = each.tickers {
                 tickers[each.server] = singleChainTickers
