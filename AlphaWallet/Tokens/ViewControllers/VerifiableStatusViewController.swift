@@ -86,7 +86,8 @@ func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptD
         if let domain = domain {
             button.handler = { urlOpener in
                 if !domain.starts(with: "*.") {
-                    URL(string: "https://\(domain)").flatMap { urlOpener.open(url: $0) }
+                    //http. Some sites don't serve https despite using a TLS cert for signing TokenScript
+                    URL(string: "http://\(domain)").flatMap { urlOpener.open(url: $0) }
                 }
             }
             message = "\(rawMessage) by \(domain)"
