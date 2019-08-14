@@ -47,19 +47,25 @@ class XMLHandlerTest: XCTestCase {
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xsi:schemaLocation="http://tokenscript.org/2019/05/tokenscript ../../tsml.xsd"
                     xmlns:xml="http://www.w3.org/XML/1998/namespace">
-          <ts:contract id="holding_contract" type="holding">
+          <ts:name>
+            <ts:string xml:lang="en">Tickets</ts:string>
+            <ts:string xml:lang="zh">门票</ts:string>
+            <ts:string xml:lang="es">Entradas</ts:string>
+          </ts:name>
+          <ts:contract name="Token">
             <ts:address network="1">0x830E1650a87a754e37ca7ED76b700395A7C61614</ts:address>
-            <ts:name xml:lang="en">Tickets</ts:name>
-            <ts:name xml:lang="zh">门票</ts:name>
-            <ts:name xml:lang="es">Entradas</ts:name>
-            <ts:interface>erc875</ts:interface>
           </ts:contract>
+          <ts:origins>
+              <ts:ethereum contract="Token"/>
+          </ts:origins>
           <ts:attribute-types>
             <ts:attribute-type id="locality" syntax="1.3.6.1.4.1.1466.115.121.1.15">
-              <ts:name xml:lang="en">City</ts:name>
-              <ts:name xml:lang="zh">城市</ts:name>
-              <ts:name xml:lang="es">Ciudad</ts:name>
-              <ts:name xml:lang="ru">город</ts:name>
+              <ts:name>
+                <ts:string xml:lang="en">City</ts:string>
+                <ts:string xml:lang="zh">城市</ts:string>
+                <ts:string xml:lang="es">Ciudad</ts:string>
+                <ts:string xml:lang="ru">город</ts:string>
+              </ts:nam>
               <ts:origins>
                 <ts:token-id bitmask="00000000000000000000000000000000FF000000000000000000000000000000" as="uint">
                   <ts:mapping>
@@ -79,7 +85,7 @@ class XMLHandlerTest: XCTestCase {
           </ts:attribute-types>
         </ts:token>
         """
-        let contractAddress = AlphaWallet.Address.make()
+        let contractAddress = AlphaWallet.Address(string: "0x830E1650a87a754e37ca7ED76b700395A7C61614")!
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
         store[contractAddress] = xml
         let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: store)

@@ -165,7 +165,7 @@ class SettingsViewController: FormViewController {
             $0.disabled = true
         }.cellSetup { cell, _ in
             cell.mainLabel.text = R.string.localizable.settingsVersionLabelTitle()
-            cell.subLabel.text = Bundle.main.fullVersion
+            cell.subLabel.text = "\(Bundle.main.fullVersion). \(TokenScript.supportedTokenScriptNamespaceVersion)"
         }
     }
 

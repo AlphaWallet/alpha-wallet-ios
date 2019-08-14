@@ -51,17 +51,29 @@ class TokenScriptSignatureVerifier {
                         return
                     }
                     let json = JSON(value)
-                    guard let CN = json["subject"].string else { 
+                    guard let subject = json["subject"].string else { 
                         //Should never hit
                         completion("unknown CN")
                         return
                     }
-                    let domain = CN.replacingOccurrences(of: "CN=", with: "")
-                    completion(domain)
+                    let keyValuePairs = self.keyValuePairs(fromCommaSeparatedKeyValuePairs: subject)
+                    if let domain = keyValuePairs["CN"] {
+                        completion(domain)
+                    } else {
+                        completion("failed")
+                    }
                 }
             case .failure(let _):
                 completion("failed")
             }
         })
+    }
+
+    private func keyValuePairs(fromCommaSeparatedKeyValuePairs commaSeparatedKeyValuePairs: String) -> [String: String] {
+        let keyValuePairs: [(String, String)] = commaSeparatedKeyValuePairs.split(separator: ",").map({ each in
+            let foo = each.split(separator: "=")
+            return (String(foo[0]), String(foo[1]))
+        })
+        return Dictionary(keyValuePairs, uniquingKeysWith: { $1 })
     }
 }

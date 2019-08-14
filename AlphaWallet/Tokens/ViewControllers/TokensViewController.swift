@@ -349,10 +349,6 @@ extension TokensViewController: UITableViewDelegate {
 }
 
 extension TokensViewController: UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.numberOfSections
-    }
-
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
         let server = token.server
