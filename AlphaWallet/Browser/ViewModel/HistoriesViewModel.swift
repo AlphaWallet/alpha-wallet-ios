@@ -13,10 +13,6 @@ struct HistoriesViewModel {
         return !store.histories.isEmpty
     }
 
-    var numberOfSections: Int {
-        return 1
-    }
-
     var numberOfRows: Int {
         return store.histories.count
     }

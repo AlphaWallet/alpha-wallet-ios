@@ -107,10 +107,6 @@ extension BrowserHistoryViewController: UITableViewDataSource {
         return viewModel.numberOfRows
     }
 
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return viewModel.numberOfSections
-    }
-
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: BrowserHistoryCell.identifier, for: indexPath) as! BrowserHistoryCell
         cell.configure(viewModel: .init(history: viewModel.item(for: indexPath)))
