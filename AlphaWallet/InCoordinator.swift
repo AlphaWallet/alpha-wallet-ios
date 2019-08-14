@@ -234,7 +234,7 @@ class InCoordinator: NSObject, Coordinator {
                     strongSelf.nativeCryptoCurrencyBalances[each].value = BigInt(eth.value)
                     guard !(balance.isZero) else { return }
                     //TODO we don'backup wallets if we are running tests. Maybe better to move this into app delegate's application(_:didFinishLaunchingWithOptions:)
-                    guard ProcessInfo.processInfo.environment["XCInjectBundleInto"] == nil else { return }
+                    guard !isRunningTests() else { return }
                     strongSelf.promptBackupWallet(withAddress: strongSelf.wallet.address)
                 }
             }

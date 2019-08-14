@@ -9,3 +9,7 @@ func assertImpossibleCodePath(message: String) {
 func assertImpossibleCodePath() {
     assert(false)
 }
+
+func isRunningTests() -> Bool {
+    return ProcessInfo.processInfo.environment["XCInjectBundleInto"] != nil
+}
