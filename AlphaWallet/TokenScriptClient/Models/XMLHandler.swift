@@ -265,31 +265,48 @@ private class PrivateXMLHandler {
         let tokenScriptStatusPromise = PrivateXMLHandler.computeTokenScriptStatus(forContract: contract, xmlString: xmlString, isOfficial: isOfficial, isCanonicalized: isCanonicalized, assetDefinitionStore: assetDefinitionStore)
         tokenScriptStatus = tokenScriptStatusPromise
         if let tokenScriptStatus = tokenScriptStatusPromise.value {
-            switch tokenScriptStatus {
-            case .type1GoodTokenScriptSignatureGoodOrOptional:
-                xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
-                hasValidTokenScriptFile = true
-            case .type0NoTokenScript, .type2BadTokenScript:
-                xml = PrivateXMLHandler.emptyXML
-                hasValidTokenScriptFile = false
-            }
-            server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
+            let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus)
+            self.xml = xml
+            self.hasValidTokenScriptFile = hasValidTokenScriptFile
         } else {
             xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
             //TODO check this again when we implement signature verification using the web API. We can't just set this to false first because we don't notify client code when it changes to false either. So when a TokenScript file changes, live-reloading thinks there's no TokenScript file
             hasValidTokenScriptFile = true
             server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
             tokenScriptStatusPromise.done { tokenScriptStatus in
-                switch tokenScriptStatus {
-                case .type1GoodTokenScriptSignatureGoodOrOptional:
-                    self.xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
-                    self.hasValidTokenScriptFile = true
-                case .type0NoTokenScript, .type2BadTokenScript:
-                    self.xml = PrivateXMLHandler.emptyXML
-                    self.hasValidTokenScriptFile = false
-                }
+                let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus)
+                self.xml = xml
+                self.hasValidTokenScriptFile = hasValidTokenScriptFile
             }
         }
+    }
+
+    private static func storeXmlAccordingToTokenScriptStatus(xmlString: String, tokenScriptStatus: TokenLevelTokenScriptDisplayStatus) -> (xml: XMLDocument, hasValidTokenScriptFile: Bool) {
+        let xml: XMLDocument
+        let hasValidTokenScriptFile: Bool
+        switch tokenScriptStatus {
+        case .type1GoodTokenScriptSignatureGoodOrOptional:
+            xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
+            hasValidTokenScriptFile = true
+        case .type0NoTokenScript:
+            xml = PrivateXMLHandler.emptyXML
+            hasValidTokenScriptFile = false
+        case .type2BadTokenScript(isDebugMode: let isDebugMode, _, reason: let reason):
+            if let reason = reason, isDebugMode {
+                switch reason {
+                case .invalidSignature:
+                    xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
+                    hasValidTokenScriptFile = true
+                case .conflictWithAnotherFile, .oldTokenScriptVersion:
+                    xml = PrivateXMLHandler.emptyXML
+                    hasValidTokenScriptFile = false
+                }
+            } else {
+                xml = PrivateXMLHandler.emptyXML
+                hasValidTokenScriptFile = false
+            }
+        }
+        return (xml: xml, hasValidTokenScriptFile: hasValidTokenScriptFile)
     }
 
     func getToken(name: String, symbol: String, fromTokenId tokenId: TokenId, index: UInt16, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator) -> Token {
