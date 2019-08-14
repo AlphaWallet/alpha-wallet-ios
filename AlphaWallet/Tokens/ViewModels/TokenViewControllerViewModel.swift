@@ -52,7 +52,7 @@ struct TokenViewControllerViewModel {
                 return actionsFromTokenScript
             case .nativeCryptocurrency:
                 //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
-                if xmlHandler.server == token.server {
+                if let server = xmlHandler.server, server == token.server {
                     return actionsFromTokenScript
                 } else {
                     //TODO .erc20Send and .erc20Receive names aren't appropriate

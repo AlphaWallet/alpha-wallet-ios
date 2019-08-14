@@ -55,18 +55,10 @@ private class PrivateXMLHandler {
     private var xml: XMLDocument
     private let signatureNamespacePrefix = "ds:"
     private let xhtmlNamespacePrefix = "xhtml:"
-    lazy private var xmlContext = PrivateXMLHandler.createXmlContext(withLang: lang)
+    private let xmlContext = PrivateXMLHandler.createXmlContext(withLang: PrivateXMLHandler.lang)
     private let contractAddress: AlphaWallet.Address
     private weak var assetDefinitionStore: AssetDefinitionStore?
-    lazy var server: RPCServer = { () -> RPCServer in
-        for (contract, chainId) in PrivateXMLHandler.getHoldingContracts(xml: xml, xmlContext: xmlContext) {
-            if contract == contractAddress {
-                return .init(chainID: chainId)
-            }
-        }
-        //TODO Shouldn't reach here!
-        return .main
-    }()
+    let server: RPCServer?
     //Explicit type so that the variable autocompletes with AppCode
     private lazy var fields: [AttributeId: AssetAttribute] = extractFieldsForToken()
     private let isOfficial: Bool
@@ -232,7 +224,7 @@ private class PrivateXMLHandler {
         }
     }
 
-    private var lang: String {
+    static private var lang: String {
         let lang = Locale.preferredLanguages[0]
         if lang.hasPrefix("en") {
             return "en"
@@ -281,10 +273,12 @@ private class PrivateXMLHandler {
                 xml = PrivateXMLHandler.emptyXML
                 hasValidTokenScriptFile = false
             }
+            server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
         } else {
             xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
             //TODO check this again when we implement signature verification using the web API. We can't just set this to false first because we don't notify client code when it changes to false either. So when a TokenScript file changes, live-reloading thinks there's no TokenScript file
             hasValidTokenScriptFile = true
+            server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
             tokenScriptStatusPromise.done { tokenScriptStatus in
                 switch tokenScriptStatus {
                 case .type1GoodTokenScriptSignatureGoodOrOptional:
@@ -402,6 +396,16 @@ private class PrivateXMLHandler {
         cache.cache(attributes: fields, values: valuesAsDictionary, forContract: contractAddress, tokenId: tokenId)
     }
 
+    private static func extractServer(fromXML xml: XMLDocument, xmlContext: XmlContext, matchingContract contractAddress: AlphaWallet.Address) -> RPCServer? {
+        for (contract, chainId) in getHoldingContracts(xml: xml, xmlContext: xmlContext) {
+            if contract == contractAddress {
+                return .init(chainID: chainId)
+            }
+        }
+        //Might be possible?
+        return nil
+    }
+
     private static func verificationType(forXml xmlString: String, isCanonicalized: Bool, contractAddress: AlphaWallet.Address) -> Promise<TokenScriptSignatureVerificationType> {
         let verifier = TokenScriptSignatureVerifier()
         return verifier.verify(xml: xmlString)
@@ -426,6 +430,7 @@ private class PrivateXMLHandler {
 
     private func createFunctionOriginFrom(ethereumFunctionElement: XMLElement) -> FunctionOrigin? {
         if let contract = ethereumFunctionElement["contract"].nilIfEmpty {
+            guard let server = server else { return nil }
             return XMLHandler.getNonTokenHoldingContract(byName: contract, server: server, fromContractNamesAndAddresses: self.contractNamesAndAddresses)
                     .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, attributeId: "", originContract: $0, xmlContext: xmlContext) }
         } else {
@@ -464,7 +469,7 @@ private class PrivateXMLHandler {
         for each in XMLHandler.getAttributeTypeElements(fromElement: element, xmlContext: xmlContext) {
             guard let id = each["id"] else { continue }
             //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
-            guard let attribute = AssetAttribute(attribute: each, xmlContext: xmlContext, server: server, contractNamesAndAddresses: contractNamesAndAddresses) else { continue }
+            guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
             fields[id] = attribute
         }
         return fields
@@ -553,7 +558,7 @@ public class XMLHandler {
         return privateXMLHandler.actions
     }
 
-    var server: RPCServer {
+    var server: RPCServer? {
         return privateXMLHandler.server
     }
 
