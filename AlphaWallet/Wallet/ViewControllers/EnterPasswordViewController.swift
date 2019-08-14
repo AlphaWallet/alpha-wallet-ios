@@ -66,6 +66,7 @@ class EnterPasswordViewController: FormViewController {
                     return button
                 }()
                 cell.textField.rightViewMode = .unlessEditing
+                cell.textField.autocorrectionType = .no
                 self.passwordTextField = cell.textField
             }
 
