@@ -453,20 +453,20 @@ private class PrivateXMLHandler {
     }
 
     private func extractFieldsForToken() -> [AttributeId: AssetAttribute] {
-        if let tokenElement = XMLHandler.getTokenAttributeTypesElement(fromRoot: xml, xmlContext: xmlContext) {
-            return extractFields(fromElement: tokenElement)
+        if let attributeTypesElement = XMLHandler.getTokenAttributeTypesElement(fromRoot: xml, xmlContext: xmlContext) {
+            return extractFields(fromAttributeTypesElement: attributeTypesElement)
         } else {
             return .init()
         }
     }
 
     private func extractFields(forActionElement actionElement: XMLElement) -> [AttributeId: AssetAttribute] {
-        return extractFields(fromElement: actionElement)
+        return extractFields(fromAttributeTypesElement: actionElement)
     }
 
-    private func extractFields(fromElement element: XMLElement) -> [AttributeId: AssetAttribute] {
+    private func extractFields(fromAttributeTypesElement element: XMLElement) -> [AttributeId: AssetAttribute] {
         var fields = [AttributeId: AssetAttribute]()
-        for each in XMLHandler.getAttributeTypeElements(fromElement: element, xmlContext: xmlContext) {
+        for each in XMLHandler.getAttributeTypeElements(fromAttributeTypesElement: element, xmlContext: xmlContext) {
             guard let id = each["id"] else { continue }
             //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
             guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
@@ -718,7 +718,7 @@ extension XMLHandler {
         return root.at_xpath("/action/input/token/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?["network"].flatMap { Int($0) }.flatMap { RPCServer(chainID: $0) }
     }
 
-    fileprivate static func getAttributeTypeElements(fromElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
+    fileprivate static func getAttributeTypeElements(fromAttributeTypesElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
         return element.xpath("attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
