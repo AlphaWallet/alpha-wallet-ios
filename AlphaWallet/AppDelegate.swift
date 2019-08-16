@@ -12,7 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     private var appCoordinator: AppCoordinator!
     private let SNSPlatformApplicationArn = "arn:aws:sns:us-west-2:400248756644:app/APNS/AlphaWallet-iOS"
     private let SNSPlatformApplicationArnSANDBOX = "arn:aws:sns:us-west-2:400248756644:app/APNS_SANDBOX/AlphaWallet-testing"
-    private let identityPoolId = "us-west-2:42f7f376-9a3f-412e-8c15-703b5d50b4e2"
+    private let identityPoolId = "cn-north-1:44edb8ae-67c1-40de-b70d-ae9db5581e6e" //"us-west-2:42f7f376-9a3f-412e-8c15-703b5d50b4e2"
     private let SNSSecurityTopicEndpoint = "arn:aws:sns:us-west-2:400248756644:security"
     //This is separate coordinator for the protection of the sensitive information.
     private lazy var protectionCoordinator: ProtectionCoordinator = {
@@ -26,6 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
             let keystore = try EtherKeystore()
             appCoordinator = AppCoordinator(window: window!, keystore: keystore)
             appCoordinator.start()
+            cognitoRegistration()
         } catch {
             print("EtherKeystore init issue.")
         }
@@ -40,12 +41,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         // Override point for customization after application launch.
         /// Setup AWS Cognito credentials
         // Initialize the Amazon Cognito credentials provider
-        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: .USWest2,
+        let credentialsProvider = AWSCognitoCredentialsProvider(regionType: .CNNorth1,
                 identityPoolId: identityPoolId)
-        let configuration = AWSServiceConfiguration(region: .USWest2, credentialsProvider: credentialsProvider)
+        let configuration = AWSServiceConfiguration(region: .CNNorth1, credentialsProvider: credentialsProvider)
         AWSServiceManager.default().defaultServiceConfiguration = configuration
         let defaultServiceConfiguration = AWSServiceConfiguration(
-                region: AWSRegionType.USWest2, credentialsProvider: credentialsProvider)
+                region: AWSRegionType.CNNorth1, credentialsProvider: credentialsProvider)
         AWSServiceManager.default().defaultServiceConfiguration = defaultServiceConfiguration
     }
 

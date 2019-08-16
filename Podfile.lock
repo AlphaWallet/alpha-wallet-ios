@@ -6,6 +6,8 @@ PODS:
   - APIKit (3.1.1):
     - Result (~> 3.0)
   - AWSCore (2.6.28)
+  - AWSLambda (2.6.28):
+    - AWSCore (= 2.6.28)
   - AWSSNS (2.6.28):
     - AWSCore (= 2.6.28)
   - BigInt (3.0.1):
@@ -82,6 +84,7 @@ PODS:
 DEPENDENCIES:
   - AlphaWalletWeb3Provider (from `https://github.com/AlphaWallet/AlphaWallet-web3-provider`, commit `1c1aafb566361e7067e69f6e38b0fdc30b801429`)
   - APIKit
+  - AWSLambda
   - AWSSNS
   - BigInt (~> 3.0)
   - CryptoSwift
@@ -116,6 +119,7 @@ SPEC REPOS:
     - Alamofire-Synchronous
     - APIKit
     - AWSCore
+    - AWSLambda
     - AWSSNS
     - BigInt
     - CryptoSwift
@@ -200,6 +204,7 @@ SPEC CHECKSUMS:
   AlphaWalletWeb3Provider: 80a88f0fc80443fb973b0a17f5ca0c80a2247d63
   APIKit: 7460983f490d3bde6aaaaa4164d18c9865a6f91d
   AWSCore: f75fcf5b2f4325da49ae1f7cb5484778d3b0acc6
+  AWSLambda: c44b70fd8723a19a497ab8ba6bce84dde902c7b4
   AWSSNS: a67710a80c8d380e34248b16e503e0719f02a28d
   BigInt: 8e8a52161c745cd3ab78e3dc346a9fbee51e6cf6
   CryptoSwift: 6c778d69282bed3b4e975ff97a79d074f20bb011
@@ -234,6 +239,6 @@ SPEC CHECKSUMS:
   TrustKeystore: 26efa8079f6451d02ce64b906d3ff240fd71d7ca
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: c9725cc64a472ca0a8c73463de9ccf6d5e379e1e
+PODFILE CHECKSUM: b8593cbf852630a0f9011d897b7a25f9302b2d78
 
 COCOAPODS: 1.5.3

@@ -561,11 +561,13 @@
 		76F1D5DFFA5652DC16EF713D /* DappBrowserNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF357BEAC88C6AEB6D58 /* DappBrowserNavigationBar.swift */; };
 		76F1D5ECC391A932C96CAC13 /* GetENSOwnerCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DE7BEE799DDFB68D0F54 /* GetENSOwnerCoordinator.swift */; };
 		76F1D6B78F541D723F4E6D7B /* MyDappsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DB8034ACC2FC91F818F9 /* MyDappsViewController.swift */; };
+		76F1D72457099C752664B68D /* TokenScriptProofOfAddressVerifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D95A35C97A213F8C0471 /* TokenScriptProofOfAddressVerifier.swift */; };
 		76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF5CF4A922E6FFCB7B2A /* GetContractInteractions.swift */; };
 		76F1D7F08263A663C3A67926 /* GetIsERC721ContractCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D4F77311FBF3A442E4B5 /* GetIsERC721ContractCoordinator.swift */; };
 		76F1D850F4F2E968CF8D9C86 /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		76F1D91659771C9EEA7B48DC /* CreateRedeem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DF80932454E9F58B7830 /* CreateRedeem.swift */; };
 		76F1D9BBB4ACAA00C8391172 /* GetENSInfoEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DC4B9964504DA12D8D3C /* GetENSInfoEncode.swift */; };
+		76F1DAD15D8294E33CEA7AD4 /* TokenScriptProofOfAddressVerifierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D90BDF892E8776351E49 /* TokenScriptProofOfAddressVerifierTests.swift */; };
 		76F1DB9E1443DCFC36228B08 /* ClaimOrderCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D419EE36261E50ABAFAE /* ClaimOrderCoordinator.swift */; };
 		76F1DBCA8BAAA42BAEB14719 /* GetERC721BalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1D473FF303828D93C95EB /* GetERC721BalanceCoordinator.swift */; };
 		76F1DBF9F5359160063625B2 /* BrowserHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F1DAFCBB43B6639472A229 /* BrowserHistoryViewController.swift */; };
@@ -1203,7 +1205,9 @@
 		76F1D7C0B5043312AADA668A /* TokenScriptSignatureVerifierTest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptSignatureVerifierTest.swift; sourceTree = "<group>"; };
 		76F1D8877226D5DD086B135D /* CreateRedeemTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateRedeemTests.swift; sourceTree = "<group>"; };
 		76F1D8A3F2F0F86B632BFBCE /* DiscoverDappsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverDappsViewController.swift; sourceTree = "<group>"; };
+		76F1D90BDF892E8776351E49 /* TokenScriptProofOfAddressVerifierTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptProofOfAddressVerifierTests.swift; sourceTree = "<group>"; };
 		76F1D948016AAE8470099748 /* MyDappCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MyDappCell.swift; sourceTree = "<group>"; };
+		76F1D95A35C97A213F8C0471 /* TokenScriptProofOfAddressVerifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptProofOfAddressVerifier.swift; sourceTree = "<group>"; };
 		76F1D96298E216CBFC3DD78B /* UniversalLinkHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UniversalLinkHandlerTests.swift; sourceTree = "<group>"; };
 		76F1DACA9404AD6740BEADBB /* ClaimOrderCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClaimOrderCoordinatorTests.swift; sourceTree = "<group>"; };
 		76F1DADFD07E2941897FD2E1 /* OrderHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OrderHandler.swift; sourceTree = "<group>"; };
@@ -2689,6 +2693,7 @@
 				5E7C72B3371522B5C1B1B5BE /* GeneralisedTime.swift */,
 				5E7C72FABB78B9E1655A06A2 /* FunctionOrigin.swift */,
 				5E7C7E014F0C6BD090E955A2 /* TokenInterfaceType.swift */,
+				76F1D95A35C97A213F8C0471 /* TokenScriptProofOfAddressVerifier.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2886,6 +2891,7 @@
 				5E7C702300BB7DB0FD7788EF /* XMLHandlerTest.swift */,
 				5E7C79EF9D2C12F396364B92 /* AssetDefinitionDiskBackingStoreWithOverridesTests.swift */,
 				76F1D7C0B5043312AADA668A /* TokenScriptSignatureVerifierTest.swift */,
+				76F1D90BDF892E8776351E49 /* TokenScriptProofOfAddressVerifierTests.swift */,
 			);
 			path = TokenScriptClient;
 			sourceTree = "<group>";
@@ -3491,6 +3497,7 @@
 				"${SRCROOT}/Pods/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/APIKit/APIKit.framework",
 				"${BUILT_PRODUCTS_DIR}/AWSCore/AWSCore.framework",
+				"${BUILT_PRODUCTS_DIR}/AWSLambda/AWSLambda.framework",
 				"${BUILT_PRODUCTS_DIR}/AWSSNS/AWSSNS.framework",
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/Alamofire-Synchronous/Alamofire_Synchronous.framework",
@@ -3528,6 +3535,7 @@
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/APIKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AWSCore.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AWSLambda.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/AWSSNS.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire_Synchronous.framework",
@@ -4171,6 +4179,7 @@
 				5E7C767595F664FF33157ADF /* FunctionOrigin.swift in Sources */,
 				5E7C7FC4F00168189F1623C7 /* TokenInterfaceType.swift in Sources */,
 				5E7C720C2A5CA7D41B12D666 /* RateLimiter.swift in Sources */,
+				76F1D72457099C752664B68D /* TokenScriptProofOfAddressVerifier.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4255,6 +4264,7 @@
 				5E7C7FC3D8846843465B0F90 /* ServersCoordinatorTests.swift in Sources */,
 				5E7C74A655E5D34953FFEBF2 /* AlphaWalletAddressTests.swift in Sources */,
 				76F1D09ED5C81F9B420FACD4 /* TokenScriptSignatureVerifierTest.swift in Sources */,
+				76F1DAD15D8294E33CEA7AD4 /* TokenScriptProofOfAddressVerifierTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
