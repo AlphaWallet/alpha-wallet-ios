@@ -58,7 +58,7 @@ private class PrivateXMLHandler {
     private let xmlContext = PrivateXMLHandler.createXmlContext(withLang: PrivateXMLHandler.lang)
     private let contractAddress: AlphaWallet.Address
     private weak var assetDefinitionStore: AssetDefinitionStore?
-    let server: RPCServer?
+    var server: RPCServer?
     //Explicit type so that the variable autocompletes with AppCode
     private lazy var fields: [AttributeId: AssetAttribute] = extractFieldsForToken()
     private let isOfficial: Bool
@@ -268,6 +268,7 @@ private class PrivateXMLHandler {
             let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus)
             self.xml = xml
             self.hasValidTokenScriptFile = hasValidTokenScriptFile
+            self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
         } else {
             xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
             //TODO check this again when we implement signature verification using the web API. We can't just set this to false first because we don't notify client code when it changes to false either. So when a TokenScript file changes, live-reloading thinks there's no TokenScript file
@@ -277,6 +278,7 @@ private class PrivateXMLHandler {
                 let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus)
                 self.xml = xml
                 self.hasValidTokenScriptFile = hasValidTokenScriptFile
+                self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: self.xmlContext, matchingContract: contract)
             }
         }
     }
