@@ -51,6 +51,7 @@ class AppCoordinator: NSObject, Coordinator {
         applyStyle()
         resetToWelcomeScreen()
         setupAssetDefinitionStoreCoordinator()
+        migrateToStoringRawPrivateKeysInKeychain()
 
         if keystore.hasWallets {
             showTransactions(for: keystore.recentlyUsedWallet ?? keystore.wallets.first!)
@@ -59,6 +60,10 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         assetDefinitionStore.delegate = self
+    }
+
+    private func migrateToStoringRawPrivateKeysInKeychain() {
+        (try? LegacyFileBasedKeystore())?.migrateKeystoreFilesToRawPrivateKeysInKeychain()
     }
 
     /// Return true if handled
@@ -108,7 +113,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func initializers() {
         var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).compactMap { URL(fileURLWithPath: $0) }
-        paths.append(keystore.keystoreDirectory)
+        paths.append((try! LegacyFileBasedKeystore()).keystoreDirectory)
 
         let initializers: [Initializer] = [
             SkipBackupFilesInitializer(paths: paths),
@@ -151,12 +156,12 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
     }
 
-    private func createInitialWallet() {
-        WalletCoordinator(config: config, keystore: keystore).createInitialWallet()
+    private func createInitialWalletIfMissing() {
+        WalletCoordinator(config: config, keystore: keystore).createInitialWalletIfMissing()
     }
 
     @discardableResult func handleUniversalLink(url: URL) -> Bool {
-        createInitialWallet()
+        createInitialWalletIfMissing()
         closeWelcomeWindow()
         //TODO refactor. Some of these should be moved into InCoordinator instead of reaching into its internals
         guard let inCoordinator = self.inCoordinator else { return false }
@@ -210,8 +215,8 @@ class AppCoordinator: NSObject, Coordinator {
 //}
 
 extension AppCoordinator: WelcomeViewControllerDelegate {
-    func didPressCreateWallet(in viewController: WelcomeViewController) {
-        showInitialWalletCoordinator(entryPoint: .createInstantWallet)
+    func didPressGettingStartedButton(in viewController: WelcomeViewController) {
+        showInitialWalletCoordinator(entryPoint: .addInitialWallet)
     }
 }
 
@@ -222,9 +227,9 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
     }
 
     func didAddAccount(_ account: Wallet, in coordinator: InitialWalletCreationCoordinator) {
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
-        removeCoordinator(coordinator)
-        showTransactions(for: account)
+        navigationController.dismiss(animated: true, completion: nil)
+        self.removeCoordinator(coordinator)
+        self.showTransactions(for: account)
     }
 }
 

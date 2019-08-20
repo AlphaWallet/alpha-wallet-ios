@@ -1,6 +1,5 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
-import TrustKeystore
 import UIKit
 
 protocol EnabledServersViewControllerDelegate: class {

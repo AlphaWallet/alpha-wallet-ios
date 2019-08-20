@@ -14,16 +14,11 @@ class AccountsViewController: UIViewController {
     private let header = TokensCardViewControllerTitleHeader()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var viewModel: AccountsViewModel {
-        return AccountsViewModel(
-                wallets: wallets
-        )
+        return AccountsViewModel(hdWallets: hdWallets, keystoreWallets: keystoreWallets, watchedWallets: watchedWallets)
     }
-    private var wallets: [Wallet] = [] {
-        didSet {
-            tableView.reloadData()
-            configure(viewModel: viewModel)
-        }
-    }
+    private var hdWallets: [Wallet] = []
+    private var keystoreWallets: [Wallet] = []
+    private var watchedWallets: [Wallet] = []
     private var balances: [AlphaWallet.Address: Balance?] = [:]
     private let keystore: Keystore
     private let balanceCoordinator: GetBalanceCoordinator
@@ -71,19 +66,37 @@ class AccountsViewController: UIViewController {
         fetch()
         refreshWalletBalances()
     }
+
     func fetch() {
-        wallets = keystore.wallets.sorted { $0.address.eip55String < $1.address.eip55String }
+        hdWallets = keystore.wallets.filter { keystore.isHdWallet(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
+        keystoreWallets = keystore.wallets.filter { keystore.isKeystore(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
+        watchedWallets = keystore.wallets.filter { keystore.isWatched(wallet: $0) }.sorted { $0.address.eip55String < $1.address.eip55String }
+        tableView.reloadData()
+        configure(viewModel: viewModel)
     }
+
     func configure(viewModel: AccountsViewModel) {
         tableView.dataSource = self
         header.configure(title: viewModel.title)
         header.frame.size.height = headerHeight
         tableView.tableHeaderView = header
     }
-    func account(for indexPath: IndexPath) -> Wallet {
-        return viewModel.wallets[indexPath.row]
+
+    private func account(for indexPath: IndexPath) -> Wallet {
+        switch AccountViewTableSectionHeader.HeaderType(rawValue: indexPath.section) {
+        case .some(.hdWallet):
+            return viewModel.hdWallets[indexPath.row]
+        case .some(.keystoreWallet):
+            return viewModel.keystoreWallets[indexPath.row]
+        case .some(.watchedWallet):
+            return viewModel.watchedWallets[indexPath.row]
+        case .none:
+            //TODO really shouldn't be here
+            return viewModel.hdWallets.first ?? (viewModel.keystoreWallets.first ?? viewModel.watchedWallets[0])
+        }
     }
-    func confirmDelete(account: Wallet) {
+
+    private func confirmDelete(account: Wallet) {
         confirm(
             title: R.string.localizable.accountsConfirmDeleteTitle(),
             message: R.string.localizable.accountsConfirmDeleteMessage(),
@@ -98,7 +111,8 @@ class AccountsViewController: UIViewController {
             }
         }
     }
-    func delete(account: Wallet) {
+
+    private func delete(account: Wallet) {
         navigationController?.displayLoading(text: R.string.localizable.deleting())
         keystore.delete(wallet: account) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -112,10 +126,11 @@ class AccountsViewController: UIViewController {
             }
         }
     }
+
     private func refreshWalletBalances() {
-        let addresses = wallets.compactMap { $0.address }
-       var counter = 0
-       for address in addresses {
+        let addresses = (hdWallets + keystoreWallets + watchedWallets).compactMap { $0.address }
+        var counter = 0
+        for address in addresses {
             balanceCoordinator.getEthBalance(for: address, completion: { [weak self] (result) in
                 self?.balances[address] = result.value
                 counter += 1
@@ -125,6 +140,7 @@ class AccountsViewController: UIViewController {
             })
         }
     }
+
     private func getAccountViewModels(for path: IndexPath) -> AccountViewModel {
         let account = self.account(for: path)
         let balance = self.balances[account.address].flatMap { $0 }
@@ -137,9 +153,22 @@ class AccountsViewController: UIViewController {
     }
 }
 
-extension AccountsViewController: UITableViewDelegate, UITableViewDataSource {
+extension AccountsViewController: UITableViewDataSource {
+    public func numberOfSections(in tableView: UITableView) -> Int {
+        return 3
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.wallets.count
+        switch AccountViewTableSectionHeader.HeaderType(rawValue: section) {
+        case .some(.hdWallet):
+            return viewModel.hdWallets.count
+        case .some(.keystoreWallet):
+            return viewModel.keystoreWallets.count
+        case .some(.watchedWallet):
+            return viewModel.watchedWallets.count
+        case .none:
+            return 0
+        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -152,24 +181,67 @@ extension AccountsViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return allowsAccountDeletion && (etherKeystore?.recentlyUsedWallet != viewModel.wallets[indexPath.row])
-    }
-
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            let account = self.account(for: indexPath)
-            confirmDelete(account: account)
+        guard allowsAccountDeletion else { return false }
+        switch AccountViewTableSectionHeader.HeaderType(rawValue: indexPath.section) {
+        case .some(.hdWallet):
+            return etherKeystore?.recentlyUsedWallet != viewModel.hdWallets[indexPath.row]
+        case .some(.keystoreWallet):
+            return etherKeystore?.recentlyUsedWallet != viewModel.keystoreWallets[indexPath.row]
+        case .some(.watchedWallet):
+            return etherKeystore?.recentlyUsedWallet != viewModel.watchedWallets[indexPath.row]
+        case .none:
+            return false
         }
     }
+}
 
+extension AccountsViewController: UITableViewDelegate {
+    //We don't show the section headers unless there are 2 "types" of wallets
+    private func shouldHideAllSectionHeaders() -> Bool {
+        if viewModel.keystoreWallets.isEmpty && viewModel.watchedWallets.isEmpty {
+            return true
+        }
+        if viewModel.hdWallets.isEmpty && viewModel.keystoreWallets.isEmpty {
+            return true
+        }
+        if viewModel.hdWallets.isEmpty && viewModel.watchedWallets.isEmpty {
+            return true
+        }
+        return false
+    }
+
+    public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let v = AccountViewTableSectionHeader()
+        let shouldHideSectionHeaders = shouldHideAllSectionHeaders()
+        switch AccountViewTableSectionHeader.HeaderType(rawValue: section) {
+        case .some(.hdWallet):
+            v.configure(type: .hdWallet, shouldHide: true)
+        case .some(.keystoreWallet):
+            v.configure(type: .keystoreWallet, shouldHide: shouldHideSectionHeaders || viewModel.keystoreWallets.isEmpty)
+        case .some(.watchedWallet):
+            v.configure(type: .watchedWallet, shouldHide: shouldHideSectionHeaders || viewModel.watchedWallets.isEmpty)
+        case .none:
+            return nil
+        }
+        return v
+    }
+
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let action = UITableViewRowAction(style: .destructive, title: R.string.localizable.accountsConfirmDeleteAction()) { rowAction, indexPath in
+            let account = self.account(for: indexPath)
+            self.confirmDelete(account: account)
+        }
+        return [action]
+    }
+}
+
+extension AccountsViewController: AccountViewCellDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let account = self.account(for: indexPath)
         delegate?.didSelectAccount(account: account, in: self)
     }
-}
 
-extension AccountsViewController: AccountViewCellDelegate {
     func accountViewCell(_ cell: AccountViewCell, didTapInfoViewForAccount account: Wallet) {
         delegate?.didSelectInfoForAccount(account: account, sender: cell.infoButton, in: self)
     }

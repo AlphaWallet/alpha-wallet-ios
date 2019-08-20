@@ -2,7 +2,6 @@
 
 import Foundation
 import UIKit
-import TrustKeystore
 import CryptoSwift
 import Result
 
@@ -19,7 +18,7 @@ protocol SignMessageCoordinatorDelegate: class {
 class SignMessageCoordinator: Coordinator {
     private let navigationController: UINavigationController
     private let keystore: Keystore
-    private let account: Account
+    private let account: EthereumAccount
     private var message: SignMessageType?
 
     var coordinators: [Coordinator] = []
@@ -29,7 +28,7 @@ class SignMessageCoordinator: Coordinator {
     init(
         navigationController: UINavigationController,
         keystore: Keystore,
-        account: Account
+        account: EthereumAccount
     ) {
         self.navigationController = navigationController
         self.keystore = keystore
@@ -69,6 +68,7 @@ class SignMessageCoordinator: Coordinator {
         case .success(let data):
             didComplete?(.success(data))
         case .failure(let error):
+            navigationController.displaySuccess(message: error.errorDescription)
             didComplete?(.failure(AnyError(error)))
         }
     }

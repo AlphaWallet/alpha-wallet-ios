@@ -98,8 +98,9 @@ struct Config {
 
     let priceInfoEndpoints = URL(string: "https://api.coinmarketcap.com")!
 
-    var walletAddressesAlreadyPromptedForBackUp: [String] {
-        if let addresses = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
+    var oldWalletAddressesAlreadyPromptedForBackUp: [String] {
+        //We hard code the key here because it's used for migrating off the old value, there should be no reason why this key will change in the next line
+        if let addresses = defaults.array(forKey: "walletAddressesAlreadyPromptedForBackUp ") {
             return addresses as! [String]
         } else {
             return []
@@ -118,14 +119,5 @@ struct Config {
         }
         addresses.append(address.eip55String)
         defaults.setValue(addresses, forKey: Keys.walletAddressesAlreadyPromptedForBackUp)
-    }
-
-    func isWalletAddressAlreadyPromptedForBackUp(address: AlphaWallet.Address) -> Bool {
-        if let value = defaults.array(forKey: Keys.walletAddressesAlreadyPromptedForBackUp) {
-            let addresses = value as! [String]
-            return addresses.contains(address.eip55String)
-        } else {
-            return false
-        }
     }
 }

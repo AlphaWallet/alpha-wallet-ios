@@ -130,21 +130,26 @@ class InCoordinatorTests: XCTestCase {
 
     func testShowTabAlphwaWalletWallet() {
         let keystore = FakeEtherKeystore()
-        let wallet = Wallet(type: .real(keystore.createAccount(password: "test")))
-        keystore.recentlyUsedWallet = wallet
-        let coordinator = InCoordinator(
-            navigationController: FakeNavigationController(),
-            wallet: wallet,
-            keystore: keystore,
-            assetDefinitionStore: AssetDefinitionStore(),
-            config: .make()
-        )
-        coordinator.showTabBar(for: wallet)
+        switch keystore.createAccount() {
+        case .success(let account):
+            let wallet = Wallet(type: .real(account))
+            keystore.recentlyUsedWallet = wallet
+            let coordinator = InCoordinator(
+                    navigationController: FakeNavigationController(),
+                    wallet: wallet,
+                    keystore: keystore,
+                    assetDefinitionStore: AssetDefinitionStore(),
+                    config: .make()
+            )
+            coordinator.showTabBar(for: wallet)
 
-        coordinator.showTab(.wallet)
+            coordinator.showTab(.wallet)
 
-        let viewController = (coordinator.tabBarController?.selectedViewController as? UINavigationController)?.viewControllers[0]
+            let viewController = (coordinator.tabBarController?.selectedViewController as? UINavigationController)?.viewControllers[0]
 
-        XCTAssert(viewController is TokensViewController)
+            XCTAssert(viewController is TokensViewController)
+        case .failure:
+            XCTFail()
+        }
     }
 }

@@ -33,6 +33,7 @@ extension Data {
         self = data
     }
 
+    //TODO remove if unused. Also confusing
     init?(fromHexEncodedString string: String) {
         // Convert 0 ... 9, a ... f, A ...F to their decimal value,
         // return nil for all other input characters

@@ -4,7 +4,7 @@
 import UIKit
 
 protocol WelcomeViewControllerDelegate: class {
-    func didPressCreateWallet(in viewController: WelcomeViewController)
+    func didPressGettingStartedButton(in viewController: WelcomeViewController)
 }
 
 class WelcomeViewController: UIViewController {
@@ -107,6 +107,6 @@ class WelcomeViewController: UIViewController {
     }
 
     @IBAction func start() {
-        delegate?.didPressCreateWallet(in: self)
+        delegate?.didPressGettingStartedButton(in: self)
     }
 }

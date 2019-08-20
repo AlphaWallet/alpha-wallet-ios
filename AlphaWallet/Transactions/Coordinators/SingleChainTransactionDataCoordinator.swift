@@ -18,6 +18,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
     private let session: WalletSession
     private let keystore: Keystore
     private let tokensStorage: TokensDataStore
+    private let promptBackupCoordinator: PromptBackupCoordinator
     private let fetchLatestTransactionsQueue: OperationQueue
     private var timer: Timer?
     private var updateTransactionsTimer: Timer?
@@ -35,12 +36,14 @@ class SingleChainTransactionDataCoordinator: Coordinator {
             storage: TransactionsStorage,
             keystore: Keystore,
             tokensStorage: TokensDataStore,
+            promptBackupCoordinator: PromptBackupCoordinator,
             onFetchLatestTransactionsQueue fetchLatestTransactionsQueue: OperationQueue
     ) {
         self.session = session
         self.storage = storage
         self.keystore = keystore
         self.tokensStorage = tokensStorage
+        self.promptBackupCoordinator = promptBackupCoordinator
         self.fetchLatestTransactionsQueue = fetchLatestTransactionsQueue
     }
 
@@ -199,6 +202,18 @@ class SingleChainTransactionDataCoordinator: Coordinator {
             if each.date > thresholdToShowNotification {
                 notifyUserEtherReceived(for: each.id, amount: amount)
             }
+        }
+        let etherReceivedUsedForBackupPrompt = newIncomingEthTransactions
+                .last { wallet.address.sameContract(as: $0.to) }
+                .flatMap { BigInt($0.value) }
+        switch session.server {
+        //TODO make this work for other mainnets
+        case .main:
+            etherReceivedUsedForBackupPrompt.flatMap { promptBackupCoordinator.showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(nativeCryptoCurrency: $0) }
+        case .classic, .xDai:
+            break
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .custom:
+            break
         }
     }
 

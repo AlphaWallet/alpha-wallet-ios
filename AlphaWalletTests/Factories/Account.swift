@@ -4,14 +4,8 @@ import Foundation
 @testable import AlphaWallet
 import TrustKeystore
 
-extension Account {
-    static func make(
-        address: AlphaWallet.Address = .make(),
-        url: URL = URL(fileURLWithPath: "")
-    ) -> Account {
-        return Account(
-            address: Address(address: address),
-            url: url
-        )
+extension EthereumAccount {
+    static func make(address: AlphaWallet.Address = .make()) -> EthereumAccount {
+        return .init(address: address)
     }
 }
