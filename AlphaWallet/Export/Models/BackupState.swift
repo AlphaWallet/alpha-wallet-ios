@@ -3,6 +3,12 @@
 import Foundation
 import BigInt
 
+enum WalletSecurityLevel {
+    case notBackedUp
+    case backedUpButSecurityIsNotElevated
+    case backedUpWithElevatedSecurity
+}
+
 struct WalletsBackupState: Codable {
     enum Prompt {
         case newWallet

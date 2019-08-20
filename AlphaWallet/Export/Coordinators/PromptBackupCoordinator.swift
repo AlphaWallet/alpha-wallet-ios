@@ -325,6 +325,23 @@ class PromptBackupCoordinator: Coordinator {
         return readState()?.backupState[wallet.address]?.timeToShowIntervalPassedPrompt
     }
 
+    var securityLevel: WalletSecurityLevel? {
+        switch wallet.type {
+        case .real(let account):
+            if isBackedUp || isImported {
+                let isProtectedByUserPresence = keystore.isProtectedByUserPresence(account: account)
+                if isProtectedByUserPresence {
+                    return .backedUpWithElevatedSecurity
+                } else {
+                    return .backedUpButSecurityIsNotElevated
+                }
+            } else {
+                return .notBackedUp
+            }
+        case .watch:
+            return nil
+        }
+    }
 
     private func readState() -> WalletsBackupState? {
         return WalletsBackupState.load(fromUrl: fileUrl)
