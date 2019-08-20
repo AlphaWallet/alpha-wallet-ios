@@ -39,15 +39,6 @@ class TokensViewModel {
         return Colors.appBackground
     }
 
-    var shouldShowTable: Bool {
-        switch filter {
-        case .all, .currencyOnly, .assetsOnly, .keyword:
-            return hasContent
-        case .collectiblesOnly:
-            return false
-        }
-    }
-
     var shouldShowBackupPromptViewHolder: Bool {
         //TODO show the prompt in both ASSETS and COLLECTIBLES tab too
         switch filter {

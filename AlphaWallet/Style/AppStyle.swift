@@ -14,6 +14,7 @@ func applyStyle() {
     UINavigationBar.appearance().tintColor = Colors.appWhite
     UINavigationBar.appearance().setBackgroundImage(.filled(with: Colors.appBackground), for: .default)
     UINavigationBar.appearance().shadowImage = UIImage()
+    UINavigationBar.appearance().barTintColor = Colors.appBackground
     UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
     UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
     UINavigationBar.appearance().titleTextAttributes = [
@@ -28,8 +29,12 @@ func applyStyle() {
 
     UIToolbar.appearance().tintColor = Colors.appBackground
 
+    //Background (not needed in iOS 12.1 on simulator)
+    UISearchBar.appearance().backgroundColor = Colors.appBackground
+    //Cancel button
     UISearchBar.appearance().tintColor = Colors.appWhite
-    UISearchBar.appearance().barTintColor = Colors.appBackground
+    //Cursor color
+    UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = Colors.appWhite
 
     UITextField.appearance().tintColor = Colors.blue
 

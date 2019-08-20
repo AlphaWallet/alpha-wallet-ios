@@ -13,6 +13,8 @@ protocol TokensViewControllerDelegate: class {
 }
 
 class TokensViewController: UIViewController {
+    private static let filterViewHeight = CGFloat(44)
+
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
 
@@ -24,7 +26,8 @@ class TokensViewController: UIViewController {
     }
     private let sessions: ServerDictionary<WalletSession>
     private let account: Wallet
-	private let filterView = WalletFilterView()
+    private let tableViewFilterView = WalletFilterView()
+    private let collectiblesCollectionViewFilterView = WalletFilterView()
     private var importWalletView: UIView?
     private var importWalletLayer = CAShapeLayer()
     private let tableView: UITableView
@@ -37,25 +40,57 @@ class TokensViewController: UIViewController {
         let heightForLabel = CGFloat(18)
         layout.itemSize = CGSize(width: dimension, height: dimension + heightForLabel)
         layout.minimumInteritemSpacing = 0
+        layout.headerReferenceSize = .init(width: 100, height: TokensViewController.filterViewHeight)
+        layout.sectionHeadersPinToVisibleBounds = true
         return UICollectionView(frame: .zero, collectionViewLayout: layout)
     }()
     private var currentCollectiblesContractsDisplayed = [AlphaWallet.Address]()
     private let searchController: UISearchController
-    private let consoleButton = UIButton(type: .system)
-    private let promptBackupWalletViewHolder = UIView()
+    private var consoleButton: UIButton {
+        return tableViewHeader.consoleButton
+    }
+    private var promptBackupWalletViewHolder: UIView {
+        return tableViewHeader.promptBackupWalletViewHolder
+    }
     private var shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = false
+    private var tableViewHeader = {
+        return TableViewHeader(consoleButton: UIButton(type: .system), promptBackupWalletViewHolder: UIView())
+    }()
+    private var isSearchBarConfigured = false
+
+    var isConsoleButtonHidden: Bool {
+        get {
+            return consoleButton.isHidden
+        }
+        set {
+            guard newValue != isConsoleButtonHidden else { return }
+            consoleButton.isHidden = newValue
+            adjustTableViewHeaderHeightToFitContents()
+        }
+    }
+    var isPromptBackupWalletViewHolderHidden: Bool {
+        get {
+            return promptBackupWalletViewHolder.isHidden
+        }
+        set {
+            guard newValue != isPromptBackupWalletViewHolderHidden else { return }
+            promptBackupWalletViewHolder.isHidden = newValue
+            adjustTableViewHeaderHeightToFitContents()
+        }
+    }
 
     weak var delegate: TokensViewControllerDelegate?
     //TODO The name "bad" isn't correct. Because it includes "conflicts" too
     var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] = .init() {
         didSet {
             if listOfBadTokenScriptFiles.isEmpty {
-                consoleButton.isHidden = true
+                isConsoleButtonHidden = true
             } else {
-                consoleButton.isHidden = false
                 consoleButton.titleLabel?.font = Fonts.light(size: 22)!
                 consoleButton.setTitleColor(Colors.appWhite, for: .normal)
                 consoleButton.setTitle(R.string.localizable.tokenScriptShowErrors(), for: .normal)
+                consoleButton.bounds.size.height = 44
+                consoleButton.isHidden = false
             }
         }
     }
@@ -63,7 +98,6 @@ class TokensViewController: UIViewController {
         didSet {
             oldValue?.removeFromSuperview()
             if let promptBackupWalletView = promptBackupWalletView {
-                promptBackupWalletViewHolder.isHidden = shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive
                 promptBackupWalletView.translatesAutoresizingMaskIntoConstraints = false
                 promptBackupWalletViewHolder.addSubview(promptBackupWalletView)
                 NSLayoutConstraint.activate([
@@ -72,8 +106,10 @@ class TokensViewController: UIViewController {
                     promptBackupWalletView.topAnchor.constraint(equalTo: promptBackupWalletViewHolder.topAnchor, constant: 7),
                     promptBackupWalletView.bottomAnchor.constraint(equalTo: promptBackupWalletViewHolder.bottomAnchor, constant: -4),
                 ])
+
+                isPromptBackupWalletViewHolderHidden = shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive
             } else {
-                promptBackupWalletViewHolder.isHidden = true
+                isPromptBackupWalletViewHolderHidden = true
             }
         }
     }
@@ -97,9 +133,11 @@ class TokensViewController: UIViewController {
 
         view.backgroundColor = Colors.appBackground
 
-        filterView.delegate = self
-        filterView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(filterView)
+        tableViewFilterView.delegate = self
+        tableViewFilterView.translatesAutoresizingMaskIntoConstraints = false
+
+        collectiblesCollectionViewFilterView.delegate = self
+        collectiblesCollectionViewFilterView.translatesAutoresizingMaskIntoConstraints = false
 
         consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
 
@@ -113,21 +151,14 @@ class TokensViewController: UIViewController {
         tableView.backgroundColor = Colors.appBackground
         tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         tableView.addSubview(tableViewRefreshControl)
-
-        promptBackupWalletViewHolder.isHidden = true
-
-        let bodyStackView = [
-            consoleButton,
-            promptBackupWalletViewHolder,
-            tableView,
-        ].asStackView(axis: .vertical)
-        bodyStackView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(bodyStackView)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
 
         collectiblesCollectionView.backgroundColor = Colors.appBackground
         collectiblesCollectionView.translatesAutoresizingMaskIntoConstraints = false
         collectiblesCollectionView.alwaysBounceVertical = true
         collectiblesCollectionView.register(OpenSeaNonFungibleTokenViewCell.self, forCellWithReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier)
+        collectiblesCollectionView.register(CollectiblesCollectionViewHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: CollectiblesCollectionViewHeader.reuseIdentifier)
         collectiblesCollectionView.dataSource = self
         collectiblesCollectionView.isHidden = true
         collectiblesCollectionView.delegate = self
@@ -136,19 +167,15 @@ class TokensViewController: UIViewController {
         view.addSubview(collectiblesCollectionView)
 
         NSLayoutConstraint.activate([
-            filterView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            filterView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            filterView.topAnchor.constraint(equalTo: view.topAnchor),
-            filterView.bottomAnchor.constraint(equalTo: bodyStackView.topAnchor, constant: -7),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            bodyStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bodyStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bodyStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            bodyStackView.leadingAnchor.constraint(equalTo: collectiblesCollectionView.leadingAnchor),
-            bodyStackView.trailingAnchor.constraint(equalTo: collectiblesCollectionView.trailingAnchor),
-            bodyStackView.topAnchor.constraint(equalTo: collectiblesCollectionView.topAnchor),
-            bodyStackView.bottomAnchor.constraint(equalTo: collectiblesCollectionView.bottomAnchor),
+            tableView.leadingAnchor.constraint(equalTo: collectiblesCollectionView.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: collectiblesCollectionView.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: collectiblesCollectionView.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: collectiblesCollectionView.bottomAnchor),
         ])
         errorView = ErrorView(onRetry: { [weak self] in
             self?.startLoading()
@@ -192,16 +219,15 @@ class TokensViewController: UIViewController {
             importWalletLayer.frame = importWalletView.bounds
             importWalletLayer.path = createImportWalletImagePath().cgPath
         }
+        //viewDidLayoutSubviews() is called many times
+        configureSearchBarOnce()
     }
 
     private func reload() {
-        tableView.isHidden = !viewModel.shouldShowTable
-        promptBackupWalletViewHolder.isHidden = !(viewModel.shouldShowBackupPromptViewHolder && !promptBackupWalletViewHolder.subviews.isEmpty) || shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive
+        isPromptBackupWalletViewHolderHidden = !(viewModel.shouldShowBackupPromptViewHolder && !promptBackupWalletViewHolder.subviews.isEmpty) || shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive
         collectiblesCollectionView.isHidden = !viewModel.shouldShowCollectiblesCollectionView
+        tableView.reloadData()
         if viewModel.hasContent {
-            if viewModel.shouldShowTable {
-                tableView.reloadData()
-            }
             if viewModel.shouldShowCollectiblesCollectionView {
                 let contractsForCollectibles = contractsForCollectiblesFromViewModel()
                 if contractsForCollectibles != currentCollectiblesContractsDisplayed {
@@ -317,6 +343,12 @@ class TokensViewController: UIViewController {
             }
         }
     }
+
+    private func adjustTableViewHeaderHeightToFitContents() {
+        let size = tableViewHeader.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+        tableViewHeader.bounds.size.height = size.height
+        tableView.tableHeaderView = tableViewHeader
+    }
 }
 
 extension TokensViewController: StatefulViewController {
@@ -370,6 +402,17 @@ extension TokensViewController: UITableViewDelegate {
             return cellViewModel.cellHeight
         }
     }
+
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return TokensViewController.filterViewHeight
+    }
+
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: TableViewSectionHeader.reuseIdentifier) as? TableViewSectionHeader ?? TableViewSectionHeader(reuseIdentifier: TableViewSectionHeader.reuseIdentifier)
+        header.filterView = tableViewFilterView
+        return header
+    }
 }
 
 extension TokensViewController: UITableViewDataSource {
@@ -413,8 +456,25 @@ extension TokensViewController: UITableViewDataSource {
 
 extension TokensViewController: WalletFilterViewDelegate {
     func didPressWalletFilter(filter: WalletFilter, in filterView: WalletFilterView) {
+        let previousFilter = viewModel.filter
+        if filterView == tableViewFilterView {
+            collectiblesCollectionViewFilterView.filter = filter
+        } else if filterView == collectiblesCollectionViewFilterView {
+            tableViewFilterView.filter = filter
+        }
         viewModel.filter = filter
         reload()
+        //Exit search if user tapped on the wallet filter. Careful to not trigger an infinite recursion between changing the filter by "category" and search keywords which are all based on filters
+        if previousFilter == filter {
+            //do nothing
+        } else {
+            switch filter {
+            case .all, .currencyOnly, .assetsOnly, .collectiblesOnly:
+                searchController.isActive = false
+            case .keyword:
+                break
+            }
+        }
     }
 }
 
@@ -431,6 +491,12 @@ extension TokensViewController: UICollectionViewDataSource {
         cell.configure(viewModel: .init(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore))
         return cell
     }
+
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: CollectiblesCollectionViewHeader.reuseIdentifier, for: indexPath) as! CollectiblesCollectionViewHeader
+        header.filterView = collectiblesCollectionViewFilterView
+        return header
+    }
 }
 
 extension TokensViewController: UICollectionViewDelegate {
@@ -442,29 +508,46 @@ extension TokensViewController: UICollectionViewDelegate {
 }
 
 extension TokensViewController: UISearchResultsUpdating {
+    //At least on iOS 13 beta on a device. updateSearchResults(for:) is called when we set `searchController.isActive = false` to dismiss search (because user tapped on a filter), but the value of `searchController.isActive` remains `false` during the call, hence the async.
+    //This behavior is not observed in iOS 12, simulator
     public func updateSearchResults(for searchController: UISearchController) {
+        DispatchQueue.main.async {
+            self.processSearchWithKeywords()
+        }
+    }
+
+    private func processSearchWithKeywords() {
         if searchController.isActive {
             shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = true
         } else {
             shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive = false
         }
+        guard searchController.isActive else {
+            switch viewModel.filter {
+            case .all, .currencyOnly, .assetsOnly, .collectiblesOnly:
+                break
+            case .keyword(let keyword):
+                //Handle when user taps clear button
+                if !keyword.isEmpty {
+                    updateResults(withKeyword: "")
+                }
+            }
+            return
+        }
         let keyword = searchController.searchBar.text ?? ""
-        filterView.searchFor(keyword: keyword)
+        updateResults(withKeyword: keyword)
+    }
+
+    private func updateResults(withKeyword keyword: String) {
+        tableViewFilterView.searchFor(keyword: keyword)
+        collectiblesCollectionViewFilterView.searchFor(keyword: keyword)
     }
 }
 
 ///Support searching/filtering tokens with keywords. This extension is set up so it's easier to copy and paste this functionality elsewhere
 extension TokensViewController {
-    private func hideSearchBarForInitialUse() {
-        tableView.contentOffset = CGPoint(x: 0, y: searchController.searchBar.frame.size.height)
-    }
-
     private func makeSwitchToAnotherTabWorkWhileFiltering() {
         definesPresentationContext = true
-    }
-
-    private func removeSearchBarBorderForiOS10() {
-        searchController.searchBar.setBackgroundImage(UIImage(color: Colors.appBackground), for: .any, barMetrics: .default)
     }
 
     private func doNotDimTableViewToReuseTableForFilteringResult() {
@@ -473,8 +556,8 @@ extension TokensViewController {
 
     private func wireUpSearchController() {
         searchController.searchResultsUpdater = self
-        //Can't get `navigationItem.searchController = searchController` to work correctly with iOS 12 (probably 11 too). It wouldn't work with iOS 10 anyway.
-        tableView.tableHeaderView = searchController.searchBar
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = true
     }
 
     private func fixTableViewBackgroundColor() {
@@ -487,10 +570,25 @@ extension TokensViewController {
         wireUpSearchController()
         fixTableViewBackgroundColor()
         doNotDimTableViewToReuseTableForFilteringResult()
-        removeSearchBarBorderForiOS10()
         makeSwitchToAnotherTabWorkWhileFiltering()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.hideSearchBarForInitialUse()
+    }
+
+    //Makes a difference where this is called from. Can't be too early
+    private func configureSearchBarOnce() {
+        guard !isSearchBarConfigured else { return }
+        isSearchBarConfigured = true
+
+        if let placeholderLabel = searchController.searchBar.firstSubview(ofType: UILabel.self) {
+            placeholderLabel.textColor = Colors.lightGray
         }
+        if let textField = searchController.searchBar.firstSubview(ofType: UITextField.self) {
+            textField.textColor = Colors.appWhite
+            if let imageView = textField.leftView as? UIImageView {
+                imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
+                imageView.tintColor = Colors.lightGray
+            }
+        }
+        //Hack to hide the horizontal separator below the search bar
+        searchController.searchBar.superview?.firstSubview(ofType: UIImageView.self)?.isHidden = true
     }
 }
