@@ -57,13 +57,13 @@
 "settings.error.failedToSendEmail" = "无法发送邮件。请确保你已经安装了邮件应用。";
 "settings.network.button.title" = "网络";
 "settings.enabledNetworks.button.title" = "Enabled Networks";
-"settings.language.button.title" = "语言";
+"settings.language.button.title" = "Change Language";
 "settings.language.useSystem.title" = "使用系统设置";
 "settings.version.label.title" = "版本";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "暂无记录";
-"wallet.navigation.title" = "钱包";
+"wallet.navigation.title" = "Change Wallet";
 "wallet.types.hdWallets" = "HD Wallets";
 "wallet.types.keystoreWallets" = "Keystore Wallets";
 "wallet.types.watchedWallets" = "Watched Wallets";
@@ -110,7 +110,7 @@
 "Private Key" = "私有密钥";
 "settings.currency.button.title" = "货币";
 "settings.network.test.label.title" = "测试网络";
-"settings.wallets.button.title" = "钱包";
+"settings.wallets.button.title" = "Change Wallet";
 "Symbol" = "符号";
 "Today" = "今天";
 "token.lowercase" = "通证";

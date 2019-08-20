@@ -69,6 +69,7 @@ struct Colors {
     static let appLightButtonSeparator = UIColor(red: 255, green: 255, blue: 255, alpha: 0.2)
     static let appRed = UIColor(red: 204, green: 71, blue: 65)
     static let appGrayLabelColor = UIColor(red: 155, green: 155, blue: 155)
+    static let settingsSubtitleColor = UIColor(red: 141, green: 141, blue: 141)
 }
 
 struct StyleLayout {

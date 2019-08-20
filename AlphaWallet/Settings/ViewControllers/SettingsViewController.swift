@@ -13,6 +13,7 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
 }
 
 class SettingsViewController: FormViewController {
+    private let iconInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
     private let lock = Lock()
     private var isPasscodeEnabled: Bool {
         return lock.isPasscodeSet
@@ -65,19 +66,20 @@ class SettingsViewController: FormViewController {
             self.delegate?.didAction(action: .myWalletAddress, in: self)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
-            cell.imageView?.image = R.image.settings_wallet1()?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.image = R.image.settings_wallet1()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
             cell.accessoryType = .disclosureIndicator
         }
 
         <<< AppFormAppearance.alphaWalletSettingsButton { button in
-            button.cellStyle = .value1
+            button.cellStyle = .subtitle
         }.onCellSelection { [unowned self] _, _ in
             self.run(action: .wallets)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
+            cell.detailTextLabel?.textColor = Colors.settingsSubtitleColor
         }.cellUpdate { [weak self] cell, _ in
             guard let strongSelf = self else { return }
-            cell.imageView?.image = R.image.settings_wallet()?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.image = R.image.settings_wallet()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
             cell.detailTextLabel?.text = strongSelf.account.address.eip55String
             cell.detailTextLabel?.lineBreakMode = .byTruncatingMiddle
@@ -85,14 +87,15 @@ class SettingsViewController: FormViewController {
         }
 
         <<< AppFormAppearance.alphaWalletSettingsButton { button in
-            button.cellStyle = .value1
+            button.cellStyle = .subtitle
         }.onCellSelection { [unowned self] _, _ in
             self.run(action: .locales)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
+            cell.detailTextLabel?.textColor = Colors.settingsSubtitleColor
         }.cellUpdate { [weak self] cell, _ in
             guard let strongSelf = self else { return }
-            cell.imageView?.image = R.image.settings_language()?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.image = R.image.settings_language()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = strongSelf.viewModel.localeTitle
             cell.detailTextLabel?.text = AppLocale(id: Config.getLocale()).displayName
             cell.accessoryType = .disclosureIndicator
@@ -112,7 +115,7 @@ class SettingsViewController: FormViewController {
             }
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
-            cell.imageView?.image = R.image.settings_lock()?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.image = R.image.settings_lock()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
         }
 
         +++ createSection(withTitle: R.string.localizable.settingsAdvancedTitle())
@@ -123,7 +126,7 @@ class SettingsViewController: FormViewController {
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
         }.cellUpdate { cell, _ in
-            cell.imageView?.image = R.image.settings_server()?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.image = R.image.settings_server()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.settingsEnabledNetworksButtonTitle()
             cell.accessoryType = .disclosureIndicator
         }
@@ -136,7 +139,8 @@ class SettingsViewController: FormViewController {
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
         }.cellUpdate { cell, _ in
-            cell.textLabel?.text = "    \(R.string.localizable.aHelpAssetDefinitionOverridesTitle())"
+            cell.textLabel?.text = R.string.localizable.aHelpAssetDefinitionOverridesTitle()
+            cell.imageView?.image = R.image.settings_tokenscript_overrides()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
             cell.accessoryType = .disclosureIndicator
         }
         <<< AppFormAppearance.alphaWalletSettingsButton { row in
@@ -148,15 +152,19 @@ class SettingsViewController: FormViewController {
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
         }.cellUpdate { cell, _ in
-            cell.textLabel?.text = "    \(R.string.localizable.aConsoleTitle())"
+            cell.imageView?.image = R.image.settings_console()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = R.string.localizable.aConsoleTitle()
             cell.accessoryType = .disclosureIndicator
         }
-        <<< AppFormAppearance.alphaWalletSettingsButton {
-            $0.title = "    \(R.string.localizable.aSettingsContentsClearDappBrowserCache())"
+        <<< AppFormAppearance.alphaWalletSettingsButton { row in
+            row.cellStyle = .value1
         }.onCellSelection { [unowned self] _, _ in
             self.delegate?.didAction(action: .clearDappBrowserCache, in: self)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { cell, _ in
+            cell.textLabel?.text = R.string.localizable.aSettingsContentsClearDappBrowserCache()
+            cell.imageView?.image = R.image.settings_clear_dapp_cache()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
         }
 
         +++ createSection(withTitle: R.string.localizable.settingsContactUsTitle())
@@ -175,7 +183,7 @@ class SettingsViewController: FormViewController {
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
         }.cellUpdate { cell, _ in
-            cell.imageView?.image = R.image.tab_help()?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.image = R.image.settings_faq()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.aHelpNavigationTitle()
             cell.accessoryType = .disclosureIndicator
         }
@@ -231,7 +239,7 @@ class SettingsViewController: FormViewController {
             }
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
-            cell.imageView?.image = type.image?.withRenderingMode(.alwaysTemplate)
+            cell.imageView?.image = type.image?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
         }
     }
 
@@ -274,4 +282,16 @@ extension SettingsViewController: CanOpenURL {
 // Helper function inserted by Swift 4.2 migrator.
 private func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
 	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value) })
+}
+
+extension UIImage {
+    fileprivate func imageWithInsets(insets: UIEdgeInsets) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions( CGSize(width: size.width + insets.left + insets.right, height: size.height + insets.top + insets.bottom), false, scale)
+        let _ = UIGraphicsGetCurrentContext()
+        let origin = CGPoint(x: insets.left, y: insets.top)
+        draw(at: origin)
+        let imageWithInsets = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return imageWithInsets
+    }
 }
