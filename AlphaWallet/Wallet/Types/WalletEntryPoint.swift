@@ -4,7 +4,8 @@ import Foundation
 
 enum WalletEntryPoint {
     case welcome
+    case addInitialWallet
     case createInstantWallet
     case importWallet
-    case backupWallet(address: AlphaWallet.Address)
+    case watchWallet
 }

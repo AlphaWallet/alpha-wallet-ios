@@ -5,7 +5,6 @@ import UIKit
 import Alamofire
 import BigInt
 import RealmSwift
-import TrustKeystore
 import PromiseKit
 
 enum ContractData {

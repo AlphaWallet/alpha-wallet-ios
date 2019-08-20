@@ -7,7 +7,6 @@ import JSONRPCKit
 import APIKit
 import QRCodeReaderViewController
 import BigInt
-import TrustKeystore
 import MBProgressHUD
 
 protocol SendViewControllerDelegate: class, CanOpenURL {
@@ -29,7 +28,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     lazy private var headerViewModel = SendHeaderViewViewModelWithIntroduction(server: session.server, assetDefinitionStore: assetDefinitionStore)
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
-    private let account: Account
+    private let account: EthereumAccount
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private var gasPrice: BigInt?
@@ -46,7 +45,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     init(
             session: WalletSession,
             storage: TokensDataStore,
-            account: Account,
+            account: EthereumAccount,
             transferType: TransferType,
             cryptoPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore

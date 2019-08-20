@@ -7,6 +7,7 @@ protocol ImportWalletTabBarDelegate: class {
 }
 
 class ImportWalletTabBar: UIView {
+	private let mnemonicButton = UIButton(type: .system)
 	private let keystoreButton = UIButton(type: .system)
 	private let privateKeyButton = UIButton(type: .system)
 	private let watchButton = UIButton(type: .system)
@@ -14,7 +15,7 @@ class ImportWalletTabBar: UIView {
 	private var highlightBarHorizontalConstraints: [NSLayoutConstraint]?
 	private lazy var viewModel = ImportWalletTabBarViewModel(tab: tab)
 
-	var tab: ImportWalletTab = .keystore {
+	var tab: ImportWalletTab = .mnemonic {
 		didSet {
 			viewModel.currentTab = tab
 			delegate?.didPressImportWalletTab(tab: tab, in: self)
@@ -27,6 +28,10 @@ class ImportWalletTabBar: UIView {
 		super.init(frame: frame)
 
 		backgroundColor = viewModel.backgroundColor
+
+		mnemonicButton.setTitle(R.string.localizable.mnemonicShorter().uppercased(), for: .normal)
+		mnemonicButton.titleLabel?.font = viewModel.font
+		mnemonicButton.addTarget(self, action: #selector(showMnemonicTab), for: .touchUpInside)
 
 		keystoreButton.setTitle(ImportSelectionType.keystore.title.uppercased(), for: .normal)
 		keystoreButton.titleLabel?.font = viewModel.font
@@ -50,7 +55,7 @@ class ImportWalletTabBar: UIView {
 		tabHighlightView.backgroundColor = viewModel.barHighlightedColor
 		fullWidthBar.addSubview(tabHighlightView)
 
-		let buttonsStackView = [keystoreButton, privateKeyButton, watchButton].asStackView(spacing: 20)
+		let buttonsStackView = [mnemonicButton, keystoreButton, privateKeyButton, watchButton].asStackView(spacing: 20)
 		buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(buttonsStackView)
 
@@ -66,6 +71,7 @@ class ImportWalletTabBar: UIView {
 			buttonsStackView.topAnchor.constraint(equalTo: topAnchor),
 			buttonsStackView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
+			keystoreButton.widthAnchor.constraint(equalTo: mnemonicButton.widthAnchor),
             keystoreButton.widthAnchor.constraint(equalTo: privateKeyButton.widthAnchor),
 			keystoreButton.widthAnchor.constraint(equalTo: watchButton.widthAnchor),
 
@@ -86,6 +92,10 @@ class ImportWalletTabBar: UIView {
 	    fatalError("init(coder:) has not been implemented")
 	}
 
+	@objc func showMnemonicTab() {
+		tab = .mnemonic
+	}
+
 	@objc func showKeystoreTab() {
 		tab = .keystore
 	}
@@ -104,6 +114,7 @@ class ImportWalletTabBar: UIView {
 	}
 
 	private func configureButtonColors() {
+		mnemonicButton.setTitleColor(viewModel.titleColor(for: .mnemonic), for: .normal)
 		keystoreButton.setTitleColor(viewModel.titleColor(for: .keystore), for: .normal)
 		privateKeyButton.setTitleColor(viewModel.titleColor(for: .privateKey), for: .normal)
 		watchButton.setTitleColor(viewModel.titleColor(for: .watch), for: .normal)
@@ -114,6 +125,8 @@ class ImportWalletTabBar: UIView {
 
 		var button: UIButton
 		switch tab {
+		case .mnemonic:
+			button = mnemonicButton
 		case .keystore:
 			button = keystoreButton
 		case .privateKey:

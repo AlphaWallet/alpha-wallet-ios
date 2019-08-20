@@ -9,7 +9,7 @@ import APIKit
 
 public struct PreviewTransaction {
     let value: BigInt
-    let account: Account
+    let account: EthereumAccount
     let address: AlphaWallet.Address?
     let contract: AlphaWallet.Address?
     let nonce: Int
@@ -21,7 +21,7 @@ public struct PreviewTransaction {
 
 class TransactionConfigurator {
     private let session: WalletSession
-    private let account: Account
+    private let account: EthereumAccount
     private lazy var calculatedGasPrice: BigInt = {
         switch session.server {
             case .xDai:
@@ -56,7 +56,7 @@ class TransactionConfigurator {
 
     init(
         session: WalletSession,
-        account: Account,
+        account: EthereumAccount,
         transaction: UnconfirmedTransaction
     ) {
         self.session = session

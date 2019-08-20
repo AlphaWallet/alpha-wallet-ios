@@ -1,7 +1,6 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import TrustKeystore
 import UIKit
 
 protocol AccountsCoordinatorDelegate: class {
@@ -17,6 +16,7 @@ class AccountsCoordinator: Coordinator {
     //Only show Ether balances from mainnet for now
     private let balanceCoordinator = GetBalanceCoordinator(forServer: .main)
     private let keystore: Keystore
+    private let promptBackupCoordinator: PromptBackupCoordinator
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -24,7 +24,7 @@ class AccountsCoordinator: Coordinator {
     lazy var accountsViewController: AccountsViewController = {
         let controller = AccountsViewController(keystore: keystore, balanceCoordinator: balanceCoordinator)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(dismiss))
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add))
+        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addWallet))
         controller.allowsAccountDeletion = true
         controller.delegate = self
         return controller
@@ -35,31 +35,39 @@ class AccountsCoordinator: Coordinator {
     init(
         config: Config,
         navigationController: UINavigationController,
-        keystore: Keystore
+        keystore: Keystore,
+        promptBackupCoordinator: PromptBackupCoordinator
     ) {
         self.config = config
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
+        self.promptBackupCoordinator = promptBackupCoordinator
     }
 
     func start() {
         navigationController.pushViewController(accountsViewController, animated: false)
     }
 
-    @objc func dismiss() {
+    @objc private func dismiss() {
         delegate?.didCancel(in: self)
     }
 
-    @objc func add() {
-        chooseImportOrCreateWallet()
-    }
-
-    func chooseImportOrCreateWallet() {
+    @objc private func addWallet() {
         UIAlertController.alert(title: nil,
                 message: nil,
-                alertButtonTitles: [R.string.localizable.walletCreateButtonTitle(), R.string.localizable.walletImportButtonTitle(), R.string.localizable.cancel()],
-                alertButtonStyles: [.default, .default, .cancel],
+                alertButtonTitles: [
+                    R.string.localizable.walletCreateButtonTitle(),
+                    R.string.localizable.walletImportButtonTitle(),
+                    R.string.localizable.walletWatchButtonTitle(),
+                    R.string.localizable.cancel()
+                ],
+                alertButtonStyles: [
+                    .default,
+                    .default,
+                    .default,
+                    .cancel
+                ],
                 viewController: navigationController,
                 preferredStyle: .actionSheet) { [weak self] index in
                     guard let strongSelf = self else { return }
@@ -67,11 +75,13 @@ class AccountsCoordinator: Coordinator {
                         strongSelf.showCreateWallet()
                     } else if index == 1 {
                         strongSelf.showImportWallet()
+                    } else if index == 2 {
+                        strongSelf.showWatchWallet()
                     }
         }
 	}
 
-    func importOrCreateWallet(entryPoint: WalletEntryPoint) {
+    private func importOrCreateWallet(entryPoint: WalletEntryPoint) {
         let coordinator = WalletCoordinator(config: config, keystore: keystore)
         if case .createInstantWallet = entryPoint {
             coordinator.navigationController = navigationController
@@ -84,28 +94,37 @@ class AccountsCoordinator: Coordinator {
         }
     }
 
-	func showCreateWallet() {
+	private func showCreateWallet() {
         importOrCreateWallet(entryPoint: .createInstantWallet)
     }
 
-    func showImportWallet() {
+    private func showImportWallet() {
         importOrCreateWallet(entryPoint: .importWallet)
     }
 
-    func showInfoSheet(for account: Wallet, sender: UIView) {
+    private func showWatchWallet() {
+        importOrCreateWallet(entryPoint: .watchWallet)
+    }
+
+    private func showInfoSheet(for account: Wallet, sender: UIView) {
         let controller = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         controller.popoverPresentationController?.sourceView = sender
         controller.popoverPresentationController?.sourceRect = sender.centerRect
 
         switch account.type {
         case .real(let account):
-            let actionTitle = R.string.localizable.walletsBackupAlertSheetTitle()
+            let actionTitle: String
+            if keystore.isHdWallet(account: account) {
+                actionTitle = R.string.localizable.walletsBackupHdWalletAlertSheetTitle()
+            } else {
+                actionTitle = R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitle()
+            }
             let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
                 let coordinator = BackupCoordinator(
-                    navigationController: strongSelf.navigationController,
-                    keystore: strongSelf.keystore,
-                    account: account
+                        navigationController: strongSelf.navigationController,
+                        keystore: strongSelf.keystore,
+                        account: account
                 )
                 coordinator.delegate = strongSelf
                 coordinator.start()
@@ -173,7 +192,9 @@ extension AccountsCoordinator: BackupCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didFinish(account: Account, in coordinator: BackupCoordinator) {
+    func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator) {
+        promptBackupCoordinator.markBackupDone()
+        promptBackupCoordinator.showHideCurrentPrompt()
         removeCoordinator(coordinator)
     }
 }

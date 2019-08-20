@@ -61,6 +61,7 @@ PODS:
   - SipHash (1.2.0)
   - StatefulViewController (3.0)
   - SwiftLint (0.25.1)
+  - SwiftProtobuf (1.3.1)
   - SwiftyJSON (4.0.0)
   - SwiftyXMLParser (4.1.0)
   - SWXMLHash (4.7.4)
@@ -69,6 +70,8 @@ PODS:
     - CryptoSwift (~> 0.10.0)
     - secp256k1_ios (~> 0.1.0)
     - TrezorCrypto
+  - TrustWalletCore (0.5.0):
+    - SwiftProtobuf (~> 1.3.0)
   - web3swift (0.9.0):
     - Alamofire (~> 4.7)
     - Alamofire-Synchronous (~> 4.0)
@@ -90,7 +93,7 @@ DEPENDENCIES:
   - JavaScriptKit
   - JSONRPCKit (~> 2.0.0)
   - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
-  - KeychainSwift
+  - KeychainSwift (from `https://github.com/AlphaWallet/keychain-swift.git`, branch `alphawallet`)
   - Kingfisher (~> 4.0)
   - Macaw (from `https://github.com/alpha-wallet/Macaw.git`, commit `c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8`)
   - MBProgressHUD
@@ -107,7 +110,8 @@ DEPENDENCIES:
   - SwiftyJSON
   - SwiftyXMLParser (from `https://github.com/yahoojapan/SwiftyXMLParser.git`)
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
-  - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, commit `9abdc1a63f1baf17facb26a3e049b5e335a95816`)
+  - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, commit `37f7eaf9531cb4e33d06129543b3a56972f59d2a`)
+  - TrustWalletCore
   - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, commit `2b3c5ee878212ce70768568def7e727f0f1ebf86`)
 
 SPEC REPOS:
@@ -123,7 +127,6 @@ SPEC REPOS:
     - iOSSnapshotTestCase
     - JavaScriptKit
     - JSONRPCKit
-    - KeychainSwift
     - Kingfisher
     - libsodium
     - MBProgressHUD
@@ -140,8 +143,10 @@ SPEC REPOS:
     - SipHash
     - StatefulViewController
     - SwiftLint
+    - SwiftProtobuf
     - SwiftyJSON
     - SWXMLHash
+    - TrustWalletCore
 
 EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
@@ -150,6 +155,9 @@ EXTERNAL SOURCES:
   Kanna:
     :commit: 06a04bc28783ccbb40efba355dee845a024033e8
     :git: https://github.com/tid-kijyun/Kanna.git
+  KeychainSwift:
+    :branch: alphawallet
+    :git: https://github.com/AlphaWallet/keychain-swift.git
   Macaw:
     :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
     :git: https://github.com/alpha-wallet/Macaw.git
@@ -162,7 +170,7 @@ EXTERNAL SOURCES:
     :commit: 50c16ba5527e269bbc838e80aee5bac0fe304cc7
     :git: https://github.com/AlphaWallet/trezor-crypto-ios.git
   TrustKeystore:
-    :commit: 9abdc1a63f1baf17facb26a3e049b5e335a95816
+    :commit: 37f7eaf9531cb4e33d06129543b3a56972f59d2a
     :git: https://github.com/alpha-wallet/trust-keystore.git
   web3swift:
     :commit: 2b3c5ee878212ce70768568def7e727f0f1ebf86
@@ -175,6 +183,9 @@ CHECKOUT OPTIONS:
   Kanna:
     :commit: 06a04bc28783ccbb40efba355dee845a024033e8
     :git: https://github.com/tid-kijyun/Kanna.git
+  KeychainSwift:
+    :commit: b797d40a9d08ec509db4335140cf2259b226e6a2
+    :git: https://github.com/AlphaWallet/keychain-swift.git
   Macaw:
     :commit: c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8
     :git: https://github.com/alpha-wallet/Macaw.git
@@ -188,7 +199,7 @@ CHECKOUT OPTIONS:
     :commit: 50c16ba5527e269bbc838e80aee5bac0fe304cc7
     :git: https://github.com/AlphaWallet/trezor-crypto-ios.git
   TrustKeystore:
-    :commit: 9abdc1a63f1baf17facb26a3e049b5e335a95816
+    :commit: 37f7eaf9531cb4e33d06129543b3a56972f59d2a
     :git: https://github.com/alpha-wallet/trust-keystore.git
   web3swift:
     :commit: 2b3c5ee878212ce70768568def7e727f0f1ebf86
@@ -208,7 +219,7 @@ SPEC CHECKSUMS:
   JavaScriptKit: 9ff565209e6efe21bcb9c6d6ca3e863a67a8ecf7
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
   Kanna: a32875df62975f8f4b871e933b4ea1a5c3b8be0f
-  KeychainSwift: f9f7910449a0c0fd2cabc889121530dd2c477c33
+  KeychainSwift: c0d1b0c2901b9873f07f0e560fde92929069e863
   Kingfisher: 1f9157d9c02b380cbd0b7cc890161195164eb634
   libsodium: 9a8faa5ef2fa0d2d57bd7f7d79bf8fb7c1a9f0ea
   Macaw: 6db42cb10c1e018ee940a906b42a1ead5557e080
@@ -227,13 +238,15 @@ SPEC CHECKSUMS:
   SipHash: c6e9e43e9c531b5bc6602545130c26194a6d31ce
   StatefulViewController: 4803bf900d44de26074344998e10e041113b5931
   SwiftLint: ce933681be10c3266e82576dad676fa815a602e9
+  SwiftProtobuf: 84cd6b8f4fd2fc3d9fbd80a0aaf2e957d52824ec
   SwiftyJSON: 070dabdcb1beb81b247c65ffa3a79dbbfb3b48aa
   SwiftyXMLParser: b5a79fb8a730903703d0a92d30752a0b05158967
   SWXMLHash: b35739a5cfd915c3b482977aa720d6708e260a90
   TrezorCrypto: bfeea47a052dca2c77d4a39e1e183865e52de14d
   TrustKeystore: 26efa8079f6451d02ce64b906d3ff240fd71d7ca
+  TrustWalletCore: dd8c81d5958f1eb737abea1e14675efcc6a104aa
   web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
 
-PODFILE CHECKSUM: c9725cc64a472ca0a8c73463de9ccf6d5e379e1e
+PODFILE CHECKSUM: 3ced005aa9515481c60ee43d39109ba5461c4d89
 
 COCOAPODS: 1.5.3

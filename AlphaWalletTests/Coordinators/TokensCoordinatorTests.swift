@@ -14,7 +14,8 @@ class TokensCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(),
             tokenCollection: .init(tokenDataStores: []),
             nativeCryptoCurrencyPrices: .init(),
-            assetDefinitionStore: AssetDefinitionStore()
+            assetDefinitionStore: AssetDefinitionStore(),
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make())
         )
         coordinator.start()
 

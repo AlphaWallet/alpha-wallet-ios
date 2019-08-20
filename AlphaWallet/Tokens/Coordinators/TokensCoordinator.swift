@@ -19,6 +19,7 @@ class TokensCoordinator: Coordinator {
     private let tokenCollection: TokenCollection
     private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
     private let assetDefinitionStore: AssetDefinitionStore
+    private let promptBackupCoordinator: PromptBackupCoordinator
     private var serverToAddCustomTokenOn: RPCServerOrAuto = .auto {
         didSet {
             switch serverToAddCustomTokenOn {
@@ -74,7 +75,8 @@ class TokensCoordinator: Coordinator {
             keystore: Keystore,
             tokenCollection: TokenCollection,
             nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>,
-            assetDefinitionStore: AssetDefinitionStore
+            assetDefinitionStore: AssetDefinitionStore,
+            promptBackupCoordinator: PromptBackupCoordinator
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
@@ -83,6 +85,8 @@ class TokensCoordinator: Coordinator {
         self.tokenCollection = tokenCollection
         self.nativeCryptoCurrencyPrices = nativeCryptoCurrencyPrices
         self.assetDefinitionStore = assetDefinitionStore
+        self.promptBackupCoordinator = promptBackupCoordinator
+        promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
     }
 
@@ -322,5 +326,15 @@ extension TokensCoordinator: ServersCoordinatorDelegate {
     func didSelectDismiss(in coordinator: ServersCoordinator) {
         coordinator.serversViewController.navigationController?.dismiss(animated: true)
         removeCoordinator(coordinator)
+    }
+}
+
+extension TokensCoordinator: PromptBackupCoordinatorProminentPromptDelegate {
+    var viewControllerToShowBackupLaterAlert: UIViewController {
+        return tokensViewController
+    }
+
+    func updatePrompt(inCoordinator coordinator: PromptBackupCoordinator) {
+        tokensViewController.promptBackupWalletView = coordinator.prominentPromptView
     }
 }
