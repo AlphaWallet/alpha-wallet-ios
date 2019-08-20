@@ -29,7 +29,7 @@ class SettingsCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 
 	lazy var rootViewController: SettingsViewController = {
-		let controller = SettingsViewController(account: account)
+		let controller = SettingsViewController(keystore: keystore, account: account)
 		controller.delegate = self
 		controller.modalPresentationStyle = .pageSheet
 		return controller
@@ -57,6 +57,22 @@ class SettingsCoordinator: Coordinator {
 
 	@objc func showMyWalletAddress() {
 		delegate?.didPressShowWallet(in: self)
+	}
+
+	func backupWallet() {
+		switch account.type {
+		case .real(let account):
+			let coordinator = BackupCoordinator(
+					navigationController: navigationController,
+					keystore: keystore,
+					account: account
+			)
+			coordinator.delegate = self
+			coordinator.start()
+			addCoordinator(coordinator)
+		case .watch:
+			break
+		}
 	}
 
 	@objc func showAccounts() {
@@ -106,6 +122,8 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
 			showMyWalletAddress()
 		case .wallets:
 			showAccounts()
+		case .backupWallet:
+			backupWallet()
 		case .locales:
 			showLocales()
 		case .enabledServers:
@@ -202,5 +220,17 @@ extension SettingsCoordinator: PromptBackupCoordinatorSubtlePromptDelegate {
 
 	func updatePrompt(inCoordinator coordinator: PromptBackupCoordinator) {
 		rootViewController.promptBackupWalletView = coordinator.subtlePromptView
+	}
+}
+
+extension SettingsCoordinator: BackupCoordinatorDelegate {
+	func didCancel(coordinator: BackupCoordinator) {
+		removeCoordinator(coordinator)
+	}
+
+	func didFinish(account: EthereumAccount, in coordinator: BackupCoordinator) {
+		promptBackupCoordinator.markBackupDone()
+		promptBackupCoordinator.showHideCurrentPrompt()
+		removeCoordinator(coordinator)
 	}
 }
