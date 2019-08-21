@@ -12,7 +12,7 @@ func applyStyle() {
     }
     UIWindow.appearance().tintColor = Colors.appBackground
     UINavigationBar.appearance().tintColor = Colors.appWhite
-    UINavigationBar.appearance().setBackgroundImage(.filled(with: Colors.appBackground), for: .default)
+    UINavigationBar.appearance().setBackgroundImage(UIImage(color: Colors.appBackground), for: .default)
     UINavigationBar.appearance().shadowImage = UIImage()
     UINavigationBar.appearance().barTintColor = Colors.appBackground
     UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
@@ -100,7 +100,7 @@ struct Fonts {
 
 extension UISegmentedControl {
     func style() {
-        setDividerImage(.filled(with: Colors.appBackground), forLeftSegmentState: .normal, rightSegmentState: .normal, barMetrics: .default)
+        setDividerImage(UIImage(color: Colors.appBackground), forLeftSegmentState: .normal, rightSegmentState: .normal, barMetrics: .default)
         subviews.forEach { $0.tintColor = Colors.appBackground }
     }
 }
