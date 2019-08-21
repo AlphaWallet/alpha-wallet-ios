@@ -18,6 +18,10 @@ struct SeedPhraseCollectionViewModel {
         return words.count
     }
 
+    var isEveryWordSelected: Bool {
+        return selectedIndices.count == words.count
+    }
+
     init(words: [String] = [], isSelectable: Bool = false, shouldShowSequenceNumber: Bool = false) {
         self.words = words
         self.isSelectable = isSelectable
