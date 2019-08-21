@@ -18,8 +18,7 @@ class ClearDappBrowserCacheCoordinator: Coordinator {
                 alertButtonTitles: [R.string.localizable.oK(), R.string.localizable.cancel()],
                 alertButtonStyles: [.destructive, .cancel],
                 viewController: viewController,
-                completion: { [weak self] choice in
-                    guard let strongSelf = self else { return }
+                completion: { choice in
                     guard choice == 0 else { return }
                     WKWebView.clearCache()
                 })
