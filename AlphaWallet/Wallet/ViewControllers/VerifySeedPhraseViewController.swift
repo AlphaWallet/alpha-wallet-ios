@@ -90,6 +90,10 @@ class VerifySeedPhraseViewController: UIViewController {
     //Without this flag, we will be removing the seed in (3) and trying to read it in (4) again and triggering (1), thus going into an infinite loop of reading
     private var isInactiveBecauseWeAccessingBiometrics = false
 
+    private var continueButton: UIButton {
+        return buttonsBar.buttons[0]
+    }
+
     weak var delegate: VerifySeedPhraseViewControllerDelegate?
 
     init(keystore: Keystore, account: EthereumAccount) {
@@ -123,6 +127,8 @@ class VerifySeedPhraseViewController: UIViewController {
         clearChooseSeedPhraseButton.isHidden = true
         clearChooseSeedPhraseButton.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(clearChooseSeedPhraseButton)
+
+        continueButton.isEnabled = false
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
@@ -237,7 +243,6 @@ class VerifySeedPhraseViewController: UIViewController {
         clearChooseSeedPhraseButton.titleLabel?.adjustsFontSizeToFitWidth = true
 
         buttonsBar.configure()
-        let continueButton = buttonsBar.buttons[0]
         continueButton.setTitle(R.string.localizable.walletsVerifySeedPhraseTitle(), for: .normal)
         continueButton.addTarget(self, action: #selector(verify), for: .touchUpInside)
     }
@@ -246,6 +251,7 @@ class VerifySeedPhraseViewController: UIViewController {
         seedPhraseTextView.text = ""
         seedPhraseCollectionView.viewModel.clearSelectedWords()
         clearChooseSeedPhraseButton.isHidden = true
+        continueButton.isEnabled = false
         state = .editingSeedPhrase(words: state.words)
     }
 
@@ -302,7 +308,7 @@ extension VerifySeedPhraseViewController: UITextViewDelegate {
 }
 
 extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
-    func didTap(word: String, atIndex index: Int, inCollectionView: SeedPhraseCollectionView) {
+    func didTap(word: String, atIndex index: Int, inCollectionView collectionView: SeedPhraseCollectionView) {
         if seedPhraseTextView.text.isEmpty {
             seedPhraseTextView.text += word
         } else {
@@ -310,5 +316,8 @@ extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
         }
         clearChooseSeedPhraseButton.isHidden = false
         clearError()
+        if collectionView.viewModel.isEveryWordSelected {
+            continueButton.isEnabled = true
+        }
     }
 }
