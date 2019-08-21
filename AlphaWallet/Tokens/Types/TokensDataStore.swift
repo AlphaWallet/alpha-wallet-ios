@@ -12,7 +12,7 @@ enum TokenError: Error {
 }
 
 protocol TokensDataStoreDelegate: class {
-    func didUpdate(result: ResultResult<TokensViewModel, TokenError>.t)
+    func didUpdate(result: ResultResult<TokensViewModel, TokenError>.t, refreshImmediately: Bool)
 }
 
 class TokensDataStore {
@@ -330,8 +330,8 @@ class TokensDataStore {
     }
 
     func refreshBalance() {
-        //TODO updateDelegate() is needed so the data (eg. tokens in Wallet tab when app launches) can appear immediately (by reading from the database) while updated data is downloaded. Thought it probably doesn't need to be called an additional everytime
-        updateDelegate()
+        //TODO updateDelegate() is needed so the data (eg. tokens in Wallet tab when app launches) can appear immediately (by reading from the database) while updated data is downloaded. Though it probably doesn't need to be called an additional time, every time. It is important to refresh immediately first, rather than be rate limited because we might be deleting (hiding) a token and the user should see the list of tokens refresh immediately
+        updateDelegate(refreshImmediately: true)
         guard !enabledObject.isEmpty else {
             return
         }
@@ -471,12 +471,12 @@ class TokensDataStore {
         }
     }
 
-    private func updateDelegate() {
+    private func updateDelegate(refreshImmediately: Bool = false) {
         tokensModel.value = enabledObject
         var tickersForThisServer = [RPCServer: [AlphaWallet.Address: CoinTicker]]()
         tickersForThisServer[server] = tickers
         let tokensViewModel = TokensViewModel(tokens: enabledObject, tickers: tickersForThisServer)
-        delegate?.didUpdate(result: .success( tokensViewModel ))
+        delegate?.didUpdate(result: .success( tokensViewModel ), refreshImmediately: refreshImmediately)
     }
 
     func coinTicker(for token: TokenObject) -> CoinTicker? {
