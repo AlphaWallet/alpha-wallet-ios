@@ -63,7 +63,7 @@ class TokenScriptSignatureVerifier {
                         completion("failed")
                     }
                 }
-            case .failure(let _):
+            case .failure:
                 completion("failed")
             }
         })

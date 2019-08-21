@@ -90,7 +90,7 @@ class SecureEnclave {
             throw Error.encryptionNotSupported(algorithm: algorithm)
         }
         var error: Unmanaged<CFError>?
-        guard let cipherTextData = SecKeyCreateEncryptedData(publicKey, algorithm, plainTextData as CFData, &error) as? Data else {
+        guard let cipherTextData = SecKeyCreateEncryptedData(publicKey, algorithm, plainTextData as CFData, &error) as Data? else {
             throw Error.cannotEncrypt
         }
         return cipherTextData
@@ -175,6 +175,6 @@ class SecureEnclave {
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
             kSecAttrApplicationTag as String: tagData(fromName: name)
         ]
-        let status = SecItemDelete(params as CFDictionary)
+        let _ = SecItemDelete(params as CFDictionary)
     }
 }

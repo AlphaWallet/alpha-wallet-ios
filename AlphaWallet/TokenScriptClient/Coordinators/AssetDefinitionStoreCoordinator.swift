@@ -125,7 +125,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
         switch XMLHandler.checkTokenScriptSchema(forPath: url) {
         case .supportedTokenScriptVersion:
             isTokenScriptOrXml = true
-        case .unsupportedTokenScriptVersion(let isOld):
+        case .unsupportedTokenScriptVersion:
             try? FileManager.default.removeItem(at: url)
             delegate?.show(error: SchemaCheckError(msg: R.string.localizable.tokenScriptNotSupportedSchemaError()), for: self)
             return true
