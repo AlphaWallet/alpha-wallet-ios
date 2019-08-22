@@ -38,10 +38,7 @@ class SettingsCoordinatorTests: XCTestCase {
             func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {}
         }
 
-        var deleteDelegateMethodCalled = false
-
         let storage = FakeTransactionsStorage()
-        var sessions = ServerDictionary<WalletSession>()
         let promptBackupCoordinator = PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make())
         let coordinator = SettingsCoordinator(
             navigationController: FakeNavigationController(),

@@ -80,7 +80,7 @@ class GetENSAddressCoordinator {
                         } else {
                             completion(.failure(AnyError(Web3Error(description: "Incorrect data output from ENS resolver"))))
                         }
-                    }
+                    }.cauterize()
 
                 }
             } else {

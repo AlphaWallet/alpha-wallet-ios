@@ -51,7 +51,7 @@ public class MarketQueueHandler {
         let message = Data(base64Encoded: orderString)!.hex()
         let price = message.substring(to: 64)
         let expiry = message.substring(with: Range(uncheckedBounds: (64, 128)))
-        let contract = "0x" + message.substring(with: Range(uncheckedBounds: (128, 168)))
+        let _ = "0x" + message.substring(with: Range(uncheckedBounds: (128, 168)))
         guard let contractAddress = AlphaWallet.Address(uncheckedAgainstNullAddress: contractAddress) else { return nil }
         let indices = message.substring(from: 168)
         let order = Order(

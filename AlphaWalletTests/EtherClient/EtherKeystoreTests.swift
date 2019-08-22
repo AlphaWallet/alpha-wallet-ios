@@ -18,7 +18,7 @@ class EtherKeystoreTests: XCTestCase {
 
     func testCreateWallet() {
         let keystore = FakeEtherKeystore()
-        let account = keystore.createAccount()
+        let _ = keystore.createAccount()
         XCTAssertEqual(1, keystore.wallets.count)
     }
 
@@ -78,8 +78,6 @@ class EtherKeystoreTests: XCTestCase {
 
     func testExportHdWalletToSeedPhrase() {
         let keystore = FakeEtherKeystore()
-        let password = "test"
-
         let result = keystore.createAccount()
         let account = try! result.dematerialize()
         let expectation = self.expectation(description: "completion block called")
