@@ -189,6 +189,10 @@ class AssetDefinitionStore {
     func forEachContractWithXML(_ body: (AlphaWallet.Address) -> Void) {
         backingStore.forEachContractWithXML(body)
     }
+
+    func invalidateSignatureStatus(forContract contract: AlphaWallet.Address) {
+        subscribers.forEach { $0(contract) }
+    }
 }
 
 extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
