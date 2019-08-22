@@ -169,9 +169,9 @@ struct FunctionOrigin {
         return Promise { seal in
             sendTransactionCoordinator.send(transaction: transactionToSign) { result in
                 switch result {
-                case .success(let res):
+                case .success:
                     seal.fulfill(Void())
-                case .failure(let error):
+                case .failure:
                     seal.reject(FunctionError.postTransaction)
                 }
             }

@@ -46,7 +46,7 @@ class VerifySeedPhraseViewController: UIViewController {
                 errorLabel.textColor = viewModel.noErrorColor
                 seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderNormalColor
                 delegate?.didVerifySeedPhraseSuccessfully(for: account, in: self)
-            case .seedPhraseNotMatched(let words):
+            case .seedPhraseNotMatched:
                 errorLabel.text = R.string.localizable.walletsVerifySeedPhraseWrong()
                 errorLabel.textColor = viewModel.errorColor
                 seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderErrorColor
@@ -73,7 +73,7 @@ class VerifySeedPhraseViewController: UIViewController {
             return false
         case .seedPhraseNotMatched:
             return false
-        case .keystoreError(let error):
+        case .keystoreError:
             return false
         case .notDisplayedSeedPhrase:
             return true

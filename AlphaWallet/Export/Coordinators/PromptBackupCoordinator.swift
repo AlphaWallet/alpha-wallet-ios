@@ -108,10 +108,10 @@ class PromptBackupCoordinator: Coordinator {
                 if let nativeCryptoCurrencyToken = viewModel.nativeCryptoCurrencyToken(forServer: .main) {
                     let dollarValue = viewModel.amount(for: nativeCryptoCurrencyToken)
                     if !dollarValue.isZero {
-                        self?.showCreateBackupAfterExceedThresholdPrompt(valueInUsd: dollarValue)
+                        strongSelf.showCreateBackupAfterExceedThresholdPrompt(valueInUsd: dollarValue)
                     }
                 }
-            case .failure(let error):
+            case .failure:
                 break
             }
         }
@@ -250,8 +250,8 @@ class PromptBackupCoordinator: Coordinator {
     func markWalletAsImported() {
         updateState { state in
             state.prompt[wallet.address] = nil
-            if let backupState = state.backupState[wallet.address] {
-                state.backupState[wallet.address]?.isImported = true
+            if var backupState = state.backupState[wallet.address] {
+                backupState.isImported = true
             } else {
                 state.backupState[wallet.address] = .init(shownNativeCryptoCurrencyReceivedPrompt: false, timeToShowIntervalPassedPrompt: nil, shownNativeCryptoCurrencyDollarValueExceedThresholdPrompt: false, lastBackedUpTime: nil, isImported: true)
             }
@@ -291,11 +291,7 @@ class PromptBackupCoordinator: Coordinator {
     }
 
     private var isBackedUp: Bool {
-        if let backedUpTime = readState()?.backupState[wallet.address]?.lastBackedUpTime {
-            return true
-        } else {
-            return false
-        }
+        return readState()?.backupState[wallet.address]?.lastBackedUpTime != nil
     }
 
     private var isImported: Bool {
