@@ -77,6 +77,7 @@ class TokensViewModel {
 
     func canDelete(for row: Int, section: Int) -> Bool {
         let token = item(for: row, section: section)
+        guard !token.isInvalidated else { return false }
         if token.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
             return false
         }

@@ -279,7 +279,7 @@ private class PrivateXMLHandler {
                 self.hasValidTokenScriptFile = hasValidTokenScriptFile
                 self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: self.xmlContext, matchingContract: contract)
                 self.assetDefinitionStore?.invalidateSignatureStatus(forContract: self.contractAddress)
-            }
+            }.cauterize()
         }
     }
 

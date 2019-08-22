@@ -25,7 +25,7 @@ extension VerifiableStatusViewController where Self: UIViewController {
             }
             statusPromise?.done { _ in
                 self.updateNavigationRightBarButtons(withTokenScriptFileStatus: statusPromise, hasShowInfoButton: hasShowInfoButton)
-            }
+            }.cauterize()
             return
         }
         let button = createTokenScriptFileStatusButton(withStatus: status, urlOpener: self)
@@ -45,7 +45,7 @@ extension VerifiableStatusViewController where Self: UIViewController {
             } else {
                 navigationItem.rightBarButtonItems = [verificationStatusBar]
             }
-        case .type2BadTokenScript(_, let message, _):
+        case .type2BadTokenScript:
             navigationItem.rightBarButtonItems = [verificationStatusBar]
         }
     }
@@ -81,7 +81,7 @@ func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptD
     switch status {
     case .type0NoTokenScript:
         return button
-    case .type1GoodTokenScriptSignatureGoodOrOptional(let isDebugMode, let isSigned, let domain, let rawMessage):
+    case .type1GoodTokenScriptSignatureGoodOrOptional(let isDebugMode, _, let domain, let rawMessage):
         let message: String
         if let domain = domain {
             button.handler = { urlOpener in

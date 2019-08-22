@@ -90,10 +90,9 @@ class SettingsViewController: FormViewController {
         }
 
         switch account.type {
-        case .real(let account):
+        case .real:
             firstSection
-            <<< AppFormAppearance.alphaWalletSettingsButton { [weak self] in
-                guard let strongSelf = self else { return }
+            <<< AppFormAppearance.alphaWalletSettingsButton {
                 $0.title = R.string.localizable.settingsBackupWalletButtonTitle()
             }.onCellSelection { [unowned self] _, _ in
                 self.delegate?.didAction(action: .backupWallet, in: self)

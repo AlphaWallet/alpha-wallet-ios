@@ -82,7 +82,7 @@ class TokenViewController: UIViewController {
             if tokenScriptStatusPromise.isPending {
                 tokenScriptStatusPromise.done { _ in
                     self.configure(viewModel: viewModel)
-                }
+                }.cauterize()
             }
             header.tokenScriptFileStatus = tokenScriptStatusPromise.value
         } else {
