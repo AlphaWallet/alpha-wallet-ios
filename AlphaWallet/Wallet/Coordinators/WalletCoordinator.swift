@@ -105,7 +105,7 @@ class WalletCoordinator: Coordinator {
         let coordinator = WalletCoordinator(config: config, keystore: keystore)
         coordinator.delegate = self
         addCoordinator(coordinator)
-        let showUI = coordinator.start(entryPoint)
+        let _ = coordinator.start(entryPoint)
         navigationController.present(coordinator.navigationController, animated: true, completion: nil)
     }
 

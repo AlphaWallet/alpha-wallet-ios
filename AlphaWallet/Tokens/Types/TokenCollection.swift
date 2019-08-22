@@ -29,7 +29,12 @@ class TokenCollection {
 }
 
 extension TokenCollection: TokensDataStoreDelegate {
-    func didUpdate(result: Result<TokensViewModel, TokenError>) {
+    func didUpdate(result: Result<TokensViewModel, TokenError>, refreshImmediately: Bool = false) {
+        if refreshImmediately {
+            notifySubscribersOfUpdatedTokens()
+            return
+        }
+
         //The first time, we notify the subscribers and hence load the data in the UI immediately, otherwise the list of tokens in the Wallet tab will be empty for a few seconds after launch
         if rateLimitedUpdater == nil {
             rateLimitedUpdater = RateLimiter(limit: 2) { [weak self] in

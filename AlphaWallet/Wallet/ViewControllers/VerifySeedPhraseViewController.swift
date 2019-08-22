@@ -46,7 +46,7 @@ class VerifySeedPhraseViewController: UIViewController {
                 errorLabel.textColor = viewModel.noErrorColor
                 seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderNormalColor
                 delegate?.didVerifySeedPhraseSuccessfully(for: account, in: self)
-            case .seedPhraseNotMatched(let words):
+            case .seedPhraseNotMatched:
                 errorLabel.text = R.string.localizable.walletsVerifySeedPhraseWrong()
                 errorLabel.textColor = viewModel.errorColor
                 seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderErrorColor
@@ -73,7 +73,7 @@ class VerifySeedPhraseViewController: UIViewController {
             return false
         case .seedPhraseNotMatched:
             return false
-        case .keystoreError(let error):
+        case .keystoreError:
             return false
         case .notDisplayedSeedPhrase:
             return true
@@ -89,6 +89,10 @@ class VerifySeedPhraseViewController: UIViewController {
     //4. app becomes active
     //Without this flag, we will be removing the seed in (3) and trying to read it in (4) again and triggering (1), thus going into an infinite loop of reading
     private var isInactiveBecauseWeAccessingBiometrics = false
+
+    private var continueButton: UIButton {
+        return buttonsBar.buttons[0]
+    }
 
     weak var delegate: VerifySeedPhraseViewControllerDelegate?
 
@@ -123,6 +127,8 @@ class VerifySeedPhraseViewController: UIViewController {
         clearChooseSeedPhraseButton.isHidden = true
         clearChooseSeedPhraseButton.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(clearChooseSeedPhraseButton)
+
+        continueButton.isEnabled = false
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
@@ -237,7 +243,6 @@ class VerifySeedPhraseViewController: UIViewController {
         clearChooseSeedPhraseButton.titleLabel?.adjustsFontSizeToFitWidth = true
 
         buttonsBar.configure()
-        let continueButton = buttonsBar.buttons[0]
         continueButton.setTitle(R.string.localizable.walletsVerifySeedPhraseTitle(), for: .normal)
         continueButton.addTarget(self, action: #selector(verify), for: .touchUpInside)
     }
@@ -246,6 +251,7 @@ class VerifySeedPhraseViewController: UIViewController {
         seedPhraseTextView.text = ""
         seedPhraseCollectionView.viewModel.clearSelectedWords()
         clearChooseSeedPhraseButton.isHidden = true
+        continueButton.isEnabled = false
         state = .editingSeedPhrase(words: state.words)
     }
 
@@ -302,7 +308,7 @@ extension VerifySeedPhraseViewController: UITextViewDelegate {
 }
 
 extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
-    func didTap(word: String, atIndex index: Int, inCollectionView: SeedPhraseCollectionView) {
+    func didTap(word: String, atIndex index: Int, inCollectionView collectionView: SeedPhraseCollectionView) {
         if seedPhraseTextView.text.isEmpty {
             seedPhraseTextView.text += word
         } else {
@@ -310,5 +316,8 @@ extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
         }
         clearChooseSeedPhraseButton.isHidden = false
         clearError()
+        if collectionView.viewModel.isEveryWordSelected {
+            continueButton.isEnabled = true
+        }
     }
 }

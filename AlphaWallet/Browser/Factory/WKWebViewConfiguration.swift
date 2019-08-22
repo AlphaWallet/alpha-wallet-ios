@@ -11,7 +11,7 @@ enum WebViewType {
 
 extension WKWebViewConfiguration {
 
-    static func make(forType type: WebViewType, server server: RPCServer, address: AlphaWallet.Address, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
+    static func make(forType type: WebViewType, server: RPCServer, address: AlphaWallet.Address, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
         let webViewConfig = WKWebViewConfiguration()
         var js = ""
 
@@ -73,7 +73,7 @@ extension WKWebViewConfiguration {
         return webViewConfig
     }
 
-    fileprivate static func javaScriptForDappBrowser(server server: RPCServer, address: AlphaWallet.Address) -> String {
+    fileprivate static func javaScriptForDappBrowser(server: RPCServer, address: AlphaWallet.Address) -> String {
         return """
                //Space is needed here because it is sometimes cut off by websites. 
                
@@ -142,7 +142,7 @@ extension WKWebViewConfiguration {
              """
     }
 
-    fileprivate static func javaScriptForTokenScriptRenderer(server server: RPCServer, address: AlphaWallet.Address) -> String {
+    fileprivate static func javaScriptForTokenScriptRenderer(server: RPCServer, address: AlphaWallet.Address) -> String {
         return """
                window.web3CallBacks = {}
 
@@ -205,7 +205,7 @@ extension WKWebViewConfiguration {
 @available(iOS 11.0, *)
 extension WKWebViewConfiguration: WKURLSchemeHandler {
     public func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
-        if let path = urlSchemeTask.request.url?.path {
+        if urlSchemeTask.request.url?.path != nil {
             if let fileExtension = urlSchemeTask.request.url?.pathExtension, fileExtension == "otf", let nameWithoutExtension = urlSchemeTask.request.url?.deletingPathExtension().lastPathComponent {
                 //TODO maybe good to fail with didFailWithError(error:)
                 guard let url = Bundle.main.url(forResource: nameWithoutExtension, withExtension: fileExtension) else { return }

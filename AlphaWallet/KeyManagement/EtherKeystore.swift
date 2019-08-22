@@ -274,7 +274,7 @@ open class EtherKeystore: Keystore {
         switch result {
         case .success(let wallet):
             return .success(.init(address: wallet.address))
-        case .failure(let error):
+        case .failure:
             return .failure(.failedToCreateWallet)
         }
     }
@@ -583,7 +583,7 @@ open class EtherKeystore: Keystore {
                 //Not possible
                 break
             case .key(let keyWithoutUserPresence):
-                savePrivateKeyForNonHdWallet(keyWithoutUserPresence, forAccount: account, withUserPresence: true)
+                let _ = savePrivateKeyForNonHdWallet(keyWithoutUserPresence, forAccount: account, withUserPresence: true)
             case .userCancelled, .notFound, .otherFailure:
                 break
             }
@@ -631,7 +631,7 @@ open class EtherKeystore: Keystore {
         if data == nil && withUserPresence && shouldWriteWithUserPresenceIfNotFound && keychain.isDataNotFoundForLastAccess {
             switch getSeedForHdWallet(forAccount: account, prompt: prompt, withUserPresence: false, shouldWriteWithUserPresenceIfNotFound: false) {
             case .seed(let seedWithoutUserPresence):
-                saveSeedForHdWallet(seedWithoutUserPresence, forAccount: account, withUserPresence: true)
+                let _ = saveSeedForHdWallet(seedWithoutUserPresence, forAccount: account, withUserPresence: true)
             case .key, .seedPhrase:
                 //Not possible
                 break

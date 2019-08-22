@@ -36,7 +36,6 @@ class LegacyFileBasedKeystore {
     }
 
     func getPrivateKeyFromKeystoreFile(json: String, password: String) -> Result<Data, KeystoreError> {
-        let newPassword = PasswordGenerator.generateRandom()
         guard let data = json.data(using: .utf8) else { return .failure(.failedToDecryptKey) }
         guard let key = try? JSONDecoder().decode(KeystoreKey.self, from: data) else { return .failure(.failedToImportPrivateKey) }
         guard let privateKey = try? key.decrypt(password: password) else { return .failure(.failedToDecryptKey) }
@@ -51,7 +50,7 @@ class LegacyFileBasedKeystore {
             } else {
                 return .failure(.failedToExportPrivateKey)
             }
-        case .failure(let error):
+        case .failure:
             return .failure(.failedToExportPrivateKey)
         }
     }
@@ -79,7 +78,7 @@ class LegacyFileBasedKeystore {
             } catch {
                 return .failure(.failedToDeleteAccount)
             }
-        case .watch(let address):
+        case .watch:
             return .success(())
         }
     }

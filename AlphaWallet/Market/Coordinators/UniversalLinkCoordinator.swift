@@ -109,9 +109,6 @@ class UniversalLinkCoordinator: Coordinator {
             signedOrder: SignedOrder,
             isForTransfer: Bool
     ) -> Parameters {
-        // form the json string out of the order for the paymaster server
-        // James S. wrote
-        let keystore = try! EtherKeystore()
         let signature = signedOrder.signature.drop0x
         let indices = signedOrder.order.indices
         let indicesStringEncoded = stringEncodeIndices(indices)
@@ -474,7 +471,7 @@ class UniversalLinkCoordinator: Coordinator {
                     when(fulfilled: getContractName, getContractSymbol)
                 }.done { name, symbol in
                     makeTokenHolder(name: name, symbol: symbol)
-                }
+                }.cauterize()
             }
         }
     }

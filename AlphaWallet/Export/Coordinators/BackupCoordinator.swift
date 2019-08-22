@@ -85,7 +85,7 @@ class BackupCoordinator: Coordinator {
             switch result {
             case .success(let isBackedUp):
                 if isBackedUp {
-                    self?.promptElevateSecurityOrEnd()
+                    strongSelf.promptElevateSecurityOrEnd()
                 }
             case .failure:
                 break
