@@ -24,10 +24,7 @@ class SeedPhraseCell: UICollectionViewCell {
             sequenceLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 4),
             sequenceLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 2),
 
-            label.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: horizontalMargin),
-            label.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -horizontalMargin),
-            label.topAnchor.constraint(equalTo: contentView.topAnchor, constant: verticalMargin),
-            label.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -verticalMargin),
+            label.anchorsConstraint(to: contentView, edgeInsets: .init(top: verticalMargin, left: horizontalMargin, bottom: verticalMargin, right: horizontalMargin)),
         ])
     }
 

@@ -257,10 +257,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
         ]
 
         NSLayoutConstraint.activate([
-            mainVerticalStackView.leadingAnchor.constraint(equalTo: background.leadingAnchor),
-            mainVerticalStackView.trailingAnchor.constraint(equalTo: background.trailingAnchor),
-            mainVerticalStackView.topAnchor.constraint(equalTo: background.topAnchor, constant: marginForBigImageView),
-            mainVerticalStackView.bottomAnchor.constraint(equalTo: background.bottomAnchor),
+            mainVerticalStackView.anchorsConstraint(to: background, edgeInsets: .init(top: marginForBigImageView, left: 0, bottom: 0, right: 0)),
 
             background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
             background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
@@ -287,11 +284,11 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             statsCollectionViewHeightConstraint,
 
             descriptionLabel.widthAnchor.constraint(equalTo: col0.widthAnchor),
-        ] +
-                bigImageViewRelatedConstraintsWithPositiveBleed +
-                bigImageViewRelatedConstraintsWithNegativeBleed +
-                thumbnailRelatedConstraints
-        )
+
+            bigImageViewRelatedConstraintsWithPositiveBleed,
+            bigImageViewRelatedConstraintsWithNegativeBleed,
+            thumbnailRelatedConstraints,
+        ])
 
         viewsVisibleWhenDetailsAreNotVisibleImagesAvailable = [
             spacers.aboveTitle,

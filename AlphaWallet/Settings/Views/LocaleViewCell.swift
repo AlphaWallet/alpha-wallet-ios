@@ -36,15 +36,8 @@ class LocaleViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             selectedIcon.widthAnchor.constraint(equalToConstant: 44),
 
-            stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: StyleLayout.sideMargin),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
-            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -StyleLayout.sideMargin),
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin),
-
-            background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
-            background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-            background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-            background.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -yMargin),
+            stackView.anchorsConstraint(to: background, margin: StyleLayout.sideMargin),
+            background.anchorsConstraint(to: self, edgeInsets: .init(top: yMargin, left: xMargin, bottom: yMargin, right: xMargin)),
         ])
     }
 

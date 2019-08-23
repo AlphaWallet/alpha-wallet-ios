@@ -54,16 +54,15 @@ class TokenViewController: UIViewController {
             header.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             header.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
 
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: roundedBackground.bottomAnchor),
+            tableView.anchorsConstraint(to: roundedBackground),
 
             buttonsBar.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
             buttonsBar.bottomAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.marginAtBottomScreen),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+
+            roundedBackground.createConstraintsWithContainer(view: view),
+        ])
     }
 
     required init?(coder aDecoder: NSCoder) {

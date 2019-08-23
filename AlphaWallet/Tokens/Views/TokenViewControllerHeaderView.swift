@@ -55,10 +55,7 @@ class TokenViewControllerHeaderView: UIView {
         NSLayoutConstraint.activate([
             border.heightAnchor.constraint(equalToConstant: 1),
 
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 30),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -30),
-            stackView.topAnchor.constraint(equalTo: topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 30, bottom: 0, right: 30)),
         ])
 
         configure()

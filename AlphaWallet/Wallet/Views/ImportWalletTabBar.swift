@@ -75,11 +75,8 @@ class ImportWalletTabBar: UIView {
             keystoreButton.widthAnchor.constraint(equalTo: privateKeyButton.widthAnchor),
 			keystoreButton.widthAnchor.constraint(equalTo: watchButton.widthAnchor),
 
-			fullWidthBar.leadingAnchor.constraint(equalTo: leadingAnchor),
-			fullWidthBar.trailingAnchor.constraint(equalTo: trailingAnchor),
 			barHeightConstraint,
-			fullWidthBar.topAnchor.constraint(equalTo: topAnchor),
-			fullWidthBar.bottomAnchor.constraint(equalTo: bottomAnchor),
+			fullWidthBar.anchorsConstraint(to: self),
 
 			tabHighlightView.topAnchor.constraint(equalTo: fullWidthBar.topAnchor),
 			tabHighlightView.bottomAnchor.constraint(equalTo: fullWidthBar.bottomAnchor, constant: 20),

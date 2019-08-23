@@ -35,21 +35,7 @@ open class AlphaWalletSwitchCell: Cell<Bool>, CellType {
         let xMargin  = CGFloat(7)
         let yMargin  = CGFloat(4)
         NSLayoutConstraint.activate([
-//            mainLabel.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
-//            mainLabel.trailingAnchor.constraint(equalTo: subLabel.leadingAnchor, constant: -10),
-//            mainLabel.centerYAnchor.constraint(equalTo: background.centerYAnchor),
-//            mainLabel.topAnchor.constraint(equalTo: background.topAnchor, constant: 18),
-//            mainLabel.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -18),
-
-//            subLabel.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -18),
-//            subLabel.centerYAnchor.constraint(equalTo: background.centerYAnchor),
-//            subLabel.topAnchor.constraint(equalTo: background.topAnchor, constant: 18),
-//            subLabel.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -18),
-
-            background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
-            background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-            background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-            background.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -yMargin),
+            background.anchorsConstraint(to: self, edgeInsets: .init(top: yMargin, left: xMargin, bottom: yMargin, right: xMargin))
         ])
     }
 
