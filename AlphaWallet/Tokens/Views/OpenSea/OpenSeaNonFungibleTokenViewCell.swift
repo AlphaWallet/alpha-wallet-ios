@@ -33,22 +33,13 @@ class OpenSeaNonFungibleTokenViewCell: UICollectionViewCell {
         let yMargin = CGFloat(0)
         let imageViewBleed = CGFloat(12)
         NSLayoutConstraint.activate([
-            background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: xMargin),
-            background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -xMargin),
-            background.topAnchor.constraint(equalTo: contentView.topAnchor, constant: yMargin),
-            background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -yMargin),
+            background.anchorsConstraint(to: contentView, edgeInsets: .init(top: yMargin, left: xMargin, bottom: yMargin, right: xMargin)),
 
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: background.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor),
+            stackView.anchorsConstraint(to: background),
 
             imageHolder.widthAnchor.constraint(equalTo: imageHolder.heightAnchor),
 
-            imageView.leadingAnchor.constraint(equalTo: imageHolder.leadingAnchor, constant: -imageViewBleed),
-            imageView.trailingAnchor.constraint(equalTo: imageHolder.trailingAnchor, constant: imageViewBleed),
-            imageView.topAnchor.constraint(equalTo: imageHolder.topAnchor, constant: -imageViewBleed),
-            imageView.bottomAnchor.constraint(equalTo: imageHolder.bottomAnchor, constant: imageViewBleed),
+            imageView.anchorsConstraint(to: imageHolder, margin: imageViewBleed),
         ])
     }
 

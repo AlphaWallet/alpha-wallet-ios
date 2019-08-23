@@ -68,10 +68,7 @@ class TextView: UIControl {
         addSubview(textView)
 
         NSLayoutConstraint.activate([
-            textView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            textView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            textView.topAnchor.constraint(equalTo: topAnchor),
-            textView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            textView.anchorsConstraint(to: self),
         ])
     }
 

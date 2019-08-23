@@ -30,10 +30,7 @@ class TimeEntryField: UIControl {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.anchorsConstraint(to: self),
         ])
 
         configure()

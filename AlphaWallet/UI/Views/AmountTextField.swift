@@ -118,10 +118,7 @@ class AmountTextField: UIControl {
         computeAlternateAmount()
 
         NSLayoutConstraint.activate([
-            textField.leadingAnchor.constraint(equalTo: leadingAnchor),
-            textField.trailingAnchor.constraint(equalTo: trailingAnchor),
-            textField.topAnchor.constraint(equalTo: topAnchor),
-            textField.bottomAnchor.constraint(equalTo: bottomAnchor),
+            textField.anchorsConstraint(to: self),
         ])
     }
 

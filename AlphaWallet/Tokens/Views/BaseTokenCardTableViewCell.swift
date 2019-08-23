@@ -56,10 +56,7 @@ class BaseTokenCardTableViewCell: UITableViewCell {
         contentView.addSubview(rowView)
 
         NSLayoutConstraint.activate([
-            rowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            rowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            rowView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            rowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            rowView.anchorsConstraint(to: contentView),
         ])
     }
 }

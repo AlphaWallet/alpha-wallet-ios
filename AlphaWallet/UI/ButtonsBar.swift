@@ -44,10 +44,7 @@ class ButtonsBar: UIView {
 
         let margin = CGFloat(20)
         NSLayoutConstraint.activate([
-            buttonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: margin),
-            buttonsStackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -margin),
-            buttonsStackView.topAnchor.constraint(equalTo: topAnchor),
-            buttonsStackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            buttonsStackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: margin, bottom: 0, right: margin)),
         ])
     }
 

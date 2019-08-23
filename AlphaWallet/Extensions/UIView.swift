@@ -4,13 +4,17 @@ import Foundation
 import UIKit
 
 extension UIView {
-    func anchor(to view: UIView, margin: CGFloat = 0) {
-        NSLayoutConstraint.activate([
-            topAnchor.constraint(equalTo: view.topAnchor, constant: margin),
-            trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin),
-            bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -margin),
-            leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin),
-        ])
+    func anchorsConstraint(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
+        return [
+            leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: edgeInsets.left),
+            trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -edgeInsets.right),
+            topAnchor.constraint(equalTo: view.topAnchor, constant: edgeInsets.top),
+            bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -edgeInsets.bottom),
+        ]
+    }
+
+    func anchorsConstraint(to view: UIView, margin: CGFloat) -> [NSLayoutConstraint] {
+        return anchorsConstraint(to: view, edgeInsets: .init(top: margin, left: margin, bottom: margin, right: margin))
     }
 
     var layoutGuide: UILayoutGuide {

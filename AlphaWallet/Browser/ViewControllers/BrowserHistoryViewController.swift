@@ -41,10 +41,7 @@ final class BrowserHistoryViewController: UIViewController {
         }()
 
         NSLayoutConstraint.activate([
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.anchorsConstraint(to: view),
         ])
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)

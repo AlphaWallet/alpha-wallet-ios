@@ -71,10 +71,7 @@ class CreateInitialWalletViewController: UIViewController {
         NSLayoutConstraint.activate([
             imageView.heightAnchor.constraint(equalToConstant: imageViewDimension),
 
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            stackView.topAnchor.constraint(equalTo: view.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+            stackView.anchorsConstraint(to: view, edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20)),
 
             createWalletButtonBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
 
@@ -87,7 +84,9 @@ class CreateInitialWalletViewController: UIViewController {
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+
+            roundedBackground.createConstraintsWithContainer(view: view),
+        ])
     }
 
     required init?(coder aDecoder: NSCoder) {

@@ -107,15 +107,14 @@ class RequestViewController: UIViewController {
 			addressContainerTrailingAnchorConstraint,
 
 			//Leading/trailing anchor needed to make label fit when on narrow iPhones
-			addressLabel.leadingAnchor.constraint(greaterThanOrEqualTo: addressContainerView.leadingAnchor, constant: 10),
-			addressLabel.trailingAnchor.constraint(lessThanOrEqualTo: addressContainerView.trailingAnchor, constant: -10),
 			addressLabel.centerXAnchor.constraint(lessThanOrEqualTo: addressContainerView.centerXAnchor),
-			addressLabel.topAnchor.constraint(equalTo: addressContainerView.topAnchor, constant: 20),
-			addressLabel.bottomAnchor.constraint(equalTo: addressContainerView.bottomAnchor, constant: -20),
+			addressLabel.anchorsConstraint(to: addressContainerView, edgeInsets: .init(top: 20, left: 10, bottom: 20, right: 10)),
 
 			imageView.widthAnchor.constraint(equalToConstant: 260),
 			imageView.heightAnchor.constraint(equalToConstant: 260),
-		] + roundedBackground.createConstraintsWithContainer(view: view))
+
+			roundedBackground.createConstraintsWithContainer(view: view),
+		])
 
 		changeQRCode(value: 0)
 	}

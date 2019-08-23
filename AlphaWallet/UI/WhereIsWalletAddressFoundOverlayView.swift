@@ -29,10 +29,7 @@ class WhereIsWalletAddressFoundOverlayView: UIView {
         addSubview(dialog)
 
         NSLayoutConstraint.activate([
-            blurView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            blurView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            blurView.topAnchor.constraint(equalTo: topAnchor),
-            blurView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            blurView.anchorsConstraint(to: self),
 
             dialog.rightAnchor.constraint(equalTo: rightAnchor, constant: -20),
             dialog.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -120),
@@ -112,10 +109,7 @@ fileprivate class Dialog: UIView {
             widthAnchor.constraint(equalToConstant: 300),
             heightAnchor.constraint(equalToConstant: 250),
 
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -20),
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 30),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -30),
+            stackView.anchorsConstraint(to: self, edgeInsets: .init(top: 30, left: 20, bottom: 30, right: 20)),
         ])
     }
 

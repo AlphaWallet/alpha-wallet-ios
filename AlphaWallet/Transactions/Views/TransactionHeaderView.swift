@@ -22,7 +22,13 @@ class TransactionHeaderView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
 
-        stackView.anchor(to: self, margin: 15)
+        let margin = CGFloat(15)
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: topAnchor, constant: margin),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -margin),
+            stackView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -margin),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: margin),
+        ])
     }
 
     required init?(coder aDecoder: NSCoder) {

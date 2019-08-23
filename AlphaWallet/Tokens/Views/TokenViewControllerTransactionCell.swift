@@ -35,10 +35,7 @@ class TokenViewControllerTransactionCell: UITableViewCell {
             typeImageView.widthAnchor.constraint(equalToConstant: 12),
             typeImageView.widthAnchor.constraint(equalTo: typeImageView.heightAnchor),
 
-            mainStackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            mainStackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            mainStackView.topAnchor.constraint(equalTo: topAnchor),
-            mainStackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            mainStackView.anchorsConstraint(to: self),
         ])
     }
 
