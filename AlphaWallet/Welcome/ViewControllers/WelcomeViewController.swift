@@ -73,10 +73,7 @@ class WelcomeViewController: UIViewController {
         collectionViewController.view.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            collectionViewController.view.topAnchor.constraint(equalTo: view.topAnchor),
-            collectionViewController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            collectionViewController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            collectionViewController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            collectionViewController.view.anchorsConstraint(to: view),
 
             pageControl.centerYAnchor.constraint(equalTo: collectionViewController.view.centerYAnchor, constant: -120),
             pageControl.centerXAnchor.constraint(equalTo: view.centerXAnchor),

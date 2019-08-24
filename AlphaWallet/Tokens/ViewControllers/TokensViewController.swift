@@ -101,10 +101,7 @@ class TokensViewController: UIViewController {
                 promptBackupWalletView.translatesAutoresizingMaskIntoConstraints = false
                 promptBackupWalletViewHolder.addSubview(promptBackupWalletView)
                 NSLayoutConstraint.activate([
-                    promptBackupWalletView.leadingAnchor.constraint(equalTo: promptBackupWalletViewHolder.leadingAnchor, constant: 7),
-                    promptBackupWalletView.trailingAnchor.constraint(equalTo: promptBackupWalletViewHolder.trailingAnchor, constant: -7),
-                    promptBackupWalletView.topAnchor.constraint(equalTo: promptBackupWalletViewHolder.topAnchor, constant: 7),
-                    promptBackupWalletView.bottomAnchor.constraint(equalTo: promptBackupWalletViewHolder.bottomAnchor, constant: -4),
+                    promptBackupWalletView.anchorsConstraint(to: promptBackupWalletViewHolder, edgeInsets: .init(top: 7, left: 7, bottom: 4, right: 7)),
                 ])
 
                 isPromptBackupWalletViewHolderHidden = shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive
@@ -167,15 +164,8 @@ class TokensViewController: UIViewController {
         view.addSubview(collectiblesCollectionView)
 
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            tableView.leadingAnchor.constraint(equalTo: collectiblesCollectionView.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: collectiblesCollectionView.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: collectiblesCollectionView.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: collectiblesCollectionView.bottomAnchor),
+            tableView.anchorsConstraint(to: view),
+            tableView.anchorsConstraint(to: collectiblesCollectionView),
         ])
         errorView = ErrorView(onRetry: { [weak self] in
             self?.startLoading()

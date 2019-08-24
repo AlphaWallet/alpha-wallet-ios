@@ -19,10 +19,7 @@ extension TokensViewController {
                 addSubview(filterView)
 
                 NSLayoutConstraint.activate([
-                    filterView.leadingAnchor.constraint(equalTo: leadingAnchor),
-                    filterView.trailingAnchor.constraint(equalTo: trailingAnchor),
-                    filterView.topAnchor.constraint(equalTo: topAnchor),
-                    filterView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -7),
+                    filterView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 0, bottom: 7, right: 0)),
                 ])
             }
         }

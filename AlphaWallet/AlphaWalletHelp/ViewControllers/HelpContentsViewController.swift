@@ -17,10 +17,7 @@ class HelpContentsViewController: StaticHTMLViewController {
         footer.addSubview(banner)
 
         NSLayoutConstraint.activate([
-            banner.leadingAnchor.constraint(equalTo: footer.leadingAnchor),
-            banner.trailingAnchor.constraint(equalTo: footer.trailingAnchor),
-            banner.topAnchor.constraint(equalTo: footer.topAnchor),
-            banner.bottomAnchor.constraint(equalTo: footer.bottomAnchor),
+            banner.anchorsConstraint(to: footer)
         ])
 
         configure()

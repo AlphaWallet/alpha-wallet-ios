@@ -61,15 +61,9 @@ class TransactionViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             statusImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 26),
 
-            stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: StyleLayout.sideMargin),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
-            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -StyleLayout.sideMargin),
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin),
+            stackView.anchorsConstraint(to: background, margin: StyleLayout.sideMargin),
 
-            background.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: xMargin),
-            background.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -xMargin),
-            background.topAnchor.constraint(equalTo: contentView.topAnchor, constant: yMargin),
-            background.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -yMargin),
+            background.anchorsConstraint(to: contentView, edgeInsets: .init(top: yMargin, left: xMargin, bottom: yMargin, right: xMargin)),
         ])
     }
 

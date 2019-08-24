@@ -26,10 +26,7 @@ class WalletSecurityLevelIndicator: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -rightMargin),
-            stackView.topAnchor.constraint(equalTo: topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 0, bottom: 0, right: rightMargin)),
         ])
 
         configure()

@@ -39,10 +39,7 @@ class PassphraseView: UIView {
         collectionView.register(R.nib.wordCollectionViewCell)
 
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            collectionView.anchorsConstraint(to: self)
         ])
     }
 

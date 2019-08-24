@@ -33,10 +33,7 @@ class DiscoverDappsViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.anchorsConstraint(to: view)
         ])
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -147,10 +144,7 @@ private class SectionHeaderView: UIView {
         addSubview(label)
         label.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 31),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor),
-            label.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -10),
+            label.anchorsConstraint(to: self, edgeInsets: .init(top: 12, left: 31, bottom: 10, right: 0))
         ])
 
         configure()
