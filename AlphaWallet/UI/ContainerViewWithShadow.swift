@@ -15,10 +15,7 @@ class ContainerViewWithShadow<T: UIView>: UIView {
         addSubview(childView)
 
         NSLayoutConstraint.activate([
-            childView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            childView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            childView.topAnchor.constraint(equalTo: topAnchor),
-            childView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            childView.anchorsConstraint(to: self),
         ])
     }
 

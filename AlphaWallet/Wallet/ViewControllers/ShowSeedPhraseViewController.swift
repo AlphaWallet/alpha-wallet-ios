@@ -109,10 +109,7 @@ class ShowSeedPhraseViewController: UIViewController {
         footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            stackView.topAnchor.constraint(equalTo: view.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            stackView.anchorsConstraint(to: view, edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20)),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -123,7 +120,9 @@ class ShowSeedPhraseViewController: UIViewController {
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+
+            roundedBackground.createConstraintsWithContainer(view: view),
+        ])
 
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignsActive), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)

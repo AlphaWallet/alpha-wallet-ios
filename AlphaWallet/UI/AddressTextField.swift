@@ -68,10 +68,7 @@ class AddressTextField: UIControl {
         ensAddressLabel.textAlignment = .center
 
         NSLayoutConstraint.activate([
-            textField.leadingAnchor.constraint(equalTo: leadingAnchor),
-            textField.trailingAnchor.constraint(equalTo: trailingAnchor),
-            textField.topAnchor.constraint(equalTo: topAnchor),
-            textField.bottomAnchor.constraint(equalTo: bottomAnchor),
+            textField.anchorsConstraint(to: self),
             heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
         ])
     }

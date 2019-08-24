@@ -26,10 +26,7 @@ class SettingsHeaderView: UIView {
         addSubview(titleLabel)
 
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor),
-            titleLabel.topAnchor.constraint(equalTo: topAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            titleLabel.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 0)),
         ])
     }
 

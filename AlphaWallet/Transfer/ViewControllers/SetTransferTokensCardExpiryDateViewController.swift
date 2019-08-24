@@ -169,15 +169,9 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
             noteBorderView.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
             noteBorderView.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
 
-            noteStackView.leadingAnchor.constraint(equalTo: noteBorderView.leadingAnchor, constant: 10),
-            noteStackView.trailingAnchor.constraint(equalTo: noteBorderView.trailingAnchor, constant: -10),
-            noteStackView.topAnchor.constraint(equalTo: noteBorderView.topAnchor, constant: 10),
-            noteStackView.bottomAnchor.constraint(equalTo: noteBorderView.bottomAnchor, constant: -10),
+            noteStackView.anchorsConstraint(to: noteBorderView, margin: 10),
 
-            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            stackView.anchorsConstraint(to: scrollView),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -193,7 +187,9 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
-        ] + roundedBackground.createConstraintsWithContainer(view: view))
+
+            roundedBackground.createConstraintsWithContainer(view: view),
+        ])
     }
 
     required init?(coder aDecoder: NSCoder) {

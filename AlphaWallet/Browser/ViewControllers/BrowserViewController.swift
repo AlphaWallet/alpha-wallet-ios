@@ -80,20 +80,14 @@ final class BrowserViewController: UIViewController {
         view.addSubview(errorView)
 
         NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: view.topAnchor),
-            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            webView.anchorsConstraint(to: view),
 
             progressView.topAnchor.constraint(equalTo: view.layoutGuide.topAnchor),
             progressView.leadingAnchor.constraint(equalTo: webView.leadingAnchor),
             progressView.trailingAnchor.constraint(equalTo: webView.trailingAnchor),
             progressView.heightAnchor.constraint(equalToConstant: 2),
 
-            errorView.topAnchor.constraint(equalTo: webView.topAnchor),
-            errorView.leadingAnchor.constraint(equalTo: webView.leadingAnchor),
-            errorView.trailingAnchor.constraint(equalTo: webView.trailingAnchor),
-            errorView.bottomAnchor.constraint(equalTo: webView.bottomAnchor),
+            errorView.anchorsConstraint(to: webView),
         ])
         view.backgroundColor = .white
         webView.addObserver(self, forKeyPath: Keys.estimatedProgress, options: .new, context: &myContext)

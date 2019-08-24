@@ -69,10 +69,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
             header.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             header.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
 
-            visualEffectView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            visualEffectView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            visualEffectView.topAnchor.constraint(equalTo: view.topAnchor),
-            visualEffectView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            visualEffectView.anchorsConstraint(to: view),
 
             detailsBackground.leadingAnchor.constraint(equalTo: background.leadingAnchor),
             detailsBackground.trailingAnchor.constraint(equalTo: background.trailingAnchor),
@@ -82,10 +79,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
             actionButton.heightAnchor.constraint(equalToConstant: 47),
             cancelButton.heightAnchor.constraint(equalTo: actionButton.heightAnchor),
 
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 40),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -40),
-            stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
-            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -16),
+            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 40, bottom: 16, right: 40)),
 
             background.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 42),
             background.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -42),

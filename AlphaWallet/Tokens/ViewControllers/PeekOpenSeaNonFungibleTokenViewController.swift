@@ -25,10 +25,7 @@ class PeekOpenSeaNonFungibleTokenViewController: UIViewController {
             //Using trailingAnchor doesn't work correctly. The width width of the child is too narrow. So we use widthAnchor
             tokenRowView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.anchorsConstraint(to: view),
         ])
     }
 

@@ -48,11 +48,10 @@ class TokenInstanceWebView: UIView {
         webView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
 
         NSLayoutConstraint.activate([
-            webView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            webView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            webView.topAnchor.constraint(equalTo: topAnchor),
-            webView.bottomAnchor.constraint(equalTo: bottomAnchor),
-        ] +  [heightConstraint])
+            webView.anchorsConstraint(to: self),
+
+            heightConstraint,
+        ])
     }
 
     required init?(coder aDecoder: NSCoder) {

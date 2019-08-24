@@ -89,10 +89,8 @@ class TextField: UIControl {
         addSubview(textField)
 
         NSLayoutConstraint.activate([
-            textField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 22),
-            textField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -22),
-            textField.topAnchor.constraint(equalTo: topAnchor),
-            textField.bottomAnchor.constraint(equalTo: bottomAnchor),
+            textField.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 22, bottom: 0, right: 22)),
+
             heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
         ])
     }

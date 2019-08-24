@@ -89,10 +89,7 @@ class DappsHomeViewController: UIViewController {
         view.addSubview(dappsCollectionView)
 
         NSLayoutConstraint.activate([
-            dappsCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            dappsCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            dappsCollectionView.topAnchor.constraint(equalTo: view.topAnchor),
-            dappsCollectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            dappsCollectionView.anchorsConstraint(to: view)
         ])
         configure(viewModel: viewModel)
 

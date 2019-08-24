@@ -48,10 +48,7 @@ class BalanceTitleView: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.topAnchor.constraint(equalTo: topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.anchorsConstraint(to: self),
         ])
 
         stackView.addGestureRecognizer(
