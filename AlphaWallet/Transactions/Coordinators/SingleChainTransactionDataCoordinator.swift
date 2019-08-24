@@ -96,17 +96,30 @@ class SingleChainTransactionDataCoordinator: Coordinator {
     }
 
     private func update(items: [Transaction]) {
+        let transactionsToPullContractsFrom = filterTransactionsToPullContractsFrom(items)
+        storage.add(transactions: items, transactionsToPullContractsFrom: transactionsToPullContractsFrom)
+        delegate?.handleUpdateItems(inCoordinator: self)
+    }
+
+    private func filterTransactionsToPullContractsFrom(_ transactions: [Transaction]) -> [Transaction] {
         let alreadyAddedContracts = tokensStorage.enabledObject.map { $0.contractAddress }
         let deletedContracts = tokensStorage.deletedContracts.map { $0.contractAddress }
         let hiddenContracts = tokensStorage.hiddenContracts.map { $0.contractAddress }
         let delegateContracts = tokensStorage.delegateContracts.map { $0.contractAddress }
         let contractsToAvoid = alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts
-        let filteredTransactions = items.filter {
-            guard let addressToCheck = AlphaWallet.Address(string: $0.to) else { return false }
-            return !contractsToAvoid.contains(addressToCheck)
+        return transactions.filter {
+            if let toAddressToCheck = AlphaWallet.Address(string: $0.to) {
+                if contractsToAvoid.contains(toAddressToCheck) {
+                    return false
+                }
+            }
+            if let contractAddressToCheck = $0.operation?.contractAddress {
+                if contractsToAvoid.contains(contractAddressToCheck) {
+                    return false
+                }
+            }
+            return true
         }
-        storage.add(items, filteredTransactions)
-        delegate?.handleUpdateItems(inCoordinator: self)
     }
 
     private func fetchPendingTransactions() {
