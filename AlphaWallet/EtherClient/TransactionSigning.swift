@@ -55,7 +55,7 @@ struct HomesteadSigner: Signer {
         precondition(signature.count == 65, "Wrong size for signature")
         let r = BigInt(sign: .plus, magnitude: BigUInt(signature[..<32]))
         let s = BigInt(sign: .plus, magnitude: BigUInt(signature[32..<64]))
-        let v = BigInt(sign: .plus, magnitude: BigUInt(signature[64] + 27))
+        let v = BigInt(sign: .plus, magnitude: BigUInt(signature[64] + EthereumSigner.vitaliklizeConstant))
         return (r, s, v)
     }
 }
