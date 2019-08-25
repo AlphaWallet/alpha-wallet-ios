@@ -20,13 +20,15 @@ class SettingsHeaderView: UIView {
         //TODO remove duplicate of TransactionsViewController.headerView(for:)
         super.init(frame: .zero)
 
+        backgroundColor = Colors.appBackground
+
         titleLabel.textColor = Colors.appWhite
         titleLabel.font = Fonts.regular(size: 16)!
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         addSubview(titleLabel)
 
         NSLayoutConstraint.activate([
-            titleLabel.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 0)),
+            titleLabel.anchorsConstraint(to: self, edgeInsets: .init(top: 20, left: 20, bottom: 0, right: 0)),
         ])
     }
 

@@ -115,7 +115,7 @@ private struct ButtonsBarViewModel {
     }
 
     var buttonCornerRadius: CGFloat {
-        return 16
+        return 4
     }
 
     var buttonShadowColor: UIColor {
@@ -131,7 +131,7 @@ private struct ButtonsBarViewModel {
     }
 
     var buttonShadowRadius: CGFloat {
-        return 5
+        return 2
     }
 
     var buttonFont: UIFont {
@@ -147,7 +147,7 @@ private struct ButtonsBarViewModel {
     }
 
     var buttonSecondaryCornerRadius: CGFloat {
-        return 16
+        return 4
     }
 
     var buttonSecondaryBorderColor: UIColor {

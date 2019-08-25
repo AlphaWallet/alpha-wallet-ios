@@ -94,6 +94,11 @@ struct TransactionCellViewModel {
             return Colors.veryLightOrange
         }
     }
+
+    var contentsCornerRadius: CGFloat {
+        return Metrics.CornerRadius.box
+    }
+
     var backgroundColor: UIColor {
         return Colors.appBackground
     }

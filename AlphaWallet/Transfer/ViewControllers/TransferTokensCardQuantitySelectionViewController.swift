@@ -164,11 +164,6 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
             hasAssetDefinition: tokenHolder.hasAssetDefinition
         )
     }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        quantityStepper.layer.cornerRadius = quantityStepper.frame.size.height / 2
-    }
 }
 
 extension TransferTokensCardQuantitySelectionViewController: VerifiableStatusViewController {

@@ -8,12 +8,13 @@ protocol ContactUsBannerViewDelegate: class {
 }
 
 class ContactUsBannerView: UIView {
+    static let bannerHeight = CGFloat(60)
+
     private let button = UIButton(type: .system)
     private let imageView = UIImageView()
     private let label = UILabel()
 
     weak var delegate: ContactUsBannerViewDelegate?
-    let bannerHeight = CGFloat(60)
 
     private var emailTemplate: String {
         return """

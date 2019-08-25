@@ -55,15 +55,12 @@ class TransactionViewCell: UITableViewCell {
 
         background.addSubview(stackView)
 
-        // TODO extract constant. Maybe StyleLayout.sideMargin
-        let xMargin  = CGFloat(7)
-        let yMargin  = CGFloat(7)
         NSLayoutConstraint.activate([
             statusImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 26),
 
-            stackView.anchorsConstraint(to: background, margin: StyleLayout.sideMargin),
+            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 10, left: StyleLayout.sideMargin, bottom: 10, right: StyleLayout.sideMargin)),
 
-            background.anchorsConstraint(to: contentView, edgeInsets: .init(top: yMargin, left: xMargin, bottom: yMargin, right: xMargin)),
+            background.anchorsConstraint(to: contentView),
         ])
     }
 
@@ -74,7 +71,7 @@ class TransactionViewCell: UITableViewCell {
     func configure(viewModel: TransactionCellViewModel) {
         selectionStyle = .none
         background.backgroundColor = viewModel.contentsBackgroundColor
-        background.layer.cornerRadius = 20
+        background.layer.cornerRadius = viewModel.contentsCornerRadius
 
         statusImageView.image = viewModel.statusImage
 

@@ -80,6 +80,7 @@ class TransactionCoordinator: Coordinator {
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             navigationController.present(nav, animated: true, completion: nil)
         } else {
+            controller.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(controller, animated: true)
         }
     }

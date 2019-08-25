@@ -24,18 +24,23 @@ class HelpViewController: UIViewController {
 
         view.backgroundColor = Colors.appBackground
 
-        let tableView = UITableView()
+        let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.register(HelpViewCell.self, forCellReuseIdentifier: HelpViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
         tableView.backgroundColor = Colors.appBackground
         view.addSubview(tableView)
 
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = .clear
+        view.addSubview(footerBar)
+
         banner.delegate = self
         banner.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(banner)
+        footerBar.addSubview(banner)
 
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -43,10 +48,15 @@ class HelpViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: banner.topAnchor),
 
-            banner.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            banner.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            banner.heightAnchor.constraint(equalToConstant: banner.bannerHeight),
-            banner.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            banner.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            banner.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            banner.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            banner.heightAnchor.constraint(equalToConstant: ContactUsBannerView.bannerHeight),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ContactUsBannerView.bannerHeight),
+            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
         configure()
@@ -67,10 +77,6 @@ extension HelpViewController: UITableViewDelegate {
         let controller = rows[indexPath.row].controller
         controller.hidesBottomBarWhenPushed = true
         navigationController?.pushViewController(controller, animated: true)
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
     }
 }
 

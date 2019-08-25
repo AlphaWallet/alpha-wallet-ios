@@ -56,6 +56,10 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     var noteBorderColor: UIColor {
         return Colors.appRed
     }
+
+    var noteCornerRadius: CGFloat {
+        return Metrics.CornerRadius.box
+    }
     
     var choiceLabelColor: UIColor {
         return Colors.appGrayLabelColor

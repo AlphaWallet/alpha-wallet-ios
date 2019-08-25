@@ -56,13 +56,8 @@ open class AlphaWalletSettingsButtonCellOf<T: Equatable>: Cell<T>, CellType {
 		background.translatesAutoresizingMaskIntoConstraints = false
 		contentView.addSubview(background)
 
-		let xMargin  = CGFloat(7)
-		let yMargin  = CGFloat(4)
 		NSLayoutConstraint.activate([
-			background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
-			background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-			background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-			background.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -yMargin),
+			background.anchorsConstraint(to: self),
 		])
 	}
 
@@ -73,13 +68,13 @@ open class AlphaWalletSettingsButtonCellOf<T: Equatable>: Cell<T>, CellType {
 	open override func update() {
 		super.update()
 
-		height = { 70 }
+		height = { 44 }
 		backgroundColor = Colors.appBackground
 
 		contentView.backgroundColor = Colors.appBackground
 
 		background.backgroundColor = Colors.appWhite
-		background.layer.cornerRadius = 20
+		background.layer.cornerRadius = Metrics.CornerRadius.box
 
 		textLabel?.textColor = Colors.appText
 		textLabel?.font = Fonts.light(size: 18)!

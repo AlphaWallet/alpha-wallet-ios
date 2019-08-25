@@ -99,6 +99,8 @@ class TextField: UIControl {
         guard !isConfigured else { return }
         isConfigured = true
 
+        cornerRadius = Metrics.CornerRadius.textbox
+
         label.font = Fonts.regular(size: 10)!
         label.textColor = Colors.appGrayLabelColor
 
@@ -110,15 +112,6 @@ class TextField: UIControl {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        roundCornersBasedOnHeight()
-    }
-
-    private func roundCornersBasedOnHeight() {
-        layer.cornerRadius = frame.size.height / 2
     }
 
     private func makeToolbarWithDoneButton() -> UIToolbar {

@@ -7,7 +7,7 @@ import UIKit
 class ConsoleViewController: UIViewController {
     static let cellIdentifier = "cellIdentifier"
 
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private var messages = [String]()
 
     init() {
@@ -17,7 +17,6 @@ class ConsoleViewController: UIViewController {
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: ConsoleViewController.cellIdentifier)
-        tableView.estimatedRowHeight = 0
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
@@ -25,10 +24,7 @@ class ConsoleViewController: UIViewController {
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: view.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.anchorsConstraint(to: view),
         ])
     }
 

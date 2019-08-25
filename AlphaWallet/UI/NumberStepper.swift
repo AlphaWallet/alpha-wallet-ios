@@ -156,7 +156,7 @@ class NumberStepper: UIControl {
         addSubview(label)
 
         backgroundColor = buttonsBackgroundColor
-        layer.cornerRadius = cornerRadius
+        layer.cornerRadius = Metrics.CornerRadius.textbox
         clipsToBounds = true
     }
 

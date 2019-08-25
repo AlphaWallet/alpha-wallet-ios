@@ -37,6 +37,8 @@ class TimeEntryField: UIControl {
     }
 
     private func configure() {
+        cornerRadius = Metrics.CornerRadius.textbox
+
         layer.borderColor = Colors.appBackground.cgColor
         layer.borderWidth = 1
 

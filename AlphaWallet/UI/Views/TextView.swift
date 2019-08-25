@@ -83,7 +83,7 @@ class TextView: UIControl {
         textView.font = Fonts.bold(size: 21)
         textView.layer.borderColor = Colors.appBackground.cgColor
         textView.layer.borderWidth = 1
-        textView.layer.cornerRadius = 20
+        textView.layer.cornerRadius = Metrics.CornerRadius.textbox
     }
 
     required init?(coder aDecoder: NSCoder) {
