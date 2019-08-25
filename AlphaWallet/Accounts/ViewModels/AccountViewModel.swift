@@ -34,18 +34,6 @@ struct AccountViewModel {
         return Colors.appWhite
     }
 
-    var contentsBackgroundColor: UIColor {
-        return backgroundColor
-    }
-
-    var contentsBorderColor: UIColor {
-        return Colors.appHighlightGreen
-    }
-
-    var contentsBorderWidth: CGFloat {
-        return 1
-    }
-
     var balanceFont: UIFont {
         return Fonts.light(size: 20)!
     }

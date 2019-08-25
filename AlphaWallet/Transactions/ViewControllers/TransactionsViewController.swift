@@ -12,7 +12,7 @@ protocol TransactionsViewControllerDelegate: class {
 
 class TransactionsViewController: UIViewController {
     private var viewModel: TransactionsViewModel
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private let refreshControl = UIRefreshControl()
     private let dataCoordinator: TransactionDataCoordinator
     private let sessions: ServerDictionary<WalletSession>
@@ -38,7 +38,7 @@ class TransactionsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
         tableView.backgroundColor = Colors.appBackground
         tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
         view.addSubview(tableView)
@@ -110,10 +110,9 @@ class TransactionsViewController: UIViewController {
         title.font = viewModel.headerTitleFont
         container.addSubview(title)
         title.translatesAutoresizingMaskIntoConstraints = false
-        let horConstraint = NSLayoutConstraint(item: title, attribute: .centerX, relatedBy: .equal, toItem: container, attribute: .centerX, multiplier: 1.0, constant: 0.0)
-        let verConstraint = NSLayoutConstraint(item: title, attribute: .centerY, relatedBy: .equal, toItem: container, attribute: .centerY, multiplier: 1.0, constant: 0.0)
-        let leftConstraint = NSLayoutConstraint(item: title, attribute: .left, relatedBy: .equal, toItem: container, attribute: .left, multiplier: 1.0, constant: 20.0)
-        container.addConstraints([horConstraint, verConstraint, leftConstraint])
+        NSLayoutConstraint.activate([
+            title.anchorsConstraint(to: container, edgeInsets: .init(top: 0, left: 20, bottom: 3, right: 0))
+        ])
         return container
     }
 }
@@ -174,9 +173,5 @@ extension TransactionsViewController: UITableViewDataSource {
         return headerView(for: section)
     }
     func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-    }
-    //Method heightForHeaderInSection is required for iOS 10.
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 30
     }
 }

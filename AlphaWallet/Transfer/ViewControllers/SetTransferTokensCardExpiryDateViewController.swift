@@ -222,12 +222,6 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         }
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        linkExpiryDateField.layer.cornerRadius = linkExpiryDateField.frame.size.height / 2
-        linkExpiryTimeField.layer.cornerRadius = linkExpiryTimeField.frame.size.height / 2
-    }
-
     @objc func datePickerValueChanged() {
         linkExpiryDateField.value = datePicker.date
     }
@@ -277,7 +271,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
         noteLabel.font = viewModel.noteLabelFont
         noteLabel.text = viewModel.noteLabelText
 
-        noteBorderView.layer.cornerRadius = 20
+        noteBorderView.layer.cornerRadius = viewModel.noteCornerRadius
         noteBorderView.layer.borderColor = viewModel.noteBorderColor.cgColor
         noteBorderView.layer.borderWidth = 1
 

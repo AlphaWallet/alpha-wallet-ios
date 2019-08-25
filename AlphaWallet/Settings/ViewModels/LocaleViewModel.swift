@@ -24,18 +24,6 @@ struct LocaleViewModel {
         return Colors.appWhite
     }
 
-    var contentsBackgroundColor: UIColor {
-        return backgroundColor
-    }
-
-    var contentsBorderColor: UIColor {
-        return Colors.appHighlightGreen
-    }
-
-    var contentsBorderWidth: CGFloat {
-        return 1
-    }
-
     var localeFont: UIFont {
         return Fonts.light(size: 20)!
     }

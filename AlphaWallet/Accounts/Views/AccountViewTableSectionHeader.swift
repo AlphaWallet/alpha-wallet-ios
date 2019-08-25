@@ -31,7 +31,7 @@ class AccountViewTableSectionHeader: UIView {
 
         label.translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
-        let topConstraint = label.topAnchor.constraint(equalTo: topAnchor, constant: 10)
+        let topConstraint = label.topAnchor.constraint(equalTo: topAnchor, constant: 7)
         let constraintsWhenVisible = [
             label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             label.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -52,10 +52,10 @@ class AccountViewTableSectionHeader: UIView {
     }
 
     func configure(type: HeaderType, shouldHide: Bool) {
-        backgroundColor  = Colors.appWhite
+        backgroundColor  = Colors.appBackground
 
-        label.backgroundColor = Colors.appWhite
-        label.textColor = UIColor(red: 141, green: 141, blue: 141)
+        label.backgroundColor = Colors.appBackground
+        label.textColor = Colors.appWhite
         label.font = Fonts.semibold(size: 15)!
         label.text = type.title
         label.isHidden = shouldHide
@@ -71,9 +71,9 @@ class AccountViewTableSectionHeader: UIView {
         case .hdWallet:
             topConstraint?.constant = 0
         case .keystoreWallet:
-            topConstraint?.constant = 17
+            topConstraint?.constant = 7
         case .watchedWallet:
-            topConstraint?.constant = 10
+            topConstraint?.constant = 7
         }
     }
 }

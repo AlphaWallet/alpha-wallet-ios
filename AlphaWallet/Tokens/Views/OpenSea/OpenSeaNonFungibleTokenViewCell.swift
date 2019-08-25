@@ -56,7 +56,7 @@ class OpenSeaNonFungibleTokenViewCell: UICollectionViewCell {
         contentView.backgroundColor = viewModel.backgroundColor
 
         background.backgroundColor = viewModel.contentsBackgroundColor
-        background.layer.cornerRadius = 6
+        background.layer.cornerRadius = viewModel.contentsCornerRadius
         background.clipsToBounds = true
 
         imageHolder.clipsToBounds = true

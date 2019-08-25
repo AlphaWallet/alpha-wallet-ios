@@ -170,15 +170,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        roundCornersBasedOnHeight()
-    }
-
-    private func roundCornersBasedOnHeight() {
-        amountTextField.layer.cornerRadius = amountTextField.frame.size.height / 2
-    }
-
     func getGasPrice() {
         let request = EtherServiceRequest(server: session.server, batch: BatchFactory().create(GasPriceRequest()))
         Session.send(request) { [weak self] result in

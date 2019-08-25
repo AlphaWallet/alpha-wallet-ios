@@ -31,7 +31,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             atBottom: UIView.spacer(height: 16)
     )
     private let outerHorizontalMargin = CGFloat(21)
-    private let backgroundCornerRadius = CGFloat(20)
+    private let backgroundCornerRadius = Metrics.CornerRadius.box
     private let horizontalSubtitleStackView: UIStackView = [].asStackView(alignment: .center)
     private let verticalSubtitleStackView: UIStackView = [].asStackView(axis: .vertical, alignment: .leading)
     //TODO Name is too-specific for generation and cooldown, but the icons really are for those. We can rename (or remove this TODO once we are clean whether the icons are shown if the values displayed aren't generation/cooldown

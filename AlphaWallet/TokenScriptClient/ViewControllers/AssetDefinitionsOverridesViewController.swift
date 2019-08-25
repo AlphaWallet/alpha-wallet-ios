@@ -8,7 +8,7 @@ protocol AssetDefinitionsOverridesViewControllerDelegate: class {
 }
 
 class AssetDefinitionsOverridesViewController: UIViewController {
-    private let tableView = UITableView()
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private let fileExtension: String
     private var overriddenURLs: [URL] = []
     weak var delegate: AssetDefinitionsOverridesViewControllerDelegate?
@@ -23,7 +23,7 @@ class AssetDefinitionsOverridesViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
         tableView.backgroundColor = Colors.appBackground
         view.addSubview(tableView)
 
@@ -43,10 +43,6 @@ class AssetDefinitionsOverridesViewController: UIViewController {
 }
 
 extension AssetDefinitionsOverridesViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 70
-    }
-
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             delegate?.didDelete(overrideFileForContract: overriddenURLs[indexPath.row], in: self)

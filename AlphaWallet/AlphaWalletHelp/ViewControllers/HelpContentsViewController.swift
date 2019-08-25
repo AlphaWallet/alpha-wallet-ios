@@ -6,7 +6,7 @@ class HelpContentsViewController: StaticHTMLViewController {
     private let banner = ContactUsBannerView()
 
     override var footerHeight: CGFloat {
-        return banner.bannerHeight
+        return ContactUsBannerView.bannerHeight
     }
 
     override init(delegate: StaticHTMLViewControllerDelegate?) {

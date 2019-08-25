@@ -217,13 +217,6 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
         }
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        //We can't use height / 2 because for some unknown reason, dollarCostLabel still has a zero height here
-//        dollarCostLabel.layer.cornerRadius = dollarCostLabel.frame.size.height / 2
-        dollarCostLabel.layer.cornerRadius = 18
-    }
-
     @objc func actionTapped() {
         delegate?.didPressImport(in: self)
     }
@@ -233,13 +226,6 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
             delegate.didPressDone(in: self)
         } else {
             dismiss(animated: true)
-        }
-    }
-
-    class PaddedLabel: UILabel {
-        override var intrinsicContentSize: CGSize {
-            let size = super.intrinsicContentSize
-            return CGSize(width: size.width + 30, height: size.height + 10)
         }
     }
 }

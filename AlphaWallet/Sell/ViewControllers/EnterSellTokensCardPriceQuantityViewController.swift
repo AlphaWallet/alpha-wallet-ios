@@ -325,22 +325,6 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             hasAssetDefinition: tokenHolder.hasAssetDefinition
         )
     }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        quantityStepper.layer.cornerRadius = quantityStepper.frame.size.height / 2
-        pricePerTokenField.layer.cornerRadius = quantityStepper.frame.size.height / 2
-        //We can't use height / 2 because for some unknown reason, dollarCostLabel still has a zero height here
-//        dollarCostLabel.layer.cornerRadius = dollarCostLabel.frame.size.height / 2
-        dollarCostLabel.layer.cornerRadius = 18
-    }
-
-    class PaddedLabel: UILabel {
-        override var intrinsicContentSize: CGSize {
-            let size = super.intrinsicContentSize
-            return CGSize(width: size.width + 30, height: size.height + 10)
-        }
-    }
 }
 
 extension EnterSellTokensCardPriceQuantityViewController: VerifiableStatusViewController {
@@ -364,5 +348,21 @@ extension EnterSellTokensCardPriceQuantityViewController: AmountTextFieldDelegat
 
     func changeType(in textField: AmountTextField) {
         updateTotalCostsLabels()
+    }
+}
+
+class PaddedLabel: UILabel {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        cornerRadius = Metrics.CornerRadius.textbox
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override var intrinsicContentSize: CGSize {
+        let size = super.intrinsicContentSize
+        return CGSize(width: size.width + 30, height: size.height + 10)
     }
 }

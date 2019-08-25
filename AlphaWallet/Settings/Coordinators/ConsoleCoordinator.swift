@@ -13,6 +13,7 @@ class ConsoleCoordinator: Coordinator {
 
     func createConsoleViewController() -> ConsoleViewController {
         let vc = ConsoleViewController()
+        vc.hidesBottomBarWhenPushed = true
         //TODO console just show the list of files at the moment
         let bad = assetDefinitionStore.listOfBadTokenScriptFiles.map { "\($0) is invalid" }
         let conflicts = assetDefinitionStore.listOfConflictingTokenScriptFiles.map { "\($0) has a conflict" }

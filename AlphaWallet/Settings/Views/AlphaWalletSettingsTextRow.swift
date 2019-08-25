@@ -33,8 +33,6 @@ open class AlphaWalletSettingsTextCell: _FieldCell<String>, CellType {
 		subLabel.translatesAutoresizingMaskIntoConstraints = false
 		background.addSubview(subLabel)
 
-		let xMargin  = CGFloat(7)
-		let yMargin  = CGFloat(4)
 		NSLayoutConstraint.activate([
 			mainLabel.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
 			mainLabel.trailingAnchor.constraint(equalTo: subLabel.leadingAnchor, constant: -10),
@@ -47,10 +45,7 @@ open class AlphaWalletSettingsTextCell: _FieldCell<String>, CellType {
 			subLabel.topAnchor.constraint(equalTo: background.topAnchor, constant: 18),
 			subLabel.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -18),
 
-			background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
-			background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-			background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-			background.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -yMargin),
+            background.anchorsConstraint(to: self),
 		])
 	}
 
@@ -61,14 +56,14 @@ open class AlphaWalletSettingsTextCell: _FieldCell<String>, CellType {
 	open override func setup() {
 		super.setup()
 		
-		height = { 70 }
+		height = { 55 }
 
 		backgroundColor = Colors.appBackground
 		
 		contentView.backgroundColor = Colors.appBackground
 
 		background.backgroundColor = Colors.appWhite
-		background.layer.cornerRadius = 20
+		background.layer.cornerRadius = Metrics.CornerRadius.box
 
 		mainLabel.textColor = Colors.appText
 		mainLabel.font = Fonts.light(size: 18)!
