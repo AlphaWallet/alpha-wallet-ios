@@ -20,17 +20,17 @@ class ConfirmPaymentViewController: UIViewController {
     private let keystore: Keystore
     //let transaction: UnconfirmedTransaction
     private let session: WalletSession
-    private let stackViewController = StackViewController()
+    private let stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 10
+        return stackView
+    }()
     private lazy var sendTransactionCoordinator = {
         return SendTransactionCoordinator(session: session, keystore: keystore, confirmType: confirmType)
     }()
-    private lazy var submitButton: UIButton = {
-        let button = Button(size: .large, style: .solid)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(viewModel.sendButtonText, for: .normal)
-        button.addTarget(self, action: #selector(send), for: .touchUpInside)
-        return button
-    }()
+    private let scrollView = UIScrollView()
+    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private let viewModel = ConfirmPaymentViewModel()
     private var configurator: TransactionConfigurator
     private let confirmType: ConfirmType
@@ -50,10 +50,44 @@ class ConfirmPaymentViewController: UIViewController {
 
         super.init(nibName: nil, bundle: nil)
 
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scrollView)
+
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(stackView)
+
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.settings_icon(), style: .plain, target: self, action: #selector(edit))
         view.backgroundColor = viewModel.backgroundColor
-        stackViewController.view.backgroundColor = viewModel.backgroundColor
         navigationItem.title = viewModel.title
+
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = .clear
+        view.addSubview(footerBar)
+
+        footerBar.addSubview(buttonsBar)
+
+        NSLayoutConstraint.activate([
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
 
         configurator.load { [weak self] result in
             guard let strongSelf = self else { return }
@@ -70,9 +104,22 @@ class ConfirmPaymentViewController: UIViewController {
         }
     }
 
-    func configure(for detailsViewModel: ConfirmPaymentDetailsViewModel) {
-        stackViewController.items.forEach { stackViewController.removeItem($0) }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard let buttonsBarHolder = buttonsBar.superview else {
+            scrollView.contentInset = .zero
+            return
+        }
+        //TODO We are basically calculating the bottom safe area here. Don't rely on the internals of how buttonsBar and it's parent are laid out
+        if buttonsBar.isEmpty {
+            scrollView.contentInset = .init(top: 0, left: 0, bottom: buttonsBarHolder.frame.size.height - buttonsBar.frame.size.height, right: 0)
+        } else {
+            let yMargin = CGFloat(7)
+            scrollView.contentInset = .init(top: 0, left: 0, bottom: scrollView.frame.size.height - buttonsBarHolder.frame.origin.y + yMargin, right: 0)
+        }
+    }
 
+    private func configure(for detailsViewModel: ConfirmPaymentDetailsViewModel) {
         let header = TransactionHeaderView(server: session.server)
         header.translatesAutoresizingMaskIntoConstraints = false
         header.configure(amount: detailsViewModel.amountAttributedString)
@@ -115,21 +162,13 @@ class ConfirmPaymentViewController: UIViewController {
             },
         ]
 
-        for item in items {
-            stackViewController.addItem(item)
-        }
+        stackView.removeAllArrangedSubviews()
+        stackView.addArrangedSubviews(items)
 
-        stackViewController.scrollView.alwaysBounceVertical = true
-        stackViewController.stackView.spacing = 10
-        stackViewController.view.addSubview(submitButton)
-
-        NSLayoutConstraint.activate([
-            submitButton.bottomAnchor.constraint(equalTo: stackViewController.view.layoutGuide.bottomAnchor, constant: -15),
-            submitButton.trailingAnchor.constraint(equalTo: stackViewController.view.trailingAnchor, constant: -15),
-            submitButton.leadingAnchor.constraint(equalTo: stackViewController.view.leadingAnchor, constant: 15),
-        ])
-
-        displayChildViewController(viewController: stackViewController)
+        buttonsBar.configure()
+        let button = buttonsBar.buttons[0]
+        button.setTitle(viewModel.sendButtonText, for: .normal)
+        button.addTarget(self, action: #selector(send), for: .touchUpInside)
     }
 
     private func reloadView() {
