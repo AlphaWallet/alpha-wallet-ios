@@ -19,7 +19,7 @@ class AccountsViewController: UIViewController {
     private var watchedWallets: [Wallet] = []
     private var balances: [AlphaWallet.Address: Balance?] = [:]
     private let keystore: Keystore
-    private let balanceCoordinator: GetBalanceCoordinator
+    private let balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator
     private var etherKeystore = try? EtherKeystore()
 
     weak var delegate: AccountsViewControllerDelegate?
@@ -28,7 +28,7 @@ class AccountsViewController: UIViewController {
         return !keystore.wallets.isEmpty
     }
 
-    init(keystore: Keystore, balanceCoordinator: GetBalanceCoordinator) {
+    init(keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator) {
         self.keystore = keystore
         self.balanceCoordinator = balanceCoordinator
         super.init(nibName: nil, bundle: nil)
@@ -123,7 +123,7 @@ class AccountsViewController: UIViewController {
         let addresses = (hdWallets + keystoreWallets + watchedWallets).compactMap { $0.address }
         var counter = 0
         for address in addresses {
-            balanceCoordinator.getEthBalance(for: address, completion: { [weak self] (result) in
+            balanceCoordinator.getBalance(for: address, completion: { [weak self] (result) in
                 self?.balances[address] = result.value
                 counter += 1
                 if counter == addresses.count {

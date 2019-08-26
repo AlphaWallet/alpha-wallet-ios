@@ -8,14 +8,14 @@ class NativeCryptoCurrencyBalanceView: UIView {
     var session: WalletSession {
         didSet {
             configure()
-            balanceCoordinator = GetBalanceCoordinator(forServer: server)
+            balanceCoordinator = GetNativeCryptoCurrencyBalanceCoordinator(forServer: server)
             refreshWalletBalance()
         }
     }
     private let rightMargin: CGFloat
     private var balances: [AlphaWallet.Address: Balance] = [:]
     //TODO should let someone else fetch the balance instead of doing it here
-    private lazy var balanceCoordinator = GetBalanceCoordinator(forServer: server)
+    private lazy var balanceCoordinator = GetNativeCryptoCurrencyBalanceCoordinator(forServer: server)
     private let label = UILabel()
     private let horizontalMarginAroundLabel = CGFloat(7)
     private let verticalMarginAroundLabel = CGFloat(4)
@@ -97,7 +97,7 @@ class NativeCryptoCurrencyBalanceView: UIView {
 
     private func refreshWalletBalance() {
         let address = session.account.address
-        balanceCoordinator.getEthBalance(for: address, completion: { [weak self] (result) in
+        balanceCoordinator.getBalance(for: address, completion: { [weak self] (result) in
             guard let strongSelf = self else { return }
             strongSelf.balances[address] = result.value
             strongSelf.configure()
