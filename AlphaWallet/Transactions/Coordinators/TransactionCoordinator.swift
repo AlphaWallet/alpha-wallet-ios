@@ -11,6 +11,8 @@ class TransactionCoordinator: Coordinator {
     private let keystore: Keystore
     private let transactionsCollection: TransactionCollection
     private let promptBackupCoordinator: PromptBackupCoordinator
+    private let sessions: ServerDictionary<WalletSession>
+    private let tokensStorages: ServerDictionary<TokensDataStore>
 
     lazy var rootViewController: TransactionsViewController = {
         return makeTransactionsController()
@@ -28,9 +30,6 @@ class TransactionCoordinator: Coordinator {
     }()
 
     weak var delegate: TransactionCoordinatorDelegate?
-
-    let sessions: ServerDictionary<WalletSession>
-    let tokensStorages: ServerDictionary<TokensDataStore>
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
