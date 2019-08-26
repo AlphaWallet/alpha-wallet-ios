@@ -103,7 +103,7 @@ public class UniversalLinkHandler {
         let expiry = getExpiryFromLinkBytes(linkBytes: linkBytes)
         guard let contractAddress = getNonNullContractAddressFromLinkBytes(linkBytes: linkBytes) else { return nil }
         let tokenIndices = getTokenIndicesFromLinkBytes(linkBytes: linkBytes)
-        let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes)
+        guard let (v, r, s) = getVRSFromLinkBytes(linkBytes: linkBytes) else { return nil }
         let order = Order(
                 price: price,
                 indices: tokenIndices,
@@ -161,7 +161,7 @@ public class UniversalLinkHandler {
         let expiry = getExpiryFromLinkBytes(linkBytes: bytes)
         guard let contractAddress = getNonNullContractAddressFromLinkBytes(linkBytes: bytes) else { return nil }
         let tokenIds = getTokenIdsFromSpawnableLink(linkBytes: bytes)
-        let (v, r, s) = getVRSFromLinkBytes(linkBytes: bytes)
+        guard let (v, r, s) = getVRSFromLinkBytes(linkBytes: bytes) else { return nil }
         let order = Order(
             price: price,
             indices: [UInt16](),
@@ -303,8 +303,10 @@ public class UniversalLinkHandler {
         return tokenIndices
     }
     
-    private func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String) {
-        var signatureStart = linkBytes.count - 65
+    private func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String)? {
+        let signatureLength = 65
+        guard linkBytes.count >= signatureLength else { return nil }
+        var signatureStart = linkBytes.count - signatureLength
         var rBytes = [UInt8]()
         for i in signatureStart...signatureStart + 31 {
             rBytes.append(linkBytes[i])
