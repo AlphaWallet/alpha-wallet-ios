@@ -208,7 +208,7 @@ class SingleChainTokenCoordinator: Coordinator {
                         }
                     }
                 case .erc20:
-                    let balanceCoordinator = GetBalanceCoordinator(forServer: self.session.server)
+                    let balanceCoordinator = GetERC20BalanceCoordinator(forServer: self.session.server)
                     balanceCoordinator.getBalance(for: address, contract: each) { [weak self] result in
                         guard let strongSelf = self else {
                             contractsProcessed += 1

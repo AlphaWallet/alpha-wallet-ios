@@ -3,7 +3,7 @@
 import Foundation
 @testable import AlphaWallet
 
-class FakeGetBalanceCoordinator: GetBalanceCoordinator {
+class FakeGetBalanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator {
     convenience init() {
         self.init(forServer: .main)
     }

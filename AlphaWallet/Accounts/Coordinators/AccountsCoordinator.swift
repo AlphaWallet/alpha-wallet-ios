@@ -14,7 +14,7 @@ class AccountsCoordinator: Coordinator {
 
     private let config: Config
     //Only show Ether balances from mainnet for now
-    private let balanceCoordinator = GetBalanceCoordinator(forServer: .main)
+    private let balanceCoordinator = GetNativeCryptoCurrencyBalanceCoordinator(forServer: .main)
     private let keystore: Keystore
     private let promptBackupCoordinator: PromptBackupCoordinator
 
