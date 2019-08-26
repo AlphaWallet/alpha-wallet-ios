@@ -14,11 +14,7 @@ struct ImportWalletTabBarViewModel {
 	}
 
 	func titleColor(for tab: ImportWalletTab) -> UIColor {
-		if currentTab == tab {
-			return Colors.appBackground
-		} else {
-			return Colors.appWhite
-		}
+		return Colors.appWhite
 	}
 
 	var font: UIFont {

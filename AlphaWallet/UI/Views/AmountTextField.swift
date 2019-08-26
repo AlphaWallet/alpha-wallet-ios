@@ -8,7 +8,6 @@ protocol AmountTextFieldDelegate: class {
 }
 
 class AmountTextField: UIControl {
-
     enum Currency {
         case cryptoCurrency(String)
         case usd(String)
@@ -93,6 +92,8 @@ class AmountTextField: UIControl {
         }
 
         super.init(frame: .zero)
+
+        cornerRadius = Metrics.CornerRadius.textbox
 
         translatesAutoresizingMaskIntoConstraints = false
         layer.borderColor = Colors.appBackground.cgColor

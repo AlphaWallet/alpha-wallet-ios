@@ -36,7 +36,7 @@ struct TransactionDetailsViewModel {
     }
 
     var backgroundColor: UIColor {
-        return .white
+        return Colors.appBackground
     }
 
     var createdAt: String {

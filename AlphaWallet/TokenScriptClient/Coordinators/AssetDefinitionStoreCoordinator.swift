@@ -71,6 +71,7 @@ class AssetDefinitionStoreCoordinator: Coordinator {
         let vc = AssetDefinitionsOverridesViewController(fileExtension: AssetDefinitionDiskBackingStore.fileExtension)
         vc.title = R.string.localizable.aHelpAssetDefinitionOverridesTitle()
         vc.delegate = self
+        vc.hidesBottomBarWhenPushed = true
         configure(overridesViewController: vc)
         viewControllers.append(WeakRef(object: vc))
         return vc

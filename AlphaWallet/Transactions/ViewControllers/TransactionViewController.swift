@@ -17,7 +17,9 @@ class TransactionViewController: UIViewController {
             currencyRate: session.balanceCoordinator.currencyRate
         )
     }()
-    private let stackViewController = StackViewController()
+    private let roundedBackground = RoundedBackground()
+    private let scrollView = UIScrollView()
+    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private let session: WalletSession
     private let transaction: Transaction
 
@@ -32,13 +34,13 @@ class TransactionViewController: UIViewController {
         self.transaction = transaction
         self.delegate = delegate
 
-        stackViewController.scrollView.alwaysBounceVertical = true
-        stackViewController.stackView.spacing = 10
-
         super.init(nibName: nil, bundle: nil)
 
         title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
+
+        roundedBackground.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(roundedBackground)
 
         let header = TransactionHeaderView(server: session.server)
         header.translatesAutoresizingMaskIntoConstraints = false
@@ -58,19 +60,71 @@ class TransactionViewController: UIViewController {
             item(title: viewModel.blockNumberLabelTitle, value: viewModel.blockNumber),
         ]
 
-        if viewModel.detailsAvailable {
-            items.append(moreDetails())
-        }
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.addSubview(scrollView)
 
-        for item in items {
-            stackViewController.addItem(item)
-        }
-
-        displayChildViewController(viewController: stackViewController)
+        let stackView = items.asStackView(axis: .vertical, spacing: 10)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(stackView)
 
         if viewModel.shareAvailable {
             navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share(_:)))
         }
+
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = .clear
+        roundedBackground.addSubview(footerBar)
+
+        footerBar.addSubview(buttonsBar)
+
+        NSLayoutConstraint.activate([
+            scrollView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ] + roundedBackground.createConstraintsWithContainer(view: view))
+
+        configure()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard let buttonsBarHolder = buttonsBar.superview else {
+            scrollView.contentInset = .zero
+            return
+        }
+        //TODO We are basically calculating the bottom safe area here. Don't rely on the internals of how buttonsBar and it's parent are laid out
+        if buttonsBar.isEmpty {
+            scrollView.contentInset = .init(top: 0, left: 0, bottom: buttonsBarHolder.frame.size.height - buttonsBar.frame.size.height, right: 0)
+        } else {
+            scrollView.contentInset = .init(top: 0, left: 0, bottom: scrollView.frame.size.height - buttonsBarHolder.frame.origin.y, right: 0)
+        }
+    }
+
+    private func configure() {
+        buttonsBar.configure()
+        let button = buttonsBar.buttons[0]
+        button.setTitle(R.string.localizable.moreDetails(), for: .normal)
+        button.addTarget(self, action: #selector(more), for: .touchUpInside)
+
+        buttonsBar.isHidden = !viewModel.detailsAvailable
     }
 
     private func item(title: String, value: String) -> UIView {
@@ -80,20 +134,6 @@ class TransactionViewController: UIViewController {
         ) { [weak self] in
             self?.showAlertSheet(title: $0, value: $1, sourceView: $2)
         }
-    }
-
-    private func moreDetails() -> UIView {
-        let button = Button(size: .large, style: .border)
-        button.setTitle(R.string.localizable.moreDetails(), for: .normal)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.addTarget(self, action: #selector(more), for: .touchUpInside)
-
-        let stackView = [button].asStackView(spacing: 10)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.layoutMargins = UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15)
-        stackView.isLayoutMarginsRelativeArrangement = true
-
-        return stackView
     }
 
     func showAlertSheet(title: String, value: String, sourceView: UIView) {

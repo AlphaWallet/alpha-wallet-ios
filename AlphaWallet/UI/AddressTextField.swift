@@ -82,15 +82,6 @@ class AddressTextField: UIControl {
         return textField.becomeFirstResponder()
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        roundCornersBasedOnHeight()
-    }
-
-    private func roundCornersBasedOnHeight() {
-        textField.layer.cornerRadius = textField.frame.size.height / 2
-    }
-
     func configureOnce() {
         guard !isConfigured else { return }
         isConfigured = true
@@ -101,6 +92,7 @@ class AddressTextField: UIControl {
         ensAddressLabel.font = Fonts.regular(size: 10)!
         ensAddressLabel.textColor = Colors.appGrayLabelColor
 
+        textField.layer.cornerRadius = Metrics.CornerRadius.textbox
         textField.leftView = .spacerWidth(22)
         textField.rightView = makeTargetAddressRightView()
         textField.textColor = Colors.appText

@@ -7,7 +7,8 @@ class RoundedBackground: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = Colors.appWhite
-        cornerRadius = 20
+        //No longer rounded. We are keeping this class and its instance around in case the visual design changes
+//        cornerRadius = 20
     }
 
     required init?(coder aDecoder: NSCoder) {

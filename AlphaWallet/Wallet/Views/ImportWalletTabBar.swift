@@ -59,7 +59,7 @@ class ImportWalletTabBar: UIView {
 		buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(buttonsStackView)
 
-		let barHeightConstraint = fullWidthBar.heightAnchor.constraint(equalToConstant: 44)
+		let barHeightConstraint = fullWidthBar.heightAnchor.constraint(equalToConstant: 2)
 		barHeightConstraint.priority = .defaultHigh
 		let stackViewLeadingConstraint = buttonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17)
 		stackViewLeadingConstraint.priority = .defaultHigh
@@ -75,11 +75,13 @@ class ImportWalletTabBar: UIView {
             keystoreButton.widthAnchor.constraint(equalTo: privateKeyButton.widthAnchor),
 			keystoreButton.widthAnchor.constraint(equalTo: watchButton.widthAnchor),
 
+			fullWidthBar.leadingAnchor.constraint(equalTo: leadingAnchor),
+			fullWidthBar.trailingAnchor.constraint(equalTo: trailingAnchor),
 			barHeightConstraint,
-			fullWidthBar.anchorsConstraint(to: self),
+			fullWidthBar.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -1),
 
 			tabHighlightView.topAnchor.constraint(equalTo: fullWidthBar.topAnchor),
-			tabHighlightView.bottomAnchor.constraint(equalTo: fullWidthBar.bottomAnchor, constant: 20),
+			tabHighlightView.bottomAnchor.constraint(equalTo: fullWidthBar.bottomAnchor),
 		])
 
         configure()
@@ -118,8 +120,6 @@ class ImportWalletTabBar: UIView {
 	}
 
 	private func configureHighlightedBar() {
-		tabHighlightView.cornerRadius = 14
-
 		var button: UIButton
 		switch tab {
 		case .mnemonic:
@@ -136,8 +136,8 @@ class ImportWalletTabBar: UIView {
 			NSLayoutConstraint.deactivate(previousConstraints)
 		}
 		highlightBarHorizontalConstraints = [
-			tabHighlightView.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: -10),
-			tabHighlightView.trailingAnchor.constraint(equalTo: button.trailingAnchor, constant: 10),
+			tabHighlightView.leadingAnchor.constraint(equalTo: button.leadingAnchor),
+			tabHighlightView.trailingAnchor.constraint(equalTo: button.trailingAnchor),
 		]
 		if let constraints = highlightBarHorizontalConstraints {
 			NSLayoutConstraint.activate(constraints)

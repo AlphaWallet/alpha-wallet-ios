@@ -9,7 +9,6 @@ protocol AccountViewCellDelegate: class {
 class AccountViewCell: UITableViewCell {
     static let identifier = "AccountViewCell"
 
-    let background = UIView()
     var infoButton = UIButton(type: .infoLight)
     var activeIcon = UIImageView(image: R.image.ticket_bundle_checked())
     var watchIcon = UIImageView(image: R.image.glasses())
@@ -21,28 +20,18 @@ class AccountViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        contentView.addSubview(background)
-        background.translatesAutoresizingMaskIntoConstraints = false
-
-        activeIcon.translatesAutoresizingMaskIntoConstraints = false
         activeIcon.contentMode = .scaleAspectFit
 
-        balanceLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        addressLabel.translatesAutoresizingMaskIntoConstraints = false
         addressLabel.lineBreakMode = .byTruncatingMiddle
 
-        infoButton.translatesAutoresizingMaskIntoConstraints = false
         infoButton.addTarget(self, action: #selector(infoAction), for: .touchUpInside)
 
         let leftStackView = [
             balanceLabel,
             addressLabel,
-        ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 6)
-        leftStackView.translatesAutoresizingMaskIntoConstraints = false
+        ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 0)
 
         let rightStackView = [infoButton].asStackView()
-        rightStackView.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [activeIcon, leftStackView, watchIcon, rightStackView].asStackView(spacing: 15, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -59,26 +48,15 @@ class AccountViewCell: UITableViewCell {
         watchIcon.setContentCompressionResistancePriority(UILayoutPriority.required, for: .vertical)
         stackView.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
 
-        background.addSubview(stackView)
+        contentView.addSubview(stackView)
 
-        // TODO extract constant. Maybe StyleLayout.sideMargin
-        let xMargin  = CGFloat(7)
-        let yMargin  = CGFloat(7)
         NSLayoutConstraint.activate([
             activeIcon.widthAnchor.constraint(equalToConstant: 44),
 
             watchIcon.widthAnchor.constraint(lessThanOrEqualToConstant: 18),
             watchIcon.heightAnchor.constraint(lessThanOrEqualToConstant: 18),
 
-            stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: StyleLayout.sideMargin),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -StyleLayout.sideMargin),
-            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -StyleLayout.sideMargin),
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: StyleLayout.sideMargin),
-
-            background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
-            background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-            background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-            background.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -yMargin),
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 7, left: StyleLayout.sideMargin, bottom: 7, right: StyleLayout.sideMargin)),
         ])
     }
 
@@ -94,11 +72,6 @@ class AccountViewCell: UITableViewCell {
     func configure(viewModel: AccountViewModel) {
         selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
-
-        background.backgroundColor = viewModel.contentsBackgroundColor
-        background.layer.cornerRadius = 20
-        background.borderColor = viewModel.contentsBorderColor
-        background.borderWidth = viewModel.contentsBorderWidth
 
         activeIcon.isHidden = !viewModel.showActiveIcon
 

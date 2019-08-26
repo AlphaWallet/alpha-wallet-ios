@@ -95,7 +95,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
         self.viewModel = viewModel
         if let viewModel = self.viewModel {
             background.backgroundColor = viewModel.contentsBackgroundColor
-            background.layer.cornerRadius = 20
+            background.layer.cornerRadius = Metrics.CornerRadius.popups
 
             header.configure(title: viewModel.headerTitle)
 
@@ -122,7 +122,7 @@ class GenerateTransferMagicLinkViewController: UIViewController {
             actionButton.setBackgroundColor(viewModel.actionButtonBackgroundColor, forState: .normal)
             actionButton.titleLabel?.font = viewModel.actionButtonTitleFont
             actionButton.setTitle(viewModel.actionButtonTitle, for: .normal)
-            actionButton.layer.masksToBounds = true
+            actionButton.cornerRadius = Metrics.CornerRadius.button
 
             cancelButton.setTitleColor(viewModel.cancelButtonTitleColor, for: .normal)
             cancelButton.setBackgroundColor(viewModel.cancelButtonBackgroundColor, forState: .normal)
@@ -130,11 +130,6 @@ class GenerateTransferMagicLinkViewController: UIViewController {
             cancelButton.setTitle(viewModel.cancelButtonTitle, for: .normal)
             cancelButton.layer.masksToBounds = true
         }
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        actionButton.layer.cornerRadius = actionButton.frame.size.height / 2
     }
 
     @objc func share() {

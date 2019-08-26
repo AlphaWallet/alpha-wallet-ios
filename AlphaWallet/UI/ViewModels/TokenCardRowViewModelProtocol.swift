@@ -27,6 +27,10 @@ extension TokenCardRowViewModelProtocol {
         return Colors.appWhite
     }
 
+    var contentsCornerRadius: CGFloat {
+        return Metrics.CornerRadius.box
+    }
+
     var titleColor: UIColor {
         return Colors.appText
     }

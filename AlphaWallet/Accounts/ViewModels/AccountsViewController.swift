@@ -9,10 +9,8 @@ protocol AccountsViewControllerDelegate: class {
 }
 
 class AccountsViewController: UIViewController {
-    private let headerHeight = CGFloat(70)
     private let roundedBackground = RoundedBackground()
-    private let header = TokensCardViewControllerTitleHeader()
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private let tableView = UITableView(frame: .zero, style: .grouped)
     private var viewModel: AccountsViewModel {
         return AccountsViewModel(hdWallets: hdWallets, keystoreWallets: keystoreWallets, watchedWallets: watchedWallets)
     }
@@ -42,16 +40,12 @@ class AccountsViewController: UIViewController {
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
-        tableView.separatorStyle = .none
-        tableView.backgroundColor = Colors.appWhite
-        tableView.rowHeight = 80
-        tableView.tableHeaderView = header
+        tableView.separatorStyle = .singleLine
+        tableView.backgroundColor = Colors.appBackground
         tableView.register(AccountViewCell.self, forCellReuseIdentifier: AccountViewCell.identifier)
         roundedBackground.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            header.heightAnchor.constraint(equalToConstant: headerHeight),
-
             tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
@@ -77,9 +71,7 @@ class AccountsViewController: UIViewController {
 
     func configure(viewModel: AccountsViewModel) {
         tableView.dataSource = self
-        header.configure(title: viewModel.title)
-        header.frame.size.height = headerHeight
-        tableView.tableHeaderView = header
+        title = viewModel.title
     }
 
     private func account(for indexPath: IndexPath) -> Wallet {

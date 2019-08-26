@@ -25,7 +25,7 @@ protocol PromptBackupWalletViewViewModel {
 
 extension PromptBackupWalletViewViewModel {
     var cornerRadius: CGFloat {
-        return 20
+        return Metrics.CornerRadius.box
     }
 
     var titleFont: UIFont {

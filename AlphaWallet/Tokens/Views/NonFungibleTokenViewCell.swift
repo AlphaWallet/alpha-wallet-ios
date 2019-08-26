@@ -58,7 +58,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
         backgroundColor = viewModel.backgroundColor
 
         background.backgroundColor = viewModel.contentsBackgroundColor
-        background.layer.cornerRadius = 20
+        background.layer.cornerRadius = viewModel.contentsCornerRadius
 
         contentView.backgroundColor = viewModel.backgroundColor
 
