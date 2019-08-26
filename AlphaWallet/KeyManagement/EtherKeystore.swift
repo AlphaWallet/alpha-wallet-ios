@@ -434,8 +434,7 @@ open class EtherKeystore: Keystore {
         case .key(let key):
             do {
                 var data = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
-                // TODO: Make it configurable, instead of overriding last byte.
-                data[64] += 27
+                data[64] += EthereumSigner.vitaliklizeConstant
                 return .success(data)
             } catch {
                 return .failure(KeystoreError.failedToSignMessage)
@@ -470,9 +469,8 @@ open class EtherKeystore: Keystore {
                     messageHashes.append(hash)
                 }
                 var data = try EthereumSigner().signHashes(messageHashes, withPrivateKey: key)
-                // TODO: Make it configurable, instead of overriding last byte.
                 for i in 0...data.count - 1 {
-                    data[i][64] += 27
+                    data[i][64] += EthereumSigner.vitaliklizeConstant
                 }
                 return .success(data)
             } catch {
@@ -493,7 +491,7 @@ open class EtherKeystore: Keystore {
         case .key(let key):
             do {
                 var data = try EthereumSigner().sign(hash: hash, withPrivateKey: key)
-                data[64] += 27
+                data[64] += EthereumSigner.vitaliklizeConstant
                 return .success(data)
             } catch {
                 return .failure(KeystoreError.failedToSignMessage)
