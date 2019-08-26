@@ -90,6 +90,7 @@ class EthTokenViewCell: UITableViewCell {
         titleLabel.font = viewModel.titleFont
         titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
         titleLabel.adjustsFontSizeToFitWidth = true
+        titleLabel.baselineAdjustment = .alignCenters
 
         blockChainTagLabel.textAlignment = viewModel.blockChainNameTextAlignment
         blockChainTagLabel.cornerRadius = 7
