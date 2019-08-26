@@ -15,16 +15,10 @@ class LegacyFileBasedKeystore {
     private let keychain: KeychainSwift
     private let datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
     private let keyStore: KeyStore
-    private let defaultKeychainAccess: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
-    private let userDefaults: UserDefaults
 
     let keystoreDirectory: URL
 
-    public init(
-        keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix),
-        keyStoreSubfolder: String = "/keystore",
-        userDefaults: UserDefaults = UserDefaults.standard
-    ) throws {
+    public init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), keyStoreSubfolder: String = "/keystore") throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw FileBasedKeystoreError.protectionDisabled
         }
@@ -32,7 +26,6 @@ class LegacyFileBasedKeystore {
         self.keychain = keychain
         self.keychain.synchronizable = false
         self.keyStore = try KeyStore(keydir: keystoreDirectory)
-        self.userDefaults = userDefaults
     }
 
     func getPrivateKeyFromKeystoreFile(json: String, password: String) -> Result<Data, KeystoreError> {
