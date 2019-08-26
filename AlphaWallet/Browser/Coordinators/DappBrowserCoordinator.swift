@@ -18,6 +18,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
+    private let config: Config
 
     private var browserNavBar: DappBrowserNavigationBar? {
         return navigationController.navigationBar as? DappBrowserNavigationBar
@@ -111,12 +112,14 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     init(
         sessions: ServerDictionary<WalletSession>,
         keystore: Keystore,
+        config: Config,
         sharedRealm: Realm,
         browserOnly: Bool
     ) {
         self.navigationController = NavigationController(navigationBarClass: DappBrowserNavigationBar.self, toolbarClass: nil)
         self.sessions = sessions
         self.keystore = keystore
+        self.config = config
         self.sharedRealm = sharedRealm
         self.browserOnly = browserOnly
 
@@ -347,7 +350,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func showServers() {
-        let coordinator = ServersCoordinator(defaultServer: server)
+        let coordinator = ServersCoordinator(defaultServer: server, config: config)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
