@@ -159,6 +159,15 @@ class RequestViewController: UIViewController {
 		hud.mode = .text
 		hud.label.text = viewModel.addressCopiedText
 		hud.hide(animated: true, afterDelay: 1.5)
+		
+		showFeedback()
+	}
+
+	private func showFeedback() {
+		//TODO sound too
+		let feedbackGenerator = UINotificationFeedbackGenerator()
+		feedbackGenerator.prepare()
+		feedbackGenerator.notificationOccurred(.success)
 	}
 
 	func generateQRCode(from string: String) -> UIImage? {

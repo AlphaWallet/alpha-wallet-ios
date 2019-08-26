@@ -49,12 +49,12 @@ class TransactionViewController: UIViewController {
         var items: [UIView] = [
             .spacer(),
             header,
-            TransactionAppearance.divider(color: Colors.lightGray, alpha: 0.3),
+            .spacer(),
             item(title: viewModel.fromLabelTitle, value: viewModel.from),
             item(title: viewModel.toLabelTitle, value: viewModel.to),
             item(title: viewModel.gasFeeLabelTitle, value: viewModel.gasFee),
             item(title: viewModel.confirmationLabelTitle, value: viewModel.confirmation),
-            TransactionAppearance.divider(color: Colors.lightGray, alpha: 0.3),
+            .spacer(),
             item(title: viewModel.transactionIDLabelTitle, value: viewModel.transactionID),
             item(title: viewModel.createdAtLabelTitle, value: viewModel.createdAt),
             item(title: viewModel.blockNumberLabelTitle, value: viewModel.blockNumber),
@@ -90,7 +90,6 @@ class TransactionViewController: UIViewController {
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
             buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),

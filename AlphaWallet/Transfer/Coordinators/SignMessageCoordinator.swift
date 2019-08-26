@@ -64,8 +64,20 @@ class SignMessageCoordinator: Coordinator {
                 result = keystore.signTypedMessage(typedData, for: account)
             }
         }
+        showFeedbackOnSuccess(result)
+    }
+
+    private func showFeedbackOnSuccess(_ result: Result<Data, KeystoreError>) {
         switch result {
         case .success(let data):
+            //TODO sound too
+            let feedbackGenerator = UINotificationFeedbackGenerator()
+            feedbackGenerator.prepare()
+            //Hackish, but delay necessary because of the switch to and from user-presence for signing
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                feedbackGenerator.notificationOccurred(.success)
+            }
+
             didComplete?(.success(data))
         case .failure(let error):
             navigationController.displaySuccess(message: error.errorDescription)
