@@ -21,6 +21,7 @@ class LocalesCoordinator: Coordinator {
         let controller = LocalesViewController()
         controller.configure(viewModel: LocalesViewModel(locales: locales, selectedLocale: AppLocale(id: Config.getLocale())))
         controller.delegate = self
+        controller.hidesBottomBarWhenPushed = true
         return controller
     }()
     weak var delegate: LocalesCoordinatorDelegate?

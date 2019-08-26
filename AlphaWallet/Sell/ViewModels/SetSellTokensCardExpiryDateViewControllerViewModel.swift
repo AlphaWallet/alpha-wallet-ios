@@ -105,6 +105,10 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
         return Colors.appRed
     }
 
+    var noteCornerRadius: CGFloat {
+        return Metrics.CornerRadius.box
+    }
+
     private var tokenCount: Int {
         return tokenHolder.count
     }

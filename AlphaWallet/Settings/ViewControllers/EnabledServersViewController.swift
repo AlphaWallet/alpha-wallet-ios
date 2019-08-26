@@ -7,9 +7,7 @@ protocol EnabledServersViewControllerDelegate: class {
 }
 
 class EnabledServersViewController: UIViewController {
-    private let headerHeight = CGFloat(70)
     private let roundedBackground = RoundedBackground()
-    private let header = TokensCardViewControllerTitleHeader()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var viewModel: EnabledServersViewModel?
 
@@ -27,16 +25,12 @@ class EnabledServersViewController: UIViewController {
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
-        tableView.separatorStyle = .none
-        tableView.backgroundColor = Colors.appWhite
-        tableView.rowHeight = 80
-        tableView.tableHeaderView = header
+        tableView.separatorStyle = .singleLine
+        tableView.backgroundColor = Colors.appBackground
         tableView.register(ServerViewCell.self, forCellReuseIdentifier: ServerViewCell.identifier)
         roundedBackground.addSubview(tableView)
 
         NSLayoutConstraint.activate([
-            header.heightAnchor.constraint(equalToConstant: headerHeight),
-
             tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
@@ -47,8 +41,7 @@ class EnabledServersViewController: UIViewController {
     func configure(viewModel: EnabledServersViewModel) {
         self.viewModel = viewModel
         tableView.dataSource = self
-        header.configure(title: viewModel.title)
-        header.frame.size.height = headerHeight
+        title = viewModel.title
     }
 
     required init?(coder aDecoder: NSCoder) {

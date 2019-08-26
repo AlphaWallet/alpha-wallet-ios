@@ -106,6 +106,13 @@ extension UISegmentedControl {
 }
 
 enum Metrics {
+    enum CornerRadius {
+        static let popups = CGFloat(20)
+        static let box = CGFloat(2)
+        static let textbox = CGFloat(4)
+        static let button = CGFloat(4)
+    }
+
     enum DappsHome {
         enum Icon {
             static let shadowOffset = CGSize(width: 0, height: 0)

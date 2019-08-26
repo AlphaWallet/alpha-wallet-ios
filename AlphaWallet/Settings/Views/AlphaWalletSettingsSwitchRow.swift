@@ -32,10 +32,8 @@ open class AlphaWalletSwitchCell: Cell<Bool>, CellType {
         accessoryView = switchControl
         editingAccessoryView = accessoryView
 
-        let xMargin  = CGFloat(7)
-        let yMargin  = CGFloat(4)
         NSLayoutConstraint.activate([
-            background.anchorsConstraint(to: self, edgeInsets: .init(top: yMargin, left: xMargin, bottom: yMargin, right: xMargin))
+            background.anchorsConstraint(to: self),
         ])
     }
 
@@ -47,14 +45,14 @@ open class AlphaWalletSwitchCell: Cell<Bool>, CellType {
         super.setup()
         selectionStyle = .none
 
-        height = { 70 }
+        height = { 44 }
 
         backgroundColor = Colors.appBackground
 
         contentView.backgroundColor = Colors.appBackground
 
         background.backgroundColor = Colors.appWhite
-        background.layer.cornerRadius = 20
+        background.layer.cornerRadius = Metrics.CornerRadius.box
 
         textLabel?.backgroundColor = Colors.appWhite
         textLabel?.textColor = Colors.appText

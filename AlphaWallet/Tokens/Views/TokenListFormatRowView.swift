@@ -145,7 +145,7 @@ class TokenListFormatRowView: UIView {
         self.viewModel = viewModel
 
         background.backgroundColor = viewModel.contentsBackgroundColor
-        background.layer.cornerRadius = 20
+        background.layer.cornerRadius = Metrics.CornerRadius.box
         background.layer.shadowRadius = 3
         background.layer.shadowColor = UIColor.black.cgColor
         background.layer.shadowOffset = CGSize(width: 0, height: 0)

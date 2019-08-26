@@ -14,6 +14,7 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
 
 class SettingsViewController: FormViewController {
     private let iconInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
+    private let cellWithSubtitleHeight = CGFloat(60)
     private let lock = Lock()
     private var isPasscodeEnabled: Bool {
         return lock.isPasscodeSet
@@ -58,7 +59,7 @@ class SettingsViewController: FormViewController {
         super.viewDidLoad()
 
         view.backgroundColor = Colors.appBackground
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
         tableView.backgroundColor = Colors.appBackground
 
         let firstSection = createSection(withTitle: "")
@@ -82,6 +83,7 @@ class SettingsViewController: FormViewController {
             cell.detailTextLabel?.textColor = Colors.settingsSubtitleColor
         }.cellUpdate { [weak self] cell, _ in
             guard let strongSelf = self else { return }
+            cell.height = { strongSelf.cellWithSubtitleHeight }
             cell.imageView?.image = R.image.settings_wallet()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
             cell.detailTextLabel?.text = strongSelf.account.address.eip55String
@@ -123,6 +125,7 @@ class SettingsViewController: FormViewController {
             cell.detailTextLabel?.textColor = Colors.settingsSubtitleColor
         }.cellUpdate { [weak self] cell, _ in
             guard let strongSelf = self else { return }
+            cell.height = { strongSelf.cellWithSubtitleHeight }
             cell.imageView?.image = R.image.settings_language()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
             cell.textLabel?.text = strongSelf.viewModel.localeTitle
             cell.detailTextLabel?.text = AppLocale(id: Config.getLocale()).displayName
@@ -207,6 +210,7 @@ class SettingsViewController: FormViewController {
             row.cellStyle = .value1
             row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
                 let vc = HelpViewController(delegate: self)
+                vc.hidesBottomBarWhenPushed = true
                 return vc
             }, onDismiss: { _ in
             })
@@ -295,6 +299,9 @@ class SettingsViewController: FormViewController {
             var header = HeaderFooterView<SettingsHeaderView>(.class)
             header.onSetupView = { view, _ in
                 view.title = title
+            }
+            if !title.isEmpty {
+                header.height = { 50 }
             }
             section.header = header
         }

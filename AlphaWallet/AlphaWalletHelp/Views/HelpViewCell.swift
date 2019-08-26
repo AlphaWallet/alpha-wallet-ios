@@ -3,60 +3,42 @@
 import UIKit
 
 class HelpViewCell: UITableViewCell {
-	static let identifier = "HelpViewCell"
+    static let identifier = "HelpViewCell"
 
-	private let background = UIView()
-	private let titleLabel = UILabel()
-	private let iconImageView = UIImageView()
+    private let titleLabel = UILabel()
+    private let iconImageView = UIImageView()
 
-	override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-		super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-		background.translatesAutoresizingMaskIntoConstraints = false
-		contentView.addSubview(background)
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(titleLabel)
 
-		titleLabel.translatesAutoresizingMaskIntoConstraints = false
-		background.addSubview(titleLabel)
+        iconImageView.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(iconImageView)
 
-		iconImageView.translatesAutoresizingMaskIntoConstraints = false
-		background.addSubview(iconImageView)
+        let xMargin  = CGFloat(7)
+        let yMargin  = CGFloat(4)
+        NSLayoutConstraint.activate([
+            iconImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -21),
+            iconImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+        ])
+    }
 
-		let xMargin  = CGFloat(7)
-		let yMargin  = CGFloat(4)
-		NSLayoutConstraint.activate([
-			titleLabel.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
-			titleLabel.trailingAnchor.constraint(equalTo: iconImageView.leadingAnchor),
-			titleLabel.centerYAnchor.constraint(equalTo: background.centerYAnchor),
-			titleLabel.topAnchor.constraint(equalTo: background.topAnchor, constant: 18),
-			titleLabel.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -18),
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-			iconImageView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
-			iconImageView.centerYAnchor.constraint(equalTo: background.centerYAnchor),
+    func configure(text: String) {
+        selectionStyle = .none
+        backgroundColor = Colors.appWhite
 
-			background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin),
-			background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-			background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-			background.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -yMargin),
-		])
-	}
+        contentView.backgroundColor = Colors.appWhite
 
-	required init?(coder aDecoder: NSCoder) {
-		fatalError("init(coder:) has not been implemented")
-	}
+        iconImageView.image = R.image.info_accessory()
 
-	func configure(text: String) {
-		selectionStyle = .none
-		backgroundColor = Colors.appBackground
-
-		contentView.backgroundColor = Colors.appBackground
-
-		background.backgroundColor = Colors.appWhite
-		background.layer.cornerRadius = 20
-
-		iconImageView.image = R.image.info_accessory()
-
-		titleLabel.textColor = Colors.appText
-		titleLabel.font = Fonts.light(size: 18)!
-		titleLabel.text = text
-	}
+        textLabel?.textColor = Colors.appText
+        textLabel?.font = Fonts.light(size: 18)!
+        textLabel?.text = text
+    }
 }

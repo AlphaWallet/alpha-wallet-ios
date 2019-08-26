@@ -16,9 +16,7 @@ struct AssetDefinitionsOverridesViewCellViewModel {
         return url.lastPathComponent
     }
 
-    let backgroundColor = Colors.appBackground
-    let bubbleBackgroundColor = Colors.appWhite
-    let bubbleRadius = CGFloat(20)
+    let backgroundColor = Colors.appWhite
 
     let textColor = Colors.appText
     let textFont = Fonts.light(size: 18)!

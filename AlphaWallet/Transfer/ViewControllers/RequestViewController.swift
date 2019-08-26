@@ -31,6 +31,7 @@ class RequestViewController: UIViewController {
 		button.setTitleColor(viewModel.buttonTitleColor, for: .normal)
 		button.backgroundColor = viewModel.buttonBackgroundColor
 		button.addTarget(self, action: #selector(copyAddress), for: .touchUpInside)
+		button.cornerRadius = Metrics.CornerRadius.button
 		return button
 	}()
 
@@ -58,6 +59,7 @@ class RequestViewController: UIViewController {
 		let v = UIView()
 		v.translatesAutoresizingMaskIntoConstraints = false
 		v.backgroundColor = viewModel.addressBackgroundColor
+        v.cornerRadius = Metrics.CornerRadius.textbox
 		return v
 	}()
 
@@ -117,16 +119,6 @@ class RequestViewController: UIViewController {
 		])
 
 		changeQRCode(value: 0)
-	}
-
-	override func viewDidLayoutSubviews() {
-		super.viewDidLayoutSubviews()
-		roundCornersBasedOnHeight()
-	}
-
-	private func roundCornersBasedOnHeight() {
-		copyButton.cornerRadius = copyButton.frame.size.height / 2
-		addressContainerView.cornerRadius = addressContainerView.frame.size.height / 2
 	}
 
 	private func displayStackViewController() {

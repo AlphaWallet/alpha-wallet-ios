@@ -299,7 +299,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         noteLabel.font = viewModel.noteLabelFont
         noteLabel.text = viewModel.noteLabelText
 
-        noteBorderView.layer.cornerRadius = 20
+        noteBorderView.layer.cornerRadius = viewModel.noteCornerRadius
         noteBorderView.layer.borderColor = viewModel.noteBorderColor.cgColor
         noteBorderView.layer.borderWidth = 1
 
@@ -310,12 +310,6 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         let nextButton = buttonsBar.buttons[0]
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        linkExpiryDateField.layer.cornerRadius = linkExpiryDateField.frame.size.height / 2
-        linkExpiryTimeField.layer.cornerRadius = linkExpiryTimeField.frame.size.height / 2
     }
 
     @objc func datePickerValueChanged() {
