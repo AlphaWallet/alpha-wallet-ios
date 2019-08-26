@@ -80,7 +80,7 @@ class ConfirmPaymentViewController: UIViewController {
         let items: [UIView] = [
             .spacer(),
             header,
-            TransactionAppearance.divider(color: Colors.lightGray, alpha: 0.3),
+            .spacer(),
             TransactionAppearance.item(
                 title: detailsViewModel.paymentFromTitle,
                 subTitle: session.account.address.eip55String
