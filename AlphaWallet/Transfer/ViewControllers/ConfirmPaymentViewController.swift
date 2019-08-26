@@ -199,11 +199,27 @@ class ConfirmPaymentViewController: UIViewController {
     @objc func send() {
         displayLoading()
 
-    let transaction = configurator.formUnsignedTransaction()
+        let transaction = configurator.formUnsignedTransaction()
         sendTransactionCoordinator.send(transaction: transaction) { [weak self] result in
             guard let strongSelf = self else { return }
             strongSelf.didCompleted?(result)
             strongSelf.hideLoading()
+            strongSelf.showFeedbackOnSuccess(result)
+        }
+    }
+
+    private func showFeedbackOnSuccess(_ result: Result<ConfirmResult, AnyError>) {
+        let feedbackGenerator = UINotificationFeedbackGenerator()
+        feedbackGenerator.prepare()
+        switch result {
+        case .success:
+            //Hackish, but delay necessary because of the switch to and from user-presence for signing
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                //TODO sound too
+                feedbackGenerator.notificationOccurred(.success)
+            }
+        case .failure:
+            break
         }
     }
 }
