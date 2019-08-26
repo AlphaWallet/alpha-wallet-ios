@@ -46,7 +46,12 @@ class TokenViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(tableView)
 
-        roundedBackground.addSubview(buttonsBar)
+        let footerBar = UIView()
+        footerBar.translatesAutoresizingMaskIntoConstraints = false
+        footerBar.backgroundColor = .clear
+        roundedBackground.addSubview(footerBar)
+
+        footerBar.addSubview(buttonsBar)
 
         configureBalanceViewModel()
 
@@ -56,10 +61,15 @@ class TokenViewController: UIViewController {
 
             tableView.anchorsConstraint(to: roundedBackground),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
             buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
-            buttonsBar.bottomAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.marginAtBottomScreen),
+
+            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             roundedBackground.createConstraintsWithContainer(view: view),
         ])
@@ -67,6 +77,20 @@ class TokenViewController: UIViewController {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        guard let buttonsBarHolder = buttonsBar.superview else {
+            tableView.contentInset = .zero
+            return
+        }
+        //TODO We are basically calculating the bottom safe area here. Don't rely on the internals of how buttonsBar and it's parent are laid out
+        if buttonsBar.isEmpty {
+            tableView.contentInset = .init(top: 0, left: 0, bottom: buttonsBarHolder.frame.size.height - buttonsBar.frame.size.height, right: 0)
+        } else {
+            tableView.contentInset = .init(top: 0, left: 0, bottom: tableView.frame.size.height - buttonsBarHolder.frame.origin.y, right: 0)
+        }
     }
 
     func configure(viewModel: TokenViewControllerViewModel) {
