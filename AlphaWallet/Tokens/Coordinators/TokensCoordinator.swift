@@ -16,6 +16,7 @@ fileprivate struct NoContractDetailsDetected: Error {
 class TokensCoordinator: Coordinator {
     private let sessions: ServerDictionary<WalletSession>
     private let keystore: Keystore
+    private let config: Config
     private let tokenCollection: TokenCollection
     private let nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>
     private let assetDefinitionStore: AssetDefinitionStore
@@ -73,6 +74,7 @@ class TokensCoordinator: Coordinator {
             navigationController: UINavigationController = NavigationController(),
             sessions: ServerDictionary<WalletSession>,
             keystore: Keystore,
+            config: Config,
             tokenCollection: TokenCollection,
             nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>,
             assetDefinitionStore: AssetDefinitionStore,
@@ -82,6 +84,7 @@ class TokensCoordinator: Coordinator {
         self.navigationController.modalPresentationStyle = .formSheet
         self.sessions = sessions
         self.keystore = keystore
+        self.config = config
         self.tokenCollection = tokenCollection
         self.nativeCryptoCurrencyPrices = nativeCryptoCurrencyPrices
         self.assetDefinitionStore = assetDefinitionStore
@@ -142,7 +145,7 @@ class TokensCoordinator: Coordinator {
     }
 
     private func showServers(inViewController viewController: UIViewController) {
-        let coordinator = ServersCoordinator(defaultServer: serverToAddCustomTokenOn)
+        let coordinator = ServersCoordinator(defaultServer: serverToAddCustomTokenOn, config: config)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
