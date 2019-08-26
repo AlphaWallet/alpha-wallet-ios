@@ -707,10 +707,12 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
                 open(url: url, animated: false)
             }
         }
+        nativeCryptoCurrencyBalanceView.show()
     }
 
     func didSelectDismiss(in coordinator: ServersCoordinator) {
         coordinator.serversViewController.navigationController?.dismiss(animated: true)
         removeCoordinator(coordinator)
+        nativeCryptoCurrencyBalanceView.show()
     }
 }
