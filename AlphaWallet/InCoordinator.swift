@@ -294,6 +294,7 @@ class InCoordinator: NSObject, Coordinator {
         let coordinator = TokensCoordinator(
                 sessions: walletSessions,
                 keystore: keystore,
+                config: config,
                 tokenCollection: tokenCollection,
                 nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices,
                 assetDefinitionStore: assetDefinitionStore,
@@ -324,7 +325,7 @@ class InCoordinator: NSObject, Coordinator {
     }
 
     private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, realm: Realm, browserOnly: Bool) -> DappBrowserCoordinator {
-        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, sharedRealm: realm, browserOnly: browserOnly)
+        let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly)
         coordinator.delegate = self
         coordinator.start()
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.dapps_icon(), selectedImage: nil)
