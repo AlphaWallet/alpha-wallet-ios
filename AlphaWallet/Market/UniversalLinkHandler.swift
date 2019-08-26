@@ -322,7 +322,7 @@ public class UniversalLinkHandler {
         //handle JB code if he uses non standard format
         if var vInt = Int(v) {
             if vInt < 5 {
-                vInt += 27
+                vInt += Int(EthereumSigner.vitaliklizeConstant)
                 v = String(format: "%2X", vInt)
             }
         }
