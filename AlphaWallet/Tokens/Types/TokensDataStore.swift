@@ -16,16 +16,20 @@ protocol TokensDataStoreDelegate: class {
 }
 
 class TokensDataStore {
-    private lazy var getBalanceCoordinator: GetBalanceCoordinator = {
-        return GetBalanceCoordinator(forServer: server)
-    }()
-
     private lazy var getNameCoordinator: GetNameCoordinator = {
         return GetNameCoordinator(forServer: server)
     }()
 
     private lazy var getSymbolCoordinator: GetSymbolCoordinator = {
         return GetSymbolCoordinator(forServer: server)
+    }()
+
+    private lazy var getNativeCryptoCurrencyBalanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator = {
+        return GetNativeCryptoCurrencyBalanceCoordinator(forServer: server)
+    }()
+
+    private lazy var getERC20BalanceCoordinator: GetERC20BalanceCoordinator = {
+        return GetERC20BalanceCoordinator(forServer: server)
     }()
 
     private lazy var getERC875BalanceCoordinator: GetERC875BalanceCoordinator = {
@@ -253,6 +257,12 @@ class TokensDataStore {
         }
     }
 
+    func getERC20Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<BigInt, AnyError>.t) -> Void) {
+        getERC20BalanceCoordinator.getBalance(for: account.address, contract: address) { result in
+            completion(result)
+        }
+    }
+
     func getERC875Balance(for address: AlphaWallet.Address,
                           completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
         getERC875BalanceCoordinator.getERC875TokenBalance(for: account.address, contract: address) { result in
@@ -359,7 +369,7 @@ class TokensDataStore {
             case .nativeCryptocurrency:
                 incrementCountAndUpdateDelegate()
             case .erc20:
-                getBalanceCoordinator.getBalance(for: account.address, contract: tokenObject.contractAddress) { [weak self] result in
+                getERC20Balance(for: tokenObject.contractAddress, completion: { [weak self] result in
                     defer { incrementCountAndUpdateDelegate() }
                     guard let strongSelf = self else { return }
                     switch result {
@@ -368,7 +378,7 @@ class TokensDataStore {
                     case .failure:
                         break
                     }
-                }
+                })
             case .erc875:
                 getERC875Balance(for: tokenObject.contractAddress, completion: { [weak self] result in
                     defer { incrementCountAndUpdateDelegate() }
@@ -458,7 +468,7 @@ class TokensDataStore {
     }
 
     func refreshETHBalance() {
-        getBalanceCoordinator.getEthBalance(for: account.address) {  [weak self] result in
+        getNativeCryptoCurrencyBalanceCoordinator.getBalance(for: account.address) {  [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let balance):
