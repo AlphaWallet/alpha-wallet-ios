@@ -22,9 +22,11 @@ class ServersCoordinator: Coordinator {
 
     private let defaultServer: RPCServerOrAuto
     private let includeAny: Bool
+    private let config: Config
 
     private var serverChoices: [RPCServerOrAuto] {
-        let servers: [RPCServerOrAuto] = ServersCoordinator.serversOrdered.map { .server($0) }
+        let enabledServers = ServersCoordinator.serversOrdered.filter { config.enabledServers.contains($0) }
+        let servers: [RPCServerOrAuto] = enabledServers.map { .server($0) }
         if includeAny {
             return [.auto] + servers
         } else {
@@ -43,14 +45,16 @@ class ServersCoordinator: Coordinator {
     }()
     weak var delegate: ServersCoordinatorDelegate?
 
-    init(defaultServer: RPCServerOrAuto) {
+    init(defaultServer: RPCServerOrAuto, config: Config) {
         self.defaultServer = defaultServer
         self.includeAny = true
+        self.config = config
     }
 
-    init(defaultServer: RPCServer) {
+    init(defaultServer: RPCServer, config: Config) {
         self.defaultServer = .server(defaultServer)
         self.includeAny = false
+        self.config = config
     }
 
     func start() {
