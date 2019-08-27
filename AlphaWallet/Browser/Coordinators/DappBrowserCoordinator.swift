@@ -352,6 +352,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     private func showServers() {
+        nativeCryptoCurrencyBalanceView.hide()
         let coordinator = ServersCoordinator(defaultServer: server, config: config)
         coordinator.delegate = self
         coordinator.start()
