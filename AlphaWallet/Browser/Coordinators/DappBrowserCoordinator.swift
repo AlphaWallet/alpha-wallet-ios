@@ -204,6 +204,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     }
 
     func signMessage(with type: SignMessageType, account: EthereumAccount, callbackID: Int) {
+        nativeCryptoCurrencyBalanceView.hide()
         let coordinator = SignMessageCoordinator(
             navigationController: navigationController,
             keystore: keystore,
@@ -228,6 +229,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             }
             coordinator.didComplete = nil
             strongSelf.removeCoordinator(coordinator)
+            strongSelf.nativeCryptoCurrencyBalanceView.show()
         }
         coordinator.delegate = self
         addCoordinator(coordinator)
