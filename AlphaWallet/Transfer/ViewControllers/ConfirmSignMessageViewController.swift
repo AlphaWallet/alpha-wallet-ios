@@ -14,12 +14,23 @@ class ConfirmSignMessageViewController: UIViewController {
 	private let header = TokensCardViewControllerTitleHeader()
     private let detailsBackground = UIView()
     private let singleMessageLabel = UILabel()
+    private let singleMessageScrollView = UIScrollView()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let actionButton = UIButton()
     private let cancelButton = UIButton()
     private var viewModel: ConfirmSignMessageViewControllerViewModel?
-    lazy private var tableViewHeightConstraint = tableView.heightAnchor.constraint(equalToConstant: 0)
+    lazy private var tableViewHeightConstraint: NSLayoutConstraint = {
+        let constraint = tableView.heightAnchor.constraint(equalToConstant: 0)
+        constraint.priority = .defaultHigh
+        return constraint
+    }()
     private var tableViewContentSizeObserver: NSKeyValueObservation?
+    lazy private var scrollViewHeightConstraint: NSLayoutConstraint = {
+        let constraint = singleMessageScrollView.heightAnchor.constraint(equalToConstant: 0)
+        constraint.priority = .defaultHigh
+        return constraint
+    }()
+    private var scrollViewContentSizeObserver: NSKeyValueObservation?
 
     weak var delegate: ConfirmSignMessageViewControllerDelegate?
 
@@ -34,10 +45,7 @@ class ConfirmSignMessageViewController: UIViewController {
         view.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
-        singleMessageLabel.translatesAutoresizingMaskIntoConstraints = false
-
         tableView.register(ConfirmSignMessageTableViewCell.self, forCellReuseIdentifier: ConfirmSignMessageTableViewCell.identifier)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.separatorStyle = .none
 
@@ -47,11 +55,14 @@ class ConfirmSignMessageViewController: UIViewController {
         actionButton.addTarget(self, action: #selector(proceed), for: .touchUpInside)
         cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
 
+        singleMessageLabel.translatesAutoresizingMaskIntoConstraints = false
+        singleMessageScrollView.addSubview(singleMessageLabel)
+
         let stackView = [
 			header,
             .spacer(height: 20),
             tableView,
-            singleMessageLabel,
+            singleMessageScrollView,
             .spacer(height: 30),
             actionButton,
             .spacer(height: 10),
@@ -61,7 +72,6 @@ class ConfirmSignMessageViewController: UIViewController {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
 
-        tableView.isScrollEnabled = false
         NSLayoutConstraint.activate([
             header.heightAnchor.constraint(equalToConstant: 60),
             //Strange repositioning of header horizontally while typing without this
@@ -72,21 +82,30 @@ class ConfirmSignMessageViewController: UIViewController {
 
             detailsBackground.leadingAnchor.constraint(equalTo: background.leadingAnchor),
             detailsBackground.trailingAnchor.constraint(equalTo: background.trailingAnchor),
-            detailsBackground.topAnchor.constraint(lessThanOrEqualTo: singleMessageLabel.topAnchor, constant: -12),
-            detailsBackground.bottomAnchor.constraint(greaterThanOrEqualTo: singleMessageLabel.bottomAnchor, constant: 12),
+            detailsBackground.topAnchor.constraint(lessThanOrEqualTo: singleMessageScrollView.topAnchor, constant: -12),
+            detailsBackground.bottomAnchor.constraint(greaterThanOrEqualTo: singleMessageScrollView.bottomAnchor, constant: 12),
+
             detailsBackground.topAnchor.constraint(lessThanOrEqualTo: tableView.topAnchor, constant: -12),
             detailsBackground.bottomAnchor.constraint(greaterThanOrEqualTo: tableView.bottomAnchor, constant: 12),
 
             tableViewHeightConstraint,
+            scrollViewHeightConstraint,
 
             actionButton.heightAnchor.constraint(equalToConstant: 47),
             cancelButton.heightAnchor.constraint(equalTo: actionButton.heightAnchor),
 
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 30, bottom: 16, right: 30)),
 
+            singleMessageLabel.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 30),
+            singleMessageLabel.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -30),
+            singleMessageLabel.topAnchor.constraint(equalTo: singleMessageScrollView.topAnchor),
+            singleMessageLabel.bottomAnchor.constraint(equalTo: singleMessageScrollView.bottomAnchor),
+
             background.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 42),
             background.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -42),
-            background.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            background.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            background.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor, constant: 100),
+            background.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -100),
         ])
     }
 
@@ -107,13 +126,29 @@ class ConfirmSignMessageViewController: UIViewController {
             singleMessageLabel.textColor = viewModel.singleMessageLabelTextColor
             singleMessageLabel.font = viewModel.singleMessageLabelFont
             singleMessageLabel.text = viewModel.singleMessageLabelText
+            //We don't need to check if it's more than 1 line, the scroll indicator wouldn't flash if there's too little content
+            if !viewModel.singleMessageLabelText.isEmpty {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    self.singleMessageScrollView.flashScrollIndicators()
+                }
+            }
 
             tableView.backgroundColor = viewModel.detailsBackgroundBackgroundColor
             tableView.reloadData()
+            if viewModel.typedMessagesCount > 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    self.tableView.flashScrollIndicators()
+                }
+            }
             tableViewContentSizeObserver = tableView.observe(\UITableView.contentSize, options: [.new]) { [weak self] (_, change) in
                 guard let strongSelf = self else { return }
                 guard let newSize = change.newValue else { return }
                 strongSelf.tableViewHeightConstraint.constant = newSize.height
+            }
+            scrollViewContentSizeObserver = singleMessageScrollView.observe(\UIScrollView.contentSize, options: [.new]) { [weak self] (_, change) in
+                guard let strongSelf = self else { return }
+                guard let newSize = change.newValue else { return }
+                strongSelf.scrollViewHeightConstraint.constant = newSize.height
             }
 
             detailsBackground.backgroundColor = viewModel.detailsBackgroundBackgroundColor
