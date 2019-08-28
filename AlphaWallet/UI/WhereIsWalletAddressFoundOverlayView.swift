@@ -123,13 +123,13 @@ fileprivate class Dialog: UIView {
         titleLabel.font = Fonts.regular(size: 24)
         titleLabel.textColor = .init(red: 33, green: 33, blue: 33)
         titleLabel.textAlignment = .center
-        titleLabel.text = R.string.localizable.onboardingNewWalletFindAddressTitle()
+        titleLabel.text = R.string.localizable.onboardingNewWalletBackupWalletTitle()
 
         descriptionLabel.numberOfLines = 0
         descriptionLabel.font = Fonts.regular(size: 18)
         descriptionLabel.textColor = .init(red: 102, green: 102, blue: 102)
         descriptionLabel.textAlignment = .center
-        descriptionLabel.text = R.string.localizable.onboardingNewWalletFindAddressDescription()
+        descriptionLabel.text = R.string.localizable.onboardingNewWalletBackupWalletDescription()
 
         buttonsBar.configure()
         let continueButton = buttonsBar.buttons[0]
