@@ -103,7 +103,7 @@ private struct ButtonsBarViewModel {
     }
 
     var disabledButtonBackgroundColor: UIColor {
-        return Colors.gray
+        return Colors.disabledActionButton
     }
 
     var buttonTitleColor: UIColor {
@@ -111,7 +111,7 @@ private struct ButtonsBarViewModel {
     }
 
     var disabledButtonTitleColor: UIColor {
-        return Colors.darkGray
+        return Colors.appWhite
     }
 
     var buttonCornerRadius: CGFloat {
