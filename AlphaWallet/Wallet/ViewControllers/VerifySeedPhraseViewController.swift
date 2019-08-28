@@ -313,10 +313,14 @@ extension VerifySeedPhraseViewController: SeedPhraseCollectionViewDelegate {
         } else {
             seedPhraseTextView.text += " \(word)"
         }
-        clearChooseSeedPhraseButton.isHidden = false
         clearError()
         if collectionView.viewModel.isEveryWordSelected {
+            //Deliberately hide the Clear button after user has chosen all the words, as they are likely to want to verify now and we don't want them to accidentally hit the Clear button
+            clearChooseSeedPhraseButton.isHidden = true
             continueButton.isEnabled = true
+        } else {
+            clearChooseSeedPhraseButton.isHidden = false
+            continueButton.isEnabled = false
         }
     }
 }
