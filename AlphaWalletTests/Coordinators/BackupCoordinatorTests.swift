@@ -12,7 +12,7 @@ class BackupCoordinatorTests: XCTestCase {
         )
         coordinator.start()
 
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is ShowSeedPhraseViewController)
+        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is SeedPhraseBackupIntroductionViewController)
     }
 
     func testStartWithKeystoreWallet() {
