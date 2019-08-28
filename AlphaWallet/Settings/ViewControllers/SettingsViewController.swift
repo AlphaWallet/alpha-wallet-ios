@@ -64,30 +64,33 @@ class SettingsViewController: FormViewController {
 
         let firstSection = createSection(withTitle: "")
 
-        <<< AppFormAppearance.alphaWalletSettingsButton {
-            $0.title = R.string.localizable.aSettingsContentsMyWalletAddress()
-        }.onCellSelection { [unowned self] _, _ in
-            self.delegate?.didAction(action: .myWalletAddress, in: self)
-        }.cellSetup { cell, _ in
-            cell.imageView?.tintColor = Colors.appBackground
-            cell.imageView?.image = R.image.settings_wallet1()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
-            cell.accessoryType = .disclosureIndicator
-        }
-
         <<< AppFormAppearance.alphaWalletSettingsButton { button in
             button.cellStyle = .subtitle
         }.onCellSelection { [unowned self] _, _ in
-            self.run(action: .wallets)
+            self.delegate?.didAction(action: .myWalletAddress, in: self)
         }.cellSetup { cell, _ in
             cell.imageView?.tintColor = Colors.appBackground
             cell.detailTextLabel?.textColor = Colors.settingsSubtitleColor
         }.cellUpdate { [weak self] cell, _ in
             guard let strongSelf = self else { return }
             cell.height = { strongSelf.cellWithSubtitleHeight }
-            cell.imageView?.image = R.image.settings_wallet()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
+            cell.imageView?.image = R.image.settings_wallet1()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = R.string.localizable.aSettingsContentsMyWalletAddress()
             cell.detailTextLabel?.text = strongSelf.account.address.eip55String
             cell.detailTextLabel?.lineBreakMode = .byTruncatingMiddle
+            cell.accessoryType = .disclosureIndicator
+        }
+
+        <<< AppFormAppearance.alphaWalletSettingsButton { button in
+            button.cellStyle = .value1
+        }.onCellSelection { [unowned self] _, _ in
+            self.run(action: .wallets)
+        }.cellSetup { cell, _ in
+            cell.imageView?.tintColor = Colors.appBackground
+        }.cellUpdate { [weak self] cell, _ in
+            guard let strongSelf = self else { return }
+            cell.imageView?.image = R.image.settings_wallet()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
+            cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
             cell.accessoryType = .disclosureIndicator
         }
 
