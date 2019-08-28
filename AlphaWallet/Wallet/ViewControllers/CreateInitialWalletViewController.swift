@@ -56,7 +56,7 @@ class CreateInitialWalletViewController: UIViewController {
             separator,
             UIView.spacer(height: 25),
             haveWalletLabel,
-            UIView.spacer(height: 25),
+            UIView.spacer(height: 15),
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
@@ -71,7 +71,10 @@ class CreateInitialWalletViewController: UIViewController {
         NSLayoutConstraint.activate([
             imageView.heightAnchor.constraint(equalToConstant: imageViewDimension),
 
-            stackView.anchorsConstraint(to: view, edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20)),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            stackView.topAnchor.constraint(equalTo: view.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
             createWalletButtonBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
 
@@ -111,7 +114,7 @@ class CreateInitialWalletViewController: UIViewController {
         haveWalletLabel.text = viewModel.alreadyHaveWalletText
 
         createWalletButtonBar.configure()
-        let createWalletButton = createWalletButtonBar .buttons[0]
+        let createWalletButton = createWalletButtonBar.buttons[0]
         createWalletButton.setTitle(viewModel.createButtonTitle, for: .normal)
         createWalletButton.addTarget(self, action: #selector(createWallet), for: .touchUpInside)
 
