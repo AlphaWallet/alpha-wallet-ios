@@ -57,6 +57,9 @@ class VerifySeedPhraseViewController: UIViewController {
                 seedPhraseTextView.borderColor = viewModel.seedPhraseTextViewBorderErrorColor
             case .notDisplayedSeedPhrase:
                 seedPhraseCollectionView.viewModel = .init(words: [], isSelectable: true)
+                seedPhraseTextView.text = ""
+                clearChooseSeedPhraseButton.isHidden = true
+                continueButton.isEnabled = false
             case .errorDisplaySeedPhrase(let error):
                 seedPhraseCollectionView.viewModel = .init(words: [], isSelectable: true)
                 errorLabel.text = error.errorDescription
