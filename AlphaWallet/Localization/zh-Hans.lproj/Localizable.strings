@@ -385,8 +385,8 @@
 "backup.prompt.afterInterval.description" = "We highly recommend to back up your wallet";
 "backup.prompt.afterHittingThreshold.title" = "Your Wallet is at risk!";
 "backup.prompt.afterHittingThreshold.description" = "You have not backed up your wallet yet. You have %@ USD net. Act now. ";
-"onboarding.newWallet.findAddress.title" = "Find your Wallet Address";
-"onboarding.newWallet.findAddress.description" = "Tap here to find your Ethereum Wallet address";
+"onboarding.newWallet.backupWallet.title" = "Back up your Wallet";
+"onboarding.newWallet.backupWallet.description" = "Your funds will be at risk if you do not back up before using your wallet";
 "keystore.accessKey.nonHd.backup" = "Accessing your wallet key to back it up";
 "keystore.accessKey.hd.backup" = "Accessing your wallet seed phrase to back it up";
 "keystore.accessKey.hd.verify" = "Accessing your wallet seed phrase to verify against it";
