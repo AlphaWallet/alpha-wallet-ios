@@ -53,5 +53,19 @@ class SuccessOverlayView: UIView {
         let feedbackGenerator = UINotificationFeedbackGenerator()
         feedbackGenerator.prepare()
         feedbackGenerator.notificationOccurred(.success)
+
+        hideAfterAWhile()
+    }
+
+    private func hideAfterAWhile() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            guard let strongSelf = self else { return }
+            guard strongSelf.superview != nil else { return }
+            UIView.animate(withDuration: 0.3, animations: {
+                strongSelf.alpha = 0
+            }, completion: { _ in
+                strongSelf.hide()
+            })
+        }
     }
 }
