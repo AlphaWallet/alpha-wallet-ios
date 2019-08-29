@@ -69,6 +69,7 @@ struct Colors {
     static let appText = UIColor(red: 47, green: 47, blue: 47)
     static let appHighlightGreen = UIColor(red: 117, green: 185, blue: 67)
     static let appActionButtonGreen = UIColor(red: 105, green: 200, blue: 0)
+    static let disabledActionButton = UIColor(hex: "d7ebc8")
     static let appActionButtonShadow = UIColor.clear
     static let appGreenContrastBackground = UIColor(red: 86, green: 153, blue: 8)
     static let appLightButtonSeparator = UIColor(red: 255, green: 255, blue: 255, alpha: 0.2)
