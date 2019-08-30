@@ -25,7 +25,6 @@ class ShowSeedPhraseViewController: UIViewController {
     private let account: EthereumAccount
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
-    private let descriptionLabel = UILabel()
     private let errorLabel = UILabel()
     private var state: State = .notDisplayedSeedPhrase {
         didSet {
@@ -92,7 +91,6 @@ class ShowSeedPhraseViewController: UIViewController {
         let stackView = [
             UIView.spacer(height: 30),
             subtitleLabel,
-            descriptionLabel,
             UIView.spacer(height: 10),
             errorLabel,
             UIView.spacer(height: 50),
@@ -191,12 +189,6 @@ class ShowSeedPhraseViewController: UIViewController {
         //Important for smaller screens
         subtitleLabel.numberOfLines = 0
         subtitleLabel.text = viewModel.subtitle
-
-        descriptionLabel.textAlignment = .center
-        descriptionLabel.textColor = viewModel.descriptionColor
-        descriptionLabel.font = viewModel.descriptionFont
-        descriptionLabel.numberOfLines = 0
-        descriptionLabel.text = viewModel.description
 
         errorLabel.textColor = viewModel.errorColor
         errorLabel.font = viewModel.errorFont
