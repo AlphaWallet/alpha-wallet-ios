@@ -31,7 +31,6 @@ class SettingsViewController: FormViewController {
         didSet {
             oldValue?.removeFromSuperview()
             if let promptBackupWalletView = promptBackupWalletView {
-                promptBackupWalletViewHolder.isHidden = false
                 promptBackupWalletView.translatesAutoresizingMaskIntoConstraints = false
                 promptBackupWalletViewHolder.addSubview(promptBackupWalletView)
                 NSLayoutConstraint.activate([
@@ -41,8 +40,9 @@ class SettingsViewController: FormViewController {
                     promptBackupWalletView.bottomAnchor.constraint(equalTo: promptBackupWalletViewHolder.bottomAnchor, constant: 0),
                 ])
                 tabBarItem.badgeValue = "1"
+                showPromptBackupWalletViewAsTableHeaderView()
             } else {
-                promptBackupWalletViewHolder.isHidden = true
+                hidePromptBackupWalletView()
                 tabBarItem.badgeValue = nil
             }
         }
@@ -61,6 +61,8 @@ class SettingsViewController: FormViewController {
         view.backgroundColor = Colors.appBackground
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = Colors.appBackground
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
 
         let firstSection = createSection(withTitle: "")
 
@@ -236,27 +238,31 @@ class SettingsViewController: FormViewController {
 
         //Check for nil is important because the prompt might have been shown before viewDidLoad
         if promptBackupWalletView == nil {
-            promptBackupWalletViewHolder.isHidden = true
+            hidePromptBackupWalletView()
         }
 
-        let bodyStackView = [
-            promptBackupWalletViewHolder,
-            tableView,
-        ].asStackView(axis: .vertical)
-        bodyStackView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(bodyStackView)
-
         NSLayoutConstraint.activate([
-            bodyStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bodyStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bodyStackView.topAnchor.constraint(equalTo: view.topAnchor),
-            bodyStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.anchorsConstraint(to: view),
         ])
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         reflectCurrentWalletSecurityLevel()
+    }
+
+    private func showPromptBackupWalletViewAsTableHeaderView() {
+        let size = promptBackupWalletViewHolder.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+        promptBackupWalletViewHolder.bounds.size.height = size.height
+        //Access `view` to force it to be created to avoid crashing when we access `tableView` next, because `tableView` is only created after that, and is defined as `UITableView!`.
+        let _ = view
+        tableView.tableHeaderView = promptBackupWalletViewHolder
+    }
+
+    private func hidePromptBackupWalletView() {
+        //`tableView` is defined as `UIUTableView!` and may not have been created yet
+        guard tableView != nil && tableView.tableHeaderView != nil else { return }
+        tableView.tableHeaderView = nil
     }
 
     private func reflectCurrentWalletSecurityLevel() {
