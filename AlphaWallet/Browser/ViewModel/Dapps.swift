@@ -54,7 +54,8 @@ enum Dapps {
         Dapp(name: "Bidali", description: "Buy from top brands with crypto", url: "https://commerce.bidali.com/dapp", cat: "Marketplace"),
         Dapp(name: "ENS domain manager", description: "Manage ENS domains", url: "https://manager.ens.domains", cat: "Tool"),
         Dapp(name: "Humanity", description: "Human Identity on Ethereum", url: "https://humanitydao.org", cat: "Social Media"),
-        Dapp(name: "DEX.AG", description: "Trade cryptoassets at the best price", url: "https://dex.ag", cat: "Exchange")
+        Dapp(name: "DEX.AG", description: "Trade cryptoassets at the best price", url: "https://dex.ag", cat: "Exchange"),
+        Dapp(name: "Totle Swap", description: "Totle automatically finds and acquires the best price across decentralized exchanges for ERC-20 swaps", url: "https://swap.totle.com", cat: "Exchange")
 
     ]
 
