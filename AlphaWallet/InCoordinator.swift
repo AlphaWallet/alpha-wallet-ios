@@ -300,7 +300,7 @@ class InCoordinator: NSObject, Coordinator {
                 assetDefinitionStore: assetDefinitionStore,
                 promptBackupCoordinator: promptBackupCoordinator
         )
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.tab_wallet())
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -317,7 +317,7 @@ class InCoordinator: NSObject, Coordinator {
                 tokensStorages: tokensStorages,
                 promptBackupCoordinator: promptBackupCoordinator
         )
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.transactionsTabbarItemTitle(), image: R.image.feed()?.withRenderingMode(.alwaysOriginal), selectedImage: R.image.feed())
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.transactionsTabbarItemTitle(), image: R.image.tab_transactions(), selectedImage: nil)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
@@ -328,7 +328,7 @@ class InCoordinator: NSObject, Coordinator {
         let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly)
         coordinator.delegate = self
         coordinator.start()
-        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.dapps_icon(), selectedImage: nil)
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.browserTabbarItemTitle(), image: R.image.tab_browser(), selectedImage: nil)
         addCoordinator(coordinator)
         return coordinator
     }
@@ -340,11 +340,7 @@ class InCoordinator: NSObject, Coordinator {
                 sessions: walletSessions,
                 promptBackupCoordinator: promptBackupCoordinator
         )
-        coordinator.rootViewController.tabBarItem = UITabBarItem(
-                title: R.string.localizable.aSettingsNavigationTitle(),
-                image: R.image.tab_settings()?.withRenderingMode(.alwaysOriginal),
-                selectedImage: R.image.tab_settings()
-        )
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(), image: R.image.tab_settings(), selectedImage: nil)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
