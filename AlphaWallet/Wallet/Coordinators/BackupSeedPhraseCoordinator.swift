@@ -10,7 +10,7 @@ protocol BackupSeedPhraseCoordinatorDelegate: class {
 
 class BackupSeedPhraseCoordinator: Coordinator {
     private lazy var rootViewController: SeedPhraseBackupIntroductionViewController = {
-        let controller = SeedPhraseBackupIntroductionViewController()
+        let controller = SeedPhraseBackupIntroductionViewController(account: account)
         controller.delegate = self
         controller.configure()
         return controller
