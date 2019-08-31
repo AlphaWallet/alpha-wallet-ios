@@ -9,7 +9,13 @@ protocol BackupSeedPhraseCoordinatorDelegate: class {
 }
 
 class BackupSeedPhraseCoordinator: Coordinator {
-    private lazy var rootViewController: ShowSeedPhraseViewController = {
+    private lazy var rootViewController: SeedPhraseBackupIntroductionViewController = {
+        let controller = SeedPhraseBackupIntroductionViewController()
+        controller.delegate = self
+        controller.configure()
+        return controller
+    }()
+    private lazy var showSeedPhraseViewController: ShowSeedPhraseViewController = {
         let controller = ShowSeedPhraseViewController(keystore: keystore, account: account)
         controller.configure()
         controller.delegate = self
@@ -33,7 +39,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
     }
 
     func end() {
-        rootViewController.markDone()
+        showSeedPhraseViewController.markDone()
     }
 
     func endUserInterface(animated: Bool) {
@@ -50,5 +56,11 @@ extension BackupSeedPhraseCoordinator: ShowSeedPhraseViewControllerDelegate {
 
     func didClose(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController) {
         delegate?.didClose(forAccount: account, inCoordinator: self)
+    }
+}
+
+extension BackupSeedPhraseCoordinator: SeedPhraseBackupIntroductionViewControllerDelegate {
+    func didTapBackupWallet(inViewController viewController: SeedPhraseBackupIntroductionViewController) {
+        navigationController.pushViewController(showSeedPhraseViewController, animated: true)
     }
 }
