@@ -4,7 +4,6 @@ import UIKit
 
 protocol ShowSeedPhraseViewControllerDelegate: class {
     func didTapTestSeedPhrase(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController)
-    func didClose(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController)
 }
 
 //We must be careful to no longer show the seedphrase and remove it from memory when this screen is hidden because another VC is displayed over it or because the device is locked
@@ -136,7 +135,6 @@ class ShowSeedPhraseViewController: UIViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         if isMovingFromParent || isBeingDismissed {
-            delegate?.didClose(for: account, inViewController: self)
             return
         }
         removeSeedPhraseFromDisplay()
