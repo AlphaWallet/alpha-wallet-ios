@@ -4,8 +4,8 @@ import Foundation
 import UIKit
 
 protocol BackupSeedPhraseCoordinatorDelegate: class {
-    func didTapTestSeedPhrase(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator)
     func didClose(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator)
+    func didVerifySeedPhraseSuccessfully(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator)
 }
 
 class BackupSeedPhraseCoordinator: Coordinator {
@@ -17,6 +17,12 @@ class BackupSeedPhraseCoordinator: Coordinator {
     }()
     private lazy var showSeedPhraseViewController: ShowSeedPhraseViewController = {
         let controller = ShowSeedPhraseViewController(keystore: keystore, account: account)
+        controller.configure()
+        controller.delegate = self
+        return controller
+    }()
+    private lazy var verifySeedPhraseViewController: VerifySeedPhraseViewController = {
+        let controller = VerifySeedPhraseViewController(keystore: keystore, account: account)
         controller.configure()
         controller.delegate = self
         return controller
@@ -51,7 +57,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
 
 extension BackupSeedPhraseCoordinator: ShowSeedPhraseViewControllerDelegate {
     func didTapTestSeedPhrase(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController) {
-        delegate?.didTapTestSeedPhrase(forAccount: account, inCoordinator: self)
+        navigationController.pushViewController(verifySeedPhraseViewController, animated: true)
     }
 
     func didClose(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController) {
@@ -62,5 +68,11 @@ extension BackupSeedPhraseCoordinator: ShowSeedPhraseViewControllerDelegate {
 extension BackupSeedPhraseCoordinator: SeedPhraseBackupIntroductionViewControllerDelegate {
     func didTapBackupWallet(inViewController viewController: SeedPhraseBackupIntroductionViewController) {
         navigationController.pushViewController(showSeedPhraseViewController, animated: true)
+    }
+}
+
+extension BackupSeedPhraseCoordinator: VerifySeedPhraseViewControllerDelegate {
+    func didVerifySeedPhraseSuccessfully(for account: EthereumAccount, in viewController: VerifySeedPhraseViewController) {
+        delegate?.didVerifySeedPhraseSuccessfully(forAccount: account, inCoordinator: self)
     }
 }
