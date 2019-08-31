@@ -122,14 +122,11 @@ class BackupCoordinator: Coordinator {
         defer { backupSeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
         let elevateWalletSecurityCoordinator = coordinators.first { $0 is ElevateWalletSecurityCoordinator } as? ElevateWalletSecurityCoordinator
         defer { elevateWalletSecurityCoordinator.flatMap { removeCoordinator($0) } }
-        let verifySeedPhraseCoordinator = coordinators.first { $0 is VerifySeedPhraseCoordinator } as? VerifySeedPhraseCoordinator
-        defer { verifySeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
         let enterPasswordCoordinator = coordinators.first { $0 is EnterPasswordCoordinator } as? EnterPasswordCoordinator
         defer { enterPasswordCoordinator.flatMap { removeCoordinator($0) } }
 
         enterPasswordCoordinator?.end()
         backupSeedPhraseCoordinator?.end()
-        verifySeedPhraseCoordinator?.end()
         elevateWalletSecurityCoordinator?.end()
 
         //Must only call endUserInterface() on the coordinators managing the bottom-most view controller
@@ -147,14 +144,11 @@ class BackupCoordinator: Coordinator {
     private func cleanUpAfterBackupAndNotPromptedToElevateSecurity() {
         let backupSeedPhraseCoordinator = coordinators.first { $0 is BackupSeedPhraseCoordinator } as? BackupSeedPhraseCoordinator
         defer { backupSeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
-        let verifySeedPhraseCoordinator = coordinators.first { $0 is VerifySeedPhraseCoordinator } as? VerifySeedPhraseCoordinator
-        defer { verifySeedPhraseCoordinator.flatMap { removeCoordinator($0) } }
         let enterPasswordCoordinator = coordinators.first { $0 is EnterPasswordCoordinator } as? EnterPasswordCoordinator
         defer { enterPasswordCoordinator.flatMap { removeCoordinator($0) } }
 
         enterPasswordCoordinator?.end()
         backupSeedPhraseCoordinator?.end()
-        verifySeedPhraseCoordinator?.end()
 
         //Must only call endUserInterface() on the coordinators managing the bottom-most view controller
         //Only one of these 2 coordinators will be nil
@@ -181,20 +175,11 @@ extension BackupCoordinator: EnterPasswordCoordinatorDelegate {
 }
 
 extension BackupCoordinator: BackupSeedPhraseCoordinatorDelegate {
-    func didTapTestSeedPhrase(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
-        let coordinator = VerifySeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account)
-        coordinator.delegate = self
-        coordinator.start()
-        addCoordinator(coordinator)
-    }
-
     func didClose(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
         removeCoordinator(coordinator)
     }
-}
 
-extension BackupCoordinator: VerifySeedPhraseCoordinatorDelegate {
-    func didVerifySeedPhraseSuccessfully(forAccount account: EthereumAccount, inCoordinator coordinator: VerifySeedPhraseCoordinator) {
+    func didVerifySeedPhraseSuccessfully(forAccount account: EthereumAccount, inCoordinator coordinator: BackupSeedPhraseCoordinator) {
         promptElevateSecurityOrEnd()
     }
 }
