@@ -73,8 +73,8 @@
 "wallets.backupKeystoreWallet.introduction.title" = "What is Keystore JSON?";
 "wallets.backupKeystoreWallet.introduction.description" = "A Keystore is a text file. You can copy its contents when you want to import your wallet. This is a safe way to back up a wallet.";
 "wallets.backupHdWallet.alertSheet.title" = "Show Seed Phrase";
-wallets.backupHdWallet.introduction.button.title = "Back up my Wallet";
-wallets.backupHdWallet.introduction.title = "Back up your Wallet with Seed Phrase";
+"wallets.backupHdWallet.introduction.button.title" = "Back up my Wallet";
+"wallets.backupHdWallet.introduction.title" = "Back up your Wallet with Seed Phrase";
 "wallets.showSeedPhrase.description" = "just write down 12 words and keep them in a safe place, offline";
 "wallets.showSeedPhrase.title" = "Your Seed Phrase";
 "wallets.showSeedPhrase.subtitle" = "Write down seed phrase on paper";
@@ -408,3 +408,4 @@ wallets.backupHdWallet.introduction.title = "Back up your Wallet with Seed Phras
 "wallet.security.level.red" = "BACK UP NOW!";
 "wallet.security.level.orange" = "NOT LOCKED";
 "wallet.security.level.green" = "100% SECURE";
+"settings.general.title" = "一般";
