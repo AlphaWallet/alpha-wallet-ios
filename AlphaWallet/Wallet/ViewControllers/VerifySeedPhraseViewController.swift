@@ -1,9 +1,14 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import UIKit
+import LocalAuthentication
 
 protocol VerifySeedPhraseViewControllerDelegate: class {
+    var contextToVerifySeedPhrase: LAContext { get }
+    var isInactiveBecauseWeAccessingBiometrics: Bool { get set }
+
     func didVerifySeedPhraseSuccessfully(for account: EthereumAccount, in viewController: VerifySeedPhraseViewController)
+    func biometricsFailed(for account: EthereumAccount, inViewController viewController: VerifySeedPhraseViewController)
 }
 
 class VerifySeedPhraseViewController: UIViewController {
@@ -85,14 +90,6 @@ class VerifySeedPhraseViewController: UIViewController {
         }
 
     }
-    //We have this flag because when prompted for Touch ID/Face ID, the app becomes inactive, and the order is:
-    //1. we read the seed, thus the prompt shows up, making the app inactive
-    //2. user authenticates and we get the seed
-    //3. app is now notified as inactive! (note that this is after authentication succeeds)
-    //4. app becomes active
-    //Without this flag, we will be removing the seed in (3) and trying to read it in (4) again and triggering (1), thus going into an infinite loop of reading
-    private var isInactiveBecauseWeAccessingBiometrics = false
-
     private var continueButton: UIButton {
         return buttonsBar.buttons[0]
     }
@@ -164,7 +161,6 @@ class VerifySeedPhraseViewController: UIViewController {
             roundedBackground.createConstraintsWithContainer(view: view),
         ])
 
-        NotificationCenter.default.addObserver(self, selector: #selector(appWillResignsActive), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didTakeScreenShot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
     }
@@ -194,24 +190,17 @@ class VerifySeedPhraseViewController: UIViewController {
         displaySuccess(message: R.string.localizable.walletsVerifySeedPhraseDoNotTakeScreenshotDescription())
     }
 
-    @objc private func appWillResignsActive() {
-        if isInactiveBecauseWeAccessingBiometrics {
-            isInactiveBecauseWeAccessingBiometrics = false
-            return
-        }
-        removeSeedPhraseFromDisplay()
-    }
-
     private func showSeedPhrases() {
         guard isTopViewController else { return }
         guard notDisplayingSeedPhrase else { return }
-        isInactiveBecauseWeAccessingBiometrics = true
-        keystore.exportSeedPhraseOfHdWallet(forAccount: account, reason: .prepareForVerification) { result in
+        guard let context = delegate?.contextToVerifySeedPhrase else { return }
+        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: context, reason: .prepareForVerification) { result in
             switch result {
             case .success(let words):
                 self.state = .editingSeedPhrase(words: words.split(separator: " ").map { String($0) }.shuffled())
             case .failure(let error):
                 self.state = .errorDisplaySeedPhrase(error)
+                self.delegate?.biometricsFailed(for: self.account, inViewController: self)
             }
         }
     }
@@ -258,8 +247,8 @@ class VerifySeedPhraseViewController: UIViewController {
     }
 
     @objc func verify() {
-        isInactiveBecauseWeAccessingBiometrics = true
-        keystore.verifySeedPhraseOfHdWallet(seedPhraseTextView.text.lowercased().trimmed, forAccount: account) { result in
+        guard let context = delegate?.contextToVerifySeedPhrase else { return }
+        keystore.verifySeedPhraseOfHdWallet(seedPhraseTextView.text.lowercased().trimmed, forAccount: account, context: context) { result in
             switch result {
             case .success(let isMatched):
                 //Safety precaution, we clear the seed phrase. The next screen may be the prompt to elevate security of wallet screen which the user can go back from
@@ -267,6 +256,7 @@ class VerifySeedPhraseViewController: UIViewController {
                 self.updateStateWithVerificationResult(isMatched)
             case .failure(let error):
                 self.reflectError(error)
+                self.delegate?.biometricsFailed(for: self.account, inViewController: self)
             }
         }
     }
@@ -283,7 +273,7 @@ class VerifySeedPhraseViewController: UIViewController {
         state = .keystoreError(error)
     }
 
-    private func removeSeedPhraseFromDisplay() {
+    func removeSeedPhraseFromDisplay() {
         state = .notDisplayedSeedPhrase
     }
 
