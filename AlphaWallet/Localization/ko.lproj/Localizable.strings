@@ -409,3 +409,4 @@ wallets.backupHdWallet.introduction.title = "Back up your Wallet with Seed Phras
 "wallet.security.level.red" = "BACK UP NOW!";
 "wallet.security.level.orange" = "NOT LOCKED";
 "wallet.security.level.green" = "100% SECURE";
+"settings.general.title" = "일반";

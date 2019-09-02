@@ -64,7 +64,7 @@ class SettingsViewController: FormViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
 
-        let firstSection = createSection(withTitle: "")
+        let firstSection = createSection(withTitle: R.string.localizable.settingsGeneralTitle())
 
         <<< AppFormAppearance.alphaWalletSettingsButton { button in
             button.cellStyle = .subtitle
