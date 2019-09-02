@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import XCTest
+import LocalAuthentication
 @testable import AlphaWallet
 import BigInt
 import KeychainSwift
@@ -81,7 +82,7 @@ class EtherKeystoreTests: XCTestCase {
         let result = keystore.createAccount()
         let account = try! result.dematerialize()
         let expectation = self.expectation(description: "completion block called")
-        keystore.exportSeedPhraseOfHdWallet(forAccount: account, reason: .backup) { result in
+        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: .init(), reason: .backup) { result in
             expectation.fulfill()
             let seedPhrase = try! result.dematerialize()
             XCTAssertEqual(seedPhrase.split(separator: " ").count, HDWallet.mnemonicWordCount)

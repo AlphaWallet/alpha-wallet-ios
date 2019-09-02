@@ -1,9 +1,14 @@
 // Copyright © 2019 Stormbird PTE. LTD.
 
 import UIKit
+import LocalAuthentication
 
 protocol ShowSeedPhraseViewControllerDelegate: class {
+    var contextToShowSeedPhrase: LAContext { get }
+    var isInactiveBecauseWeAccessingBiometrics: Bool { get set }
+
     func didTapTestSeedPhrase(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController)
+    func biometricsFailed(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController)
 }
 
 //We must be careful to no longer show the seedphrase and remove it from memory when this screen is hidden because another VC is displayed over it or because the device is locked
@@ -66,14 +71,6 @@ class ShowSeedPhraseViewController: UIViewController {
             return true
         }
     }
-    //We have this flag because when prompted for Touch ID/Face ID, the app becomes inactive, and the order is:
-    //1. we read the seed, thus the prompt shows up, making the app inactive
-    //2. user authenticates and we get the seed
-    //3. app is now notified as inactive! (note that this is after authentication succeeds)
-    //4. app becomes active
-    //Without this flag, we will be removing the seed in (3) and trying to read it in (4) again and triggering (1), thus going into an infinite loop of reading
-    private var isInactiveBecauseWeAccessingBiometrics = false
-
     weak var delegate: ShowSeedPhraseViewControllerDelegate?
 
     init(keystore: Keystore, account: EthereumAccount) {
@@ -121,7 +118,6 @@ class ShowSeedPhraseViewController: UIViewController {
             roundedBackground.createConstraintsWithContainer(view: view),
         ])
 
-        NotificationCenter.default.addObserver(self, selector: #selector(appWillResignsActive), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(appDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didTakeScreenShot), name: UIApplication.userDidTakeScreenshotNotification, object: nil)
 
@@ -145,14 +141,6 @@ class ShowSeedPhraseViewController: UIViewController {
         showSeedPhrases()
     }
 
-    @objc private func appWillResignsActive() {
-        if isInactiveBecauseWeAccessingBiometrics {
-            isInactiveBecauseWeAccessingBiometrics = false
-            return
-        }
-        removeSeedPhraseFromDisplay()
-    }
-
     @objc private func appDidBecomeActive() {
         showSeedPhrases()
     }
@@ -165,13 +153,14 @@ class ShowSeedPhraseViewController: UIViewController {
         guard !isDone else { return }
         guard isTopViewController else { return }
         guard notDisplayingSeedPhrase else { return }
-        isInactiveBecauseWeAccessingBiometrics = true
-        keystore.exportSeedPhraseOfHdWallet(forAccount: account, reason: .backup) { result in
+        guard let context = delegate?.contextToShowSeedPhrase else { return }
+        keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: context, reason: .backup) { result in
             switch result {
-            case .success(let words):
+            case .success(let words): 
                 self.state = .displayingSeedPhrase(words: words.split(separator: " ").map { String($0) })
             case .failure(let error):
                 self.state = .errorDisplaySeedPhrase(error)
+                self.delegate?.biometricsFailed(for: self.account, inViewController: self)
             }
         }
     }
@@ -204,7 +193,7 @@ class ShowSeedPhraseViewController: UIViewController {
         delegate?.didTapTestSeedPhrase(for: account, inViewController: self)
     }
 
-    private func removeSeedPhraseFromDisplay() {
+    func removeSeedPhraseFromDisplay() {
         guard !isDone else { return }
         state = .notDisplayedSeedPhrase
     }
