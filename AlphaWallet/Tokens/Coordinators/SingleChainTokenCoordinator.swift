@@ -581,13 +581,16 @@ class SingleChainTokenCoordinator: Coordinator {
     private func showTokenInstanceActionView(forAction action: TokenInstanceAction, fungibleTokenObject tokenObject: TokenObject, viewController: UIViewController) {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
-        let token = XMLHandler(contract: tokenObject.contractAddress, assetDefinitionStore: assetDefinitionStore).getToken(name: tokenObject.name, symbol: tokenObject.symbol, fromTokenId: hardcodedTokenIdForFungibles, index: 0, inWallet: session.account, server: session.server)
+        let xmlHandler = XMLHandler(contract: tokenObject.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let values = xmlHandler.resolveAttributesBypassingCache(withTokenId: hardcodedTokenIdForFungibles, server: self.session.server, account: self.session.account)
+        let token = Token(id: hardcodedTokenIdForFungibles, index: 0, name: tokenObject.name, symbol: tokenObject.symbol, status: .available, values: values)
         let tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)
         let vc = TokenInstanceActionViewController(tokenObject: tokenObject, tokenHolder: tokenHolder, tokensStorage: storage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
         vc.delegate = self
         vc.configure()
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
+
 }
 
 extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
