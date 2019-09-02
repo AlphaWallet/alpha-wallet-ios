@@ -4,10 +4,12 @@ import UIKit
 
 protocol SeedPhraseBackupIntroductionViewControllerDelegate: class {
     func didTapBackupWallet(inViewController viewController: SeedPhraseBackupIntroductionViewController)
+    func didClose(for account: EthereumAccount, inViewController viewController: SeedPhraseBackupIntroductionViewController)
 }
 
 class SeedPhraseBackupIntroductionViewController: UIViewController {
     private var viewModel = SeedPhraseBackupIntroductionViewModel()
+    private let account: EthereumAccount
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
@@ -25,7 +27,8 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
 
     weak var delegate: SeedPhraseBackupIntroductionViewControllerDelegate?
 
-    init() {
+    init(account: EthereumAccount) {
+        self.account = account
         super.init(nibName: nil, bundle: nil)
 
         hidesBottomBarWhenPushed = true
@@ -76,6 +79,14 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(for: account, inViewController: self)
+            return
+        }
     }
 
     func configure() {

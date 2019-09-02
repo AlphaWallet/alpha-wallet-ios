@@ -1,6 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
+import LocalAuthentication
 import Result
 
 enum KeystoreExportReason {
@@ -31,8 +32,8 @@ protocol Keystore {
     func createAccount() -> Result<EthereumAccount, KeystoreError>
     func elevateSecurity(forAccount account: EthereumAccount) -> Bool
     func exportRawPrivateKeyForNonHdWalletForBackup(forAccount: EthereumAccount, newPassword: String, completion: @escaping (Result<String, KeystoreError>) -> Void)
-    func exportSeedPhraseOfHdWallet(forAccount account: EthereumAccount, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void)
-    func verifySeedPhraseOfHdWallet(_ seedPhrase: String, forAccount account: EthereumAccount, completion: @escaping (Result<Bool, KeystoreError>) -> Void)
+    func exportSeedPhraseOfHdWallet(forAccount account: EthereumAccount, context: LAContext, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void)
+    func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: EthereumAccount, context: LAContext, completion: @escaping (Result<Bool, KeystoreError>) -> Void)
     func delete(wallet: Wallet, completion: @escaping (Result<Void, KeystoreError>) -> Void)
     func isHdWallet(account: EthereumAccount) -> Bool
     func isHdWallet(wallet: Wallet) -> Bool

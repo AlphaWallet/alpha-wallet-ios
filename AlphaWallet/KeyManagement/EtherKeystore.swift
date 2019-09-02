@@ -308,8 +308,8 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func exportSeedPhraseOfHdWallet(forAccount account: EthereumAccount, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
-        let seedPhrase = getSeedPhraseForHdWallet(forAccount: account, prompt: reason.prompt, withUserPresence: isUserPresenceCheckPossible)
+    func exportSeedPhraseOfHdWallet(forAccount account: EthereumAccount, context: LAContext, reason: KeystoreExportReason, completion: @escaping (Result<String, KeystoreError>) -> Void) {
+        let seedPhrase = getSeedPhraseForHdWallet(forAccount: account, prompt: reason.prompt, context: context, withUserPresence: isUserPresenceCheckPossible)
         switch seedPhrase {
         case .seedPhrase(let seedPhrase):
             completion(.success(seedPhrase))
@@ -322,8 +322,8 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: EthereumAccount, completion: @escaping (Result<Bool, KeystoreError>) -> Void) {
-        switch getSeedPhraseForHdWallet(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyHdVerify(), withUserPresence: isUserPresenceCheckPossible) {
+    func verifySeedPhraseOfHdWallet(_ inputSeedPhrase: String, forAccount account: EthereumAccount, context: LAContext, completion: @escaping (Result<Bool, KeystoreError>) -> Void) {
+        switch getSeedPhraseForHdWallet(forAccount: account, prompt: R.string.localizable.keystoreAccessKeyHdVerify(), context: context, withUserPresence: isUserPresenceCheckPossible) {
         case .seedPhrase(let actualSeedPhrase):
             let matched = inputSeedPhrase.lowercased() == actualSeedPhrase.lowercased()
             completion(.success(matched))
@@ -546,7 +546,7 @@ open class EtherKeystore: Keystore {
     private func getPrivateKeyForSigning(forAccount account: EthereumAccount) -> WalletSeedOrKey {
         let prompt = R.string.localizable.keystoreAccessKeySign()
         if isHdWallet(account: account) {
-            let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, withUserPresence: isUserPresenceCheckPossible)
+            let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: isUserPresenceCheckPossible)
             switch seed {
             case .seed(let seed):
                 let wallet = HDWallet(seed: seed, passphrase: emptyPassphrase)
@@ -601,8 +601,8 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    private func getSeedPhraseForHdWallet(forAccount account: EthereumAccount, prompt: String, withUserPresence: Bool) -> WalletSeedOrKey {
-        let seedOrKey = getSeedForHdWallet(forAccount: account, prompt: prompt, withUserPresence: withUserPresence)
+    private func getSeedPhraseForHdWallet(forAccount account: EthereumAccount, prompt: String, context: LAContext, withUserPresence: Bool) -> WalletSeedOrKey {
+        let seedOrKey = getSeedForHdWallet(forAccount: account, prompt: prompt, context: context, withUserPresence: withUserPresence)
         switch seedOrKey {
         case .seed(let seed):
             return .seedPhrase(HDWallet(seed: seed, passphrase: emptyPassphrase).mnemonic)
@@ -614,20 +614,19 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    private func getSeedForHdWallet(forAccount account: EthereumAccount, prompt: String, withUserPresence: Bool, shouldWriteWithUserPresenceIfNotFound: Bool = true) -> WalletSeedOrKey {
+    private func getSeedForHdWallet(forAccount account: EthereumAccount, prompt: String, context: LAContext, withUserPresence: Bool, shouldWriteWithUserPresenceIfNotFound: Bool = true) -> WalletSeedOrKey {
         let prefix: String
         if withUserPresence {
             prefix = Keys.ethereumSeedUserPresenceRequiredPrefix
         } else {
             prefix = Keys.ethereumSeedUserPresenceNotRequiredPrefix
         }
-        let context = createContext()
         let data = keychain.getData("\(prefix)\(account.address.eip55String)", prompt: prompt, withContext: context)
                 .flatMap { decryptHdWalletSeed(fromCipherTextData: $0, forAccount: account, withUserPresence: withUserPresence, withContext: context) }
                 .flatMap { String(data: $0, encoding: .utf8) }
         //We copy the record that doesn't require user-presence make a new one which requires user-presence and read from that. We don't want to read the one without user-presence unless absolutely necessary (e.g user has disabled passcode)
         if data == nil && withUserPresence && shouldWriteWithUserPresenceIfNotFound && keychain.isDataNotFoundForLastAccess {
-            switch getSeedForHdWallet(forAccount: account, prompt: prompt, withUserPresence: false, shouldWriteWithUserPresenceIfNotFound: false) {
+            switch getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: false, shouldWriteWithUserPresenceIfNotFound: false) {
             case .seed(let seedWithoutUserPresence):
                 let _ = saveSeedForHdWallet(seedWithoutUserPresence, forAccount: account, withUserPresence: true)
             case .key, .seedPhrase:
@@ -636,7 +635,7 @@ open class EtherKeystore: Keystore {
             case .userCancelled, .notFound, .otherFailure:
                 break
             }
-            return getSeedForHdWallet(forAccount: account, prompt: prompt, withUserPresence: true, shouldWriteWithUserPresenceIfNotFound: false)
+            return getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: true, shouldWriteWithUserPresenceIfNotFound: false)
         } else {
             if let data = data {
                 return .seed(data)
@@ -729,13 +728,13 @@ open class EtherKeystore: Keystore {
         var isSuccessful: Bool
         if isHdWallet(account: account) {
             prompt = R.string.localizable.keystoreAccessKeyHdLock()
-            let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, withUserPresence: false)
+            let seed = getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: false)
             switch seed {
             case .seed(let seed):
                 isSuccessful = saveSeedForHdWallet(seed, forAccount: account, withUserPresence: true)
                 if isSuccessful {
                     //Read it back, forcing iOS to check for user-presence
-                    switch getSeedForHdWallet(forAccount: account, prompt: prompt, withUserPresence: true) {
+                    switch getSeedForHdWallet(forAccount: account, prompt: prompt, context: createContext(), withUserPresence: true) {
                     case .seed:
                         isSuccessful = true
                     case .key, .seedPhrase:
