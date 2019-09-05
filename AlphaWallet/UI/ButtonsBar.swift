@@ -93,7 +93,11 @@ class ButtonsBar: UIView {
     }
 
     private static func bar(numberOfButtons: Int) -> [ContainerViewWithShadow<UIButton>] {
-        return (0..<numberOfButtons).map { _ in ContainerViewWithShadow(aroundView: UIButton(type: .system)) }
+         return (0..<numberOfButtons).map { _ in
+             let button = UIButton(type: .system)
+             button.titleLabel?.baselineAdjustment = .alignCenters
+             return ContainerViewWithShadow(aroundView: button)
+         }
     }
 }
 
