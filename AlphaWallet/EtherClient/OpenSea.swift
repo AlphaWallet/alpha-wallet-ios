@@ -95,6 +95,8 @@ class OpenSea {
                 var results = sum
                 var currentPageCount = 0
                 for (_, each): (String, JSON) in json["assets"] {
+                    let type = each["asset_contract"]["schema_name"].stringValue
+                    guard type == "ERC721" else { continue }
                     let tokenId = each["token_id"].stringValue
                     let contractName = each["asset_contract"]["name"].stringValue
                     let symbol = each["asset_contract"]["symbol"].stringValue
