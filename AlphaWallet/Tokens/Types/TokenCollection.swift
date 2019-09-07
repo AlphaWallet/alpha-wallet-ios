@@ -5,12 +5,14 @@ import Result
 
 ///This contains tokens across multiple-chains
 class TokenCollection {
+    private let assetDefinitionStore: AssetDefinitionStore
     private var subscribers: [(Result<TokensViewModel, TokenError>) -> Void] = []
     private var rateLimitedUpdater: RateLimiter?
 
     let tokenDataStores: [TokensDataStore]
 
-    init(tokenDataStores: [TokensDataStore]) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokenDataStores: [TokensDataStore]) {
+        self.assetDefinitionStore = assetDefinitionStore
         self.tokenDataStores = tokenDataStores
         for each in tokenDataStores {
             each.delegate = self
@@ -79,7 +81,7 @@ extension TokenCollection: TokensDataStoreDelegate {
             }
         }
 
-        let tokensViewModel = TokensViewModel(tokens: tokens, tickers: tickers)
+        let tokensViewModel = TokensViewModel(assetDefinitionStore: assetDefinitionStore, tokens: tokens, tickers: tickers)
         for each in subscribers {
             each(.success(tokensViewModel))
         }

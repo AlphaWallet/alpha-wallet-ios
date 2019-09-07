@@ -485,7 +485,7 @@ class TokensDataStore {
         tokensModel.value = enabledObject
         var tickersForThisServer = [RPCServer: [AlphaWallet.Address: CoinTicker]]()
         tickersForThisServer[server] = tickers
-        let tokensViewModel = TokensViewModel(tokens: enabledObject, tickers: tickersForThisServer)
+        let tokensViewModel = TokensViewModel(assetDefinitionStore: assetDefinitionStore, tokens: enabledObject, tickers: tickersForThisServer)
         delegate?.didUpdate(result: .success( tokensViewModel ), refreshImmediately: refreshImmediately)
     }
 
