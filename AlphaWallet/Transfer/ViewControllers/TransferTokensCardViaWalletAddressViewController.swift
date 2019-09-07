@@ -41,11 +41,11 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 
-        let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore)
         switch tokenType {
-        case .supportedByOpenSea:
+        case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
-        case .notSupportedByOpenSea:
+        case .notBackedByOpenSea:
             tokenRowView = TokenCardRowView(server: token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
