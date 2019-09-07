@@ -120,7 +120,7 @@ class TokensViewController: UIViewController {
         self.account = account
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
-        self.viewModel = TokensViewModel(tokens: [], tickers: .init())
+        self.viewModel = TokensViewModel(assetDefinitionStore: assetDefinitionStore, tokens: [], tickers: .init())
         tableView = UITableView(frame: .zero, style: .plain)
         searchController = UISearchController(searchResultsController: nil)
 
