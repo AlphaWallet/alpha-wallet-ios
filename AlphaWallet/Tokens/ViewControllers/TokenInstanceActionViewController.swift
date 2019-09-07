@@ -62,7 +62,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     }
 
     var canPeekToken: Bool {
-        let tokenType = OpenSeaNonFungibleTokenHandling(token: tokenObject)
+        let tokenType = OpenSeaSupportedNonFungibleTokenHandling(token: tokenObject)
         switch tokenType {
         case .supportedByOpenSea:
             return true

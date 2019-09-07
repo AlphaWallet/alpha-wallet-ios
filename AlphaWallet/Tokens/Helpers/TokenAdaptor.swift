@@ -24,7 +24,7 @@ class TokenAdaptor {
         case .nativeCryptocurrency, .erc20, .erc875:
             return getNotSupportedByOpenSeaTokenHolders(forWallet: account)
         case .erc721:
-            let tokenType = OpenSeaNonFungibleTokenHandling(token: token)
+            let tokenType = OpenSeaSupportedNonFungibleTokenHandling(token: token)
             switch tokenType {
             case .supportedByOpenSea:
                 return getSupportedByOpenSeaTokenHolders()
