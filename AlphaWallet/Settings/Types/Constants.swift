@@ -34,7 +34,7 @@ public struct Constants {
 
     // social
     public static let website = "http://community.tokenscript.org/c/AlphaWallet/ios-feedback"
-    public static let twitterUsername = "Alpha_wallet"
+    public static let twitterUsername = "AlphaWallet"
     public static let redditGroupName = "r/AlphaWallet/"
     public static let facebookUsername = "AlphaWallet"
     public static let appstoreURL = "itms-apps://itunes.apple.com/app/id1358230430"
