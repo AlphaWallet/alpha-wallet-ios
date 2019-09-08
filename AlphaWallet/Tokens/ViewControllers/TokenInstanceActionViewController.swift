@@ -85,7 +85,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         view.backgroundColor = Colors.appBackground
-		
+
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
@@ -204,6 +204,8 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             switch strongSelf.server {
             case .xDai:
                 nativeCryptSymbol = "xDAI"
+            case .artis_sigma1, .artis_tau1:
+                nativeCryptSymbol = "ATS"
             case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
                 nativeCryptSymbol = "ETH"
             }
