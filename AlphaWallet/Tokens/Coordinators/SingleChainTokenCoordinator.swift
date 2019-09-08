@@ -446,10 +446,10 @@ class SingleChainTokenCoordinator: Coordinator {
         case .nativeCryptocurrency, .erc20, .erc875:
             break
         case .erc721:
-            switch OpenSeaNonFungibleTokenHandling(token: token) {
-            case .supportedByOpenSea:
+            switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore) {
+            case .backedByOpenSea:
                 break
-            case .notSupportedByOpenSea:
+            case .notBackedByOpenSea:
                 coordinator.isReadOnly = true
             }
         }

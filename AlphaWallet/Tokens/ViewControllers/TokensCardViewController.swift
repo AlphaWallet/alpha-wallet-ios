@@ -63,7 +63,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     }
 
     var canPeekToken: Bool {
-        let tokenType = OpenSeaNonFungibleTokenHandling(token: tokenObject)
+        let tokenType = OpenSeaSupportedNonFungibleTokenHandling(token: tokenObject)
         switch tokenType {
         case .supportedByOpenSea:
             return true
@@ -236,12 +236,12 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         //We only auto scroll to reveal for OpenSea-supported tokens which are usually taller and have a picture. Because
         //    (A) other tokens like ERC875 tickets are usually too short and all text, making it difficult for user to capture where it has scrolled to
         //    (B) OpenSea-supported tokens are tall, so after expanding, chances are user need to scroll quite a lot if we don't auto-scroll
-        switch OpenSeaNonFungibleTokenHandling(token: viewModel.token) {
-        case .supportedByOpenSea:
+        switch OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore) {
+        case .backedByOpenSea:
             if let indexPath = indexPaths.first(where: { viewModel.item(for: $0).areDetailsVisible }) {
                 tableview.scrollToRow(at: indexPath, at: .top, animated: false)
             }
-        case .notSupportedByOpenSea:
+        case .notBackedByOpenSea:
             break
         }
     }
@@ -300,9 +300,9 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tokenHolder = viewModel.item(for: indexPath)
-        let tokenType = OpenSeaNonFungibleTokenHandling(token: tokenObject)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
         switch tokenType {
-        case .supportedByOpenSea:
+        case .backedByOpenSea:
             let cell = tableView.dequeueReusableCell(withIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox
             cell.delegate = self
             cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified))
@@ -312,7 +312,7 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
             }
             return cell
-        case .notSupportedByOpenSea:
+        case .notBackedByOpenSea:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithCheckbox
             cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), assetDefinitionStore: assetDefinitionStore)
             cell.isCheckboxVisible  = isMultipleSelectionMode

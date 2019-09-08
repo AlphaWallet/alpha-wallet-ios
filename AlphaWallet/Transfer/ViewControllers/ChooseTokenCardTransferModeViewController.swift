@@ -38,11 +38,11 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 
-        let tokenType = OpenSeaNonFungibleTokenHandling(token: viewModel.token)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore)
         switch tokenType {
-        case .supportedByOpenSea:
+        case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
-        case .notSupportedByOpenSea:
+        case .notBackedByOpenSea:
             tokenRowView = TokenCardRowView(server: viewModel.token.server, tokenView: .viewIconified, assetDefinitionStore: assetDefinitionStore)
         }
 
