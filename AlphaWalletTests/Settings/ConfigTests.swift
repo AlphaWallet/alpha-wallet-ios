@@ -21,7 +21,7 @@ class ConfigTests: XCTestCase {
         let vc1 = TokensViewController(
                 sessions: sessions,
                 account: .make(),
-                tokenCollection: .init(tokenDataStores: [FakeTokensDataStore()]),
+                tokenCollection: .init(assetDefinitionStore: assetDefinitionStore, tokenDataStores: [FakeTokensDataStore()]),
                 assetDefinitionStore: assetDefinitionStore
         )
         XCTAssertEqual(vc1.title, "Wallet")
@@ -30,7 +30,7 @@ class ConfigTests: XCTestCase {
         let vc2 = TokensViewController(
                 sessions: sessions,
                 account: .make(),
-                tokenCollection: .init(tokenDataStores: [FakeTokensDataStore()]),
+                tokenCollection: .init(assetDefinitionStore: assetDefinitionStore, tokenDataStores: [FakeTokensDataStore()]),
                 assetDefinitionStore: assetDefinitionStore
         )
         XCTAssertEqual(vc2.title, "我的钱包")
