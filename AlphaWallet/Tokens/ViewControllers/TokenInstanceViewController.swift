@@ -44,7 +44,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     }
 
     var canPeekToken: Bool {
-        let tokenType = OpenSeaNonFungibleTokenHandling(token: tokenObject)
+        let tokenType = OpenSeaSupportedNonFungibleTokenHandling(token: tokenObject)
         switch tokenType {
         case .supportedByOpenSea:
             return true
@@ -209,14 +209,14 @@ extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSourc
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let tokenType = OpenSeaNonFungibleTokenHandling(token: tokenObject)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
         switch tokenType {
-        case .supportedByOpenSea:
+        case .backedByOpenSea:
             let cell = tableView.dequeueReusableCell(withIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox
             cell.delegate = self
             cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .view))
             return cell
-        case .notSupportedByOpenSea:
+        case .notBackedByOpenSea:
             let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithoutCheckbox
             cell.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .view), assetDefinitionStore: assetDefinitionStore)
             //TODO move into configure()
