@@ -104,6 +104,12 @@ class RequestViewController: UIViewController {
 		addressContainerLeadingAnchorConstraint.priority = .defaultLow
 		let addressContainerTrailingAnchorConstraint = addressContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 10)
 		addressContainerTrailingAnchorConstraint.priority = .defaultLow
+		let qrCodeDimensions: CGFloat
+		if ScreenChecker().isNarrowScreen {
+			qrCodeDimensions = 230
+		} else {
+			qrCodeDimensions = 260
+		}
 		NSLayoutConstraint.activate([
 			addressContainerLeadingAnchorConstraint,
 			addressContainerTrailingAnchorConstraint,
@@ -112,8 +118,8 @@ class RequestViewController: UIViewController {
 			addressLabel.centerXAnchor.constraint(lessThanOrEqualTo: addressContainerView.centerXAnchor),
 			addressLabel.anchorsConstraint(to: addressContainerView, edgeInsets: .init(top: 20, left: 10, bottom: 20, right: 10)),
 
-			imageView.widthAnchor.constraint(equalToConstant: 260),
-			imageView.heightAnchor.constraint(equalToConstant: 260),
+			imageView.widthAnchor.constraint(equalToConstant: qrCodeDimensions),
+			imageView.heightAnchor.constraint(equalToConstant: qrCodeDimensions),
 
 			roundedBackground.createConstraintsWithContainer(view: view),
 		])
