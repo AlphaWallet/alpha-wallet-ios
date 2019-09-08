@@ -549,7 +549,7 @@ class TokensDataStore {
             return .priceOfEth(config: config)
         case .xDai:
             return .priceOfDai(config: config)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:
             return nil
         }
     }

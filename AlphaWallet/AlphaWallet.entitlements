@@ -18,6 +18,8 @@
 		<string>applinks:xdai.aw.app</string>
 		<string>applinks:custom.aw.app</string>
 		<string>applinks:goerli.aw.app</string>
+		<string>applinks:artis_sigma1.aw.app</string>
+		<string>applinks:artis_tau1.aw.app</string>
 	</array>
 	<key>com.apple.developer.default-data-protection</key>
 	<string>NSFileProtectionComplete</string>
