@@ -289,7 +289,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator) -> TokensCoordinator {
         let tokensStoragesForEnabledServers = config.enabledServers.map { tokensStorages[$0] }
-        let tokenCollection = TokenCollection(tokenDataStores: tokensStoragesForEnabledServers)
+        let tokenCollection = TokenCollection(assetDefinitionStore: assetDefinitionStore, tokenDataStores: tokensStoragesForEnabledServers)
         promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(withTokenCollection: tokenCollection)
         let coordinator = TokensCoordinator(
                 sessions: walletSessions,

@@ -5,6 +5,7 @@ import UIKit
 
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
+    private let assetDefinitionStore: AssetDefinitionStore
     private let tokens: [TokenObject]
     private let tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
 
@@ -84,7 +85,8 @@ class TokensViewModel {
         return true
     }
 
-    init(tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
+    init(assetDefinitionStore: AssetDefinitionStore, tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
+        self.assetDefinitionStore = assetDefinitionStore
         self.tokens = tokens
         self.tickers = tickers
     }
@@ -111,6 +113,9 @@ class TokensViewModel {
                         return $0.type == .erc721
                     } else if keyword.lowercased() == "erc875" || keyword.lowercased() == "erc 875" {
                         return $0.type == .erc875
+                    } else if keyword.lowercased() == "tokenscript" {
+                        let xmlHandler = XMLHandler(contract: $0.contractAddress, assetDefinitionStore: assetDefinitionStore)
+                        return xmlHandler.hasAssetDefinition && xmlHandler.server == $0.server
                     } else {
                         return $0.name.trimmed.lowercased().contains(lowercasedKeyword) || $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) || $0.contractAddress.eip55String.lowercased().contains(lowercasedKeyword)
                     }
