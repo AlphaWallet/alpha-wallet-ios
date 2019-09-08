@@ -118,7 +118,7 @@ class VerifySeedPhraseViewController: UIViewController {
             seedPhraseTextView,
             UIView.spacer(height: 7),
             errorLabel,
-            UIView.spacer(height: 30),
+            UIView.spacer(height: 24),
             seedPhraseCollectionView,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -146,7 +146,7 @@ class VerifySeedPhraseViewController: UIViewController {
 
             clearChooseSeedPhraseButton.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 10),
             clearChooseSeedPhraseButton.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -10),
-            clearChooseSeedPhraseButton.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -20),
+            clearChooseSeedPhraseButton.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -10),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
