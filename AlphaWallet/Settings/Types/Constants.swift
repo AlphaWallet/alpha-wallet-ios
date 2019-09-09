@@ -136,7 +136,7 @@ public struct Constants {
         (name: "USDO", contract: AlphaWallet.Address(string: "0x98f2ab72198f2e64527bdb28931f60c0f77ac2fc")!)
     ]
 
-    static let defaultEnabledServers: [RPCServer] = [.main, .xDai, .classic, .poa]
+    static let defaultEnabledServers: [RPCServer] = [.main, .xDai]
 
     static let tokenScriptUrlSchemeForResources = "tokenscript-resource:///"
 
