@@ -225,7 +225,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
             etherReceivedUsedForBackupPrompt.flatMap { promptBackupCoordinator.showCreateBackupAfterReceiveNativeCryptoCurrencyPrompt(nativeCryptoCurrency: $0) }
         case .classic, .xDai:
             break
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:
             break
         }
     }
@@ -236,7 +236,7 @@ class SingleChainTransactionDataCoordinator: Coordinator {
         switch session.server {
         case .main, .xDai:
             content.body = R.string.localizable.transactionsReceivedEther(amount, session.server.symbol)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:
             content.body = R.string.localizable.transactionsReceivedEther("\(amount) (\(session.server.name))", session.server.symbol)
         }
         content.sound = .default

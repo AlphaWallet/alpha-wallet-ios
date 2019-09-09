@@ -366,6 +366,8 @@
 "dappBrowser.clearMyDapps" = "Remove Dapp?";
 "recent.transactions" = "Recent Transactions";
 "blockchain.XDAI" = "xDAI Chain";
+"blockchain.ARTIS.sigma1" = "ARTIS sigma1 Network";
+"blockchain.ARTIS.tau1" = "ARTIS tau1 Network";
 "photos" = "Photos";
 "tokenScript.notSupportedSchema.error" = "Please upgrade AlphaWallet to support this TokenScript file";
 "TokenScript.verifying" = "Verifying...";

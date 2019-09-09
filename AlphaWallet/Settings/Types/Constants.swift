@@ -21,6 +21,8 @@ public struct Constants {
     public static let sokolMagicLinkHost = "sokol.aw.app"
     public static let xDaiMagicLinkHost = "xdai.aw.app"
     public static let goerliMagicLinkHost = "goerli.aw.app"
+    public static let artisSigma1MagicLinkHost = "artis_sigma1.aw.app"
+    public static let artisTau1MagicLinkHost = "artis_tau1.aw.app"
     public static let customMagicLinkHost = "custom.aw.app"
 
     // Magic link networks
@@ -62,6 +64,8 @@ public struct Constants {
     public static let xDaiAPI = "https://blockscout.com/poa/dai/api?module=account&action=txlist&address="
     public static let poaNetworkCoreAPI = "https://blockscout.com/poa/core/api?module=account&action=txlist&address="
     public static let goerliEtherscanAPI = "https://api-goerli.etherscan.io/api?module=account&action=txlist&address="
+    public static let artisSigma1NetworkCoreAPI = "https://explorer.sigma1.artis.network/api?module=account&action=txlist&address="
+    public static let artisTau1NetworkCoreAPI = "https://explorer.tau1.artis.network/api?module=account&action=txlist&address="
 
     //etherscan-compatible erc20 transaction event APIs
     public static let mainnetEtherscanAPIErc20Events = "https://api.etherscan.io/api?module=account&action=tokentx&address="
@@ -71,6 +75,8 @@ public struct Constants {
     public static let xDaiAPIErc20Events = "https://blockscout.com/poa/dai/api?module=account&action=tokentx&address="
     public static let poaNetworkCoreAPIErc20Events = "https://blockscout.com/poa/core/api?module=account&action=tokentx&address="
     public static let goerliEtherscanAPIErc20Events = "https://api-goerli.etherscan.io/api?module=account&action=tokentx&address="
+    public static let artisSigma1NetworkCoreAPIErc20Events = "https://explorer.sigma1.artis.network/api?module=account&action=tokentx&address="
+    public static let artisTau1NetworkCoreAPIErc20Events = "https://explorer.tau1.artis.network/api?module=account&action=tokentx&address="
 
     //etherscan-compatible contract details web page
     public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"
@@ -84,6 +90,8 @@ public struct Constants {
     public static let sokolContractPage = "https://blockscout.com/poa/sokol/search?q="
     public static let etcContractPage = "https://blockscout.com/etc/mainnet/search?q="
     public static let callistoContractPage = "https://blockscout.com/callisto/mainnet/search?q="
+    public static let artisSigma1ContractPage = "https://explorer.sigma1.artis.network/search?q="
+    public static let artisTau1ContractPage = "https://explorer.tau1.artis.network/search?q="
 
     //OpenSea links for erc721 assets
     public static let openseaAPI = "https://api.opensea.io/"

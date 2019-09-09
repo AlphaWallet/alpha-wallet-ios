@@ -15,6 +15,8 @@ enum RPCServer: Hashable, CaseIterable {
     case callisto
     case xDai
     case goerli
+    case artis_sigma1
+    case artis_tau1
     case custom(CustomRPC)
 
     var chainID: Int {
@@ -29,6 +31,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .callisto: return 104729
         case .xDai: return 100
         case .goerli: return 5
+        case .artis_sigma1: return 246529
+        case .artis_tau1: return 246785
         case .custom(let custom):
             return custom.chainID
         }
@@ -46,6 +50,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .callisto: return "Callisto"
         case .xDai: return "xDai"
         case .goerli: return "Goerli"
+        case .artis_sigma1: return "ARTIS sigma1"
+        case .artis_tau1: return "ARTIS tau1"
         case .custom(let custom):
             return custom.name
         }
@@ -72,6 +78,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .callisto: return nil
         case .goerli: return Constants.goerliEtherscanAPI
         case .xDai: return Constants.xDaiAPI
+        case .artis_sigma1: return nil
+        case .artis_tau1: return nil
         case .custom: return nil
         }
     }
@@ -89,6 +97,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .callisto: return nil
         case .goerli: return Constants.goerliEtherscanAPIErc20Events
         case .xDai: return Constants.xDaiAPIErc20Events
+        case .artis_sigma1: return nil
+        case .artis_tau1: return nil
         case .custom: return nil
         }
     }
@@ -105,6 +115,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .sokol: return Constants.sokolContractPage
         case .classic: return Constants.etcContractPage
         case .callisto: return Constants.callistoContractPage
+        case .artis_sigma1: return Constants.artisSigma1ContractPage
+        case .artis_tau1: return Constants.artisTau1ContractPage
         case .custom: return Constants.mainnetEtherscanContractDetailsWebPageURL
         }
     }
@@ -123,7 +135,7 @@ enum RPCServer: Hashable, CaseIterable {
 
     var priceID: AlphaWallet.Address {
         switch self {
-        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .goerli:
+        case .main, .ropsten, .rinkeby, .kovan, .sokol, .custom, .xDai, .goerli, .artis_sigma1, .artis_tau1:
             return AlphaWallet.Address(string: "0x000000000000000000000000000000000000003c")!
         case .poa:
             return AlphaWallet.Address(string: "0x00000000000000000000000000000000000000AC")!
@@ -144,8 +156,8 @@ enum RPCServer: Hashable, CaseIterable {
 
     var isTestNetwork: Bool {
         switch self {
-        case .main, .poa, .classic, .callisto, .custom, .xDai: return false
-        case .kovan, .ropsten, .rinkeby, .sokol, .goerli: return true
+        case .main, .poa, .classic, .callisto, .custom, .xDai, .artis_sigma1: return false
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1: return true
         }
     }
 
@@ -158,6 +170,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .poa, .sokol: return "POA"
         case .xDai: return "xDai"
         case .goerli: return "ETH"
+        case .artis_sigma1, .artis_tau1: return "ATS"
         case .custom(let custom):
             return custom.symbol
         }
@@ -169,6 +182,8 @@ enum RPCServer: Hashable, CaseIterable {
             return "Ether"
         case .xDai:
             return "xDai"
+        case .artis_sigma1, .artis_tau1:
+            return "ATS"
         }
     }
 
@@ -182,7 +197,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .kovan: return .Kovan
         case .ropsten: return .Ropsten
         case .rinkeby: return .Rinkeby
-        case .poa, .sokol, .classic, .callisto, .xDai, .goerli:
+        case .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1:
             return .Custom(networkID: BigUInt(chainID))
         case .custom:
             return .Custom(networkID: BigUInt(chainID))
@@ -216,6 +231,10 @@ enum RPCServer: Hashable, CaseIterable {
             return Constants.goerliMagicLinkHost
         case .xDai:
             return Constants.xDaiMagicLinkHost
+        case .artis_sigma1:
+            return Constants.artisSigma1MagicLinkHost
+        case .artis_tau1:
+            return Constants.artisTau1MagicLinkHost
         case .custom:
             return Constants.customMagicLinkHost
         }
@@ -234,6 +253,8 @@ enum RPCServer: Hashable, CaseIterable {
             case .sokol: return "https://sokol.poa.network"
             case .goerli: return "https://goerli.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
             case .xDai: return "https://dai.poa.network"
+            case .artis_sigma1: return "https://rpc.sigma1.artis.network"
+            case .artis_tau1: return "https://rpc.tau1.artis.network"
             case .custom(let custom):
                 return custom.endpoint
             }
@@ -254,6 +275,8 @@ enum RPCServer: Hashable, CaseIterable {
             case .xDai: return "https://blockscout.com/poa/dai/api"
             case .sokol: return "https://blockscout.com/poa/sokol/api"
             case .goerli: return "https://api-goerli.etherscan.io"
+            case .artis_sigma1: return "https://explorer.sigma1.artis.network/api"
+            case .artis_tau1: return "https://explorer.tau1.artis.network/api"
             case .custom:
                 return "" // Enable? make optional
             }
@@ -275,7 +298,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .main, .xDai:
             return .normal
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:
             return .low
         }
     }
@@ -284,6 +307,10 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .xDai:
             return R.string.localizable.blockchainXDAI()
+        case .artis_sigma1:
+            return R.string.localizable.blockchainARTISSigma1()
+        case .artis_tau1:
+            return R.string.localizable.blockchainARTISTau1()
         case .main, .rinkeby, .ropsten, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
             return R.string.localizable.blockchainEthereum()
         }
@@ -301,6 +328,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .sokol: return .init(red: 107, green: 53, blue: 162)
         case .goerli: return .init(red: 187, green: 174, blue: 154)
         case .xDai: return .init(red: 253, green: 176, blue: 61)
+        case .artis_sigma1: return .init(red: 83, green: 162, blue: 113)
+        case .artis_tau1: return .init(red: 249, green: 117, blue: 153)
         }
     }
 
@@ -317,6 +346,8 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.sokol.name: return .sokol
             case RPCServer.xDai.name: return .xDai
             case RPCServer.goerli.name: return .goerli
+            case RPCServer.artis_sigma1.name: return .artis_sigma1
+            case RPCServer.artis_tau1.name: return .artis_tau1
             default: return .main
             }
         }()
@@ -335,6 +366,8 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.sokol.chainID: return .sokol
             case RPCServer.xDai.chainID: return .xDai
             case RPCServer.goerli.chainID: return .goerli
+            case RPCServer.artis_sigma1.chainID: return .artis_sigma1
+            case RPCServer.artis_tau1.chainID: return .artis_tau1
             default: return .main
             }
         }()
@@ -353,6 +386,8 @@ enum RPCServer: Hashable, CaseIterable {
             case RPCServer.sokol.magicLinkHost: return .sokol
             case RPCServer.xDai.magicLinkHost: return .xDai
             case RPCServer.goerli.magicLinkHost: return .goerli
+            case RPCServer.artis_sigma1.magicLinkHost: return .artis_sigma1
+            case RPCServer.artis_tau1.magicLinkHost: return .artis_tau1
             default: return nil
             }
         }()
@@ -380,7 +415,9 @@ enum RPCServer: Hashable, CaseIterable {
             .sokol,
             .classic,
             .xDai,
-            .goerli
+            .goerli,
+            .artis_sigma1,
+            .artis_tau1
         ]
     }
 }
