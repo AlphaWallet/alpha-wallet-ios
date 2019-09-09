@@ -101,6 +101,8 @@ fileprivate extension RPCServer {
         case .sokol: return 8
         case .callisto: return 9
         case .goerli: return 10
+        case .artis_sigma1: return 246529
+        case .artis_tau1: return 246785
         case .custom: return 11
         }
     }

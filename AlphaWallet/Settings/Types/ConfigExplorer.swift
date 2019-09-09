@@ -47,6 +47,10 @@ struct ConfigExplorer {
             return "https://blockscout.com/poa/dai/"
         case .goerli:
             return "https://goerli.etherscan.io"
+        case .artis_sigma1:
+            return "https://explorer.sigma1.artis.network"
+        case .artis_tau1:
+            return "https://explorer.tau1.artis.network"
         case .custom, .callisto:
             return .none
         }

@@ -18,6 +18,8 @@ class ServersCoordinator: Coordinator {
         .kovan,
         .rinkeby,
         .sokol,
+        .artis_sigma1,
+        .artis_tau1,
     ]
 
     private let defaultServer: RPCServerOrAuto
