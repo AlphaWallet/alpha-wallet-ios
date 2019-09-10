@@ -281,7 +281,11 @@ class TokensDataStore {
         getERC721BalanceCoordinator.getERC721TokenBalance(for: account.address, contract: address) { result in
             switch result {
             case .success(let balance):
-                completion(.success([String](repeating: "0", count: Int(balance))))
+                if balance >= Int.max {
+                    completion(.failure(AnyError(Web3Error(description: ""))))
+                } else {
+                    completion(.success([String](repeating: "0", count: Int(balance))))
+                }
             case .failure(let error):
                 completion(.failure(error))
             }
