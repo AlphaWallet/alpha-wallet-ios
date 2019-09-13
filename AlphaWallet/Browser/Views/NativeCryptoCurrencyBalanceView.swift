@@ -88,6 +88,10 @@ class NativeCryptoCurrencyBalanceView: UIView {
     }
 
     func show() {
+        //Don't show the ether balance for now to make the browser look more generic
+        //TODO revisit decision to show ether balance again
+        return;
+
         isHidden = false
     }
 

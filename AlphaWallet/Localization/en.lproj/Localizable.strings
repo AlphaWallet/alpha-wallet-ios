@@ -285,7 +285,7 @@
 "a.wallet.address.title" = "My %@ Wallet Address";
 "a.settings.navigation.title" = "Settings";
 "a.settings.contents.myWalletAddress" = "My Wallet Address";
-"a.settings.contents.clearDappBrowserCache" = "Clear Dapp Browser cache";
+"a.settings.contents.clearDappBrowserCache" = "Clear Browser cache";
 "a.welcome.navigation.title" = "Welcome";
 "a.welcome.onboarding.1" = "Hold all your Crypto assets in one place";
 "a.welcome.onboarding.2" = "Powered by blockchain technology, smart tickets, fraud free";
@@ -349,6 +349,7 @@
 "openSeaNonFungibleTokens.url.open" = "Open on %@";
 "address.ens.labelMessage" = "Ethereum address or ENS name";
 "dappBrowser.title" = "Welcome to the decentralised web";
+"dappBrowser.switchServer" = "Connected to: %@";
 "myDappsButton.imageLabel" = "My Dapps";
 "discoverDappsButton.imageLabel" = "Discover Dapps";
 "historyButton.imageLabel" = "My History";

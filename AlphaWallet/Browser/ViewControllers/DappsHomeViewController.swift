@@ -84,7 +84,9 @@ class DappsHomeViewController: UIViewController {
         dappsCollectionView.alwaysBounceVertical = true
         dappsCollectionView.register(DappsHomeViewControllerHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: DappsHomeViewController.headerIdentifier)
         dappsCollectionView.register(DappViewCell.self, forCellWithReuseIdentifier: DappViewCell.identifier)
-        dappsCollectionView.dataSource = self
+        //TODO remove this if we don't bring My Dapps back
+        //No longer showing the My Dapps
+//        dappsCollectionView.dataSource = self
         dappsCollectionView.delegate = self
         view.addSubview(dappsCollectionView)
 
