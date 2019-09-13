@@ -26,6 +26,8 @@ private struct Layout {
 final class DappBrowserNavigationBar: UINavigationBar {
     private let stackView = UIStackView()
     private let moreButton = UIButton()
+    //Change server button is remove, for now to make browser more generic
+    //TODO re-evaluate if we can put it back
     private let changeServerButton = UIButton()
     private let cancelEditingButton = UIButton()
     private let closeButton = UIButton()
@@ -115,7 +117,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         let spacer0 = UIView.spacerWidth()
         let spacer1 = UIView.spacerWidth()
         let spacer2 = UIView.spacerWidth()
-        viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backButton, forwardButton, textField, changeServerButton, spacer2, moreButton])
+        viewsToShowWhenNotEditing.append(contentsOf: [spacer0, spacer1, backButton, forwardButton, textField, spacer2, moreButton])
         viewsToShowWhenEditing.append(contentsOf: [textField, cancelEditingButton])
         viewsToShowWhenBrowserOnly.append(contentsOf: [spacer0, backButton, forwardButton, domainNameLabel, spacer1, closeButton, spacer2, moreButton])
 
@@ -130,7 +132,6 @@ final class DappBrowserNavigationBar: UINavigationBar {
             textField,
             domainNameLabel,
             spacer1,
-            changeServerButton,
             closeButton,
             spacer2,
             moreButton,
