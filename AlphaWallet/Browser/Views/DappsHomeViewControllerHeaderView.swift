@@ -58,7 +58,11 @@ class DappsHomeViewControllerHeaderView: UICollectionReusableView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    //TODO remove this class and code that use it if we don't bring the buttons back
     func configure(viewModel: DappsHomeViewControllerHeaderViewViewModel = .init(isEditing: false)) {
+        //No longer configuring. Effectively don't show the "My Dapps", "Discover Dapps" and "My History" buttons
+        return;
+
         backgroundColor = viewModel.backgroundColor
 
         headerView.configure(viewModel: .init(title: viewModel.title))
