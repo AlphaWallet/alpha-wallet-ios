@@ -255,10 +255,10 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
         shareAction.isEnabled = hasWebPageLoaded
 
-        let addBookmarkAction = UIAlertAction(title: R.string.localizable.browserAddbookmarkButtonTitle(), style: .default) { [weak self] _ in
-            self?.addCurrentPageAsBookmark()
+        let switchNetworkAction = UIAlertAction(title: R.string.localizable.dappBrowserSwitchServer(server.name), style: .default) { [weak self] _ in
+            self?.showServers()
         }
-        addBookmarkAction.isEnabled = hasWebPageLoaded
+        switchNetworkAction.isEnabled = hasWebPageLoaded
 
         let scanQrCodeAction = UIAlertAction(title: R.string.localizable.browserScanQRCodeButtonTitle(), style: .default) { [weak self] _ in
             self?.scanQrCode()
@@ -268,7 +268,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
         alertController.addAction(reloadAction)
         alertController.addAction(shareAction)
-        alertController.addAction(addBookmarkAction)
+        alertController.addAction(switchNetworkAction)
         if browserOnly {
             //no-op
         } else {
@@ -296,7 +296,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         open(url: url, animated: false)
     }
 
+    //TODO remove completely if we don't bring suggestions back. Might be useful to include for history, but it might look like we are suggesting dapps if the history includes dapps' URLs
     private func showDappSuggestions(forText text: String) {
+        //Disabled dapp suggestions
+        return;
+
         if let viewController = navigationController.topViewController as? DappsAutoCompletionViewController {
             let hasResults = viewController.filter(withText: text)
             if !hasResults {
@@ -329,14 +333,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             guard let vc = each as? MyDappsViewController else { continue }
             vc.configure(viewModel: .init(bookmarksStore: bookmarksStore))
         }
-    }
-
-    private func addCurrentPageAsBookmark() {
-        guard let url = currentUrl?.absoluteString else { return }
-        guard let title = browserViewController.webView.title else { return }
-        let bookmark = Bookmark(url: url, title: title)
-        bookmarksStore.add(bookmarks: [bookmark])
-        refreshDapps()
     }
 
     private func scanQrCode() {

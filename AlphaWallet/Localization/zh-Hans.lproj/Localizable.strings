@@ -284,7 +284,7 @@
 "a.wallet.address.title" = "我的以太坊钱包地址";
 "a.settings.navigation.title" = "我的设置";
 "a.settings.contents.myWalletAddress" = "我的钱包地址";
-"a.settings.contents.clearDappBrowserCache" = "Clear Dapp Browser cache";
+"a.settings.contents.clearDappBrowserCache" = "Clear Browser cache";
 "a.welcome.navigation.title" = "欢迎";
 "a.welcome.onboarding.1" = "支持调用各种数字资产";
 "a.welcome.onboarding.2" = "基于区块链技术，智能门票，杜绝欺诈";
@@ -346,6 +346,7 @@
 "openSeaNonFungibleTokens.url.open" = "在 %@ 应用内打开";
 "address.ens.labelMessage" = "Ethereum address or ENS name";
 "dappBrowser.title" = "Welcome to the decentralised web";
+"dappBrowser.switchServer" = "Connected to: %@";
 "myDappsButton.imageLabel" = "My Dapps";
 "discoverDappsButton.imageLabel" = "Discover Dapps";
 "historyButton.imageLabel" = "My History";
