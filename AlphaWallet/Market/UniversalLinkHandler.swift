@@ -74,6 +74,7 @@ public class UniversalLinkHandler {
 
     //link has shortened price and expiry and must be expanded
     func parseUniversalLink(url: String, prefix: String) -> SignedOrder? {
+        guard url.count > prefix.count else { return nil }
         let linkInfo = b64SafeEncodingToRegularEncoding(url.substring(from: prefix.count))
         guard var linkBytes = Data(base64Encoded: linkInfo)?.array else { return nil }
         let encodingByte = linkBytes[0]

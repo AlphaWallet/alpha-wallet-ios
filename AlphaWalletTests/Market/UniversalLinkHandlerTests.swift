@@ -43,4 +43,12 @@ class UniversalLinkHandlerTests: XCTestCase {
 //        let url = UniversalLinkHandler().createUniversalLink(signedOrder: signedOrder[0])
     }
 
+    func testUniversalLinkParserDoesNotCrashWhenInvalid() {
+        let server: RPCServer = .main
+        let parser = UniversalLinkHandler(server: server)
+        XCTAssertNil(parser.parseUniversalLink(url: "https://aw.app/", prefix: RPCServer.main.magicLinkPrefix.absoluteString))
+        XCTAssertNil(parser.parseUniversalLink(url: "https://aw.app", prefix: RPCServer.main.magicLinkPrefix.absoluteString))
+        XCTAssertNil(parser.parseUniversalLink(url: "http://aw.app", prefix: RPCServer.main.magicLinkPrefix.absoluteString))
+        XCTAssertNil(parser.parseUniversalLink(url: "http://aw.app/", prefix: RPCServer.main.magicLinkPrefix.absoluteString))
+    }
 }
