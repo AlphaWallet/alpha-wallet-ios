@@ -141,7 +141,7 @@ class TransactionConfigurator {
             }
         case .ERC875Token(let token):
             do {
-                let parameters: [Any] = [transaction.to!, transaction.indices!.map({ BigUInt($0) })]
+                let parameters: [Any] = [TrustKeystore.Address(address: transaction.to!), transaction.indices!.map({ BigUInt($0) })]
                 let arrayType: ABIType
                 if token.contractAddress.isLegacy875Contract {
                     arrayType = ABIType.uint(bits: 16)
@@ -204,10 +204,10 @@ class TransactionConfigurator {
                 let parameters: [Any]
                 if transaction.to!.isLegacy721Contract {
                     function = Function(name: "transfer", parameters: [.address, .uint(bits: 256)])
-                    parameters = [transaction.to!, BigUInt(transaction.tokenId!)!]
+                    parameters = [TrustKeystore.Address(address: transaction.to!), BigUInt(transaction.tokenId!)!]
                 } else {
                     function = Function(name: "safeTransferFrom", parameters: [.address, .address, .uint(bits: 256)])
-                    parameters = [self.account.address, transaction.to!, BigUInt(transaction.tokenId!)!]
+                    parameters = [TrustKeystore.Address(address: self.account.address), transaction.to!, BigUInt(transaction.tokenId!)!]
                 }
                 let encoder = ABIEncoder()
                 try encoder.encode(function: function, arguments: parameters)
