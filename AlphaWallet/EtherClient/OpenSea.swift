@@ -7,15 +7,37 @@ import Result
 import SwiftyJSON
 
 class OpenSea {
+    private class WeakRef<T: AnyObject> {
+        weak var object: T?
+        init(object: T) {
+            self.object = object
+        }
+    }
+
     typealias PromiseResult = Promise<[AlphaWallet.Address: [OpenSeaNonFungible]]>
 
     //Assuming 1 token (token ID, rather than a token) is 4kb, 1500 HyperDragons is 6MB. So we rate limit requests
     private static let numberOfTokenIdsBeforeRateLimitingRequests = 25
     private static let minimumSecondsBetweenRequests = TimeInterval(60)
-    static let sharedInstance = OpenSea()
+    private static var instances = [RPCServer: WeakRef<OpenSea>]()
 
+    private let server: RPCServer
     private var recentWalletsWithManyTokens = [AlphaWallet.Address: (Date, PromiseResult)]()
     private var fetch = OpenSea.makeEmptyFulfilledPromise()
+
+    private init(server: RPCServer) {
+        self.server = server
+    }
+
+    static func createInstance(forServer server: RPCServer) -> OpenSea {
+        if let instance = instances[server]?.object {
+            return instance
+        } else {
+            let instance = OpenSea(server: server)
+            instances[server] = WeakRef(object: instance)
+            return instance
+        }
+    }
 
     private static func makeEmptyFulfilledPromise() -> PromiseResult {
         return Promise {
@@ -32,13 +54,19 @@ class OpenSea {
         }
     }
 
+    static func resetInstances() {
+        for each in instances.values {
+            each.object?.reset()
+        }
+    }
+
     ///Call this after switching wallets, otherwise when the current promise is fulfilled, the switched to wallet will think the API results are for them
-    func reset() {
+    private func reset() {
         fetch = OpenSea.makeEmptyFulfilledPromise()
     }
 
     ///Uses a promise to make sure we don't fetch from OpenSea multiple times concurrently
-    func makeFetchPromise(server: RPCServer, owner: AlphaWallet.Address) -> PromiseResult {
+    func makeFetchPromise(forOwner owner: AlphaWallet.Address) -> PromiseResult {
         guard OpenSea.isServerSupported(server) else {
             fetch = .value([:])
             return fetch
@@ -52,7 +80,7 @@ class OpenSea {
         if fetch.isResolved {
             fetch = Promise { seal in
                 let offset = 0
-                fetchPage(forServer: server, owner: owner, offset: offset) { result in
+                fetchPage(forOwner: owner, offset: offset) { result in
                     switch result {
                     case .success(let result):
                         seal.fulfill(result)
@@ -65,7 +93,7 @@ class OpenSea {
         return fetch
     }
 
-    private func getBaseURLForOpensea(server: RPCServer) -> String {
+    private func getBaseURLForOpensea() -> String {
         switch server {
         case .main:
             return Constants.openseaAPI
@@ -76,8 +104,8 @@ class OpenSea {
         }
     }
 
-    private func fetchPage(forServer server: RPCServer, owner: AlphaWallet.Address, offset: Int, sum: [AlphaWallet.Address: [OpenSeaNonFungible]] = [:], completion: @escaping (ResultResult<[AlphaWallet.Address: [OpenSeaNonFungible]], AnyError>.t) -> Void) {
-        let baseURL = getBaseURLForOpensea(server: server)
+    private func fetchPage(forOwner owner: AlphaWallet.Address, offset: Int, sum: [AlphaWallet.Address: [OpenSeaNonFungible]] = [:], completion: @escaping (ResultResult<[AlphaWallet.Address: [OpenSeaNonFungible]], AnyError>.t) -> Void) {
+        let baseURL = getBaseURLForOpensea()
         guard let url = URL(string: "\(baseURL)api/v1/assets/?owner=\(owner.eip55String)&order_by=current_price&order_direction=asc&limit=200&offset=\(offset)") else {
             completion(.failure(AnyError(OpenSeaError(localizedDescription: "Error calling \(baseURL) API \(Thread.isMainThread)"))))
             return
@@ -134,7 +162,7 @@ class OpenSea {
                 DispatchQueue.main.async { [weak self] in
                     guard let strongSelf = self else { return }
                     if currentPageCount > 0 {
-                        strongSelf.fetchPage(forServer: server, owner: owner, offset: offset + currentPageCount, sum: results) { results in
+                        strongSelf.fetchPage(forOwner: owner, offset: offset + currentPageCount, sum: results) { results in
                             completion(results)
                         }
                     } else {
