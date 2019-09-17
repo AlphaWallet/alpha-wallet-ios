@@ -398,7 +398,7 @@ class InCoordinator: NSObject, Coordinator {
         coordinator.navigationController.dismiss(animated: true, completion: nil)
         coordinator.stop()
         removeAllCoordinators()
-        OpenSea.sharedInstance.reset()
+        OpenSea.resetInstances()
         showTabBar(for: account)
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.listOfConflictingTokenScriptFiles)

@@ -69,6 +69,7 @@ class TokensDataStore {
     }
     private var isFetchingPrices = false
     private let config: Config
+    private let openSea: OpenSea
 
     let server: RPCServer
     weak var delegate: TokensDataStoreDelegate?
@@ -145,6 +146,7 @@ class TokensDataStore {
         self.config = config
         self.assetDefinitionStore = assetDefinitionStore
         self.realm = realm
+        self.openSea = OpenSea.createInstance(forServer: server)
         self.addEthToken()
 
         //TODO not needed for setupCallForAssetAttributeCoordinators? Look for other callers of DataStore.updateDelegate
@@ -294,7 +296,7 @@ class TokensDataStore {
 
     private func getTokensFromOpenSea() -> OpenSea.PromiseResult {
         //TODO when we no longer create multiple instances of TokensDataStore, we don't have to use singleton for OpenSea class. This was to avoid fetching multiple times from OpenSea concurrently
-        return OpenSea.sharedInstance.makeFetchPromise(server: server, owner: account.address)
+        return openSea.makeFetchPromise(forOwner: account.address)
     }
 
     func getTokenType(for address: AlphaWallet.Address,
