@@ -13,6 +13,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
     private let tokenRowView: TokenRowView & UIView
+    private let targetAddressLabel = UILabel()
     private let targetAddressTextField = AddressTextField()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel
@@ -56,22 +57,19 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
-        targetAddressTextField.ensAddressLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
         targetAddressTextField.returnKeyType = .done
 
-        tokenRowView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tokenRowView)
 
         let stackView = [
             header,
             tokenRowView,
             .spacer(height: 10),
-            targetAddressTextField.ensAddressLabel,
+            targetAddressLabel,
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             targetAddressTextField,
+            targetAddressTextField.ensAddressLabel,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
@@ -135,7 +133,9 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
         tokenRowView.stateLabel.isHidden = true
 
-        targetAddressTextField.ensAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
+        targetAddressLabel.font = viewModel.targetAddressLabelFont
+        targetAddressLabel.textColor = viewModel.targetAddressLabelTextColor
+        targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
 
         targetAddressTextField.configureOnce()
 
