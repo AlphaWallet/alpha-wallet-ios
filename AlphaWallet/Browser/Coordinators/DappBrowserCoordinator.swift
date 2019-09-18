@@ -76,7 +76,15 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private var server: RPCServer {
         get {
-            return .init(chainID: Config.getChainId())
+            let selected = RPCServer(chainID: Config.getChainId())
+            let enabled = config.enabledServers
+            if enabled.contains(selected) {
+                return selected
+            } else {
+                let fallback = enabled[0]
+                server = fallback
+                return fallback
+            }
         }
         set {
             Config.setChainId(newValue.chainID)
