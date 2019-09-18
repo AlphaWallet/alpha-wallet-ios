@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import UIKit
 
 struct ServersViewModel {
     private let selectedServer: RPCServerOrAuto
@@ -9,6 +10,14 @@ struct ServersViewModel {
 
     var title: String {
         return R.string.localizable.settingsNetworkButtonTitle()
+    }
+
+    var descriptionColor: UIColor {
+        return Colors.appWhite
+    }
+
+    var descriptionText: String {
+        return R.string.localizable.browserSettingsNetworkDescriptionTitle()
     }
 
     init(servers: [RPCServerOrAuto], selectedServer: RPCServerOrAuto) {

@@ -69,4 +69,22 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
         let server = viewModel.server(for: indexPath)
         delegate?.didSelectServer(server: server, in: self)
     }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        if let viewModel = viewModel, viewModel.servers.count == EnabledServersCoordinator.serversOrdered.count {
+            return nil
+        }
+
+        let footer = UIView()
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.textColor = viewModel?.descriptionColor
+        label.text = viewModel?.descriptionText
+        label.translatesAutoresizingMaskIntoConstraints = false
+        footer.addSubview(label)
+        NSLayoutConstraint.activate([
+            label.anchorsConstraint(to: footer, edgeInsets: .init(top: 7, left: 20, bottom: 0, right: 20))
+        ])
+        return footer
+    }
 }
