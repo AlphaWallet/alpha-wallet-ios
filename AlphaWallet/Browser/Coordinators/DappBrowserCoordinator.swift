@@ -258,7 +258,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         let switchNetworkAction = UIAlertAction(title: R.string.localizable.dappBrowserSwitchServer(server.name), style: .default) { [weak self] _ in
             self?.showServers()
         }
-        switchNetworkAction.isEnabled = hasWebPageLoaded
 
         let scanQrCodeAction = UIAlertAction(title: R.string.localizable.browserScanQRCodeButtonTitle(), style: .default) { [weak self] _ in
             self?.scanQrCode()
