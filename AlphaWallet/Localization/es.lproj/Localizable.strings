@@ -168,6 +168,7 @@
 "browser.bookmarks.confirm.delete.title" = "Are you sure you would like to delete this bookmark?";
 "browser.noBookmarks.label.title" = "No bookmarks yet!";
 "browser.url.textfield.placeholder" = "Search or enter website URL";
+"browser.settings.network.description.title" = "More networks will be available when they are enabled in the Settings tab";
 "configureTransaction.gasPriceGwei.label.title" = "Precio del gas (Gwei)";
 "enterPassword.navigation.title" = "Set Keystore Password";
 "enterPassword.navigation.title.shorter" = "Keystore Password";

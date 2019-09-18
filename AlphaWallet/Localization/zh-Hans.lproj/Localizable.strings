@@ -168,6 +168,7 @@
 "browser.bookmarks.confirm.delete.title" = "确定要删除此书签吗?";
 "browser.noBookmarks.label.title" = "目前没有书签";
 "browser.url.textfield.placeholder" = "搜索或直接输入网址 URL ";
+"browser.settings.network.description.title" = "More networks will be available when they are enabled in the Settings tab";
 "configureTransaction.gasPriceGwei.label.title" = "交易手续费 (Gwei)";
 "enterPassword.navigation.title" = "Set Keystore Password";
 "enterPassword.navigation.title.shorter" = "Keystore Password";
