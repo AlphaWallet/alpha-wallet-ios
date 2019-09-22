@@ -56,6 +56,9 @@ public struct Constants {
     static let ticketContractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
     static let ticketContractAddressRopsten = AlphaWallet.Address(string: "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3")!
 
+    // Hardcoded discovery token address
+    static let discoveryContractAddress = AlphaWallet.Address(string: "0x8c0edb69ebf038ba0c7a4873e40fc09725064c2e")!
+
     //etherscan-compatible APIs
     public static let mainnetEtherscanAPI = "https://api.etherscan.io/api?module=account&action=txlist&address="
     public static let ropstenEtherscanAPI = "https://ropsten.etherscan.io/api?module=account&action=txlist&address="
