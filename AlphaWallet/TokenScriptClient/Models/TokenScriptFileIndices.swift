@@ -30,7 +30,7 @@ struct TokenScriptFileIndices: Codable {
     }
 
     mutating func trackHash(forFile fileName: FileName, contents: String) {
-        fileHashes[fileName] = contents.djb2hash
+        fileHashes[fileName] = hash(contents: contents)
     }
 
     mutating func removeHash(forFile fileName: FileName) {
