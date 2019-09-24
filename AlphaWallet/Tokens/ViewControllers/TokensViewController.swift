@@ -187,6 +187,7 @@ class TokensViewController: UIViewController {
         super.viewWillAppear(animated)
         navigationController?.applyTintAdjustment()
         fetch()
+        fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
     }
 
     @objc func pullToRefresh() {
@@ -554,6 +555,10 @@ extension TokensViewController {
         let v = UIView()
         v.backgroundColor = Colors.appBackground
         tableView.backgroundView = v
+    }
+
+    private func fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1() {
+        view.superview?.backgroundColor = Colors.appBackground
     }
 
     private func setupFilteringWithKeyword() {
