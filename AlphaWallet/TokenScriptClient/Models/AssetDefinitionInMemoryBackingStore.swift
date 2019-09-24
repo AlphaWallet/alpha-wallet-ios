@@ -48,4 +48,12 @@ class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
     func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool {
         return false
     }
+
+    func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType? {
+        return nil
+    }
+
+    func writeCacheTokenScriptSignatureVerificationType(_ verificationType: TokenScriptSignatureVerificationType, forContract contract: AlphaWallet.Address, forXmlString xmlString: String) {
+        //do nothing
+    }
 }
