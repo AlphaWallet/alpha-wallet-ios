@@ -27,10 +27,60 @@ enum TokenScriptSchema {
     case others
 }
 
-enum TokenScriptSignatureVerificationType {
+enum TokenScriptSignatureVerificationType: Codable {
     case verified(domainName: String?)
     case verificationFailed
     case notCanonicalizedAndNotSigned
+
+    enum Key: CodingKey {
+        case rawValue
+        case associatedValue
+    }
+
+    enum CodingError: Error {
+        case unknownValue
+    }
+
+    ///Using this property helps provide some safety so enums are encoded (and decoded) with correct magic number value
+    private var encodedValue: Int {
+        switch self {
+        case .verified:
+            return 0
+        case .verificationFailed:
+            return 1
+        case .notCanonicalizedAndNotSigned:
+            return 2
+        }
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: Key.self)
+        let rawValue = try container.decode(Int.self, forKey: .rawValue)
+        switch rawValue {
+        case TokenScriptSignatureVerificationType.verified(domainName: nil).encodedValue:
+            let domainName = try? container.decode(String.self, forKey: .associatedValue)
+            self = .verified(domainName: domainName)
+        case TokenScriptSignatureVerificationType.verificationFailed.encodedValue:
+            self = .verificationFailed
+        case TokenScriptSignatureVerificationType.notCanonicalizedAndNotSigned.encodedValue:
+            self = .notCanonicalizedAndNotSigned
+        default:
+            throw CodingError.unknownValue
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: Key.self)
+        switch self {
+        case .verified(let domainName):
+            try container.encode(encodedValue, forKey: .rawValue)
+            try container.encode(domainName, forKey: .associatedValue)
+        case .verificationFailed:
+            try container.encode(encodedValue, forKey: .rawValue)
+        case .notCanonicalizedAndNotSigned:
+            try container.encode(encodedValue, forKey: .rawValue)
+        }
+    }
 }
 
 //https://github.com/AlphaWallet/TokenScript/wiki/Visual-representation-of-the-validity-of-TokenScript-files
@@ -365,8 +415,15 @@ private class PrivateXMLHandler {
         let result = XMLHandler.checkTokenScriptSchema(xmlString)
         switch result {
         case .supportedTokenScriptVersion:
-            return verificationType(forXml: xmlString, isCanonicalized: isCanonicalized, contractAddress: contract).then { verificationStatus -> Promise<TokenLevelTokenScriptDisplayStatus> in
+            return firstly { () -> Promise<TokenScriptSignatureVerificationType> in
+                if let cachedVerificationType = assetDefinitionStore.getCacheTokenScriptSignatureVerificationType(forXmlString: xmlString) {
+                    return .value(cachedVerificationType)
+                } else {
+                    return verificationType(forXml: xmlString, isCanonicalized: isCanonicalized, contractAddress: contract)
+                }
+            }.then { verificationStatus -> Promise<TokenLevelTokenScriptDisplayStatus> in
                 return Promise { seal in
+                    assetDefinitionStore.writeCacheTokenScriptSignatureVerificationType(verificationStatus, forContract: contract, forXmlString: xmlString)
                     switch verificationStatus {
                     case .verified(let domainName):
                     seal.fulfill(.type1GoodTokenScriptSignatureGoodOrOptional(isDebugMode: !isOfficial, isSigned: true, validatedDomain: domainName, message: R.string.localizable.tokenScriptType1SupportedAndSigned()))

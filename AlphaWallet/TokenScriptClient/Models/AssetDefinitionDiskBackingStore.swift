@@ -91,7 +91,7 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
                 }
             }
         }
-
+        tokenScriptFileIndices.copySignatureVerificationTypes(previousTokenScriptFileIndices.signatureVerificationTypes)
         writeIndicesToDisk()
     }
 
@@ -165,6 +165,15 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
 
     func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool {
         return !tokenScriptFileIndices.contractsToOldTokenScriptFileNames[contract].isEmpty
+    }
+
+    func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType? {
+        return tokenScriptFileIndices.signatureVerificationTypes[tokenScriptFileIndices.hash(contents: xmlString)]
+    }
+
+    func writeCacheTokenScriptSignatureVerificationType(_ verificationType: TokenScriptSignatureVerificationType, forContract contract: AlphaWallet.Address, forXmlString xmlString: String) {
+        tokenScriptFileIndices.signatureVerificationTypes[tokenScriptFileIndices.hash(contents: xmlString)] = verificationType
+        tokenScriptFileIndices.write(toUrl: indicesFileUrl)
     }
 
     func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {

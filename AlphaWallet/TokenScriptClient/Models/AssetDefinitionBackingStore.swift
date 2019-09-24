@@ -14,6 +14,8 @@ protocol AssetDefinitionBackingStore {
     func isCanonicalized(contract: AlphaWallet.Address) -> Bool
     func hasConflictingFile(forContract contract: AlphaWallet.Address) -> Bool
     func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool
+    func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType?
+    func writeCacheTokenScriptSignatureVerificationType(_ verificationType: TokenScriptSignatureVerificationType, forContract contract: AlphaWallet.Address, forXmlString xmlString: String)
 }
 
 protocol AssetDefinitionBackingStoreDelegate: class {
