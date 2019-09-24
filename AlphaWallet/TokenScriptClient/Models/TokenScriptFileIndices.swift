@@ -13,6 +13,7 @@ struct TokenScriptFileIndices: Codable {
     }
 
     var fileHashes = [FileName: FileContentsHash]()
+    var signatureVerificationTypes = [FileContentsHash: TokenScriptSignatureVerificationType]()
     var contractsToFileNames = [AlphaWallet.Address: [FileName]]()
     var contractsToEntities = [FileName: [Entity]]()
     var badTokenScriptFileNames = [FileName]()
@@ -29,7 +30,7 @@ struct TokenScriptFileIndices: Codable {
     }
 
     mutating func trackHash(forFile fileName: FileName, contents: String) {
-        fileHashes[fileName] = contents.djb2hash
+        fileHashes[fileName] = hash(contents: contents)
     }
 
     mutating func removeHash(forFile fileName: FileName) {
@@ -88,6 +89,13 @@ struct TokenScriptFileIndices: Codable {
     static func load(fromUrl url: URL) -> TokenScriptFileIndices? {
         guard let data = try? Data(contentsOf: url) else { return nil }
         return try? JSONDecoder().decode(TokenScriptFileIndices.self, from: data)
+    }
+
+    mutating func copySignatureVerificationTypes(_ oldVerificationTypes: [FileContentsHash: TokenScriptSignatureVerificationType]) {
+        signatureVerificationTypes = .init()
+        for eachHash in fileHashes.values {
+            signatureVerificationTypes[eachHash] = oldVerificationTypes[eachHash]
+        }
     }
 }
 

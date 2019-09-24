@@ -17,6 +17,7 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         return officialStore.conflictingTokenScriptFileNames + overridesStore.conflictingTokenScriptFileNames
     }
 
+
     init(overridesStore: AssetDefinitionBackingStore? = nil) {
         if let overridesStore = overridesStore {
             self.overridesStore = overridesStore
@@ -91,6 +92,22 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
             if !overriddenContracts.contains(contract) {
                 body(contract)
             }
+        }
+    }
+
+    func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType? {
+        return overridesStore.getCacheTokenScriptSignatureVerificationType(forXmlString: xmlString) ?? officialStore.getCacheTokenScriptSignatureVerificationType(forXmlString: xmlString)
+    }
+
+    ///The implementation assumes that we never verifies the signature files in the official store when there's an override available
+    func writeCacheTokenScriptSignatureVerificationType(_ verificationType: TokenScriptSignatureVerificationType, forContract contract: AlphaWallet.Address, forXmlString xmlString: String) {
+        if let xml = overridesStore[contract], xml == xmlString {
+            overridesStore.writeCacheTokenScriptSignatureVerificationType(verificationType, forContract: contract, forXmlString: xmlString)
+            return
+        }
+        if let xml = officialStore[contract], xml == xmlString {
+            officialStore.writeCacheTokenScriptSignatureVerificationType(verificationType, forContract: contract, forXmlString: xmlString)
+            return
         }
     }
 }

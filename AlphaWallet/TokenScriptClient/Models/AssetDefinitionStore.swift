@@ -193,6 +193,14 @@ class AssetDefinitionStore {
     func invalidateSignatureStatus(forContract contract: AlphaWallet.Address) {
         subscribers.forEach { $0(contract) }
     }
+
+    func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType? {
+        return backingStore.getCacheTokenScriptSignatureVerificationType(forXmlString: xmlString)
+    }
+
+    func writeCacheTokenScriptSignatureVerificationType(_ verificationType: TokenScriptSignatureVerificationType, forContract contract: AlphaWallet.Address, forXmlString xmlString: String) {
+        return backingStore.writeCacheTokenScriptSignatureVerificationType(verificationType, forContract: contract, forXmlString: xmlString)
+    }
 }
 
 extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
