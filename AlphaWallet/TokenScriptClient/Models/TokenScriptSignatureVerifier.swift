@@ -47,8 +47,13 @@ class TokenScriptSignatureVerifier {
                           unwrappedResponse.statusCode <= 299,
                           let value = response.result.value
                     else {
-                        completion("failed")
-                        return
+                        if let reachable = NetworkReachabilityManager()?.isReachable, !reachable {
+                            self.retryAfterDelay(xml: xml, completion: completion)
+                            return
+                        } else {
+                            completion("failed")
+                            return
+                        }
                     }
                     let json = JSON(value)
                     guard let subject = json["subject"].string else { 
@@ -67,6 +72,13 @@ class TokenScriptSignatureVerifier {
                 completion("failed")
             }
         })
+    }
+
+    private func retryAfterDelay(xml: String, completion: @escaping (String) -> Void) {
+        //TODO instead of a hardcoded delay, observe reachability and retry when there's connectivity
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
+            self.verifyXMLSignatureViaAPI(xml: xml, completion: completion)
+        }
     }
 
     private func keyValuePairs(fromCommaSeparatedKeyValuePairs commaSeparatedKeyValuePairs: String) -> [String: String] {
