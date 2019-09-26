@@ -143,7 +143,7 @@ struct ImportMagicTokenViewControllerViewModel {
     var match: String {
         guard let tokenHolder = tokenHolder else { return "" }
         if tokenHolder.values["section"] != nil {
-            if let section = tokenHolder.values["section"] {
+            if let section = tokenHolder.values["section"]?.stringValue {
                 return "S\(section)"
             } else {
                 return "S0"
