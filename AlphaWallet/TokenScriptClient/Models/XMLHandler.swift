@@ -828,15 +828,19 @@ extension XMLHandler {
         return attributeTypeElement.at_xpath("origins/user-entry".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
+    //Remember `1` in XPath selects the first node, not `0`
+    //<plural> tag is optional
     fileprivate static func getNameStringElement(fromTokenElement tokenElement: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
         guard let tokenElement = tokenElement else { return nil }
-        //<plural> tag is optional
         if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='one']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
         } else if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
-                return nameStringElementMatchingLanguage
+            return nameStringElementMatchingLanguage
+        } else if let fallbackInPluralsTag = tokenElement.at_xpath("name/plurals[1]/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+            return fallbackInPluralsTag
+        } else if let fallbackWithoutPluralsTag = tokenElement.at_xpath("name/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+            return fallbackWithoutPluralsTag
         } else {
-            //`1` in XPath selects the first node, not `0`
             let fallback = tokenElement.at_xpath("name[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
             return fallback
         }
