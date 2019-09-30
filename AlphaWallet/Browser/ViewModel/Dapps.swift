@@ -13,6 +13,7 @@ enum Dapps {
         Dapp(name: "Dice2win", description: "Simple and fair dice game", url: "https://dice2.win/", cat: "Games"),
         Dapp(name: "Dragonereum", description: "Own and trade dragons, fight with other players", url: "https://dapp.dragonereum.io/", cat: "Games"),
         Dapp(name: "HyperDragons", description: "Large scale strategy battle game", url: "https://hyperdragons.alfakingdom.com/", cat: "Games"),
+        Dapp(name: "MoveCastle", description: "Learn Libra Move through games", url: "http://learnlibramove.com/", cat: "Games"),
         Dapp(name: "Last Trip", description: "A RPG game", url: "http://lasttrip.matrixdapp.com/", cat: "Games"),
         Dapp(name: "LORDLESS", description: "Be a bounty hunter in my tavern", url: "https://game.lordless.io/home", cat: "Games"),
         Dapp(name: "MLB Crypto Baseball", description: "Baseball collectible game", url: "https://mlbcryptobaseball.com", cat: "Games"),
