@@ -82,7 +82,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
                 return selected
             } else {
                 let fallback = enabled[0]
-                server = fallback
+                Config.setChainId(fallback.chainID)
                 return fallback
             }
         }
