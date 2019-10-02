@@ -61,7 +61,7 @@ enum RPCServer: Hashable, CaseIterable {
         switch self {
         case .xDai, .classic, .main, .poa, .callisto:
             return false
-        default:
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom:
             return true
         }
     }
@@ -290,7 +290,8 @@ enum RPCServer: Hashable, CaseIterable {
         case .ropsten: return Constants.ENSRegistrarRopsten
         case .rinkeby: return Constants.ENSRegistrarRinkeby
         case .xDai: return Constants.ENSRegistrarXDAI
-        default: return Constants.ENSRegistrarAddress
+        case .kovan, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:
+            return Constants.ENSRegistrarAddress
         }
     }
 
