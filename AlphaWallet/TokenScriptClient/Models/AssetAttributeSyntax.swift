@@ -74,8 +74,8 @@ enum AssetAttributeSyntax: String {
             return .string(address.eip55String)
         case .string:
             return value
-        case .bytes:
-            return value
+        case .bytes(let data):
+            return .string(data.hexEncoded)
         case .int(let int):
             return .string(String(int))
         case .uint(let bigUInt):

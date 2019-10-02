@@ -80,13 +80,13 @@ struct FunctionOrigin {
     private let originContractOrRecipientAddress: AlphaWallet.Address
     private let attributeId: AttributeId
     private let functionType: FunctionType
-    private let bitmask: BigUInt
+    private let bitmask: BigUInt?
     private let bitShift: Int
 
     let originElement: XMLElement
     let xmlContext: XmlContext
 
-    init?(forEthereumFunctionTransactionElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt, bitShift: Int) {
+    init?(forEthereumFunctionTransactionElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
         guard let functionName = ethereumFunctionElement["function"].nilIfEmpty else { return nil }
         let inputs: [AssetFunctionCall.Argument]
         if let dataElement = XMLHandler.getDataElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext) {
@@ -99,7 +99,7 @@ struct FunctionOrigin {
         self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
     }
 
-    init?(forEthereumPaymentElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, recipientAddress: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt, bitShift: Int) {
+    init?(forEthereumPaymentElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, recipientAddress: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
         if let valueElement = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext), let value = FunctionOrigin.createInput(fromInputElement: valueElement, withInputType: .uint) {
             let functionType = FunctionType.paymentTransaction(inputValue: value)
             self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: recipientAddress, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
@@ -108,7 +108,7 @@ struct FunctionOrigin {
         }
     }
 
-    init?(forEthereumFunctionCallElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt, bitShift: Int) {
+    init?(forEthereumFunctionCallElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
         guard let functionName = ethereumFunctionElement["function"].nilIfEmpty else { return nil }
         guard let asType: OriginAsType = ethereumFunctionElement["as"].flatMap({ OriginAsType(rawValue: $0) }) else { return nil }
         let inputs: [AssetFunctionCall.Argument]
@@ -122,7 +122,7 @@ struct FunctionOrigin {
         self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
     }
 
-    init(originElement: XMLElement, xmlContext: XmlContext, originalContractOrRecipientAddress: AlphaWallet.Address, attributeId: AttributeId, functionType: FunctionType, bitmask: BigUInt, bitShift: Int) {
+    init(originElement: XMLElement, xmlContext: XmlContext, originalContractOrRecipientAddress: AlphaWallet.Address, attributeId: AttributeId, functionType: FunctionType, bitmask: BigUInt?, bitShift: Int) {
         self.originElement = originElement
         self.xmlContext = xmlContext
         self.originContractOrRecipientAddress = originalContractOrRecipientAddress
@@ -147,12 +147,13 @@ struct FunctionOrigin {
         let resultSubscribable = Subscribable<AssetInternalValue>(nil)
         subscribable.subscribe { value in
             guard let value = value else { return }
-            resultSubscribable.value = self.castReturnValue(value: value)
+            guard let bitmask = self.bitmask else { return }
+            resultSubscribable.value = self.castReturnValue(value: value, bitmask: bitmask)
         }
         return .subscribable(resultSubscribable)
     }
 
-    private func castReturnValue(value: AssetInternalValue) -> AssetInternalValue {
+    private func castReturnValue(value: AssetInternalValue, bitmask: BigUInt) -> AssetInternalValue {
         switch value {
         case .uint(let value):
             return .uint(BigUInt((bitmask & value) >> bitShift))

@@ -142,7 +142,7 @@ enum AssetAttributeValueUsableAsFunctionArguments {
         case .string(let string):
             return string as AnyObject
         case .bytes(let bytes):
-            return bytes as AnyObject
+            return bytes.hexEncoded as AnyObject
         case .int(let int):
             return int.description as AnyObject
         case .uint(let uint):

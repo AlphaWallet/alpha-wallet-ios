@@ -11,7 +11,7 @@ struct AssetAttributeToJavaScriptConvertor {
         case .string(let string):
             return "\"\(string)\""
         case .bytes(let bytes):
-            return "\"\(bytes.hexString)\""
+            return "\"\(bytes.hexEncoded)\""
         case .int(let int):
             return "\"\(String(int))\""
         case .uint(let uint):
