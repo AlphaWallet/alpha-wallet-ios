@@ -7,6 +7,7 @@ enum Dapps {
         Dapp(name: "State of the ÐApps", description: "Directory of Decentralized Applications", url: "https://www.stateofthedapps.com/", cat: "Directory"),
         Dapp(name: "BulkSender", description: "Batch sending of tokens", url: "https://bulksender.app/", cat: "Finance"),
         Dapp(name: "loanscan", description: "Get the best return on your Tokens", url: "https://loanscan.io/", cat: "Finance"),
+        Dapp(name: "Fuse Studio", description: "Turning communities into economies", url: "https://studio.fusenet.io/", cat: "Finance"),
         Dapp(name: "Axie Infinity", description: "Collect and raise fantasy creatures", url: "https://axieinfinity.com/", cat: "Games"),
         Dapp(name: "ChickenHunt", description: "character-growing IDLE game", url: "https://chickenhunt.io/", cat: "Games"),
         Dapp(name: "CryptoCare", description: "Social Impact Collectibles", url: "https://cryptocare.tech/adopt/cryptocare", cat: "Games"),
