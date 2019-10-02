@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><ts:action xmlns:ts="http://tokenscript.org/2019/05/tokenscript" xmlns="http://www.w3.org/1999/xhtml">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><ts:action xmlns:ts="http://tokenscript.org/2019/10/tokenscript" xmlns="http://www.w3.org/1999/xhtml">
     <ts:name>
         <ts:string xml:lang="en">Convert to DAI</ts:string>
         <ts:string xml:lang="zh">將xDAI轉爲DAI</ts:string>
@@ -192,15 +192,15 @@ web3.tokens.dataChanged = (oldTokens, updatedTokens) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>mC7KQdmshwSiFyTLVnnTHVAfsGtMAZXK5DuoQSzQn1E=</ds:DigestValue>
+<ds:DigestValue>CFPP11lckf0ENZpW3rG/RBLZSkg1fpnsnOZjfc2BW64=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-nOWHPGz5sngWaqUYQaNts36b3Xid+AzETzhqSAfMoL05yqsTqB8T3UT72U1RplG4Md3TdTpr9lJq
-ol9HEqu+ub2JiMVrcEvaTgouxGS1lnT39SEGhZcCru3cVOhRnRpTXzjqkCDHvCbMXb9FdspdVXGS
-nrbeSQWDXZZVV4q7rsjauko1q+nu7ozajHoA9R8pWxffd+V2O9a0uzvb21WH06fN5UNOPiUczHkl
-j/BVVkxx0czlxQwJ2ZozyUHkX2lhXvimTV3DIEUl7OyrREADW4lB0T15hfYbeUF55cpzgVupxSOU
-e7gWaMh1hRJNXl60Gz1g2xzfMaf2NH75+N6ZQQ==
+ASRjJR0IxBGSDSPLpq+ka6NLG62miDxCrVdiWyP0f2kSZqOYKW2GISBwkjSXn7KRgBR1js0OO2LD
+Jiohe7K9+bnpQ5jDtHpBPTxs/L8jn3hToUunBTZf7FRn3L/AhbFdygHl/kqhpMwO02Twjrar7OdC
+gpIHj+UA6NqsLTqR+CLUzBxPHAa2H86EKD+n5YbIL1UGSToMO02UfOGdectwtZCscDX7RoNiQ9Qv
+w19xr5jC1qEngknrv7mQUdLtZW1xW4Vib928rkYpejxw3nuxmIBX8TNLOLQHMyoAEMmaA9UL2iAI
+ypAtpt0IKpc6QRJ/9w1pINBT3lxfD4QO4tjXlg==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>

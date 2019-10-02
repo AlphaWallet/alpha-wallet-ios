@@ -507,10 +507,10 @@ private class PrivateXMLHandler {
         if let contract = ethereumFunctionElement["contract"].nilIfEmpty {
             guard let server = server else { return nil }
             return XMLHandler.getNonTokenHoldingContract(byName: contract, server: server, fromContractNamesAndAddresses: self.contractNamesAndAddresses)
-                    .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, attributeId: "", originContract: $0, xmlContext: xmlContext, bitmask: BigUInt(0), bitShift: 0) }
+                    .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, attributeId: "", originContract: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
         } else {
             return XMLHandler.getRecipientAddress(fromEthereumFunctionElement: ethereumFunctionElement, xmlContext: xmlContext)
-                    .flatMap { FunctionOrigin(forEthereumPaymentElement: ethereumFunctionElement, attributeId: "", recipientAddress: $0, xmlContext: xmlContext, bitmask: BigUInt(0), bitShift: 0) }
+                    .flatMap { FunctionOrigin(forEthereumPaymentElement: ethereumFunctionElement, attributeId: "", recipientAddress: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
         }
     }
 
