@@ -34,8 +34,11 @@ extension AlphaWalletService: TargetType {
 
     var path: String {
         switch self {
-        case .getTransactions:
-            return "/api"
+        case .getTransactions(_, let server, let address, _, _, _):
+            switch server {
+            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1:
+                return "/api"
+            }
         case .getTransaction(let txId):
             return "/api?module=transaction&action=gettxreceiptstatus&txhash=/\(txId)"
         case .register:
@@ -65,15 +68,18 @@ extension AlphaWalletService: TargetType {
 
     var task: Task {
         switch self {
-        case .getTransactions(_, _, let address, let startBlock, let endBlock, let sortOrder):
-            return .requestParameters(parameters: [
-                "module": "account",
-                "action": "txlist",
-                "address": address,
-                "startblock": startBlock,
-                "endblock": endBlock,
-                "sort": sortOrder.rawValue,
-            ], encoding: URLEncoding())
+        case .getTransactions(_, let server, let address, let startBlock, let endBlock, let sortOrder):
+            switch server {
+            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1:
+                return .requestParameters(parameters: [
+                    "module": "account",
+                    "action": "txlist",
+                    "address": address,
+                    "startblock": startBlock,
+                    "endblock": endBlock,
+                    "sort": sortOrder.rawValue,
+                ], encoding: URLEncoding())
+            }
         case .getTransaction:
             return .requestPlain
         case .register(_, let device):
@@ -92,10 +98,22 @@ extension AlphaWalletService: TargetType {
     }
 
     var headers: [String: String]? {
-        return [
-            "Content-type": "application/json",
-            "client": Bundle.main.bundleIdentifier ?? "",
-            "client-build": Bundle.main.buildNumber ?? "",
-        ]
+        switch self {
+        case .getTransactions(_, let server, _, _, _, _):
+            switch server {
+            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1:
+                return [
+                    "Content-type": "application/json",
+                    "client": Bundle.main.bundleIdentifier ?? "",
+                    "client-build": Bundle.main.buildNumber ?? "",
+                ]
+            }
+        case .priceOfEth, .priceOfDai, .getTransaction, .register, .unregister, .marketplace:
+            return [
+                "Content-type": "application/json",
+                "client": Bundle.main.bundleIdentifier ?? "",
+                "client-build": Bundle.main.buildNumber ?? "",
+            ]
+        }
     }
 }
