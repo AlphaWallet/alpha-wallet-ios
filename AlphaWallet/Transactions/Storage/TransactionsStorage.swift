@@ -110,6 +110,7 @@ class TransactionsStorage {
 
     func deleteAll() {
         try! realm.write {
+            realm.delete(realm.objects(LocalizedOperationObject.self))
             realm.delete(realm.objects(Transaction.self))
         }
     }
