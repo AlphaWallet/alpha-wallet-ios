@@ -334,6 +334,13 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    var transactionDataCoordinatorType: SingleChainTransactionDataCoordinator.Type {
+        switch self {
+        case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1:
+            return SingleChainTransactionEtherscanDataCoordinator.self
+        }
+    }
+
     init(name: String) {
         self = {
             switch name {
