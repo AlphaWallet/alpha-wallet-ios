@@ -58,7 +58,8 @@ class TransactionDataCoordinator: Coordinator {
             let server = each.server
             let session = sessions[server]
             let tokensDataStore = tokensStorages[server]
-            let coordinator = SingleChainTransactionDataCoordinator(session: session, storage: each, keystore: keystore, tokensStorage: tokensDataStore, promptBackupCoordinator: promptBackupCoordinator, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
+            let coordinatorType = server.transactionDataCoordinatorType
+            let coordinator = coordinatorType.init(session: session, storage: each, keystore: keystore, tokensStorage: tokensDataStore, promptBackupCoordinator: promptBackupCoordinator, onFetchLatestTransactionsQueue: fetchLatestTransactionsQueue)
             coordinator.delegate = self
             addCoordinator(coordinator)
         }
