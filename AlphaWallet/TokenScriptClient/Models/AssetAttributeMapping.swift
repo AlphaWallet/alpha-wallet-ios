@@ -42,6 +42,8 @@ struct AssetAttributeMapping {
             return address.eip55String
         case .string(let string):
             return string
+        case .bytes(let data):
+            return data.hexEncoded
         case .int(let int):
             return String(int)
         case .uint(let bigUInt):

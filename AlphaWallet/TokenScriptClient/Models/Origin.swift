@@ -10,7 +10,12 @@ enum OriginAsType: String {
     case uint
     case utf8
     case e18
+    case e8
+    case e4
+    case e2
+    case bytes
     case bool
+    case string
     case void
 
     var solidityReturnType: SolidityType {
@@ -21,8 +26,12 @@ enum OriginAsType: String {
             return .uint256
         case .utf8:
             return .string
-        case .e18:
+        case .e18, .e8, .e4, .e2:
             return .uint256
+        case .bytes:
+            return .bytes
+        case .string:
+            return .string
         case .bool:
             return .bool
         case .void:
@@ -82,14 +91,17 @@ enum Origin {
     }
 
     init?(forEthereumFunctionElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext) {
-        guard let result = FunctionOrigin(forEthereumFunctionCallElement: ethereumFunctionElement, attributeId: attributeId, originContract: originContract, xmlContext: xmlContext) else { return nil }
+        guard let bitmask = XMLHandler.getBitMask(fromTokenIdElement: ethereumFunctionElement) else { return nil }
+        let bitShift = Origin.bitShiftCount(forBitMask: bitmask)
+        guard let result = FunctionOrigin(forEthereumFunctionCallElement: ethereumFunctionElement, attributeId: attributeId, originContract: originContract, xmlContext: xmlContext, bitmask: bitmask, bitShift: bitShift) else { return nil }
         self = .function(result)
     }
 
     init?(forUserEntryElement userEntryElement: XMLElement, attributeId: AttributeId, xmlContext: XmlContext) {
+        guard let bitmask = XMLHandler.getBitMask(fromTokenIdElement: userEntryElement) else { return nil }
+        let bitShift = Origin.bitShiftCount(forBitMask: bitmask)
         guard let asType = userEntryElement["as"].flatMap({ OriginAsType(rawValue: $0) }) else { return nil }
-
-        self = .userEntry(.init(originElement: userEntryElement, xmlContext: xmlContext, attributeId: attributeId, asType: asType))
+        self = .userEntry(.init(originElement: userEntryElement, xmlContext: xmlContext, attributeId: attributeId, asType: asType, bitmask: bitmask, bitShift: bitShift))
     }
 
     ///Used to truncate bits to the right of the bitmask
