@@ -11,6 +11,7 @@ enum AssetAttributeValueUsableAsFunctionArguments {
     case uint(BigUInt)
     case generalisedTime(GeneralisedTime)
     case bool(Bool)
+    case bytes(Data)
 
     init?(assetAttribute: AssetInternalValue) {
         switch assetAttribute {
@@ -26,6 +27,8 @@ enum AssetAttributeValueUsableAsFunctionArguments {
             self = .generalisedTime(generalisedTime)
         case .bool(let bool):
             self = .bool(bool)
+        case .bytes(let bytes):
+            self = .bytes(bytes)
         case .openSeaNonFungibleTraits, .subscribable:
             return nil
         }
@@ -41,8 +44,10 @@ enum AssetAttributeValueUsableAsFunctionArguments {
             return coerceToBool(forFunctionType: functionType)
         case .int, .int8, .int16, .int24, .int32, .int40, .int48, .int56, .int64, .int72, .int80, .int88, .int96, .int104, .int112, .int120, .int128, .int136, .int144, .int152, .int160, .int168, .int176, .int184, .int192, .int200, .int208, .int216, .int224, .int232, .int240, .int248, .int256:
             return coerceToInt(forFunctionType: functionType)
-        case .string:
+        case .string, .bytes:
             return coerceToString(forFunctionType: functionType)
+        case .bytes1, .bytes2, .bytes3, .bytes4, .bytes5, .bytes6, .bytes7, .bytes8, .bytes9, .bytes10, .bytes11, .bytes12, .bytes13, .bytes14, .bytes15, .bytes16, .bytes17, .bytes18, .bytes19, .bytes20, .bytes21, .bytes22, .bytes23, .bytes24, .bytes25, .bytes26, .bytes27, .bytes28, .bytes29, .bytes30, .bytes31, .bytes32:
+            return coerceToBytes(forFunctionType: functionType)
         case .uint, .uint8, .uint16, .uint24, .uint32, .uint40, .uint48, .uint56, .uint64, .uint72, .uint80, .uint88, .uint96, .uint104, .uint112, .uint120, .uint128, .uint136, .uint144, .uint152, .uint160, .uint168, .uint176, .uint184, .uint192, .uint200, .uint208, .uint216, .uint224, .uint232, .uint240, .uint248, .uint256:
             return coerceToUInt(forFunctionType: functionType)
         case .void:
@@ -66,7 +71,7 @@ enum AssetAttributeValueUsableAsFunctionArguments {
             case .functionTransaction, .paymentTransaction:
                 return Address(string: string) as AnyObject
             }
-        case .int, .uint, .generalisedTime, .bool:
+        case .int, .uint, .generalisedTime, .bool, .bytes:
             return nil
         }
     }
@@ -102,6 +107,16 @@ enum AssetAttributeValueUsableAsFunctionArguments {
             default:
                 return nil
             }
+        case .bytes(let data):
+            let dataAsBigUInt = BigUInt(data)
+            switch dataAsBigUInt {
+            case 1:
+                return true as AnyObject
+            case 0:
+                return false as AnyObject
+            default:
+                return nil
+            }
         case .address, .generalisedTime:
             return nil
         }
@@ -115,7 +130,7 @@ enum AssetAttributeValueUsableAsFunctionArguments {
             return BigInt(uint) as AnyObject
         case .string(let string):
             return BigInt(string) as AnyObject
-        case .address, .generalisedTime, .bool:
+        case .address, .generalisedTime, .bool, .bytes:
             return nil
         }
     }
@@ -126,6 +141,8 @@ enum AssetAttributeValueUsableAsFunctionArguments {
             return address.eip55String as AnyObject
         case .string(let string):
             return string as AnyObject
+        case .bytes(let bytes):
+            return bytes.hexEncoded as AnyObject
         case .int(let int):
             return int.description as AnyObject
         case .uint(let uint):
@@ -145,6 +162,23 @@ enum AssetAttributeValueUsableAsFunctionArguments {
             return uint as AnyObject
         case .string(let string):
             return BigUInt(string) as AnyObject
+        case .bytes(let data):
+            return BigUInt(data) as AnyObject
+        case .address, .generalisedTime, .bool:
+            return nil
+        }
+    }
+
+    private func coerceToBytes(forFunctionType functionType: FunctionOrigin.FunctionType) -> AnyObject? {
+        switch self {
+        case .int(let int):
+            return BigUInt(int).serialize() as AnyObject
+        case .uint(let uint):
+            return uint.serialize() as AnyObject
+        case .string(let string):
+            return string.data(using: .utf8) as AnyObject
+        case .bytes(let data):
+            return data as AnyObject
         case .address, .generalisedTime, .bool:
             return nil
         }
