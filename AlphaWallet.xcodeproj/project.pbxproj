@@ -4682,6 +4682,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = CA4F65A76A018D8DFF4A0314 /* Pods-AlphaWallet.debug.xcconfig */;
 			buildSettings = {
+				ALPHAWALLET_INFO_PLIST_FILE = AlphaWallet/Info.plist;
+				ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
+				ALPHAWALLET_PRODUCT_NAME = "AlphaWallet";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlphaWallet/AlphaWallet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -4701,9 +4704,10 @@
 					"\"$(PODS_ROOT)/libsodium/src/libsodium/include\"",
 				);
 				INFOPLIST_FILE = AlphaWallet/Info.plist;
+				INFOPLIST_FILE = "$(ALPHAWALLET_INFO_PLIST_FILE)";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" -D DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -4719,6 +4723,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = C6EE5EADD8373DB85ADD1966 /* Pods-AlphaWallet.release.xcconfig */;
 			buildSettings = {
+				ALPHAWALLET_INFO_PLIST_FILE = AlphaWallet/Info.plist;
+				ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
+				ALPHAWALLET_PRODUCT_NAME = "AlphaWallet";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlphaWallet/AlphaWallet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -4738,8 +4745,9 @@
 					"\"$(PODS_ROOT)/libsodium/src/libsodium/include\"",
 				);
 				INFOPLIST_FILE = AlphaWallet/Info.plist;
+				INFOPLIST_FILE = "$(ALPHAWALLET_INFO_PLIST_FILE)";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
