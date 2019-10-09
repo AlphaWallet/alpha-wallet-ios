@@ -15,7 +15,6 @@ enum OriginAsType: String {
     case e2
     case bytes
     case bool
-    case string
     case void
 
     var solidityReturnType: SolidityType {
@@ -30,8 +29,6 @@ enum OriginAsType: String {
             return .uint256
         case .bytes:
             return .bytes
-        case .string:
-            return .string
         case .bool:
             return .bool
         case .void:
