@@ -27,7 +27,7 @@ struct TokenIdOrigin {
             return String(numberEncodingUtf8String: number).flatMap { AlphaWallet.Address(string: $0) }.flatMap { .address($0) }
         case .uint:
             return .uint(number)
-        case .utf8, .string:
+        case .utf8:
             return String(numberEncodingUtf8String: number).flatMap { .string($0) }
         case .e18:
             return EtherNumberFormatter().number(from: String(number)).flatMap { .uint(BigUInt($0)) }
