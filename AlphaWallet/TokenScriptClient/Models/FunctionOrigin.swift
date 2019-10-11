@@ -147,8 +147,11 @@ struct FunctionOrigin {
         let resultSubscribable = Subscribable<AssetInternalValue>(nil)
         subscribable.subscribe { value in
             guard let value = value else { return }
-            guard let bitmask = self.bitmask else { return }
-            resultSubscribable.value = self.castReturnValue(value: value, bitmask: bitmask)
+            if let bitmask = self.bitmask {
+                resultSubscribable.value = self.castReturnValue(value: value, bitmask: bitmask)
+            } else {
+                resultSubscribable.value = value
+            }
         }
         return .subscribable(resultSubscribable)
     }

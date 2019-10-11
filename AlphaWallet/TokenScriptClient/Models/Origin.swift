@@ -80,22 +80,21 @@ enum Origin {
     }
 
     init?(forTokenIdElement tokenIdElement: XMLElement, xmlContext: XmlContext) {
-        guard let bitmask = XMLHandler.getBitMask(fromTokenIdElement: tokenIdElement) else { return nil }
+        let bitmask = XMLHandler.getBitMask(fromTokenIdElement: tokenIdElement) ?? TokenScript.defaultBitmask
         guard let asType = tokenIdElement["as"].flatMap({ OriginAsType(rawValue: $0) }) else { return nil }
-
         let bitShift = Origin.bitShiftCount(forBitMask: bitmask)
         self = .tokenId(.init(originElement: tokenIdElement, xmlContext: xmlContext, bitmask: bitmask, bitShift: bitShift, asType: asType))
     }
 
     init?(forEthereumFunctionElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext) {
-        guard let bitmask = XMLHandler.getBitMask(fromTokenIdElement: ethereumFunctionElement) else { return nil }
+        let bitmask = XMLHandler.getBitMask(fromTokenIdElement: ethereumFunctionElement) ?? TokenScript.defaultBitmask
         let bitShift = Origin.bitShiftCount(forBitMask: bitmask)
         guard let result = FunctionOrigin(forEthereumFunctionCallElement: ethereumFunctionElement, attributeId: attributeId, originContract: originContract, xmlContext: xmlContext, bitmask: bitmask, bitShift: bitShift) else { return nil }
         self = .function(result)
     }
 
     init?(forUserEntryElement userEntryElement: XMLElement, attributeId: AttributeId, xmlContext: XmlContext) {
-        guard let bitmask = XMLHandler.getBitMask(fromTokenIdElement: userEntryElement) else { return nil }
+        let bitmask = XMLHandler.getBitMask(fromTokenIdElement: userEntryElement) ?? TokenScript.defaultBitmask
         let bitShift = Origin.bitShiftCount(forBitMask: bitmask)
         guard let asType = userEntryElement["as"].flatMap({ OriginAsType(rawValue: $0) }) else { return nil }
         self = .userEntry(.init(originElement: userEntryElement, xmlContext: xmlContext, attributeId: attributeId, asType: asType, bitmask: bitmask, bitShift: bitShift))
