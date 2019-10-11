@@ -18,4 +18,5 @@ extension TokenScript {
     static let supportedTokenScriptNamespaceVersion = "2019/10"
     static let supportedTokenScriptNamespace = "\(tokenScriptNamespacePrefix)\(supportedTokenScriptNamespaceVersion)/tokenscript"
     static let indicesFileName = "indices"
+    static let defaultBitmask: BigUInt = BigUInt("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", radix: 16)!
 }
