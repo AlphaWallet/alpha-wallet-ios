@@ -68,12 +68,10 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
     }
 
     func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool {
-        let official = officialStore.hasOutdatedTokenScript(forContract: contract)
-        let overrides = overridesStore.hasOutdatedTokenScript(forContract: contract)
-        if overrides {
-            return true
+        if overridesStore[contract] != nil {
+            return overridesStore.hasOutdatedTokenScript(forContract: contract)
         } else {
-            return official
+            return officialStore.hasOutdatedTokenScript(forContract: contract)
         }
     }
 
