@@ -4684,7 +4684,7 @@
 			buildSettings = {
 				ALPHAWALLET_INFO_PLIST_FILE = AlphaWallet/Info.plist;
 				ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
-				ALPHAWALLET_PRODUCT_NAME = "AlphaWallet";
+				ALPHAWALLET_PRODUCT_NAME = AlphaWallet;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlphaWallet/AlphaWallet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -4703,7 +4703,6 @@
 					"\"$(PODS_ROOT)/libsodium/src/libsodium/include/sodium\"",
 					"\"$(PODS_ROOT)/libsodium/src/libsodium/include\"",
 				);
-				INFOPLIST_FILE = AlphaWallet/Info.plist;
 				INFOPLIST_FILE = "$(ALPHAWALLET_INFO_PLIST_FILE)";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" -D DEBUG";
@@ -4725,7 +4724,7 @@
 			buildSettings = {
 				ALPHAWALLET_INFO_PLIST_FILE = AlphaWallet/Info.plist;
 				ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER = com.stormbird.alphawallet;
-				ALPHAWALLET_PRODUCT_NAME = "AlphaWallet";
+				ALPHAWALLET_PRODUCT_NAME = AlphaWallet;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = AlphaWallet/AlphaWallet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -4744,7 +4743,6 @@
 					"\"$(PODS_ROOT)/libsodium/src/libsodium/include/sodium\"",
 					"\"$(PODS_ROOT)/libsodium/src/libsodium/include\"",
 				);
-				INFOPLIST_FILE = AlphaWallet/Info.plist;
 				INFOPLIST_FILE = "$(ALPHAWALLET_INFO_PLIST_FILE)";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(ALPHAWALLET_PRODUCT_BUNDLE_IDENTIFIER)";
