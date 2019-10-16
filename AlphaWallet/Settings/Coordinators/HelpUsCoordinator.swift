@@ -30,9 +30,7 @@ class HelpUsCoordinator: Coordinator {
     }
 
     func rateUs() {
-        if #available(iOS 10.3, *) { SKStoreReviewController.requestReview() } else {
-            UIApplication.shared.open(URL(string: Constants.appstoreURL)!, options: [:])
-        }
+        SKStoreReviewController.requestReview()
         appTracker.completedRating = true
     }
 
