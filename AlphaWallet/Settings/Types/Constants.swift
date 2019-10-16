@@ -39,7 +39,6 @@ public struct Constants {
     public static let twitterUsername = "AlphaWallet"
     public static let redditGroupName = "r/AlphaWallet/"
     public static let facebookUsername = "AlphaWallet"
-    public static let appstoreURL = "itms-apps://itunes.apple.com/app/id1358230430"
 
     // support
     public static let supportEmail = "feedback+ios@alphawallet.com"
