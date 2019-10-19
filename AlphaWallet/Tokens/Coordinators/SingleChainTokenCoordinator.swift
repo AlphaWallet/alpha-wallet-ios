@@ -264,13 +264,15 @@ class SingleChainTokenCoordinator: Coordinator {
                 strongSelf.storage.addCustom(token: token)
                 completion()
             case .fungibleTokenComplete(let name, let symbol, let decimals):
+                //We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily
+                let value = strongSelf.storage.enabledObject.first(where: { $0.contractAddress == contract })?.value ?? "0"
                 let token = TokenObject(
                         contract: contract,
                         server: strongSelf.session.server,
                         name: name,
                         symbol: symbol,
                         decimals: Int(decimals),
-                        value: "0",
+                        value: value,
                         type: .erc20
                 )
                 strongSelf.storage.add(tokens: [token])
