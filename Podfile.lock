@@ -115,7 +115,7 @@ DEPENDENCIES:
   - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, commit `2b3c5ee878212ce70768568def7e727f0f1ebf86`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - Alamofire
     - Alamofire-Synchronous
     - APIKit
@@ -245,8 +245,8 @@ SPEC CHECKSUMS:
   TrezorCrypto: bfeea47a052dca2c77d4a39e1e183865e52de14d
   TrustKeystore: 26efa8079f6451d02ce64b906d3ff240fd71d7ca
   TrustWalletCore: dd8c81d5958f1eb737abea1e14675efcc6a104aa
-  web3swift: ec721fe509a4b3ca7abdf027d186d07fce65be8f
+  web3swift: 1597d4997976d21325882db4c523f1dfd5459406
 
 PODFILE CHECKSUM: 3ced005aa9515481c60ee43d39109ba5461c4d89
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.8.3
