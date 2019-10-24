@@ -90,7 +90,6 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         header.delegate = self
 
         tableView.register(TokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithCheckbox.identifier)
-        tableView.register(OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
@@ -236,7 +235,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         //We only auto scroll to reveal for OpenSea-supported tokens which are usually taller and have a picture. Because
         //    (A) other tokens like ERC875 tickets are usually too short and all text, making it difficult for user to capture where it has scrolled to
         //    (B) OpenSea-supported tokens are tall, so after expanding, chances are user need to scroll quite a lot if we don't auto-scroll
-        switch OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore) {
+        switch OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
         case .backedByOpenSea:
             if let indexPath = indexPaths.first(where: { viewModel.item(for: $0).areDetailsVisible }) {
                 tableview.scrollToRow(at: indexPath, at: .top, animated: false)
@@ -300,28 +299,24 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tokenHolder = viewModel.item(for: indexPath)
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
+        let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithCheckbox
+        let rowView: TokenCardRowViewProtocol & UIView
         switch tokenType {
         case .backedByOpenSea:
-            let cell = tableView.dequeueReusableCell(withIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! OpenSeaNonFungibleTokenCardTableViewCellWithCheckbox
-            cell.delegate = self
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified))
-            cell.isCheckboxVisible  = isMultipleSelectionMode
-            let hasAddedGestureRecognizer = cell.gestureRecognizers?.contains { $0 is UILongPressGestureRecognizer} ?? false
-            if !hasAddedGestureRecognizer {
-                cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
-            }
-            return cell
+            rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified, showCheckbox: cell.showCheckbox())
         case .notBackedByOpenSea:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithCheckbox
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), assetDefinitionStore: assetDefinitionStore)
-            cell.isCheckboxVisible  = isMultipleSelectionMode
-            let hasAddedGestureRecognizer = cell.gestureRecognizers?.contains { $0 is UILongPressGestureRecognizer} ?? false
-            if !hasAddedGestureRecognizer {
-                cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
-            }
-            return cell
+            rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
         }
+        cell.delegate = self
+        cell.rowView = rowView
+        cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), assetDefinitionStore: assetDefinitionStore)
+        cell.isCheckboxVisible  = isMultipleSelectionMode
+        let hasAddedGestureRecognizer = cell.gestureRecognizers?.contains { $0 is UILongPressGestureRecognizer} ?? false
+        if !hasAddedGestureRecognizer {
+            cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
+        }
+        return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -337,7 +332,7 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-extension TokensCardViewController: BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate {
+extension TokensCardViewController: BaseTokenCardTableViewCellDelegate {
     func didTapURL(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
     }

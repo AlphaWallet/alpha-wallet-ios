@@ -7,7 +7,7 @@ protocol OpenSeaNonFungibleTokenCardRowViewDelegate: class {
     func didTapURL(url: URL)
 }
 
-class OpenSeaNonFungibleTokenCardRowView: UIView {
+class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
     private let mainVerticalStackView: UIStackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required)
     private let thumbnailImageView = UIImageView()
     private let bigImageBackground = UIView()
@@ -108,8 +108,10 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
             }
         }
     }
+    //Just to adhere to protocol
+    var areDetailsVisible = false
 
-    let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
+    var checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
     weak var delegate: OpenSeaNonFungibleTokenCardRowViewDelegate?
 
     init(tokenView: TokenView, showCheckbox: Bool = false) {
@@ -285,6 +287,9 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
 
             descriptionLabel.widthAnchor.constraint(equalTo: col0.widthAnchor),
 
+            //Otherwise the button might not appear correctly
+            urlButton.heightAnchor.constraint(equalToConstant: 20),
+
             bigImageViewRelatedConstraintsWithPositiveBleed,
             bigImageViewRelatedConstraintsWithNegativeBleed,
             thumbnailRelatedConstraints,
@@ -334,6 +339,10 @@ class OpenSeaNonFungibleTokenCardRowView: UIView {
     @objc private func tappedUrl() {
         guard let url = viewModel?.externalLink else { return }
         delegate?.didTapURL(url: url)
+    }
+
+    func configure(tokenHolder: TokenHolder, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore) {
+        configure(viewModel: .init(tokenHolder: tokenHolder, areDetailsVisible: areDetailsVisible, width: width))
     }
 
     func configure(viewModel: OpenSeaNonFungibleTokenCardRowViewModel) {

@@ -71,7 +71,6 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         header.delegate = self
 
         tableView.register(TokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier)
-        tableView.register(OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
@@ -209,20 +208,23 @@ extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSourc
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .view)
+        let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithoutCheckbox
+        let rowView: TokenCardRowViewProtocol & UIView
         switch tokenType {
         case .backedByOpenSea:
-            let cell = tableView.dequeueReusableCell(withIdentifier: OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! OpenSeaNonFungibleTokenCardTableViewCellWithoutCheckbox
-            cell.delegate = self
-            cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .view))
-            return cell
+            rowView = {
+                let rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified, showCheckbox: cell.showCheckbox())
+                rowView.delegate = self
+                return rowView
+            }()
         case .notBackedByOpenSea:
-            let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithoutCheckbox
-            cell.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .view), assetDefinitionStore: assetDefinitionStore)
-            //TODO move into configure()
-            cell.isWebViewInteractionEnabled = true
-            return cell
+            rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
         }
+        cell.delegate = self
+        cell.rowView = rowView
+        cell.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .view), assetDefinitionStore: assetDefinitionStore)
+        return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -231,7 +233,7 @@ extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSourc
     }
 }
 
-extension TokenInstanceViewController: BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate {
+extension TokenInstanceViewController: BaseTokenCardTableViewCellDelegate {
     func didTapURL(url: URL) {
         delegate?.didPressOpenWebPage(url, in: self)
     }
@@ -241,4 +243,11 @@ extension TokenInstanceViewController: TokenCardsViewControllerHeaderDelegate {
     func didPressViewContractWebPage(inHeaderView: TokenCardsViewControllerHeader) {
         showContractWebPage()
     }
+}
+
+extension TokenInstanceViewController: OpenSeaNonFungibleTokenCardRowViewDelegate {
+    //Implemented as part of implementing BaseOpenSeaNonFungibleTokenCardTableViewCellDelegate
+//    func didTapURL(url: URL) {
+//        delegate?.didPressOpenWebPage(url, in: self)
+//    }
 }
