@@ -3,7 +3,7 @@
 import UIKit
 import WebKit
 
-class TokenCardRowView: UIView {
+class TokenCardRowView: UIView, TokenCardRowViewProtocol {
     private let server: RPCServer
 	private let assetDefinitionStore: AssetDefinitionStore
 	private let tokenCountLabel = UILabel()
@@ -46,9 +46,9 @@ class TokenCardRowView: UIView {
 		return TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
 	}()
 
-	let checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
 	let background = UIView()
-	let stateLabel = UILabel()
+	var checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
+	var stateLabel = UILabel()
 	var tokenView: TokenView
 	var showCheckbox: Bool {
 		didSet {
@@ -66,12 +66,6 @@ class TokenCardRowView: UIView {
 		didSet {
 			guard canDetailsBeVisible else { return }
 			detailsRowStack?.isHidden = !areDetailsVisible
-		}
-	}
-
-	var isWebViewInteractionEnabled: Bool = false {
-		didSet {
-			tokenScriptRendererView.isWebViewInteractionEnabled = isWebViewInteractionEnabled
 		}
 	}
 
@@ -159,6 +153,10 @@ class TokenCardRowView: UIView {
 
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+
+	func configure(tokenHolder: TokenHolder, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore) {
+        configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
 	}
 
 	func configure(viewModel: TokenCardRowViewModelProtocol) {

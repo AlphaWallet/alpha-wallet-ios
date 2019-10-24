@@ -448,7 +448,8 @@ class SingleChainTokenCoordinator: Coordinator {
         case .nativeCryptocurrency, .erc20, .erc875:
             break
         case .erc721:
-            switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore) {
+            //TODO is this check still necessary?
+            switch OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
             case .backedByOpenSea:
                 break
             case .notBackedByOpenSea:
