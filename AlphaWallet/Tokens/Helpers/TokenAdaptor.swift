@@ -27,7 +27,7 @@ class TokenAdaptor {
             let tokenType = OpenSeaSupportedNonFungibleTokenHandling(token: token)
             switch tokenType {
             case .supportedByOpenSea:
-                return getSupportedByOpenSeaTokenHolders()
+                return getSupportedByOpenSeaTokenHolders(forWallet: account)
             case .notSupportedByOpenSea:
                 return getNotSupportedByOpenSeaTokenHolders(forWallet: account)
             }
@@ -51,12 +51,12 @@ class TokenAdaptor {
         return bundle(tokens: tokens)
     }
 
-    private func getSupportedByOpenSeaTokenHolders() -> [TokenHolder] {
+    private func getSupportedByOpenSeaTokenHolders(forWallet account: Wallet) -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
         for item in balance {
             let jsonString = item.balance
-            if let token = getTokenForOpenSeaNonFungible(forJSONString: jsonString) {
+            if let token = getTokenForOpenSeaNonFungible(forJSONString: jsonString, inWallet: account, server: self.token.server) {
                 tokens.append(token)
             }
         }
@@ -142,9 +142,10 @@ class TokenAdaptor {
         return XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenId: id, index: index, inWallet: account, server: server)
     }
 
-    private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String) -> Token? {
+    private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer) -> Token? {
         guard let data = jsonString.data(using: .utf8), let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: data) else { return nil }
-        var values = [AttributeId: AssetAttributeSyntaxValue ]()
+        var values = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
+                .resolveAttributesBypassingCache(withTokenId: BigUInt(nonFungible.tokenId) ?? BigUInt(0), server: server, account: account)
         values["tokenId"] = .init(directoryString: nonFungible.tokenId)
         values["name"] = .init(directoryString: nonFungible.name)
         values["description"] = .init(directoryString: nonFungible.description)
