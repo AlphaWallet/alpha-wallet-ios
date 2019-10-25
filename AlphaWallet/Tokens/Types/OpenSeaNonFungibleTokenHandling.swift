@@ -9,10 +9,22 @@ enum OpenSeaBackedNonFungibleTokenHandling {
     case backedByOpenSea
     case notBackedByOpenSea
 
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore) {
+    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, tokenViewType: TokenView) {
         self = {
-            if !token.balance.isEmpty && token.balance[0].balance.hasPrefix("{") && !XMLHandler(contract: token.contractAddress, assetDefinitionStore: AssetDefinitionStore()).hasAssetDefinition {
-                return .backedByOpenSea
+            if !token.balance.isEmpty && token.balance[0].balance.hasPrefix("{") {
+                let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: AssetDefinitionStore())
+                let view: String
+                switch tokenViewType {
+                case .viewIconified:
+                    view = xmlHandler.tokenViewIconifiedHtml
+                case .view:
+                    view = xmlHandler.tokenViewHtml
+                }
+                if xmlHandler.hasAssetDefinition && !view.isEmpty {
+                    return .notBackedByOpenSea
+                } else {
+                    return .backedByOpenSea
+                }
             } else {
                 return .notBackedByOpenSea
             }

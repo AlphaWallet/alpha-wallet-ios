@@ -38,7 +38,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
         self.viewModel = viewModel
         self.assetDefinitionStore = assetDefinitionStore
 
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore)
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         switch tokenType {
         case .backedByOpenSea:
             tokenRowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified)
