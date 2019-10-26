@@ -150,6 +150,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         let userEntryIds = action.attributes.values.compactMap { $0.userEntryId }
         let fetchUserEntries = userEntryIds
                 .map { "document.getElementById(\"\($0)\").value" }
+                .map { "web3.tokens.data.currentInstance.\"\($0)\"" }
                 .compactMap { tokenScriptRendererView.inject(javaScript: $0) }
         let xmlHandler = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore)
         let tokenLevelAttributeValues = xmlHandler.resolveAttributesBypassingCache(withTokenId: tokenId, server: server, account: session.account)
