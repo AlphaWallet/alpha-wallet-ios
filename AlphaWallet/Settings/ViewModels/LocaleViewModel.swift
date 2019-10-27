@@ -21,7 +21,7 @@ struct LocaleViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Colors.appBackground
     }
 
     var localeFont: UIFont {

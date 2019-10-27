@@ -60,6 +60,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         tokenRowView.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [
+            .spacer(height: 20),
             titleLabel,
             .spacer(height: 10),
             imageHolder,

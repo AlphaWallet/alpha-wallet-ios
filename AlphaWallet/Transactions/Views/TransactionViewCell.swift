@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 
@@ -38,8 +38,8 @@ class TransactionViewCell: UITableViewCell {
         blockchainLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockchainLabel.setContentHuggingPriority(.required, for: .vertical)
         let rightStackView = [
-            blockchainLabel,
             amountLabel,
+            blockchainLabel,
         ].asStackView(axis: .vertical, alignment: .trailing)
         rightStackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -56,9 +56,11 @@ class TransactionViewCell: UITableViewCell {
         background.addSubview(stackView)
 
         NSLayoutConstraint.activate([
+            blockchainLabel.heightAnchor.constraint(equalToConstant: Screen.TokenCard.Metric.blockChainTagHeight),
+
             statusImageView.widthAnchor.constraint(lessThanOrEqualToConstant: 26),
 
-            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 10, left: StyleLayout.sideMargin, bottom: 10, right: StyleLayout.sideMargin)),
+            stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 14, left: StyleLayout.sideMargin, bottom: 14, right: StyleLayout.sideMargin)),
 
             background.anchorsConstraint(to: contentView),
         ])
@@ -75,6 +77,7 @@ class TransactionViewCell: UITableViewCell {
 
         statusImageView.image = viewModel.statusImage
 
+        titleLabel.textColor = viewModel.titleTextColor
         titleLabel.text = viewModel.title
         titleLabel.font = viewModel.titleFont
 
@@ -83,7 +86,7 @@ class TransactionViewCell: UITableViewCell {
         subTitleLabel.font = viewModel.subTitleFont
 
         blockchainLabel.textAlignment = viewModel.blockChainNameTextAlignment
-        blockchainLabel.cornerRadius = 7
+        blockchainLabel.cornerRadius = viewModel.blockChainNameCornerRadius
         blockchainLabel.backgroundColor = viewModel.blockChainNameBackgroundColor
         blockchainLabel.textColor = viewModel.blockChainNameColor
         blockchainLabel.font = viewModel.blockChainNameFont

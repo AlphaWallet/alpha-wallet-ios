@@ -1,7 +1,6 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import StackViewController
 import Result
 import SafariServices
 

@@ -23,7 +23,7 @@ struct ConfirmSignMessageViewControllerViewModel {
     }
 
     var actionButtonBackgroundColor: UIColor {
-        return Colors.appBackground
+        return Colors.appActionButtonGreen
     }
 
     var actionButtonTitleFont: UIFont {
@@ -56,7 +56,7 @@ struct ConfirmSignMessageViewControllerViewModel {
     }
 
     var singleMessageLabelTextColor: UIColor {
-        return Colors.appBackground
+        return Colors.darkGray
     }
 
     var nameTextFont: UIFont {

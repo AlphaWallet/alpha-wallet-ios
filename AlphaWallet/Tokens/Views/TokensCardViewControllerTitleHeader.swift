@@ -27,8 +27,8 @@ class TokensCardViewControllerTitleHeader: UIView {
             background.centerYAnchor.constraint(equalTo: centerYAnchor),
             backgroundWidthConstraint,
 
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 0),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: 0),
+            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 10),
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -10),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
         ])
@@ -46,7 +46,7 @@ class TokensCardViewControllerTitleHeader: UIView {
         backgroundColor = Colors.appWhite
 
         titleLabel.textColor = Colors.appText
-        titleLabel.font = Fonts.light(size: 25)!
+        titleLabel.font = Fonts.regular(size: 28)!
         titleLabel.adjustsFontSizeToFitWidth = true
         titleLabel.text = title
     }

@@ -141,9 +141,6 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
 
         tokenRowView.configure(tokenHolder: viewModel.tokenHolder)
 
-        quantityStepper.borderWidth = 1
-        quantityStepper.clipsToBounds = true
-        quantityStepper.borderColor = viewModel.stepperBorderColor
         quantityStepper.maximumValue = viewModel.maxValue
 
         tokenRowView.stateLabel.isHidden = true

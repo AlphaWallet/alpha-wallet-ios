@@ -8,7 +8,7 @@ protocol ServersViewControllerDelegate: class {
 
 class ServersViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private let tableView = UITableView(frame: .zero, style: .plain)
     private var viewModel: ServersViewModel?
 
     weak var delegate: ServersViewControllerDelegate?
@@ -24,7 +24,7 @@ class ServersViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = GroupedTable.Color.background
         tableView.register(ServerViewCell.self, forCellReuseIdentifier: ServerViewCell.identifier)
         roundedBackground.addSubview(tableView)
 

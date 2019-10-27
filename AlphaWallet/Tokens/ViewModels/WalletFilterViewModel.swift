@@ -15,21 +15,21 @@ struct WalletFilterViewModel {
 
 	func colorForFilter(filter: WalletFilter) -> UIColor {
 		if currentFilter == filter {
-			return Colors.appWhite
+			return barHighlightedColor
 		} else {
-			return UIColor(red: 174, green: 221, blue: 238)
+			return UIColor(red: 162, green: 162, blue: 162)
 		}
 	}
 
 	var font: UIFont {
-		return Fonts.regular(size: 14)!
+		return SegmentBar.Font.text
 	}
 
 	var barUnhighlightedColor: UIColor {
-		return UIColor(red: 122, green: 197, blue: 225)
+		return UIColor(red: 233, green: 233, blue: 233)
 	}
 
 	var barHighlightedColor: UIColor {
-		return Colors.appWhite
+		return SegmentBar.Color.highlighted
 	}
 }

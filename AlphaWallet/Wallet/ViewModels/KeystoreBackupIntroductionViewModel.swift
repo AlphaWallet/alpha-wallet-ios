@@ -19,11 +19,11 @@ struct KeystoreBackupIntroductionViewModel {
     }
 
     var subtitleColor: UIColor {
-        return Colors.appText
+        return Screen.Backup.subtitleColor
     }
 
     var subtitleFont: UIFont {
-        return Fonts.regular(size: 22)!
+        return Screen.Backup.subtitleFont
     }
 
     var imageViewImage: UIImage {
@@ -35,10 +35,10 @@ struct KeystoreBackupIntroductionViewModel {
     }
 
     var descriptionColor: UIColor {
-        return Colors.darkGray
+        return Screen.Backup.descriptionColor
     }
 
     var descriptionFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Screen.Backup.descriptionFont
     }
 }

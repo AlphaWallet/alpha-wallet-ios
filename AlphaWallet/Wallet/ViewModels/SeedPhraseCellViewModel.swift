@@ -17,7 +17,7 @@ struct SeedPhraseCellViewModel {
     }
 
     var textColor: UIColor {
-        return UIColor(red: 87, green: 87, blue: 87)
+        return UIColor(red: 42, green: 42, blue: 42)
     }
 
     var selectedTextColor: UIColor {

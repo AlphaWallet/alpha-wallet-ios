@@ -88,7 +88,7 @@ class EnterPasswordViewController: FormViewController {
         passwordTextField.isSecureTextEntry = !passwordTextField.isSecureTextEntry
         guard let button = passwordTextField.rightView as? UIButton else { return }
         if passwordTextField.isSecureTextEntry {
-            button.tintColor = Colors.appBackground
+            button.tintColor = Colors.navigationTitleColor
         } else {
             button.tintColor = .init(red: 111, green: 111, blue: 111)
         }

@@ -141,3 +141,4 @@ private class Dialog: UIView {
         delegate?.tappedContinue(inDialog: self)
     }
 }
+

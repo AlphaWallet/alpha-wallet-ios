@@ -13,7 +13,7 @@ struct ServersViewModel {
     }
 
     var descriptionColor: UIColor {
-        return Colors.appWhite
+        return GroupedTable.Color.title
     }
 
     var descriptionText: String {

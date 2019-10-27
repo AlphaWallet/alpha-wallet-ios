@@ -348,13 +348,8 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
     func configure(viewModel: OpenSeaNonFungibleTokenCardRowViewModel) {
         self.viewModel = viewModel
 
+        backgroundColor = viewModel.contentsBackgroundColor
         background.backgroundColor = viewModel.contentsBackgroundColor
-        background.layer.cornerRadius = backgroundCornerRadius
-        background.layer.shadowRadius = 3
-        background.layer.shadowColor = UIColor.black.cgColor
-        background.layer.shadowOffset = CGSize(width: 0, height: 0)
-        background.layer.shadowOpacity = 0.14
-        background.layer.borderColor = UIColor.black.cgColor
 
         stateLabel.layer.cornerRadius = 10
         stateLabel.clipsToBounds = true

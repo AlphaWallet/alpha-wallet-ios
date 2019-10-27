@@ -62,7 +62,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     }
     
     var choiceLabelColor: UIColor {
-        return Colors.appGrayLabelColor
+        return Colors.appGrayLabel
     }
 
     var choiceLabelFont: UIFont {

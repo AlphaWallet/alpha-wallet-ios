@@ -57,7 +57,7 @@ class BalanceTitleView: UIView {
     }
 
     private func configure(viewModel: BalanceBaseViewModel) {
-        titleLabel.font = Fonts.semibold(size: 18)
+        titleLabel.font = Fonts.regular(size: 18)
         subTitleLabel.font = Fonts.regular(size: 14)
 
         let amount: String

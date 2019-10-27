@@ -14,19 +14,23 @@ struct ImportWalletTabBarViewModel {
 	}
 
 	func titleColor(for tab: ImportWalletTab) -> UIColor {
-		return Colors.appWhite
+        if currentTab == tab {
+            return barHighlightedColor
+		} else {
+			return barUnhighlightedColor
+		}
 	}
 
 	var font: UIFont {
-		return Fonts.regular(size: 10)!
+		return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 10: 11)!
 	}
 
 	var barUnhighlightedColor: UIColor {
-		return UIColor(red: 122, green: 197, blue: 225)
+		return .init(red: 162, green: 162, blue: 162)
 	}
 
 	var barHighlightedColor: UIColor {
-		return Colors.appWhite
+		return SegmentBar.Color.highlighted
 	}
 }
 

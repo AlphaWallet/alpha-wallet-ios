@@ -94,11 +94,11 @@ class AmountTextField: UIControl {
 
         super.init(frame: .zero)
 
-        cornerRadius = Metrics.CornerRadius.textbox
+        cornerRadius = DataEntry.Metric.cornerRadius
 
         translatesAutoresizingMaskIntoConstraints = false
-        layer.borderColor = Colors.appBackground.cgColor
-        layer.borderWidth = 1
+        layer.borderColor = DataEntry.Color.border.cgColor
+        layer.borderWidth = DataEntry.Metric.borderThickness
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
         textField.keyboardType = .decimalPad
@@ -107,14 +107,15 @@ class AmountTextField: UIControl {
         textField.inputAccessoryView = makeToolbarWithDoneButton()
         textField.leftView = .spacerWidth(22)
         textField.rightView = makeAmountRightView()
-        textField.textColor = Colors.appBackground
-        textField.font = Fonts.bold(size: ScreenChecker().isNarrowScreen ? 14: 21)
+        textField.textColor = DataEntry.Color.text
+        textField.font = DataEntry.Font.text
+        textField.textAlignment = .right
         addSubview(textField)
 
         alternativeAmountLabel.translatesAutoresizingMaskIntoConstraints = false
         alternativeAmountLabel.numberOfLines = 0
-        alternativeAmountLabel.textColor = Colors.appGrayLabelColor
-        alternativeAmountLabel.font = Fonts.regular(size: 10)!
+        alternativeAmountLabel.textColor = DataEntry.Color.label
+        alternativeAmountLabel.font = DataEntry.Font.label
         alternativeAmountLabel.textAlignment = .center
 
         computeAlternateAmount()
@@ -130,7 +131,7 @@ class AmountTextField: UIControl {
         case .cryptoCurrency(let symbol), .usd(let symbol):
             fiatButton.setTitle(symbol, for: .normal)
         }
-        fiatButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
+        fiatButton.setTitleColor(DataEntry.Color.secondary, for: .normal)
         fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
 
         let amountRightView = [fiatButton].asStackView(distribution: .equalSpacing)

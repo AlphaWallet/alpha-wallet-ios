@@ -11,7 +11,8 @@ protocol TokenViewControllerHeaderViewDelegate: class {
 class TokenViewControllerHeaderView: UIView {
     private let contract: AlphaWallet.Address
     private let recentTransactionsLabel = UILabel()
-    private let border = UIView()
+    private let recentTransactionsLabelBorders = (top: UIView(), bottom: UIView())
+    private let spacers = (beforeTokenScriptFileStatus: UIView.spacer(height: 20))
     private let tokenScriptFileStatusStackView = [].asStackView()
 
     let sendHeaderView = SendHeaderView()
@@ -21,14 +22,16 @@ class TokenViewControllerHeaderView: UIView {
                 each.removeFromSuperview()
             }
             tokenScriptFileStatusStackView.isHidden = true
+            spacers.beforeTokenScriptFileStatus.isHidden = true
             guard let tokenScriptFileStatus = tokenScriptFileStatus else { return }
             switch tokenScriptFileStatus {
             case .type0NoTokenScript:
                 return
             case .type1GoodTokenScriptSignatureGoodOrOptional, .type2BadTokenScript:
                 let button = createTokenScriptFileStatusButton(withStatus: tokenScriptFileStatus, urlOpener: self)
-                tokenScriptFileStatusStackView.addArrangedSubviews([.spacerWidth(7), button, .spacerWidth(1, flexible: true)])
+                tokenScriptFileStatusStackView.addArrangedSubviews([.spacerWidth(37), button, .spacerWidth(1, flexible: true)])
                 tokenScriptFileStatusStackView.isHidden = false
+                spacers.beforeTokenScriptFileStatus.isHidden = false
             }
         }
     }
@@ -40,22 +43,31 @@ class TokenViewControllerHeaderView: UIView {
 
         sendHeaderView.delegate = self
 
+        let recentTransactionsLabelHolder = UIView()
+        recentTransactionsLabelHolder.backgroundColor = GroupedTable.Color.background
+        recentTransactionsLabel.translatesAutoresizingMaskIntoConstraints = false
+        recentTransactionsLabelHolder.addSubview(recentTransactionsLabel)
+
         let stackView = [
-            .spacer(height: 30),
+            spacers.beforeTokenScriptFileStatus,
             tokenScriptFileStatusStackView,
             sendHeaderView,
-            recentTransactionsLabel,
-            .spacer(height: 14),
-            border,
+            recentTransactionsLabelBorders.top,
+            recentTransactionsLabelHolder,
+            recentTransactionsLabelBorders.bottom,
             .spacer(height: 7),
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            border.heightAnchor.constraint(equalToConstant: 1),
+            recentTransactionsLabelBorders.top.heightAnchor.constraint(equalToConstant: 1),
+            recentTransactionsLabelBorders.bottom.heightAnchor.constraint(equalToConstant: 1),
 
-            stackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 30, bottom: 0, right: 30)),
+            recentTransactionsLabelHolder.heightAnchor.constraint(equalToConstant: 50),
+            recentTransactionsLabel.anchorsConstraint(to: recentTransactionsLabelHolder, edgeInsets: .init(top: 0, left: 30, bottom: 0, right: 0)),
+
+            stackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 0, bottom: 0, right: 0)),
         ])
 
         configure()
@@ -66,11 +78,12 @@ class TokenViewControllerHeaderView: UIView {
     }
 
     private func configure() {
-        recentTransactionsLabel.textColor = UIColor(red: 77, green: 77, blue: 77)
-        recentTransactionsLabel.font = Fonts.semibold(size: 18)
+        recentTransactionsLabel.textColor = .init(red: 118, green: 118, blue: 118)
+        recentTransactionsLabel.font = Fonts.semibold(size: 15)
         recentTransactionsLabel.text = R.string.localizable.recentTransactions()
 
-        border.backgroundColor = UIColor(red: 236, green: 236, blue: 236)
+        recentTransactionsLabelBorders.top.backgroundColor = UIColor(red: 236, green: 236, blue: 236)
+        recentTransactionsLabelBorders.bottom.backgroundColor = UIColor(red: 236, green: 236, blue: 236)
     }
 
     @objc private func showContractWebPage() {
