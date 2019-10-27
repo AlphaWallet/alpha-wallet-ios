@@ -52,7 +52,7 @@ struct TokensCardViewControllerHeaderViewModelWithIntroduction {
     }
 
     var subtitleColor: UIColor {
-        return Colors.appBackground
+        return Colors.appSubtitle
     }
 
     var titleFont: UIFont {

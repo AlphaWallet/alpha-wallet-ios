@@ -20,7 +20,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var choiceLabelColor: UIColor {
-        return Colors.appGrayLabelColor
+        return Colors.appText
     }
 
     var choiceLabelFont: UIFont {
@@ -36,11 +36,11 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var tokenSaleDetailsLabelFont: UIFont {
-        return Fonts.semibold(size: 21)!
+        return Fonts.regular(size: 21)!
     }
 
     var tokenSaleDetailsLabelColor: UIColor {
-        return Colors.appBackground
+        return Colors.appSubtitle
     }
 
     var descriptionLabelText: String {

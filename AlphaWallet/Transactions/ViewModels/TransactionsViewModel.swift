@@ -27,19 +27,19 @@ struct TransactionsViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appBackground
+        return GroupedTable.Color.background
     }
 
     var headerBackgroundColor: UIColor {
-        return Colors.appBackground
+        return GroupedTable.Color.background
     }
 
     var headerTitleTextColor: UIColor {
-        return Colors.appWhite
+        return GroupedTable.Color.title
     }
 
     var headerTitleFont: UIFont {
-        return Fonts.regular(size: 16)!
+        return Fonts.tableHeader
     }
 
     var numberOfSections: Int {
@@ -58,11 +58,12 @@ struct TransactionsViewModel {
         let value = items[section].date
         let date = formatter.date(from: value)!
         if NSCalendar.current.isDateInToday(date) {
-            return R.string.localizable.today()
+            return R.string.localizable.today().localizedUppercase
         }
         if NSCalendar.current.isDateInYesterday(date) {
-            return R.string.localizable.yesterday()
+            return R.string.localizable.yesterday().localizedUppercase
         }
-        return value
+        return value.localizedUppercase
     }
 }
+

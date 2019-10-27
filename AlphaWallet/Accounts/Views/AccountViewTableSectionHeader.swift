@@ -23,6 +23,7 @@ class AccountViewTableSectionHeader: UIView {
 
     private let label = UILabel()
     private var topConstraint: NSLayoutConstraint?
+    private var bottomConstraint: NSLayoutConstraint?
     private var heightConstraint: NSLayoutConstraint?
     private var constraintsWhenVisible: [NSLayoutConstraint]?
 
@@ -32,16 +33,18 @@ class AccountViewTableSectionHeader: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
         let topConstraint = label.topAnchor.constraint(equalTo: topAnchor, constant: 7)
+        let bottomConstraint = label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -7)
         let constraintsWhenVisible = [
             label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             label.trailingAnchor.constraint(equalTo: trailingAnchor),
             topConstraint,
-            label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -7)
+            bottomConstraint
         ]
 
         NSLayoutConstraint.activate(constraintsWhenVisible)
 
         self.topConstraint = topConstraint
+        self.bottomConstraint = bottomConstraint
         //UIKit doesn't like headers with a height of 0
         self.heightConstraint = heightAnchor.constraint(equalToConstant: 1)
         self.constraintsWhenVisible = constraintsWhenVisible
@@ -52,11 +55,11 @@ class AccountViewTableSectionHeader: UIView {
     }
 
     func configure(type: HeaderType, shouldHide: Bool) {
-        backgroundColor  = Colors.appBackground
+        backgroundColor  = GroupedTable.Color.background
 
-        label.backgroundColor = Colors.appBackground
-        label.textColor = Colors.appWhite
-        label.font = Fonts.semibold(size: 15)!
+        label.backgroundColor = GroupedTable.Color.background
+        label.textColor = GroupedTable.Color.title
+        label.font = Fonts.tableHeader
         label.text = type.title
         label.isHidden = shouldHide
 
@@ -70,10 +73,13 @@ class AccountViewTableSectionHeader: UIView {
         switch type {
         case .hdWallet:
             topConstraint?.constant = 0
+            bottomConstraint?.constant = 0
         case .keystoreWallet:
-            topConstraint?.constant = 7
+            topConstraint?.constant = 4
+            bottomConstraint?.constant = -16
         case .watchedWallet:
-            topConstraint?.constant = 7
+            topConstraint?.constant = 4
+            bottomConstraint?.constant = -16
         }
     }
 }

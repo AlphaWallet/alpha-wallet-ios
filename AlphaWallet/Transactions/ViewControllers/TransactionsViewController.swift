@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 import APIKit
@@ -39,7 +39,7 @@ class TransactionsViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = viewModel.backgroundColor
         tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
         view.addSubview(tableView)
 
@@ -61,7 +61,7 @@ class TransactionsViewController: UIViewController {
         loadingView = LoadingView()
         //TODO move into StateViewModel once this change is global
         if let loadingView = loadingView as? LoadingView {
-            loadingView.backgroundColor = Colors.appBackground
+            loadingView.backgroundColor = Colors.appGrayLabel
             loadingView.label.textColor = Colors.appWhite
             loadingView.loadingIndicator.color = Colors.appWhite
             loadingView.label.font = Fonts.regular(size: 18)
@@ -110,9 +110,15 @@ class TransactionsViewController: UIViewController {
         title.font = viewModel.headerTitleFont
         container.addSubview(title)
         title.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            title.anchorsConstraint(to: container, edgeInsets: .init(top: 0, left: 20, bottom: 3, right: 0))
-        ])
+        if section == 0 {
+            NSLayoutConstraint.activate([
+                title.anchorsConstraint(to: container, edgeInsets: .init(top: 18, left: 20, bottom: 16, right: 0))
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                title.anchorsConstraint(to: container, edgeInsets: .init(top: 4, left: 20, bottom: 16, right: 0))
+            ])
+        }
         return container
     }
 }

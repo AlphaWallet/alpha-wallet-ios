@@ -17,11 +17,11 @@ struct SeedPhraseBackupIntroductionViewModel {
     }
 
     var subtitleColor: UIColor {
-        return Colors.appText
+        return Screen.Backup.subtitleColor
     }
 
     var subtitleFont: UIFont {
-        return Fonts.regular(size: 22)!
+        return Screen.Backup.subtitleFont
     }
 
     var imageViewImage: UIImage {
@@ -37,10 +37,10 @@ struct SeedPhraseBackupIntroductionViewModel {
     }
 
     var descriptionColor: UIColor {
-        return Colors.darkGray
+        return Screen.Backup.descriptionColor
     }
 
     var descriptionFont: UIFont {
-        return Fonts.regular(size: 18)!
+        return Screen.Backup.descriptionFont
     }
 }

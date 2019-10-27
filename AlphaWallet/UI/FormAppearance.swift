@@ -54,7 +54,7 @@ struct AppFormAppearance {
             for (index, validationMsg) in row.validationErrors.map({ $0.msg }).enumerated() {
                 let labelRow = LabelRow {
                     $0.title = validationMsg
-                    $0.cell.height = { 20 }
+                    $0.cell.height = { 33 }
                     $0.cell.textLabel?.textColor = .red
                 }
                 row.section?.insert(labelRow, at: row.indexPath!.row + index + 1)
@@ -68,16 +68,6 @@ struct AppFormAppearance {
             cell.textLabel?.textAlignment = .left
             cell.textLabel?.textColor = .black
         }
-        callback(button)
-        return button
-    }
-
-    static func alphaWalletSettingsButton(_ title: String? = .none, callback: @escaping (AlphaWalletSettingsButtonRow ) -> Void) -> AlphaWalletSettingsButtonRow {
-        let button = AlphaWalletSettingsButtonRow(title)
-                .cellUpdate { cell, _ in
-                    cell.textLabel?.textAlignment = .left
-                    cell.textLabel?.textColor = .black
-                }
         callback(button)
         return button
     }

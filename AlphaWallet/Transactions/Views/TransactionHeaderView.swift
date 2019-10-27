@@ -24,6 +24,8 @@ class TransactionHeaderView: UIView {
 
         let margin = CGFloat(15)
         NSLayoutConstraint.activate([
+            blockchainLabel.heightAnchor.constraint(equalToConstant: Screen.TokenCard.Metric.blockChainTagHeight),
+
             stackView.topAnchor.constraint(equalTo: topAnchor, constant: margin),
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -margin),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -margin),
@@ -41,8 +43,8 @@ class TransactionHeaderView: UIView {
         blockchainLabel.textAlignment = .center
         blockchainLabel.cornerRadius = 7
         blockchainLabel.backgroundColor = server.blockChainNameColor
-        blockchainLabel.textColor = Colors.appWhite
-        blockchainLabel.font = Fonts.semibold(size: 12)!
+        blockchainLabel.textColor = Screen.TokenCard.Color.blockChainName
+        blockchainLabel.font = Screen.TokenCard.Font.blockChainName
         blockchainLabel.text = " \(server.name)     "
     }
 }

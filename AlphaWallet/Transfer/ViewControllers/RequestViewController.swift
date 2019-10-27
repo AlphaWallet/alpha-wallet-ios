@@ -1,11 +1,9 @@
 // Copyright © 2018 Stormbird PTE. LTD.
-// Copyright SIX DAY LLC
 
 import Foundation
 import UIKit
 import CoreImage
 import MBProgressHUD
-import StackViewController
 
 //Careful to fit in shorter phone like iPhone 5s without needing to scroll
 class RequestViewController: UIViewController {
@@ -15,39 +13,10 @@ class RequestViewController: UIViewController {
 		return roundedBackground
 	}()
 
-	private let stackViewController = StackViewController()
-
-	private lazy var imageView: UIImageView = {
-		let imageView = UIImageView()
-		imageView.translatesAutoresizingMaskIntoConstraints = false
-		return imageView
-	}()
-
-	private lazy var copyButton: UIButton = {
-		let button = Button(size: .normal, style: .border)
-		button.translatesAutoresizingMaskIntoConstraints = false
-		button.titleLabel?.font = viewModel.buttonFont
-		button.setTitle("    \(viewModel.copyWalletText)    ", for: .normal)
-		button.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-		button.backgroundColor = viewModel.buttonBackgroundColor
-		button.addTarget(self, action: #selector(copyAddress), for: .touchUpInside)
-		button.cornerRadius = Metrics.CornerRadius.button
-		return button
-	}()
-
-	private lazy var addressHintLabel: UILabel = {
-		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.textColor = viewModel.labelColor
-		label.font = viewModel.addressHintFont
-		label.adjustsFontSizeToFitWidth = true
-		label.text = viewModel.headlineText
-		return label
-	}()
+	private let scrollView = UIScrollView()
 
 	private lazy var instructionLabel: UILabel = {
 		let label = UILabel()
-		label.translatesAutoresizingMaskIntoConstraints = false
 		label.textColor = viewModel.labelColor
 		label.font = viewModel.instructionFont
 		label.adjustsFontSizeToFitWidth = true
@@ -55,11 +24,14 @@ class RequestViewController: UIViewController {
 		return label
 	}()
 
+	private lazy var imageView: UIImageView = {
+		let imageView = UIImageView()
+		return imageView
+	}()
+
 	private lazy var addressContainerView: UIView = {
 		let v = UIView()
-		v.translatesAutoresizingMaskIntoConstraints = false
 		v.backgroundColor = viewModel.addressBackgroundColor
-        v.cornerRadius = Metrics.CornerRadius.textbox
 		return v
 	}()
 
@@ -76,11 +48,10 @@ class RequestViewController: UIViewController {
 	}()
 
 	private let viewModel: RequestViewModel
+	private let buttonsBar = ButtonsBar(numberOfButtons: 1)
 
 	init(viewModel: RequestViewModel) {
 		self.viewModel = viewModel
-
-		stackViewController.scrollView.alwaysBounceVertical = true
 
 		super.init(nibName: nil, bundle: nil)
 
@@ -89,16 +60,27 @@ class RequestViewController: UIViewController {
 
 		addressContainerView.addSubview(addressLabel)
 
-		displayStackViewController()
+		scrollView.translatesAutoresizingMaskIntoConstraints = false
+		roundedBackground.addSubview(scrollView)
 
-		stackViewController.addItem(addressHintLabel)
-		stackViewController.addItem(instructionLabel)
+		let stackView = [
+			.spacer(height: 30),
+			instructionLabel,
+			.spacer(height: 50),
+			imageView,
+		].asStackView(axis: .vertical, alignment: .center)
+		stackView.translatesAutoresizingMaskIntoConstraints = false
+		scrollView.addSubview(stackView)
 
-		stackViewController.addItem(addressContainerView)
-		stackViewController.addItem(copyButton)
+        addressContainerView.translatesAutoresizingMaskIntoConstraints = false
+		roundedBackground.addSubview(addressContainerView)
 
-		stackViewController.addItem(UIView.spacer(height: 16))
-		stackViewController.addItem(imageView)
+		let footerBar = UIView()
+		footerBar.translatesAutoresizingMaskIntoConstraints = false
+		footerBar.backgroundColor = .clear
+		roundedBackground.addSubview(footerBar)
+
+		footerBar.addSubview(buttonsBar)
 
 		let addressContainerLeadingAnchorConstraint = addressContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10)
 		addressContainerLeadingAnchorConstraint.priority = .defaultLow
@@ -115,28 +97,53 @@ class RequestViewController: UIViewController {
 			addressContainerTrailingAnchorConstraint,
 
 			//Leading/trailing anchor needed to make label fit when on narrow iPhones
-			addressLabel.centerXAnchor.constraint(lessThanOrEqualTo: addressContainerView.centerXAnchor),
 			addressLabel.anchorsConstraint(to: addressContainerView, edgeInsets: .init(top: 20, left: 10, bottom: 20, right: 10)),
 
 			imageView.widthAnchor.constraint(equalToConstant: qrCodeDimensions),
 			imageView.heightAnchor.constraint(equalToConstant: qrCodeDimensions),
 
+			stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 15),
+			stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -15),
+			stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+			stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+
+			scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+			scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+
+			buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
+			buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
+			buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
+			buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+
+			footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+			footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+			footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
+			footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+			addressContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+			addressContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+			addressContainerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -20),
+
 			roundedBackground.createConstraintsWithContainer(view: view),
 		])
 
 		changeQRCode(value: 0)
+
+		configure()
 	}
 
-	private func displayStackViewController() {
-		addChild(stackViewController)
-		roundedBackground.addSubview(stackViewController.view)
-		_ = stackViewController.view.activateSuperviewHuggingConstraints()
-		stackViewController.didMove(toParent: self)
+	override func viewDidLayoutSubviews() {
+		super.viewDidLayoutSubviews()
+		addressContainerView.cornerRadius = addressContainerView.frame.size.height / 2
+	}
 
-		stackViewController.stackView.spacing = 10
-		stackViewController.stackView.alignment = .center
-		stackViewController.stackView.layoutMargins = UIEdgeInsets(top: 20, left: 15, bottom: 0, right: 15)
-		stackViewController.stackView.isLayoutMarginsRelativeArrangement = true
+	private func configure() {
+		buttonsBar.configure()
+		let copyButton = buttonsBar.buttons[0]
+		copyButton.addTarget(self, action: #selector(copyAddress), for: .touchUpInside)
+		copyButton.setTitle(viewModel.copyWalletText, for: .normal)
 	}
 
 	@objc func textFieldDidChange(_ textField: UITextField) {

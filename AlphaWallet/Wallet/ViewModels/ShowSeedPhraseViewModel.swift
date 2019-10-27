@@ -17,11 +17,11 @@ struct ShowSeedPhraseViewModel {
     }
 
     var subtitleColor: UIColor {
-        return Colors.darkGray
+        return Screen.Backup.subtitleColor
     }
 
     var subtitleFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Screen.Backup.subtitleFont
     }
 
     var errorColor: UIColor {

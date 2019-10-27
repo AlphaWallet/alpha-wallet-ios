@@ -54,9 +54,11 @@ open class AlphaWalletSwitchCell: Cell<Bool>, CellType {
         background.backgroundColor = Colors.appWhite
         background.layer.cornerRadius = Metrics.CornerRadius.box
 
-        textLabel?.backgroundColor = Colors.appWhite
-        textLabel?.textColor = Colors.appText
-        textLabel?.font = Fonts.light(size: 18)!
+        textLabel?.backgroundColor = Screen.Setting.Color.background
+        textLabel?.textColor = Screen.Setting.Color.title
+        textLabel?.font = Screen.Setting.Font.title
+
+        imageView?.tintColor = Screen.Setting.Color.image
 
         switchControl.addTarget(self, action: #selector(AlphaWalletSwitchCell.valueChanged), for: .valueChanged)
     }

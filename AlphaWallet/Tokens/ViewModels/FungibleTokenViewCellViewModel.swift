@@ -29,11 +29,11 @@ struct FungibleTokenViewCellViewModel {
     }
 
     var blockChainNameFont: UIFont {
-        return Fonts.semibold(size: 12)!
+        return Screen.TokenCard.Font.blockChainName
     }
 
     var blockChainNameColor: UIColor {
-        return Colors.appWhite
+        return Screen.TokenCard.Color.blockChainName
     }
 
     var blockChainNameBackgroundColor: UIColor {
@@ -48,16 +48,20 @@ struct FungibleTokenViewCellViewModel {
         return .center
     }
 
+    var blockChainNameCornerRadius: CGFloat {
+        return Screen.TokenCard.Metric.blockChainTagCornerRadius
+    }
+
     var blockChainName: String {
         return server.blockChainName
     }
 
     var backgroundColor: UIColor {
-        return Colors.appBackground
+        return Screen.TokenCard.Color.background
     }
 
     var contentsBackgroundColor: UIColor {
-        return Colors.appWhite
+        return Screen.TokenCard.Color.background
     }
 
     var contentsCornerRadius: CGFloat {
@@ -65,26 +69,18 @@ struct FungibleTokenViewCellViewModel {
     }
 
     var titleColor: UIColor {
-        return Colors.appText
+        return Screen.TokenCard.Color.title
     }
 
     var subtitleColor: UIColor {
-        return Colors.appBackground
+        return Screen.TokenCard.Color.subtitle
     }
 
     var titleFont: UIFont {
-        if ScreenChecker().isNarrowScreen {
-            return Fonts.light(size: 22)!
-        } else {
-            return Fonts.light(size: 25)!
-        }
+        return Screen.TokenCard.Font.title
     }
 
     var subtitleFont: UIFont {
-        return Fonts.semibold(size: 10)!
-    }
-
-    var cellHeight: CGFloat {
-        return 98
+        return Screen.TokenCard.Font.subtitle
     }
 }

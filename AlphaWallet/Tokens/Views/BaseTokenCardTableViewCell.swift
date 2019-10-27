@@ -11,6 +11,7 @@ class BaseTokenCardTableViewCell: UITableViewCell {
     static let identifier = "TokenCardTableViewCell"
     //This is declared optional because we have no way to set it upon cell instance creation. But it has to be set immediately. Check where it's accessed. It's forced unwrapped
     private var assetDefinitionStore: AssetDefinitionStore? = nil
+    private let cellSeparators = (top: UIView(), bottom: UIView())
 
     weak var delegate: BaseTokenCardTableViewCellDelegate?
 
@@ -22,13 +23,38 @@ class BaseTokenCardTableViewCell: UITableViewCell {
         }
     }
 
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+
+        cellSeparators.top.translatesAutoresizingMaskIntoConstraints = false
+        cellSeparators.bottom.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(cellSeparators.top)
+        contentView.addSubview(cellSeparators.bottom)
+
+        NSLayoutConstraint.activate([
+            cellSeparators.top.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            cellSeparators.top.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            cellSeparators.top.topAnchor.constraint(equalTo: contentView.topAnchor, constant: GroupedTable.Metric.cellSpacing),
+            cellSeparators.top.heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
+
+            cellSeparators.bottom.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            cellSeparators.bottom.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            cellSeparators.bottom.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            cellSeparators.bottom.heightAnchor.constraint(equalToConstant: GroupedTable.Metric.cellSeparatorHeight),
+        ])
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     func configure(viewModel: BaseTokenCardTableViewCellViewModel, assetDefinitionStore: AssetDefinitionStore) {
         setUpRowView(withAssetDefinitionStore: assetDefinitionStore)
 
         selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
 
-        contentView.backgroundColor = viewModel.backgroundColor
+        contentView.backgroundColor = GroupedTable.Color.background
 
         rowView?.tokenView = viewModel.tokenView
         rowView?.configure(tokenHolder: viewModel.tokenHolder, tokenView: viewModel.tokenView, areDetailsVisible: viewModel.areDetailsVisible, width: viewModel.cellWidth, assetDefinitionStore: assetDefinitionStore)
@@ -41,6 +67,9 @@ class BaseTokenCardTableViewCell: UITableViewCell {
         rowView?.stateLabel.isHidden = viewModel.status.isEmpty
 
         rowView?.areDetailsVisible = viewModel.areDetailsVisible
+
+        cellSeparators.top.backgroundColor = GroupedTable.Color.cellSeparator
+        cellSeparators.bottom.backgroundColor = GroupedTable.Color.cellSeparator
     }
 
     func showCheckbox() -> Bool {
@@ -60,8 +89,18 @@ class BaseTokenCardTableViewCell: UITableViewCell {
         rowView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(rowView)
 
+        //Needs to for expanded view to be laid out with correct height, but cell might be too short
+        let getExpandedHeightCorrectConstraint = rowView.bottomAnchor.constraint(greaterThanOrEqualTo: contentView.bottomAnchor, constant: -GroupedTable.Metric.cellSeparatorHeight)
+        //Gets cell height correct, compensating the constraint above
+        let getCellHeightCorrectConstraint = rowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -GroupedTable.Metric.cellSeparatorHeight)
+        getCellHeightCorrectConstraint.priority = .fittingSizeLevel
+
         NSLayoutConstraint.activate([
-            rowView.anchorsConstraint(to: contentView),
+            rowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            rowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            rowView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: GroupedTable.Metric.cellSpacing + GroupedTable.Metric.cellSeparatorHeight),
+            getExpandedHeightCorrectConstraint,
+            getCellHeightCorrectConstraint,
         ])
     }
 }

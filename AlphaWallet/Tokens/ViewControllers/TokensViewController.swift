@@ -128,7 +128,7 @@ class TokensViewController: UIViewController {
         handleTokenCollectionUpdates()
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addToken))
 
-        view.backgroundColor = Colors.appBackground
+        view.backgroundColor = viewModel.backgroundColor
 
         tableViewFilterView.delegate = self
         tableViewFilterView.translatesAutoresizingMaskIntoConstraints = false
@@ -141,17 +141,18 @@ class TokensViewController: UIViewController {
         tableView.register(FungibleTokenViewCell.self, forCellReuseIdentifier: FungibleTokenViewCell.identifier)
         tableView.register(EthTokenViewCell.self, forCellReuseIdentifier: EthTokenViewCell.identifier)
         tableView.register(NonFungibleTokenViewCell.self, forCellReuseIdentifier: NonFungibleTokenViewCell.identifier)
-        tableView.estimatedRowHeight = 0
+//        tableView.estimatedRowHeight = 0
+        tableView.estimatedRowHeight = 100
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = GroupedTable.Color.background
         tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         tableView.addSubview(tableViewRefreshControl)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
 
-        collectiblesCollectionView.backgroundColor = Colors.appBackground
+        collectiblesCollectionView.backgroundColor = viewModel.backgroundColor
         collectiblesCollectionView.translatesAutoresizingMaskIntoConstraints = false
         collectiblesCollectionView.alwaysBounceVertical = true
         collectiblesCollectionView.register(OpenSeaNonFungibleTokenViewCell.self, forCellWithReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier)
@@ -249,16 +250,17 @@ class TokensViewController: UIViewController {
         if let importWalletView = importWalletView {
             view.addSubview(importWalletView)
 
-            let imageView = UIImageView(image: R.image.wallet_import())
+            let imageView = UIImageView(image: R.image.wallet_import()?.withRenderingMode(.alwaysTemplate))
+            imageView.tintColor = Colors.navigationTitleColor
 
             importWalletLayer.path = createImportWalletImagePath().cgPath
             importWalletLayer.lineDashPattern = [5, 5]
-            importWalletLayer.strokeColor = UIColor.white.cgColor
+            importWalletLayer.strokeColor = Colors.navigationTitleColor.cgColor
             importWalletLayer.fillColor = UIColor.clear.cgColor
             importWalletView.layer.addSublayer(importWalletLayer)
 
             let label = UILabel()
-            label.textColor = .white
+            label.textColor = Colors.appText
             label.text = R.string.localizable.aWalletImportWalletTitle()
 
             let stackView = [
@@ -307,7 +309,7 @@ class TokensViewController: UIViewController {
     //Reloading the collectibles tab is very obvious visually, with the flashing images even if there are no changes. So we used this to check if the list of collectibles have changed, if not, don't refresh. We could have used a library that tracks diff, but that is overkill and one more dependency
     private func contractsForCollectiblesFromViewModel() -> [AlphaWallet.Address] {
         var contractsForCollectibles = [AlphaWallet.Address]()
-        for i in (0..<viewModel.numberOfItems(for: 0)) {
+        for i in (0..<viewModel.numberOfItems()) {
             let token = viewModel.item(for: i, section: 0)
             contractsForCollectibles.append(token.contractAddress)
         }
@@ -366,40 +368,13 @@ extension TokensViewController: UITableViewDelegate {
         }
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let token = viewModel.item(for: indexPath.row, section: indexPath.section)
-        let server = token.server
-        let session = sessions[server]
-
-        switch token.type {
-        case .nativeCryptocurrency:
-            let cellViewModel = EthTokenViewCellViewModel(
-                    token: token,
-                    ticker: viewModel.ticker(for: token),
-                    currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
-                    currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                    server: server,
-                    assetDefinitionStore: assetDefinitionStore
-            )
-            return cellViewModel.cellHeight
-        case .erc20:
-            let cellViewModel = FungibleTokenViewCellViewModel(token: token, server: server, assetDefinitionStore: assetDefinitionStore)
-            return cellViewModel.cellHeight
-        case .erc721:
-            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: server, assetDefinitionStore: assetDefinitionStore)
-            return cellViewModel.cellHeight
-        case .erc875:
-            let cellViewModel = NonFungibleTokenViewCellViewModel(token: token, server: server, assetDefinitionStore: assetDefinitionStore)
-            return cellViewModel.cellHeight
-        }
-    }
-
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        guard section == 0 else { return 0 }
         return TokensViewController.filterViewHeight
     }
 
-
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard section == 0 else { return nil }
         let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: TableViewSectionHeader.reuseIdentifier) as? TableViewSectionHeader ?? TableViewSectionHeader(reuseIdentifier: TableViewSectionHeader.reuseIdentifier)
         header.filterView = tableViewFilterView
         return header
@@ -441,7 +416,11 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfItems(for: section)
+        return viewModel.numberOfItems()
+    }
+
+    public func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
     }
 }
 
@@ -471,7 +450,7 @@ extension TokensViewController: WalletFilterViewDelegate {
 
 extension TokensViewController: UICollectionViewDataSource {
     public func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return viewModel.numberOfItems(for: section)
+        return viewModel.numberOfItems()
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -553,12 +532,12 @@ extension TokensViewController {
 
     private func fixTableViewBackgroundColor() {
         let v = UIView()
-        v.backgroundColor = Colors.appBackground
+        v.backgroundColor = GroupedTable.Color.background
         tableView.backgroundView = v
     }
 
     private func fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1() {
-        view.superview?.backgroundColor = Colors.appBackground
+        view.superview?.backgroundColor = viewModel.backgroundColor
     }
 
     private func setupFilteringWithKeyword() {
@@ -577,10 +556,10 @@ extension TokensViewController {
             placeholderLabel.textColor = Colors.lightGray
         }
         if let textField = searchController.searchBar.firstSubview(ofType: UITextField.self) {
-            textField.textColor = Colors.appWhite
+            textField.textColor = Colors.appText
             if let imageView = textField.leftView as? UIImageView {
                 imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
-                imageView.tintColor = Colors.lightGray
+                imageView.tintColor = Colors.appText
             }
         }
         //Hack to hide the horizontal separator below the search bar

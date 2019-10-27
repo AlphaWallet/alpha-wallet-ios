@@ -168,8 +168,6 @@ class ShowSeedPhraseViewController: UIViewController {
     func configure() {
         view.backgroundColor = Colors.appBackground
 
-        title = viewModel.title
-
         subtitleLabel.textAlignment = .center
         subtitleLabel.textColor = viewModel.subtitleColor
         subtitleLabel.font = viewModel.subtitleFont

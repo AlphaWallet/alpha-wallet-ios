@@ -49,7 +49,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var activityIndicatorColor: UIColor {
-        return Colors.appBackground
+        return Colors.navigationTitleColor
     }
     var showActivityIndicator: Bool {
         switch state {
@@ -206,7 +206,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var statusFont: UIFont {
-        return Fonts.semibold(size: 25)!
+        return Fonts.regular(size: 25)!
     }
 
     var showCost: Bool {
@@ -218,7 +218,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelLabelColor: UIColor {
-        return Colors.appGrayLabelColor
+        return Colors.appText
     }
 
     var ethCostLabelLabelFont: UIFont {
@@ -236,7 +236,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var ethCostLabelColor: UIColor {
-        return Colors.appBackground
+        return Colors.appText
     }
 
     var ethCostLabelFont: UIFont {
@@ -248,7 +248,7 @@ struct ImportMagicTokenViewControllerViewModel {
     }
 
     var dollarCostLabelLabelColor: UIColor {
-        return Colors.appGrayLabelColor
+        return Colors.appText
     }
 
     var dollarCostLabelLabelFont: UIFont {
