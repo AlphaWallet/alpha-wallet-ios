@@ -198,11 +198,11 @@ class TransactionConfigurator {
                 completion(.failure(AnyError(Web3Error(description: "malformed tx"))))
             }
 
-        case .ERC721Token:
+        case .ERC721Token(let token):
             do {
                 let function: Function
                 let parameters: [Any]
-                if transaction.to!.isLegacy721Contract {
+                if token.contractAddress.isLegacy721Contract {
                     function = Function(name: "transfer", parameters: [.address, .uint(bits: 256)])
                     parameters = [TrustKeystore.Address(address: transaction.to!), BigUInt(transaction.tokenId!)!]
                 } else {
