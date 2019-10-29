@@ -22,4 +22,4 @@ script:
   - xcodebuild -workspace AlphaWallet.xcworkspace -scheme AlphaWalletTests -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone X" test | xcpretty
 
 after_success:
-  - bash <(curl -s https://copilot.blackducksoftware.com/ci/travis/scripts/upload)
+  - bash <(curl -s https://codecov.io/bash)
