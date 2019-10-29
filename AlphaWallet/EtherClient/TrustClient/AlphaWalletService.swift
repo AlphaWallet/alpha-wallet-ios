@@ -34,7 +34,7 @@ extension AlphaWalletService: TargetType {
 
     var path: String {
         switch self {
-        case .getTransactions(_, let server, let address, _, _, _):
+        case .getTransactions(_, let server, _, _, _, _):
             switch server {
             case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1:
                 return "/api"

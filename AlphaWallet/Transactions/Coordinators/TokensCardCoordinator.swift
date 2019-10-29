@@ -165,17 +165,12 @@ class TokensCardCoordinator: NSObject, Coordinator {
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
-    private func showEnterQuantityViewControllerForRedeem(token: TokenObject,
-                                                 for tokenHolder: TokenHolder,
-                                                 in viewController: UIViewController) {
+    private func showEnterQuantityViewControllerForRedeem(token: TokenObject, for tokenHolder: TokenHolder, in viewController: UIViewController) {
         let quantityViewController = makeRedeemTokensCardQuantitySelectionViewController(token: token, for: tokenHolder)
         navigationController.pushViewController(quantityViewController, animated: true)
     }
 
-    private func showEnterQuantityViewControllerForTransfer(token: TokenObject,
-                                                          for tokenHolder: TokenHolder,
-                                                          forPaymentFlow paymentFlow: PaymentFlow,
-                                                          in viewController: UIViewController) {
+    private func showEnterQuantityViewControllerForTransfer(token: TokenObject, for tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: UIViewController) {
         let vc = makeTransferTokensCardQuantitySelectionViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
         viewController.navigationController?.pushViewController(vc, animated: true)
     }

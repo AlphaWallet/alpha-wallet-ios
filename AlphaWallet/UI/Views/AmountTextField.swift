@@ -34,18 +34,19 @@ class AmountTextField: UIControl {
     var ethCost: String {
         get {
             switch currentPair.left {
-            case .cryptoCurrency(_):
+            case .cryptoCurrency:
                 return textField.text ?? "0"
-            case .usd(_):
+            case .usd:
                 return convertToAlternateAmount()
             }
         }
         set {
             switch currentPair.left {
-                case .cryptoCurrency: break
-                case .usd:
-                    currentPair = currentPair.swapPair()
-                    updateFiatButtonTitle()
+            case .cryptoCurrency:
+                break
+            case .usd:
+                currentPair = currentPair.swapPair()
+                updateFiatButtonTitle()
             }
             textField.text = newValue
             updateAlternatePricingDisplay()
@@ -53,9 +54,9 @@ class AmountTextField: UIControl {
     }
     var dollarCost: Double? {
         switch currentPair.left {
-        case .cryptoCurrency(_):
+        case .cryptoCurrency:
             return convertToAlternateAmountNumeric()
-        case .usd(_):
+        case .usd:
             return Double(textField.text ?? "")
         }
     }
@@ -126,8 +127,8 @@ class AmountTextField: UIControl {
     private func makeAmountRightView() -> UIView {
         fiatButton.translatesAutoresizingMaskIntoConstraints = false
         switch currentPair.left {
-            case .cryptoCurrency(let symbol), .usd(let symbol):
-                fiatButton.setTitle(symbol, for: .normal)
+        case .cryptoCurrency(let symbol), .usd(let symbol):
+            fiatButton.setTitle(symbol, for: .normal)
         }
         fiatButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
         fiatButton.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
@@ -152,8 +153,8 @@ class AmountTextField: UIControl {
 
     private func updateFiatButtonTitle() {
         switch currentPair.left {
-            case .cryptoCurrency(let symbol), .usd(let symbol):
-                fiatButton.setTitle(symbol, for: .normal)
+        case .cryptoCurrency(let symbol), .usd(let symbol):
+            fiatButton.setTitle(symbol, for: .normal)
         }
     }
 
@@ -212,9 +213,10 @@ class AmountTextField: UIControl {
                 alternativeAmountLabel.text = "~ \(amount) USD"
             case .usd:
                 switch currentPair.right {
-                    case .cryptoCurrency(let symbol):
-                        alternativeAmountLabel.text = "~ \(amount) " + symbol
-                    case .usd: break
+                case .cryptoCurrency(let symbol):
+                    alternativeAmountLabel.text = "~ \(amount) " + symbol
+                case .usd:
+                    break
                 }
             }
         }

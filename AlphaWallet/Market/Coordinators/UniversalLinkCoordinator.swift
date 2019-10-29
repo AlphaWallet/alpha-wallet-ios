@@ -176,17 +176,17 @@ class UniversalLinkCoordinator: Coordinator {
         let query: String
         switch signedOrder.order.nativeCurrencyDrop {
             case true:
-                parameters = createHTTPParametersForCurrencyLinksToPaymentServer(
-                        signedOrder: signedOrder,
-                        recipient: walletAddress
-                )
-                query = Constants.currencyDropServer
+            parameters = createHTTPParametersForCurrencyLinksToPaymentServer(
+                    signedOrder: signedOrder,
+                    recipient: walletAddress
+            )
+            query = Constants.currencyDropServer
             case false:
-                parameters = createHTTPParametersForNormalLinksToPaymentServer(
-                        signedOrder: signedOrder,
-                        isForTransfer: true
-                )
-                query = Constants.paymentServer
+            parameters = createHTTPParametersForNormalLinksToPaymentServer(
+                    signedOrder: signedOrder,
+                    isForTransfer: true
+            )
+            query = Constants.paymentServer
         }
         return (parameters, query)
     }
