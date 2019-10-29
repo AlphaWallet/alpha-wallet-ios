@@ -79,11 +79,11 @@ extension WhereIsWalletAddressFoundOverlayView: DialogDelegate {
     }
 }
 
-fileprivate protocol DialogDelegate: class {
+private protocol DialogDelegate: class {
     func tappedContinue(inDialog dialog: Dialog)
 }
 
-fileprivate class Dialog: UIView {
+private class Dialog: UIView {
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)

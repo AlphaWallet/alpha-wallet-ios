@@ -23,11 +23,11 @@ public struct SignedOrder {
 
 extension String {
 	var hexa2Bytes: [UInt8] {
-		let hexa: Array<Character>
+		let hexa: [Character]
 		if count % 2 == 0 {
-			hexa = Array(characters)
+			hexa = Array(self)
 		} else {
-			hexa = Array(("0" + self).characters)
+			hexa = Array(("0" + self))
 		}
 		return stride(from: 0, to: count, by: 2).compactMap {
 			UInt8(String(hexa[$0..<$0.advanced(by: 2)]), radix: 16)

@@ -9,7 +9,7 @@ protocol SingleChainTransactionDataCoordinatorDelegate: class {
 protocol SingleChainTransactionDataCoordinator: Coordinator {
     init(session: WalletSession, storage: TransactionsStorage, keystore: Keystore, tokensStorage: TokensDataStore, promptBackupCoordinator: PromptBackupCoordinator, onFetchLatestTransactionsQueue fetchLatestTransactionsQueue: OperationQueue)
 
-    weak var delegate: SingleChainTransactionDataCoordinatorDelegate? { get set }
+    var delegate: SingleChainTransactionDataCoordinatorDelegate? { get set }
 
     func start()
     func stopTimers()

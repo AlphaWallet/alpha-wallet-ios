@@ -78,7 +78,7 @@ class ClaimOrderCoordinator {
                              completion: @escaping (Result<Data, AnyError>) -> Void) {
 
         do {
-            let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(hex: r), Data(hex: s), TrustKeystore.Address(address:  recipient)]
+            let parameters: [Any] = [expiry, tokenIds, BigUInt(v), Data(hex: r), Data(hex: s), TrustKeystore.Address(address: recipient)]
             let functionEncoder = Function(name: "spawnPassTo", parameters: [
                 .uint(bits: 256),
                 .dynamicArray(.uint(bits: 256)),

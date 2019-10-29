@@ -82,7 +82,7 @@ class WalletCoordinator: Coordinator {
     //TODO Rename this is create in both settings and new install
     func createInstantWallet() {
         navigationController.displayLoading(text: R.string.localizable.walletCreateInProgress(), animated: false)
-        keystore.createAccount() { [weak self] result in
+        keystore.createAccount { [weak self] result in
             guard let strongSelf = self else { return }
             switch result {
             case .success(let account):

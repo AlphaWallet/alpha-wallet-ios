@@ -91,7 +91,6 @@ struct Config {
         }
     }
 
-
     init(defaults: UserDefaults = UserDefaults.standard) {
         self.defaults = defaults
     }
