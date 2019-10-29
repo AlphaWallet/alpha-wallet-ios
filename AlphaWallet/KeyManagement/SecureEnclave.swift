@@ -126,9 +126,9 @@ class SecureEnclave {
         }
         guard let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleWhenUnlockedThisDeviceOnly, flags, nil) else { throw Error.unexpected(description: "Unable to create flags to create private key") }
         var attributes: [String: Any] = [
-            kSecAttrKeyType as String : kSecAttrKeyTypeECSECPrimeRandom,
+            kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
             kSecAttrKeySizeInBits as String: numberOfBitsInKey,
-            kSecPrivateKeyAttrs as String : [
+            kSecPrivateKeyAttrs as String: [
                 kSecAttrIsPermanent as String: true,
                 kSecAttrApplicationTag as String: tagData(fromName: name),
                 kSecAttrAccessControl as String: access
@@ -148,7 +148,7 @@ class SecureEnclave {
         return privateKey
     }
 
-    //MARK: Public interface
+    // MARK: Public interface
 
     func encrypt(plainTextData: Data, withPublicKeyFromLabel name: String, withContext context: LAContext) throws -> Data {
         let privateKey: SecKey
@@ -159,7 +159,6 @@ class SecureEnclave {
         }
 
         guard let publicKey = SecKeyCopyPublicKey(privateKey) else { throw Error.cannotAccessPublicKey }
-
 
         return try encrypt(plainTextData: plainTextData, withPublicKey: publicKey)
     }

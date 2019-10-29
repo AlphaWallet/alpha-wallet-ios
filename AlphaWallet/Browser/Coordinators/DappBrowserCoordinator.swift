@@ -363,7 +363,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         navigationController.present(UINavigationController(rootViewController: coordinator.serversViewController), animated: true)
     }
 
-    private func withCurrentUrl(handler: (URL?) -> ()) {
+    private func withCurrentUrl(handler: (URL?) -> Void) {
         handler(browserNavBar?.url)
     }
 

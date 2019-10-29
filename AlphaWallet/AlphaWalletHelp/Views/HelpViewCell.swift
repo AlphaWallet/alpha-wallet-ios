@@ -17,8 +17,8 @@ class HelpViewCell: UITableViewCell {
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(iconImageView)
 
-        let xMargin  = CGFloat(7)
-        let yMargin  = CGFloat(4)
+        _  = CGFloat(7)
+        _  = CGFloat(4)
         NSLayoutConstraint.activate([
             iconImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -21),
             iconImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),

@@ -16,7 +16,7 @@ struct DappsAutoCompletionCellViewModel {
         text.setAttributes([NSAttributedString.Key.foregroundColor: nameColor as Any], range: .init(location: 0, length: dapp.name.count))
         if let range = dapp.name.lowercased().range(of: keyword.lowercased()) {
             let location = dapp.name.distance(from: dapp.name.startIndex, to: range.lowerBound)
-            let length = keyword.characters.count
+            let length = keyword.count
             text.setAttributes([NSAttributedString.Key.foregroundColor: Colors.appBackground], range: .init(location: location, length: length))
         }
         return text

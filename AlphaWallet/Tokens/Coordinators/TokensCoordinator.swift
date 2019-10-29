@@ -10,7 +10,7 @@ protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func openConsole(inCoordinator coordinator: TokensCoordinator)
 }
 
-fileprivate struct NoContractDetailsDetected: Error {
+private struct NoContractDetailsDetected: Error {
 }
 
 class TokensCoordinator: Coordinator {
