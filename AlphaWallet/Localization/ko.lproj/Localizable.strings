@@ -136,9 +136,9 @@
 "ticket.titlecase" = "티켓";
 "tickets.lowercase" = "티켓";
 "tickets.titlecase" = "티켓";
-"cryptokitties.lowercase" = "cryptokitties";
-"cryptokitties.titlecase" = "CryptoKitties";
-"cryptokitty.titlecase" = "CryptoKitty";
+"kat.lowercase" = "cryptokitties";
+"kat.titlecase" = "Cryptokitties";
+"kat.titlecase" = "Cryptokitty";
 "tokens.newtoken.navigation.title" = "사용자 정의 토큰 추가";
 "transaction.cell.error.title" = "오류";
 "transaction.cell.received.title" = "받음";

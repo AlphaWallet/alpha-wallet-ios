@@ -251,8 +251,8 @@ private class PrivateXMLHandler {
     }()
 
     var nameInSingularForm: String? {
-        if contractAddress.sameContract(as: Constants.cryptoKittiesContractAddress) {
-            return R.string.localizable.cryptokittyTitlecase()
+        if contractAddress.sameContract(as: Constants.katContractAddress) {
+            return R.string.localizable.katTitlecase()
         }
 
         if  let nameStringElement = XMLHandler.getNameStringElement(fromTokenElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
@@ -263,8 +263,8 @@ private class PrivateXMLHandler {
     }
 
     var nameInPluralForm: String? {
-        if contractAddress.sameContract(as: Constants.cryptoKittiesContractAddress) {
-            return R.string.localizable.cryptokittiesTitlecase()
+        if contractAddress.sameContract(as: Constants.katContractAddress) {
+            return R.string.localizable.katTitlecase()
         }
 
         if  let nameElement = XMLHandler.getNameElementForPluralForm(fromTokenElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {

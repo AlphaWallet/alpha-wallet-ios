@@ -136,9 +136,9 @@
 "ticket.titlecase" = "Ticket";
 "tickets.lowercase" = "tickets";
 "tickets.titlecase" = "Tickets";
-"cryptokitties.lowercase" = "cryptokitties";
-"cryptokitties.titlecase" = "CryptoKitties";
-"cryptokitty.titlecase" = "CryptoKitty";
+"kat.lowercase" = "cryptokitties";
+"kat.titlecase" = "Cryptokitties";
+"kat.titlecase" = "Cryptokitty";
 "tokens.newtoken.navigation.title" = "Añadir token personalizado";
 "transaction.cell.error.title" = "Error";
 "transaction.cell.received.title" = "Recibido";
