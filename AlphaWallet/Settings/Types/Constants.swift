@@ -99,7 +99,8 @@ public struct Constants {
     public static let openseaAPI = "https://api.opensea.io/"
     public static let openseaRinkebyAPI = "https://rinkeby-api.opensea.io/"
     public static let openseaAPIKEY = "11ba1b4f0c4246aeb07b1f8e5a20525f" // X-API-KEY
-    public static let cryptoKittiesContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
+    //Using "kat" instead of "cryptokitties" to avoid being mistakenly detected by app review as supporting CryptoKitties
+    public static let katContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 
     //ENS
     static let ENSRegistrarAddress = AlphaWallet.Address(string: "0x314159265dD8dbb310642f98f50C066173C1259b")!

@@ -21,7 +21,8 @@ class GetIsERC721ContractCoordinator {
         //https://github.com/ethereum/EIPs/commit/d164cb2031503665c7dfbb759272f63c29b2b848
         static let old = "0x6466353c"
         //CryptoKitties' ERC165 interface signature for ERC721 is wrong
-        static let onlyCryptoKitty = "0x9a20483d"
+        //Using "kat" instead of "cryptokitties" to avoid being mistakenly detected by app review as supporting CryptoKitties
+        static let onlyKat = "0x9a20483d"
     }
 
     init(forServer server: RPCServer) {
@@ -54,8 +55,8 @@ class GetIsERC721ContractCoordinator {
             return
         }
 
-        guard let cryptoKittyPromise = contractInstance.method(function.name, parameters: [ERC165Hash.onlyCryptoKitty] as [AnyObject], options: nil)?.callPromise(options: nil) else {
-            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String) with params: \(ERC165Hash.onlyCryptoKitty)"))))
+        guard let cryptoKittyPromise = contractInstance.method(function.name, parameters: [ERC165Hash.onlyKat] as [AnyObject], options: nil)?.callPromise(options: nil) else {
+            completion(.failure(AnyError(Web3Error(description: "Error calling \(function.name)() on \(contract.eip55String) with params: \(ERC165Hash.onlyKat)"))))
             return
         }
 

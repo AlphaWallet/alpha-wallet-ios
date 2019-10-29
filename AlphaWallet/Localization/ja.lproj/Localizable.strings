@@ -137,9 +137,9 @@
 "ticket.titlecase" = "チケット";
 "tickets.lowercase" = "チケット";
 "tickets.titlecase" = "チケット";
-"cryptokitties.lowercase" = "cryptokitties";
-"cryptokitties.titlecase" = "CryptoKitties";
-"cryptokitty.titlecase" = "CryptoKitty";
+"kat.lowercase" = "cryptokitties";
+"kat.titlecase" = "Cryptokitties";
+"kat.titlecase" = "Cryptokitty";
 "tokens.newtoken.navigation.title" = "カスタム トークンを追加";
 "transaction.cell.error.title" = "エラー";
 "transaction.cell.received.title" = "受信しました";

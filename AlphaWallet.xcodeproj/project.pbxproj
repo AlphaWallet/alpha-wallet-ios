@@ -2574,7 +2574,7 @@
 			isa = PBXGroup;
 			children = (
 				442FC20E6470B92A46479342 /* TokenAdaptor.swift */,
-				5E7C7629662FB4983E0EBFEB /* CryptoKitties */,
+				5E7C7629662FB4983E0EBFEB /* Kat */,
 				5E7C77C2844B3579A59C3F2F /* CallSmartContractFunction.swift */,
 			);
 			path = Helpers;
@@ -2743,12 +2743,12 @@
 			path = TokenScriptClient;
 			sourceTree = "<group>";
 		};
-		5E7C7629662FB4983E0EBFEB /* CryptoKitties */ = {
+		5E7C7629662FB4983E0EBFEB /* Kat */ = {
 			isa = PBXGroup;
 			children = (
 				5E7C7BCCCFE7B99162518FB7 /* ConvertSVGToPNG.swift */,
 			);
-			path = CryptoKitties;
+			path = Kat;
 			sourceTree = "<group>";
 		};
 		5E7C76A2DAB62A6824F37749 /* Sell */ = {

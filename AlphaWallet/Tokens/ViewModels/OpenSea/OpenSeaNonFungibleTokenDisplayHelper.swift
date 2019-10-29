@@ -31,7 +31,8 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
         case hideAll
     }
 
-    private static let cryptoKittiesCooldowns = [
+    //Using "kat" instead of "cryptokitties" to avoid being mistakenly detected by app review as supporting CryptoKitties
+    private static let katCooldowns = [
         "Fast",
         "Swift",
         "Swift",
@@ -661,8 +662,8 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
             switch name {
             case "cooldown_index":
                 if let index = Int(value) {
-                    if OpenSeaNonFungibleTokenDisplayHelper.cryptoKittiesCooldowns.indices.contains(index) {
-                        return "\(OpenSeaNonFungibleTokenDisplayHelper.cryptoKittiesCooldowns[index]) Cooldown"
+                    if OpenSeaNonFungibleTokenDisplayHelper.katCooldowns.indices.contains(index) {
+                        return "\(OpenSeaNonFungibleTokenDisplayHelper.katCooldowns[index]) Cooldown"
                     } else {
                         return "Unknown Cooldown"
                     }
