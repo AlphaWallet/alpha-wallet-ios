@@ -4,11 +4,11 @@ import Foundation
 
 ///One limitation of this class due to simplification: if "requests" keep coming in, each with the time limit from the last, the block will not fire until one of the request gets a breather of `limit`
 class RateLimiter {
-    private let block: () -> ()
+    private let block: () -> Void
     private let limit: TimeInterval
     private var timer: Timer?
 
-    init(limit: TimeInterval, block: @escaping () -> ()) {
+    init(limit: TimeInterval, block: @escaping () -> Void) {
         self.limit = limit
         self.block = block
     }

@@ -35,7 +35,7 @@ class SeedPhraseCell: UICollectionViewCell {
     func configure(viewModel: SeedPhraseCellViewModel) {
         cornerRadius = 7
 
-        if let sequence = viewModel.sequence {
+        if viewModel.sequence != nil {
             sequenceLabel.font = viewModel.sequenceFont
             sequenceLabel.textColor = viewModel.sequenceColor
             sequenceLabel.text = viewModel.sequence

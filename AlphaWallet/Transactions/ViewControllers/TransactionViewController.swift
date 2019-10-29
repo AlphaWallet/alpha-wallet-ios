@@ -46,7 +46,7 @@ class TransactionViewController: UIViewController {
         header.translatesAutoresizingMaskIntoConstraints = false
         header.configure(amount: viewModel.amountAttributedString)
 
-        var items: [UIView] = [
+        let items: [UIView] = [
             .spacer(),
             header,
             .spacer(),

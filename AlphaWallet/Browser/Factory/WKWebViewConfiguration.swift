@@ -27,7 +27,6 @@ extension WKWebViewConfiguration {
                 } catch { }
             }
             js += javaScriptForDappBrowser(server: server, address: address)
-            break
         case .tokenScriptRenderer:
             js += javaScriptForTokenScriptRenderer(server: server, address: address)
             js += """

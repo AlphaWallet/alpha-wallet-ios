@@ -304,7 +304,7 @@ class SettingsViewController: FormViewController {
     }
 
     private func createSection(withTitle title: String) -> Section {
-        return Section() { section in
+        return Section { section in
             var header = HeaderFooterView<SettingsHeaderView>(.class)
             header.onSetupView = { view, _ in
                 view.title = title

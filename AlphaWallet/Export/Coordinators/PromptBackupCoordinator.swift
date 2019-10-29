@@ -117,7 +117,7 @@ class PromptBackupCoordinator: Coordinator {
         }
     }
 
-    //MARK: Update UI
+    // MARK: Update UI
 
     private func createBackupAfterWalletCreationView() {
         let view = createBackupViewImpl(viewModel: PromptBackupWalletAfterWalletCreationViewViewModel(walletAddress: wallet.address))
@@ -153,7 +153,7 @@ class PromptBackupCoordinator: Coordinator {
         informDelegatesPromptHasChanged()
     }
 
-    //MARK: Set current prompt and state
+    // MARK: Set current prompt and state
 
     private func showCreateBackupAfterWalletCreationPrompt() {
         guard canBackupWallet else { return }
@@ -267,7 +267,7 @@ class PromptBackupCoordinator: Coordinator {
         }
     }
 
-    //MARK: State
+    // MARK: State
 
     private var hasState: Bool {
         guard let state = WalletsBackupState.load(fromUrl: fileUrl) else { return false }
@@ -347,7 +347,7 @@ class PromptBackupCoordinator: Coordinator {
         state.writeTo(url: fileUrl)
     }
 
-    private func updateState(block: (inout WalletsBackupState) -> ()) {
+    private func updateState(block: (inout WalletsBackupState) -> Void) {
         if var state = readState() {
             block(&state)
             writeState(state)

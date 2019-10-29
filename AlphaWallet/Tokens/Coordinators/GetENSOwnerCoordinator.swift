@@ -9,7 +9,7 @@ import web3swift
 //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-137.md
 extension String {
     var nameHash: String {
-        var node = Array<UInt8>.init(repeating: 0x0, count: 32)
+        var node = [UInt8].init(repeating: 0x0, count: 32)
         if !self.isEmpty {
             node = self.split(separator: ".")
                 .map { Array($0.utf8).sha3(.keccak256) }
@@ -26,7 +26,7 @@ class GetENSAddressCoordinator {
         let server: RPCServer
     }
 
-    private static var resultsCache = [ENSLookupKey:EthereumAddress]()
+    private static var resultsCache = [ENSLookupKey: EthereumAddress]()
     private static let DELAY_AFTER_STOP_TYPING_TO_START_RESOLVING_ENS_NAME = TimeInterval(0.5)
 
     private var toStartResolvingEnsNameTimer: Timer?

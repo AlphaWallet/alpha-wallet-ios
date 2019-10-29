@@ -52,7 +52,7 @@ extension VerifiableStatusViewController where Self: UIViewController {
 }
 
 class TokenScriptStatusButton: UIButton {
-    var handler: ((CanOpenURL2) -> ())? = nil
+    var handler: ((CanOpenURL2) -> Void)?
     weak var urlOpener: CanOpenURL2?
 
     init(urlOpener: CanOpenURL2) {
@@ -69,7 +69,6 @@ class TokenScriptStatusButton: UIButton {
         handler?(urlOpener)
     }
 }
-
 
 //TODO move
 func createTokenScriptFileStatusButton(withStatus status: TokenLevelTokenScriptDisplayStatus, urlOpener: CanOpenURL2) -> TokenScriptStatusButton {

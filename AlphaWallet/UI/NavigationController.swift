@@ -3,6 +3,4 @@
 import Foundation
 import UIKit
 
-class NavigationController: UINavigationController, CanScanQRCode  {
-
-}
+class NavigationController: UINavigationController, CanScanQRCode { }

@@ -17,7 +17,6 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         return officialStore.conflictingTokenScriptFileNames + overridesStore.conflictingTokenScriptFileNames
     }
 
-
     init(overridesStore: AssetDefinitionBackingStore? = nil) {
         if let overridesStore = overridesStore {
             self.overridesStore = overridesStore

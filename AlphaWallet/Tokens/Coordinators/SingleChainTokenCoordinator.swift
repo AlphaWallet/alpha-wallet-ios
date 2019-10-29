@@ -435,7 +435,7 @@ class SingleChainTokenCoordinator: Coordinator {
         case (.send, .real), (.request, _):
             makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: tokensCardCoordinator, token: token)
             navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
-        case (.send, .watch), (.request, _):
+        case (.send, .watch):
             tokensCardCoordinator.isReadOnly = true
             navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
         case (_, _):
