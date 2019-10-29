@@ -124,9 +124,9 @@
 "ticket.titlecase" = "门票";
 "tickets.lowercase" = "门票";
 "tickets.titlecase" = "门票";
-"cryptokitties.lowercase" = "cryptokitties";
-"cryptokitties.titlecase" = "CryptoKitties";
-"cryptokitty.titlecase" = "CryptoKitty";
+"kat.lowercase" = "cryptokitties";
+"kat.titlecase" = "Cryptokitties";
+"kat.titlecase" = "Cryptokitty";
 "tokens.newtoken.navigation.title" = "添加自定义通证";
 "transaction.cell.error.title" = "错误";
 "transaction.cell.received.title" = "已收到";

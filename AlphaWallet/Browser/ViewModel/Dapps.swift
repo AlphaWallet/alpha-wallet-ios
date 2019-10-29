@@ -2,7 +2,8 @@
 
 import Foundation
 
-enum Dapps {
+This comment is here with the wrong syntax (no leading //) to force a build error if this file is accidentally included
+enum OriginalDapps {
     static let masterList = [
         Dapp(name: "State of the ÐApps", description: "Directory of Decentralized Applications", url: "https://www.stateofthedapps.com/", cat: "Directory"),
         Dapp(name: "BulkSender", description: "Batch sending of tokens", url: "https://bulksender.app/", cat: "Finance"),
