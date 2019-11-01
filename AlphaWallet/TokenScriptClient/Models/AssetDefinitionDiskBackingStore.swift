@@ -176,10 +176,12 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         tokenScriptFileIndices.write(toUrl: indicesFileUrl)
     }
 
+    //Must only return the last modified date for a file if it's for the current schema version otherwise, a file using the old schema might have a more recent timestamp (because it was recently downloaded) than a newer version on the server (which was not yet made available by the time the user downloaded the version with the old schema)
     func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
         assert(isOfficial)
         let path = localURLOfXML(for: contract)
         guard let lastModified = try? path.resourceValues(forKeys: [.contentModificationDateKey]) else { return nil }
+        guard XMLHandler.isTokenScriptSupportedSchemaVersion(path) else { return nil }
         return lastModified.contentModificationDate
     }
 

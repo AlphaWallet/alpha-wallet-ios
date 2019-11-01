@@ -718,6 +718,19 @@ public class XMLHandler {
         }
     }
 
+    static func isTokenScriptSupportedSchemaVersion(_ url: URL) -> Bool {
+        switch XMLHandler.checkTokenScriptSchema(forPath: url) {
+        case .supportedTokenScriptVersion:
+            return true
+        case .unsupportedTokenScriptVersion:
+            return false
+        case .unknownXml:
+            return false
+        case .others:
+            return false
+        }
+    }
+
     static func checkTokenScriptSchema(_ contents: String) -> TokenScriptSchema {
         //It's fine to have a file that is empty. A CSS file for example. But we should expect the input to be XML
         if let xml = try? Kanna.XML(xml: contents, encoding: .utf8) {
