@@ -79,7 +79,7 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>QR Scan</string>
+	<string>$(ALPHAWALLET_PRODUCT_NAME) uses the camera to scan QR codes</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Access your wallet</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
