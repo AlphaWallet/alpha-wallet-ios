@@ -141,9 +141,10 @@ class AmountTextField: UIControl {
 
     @objc func fiatAction(button: UIButton) {
         guard cryptoToDollarRate != nil else { return }
+        let oldAlternateAmount = convertToAlternateAmount()
         currentPair = currentPair.swapPair()
         updateFiatButtonTitle()
-        textField.text = nil
+        textField.text = oldAlternateAmount
         computeAlternateAmount()
         activateAmountView()
         delegate?.changeType(in: self)
