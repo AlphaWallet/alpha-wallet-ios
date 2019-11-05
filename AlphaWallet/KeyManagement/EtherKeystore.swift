@@ -185,6 +185,10 @@ open class EtherKeystore: Keystore {
         completion(results)
     }
 
+    private func isAddressAlreadyInWalletsList(address: AlphaWallet.Address) -> Bool {
+        return wallets.map({ $0.address }).contains { $0.sameContract(as: address) }
+    }
+
     func importWallet(type: ImportType) -> Result<Wallet, KeystoreError> {
         switch type {
         case .keystore(let json, let password):
@@ -200,10 +204,7 @@ open class EtherKeystore: Keystore {
             }
         case .privateKey(let privateKey):
             let address = AlphaWallet.Address(fromPrivateKey: privateKey)
-            let hasEthereumAddressAlready = wallets.map({ $0.address }).contains {
-                $0.sameContract(as: address)
-            }
-            guard !hasEthereumAddressAlready else {
+            guard !isAddressAlreadyInWalletsList(address: address) else {
                 return .failure(.duplicateAccount)
             }
             if isUserPresenceCheckPossible {
@@ -221,10 +222,7 @@ open class EtherKeystore: Keystore {
             let wallet = HDWallet(mnemonic: mnemonicString, passphrase: emptyPassphrase)
             let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
             let address = AlphaWallet.Address(fromPrivateKey: privateKey)
-            let hasEthereumAddressAlready = wallets.map({ $0.address }).contains {
-                $0.sameContract(as: address)
-            }
-            guard !hasEthereumAddressAlready else {
+            guard !isAddressAlreadyInWalletsList(address: address) else {
                 return .failure(.duplicateAccount)
             }
             let seed = HDWallet.computeSeedWithChecksum(fromSeedPhrase: mnemonicString)
@@ -239,7 +237,7 @@ open class EtherKeystore: Keystore {
             addToListOfEthereumAddressesWithSeed(address)
             return .success(Wallet(type: .real(.init(address: address))))
         case .watch(let address):
-            guard !watchAddresses.contains(where: { address.sameContract(as: $0) }) else {
+            guard !isAddressAlreadyInWalletsList(address: address) else {
                 return .failure(.duplicateAccount)
             }
             watchAddresses = [watchAddresses, [address.eip55String]].flatMap {
