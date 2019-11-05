@@ -141,9 +141,7 @@ class AmountTextField: UIControl {
 
     @objc func fiatAction(button: UIButton) {
         guard cryptoToDollarRate != nil else { return }
-        let swappedPair = currentPair.swapPair()
-        //New pair for future calculation we should swap pair each time we press fiat button.
-        currentPair = swappedPair
+        currentPair = currentPair.swapPair()
         updateFiatButtonTitle()
         textField.text = nil
         computeAlternateAmount()
