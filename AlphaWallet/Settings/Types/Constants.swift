@@ -30,6 +30,7 @@ public struct Constants {
 
     // fee master
     public static let paymentServer = "https://paymaster.stormbird.sg/api/claimToken"
+    public static let paymentServerSpawnable = "https://paymaster.stormbird.sg/api/claimSpawnableToken"
     public static let paymentServerSupportsContractEndPoint = "https://paymaster.stormbird.sg/api/checkContractIsSupportedForFreeTransfers"
     public static let paymentServerClaimedToken = "https://paymaster.stormbird.sg/api/checkIfSignatureIsUsed"
     public static let currencyDropServer = "https://paymaster.stormbird.sg/api/claimFreeCurrency"
