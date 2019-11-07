@@ -98,7 +98,14 @@ class TokenObject: Object {
         if compositeName.isEmpty {
             return symbol
         } else {
-            return "\(compositeName) (\(symbol))"
+            let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
+            //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
+            if daiSymbol == symbol {
+                return "\(compositeName) (DAI)"
+            } else {
+                return "\(compositeName) (\(symbol))"
+            }
+
         }
     }
 
