@@ -37,12 +37,18 @@ extension UIAlertController {
                       alertButtonStyles: [UIAlertAction.Style],
                       viewController: UIViewController,
                       preferredStyle: UIAlertController.Style = .alert,
+                      sourceView: UIView? = nil,
                       completion: ((Int) -> Void)?) {
 
         let alertController = UIAlertController(
                 title: title,
                 message: message,
                 preferredStyle: preferredStyle)
+
+        if let sourceView = sourceView {
+            alertController.popoverPresentationController?.sourceView = sourceView
+            alertController.popoverPresentationController?.sourceRect = sourceView.centerRect
+        }
 
         alertButtonTitles.forEach { title in
             let alertStyle = alertButtonStyles[alertButtonTitles.index(of: title)!]
