@@ -153,7 +153,8 @@ class TokenViewController: UIViewController {
         case .ERC20Token(let token, _, _):
             let viewModel = BalanceTokenViewModel(token: token)
             let amount = viewModel.amountShort
-            headerViewModel.title = "\(amount) \(viewModel.name) (\(viewModel.symbol))"
+            //Note that if we want to display the token name directly from token.name, we have to be careful that DAI token's name has trailing \0
+            headerViewModel.title = "\(amount) \(token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
             let etherToken = TokensDataStore.etherToken(forServer: session.server)
             let ticker = tokensDataStore.coinTicker(for: etherToken)
             headerViewModel.ticker = ticker
