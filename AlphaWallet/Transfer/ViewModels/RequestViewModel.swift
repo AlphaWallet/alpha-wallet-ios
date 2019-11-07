@@ -1,5 +1,4 @@
 // Copyright © 2018 Stormbird PTE. LTD.
-// Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
 import UIKit
@@ -21,10 +20,6 @@ struct RequestViewModel {
 		return R.string.localizable.requestMyAddressIsLabelTitle(server.name, myAddressText)
 	}
 
-	var headlineText: String {
-		return R.string.localizable.aWalletAddressTitle(server.name)
-	}
-
 	var copyWalletText: String {
 		return R.string.localizable.requestCopyWalletButtonTitle()
 	}
@@ -34,10 +29,6 @@ struct RequestViewModel {
 	}
 
 	var backgroundColor: UIColor {
-		return Colors.appBackground
-	}
-
-	var buttonBackgroundColor: UIColor {
 		return Colors.appBackground
 	}
 
@@ -53,10 +44,6 @@ struct RequestViewModel {
 		return Colors.appText
 	}
 
-	var addressHintFont: UIFont {
-		return Fonts.light(size: 25)!
-	}
-
 	var addressFont: UIFont {
 		return Fonts.semibold(size: 16)!
 	}
@@ -66,7 +53,7 @@ struct RequestViewModel {
 	}
 
 	var instructionFont: UIFont {
-		return Fonts.light(size: 16)!
+		return Fonts.regular(size: 17)!
 	}
 
 	var instructionText: String {

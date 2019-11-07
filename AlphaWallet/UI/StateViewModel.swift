@@ -6,7 +6,7 @@ import UIKit
 struct StateViewModel {
 
     var titleTextColor: UIColor {
-        return Colors.appBackground
+        return Colors.appText
    }
 
     var titleFont: UIFont {
@@ -14,7 +14,7 @@ struct StateViewModel {
     }
 
     var descriptionTextColor: UIColor {
-        return Colors.appBackground
+        return Colors.appText
     }
 
     var descriptionFont: UIFont {

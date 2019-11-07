@@ -33,7 +33,7 @@ class LockView: UIView {
 		lockTitle.font = Fonts.light(size: 20)
 		lockTitle.textAlignment = .center
 		lockTitle.translatesAutoresizingMaskIntoConstraints = false
-		lockTitle.textColor = Colors.appWhite
+		lockTitle.textColor = Colors.appText
 	}
 	private func applyConstraints() {
 		characterView.centerXAnchor.constraint(equalTo: centerXAnchor).isActive = true

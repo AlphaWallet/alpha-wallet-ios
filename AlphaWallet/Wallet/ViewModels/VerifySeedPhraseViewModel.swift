@@ -57,4 +57,12 @@ struct VerifySeedPhraseViewModel {
     var importKeystoreJsonButtonFont: UIFont {
         return Fonts.regular(size: 20)!
     }
+
+    var subtitleColor: UIColor {
+        return Screen.Backup.subtitleColor
+    }
+
+    var subtitleFont: UIFont {
+        return Screen.Backup.subtitleFont
+    }
 }

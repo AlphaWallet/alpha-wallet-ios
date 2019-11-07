@@ -27,15 +27,15 @@ enum ButtonStyle: Int {
 
     var backgroundColor: UIColor {
         switch self {
-        case .solid, .squared: return Colors.appBackground
+        case .solid, .squared: return Colors.appTint
         case .border, .borderless: return .white
         }
     }
 
     var backgroundColorHighlighted: UIColor {
         switch self {
-        case .solid, .squared: return Colors.appBackground
-        case .border: return Colors.appBackground
+        case .solid, .squared: return Colors.appTint
+        case .border: return Colors.appTint
         case .borderless: return .white
         }
     }
@@ -59,22 +59,22 @@ enum ButtonStyle: Int {
 
     var textColor: UIColor {
         switch self {
-        case .solid, .squared: return .white
-        case .border, .borderless: return Colors.appBackground
+        case .solid, .squared: return Colors.appWhite
+        case .border, .borderless: return Colors.appTint
         }
     }
 
     var textColorHighlighted: UIColor {
         switch self {
         case .solid, .squared: return UIColor(white: 1, alpha: 0.8)
-        case .border: return .white
-        case .borderless: return Colors.appBackground
+        case .border: return Colors.appWhite
+        case .borderless: return Colors.appTint
         }
     }
 
     var borderColor: UIColor {
         switch self {
-        case .solid, .squared, .border: return Colors.appBackground
+        case .solid, .squared, .border: return GroupedTable.Color.background
         case .borderless: return .clear
         }
     }

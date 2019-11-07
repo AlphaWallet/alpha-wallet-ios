@@ -93,7 +93,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none
-        tableView.backgroundColor = Colors.appWhite
+        tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableHeaderView = header
         tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
         roundedBackground.addSubview(tableView)
@@ -138,6 +138,14 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server, assetDefinitionStore: assetDefinitionStore))
+
+        tableView.tableHeaderView = header
+        NSLayoutConstraint.activate([
+            header.leadingAnchor.constraint(equalTo: tableView.leadingAnchor),
+            header.trailingAnchor.constraint(equalTo: tableView.trailingAnchor),
+        ])
+        header.setNeedsLayout()
+        header.layoutIfNeeded()
         tableView.tableHeaderView = header
 
         if selectedTokenHolder != nil {
@@ -293,8 +301,12 @@ extension TokensCardViewController: VerifiableStatusViewController {
 }
 
 extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
+    public func numberOfSections(in tableView: UITableView) -> Int {
+        return viewModel.numberOfItems()
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfItems(for: section)
+        return 1
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -329,6 +341,16 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
             let tokenHolder = viewModel.item(for: indexPath)
             delegate?.didTapTokenInstanceIconified(tokenHolder: tokenHolder, in: self)
         }
+    }
+
+    //Needed to make gap between cells narrower
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 0
+    }
+
+    //Needed to make gap between cells narrower
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return nil
     }
 }
 

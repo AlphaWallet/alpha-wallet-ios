@@ -36,7 +36,7 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appBackground
+        return GroupedTable.Color.background
     }
 
     var contentsBackgroundColor: UIColor {
@@ -48,7 +48,7 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
     }
 
     var titleColor: UIColor {
-        return Colors.appBackground
+        return Colors.appText
     }
 
     var titleFont: UIFont {

@@ -23,27 +23,27 @@ struct SendHeaderViewViewModelWithIntroduction {
     }
 
     var backgroundColor: UIColor {
-        return Colors.appWhite
+        return Screen.TokenCard.Color.background
     }
 
     var contentsBackgroundColor: UIColor {
-        return Colors.appWhite
+        return Screen.TokenCard.Color.background
     }
 
     var titleColor: UIColor {
-        return Colors.appText
+        return Screen.TokenCard.Color.title
     }
 
     var subtitleColor: UIColor {
-        return Colors.appBackground
+        return Screen.TokenCard.Color.subtitle
     }
 
     var titleFont: UIFont {
-        return Fonts.light(size: 25)!
+        return Screen.TokenCard.Font.title
     }
 
     var subtitleFont: UIFont {
-        return Fonts.semibold(size: 10)!
+        return Screen.TokenCard.Font.subtitle
     }
     
     var borderColor: UIColor {
@@ -51,26 +51,19 @@ struct SendHeaderViewViewModelWithIntroduction {
     }
 
     var textColor: UIColor {
-        return Colors.appGrayLabelColor
+        return Screen.TokenCard.Color.valueChangeLabel
     }
 
     var valuePercentageChangeColor: UIColor {
-        switch EthCurrencyHelper(ticker: ticker).change24h {
-        case .appreciate:
-            return Colors.appHighlightGreen
-        case .depreciate:
-            return Colors.appRed
-        case .none:
-            return Colors.appGrayLabelColor
-        }
+        return Screen.TokenCard.Color.valueChangeValue(ticker: ticker)
     }
 
     var textValueFont: UIFont {
-        return Fonts.semibold(size: 15)!
+        return Screen.TokenCard.Font.valueChangeValue
     }
 
     var textLabelFont: UIFont {
-        return Fonts.regular(size: 10)!
+        return Screen.TokenCard.Font.valueChangeLabel
     }
 
     var valuePercentageChangeValue: String {

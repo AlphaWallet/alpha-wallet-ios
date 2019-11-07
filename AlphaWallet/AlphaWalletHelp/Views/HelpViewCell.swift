@@ -31,9 +31,9 @@ class HelpViewCell: UITableViewCell {
 
     func configure(text: String) {
         selectionStyle = .none
-        backgroundColor = Colors.appWhite
+        backgroundColor = Colors.appBackground
 
-        contentView.backgroundColor = Colors.appWhite
+        contentView.backgroundColor = Colors.appBackground
 
         iconImageView.image = R.image.info_accessory()
 

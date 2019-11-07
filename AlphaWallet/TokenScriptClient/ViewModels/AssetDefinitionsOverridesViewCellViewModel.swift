@@ -16,7 +16,7 @@ struct AssetDefinitionsOverridesViewCellViewModel {
         return url.lastPathComponent
     }
 
-    let backgroundColor = Colors.appWhite
+    let backgroundColor = Colors.appBackground
 
     let textColor = Colors.appText
     let textFont = Fonts.light(size: 18)!

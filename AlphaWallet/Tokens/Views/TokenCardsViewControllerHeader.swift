@@ -44,11 +44,12 @@ class TokenCardsViewControllerHeader: UIView {
             background.leadingAnchor.constraint(equalTo: leadingAnchor),
             background.topAnchor.constraint(equalTo: topAnchor),
             backgroundWidthConstraint,
+            background.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
             stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
-            stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
+            stackView.bottomAnchor.constraint(equalTo: background.bottomAnchor, constant: -16),
         ])
     }
 

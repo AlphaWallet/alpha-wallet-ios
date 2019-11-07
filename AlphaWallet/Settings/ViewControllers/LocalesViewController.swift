@@ -8,7 +8,7 @@ protocol LocalesViewControllerDelegate: class {
 
 class LocalesViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private let tableView = UITableView(frame: .zero, style: .plain)
     private var viewModel: LocalesViewModel?
 
     weak var delegate: LocalesViewControllerDelegate?
@@ -24,7 +24,7 @@ class LocalesViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = GroupedTable.Color.background
         tableView.register(LocaleViewCell.self, forCellReuseIdentifier: LocaleViewCell.identifier)
         roundedBackground.addSubview(tableView)
 

@@ -14,6 +14,9 @@ class SendHeaderView: UIView {
     private let blockChainTagLabel = UILabel()
     private let middleBorder = UIView()
     private var footerStackView: UIStackView?
+    lazy private var viewsToShowOnlyIfAlternativeAmountsAreAvailable = {
+        return [middleBorder, footerStackView!]
+    }()
     private let valuePercentageChangeValueLabel = UILabel()
     private let valuePercentageChangePeriodLabel = UILabel()
     private let valueChangeLabel = UILabel()
@@ -40,9 +43,12 @@ class SendHeaderView: UIView {
 
         blockchainLabel.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
 
+
         blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
-        let bottomRowStack = [blockchainLabel, issuerLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
+        let titleRowStack = [titleLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15, alignment: .center)
+
+        let bottomRowStack = [blockchainLabel, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
         blockchainLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
         let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .equalCentering, spacing: 15)
@@ -64,7 +70,7 @@ class SendHeaderView: UIView {
         footerStackView?.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [
-            titleLabel,
+            titleRowStack,
             bottomRowStack,
             .spacer(height: 7),
             middleBorder,
@@ -82,10 +88,12 @@ class SendHeaderView: UIView {
             background.heightAnchor.constraint(equalTo: heightAnchor),
             backgroundWidthConstraint,
 
+            blockchainLabel.heightAnchor.constraint(equalToConstant: Screen.TokenCard.Metric.blockChainTagHeight),
+
             middleBorder.heightAnchor.constraint(equalToConstant: 1),
 
-            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 7),
-            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -7),
+            stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 37),
+            stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -37),
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
 
@@ -125,7 +133,7 @@ class SendHeaderView: UIView {
         }
 
         blockChainTagLabel.textAlignment = viewModel.blockChainNameTextAlignment
-        blockChainTagLabel.cornerRadius = 7
+        blockChainTagLabel.cornerRadius = viewModel.blockChainNameCornerRadius
         blockChainTagLabel.backgroundColor = viewModel.blockChainNameBackgroundColor
         blockChainTagLabel.textColor = viewModel.blockChainNameColor
         blockChainTagLabel.font = viewModel.blockChainNameFont
@@ -153,7 +161,11 @@ class SendHeaderView: UIView {
         valueLabel.font = viewModel.textValueFont
         valueLabel.text = viewModel.value
 
-        footerStackView?.isHidden = !viewModel.showAlternativeAmount
+        if viewModel.showAlternativeAmount {
+            viewsToShowOnlyIfAlternativeAmountsAreAvailable.showAll()
+        } else {
+            viewsToShowOnlyIfAlternativeAmountsAreAvailable.hideAll()
+        }
     }
 
     @objc private func showContractWebPage() {

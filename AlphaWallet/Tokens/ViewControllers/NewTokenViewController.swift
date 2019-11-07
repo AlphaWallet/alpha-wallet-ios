@@ -59,6 +59,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         self.server = server
         super.init(nibName: nil, bundle: nil)
 
+        changeServerButton.setTitleColor(Colors.navigationTitleColor, for: .normal)
         changeServerButton.addTarget(self, action: #selector(changeServerAction(_:)), for: .touchUpInside)
         navigationItem.rightBarButtonItem = .init(customView: changeServerButton)
 

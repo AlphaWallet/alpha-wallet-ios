@@ -29,25 +29,25 @@ class ImportWalletTabBar: UIView {
 
 		backgroundColor = viewModel.backgroundColor
 
-		mnemonicButton.setTitle(R.string.localizable.mnemonicShorter().uppercased(), for: .normal)
+		mnemonicButton.setTitle(R.string.localizable.mnemonicShorter(), for: .normal)
 		mnemonicButton.titleLabel?.font = viewModel.font
 		mnemonicButton.addTarget(self, action: #selector(showMnemonicTab), for: .touchUpInside)
 
-		keystoreButton.setTitle(ImportSelectionType.keystore.title.uppercased(), for: .normal)
+		keystoreButton.setTitle(ImportSelectionType.keystore.title, for: .normal)
 		keystoreButton.titleLabel?.font = viewModel.font
 		keystoreButton.addTarget(self, action: #selector(showKeystoreTab), for: .touchUpInside)
 
-		privateKeyButton.setTitle(ImportSelectionType.privateKey.title.uppercased(), for: .normal)
+		privateKeyButton.setTitle(ImportSelectionType.privateKey.title, for: .normal)
 		privateKeyButton.titleLabel?.font = viewModel.font
 		privateKeyButton.addTarget(self, action: #selector(showPrivateKeyTab), for: .touchUpInside)
 
-		watchButton.setTitle(ImportSelectionType.watch.title.uppercased(), for: .normal)
+		watchButton.setTitle(ImportSelectionType.watch.title, for: .normal)
 		watchButton.titleLabel?.font = viewModel.font
 		watchButton.addTarget(self, action: #selector(showWatchTab), for: .touchUpInside)
 
 		let fullWidthBar = UIView()
 		fullWidthBar.translatesAutoresizingMaskIntoConstraints = false
-		fullWidthBar.backgroundColor = .clear
+		fullWidthBar.backgroundColor = UIColor(red: 229, green: 229, blue: 229)
 		fullWidthBar.isUserInteractionEnabled = false
 		addSubview(fullWidthBar)
 
@@ -59,7 +59,7 @@ class ImportWalletTabBar: UIView {
 		buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
 		addSubview(buttonsStackView)
 
-		let barHeightConstraint = fullWidthBar.heightAnchor.constraint(equalToConstant: 2)
+		let barHeightConstraint = fullWidthBar.heightAnchor.constraint(equalToConstant: 1)
 		barHeightConstraint.priority = .defaultHigh
 		let stackViewLeadingConstraint = buttonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17)
 		stackViewLeadingConstraint.priority = .defaultHigh

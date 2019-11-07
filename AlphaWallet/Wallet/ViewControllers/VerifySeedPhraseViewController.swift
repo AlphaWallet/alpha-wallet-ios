@@ -34,6 +34,7 @@ class VerifySeedPhraseViewController: UIViewController {
     private let keystore: Keystore
     private let account: EthereumAccount
     private let roundedBackground = RoundedBackground()
+    private let subtitleLabel = UILabel()
     private let seedPhraseTextView = UITextView()
     private let seedPhraseCollectionView = SeedPhraseCollectionView()
     private let errorLabel = UILabel()
@@ -114,11 +115,13 @@ class VerifySeedPhraseViewController: UIViewController {
         seedPhraseTextView.delegate = self
 
         let stackView = [
-            UIView.spacer(height: 30),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 20: 30),
+            subtitleLabel,
+            UIView.spacer(height: 10),
             seedPhraseTextView,
-            UIView.spacer(height: 7),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 0: 7),
             errorLabel,
-            UIView.spacer(height: 24),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 5: 24),
             seedPhraseCollectionView,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -140,7 +143,7 @@ class VerifySeedPhraseViewController: UIViewController {
         seedPhraseTextView.becomeFirstResponder()
 
         NSLayoutConstraint.activate([
-            seedPhraseTextView.heightAnchor.constraint(equalToConstant: 140),
+            seedPhraseTextView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 100: 140),
 
             stackView.anchorsConstraint(to: view, edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20)),
 
@@ -208,7 +211,12 @@ class VerifySeedPhraseViewController: UIViewController {
     func configure() {
         view.backgroundColor = Colors.appBackground
 
-        title = viewModel.title
+        subtitleLabel.textAlignment = .center
+        subtitleLabel.textColor = viewModel.subtitleColor
+        subtitleLabel.font = viewModel.subtitleFont
+        //Important for smaller screens
+        subtitleLabel.numberOfLines = 0
+        subtitleLabel.text = viewModel.title
 
         seedPhraseTextView.keyboardType = .alphabet
         seedPhraseTextView.returnKeyType = .done

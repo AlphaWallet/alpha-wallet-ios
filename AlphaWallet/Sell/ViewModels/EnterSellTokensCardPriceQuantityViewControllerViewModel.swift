@@ -25,15 +25,11 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var choiceLabelColor: UIColor {
-        return Colors.appGrayLabelColor
+        return Colors.appText
     }
 
     var choiceLabelFont: UIFont {
         return Fonts.regular(size: 10)!
-    }
-
-    var stepperBorderColor: UIColor {
-        return Colors.appBackground
     }
 
     var quantityLabelText: String {
@@ -71,7 +67,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var ethCostLabelColor: UIColor {
-        return Colors.appBackground
+        return Colors.appText
     }
 
     var ethCostLabelFont: UIFont {
@@ -79,7 +75,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var dollarCostLabelLabelColor: UIColor {
-        return Colors.appGrayLabelColor
+        return Colors.appText
     }
 
     var dollarCostLabelLabelFont: UIFont {

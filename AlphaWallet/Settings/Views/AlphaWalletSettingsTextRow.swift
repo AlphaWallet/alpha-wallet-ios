@@ -37,13 +37,9 @@ open class AlphaWalletSettingsTextCell: _FieldCell<String>, CellType {
 			mainLabel.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
 			mainLabel.trailingAnchor.constraint(equalTo: subLabel.leadingAnchor, constant: -10),
 			mainLabel.centerYAnchor.constraint(equalTo: background.centerYAnchor),
-			mainLabel.topAnchor.constraint(equalTo: background.topAnchor, constant: 18),
-			mainLabel.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -18),
 
 			subLabel.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -18),
 			subLabel.centerYAnchor.constraint(equalTo: background.centerYAnchor),
-			subLabel.topAnchor.constraint(equalTo: background.topAnchor, constant: 18),
-			subLabel.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -18),
 
             background.anchorsConstraint(to: self),
 		])
@@ -56,7 +52,7 @@ open class AlphaWalletSettingsTextCell: _FieldCell<String>, CellType {
 	open override func setup() {
 		super.setup()
 		
-		height = { 55 }
+		height = { 44 }
 
 		backgroundColor = Colors.appBackground
 		
@@ -65,10 +61,12 @@ open class AlphaWalletSettingsTextCell: _FieldCell<String>, CellType {
 		background.backgroundColor = Colors.appWhite
 		background.layer.cornerRadius = Metrics.CornerRadius.box
 
-		mainLabel.textColor = Colors.appText
-		mainLabel.font = Fonts.light(size: 18)!
+		mainLabel.backgroundColor = Screen.Setting.Color.background
+		mainLabel.textColor = Screen.Setting.Color.title
+		mainLabel.font = Screen.Setting.Font.title
 
-		subLabel.textColor = Colors.appText
-		subLabel.font = Fonts.light(size: 18)!
+		subLabel.backgroundColor = Screen.Setting.Color.background
+		subLabel.textColor = Screen.Setting.Color.subtitle
+		subLabel.font = Screen.Setting.Font.subtitle
 	}
 }

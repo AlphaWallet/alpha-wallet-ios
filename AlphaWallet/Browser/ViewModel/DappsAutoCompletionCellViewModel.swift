@@ -17,7 +17,7 @@ struct DappsAutoCompletionCellViewModel {
         if let range = dapp.name.lowercased().range(of: keyword.lowercased()) {
             let location = dapp.name.distance(from: dapp.name.startIndex, to: range.lowerBound)
             let length = keyword.count
-            text.setAttributes([NSAttributedString.Key.foregroundColor: Colors.appBackground], range: .init(location: location, length: length))
+            text.setAttributes([NSAttributedString.Key.foregroundColor: Colors.appTint], range: .init(location: location, length: length))
         }
         return text
     }

@@ -50,10 +50,10 @@ struct TokensCardViewModel {
     }
 
     func item(for indexPath: IndexPath) -> TokenHolder {
-        return tokenHolders[indexPath.row]
+        return tokenHolders[indexPath.section]
     }
 
-    func numberOfItems(for section: Int) -> Int {
+    func numberOfItems() -> Int {
         return tokenHolders.count
     }
 
@@ -65,7 +65,7 @@ struct TokensCardViewModel {
         } else {
             for (i, each) in tokenHolders.enumerated() where each.areDetailsVisible {
                 each.areDetailsVisible = false
-                changed.append(.init(row: i, section: indexPath.section))
+                changed.append(.init(row: 0, section: i))
             }
             tokenHolder.areDetailsVisible = true
         }
@@ -82,7 +82,7 @@ struct TokensCardViewModel {
             for (i, each) in tokenHolders.enumerated() where each.areDetailsVisible {
                 each.areDetailsVisible = false
                 each.isSelected = false
-                changed.append(.init(row: i, section: indexPath.section))
+                changed.append(.init(row: 0, section: i))
             }
             tokenHolder.areDetailsVisible = true
             tokenHolder.isSelected = true

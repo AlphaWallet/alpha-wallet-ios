@@ -1,4 +1,4 @@
-// Copyright DApps Platform Inc. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 
@@ -97,6 +97,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
 
         closeButton.isHidden = true
         closeButton.setTitle(R.string.localizable.done(), for: .normal)
+        closeButton.setTitleColor(Colors.navigationTitleColor, for: .normal)
         closeButton.addTarget(self, action: #selector(closeAction(_:)), for: .touchUpInside)
         closeButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         closeButton.setContentHuggingPriority(.required, for: .horizontal)
@@ -166,7 +167,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
     }
 
     func configure(server: RPCServer) {
-        let color = Colors.appWhite
+        let color = Colors.navigationTitleColor
         backButton.imageView?.tintColor = color
         forwardButton.imageView?.tintColor = color
         changeServerButton.tintColor = color

@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 
@@ -82,7 +82,7 @@ class AccountViewCell: UITableViewCell {
         addressLabel.textColor = viewModel.addressTextColor
         addressLabel.text = viewModel.address.eip55String
 
-        infoButton.tintColor = Colors.appBackground
+        infoButton.tintColor = Colors.appTint
 
         watchIcon.isHidden = !viewModel.showWatchIcon
     }

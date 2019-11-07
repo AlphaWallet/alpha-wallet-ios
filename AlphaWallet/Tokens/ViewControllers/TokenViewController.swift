@@ -112,7 +112,7 @@ class TokenViewController: UIViewController {
             header.tokenScriptFileStatus = .type0NoTokenScript
         }
         header.sendHeaderView.configure(viewModel: headerViewModel)
-        header.frame.size.height = header.systemLayoutSizeFitting(.zero).height + 30
+        header.frame.size.height = header.systemLayoutSizeFitting(.zero).height
 
         tableView.tableHeaderView = header
 

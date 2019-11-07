@@ -26,7 +26,7 @@ extension TokensViewController {
 
         override init(reuseIdentifier: String?) {
             super.init(reuseIdentifier: reuseIdentifier)
-            contentView.backgroundColor = Colors.appBackground
+            contentView.backgroundColor = GroupedTable.Color.background
         }
 
         required init?(coder aDecoder: NSCoder) {
