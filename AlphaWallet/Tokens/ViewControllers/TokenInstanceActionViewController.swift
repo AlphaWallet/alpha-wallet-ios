@@ -211,18 +211,18 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             }
             if let data = data {
                 if value > 0 {
-                    UIAlertController.alert(title: "Confirm Transaction?", message: "Data: \(data.hexEncoded)\nAmount: \(eth) \(nativeCryptSymbol)", alertButtonTitles: [R.string.localizable.confirmPaymentConfirmButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: self, preferredStyle: .actionSheet) {
+                    UIAlertController.alert(title: "Confirm Transaction?", message: "Data: \(data.hexEncoded)\nAmount: \(eth) \(nativeCryptSymbol)", alertButtonTitles: [R.string.localizable.confirmPaymentConfirmButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: self, preferredStyle: .actionSheet, sourceView: strongSelf.buttonsBar.buttons[0]) {
                         guard $0 == 0 else { return }
                         postTransaction()
                     }
                 } else {
-                    UIAlertController.alert(title: "Confirm Transaction?", message: "Data: \(data.hexEncoded)", alertButtonTitles: [R.string.localizable.confirmPaymentConfirmButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: self, preferredStyle: .actionSheet) {
+                    UIAlertController.alert(title: "Confirm Transaction?", message: "Data: \(data.hexEncoded)", alertButtonTitles: [R.string.localizable.confirmPaymentConfirmButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: self, preferredStyle: .actionSheet, sourceView: strongSelf.buttonsBar.buttons[0]) {
                         guard $0 == 0 else { return }
                         postTransaction()
                     }
                 }
             } else {
-                UIAlertController.alert(title: "Confirm Transfer?", message: "Amount: \(eth) \(nativeCryptSymbol)", alertButtonTitles: [R.string.localizable.confirmPaymentConfirmButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: self, preferredStyle: .actionSheet) {
+                UIAlertController.alert(title: "Confirm Transfer?", message: "Amount: \(eth) \(nativeCryptSymbol)", alertButtonTitles: [R.string.localizable.confirmPaymentConfirmButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: self, preferredStyle: .actionSheet, sourceView: strongSelf.buttonsBar.buttons[0]) {
                     guard $0 == 0 else { return }
                     postTransaction()
                 }
