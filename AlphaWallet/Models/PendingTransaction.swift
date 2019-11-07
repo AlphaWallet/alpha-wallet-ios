@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyrights SIX DAY LLC. All rights reserved.
 
 import BigInt
 import Foundation

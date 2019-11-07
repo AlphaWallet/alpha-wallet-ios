@@ -1,4 +1,3 @@
-// Copyright SIX DAY LLC. All rights reserved.
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
@@ -32,7 +31,7 @@ class WelcomeViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.aWelcomeOnboardingCreatewalletButtonTitle(), for: .normal)
         button.titleLabel?.font = Fonts.semibold(size: 16)
-        button.backgroundColor = Colors.appBackground
+        button.backgroundColor = Colors.appTint
         button.setTitleColor(Colors.appWhite, for: .normal)
         return button
     }()
@@ -63,7 +62,7 @@ class WelcomeViewController: UIViewController {
         view.addSubview(pageControl)
 
         let footerBar = UIView()
-        footerBar.backgroundColor = Colors.appBackground
+        footerBar.backgroundColor = Colors.appTint
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(footerBar)
 

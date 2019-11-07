@@ -18,11 +18,11 @@ struct TokenCardRedemptionViewModel {
     }
 
     var headerColor: UIColor {
-        return Colors.appWhite
+        return Colors.appText
     }
 
     var headerFont: UIFont {
-        return Fonts.light(size: 25)!
+        return Fonts.regular(size: 28)!
     }
 
     var backgroundColor: UIColor {

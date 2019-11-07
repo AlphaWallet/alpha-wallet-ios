@@ -37,13 +37,13 @@ class TimeEntryField: UIControl {
     }
 
     private func configure() {
-        cornerRadius = Metrics.CornerRadius.textbox
+        cornerRadius = DataEntry.Metric.cornerRadius
 
-        layer.borderColor = Colors.appBackground.cgColor
-        layer.borderWidth = 1
+        layer.borderColor = DataEntry.Color.border.cgColor
+        layer.borderWidth = DataEntry.Metric.borderThickness
 
-        leftButton.setTitleColor(Colors.appBackground, for: .normal)
-        leftButton.titleLabel?.font = Fonts.bold(size: ScreenChecker().isNarrowScreen ? 12: 18)
+        leftButton.setTitleColor(DataEntry.Color.text, for: .normal)
+        leftButton.titleLabel?.font = DataEntry.Font.text
     }
 
     private func makeRightView() -> UIView {
@@ -51,7 +51,10 @@ class TimeEntryField: UIControl {
         rightButton.translatesAutoresizingMaskIntoConstraints = false
         rightButton.contentEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 10)
         rightButton.imageView?.contentMode = .scaleAspectFit
-        rightButton.setImage(R.image.time(), for: .normal)
+        rightButton.setImage(R.image.time()?.withRenderingMode(.alwaysTemplate), for: .normal)
+        //Needed for some reason to get imageView to use tintColor correctly
+        rightButton.imageView?.tintColor = DataEntry.Color.icon
+        rightButton.tintColor = DataEntry.Color.icon
         rightButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
 
         let rightView = [rightButton].asStackView(distribution: .equalSpacing, spacing: 1)

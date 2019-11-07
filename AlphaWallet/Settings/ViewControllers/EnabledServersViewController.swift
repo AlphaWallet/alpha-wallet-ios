@@ -26,7 +26,7 @@ class EnabledServersViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = GroupedTable.Color.background
         tableView.register(ServerViewCell.self, forCellReuseIdentifier: ServerViewCell.identifier)
         roundedBackground.addSubview(tableView)
 

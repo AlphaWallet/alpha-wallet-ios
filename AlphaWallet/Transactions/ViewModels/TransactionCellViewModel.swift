@@ -42,6 +42,10 @@ struct TransactionCellViewModel {
         }
     }
 
+    var titleTextColor: UIColor {
+        return Colors.appText
+    }
+
     var title: String {
         if let operationTitle = operationTitle {
             return operationTitle
@@ -71,19 +75,19 @@ struct TransactionCellViewModel {
     }
 
     var subTitleTextColor: UIColor {
-        return Colors.gray
+        return Colors.appSubtitle
     }
 
     var titleFont: UIFont {
-        return Fonts.light(size: 22)!
+        return Fonts.regular(size: 17)!
     }
 
     var subTitleFont: UIFont {
-        return Fonts.semibold(size: 13)!
+        return Fonts.regular(size: 13)!
     }
 
     var amountFont: UIFont {
-        return Fonts.semibold(size: 15)!
+        return Fonts.semibold(size: 14)!
     }
 
     var contentsBackgroundColor: UIColor {
@@ -125,8 +129,8 @@ struct TransactionCellViewModel {
         case .error, .unknown, .failed: return R.image.transaction_error()
         case .completed:
             switch transactionViewModel.direction {
-            case .incoming: return R.image.transaction_received()
-            case .outgoing: return R.image.transaction_sent()
+            case .incoming: return R.image.received()
+            case .outgoing: return R.image.sent()
             }
         case .pending:
             return R.image.transaction_pending()
@@ -134,11 +138,11 @@ struct TransactionCellViewModel {
     }
 
     var blockChainNameFont: UIFont {
-        return Fonts.semibold(size: 12)!
+        return Screen.TokenCard.Font.blockChainName
     }
 
     var blockChainNameColor: UIColor {
-        return Colors.appWhite
+        return Screen.TokenCard.Color.blockChainName
     }
 
     var blockChainNameBackgroundColor: UIColor {
@@ -151,5 +155,9 @@ struct TransactionCellViewModel {
 
     var blockChainNameTextAlignment: NSTextAlignment {
         return .center
+    }
+
+    var blockChainNameCornerRadius: CGFloat {
+        return Screen.TokenCard.Metric.blockChainTagCornerRadius
     }
 }

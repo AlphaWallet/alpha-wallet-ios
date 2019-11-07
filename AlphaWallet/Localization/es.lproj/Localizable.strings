@@ -259,10 +259,10 @@
 "a.wallet.contents.value.period.title" = "24 HORAS";
 "a.wallet.contents.value.appreciation.title" = "VALORACIÓN";
 "a.wallet.contents.value.dollar.title" = "VALOR EN USD";
-"a.wallet.contents.filter.all.title" = "TODO";
-"a.wallet.contents.filter.currencyOnly.title" = "MONEDA";
-"a.wallet.contents.filter.assetsOnly.title" = "ACTIVOS";
-"a.wallet.contents.filter.collectiblesOnly.title" = "COLLECTIBLES";
+"a.wallet.contents.filter.all.title" = "All";
+"a.wallet.contents.filter.currencyOnly.title" = "Moneda";
+"a.wallet.contents.filter.assetsOnly.title" = "Activos";
+"a.wallet.contents.filter.collectiblesOnly.title" = "Collectibles";
 "a.wallet.contents.issuer.title" = "Emisor";
 "a.wallet.next.button.title" = "Siguiente";
 "a.wallet.no.tokens" = "No tienes ningún token";

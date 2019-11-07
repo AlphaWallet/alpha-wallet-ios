@@ -8,7 +8,7 @@ protocol AssetDefinitionsOverridesViewControllerDelegate: class {
 }
 
 class AssetDefinitionsOverridesViewController: UIViewController {
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private let tableView = UITableView(frame: .zero, style: .plain)
     private let fileExtension: String
     private var overriddenURLs: [URL] = []
     weak var delegate: AssetDefinitionsOverridesViewControllerDelegate?
@@ -24,7 +24,7 @@ class AssetDefinitionsOverridesViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = GroupedTable.Color.background
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([

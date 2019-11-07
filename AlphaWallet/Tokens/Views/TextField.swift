@@ -99,15 +99,15 @@ class TextField: UIControl {
         guard !isConfigured else { return }
         isConfigured = true
 
-        cornerRadius = Metrics.CornerRadius.textbox
+        cornerRadius = DataEntry.Metric.cornerRadius
 
-        label.font = Fonts.regular(size: 10)!
-        label.textColor = Colors.appGrayLabelColor
+        label.font = DataEntry.Font.label
+        label.textColor = DataEntry.Color.label
 
-        textField.textColor = Colors.appBackground
-        textField.font = Fonts.bold(size: 21)
-        layer.borderColor = Colors.appBackground.cgColor
-        layer.borderWidth = 1
+        textField.textColor = DataEntry.Color.text
+        textField.font = DataEntry.Font.text
+        layer.borderColor = DataEntry.Color.border.cgColor
+        layer.borderWidth = DataEntry.Metric.borderThickness
     }
 
     required init?(coder aDecoder: NSCoder) {

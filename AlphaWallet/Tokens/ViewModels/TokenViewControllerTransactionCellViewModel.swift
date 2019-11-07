@@ -36,7 +36,7 @@ struct TokenViewControllerTransactionCellViewModel {
         return NSAttributedString(
                 string: amount,
                 attributes: [
-                    .font: Fonts.semibold(size: 16)!,
+                    .font: Fonts.semibold(size: 17)!,
                     .foregroundColor: transactionViewModel.amountTextColor,
                 ]
         )
@@ -73,18 +73,18 @@ struct TokenViewControllerTransactionCellViewModel {
     }
 
     var dateColor: UIColor {
-        return UIColor(red: 77, green: 77, blue: 77)
+        return Colors.appSubtitle
     }
 
     var dateFont: UIFont? {
-        return Fonts.semibold(size: 16)
+        return Fonts.regular(size: 13)
     }
 
     var typeColor: UIColor {
-        return UIColor(red: 77, green: 77, blue: 77)
+        return .init(red: 24, green: 24, blue: 24)
     }
 
     var typeFont: UIFont? {
-        return Fonts.semibold(size: 16)
+        return Fonts.regular(size: 17)
     }
 }

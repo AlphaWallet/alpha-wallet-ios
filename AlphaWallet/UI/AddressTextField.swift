@@ -57,14 +57,14 @@ class AddressTextField: UIControl {
 
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
-        label.textColor = Colors.appGrayLabelColor
-        label.font = Fonts.regular(size: 10)!
+        label.textColor = DataEntry.Color.label
+        label.font = DataEntry.Font.label
         label.textAlignment = .center
 
         ensAddressLabel.translatesAutoresizingMaskIntoConstraints = false
         ensAddressLabel.numberOfLines = 0
-        ensAddressLabel.textColor = Colors.appGrayLabelColor
-        ensAddressLabel.font = Fonts.regular(size: 10)!
+        ensAddressLabel.textColor = DataEntry.Color.label
+        ensAddressLabel.font = DataEntry.Font.label
         ensAddressLabel.textAlignment = .center
 
         NSLayoutConstraint.activate([
@@ -86,19 +86,19 @@ class AddressTextField: UIControl {
         guard !isConfigured else { return }
         isConfigured = true
 
-        label.font = Fonts.regular(size: 10)!
-        label.textColor = Colors.appGrayLabelColor
+        label.font = DataEntry.Font.label
+        label.textColor = DataEntry.Color.label
 
-        ensAddressLabel.font = Fonts.regular(size: 10)!
-        ensAddressLabel.textColor = Colors.appGrayLabelColor
+        ensAddressLabel.font = DataEntry.Font.label
+        ensAddressLabel.textColor = DataEntry.Color.label
 
-        textField.layer.cornerRadius = Metrics.CornerRadius.textbox
+        textField.layer.cornerRadius = DataEntry.Metric.cornerRadius
         textField.leftView = .spacerWidth(22)
         textField.rightView = makeTargetAddressRightView()
-        textField.textColor = Colors.appText
-        textField.font = ScreenChecker().isNarrowScreen ? Fonts.light(size: 11)! : Fonts.light(size: 15)!
-        textField.layer.borderColor = Colors.appBackground.cgColor
-        textField.layer.borderWidth = 1
+        textField.textColor = DataEntry.Color.text
+        textField.font = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 10: 13)
+        textField.layer.borderColor = DataEntry.Color.border.cgColor
+        textField.layer.borderWidth = DataEntry.Metric.borderThickness
         textField.placeholder = R.string.localizable.addressEnsLabelMessage()
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
@@ -108,14 +108,14 @@ class AddressTextField: UIControl {
         let pasteButton = Button(size: .normal, style: .borderless)
         pasteButton.translatesAutoresizingMaskIntoConstraints = false
         pasteButton.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
-        pasteButton.titleLabel?.font = Fonts.regular(size: 14)!
-        pasteButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
+        pasteButton.titleLabel?.font = DataEntry.Font.accessory
+        pasteButton.setTitleColor(DataEntry.Color.secondary, for: .normal)
         pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
 
         let scanQRCodeButton = Button(size: .normal, style: .borderless)
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
-        scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
-        scanQRCodeButton.setTitleColor(Colors.appGrayLabelColor, for: .normal)
+        scanQRCodeButton.setImage(R.image.qr_code_icon()?.withRenderingMode(.alwaysTemplate), for: .normal)
+        scanQRCodeButton.imageView?.tintColor = DataEntry.Color.icon
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
 
         let targetAddressRightView = [pasteButton, scanQRCodeButton].asStackView(distribution: .equalSpacing)

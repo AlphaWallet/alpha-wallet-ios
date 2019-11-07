@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 
@@ -41,7 +41,7 @@ class AccountsViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = GroupedTable.Color.background
         tableView.register(AccountViewCell.self, forCellReuseIdentifier: AccountViewCell.identifier)
         roundedBackground.addSubview(tableView)
 

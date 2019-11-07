@@ -24,13 +24,13 @@ class HelpViewController: UIViewController {
 
         view.backgroundColor = Colors.appBackground
 
-        let tableView = UITableView(frame: .zero, style: .grouped)
+        let tableView = UITableView(frame: .zero, style: .plain)
         tableView.register(HelpViewCell.self, forCellReuseIdentifier: HelpViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = GroupedTable.Color.background
         view.addSubview(tableView)
 
         let footerBar = UIView()

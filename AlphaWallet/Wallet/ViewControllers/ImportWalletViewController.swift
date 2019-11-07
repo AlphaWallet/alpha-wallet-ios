@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
 import QRCodeReaderViewController
@@ -216,6 +216,12 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
                 strongSelf.demo()
             }
         }
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        //Because we want the filter to look like it's a part of the navigation bar
+        navigationController?.navigationBar.shadowImage = UIImage()
     }
 
     private func showCorrectTab() {
@@ -508,7 +514,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         passwordTextField.isSecureTextEntry = !passwordTextField.isSecureTextEntry
         guard let button = passwordTextField.textField.rightView as? UIButton else { return }
         if passwordTextField.isSecureTextEntry {
-            button.tintColor = Colors.appBackground
+            button.tintColor = Colors.navigationTitleColor
         } else {
             button.tintColor = .init(red: 111, green: 111, blue: 111)
         }

@@ -301,9 +301,6 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         quantityLabel.font = viewModel.choiceLabelFont
         quantityLabel.text = viewModel.quantityLabelText
 
-        quantityStepper.borderWidth = 1
-        quantityStepper.clipsToBounds = true
-        quantityStepper.borderColor = viewModel.stepperBorderColor
         quantityStepper.maximumValue = viewModel.maxValue
 
         tokenRowView.stateLabel.isHidden = true

@@ -64,7 +64,7 @@ class TokensViewModel {
         return !filteredTokens.isEmpty
     }
 
-    func numberOfItems(for section: Int) -> Int {
+    func numberOfItems() -> Int {
         return filteredTokens.count
     }
 

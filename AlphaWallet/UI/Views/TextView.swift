@@ -76,14 +76,14 @@ class TextView: UIControl {
         guard !isConfigured else { return }
         isConfigured = true
 
-        label.font = Fonts.regular(size: 10)!
-        label.textColor = Colors.appGrayLabelColor
+        label.font = DataEntry.Font.label
+        label.textColor = DataEntry.Color.label
 
-        textView.textColor = Colors.appBackground
-        textView.font = Fonts.bold(size: 21)
-        textView.layer.borderColor = Colors.appBackground.cgColor
-        textView.layer.borderWidth = 1
-        textView.layer.cornerRadius = Metrics.CornerRadius.textbox
+        textView.textColor = DataEntry.Color.text
+        textView.font = DataEntry.Font.text
+        textView.layer.borderColor = DataEntry.Color.border.cgColor
+        textView.layer.borderWidth = DataEntry.Metric.borderThickness
+        textView.layer.cornerRadius = DataEntry.Metric.cornerRadius
     }
 
     required init?(coder aDecoder: NSCoder) {

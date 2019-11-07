@@ -26,7 +26,7 @@ class NumberStepper: UIControl {
     }
 
     @IBInspectable
-    public var buttonsTextColor: UIColor = Colors.appBackground {
+    public var buttonsTextColor: UIColor = DataEntry.Color.text {
         didSet {
             for button in [leftButton, rightButton] {
                 button.setTitleColor(buttonsTextColor, for: .normal)
@@ -53,7 +53,7 @@ class NumberStepper: UIControl {
     }
 
     @IBInspectable
-    public var labelTextColor: UIColor = Colors.appBackground {
+    public var labelTextColor: UIColor = DataEntry.Color.text {
         didSet {
             label.textColor = labelTextColor
         }
@@ -66,23 +66,9 @@ class NumberStepper: UIControl {
         }
     }
 
-    public var labelFont = Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 14: 21)! {
+    public var labelFont = DataEntry.Font.text {
         didSet {
             label.font = labelFont
-        }
-    }
-
-    @IBInspectable override
-    public var borderWidth: CGFloat {
-        didSet {
-            layer.borderWidth = borderWidth
-        }
-    }
-
-    @IBInspectable override
-    public var borderColor: UIColor! {
-        didSet {
-            layer.borderColor = borderColor.cgColor
         }
     }
 
@@ -156,7 +142,9 @@ class NumberStepper: UIControl {
         addSubview(label)
 
         backgroundColor = buttonsBackgroundColor
-        layer.cornerRadius = Metrics.CornerRadius.textbox
+        borderWidth = 1
+        borderColor = DataEntry.Color.border
+        layer.cornerRadius = DataEntry.Metric.cornerRadius
         clipsToBounds = true
     }
 

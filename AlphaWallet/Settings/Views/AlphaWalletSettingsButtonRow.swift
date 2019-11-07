@@ -76,8 +76,15 @@ open class AlphaWalletSettingsButtonCellOf<T: Equatable>: Cell<T>, CellType {
 		background.backgroundColor = Colors.appWhite
 		background.layer.cornerRadius = Metrics.CornerRadius.box
 
-		textLabel?.textColor = Colors.appText
-		textLabel?.font = Fonts.light(size: 18)!
+		textLabel?.backgroundColor = Screen.Setting.Color.background
+		textLabel?.textColor = Screen.Setting.Color.title
+		textLabel?.font = Screen.Setting.Font.title
+
+		detailTextLabel?.backgroundColor = Screen.Setting.Color.background
+		detailTextLabel?.textColor = Screen.Setting.Color.subtitle
+		detailTextLabel?.font = Screen.Setting.Font.subtitle
+
+		imageView?.tintColor = Screen.Setting.Color.image
 
 		selectionStyle = .none
 		accessoryType = .none

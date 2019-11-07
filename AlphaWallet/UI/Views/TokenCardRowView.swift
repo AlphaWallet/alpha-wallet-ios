@@ -160,13 +160,8 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	}
 
 	func configure(viewModel: TokenCardRowViewModelProtocol) {
+		backgroundColor = viewModel.contentsBackgroundColor
 		background.backgroundColor = viewModel.contentsBackgroundColor
-		background.layer.cornerRadius = viewModel.contentsCornerRadius
-		background.layer.shadowRadius = 3
-		background.layer.shadowColor = UIColor.black.cgColor
-		background.layer.shadowOffset = CGSize(width: 0, height: 0)
-		background.layer.shadowOpacity = 0.14
-		background.layer.borderColor = UIColor.black.cgColor
 
 		stateLabel.backgroundColor = viewModel.stateBackgroundColor
 		stateLabel.layer.cornerRadius = 8
