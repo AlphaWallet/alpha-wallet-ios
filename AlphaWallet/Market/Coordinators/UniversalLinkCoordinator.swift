@@ -88,7 +88,7 @@ class UniversalLinkCoordinator: Coordinator {
     private func createHTTPParametersForCurrencyLinksToPaymentServer(
             signedOrder: SignedOrder,
             recipient: AlphaWallet.Address
-    ) -> Parameters {
+    ) -> (Parameters, String) {
         let signature = signedOrder.signature.drop0x
         let parameters: Parameters = [
             "prefix": Constants.xdaiDropPrefix,
@@ -102,20 +102,23 @@ class UniversalLinkCoordinator: Coordinator {
             "networkId": server.chainID.description,
             "contractAddress": signedOrder.order.contractAddress
         ]
-        return parameters
+        return (parameters, Constants.currencyDropServer)
     }
 
     private func createHTTPParametersForNormalLinksToPaymentServer(
             signedOrder: SignedOrder,
             isForTransfer: Bool
-    ) -> Parameters {
+    ) -> (Parameters, String) {
+        let query: String
         let signature = signedOrder.signature.drop0x
         let indices = signedOrder.order.indices
         let indicesStringEncoded = stringEncodeIndices(indices)
+        let tokenIdsEncoded = stringEncodeTokenIds(signedOrder.order.tokenIds)
         var parameters: Parameters = [
             "address": walletAddress,
             "contractAddress": signedOrder.order.contractAddress,
             "indices": indicesStringEncoded,
+            "tokenIds": tokenIdsEncoded ?? "",
             "price": signedOrder.order.price.description,
             "expiry": signedOrder.order.expiry.description,
             "v": signature.substring(from: 128),
@@ -127,8 +130,16 @@ class UniversalLinkCoordinator: Coordinator {
         if isForTransfer {
             parameters.removeValue(forKey: "price")
         }
+
+        if signedOrder.order.spawnable {
+            parameters.removeValue(forKey: "indices")
+            query = Constants.paymentServerSpawnable
+        } else {
+            parameters.removeValue(forKey: "tokenIds")
+            query = Constants.paymentServer
+        }
         
-        return parameters
+        return (parameters, query)
     }
 
     @discardableResult private func handlePaidImportsImpl(signedOrder: SignedOrder) -> Bool {
@@ -172,23 +183,18 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func getParametersAndQuery(signedOrder: SignedOrder) -> (Parameters, String)? {
-        let parameters: Parameters
-        let query: String
         switch signedOrder.order.nativeCurrencyDrop {
-            case true:
-            parameters = createHTTPParametersForCurrencyLinksToPaymentServer(
+        case true:
+            return createHTTPParametersForCurrencyLinksToPaymentServer(
                     signedOrder: signedOrder,
                     recipient: walletAddress
             )
-            query = Constants.currencyDropServer
-            case false:
-            parameters = createHTTPParametersForNormalLinksToPaymentServer(
+        case false:
+            return createHTTPParametersForNormalLinksToPaymentServer(
                     signedOrder: signedOrder,
                     isForTransfer: true
             )
-            query = Constants.paymentServer
         }
-        return (parameters, query)
     }
 
     func completeOrderHandling(signedOrder: SignedOrder) {
@@ -429,6 +435,11 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func stringEncodeIndices(_ indices: [UInt16]) -> String {
         return indices.map(String.init).joined(separator: ",")
+    }
+
+    private func stringEncodeTokenIds(_ tokenIds: [BigUInt]?) -> String? {
+        guard let tokens = tokenIds else { return nil }
+        return tokens.map({ $0.serialize().hexString }).joined(separator: ",")
     }
 
     private func checkERC875TokensAreAvailable(indices: [UInt16], balance: [String]) -> [String] {
