@@ -149,11 +149,12 @@ class AssetDefinitionStoreCoordinator: Coordinator {
                         delegate?.addedTokenScript(forContract: contract, forServer: server)
                     }
                 }
+                return true
             }
         } catch {
             NSLog("Error moving asset definition file from \(url.path) to: \(destinationFileName.path): \(error)")
         }
-        return true
+        return false
     }
 
     private func watchDirectoryContents(changeHandler: @escaping () -> Void) {
