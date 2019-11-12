@@ -26,7 +26,7 @@ class SendCoordinatorTests: XCTestCase {
     func testDestination() {
         let address: AlphaWallet.Address = .make()
         let coordinator = SendCoordinator(
-            transferType: .nativeCryptocurrency(server: .main, destination: address, amount: nil),
+            transferType: .nativeCryptocurrency(server: .main, destination: .init(address: address), amount: nil),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),

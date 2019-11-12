@@ -1,50 +1,40 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2019 Stormbird PTE. LTD.
 
 import Foundation
 
-struct ParserResult: Equatable {
-    let protocolName: String
-    let address: AlphaWallet.Address
-    let params: [String: String]
+enum QRCodeValue {
+    case address(AlphaWallet.Address)
+    ///Strictly speaking, EIP 681 should be like this:
+    ///  ethereum:pay-0xfb6916095ca1df60bb79Ce92ce3ea74c37c5d359?value=2.014e18
+    ///the "pay-" prefix is optional, if that prefix absent, the payload (0xfb6 here) must be an address. This is because not all ethereum: links are EIP 681
+    case eip681(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String])
 }
 
-struct QRURLParser {
-    static func from(string: String) -> ParserResult? {
+struct QRCodeValueParser {
+    static func from(string: String) -> QRCodeValue? {
         let string = string.trimmed
-        //TODO improve parsing. At least only replace the prefix pay- instead of the whole string
-        let result = string.replacingOccurrences(of: "pay-", with: "")
-        let parts = result.components(separatedBy: ":")
+        let parts = string.components(separatedBy: ":")
         if parts.count == 1, let address = parts.first.flatMap({ AlphaWallet.Address(string: $0) }) {
-            return ParserResult(
-                protocolName: "",
-                address: address,
-                params: [:]
-            )
+            return .address(address)
         }
 
-        guard parts.count == 2, let address = QRURLParser.getAddress(from: parts.last).flatMap({ AlphaWallet.Address(string: $0) }) else { return nil }
+        guard parts.count == 2, let address = parts.last?.slice(to: "@")?.slice(to: "/")?.slice(to: "?").flatMap({ AddressOrEnsName(string: Eip681Parser.stripOptionalPrefix(from: $0)) }) else { return nil }
         let secondHalf = parts[1]
         let uncheckedParamParts = Array(secondHalf.components(separatedBy: "?")[1...])
         let paramParts = uncheckedParamParts.isEmpty ? [] : Array(uncheckedParamParts[0].components(separatedBy: "&"))
-        var params = QRURLParser.parseParamsFromParamParts(paramParts: paramParts)
+        var params = QRCodeValueParser.parseParamsFromParamParts(paramParts: paramParts)
         if let chainId = secondHalf.slice(from: "@", to: "/") {
             params["chainId"] = chainId
         } else if let chainId = secondHalf.slice(from: "@", to: "?") {
             params["chainId"] = chainId
         }
-        return ParserResult(
+        let functionName = secondHalf.slice(from: "/", to: "?")
+        return .eip681(
             protocolName: parts.first ?? "",
             address: address,
+            functionName: functionName,
             params: params
         )
-    }
-
-    //TODO looks like we can replace this function with a AlphaWallet.Address(string:)?
-    private static func getAddress(from: String?) -> String? {
-        guard let from = from, from.count >= AddressValidatorType.ethereum.addressLength else {
-            return .none
-        }
-        return from.substring(to: AddressValidatorType.ethereum.addressLength)
     }
 
     private static func parseParamsFromParamParts(paramParts: [String]) -> [String: String] {
@@ -72,6 +62,14 @@ extension String {
             (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
                 substring(with: substringFrom..<substringTo)
             }
+        }
+    }
+
+    func slice(to: String) -> String? {
+        if let substringTo = (range(of: to, range: startIndex..<endIndex)?.lowerBound) {
+            return substring(with: startIndex..<substringTo)
+        } else {
+            return self
         }
     }
 }
