@@ -9,13 +9,13 @@ struct Transfer {
 }
 
 enum TransferType {
-    init(token: TokenObject) {
+    init(token: TokenObject, recipient: AddressOrEnsName? = nil, amount: String? = nil) {
         self = {
             switch token.type {
             case .nativeCryptocurrency:
-                return .nativeCryptocurrency(server: token.server, destination: nil, amount: nil)
+                return .nativeCryptocurrency(server: token.server, destination: recipient, amount: amount.flatMap { EtherNumberFormatter().number(from: $0, units: .ether) })
             case .erc20:
-                return .ERC20Token(token, destination: nil, amount: nil)
+                return .ERC20Token(token, destination: recipient, amount: amount)
             case .erc875:
                 return .ERC875Token(token)
             case .erc721:
@@ -24,8 +24,8 @@ enum TransferType {
         }()
     }
 
-    case nativeCryptocurrency(server: RPCServer, destination: AlphaWallet.Address?, amount: BigInt?)
-    case ERC20Token(TokenObject, destination: AlphaWallet.Address?, amount: String?)
+    case nativeCryptocurrency(server: RPCServer, destination: AddressOrEnsName?, amount: BigInt?)
+    case ERC20Token(TokenObject, destination: AddressOrEnsName?, amount: String?)
     case ERC875Token(TokenObject)
     case ERC875TokenOrder(TokenObject)
     case ERC721Token(TokenObject)
