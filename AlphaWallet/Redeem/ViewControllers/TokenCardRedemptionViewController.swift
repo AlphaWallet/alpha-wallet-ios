@@ -99,7 +99,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     @objc
     private func configureUI() {
         let redeem = CreateRedeem(token: token)
-        let redeemData = redeem.redeemMessage(tokenIndices: viewModel.tokenHolder.indices)
+        let redeemData = redeem.redeemMessage(tokenIds: viewModel.tokenHolder.tokens.map({ $0.id }))
         switch session.account.type {
         case .real(let account):
             let decimalSignature = SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account)!
