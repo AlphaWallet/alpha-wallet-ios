@@ -117,14 +117,14 @@ class TokensDataStore {
 
     static func etherToken(forServer server: RPCServer) -> TokenObject {
         return TokenObject(
-            contract: Constants.nativeCryptoAddressInDatabase,
-            server: server,
-            name: server.name,
-            symbol: server.symbol,
-            decimals: server.decimals,
-            value: "0",
-            isCustom: false,
-            type: .nativeCryptocurrency
+                contract: Constants.nativeCryptoAddressInDatabase,
+                server: server,
+                name: server.name,
+                symbol: server.symbol,
+                decimals: server.decimals,
+                value: "0",
+                isCustom: false,
+                type: .nativeCryptocurrency
         )
     }
 
@@ -281,7 +281,7 @@ class TokensDataStore {
     }
 
     func getERC721ForTicketsBalance(for address: AlphaWallet.Address,
-                          completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
+                                    completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
         getERC721ForTicketsBalanceCoordinator.getERC721ForTicketsTokenBalance(for: account.address, contract: address) { result in
             completion(result)
         }
@@ -537,14 +537,14 @@ class TokensDataStore {
 
     func addCustom(token: ERCToken) {
         let newToken = TokenObject(
-            contract: token.contract,
-            server: token.server,
-            name: token.name,
-            symbol: token.symbol,
-            decimals: token.decimals,
-            value: "0",
-            isCustom: true,
-            type: token.type
+                contract: token.contract,
+                server: token.server,
+                name: token.name,
+                symbol: token.symbol,
+                decimals: token.decimals,
+                value: "0",
+                isCustom: true,
+                type: token.type
         )
         token.balance.forEach { balance in
             newToken.balance.append(TokenBalance(balance: balance))
