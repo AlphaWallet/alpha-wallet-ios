@@ -329,14 +329,14 @@ extension SendViewController: QRCodeReaderDelegate {
                 guard self.session.server == server else { return }
             }
 
-            if let tokenObject = self.storage.token(forContract: contract) {
+            if self.storage.token(forContract: contract) != nil {
                 self.configureFor(contract: contract, recipient: recipient, amount: amount)
             } else {
                 self.delegate?.lookup(contract: contract, in: self) { data in
                     switch data {
                     case .name, .symbol, .balance, .decimals:
                         break
-                    case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
+                    case .nonFungibleTokenComplete:
                         //Not expecting NFT
                         break
                     case .fungibleTokenComplete(let name, let symbol, let decimals):

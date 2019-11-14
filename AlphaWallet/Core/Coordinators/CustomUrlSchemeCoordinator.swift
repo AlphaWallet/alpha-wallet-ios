@@ -32,14 +32,14 @@ class CustomUrlSchemeCoordinator: Coordinator {
                 guard let (contract: contract, optionalServer, recipient, amount) = result.parameters else { return }
                 let server = optionalServer ?? .main
                 let tokensDatastore = self.tokensDatastores[server]
-                if let tokenObject = tokensDatastore.token(forContract: contract) {
+                if tokensDatastore.token(forContract: contract) != nil {
                     self.openSendPayFlowFor(server: server, contract: contract, recipient: recipient, amount: amount)
                 } else {
                     fetchContractDataFor(address: contract, storage: tokensDatastore, assetDefinitionStore: self.assetDefinitionStore) { data in
                         switch data {
                         case .name, .symbol, .balance, .decimals:
                             break
-                        case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
+                        case .nonFungibleTokenComplete:
                             //Not expecting NFT
                             break
                         case .fungibleTokenComplete(let name, let symbol, let decimals):
