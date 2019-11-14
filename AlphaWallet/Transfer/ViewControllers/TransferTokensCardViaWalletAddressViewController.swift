@@ -170,10 +170,13 @@ extension TransferTokensCardViaWalletAddressViewController: QRCodeReaderDelegate
         reader.stopScanning()
         reader.dismiss(animated: true)
 
-        guard let result = QRURLParser.from(string: result) else {
-            return
+        guard let result = QRCodeValueParser.from(string: result) else { return }
+        switch result {
+        case .address(let address):
+            targetAddressTextField.value = address.eip55String
+        case .eip681:
+            break
         }
-        targetAddressTextField.value = result.address.eip55String
     }
 }
 

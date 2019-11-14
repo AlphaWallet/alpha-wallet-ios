@@ -75,7 +75,7 @@ class AppCoordinator: NSObject, Coordinator {
             }
         }
         guard let inCoordinator = inCoordinator else { return false }
-        let urlSchemeHandler = CustomUrlSchemeCoordinator(tokensDatastores: inCoordinator.tokensStorages)
+        let urlSchemeHandler = CustomUrlSchemeCoordinator(tokensDatastores: inCoordinator.tokensStorages, assetDefinitionStore: assetDefinitionStore)
         urlSchemeHandler.delegate = self
         return urlSchemeHandler.handleOpen(url: url)
     }
