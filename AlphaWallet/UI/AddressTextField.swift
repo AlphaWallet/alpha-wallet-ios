@@ -157,8 +157,9 @@ class AddressTextField: UIControl {
         delegate?.openQRCodeReader(for: self)
     }
 
-    private func queueResolution(ofValue value: String) {
+    func queueEnsResolution(ofValue value: String) {
         let value = value.trimmed
+        guard value.isPossibleEnsName else { return }
         let oldTextValue = textField.text?.trimmed
         GetENSAddressCoordinator(server: serverToResolveEns).queueGetENSOwner(for: value) { [weak self] result in
             guard let strongSelf = self else { return }
@@ -192,7 +193,7 @@ extension AddressTextField: UITextFieldDelegate {
             if newValue.isPossibleEnsName {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     //Retain self because it's still useful to resolve and cache even if not used immediately
-                    self.queueResolution(ofValue: newValue)
+                    self.queueEnsResolution(ofValue: newValue)
                 }
             }
         }

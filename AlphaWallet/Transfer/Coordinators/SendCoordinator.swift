@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import BigInt
+import PromiseKit
 
 protocol SendCoordinatorDelegate: class, CanOpenURL {
     func didFinish(_ result: ConfirmResult, in coordinator: SendCoordinator)
@@ -81,14 +82,14 @@ class SendCoordinator: Coordinator {
         }
         switch transferType {
         case .nativeCryptocurrency(_, let destination, let amount):
-            controller.targetAddressTextField.value = destination?.eip55String ?? ""
+            controller.targetAddressTextField.value = destination?.stringValue ?? ""
             if let amount = amount {
                 controller.amountTextField.ethCost = EtherNumberFormatter.full.string(from: amount, units: .ether)
             } else {
                 //do nothing, especially not set it to a default BigInt() / 0
             }
         case .ERC20Token(_, let destination, let amount):
-            controller.targetAddressTextField.value = destination?.eip55String ?? ""
+            controller.targetAddressTextField.value = destination?.stringValue ?? ""
             controller.amountTextField.ethCost = amount ?? ""
         case .ERC875Token: break
         case .ERC875TokenOrder: break
@@ -128,6 +129,10 @@ extension SendCoordinator: SendViewControllerDelegate {
             }
         }
         navigationController.pushViewController(controller, animated: true)
+    }
+
+    func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void) {
+        fetchContractDataFor(address: contract, storage: storage, assetDefinitionStore: assetDefinitionStore, completion: completion)
     }
 }
 

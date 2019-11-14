@@ -4,9 +4,10 @@ import Foundation
 import UIKit
 
 struct SendViewModel {
-    private let transferType: TransferType
     private let session: WalletSession
     private let storage: TokensDataStore
+
+    let transferType: TransferType
 
     init(transferType: TransferType, session: WalletSession, storage: TokensDataStore) {
         self.transferType = transferType

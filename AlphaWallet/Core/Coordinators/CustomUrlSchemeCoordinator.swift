@@ -9,52 +9,74 @@ protocol CustomUrlSchemeCoordinatorDelegate: class {
 
 class CustomUrlSchemeCoordinator: Coordinator {
     private let tokensDatastores: ServerDictionary<TokensDataStore>
+    private let assetDefinitionStore: AssetDefinitionStore
 
     var coordinators: [Coordinator] = []
     weak var delegate: CustomUrlSchemeCoordinatorDelegate?
 
-    init(tokensDatastores: ServerDictionary<TokensDataStore>) {
+    init(tokensDatastores: ServerDictionary<TokensDataStore>, assetDefinitionStore: AssetDefinitionStore) {
         self.tokensDatastores = tokensDatastores
+        self.assetDefinitionStore = assetDefinitionStore
     }
 
     /// Return true if handled
+    //TODO We aren't returning true/false accurately since we use a promise here
     func handleOpen(url: URL) -> Bool {
-        guard let scheme = url.scheme, scheme == "ethereum" else { return false }
-
-        //TODO extract method and share code with SendViewController. Note that logic is slightly different
-        guard let result = QRURLParser.from(string: url.absoluteString) else { return false }
-
-        let server: RPCServer
-        if let chainId = result.params["chainId"].flatMap({ Int($0) }) {
-            server = .init(chainID: chainId)
-        } else {
-            server = .main
+        guard let scheme = url.scheme, scheme == Eip681Parser.scheme else { return false }
+        guard let result = QRCodeValueParser.from(string: url.absoluteString) else { return false }
+        switch result {
+        case .address:
+            break
+        case .eip681(let protocolName, let address, let functionName, let params):
+            Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
+                guard let (contract: contract, optionalServer, recipient, amount) = result.parameters else { return }
+                let server = optionalServer ?? .main
+                let tokensDatastore = self.tokensDatastores[server]
+                if let tokenObject = tokensDatastore.token(forContract: contract) {
+                    self.openSendPayFlowFor(server: server, contract: contract, recipient: recipient, amount: amount)
+                } else {
+                    fetchContractDataFor(address: contract, storage: tokensDatastore, assetDefinitionStore: self.assetDefinitionStore) { data in
+                        switch data {
+                        case .name, .symbol, .balance, .decimals:
+                            break
+                        case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
+                            //Not expecting NFT
+                            break
+                        case .fungibleTokenComplete(let name, let symbol, let decimals):
+                            //TODO update fetching to retrieve balance too so we can display the correct balance in the view controller
+                            let token = ERCToken(
+                                    contract: contract,
+                                    server: server,
+                                    name: name,
+                                    symbol: symbol,
+                                    decimals: Int(decimals),
+                                    type: .erc20,
+                                    balance: ["0"]
+                            )
+                            tokensDatastore.addCustom(token: token)
+                            self.openSendPayFlowFor(server: server, contract: contract, recipient: recipient, amount: amount)
+                        case .delegateTokenComplete:
+                            break
+                        case .failed:
+                            break
+                        }
+                    }
+                }
+            }.cauterize()
         }
-        //if erc20 (eip861 qr code)
-        if let recipient = result.params["address"], let amount = result.params["uint256"] {
-            guard recipient != "0" && amount != "0" else { return false }
-            guard let address = AlphaWallet.Address(string: recipient) else { return false }
-            let tokensDatastore = tokensDatastores[server]
-            guard let token = tokensDatastore.token(forContract: result.address) else {
-                //TODO we ignore EIP861 links that are for ERC20 tokens we don't have in our local database. Fix this by autodetecting the token, making sure it is ERC20 and then using it
-                return false
-            }
+        return true
+    }
 
-            let transferType: TransferType = .ERC20Token(token, destination: address, amount: amount)
-            delegate?.openSendPaymentFlow(.send(type: transferType), server: server, inCoordinator: self)
-            return true
+    private func openSendPayFlowFor(server: RPCServer, contract: AlphaWallet.Address, recipient: AddressOrEnsName, amount: String) {
+        let tokensDatastore = tokensDatastores[server]
+        guard let tokenObject = tokensDatastore.token(forContract: contract) else { return }
+        let amountConsideringDecimals: String
+        if let bigIntAmount = Double(amount).flatMap({ BigInt($0) }) {
+            amountConsideringDecimals = EtherNumberFormatter.full.string(from: bigIntAmount, decimals: tokenObject.decimals)
         } else {
-            //if ether transfer (eip861 qr code)
-            let amount: BigInt?
-            //Double() import here because BigInt doesn't handle the scientific format, aka. 1.23e12
-            if let value = result.params["value"], let amountToSend = Double(value) {
-                amount = BigInt(amountToSend)
-            } else {
-                amount = nil
-            }
-            let transferType: TransferType = .nativeCryptocurrency(server: server, destination: result.address, amount: amount)
-            delegate?.openSendPaymentFlow(.send(type: transferType), server: server, inCoordinator: self)
-            return true
+            amountConsideringDecimals = ""
         }
+        let transferType = TransferType(token: tokenObject, recipient: recipient, amount: amountConsideringDecimals)
+        delegate?.openSendPaymentFlow(.send(type: transferType), server: server, inCoordinator: self)
     }
 }

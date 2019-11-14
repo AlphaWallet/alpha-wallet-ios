@@ -4,8 +4,12 @@ import Foundation
 
 //TODO probably should have an ID which is really good for debugging
 open class Subscribable<T> {
+    public struct SubscribableKey: Hashable {
+        let id = UUID()
+    }
+
     private var _value: T?
-    private var _subscribers: [(T?) -> Void] = []
+    private var _subscribers: [SubscribableKey: (T?) -> Void] = .init()
     private var _oneTimeSubscribers: [(T) -> Void] = []
     open var value: T? {
         get {
@@ -13,7 +17,7 @@ open class Subscribable<T> {
         }
         set {
             _value = newValue
-            for f in _subscribers {
+            for f in _subscribers.values {
                 f(value)
             }
 
@@ -30,11 +34,13 @@ open class Subscribable<T> {
         _value = value
     }
 
-    open func subscribe(_ subscribe: @escaping (T?) -> Void) {
+    open func subscribe(_ subscribe: @escaping (T?) -> Void) -> SubscribableKey {
         if let value = _value {
             subscribe(value)
         }
-        _subscribers.append(subscribe)
+        let key = SubscribableKey()
+        _subscribers[key] = subscribe
+        return key
     }
     open func subscribeOnce(_ subscribe: @escaping (T) -> Void) {
         if let value = _value {
@@ -42,5 +48,9 @@ open class Subscribable<T> {
         } else {
             _oneTimeSubscribers.append(subscribe)
         }
+    }
+
+    func unsubscribe(_ key: SubscribableKey) {
+        _subscribers.removeValue(forKey: key)
     }
 }

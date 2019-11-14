@@ -5,6 +5,7 @@ import Foundation
 import UIKit
 import JSONRPCKit
 import APIKit
+import PromiseKit
 import QRCodeReaderViewController
 import BigInt
 import MBProgressHUD
@@ -15,6 +16,7 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
             transferType: TransferType,
             in viewController: SendViewController
     )
+    func lookup(contract: AlphaWallet.Address, in viewController: SendViewController, completion: @escaping (ContractData) -> Void)
 }
 
 class SendViewController: UIViewController, CanScanQRCode {
@@ -24,7 +26,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     private let targetAddressLabel = UILabel()
     private let amountLabel = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
-    private var viewModel: SendViewModel!
+    private var viewModel: SendViewModel
     lazy private var headerViewModel = SendHeaderViewViewModelWithIntroduction(server: session.server, assetDefinitionStore: assetDefinitionStore)
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
@@ -36,10 +38,14 @@ class SendViewController: UIViewController, CanScanQRCode {
     private lazy var decimalFormatter: DecimalFormatter = {
         return DecimalFormatter()
     }()
+    private var currentSubscribableKeyForNativeCryptoCurrencyBalance: Subscribable<BalanceBaseViewModel>.SubscribableKey?
+    private var currentSubscribableKeyForNativeCryptoCurrencyPrice: Subscribable<Double>.SubscribableKey?
     let targetAddressTextField = AddressTextField()
     lazy var amountTextField = AmountTextField(server: session.server)
     weak var delegate: SendViewControllerDelegate?
-    let transferType: TransferType
+    var transferType: TransferType {
+        return viewModel.transferType
+    }
     let storage: TokensDataStore
 
     init(
@@ -52,10 +58,10 @@ class SendViewController: UIViewController, CanScanQRCode {
     ) {
         self.session = session
         self.account = account
-        self.transferType = transferType
         self.storage = storage
         self.ethPrice = cryptoPrice
         self.assetDefinitionStore = assetDefinitionStore
+        self.viewModel = .init(transferType: transferType, session: session, storage: storage)
 
         super.init(nibName: nil, bundle: nil)
 
@@ -73,17 +79,6 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
-        switch transferType {
-        case .nativeCryptocurrency:
-            cryptoPrice.subscribe { [weak self] value in
-                if let value = value {
-                    self?.amountTextField.cryptoToDollarRate = value
-                }
-            }
-        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
-            amountTextField.alternativeAmountLabel.isHidden = true
-            amountTextField.isFiatButtonHidden = true
-        }
 
         let stackView = [
             header,
@@ -148,8 +143,12 @@ class SendViewController: UIViewController, CanScanQRCode {
         view.endEditing(true)
     }
 
-    func configure(viewModel: SendViewModel) {
+    func configure(viewModel: SendViewModel, shouldConfigureBalance: Bool = true) {
         self.viewModel = viewModel
+        //Avoids infinite recursion
+        if shouldConfigureBalance {
+            configureBalanceViewModel()
+        }
 
         targetAddressTextField.configureOnce()
 
@@ -163,6 +162,35 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
+
+        switch transferType {
+        case .nativeCryptocurrency(_, let recipient, let amount):
+            if let recipient = recipient {
+                targetAddressTextField.value = recipient.stringValue
+                targetAddressTextField.queueEnsResolution(ofValue: recipient.stringValue)
+            }
+            if let amount = amount {
+                amountTextField.ethCost = EtherNumberFormatter.full.string(from: amount, units: .ether)
+            }
+            currentSubscribableKeyForNativeCryptoCurrencyPrice = ethPrice.subscribe { [weak self] value in
+                if let value = value {
+                    self?.amountTextField.cryptoToDollarRate = value
+                }
+            }
+        case .ERC20Token(_, let recipient, let amount):
+            if let recipient = recipient {
+                targetAddressTextField.value = recipient.stringValue
+                targetAddressTextField.queueEnsResolution(ofValue: recipient.stringValue)
+            }
+            if let amount = amount {
+                amountTextField.ethCost = amount
+            }
+            amountTextField.alternativeAmountLabel.isHidden = true
+            amountTextField.isFiatButtonHidden = true
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
+            amountTextField.alternativeAmountLabel.isHidden = true
+            amountTextField.isFiatButtonHidden = true
+        }
 
         buttonsBar.configure()
         let nextButton = buttonsBar.buttons[0]
@@ -235,9 +263,11 @@ class SendViewController: UIViewController, CanScanQRCode {
     }
 
     private func configureBalanceViewModel() {
+        currentSubscribableKeyForNativeCryptoCurrencyBalance.flatMap { session.balanceViewModel.unsubscribe($0) }
+        currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
         switch transferType {
         case .nativeCryptocurrency:
-            session.balanceViewModel.subscribe { [weak self] viewModel in
+            currentSubscribableKeyForNativeCryptoCurrencyBalance = session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
                 celf.headerViewModel.title = "\(amount) \(celf.session.server.name) (\(viewModel.symbol))"
@@ -246,9 +276,7 @@ class SendViewController: UIViewController, CanScanQRCode {
                 celf.headerViewModel.ticker = ticker
                 celf.headerViewModel.currencyAmount = celf.session.balanceCoordinator.viewModel.currencyAmount
                 celf.headerViewModel.currencyAmountWithoutSymbol = celf.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
-                if let viewModel = celf.viewModel {
-                    celf.configure(viewModel: viewModel)
-                }
+                celf.configure(viewModel: celf.viewModel, shouldConfigureBalance: false)
             }
             session.refresh(.ethBalance)
         case .ERC20Token(let token, _, _):
@@ -265,9 +293,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             //TODO is this the best place to put it? because this func is called configureBalanceViewModel() "balance"
             headerViewModel.contractAddress = token.contractAddress
 
-            if let viewModel = self.viewModel {
-                configure(viewModel: viewModel)
-            }
+            configure(viewModel: self.viewModel, shouldConfigureBalance: false)
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
             break
         }
@@ -285,38 +311,67 @@ extension SendViewController: QRCodeReaderDelegate {
         reader.dismiss(animated: true) { [weak self] in
             self?.activateAmountView()
         }
-        guard let result = QRURLParser.from(string: result) else { return }
-        guard checkAndFillEIP861Details(result: result) else { return }
+        guard let result = QRCodeValueParser.from(string: result) else { return }
+        switch result {
+        case .address:
+            break
+        case .eip681(let protocolName, let address, let functionName, let params):
+            checkAndFillEIP681Details(protocolName: protocolName, address: address, functionName: functionName, params: params)
+        }
     }
 
-    func checkAndFillEIP861Details(result: ParserResult) -> Bool {
+    private func checkAndFillEIP681Details(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String]) {
         //TODO error display on returns
-        //Note: not checking the 'transferType' since erc20 is implied by whether it has uint256 and address.
-        //The contract address can be compared to the one in the token card and if it matches will proceed else fail
-        //this protects the user from sending funds to the wrong address
-        if let chainId = result.params["chainId"] {
-            guard self.session.server.chainID == Int(chainId) else { return false }
-        }
-        //if erc20 (eip861 qr code)
-        if let recipient = result.params["address"], let amt = result.params["uint256"] {
-            guard recipient != "0" && amt != "0" else { return false }
-            //address will be set as contract address if erc token, therefore need to ensure the QR code has set the same contract address
-            //as the user is using
-            guard transferType.contract.sameContract(as: result.address) else { return false }
-            amountTextField.ethCost = EtherNumberFormatter.full.string(from: BigInt(amt) ?? BigInt(), units: .ether)
-            targetAddressTextField.value = recipient
-            return true
+        Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
+            guard let (contract: contract, optionalServer, recipient, amount) = result.parameters else { return }
+            //For user-safety and simpler implementation, we ignore the link if it is for a different chain
+            if let server = optionalServer {
+                guard self.session.server == server else { return }
+            }
+
+            if let tokenObject = self.storage.token(forContract: contract) {
+                self.configureFor(contract: contract, recipient: recipient, amount: amount)
+            } else {
+                self.delegate?.lookup(contract: contract, in: self) { data in
+                    switch data {
+                    case .name, .symbol, .balance, .decimals:
+                        break
+                    case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
+                        //Not expecting NFT
+                        break
+                    case .fungibleTokenComplete(let name, let symbol, let decimals):
+                        //TODO update fetching to retrieve balance too so we can display the correct balance in the view controller
+                        let token = ERCToken(
+                                contract: contract,
+                                server: self.storage.server,
+                                name: name,
+                                symbol: symbol,
+                                decimals: Int(decimals),
+                                type: .erc20,
+                                balance: ["0"]
+                        )
+                        self.storage.addCustom(token: token)
+                        self.configureFor(contract: contract, recipient: recipient, amount: amount)
+                    case .delegateTokenComplete:
+                        break
+                    case .failed:
+                        break
+                    }
+                }
+            }
+        }.cauterize()
+    }
+
+    private func configureFor(contract: AlphaWallet.Address, recipient: AddressOrEnsName, amount: String) {
+        guard let tokenObject = storage.token(forContract: contract) else { return }
+        let amountConsideringDecimals: String
+        if let bigIntAmount = Double(amount).flatMap({ BigInt($0) }) {
+            amountConsideringDecimals = EtherNumberFormatter.full.string(from: bigIntAmount, decimals: tokenObject.decimals)
         } else {
-            targetAddressTextField.value = result.address.eip55String
+            amountConsideringDecimals = ""
         }
-        //if ether transfer (eip861 qr code)
-        if let value = result.params["value"], let amountToSend = Double(value) {
-            guard value != "0" else { return false }
-            amountTextField.ethCost = EtherNumberFormatter.full.string(from: BigInt(amountToSend), units: .ether)
-        } else {
-            amountTextField.ethCost = ""
-        }
-        return true
+        let transferType = TransferType(token: tokenObject, recipient: recipient, amount: amountConsideringDecimals)
+        configure(viewModel: .init(transferType: transferType, session: session, storage: storage))
     }
 }
 

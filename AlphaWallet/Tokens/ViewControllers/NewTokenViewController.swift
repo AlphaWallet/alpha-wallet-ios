@@ -393,8 +393,13 @@ extension NewTokenViewController: QRCodeReaderDelegate {
         reader.stopScanning()
         reader.dismiss(animated: true, completion: nil)
 
-        guard let result = QRURLParser.from(string: result) else { return }
-        updateContractValue(value: result.address.eip55String)
+        guard let result = QRCodeValueParser.from(string: result) else { return }
+        switch result {
+        case .address(let address):
+            updateContractValue(value: address.eip55String)
+        case .eip681:
+            break
+        }
     }
 }
 
