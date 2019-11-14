@@ -206,72 +206,53 @@ public class UniversalLinkHandler {
         }
         return indicesBytes
     }
-    
+
     //formats price and expiry to 4 bytes
     private func formatMessageForLink(signedOrder: SignedOrder) -> String {
-        let message = signedOrder.message
         let indices = decodeTokenIndices(indices: signedOrder.order.indices)
         var messageWithSzabo = [UInt8]()
-        let price = Array(message[0...31])
-        let expiry = Array(message[32...63])
-        let priceHex = Data(bytes: price).hex()
-        let expiryHex = Data(bytes: expiry).hex()
-        //removes leading zeros
-        let priceInt = BigUInt(priceHex, radix: 16)!
-        let expiryInt = BigUInt(expiryHex, radix: 16)!
         //change from wei to szabo
-        let priceSzabo = priceInt / 1000000000000
-        let priceBytes = formatTo4Bytes(priceSzabo.serialize().bytes)
-        let expiryBytes = formatTo4Bytes(expiryInt.serialize().bytes)
+        let priceSzabo = signedOrder.order.price / 1000000000000
+        let priceBytes = padTo4Bytes(priceSzabo.serialize().bytes)
+        let expiryBytes = padTo4Bytes(signedOrder.order.expiry.serialize().bytes)
+        messageWithSzabo.append(LinkFormat.normal.rawValue)
         messageWithSzabo.append(contentsOf: priceBytes)
         messageWithSzabo.append(contentsOf: expiryBytes)
-        //contract address
-        messageWithSzabo.append(contentsOf: message[64...83])
+        messageWithSzabo.append(contentsOf: signedOrder.order.contractAddress.data.bytes)
         messageWithSzabo.append(contentsOf: indices)
-        messageWithSzabo.insert(LinkFormat.normal.rawValue, at: 0)
         return Data(bytes: messageWithSzabo).hex()
     }
-    
-    private func formatTo4Bytes(_ array: [UInt8]) -> [UInt8] {
+
+    private func padTo4Bytes(_ array: [UInt8]) -> [UInt8] {
+        guard array.count != 4 else { return array }
+        guard !array.isEmpty else { return [UInt8](repeating: 0, count: 4) }
+        guard !(array.count > 4) else { return Array(array[0...3]) }
         var formattedArray = [UInt8]()
-        if array.count == 4 {
-            return array
-        } else if array.isEmpty {
-            for _ in 0...3 {
-                formattedArray.append(0)
-            }
-            return formattedArray
-        } else {
-            let missingDigits = 4 - array.count
-            for _ in 0..<missingDigits {
-                formattedArray.append(0)
-            }
-            for i in 0..<array.count {
-                formattedArray.append(array[i])
-            }
-            return formattedArray
+        let missingDigits = 4 - array.count
+        for _ in 0..<missingDigits {
+            formattedArray.append(0)
         }
+        formattedArray.append(contentsOf: array)
+        return formattedArray
     }
 
     private func getPriceFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
         let priceBytes = Array(linkBytes[0...3])
         let priceHex = Data(bytes: priceBytes).hex()
-        let price = BigUInt(priceHex, radix: 16)!
+        guard let price = BigUInt(priceHex, radix: 16) else { return BigUInt(0) }
         return price * 1000000000000
     }
 
     private func getExpiryFromLinkBytes(linkBytes: [UInt8]) -> BigUInt {
         let expiryBytes = Array(linkBytes[4...7])
         let expiry = Data(bytes: expiryBytes).hex()
-        return BigUInt(expiry, radix: 16)!
+        guard let expiryBigUInt = BigUInt(expiry, radix: 16) else { return BigUInt(0) }
+        return expiryBigUInt
     }
 
     //Specifically not for null (0x0...0) address
     private func getNonNullContractAddressFromLinkBytes(linkBytes: [UInt8]) -> AlphaWallet.Address? {
-        var contractAddrBytes = [UInt8]()
-        for i in 8...27 {
-            contractAddrBytes.append(linkBytes[i])
-        }
+        let contractAddrBytes = Array(linkBytes[8...27])
         return AlphaWallet.Address(string: Data(bytes: contractAddrBytes).hex())
     }
 
@@ -307,27 +288,17 @@ public class UniversalLinkHandler {
     private func getVRSFromLinkBytes(linkBytes: [UInt8]) -> (String, String, String)? {
         let signatureLength = 65
         guard linkBytes.count >= signatureLength else { return nil }
-        var signatureStart = linkBytes.count - signatureLength
-        var rBytes = [UInt8]()
-        for i in signatureStart...signatureStart + 31 {
-            rBytes.append(linkBytes[i])
-        }
-        let r = Data(bytes: rBytes).hex()
-        signatureStart += 32
-        var sBytes = [UInt8]()
-        for i in signatureStart...signatureStart + 31 {
-            sBytes.append(linkBytes[i])
-        }
-        let s = Data(bytes: sBytes).hex()
+        var start = linkBytes.count - signatureLength
+        let r = Data(bytes: Array(linkBytes[start...start + 31])).hex()
+        start += 32
+        let s = Data(bytes: Array(linkBytes[start...start + 31])).hex()
         var v = String(format: "%2X", linkBytes[linkBytes.count - 1]).trimmed
-        //handle JB code if he uses non standard format
         if var vInt = Int(v) {
             if vInt < 5 {
                 vInt += Int(EthereumSigner.vitaliklizeConstant)
                 v = String(format: "%2X", vInt)
             }
         }
-        
         return (v, r, s)
     }
 
@@ -351,9 +322,9 @@ public class UniversalLinkHandler {
     private func getMessageFromOrder(order: Order) -> [UInt8] {
         var message = [UInt8]()
         //encode price and expiry first
-        let priceBytes = padTo32(order.price.serialize().array)
+        let priceBytes = UniversalLinkHandler.padTo32(order.price.serialize().array)
         message.append(contentsOf: priceBytes)
-        let expiryBytes = padTo32(order.expiry.serialize().array)
+        let expiryBytes = UniversalLinkHandler.padTo32(order.expiry.serialize().array)
         message.append(contentsOf: expiryBytes)
         let contractBytes = order.contractAddress.eip55String.hexa2Bytes
         message.append(contentsOf: contractBytes)
@@ -362,7 +333,7 @@ public class UniversalLinkHandler {
         return message
     }
     
-    private func padTo32(_ buffer: [UInt8], to count: Int = 32) -> [UInt8] {
+    static func padTo32(_ buffer: [UInt8], to count: Int = 32) -> [UInt8] {
         let padCount = count - buffer.count
         var padded = buffer
         let padding: [UInt8] = Array(repeating: 0, count: padCount)
