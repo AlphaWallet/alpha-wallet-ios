@@ -56,19 +56,18 @@ public class OrderHandler {
         var signedOrders = [SignedOrder]()
         var messages = [Data]()
 
-        for i in 0...orders.count - 1 {
+        for order in orders {
             let message: [UInt8] = encodeMessageForTrade(
-                    price: orders[i].price,
-                    expiryBuffer: orders[i].expiry,
-                    tokens: orders[i].indices,
-                    contractAddress: orders[i].contractAddress
+                    price: order.price,
+                    expiryBuffer: order.expiry,
+                    tokens: order.indices,
+                    contractAddress: order.contractAddress
             )
             messages.append(Data(bytes: message))
         }
 
         let signatures = try! keyStore.signMessageBulk(messages, for: account).dematerialize()
-
-        for i in 0...signatures.count - 1 {
+        for i in 0..<signatures.count {
             let signedOrder = SignedOrder(
                     order: orders[i],
                     message: messages[i].bytes,
@@ -76,52 +75,27 @@ public class OrderHandler {
             )
             signedOrders.append(signedOrder)
         }
+
         return signedOrders
     }
 
-    //buffer size is 84 + tokens
-    //first 32 bytes is allocated for price
-    //next 32 for expiry
-    //20 for contract address
-    //remaining for tokens
-    func encodeMessageForTrade(price: BigUInt,
-                               expiryBuffer: BigUInt,
-                               tokens: [UInt16],
-                               contractAddress: AlphaWallet.Address) -> [UInt8] {
-        //token count * 2 because it is 16 bits not 8
+    func encodeMessageForTrade(
+            price: BigUInt,
+            expiryBuffer: BigUInt,
+            tokens: [UInt16],
+            contractAddress: AlphaWallet.Address
+    ) -> [UInt8] {
         let arrayLength: Int = 84 + tokens.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
-
-        var priceInWei = Array(price.serialize())
-        var expiry = Array(expiryBuffer.serialize())
-        for _ in 0...31 - priceInWei.count {
-            //pad with zeros
-            priceInWei.insert(0, at: 0)
-        }
-        for i in 0...31 {
-            buffer.append(priceInWei[i])
-        }
-
-        for _ in 0...31 - expiry.count {
-            expiry.insert(0, at: 0)
-        }
-
-        for i in 0...31 {
-            buffer.append(expiry[i])
-        }
+        let priceInWei = UniversalLinkHandler.padTo32(Array(price.serialize()))
+        let expiry = UniversalLinkHandler.padTo32(Array(expiryBuffer.serialize()))
+        buffer.append(contentsOf: priceInWei)
+        buffer.append(contentsOf: expiry)
         //no leading zeros issue here
-        var contractAddr = contractAddress.eip55String.hexa2Bytes
-
-        for i in 0...19 {
-            buffer.append(contractAddr[i])
-        }
-
-        var tokensUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: tokens)
-        for i in 0...tokensUint8.count - 1 {
-            buffer.append(tokensUint8[i])
-        }
-
+        buffer.append(contentsOf: contractAddress.eip55String.hexa2Bytes)
+        let tokensUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: tokens)
+        buffer.append(contentsOf: tokensUint8)
         return buffer
     }
 
