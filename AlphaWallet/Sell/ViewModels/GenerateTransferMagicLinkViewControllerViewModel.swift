@@ -28,7 +28,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
         return Colors.appWhite
     }
     var actionButtonBackgroundColor: UIColor {
-        return Colors.appBackground
+        return Colors.appActionButtonGreen
     }
     var actionButtonTitleFont: UIFont {
         return Fonts.regular(size: 20)!
@@ -54,7 +54,7 @@ struct GenerateTransferMagicLinkViewControllerViewModel {
     }
 
     var tokenSaleDetailsLabelColor: UIColor {
-        return Colors.appBackground
+        return Colors.appText
     }
 
     var descriptionLabelText: String {
