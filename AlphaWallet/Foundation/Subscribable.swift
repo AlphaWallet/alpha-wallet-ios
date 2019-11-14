@@ -34,7 +34,7 @@ open class Subscribable<T> {
         _value = value
     }
 
-    open func subscribe(_ subscribe: @escaping (T?) -> Void) -> SubscribableKey {
+    @discardableResult open func subscribe(_ subscribe: @escaping (T?) -> Void) -> SubscribableKey {
         if let value = _value {
             subscribe(value)
         }
