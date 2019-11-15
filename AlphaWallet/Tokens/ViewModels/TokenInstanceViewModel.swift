@@ -15,7 +15,7 @@ struct TokenInstanceViewModel {
             return actionsFromTokenScript
         } else {
             switch token.type {
-            case .erc875:
+            case .erc875, .erc721ForTickets:
                 return [
                     .init(type: .erc875Sell),
                     .init(type: .nonFungibleTransfer)

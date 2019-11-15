@@ -36,12 +36,20 @@ class TokensDataStore {
         return GetERC875BalanceCoordinator(forServer: server)
     }()
 
+    private lazy var getERC721ForTicketsBalanceCoordinator: GetERC721ForTicketsBalanceCoordinator = {
+        return GetERC721ForTicketsBalanceCoordinator(forServer: server)
+    }()
+
     private lazy var getIsERC875ContractCoordinator: GetIsERC875ContractCoordinator = {
         return GetIsERC875ContractCoordinator(forServer: server)
     }()
 
     private lazy var getERC721BalanceCoordinator: GetERC721BalanceCoordinator = {
         return GetERC721BalanceCoordinator(forServer: server)
+    }()
+
+    private lazy var getIsERC721ForTicketsContractCoordinator: GetIsERC721ForTicketsContractCoordinator = {
+        return GetIsERC721ForTicketsContractCoordinator(forServer: server)
     }()
 
     private lazy var getIsERC721ContractCoordinator: GetIsERC721ContractCoordinator = {
@@ -272,6 +280,13 @@ class TokensDataStore {
         }
     }
 
+    func getERC721ForTicketsBalance(for address: AlphaWallet.Address,
+                          completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
+        getERC721ForTicketsBalanceCoordinator.getERC721ForTicketsTokenBalance(for: account.address, contract: address) { result in
+            completion(result)
+        }
+    }
+
     func getIsERC875Contract(for address: AlphaWallet.Address,
                              completion: @escaping (ResultResult<Bool, AnyError>.t) -> Void) {
         getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { result in
@@ -322,12 +337,22 @@ class TokensDataStore {
         }
 
         getIsERC721ContractCoordinator.getIsERC721Contract(for: address) { [weak self] result in
-            guard self != nil else { return }
+            guard let strongSelf = self else { return }
             switch result {
             case .success(let isERC721):
                 if isERC721 {
-                    completion(.erc721)
-                    return
+                    strongSelf.getIsERC721ForTicketsContractCoordinator.getIsERC721ForTicketContract(for: address) { [weak self] result in
+                        switch result {
+                        case .success(let isERC721ForTickets):
+                            if isERC721ForTickets {
+                                completion(.erc721ForTickets)
+                            } else {
+                                completion(.erc721)
+                            }
+                        case .failure:
+                            completion(.erc721)
+                        }
+                    }
                 } else {
                     knownToBeNotERC721 = true
                 }
@@ -354,14 +379,14 @@ class TokensDataStore {
         //TODO While we might want to improve it such as enabledObject still returning Realm's streaming list instead of a Swift array and filtering using predicates, it doesn't affect much here, yet.
         let etherToken = TokensDataStore.etherToken(forServer: server)
         let updateTokens = enabledObject.filter { $0 != etherToken }
-        let nonERC721Tokens = updateTokens.filter { !$0.isERC721 }
-        let erc721Tokens = updateTokens.filter { $0.isERC721 }
-        refreshBalanceForNonERC721Tokens(tokens: nonERC721Tokens)
+        let nonERC721Tokens = updateTokens.filter { !$0.isERC721AndNotForTickets }
+        let erc721Tokens = updateTokens.filter { $0.isERC721AndNotForTickets }
+        refreshBalanceForNonERC721TicketTokens(tokens: nonERC721Tokens)
         refreshBalanceForERC721Tokens(tokens: erc721Tokens)
     }
 
-    private func refreshBalanceForNonERC721Tokens(tokens: [TokenObject]) {
-        assert(!tokens.contains { $0.isERC721 })
+    private func refreshBalanceForNonERC721TicketTokens(tokens: [TokenObject]) {
+        assert(!tokens.contains { $0.isERC721AndNotForTickets })
         var count = 0
         //So we refresh the UI. Possible improvement is to refresh earlier, but still refresh at the end
         func incrementCountAndUpdateDelegate() {
@@ -399,12 +424,23 @@ class TokensDataStore {
             case .erc721:
                 //We'll check with OpenSea below and an ERC721 token isn't found there, then we get the balance of each token ourselves
                 incrementCountAndUpdateDelegate()
+            case .erc721ForTickets:
+                getERC721ForTicketsBalance(for: tokenObject.contractAddress, completion: { [weak self] result in
+                    defer { incrementCountAndUpdateDelegate() }
+                    guard let strongSelf = self else { return }
+                    switch result {
+                    case .success(let balance):
+                        strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
+                    case .failure:
+                        break
+                    }
+                })
             }
         }
     }
 
     private func refreshBalanceForERC721Tokens(tokens: [TokenObject]) {
-        assert(!tokens.contains { !$0.isERC721 })
+        assert(!tokens.contains { !$0.isERC721AndNotForTickets })
         guard OpenSea.isServerSupported(server) else { return }
         getTokensFromOpenSea().done { [weak self] contractToOpenSeaNonFungibles in
             guard let strongSelf = self else { return }
@@ -445,7 +481,7 @@ class TokensDataStore {
 
                 if let tokenObject = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) {
                     switch tokenObject.type {
-                    case .nativeCryptocurrency, .erc721, .erc875:
+                    case .nativeCryptocurrency, .erc721, .erc875, .erc721ForTickets:
                         break
                     case .erc20:
                         strongSelf.update(token: tokenObject, action: .type(.erc721))

@@ -404,7 +404,7 @@ extension TokensViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: FungibleTokenViewCell.identifier, for: indexPath) as! FungibleTokenViewCell
             cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             return cell
-        case .erc721:
+        case .erc721, .erc721ForTickets:
             let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
             cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             return cell

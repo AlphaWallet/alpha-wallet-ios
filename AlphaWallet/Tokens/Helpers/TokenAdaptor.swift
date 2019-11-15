@@ -21,7 +21,7 @@ class TokenAdaptor {
 
     public func getTokenHolders(forWallet account: Wallet) -> [TokenHolder] {
         switch token.type {
-        case .nativeCryptocurrency, .erc20, .erc875:
+        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             return getNotSupportedByOpenSeaTokenHolders(forWallet: account)
         case .erc721:
             let tokenType = OpenSeaSupportedNonFungibleTokenHandling(token: token)
@@ -66,7 +66,7 @@ class TokenAdaptor {
 
     func bundle(tokens: [Token]) -> [TokenHolder] {
         switch token.type {
-        case .nativeCryptocurrency, .erc20, .erc875:
+        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             if !tokens.isEmpty && tokens[0].isSpawnableMeetupContract {
                 return tokens.sorted { $0.id < $1.id }.map { getTokenHolder(for: [$0]) }
             } else {

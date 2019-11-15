@@ -389,7 +389,7 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
         case .erc721:
             let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: type)
             viewController.navigationController?.pushViewController(vc, animated: true)
-        case .erc875:
+        case .erc875, .erc721ForTickets:
             showEnterQuantityViewControllerForTransfer(token: token, for: tokenHolder, forPaymentFlow: type, in: viewController)
         case .nativeCryptocurrency, .erc20:
             break
@@ -439,7 +439,7 @@ extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
         case .erc721:
             let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
             viewController.navigationController?.pushViewController(vc, animated: true)
-        case .erc875:
+        case .erc875, .erc721ForTickets:
             showEnterQuantityViewControllerForTransfer(token: token, for: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
         case .nativeCryptocurrency, .erc20:
             break
