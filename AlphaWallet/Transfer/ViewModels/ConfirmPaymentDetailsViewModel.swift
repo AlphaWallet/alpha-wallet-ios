@@ -118,6 +118,10 @@ struct ConfirmPaymentDetailsViewModel {
             return amountAttributedText(
                 string: fullFormatter.string(from: transaction.value, decimals: token.decimals)
             )
+        case .ERC721ForTicketToken(let token):
+            return amountAttributedText(
+                    string: fullFormatter.string(from: transaction.value, decimals: token.decimals)
+            )
         }
     }
 

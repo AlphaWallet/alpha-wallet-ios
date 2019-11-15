@@ -109,11 +109,11 @@ class TokenObject: Object {
         }
     }
 
-    var isERC721: Bool {
+    var isERC721AndNotForTickets: Bool {
         switch type {
         case .erc721:
             return true
-        case .nativeCryptocurrency, .erc20, .erc875:
+        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             return false
         }
     }

@@ -21,7 +21,7 @@ struct TokensCardViewModel {
         let actionsFromTokenScript = xmlHandler.actions
         if actionsFromTokenScript.isEmpty {
             switch token.type {
-            case .erc875:
+            case .erc875, .erc721ForTickets:
                 return [
                     .init(type: .erc875Sell),
                     .init(type: .nonFungibleTransfer)
