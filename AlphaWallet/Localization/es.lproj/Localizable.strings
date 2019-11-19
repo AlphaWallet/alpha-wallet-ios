@@ -115,7 +115,8 @@
 "importWallet.import.button.title" = "Importar";
 "importWallet.import.invalidAddress" = "Dirección de Ethereum no válida";
 "importWallet.import.invalidPrivateKey" = "La clave privada debe tener 64 caracteres de longitud";
-"importWallet.import.invalidMnemonic" = "Seed phrase has to be 12 words";
+"importWallet.import.invalidMnemonicCount" = "Seed phrase has to be 12 words";
+"importWallet.import.invalidMnemonic" = "Seed phrase is invalid";
 "importWallet.import.fromCloud.title" = "Import from iCloud/Dropbox/Google Drive";
 "importWallet.import.seedPhrase.description" = "If your seed phrase is not in English, please convert it to English first";
 "Keystore JSON" = "Keystore JSON";

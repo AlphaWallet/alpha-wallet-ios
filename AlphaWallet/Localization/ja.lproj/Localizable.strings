@@ -116,7 +116,8 @@
 "importWallet.import.button.title" = "インポート";
 "importWallet.import.invalidAddress" = "無効な Ethereum アドレス";
 "importWallet.import.invalidPrivateKey" = "秘密鍵は64文字でなければなりません";
-"importWallet.import.invalidMnemonic" = "Seed phrase has to be 12 words";
+"importWallet.import.invalidMnemonicCount" = "Seed phrase has to be 12 words";
+"importWallet.import.invalidMnemonic" = "Seed phrase is invalid";
 "importWallet.import.fromCloud.title" = "Import from iCloud/Dropbox/Google Drive";
 "importWallet.import.seedPhrase.description" = "If your seed phrase is not in English, please convert it to English first";
 "Keystore JSON" = "Keystore JSON";
