@@ -106,6 +106,8 @@ extension BalanceTitleView {
         case .ERC875TokenOrder: break
         case .ERC721Token(let token):
             view.viewModel = BalanceTokenViewModel(token: token)
+        case .ERC721ForTicketToken(let token):
+            view.viewModel = BalanceTokenViewModel(token: token)
         }
         session.refresh(.ethBalance)
         return view

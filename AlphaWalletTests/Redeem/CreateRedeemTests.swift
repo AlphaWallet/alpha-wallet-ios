@@ -12,11 +12,11 @@ class CreateRedeemTests: XCTestCase {
 
     //when loading qr only include signature in decimal and the indices
     func testGenerateRedeem() {
-        var indices = [UInt16]()
-        indices.append(1)
-        indices.append(2)
+        var token = [BigUInt]()
+        token.append(1)
+        token.append(2)
         let account = keyStore.createAccount()
-        let message = CreateRedeem(token: TokenObject()).redeemMessage(tokenIndices: indices).0
+        let message = CreateRedeem(token: TokenObject()).redeemMessage(tokenIds: token).0
         print(message)
         let data = message.data(using: String.Encoding.utf8)
 

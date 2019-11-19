@@ -134,6 +134,8 @@ extension Transaction {
             return .erc20TokenTransfer
         case .erc721:
             return .erc721TokenTransfer
+        case .erc721ForTickets:
+            return .erc721TokenTransfer
         case .erc875:
             return .erc875TokenTransfer
         }
