@@ -13,7 +13,7 @@ class GetIsERC721ForTicketsContractCoordinator {
     func getIsERC721ForTicketContract(for contract: AlphaWallet.Address, completion: @escaping (Result<Bool, AnyError>) -> Void) {
         //TODO check ERC165 interface hash
         //TODO update with production ready contract
-        let defaultTicketContract = Constants.ticketContractAddress 
+        let defaultTicketContract = Constants.uefaRopsten
         if contract.sameContract(as: defaultTicketContract) {
             completion(.success(true))
         } else {

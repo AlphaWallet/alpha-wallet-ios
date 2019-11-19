@@ -2,6 +2,7 @@
 
 import Foundation
 import Result
+import BigInt
 
 class GetERC721ForTicketsBalanceCoordinator {
     private let server: RPCServer
@@ -21,9 +22,9 @@ class GetERC721ForTicketsBalanceCoordinator {
     }
 
     private func adapt(_ values: Any?) -> [String] {
-        guard let array = values as? [Data] else { return [] }
+        guard let array = values as? [BigUInt] else { return [] }
         return array.map { each in
-            let value = each.toHexString()
+            let value = each.serialize().hex()
             return "0x\(value)"
         }
     }
