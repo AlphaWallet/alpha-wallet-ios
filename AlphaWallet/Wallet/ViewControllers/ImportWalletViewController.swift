@@ -305,7 +305,11 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     ///Returns true only if valid
     private func validateMnemonic() -> Bool {
-        if let validationError = MnemonicRule().isValid(value: mnemonicTextView.value) {
+        if let validationError = MnemonicLengthRule().isValid(value: mnemonicTextView.value) {
+            displayError(error: ValidationError(msg: validationError.msg))
+            return false
+        }
+        if let validationError = MnemonicInWordListRule().isValid(value: mnemonicTextView.value) {
             displayError(error: ValidationError(msg: validationError.msg))
             return false
         }
