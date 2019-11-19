@@ -66,13 +66,13 @@ class TokenAdaptor {
 
     func bundle(tokens: [Token]) -> [TokenHolder] {
         switch token.type {
-        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
+        case .nativeCryptocurrency, .erc20, .erc875:
             if !tokens.isEmpty && tokens[0].isSpawnableMeetupContract {
                 return tokens.sorted { $0.id < $1.id }.map { getTokenHolder(for: [$0]) }
             } else {
                 break
             }
-        case .erc721:
+        case .erc721, .erc721ForTickets:
             return tokens.map { getTokenHolder(for: [$0]) }
         }
         var tokenHolders: [TokenHolder] = []

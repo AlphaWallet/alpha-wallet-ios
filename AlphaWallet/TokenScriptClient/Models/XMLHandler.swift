@@ -493,7 +493,7 @@ private class PrivateXMLHandler {
             actions = [.erc20Send, .erc20Receive]
         case .erc721:
             if contractAddress.isUEFATicketContract {
-                actions = [.nftRedeem, .nftSell, .nonFungibleTransfer]
+                actions = [.nftRedeem, .nonFungibleTransfer]
             } else {
                 actions = [.nonFungibleTransfer]
             }
