@@ -163,7 +163,7 @@ class TokenViewController: UIViewController {
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
             }
-        case .ERC875Token(_), .ERC875TokenOrder(_), .ERC721Token(_), .dapp(_, _):
+        case .ERC875Token(_), .ERC875TokenOrder(_), .ERC721Token(_), .ERC721ForTicketToken, .dapp(_, _):
             break
         }
     }
@@ -186,7 +186,7 @@ class TokenViewController: UIViewController {
                     send()
                 case .erc20Receive:
                     receive()
-                case .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
+                case .nftRedeem, .nftSell, .nonFungibleTransfer:
                     break
                 case .tokenScript:
                     delegate?.didTap(action: action, transferType: transferType, viewController: self)

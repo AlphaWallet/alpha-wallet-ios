@@ -109,11 +109,11 @@ class TokenObject: Object {
         }
     }
 
-    var isERC721: Bool {
+    var isERC721AndNotForTickets: Bool {
         switch type {
         case .erc721:
             return true
-        case .nativeCryptocurrency, .erc20, .erc875:
+        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             return false
         }
     }
@@ -128,7 +128,7 @@ func isNonZeroBalance(_ balance: String) -> Bool {
 }
 
 func isZeroBalance(_ balance: String) -> Bool {
-    if balance == Constants.nullTokenId {
+    if balance == Constants.nullTokenId || balance == "0" {
         return true
     }
     return false

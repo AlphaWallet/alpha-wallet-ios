@@ -7,8 +7,8 @@ struct TokenInstanceAction {
     enum ActionType {
         case erc20Send
         case erc20Receive
-        case erc875Redeem
-        case erc875Sell
+        case nftRedeem
+        case nftSell
         case nonFungibleTransfer
         case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: String, attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?)
     }
@@ -18,9 +18,9 @@ struct TokenInstanceAction {
             return R.string.localizable.send()
         case .erc20Receive:
             return R.string.localizable.receive()
-        case .erc875Redeem:
+        case .nftRedeem:
             return R.string.localizable.aWalletTokenRedeemButtonTitle()
-        case .erc875Sell:
+        case .nftSell:
             return R.string.localizable.aWalletTokenSellButtonTitle()
         case .nonFungibleTransfer:
             return R.string.localizable.aWalletTokenTransferButtonTitle()
@@ -32,7 +32,7 @@ struct TokenInstanceAction {
         switch type {
         case .erc20Send, .erc20Receive:
             return .init()
-        case .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
+        case .nftRedeem, .nftSell, .nonFungibleTransfer:
             return .init()
         case .tokenScript(_, _, _, let attributes, _):
             return attributes
@@ -42,7 +42,7 @@ struct TokenInstanceAction {
         switch type {
         case .erc20Send, .erc20Receive:
             return nil
-        case .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
+        case .nftRedeem, .nftSell, .nonFungibleTransfer:
             return nil
         case .tokenScript(_, _, _, _, let transactionFunction):
             return transactionFunction
@@ -52,7 +52,7 @@ struct TokenInstanceAction {
         switch type {
         case .erc20Send, .erc20Receive:
             return nil
-        case .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
+        case .nftRedeem, .nftSell, .nonFungibleTransfer:
             return nil
         case .tokenScript(let contract, _, _, _, _):
             return contract
@@ -70,9 +70,9 @@ struct TokenInstanceAction {
         switch type {
         case .erc20Send, .erc20Receive:
             self.viewHtml = ""
-        case .erc875Redeem:
+        case .nftRedeem:
             self.viewHtml = ""
-        case .erc875Sell:
+        case .nftSell:
             self.viewHtml = ""
         case .nonFungibleTransfer:
             self.viewHtml = ""

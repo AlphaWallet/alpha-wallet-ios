@@ -33,6 +33,7 @@ struct ConfigureTransactionViewModel {
         case .ERC875Token: return true
         case .ERC875TokenOrder: return true
         case .ERC721Token: return true
+        case .ERC721ForTicketToken: return true
         }
     }
 }

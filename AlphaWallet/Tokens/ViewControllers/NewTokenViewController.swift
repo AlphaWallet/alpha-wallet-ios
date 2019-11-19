@@ -243,7 +243,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
             balanceTextField.isHidden = true
             decimalsTextField.label.isHidden = false
             balanceTextField.label.isHidden = true
-        case .erc721, .erc875:
+        case .erc721, .erc875, .erc721ForTickets:
             decimalsTextField.isHidden = true
             balanceTextField.isHidden = false
             decimalsTextField.label.isHidden = true
@@ -272,7 +272,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
                 displayError(title: R.string.localizable.decimals(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
                 return false
             }
-        case .erc721, .erc875:
+        case .erc721, .erc875, .erc721ForTickets:
             guard !balanceTextField.value.trimmed.isEmpty else {
                 displayError(title: R.string.localizable.balance(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
                 return false
