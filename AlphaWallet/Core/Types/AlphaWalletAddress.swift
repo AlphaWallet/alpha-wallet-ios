@@ -112,4 +112,8 @@ extension AlphaWallet.Address {
     var isFifaTicketcontract: Bool {
         return sameContract(as: Constants.ticketContractAddress) || sameContract(as: Constants.ticketContractAddressRopsten)
     }
+
+    var isUEFATicketContract: Bool {
+        return sameContract(as: Constants.uefaRopsten)
+    }
 }

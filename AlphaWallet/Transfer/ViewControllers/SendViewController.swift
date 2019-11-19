@@ -187,7 +187,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             }
             amountTextField.alternativeAmountLabel.isHidden = true
             amountTextField.isFiatButtonHidden = true
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
             amountTextField.alternativeAmountLabel.isHidden = true
             amountTextField.isFiatButtonHidden = true
         }
@@ -224,6 +224,8 @@ class SendViewController: UIViewController, CanScanQRCode {
             case .ERC875TokenOrder(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             case .ERC721Token(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC721ForTicketToken(let token):
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             }
         }()
@@ -294,7 +296,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             headerViewModel.contractAddress = token.contractAddress
 
             configure(viewModel: self.viewModel, shouldConfigureBalance: false)
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
             break
         }
     }

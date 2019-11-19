@@ -55,6 +55,9 @@ public struct Constants {
     // FIFA hardcoded FIFA token address
     static let ticketContractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
     static let ticketContractAddressRopsten = AlphaWallet.Address(string: "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3")!
+    
+    // UEFA hardcoded addresses
+    static let uefaRopsten = AlphaWallet.Address(string: "0x439bf1B20841Fa5498C3471C202F438147b7e447")!
 
     // Hardcoded discovery token address
     static let discoveryContractAddress = AlphaWallet.Address(string: "0x8c0edb69ebf038ba0c7a4873e40fc09725064c2e")!
