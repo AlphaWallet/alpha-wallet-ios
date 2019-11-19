@@ -495,9 +495,9 @@ private class PrivateXMLHandler {
             actions = [.nonFungibleTransfer]
         case .erc875:
             if contractAddress.isFifaTicketcontract {
-                actions = [.erc875Redeem, .erc875Sell, .nonFungibleTransfer]
+                actions = [.nftRedeem, .nftSell, .nonFungibleTransfer]
             } else {
-                actions = [.erc875Sell, .nonFungibleTransfer]
+                actions = [.nftSell, .nonFungibleTransfer]
             }
         }
         return actions.map { .init(type: $0) }

@@ -186,7 +186,7 @@ class TokenViewController: UIViewController {
                     send()
                 case .erc20Receive:
                     receive()
-                case .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
+                case .nftRedeem, .nftSell, .nonFungibleTransfer:
                     break
                 case .tokenScript:
                     delegate?.didTap(action: action, transferType: transferType, viewController: self)

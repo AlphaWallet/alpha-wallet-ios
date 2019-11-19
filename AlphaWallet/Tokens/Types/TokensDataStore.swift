@@ -381,11 +381,11 @@ class TokensDataStore {
         let updateTokens = enabledObject.filter { $0 != etherToken }
         let nonERC721Tokens = updateTokens.filter { !$0.isERC721AndNotForTickets }
         let erc721Tokens = updateTokens.filter { $0.isERC721AndNotForTickets }
-        refreshBalanceForNonERC721TicketTokens(tokens: nonERC721Tokens)
+        refreshBalanceForTokensThatAreNotNonTicket721(tokens: nonERC721Tokens)
         refreshBalanceForERC721Tokens(tokens: erc721Tokens)
     }
 
-    private func refreshBalanceForNonERC721TicketTokens(tokens: [TokenObject]) {
+    private func refreshBalanceForTokensThatAreNotNonTicket721(tokens: [TokenObject]) {
         assert(!tokens.contains { $0.isERC721AndNotForTickets })
         var count = 0
         //So we refresh the UI. Possible improvement is to refresh earlier, but still refresh at the end
@@ -422,8 +422,7 @@ class TokensDataStore {
                     }
                 })
             case .erc721:
-                //We'll check with OpenSea below and an ERC721 token isn't found there, then we get the balance of each token ourselves
-                incrementCountAndUpdateDelegate()
+                break
             case .erc721ForTickets:
                 getERC721ForTicketsBalance(for: tokenObject.contractAddress, completion: { [weak self] result in
                     defer { incrementCountAndUpdateDelegate() }
