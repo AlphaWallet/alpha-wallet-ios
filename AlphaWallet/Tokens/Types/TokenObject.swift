@@ -128,7 +128,7 @@ func isNonZeroBalance(_ balance: String) -> Bool {
 }
 
 func isZeroBalance(_ balance: String) -> Bool {
-    if balance == Constants.nullTokenId {
+    if balance == Constants.nullTokenId || balance == "0" {
         return true
     }
     return false

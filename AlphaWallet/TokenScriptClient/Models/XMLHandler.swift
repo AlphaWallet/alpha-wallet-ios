@@ -492,7 +492,11 @@ private class PrivateXMLHandler {
         case .erc20:
             actions = [.erc20Send, .erc20Receive]
         case .erc721:
-            actions = [.nonFungibleTransfer]
+            if contractAddress.isUEFATicketContract {
+                actions = [.nftRedeem, .nftSell, .nonFungibleTransfer]
+            } else {
+                actions = [.nonFungibleTransfer]
+            }
         case .erc875:
             if contractAddress.isFifaTicketcontract {
                 actions = [.nftRedeem, .nftSell, .nonFungibleTransfer]
