@@ -491,6 +491,8 @@ private class PrivateXMLHandler {
         switch tokenType {
         case .erc20:
             actions = [.erc20Send, .erc20Receive]
+        case .erc721Ticket:
+            actions = [.nftRedeem, .nonFungibleTransfer]
         case .erc721:
             if contractAddress.isUEFATicketContract {
                 actions = [.nftRedeem, .nonFungibleTransfer]

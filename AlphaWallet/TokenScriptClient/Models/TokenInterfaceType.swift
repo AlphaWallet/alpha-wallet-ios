@@ -5,5 +5,6 @@ import Foundation
 enum TokenInterfaceType: String {
     case erc20
     case erc721
+    case erc721Ticket
     case erc875
 }
