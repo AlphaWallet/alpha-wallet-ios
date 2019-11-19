@@ -237,6 +237,9 @@ class SingleChainTokenCoordinator: Coordinator {
                 case .erc721:
                     //Handled in TokensDataStore.refreshBalanceForERC721Tokens()
                     break
+                case .erc721ForTickets:
+                    //Handled in TokensDataStore.refreshBalanceForNonERC721TicketTokens()
+                    break
                 case .nativeCryptocurrency:
                     break
                 }
@@ -339,7 +342,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
     private func makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: TokensCardCoordinator, token: TokenObject) {
         switch token.type {
-        case .nativeCryptocurrency, .erc20, .erc875:
+        case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             break
         case .erc721:
             //TODO is this check still necessary?
@@ -515,7 +518,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         switch transferType {
         case .ERC20Token(let erc20Token, _, _):
             token = erc20Token
-        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
+        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken:
             return
         case .nativeCryptocurrency:
             token = TokensDataStore.etherToken(forServer: session.server)
@@ -525,7 +528,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         switch action.type {
         case .tokenScript:
             showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, viewController: viewController)
-        case .erc20Send, .erc20Receive, .erc875Redeem, .erc875Sell, .nonFungibleTransfer:
+        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer:
             //Couldn't have reached here
             break
         }
@@ -639,6 +642,17 @@ func fetchContractDataFor(address: AlphaWallet.Address, storage: TokensDataStore
             }
         case .erc721:
             storage.getERC721Balance(for: address) { result in
+                switch result {
+                case .success(let balance):
+                    completedBalance = balance
+                    completion(.balance(balance))
+                    callCompletionOnAllData()
+                case .failure:
+                    callCompletionFailed()
+                }
+            }
+        case .erc721ForTickets:
+            storage.getERC721ForTicketsBalance(for: address) { result in
                 switch result {
                 case .success(let balance):
                     completedBalance = balance

@@ -228,7 +228,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
             coordinator.show(fungibleToken: token, transferType: .ERC20Token(token, destination: nil, amount: nil))
         case .erc721:
             coordinator.showTokenList(for: .send(type: .ERC721Token(token)), token: token)
-        case .erc875:
+        case .erc875, .erc721ForTickets:
             coordinator.showTokenList(for: .send(type: .ERC875Token(token)), token: token)
         }
     }

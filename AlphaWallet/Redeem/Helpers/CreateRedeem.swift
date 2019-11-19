@@ -13,28 +13,35 @@ class CreateRedeem {
         self.token = token
     }
 
-    func generateTimeStamp() -> String {
+    private func generateTimeStamp() -> String {
         let time = NSDate().timeIntervalSince1970
         //rotate qr every 30 seconds for security (preventing screenshot claims)
         let minsTime = Int(time / 30) 
         return String(minsTime)
     }
 
-    func redeemMessage(tokenIndices: [UInt16]) -> (message: String, qrCode: String) {
+    func redeemMessage(tokenIds: [BigUInt]) -> (message: String, qrCode: String) {
         let contractAddress = token.contractAddress.eip55String.lowercased()
-        let messageForSigning = formIndicesSelection(indices: tokenIndices)
+        let messageForSigning = tokensToHexStringArray(tokens: tokenIds)
                 + "," + generateTimeStamp() + "," + contractAddress
-        let qrCodeData = formIndicesSelection(indices: tokenIndices)
+        let qrCodeData = tokensToHexStringArray(tokens: tokenIds)
         return (messageForSigning, qrCodeData)
     }
 
-    /**
-     * Generate a compact string representation of the indices of an
-     * ERC875 asset.  Notice that this function is not used in this
-     * class. It is used to return the selectionStr to be used as a
-     * parameter of the constructor
-    */
-    func formIndicesSelection(indices: [UInt16]) -> String {
+    func redeemMessage(indices: [UInt16]) -> (message: String, qrCode: String) {
+        let contractAddress = token.contractAddress.eip55String.lowercased()
+        let messageForSigning = formIndicesSelection(indices: indices)
+                + "," + generateTimeStamp() + "," + contractAddress
+        let qrCodeData = formIndicesSelection(indices: indices)
+        return (messageForSigning, qrCodeData)
+    }
+
+    private func tokensToHexStringArray(tokens: [BigUInt]) -> String {
+        //padding to 32 bytes can be done on the ushers side
+        return tokens.map({ $0.serialize().hexString }).joined(separator: ",")
+    }
+
+    private func formIndicesSelection(indices: [UInt16]) -> String {
         let firstValue = indices[0] //lowest number
         let NIBBLE = 4
         let zeroCount = Int(firstValue) / NIBBLE

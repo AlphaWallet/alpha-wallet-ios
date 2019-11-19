@@ -20,6 +20,8 @@ enum TransferType {
                 return .ERC875Token(token)
             case .erc721:
                 return .ERC721Token(token)
+            case .erc721ForTickets:
+                return .ERC721ForTicketToken(token)
             }
         }()
     }
@@ -29,6 +31,7 @@ enum TransferType {
     case ERC875Token(TokenObject)
     case ERC875TokenOrder(TokenObject)
     case ERC721Token(TokenObject)
+    case ERC721ForTicketToken(TokenObject)
     case dapp(TokenObject, DAppRequester)
 }
 
@@ -47,6 +50,8 @@ extension TransferType {
             return token.symbol
         case .ERC721Token(let token):
             return token.symbol
+        case .ERC721ForTicketToken(let token):
+            return token.symbol
         }
     }
 
@@ -64,6 +69,8 @@ extension TransferType {
             return token.server
         case .ERC721Token(let token):
             return token.server
+        case .ERC721ForTicketToken(let token):
+            return token.server
         }
     }
 
@@ -78,6 +85,8 @@ extension TransferType {
         case .ERC875TokenOrder(let token):
             return token.contractAddress
         case .ERC721Token(let token):
+            return token.contractAddress
+        case .ERC721ForTicketToken(let token):
             return token.contractAddress
         case .dapp(let token, _):
             return token.contractAddress

@@ -17,7 +17,7 @@ struct TokenViewControllerViewModel {
             return TokensDataStore.etherToken(forServer: session.server)
         case .ERC20Token(let token, _, _):
             return token
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
             return nil
         }
     }
@@ -34,6 +34,8 @@ struct TokenViewControllerViewModel {
                 return []
             case .erc721:
                 return []
+            case .erc721ForTickets:
+                return []
             case .nativeCryptocurrency:
                 //TODO .erc20Send and .erc20Receive names aren't appropriate
                 return [
@@ -48,7 +50,7 @@ struct TokenViewControllerViewModel {
             }
         } else {
             switch token.type {
-            case .erc875, .erc721, .erc20:
+            case .erc875, .erc721, .erc20, .erc721ForTickets:
                 return actionsFromTokenScript
             case .nativeCryptocurrency:
                 //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
@@ -100,7 +102,7 @@ struct TokenViewControllerViewModel {
                         }})
                     .filter({ $0.operation?.contract.flatMap { token.contractAddress.sameContract(as: $0) } ?? false })
                     .prefix(3))
-        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .dapp:
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
             self.recentTransactions = []
         }
     }

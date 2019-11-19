@@ -173,9 +173,9 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
                 case .erc20Send, .erc20Receive:
                     //TODO when we support TokenScript views for ERC20s, we need to perform the action here
                     break
-                case .erc875Redeem:
+                case .nftRedeem:
                     redeem()
-                case .erc875Sell:
+                case .nftSell:
                     sell()
                 case .nonFungibleTransfer:
                     transfer()

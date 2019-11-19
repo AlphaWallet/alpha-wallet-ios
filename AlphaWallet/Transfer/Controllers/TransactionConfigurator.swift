@@ -81,6 +81,8 @@ class TransactionConfigurator {
                 return token.contractAddress
             case .ERC721Token(let token):
                 return token.contractAddress
+            case .ERC721ForTicketToken(let token):
+                return token.contractAddress
             }
         }()
         let request = EstimateGasRequest(
@@ -197,8 +199,7 @@ class TransactionConfigurator {
             } catch {
                 completion(.failure(AnyError(Web3Error(description: "malformed tx"))))
             }
-
-        case .ERC721Token(let token):
+        case .ERC721Token(let token), .ERC721ForTicketToken(let token):
             do {
                 let function: Function
                 let parameters: [Any]
@@ -245,6 +246,7 @@ class TransactionConfigurator {
             case .ERC875Token: return 0
             case .ERC875TokenOrder: return transaction.value
             case .ERC721Token: return 0
+            case .ERC721ForTicketToken: return 0
             }
         }()
         let address: AlphaWallet.Address? = {
@@ -254,6 +256,7 @@ class TransactionConfigurator {
             case .ERC875Token(let token): return token.contractAddress
             case .ERC875TokenOrder(let token): return token.contractAddress
             case .ERC721Token(let token): return token.contractAddress
+            case .ERC721ForTicketToken(let token): return token.contractAddress
             }
         }()
         let signTransaction = UnsignedTransaction(

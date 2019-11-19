@@ -7,4 +7,5 @@ enum TokenType: String {
     case erc20 = "ERC20"
     case erc875 = "ERC875"
     case erc721 = "ERC721"
+    case erc721ForTickets = "ERC721ForTickets"
 }
