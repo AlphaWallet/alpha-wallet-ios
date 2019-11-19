@@ -219,9 +219,9 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                 switch action.type {
                 case .erc20Send, .erc20Receive:
                     break
-                case .erc875Redeem:
+                case .nftRedeem:
                     redeem()
-                case .erc875Sell:
+                case .nftSell:
                     sell()
                 case .nonFungibleTransfer:
                     transfer()
