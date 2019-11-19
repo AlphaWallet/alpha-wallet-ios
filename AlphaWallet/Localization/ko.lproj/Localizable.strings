@@ -115,7 +115,8 @@
 "importWallet.import.button.title" = "가져오기";
 "importWallet.import.invalidAddress" = "잘못된 이더리움 주소";
 "importWallet.import.invalidPrivateKey" = "개인 키의 길이는 64자이어야 합니다.";
-"importWallet.import.invalidMnemonic" = "Seed phrase has to be 12 words";
+"importWallet.import.invalidMnemonicCount" = "Seed phrase has to be 12 words";
+"importWallet.import.invalidMnemonic" = "Seed phrase is invalid";
 "importWallet.import.fromCloud.title" = "Import from iCloud/Dropbox/Google Drive";
 "importWallet.import.seedPhrase.description" = "If your seed phrase is not in English, please convert it to English first";
 "Keystore JSON" = "Keystore JSON";
