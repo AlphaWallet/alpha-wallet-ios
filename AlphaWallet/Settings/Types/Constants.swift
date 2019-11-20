@@ -56,8 +56,11 @@ public struct Constants {
     static let ticketContractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
     static let ticketContractAddressRopsten = AlphaWallet.Address(string: "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3")!
     
-    // UEFA hardcoded addresses
-    static let uefaRopsten = AlphaWallet.Address(string: "0x439bf1B20841Fa5498C3471C202F438147b7e447")!
+    // UEFA hardcoded addresses TODO replace with production version
+    static let uefaRopsten = AlphaWallet.Address(string: "0xc2f901070AdcfA07Bc5c46cc2390063248eb9E81")!
+
+    //UEFA 721 balances function hash
+    static let balances165Hash721Ticket = "0xc84aae17"
 
     // Hardcoded discovery token address
     static let discoveryContractAddress = AlphaWallet.Address(string: "0x8c0edb69ebf038ba0c7a4873e40fc09725064c2e")!
