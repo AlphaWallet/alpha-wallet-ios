@@ -9,7 +9,7 @@ class TokenAdaptorTest: XCTestCase {
     func testBundlesAreBrokenIntoContinuousSeatRanges() {
         let date = GeneralisedTime()
         let tokens = [
-            Token(id: .init(1), index: UInt16(1), name: "Name", symbol: "SYM", status: .available, values: [
+            Token(id: .init(1), tokenType: TokenType.erc875, index: UInt16(1), name: "Name", symbol: "SYM", status: .available, values: [
                 "city": .init(directoryString: "City"),
                 "venue": .init(directoryString: "Venue"),
                 "match": .init(int: 1),
@@ -19,7 +19,7 @@ class TokenAdaptorTest: XCTestCase {
                 "countryA": .init(directoryString: "Team A"),
                 "countryB": .init(directoryString: "Team B")
             ]),
-            Token(id: .init(2), index: UInt16(2), name: "Name", symbol: "SYM", status: .available, values: [
+            Token(id: .init(2), tokenType: TokenType.erc875, index: UInt16(2), name: "Name", symbol: "SYM", status: .available, values: [
                 "city": .init(directoryString: "City"),
                 "venue": .init(directoryString: "Venue"),
                 "match": .init(int: 1),
@@ -29,7 +29,7 @@ class TokenAdaptorTest: XCTestCase {
                 "countryA": .init(directoryString: "Team A"),
                 "countryB": .init(directoryString: "Team B")
             ]),
-            Token(id: .init(3), index: UInt16(3), name: "Name", symbol: "SYM", status: .available, values: [
+            Token(id: .init(3), tokenType: TokenType.erc875, index: UInt16(3), name: "Name", symbol: "SYM", status: .available, values: [
                 "city": .init(directoryString: "City"),
                 "venue": .init(directoryString: "Venue"),
                 "match": .init(int: 1),
@@ -50,7 +50,7 @@ class TokenAdaptorTest: XCTestCase {
     func testBundlesGroupIdenticalSeatIDsTogether() {
         let date = GeneralisedTime()
         let tokens = [
-            Token(id: .init(1), index: UInt16(1), name: "Name", symbol: "SYM", status: .available, values: [
+            Token(id: .init(1), tokenType: TokenType.erc875, index: UInt16(1), name: "Name", symbol: "SYM", status: .available, values: [
                 "city": .init(directoryString: "City"),
                 "venue": .init(directoryString: "Venue"),
                 "match": .init(int: 1),
@@ -60,7 +60,7 @@ class TokenAdaptorTest: XCTestCase {
                 "countryA": .init(directoryString: "Team A"),
                 "countryB": .init(directoryString: "Team B")
             ]),
-            Token(id: .init(2), index: UInt16(2), name: "Name", symbol: "SYM", status: .available, values: [
+            Token(id: .init(2), tokenType: TokenType.erc875, index: UInt16(2), name: "Name", symbol: "SYM", status: .available, values: [
                 "city": .init(directoryString: "City"),
                 "venue": .init(directoryString: "Venue"),
                 "match": .init(int: 1),
@@ -70,7 +70,7 @@ class TokenAdaptorTest: XCTestCase {
                 "countryA": .init(directoryString: "Team A"),
                 "countryB": .init(directoryString: "Team B")
             ]),
-            Token(id: .init(3), index: UInt16(3), name: "Name", symbol: "SYM", status: .available, values: [
+            Token(id: .init(3), tokenType: TokenType.erc875, index: UInt16(3), name: "Name", symbol: "SYM", status: .available, values: [
                 "city": .init(directoryString: "City"),
                 "venue": .init(directoryString: "Venue"),
                 "match": .init(int: 1),
@@ -80,7 +80,7 @@ class TokenAdaptorTest: XCTestCase {
                 "countryA": .init(directoryString: "Team A"),
                 "countryB": .init(directoryString: "Team B")
             ]),
-            Token(id: .init(4), index: UInt16(4), name: "Name", symbol: "SYM", status: .available, values: [
+            Token(id: .init(4), tokenType: TokenType.erc875, index: UInt16(4), name: "Name", symbol: "SYM", status: .available, values: [
                 "city": .init(directoryString: "City"),
                 "venue": .init(directoryString: "Venue"),
                 "match": .init(int: 1),
