@@ -303,7 +303,6 @@
 		5E7C733638D7596F93DEE2A9 /* OnboardingCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C75CE3F1D6B7993E7A840 /* OnboardingCollectionViewController.swift */; };
 		5E7C733D2CA2A0FC585D93D1 /* AssetInternalValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79199D828A206A7F23B1 /* AssetInternalValue.swift */; };
 		5E7C7350C5F9ADE212A0F1CA /* CallForAssetAttributeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74F4900AB6D34CDD3674 /* CallForAssetAttributeCoordinator.swift */; };
-		5E7C7364BF4F6EC3F15804C2 /* GetIsERC721Encode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7CA7D65743AEE3411F3A /* GetIsERC721Encode.swift */; };
 		5E7C7376B566E5A59CC8F463 /* ImportMagicTokenViewControllerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C72D0E7CA03ADE5CFAE7A /* ImportMagicTokenViewControllerViewModel.swift */; };
 		5E7C738BCA59B1DE116ECC96 /* WhereIsWalletAddressFoundOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C76052512831B707659CA /* WhereIsWalletAddressFoundOverlayView.swift */; };
 		5E7C739447F6BADDBBBF7278 /* AssetDefinitionsOverridesViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7695F7C45A31C7EAF97F /* AssetDefinitionsOverridesViewCellViewModel.swift */; };
@@ -635,8 +634,10 @@
 		77B3BF3C201908ED00EEC15A /* ConfirmCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77B3BF3B201908ED00EEC15A /* ConfirmCoordinator.swift */; };
 		77E0E773201FAD06009B4B31 /* BrowserURLParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77E0E772201FAD05009B4B31 /* BrowserURLParser.swift */; };
 		79CC74432382922B00157C8F /* GetIsERC721ForTicketsContractCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79CC74422382922B00157C8F /* GetIsERC721ForTicketsContractCoordinator.swift */; };
+		8499D235831FBC245735B2C7 /* GetInterfaceSupported165Encode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8499D5AD5EA8967FDB7FA6E2 /* GetInterfaceSupported165Encode.swift */; };
 		8499D446C6ADE858FE633096 /* GetERC721ForTicketsBalanceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8499DFC3A9D0B1E42D74905E /* GetERC721ForTicketsBalanceCoordinator.swift */; };
 		8499D8751F2D70FBD13F3C93 /* GetERC721ForTicketsBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8499DA6A661E357C9D69BA18 /* GetERC721ForTicketsBalance.swift */; };
+		8499DAB3D06965FDC1E8FCAF /* GetInterfaceSupported165Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8499D1861F30C1360B1047CE /* GetInterfaceSupported165Coordinator.swift */; };
 		AA26C61F20412A1E00318B9B /* TokensCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C61D20412A1D00318B9B /* TokensCardViewController.swift */; };
 		AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */; };
 		AA26C62420412A4100318B9B /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62220412A4100318B9B /* Double.swift */; };
@@ -1186,7 +1187,6 @@
 		5E7C7C7CB95B7EE4B2547585 /* EnabledServersCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnabledServersCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7C83B57FC8FAE9AF8F26 /* TokenCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCollection.swift; sourceTree = "<group>"; };
 		5E7C7C8CA3706DC14167786C /* BrowserURLParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserURLParserTests.swift; sourceTree = "<group>"; };
-		5E7C7CA7D65743AEE3411F3A /* GetIsERC721Encode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetIsERC721Encode.swift; sourceTree = "<group>"; };
 		5E7C7CAA3D0C19444005EA83 /* TokenCardRowViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCardRowViewModel.swift; sourceTree = "<group>"; };
 		5E7C7CBCC0A74A084AC2F053 /* ABIType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ABIType.swift; sourceTree = "<group>"; };
 		5E7C7CBEBF984CFCA29D6866 /* ServersViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServersViewModel.swift; sourceTree = "<group>"; };
@@ -1329,6 +1329,8 @@
 		77E0E772201FAD05009B4B31 /* BrowserURLParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrowserURLParser.swift; sourceTree = "<group>"; };
 		79CC74422382922B00157C8F /* GetIsERC721ForTicketsContractCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetIsERC721ForTicketsContractCoordinator.swift; sourceTree = "<group>"; };
 		7BEDA1C4253B796085A0E66C /* Pods_AlphaWalletUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AlphaWalletUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8499D1861F30C1360B1047CE /* GetInterfaceSupported165Coordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetInterfaceSupported165Coordinator.swift; sourceTree = "<group>"; };
+		8499D5AD5EA8967FDB7FA6E2 /* GetInterfaceSupported165Encode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetInterfaceSupported165Encode.swift; sourceTree = "<group>"; };
 		8499DA6A661E357C9D69BA18 /* GetERC721ForTicketsBalance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721ForTicketsBalance.swift; sourceTree = "<group>"; };
 		8499DFC3A9D0B1E42D74905E /* GetERC721ForTicketsBalanceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721ForTicketsBalanceCoordinator.swift; sourceTree = "<group>"; };
 		AA26C61D20412A1D00318B9B /* TokensCardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensCardViewController.swift; sourceTree = "<group>"; };
@@ -2408,6 +2410,7 @@
 				5E7C72AF0046EE87D00D4C56 /* GetERC20BalanceCoordinator.swift */,
 				79CC74422382922B00157C8F /* GetIsERC721ForTicketsContractCoordinator.swift */,
 				8499DFC3A9D0B1E42D74905E /* GetERC721ForTicketsBalanceCoordinator.swift */,
+				8499D1861F30C1360B1047CE /* GetInterfaceSupported165Coordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -3012,11 +3015,11 @@
 			isa = PBXGroup;
 			children = (
 				5E7C7251DB61EB9468910C81 /* GetERC875Balance.swift */,
-				5E7C7CA7D65743AEE3411F3A /* GetIsERC721Encode.swift */,
 				5E7C7DCB0BDDD30D10130AE7 /* GetIsERC875Encode.swift */,
 				5E7C72CD0C22247A6AF7C95E /* GetERC721BalanceEncode.swift */,
 				76F1DC4B9964504DA12D8D3C /* GetENSInfoEncode.swift */,
 				8499DA6A661E357C9D69BA18 /* GetERC721ForTicketsBalance.swift */,
+				8499D5AD5EA8967FDB7FA6E2 /* GetInterfaceSupported165Encode.swift */,
 			);
 			path = "web3swift-pod";
 			sourceTree = "<group>";
@@ -4187,7 +4190,6 @@
 				5E7C7DCE5242D2AC0A8DA65C /* TokenCardRowViewModel.swift in Sources */,
 				5E7C74C1C2AB84F9AFAC630E /* TokenCardRowViewModelProtocol.swift in Sources */,
 				5E7C74E7DC2D79785240D757 /* GetERC875Balance.swift in Sources */,
-				5E7C7364BF4F6EC3F15804C2 /* GetIsERC721Encode.swift in Sources */,
 				5E7C708D05DBC08C8304F274 /* GetIsERC875Encode.swift in Sources */,
 				5E7C7F95F75D39673B88D774 /* GetERC721BalanceEncode.swift in Sources */,
 				5E7C7CDE2814481CD7BC47AC /* PushNotificationsCoordinator.swift in Sources */,
@@ -4384,6 +4386,8 @@
 				5E7C72D6C4AB97A1FCB3AA32 /* MnemonicInWordListRule.swift in Sources */,
 				8499D446C6ADE858FE633096 /* GetERC721ForTicketsBalanceCoordinator.swift in Sources */,
 				8499D8751F2D70FBD13F3C93 /* GetERC721ForTicketsBalance.swift in Sources */,
+				8499D235831FBC245735B2C7 /* GetInterfaceSupported165Encode.swift in Sources */,
+				8499DAB3D06965FDC1E8FCAF /* GetInterfaceSupported165Coordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
