@@ -361,7 +361,16 @@ private class PrivateXMLHandler {
         return (xml: xml, hasValidTokenScriptFile: hasValidTokenScriptFile)
     }
 
-    func getToken(name: String, symbol: String, fromTokenId tokenId: TokenId, index: UInt16, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator) -> Token {
+    func getToken(
+            name: String,
+            symbol: String,
+            fromTokenId tokenId: TokenId,
+            index: UInt16,
+            inWallet account: Wallet,
+            server: RPCServer,
+            callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator,
+            tokenType: TokenType
+    ) -> Token {
         guard tokenId != 0 else { return .empty }
         let values: [AttributeId: AssetAttributeSyntaxValue]
         if fields.isEmpty {
@@ -390,6 +399,7 @@ private class PrivateXMLHandler {
         }
         return Token(
                 id: tokenId,
+                tokenType: tokenType,
                 index: index,
                 name: name,
                 symbol: symbol,
@@ -694,10 +704,10 @@ public class XMLHandler {
         xmlHandlers.removeAll()
     }
 
-    func getToken(name: String, symbol: String, fromTokenId tokenId: TokenId, index: UInt16, inWallet account: Wallet, server: RPCServer) -> Token {
+    func getToken(name: String, symbol: String, fromTokenId tokenId: TokenId, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> Token {
         //TODO get rid of the forced unwrap
         let callForAssetAttributeCoordinator = (XMLHandler.callForAssetAttributeCoordinators?[server])!
-        return privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: index, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator)
+        return privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: index, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, tokenType: tokenType)
     }
 
     func getName(fallback: String = R.string.localizable.tokenTitlecase()) -> String {
