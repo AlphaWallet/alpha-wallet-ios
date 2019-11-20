@@ -244,6 +244,7 @@ class UniversalLinkCoordinator: Coordinator {
         count = amt
         let token = Token(
                 id: 0,
+                tokenType: TokenType.nativeCryptocurrency,
                 index: 0,
                 name: labelForCurrencyDrops,
                 symbol: "",
@@ -489,13 +490,15 @@ class UniversalLinkCoordinator: Coordinator {
 
     private func makeTokenHolderImpl(name: String, symbol: String, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
         //TODO pass in the wallet instead
+        let tokensDatastore = tokensDatastores[server]
+        guard let tokenFromDataStore = tokensDatastore.token(forContract: contractAddress) else { return }
         let account = EtherKeystore.current!
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore)
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: UInt16(i), inWallet: account, server: server)
+                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: UInt16(i), inWallet: account, server: server, tokenType: tokenFromDataStore.type)
                 tokens.append(token)
             }
         }

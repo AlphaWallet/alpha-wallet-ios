@@ -15,6 +15,7 @@ struct Token {
     }
 
     let id: BigUInt
+    let tokenType: TokenType
     let index: UInt16
     let name: String
     let symbol: String
@@ -24,6 +25,7 @@ struct Token {
     static var empty: Token {
         return Token(
                 id: Constants.nullTokenIdBigUInt,
+                tokenType: TokenType.erc875,
                 index: 0,
                 name: R.string.localizable.tokensTitlecase(),
                 symbol: "",
