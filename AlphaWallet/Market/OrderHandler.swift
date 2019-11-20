@@ -52,20 +52,42 @@ public class OrderHandler {
 
     private let keyStore = try! EtherKeystore()
 
-    func signOrders(orders: [Order], account: EthereumAccount) throws -> [SignedOrder] {
-        var signedOrders = [SignedOrder]()
+    func signOrders(orders: [Order], account: EthereumAccount, tokenType: TokenType) throws -> [SignedOrder] {
+        let messages = createMessagesFromOrders(orders: orders, tokenType: tokenType)
+        return try! bulkSignOrders(messages: messages, account: account, orders: orders)
+    }
+
+    private func createMessagesFromOrders(orders: [Order], tokenType: TokenType) -> [Data] {
         var messages = [Data]()
-
-        for order in orders {
-            let message: [UInt8] = encodeMessageForTrade(
-                    price: order.price,
-                    expiryBuffer: order.expiry,
-                    tokens: order.indices,
-                    contractAddress: order.contractAddress
-            )
-            messages.append(Data(bytes: message))
+        switch(tokenType) {
+        case .erc721ForTickets:
+            for order in orders {
+                let message: [UInt8] = encodeMessageForTrade(
+                        price: order.price,
+                        expiryBuffer: order.expiry,
+                        tokenIds: order.tokenIds ?? [BigUInt](),
+                        contractAddress: order.contractAddress
+                )
+                messages.append(Data(bytes: message))
+            }
+        case .erc875:
+            for order in orders {
+                let message: [UInt8] = encodeMessageForTrade(
+                        price: order.price,
+                        expiryBuffer: order.expiry,
+                        indices: order.indices,
+                        contractAddress: order.contractAddress
+                )
+                messages.append(Data(bytes: message))
+            }
+        case .erc721, .nativeCryptocurrency, .erc20:
+            break
         }
+        return messages
+    }
 
+    private func bulkSignOrders(messages: [Data], account: EthereumAccount, orders: [Order]) throws -> [SignedOrder] {
+        var signedOrders = [SignedOrder]()
         let signatures = try! keyStore.signMessageBulk(messages, for: account).dematerialize()
         for i in 0..<signatures.count {
             let signedOrder = SignedOrder(
@@ -75,17 +97,16 @@ public class OrderHandler {
             )
             signedOrders.append(signedOrder)
         }
-
         return signedOrders
     }
 
     func encodeMessageForTrade(
             price: BigUInt,
             expiryBuffer: BigUInt,
-            tokens: [UInt16],
+            indices: [UInt16],
             contractAddress: AlphaWallet.Address
     ) -> [UInt8] {
-        let arrayLength: Int = 84 + tokens.count * 2
+        let arrayLength: Int = 84 + indices.count * 2
         var buffer = [UInt8]()
         buffer.reserveCapacity(arrayLength)
         let priceInWei = UniversalLinkHandler.padTo32(Array(price.serialize()))
@@ -94,8 +115,28 @@ public class OrderHandler {
         buffer.append(contentsOf: expiry)
         //no leading zeros issue here
         buffer.append(contentsOf: contractAddress.eip55String.hexa2Bytes)
-        let tokensUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: tokens)
+        let tokensUint8 = OrderHandler.uInt16ArrayToUInt8(arrayOfUInt16: indices)
         buffer.append(contentsOf: tokensUint8)
+        return buffer
+    }
+
+    func encodeMessageForTrade(
+            price: BigUInt,
+            expiryBuffer: BigUInt,
+            tokenIds: [BigUInt],
+            contractAddress: AlphaWallet.Address
+    ) -> [UInt8] {
+        let arrayLength: Int = 84 + tokenIds.count * 32
+        var buffer = [UInt8]()
+        buffer.reserveCapacity(arrayLength)
+        let priceInWei = Array(price.serialize())
+        let expiry = Array(expiryBuffer.serialize())
+        buffer.append(contentsOf: UniversalLinkHandler.padTo32(priceInWei))
+        buffer.append(contentsOf: UniversalLinkHandler.padTo32(expiry))
+        buffer.append(contentsOf: contractAddress.eip55String.hexa2Bytes)
+        for token in tokenIds {
+            buffer.append(contentsOf: UniversalLinkHandler.padTo32(token.serialize().array))
+        }
         return buffer
     }
 

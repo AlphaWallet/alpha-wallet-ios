@@ -52,9 +52,18 @@ public class UniversalLinkHandler {
     }
 
     //message is with 32 bytes each of price and expiry and is shortened for link
-    func createUniversalLink(signedOrder: SignedOrder) -> String {
+    func createUniversalLink(signedOrder: SignedOrder, tokenType: TokenType) -> String {
         let prefix = server.magicLinkPrefix.description
-        let message = formatMessageForLink(signedOrder: signedOrder)
+        let message: String
+        switch (tokenType) {
+        case .erc721ForTickets:
+            message = formatMessageForLink721Ticket(signedOrder: signedOrder)
+        case .erc875:
+            message = formatMessageForLink(signedOrder: signedOrder)
+        case .nativeCryptocurrency, .erc20, .erc721:
+            // Should never happen
+            return ""
+        }
         let signature = signedOrder.signature
         let link = (message + signature).hexa2Bytes
         let binaryData = Data(bytes: link)
@@ -220,6 +229,24 @@ public class UniversalLinkHandler {
         messageWithSzabo.append(contentsOf: expiryBytes)
         messageWithSzabo.append(contentsOf: signedOrder.order.contractAddress.data.bytes)
         messageWithSzabo.append(contentsOf: indices)
+        return Data(bytes: messageWithSzabo).hex()
+    }
+
+    private func formatMessageForLink721Ticket(signedOrder: SignedOrder) -> String {
+        guard let tokenIds = signedOrder.order.tokenIds else { return "" }
+        let tokens = tokenIds.map({ UniversalLinkHandler.padTo32($0.serialize().array) })
+        var messageWithSzabo = [UInt8]()
+        //change from wei to szabo
+        let priceSzabo = signedOrder.order.price / 1000000000000
+        let priceBytes = padTo4Bytes(priceSzabo.serialize().bytes)
+        let expiryBytes = padTo4Bytes(signedOrder.order.expiry.serialize().bytes)
+        messageWithSzabo.append(LinkFormat.spawnable.rawValue)
+        messageWithSzabo.append(contentsOf: priceBytes)
+        messageWithSzabo.append(contentsOf: expiryBytes)
+        messageWithSzabo.append(contentsOf: signedOrder.order.contractAddress.data.bytes)
+        for token in tokens {
+            messageWithSzabo.append(contentsOf: token)
+        }
         return Data(bytes: messageWithSzabo).hex()
     }
 

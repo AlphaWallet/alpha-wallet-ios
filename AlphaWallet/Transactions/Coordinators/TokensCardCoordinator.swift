@@ -255,21 +255,21 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func generateTransferLink(tokenHolder: TokenHolder, linkExpiryDate: Date, server: RPCServer) -> String {
         let order = Order(
-            price: BigUInt("0")!,
+            price: BigUInt(0),
             indices: tokenHolder.indices,
             expiry: BigUInt(Int(linkExpiryDate.timeIntervalSince1970)),
             contractAddress: tokenHolder.contractAddress,
             count: BigUInt(tokenHolder.indices.count),
             nonce: BigUInt(0),
-            tokenIds: [BigUInt](),
+            tokenIds: tokenHolder.tokenIds,
             spawnable: false,
             nativeCurrencyDrop: false
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
-        let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
-        return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0])
+        let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!, tokenType: tokenHolder.tokenType)
+        return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
 
     //note that the price must be in szabo for a sell link, price must be rounded
@@ -287,15 +287,15 @@ class TokensCardCoordinator: NSObject, Coordinator {
                 contractAddress: tokenHolder.contractAddress,
                 count: BigUInt(tokenHolder.indices.count),
                 nonce: BigUInt(0),
-                tokenIds: [BigUInt](),
+                tokenIds: tokenHolder.tokenIds,
                 spawnable: false,
                 nativeCurrencyDrop: false
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
         let account = try! EtherKeystore().getAccount(for: address!)
-        let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!)
-        return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0])
+        let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!, tokenType: tokenHolder.tokenType)
+        return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
 
     private func sellViaActivitySheet(tokenHolder: TokenHolder, linkExpiryDate: Date, ethCost: Ether, paymentFlow: PaymentFlow, in viewController: UIViewController, sender: UIView) {

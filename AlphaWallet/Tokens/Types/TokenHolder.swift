@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import BigInt
 
 class TokenHolder {
     let tokens: [Token]
@@ -22,8 +23,16 @@ class TokenHolder {
         self.hasAssetDefinition = hasAssetDefinition
     }
 
+    var tokenType: TokenType {
+        return tokens[0].tokenType
+    }
+
     var count: Int {
         return tokens.count
+    }
+
+    var tokenIds: [BigUInt] {
+        return tokens.map({ $0.id })
     }
 
     var indices: [UInt16] {

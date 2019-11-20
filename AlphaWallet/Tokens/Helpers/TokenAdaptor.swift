@@ -139,7 +139,7 @@ class TokenAdaptor {
 
     //TODO pass lang into here
     private func getToken(name: String, symbol: String, for id: BigUInt, index: UInt16, inWallet account: Wallet, server: RPCServer) -> Token {
-        return XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenId: id, index: index, inWallet: account, server: server)
+        return XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenId: id, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
     private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer) -> Token? {
@@ -165,6 +165,7 @@ class TokenAdaptor {
         }
         return Token(
                 id: BigUInt(nonFungible.tokenId)!,
+                tokenType: TokenType.erc721,
                 index: 0,
                 name: nonFungible.contractName,
                 symbol: "",
