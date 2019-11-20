@@ -6,6 +6,7 @@ import BigInt
 import KeychainSwift
 import Result
 import TrustWalletCore
+import web3swift
 
 enum EtherKeystoreError: LocalizedError {
     case protectionDisabled
@@ -262,10 +263,22 @@ open class EtherKeystore: Keystore {
         ethereumAddressesProtectedByUserPresence = updated
     }
 
-    func createAccount() -> Result<EthereumAccount, KeystoreError> {
+    private func generateMnemonic() -> String {
         let strength = Int32(128)
-        let newHdWallet = HDWallet(strength: strength, passphrase: emptyPassphrase)
-        let mnemonic = newHdWallet.mnemonic.split(separator: " ").map {
+        var newHdWallet: HDWallet
+        repeat {
+            newHdWallet = HDWallet(strength: strength, passphrase: emptyPassphrase)
+            let mnemonicIsGood = doesSeedMatchWalletAddress(mnemonic: newHdWallet.mnemonic)
+            if mnemonicIsGood {
+                break
+            }
+        } while true
+        return newHdWallet.mnemonic
+    }
+
+    func createAccount() -> Result<EthereumAccount, KeystoreError> {
+        let mnemonicString = generateMnemonic()
+        let mnemonic = mnemonicString.split(separator: " ").map {
             String($0)
         }
         let result = importWallet(type: .mnemonic(words: mnemonic, password: emptyPassphrase))
@@ -275,6 +288,25 @@ open class EtherKeystore: Keystore {
         case .failure:
             return .failure(.failedToCreateWallet)
         }
+    }
+
+    //Defensive check. Make sure mnemonic is OK and signs data correctly
+    private func doesSeedMatchWalletAddress(mnemonic: String) -> Bool {
+        let wallet = HDWallet(mnemonic: mnemonic, passphrase: emptyPassphrase)
+        guard wallet.mnemonic == mnemonic else { return false }
+        let seed = HDWallet.computeSeedWithChecksum(fromSeedPhrase: mnemonic)
+        let walletWhenImported = HDWallet(seed: seed, passphrase: emptyPassphrase)
+        //If seed phrase has a typo, the typo will be dropped and "abandon" added as the first word, deriving a different mnemonic silently. We don't want that to happen!
+        guard walletWhenImported.mnemonic == mnemonic else { return false }
+        let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: walletWhenImported)
+        let address = AlphaWallet.Address(fromPrivateKey: privateKey)
+        let testData = "any data will do here"
+        let hash = testData.data(using: .utf8)!.sha3(.keccak256)
+        //Do not use EthereumSigner.vitaliklizeConstant because the ECRecover implementation doesn't include it
+        guard let signature = try? EthereumSigner().sign(hash: hash, withPrivateKey: privateKey) else { return false }
+        guard let recoveredAddress = Web3.Utils.hashECRecover(hash: hash, signature: signature) else { return false }
+        //Make sure the wallet address (recoveredAddress) is what we think it is (address)
+        return address.sameContract(as: recoveredAddress.address)
     }
 
     private func derivePrivateKeyOfAccount0(fromHdWallet wallet: HDWallet) -> Data {
