@@ -220,6 +220,8 @@ open class EtherKeystore: Keystore {
             return .success(Wallet(type: .real(.init(address: address))))
         case .mnemonic(let mnemonic, _):
             let mnemonicString = mnemonic.joined(separator: " ")
+            let mnemonicIsGood = doesSeedMatchWalletAddress(mnemonic: mnemonicString)
+            guard mnemonicIsGood else { return .failure(.failedToCreateWallet) }
             let wallet = HDWallet(mnemonic: mnemonicString, passphrase: emptyPassphrase)
             let privateKey = derivePrivateKeyOfAccount0(fromHdWallet: wallet)
             let address = AlphaWallet.Address(fromPrivateKey: privateKey)
