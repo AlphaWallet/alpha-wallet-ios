@@ -1,5 +1,4 @@
 // Copyright © 2018 Stormbird PTE. LTD.
-
 import UIKit
 
 struct StatusViewControllerViewModel {
@@ -41,7 +40,7 @@ struct StatusViewControllerViewModel {
 		return Colors.appWhite
 	}
 	var actionButtonBackgroundColor: UIColor {
-		return Colors.appBackground
+		return Colors.appActionButtonGreen
 	}
 	var actionButtonTitleFont: UIFont {
 		return Fonts.regular(size: 20)!
