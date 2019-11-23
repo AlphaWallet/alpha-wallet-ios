@@ -23,7 +23,7 @@ class GetERC721ForTicketsBalanceCoordinator {
 
     private func adapt(_ values: Any?) -> [String] {
         guard let array = values as? [BigUInt] else { return [] }
-        return array.map { each in
+        return array.filter({ $0 != BigUInt(0) }).map { each in
             let value = each.serialize().hex()
             return "0x\(value)"
         }
