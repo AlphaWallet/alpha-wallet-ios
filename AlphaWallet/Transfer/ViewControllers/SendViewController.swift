@@ -315,8 +315,8 @@ extension SendViewController: QRCodeReaderDelegate {
         }
         guard let result = QRCodeValueParser.from(string: result) else { return }
         switch result {
-        case .address:
-            break
+        case .address(let recipient):
+            configureFor(contract: transferType.contract, recipient: .address(recipient), amount: "")
         case .eip681(let protocolName, let address, let functionName, let params):
             checkAndFillEIP681Details(protocolName: protocolName, address: address, functionName: functionName, params: params)
         }
