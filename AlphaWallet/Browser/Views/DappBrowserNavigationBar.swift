@@ -110,6 +110,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         forwardButton.setImage(R.image.toolbarForward(), for: .normal)
         forwardButton.addTarget(self, action: #selector(goForwardAction), for: .touchUpInside)
 
+        cancelEditingButton.setTitleColor(Colors.navigationTitleColor, for: .normal)
         //compression and hugging priority required to make cancel button appear reliably yet not be too wide
         cancelEditingButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         cancelEditingButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
