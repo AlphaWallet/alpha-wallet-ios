@@ -376,26 +376,9 @@ private class PrivateXMLHandler {
         if fields.isEmpty {
             values = .init()
         } else {
-            if let cachedAttributes = getValuesFromCache(forTokenId: tokenId) {
-                values = cachedAttributes
-
-                //TODO get rid of the forced unwrap
-                let callForAssetAttributeCoordinator = (XMLHandler.callForAssetAttributeCoordinators?[server])!
-                for (attributeId, value) in cachedAttributes {
-                    guard let subscribable = value.subscribableValue else { continue }
-                    guard let attribute = fields[attributeId] else { continue }
-                    let syntaxValue = attribute.value(from: tokenId, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, userEntryValues: .init(), tokenLevelNonSubscribableAttributesAndValues: .init())
-                    syntaxValue.subscribableValue?.subscribeOnce { resolvedValue in
-                        guard let cache = self.assetDefinitionStore?.assetAttributesCache else { return }
-                        cache.cache(attribute: attribute, attributeId: attributeId, value: resolvedValue, forContract: self.contractAddress, tokenId: tokenId)
-                        subscribable.value = resolvedValue
-                    }
-                }
-
-            } else {
-                values = resolveAttributesBypassingCache(withTokenId: tokenId, server: server, account: account)
-                cache(attributeValues: values, forTokenId: tokenId)
-            }
+            //TODO read from cache again, perhaps based on a timeout/TTL for each attribute. There was a bug with reading from cache sometimes. e.g. cache a token with 8 token origin attributes and 1 function origin attribute and when displaying it and reading from the cache, sometimes it'll only return the 1 function origin attribute in the cache
+            values = resolveAttributesBypassingCache(withTokenId: tokenId, server: server, account: account)
+            cache(attributeValues: values, forTokenId: tokenId)
         }
         return Token(
                 id: tokenId,
