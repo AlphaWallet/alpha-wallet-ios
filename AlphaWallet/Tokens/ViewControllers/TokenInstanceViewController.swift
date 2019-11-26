@@ -228,8 +228,14 @@ extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSourc
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        viewModel.toggleSelection(for: indexPath)
-        configure()
+        //We don't allow user to toggle (despite it not doing anything) for non-opensea-backed tokens because it will cause TokenScript views to flash as they have to be re-rendered
+        switch OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+        case .backedByOpenSea:
+            viewModel.toggleSelection(for: indexPath)
+            configure()
+        case .notBackedByOpenSea:
+            break
+        }
     }
 }
 
