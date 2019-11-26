@@ -18,6 +18,5 @@ class GetIsERC721ForTicketsContractCoordinator {
                 completion(.success(false))
             }
         }
-        completion(.success(false))
     }
 }
