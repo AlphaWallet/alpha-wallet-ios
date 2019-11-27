@@ -278,6 +278,7 @@
 		5E7C724638271FD2FA0EB93C /* BaseTokenListFormatTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C734D61C0347C1638A1F7 /* BaseTokenListFormatTableViewCell.swift */; };
 		5E7C725AC96979DEF4DE8B85 /* ConvertSVGToPNG.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BCCCFE7B99162518FB7 /* ConvertSVGToPNG.swift */; };
 		5E7C72670E16AFB8DAF64673 /* OnboardingPageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7E24936CC2190D2A16C2 /* OnboardingPageViewModel.swift */; };
+		5E7C726DE238609C1FB2E320 /* Constants+Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C73883FBA3C4BAF889E97 /* Constants+Credentials.swift */; };
 		5E7C728CDF33FBDBA47F71A6 /* MarketplaceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C794F8EBAEE5E8F2821C2 /* MarketplaceViewController.swift */; };
 		5E7C729D43F311810652B1D5 /* UIActivityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78E5C8FAEA752B32626D /* UIActivityViewController.swift */; };
 		5E7C729FA0EC60113B031391 /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C772DC28C5110021894E3 /* ImageCache.swift */; };
@@ -982,6 +983,7 @@
 		5E7C734D61C0347C1638A1F7 /* BaseTokenListFormatTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseTokenListFormatTableViewCell.swift; sourceTree = "<group>"; };
 		5E7C7375430F36C549EA8748 /* DappsHomeViewControllerHeaderViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeViewControllerHeaderViewViewModel.swift; sourceTree = "<group>"; };
 		5E7C7382EAC8B9CE5EE0668D /* OpenSeaNonFungible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSeaNonFungible.swift; sourceTree = "<group>"; };
+		5E7C73883FBA3C4BAF889E97 /* Constants+Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Constants+Credentials.swift"; sourceTree = "<group>"; };
 		5E7C739774984CDE1D3D7555 /* VerifySeedPhraseViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerifySeedPhraseViewModel.swift; sourceTree = "<group>"; };
 		5E7C73BA4FF25754ACB41255 /* CreateInitialWalletViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateInitialWalletViewModel.swift; sourceTree = "<group>"; };
 		5E7C73CC82B9877AF4A42333 /* ShowSeedPhraseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShowSeedPhraseViewController.swift; sourceTree = "<group>"; };
@@ -2484,6 +2486,7 @@
 				5E7C7B29A9E728402D144C05 /* AppLocale.swift */,
 				5E7C7287B9288EAA0D66BAC4 /* PreferenceOption.swift */,
 				5E7C7F1B66DB15E6167416F8 /* SearchEngine.swift */,
+				5E7C73883FBA3C4BAF889E97 /* Constants+Credentials.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -4388,6 +4391,7 @@
 				8499D8751F2D70FBD13F3C93 /* GetERC721ForTicketsBalance.swift in Sources */,
 				8499D235831FBC245735B2C7 /* GetInterfaceSupported165Encode.swift in Sources */,
 				8499DAB3D06965FDC1E8FCAF /* GetInterfaceSupported165Coordinator.swift in Sources */,
+				5E7C726DE238609C1FB2E320 /* Constants+Credentials.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
