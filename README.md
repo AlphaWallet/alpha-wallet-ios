@@ -14,6 +14,20 @@
 2. Clone this repository and get the submodules with: git submodule init && git submodule update.
 3. Run `make bootstrap` to install tools and dependencies.
 
+## Replace API Keys
+
+API keys are stored in the file `AlphaWallet/Settings/Types/Constants+Credentials.swift`. You can replace the keys for your own build. Tell git to ignore changes to that file by running:
+
+```
+git update-index --assume-unchanged AlphaWallet/Settings/Types/Constants+Credentials.swift
+```
+
+Undo this with:
+
+```
+git update-index --no-assume-unchanged AlphaWallet/Settings/Types/Constants+Credentials.swift
+```
+
 ## Contributing
 
 The best way to submit feedback and report bugs is to open a GitHub issue.

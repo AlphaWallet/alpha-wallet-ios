@@ -243,15 +243,15 @@ enum RPCServer: Hashable, CaseIterable {
     var rpcURL: URL {
         let urlString: String = {
             switch self {
-            case .main: return "https://mainnet.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
+            case .main: return "https://mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .classic: return "https://ethereumclassic.network"
             case .callisto: return "https://callisto.network/" //TODO Add endpoint
-            case .kovan: return "https://kovan.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
-            case .ropsten: return "https://ropsten.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
-            case .rinkeby: return "https://rinkeby.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
+            case .kovan: return "https://kovan.infura.io/v3/\(Constants.Credentials.infuraKey)"
+            case .ropsten: return "https://ropsten.infura.io/v3/\(Constants.Credentials.infuraKey)"
+            case .rinkeby: return "https://rinkeby.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .poa: return "https://core.poa.network"
             case .sokol: return "https://sokol.poa.network"
-            case .goerli: return "https://goerli.infura.io/v3/da3717f25f824cc1baa32d812386d93f"
+            case .goerli: return "https://goerli.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .xDai: return "https://dai.poa.network"
             case .artis_sigma1: return "https://rpc.sigma1.artis.network"
             case .artis_tau1: return "https://rpc.tau1.artis.network"
