@@ -248,13 +248,14 @@ class SingleChainTokenCoordinator: Coordinator {
         }
     }
 
-    private func addToken(for contract: AlphaWallet.Address, completion: @escaping () -> Void) {
+    private func addToken(for contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false, completion: @escaping () -> Void) {
         fetchContractData(for: contract) { [weak self] data in
             guard let strongSelf = self else { return }
             switch data {
             case .name, .symbol, .balance, .decimals:
                 break
             case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
+                guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !balance.isEmpty) else { break }
                 let token = ERCToken(
                         contract: contract,
                         server: strongSelf.session.server,
@@ -269,6 +270,7 @@ class SingleChainTokenCoordinator: Coordinator {
             case .fungibleTokenComplete(let name, let symbol, let decimals):
                 //We re-use the existing balance value to avoid the Wallets tab showing that token (if it already exist) as balance = 0 momentarily
                 let value = strongSelf.storage.enabledObject.first(where: { $0.contractAddress == contract })?.value ?? "0"
+                guard !onlyIfThereIsABalance || (onlyIfThereIsABalance && !(value != "0")) else { break }
                 let token = TokenObject(
                         contract: contract,
                         server: strongSelf.session.server,
@@ -293,9 +295,9 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     //Adding a token may fail if we lose connectivity while fetching the contract details (e.g. name and balance). So we remove the contract from the hidden list (if it was there) so that the app has the chance to add it automatically upon auto detection at startup
-    func addImportedToken(forContract contract: AlphaWallet.Address) {
+    func addImportedToken(forContract contract: AlphaWallet.Address, onlyIfThereIsABalance: Bool = false) {
         delete(hiddenContract: contract)
-        addToken(for: contract) { [weak self] in
+        addToken(for: contract, onlyIfThereIsABalance: onlyIfThereIsABalance) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
         }
