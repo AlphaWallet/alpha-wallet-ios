@@ -9,6 +9,7 @@ protocol TokenCardRowViewProtocol {
     var tokenView: TokenView { get set }
     var showCheckbox: Bool { get set }
     var areDetailsVisible: Bool { get set }
+    var additionalHeightToCompensateForAutoLayout: CGFloat { get }
 
     func configure(tokenHolder: TokenHolder, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore)
 }

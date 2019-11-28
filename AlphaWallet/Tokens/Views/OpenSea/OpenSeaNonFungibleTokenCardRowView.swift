@@ -8,6 +8,9 @@ protocol OpenSeaNonFungibleTokenCardRowViewDelegate: class {
 }
 
 class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
+    private static let xMargin = CGFloat(7)
+    private static let yMargin = CGFloat(5)
+
     private let mainVerticalStackView: UIStackView = [].asStackView(axis: .vertical, contentHuggingPriority: .required)
     private let thumbnailImageView = UIImageView()
     private let bigImageBackground = UIView()
@@ -92,6 +95,14 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
     private var currentDisplayedImageUrl: URL?
     private var checkboxRelatedConstraintsWhenShown = [NSLayoutConstraint]()
     private var checkboxRelatedConstraintsWhenHidden = [NSLayoutConstraint]()
+    //Hackish: To get the width of the descriptionLabel in order to calculate the correct height
+    private var descriptionLabelWidth: CGFloat {
+        if let fullWidth = viewModel?.width {
+            return fullWidth - OpenSeaNonFungibleTokenCardRowView.xMargin * 2 - outerHorizontalMargin
+        } else {
+            return 0
+        }
+    }
 
     var background = UIView()
     var stateLabel = UILabel()
@@ -106,6 +117,17 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
                 NSLayoutConstraint.deactivate(checkboxRelatedConstraintsWhenShown)
                 NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenHidden)
             }
+        }
+    }
+    var additionalHeightToCompensateForAutoLayout: CGFloat {
+        guard let attributedText = descriptionLabel.attributedText else { return 0 }
+        let rect = attributedText.boundingRect(with: .init(width: descriptionLabelWidth, height: 1000), options: .usesLineFragmentOrigin, context: nil)
+        let size = rect.size
+        //Hackish: Add a bit of allowance. Otherwise it's good for CryptoKitties, but there's no enough space for Chibi Fighters' title
+        if size.height > 0 {
+            return size.height + 10
+        } else {
+            return 0
         }
     }
     //Just to adhere to protocol
@@ -165,8 +187,10 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
             generationStackView,
             cooldownStackView
         ])
+        titleLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        descriptionLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
-        let col0 = [
+        let col0: UIStackView = [
             spacers.aboveTitle,
             stateLabel,
             spacers.belowState,
@@ -213,11 +237,9 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         background.addSubview(mainVerticalStackView)
 
         // TODO extract constant. Maybe StyleLayout.sideMargin
-        let xMargin = CGFloat(7)
-        let yMargin = CGFloat(5)
-        checkboxRelatedConstraintsWhenShown.append(checkboxImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
+        checkboxRelatedConstraintsWhenShown.append(checkboxImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: OpenSeaNonFungibleTokenCardRowView.xMargin))
         checkboxRelatedConstraintsWhenShown.append(checkboxImageView.centerYAnchor.constraint(equalTo: centerYAnchor))
-        checkboxRelatedConstraintsWhenShown.append(background.leadingAnchor.constraint(equalTo: checkboxImageView.trailingAnchor, constant: xMargin))
+        checkboxRelatedConstraintsWhenShown.append(background.leadingAnchor.constraint(equalTo: checkboxImageView.trailingAnchor, constant: OpenSeaNonFungibleTokenCardRowView.xMargin))
         if ScreenChecker().isNarrowScreen {
             checkboxRelatedConstraintsWhenShown.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 20))
             checkboxRelatedConstraintsWhenShown.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 20))
@@ -226,7 +248,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
             checkboxRelatedConstraintsWhenShown.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 28))
             checkboxRelatedConstraintsWhenShown.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 28))
         }
-        checkboxRelatedConstraintsWhenHidden.append(background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
+        checkboxRelatedConstraintsWhenHidden.append(background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: OpenSeaNonFungibleTokenCardRowView.xMargin))
         if showCheckbox {
             NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenShown)
         } else {
@@ -261,9 +283,9 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         NSLayoutConstraint.activate([
             mainVerticalStackView.anchorsConstraint(to: background, edgeInsets: .init(top: marginForBigImageView, left: 0, bottom: 0, right: 0)),
 
-            background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-            background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-            background.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -yMargin),
+            background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -OpenSeaNonFungibleTokenCardRowView.xMargin),
+            background.topAnchor.constraint(equalTo: topAnchor, constant: OpenSeaNonFungibleTokenCardRowView.yMargin),
+            background.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -OpenSeaNonFungibleTokenCardRowView.yMargin),
 
             stateLabel.heightAnchor.constraint(equalToConstant: 22),
 
@@ -436,6 +458,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
                 descriptionLabel.attributedText = viewModel.descriptionWithoutConvertingHtml
             }
         }
+        descriptionLabel.preferredMaxLayoutWidth = descriptionLabelWidth
 
         titleLabel.text = viewModel.title
 
