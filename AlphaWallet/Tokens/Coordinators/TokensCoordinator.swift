@@ -98,6 +98,7 @@ class TokensCoordinator: Coordinator {
             each.start()
         }
         addDiscoveryToken()
+        addUefaTokenIfAny()
         showTokens()
     }
 
@@ -126,6 +127,12 @@ class TokensCoordinator: Coordinator {
         let server = RPCServer(chainID: 1)
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
         coordinator.addImportedToken(forContract: Constants.discoveryContractAddress)
+    }
+
+    func addUefaTokenIfAny() {
+        let server = Constants.uefaRpcServer
+        guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
+        coordinator.addImportedToken(forContract: Constants.uefaRopsten, onlyIfThereIsABalance: true)
     }
 
     private func createNewTokenViewController() -> NewTokenViewController {
