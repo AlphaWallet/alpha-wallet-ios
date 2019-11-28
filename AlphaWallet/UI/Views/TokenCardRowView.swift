@@ -68,6 +68,9 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			detailsRowStack?.isHidden = !areDetailsVisible
 		}
 	}
+	var additionalHeightToCompensateForAutoLayout: CGFloat {
+		return 0
+	}
 
 	init(server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore) {
 		self.server = server
