@@ -133,7 +133,7 @@ private class Dialog: UIView {
 
         buttonsBar.configure()
         let continueButton = buttonsBar.buttons[0]
-        continueButton.setTitle("Continue".localizedUppercase, for: .normal)
+        continueButton.setTitle(R.string.localizable.continue().localizedUppercase, for: .normal)
         continueButton.addTarget(self, action: #selector(hide), for: .touchUpInside)
     }
 
