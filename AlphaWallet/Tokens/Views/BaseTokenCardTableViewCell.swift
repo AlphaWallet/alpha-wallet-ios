@@ -89,18 +89,11 @@ class BaseTokenCardTableViewCell: UITableViewCell {
         rowView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(rowView)
 
-        //Needs to for expanded view to be laid out with correct height, but cell might be too short
-        let getExpandedHeightCorrectConstraint = rowView.bottomAnchor.constraint(greaterThanOrEqualTo: contentView.bottomAnchor, constant: -GroupedTable.Metric.cellSeparatorHeight)
-        //Gets cell height correct, compensating the constraint above
-        let getCellHeightCorrectConstraint = rowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -GroupedTable.Metric.cellSeparatorHeight)
-        getCellHeightCorrectConstraint.priority = .fittingSizeLevel
-
         NSLayoutConstraint.activate([
             rowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             rowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             rowView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: GroupedTable.Metric.cellSpacing + GroupedTable.Metric.cellSeparatorHeight),
-            getExpandedHeightCorrectConstraint,
-            getCellHeightCorrectConstraint,
+            rowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -GroupedTable.Metric.cellSeparatorHeight)
         ])
     }
 }

@@ -24,6 +24,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     //TODO single row. Don't use table anymore
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(numberOfButtons: 3)
+    private let cellForSizing = TokenCardTableViewCellWithoutCheckbox()
 
     var tokenHolder: TokenHolder {
         return viewModel.tokenHolder
@@ -208,8 +209,34 @@ extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSourc
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .view)
         let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithoutCheckbox
+        configure(cell: cell)
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //We don't allow user to toggle (despite it not doing anything) for non-opensea-backed tokens because it will cause TokenScript views to flash as they have to be re-rendered
+        switch OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
+        case .backedByOpenSea:
+            viewModel.toggleSelection(for: indexPath)
+            configure()
+        case .notBackedByOpenSea:
+            break
+        }
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        configure(cell: cellForSizing)
+        let size = cellForSizing.systemLayoutSizeFitting(UIView.layoutFittingExpandedSize)
+        if let rowView = cellForSizing.rowView {
+            return size.height + rowView.additionalHeightToCompensateForAutoLayout
+        } else {
+            return size.height
+        }
+    }
+
+    private func configure(cell: TokenCardTableViewCellWithoutCheckbox) {
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .view)
         let rowView: TokenCardRowViewProtocol & UIView
         switch tokenType {
         case .backedByOpenSea:
@@ -224,18 +251,6 @@ extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSourc
         cell.delegate = self
         cell.rowView = rowView
         cell.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .view), assetDefinitionStore: assetDefinitionStore)
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //We don't allow user to toggle (despite it not doing anything) for non-opensea-backed tokens because it will cause TokenScript views to flash as they have to be re-rendered
-        switch OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
-        case .backedByOpenSea:
-            viewModel.toggleSelection(for: indexPath)
-            configure()
-        case .notBackedByOpenSea:
-            break
-        }
     }
 }
 
