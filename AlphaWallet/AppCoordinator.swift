@@ -24,6 +24,16 @@ class AppCoordinator: NSObject, Coordinator {
     private var universalLinkCoordinator: UniversalLinkCoordinator? {
         return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
     }
+    //We use the existence of realm databases as a heuristic to determine if there are wallets (including watched ones)
+    private var hasRealmDatabasesForWallet: Bool {
+        let documentsDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
+        if let contents = (try? FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil))?.filter({ $0.lastPathComponent.starts(with: "0") }) {
+            return !contents.isEmpty
+        } else {
+            //No reason why it should come here
+            return false
+        }
+    }
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -40,11 +50,55 @@ class AppCoordinator: NSObject, Coordinator {
         self.keystore = keystore
         self.window = window
         super.init()
-        window.rootViewController = navigationController
+        window.rootViewController = createTemporarySpashScreen()
         window.makeKeyAndVisible()
     }
 
+    private func createTemporarySpashScreen() -> UIViewController {
+        let vc = UIViewController()
+        vc.view.backgroundColor = .white
+        let lockView = SplashView()
+        lockView.translatesAutoresizingMaskIntoConstraints = false
+        vc.view.addSubview(lockView)
+        NSLayoutConstraint.activate([
+            lockView.anchorsConstraint(to: vc.view)
+        ])
+        return vc
+    }
+
     func start() {
+        if isRunningTests() {
+            startImpl()
+        } else {
+            DispatchQueue.main.async {
+                let succeeded = self.startImpl()
+                if succeeded {
+                    return
+                } else {
+                    self.retryStart()
+                }
+            }
+        }
+    }
+
+    private func retryStart() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let succeeded = self.startImpl()
+            if succeeded {
+                return
+            } else {
+                self.retryStart()
+            }
+        }
+    }
+
+    //This function exist to handle what we think is a rare (but hard to reproduce) occurrence that NSUserDefaults are not accessible for a short while during startup. If that happens, we delay the "launch" and check again. If the app is killed by the iOS launch time watchdog, so be it. Better than to let the user create a wallet and wipe the list of wallets and lose access
+    private func startImpl() -> Bool {
+        if hasRealmDatabasesForWallet && !keystore.hasWallets && !isRunningTests() {
+            return false
+        }
+
+        window.rootViewController = navigationController
         initializers()
         appTracker.start()
         handleNotifications()
@@ -60,6 +114,7 @@ class AppCoordinator: NSObject, Coordinator {
         }
 
         assetDefinitionStore.delegate = self
+        return true
     }
 
     private func migrateToStoringRawPrivateKeysInKeychain() {
