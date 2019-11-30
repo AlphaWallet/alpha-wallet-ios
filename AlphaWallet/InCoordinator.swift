@@ -137,8 +137,8 @@ class InCoordinator: NSObject, Coordinator {
     private func oneTimeCreationOfOneDatabaseToHoldAllChains() {
         let migration = MigrationInitializer(account: wallet)
         //Debugging
-        print(migration.config.fileURL!.path)
-        print(migration.config.fileURL!.deletingLastPathComponent().path)
+        print(migration.config.fileURL!)
+        print(migration.config.fileURL!.deletingLastPathComponent())
         let exists: Bool
         if let path = migration.config.fileURL?.path {
             exists = FileManager.default.fileExists(atPath: path)
