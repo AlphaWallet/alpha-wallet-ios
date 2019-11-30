@@ -12,7 +12,6 @@ class AppCoordinatorTests: XCTestCase {
         )
         
         coordinator.start()
-
         XCTAssertTrue(coordinator.navigationController.viewControllers[0] is WelcomeViewController)
     }
     
