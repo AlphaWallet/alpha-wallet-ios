@@ -45,7 +45,7 @@ class ElevateWalletSecurityViewController: UIViewController {
             subtitleLabel,
             UIView.spacer(height: 40),
             imageView,
-            UIView.spacer(height: 40),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 15 : 40),
             descriptionLabel,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
