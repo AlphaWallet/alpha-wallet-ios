@@ -12,7 +12,7 @@ class TokenViewControllerHeaderView: UIView {
     private let contract: AlphaWallet.Address
     private let recentTransactionsLabel = UILabel()
     private let recentTransactionsLabelBorders = (top: UIView(), bottom: UIView())
-    private let spacers = (beforeTokenScriptFileStatus: UIView.spacer(height: 20))
+    private let spacers = (UIView.spacer(height: 20))
     private let tokenScriptFileStatusStackView = [].asStackView()
 
     let sendHeaderView = SendHeaderView()
@@ -22,7 +22,7 @@ class TokenViewControllerHeaderView: UIView {
                 each.removeFromSuperview()
             }
             tokenScriptFileStatusStackView.isHidden = true
-            spacers.beforeTokenScriptFileStatus.isHidden = true
+            spacers.isHidden = true
             guard let tokenScriptFileStatus = tokenScriptFileStatus else { return }
             switch tokenScriptFileStatus {
             case .type0NoTokenScript:
@@ -31,7 +31,7 @@ class TokenViewControllerHeaderView: UIView {
                 let button = createTokenScriptFileStatusButton(withStatus: tokenScriptFileStatus, urlOpener: self)
                 tokenScriptFileStatusStackView.addArrangedSubviews([.spacerWidth(37), button, .spacerWidth(1, flexible: true)])
                 tokenScriptFileStatusStackView.isHidden = false
-                spacers.beforeTokenScriptFileStatus.isHidden = false
+                spacers.isHidden = false
             }
         }
     }
@@ -49,7 +49,7 @@ class TokenViewControllerHeaderView: UIView {
         recentTransactionsLabelHolder.addSubview(recentTransactionsLabel)
 
         let stackView = [
-            spacers.beforeTokenScriptFileStatus,
+            spacers,
             tokenScriptFileStatusStackView,
             sendHeaderView,
             recentTransactionsLabelBorders.top,
