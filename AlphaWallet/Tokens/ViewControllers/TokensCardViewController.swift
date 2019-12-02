@@ -318,7 +318,11 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
         case .backedByOpenSea:
             rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified, showCheckbox: cell.showCheckbox())
         case .notBackedByOpenSea:
-            rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
+            rowView = {
+                let rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
+                rowView.delegate = self
+                return rowView
+            }()
         }
         cell.delegate = self
         cell.rowView = rowView
@@ -386,5 +390,15 @@ extension TokensCardViewController: UIViewControllerPreviewingDelegate {
 extension TokensCardViewController: TokenCardsViewControllerHeaderDelegate {
     func didPressViewContractWebPage(inHeaderView: TokenCardsViewControllerHeader) {
         showContractWebPage()
+    }
+}
+
+extension TokensCardViewController: TokenCardRowViewDelegate {
+    func heightChangedFor(tokenCardRowView: TokenCardRowView) {
+        //Important to not reload the cell because that will trigger an infinite recursion as the height will be calculated again and this func fired again
+        UIView.setAnimationsEnabled(false)
+        tableView.beginUpdates()
+        tableView.endUpdates()
+        UIView.setAnimationsEnabled(true)
     }
 }

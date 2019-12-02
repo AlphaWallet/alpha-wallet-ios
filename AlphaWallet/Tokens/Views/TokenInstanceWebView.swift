@@ -10,6 +10,7 @@ protocol TokenInstanceWebViewDelegate: class {
     //TODO not good. But quick and dirty to ship
     func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController?
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView)
+    func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView)
 }
 
 
@@ -168,6 +169,7 @@ class TokenInstanceWebView: UIView {
 
     private func makeIntroductionWebViewFullHeight() {
         heightConstraint.constant = webView.scrollView.contentSize.height
+        delegate?.heightChangedFor(tokenInstanceWebView: self)
     }
 }
 

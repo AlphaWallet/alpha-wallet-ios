@@ -3,6 +3,10 @@
 import UIKit
 import WebKit
 
+protocol TokenCardRowViewDelegate {
+    func heightChangedFor(tokenCardRowView: TokenCardRowView)
+}
+
 class TokenCardRowView: UIView, TokenCardRowViewProtocol {
     private let server: RPCServer
 	private let assetDefinitionStore: AssetDefinitionStore
@@ -43,9 +47,12 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 		//TODO pass in keystore or wallet address instead
 		let walletAddress = EtherKeystore.current!.address
 		//TODO this can't sign personal message because we didn't set a delegate, but we don't need it also
-		return TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
+		let webView = TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
+		webView.delegate = self
+		return webView
 	}()
 
+	var delegate: TokenCardRowViewDelegate?
 	let background = UIView()
 	var checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
 	var stateLabel = UILabel()
@@ -271,5 +278,19 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 extension TokenCardRowView: TokenRowView {
 	func configure(tokenHolder: TokenHolder) {
 		configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
+	}
+}
+
+extension TokenCardRowView: TokenInstanceWebViewDelegate {
+	func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController? {
+		return nil
+	}
+
+	func shouldClose(tokenInstanceWebView: TokenInstanceWebView) {
+        //no-op
+	}
+
+	func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView) {
+        delegate?.heightChangedFor(tokenCardRowView: self)
 	}
 }
