@@ -52,6 +52,12 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 		return webView
 	}()
 
+    //These are necessary because non-TokenScript views have margins whereas TokenScript views doesn't
+	private var constraintsWithLeadingMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
+	private var constraintsWithTrailingMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
+	private var constraintsWithTopMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
+	private var constraintsWithBottomMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
+
 	var delegate: TokenCardRowViewDelegate?
 	let background = UIView()
 	var checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
@@ -122,9 +128,25 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 
 		nativelyRenderedAttributeViews = [stateLabel, row0, row1, spaceAboveBottomRowStack, row3, detailsRowStack!]
 
+		constraintsWithLeadingMarginsThatDependsOnWhetherTokenScriptIsUsed = [
+			stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor),
+		]
+		constraintsWithTrailingMarginsThatDependsOnWhetherTokenScriptIsUsed = [
+			background.trailingAnchor.constraint(equalTo: trailingAnchor),
+			stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor),
+		]
+
+		constraintsWithTopMarginsThatDependsOnWhetherTokenScriptIsUsed = [
+			background.topAnchor.constraint(equalTo: topAnchor),
+			stackView.topAnchor.constraint(equalTo: background.topAnchor),
+		]
+		constraintsWithBottomMarginsThatDependsOnWhetherTokenScriptIsUsed = [
+			background.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor),
+			stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor),
+		]
+
 		// TODO extract constant. Maybe StyleLayout.sideMargin
 		let xMargin  = CGFloat(7)
-		let yMargin  = CGFloat(5)
 		checkboxRelatedConstraintsWhenShown.append(checkboxImageView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
 		checkboxRelatedConstraintsWhenShown.append(checkboxImageView.centerYAnchor.constraint(equalTo: centerYAnchor))
 		checkboxRelatedConstraintsWhenShown.append(background.leadingAnchor.constraint(equalTo: checkboxImageView.trailingAnchor, constant: xMargin))
@@ -136,7 +158,9 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			checkboxRelatedConstraintsWhenShown.append(checkboxImageView.widthAnchor.constraint(equalToConstant: 28))
 			checkboxRelatedConstraintsWhenShown.append(checkboxImageView.heightAnchor.constraint(equalToConstant: 28))
 		}
-		checkboxRelatedConstraintsWhenHidden.append(background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: xMargin))
+		let c1 = background.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 0)
+        constraintsWithLeadingMarginsThatDependsOnWhetherTokenScriptIsUsed.append(c1)
+		checkboxRelatedConstraintsWhenHidden.append(c1)
 		if showCheckbox {
 			NSLayoutConstraint.activate(checkboxRelatedConstraintsWhenShown)
 		} else {
@@ -144,16 +168,12 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 		}
 
 		NSLayoutConstraint.activate([
-			stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 21),
-			stackView.trailingAnchor.constraint(equalTo: background.trailingAnchor, constant: -21),
-			stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
-			stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
-
 			detailsRowStack!.widthAnchor.constraint(equalTo: stackView.widthAnchor),
 
-			background.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -xMargin),
-			background.topAnchor.constraint(equalTo: topAnchor, constant: yMargin),
-			background.bottomAnchor.constraint(lessThanOrEqualTo: bottomAnchor, constant: -yMargin),
+			constraintsWithLeadingMarginsThatDependsOnWhetherTokenScriptIsUsed,
+			constraintsWithTrailingMarginsThatDependsOnWhetherTokenScriptIsUsed,
+			constraintsWithTopMarginsThatDependsOnWhetherTokenScriptIsUsed,
+			constraintsWithBottomMarginsThatDependsOnWhetherTokenScriptIsUsed,
 
 			tokenScriptRendererView.widthAnchor.constraint(equalTo: stackView.widthAnchor),
 
@@ -264,6 +284,35 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			//TODO we can't change it here. Because it is set (correctly) earlier. Fix this inconsistency
 //			canDetailsBeVisible = true
 			tokenScriptRendererView.isHidden = true
+		}
+
+		for each in constraintsWithLeadingMarginsThatDependsOnWhetherTokenScriptIsUsed {
+			if viewModel.hasTokenScriptHtml {
+				each.constant = 0
+			} else {
+				each.constant = 7
+			}
+		}
+		for each in constraintsWithTrailingMarginsThatDependsOnWhetherTokenScriptIsUsed {
+			if viewModel.hasTokenScriptHtml {
+				each.constant = 0
+			} else {
+				each.constant = -7
+			}
+		}
+		for each in constraintsWithTopMarginsThatDependsOnWhetherTokenScriptIsUsed {
+			if viewModel.hasTokenScriptHtml {
+				each.constant = 0
+			} else {
+				each.constant = 5
+			}
+		}
+		for each in constraintsWithBottomMarginsThatDependsOnWhetherTokenScriptIsUsed {
+			if viewModel.hasTokenScriptHtml {
+				each.constant = 0
+			} else {
+				each.constant = -5
+			}
 		}
 
 		adjustmentsToHandleWhenCategoryLabelTextIsTooLong()
