@@ -88,12 +88,14 @@ class BaseTokenCardTableViewCell: UITableViewCell {
 
         rowView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(rowView)
+        var rowHeightConstraint = rowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -GroupedTable.Metric.cellSeparatorHeight)
+        rowHeightConstraint.priority = .defaultHigh
 
         NSLayoutConstraint.activate([
             rowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             rowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             rowView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: GroupedTable.Metric.cellSpacing + GroupedTable.Metric.cellSeparatorHeight),
-            rowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -GroupedTable.Metric.cellSeparatorHeight)
+            rowHeightConstraint
         ])
     }
 }
