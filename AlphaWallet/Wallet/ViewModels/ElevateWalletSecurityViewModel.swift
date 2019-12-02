@@ -51,7 +51,11 @@ struct ElevateWalletSecurityViewModel {
     }
 
     var descriptionFont: UIFont {
-        return Fonts.regular(size: 20)!
+        if ScreenChecker().isNarrowScreen {
+            return Fonts.regular(size: 16)!
+        } else {
+            return Fonts.regular(size: 20)!
+        }
     }
 
     var cancelLockingButtonFont: UIFont {
