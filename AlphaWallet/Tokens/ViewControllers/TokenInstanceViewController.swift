@@ -227,7 +227,8 @@ extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSourc
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         configure(cell: cellForSizing)
-        let size = cellForSizing.systemLayoutSizeFitting(UIView.layoutFittingExpandedSize)
+        //Have to be careful that height is calculated correctly for OpenSea-backed tokens (both expanded and minimized) as well as TokenScript views
+        let size = cellForSizing.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         if let rowView = cellForSizing.rowView {
             return size.height + rowView.additionalHeightToCompensateForAutoLayout
         } else {
