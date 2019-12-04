@@ -15,10 +15,19 @@ protocol TokenInstanceWebViewDelegate: class {
 
 
 class TokenInstanceWebView: UIView {
+    private enum RenderingAttempt {
+        case first
+        case second
+    }
+    //Cache height given a piece of HTML (which might have different values loaded into it) to improve performance of heavy TokenScript views.
+    //TODO This can be inaccurate if the HTML height changes when applied with different values. eg. a line is added if a flag is true. Fix it so that caching is by contract + token ID, rather than by HTML-only
+    private static var htmlHeightCache: [Int: CGFloat] = .init()
+
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
     private let server: RPCServer
     private let walletAddress: AlphaWallet.Address
     private let assetDefinitionStore: AssetDefinitionStore
+    private var hashOfCurrentHtml: Int?
     lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
     lazy private var webView: WKWebView = {
         let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, server: server, address: walletAddress, in: ScriptMessageProxy(delegate: self))
@@ -157,19 +166,45 @@ class TokenInstanceWebView: UIView {
 
     func loadHtml(_ html: String) {
         webView.loadHTMLString(html, baseURL: nil)
+        let hash = html.djb2hash
+        hashOfCurrentHtml = hash
+        if let cachedHeight = TokenInstanceWebView.htmlHeightCache[hash] {
+            guard heightConstraint.constant != cachedHeight else { return }
+            heightConstraint.constant = cachedHeight
+            delegate?.heightChangedFor(tokenInstanceWebView: self)
+        }
     }
 
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         guard keyPath == "estimatedProgress" else { return }
         guard webView.estimatedProgress == 1 else { return }
+        //Needs a second time in case the TokenScript is heavy and slow to render, or if the device is slow. Value is empirical
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.makeIntroductionWebViewFullHeight()
+            self.makeIntroductionWebViewFullHeight(renderingAttempt: .first)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            self.makeIntroductionWebViewFullHeight(renderingAttempt: .second)
         }
     }
 
-    private func makeIntroductionWebViewFullHeight() {
-        heightConstraint.constant = webView.scrollView.contentSize.height
-        delegate?.heightChangedFor(tokenInstanceWebView: self)
+    private func makeIntroductionWebViewFullHeight(renderingAttempt: RenderingAttempt) {
+        webView.evaluateJavaScript("document.body.scrollHeight", completionHandler: { height, _ in
+            guard let height = height as? CGFloat else { return }
+            self.cache(height: height, forRenderingAttempt: renderingAttempt)
+            self.heightConstraint.constant = height
+            self.delegate?.heightChangedFor(tokenInstanceWebView: self)
+        })
+    }
+
+    private func cache(height: CGFloat, forRenderingAttempt renderingAttempt: RenderingAttempt) {
+        switch renderingAttempt {
+        case .first:
+            break
+        case .second:
+            //We should only cache if it's the 2nd pass. 1st pass might give the wrong height
+            guard let hash = hashOfCurrentHtml else { return }
+            TokenInstanceWebView.htmlHeightCache[hash] = height
+        }
     }
 }
 
@@ -294,5 +329,16 @@ func wrapWithHtmlViewport(_ html: String) -> String {
                \(html)
                </html>
                """
+    }
+}
+
+extension String {
+    //https://useyourloaf.com/blog/swift-hashable/
+    //http://www.cse.yorku.ca/~oz/hash.html
+    fileprivate var djb2hash: Int {
+        let unicodeScalars = self.unicodeScalars.map { $0.value }
+        return unicodeScalars.reduce(5381) {
+            ($0 << 5) &+ $0 &+ Int($1)
+        }
     }
 }
