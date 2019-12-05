@@ -68,6 +68,11 @@ class TokenInstanceWebView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        //Necessary to prevent crash when scrolling a table with several cells containing this class
+        webView.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress))
+    }
+
     //Implementation: String concatentation is slow, but it's not obvious at all
     func update(withTokenHolder tokenHolder: TokenHolder, isFungible: Bool, isFirstUpdate: Bool = true) {
         var token = [AttributeId: String]()
