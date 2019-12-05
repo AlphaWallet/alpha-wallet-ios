@@ -15,14 +15,6 @@ protocol TokenInstanceWebViewDelegate: class {
 
 
 class TokenInstanceWebView: UIView {
-    private enum RenderingAttempt {
-        case first
-        case second
-    }
-    //Cache height given a piece of HTML (which might have different values loaded into it) to improve performance of heavy TokenScript views.
-    //TODO This can be inaccurate if the HTML height changes when applied with different values. eg. a line is added if a flag is true. Fix it so that caching is by contract + token ID, rather than by HTML-only
-    private static var htmlHeightCache: [Int: CGFloat] = .init()
-
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
     private let server: RPCServer
     private let walletAddress: AlphaWallet.Address
@@ -34,6 +26,8 @@ class TokenInstanceWebView: UIView {
         webViewConfig.websiteDataStore = .default()
         return .init(frame: .zero, configuration: webViewConfig)
     }()
+    //Used to track asynchronous calls are called for correctly
+    private var loadId: Int?
 
     var isWebViewInteractionEnabled: Bool = false {
         didSet {
@@ -179,20 +173,30 @@ class TokenInstanceWebView: UIView {
         guard keyPath == "estimatedProgress" else { return }
         guard webView.estimatedProgress == 1 else { return }
         //Needs a second time in case the TokenScript is heavy and slow to render, or if the device is slow. Value is empirical
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.makeIntroductionWebViewFullHeight(renderingAttempt: .first)
+        loadId = Int.random(in: 0...Int.max)
+        let forLoadId: Int? = loadId
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+            guard let strongSelf = self else { return }
+            guard strongSelf.loadId == forLoadId else { return }
+            strongSelf.makeIntroductionWebViewFullHeight(renderingAttempt: .first)
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            self.makeIntroductionWebViewFullHeight(renderingAttempt: .second)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+            guard let strongSelf = self else { return }
+            guard strongSelf.loadId == forLoadId else { return }
+            strongSelf.makeIntroductionWebViewFullHeight(renderingAttempt: .second)
         }
     }
 
     private func makeIntroductionWebViewFullHeight(renderingAttempt: RenderingAttempt) {
-        webView.evaluateJavaScript("document.body.scrollHeight", completionHandler: { height, _ in
+        let forLoadId: Int? = loadId
+        webView.evaluateJavaScript("document.body.scrollHeight", completionHandler: { [weak self] height, _ in
+            guard let strongSelf = self else { return }
+            guard strongSelf.loadId == forLoadId else { return }
             guard let height = height as? CGFloat else { return }
-            self.cache(height: height, forRenderingAttempt: renderingAttempt)
-            self.heightConstraint.constant = height
-            self.delegate?.heightChangedFor(tokenInstanceWebView: self)
+            strongSelf.cache(height: height, forRenderingAttempt: renderingAttempt)
+            guard strongSelf.heightConstraint.constant != height else { return }
+            strongSelf.heightConstraint.constant = height
+            strongSelf.delegate?.heightChangedFor(tokenInstanceWebView: strongSelf)
         })
     }
 
@@ -205,6 +209,43 @@ class TokenInstanceWebView: UIView {
             guard let hash = hashOfCurrentHtml else { return }
             TokenInstanceWebView.htmlHeightCache[hash] = height
         }
+    }
+}
+
+private extension TokenInstanceWebView {
+    private enum RenderingAttempt {
+        case first
+        case second
+    }
+    //Cache height given a piece of HTML (which might have different values loaded into it) to improve performance of heavy TokenScript views.
+    //TODO This can be inaccurate if the HTML height changes when applied with different values. eg. a line is added if a flag is true. Fix it so that caching is by contract + token ID, rather than by HTML-only
+    private static var htmlHeightCache: [Int: CGFloat] = readHtmlHeightCache() {
+        didSet {
+            guard oldValue != htmlHeightCache else { return }
+            writeHtmlHeightCache()
+        }
+    }
+    private static let documentsDirectory = URL(fileURLWithPath: NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0])
+    private static var htmlHeightCacheFilename: URL {
+        return documentsDirectory.appendingPathComponent("htmlHeightCacheFilename")
+    }
+
+    private static func readHtmlHeightCache() -> [Int: CGFloat] {
+        guard let data = try? Data(contentsOf: htmlHeightCacheFilename) else { return .init() }
+        if let cache = try? JSONDecoder().decode([Int: CGFloat].self, from: data) {
+            return cache
+        } else {
+            return .init()
+        }
+    }
+    private static func writeHtmlHeightCache() {
+        //TODO implement LRU for cache instead of stupidly deleting the whole cache
+        if htmlHeightCache.count > 100 {
+            try? FileManager.default.removeItem(at: htmlHeightCacheFilename)
+        }
+        let encoder = JSONEncoder()
+        guard let data = try? encoder.encode(htmlHeightCache) else { return }
+        try? data.write(to: htmlHeightCacheFilename)
     }
 }
 

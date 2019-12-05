@@ -83,7 +83,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         view.backgroundColor = Colors.appBackground
-		
+
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
@@ -319,9 +319,14 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
             rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified, showCheckbox: cell.showCheckbox())
         case .notBackedByOpenSea:
             rowView = {
-                let rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
-                rowView.delegate = self
-                return rowView
+                if let rowView = cell.rowView {
+                    //Reuse for performance (because webviews are created)
+                    return rowView
+                } else {
+                    let rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
+                    rowView.delegate = self
+                    return rowView
+                }
             }()
         }
         cell.delegate = self
@@ -395,7 +400,15 @@ extension TokensCardViewController: TokenCardsViewControllerHeaderDelegate {
 
 extension TokensCardViewController: TokenCardRowViewDelegate {
     func heightChangedFor(tokenCardRowView: TokenCardRowView) {
-        //Important to not reload the cell because that will trigger an infinite recursion as the height will be calculated again and this func fired again
+        //We reload the top 2 cell if any because they are often visible and might have the wrong height initially.
+        if let isFirstCellVisible = tableView.indexPathsForVisibleRows?.contains(.init(row: 0, section: 0)), isFirstCellVisible {
+            tableView.reloadRows(at: [.init(row: 0, section: 0)], with: .none)
+        }
+        if let isSecondCellVisible = tableView.indexPathsForVisibleRows?.contains(.init(row: 0, section: 1)), isSecondCellVisible {
+            tableView.reloadRows(at: [.init(row: 0, section: 1)], with: .none)
+        }
+
+        //Important to not reload the table due to poor performance
         UIView.setAnimationsEnabled(false)
         tableView.beginUpdates()
         tableView.endUpdates()
