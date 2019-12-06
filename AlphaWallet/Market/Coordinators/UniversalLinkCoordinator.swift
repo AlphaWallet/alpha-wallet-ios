@@ -464,8 +464,8 @@ class UniversalLinkCoordinator: Coordinator {
         assetDefinitionStore.fetchXML(forContract: contractAddress, useCacheAndFetch: true) { [weak self] result in
             guard let strongSelf = self else { return }
 
-            func makeTokenHolder(name: String, symbol: String) {
-                strongSelf.makeTokenHolderImpl(name: name, symbol: symbol, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
+            func makeTokenHolder(name: String, symbol: String, type: TokenType? = nil) {
+                strongSelf.makeTokenHolderImpl(name: name, symbol: symbol, type: type, bytes32Tokens: bytes32Tokens, contractAddress: contractAddress)
                 strongSelf.updateTokenFields()
             }
 
@@ -479,26 +479,27 @@ class UniversalLinkCoordinator: Coordinator {
 
                 let getContractName = tokensDatastore.getContractName(for: contractAddress)
                 let getContractSymbol = tokensDatastore.getContractSymbol(for: contractAddress)
+                let getTokenType = tokensDatastore.getTokenType(for: contractAddress)
                 firstly {
-                    when(fulfilled: getContractName, getContractSymbol)
-                }.done { name, symbol in
-                    makeTokenHolder(name: name, symbol: symbol)
+                    when(fulfilled: getContractName, getContractSymbol, getTokenType)
+                }.done { name, symbol, type in
+                    makeTokenHolder(name: name, symbol: symbol, type: type)
                 }.cauterize()
             }
         }
     }
 
-    private func makeTokenHolderImpl(name: String, symbol: String, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
+    private func makeTokenHolderImpl(name: String, symbol: String, type: TokenType? = nil, bytes32Tokens: [String], contractAddress: AlphaWallet.Address) {
         //TODO pass in the wallet instead
         let tokensDatastore = tokensDatastores[server]
-        guard let tokenFromDataStore = tokensDatastore.token(forContract: contractAddress) else { return }
+        guard let tokenType = type ?? (tokensDatastore.token(forContract: contractAddress)?.type) else { return }
         let account = EtherKeystore.current!
         var tokens = [Token]()
         let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore)
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: UInt16(i), inWallet: account, server: server, tokenType: tokenFromDataStore.type)
+                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: UInt16(i), inWallet: account, server: server, tokenType: tokenType)
                 tokens.append(token)
             }
         }
