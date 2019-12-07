@@ -132,7 +132,7 @@ class TokensCoordinator: Coordinator {
     func addUefaTokenIfAny() {
         let server = Constants.uefaRpcServer
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
-        coordinator.addImportedToken(forContract: Constants.uefaRopsten, onlyIfThereIsABalance: true)
+        coordinator.addImportedToken(forContract: Constants.uefaXdai, onlyIfThereIsABalance: true)
     }
 
     private func createNewTokenViewController() -> NewTokenViewController {
