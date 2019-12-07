@@ -114,6 +114,6 @@ extension AlphaWallet.Address {
     }
 
     var isUEFATicketContract: Bool {
-        return sameContract(as: Constants.uefaRopsten)
+        return sameContract(as: Constants.uefaXdai)
     }
 }
