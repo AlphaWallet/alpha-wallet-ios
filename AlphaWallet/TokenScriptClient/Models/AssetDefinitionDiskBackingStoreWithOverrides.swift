@@ -107,6 +107,10 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
             return
         }
     }
+
+    func deleteFileDownloadedFromOfficialRepoFor(contract: AlphaWallet.Address) {
+        officialStore.deleteFileDownloadedFromOfficialRepoFor(contract: contract)
+    }
 }
 
 extension AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStoreDelegate {

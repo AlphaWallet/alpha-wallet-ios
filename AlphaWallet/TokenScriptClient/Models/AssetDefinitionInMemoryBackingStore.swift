@@ -56,4 +56,8 @@ class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
     func writeCacheTokenScriptSignatureVerificationType(_ verificationType: TokenScriptSignatureVerificationType, forContract contract: AlphaWallet.Address, forXmlString xmlString: String) {
         //do nothing
     }
+
+    func deleteFileDownloadedFromOfficialRepoFor(contract: AlphaWallet.Address) {
+        xmls[contract] = nil
+    }
 }

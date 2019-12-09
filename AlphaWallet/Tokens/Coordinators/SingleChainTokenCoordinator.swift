@@ -395,6 +395,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     func delete(token: TokenObject) {
+        assetDefinitionStore.contractDeleted(token.contractAddress)
         storage.add(hiddenContracts: [HiddenContract(contractAddress: token.contractAddress, server: session.server)])
         storage.delete(tokens: [token])
         delegate?.tokensDidChange(inCoordinator: self)

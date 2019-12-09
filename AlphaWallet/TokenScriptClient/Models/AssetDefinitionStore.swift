@@ -201,6 +201,11 @@ class AssetDefinitionStore {
     func writeCacheTokenScriptSignatureVerificationType(_ verificationType: TokenScriptSignatureVerificationType, forContract contract: AlphaWallet.Address, forXmlString xmlString: String) {
         return backingStore.writeCacheTokenScriptSignatureVerificationType(verificationType, forContract: contract, forXmlString: xmlString)
     }
+
+    func contractDeleted(_ contract: AlphaWallet.Address) {
+        XMLHandler.invalidate(forContract: contract)
+        backingStore.deleteFileDownloadedFromOfficialRepoFor(contract: contract)
+    }
 }
 
 extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
