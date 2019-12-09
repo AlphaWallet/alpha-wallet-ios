@@ -258,10 +258,18 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
                 }
             }
         }
-        for each in Array(Set(contractsAffected)) {
-            changeHandler(each)
-        }
+        purgeCacheFor(contracts: contractsAffected, changeHandler: changeHandler)
         writeIndicesToDisk()
         delegate?.badTokenScriptFilesChanged(in: self)
+    }
+
+    private func purgeCacheFor(contracts: [AlphaWallet.Address], changeHandler: @escaping (AlphaWallet.Address) -> Void) {
+        //Import to clear the signature cache (which includes conflicts) because a file which was in conflict with another earlier might no longer be
+        //TODO clear the cache more intelligently rather than purge it entirely. It might be hard or impossible to know which other contracts are affected
+        tokenScriptFileIndices.signatureVerificationTypes = .init()
+        for each in Array(Set(contracts)) {
+            XMLHandler.invalidate(forContract: each)
+            changeHandler(each)
+        }
     }
 }
