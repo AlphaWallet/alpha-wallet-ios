@@ -16,6 +16,7 @@ protocol AssetDefinitionBackingStore {
     func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool
     func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType?
     func writeCacheTokenScriptSignatureVerificationType(_ verificationType: TokenScriptSignatureVerificationType, forContract contract: AlphaWallet.Address, forXmlString xmlString: String)
+    func deleteFileDownloadedFromOfficialRepoFor(contract: AlphaWallet.Address)
 }
 
 protocol AssetDefinitionBackingStoreDelegate: class {

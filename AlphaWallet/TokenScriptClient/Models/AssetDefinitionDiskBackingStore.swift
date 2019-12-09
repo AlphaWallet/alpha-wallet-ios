@@ -176,6 +176,29 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         tokenScriptFileIndices.write(toUrl: indicesFileUrl)
     }
 
+    //When we remove a contract from our database, we must remove the TokenScript file (from the standard repo) that is named after it because this file wouldn't be pulled from the server anymore. If the TokenScript file applies to more than 1 contract, having the outdated file around will mean 2 copies of the same file — with 1 outdated, 1 up-to-date, causing TokenScript client to see a conflict
+    func deleteFileDownloadedFromOfficialRepoFor(contract: AlphaWallet.Address) {
+        guard isOfficial else { return }
+        let filename = self.filename(fromContract: contract)
+        let url = directory.appendingPathComponent(filename)
+        try? FileManager.default.removeItem(at: url)
+        tokenScriptFileIndices.removeHash(forFile: filename)
+
+        var contractsToFileNames = tokenScriptFileIndices.contractsToFileNames
+        for (eachContract, eachFilenames) in tokenScriptFileIndices.contractsToFileNames {
+            if eachFilenames.contains(filename) {
+                var updatedFilenames = eachFilenames
+                updatedFilenames.removeAll { $0 == filename }
+                contractsToFileNames[eachContract] = updatedFilenames
+            }
+        }
+        tokenScriptFileIndices.contractsToFileNames = contractsToFileNames
+        tokenScriptFileIndices.contractsToEntities[filename] = nil
+        tokenScriptFileIndices.removeBadTokenScriptFileName(filename)
+        tokenScriptFileIndices.removeOldTokenScriptFileName(filename)
+        writeIndicesToDisk()
+    }
+
     //Must only return the last modified date for a file if it's for the current schema version otherwise, a file using the old schema might have a more recent timestamp (because it was recently downloaded) than a newer version on the server (which was not yet made available by the time the user downloaded the version with the old schema)
     func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date? {
         assert(isOfficial)
@@ -258,10 +281,18 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
                 }
             }
         }
-        for each in Array(Set(contractsAffected)) {
-            changeHandler(each)
-        }
+        purgeCacheFor(contracts: contractsAffected, changeHandler: changeHandler)
         writeIndicesToDisk()
         delegate?.badTokenScriptFilesChanged(in: self)
+    }
+
+    private func purgeCacheFor(contracts: [AlphaWallet.Address], changeHandler: @escaping (AlphaWallet.Address) -> Void) {
+        //Import to clear the signature cache (which includes conflicts) because a file which was in conflict with another earlier might no longer be
+        //TODO clear the cache more intelligently rather than purge it entirely. It might be hard or impossible to know which other contracts are affected
+        tokenScriptFileIndices.signatureVerificationTypes = .init()
+        for each in Array(Set(contracts)) {
+            XMLHandler.invalidate(forContract: each)
+            changeHandler(each)
+        }
     }
 }
