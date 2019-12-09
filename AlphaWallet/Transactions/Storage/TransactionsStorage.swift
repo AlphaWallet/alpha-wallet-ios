@@ -48,11 +48,24 @@ class TransactionsStorage {
     @discardableResult
     func add(transactions: [Transaction], transactionsToPullContractsFrom: [Transaction]) -> [Transaction] {
         guard !transactions.isEmpty else { return [] }
+        let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(transactions)
         realm.beginWrite()
-        realm.add(transactions, update: true)
+        realm.add(transactionsToCommit, update: true)
         try! realm.commitWrite()
         addTokensWithContractAddresses(fromTransactions: transactionsToPullContractsFrom)
         return transactions
+    }
+
+    //We pull transactions data from the normal transactions API as well as ERC20 event log. For the same transaction, we only want data from the latter. Otherwise the UI will show the cell display switching between data from the 2 source as we fetch (or re-fetch)
+    private func filterTransactionsToNotOverrideERC20Transactions(_ transactions: [Transaction]) -> [Transaction] {
+        return transactions.filter { each in
+            if each.isERC20Interaction {
+                return true
+            } else {
+                let erc20TransactionExists = realm.objects(Transaction.self).filter("isERC20Interaction == true").contains { each.id == $0.id }
+                return !erc20TransactionExists
+            }
+        }
     }
 
     @discardableResult
