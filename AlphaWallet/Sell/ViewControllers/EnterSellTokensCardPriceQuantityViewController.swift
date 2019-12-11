@@ -225,7 +225,8 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         }
 
         let noPrice: Bool
-        if let price = Double(pricePerTokenField.ethCost) {
+        //We must use `Ether(string:)` because the input string might not always use a decimal point as the decimal separator. It might use a decimal comma. E.g. "1.2" or "1,2" depending on locale
+        if let price = Double(Ether(string: pricePerTokenField.ethCost)?.unformattedDescription ?? "") {
             noPrice = price.isZero
         } else {
             noPrice = true
