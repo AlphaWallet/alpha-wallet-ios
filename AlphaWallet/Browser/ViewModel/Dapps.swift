@@ -59,7 +59,8 @@ enum OriginalDapps {
         Dapp(name: "Humanity", description: "Human Identity on Ethereum", url: "https://humanitydao.org", cat: "Social Media"),
         Dapp(name: "DEX.AG", description: "Trade cryptoassets at the best price", url: "https://dex.ag", cat: "Exchange"),
         Dapp(name: "Totle Swap", description: "Totle automatically finds and acquires the best price across decentralized exchanges for ERC-20 swaps", url: "https://swap.totle.com", cat: "Exchange"),
-        Dapp(name: "ATS Bridge", description: "ATS/ATS20 bridge for self transfers of ATS to ATS20", url: "https://bridge.artis.network/", cat: "Tool")
+        Dapp(name: "ATS Bridge", description: "ATS/ATS20 bridge for self transfers of ATS to ATS20", url: "https://bridge.artis.network/", cat: "Tool"),
+        Dapp(name: "1inch.exchange", description: "DEX Aggregator with the best prices on the market. Achieving best rates by splitting orders among multiple DEXes in one single transaction.", url: "https://1inch.exchange/", cat: "Exchange")
 
     ]
 
