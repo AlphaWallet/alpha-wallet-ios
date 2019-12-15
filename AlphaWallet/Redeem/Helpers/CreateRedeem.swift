@@ -16,15 +16,30 @@ class CreateRedeem {
     private func generateTimeStamp() -> String {
         let time = NSDate().timeIntervalSince1970
         //rotate qr every 30 seconds for security (preventing screenshot claims)
-        let minsTime = Int(time / 30) 
+        let minsTime = Int(time / 30)
+        return String(minsTime)
+    }
+
+    private func generateTimeStamp721Tickets() -> String {
+        let time = NSDate().timeIntervalSince1970
+        //use ten minute intervals
+        let minsTime = Int(time / 600)
         return String(minsTime)
     }
 
     func redeemMessage(tokenIds: [BigUInt]) -> (message: String, qrCode: String) {
         let contractAddress = token.contractAddress.eip55String.lowercased()
-        let messageForSigning = tokensToHexStringArray(tokens: tokenIds)
-                + "," + generateTimeStamp() + "," + contractAddress
-        let qrCodeData = tokensToHexStringArray(tokens: tokenIds)
+        //TODO this only works with one token at a time
+        let tokensAsDecimalString = tokensToDecimalString(tokens: tokenIds)
+        var prefix = "0"
+        if tokensAsDecimalString.count < 10 {
+            prefix += ("0" + tokensAsDecimalString.count.description)
+        } else {
+            prefix += tokensAsDecimalString.count.description
+        }
+        let qrCodeData = prefix + tokensAsDecimalString
+        let messageForSigning = prefix + tokensToDecimalString(tokens: tokenIds)
+            + "," + generateTimeStamp721Tickets() + "," + contractAddress
         return (messageForSigning, qrCodeData)
     }
 
@@ -36,9 +51,9 @@ class CreateRedeem {
         return (messageForSigning, qrCodeData)
     }
 
-    private func tokensToHexStringArray(tokens: [BigUInt]) -> String {
+    private func tokensToDecimalString(tokens: [BigUInt]) -> String {
         //padding to 32 bytes can be done on the ushers side
-        return tokens.map({ $0.serialize().hexString }).joined(separator: ",")
+        return tokens.map({ $0.description }).joined(separator: ",")
     }
 
     private func formIndicesSelection(indices: [UInt16]) -> String {
