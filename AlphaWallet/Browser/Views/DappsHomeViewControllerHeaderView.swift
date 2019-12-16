@@ -14,7 +14,6 @@ class DappsHomeViewControllerHeaderView: UICollectionReusableView {
 
     weak var delegate: DappsHomeViewControllerHeaderViewDelegate?
     let myDappsButton = DappButton()
-    let discoverDappsButton = DappButton()
     let historyButton = DappButton()
 
     override init(frame: CGRect) {
@@ -22,8 +21,6 @@ class DappsHomeViewControllerHeaderView: UICollectionReusableView {
 
         let buttonsStackView = [
             myDappsButton,
-            .spacerWidth(40),
-            discoverDappsButton,
             .spacerWidth(40),
             historyButton
         ].asStackView(distribution: .equalSpacing, contentHuggingPriority: .required)
@@ -46,7 +43,6 @@ class DappsHomeViewControllerHeaderView: UICollectionReusableView {
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             stackView.bottomAnchor.constraint(equalTo: exitEditingModeButton.topAnchor, constant: -10),
 
-            myDappsButton.widthAnchor.constraint(equalTo: discoverDappsButton.widthAnchor),
             myDappsButton.widthAnchor.constraint(equalTo: historyButton.widthAnchor),
 
             exitEditingModeButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
@@ -58,18 +54,12 @@ class DappsHomeViewControllerHeaderView: UICollectionReusableView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    //TODO remove this class and code that use it if we don't bring the buttons back
     func configure(viewModel: DappsHomeViewControllerHeaderViewViewModel = .init(isEditing: false)) {
-        //No longer configuring. Effectively don't show the "My Dapps", "Discover Dapps" and "My History" buttons
-        return;
-
         backgroundColor = viewModel.backgroundColor
 
         headerView.configure(viewModel: .init(title: viewModel.title))
 
         myDappsButton.configure(viewModel: .init(image: viewModel.myDappsButtonImage, title: viewModel.myDappsButtonTitle))
-
-        discoverDappsButton.configure(viewModel: .init(image: viewModel.discoverButtonImage, title: viewModel.discoverButtonTitle))
 
         historyButton.configure(viewModel: .init(image: viewModel.historyButtonImage, title: viewModel.historyButtonTitle))
 
@@ -79,13 +69,11 @@ class DappsHomeViewControllerHeaderView: UICollectionReusableView {
             exitEditingModeButton.titleLabel?.font = Fonts.bold(size: 12)
 
             myDappsButton.isEnabled = false
-            discoverDappsButton.isEnabled = false
             historyButton.isEnabled = false
         } else {
             exitEditingModeButton.isHidden = true
 
             myDappsButton.isEnabled = true
-            discoverDappsButton.isEnabled = true
             historyButton.isEnabled = true
         }
     }

@@ -22,14 +22,6 @@ struct DappsHomeViewControllerHeaderViewViewModel {
         return R.string.localizable.myDappsButtonImageLabel()
     }
 
-    var discoverButtonImage: UIImage? {
-        return R.image.discoverDapps()
-    }
-
-    var discoverButtonTitle: String {
-        return R.string.localizable.discoverDappsButtonImageLabel()
-    }
-
     var historyButtonImage: UIImage? {
         return R.image.history()
     }
