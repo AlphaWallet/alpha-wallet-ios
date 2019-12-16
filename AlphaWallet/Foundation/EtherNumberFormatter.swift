@@ -1,9 +1,11 @@
 // Copyright SIX DAY LLC. All rights reserved.
-
 import BigInt
 import Foundation
 
 final class EtherNumberFormatter {
+    /// We always allow users to use "." as the decimal separator even if the locale might specify a different separator, eg. a decimal comma like Spain. If user sets their locale to one that uses a decimal comma, eg. Spain, the `.decimalPad` will still show "." instead of "," so the user wouldn't be able enter the "," that the locale expects using the keypad.
+    static let decimalPoint = "."
+
     /// Formatter that preserves full precision.
     static let full = EtherNumberFormatter()
 
@@ -50,7 +52,7 @@ final class EtherNumberFormatter {
     ///   - decimals: decimal places used for scaling values.
     /// - Returns: `BigInt` represenation.
     func number(from string: String, decimals: Int) -> BigInt? {
-        guard let index = string.index(where: { String($0) == decimalSeparator }) else {
+        guard let index = string.index(where: { String($0) == decimalSeparator }) ?? string.index(where: { String($0) == EtherNumberFormatter.decimalPoint }) else {
             // No fractional part
             return BigInt(string).flatMap({ $0 * BigInt(10).power(decimals) })
         }
