@@ -77,8 +77,8 @@ class AmountTextField: UIControl {
     weak var delegate: AmountTextFieldDelegate?
 
     private var allowedCharacters: String = {
-        let decimalSeparator = Locale.current.decimalSeparator ?? "."
-        return "0123456789" + decimalSeparator
+        let decimalSeparator = Locale.current.decimalSeparator ?? ""
+        return "0123456789" + decimalSeparator + EtherNumberFormatter.decimalPoint
     }()
     lazy var decimalFormatter: DecimalFormatter = {
         return DecimalFormatter()
