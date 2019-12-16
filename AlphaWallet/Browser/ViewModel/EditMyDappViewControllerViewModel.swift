@@ -123,7 +123,7 @@ struct EditMyDappViewControllerViewModel {
     }
 
     var cancelButtonTitleColor: UIColor {
-        return Colors.appWhite
+        return Colors.navigationTitleColor
     }
 
     var cancelButtonFont: UIFont {
