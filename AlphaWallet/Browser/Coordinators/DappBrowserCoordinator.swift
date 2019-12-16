@@ -263,6 +263,11 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         }
         shareAction.isEnabled = hasWebPageLoaded
 
+        let addBookmarkAction = UIAlertAction(title: R.string.localizable.browserAddbookmarkButtonTitle(), style: .default) { [weak self] _ in
+            self?.addCurrentPageAsBookmark()
+        }
+        addBookmarkAction.isEnabled = hasWebPageLoaded
+
         let switchNetworkAction = UIAlertAction(title: R.string.localizable.dappBrowserSwitchServer(server.name), style: .default) { [weak self] _ in
             self?.showServers()
         }
@@ -275,6 +280,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
         alertController.addAction(reloadAction)
         alertController.addAction(shareAction)
+        alertController.addAction(addBookmarkAction)
         alertController.addAction(switchNetworkAction)
         if browserOnly {
             //no-op
@@ -340,6 +346,14 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             guard let vc = each as? MyDappsViewController else { continue }
             vc.configure(viewModel: .init(bookmarksStore: bookmarksStore))
         }
+    }
+
+    private func addCurrentPageAsBookmark() {
+        guard let url = currentUrl?.absoluteString else { return }
+        guard let title = browserViewController.webView.title else { return }
+        let bookmark = Bookmark(url: url, title: title)
+        bookmarksStore.add(bookmarks: [bookmark])
+        refreshDapps()
     }
 
     private func scanQrCode() {

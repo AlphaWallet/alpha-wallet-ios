@@ -84,9 +84,7 @@ class DappsHomeViewController: UIViewController {
         dappsCollectionView.alwaysBounceVertical = true
         dappsCollectionView.register(DappsHomeViewControllerHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: DappsHomeViewController.headerIdentifier)
         dappsCollectionView.register(DappViewCell.self, forCellWithReuseIdentifier: DappViewCell.identifier)
-        //TODO remove this if we don't bring My Dapps back
-        //No longer showing the My Dapps
-//        dappsCollectionView.dataSource = self
+        dappsCollectionView.dataSource = self
         dappsCollectionView.delegate = self
         view.addSubview(dappsCollectionView)
 
@@ -138,11 +136,6 @@ class DappsHomeViewController: UIViewController {
         delegate?.didTapShowBrowserHistoryViewController(inViewController: self)
     }
 
-    @objc private func showDiscoverPageViewController() {
-        dismissKeyboard()
-        delegate?.didTapShowDiscoverDappsViewController(inViewController: self)
-    }
-
     private func dismissKeyboard() {
         delegate?.dismissKeyboard(inViewController: self)
     }
@@ -167,7 +160,6 @@ extension DappsHomeViewController: UICollectionViewDataSource {
         headerView.delegate = self
         headerView.configure(viewModel: .init(isEditing: isEditingDapps))
         headerView.myDappsButton.addTarget(self, action: #selector(showMyDappsViewController), for: .touchUpInside)
-        headerView.discoverDappsButton.addTarget(self, action: #selector(showDiscoverPageViewController), for: .touchUpInside)
         headerView.historyButton.addTarget(self, action: #selector(showBrowserHistoryViewController), for: .touchUpInside)
         return headerView
     }
