@@ -12,7 +12,7 @@ class TokenViewControllerHeaderView: UIView {
     private let contract: AlphaWallet.Address
     private let recentTransactionsLabel = UILabel()
     private let recentTransactionsLabelBorders = (top: UIView(), bottom: UIView())
-    private let spacers = (beforeTokenScriptFileStatus: UIView.spacer(height: 20))
+    private let spacers = (beforeTokenScriptFileStatus: UIView.spacer(height: 20), ())
     private let tokenScriptFileStatusStackView = [].asStackView()
 
     let sendHeaderView = SendHeaderView()

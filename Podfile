@@ -29,6 +29,8 @@ target 'AlphaWallet' do
   pod 'SAMKeychain'
   pod 'PromiseKit/CorePromise'
   pod 'PromiseKit/Alamofire'
+  #To force SWXMLHash which Macaw depends on to be Swift >= 4
+  pod 'SWXMLHash', '~> 5.0.0'
   pod "Macaw", :git => 'https://github.com/alpha-wallet/Macaw.git', :commit => 'c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8'
   pod "Kanna", :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
   pod 'TrustWalletCore'
@@ -63,7 +65,8 @@ post_install do |installer|
         'Result',
         'SeedStackViewController',
         'SwiftyXMLParser',
-        'JSONRPCKit'
+        'JSONRPCKit',
+		'SWXMLHash'
     ].include? target.name
       target.build_configurations.each do |config|
         config.build_settings['SWIFT_VERSION'] = '4'
