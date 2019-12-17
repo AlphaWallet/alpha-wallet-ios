@@ -188,6 +188,7 @@ class TokensDataStore {
                 "name": token.name,
                 "symbol": token.symbol,
                 "decimals": token.decimals,
+                "rawType": token.tokenType.rawValue,
             ]
             realm.create(TokenObject.self, value: update, update: true)
         }
