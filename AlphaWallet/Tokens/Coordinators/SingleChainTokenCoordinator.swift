@@ -360,7 +360,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private func createTransactionsStore() -> TransactionsStorage? {
         guard let wallet = keystore.recentlyUsedWallet else { return nil }
         let realm = self.realm(forAccount: wallet)
-        return TransactionsStorage(realm: realm, server: session.server)
+        return TransactionsStorage(realm: realm, server: session.server, delegate: self)
     }
 
     private func realm(forAccount account: Wallet) -> Realm {
@@ -559,6 +559,14 @@ extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate
 
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController) {
         viewController.navigationController?.popViewController(animated: true)
+    }
+}
+
+extension SingleChainTokenCoordinator: TransactionsStorageDelegate {
+    func didAddTokensWith(contracts: [AlphaWallet.Address], inTransactionsStorage: TransactionsStorage) {
+        for each in contracts {
+            assetDefinitionStore.fetchXML(forContract: each)
+        }
     }
 }
 

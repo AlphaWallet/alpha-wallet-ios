@@ -1,13 +1,20 @@
 import Foundation
 import RealmSwift
 
+protocol TransactionsStorageDelegate: class {
+    func didAddTokensWith(contracts: [AlphaWallet.Address], inTransactionsStorage: TransactionsStorage)
+}
+
 class TransactionsStorage {
-    let realm: Realm
+    private let realm: Realm
+    private let delegate: TransactionsStorageDelegate?
+
     let server: RPCServer
 
-    init(realm: Realm, server: RPCServer) {
+    init(realm: Realm, server: RPCServer, delegate: TransactionsStorageDelegate?) {
         self.realm = realm
         self.server = server
+        self.delegate = delegate
     }
 
     var count: Int {
@@ -40,6 +47,7 @@ class TransactionsStorage {
 
     private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
         let tokens = self.tokens(from: transactions, contractsAndTokenTypes: contractsAndTokenTypes)
+        delegate?.didAddTokensWith(contracts: Array(Set(tokens.map { $0.address})), inTransactionsStorage: self)
         if !tokens.isEmpty {
             TokensDataStore.update(in: realm, tokens: tokens)
         }
