@@ -92,18 +92,19 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
     }
 
     private func update(items: [Transaction]) {
-        let transactionsToPullContractsFrom = filterTransactionsToPullContractsFrom(items)
-        storage.add(transactions: items, transactionsToPullContractsFrom: transactionsToPullContractsFrom)
-        delegate?.handleUpdateItems(inCoordinator: self)
+        filterTransactionsToPullContractsFrom(items).done { transactionsToPullContractsFrom, contractsAndTokenTypes in
+            self.storage.add(transactions: items, transactionsToPullContractsFrom: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
+            self.delegate?.handleUpdateItems(inCoordinator: self)
+        }.cauterize()
     }
 
-    private func filterTransactionsToPullContractsFrom(_ transactions: [Transaction]) -> [Transaction] {
+    private func filterTransactionsToPullContractsFrom(_ transactions: [Transaction]) -> Promise<(transactions: [Transaction], contractTypes: [AlphaWallet.Address: TokenType])> {
         let alreadyAddedContracts = tokensStorage.enabledObject.map { $0.contractAddress }
         let deletedContracts = tokensStorage.deletedContracts.map { $0.contractAddress }
         let hiddenContracts = tokensStorage.hiddenContracts.map { $0.contractAddress }
         let delegateContracts = tokensStorage.delegateContracts.map { $0.contractAddress }
         let contractsToAvoid = alreadyAddedContracts + deletedContracts + hiddenContracts + delegateContracts
-        return transactions.filter {
+        let filteredTransactions = transactions.filter {
             if let toAddressToCheck = AlphaWallet.Address(string: $0.to) {
                 if contractsToAvoid.contains(toAddressToCheck) {
                     return false
@@ -115,6 +116,18 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 }
             }
             return true
+        }
+        //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
+        switch session.server {
+        case .xDai, .poa:
+            let contracts = Array(Set(filteredTransactions.compactMap { $0.localizedOperations.first?.contractAddress }))
+            let tokenTypePromises = contracts.map { tokensStorage.getTokenType(for: $0) }
+            return when(fulfilled: tokenTypePromises).map { tokenTypes in
+                let contractsToTokenTypes = Dictionary(uniqueKeysWithValues: zip(contracts, tokenTypes))
+                return (transactions: filteredTransactions, contractTypes: contractsToTokenTypes)
+            }
+        case .main, .classic, .kovan, .ropsten, .rinkeby, .sokol, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:
+            return .value((transactions: filteredTransactions, contractTypes: .init()))
         }
     }
 

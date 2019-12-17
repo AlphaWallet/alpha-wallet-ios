@@ -78,6 +78,7 @@ public struct Constants {
     public static let artisTau1NetworkCoreAPI = "https://explorer.tau1.artis.network/api?module=account&action=txlist&address="
 
     //etherscan-compatible erc20 transaction event APIs
+    //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
     public static let mainnetEtherscanAPIErc20Events = "https://api.etherscan.io/api?module=account&action=tokentx&address="
     public static let ropstenEtherscanAPIErc20Events = "https://ropsten.etherscan.io/api?module=account&action=tokentx&address="
     public static let kovanEtherscanAPIErc20Events = "https://api-kovan.etherscan.io/api?module=account&action=tokentx&address="
