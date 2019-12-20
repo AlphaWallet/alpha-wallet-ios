@@ -70,6 +70,7 @@
 "settings.backupWallet.button.title" = "Back up this Wallet";
 "settings.language.useSystem.title" = "시스템 설정 사용";
 "settings.version.label.title" = "버전";
+"settings.tokenScriptStandard.title" = "TokenScript Standard";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "아직 거래가 없습니다!";
