@@ -12,6 +12,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     private let token: TokenObject
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
+    private let scrollView = UIScrollView()
     private let tokenRowView: TokenRowView & UIView
     private let targetAddressLabel = UILabel()
     private let targetAddressTextField = AddressTextField()
@@ -57,6 +58,9 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.addSubview(scrollView)
+
         targetAddressTextField.delegate = self
         targetAddressTextField.returnKeyType = .done
 
@@ -72,7 +76,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
             targetAddressTextField.ensAddressLabel,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        roundedBackground.addSubview(stackView)
+        scrollView.addSubview(stackView)
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
@@ -90,9 +94,15 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
             targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
             targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
 
-            stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+
+            scrollView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -104,6 +114,9 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
             footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
+
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -143,6 +156,30 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         let nextButton = buttonsBar.buttons[0]
         nextButton.setTitle(R.string.localizable.aWalletNextButtonTitle(), for: .normal)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+    }
+
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        if let keyboardEndFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let _ = notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue {
+            scrollView.contentInset.bottom = keyboardEndFrame.size.height
+        }
+    }
+
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        //If there's a external keyboard (or on simulator with software keyboard disabled):
+        //    When text input starts. beginRect: size.height=0 endRect: size.height ~54. origin.y remains at ~812 (out of the screen)
+        //    When text input ends. beginRect: size.height ~54 endRect: size.height = 0. origin.y remains at 812 (out of the screen)
+        //Note the above. keyboardWillHide() is called for both when input starts and ends for external keyboard. Probably because the keyboard is hidden in both cases
+        guard let beginRect = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue, let endRect = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        let isExternalKeyboard = beginRect.origin == endRect.origin && (beginRect.size.height == 0 || endRect.size.height == 0)
+        let isEnteringEditModeWithExternalKeyboard: Bool
+        if isExternalKeyboard {
+            isEnteringEditModeWithExternalKeyboard = beginRect.size.height == 0 && endRect.size.height > 0
+        } else {
+            isEnteringEditModeWithExternalKeyboard = false
+        }
+        if !isExternalKeyboard || !isEnteringEditModeWithExternalKeyboard {
+            scrollView.contentInset.bottom = 0
+        }
     }
 }
 
