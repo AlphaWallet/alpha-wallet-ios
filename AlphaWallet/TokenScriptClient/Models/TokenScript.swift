@@ -14,6 +14,7 @@ extension TokenScript {
     static let repoClientName = "AlphaWallet"
     static let repoPlatformName = "iOS"
     static let tokenScriptNamespacePrefix = "http://tokenscript.org/"
+    static let tokenScriptSite = URL(string: "http://tokenscript.org")!
     static let oldNoLongerSupportedTokenScriptNamespaceVersions = ["2019/04", "2019/05"].map { "\(tokenScriptNamespacePrefix)\($0)/tokenscript" }
     static let supportedTokenScriptNamespaceVersion = "2019/10"
     static let supportedTokenScriptNamespace = "\(tokenScriptNamespacePrefix)\(supportedTokenScriptNamespaceVersion)/tokenscript"
