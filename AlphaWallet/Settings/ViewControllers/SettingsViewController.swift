@@ -61,6 +61,7 @@ class SettingsViewController: FormViewController {
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.contentInset.bottom = 60
         view.addSubview(tableView)
 
         let section = Section()
@@ -203,7 +204,15 @@ class SettingsViewController: FormViewController {
             $0.disabled = true
         }.cellSetup { cell, _ in
             cell.mainLabel.text = R.string.localizable.settingsVersionLabelTitle()
-            cell.subLabel.text = "\(Bundle.main.fullVersion). \(TokenScript.supportedTokenScriptNamespaceVersion)"
+            cell.subLabel.text = "\(Bundle.main.fullVersion)"
+        }
+        <<< AlphaWalletSettingsTextRow {
+            $0.disabled = true
+        }.cellSetup { cell, _ in
+            cell.mainLabel.text = R.string.localizable.settingsTokenScriptStandardTitle()
+            cell.subLabel.text = "\(TokenScript.supportedTokenScriptNamespaceVersion)"
+        }.onCellSelection { [unowned self] _, _ in
+            self.delegate?.didPressOpenWebPage(TokenScript.tokenScriptSite, in: self)
         }
 
         form +++ section
