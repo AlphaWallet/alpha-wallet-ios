@@ -38,22 +38,20 @@ class TransactionsStorage {
         return objects.filter { $0.state == TransactionState.pending }
     }
 
-    private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction]) {
-        let tokens = self.tokens(from: transactions)
+    private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
+        let tokens = self.tokens(from: transactions, contractsAndTokenTypes: contractsAndTokenTypes)
         if !tokens.isEmpty {
             TokensDataStore.update(in: realm, tokens: tokens)
         }
     }
 
-    @discardableResult
-    func add(transactions: [Transaction], transactionsToPullContractsFrom: [Transaction]) -> [Transaction] {
-        guard !transactions.isEmpty else { return [] }
+    func add(transactions: [Transaction], transactionsToPullContractsFrom: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
+        guard !transactions.isEmpty else { return }
         let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(transactions)
         realm.beginWrite()
         realm.add(transactionsToCommit, update: true)
         try! realm.commitWrite()
-        addTokensWithContractAddresses(fromTransactions: transactionsToPullContractsFrom)
-        return transactions
+        addTokensWithContractAddresses(fromTransactions: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
     }
 
     //We pull transactions data from the normal transactions API as well as ERC20 event log. For the same transaction, we only want data from the latter. Otherwise the UI will show the cell display switching between data from the 2 source as we fetch (or re-fetch)
@@ -77,7 +75,7 @@ class TransactionsStorage {
         return items
     }
 
-    private func tokens(from transactions: [Transaction]) -> [TokenUpdate] {
+    private func tokens(from transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) -> [TokenUpdate] {
         let tokens: [TokenUpdate] = transactions.compactMap { transaction in
             guard
                 let operation = transaction.localizedOperations.first,
@@ -85,12 +83,14 @@ class TransactionsStorage {
                 let name = operation.name,
                 let symbol = operation.symbol
                 else { return nil }
+
             return TokenUpdate(
                 address: contract,
                 server: server,
                 name: name,
                 symbol: symbol,
-                decimals: operation.decimals
+                decimals: operation.decimals,
+                tokenType: contractsAndTokenTypes[contract] ?? .erc20
             )
         }
         return tokens
