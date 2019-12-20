@@ -6,6 +6,7 @@ import UIKit
 func applyStyle() {
     UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.appTint
     UIWindow.appearance().tintColor = Colors.appTint
+    UITabBar.appearance().tintColor = Colors.appTint
     UINavigationBar.appearance().tintColor = Colors.navigationTitleColor
     UINavigationBar.appearance().setBackgroundImage(UIImage(color: Colors.appBackground), for: .default)
     UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
