@@ -114,7 +114,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func createTransactionsStorage(server: RPCServer) -> TransactionsStorage {
         let realm = self.realm(forAccount: wallet)
-        return TransactionsStorage(realm: realm, server: server)
+        return TransactionsStorage(realm: realm, server: server, delegate: self)
     }
 
     private func fetchCryptoPrice(forServer server: RPCServer) {
@@ -665,7 +665,7 @@ extension InCoordinator: SettingsCoordinatorDelegate {
     func delete(account: Wallet, in coordinator: SettingsCoordinator) {
         let realm = self.realm(forAccount: account)
         for each in RPCServer.allCases {
-            let transactionsStorage = TransactionsStorage(realm: realm, server: each)
+            let transactionsStorage = TransactionsStorage(realm: realm, server: each, delegate: nil)
             transactionsStorage.deleteAll()
         }
     }
@@ -736,6 +736,14 @@ extension InCoordinator: UITabBarControllerDelegate {
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
         if isViewControllerDappBrowserTab(viewController) {
             dappBrowserCoordinator?.didShow()
+        }
+    }
+}
+
+extension InCoordinator: TransactionsStorageDelegate {
+    func didAddTokensWith(contracts: [AlphaWallet.Address], inTransactionsStorage: TransactionsStorage) {
+        for each in contracts {
+            assetDefinitionStore.fetchXML(forContract: each)
         }
     }
 }
