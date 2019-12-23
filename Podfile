@@ -15,7 +15,7 @@ target 'AlphaWallet' do
   pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :branch=>'alphawallet'
   pod 'SwiftLint'
   pod 'SeedStackViewController'
-  pod 'RealmSwift', '~> 3.9'
+  pod 'RealmSwift', '~> 3.18'
   pod 'Moya', '~> 10.0.1'
   pod 'JavaScriptKit'
   pod 'CryptoSwift'
