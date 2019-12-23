@@ -100,17 +100,13 @@ class TokenViewController: UIViewController {
         headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
 
         let xmlHandler = XMLHandler(contract: transferType.contract, assetDefinitionStore: assetDefinitionStore)
-        if let server = xmlHandler.server, server == session.server {
-            let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
-            if tokenScriptStatusPromise.isPending {
-                tokenScriptStatusPromise.done { _ in
-                    self.configure(viewModel: viewModel)
-                }.cauterize()
-            }
-            header.tokenScriptFileStatus = tokenScriptStatusPromise.value
-        } else {
-            header.tokenScriptFileStatus = .type0NoTokenScript
+        let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
+        if tokenScriptStatusPromise.isPending {
+            tokenScriptStatusPromise.done { _ in
+                self.configure(viewModel: viewModel)
+            }.cauterize()
         }
+        header.tokenScriptFileStatus = tokenScriptStatusPromise.value
         header.sendHeaderView.configure(viewModel: headerViewModel)
         header.frame.size.height = header.systemLayoutSizeFitting(.zero).height
 
