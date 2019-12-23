@@ -361,6 +361,6 @@ extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
 
 extension AppCoordinator: AssetDefinitionStoreDelegate {
     func listOfBadTokenScriptFilesChanged(in: AssetDefinitionStore ) {
-        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.listOfConflictingTokenScriptFiles)
+        inCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
     }
 }

@@ -40,7 +40,7 @@ class AssetDefinitionStore {
     var listOfBadTokenScriptFiles: [TokenScriptFileIndices.FileName] {
         return backingStore.badTokenScriptFileNames
     }
-    var listOfConflictingTokenScriptFiles: [TokenScriptFileIndices.FileName] {
+    var conflictingTokenScriptFileNames: (official: [TokenScriptFileIndices.FileName], overrides: [TokenScriptFileIndices.FileName], all: [TokenScriptFileIndices.FileName]) {
         return backingStore.conflictingTokenScriptFileNames
     }
 
