@@ -55,7 +55,7 @@ public class UniversalLinkHandler {
     func createUniversalLink(signedOrder: SignedOrder, tokenType: TokenType) -> String {
         let prefix = server.magicLinkPrefix.description
         let message: String
-        switch (tokenType) {
+        switch tokenType {
         case .erc721ForTickets:
             message = formatMessageForLink721Ticket(signedOrder: signedOrder)
         case .erc875:

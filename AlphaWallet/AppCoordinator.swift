@@ -68,7 +68,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     func start() {
         if isRunningTests() {
-            startImpl()
+            _ = startImpl()
         } else {
             DispatchQueue.main.async {
                 let succeeded = self.startImpl()

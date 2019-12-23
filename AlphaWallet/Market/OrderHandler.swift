@@ -59,7 +59,7 @@ public class OrderHandler {
 
     private func createMessagesFromOrders(orders: [Order], tokenType: TokenType) -> [Data] {
         var messages = [Data]()
-        switch(tokenType) {
+        switch tokenType {
         case .erc721ForTickets:
             for order in orders {
                 let message: [UInt8] = encodeMessageForTrade(

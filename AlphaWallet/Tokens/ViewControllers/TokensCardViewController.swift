@@ -333,7 +333,7 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
         cell.rowView = rowView
         cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), assetDefinitionStore: assetDefinitionStore)
         cell.isCheckboxVisible  = isMultipleSelectionMode
-        let hasAddedGestureRecognizer = cell.gestureRecognizers?.contains { $0 is UILongPressGestureRecognizer} ?? false
+        let hasAddedGestureRecognizer = cell.gestureRecognizers?.contains { $0 is UILongPressGestureRecognizer } ?? false
         if !hasAddedGestureRecognizer {
             cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
         }

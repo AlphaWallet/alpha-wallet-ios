@@ -100,7 +100,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
     private func configureUI() {
         let redeem = CreateRedeem(token: token)
         let redeemData: (message: String, qrCode: String)
-        switch(token.type) {
+        switch token.type {
         case .nativeCryptocurrency, .erc20:
             return
         case .erc875:

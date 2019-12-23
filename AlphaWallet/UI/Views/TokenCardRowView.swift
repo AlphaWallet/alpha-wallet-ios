@@ -3,7 +3,7 @@
 import UIKit
 import WebKit
 
-protocol TokenCardRowViewDelegate {
+protocol TokenCardRowViewDelegate: class {
     func heightChangedFor(tokenCardRowView: TokenCardRowView)
 }
 
@@ -58,7 +58,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	private var constraintsWithTopMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
 	private var constraintsWithBottomMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
 
-	var delegate: TokenCardRowViewDelegate?
+	weak var delegate: TokenCardRowViewDelegate?
 	let background = UIView()
 	var checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
 	var stateLabel = UILabel()
