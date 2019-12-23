@@ -28,8 +28,12 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         }
     }
 
-    var conflictingTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
-        return tokenScriptFileIndices.conflictingTokenScriptFileNames
+    var conflictingTokenScriptFileNames: (official: [TokenScriptFileIndices.FileName], overrides: [TokenScriptFileIndices.FileName], all: [TokenScriptFileIndices.FileName]) {
+        if isOfficial {
+            return (official: tokenScriptFileIndices.conflictingTokenScriptFileNames, overrides: [], all: tokenScriptFileIndices.conflictingTokenScriptFileNames)
+        } else {
+            return (official: [], overrides: tokenScriptFileIndices.conflictingTokenScriptFileNames, all: tokenScriptFileIndices.conflictingTokenScriptFileNames)
+        }
     }
 
     init(directoryName: String = officialDirectoryName) {

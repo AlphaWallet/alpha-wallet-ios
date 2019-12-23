@@ -9,8 +9,8 @@ class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
     var badTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
         return .init()
     }
-    var conflictingTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
-        return .init()
+    var conflictingTokenScriptFileNames: (official: [TokenScriptFileIndices.FileName], overrides: [TokenScriptFileIndices.FileName], all: [TokenScriptFileIndices.FileName]) {
+        return (official: [], overrides: [], all: [])
     }
 
     subscript(contract: AlphaWallet.Address) -> String? {

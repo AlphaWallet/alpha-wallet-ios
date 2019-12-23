@@ -13,8 +13,10 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         return officialStore.badTokenScriptFileNames + overridesStore.badTokenScriptFileNames
     }
 
-    var conflictingTokenScriptFileNames: [TokenScriptFileIndices.FileName] {
-        return officialStore.conflictingTokenScriptFileNames + overridesStore.conflictingTokenScriptFileNames
+    var conflictingTokenScriptFileNames: (official: [TokenScriptFileIndices.FileName], overrides: [TokenScriptFileIndices.FileName], all: [TokenScriptFileIndices.FileName]) {
+        let official = officialStore.conflictingTokenScriptFileNames.all
+        let overrides = overridesStore.conflictingTokenScriptFileNames.all
+        return (official: official, overrides: overrides, all: official + overrides)
     }
 
     init(overridesStore: AssetDefinitionBackingStore? = nil) {
