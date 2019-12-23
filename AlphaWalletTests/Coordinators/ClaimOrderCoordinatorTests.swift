@@ -43,7 +43,7 @@ class ClaimOrderCoordinatorTests: XCTestCase {
                           nativeCurrencyDrop: false
         )
         
-        let signedOrder = SignedOrder(order: order, message: [UInt8](), signature: "")
+        let _ = SignedOrder(order: order, message: [UInt8](), signature: "")
         expectation.fulfill()
         wait(for: expectations, timeout: 10)
     }

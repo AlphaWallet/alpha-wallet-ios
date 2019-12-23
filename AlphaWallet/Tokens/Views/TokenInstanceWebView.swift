@@ -174,7 +174,7 @@ class TokenInstanceWebView: UIView {
         }
     }
 
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
         guard keyPath == "estimatedProgress" else { return }
         guard webView.estimatedProgress == 1 else { return }
         //Needs a second time in case the TokenScript is heavy and slow to render, or if the device is slow. Value is empirical

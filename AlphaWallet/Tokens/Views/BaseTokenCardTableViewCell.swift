@@ -10,7 +10,7 @@ protocol BaseTokenCardTableViewCellDelegate: class {
 class BaseTokenCardTableViewCell: UITableViewCell {
     static let identifier = "TokenCardTableViewCell"
     //This is declared optional because we have no way to set it upon cell instance creation. But it has to be set immediately. Check where it's accessed. It's forced unwrapped
-    private var assetDefinitionStore: AssetDefinitionStore? = nil
+    private var assetDefinitionStore: AssetDefinitionStore?
     private let cellSeparators = (top: UIView(), bottom: UIView())
 
     weak var delegate: BaseTokenCardTableViewCellDelegate?
@@ -88,7 +88,7 @@ class BaseTokenCardTableViewCell: UITableViewCell {
 
         rowView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(rowView)
-        var rowHeightConstraint = rowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -GroupedTable.Metric.cellSeparatorHeight)
+        let rowHeightConstraint = rowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -GroupedTable.Metric.cellSeparatorHeight)
         rowHeightConstraint.priority = .defaultHigh
 
         NSLayoutConstraint.activate([

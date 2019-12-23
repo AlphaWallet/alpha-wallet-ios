@@ -38,11 +38,6 @@ struct TokensCardViewModel {
         }
     }
 
-    var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
-        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
-        return xmlHandler.tokenScriptStatus
-    }
-
     init(token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
         self.tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore).getTokenHolders(forWallet: account)
