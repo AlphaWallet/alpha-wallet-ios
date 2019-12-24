@@ -165,7 +165,7 @@ class SingleChainTokenCoordinator: Coordinator {
         autoDetectTokensQueue.addOperation(operation)
     }
 
-    private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], completion: @escaping () -> ()) {
+    private func autoDetectTokensImpl(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)], completion: @escaping () -> Void) {
         guard let address = keystore.recentlyUsedWallet?.address else { return }
         let alreadyAddedContracts = storage.enabledObject.map { $0.contractAddress }
         let deletedContracts = storage.deletedContracts.map { $0.contractAddress }

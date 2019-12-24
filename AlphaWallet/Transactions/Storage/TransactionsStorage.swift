@@ -7,7 +7,7 @@ protocol TransactionsStorageDelegate: class {
 
 class TransactionsStorage {
     private let realm: Realm
-    private let delegate: TransactionsStorageDelegate?
+    weak private var delegate: TransactionsStorageDelegate?
 
     let server: RPCServer
 
@@ -47,7 +47,7 @@ class TransactionsStorage {
 
     private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
         let tokens = self.tokens(from: transactions, contractsAndTokenTypes: contractsAndTokenTypes)
-        delegate?.didAddTokensWith(contracts: Array(Set(tokens.map { $0.address})), inTransactionsStorage: self)
+        delegate?.didAddTokensWith(contracts: Array(Set(tokens.map { $0.address })), inTransactionsStorage: self)
         if !tokens.isEmpty {
             TokensDataStore.update(in: realm, tokens: tokens)
         }

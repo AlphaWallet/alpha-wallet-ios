@@ -342,7 +342,7 @@ class TokensDataStore {
             switch result {
             case .success(let isERC721):
                 if isERC721 {
-                    strongSelf.getIsERC721ForTicketsContractCoordinator.getIsERC721ForTicketContract(for: address) { [weak self] result in
+                    strongSelf.getIsERC721ForTicketsContractCoordinator.getIsERC721ForTicketContract(for: address) { result in
                         switch result {
                         case .success(let isERC721ForTickets):
                             if isERC721ForTickets {

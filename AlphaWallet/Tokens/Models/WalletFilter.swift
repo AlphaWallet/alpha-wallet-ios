@@ -10,7 +10,7 @@ enum WalletFilter {
 	case keyword(String)
 }
 
-func ==(lhs: WalletFilter, rhs: WalletFilter) -> Bool {
+func == (lhs: WalletFilter, rhs: WalletFilter) -> Bool {
 	switch (lhs, rhs) {
 	case (.all, .all):
 		return true
