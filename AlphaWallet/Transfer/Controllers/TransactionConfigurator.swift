@@ -24,7 +24,7 @@ class TransactionConfigurator {
     private let account: EthereumAccount
     private lazy var calculatedGasPrice: BigInt = {
         switch session.server {
-            case .xDai:
+        case .xDai:
             //xdai transactions are always 1 gwei in gasPrice
             return GasPriceConfiguration.xDaiGasPrice
         case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:

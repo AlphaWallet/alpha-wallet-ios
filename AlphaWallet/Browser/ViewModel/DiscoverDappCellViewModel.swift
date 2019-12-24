@@ -9,10 +9,8 @@ struct DiscoverDappCellViewModel {
 
     private var containsDapp: Bool {
         //TODO can we not loop? Or at least we can cache this value, no need to be a computed var
-        for each in bookmarksStore.bookmarks {
-            if each.url == dapp.url {
-                return true
-            }
+        for each in bookmarksStore.bookmarks where each.url == dapp.url {
+            return true
         }
         return false
     }

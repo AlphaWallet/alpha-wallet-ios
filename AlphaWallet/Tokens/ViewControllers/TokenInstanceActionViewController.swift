@@ -239,7 +239,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             let attributeNameValues = action.attributes.resolve(withTokenId: tokenId, userEntryValues: userEntryValues, server: server, account: session.account, additionalValues: tokenLevelTokenIdOriginAttributeValues).mapValues { $0.value }
             var allResolved = false
             let attributes = AssetAttributeValues(attributeValues: attributeNameValues)
-            let resolvedAttributeNameValues = attributes.resolve() { updatedValues in
+            let resolvedAttributeNameValues = attributes.resolve { updatedValues in
                 guard !allResolved && attributes.isAllResolved else { return }
                 allResolved = true
                 seal.fulfill(updatedValues)

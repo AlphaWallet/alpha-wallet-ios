@@ -40,7 +40,7 @@ class QRCodeValueParserTests: XCTestCase {
     func testProtocolAndAddress() {
         guard let result = QRCodeValueParser.from(string: "ethereum:0x5a0b54d5dc17e0aadc383d2db43b0a0d3e029c4c") else { return XCTFail("Can't parse EIP 681") }
         switch result {
-        case .address(let address):
+        case .address:
             XCTFail("Can't parse EIP 681")
         case .eip681(let protocolName, _, _, _):
             XCTAssertEqual(Eip681Parser.scheme, protocolName)
@@ -104,7 +104,7 @@ class QRCodeValueParserTests: XCTestCase {
         switch result {
         case .address:
             XCTFail("Can't parse EIP 681")
-        case .eip681(let protocolName, let address, _, let params):
+        case .eip681(let protocolName, _, _, let params):
             XCTAssertEqual(Eip681Parser.scheme, protocolName)
             XCTAssertEqual(1, params.count)
             XCTAssertEqual("0x123", params["data"])
@@ -141,7 +141,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .erc20Send, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
-            }
+            }.cauterize()
         }
         wait(for: [expectation], timeout: 20)
     }
@@ -163,7 +163,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .erc20Send, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
-            }
+            }.cauterize()
         }
         wait(for: [expectation], timeout: 20)
     }
@@ -186,7 +186,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .nativeCryptoSend, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
-            }
+            }.cauterize()
         }
         wait(for: [expectation], timeout: 20)
     }
@@ -208,7 +208,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .erc20Send, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
-            }
+            }.cauterize()
         }
         wait(for: [expectation], timeout: 20)
     }
@@ -231,7 +231,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .nativeCryptoSend, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
-            }
+            }.cauterize()
         }
         wait(for: [expectation], timeout: 20)
     }
@@ -251,7 +251,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .invalidOrNotSupported:
                     XCTAssert(true)
                 }
-            }
+            }.cauterize()
         }
         wait(for: [expectation], timeout: 20)
     }
@@ -273,7 +273,7 @@ class QRCodeValueParserTests: XCTestCase {
                 case .erc20Send, .invalidOrNotSupported:
                     XCTFail("Parsed as wrong EIP 681 type")
                 }
-            }
+            }.cauterize()
         }
         wait(for: [expectation], timeout: 20)
     }
