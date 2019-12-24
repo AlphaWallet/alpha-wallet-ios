@@ -5,7 +5,7 @@ import Foundation
 protocol AssetDefinitionBackingStore {
     var delegate: AssetDefinitionBackingStoreDelegate? { get set }
     var badTokenScriptFileNames: [TokenScriptFileIndices.FileName] { get }
-    var conflictingTokenScriptFileNames: [TokenScriptFileIndices.FileName] { get }
+    var conflictingTokenScriptFileNames: (official: [TokenScriptFileIndices.FileName], overrides: [TokenScriptFileIndices.FileName], all: [TokenScriptFileIndices.FileName]) { get }
 
     subscript(contract: AlphaWallet.Address) -> String? { get set }
     func lastModifiedDateOfCachedAssetDefinitionFile(forContract contract: AlphaWallet.Address) -> Date?

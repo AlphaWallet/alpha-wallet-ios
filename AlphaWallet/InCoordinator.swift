@@ -104,7 +104,7 @@ class InCoordinator: NSObject, Coordinator {
         helpUsCoordinator.start()
         addCoordinator(helpUsCoordinator)
         fetchXMLAssetDefinitions()
-        listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.listOfConflictingTokenScriptFiles)
+        listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
     }
 
     private func createTokensDatastore(forConfig config: Config, server: RPCServer) -> TokensDataStore {
@@ -401,7 +401,7 @@ class InCoordinator: NSObject, Coordinator {
         OpenSea.resetInstances()
         showTabBar(for: account)
         fetchXMLAssetDefinitions()
-        listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.listOfConflictingTokenScriptFiles)
+        listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
     }
 
     private func removeAllCoordinators() {
