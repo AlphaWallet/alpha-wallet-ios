@@ -165,10 +165,21 @@ extension AccountsViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: AccountViewCell.identifier, for: indexPath) as! AccountViewCell
-        let cellViewModel = getAccountViewModels(for: indexPath)
+        var cellViewModel = getAccountViewModels(for: indexPath)
         cell.configure(viewModel: cellViewModel)
         cell.account = cellViewModel.wallet
         cell.delegate = self
+
+        let serverToResolveEns = RPCServer.main
+        let address = cellViewModel.address
+        ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { result in
+            guard let ensName = result.value else { return }
+            //Cell might have been reused. Check
+            guard let cellAddress = cell.viewModel?.address, cellAddress.sameContract(as: address) else { return }
+            cellViewModel.ensName = ensName
+            cell.configure(viewModel: cellViewModel)
+        }
+
         return cell
     }
 

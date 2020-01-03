@@ -9,11 +9,13 @@ struct AccountViewModel {
     let wallet: Wallet
     let current: Wallet?
     let walletBalance: Balance?
+    var ensName: String?
 
-    init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, server: RPCServer) {
+    init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, ensName: String? = nil, server: RPCServer) {
         self.wallet = wallet
         self.current = current
         self.walletBalance = walletBalance
+        self.ensName = ensName
         self.server = server
     }
     var showWatchIcon: Bool {
@@ -44,5 +46,13 @@ struct AccountViewModel {
 
     var addressTextColor: UIColor {
         return Colors.gray
+    }
+
+    var addresses: String {
+        if let ensName = ensName {
+            return "\(ensName) | \(wallet.address.truncateMiddle)"
+        } else {
+            return wallet.address.eip55String
+        }
     }
 }
