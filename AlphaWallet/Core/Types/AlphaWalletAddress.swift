@@ -117,3 +117,13 @@ extension AlphaWallet.Address {
         return sameContract(as: Constants.uefaXdai)
     }
 }
+
+extension AlphaWallet.Address {
+    //Produces this format: 0x1234...5678
+    var truncateMiddle: String {
+        let address = eip55String
+        let front = address.prefix(6)
+        let back = address.suffix(4)
+        return "\(front)...\(back)"
+    }
+}
