@@ -13,6 +13,7 @@ protocol TokenCardRedemptionViewControllerDelegate: class, CanOpenURL {
 
 class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatusViewController {
     private var viewModel: TokenCardRedemptionViewModel
+    private let scrollView = UIScrollView()
     private var titleLabel = UILabel()
     private let imageView =  UIImageView()
     private let tokenRowView: TokenRowView & UIView
@@ -60,35 +61,38 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         tokenRowView.translatesAutoresizingMaskIntoConstraints = false
 
         let stackView = [
-            .spacer(height: 20),
+            .spacer(height: 16),
             titleLabel,
-            .spacer(height: 10),
+            .spacer(height: 8),
             imageHolder,
             .spacer(height: 4),
             tokenRowView,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stackView)
+        scrollView.addSubview(stackView)
+
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(scrollView)
 
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 30),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -30),
 
-            imageView.leadingAnchor.constraint(equalTo: imageHolder.leadingAnchor, constant: 70),
-            imageView.trailingAnchor.constraint(equalTo: imageHolder.trailingAnchor, constant: -70),
-            imageView.topAnchor.constraint(equalTo: imageHolder.topAnchor, constant: 70),
-            imageView.bottomAnchor.constraint(equalTo: imageHolder.bottomAnchor, constant: -70),
+            imageView.leadingAnchor.constraint(equalTo: imageHolder.leadingAnchor, constant: 64),
+            imageView.trailingAnchor.constraint(equalTo: imageHolder.trailingAnchor, constant: -64),
+            imageView.topAnchor.constraint(equalTo: imageHolder.topAnchor, constant: 16),
+            imageView.bottomAnchor.constraint(equalTo: imageHolder.bottomAnchor, constant: -16),
+            imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor),
 
             imageHolder.leadingAnchor.constraint(equalTo: tokenRowView.background.leadingAnchor),
             imageHolder.trailingAnchor.constraint(equalTo: tokenRowView.background.trailingAnchor),
-			imageHolder.widthAnchor.constraint(equalTo: imageHolder.heightAnchor),
 
             tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.anchorsConstraint(to: view),
+
+            stackView.anchorsConstraint(to: scrollView),
         ])
     }
 
