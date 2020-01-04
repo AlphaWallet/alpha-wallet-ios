@@ -16,6 +16,7 @@ class AccountViewCell: UITableViewCell {
     var balanceLabel = UILabel()
     weak var delegate: AccountViewCellDelegate?
     var account: Wallet?
+    var viewModel: AccountViewModel?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -70,6 +71,8 @@ class AccountViewCell: UITableViewCell {
     }
 
     func configure(viewModel: AccountViewModel) {
+        self.viewModel = viewModel
+
         selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
 
@@ -80,7 +83,7 @@ class AccountViewCell: UITableViewCell {
 
         addressLabel.font = viewModel.addressFont
         addressLabel.textColor = viewModel.addressTextColor
-        addressLabel.text = viewModel.address.eip55String
+        addressLabel.text = viewModel.addresses
 
         infoButton.tintColor = Colors.appTint
 
