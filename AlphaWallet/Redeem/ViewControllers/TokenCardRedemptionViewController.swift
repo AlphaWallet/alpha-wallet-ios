@@ -114,9 +114,13 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
         }
         switch session.account.type {
         case .real(let account):
-            let decimalSignature = SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account)!
-            let qrCodeInfo = redeemData.qrCode + decimalSignature
-            imageView.image = qrCodeInfo.toQRCode()
+            do {
+                guard let decimalSignature = try SignatureHelper.signatureAsDecimal(for: redeemData.message, account: account) else { break }
+                let qrCodeInfo = redeemData.qrCode + decimalSignature
+                imageView.image = qrCodeInfo.toQRCode()
+            } catch {
+                break
+            }
         case .watch: break
         }
     }
