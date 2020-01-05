@@ -609,9 +609,7 @@ class UniversalLinkCoordinator: Coordinator {
     }
 
     private func convert(ethCost: BigUInt) -> Decimal {
-        //TODO extract constant. Used elsewhere too
-        let divideAmount = Decimal(string: "1000000000000000000")!
-        let etherCostDecimal = Decimal(string: ethCost.description)! / divideAmount
+        let etherCostDecimal = Decimal(string: ethCost.description)! /  Decimal(EthereumUnit.ether.rawValue)
         return etherCostDecimal
     }
 }
