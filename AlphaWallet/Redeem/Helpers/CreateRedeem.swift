@@ -64,10 +64,10 @@ class CreateRedeem {
         /* the method here is easier to express with matrix programming like this:
         indexList = indexList - correctionFactor # reduce every element of the list by an int
         selection = sum(2^indexList)             # raise every element and add the result back */
-        var bitFieldLookup = BigUInt("0")!
+        var bitFieldLookup = BigUInt(0)
         for _ in 0...indices.count - 1 {
-            let adder = BigUInt("2")?.power(Int(indices[0]) - correctionFactor)
-            bitFieldLookup = bitFieldLookup.advanced(by: BigInt(adder!))
+            let adder = BigUInt(2).power(Int(indices[0]) - correctionFactor)
+            bitFieldLookup = bitFieldLookup.advanced(by: BigInt(adder))
         }
 
         let bitIntLength: Int = bitFieldLookup.description.count
