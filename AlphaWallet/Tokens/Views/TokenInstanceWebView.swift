@@ -20,6 +20,7 @@ class TokenInstanceWebView: UIView {
     private let walletAddress: AlphaWallet.Address
     private let assetDefinitionStore: AssetDefinitionStore
     private var hashOfCurrentHtml: Int?
+    private var hashOfLoadedHtml: Int?
     lazy private var heightConstraint = heightAnchor.constraint(equalToConstant: 100)
     lazy private var webView: WKWebView = {
         let webViewConfig = WKWebViewConfiguration.make(forType: .tokenScriptRenderer, server: server, address: walletAddress, in: ScriptMessageProxy(delegate: self))
@@ -35,6 +36,7 @@ class TokenInstanceWebView: UIView {
         }
     }
     weak var delegate: TokenInstanceWebViewDelegate?
+    var shouldOnlyRenderIfHeightIsCached = false
 
     init(server: RPCServer, walletAddress: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
@@ -115,8 +117,8 @@ class TokenInstanceWebView: UIView {
                          const oldTokens = web3.tokens.data
                          """ + string
 
-        //Important to inject JavaScript differently depending on whether this is the first time it's loaded because the HTML document may not be ready yet
-        inject(javaScript: javaScript, afterDocumentIsLoaded: isFirstUpdate)
+        //Important to inject JavaScript differently depending on whether this is the first time it's loaded because the HTML document may not be ready yet. Seems like it is necessary for `afterDocumentIsLoaded` to always be true here in order to avoid `Can't find variable: web3` errors
+        inject(javaScript: javaScript, afterDocumentIsLoaded: true)
     }
 
     private func implicitAttributes(tokenHolder: TokenHolder, isFungible: Bool) -> [String: AssetInternalValue] {
@@ -164,14 +166,23 @@ class TokenInstanceWebView: UIView {
     }
 
     func loadHtml(_ html: String) {
-        webView.loadHTMLString(html, baseURL: nil)
         let hash = html.hashForCachingHeight
         hashOfCurrentHtml = hash
         if let cachedHeight = TokenInstanceWebView.htmlHeightCache[hash] {
-            guard heightConstraint.constant != cachedHeight else { return }
+            //When live-reloading, we load a different HTML, so we must proceed to load the HTML even if the height already correct
+            if heightConstraint.constant == cachedHeight && hashOfLoadedHtml == hashOfCurrentHtml {
+                return
+            }
             heightConstraint.constant = cachedHeight
             delegate?.heightChangedFor(tokenInstanceWebView: self)
+        } else {
+            if shouldOnlyRenderIfHeightIsCached {
+                return
+            }
         }
+
+        webView.loadHTMLString(html, baseURL: nil)
+        hashOfLoadedHtml = hashOfCurrentHtml
     }
 
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
@@ -206,14 +217,9 @@ class TokenInstanceWebView: UIView {
     }
 
     private func cache(height: CGFloat, forRenderingAttempt renderingAttempt: RenderingAttempt) {
-        switch renderingAttempt {
-        case .first:
-            break
-        case .second:
-            //We should only cache if it's the 2nd pass. 1st pass might give the wrong height
-            guard let hash = hashOfCurrentHtml else { return }
-            TokenInstanceWebView.htmlHeightCache[hash] = height
-        }
+        //We cache for both the 1st and 2nd pass because the 1st pass might get it right too
+        guard let hash = hashOfCurrentHtml else { return }
+        TokenInstanceWebView.htmlHeightCache[hash] = height
     }
 }
 

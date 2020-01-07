@@ -84,6 +84,11 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	var additionalHeightToCompensateForAutoLayout: CGFloat {
 		return 0
 	}
+	var shouldOnlyRenderIfHeightIsCached: Bool = false {
+        didSet {
+			tokenScriptRendererView.shouldOnlyRenderIfHeightIsCached = shouldOnlyRenderIfHeightIsCached
+		}
+	}
 
 	init(server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore) {
 		self.server = server
