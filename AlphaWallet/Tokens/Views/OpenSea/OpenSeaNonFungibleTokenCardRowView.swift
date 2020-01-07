@@ -130,6 +130,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
             return 0
         }
     }
+    var shouldOnlyRenderIfHeightIsCached: Bool = false
     //Just to adhere to protocol
     var areDetailsVisible = false
 
