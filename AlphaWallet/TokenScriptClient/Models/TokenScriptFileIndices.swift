@@ -83,7 +83,8 @@ struct TokenScriptFileIndices: Codable {
     }
 
     func hash(contents: String) -> FileContentsHash {
-        return contents.djb2hash
+        //The value returned by `hashValue` might be subject to change and 2 strings that has the same `hasValue` *might* not be identical, but should be good enough for now. It is much faster than other commonly available hashes and we need it to be very fast because it is called once for each file upon startup
+        return contents.hashValue
     }
 
     static func load(fromUrl url: URL) -> TokenScriptFileIndices? {
@@ -95,17 +96,6 @@ struct TokenScriptFileIndices: Codable {
         signatureVerificationTypes = .init()
         for eachHash in fileHashes.values {
             signatureVerificationTypes[eachHash] = oldVerificationTypes[eachHash]
-        }
-    }
-}
-
-extension String {
-    //https://useyourloaf.com/blog/swift-hashable/
-    //http://www.cse.yorku.ca/~oz/hash.html
-    fileprivate var djb2hash: TokenScriptFileIndices.FileContentsHash {
-        let unicodeScalars = self.unicodeScalars.map { $0.value }
-        return unicodeScalars.reduce(5381) {
-            ($0 << 5) &+ $0 &+ Int($1)
         }
     }
 }
