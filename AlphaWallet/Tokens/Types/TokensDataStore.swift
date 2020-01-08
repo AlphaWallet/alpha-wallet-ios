@@ -160,13 +160,6 @@ class TokensDataStore {
         //TODO not needed for setupCallForAssetAttributeCoordinators? Look for other callers of DataStore.updateDelegate
         self.scheduledTimerForPricesUpdate()
         self.scheduledTimerForEthBalanceUpdate()
-
-        //Since this is called at launch, we don't want it to block launching
-        DispatchQueue.global().async {
-            DispatchQueue.main.async { [weak self] in
-                self?.fetchTokenNamesForNonFungibleTokensIfEmpty()
-            }
-        }
     }
 
     private func addEthToken() {
@@ -735,26 +728,6 @@ class TokensDataStore {
         ethTimer = Timer.scheduledTimer(timeInterval: intervalToETHRefresh, target: BlockOperation { [weak self] in
             self?.refreshETHBalance()
         }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
-    }
-
-    //This is related to Realm migration for version 49
-    func fetchTokenNamesForNonFungibleTokensIfEmpty() {
-        assetDefinitionStore.forEachContractWithXML { [weak self] contract in
-            guard let strongSelf = self else { return }
-            let localizedName = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).getName(fallback: "")
-            guard !localizedName.isEmpty else { return }
-            if let storedToken = strongSelf.enabledObject.first(where: { contract.sameContract(as: $0.contractAddress) }), storedToken.name.isEmpty {
-                getContractName(for: contract) { result in
-                    switch result {
-                    case .success(let name):
-                        //TODO multiple realm writes in a loop. Should we group them together?
-                        strongSelf.updateTokenName(token: storedToken, to: name)
-                    case .failure:
-                        break
-                    }
-                }
-            }
-        }
     }
 
     private func updateTokenName(token: TokenObject, to name: String) {
