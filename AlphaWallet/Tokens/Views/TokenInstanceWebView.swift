@@ -165,7 +165,7 @@ class TokenInstanceWebView: UIView {
 
     func loadHtml(_ html: String) {
         webView.loadHTMLString(html, baseURL: nil)
-        let hash = html.djb2hash
+        let hash = html.hashForCachingHeight
         hashOfCurrentHtml = hash
         if let cachedHeight = TokenInstanceWebView.htmlHeightCache[hash] {
             guard heightConstraint.constant != cachedHeight else { return }
@@ -379,12 +379,7 @@ func wrapWithHtmlViewport(_ html: String) -> String {
 }
 
 extension String {
-    //https://useyourloaf.com/blog/swift-hashable/
-    //http://www.cse.yorku.ca/~oz/hash.html
-    fileprivate var djb2hash: Int {
-        let unicodeScalars = self.unicodeScalars.map { $0.value }
-        return unicodeScalars.reduce(5381) {
-            ($0 << 5) &+ $0 &+ Int($1)
-        }
+    fileprivate var hashForCachingHeight: Int {
+        return hashValue
     }
 }
