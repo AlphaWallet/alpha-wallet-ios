@@ -145,13 +145,17 @@ class AssetDefinitionStore {
                         strongSelf[contract] = xml
                         XMLHandler.invalidate(forContract: contract)
                         completionHandler?(.updated)
-                        strongSelf.subscribers.forEach { $0(contract) }
+                        strongSelf.triggerSubscribers(forContract: contract)
                     }
                 } else {
                     completionHandler?(.error)
                 }
             }
         }
+    }
+
+    private func triggerSubscribers(forContract contract: AlphaWallet.Address) {
+        subscribers.forEach { $0(contract) }
     }
 
     @objc private func fetchXMLForContractInPasteboard() {
@@ -191,7 +195,7 @@ class AssetDefinitionStore {
     }
 
     func invalidateSignatureStatus(forContract contract: AlphaWallet.Address) {
-        subscribers.forEach { $0(contract) }
+        triggerSubscribers(forContract: contract)
     }
 
     func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType? {
@@ -211,7 +215,7 @@ class AssetDefinitionStore {
 extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
     func invalidateAssetDefinition(forContract contract: AlphaWallet.Address) {
         XMLHandler.invalidate(forContract: contract)
-        subscribers.forEach { $0(contract) }
+        triggerSubscribers(forContract: contract)
         fetchXML(forContract: contract)
     }
 

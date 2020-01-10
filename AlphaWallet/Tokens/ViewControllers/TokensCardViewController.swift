@@ -24,6 +24,7 @@ protocol TokensCardViewControllerDelegate: class, CanOpenURL {
 //TODO rename to be appropriate for TokenScript
 class TokensCardViewController: UIViewController, TokenVerifiableStatusViewController {
     static let anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
+    private var sizingCell: TokenCardTableViewCellWithCheckbox?
 
     private let tokenObject: TokenObject
     private var viewModel: TokensCardViewModel
@@ -166,6 +167,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             buttonsBar.numberOfButtons = 0
         }
 
+        sizingCell = nil
         tableView.reloadData()
     }
 
@@ -285,7 +287,50 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
            break
        }
     }
+
+    ///TokenScript views might take some time to finish rendering and be performance intensive, so we render the first row in a sizing cell to figure out the height. This assumes that every row has the same height.
+    ///Have to be careful that it works correctly with tokens that don't have TokenScript and also those backed by OpenSea
+    private func createSizingCell() {
+        guard sizingCell == nil else { return }
+        guard viewModel.numberOfItems() > 0 else { return }
+        let indexPath = IndexPath(row: 0, section: 0)
+        let tokenHolder = viewModel.item(for: indexPath)
+
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
+        let cell = TokenCardTableViewCellWithCheckbox()
+        sizingCell = cell
+        var rowView: TokenCardRowViewProtocol & UIView
+        switch tokenType {
+        case .backedByOpenSea:
+            rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified, showCheckbox: cell.showCheckbox())
+        case .notBackedByOpenSea:
+            rowView = {
+                if let rowView = cell.rowView {
+                    //Reuse for performance (because webviews are created)
+                    return rowView
+                } else {
+                    let rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
+                    rowView.delegate = self
+                    return rowView
+                }
+            }()
+        }
+        rowView.bounds = CGRect(x: 0, y: 0, width: tableView.frame.size.width, height: TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10)
+        rowView.setNeedsLayout()
+        rowView.layoutIfNeeded()
+        rowView.shouldOnlyRenderIfHeightIsCached = false
+        cell.delegate = self
+        cell.rowView = rowView
+
+        cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), assetDefinitionStore: assetDefinitionStore)
+        cell.isCheckboxVisible  = isMultipleSelectionMode
+        let hasAddedGestureRecognizer = cell.gestureRecognizers?.contains { $0 is UILongPressGestureRecognizer } ?? false
+        if !hasAddedGestureRecognizer {
+            cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
+        }
+    }
 }
+
 extension TokensCardViewController: VerifiableStatusViewController {
     func showInfo() {
         delegate?.didPressViewRedemptionInfo(in: self)
@@ -311,9 +356,14 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let tokenHolder = viewModel.item(for: indexPath)
+
+        if indexPath.section == 0 {
+            createSizingCell()
+        }
+
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
         let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithCheckbox
-        let rowView: TokenCardRowViewProtocol & UIView
+        var rowView: TokenCardRowViewProtocol & UIView
         switch tokenType {
         case .backedByOpenSea:
             rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified, showCheckbox: cell.showCheckbox())
@@ -324,11 +374,13 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
                     return rowView
                 } else {
                     let rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
-                    rowView.delegate = self
+                    //Important not to assign a delegate because we don't use actual cells to figure out the height. We use a sizing cell instead
                     return rowView
                 }
             }()
         }
+        //For performance, we use a sizing cell to figure out the height of a cell first and don't render actual cells until we know (cache) the height
+        rowView.shouldOnlyRenderIfHeightIsCached = true
         cell.delegate = self
         cell.rowView = rowView
         cell.configure(viewModel: .init(tokenHolder: tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .viewIconified), assetDefinitionStore: assetDefinitionStore)
@@ -400,17 +452,11 @@ extension TokensCardViewController: TokenCardsViewControllerHeaderDelegate {
 
 extension TokensCardViewController: TokenCardRowViewDelegate {
     func heightChangedFor(tokenCardRowView: TokenCardRowView) {
-        //We reload the top 2 cell if any because they are often visible and might have the wrong height initially.
-        if let isFirstCellVisible = tableView.indexPathsForVisibleRows?.contains(.init(row: 0, section: 0)), isFirstCellVisible {
-            tableView.reloadRows(at: [.init(row: 0, section: 0)], with: .none)
-        }
-        if let isSecondCellVisible = tableView.indexPathsForVisibleRows?.contains(.init(row: 0, section: 1)), isSecondCellVisible {
-            tableView.reloadRows(at: [.init(row: 0, section: 1)], with: .none)
-        }
-
-        //Important to not reload the table due to poor performance
+        guard let visibleRows = tableView.indexPathsForVisibleRows else { return }
+        //Important to not reload the entire table due to poor performance
         UIView.setAnimationsEnabled(false)
         tableView.beginUpdates()
+        tableView.reloadRows(at: visibleRows, with: .none)
         tableView.endUpdates()
         UIView.setAnimationsEnabled(true)
     }
