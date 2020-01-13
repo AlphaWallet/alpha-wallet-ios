@@ -19,6 +19,10 @@ class AssetDefinitionDiskBackingStoreWithOverrides: AssetDefinitionBackingStore 
         return (official: official, overrides: overrides, all: official + overrides)
     }
 
+    var contractsWithTokenScriptFileFromOfficialRepo: [AlphaWallet.Address] {
+        return officialStore.contractsWithTokenScriptFileFromOfficialRepo
+    }
+
     init(overridesStore: AssetDefinitionBackingStore? = nil) {
         if let overridesStore = overridesStore {
             self.overridesStore = overridesStore
