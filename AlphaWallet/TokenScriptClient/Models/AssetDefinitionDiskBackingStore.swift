@@ -36,6 +36,11 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
         }
     }
 
+    var contractsWithTokenScriptFileFromOfficialRepo: [AlphaWallet.Address] {
+        guard let urls = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return .init() }
+        return urls.compactMap { AlphaWallet.Address(string: $0.deletingPathExtension().lastPathComponent) }
+    }
+
     init(directoryName: String = officialDirectoryName) {
         self.assetDefinitionsDirectoryName = directoryName
         self.isOfficial = assetDefinitionsDirectoryName == AssetDefinitionDiskBackingStore.officialDirectoryName
