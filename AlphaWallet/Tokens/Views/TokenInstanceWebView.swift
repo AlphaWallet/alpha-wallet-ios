@@ -37,6 +37,11 @@ class TokenInstanceWebView: UIView {
     }
     weak var delegate: TokenInstanceWebViewDelegate?
     var shouldOnlyRenderIfHeightIsCached = false
+    //HACK: Flag necessary to inject token values somewhat reliably in at least 2 distinct cases:
+    //A. TokenScript views in token cards (ie. view iconified)
+    //B. Action views
+    //TODO improve further. It's not reliable enough
+    var isStandalone = false
 
     init(server: RPCServer, walletAddress: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
@@ -117,8 +122,12 @@ class TokenInstanceWebView: UIView {
                          const oldTokens = web3.tokens.data
                          """ + string
 
-        //Important to inject JavaScript differently depending on whether this is the first time it's loaded because the HTML document may not be ready yet. Seems like it is necessary for `afterDocumentIsLoaded` to always be true here in order to avoid `Can't find variable: web3` errors
-        inject(javaScript: javaScript, afterDocumentIsLoaded: true)
+        //Important to inject JavaScript differently depending on whether this is the first time it's loaded because the HTML document may not be ready yet. Seems like it is necessary for `afterDocumentIsLoaded` to always be true here in order to avoid `Can't find variable: web3` errors when used for token cards
+        if isStandalone {
+            inject(javaScript: javaScript, afterDocumentIsLoaded: isFirstUpdate)
+        } else {
+            inject(javaScript: javaScript, afterDocumentIsLoaded: true)
+        }
     }
 
     private func implicitAttributes(tokenHolder: TokenHolder, isFungible: Bool) -> [String: AssetInternalValue] {
