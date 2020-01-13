@@ -25,6 +25,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         let webView = TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
+        webView.isStandalone = true
         return webView
     }()
 
