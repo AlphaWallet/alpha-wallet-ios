@@ -44,6 +44,10 @@ class AssetDefinitionStore {
         return backingStore.conflictingTokenScriptFileNames
     }
 
+    var contractsWithTokenScriptFileFromOfficialRepo: [AlphaWallet.Address] {
+        return backingStore.contractsWithTokenScriptFileFromOfficialRepo
+    }
+
     //TODO move
     static var standardTokenScriptStyles: String {
         return """
