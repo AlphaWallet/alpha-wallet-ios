@@ -13,6 +13,10 @@ class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
         return (official: [], overrides: [], all: [])
     }
 
+    var contractsWithTokenScriptFileFromOfficialRepo: [AlphaWallet.Address] {
+        return .init()
+    }
+
     subscript(contract: AlphaWallet.Address) -> String? {
         get {
             return xmls[contract]
