@@ -56,9 +56,9 @@ public struct Constants {
     static let ticketContractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
     static let ticketContractAddressRopsten = AlphaWallet.Address(string: "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3")!
     
-    // UEFA hardcoded addresses TODO replace with production version
-    static let uefaXdai = AlphaWallet.Address(string: "0x0f43923667843bccafd12a5c001a7838fa5fc8ab")!
-    static let uefaRpcServer = RPCServer.xDai
+    // UEFA hardcoded addresses
+    static let uefaMainnet = AlphaWallet.Address(string: "0x89D142Bef8605646881C68dcD48cDAF17FE597dC")!
+    static let uefaRpcServer = RPCServer.main
 
     //UEFA 721 balances function hash
     static let balances165Hash721Ticket = "0xc84aae17"
