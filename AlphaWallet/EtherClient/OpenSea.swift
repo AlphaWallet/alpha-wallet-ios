@@ -166,12 +166,14 @@ class OpenSea {
                             completion(results)
                         }
                     } else {
+                        //Ignore UEFA from OpenSea, otherwise the token type would be saved wrongly as `.erc721` instead of `.erc721ForTickets`
+                        let excludingUefa = sum.filter { !$0.key.isUEFATicketContract }
                         var tokenIdCount = 0
-                        for (_, tokenIds) in sum {
+                        for (_, tokenIds) in excludingUefa {
                             tokenIdCount += tokenIds.count
                         }
                         strongSelf.cachePromise(withTokenIdCount: tokenIdCount, forOwner: owner)
-                        completion(.success(sum))
+                        completion(.success(excludingUefa))
                     }
                 }
             }
