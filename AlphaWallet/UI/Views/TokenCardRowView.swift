@@ -89,6 +89,14 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			tokenScriptRendererView.shouldOnlyRenderIfHeightIsCached = shouldOnlyRenderIfHeightIsCached
 		}
 	}
+	var isStandalone: Bool {
+		get {
+			return tokenScriptRendererView.isStandalone
+		}
+        set {
+			tokenScriptRendererView.isStandalone = newValue
+		}
+	}
 
 	init(server: RPCServer, tokenView: TokenView, showCheckbox: Bool = false, assetDefinitionStore: AssetDefinitionStore) {
 		self.server = server

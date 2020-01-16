@@ -13,18 +13,15 @@ protocol TokenInstanceViewControllerDelegate: class, CanOpenURL {
 }
 
 class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewController {
-    static let anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10 = CGFloat(100)
-
     private let tokenObject: TokenObject
     private var viewModel: TokenInstanceViewModel
     private let tokensStorage: TokensDataStore
     private let account: Wallet
     private let header = TokenCardsViewControllerHeader()
     private let roundedBackground = RoundedBackground()
-    //TODO single row. Don't use table anymore
-    private let tableView = UITableView(frame: .zero, style: .plain)
+    private lazy var tokenRowView: TokenCardRowViewProtocol & UIView = createTokenRowView()
+    private let separators = (bar: UIView(), line: UIView())
     private let buttonsBar = ButtonsBar(numberOfButtons: 3)
-    private let cellForSizing = TokenCardTableViewCellWithoutCheckbox()
 
     var tokenHolder: TokenHolder {
         return viewModel.tokenHolder
@@ -62,6 +59,15 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         self.viewModel = .init(token: tokenObject, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
         super.init(nibName: nil, bundle: nil)
 
+        let stackView = [
+            header,
+            separators.bar,
+            separators.line,
+            tokenRowView,
+        ].asStackView(axis: .vertical)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        roundedBackground.addSubview(stackView)
+
         updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         view.backgroundColor = Colors.appBackground
@@ -71,15 +77,6 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
 
         header.delegate = self
 
-        tableView.register(TokenCardTableViewCellWithoutCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.delegate = self
-        tableView.separatorStyle = .none
-        tableView.backgroundColor = Colors.appWhite
-        tableView.tableHeaderView = header
-        tableView.estimatedRowHeight = TokenInstanceViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
-        roundedBackground.addSubview(tableView)
-
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = .clear
@@ -88,10 +85,14 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            header.heightAnchor.constraint(equalToConstant: TokenCardsViewControllerHeader.height),
+
+            separators.bar.heightAnchor.constraint(equalToConstant: 5),
+            separators.line.heightAnchor.constraint(equalToConstant: 2),
+
+            stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
 
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
@@ -113,11 +114,12 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         if let newViewModel = newViewModel {
             viewModel = newViewModel
         }
-        tableView.dataSource = self
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
+        separators.bar.backgroundColor = GroupedTable.Color.background
+        separators.line.backgroundColor = GroupedTable.Color.cellSeparator
+
         header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server, assetDefinitionStore: assetDefinitionStore))
-        tableView.tableHeaderView = header
 
         let actions = viewModel.actions
         buttonsBar.numberOfButtons = actions.count
@@ -132,21 +134,8 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
                 button.isEnabled = false
             }
         }
-        tableView.reloadData()
-    }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        guard let buttonsBarHolder = buttonsBar.superview else {
-            tableView.contentInset = .zero
-            return
-        }
-        //TODO We are basically calculating the bottom safe area here. Don't rely on the internals of how buttonsBar and it's parent are laid out
-        if buttonsBar.isEmpty {
-            tableView.contentInset = .init(top: 0, left: 0, bottom: buttonsBarHolder.frame.size.height - buttonsBar.frame.size.height, right: 0)
-        } else {
-            tableView.contentInset = .init(top: 0, left: 0, bottom: tableView.frame.size.height - buttonsBarHolder.frame.origin.y, right: 0)
-        }
+        tokenRowView.configure(tokenHolder: tokenHolder, tokenView: .view, areDetailsVisible: tokenHolder.areDetailsVisible, width: 0, assetDefinitionStore: assetDefinitionStore)
     }
 
     func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
@@ -185,6 +174,41 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             break
         }
     }
+
+    private func createTokenRowView() -> TokenCardRowViewProtocol & UIView {
+        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .view)
+        let rowView: TokenCardRowViewProtocol & UIView
+        switch tokenType {
+        case .backedByOpenSea:
+            rowView = {
+                let rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .view, showCheckbox: false)
+                rowView.delegate = self
+
+                let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedOpenSeaTokenCardRowView))
+                rowView.addGestureRecognizer(tapGestureRecognizer)
+
+                return rowView
+            }()
+        case .notBackedByOpenSea:
+            rowView = {
+                let view = TokenCardRowView(server: .main, tokenView: .view, showCheckbox: false, assetDefinitionStore: assetDefinitionStore)
+                view.isStandalone = true
+                return view
+            }()
+        }
+        return rowView
+    }
+
+    @objc private func tappedOpenSeaTokenCardRowView() {
+        //We don't allow user to toggle (despite it not doing anything) for non-opensea-backed tokens because it will cause TokenScript views to flash as they have to be re-rendered
+        switch OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .view) {
+        case .backedByOpenSea:
+            viewModel.toggleSelection(for: .init(row: 0, section: 0))
+            configure()
+        case .notBackedByOpenSea:
+            break
+        }
+    }
 }
 
 extension TokenInstanceViewController: VerifiableStatusViewController {
@@ -198,58 +222,6 @@ extension TokenInstanceViewController: VerifiableStatusViewController {
 
     func open(url: URL) {
         delegate?.didPressViewContractWebPage(url, in: self)
-    }
-}
-
-extension TokenInstanceViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithoutCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithoutCheckbox
-        configure(cell: cell)
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //We don't allow user to toggle (despite it not doing anything) for non-opensea-backed tokens because it will cause TokenScript views to flash as they have to be re-rendered
-        switch OpenSeaBackedNonFungibleTokenHandling(token: viewModel.token, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified) {
-        case .backedByOpenSea:
-            viewModel.toggleSelection(for: indexPath)
-            configure()
-        case .notBackedByOpenSea:
-            break
-        }
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        configure(cell: cellForSizing)
-        //Have to be careful that height is calculated correctly for OpenSea-backed tokens (both expanded and minimized) as well as TokenScript views
-        let size = cellForSizing.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
-        if let rowView = cellForSizing.rowView {
-            return size.height + rowView.additionalHeightToCompensateForAutoLayout
-        } else {
-            return size.height
-        }
-    }
-
-    private func configure(cell: TokenCardTableViewCellWithoutCheckbox) {
-        let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .view)
-        let rowView: TokenCardRowViewProtocol & UIView
-        switch tokenType {
-        case .backedByOpenSea:
-            rowView = {
-                let rowView = OpenSeaNonFungibleTokenCardRowView(tokenView: .viewIconified, showCheckbox: cell.showCheckbox())
-                rowView.delegate = self
-                return rowView
-            }()
-        case .notBackedByOpenSea:
-            rowView = TokenCardRowView(server: .main, tokenView: .viewIconified, showCheckbox: cell.showCheckbox(), assetDefinitionStore: assetDefinitionStore)
-        }
-        cell.delegate = self
-        cell.rowView = rowView
-        cell.configure(viewModel: .init(tokenHolder: viewModel.tokenHolder, cellWidth: tableView.frame.size.width, tokenView: .view), assetDefinitionStore: assetDefinitionStore)
     }
 }
 
@@ -271,3 +243,4 @@ extension TokenInstanceViewController: OpenSeaNonFungibleTokenCardRowViewDelegat
 //        delegate?.didPressOpenWebPage(url, in: self)
 //    }
 }
+
