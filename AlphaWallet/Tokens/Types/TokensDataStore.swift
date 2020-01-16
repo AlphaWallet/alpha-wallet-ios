@@ -507,9 +507,10 @@ class TokensDataStore {
             guard let strongSelf = self else { return }
             switch result {
             case .success(let balance):
-                let token = strongSelf.token(forContract: Constants.nativeCryptoAddressInDatabase)
+                //Defensive check, instead of force unwrapping the result. At least one crash due to token being nil. Perhaps a Realm bug or in our code, perhaps in between enabling/disabling of chains? Harmless to do an early return
+                guard let token = strongSelf.token(forContract: Constants.nativeCryptoAddressInDatabase) else { return }
                 //TODO why is each chain's balance updated so many times? (if we add console logs)
-                strongSelf.update(token: token!, action: .value(balance.value))
+                strongSelf.update(token: token, action: .value(balance.value))
                 strongSelf.updateDelegate()
             case .failure: break
             }
