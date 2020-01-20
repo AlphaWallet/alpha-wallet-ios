@@ -7,6 +7,8 @@ protocol TokenCardsViewControllerHeaderDelegate: class {
 }
 
 class TokenCardsViewControllerHeader: UIView {
+    static let height = CGFloat(90)
+
     private let background = UIView()
     private let titleLabel = UILabel()
     //TODO rename? Button now
@@ -58,7 +60,7 @@ class TokenCardsViewControllerHeader: UIView {
     }
 
     func configure(viewModel: TokensCardViewControllerHeaderViewModel) {
-        frame = CGRect(x: 0, y: 0, width: 300, height: 90)
+        frame = CGRect(x: 0, y: 0, width: 300, height: TokenCardsViewControllerHeader.height)
         backgroundColor = viewModel.backgroundColor
 
         titleLabel.textColor = viewModel.titleColor
