@@ -6,6 +6,7 @@ import Result
 import TrustKeystore
 import JSONRPCKit
 import APIKit
+import PromiseKit
 
 public struct PreviewTransaction {
     let value: BigInt
@@ -112,7 +113,36 @@ class TransactionConfigurator {
         }
     }
 
-    func load(completion: @escaping (Result<Void, AnyError>) -> Void) {
+    // Generic function to derive the typical acceptable gas price on each network
+    static public func estimateGasPrice(server: RPCServer) -> Promise<BigInt> {
+        return Promise { seal in
+            if server == .xDai {
+                // xDAI node returns a much higher gas price than necessary so if it is xDAI simply return 1 Gwei
+                seal.fulfill(GasPriceConfiguration.xDaiGasPrice)
+            } else {
+                let request = EtherServiceRequest(server: server, batch: BatchFactory().create(GasPriceRequest()))
+                Session.send(request) { result in
+                    switch result {
+                    case .success(let balance):
+                        if let gasPrice = BigInt(balance.drop0x, radix: 16) {
+                            if gasPrice > GasPriceConfiguration.maxPrice {
+                                // Guard against really high prices
+                                seal.fulfill(GasPriceConfiguration.maxPrice)
+                            } else {
+                                seal.fulfill(gasPrice)
+                            }
+                        } else {
+                            seal.fulfill(GasPriceConfiguration.defaultPrice)
+                        }
+                    case .failure:
+                        seal.fulfill(GasPriceConfiguration.defaultPrice)
+                    }
+                }
+            }
+        }
+    }
+
+    func load(completion: @escaping (ResultResult<Void, AnyError>.t) -> Void) {
         switch transaction.transferType {
         case .nativeCryptocurrency, .dapp:
             guard requestEstimateGas else {
