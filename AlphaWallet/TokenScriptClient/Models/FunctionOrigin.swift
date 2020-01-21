@@ -172,29 +172,31 @@ struct FunctionOrigin {
 
     private func postTransaction(withPayload payload: Data, value: BigUInt, server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<Void> {
         let account = try! EtherKeystore().getAccount(for: session.account.address)!
-        //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
-        let transactionToSign = UnsignedTransaction(
-                value: BigInt(value),
-                account: account,
-                to: originContractOrRecipientAddress,
-                nonce: -1,
-                data: payload,
-                gasPrice: GasPriceConfiguration.defaultPrice,
-                gasLimit: GasLimitConfiguration.maxGasLimit,
-                server: server
-        )
-        let sendTransactionCoordinator = SendTransactionCoordinator(
-                session: session,
-                keystore: keystore,
-                confirmType: .signThenSend
-        )
         return Promise { seal in
-            sendTransactionCoordinator.send(transaction: transactionToSign) { result in
-                switch result {
-                case .success:
-                    seal.fulfill(Void())
-                case .failure:
-                    seal.reject(FunctionError.postTransaction)
+            TransactionConfigurator.estimateGasPrice(server: server).done { gasPrice in
+                //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
+                let transactionToSign = UnsignedTransaction(
+                        value: BigInt(value),
+                        account: account,
+                        to: self.originContractOrRecipientAddress,
+                        nonce: -1,
+                        data: payload,
+                        gasPrice: gasPrice,
+                        gasLimit: GasLimitConfiguration.maxGasLimit,
+                        server: server
+                )
+                let sendTransactionCoordinator = SendTransactionCoordinator(
+                        session: session,
+                        keystore: keystore,
+                        confirmType: .signThenSend
+                )
+                sendTransactionCoordinator.send(transaction: transactionToSign) { result in
+                    switch result {
+                    case .success:
+                        seal.fulfill(Void())
+                    case .failure:
+                        seal.reject(FunctionError.postTransaction)
+                    }
                 }
             }
         }

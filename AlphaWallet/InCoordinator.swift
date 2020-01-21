@@ -498,30 +498,32 @@ class InCoordinator: NSObject, Coordinator {
             case .success(let payload):
                 let session = strongSelf.walletSessions[server]
                 let account = try! EtherKeystore().getAccount(for: wallet.address)!
-                //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
-                let transactionToSign = UnsignedTransaction(
-                        value: BigInt(signedOrder.order.price),
-                        account: account,
-                        to: signedOrder.order.contractAddress,
-                        nonce: -1,
-                        data: payload,
-                        gasPrice: GasPriceConfiguration.defaultPrice,
-                        gasLimit: GasLimitConfiguration.maxGasLimit,
-                        server: server
-                )
-                let sendTransactionCoordinator = SendTransactionCoordinator(
-                        session: session,
-                        keystore: strongSelf.keystore,
-                        confirmType: .signThenSend
-                )
-                sendTransactionCoordinator.send(transaction: transactionToSign) { result in
-                    switch result {
-                    case .success(let res):
-                        completion(true)
-                        print(res)
-                    case .failure(let error):
-                        completion(false)
-                        print(error)
+                TransactionConfigurator.estimateGasPrice(server: server).done { gasPrice in
+                    //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
+                    let transactionToSign = UnsignedTransaction(
+                            value: BigInt(signedOrder.order.price),
+                            account: account,
+                            to: signedOrder.order.contractAddress,
+                            nonce: -1,
+                            data: payload,
+                            gasPrice: gasPrice,
+                            gasLimit: GasLimitConfiguration.maxGasLimit,
+                            server: server
+                    )
+                    let sendTransactionCoordinator = SendTransactionCoordinator(
+                            session: session,
+                            keystore: strongSelf.keystore,
+                            confirmType: .signThenSend
+                    )
+                    sendTransactionCoordinator.send(transaction: transactionToSign) { result in
+                        switch result {
+                        case .success(let res):
+                            completion(true)
+                            print(res)
+                        case .failure(let error):
+                            completion(false)
+                            print(error)
+                        }
                     }
                 }
             case .failure: break
