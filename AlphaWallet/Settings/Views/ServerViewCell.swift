@@ -4,28 +4,18 @@ import UIKit
 
 class ServerViewCell: UITableViewCell {
     static let identifier = "ServerViewCell"
+    static let selectionAccessoryType: (selected: UITableViewCell.AccessoryType, unselected: UITableViewCell.AccessoryType) = (selected: .checkmark, unselected: .none)
 
-    private let selectedIcon = UIImageView(image: R.image.ticket_bundle_checked())
     private let nameLabel = UILabel()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        selectedIcon.contentMode = .scaleAspectFit
-
-        let stackView = [selectedIcon, nameLabel].asStackView(spacing: 15, alignment: .center)
+        let stackView = [.spacerWidth(Table.Metric.plainLeftMargin), nameLabel].asStackView(axis: .horizontal)
         stackView.translatesAutoresizingMaskIntoConstraints = false
-
-        selectedIcon.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
-        nameLabel.setContentHuggingPriority(UILayoutPriority.defaultLow, for: .horizontal)
-
-        stackView.setContentHuggingPriority(UILayoutPriority.required, for: .horizontal)
-
         contentView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            selectedIcon.widthAnchor.constraint(equalToConstant: 44),
-
             stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 7, left: StyleLayout.sideMargin, bottom: 7, right: StyleLayout.sideMargin)),
             stackView.heightAnchor.constraint(equalToConstant: 44),
         ])
@@ -39,7 +29,7 @@ class ServerViewCell: UITableViewCell {
         selectionStyle = .none
         backgroundColor = viewModel.backgroundColor
 
-        selectedIcon.image = viewModel.selectionIcon
+        accessoryType = viewModel.accessoryType
 
         nameLabel.font = viewModel.serverFont
         nameLabel.text = viewModel.serverName
