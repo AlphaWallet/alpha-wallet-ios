@@ -4,29 +4,29 @@ import Foundation
 import UIKit
 
 func applyStyle() {
-    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.appTint
+    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.navigationButtonTintColor
     UIWindow.appearance().tintColor = Colors.appTint
     UITabBar.appearance().tintColor = Colors.appTint
-    UINavigationBar.appearance().tintColor = Colors.navigationTitleColor
+    UINavigationBar.appearance().tintColor = Colors.navigationButtonTintColor
     UINavigationBar.appearance().setBackgroundImage(UIImage(color: Colors.appBackground), for: .default)
     UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
     UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
     UINavigationBar.appearance().titleTextAttributes = [
         .foregroundColor: Colors.navigationTitleColor,
-        .font: Fonts.semibold(size: 20) as Any
+        .font: Fonts.semibold(size: 17) as Any
     ]
 
     //We could have set the backBarButtonItem with an empty title for every view controller, but we don't have a place to do it for Eureka view controllers. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
     UIBarButtonItem.appearance().setBackButtonTitlePositionAdjustment(UIOffset(horizontal: -200, vertical: 0), for: .default)
-    UIBarButtonItem.appearance().tintColor = Colors.navigationTitleColor
-    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIToolbar.self]).tintColor = Colors.appTint
+    UIBarButtonItem.appearance().tintColor = Colors.navigationButtonTintColor
+    UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIToolbar.self]).tintColor = Colors.navigationButtonTintColor
 
     UIToolbar.appearance().tintColor = Colors.appTint
 
     //Background (not needed in iOS 12.1 on simulator)
     UISearchBar.appearance().backgroundColor = Colors.appBackground
     //Cancel button
-    UISearchBar.appearance().tintColor = Colors.navigationTitleColor
+    UISearchBar.appearance().tintColor = Colors.navigationButtonTintColor
     //Cursor color
     UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).tintColor = Colors.navigationTitleColor
 
@@ -53,8 +53,9 @@ struct Colors {
     static let black = UIColor(hex: "313849")
     static let lightBlack = UIColor(hex: "313849")
     static let appBackground = UIColor.white
-    static let appTint = UIColor(red: 84, green: 193, blue: 227)
-    static let navigationTitleColor = UIColor(red: 110, green: 110, blue: 110)
+    static let appTint = R.color.azure()!
+    static let navigationTitleColor = UIColor.black
+    static let navigationButtonTintColor = R.color.mine()!
     static let appWhite = UIColor.white
     static let appText = UIColor(red: 47, green: 47, blue: 47)
     static let appSubtitle = UIColor(red: 117, green: 117, blue: 117)
@@ -152,7 +153,7 @@ enum DataEntry {
 
 enum SegmentBar {
     enum Color {
-        static let highlighted = UIColor(red: 35, green: 158, blue: 197)
+        static let highlighted = Colors.appTint
     }
 
     enum Font {
