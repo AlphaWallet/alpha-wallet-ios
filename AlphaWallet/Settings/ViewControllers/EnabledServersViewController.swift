@@ -4,6 +4,7 @@ import UIKit
 
 protocol EnabledServersViewControllerDelegate: class {
     func didSelectServers(servers: [RPCServer], in viewController: EnabledServersViewController)
+    func didDismiss(viewController: EnabledServersViewController)
 }
 
 class EnabledServersViewController: UIViewController {
@@ -16,7 +17,7 @@ class EnabledServersViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
 
-        navigationItem.rightBarButtonItem = .init(barButtonSystemItem: .done, target: self, action: #selector(done))
+        navigationItem.rightBarButtonItem = .init(barButtonSystemItem: .save, target: self, action: #selector(done))
 
         view.backgroundColor = Colors.appBackground
 
@@ -26,7 +27,7 @@ class EnabledServersViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.backgroundColor = Colors.appBackground
         tableView.register(ServerViewCell.self, forCellReuseIdentifier: ServerViewCell.identifier)
         roundedBackground.addSubview(tableView)
 
@@ -36,6 +37,15 @@ class EnabledServersViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isMovingFromParent {
+            delegate?.didDismiss(viewController: self)
+        } else {
+            //no-op
+        }
     }
 
     func configure(viewModel: EnabledServersViewModel) {
