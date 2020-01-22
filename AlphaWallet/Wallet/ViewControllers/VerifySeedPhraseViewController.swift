@@ -104,6 +104,7 @@ class VerifySeedPhraseViewController: UIViewController {
         self.state = .notDisplayedSeedPhrase
         super.init(nibName: nil, bundle: nil)
 
+        seedPhraseCollectionView.bounces = true
         seedPhraseCollectionView.seedPhraseDelegate = self
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
@@ -145,7 +146,10 @@ class VerifySeedPhraseViewController: UIViewController {
         NSLayoutConstraint.activate([
             seedPhraseTextView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 100: 140),
 
-            stackView.anchorsConstraint(to: view, edgeInsets: .init(top: 0, left: 20, bottom: 0, right: 20)),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            stackView.topAnchor.constraint(equalTo: view.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: clearChooseSeedPhraseButton.topAnchor, constant: -7),
 
             clearChooseSeedPhraseButton.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 10),
             clearChooseSeedPhraseButton.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -10),
