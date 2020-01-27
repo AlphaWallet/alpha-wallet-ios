@@ -24,7 +24,7 @@ class LocalesViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.backgroundColor = Colors.appBackground
         tableView.register(LocaleViewCell.self, forCellReuseIdentifier: LocaleViewCell.identifier)
         roundedBackground.addSubview(tableView)
 
@@ -64,9 +64,29 @@ extension LocalesViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        reflectTemporarySelection(atIndexPath: indexPath)
+
         tableView.deselectRow(at: indexPath, animated: true)
         guard let viewModel = viewModel else { return }
         let locale = viewModel.locale(for: indexPath)
-        delegate?.didSelect(locale: locale, in: self)
+
+        //Dispatch so the updated selection checkbox can be shown to the user before closing the screen
+        DispatchQueue.main.async {
+            self.delegate?.didSelect(locale: locale, in: self)
+        }
+    }
+
+    private func reflectTemporarySelection(atIndexPath indexPath: IndexPath) {
+        if let cell = tableView.cellForRow(at: indexPath) {
+            cell.accessoryType = LocaleViewCell.selectionAccessoryType.selected
+        }
+        guard let viewModel = viewModel else { return }
+        for (index, locale) in viewModel.locales.enumerated() {
+            if viewModel.isLocaleSelected(locale) {
+                guard let cell = tableView.cellForRow(at: .init(row: index, section: indexPath.section)) else { break }
+                cell.accessoryType = LocaleViewCell.selectionAccessoryType.unselected
+                break
+            }
+        }
     }
 }
