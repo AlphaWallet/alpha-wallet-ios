@@ -11,6 +11,7 @@ class SeedPhraseCollectionView: UICollectionView {
     var viewModel: SeedPhraseCollectionViewModel = .init(isSelectable: true, shouldShowSequenceNumber: true) {
         didSet {
             reloadData()
+            flashScrollIndicators()
         }
     }
     weak var seedPhraseDelegate: SeedPhraseCollectionViewDelegate?
