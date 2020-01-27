@@ -130,6 +130,13 @@ enum GroupedTable {
     }
 }
 
+enum Table {
+    enum Metric {
+        static let plainLeftMargin = CGFloat(5)
+
+    }
+}
+
 enum DataEntry {
     enum Color {
         static let border = UIColor(red: 194, green: 194, blue: 194)
