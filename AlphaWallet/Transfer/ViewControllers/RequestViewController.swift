@@ -47,6 +47,24 @@ class RequestViewController: UIViewController {
 		return label
 	}()
 
+	private lazy var ensContainerView: UIView = {
+		let v = UIView()
+		v.backgroundColor = viewModel.addressBackgroundColor
+        v.isHidden = true
+		return v
+	}()
+
+	private lazy var ensLabel: UILabel = {
+		let label = UILabel(frame: .zero)
+		label.translatesAutoresizingMaskIntoConstraints = false
+		label.textColor = viewModel.labelColor
+		label.font = viewModel.addressFont
+		label.textAlignment = .center
+		label.minimumScaleFactor = 0.5
+		label.adjustsFontSizeToFitWidth = true
+		return label
+	}()
+
 	private let viewModel: RequestViewModel
 	private let buttonsBar = ButtonsBar(numberOfButtons: 1)
 
@@ -58,19 +76,24 @@ class RequestViewController: UIViewController {
 		view.backgroundColor = viewModel.backgroundColor
 		view.addSubview(roundedBackground)
 
+		ensContainerView.addSubview(ensLabel)
+
 		addressContainerView.addSubview(addressLabel)
 
 		scrollView.translatesAutoresizingMaskIntoConstraints = false
 		roundedBackground.addSubview(scrollView)
 
 		let stackView = [
-			.spacer(height: 30),
+			.spacer(height: ScreenChecker().isNarrowScreen ? 20 : 30),
 			instructionLabel,
-			.spacer(height: 50),
+			.spacer(height: ScreenChecker().isNarrowScreen ? 20 : 50),
 			imageView,
 		].asStackView(axis: .vertical, alignment: .center)
 		stackView.translatesAutoresizingMaskIntoConstraints = false
 		scrollView.addSubview(stackView)
+
+		ensContainerView.translatesAutoresizingMaskIntoConstraints = false
+		roundedBackground.addSubview(ensContainerView)
 
         addressContainerView.translatesAutoresizingMaskIntoConstraints = false
 		roundedBackground.addSubview(addressContainerView)
@@ -82,10 +105,6 @@ class RequestViewController: UIViewController {
 
 		footerBar.addSubview(buttonsBar)
 
-		let addressContainerLeadingAnchorConstraint = addressContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10)
-		addressContainerLeadingAnchorConstraint.priority = .defaultLow
-		let addressContainerTrailingAnchorConstraint = addressContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 10)
-		addressContainerTrailingAnchorConstraint.priority = .defaultLow
 		let qrCodeDimensions: CGFloat
 		if ScreenChecker().isNarrowScreen {
 			qrCodeDimensions = 230
@@ -93,10 +112,8 @@ class RequestViewController: UIViewController {
 			qrCodeDimensions = 260
 		}
 		NSLayoutConstraint.activate([
-			addressContainerLeadingAnchorConstraint,
-			addressContainerTrailingAnchorConstraint,
-
 			//Leading/trailing anchor needed to make label fit when on narrow iPhones
+			ensLabel.anchorsConstraint(to: ensContainerView, edgeInsets: .init(top: 20, left: 10, bottom: 20, right: 10)),
 			addressLabel.anchorsConstraint(to: addressContainerView, edgeInsets: .init(top: 20, left: 10, bottom: 20, right: 10)),
 
 			imageView.widthAnchor.constraint(equalToConstant: qrCodeDimensions),
@@ -122,6 +139,10 @@ class RequestViewController: UIViewController {
 			footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
 			footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
+			ensContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+			ensContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+			ensContainerView.bottomAnchor.constraint(equalTo: addressContainerView.topAnchor, constant: ScreenChecker().isNarrowScreen ? -10 : -20),
+
 			addressContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
 			addressContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
 			addressContainerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -20),
@@ -137,6 +158,7 @@ class RequestViewController: UIViewController {
 	override func viewDidLayoutSubviews() {
 		super.viewDidLayoutSubviews()
 		addressContainerView.cornerRadius = addressContainerView.frame.size.height / 2
+		ensContainerView.cornerRadius = ensContainerView.frame.size.height / 2
 	}
 
 	private func configure() {
@@ -144,6 +166,24 @@ class RequestViewController: UIViewController {
 		let copyButton = buttonsBar.buttons[0]
 		copyButton.addTarget(self, action: #selector(copyAddress), for: .touchUpInside)
 		copyButton.setTitle(viewModel.copyWalletText, for: .normal)
+
+		resolveEns()
+	}
+
+	private func resolveEns() {
+		let serverToResolveEns = RPCServer.main
+		let address = viewModel.myAddress
+		ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
+			guard let strongSelf = self else { return }
+			if let ensName = result.value {
+                strongSelf.ensLabel.text = ensName
+				strongSelf.ensContainerView.isHidden = false
+				strongSelf.ensContainerView.cornerRadius = strongSelf.ensContainerView.frame.size.height / 2
+			} else {
+				strongSelf.ensLabel.text = nil
+				strongSelf.ensContainerView.isHidden = true
+			}
+		}
 	}
 
 	@objc func textFieldDidChange(_ textField: UITextField) {
@@ -172,7 +212,7 @@ class RequestViewController: UIViewController {
 		hud.mode = .text
 		hud.label.text = viewModel.addressCopiedText
 		hud.hide(animated: true, afterDelay: 1.5)
-		
+
 		showFeedback()
 	}
 
