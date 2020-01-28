@@ -29,6 +29,7 @@ class TransactionDataCoordinator: Coordinator {
     private let fetchLatestTransactionsQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.name = "Fetch Latest Transactions"
+        //A limit is important for many reasons. One of which is Etherscan has a rate limit of 5 calls/sec/IP address according to https://etherscan.io/apis
         queue.maxConcurrentOperationCount = 3
         return queue
     }()
