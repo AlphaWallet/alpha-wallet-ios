@@ -16,6 +16,10 @@ struct RequestViewModel {
 		return account.address.eip55String
 	}
 
+	var myAddress: AlphaWallet.Address {
+		return account.address
+	}
+
 	var shareMyAddressText: String {
 		return R.string.localizable.requestMyAddressIsLabelTitle(server.name, myAddressText)
 	}
