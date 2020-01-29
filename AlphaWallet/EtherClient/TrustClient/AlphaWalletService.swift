@@ -70,7 +70,17 @@ extension AlphaWalletService: TargetType {
         switch self {
         case .getTransactions(_, let server, let address, let startBlock, let endBlock, let sortOrder):
             switch server {
-            case .main, .classic, .callisto, .kovan, .ropsten, .custom, .rinkeby, .poa, .sokol, .goerli, .xDai, .artis_sigma1, .artis_tau1:
+            case .main, .kovan, .ropsten, .rinkeby, .goerli:
+                return .requestParameters(parameters: [
+                    "module": "account",
+                    "action": "txlist",
+                    "address": address,
+                    "startblock": startBlock,
+                    "endblock": endBlock,
+                    "sort": sortOrder.rawValue,
+                    "apikey": Constants.Credentials.etherscanKey,
+                ], encoding: URLEncoding())
+            case .classic, .callisto, .custom, .poa, .sokol, .xDai, .artis_sigma1, .artis_tau1:
                 return .requestParameters(parameters: [
                     "module": "account",
                     "action": "txlist",
