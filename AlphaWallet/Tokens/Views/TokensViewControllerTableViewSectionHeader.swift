@@ -7,7 +7,7 @@ extension TokensViewController {
     class TableViewSectionHeader: UITableViewHeaderFooterView {
         static let reuseIdentifier = String(describing: TableViewSectionHeader.self)
 
-        var filterView: WalletFilterView? {
+        var filterView: SegmentedControl? {
             didSet {
                 guard let filterView = filterView else {
                     if let oldValue = oldValue {
@@ -17,7 +17,6 @@ extension TokensViewController {
                 }
                 filterView.translatesAutoresizingMaskIntoConstraints = false
                 contentView.addSubview(filterView)
-
                 NSLayoutConstraint.activate([
                     filterView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 0, left: 0, bottom: 7, right: 0)),
                 ])

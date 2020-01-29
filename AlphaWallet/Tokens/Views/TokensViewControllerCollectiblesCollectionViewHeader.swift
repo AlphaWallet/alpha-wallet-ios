@@ -7,7 +7,7 @@ extension TokensViewController {
     class CollectiblesCollectionViewHeader: UICollectionReusableView {
         static let reuseIdentifier = String(describing: CollectiblesCollectionViewHeader.self)
 
-        var filterView: WalletFilterView? {
+        var filterView: SegmentedControl? {
             didSet {
                 guard let filterView = filterView else {
                     if let oldValue = oldValue {
