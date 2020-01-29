@@ -21,7 +21,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     //We don't actually use the rounded corner here, but it's a useful "content" view here
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
-    private let tabBar = ImportWalletTabBar()
+    private let tabBar = SegmentedControl(titles: ImportWalletViewModel.segmentedControlTitles)
     private let mnemonicTextView = TextView()
     private let keystoreJSONTextView = TextView()
     private let passwordTextField = TextField()
@@ -166,6 +166,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
             tabBar.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             tabBar.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
+            tabBar.heightAnchor.constraint(equalToConstant: 44),
 
             mnemonicControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
             mnemonicControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
@@ -225,7 +226,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     }
 
     private func showCorrectTab() {
-        switch tabBar.tab {
+        guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return }
+        switch tab {
         case .mnemonic:
             showMnemonicControlsOnly()
         case .keystore:
@@ -238,7 +240,9 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     }
 
     func showWatchTab() {
-        tabBar.showWatchTab()
+        //TODO shouldn't this be done in a view model?
+        tabBar.selection = .selected(ImportWalletTab.watch.selectionIndex)
+        showCorrectTab()
     }
 
     func configure() {
@@ -291,7 +295,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     ///Returns true only if valid
     private func validate() -> Bool {
-        switch tabBar.tab {
+        guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return false }
+        switch tab {
         case .mnemonic:
             return validateMnemonic()
         case .keystore:
@@ -359,7 +364,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         displayLoading(text: R.string.localizable.importWalletImportingIndicatorLabelTitle(), animated: false)
 
         let importTypeOptional: ImportType? = {
-            switch tabBar.tab {
+            guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return nil }
+            switch tab {
             case .mnemonic:
                 return .mnemonic(words: mnemonicInput.split(separator: " ").map { String($0) }, password: "")
             case .keystore:
@@ -432,7 +438,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     }
 
     func setValueForCurrentField(string: String) {
-        switch tabBar.tab {
+        guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return }
+        switch tab {
         case .mnemonic:
             mnemonicTextView.value = string
         case .keystore:
@@ -614,8 +621,9 @@ extension ImportWalletViewController: AddressTextFieldDelegate {
     }
 }
 
-extension ImportWalletViewController: ImportWalletTabBarDelegate {
-    func didPressImportWalletTab(tab: ImportWalletTab, in tabBar: ImportWalletTabBar) {
+extension ImportWalletViewController: SegmentedControlDelegate {
+    func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl) {
+        tabBar.selection = selection
         showCorrectTab()
     }
 }

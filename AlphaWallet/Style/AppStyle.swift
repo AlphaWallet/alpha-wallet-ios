@@ -158,16 +158,6 @@ enum DataEntry {
     }
 }
 
-enum SegmentBar {
-    enum Color {
-        static let highlighted = Colors.appTint
-    }
-
-    enum Font {
-        static let text = Fonts.semibold(size: 16)!
-    }
-}
-
 enum Screen {
     enum Backup {
         static let subtitleFont = Fonts.regular(size: 28)!

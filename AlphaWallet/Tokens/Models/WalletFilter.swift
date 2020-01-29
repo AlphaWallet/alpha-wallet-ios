@@ -26,3 +26,4 @@ func == (lhs: WalletFilter, rhs: WalletFilter) -> Bool {
 		return false
 	}
 }
+

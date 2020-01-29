@@ -5,6 +5,8 @@ import UIKit
 
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
+    static let segmentedControlTitles = WalletFilter.orderedTabs.map { $0.title }
+
     private let assetDefinitionStore: AssetDefinitionStore
     private let tokens: [TokenObject]
     private let tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
@@ -27,7 +29,6 @@ class TokensViewModel {
     lazy var filteredTokens: [TokenObject] = {
         return getFilteredtokens()
     }()
-
     var headerBackgroundColor: UIColor {
         return .white
     }
@@ -134,5 +135,49 @@ class TokensViewModel {
         let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
         let price = Double(tickersSymbol.price_usd) ?? 0
         return tokenValue * price
+    }
+
+    func convertSegmentedControlSelectionToFilter(_ selection: SegmentedControl.Selection) -> WalletFilter? {
+        switch selection {
+        case .selected(let index):
+            return WalletFilter.filter(fromIndex: index)
+        case .unselected:
+            return nil
+        }
+    }
+}
+
+fileprivate extension WalletFilter {
+    static var orderedTabs: [WalletFilter] {
+        return [
+            .all,
+            .currencyOnly,
+            .assetsOnly,
+            .collectiblesOnly,
+        ]
+    }
+
+    static func filter(fromIndex index: UInt) -> WalletFilter? {
+        return WalletFilter.orderedTabs.first { $0.selectionIndex == index }
+    }
+
+    var title: String {
+        switch self {
+        case .all:
+            return R.string.localizable.aWalletContentsFilterAllTitle()
+        case .currencyOnly:
+            return R.string.localizable.aWalletContentsFilterCurrencyOnlyTitle()
+        case .assetsOnly:
+            return R.string.localizable.aWalletContentsFilterAssetsOnlyTitle()
+        case .collectiblesOnly:
+            return R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle()
+        case .keyword:
+            return ""
+        }
+    }
+
+    var selectionIndex: UInt? {
+        //This is safe only because index can't possibly be negative
+        return WalletFilter.orderedTabs.firstIndex { $0 == self }.flatMap { UInt($0) }
     }
 }
