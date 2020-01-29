@@ -1,5 +1,4 @@
 // Copyright © 2018 Stormbird PTE. LTD.
-
 import Foundation
 import UIKit
 import CoreImage
@@ -14,6 +13,8 @@ class RequestViewController: UIViewController {
 	}()
 
 	private let scrollView = UIScrollView()
+	private let copyEnsButton = UIButton(type: .system)
+	private let copyAddressButton = UIButton(type: .system)
 
 	private lazy var instructionLabel: UILabel = {
 		let label = UILabel()
@@ -37,8 +38,7 @@ class RequestViewController: UIViewController {
 
 	private lazy var addressLabel: UILabel = {
 		let label = UILabel(frame: .zero)
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.textColor = viewModel.labelColor
+		label.textColor = viewModel.addressLabelColor
 		label.font = viewModel.addressFont
 		label.text = viewModel.myAddressText
 		label.textAlignment = .center
@@ -56,8 +56,7 @@ class RequestViewController: UIViewController {
 
 	private lazy var ensLabel: UILabel = {
 		let label = UILabel(frame: .zero)
-		label.translatesAutoresizingMaskIntoConstraints = false
-		label.textColor = viewModel.labelColor
+		label.textColor = viewModel.addressLabelColor
 		label.font = viewModel.addressFont
 		label.textAlignment = .center
 		label.minimumScaleFactor = 0.5
@@ -66,19 +65,31 @@ class RequestViewController: UIViewController {
 	}()
 
 	private let viewModel: RequestViewModel
-	private let buttonsBar = ButtonsBar(numberOfButtons: 1)
 
 	init(viewModel: RequestViewModel) {
 		self.viewModel = viewModel
 
 		super.init(nibName: nil, bundle: nil)
 
+        title = R.string.localizable.aSettingsContentsMyWalletAddress()
+
 		view.backgroundColor = viewModel.backgroundColor
 		view.addSubview(roundedBackground)
 
-		ensContainerView.addSubview(ensLabel)
+		copyEnsButton.addTarget(self, action: #selector(copyEns), for: .touchUpInside)
+        copyEnsButton.setContentHuggingPriority(.required, for: .horizontal)
 
-		addressContainerView.addSubview(addressLabel)
+		let ensStackView = [.spacerWidth(7), ensLabel, .spacerWidth(10), copyEnsButton, .spacerWidth(7)].asStackView(axis: .horizontal)
+		ensStackView.addSubview(forBackgroundColor: viewModel.addressBackgroundColor)
+		ensStackView.translatesAutoresizingMaskIntoConstraints = false
+		ensContainerView.addSubview(ensStackView)
+
+		copyAddressButton.addTarget(self, action: #selector(copyAddress), for: .touchUpInside)
+
+		let addressStackView = [.spacerWidth(7), addressLabel, .spacerWidth(10), copyAddressButton, .spacerWidth(7)].asStackView(axis: .horizontal)
+		addressStackView.addSubview(forBackgroundColor: viewModel.addressBackgroundColor)
+		addressStackView.translatesAutoresizingMaskIntoConstraints = false
+		addressContainerView.addSubview(addressStackView)
 
 		scrollView.translatesAutoresizingMaskIntoConstraints = false
 		roundedBackground.addSubview(scrollView)
@@ -98,13 +109,6 @@ class RequestViewController: UIViewController {
         addressContainerView.translatesAutoresizingMaskIntoConstraints = false
 		roundedBackground.addSubview(addressContainerView)
 
-		let footerBar = UIView()
-		footerBar.translatesAutoresizingMaskIntoConstraints = false
-		footerBar.backgroundColor = .clear
-		roundedBackground.addSubview(footerBar)
-
-		footerBar.addSubview(buttonsBar)
-
 		let qrCodeDimensions: CGFloat
 		if ScreenChecker().isNarrowScreen {
 			qrCodeDimensions = 230
@@ -113,8 +117,8 @@ class RequestViewController: UIViewController {
 		}
 		NSLayoutConstraint.activate([
 			//Leading/trailing anchor needed to make label fit when on narrow iPhones
-			ensLabel.anchorsConstraint(to: ensContainerView, edgeInsets: .init(top: 20, left: 10, bottom: 20, right: 10)),
-			addressLabel.anchorsConstraint(to: addressContainerView, edgeInsets: .init(top: 20, left: 10, bottom: 20, right: 10)),
+			ensStackView.anchorsConstraint(to: ensContainerView, edgeInsets: .init(top: 14, left: 20, bottom: 14, right: 20)),
+			addressStackView.anchorsConstraint(to: addressContainerView, edgeInsets: .init(top: 14, left: 20, bottom: 14, right: 20)),
 
 			imageView.widthAnchor.constraint(equalToConstant: qrCodeDimensions),
 			imageView.heightAnchor.constraint(equalToConstant: qrCodeDimensions),
@@ -127,25 +131,14 @@ class RequestViewController: UIViewController {
 			scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
 			scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 			scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-			scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+			scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-			buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-			buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-			buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-			buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
+            ensContainerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+			ensContainerView.topAnchor.constraint(equalTo: stackView.bottomAnchor, constant: 40),
 
-			footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-			footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-			footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
-			footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-			ensContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-			ensContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-			ensContainerView.bottomAnchor.constraint(equalTo: addressContainerView.topAnchor, constant: ScreenChecker().isNarrowScreen ? -10 : -20),
-
+			addressContainerView.topAnchor.constraint(equalTo: ensContainerView.bottomAnchor, constant: ScreenChecker().isNarrowScreen ? 10 : 20),
 			addressContainerView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
 			addressContainerView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-			addressContainerView.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -20),
 
 			roundedBackground.createConstraintsWithContainer(view: view),
 		])
@@ -162,10 +155,9 @@ class RequestViewController: UIViewController {
 	}
 
 	private func configure() {
-		buttonsBar.configure()
-		let copyButton = buttonsBar.buttons[0]
-		copyButton.addTarget(self, action: #selector(copyAddress), for: .touchUpInside)
-		copyButton.setTitle(viewModel.copyWalletText, for: .normal)
+		copyEnsButton.setImage(R.image.copy(), for: .normal)
+
+		copyAddressButton.setImage(R.image.copy(), for: .normal)
 
 		resolveEns()
 	}
@@ -216,6 +208,17 @@ class RequestViewController: UIViewController {
 		showFeedback()
 	}
 
+	@objc func copyEns() {
+		UIPasteboard.general.string = ensLabel.text ?? ""
+
+		let hud = MBProgressHUD.showAdded(to: view, animated: true)
+		hud.mode = .text
+		hud.label.text = viewModel.addressCopiedText
+		hud.hide(animated: true, afterDelay: 1.5)
+
+		showFeedback()
+	}
+
 	private func showFeedback() {
 		//TODO sound too
 		let feedbackGenerator = UINotificationFeedbackGenerator()
@@ -229,5 +232,14 @@ class RequestViewController: UIViewController {
 
 	required init?(coder aDecoder: NSCoder) {
 		fatalError("init(coder:) has not been implemented")
+	}
+}
+
+fileprivate extension UIStackView {
+	func addSubview(forBackgroundColor backgroundColor: UIColor) {
+		let v = UIView(frame: bounds)
+		v.backgroundColor = backgroundColor
+		v.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+		insertSubview(v, at: 0)
 	}
 }
