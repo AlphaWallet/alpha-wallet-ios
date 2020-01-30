@@ -289,8 +289,9 @@ enum RPCServer: Hashable, CaseIterable {
         case .main: return Constants.ENSRegistrarAddress
         case .ropsten: return Constants.ENSRegistrarRopsten
         case .rinkeby: return Constants.ENSRegistrarRinkeby
+        case .goerli: return Constants.ENSRegistrarGoerli
         case .xDai: return Constants.ENSRegistrarXDAI
-        case .kovan, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:
+        case .kovan, .poa, .sokol, .classic, .callisto, .artis_sigma1, .artis_tau1, .custom:
             return Constants.ENSRegistrarAddress
         }
     }
