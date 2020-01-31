@@ -112,9 +112,10 @@ public struct Constants {
     public static let katContractAddress = "0x06012c8cf97bead5deae237070f9587f8e7a266d"
 
     //ENS
-    static let ENSRegistrarAddress = AlphaWallet.Address(string: "0x314159265dD8dbb310642f98f50C066173C1259b")!
-    static let ENSRegistrarRopsten = AlphaWallet.Address(string: "0x112234455c3a32fd11230c42e7bccd4a84e02010")!
-    static let ENSRegistrarRinkeby = AlphaWallet.Address(string: "0xe7410170f87102df0055eb195163a03b7f2bff4a")!
+    static let ENSRegistrarAddress = AlphaWallet.Address(string: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e")!
+    static let ENSRegistrarRopsten = ENSRegistrarAddress
+    static let ENSRegistrarRinkeby = ENSRegistrarAddress
+    static let ENSRegistrarGoerli = ENSRegistrarAddress
     static let ENSRegistrarXDAI = AlphaWallet.Address(string: "0x17734f3709486b1d7015f941c069cebf8017a833")!
 
     //Misc
