@@ -63,10 +63,9 @@ class TransactionConfigurator {
         self.session = session
         self.account = account
         self.transaction = transaction
-
         self.configuration = TransactionConfiguration(
             gasPrice: min(max(transaction.gasPrice ?? GasPriceConfiguration.defaultPrice, GasPriceConfiguration.minPrice), GasPriceConfiguration.maxPrice),
-            gasLimit: transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit,
+            gasLimit: min(transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit, GasLimitConfiguration.maxGasLimit),
             data: transaction.data ?? Data()
         )
     }
@@ -101,7 +100,7 @@ class TransactionConfigurator {
                     if limit == BigInt(21000) {
                         return limit
                     }
-                    return limit + (limit * 20 / 100)
+                    return min(limit + (limit * 20 / 100), GasLimitConfiguration.maxGasLimit)
                 }()
                 strongSelf.configuration =  TransactionConfiguration(
                     gasPrice: strongSelf.calculatedGasPrice,
