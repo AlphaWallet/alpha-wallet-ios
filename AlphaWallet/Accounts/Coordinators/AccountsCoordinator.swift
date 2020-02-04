@@ -46,6 +46,7 @@ class AccountsCoordinator: Coordinator {
     }
 
     func start() {
+        accountsViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(accountsViewController, animated: false)
     }
 

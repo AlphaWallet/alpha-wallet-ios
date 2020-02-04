@@ -21,6 +21,7 @@ class BackupCoordinator: Coordinator {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account
+        navigationController.navigationBar.isTranslucent = false
     }
 
     func start() {

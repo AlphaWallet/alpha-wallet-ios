@@ -30,6 +30,7 @@ class EnterPasswordCoordinator: CoordinatorThatEnds {
     }
 
     func start() {
+        rootViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(rootViewController, animated: true)
     }
 
@@ -52,7 +53,9 @@ class EnterPasswordCoordinator: CoordinatorThatEnds {
 
 extension EnterPasswordCoordinator: KeystoreBackupIntroductionViewControllerDelegate {
     func didTapExport(inViewController viewController: KeystoreBackupIntroductionViewController) {
-        navigationController.pushViewController(createEnterPasswordController(), animated: true)
+        let vc = createEnterPasswordController()
+        vc.navigationItem.largeTitleDisplayMode = .never
+        navigationController.pushViewController(vc, animated: true)
     }
 }
 

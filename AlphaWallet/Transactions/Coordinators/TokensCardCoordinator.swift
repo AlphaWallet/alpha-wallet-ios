@@ -55,6 +55,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         self.ethPrice = ethPrice
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
+        navigationController.navigationBar.isTranslucent = false
     }
 
     func start() {
@@ -103,6 +104,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
                                                                 for tokenHolder: TokenHolder,
                                                                 in viewController: TransferTokensCardQuantitySelectionViewController) {
         let vc = makeChooseTokenCardTransferModeViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
+        vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -162,16 +164,20 @@ class TokensCardCoordinator: NSObject, Coordinator {
             ethCost: Ether,
             in viewController: EnterSellTokensCardPriceQuantityViewController) {
         let vc = makeEnterSellTokensCardExpiryDateViewController(token: token, for: tokenHolder, ethCost: ethCost, paymentFlow: viewController.paymentFlow)
+        vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
+
     }
 
     private func showEnterQuantityViewControllerForRedeem(token: TokenObject, for tokenHolder: TokenHolder, in viewController: UIViewController) {
         let quantityViewController = makeRedeemTokensCardQuantitySelectionViewController(token: token, for: tokenHolder)
+        quantityViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(quantityViewController, animated: true)
     }
 
     private func showEnterQuantityViewControllerForTransfer(token: TokenObject, for tokenHolder: TokenHolder, forPaymentFlow paymentFlow: PaymentFlow, in viewController: UIViewController) {
         let vc = makeTransferTokensCardQuantitySelectionViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
+        vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -179,6 +185,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
                                                       forPaymentFlow paymentFlow: PaymentFlow,
                                                       in viewController: UIViewController) {
         let vc = makeEnterSellTokensCardPriceQuantityViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
+        vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -186,6 +193,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
                                                        for tokenHolder: TokenHolder,
                                                        in viewController: UIViewController) {
         let quantityViewController = makeTokenCardRedemptionViewController(token: token, for: tokenHolder)
+        quantityViewController.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(quantityViewController, animated: true)
     }
 
@@ -352,11 +360,13 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     private func showViewRedemptionInfo(in viewController: UIViewController) {
         let controller = TokenCardRedemptionInfoViewController(delegate: self)
+        controller.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(controller, animated: true)
     }
 
     private func showViewEthereumInfo(in viewController: UIViewController) {
         let controller = WhatIsEthereumInfoViewController(delegate: self)
+        controller.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(controller, animated: true)
     }
 
@@ -364,6 +374,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let vc = TokenInstanceViewController(tokenObject: token, tokenHolder: tokenHolder, account: session.account, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore)
         vc.delegate = self
         vc.configure()
+        vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
@@ -371,6 +382,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         let vc = TokenInstanceActionViewController(tokenObject: token, tokenHolder: tokenHolder, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
         vc.delegate = self
         vc.configure()
+        vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 }
@@ -388,6 +400,7 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
         switch token.type {
         case .erc721:
             let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: type)
+            vc.navigationItem.largeTitleDisplayMode = .never
             viewController.navigationController?.pushViewController(vc, animated: true)
         case .erc875, .erc721ForTickets:
             showEnterQuantityViewControllerForTransfer(token: token, for: tokenHolder, forPaymentFlow: type, in: viewController)
@@ -438,6 +451,7 @@ extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
         switch token.type {
         case .erc721:
             let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
+            vc.navigationItem.largeTitleDisplayMode = .never
             viewController.navigationController?.pushViewController(vc, animated: true)
         case .erc875, .erc721ForTickets:
             showEnterQuantityViewControllerForTransfer(token: token, for: tokenHolder, forPaymentFlow: paymentFlow, in: viewController)
@@ -533,11 +547,13 @@ extension TokensCardCoordinator: GenerateSellMagicLinkViewControllerDelegate {
 extension TokensCardCoordinator: ChooseTokenCardTransferModeViewControllerDelegate {
     func didChooseTransferViaMagicLink(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController) {
         let vc = makeEnterTransferTokensCardExpiryDateViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
+        vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 
     func didChooseTransferNow(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController) {
         let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
+        vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
 

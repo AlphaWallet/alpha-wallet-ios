@@ -7,13 +7,16 @@ func applyStyle() {
     UIBarButtonItem.appearance(whenContainedInInstancesOf: [UIDocumentBrowserViewController.self]).tintColor = Colors.navigationButtonTintColor
     UIWindow.appearance().tintColor = Colors.appTint
     UITabBar.appearance().tintColor = Colors.appTint
-    UINavigationBar.appearance().tintColor = Colors.navigationButtonTintColor
-    UINavigationBar.appearance().setBackgroundImage(UIImage(color: Colors.appBackground), for: .default)
+    UINavigationBar.appearance().barTintColor = Colors.appBackground
     UINavigationBar.appearance().backIndicatorImage = R.image.backWhite()
     UINavigationBar.appearance().backIndicatorTransitionMaskImage = R.image.backWhite()
     UINavigationBar.appearance().titleTextAttributes = [
         .foregroundColor: Colors.navigationTitleColor,
         .font: Fonts.semibold(size: 17) as Any
+    ]
+    UINavigationBar.appearance().largeTitleTextAttributes = [
+        .foregroundColor: Colors.navigationTitleColor,
+        .font: Fonts.bold(size: 36) as Any,
     ]
 
     //We could have set the backBarButtonItem with an empty title for every view controller, but we don't have a place to do it for Eureka view controllers. Using appearance here, while a hack is still more convenient though, since we don't have to do it for every view controller instance
