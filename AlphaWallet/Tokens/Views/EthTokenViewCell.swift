@@ -9,7 +9,6 @@ class EthTokenViewCell: UITableViewCell {
 
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let blockchainLabel = UILabel()
     private let separator = UILabel()
     private let issuerLabel = UILabel()
     private let blockChainTagLabel = UILabel()
@@ -41,7 +40,7 @@ class EthTokenViewCell: UITableViewCell {
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
 
-        let bottomRowStack = [blockchainLabel, separator, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
+        let bottomRowStack = [separator, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
         let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .fillEqually, spacing: 15)
         let footerNamesStack = [valuePercentageChangePeriodLabel, valueChangeNameLabel, valueNameLabel].asStackView(distribution: .fillEqually, spacing: 15)
         let footerStackView = [
@@ -112,10 +111,6 @@ class EthTokenViewCell: UITableViewCell {
         blockChainTagLabel.textColor = viewModel.blockChainNameColor
         blockChainTagLabel.font = viewModel.blockChainNameFont
         blockChainTagLabel.text = viewModel.blockChainTag
-
-        blockchainLabel.textColor = viewModel.subtitleColor
-        blockchainLabel.font = viewModel.subtitleFont
-        blockchainLabel.text = viewModel.blockChainName
 
         issuerLabel.textColor = viewModel.subtitleColor
         issuerLabel.font = viewModel.subtitleFont

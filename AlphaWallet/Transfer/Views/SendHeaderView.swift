@@ -8,8 +8,6 @@ protocol SendHeaderViewDelegate: class {
 class SendHeaderView: UIView {
     private let background = UIView()
     private let titleLabel = UILabel()
-    //TODO rename? Button now
-    private let blockchainLabel = UIButton(type: .system)
     private let issuerLabel = UILabel()
     private let blockChainTagLabel = UILabel()
     private let middleBorder = UIView()
@@ -40,16 +38,15 @@ class SendHeaderView: UIView {
         valueChangeNameLabel.textAlignment = .center
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
-
-        blockchainLabel.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
+        //TODO set label on contract page?
+        //blockchainLabel.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
 
 
         blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
         let titleRowStack = [titleLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15, alignment: .center)
 
-        let bottomRowStack = [blockchainLabel, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
-        blockchainLabel.setContentCompressionResistancePriority(.required, for: .vertical)
+        let bottomRowStack = [issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
 
         let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .equalCentering, spacing: 15)
 
@@ -88,8 +85,6 @@ class SendHeaderView: UIView {
             background.heightAnchor.constraint(equalTo: heightAnchor),
             backgroundWidthConstraint,
 
-            blockchainLabel.heightAnchor.constraint(equalToConstant: Screen.TokenCard.Metric.blockChainTagHeight),
-
             middleBorder.heightAnchor.constraint(equalToConstant: 1),
 
             stackView.leadingAnchor.constraint(equalTo: background.leadingAnchor, constant: 37),
@@ -118,10 +113,6 @@ class SendHeaderView: UIView {
         titleLabel.font = viewModel.titleFont
         titleLabel.text = viewModel.title
         titleLabel.adjustsFontSizeToFitWidth = true
-
-        blockchainLabel.setTitleColor(viewModel.subtitleColor, for: .normal)
-        blockchainLabel.titleLabel?.font = viewModel.subtitleFont
-        blockchainLabel.setTitle(viewModel.blockChainName, for: .normal)
 
         issuerLabel.textColor = viewModel.subtitleColor
         issuerLabel.font = viewModel.subtitleFont

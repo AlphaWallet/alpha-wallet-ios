@@ -9,7 +9,6 @@ class FungibleTokenViewCell: UITableViewCell {
 
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let blockchainLabel = UILabel()
     private let separator = UILabel()
     private let issuerLabel = UILabel()
     private let blockChainTagLabel = UILabel()
@@ -26,7 +25,7 @@ class FungibleTokenViewCell: UITableViewCell {
         contentView.addSubview(cellSeparators.top)
         contentView.addSubview(cellSeparators.bottom)
 
-        let bottomRowStack = [blockchainLabel, separator, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
+        let bottomRowStack = [separator, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
 
         blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
@@ -86,10 +85,6 @@ class FungibleTokenViewCell: UITableViewCell {
         blockChainTagLabel.textColor = viewModel.blockChainNameColor
         blockChainTagLabel.font = viewModel.blockChainNameFont
         blockChainTagLabel.text = viewModel.blockChainTag
-
-        blockchainLabel.textColor = viewModel.subtitleColor
-        blockchainLabel.font = viewModel.subtitleFont
-        blockchainLabel.text = viewModel.blockChainName
 
         issuerLabel.textColor = viewModel.subtitleColor
         issuerLabel.font = viewModel.subtitleFont

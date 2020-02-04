@@ -305,19 +305,6 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    var blockChainName: String {
-        switch self {
-        case .xDai:
-            return R.string.localizable.blockchainXDAI()
-        case .artis_sigma1:
-            return R.string.localizable.blockchainARTISSigma1()
-        case .artis_tau1:
-            return R.string.localizable.blockchainARTISTau1()
-        case .main, .rinkeby, .ropsten, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
-            return R.string.localizable.blockchainEthereum()
-        }
-    }
-
     var blockChainNameColor: UIColor {
         switch self {
         case .main: return .init(red: 41, green: 134, blue: 175)

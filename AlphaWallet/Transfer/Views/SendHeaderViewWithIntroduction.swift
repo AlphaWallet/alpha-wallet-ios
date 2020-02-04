@@ -3,11 +3,9 @@
 import UIKit
 import WebKit
 
-//TODO remove duplicate of SendHeaderView once IFRAME design is clear
 class SendHeaderViewWithIntroduction: UIView {
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let blockchainLabel = UILabel()
     private let issuerLabel = UILabel()
     private let middleBorder = UIView()
     private var footerStackView: UIStackView?
@@ -35,7 +33,7 @@ class SendHeaderViewWithIntroduction: UIView {
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
 
-        let bottomRowStack = [blockchainLabel, issuerLabel].asStackView(spacing: 15)
+        let bottomRowStack = [issuerLabel].asStackView(spacing: 15)
 
         let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .fillEqually, spacing: 15)
 
@@ -93,10 +91,6 @@ class SendHeaderViewWithIntroduction: UIView {
         titleLabel.font = viewModel.titleFont
         titleLabel.text = viewModel.title
         titleLabel.adjustsFontSizeToFitWidth = true
-
-        blockchainLabel.textColor = viewModel.subtitleColor
-        blockchainLabel.font = viewModel.subtitleFont
-        blockchainLabel.text = viewModel.blockChainName
 
         issuerLabel.textColor = viewModel.subtitleColor
         issuerLabel.font = viewModel.subtitleFont

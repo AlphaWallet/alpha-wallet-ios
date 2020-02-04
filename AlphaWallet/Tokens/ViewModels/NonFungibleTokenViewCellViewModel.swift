@@ -34,14 +34,6 @@ struct NonFungibleTokenViewCellViewModel {
         }
     }
 
-    var issuerSeparator: String {
-        if issuer.isEmpty {
-            return ""
-        } else {
-            return "|"
-        }
-    }
-
     var blockChainNameFont: UIFont {
         return Screen.TokenCard.Font.blockChainName
     }
@@ -64,10 +56,6 @@ struct NonFungibleTokenViewCellViewModel {
 
     var blockChainNameCornerRadius: CGFloat {
         return Screen.TokenCard.Metric.blockChainTagCornerRadius
-    }
-
-    var blockChainName: String {
-        return server.blockChainName
     }
 
     var backgroundColor: UIColor {

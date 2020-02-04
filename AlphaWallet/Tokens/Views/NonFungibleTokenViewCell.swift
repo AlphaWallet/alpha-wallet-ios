@@ -9,8 +9,6 @@ class NonFungibleTokenViewCell: UITableViewCell {
 
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let blockchainLabel = UILabel()
-    private let separator = UILabel()
     private let issuerLabel = UILabel()
     private let blockChainTagLabel = UILabel()
     private let cellSeparators = (top: UIView(), bottom: UIView())
@@ -27,7 +25,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
         contentView.addSubview(cellSeparators.bottom)
 
         //TODO write snapshot test to ensure separator + issueLabel is positioned correctly, in particular. Doesn't display at the right edge of the screen. Do it for every cell class used in TokensViewController
-        let bottomRowStack = [blockchainLabel, separator, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
+        let bottomRowStack = [issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
 
         blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
@@ -88,17 +86,9 @@ class NonFungibleTokenViewCell: UITableViewCell {
         blockChainTagLabel.font = viewModel.blockChainNameFont
         blockChainTagLabel.text = viewModel.blockChainTag
 
-        blockchainLabel.textColor = viewModel.subtitleColor
-        blockchainLabel.font = viewModel.subtitleFont
-        blockchainLabel.text = viewModel.blockChainName
-
         issuerLabel.textColor = viewModel.subtitleColor
         issuerLabel.font = viewModel.subtitleFont
         issuerLabel.text = viewModel.issuer
-
-        separator.textColor = viewModel.subtitleColor
-        separator.font = viewModel.subtitleFont
-        separator.text = viewModel.issuerSeparator
 
         cellSeparators.top.backgroundColor = GroupedTable.Color.cellSeparator
         cellSeparators.bottom.backgroundColor = GroupedTable.Color.cellSeparator

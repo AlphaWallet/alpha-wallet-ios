@@ -11,9 +11,6 @@ class TokenCardsViewControllerHeader: UIView {
 
     private let background = UIView()
     private let titleLabel = UILabel()
-    //TODO rename? Button now
-    private let blockchainLabel = UIButton(type: .system)
-    private let separator = UILabel()
     private let issuerLabel = UILabel()
     private let blockChainTagLabel = UILabel()
 
@@ -26,12 +23,12 @@ class TokenCardsViewControllerHeader: UIView {
         addSubview(background)
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        blockchainLabel.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
+        // TODO maybe we should allow the label to be pressed to open the page? Or simply drop the feature as it is not obvious to the user anyway
+        //blockChainTagLabel.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
 
         blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
-        let bottomRowStack = [blockchainLabel, separator, issuerLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
+        let bottomRowStack = [issuerLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
         let stackView = [
             titleLabel,
             bottomRowStack
@@ -68,10 +65,6 @@ class TokenCardsViewControllerHeader: UIView {
         titleLabel.text = viewModel.title
         titleLabel.adjustsFontSizeToFitWidth = true
 
-        blockchainLabel.setTitleColor(viewModel.subtitleColor, for: .normal)
-        blockchainLabel.titleLabel?.font = viewModel.subtitleFont
-        blockchainLabel.setTitle(viewModel.blockChainName, for: .normal)
-
         issuerLabel.textColor = viewModel.subtitleColor
         issuerLabel.font = viewModel.subtitleFont
         let issuer = viewModel.issuer
@@ -80,9 +73,6 @@ class TokenCardsViewControllerHeader: UIView {
         } else {
             issuerLabel.text = issuer
         }
-        separator.textColor = viewModel.subtitleColor
-        separator.font = viewModel.subtitleFont
-        separator.text = viewModel.issuerSeparator
 
         blockChainTagLabel.textAlignment = viewModel.blockChainNameTextAlignment
         blockChainTagLabel.cornerRadius = 7

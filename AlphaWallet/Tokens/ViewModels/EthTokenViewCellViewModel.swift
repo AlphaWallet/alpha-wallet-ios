@@ -65,10 +65,6 @@ struct EthTokenViewCellViewModel {
         return Screen.TokenCard.Metric.blockChainTagCornerRadius
     }
 
-    var blockChainName: String {
-        return server.blockChainName
-    }
-
     var backgroundColor: UIColor {
         return Screen.TokenCard.Color.background
     }

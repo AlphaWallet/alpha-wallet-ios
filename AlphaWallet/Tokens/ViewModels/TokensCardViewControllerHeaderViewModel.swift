@@ -28,14 +28,6 @@ struct TokensCardViewControllerHeaderViewModel {
         }
     }
 
-    var issuerSeparator: String {
-        if issuer.isEmpty {
-            return ""
-        } else {
-            return "|"
-        }
-    }
-
     var blockChainNameFont: UIFont {
         return Screen.TokenCard.Font.blockChainName
     }
@@ -54,10 +46,6 @@ struct TokensCardViewControllerHeaderViewModel {
 
     var blockChainNameTextAlignment: NSTextAlignment {
         return .center
-    }
-
-    var blockChainName: String {
-        return server.blockChainName
     }
 
     var backgroundColor: UIColor {
