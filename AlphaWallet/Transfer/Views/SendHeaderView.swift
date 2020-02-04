@@ -38,9 +38,6 @@ class SendHeaderView: UIView {
         valueChangeNameLabel.textAlignment = .center
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
-        //TODO set label on contract page?
-        //blockchainLabel.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
-
 
         blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)

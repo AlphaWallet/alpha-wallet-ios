@@ -23,8 +23,6 @@ class TokenCardsViewControllerHeader: UIView {
         addSubview(background)
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        // TODO maybe we should allow the label to be pressed to open the page? Or simply drop the feature as it is not obvious to the user anyway
-        //blockChainTagLabel.addTarget(self, action: #selector(showContractWebPage), for: .touchUpInside)
 
         blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
