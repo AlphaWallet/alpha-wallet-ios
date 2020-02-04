@@ -80,6 +80,7 @@ class TransactionCoordinator: Coordinator {
             navigationController.present(nav, animated: true, completion: nil)
         } else {
             controller.hidesBottomBarWhenPushed = true
+            controller.navigationItem.largeTitleDisplayMode = .never
             navigationController.pushViewController(controller, animated: true)
         }
     }

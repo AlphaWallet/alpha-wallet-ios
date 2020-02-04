@@ -147,7 +147,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
             timer.invalidate()
         }
     }
-    
+
     func configure(viewModel newViewModel: TokenCardRedemptionViewModel? = nil) {
         if let newViewModel = newViewModel {
             viewModel = newViewModel
@@ -173,6 +173,7 @@ class TokenCardRedemptionViewController: UIViewController, TokenVerifiableStatus
 extension TokenCardRedemptionViewController: VerifiableStatusViewController {
     func showInfo() {
         let controller = TokenCardRedemptionInfoViewController(delegate: self)
+        controller.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(controller, animated: true)
     }
 

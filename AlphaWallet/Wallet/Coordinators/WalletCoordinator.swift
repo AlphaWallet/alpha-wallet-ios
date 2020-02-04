@@ -26,6 +26,7 @@ class WalletCoordinator: Coordinator {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
+        navigationController.navigationBar.isTranslucent = false
     }
 
     ///Return true if caller should proceed to show UI (`navigationController`)
@@ -63,6 +64,7 @@ class WalletCoordinator: Coordinator {
     func pushImportWallet() {
         let controller = ImportWalletViewController(keystore: keystore)
         controller.delegate = self
+        controller.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(controller, animated: true)
     }
 
