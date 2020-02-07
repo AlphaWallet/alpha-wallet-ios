@@ -15,6 +15,7 @@ enum TransferType {
             case .nativeCryptocurrency:
                 return .nativeCryptocurrency(server: token.server, destination: recipient, amount: amount.flatMap { EtherNumberFormatter().number(from: $0, units: .ether) })
             case .erc20:
+                //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
                 return .ERC20Token(token, destination: recipient, amount: amount)
             case .erc875:
                 return .ERC875Token(token)
