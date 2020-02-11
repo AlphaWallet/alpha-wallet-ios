@@ -6,22 +6,30 @@ import Alamofire
 import SwiftyJSON
 
 class TokenScriptSignatureVerifier {
+    enum VerifierResult {
+        case success(domain: String)
+        case unknownCn
+        case failed
+    }
 
     func verify(xml: String) -> Promise<TokenScriptSignatureVerificationType> {
         return Promise { seal in
             verifyXMLSignatureViaAPI(xml: xml) { result in
-                if result == "failed" {
+                switch result {
+                case .success(domain: let domain):
+                    seal.fulfill(.verified(domainName: domain))
+                case .failed:
                     seal.fulfill(.verificationFailed)
-                } else {
-                    seal.fulfill(.verified(domainName: result))
+                case .unknownCn:
+                    seal.fulfill(.verificationFailed)
                 }
             }
         }
     }
 
-    func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (String) -> Void) {
+    func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (VerifierResult) -> Void) {
         guard let xmlAsData = xml.data(using: String.Encoding.utf8) else {
-            completion("failed")
+            completion(.failed)
             return
         }
         let url = URL(string: Constants.tokenScriptValidatorAPI)!
@@ -51,30 +59,30 @@ class TokenScriptSignatureVerifier {
                             self.retryAfterDelay(xml: xml, completion: completion)
                             return
                         } else {
-                            completion("failed")
+                            completion(.failed)
                             return
                         }
                     }
                     let json = JSON(value)
                     guard let subject = json["subject"].string else { 
                         //Should never hit
-                        completion("unknown CN")
+                        completion(.unknownCn)
                         return
                     }
                     let keyValuePairs = self.keyValuePairs(fromCommaSeparatedKeyValuePairs: subject)
                     if let domain = keyValuePairs["CN"] {
-                        completion(domain)
+                        completion(.success(domain: domain))
                     } else {
-                        completion("failed")
+                        completion(.failed)
                     }
                 }
             case .failure:
-                completion("failed")
+                completion(.failed)
             }
         })
     }
 
-    private func retryAfterDelay(xml: String, completion: @escaping (String) -> Void) {
+    private func retryAfterDelay(xml: String, completion: @escaping (VerifierResult) -> Void) {
         //TODO instead of a hardcoded delay, observe reachability and retry when there's connectivity
         DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
             self.verifyXMLSignatureViaAPI(xml: xml, completion: completion)
