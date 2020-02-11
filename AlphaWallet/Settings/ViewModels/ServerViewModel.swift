@@ -17,11 +17,11 @@ struct ServerViewModel {
         self.isSelected = selected
     }
 
-    var selectionIcon: UIImage {
+    var accessoryType: UITableViewCell.AccessoryType {
         if isSelected {
-            return R.image.ticket_bundle_checked()!
+            return LocaleViewCell.selectionAccessoryType.selected
         } else {
-            return R.image.ticket_bundle_unchecked()!
+            return LocaleViewCell.selectionAccessoryType.unselected
         }
     }
 
@@ -30,7 +30,7 @@ struct ServerViewModel {
     }
 
     var serverFont: UIFont {
-        return Fonts.light(size: 20)!
+        return Fonts.regular(size: 17)!
     }
 
     var serverName: String {
