@@ -13,7 +13,7 @@ protocol TokensViewControllerDelegate: class {
 }
 
 class TokensViewController: UIViewController {
-    private static let filterViewHeight = CGFloat(44)
+    private static let filterViewHeight = CGFloat(50)
 
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
@@ -26,8 +26,8 @@ class TokensViewController: UIViewController {
     }
     private let sessions: ServerDictionary<WalletSession>
     private let account: Wallet
-    private let tableViewFilterView = WalletFilterView()
-    private let collectiblesCollectionViewFilterView = WalletFilterView()
+    lazy private var tableViewFilterView = SegmentedControl(titles: TokensViewModel.segmentedControlTitles)
+    lazy private var collectiblesCollectionViewFilterView = SegmentedControl(titles: TokensViewModel.segmentedControlTitles)
     private var importWalletView: UIView?
     private var importWalletLayer = CAShapeLayer()
     private let tableView: UITableView
@@ -424,16 +424,23 @@ extension TokensViewController: UITableViewDataSource {
     }
 }
 
-extension TokensViewController: WalletFilterViewDelegate {
-    func didPressWalletFilter(filter: WalletFilter, in filterView: WalletFilterView) {
+extension TokensViewController: SegmentedControlDelegate {
+    func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl) {
+        guard let filter = viewModel.convertSegmentedControlSelectionToFilter(selection) else { return }
+        apply(filter: filter, withSegmentAtSelection: selection)
+    }
+
+    private func apply(filter: WalletFilter, withSegmentAtSelection selection: SegmentedControl.Selection?) {
         let previousFilter = viewModel.filter
-        if filterView == tableViewFilterView {
-            collectiblesCollectionViewFilterView.filter = filter
-        } else if filterView == collectiblesCollectionViewFilterView {
-            tableViewFilterView.filter = filter
-        }
         viewModel.filter = filter
         reload()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            //Important to update the segmented control (and hence add the segmented control back to the table) after they have been re-added to the table header through the table reload. Otherwise adding to the table header will break the animation for segmented control
+            if let selection = selection {
+                self.collectiblesCollectionViewFilterView.selection = selection
+                self.tableViewFilterView.selection = selection
+            }
+        }
         //Exit search if user tapped on the wallet filter. Careful to not trigger an infinite recursion between changing the filter by "category" and search keywords which are all based on filters
         if previousFilter == filter {
             //do nothing
@@ -502,11 +509,9 @@ extension TokensViewController: UISearchResultsUpdating {
             switch viewModel.filter {
             case .all, .currencyOnly, .assetsOnly, .collectiblesOnly:
                 break
-            case .keyword(let keyword):
-                //Handle when user taps clear button
-                if !keyword.isEmpty {
-                    updateResults(withKeyword: "")
-                }
+            case .keyword:
+                //Handle when user taps Cancel button to stop search
+                setDefaultFilter()
             }
             return
         }
@@ -515,8 +520,12 @@ extension TokensViewController: UISearchResultsUpdating {
     }
 
     private func updateResults(withKeyword keyword: String) {
-        tableViewFilterView.searchFor(keyword: keyword)
-        collectiblesCollectionViewFilterView.searchFor(keyword: keyword)
+        tableViewFilterView.selection = .unselected
+        apply(filter: .keyword(keyword), withSegmentAtSelection: nil)
+    }
+
+    private func setDefaultFilter() {
+        apply(filter: .all, withSegmentAtSelection: .selected(0))
     }
 }
 
