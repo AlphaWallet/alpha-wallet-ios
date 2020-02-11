@@ -63,6 +63,7 @@ class SendCoordinator: Coordinator {
         if navigationController.viewControllers.isEmpty {
             navigationController.viewControllers = [sendViewController]
         } else {
+            sendViewController.navigationItem.largeTitleDisplayMode = .never
             navigationController.pushViewController(sendViewController, animated: true)
         }
     }
@@ -129,6 +130,7 @@ extension SendCoordinator: SendViewControllerDelegate {
                 strongSelf.navigationController.displayError(error: error)
             }
         }
+        controller.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(controller, animated: true)
     }
 

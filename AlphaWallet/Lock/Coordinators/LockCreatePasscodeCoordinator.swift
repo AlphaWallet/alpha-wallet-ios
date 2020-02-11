@@ -15,6 +15,7 @@ class LockCreatePasscodeCoordinator: Coordinator {
         self.model = model
     }
     func start() {
+        lockViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(lockViewController, animated: true)
     }
     func stop() {

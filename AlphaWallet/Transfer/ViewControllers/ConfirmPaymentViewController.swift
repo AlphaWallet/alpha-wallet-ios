@@ -193,6 +193,7 @@ class ConfirmPaymentViewController: UIViewController {
             currencyRate: session.balanceCoordinator.currencyRate
         )
         controller.delegate = self
+        controller.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(controller, animated: true)
     }
 

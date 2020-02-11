@@ -93,6 +93,7 @@ class SettingsCoordinator: Coordinator {
 		coordinator.delegate = self
 		coordinator.start()
 		addCoordinator(coordinator)
+		coordinator.localesViewController.navigationItem.largeTitleDisplayMode = .never
 		navigationController.pushViewController(coordinator.localesViewController, animated: true)
 	}
 

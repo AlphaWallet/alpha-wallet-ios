@@ -57,6 +57,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
     }
 
     func start() {
+        rootViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(rootViewController, animated: true)
     }
 
@@ -117,6 +118,7 @@ extension BackupSeedPhraseCoordinator: ShowSeedPhraseViewControllerDelegate {
     func didTapTestSeedPhrase(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController) {
         //Important to re-create it because we want to make sure the seed phrase display state etc are correct
         verifySeedPhraseViewController = createVerifySeedPhraseViewController()
+        verifySeedPhraseViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(verifySeedPhraseViewController, animated: true)
     }
 
@@ -129,6 +131,7 @@ extension BackupSeedPhraseCoordinator: SeedPhraseBackupIntroductionViewControlle
     func didTapBackupWallet(inViewController viewController: SeedPhraseBackupIntroductionViewController) {
         //Important to re-create it because we want to make sure the seed phrase display state etc are correct
         showSeedPhraseViewController = createShowSeedPhraseViewController()
+        showSeedPhraseViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(showSeedPhraseViewController, animated: true)
     }
 

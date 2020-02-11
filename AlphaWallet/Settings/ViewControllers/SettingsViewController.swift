@@ -154,7 +154,9 @@ class SettingsViewController: FormViewController {
         <<< AlphaWalletSettingsButtonRow { row in
             row.cellStyle = .value1
             row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-                self.delegate?.assetDefinitionsOverrideViewController(for: self) ?? UIViewController()
+                let vc = self.delegate?.assetDefinitionsOverrideViewController(for: self) ?? UIViewController()
+                vc.navigationItem.largeTitleDisplayMode = .never
+                return vc
             }, onDismiss: { _ in
             })
         }.cellUpdate { cell, _ in
@@ -165,7 +167,9 @@ class SettingsViewController: FormViewController {
         <<< AlphaWalletSettingsButtonRow { row in
             row.cellStyle = .value1
             row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-                self.delegate?.consoleViewController(for: self) ?? UIViewController()
+                let vc = self.delegate?.consoleViewController(for: self) ?? UIViewController()
+                vc.navigationItem.largeTitleDisplayMode = .never
+                return vc
             }, onDismiss: { _ in
             })
         }.cellUpdate { cell, _ in
@@ -190,6 +194,7 @@ class SettingsViewController: FormViewController {
             row.cellStyle = .value1
             row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
                 let vc = HelpViewController(delegate: self)
+                vc.navigationItem.largeTitleDisplayMode = .never
                 vc.hidesBottomBarWhenPushed = true
                 return vc
             }, onDismiss: { _ in

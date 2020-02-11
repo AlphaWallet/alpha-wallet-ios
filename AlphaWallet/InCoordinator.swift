@@ -355,15 +355,18 @@ class InCoordinator: NSObject, Coordinator {
         addCoordinator(promptBackupCoordinator)
 
         let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator)
+        configureNavigationControllerForLargeTitles(tokensCoordinator.navigationController)
         viewControllers.append(tokensCoordinator.navigationController)
 
         let transactionCoordinator = createTransactionCoordinator(promptBackupCoordinator: promptBackupCoordinator)
+        configureNavigationControllerForLargeTitles(transactionCoordinator.navigationController)
         viewControllers.append(transactionCoordinator.navigationController)
 
         let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: false)
         viewControllers.append(browserCoordinator.navigationController)
 
         let settingsCoordinator = createSettingsCoordinator(keystore: keystore, promptBackupCoordinator: promptBackupCoordinator)
+        configureNavigationControllerForLargeTitles(settingsCoordinator.navigationController)
         viewControllers.append(settingsCoordinator.navigationController)
 
         let tabBarController = TabBarController()
@@ -374,6 +377,16 @@ class InCoordinator: NSObject, Coordinator {
         promptBackupCoordinator.start()
 
         return tabBarController
+    }
+
+    private func configureNavigationControllerForLargeTitles(_ navigationController: UINavigationController) {
+        navigationController.navigationBar.prefersLargeTitles = true
+        //When we enable large titles,
+        //1. we can't get `UINavigationBar.appearance().setBackgroundImage(UIImage(color: Colors.appBackground), for: .default)` to work anymore, needing to replace it with: `UINavigationBar.appearance().barTintColor = Colors.appBackground`.
+        //2. Without the former, we need to clear `isTranslucent` in order for view controllers that do not embed scroll views to clip off content at the top (unless we offset ourselves).
+        //3. And when we clear `isTranslucent`, we need to set the navigationController's background ourselves, otherwise when pushing a view controller, the navigationController will show as black
+        navigationController.navigationBar.isTranslucent = false
+        navigationController.view.backgroundColor = Colors.appBackground
     }
 
     @objc private func dismissTransactions() {
