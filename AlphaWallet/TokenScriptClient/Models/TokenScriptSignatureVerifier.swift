@@ -27,7 +27,8 @@ class TokenScriptSignatureVerifier {
         }
     }
 
-    func verifyXMLSignatureViaAPI(xml: String, completion: @escaping (VerifierResult) -> Void) {
+    //TODO log reasons for failures `completion(.failed)` as well as those that triggers retries in in-app Console
+    func verifyXMLSignatureViaAPI(xml: String, retryAttempt: Int = 0, completion: @escaping (VerifierResult) -> Void) {
         guard let xmlAsData = xml.data(using: String.Encoding.utf8) else {
             completion(.failed)
             return
@@ -50,18 +51,19 @@ class TokenScriptSignatureVerifier {
             case .success(let upload, _, _):
                 upload.validate()
                 upload.responseJSON { response in
-                    guard response.result.isSuccess,
-                          let unwrappedResponse = response.response,
-                          unwrappedResponse.statusCode <= 299,
-                          let value = response.result.value
-                    else {
-                        if let reachable = NetworkReachabilityManager()?.isReachable, !reachable {
-                            self.retryAfterDelay(xml: xml, completion: completion)
-                            return
-                        } else {
+                    guard let unwrappedResponse = response.response else {
+                        //We must be careful to not check NetworkReachabilityManager()?.isReachable == true and presume API server is down. Intermittent connectivity happens. It's harmless to retry if the API server is down anyway
+                        self.retryAfterDelay(xml: xml, retryAttempt: retryAttempt + 1, completion: completion)
+                        return
+                    }
+                    guard response.result.isSuccess, unwrappedResponse.statusCode <= 299, let value = response.result.value else {
+                        //API is coded to fail with 400
+                        if unwrappedResponse.statusCode == 400 {
                             completion(.failed)
-                            return
+                        } else {
+                            self.retryAfterDelay(xml: xml, retryAttempt: retryAttempt + 1, completion: completion)
                         }
+                        return
                     }
                     let json = JSON(value)
                     guard let subject = json["subject"].string else { 
@@ -69,23 +71,25 @@ class TokenScriptSignatureVerifier {
                         completion(.unknownCn)
                         return
                     }
-                    let keyValuePairs = self.keyValuePairs(fromCommaSeparatedKeyValuePairs: subject)
-                    if let domain = keyValuePairs["CN"] {
+                    if let domain = self.keyValuePairs(fromCommaSeparatedKeyValuePairs: subject)["CN"] {
                         completion(.success(domain: domain))
                     } else {
                         completion(.failed)
                     }
                 }
             case .failure:
-                completion(.failed)
+                self.retryAfterDelay(xml: xml, retryAttempt: retryAttempt + 1, completion: completion)
             }
         })
     }
 
-    private func retryAfterDelay(xml: String, completion: @escaping (VerifierResult) -> Void) {
-        //TODO instead of a hardcoded delay, observe reachability and retry when there's connectivity
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
-            self.verifyXMLSignatureViaAPI(xml: xml, completion: completion)
+    ///Because of strong references, retry attempts will retain self and not go away even when we close the view controller that triggered this signature verification. So backing off before retrying is important
+    //TODO fix strong references so that when caller goes away, retry attempts stop
+    private func retryAfterDelay(xml: String, retryAttempt: Int, completion: @escaping (VerifierResult) -> Void) {
+        //TODO instead of a hardcoded delay, observe reachability and retry when there's connectivity. Be careful with reachability status. It's not always accurate. A request can fail and isReachable=true. We should retry in that case
+        let delay = Double(10 * retryAttempt)
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            self.verifyXMLSignatureViaAPI(xml: xml, retryAttempt: retryAttempt, completion: completion)
         }
     }
 
