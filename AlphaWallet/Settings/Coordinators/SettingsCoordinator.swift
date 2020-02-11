@@ -103,11 +103,10 @@ class SettingsCoordinator: Coordinator {
 	}
 
 	func showEnabledServers() {
-		let coordinator = EnabledServersCoordinator(selectedServers: config.enabledServers)
+		let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers)
 		coordinator.delegate = self
 		coordinator.start()
 		addCoordinator(coordinator)
-		navigationController.pushViewController(coordinator.enabledServersViewController, animated: true)
 	}
 
 	func restart(for wallet: Wallet) {
@@ -199,7 +198,7 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 
 		let unchanged = config.enabledServers.sorted(by: { $0.chainID < $1.chainID }) == servers.sorted(by: { $0.chainID < $1.chainID })
         if unchanged {
-			coordinator.enabledServersViewController.navigationController?.popViewController(animated: true)
+			coordinator.stop()
 			removeCoordinator(coordinator)
 		} else {
 			config.enabledServers = servers
@@ -208,7 +207,7 @@ extension SettingsCoordinator: EnabledServersCoordinatorDelegate {
 	}
 
 	func didSelectDismiss(in coordinator: EnabledServersCoordinator) {
-		coordinator.enabledServersViewController.navigationController?.popViewController(animated: true)
+		coordinator.stop()
 		removeCoordinator(coordinator)
 	}
 }
