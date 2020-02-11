@@ -37,21 +37,8 @@ class RequestCoordinator: Coordinator {
 
     func makeRequestViewController() -> RequestViewController {
         let controller = RequestViewController(viewModel: viewModel)
-        controller.navigationItem.titleView = BalanceTitleView.make(from: session, .nativeCryptocurrency(server: session.server, destination: .none, amount: nil))
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(share(_:)))
         return controller
-    }
-
-    @objc func share(_ sender: UIBarButtonItem) {
-        let activityViewController = UIActivityViewController(
-            activityItems: [
-                viewModel.shareMyAddressText,
-            ],
-            applicationActivities: nil
-        )
-        activityViewController.popoverPresentationController?.barButtonItem = sender
-        navigationController.present(activityViewController, animated: true, completion: nil)
     }
 
     @objc func dismiss() {
