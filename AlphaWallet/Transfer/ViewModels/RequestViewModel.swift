@@ -36,20 +36,20 @@ struct RequestViewModel {
 		return Colors.appBackground
 	}
 
-	var buttonTitleColor: UIColor {
-		return Colors.appWhite
+	var addressLabelColor: UIColor {
+		return .black
 	}
 
-	var buttonFont: UIFont {
-		return Fonts.regular(size: 20)!
+	var copyButtonsFont: UIFont {
+		return Fonts.semibold(size: 17)!
 	}
 
-	var labelColor: UIColor {
-		return Colors.appText
+	var labelColor: UIColor? {
+		return R.color.mine()
 	}
 
 	var addressFont: UIFont {
-		return Fonts.semibold(size: 16)!
+		return Fonts.semibold(size: 17)!
 	}
 
 	var addressBackgroundColor: UIColor {
