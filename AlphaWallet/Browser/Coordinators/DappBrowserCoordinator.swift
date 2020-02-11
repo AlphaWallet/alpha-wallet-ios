@@ -331,6 +331,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     private func pushOntoNavigationController(viewController: UIViewController, animated: Bool) {
         viewController.navigationItem.setHidesBackButton(true, animated: false)
+        viewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(viewController, animated: animated)
     }
 

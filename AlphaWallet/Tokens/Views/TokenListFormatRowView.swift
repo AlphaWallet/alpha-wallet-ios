@@ -58,7 +58,7 @@ class TokenListFormatRowView: UIView {
         ].asStackView(axis: .vertical, contentHuggingPriority: .required)
         detailsRowWrapperStack.isHidden = true
         urlButton.isHidden = true
-        
+
         super.init(frame: .zero)
 
         if showCheckbox {

@@ -159,7 +159,7 @@ class ShowSeedPhraseViewController: UIViewController {
         guard let context = delegate?.contextToShowSeedPhrase else { return }
         keystore.exportSeedPhraseOfHdWallet(forAccount: account, context: context, reason: .backup) { result in
             switch result {
-            case .success(let words): 
+            case .success(let words):
                 self.state = .displayingSeedPhrase(words: words.split(separator: " ").map { String($0) })
             case .failure(let error):
                 self.state = .errorDisplaySeedPhrase(error)

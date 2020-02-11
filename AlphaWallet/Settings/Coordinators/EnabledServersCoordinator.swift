@@ -31,6 +31,7 @@ class EnabledServersCoordinator: Coordinator {
     }
 
     func start() {
+        enabledServersViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(enabledServersViewController, animated: true)
     }
 

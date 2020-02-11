@@ -76,6 +76,7 @@ extension HelpViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         let controller = rows[indexPath.row].controller
         controller.hidesBottomBarWhenPushed = true
+        controller.navigationItem.largeTitleDisplayMode = .never
         navigationController?.pushViewController(controller, animated: true)
     }
 }
