@@ -705,9 +705,11 @@ extension InCoordinator: PaymentCoordinatorDelegate {
         switch result {
         case .sentTransaction(let transaction):
             handlePendingTransaction(transaction: transaction)
-            coordinator.navigationController.dismiss(animated: true, completion: nil)
             showTransactionSent(transaction: transaction)
             removeCoordinator(coordinator)
+
+            guard let currentTab = tabBarController?.selectedViewController else { return }
+            currentTab.dismiss(animated: true)
 
             // Once transaction sent, show transactions screen.
             showTab(.transactions)
