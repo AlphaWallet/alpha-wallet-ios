@@ -584,7 +584,7 @@ class UniversalLinkCoordinator: Coordinator {
             if let response = result.response {
                 if response.statusCode < 300 {
                     successful = true
-                    if let contract = (parameters["contractAddress"] as? String).flatMap({ AlphaWallet.Address(string: $0) }) {
+                    if let contract = parameters["contractAddress"] as? AlphaWallet.Address {
                         strongSelf.delegate?.didImported(contract: contract, in: strongSelf)
                     }
                 }
