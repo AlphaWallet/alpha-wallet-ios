@@ -118,7 +118,11 @@ class TokensViewModel {
                         let xmlHandler = XMLHandler(contract: $0.contractAddress, assetDefinitionStore: assetDefinitionStore)
                         return xmlHandler.hasAssetDefinition && xmlHandler.server == $0.server
                     } else {
-                        return $0.name.trimmed.lowercased().contains(lowercasedKeyword) || $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) || $0.contractAddress.eip55String.lowercased().contains(lowercasedKeyword)
+                        return $0.name.trimmed.lowercased().contains(lowercasedKeyword) ||
+                                $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) ||
+                                $0.contractAddress.eip55String.lowercased().contains(lowercasedKeyword) ||
+                                $0.title(withAssetDefinitionStore: assetDefinitionStore).trimmed.lowercased().contains(lowercasedKeyword) ||
+                                $0.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore).trimmed.lowercased().contains(lowercasedKeyword)
                     }
                 }
             }
