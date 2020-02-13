@@ -145,6 +145,10 @@ class AssetDefinitionStore {
                     //Note that Alamofire converts the 304 to a 200 if caching is enabled (which it is, by default). So we'll never get a 304 here. Checking against Charles proxy will show that a 304 is indeed returned by the server with an empty body. So we compare the contents instead. https://github.com/Alamofire/Alamofire/issues/615
                     if xml == strongSelf[contract] {
                         completionHandler?(.unmodified)
+                    } else if strongSelf.isTruncatedXML(xml: xml) {
+                        strongSelf.fetchXML(forContract: contract, useCacheAndFetch: false) { result in
+                            completionHandler?(result)
+                        }
                     } else {
                         strongSelf[contract] = xml
                         XMLHandler.invalidate(forContract: contract)
@@ -156,6 +160,11 @@ class AssetDefinitionStore {
                 }
             }
         }
+    }
+
+    private func isTruncatedXML(xml: String) -> Bool {
+        //Safety check against a truncated file download
+        return !xml.trimmed.hasSuffix(">")
     }
 
     private func triggerSubscribers(forContract contract: AlphaWallet.Address) {
