@@ -216,6 +216,22 @@ extension BrowserViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         handleError(error: error)
     }
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> ()) {
+        guard let url = navigationAction.request.url, let scheme = url.scheme else {
+            return decisionHandler(.allow)
+        }
+        guard ["tel", "mailto"].contains(scheme) else {
+            return decisionHandler(.allow)
+        }
+        let app = UIApplication.shared
+        if app.canOpenURL(url) {
+            decisionHandler(.cancel)
+            app.open(url)
+        } else {
+            decisionHandler(.allow)
+        }
+    }
 }
 
 extension BrowserViewController: WKScriptMessageHandler {
