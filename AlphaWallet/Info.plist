@@ -82,6 +82,8 @@
 	<string>$(ALPHAWALLET_PRODUCT_NAME) uses the camera to scan QR codes</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Access your wallet</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location data may be accessed when you are using the in-app browser and tap on a link to retrieve your current location</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Sending QR Code to your contacts</string>
 	<key>NSPhotoLibraryUsageDescription</key>
