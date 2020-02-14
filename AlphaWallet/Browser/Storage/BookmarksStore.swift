@@ -44,7 +44,7 @@ final class BookmarksStore {
                 each.order = bookmarkOrder
                 bookmarkOrder += 1
             }
-            realm.add(bookmarks, update: true)
+            realm.add(bookmarks, update: .all)
         }
     }
 
