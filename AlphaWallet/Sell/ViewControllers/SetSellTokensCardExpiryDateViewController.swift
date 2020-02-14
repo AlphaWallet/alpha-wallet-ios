@@ -52,6 +52,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
         }
     }
 
+// swiftlint:disable function_body_length
     init(
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
@@ -224,6 +225,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
+// swiftlint:enable function_body_length
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

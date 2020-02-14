@@ -54,6 +54,7 @@ class SettingsViewController: FormViewController {
         title = R.string.localizable.aSettingsNavigationTitle()
     }
 
+// swiftlint:disable function_body_length
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -231,6 +232,7 @@ class SettingsViewController: FormViewController {
             tableView.anchorsConstraint(to: view),
         ])
     }
+// swiftlint:enable function_body_length
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)

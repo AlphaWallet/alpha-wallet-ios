@@ -14,6 +14,7 @@ protocol UniversalLinkCoordinatorDelegate: class, CanOpenURL {
     func didImported(contract: AlphaWallet.Address, in coordinator: UniversalLinkCoordinator)
 }
 
+// swiftlint:disable type_body_length
 class UniversalLinkCoordinator: Coordinator {
     private enum TransactionType {
         case freeTransfer(query: String, parameters: Parameters)
@@ -126,7 +127,7 @@ class UniversalLinkCoordinator: Coordinator {
             "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
             "networkId": server.chainID.description,
         ]
-        
+
         if isForTransfer {
             parameters.removeValue(forKey: "price")
         }
@@ -138,7 +139,7 @@ class UniversalLinkCoordinator: Coordinator {
             parameters.removeValue(forKey: "tokenIds")
             query = Constants.paymentServer
         }
-        
+
         return (parameters, query)
     }
 
@@ -398,7 +399,7 @@ class UniversalLinkCoordinator: Coordinator {
                 signature: Data(bytes: signature.hexa2Bytes)
         )
     }
-    
+
     private func handlePaidImports(signedOrder: SignedOrder) {
         ethBalance.subscribeOnce { [weak self] value in
             guard let celf = self else { return }
@@ -613,6 +614,7 @@ class UniversalLinkCoordinator: Coordinator {
         return etherCostDecimal
     }
 }
+// swiftlint:enable type_body_length
 
 extension UniversalLinkCoordinator: ImportMagicTokenViewControllerDelegate {
 	func didPressDone(in viewController: ImportMagicTokenViewController) {
