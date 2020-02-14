@@ -45,7 +45,6 @@ class ENSReverseLookupCoordinator {
                         }
                         GetENSAddressCoordinator(server: self.server).getENSAddressFromResolver(for: ensName) { result in
                             if let addressFromForwardResolution = result.value, EthereumAddress(address: input) == addressFromForwardResolution {
-                                let inputAddress = EthereumAddress(address: input)
                                 self.cache(forNode: node, result: ensName)
                                 completion(.success(ensName))
                             } else {
