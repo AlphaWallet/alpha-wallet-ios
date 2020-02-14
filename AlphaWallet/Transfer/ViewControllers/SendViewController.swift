@@ -340,7 +340,7 @@ extension SendViewController: QRCodeReaderDelegate {
                 guard self.session.server == server else { return }
             }
 
-            if let tokenObject = self.storage.token(forContract: contract) {
+            if self.storage.token(forContract: contract) != nil {
                 //For user-safety and simpler implementation, we ignore the link if it is for a different chain
                 self.configureFor(contract: contract, recipient: recipient, amount: amount)
             } else {
@@ -398,13 +398,6 @@ extension SendViewController: QRCodeReaderDelegate {
             case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: nil)
             }
-        }
-        let isInFiatEntryMode: Bool
-        switch amountTextField.currentPair.left {
-        case .cryptoCurrency:
-            isInFiatEntryMode = false
-        case .usd:
-            isInFiatEntryMode = true
         }
         configure(viewModel: .init(transferType: transferType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
     }

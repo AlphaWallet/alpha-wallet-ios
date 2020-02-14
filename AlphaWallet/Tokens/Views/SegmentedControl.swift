@@ -106,7 +106,7 @@ class SegmentedControl: UIView {
         case .selected(let index):
             highlightedBar.backgroundColor = viewModel.selectedBarColor
             let index = Int(index)
-            var button: UIButton = buttons[index]
+            let button: UIButton = buttons[index]
             if let previousConstraints = highlightBarHorizontalConstraints {
                 NSLayoutConstraint.deactivate(previousConstraints)
             }
