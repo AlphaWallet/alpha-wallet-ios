@@ -53,6 +53,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
     let paymentFlow: PaymentFlow
     weak var delegate: EnterSellTokensCardPriceQuantityViewControllerDelegate?
 
+// swiftlint:disable function_body_length
     init(
             storage: TokensDataStore,
             paymentFlow: PaymentFlow,
@@ -206,6 +207,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
             pricePerTokenField.heightAnchor.constraint(equalTo: quantityStepper.heightAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
+// swiftlint:enable function_body_length
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

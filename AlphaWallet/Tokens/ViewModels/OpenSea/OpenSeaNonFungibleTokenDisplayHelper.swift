@@ -630,6 +630,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
         return traitsToProperNames[name] ?? name.replacingOccurrences(of: "_", with: " ").titleCasedWords()
     }
 
+// swiftlint:disable function_body_length
     func mapTraitsToDisplayValue(name: String, value: String) -> String {
         let defaultConvertedValue = value.replacingOccurrences(of: "_", with: " ").titleCasedWords()
         switch self {
@@ -795,6 +796,7 @@ enum OpenSeaNonFungibleTokenDisplayHelper: String {
             return defaultConvertedValue
         }
     }
+// swiftlint:enable function_body_length
 
     func shouldDisplayAttribute(name: String) -> Bool {
         if subtitle1TraitName == name || subtitle2TraitName == name || subtitle3TraitName == name {

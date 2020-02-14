@@ -36,7 +36,7 @@ large_tuple:
   warning: 4
 function_body_length: 80
 file_length:
-  warning: 600
+  warning: 1000
   error: 1200
 type_body_length:
   warning: 300

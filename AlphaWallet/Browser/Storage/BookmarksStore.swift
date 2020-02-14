@@ -18,19 +18,15 @@ final class BookmarksStore {
         var originals = [Bookmark]()
         for toDelete in bookmarksToFind {
             var found = false
-            for original in bookmarks {
-                if original.id == toDelete.id {
-                    originals.append(original)
-                    found = true
-                    break
-                }
+            for original in bookmarks where original.id == toDelete.id {
+                originals.append(original)
+                found = true
+                break
             }
             if !found {
-                for original in bookmarks {
-                    if original.url == toDelete.url {
-                        originals.append(original)
-                        break
-                    }
+                for original in bookmarks where original.url == toDelete.url {
+                    originals.append(original)
+                    break
                 }
             }
         }

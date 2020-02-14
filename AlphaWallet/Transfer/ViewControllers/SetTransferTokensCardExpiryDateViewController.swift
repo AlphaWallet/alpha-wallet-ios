@@ -36,6 +36,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     let paymentFlow: PaymentFlow
     weak var delegate: SetTransferTokensCardExpiryDateViewControllerDelegate?
 
+// swiftlint:disable function_body_length
     init(
             tokenHolder: TokenHolder,
             paymentFlow: PaymentFlow,
@@ -191,6 +192,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
             roundedBackground.createConstraintsWithContainer(view: view),
         ])
     }
+// swiftlint:enable function_body_length
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

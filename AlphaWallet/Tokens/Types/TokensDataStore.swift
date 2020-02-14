@@ -15,6 +15,7 @@ protocol TokensDataStoreDelegate: class {
     func didUpdate(result: ResultResult<TokensViewModel, TokenError>.t, refreshImmediately: Bool)
 }
 
+// swiftlint:disable type_body_length
 class TokensDataStore {
     private lazy var getNameCoordinator: GetNameCoordinator = {
         return GetNameCoordinator(forServer: server)
@@ -743,3 +744,4 @@ class TokensDataStore {
         ethTimer.invalidate()
     }
 }
+// swiftlint:enable type_body_length

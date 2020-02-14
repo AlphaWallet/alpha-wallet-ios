@@ -141,6 +141,7 @@ class TransactionConfigurator {
         }
     }
 
+// swiftlint:disable function_body_length
     func load(completion: @escaping (ResultResult<Void, AnyError>.t) -> Void) {
         switch transaction.transferType {
         case .nativeCryptocurrency, .dapp:
@@ -252,6 +253,7 @@ class TransactionConfigurator {
             }
         }
     }
+// swiftlint:enable function_body_length
 
     func previewTransaction() -> PreviewTransaction {
         return PreviewTransaction(
