@@ -34,7 +34,7 @@ final class  HistoryStore {
 
     func add(histories: [History]) {
         try? realm.write {
-            realm.add(histories, update: true)
+            realm.add(histories, update: .all)
         }
     }
 
