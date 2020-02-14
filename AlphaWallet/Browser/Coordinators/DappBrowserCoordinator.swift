@@ -133,6 +133,9 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
         super.init()
 
+        //Necessary so that some sites don't bleed into (under) navigation bar after we tweak global styles for navigationBars after adding large title support
+        self.navigationController.navigationBar.isTranslucent = false
+
         browserNavBar?.navigationBarDelegate = self
         browserNavBar?.configure(server: server)
     }
