@@ -202,6 +202,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
         configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
 	}
 
+// swiftlint:disable function_body_length
 	func configure(viewModel: TokenCardRowViewModelProtocol) {
 		backgroundColor = viewModel.contentsBackgroundColor
 		background.backgroundColor = viewModel.contentsBackgroundColor
@@ -330,6 +331,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 
 		adjustmentsToHandleWhenCategoryLabelTextIsTooLong()
 	}
+// swiftlint:enable function_body_length
 
 	private func adjustmentsToHandleWhenCategoryLabelTextIsTooLong() {
 		tokenCountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)

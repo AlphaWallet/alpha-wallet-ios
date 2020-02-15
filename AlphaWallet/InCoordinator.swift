@@ -30,6 +30,7 @@ enum Tabs {
     }
 }
 
+// swiftlint:disable type_body_length
 class InCoordinator: NSObject, Coordinator {
     private var wallet: Wallet
     private let config: Config
@@ -610,6 +611,7 @@ class InCoordinator: NSObject, Coordinator {
         return coordinator.createConsoleViewController()
     }
 }
+// swiftlint:enable type_body_length
 
 extension InCoordinator: CanOpenURL {
     private func open(url: URL, in viewController: UIViewController) {

@@ -97,6 +97,7 @@ enum TokenLevelTokenScriptDisplayStatus {
 }
 
 //  Interface to extract data from non fungible token
+// swiftlint:disable type_body_length
 private class PrivateXMLHandler {
     private static let emptyXMLString = "<tbml:token xmlns:tbml=\"http://attestation.id/ns/tbml\"></tbml:token>"
     private static let emptyXML = try! Kanna.XML(xml: emptyXMLString, encoding: .utf8)
@@ -465,10 +466,8 @@ private class PrivateXMLHandler {
     }
 
     private static func extractServer(fromXML xml: XMLDocument, xmlContext: XmlContext, matchingContract contractAddress: AlphaWallet.Address) -> RPCServer? {
-        for (contract, chainId) in getHoldingContracts(xml: xml, xmlContext: xmlContext) {
-            if contract == contractAddress {
-                return .init(chainID: chainId)
-            }
+        for (contract, chainId) in getHoldingContracts(xml: xml, xmlContext: xmlContext) where contract == contractAddress {
+            return .init(chainID: chainId)
         }
         //Might be possible?
         return nil
@@ -598,6 +597,7 @@ private class PrivateXMLHandler {
         return entities
     }
 }
+// swiftlint:enable type_body_length
 
 /// This class delegates all the functionality to a singleton of the actual XML parser. 1 for each contract. So we just parse the XML file 1 time only for each contract
 public class XMLHandler {

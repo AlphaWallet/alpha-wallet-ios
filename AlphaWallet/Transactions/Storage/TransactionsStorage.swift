@@ -57,7 +57,7 @@ class TransactionsStorage {
         guard !transactions.isEmpty else { return }
         let transactionsToCommit = filterTransactionsToNotOverrideERC20Transactions(transactions)
         realm.beginWrite()
-        realm.add(transactionsToCommit, update: true)
+        realm.add(transactionsToCommit, update: .all)
         try! realm.commitWrite()
         addTokensWithContractAddresses(fromTransactions: transactionsToPullContractsFrom, contractsAndTokenTypes: contractsAndTokenTypes)
     }
@@ -78,7 +78,7 @@ class TransactionsStorage {
     func add(_ items: [Transaction]) -> [Transaction] {
         guard !items.isEmpty else { return [] }
         realm.beginWrite()
-        realm.add(items, update: true)
+        realm.add(items, update: .all)
         try! realm.commitWrite()
         return items
     }

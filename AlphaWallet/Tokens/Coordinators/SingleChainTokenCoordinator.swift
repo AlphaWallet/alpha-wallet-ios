@@ -565,6 +565,7 @@ extension SingleChainTokenCoordinator: TransactionsStorageDelegate {
 }
 
 /// Failure to obtain contract data may be due to no-connectivity. So we should check .failed(networkReachable: Bool)
+// swiftlint:disable function_body_length
 func fetchContractDataFor(address: AlphaWallet.Address, storage: TokensDataStore, assetDefinitionStore: AssetDefinitionStore, completion: @escaping (ContractData) -> Void) {
     var completedName: String?
     var completedSymbol: String?
@@ -683,3 +684,4 @@ func fetchContractDataFor(address: AlphaWallet.Address, storage: TokensDataStore
         }
     }
 }
+// swiftlint:enable function_body_length

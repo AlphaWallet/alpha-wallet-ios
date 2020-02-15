@@ -15,6 +15,7 @@ protocol TokensDataStoreDelegate: class {
     func didUpdate(result: ResultResult<TokensViewModel, TokenError>.t, refreshImmediately: Bool)
 }
 
+// swiftlint:disable type_body_length
 class TokensDataStore {
     private lazy var getNameCoordinator: GetNameCoordinator = {
         return GetNameCoordinator(forServer: server)
@@ -183,7 +184,7 @@ class TokensDataStore {
                 "decimals": token.decimals,
                 "rawType": token.tokenType.rawValue,
             ]
-            realm.create(TokenObject.self, value: update, update: true)
+            realm.create(TokenObject.self, value: update, update: .all)
         }
         try! realm.commitWrite()
     }
@@ -592,26 +593,26 @@ class TokensDataStore {
 
     func add(deadContracts: [DeletedContract]) {
         try! realm.write {
-            realm.add(deadContracts, update: true)
+            realm.add(deadContracts, update: .all)
         }
     }
 
     func add(delegateContracts: [DelegateContract]) {
         try! realm.write {
-            realm.add(delegateContracts, update: true)
+            realm.add(delegateContracts, update: .all)
         }
     }
 
     func add(hiddenContracts: [HiddenContract]) {
         try! realm.write {
-            realm.add(hiddenContracts, update: true)
+            realm.add(hiddenContracts, update: .all)
         }
     }
 
     @discardableResult
     func add(tokens: [TokenObject]) -> [TokenObject] {
         realm.beginWrite()
-        realm.add(tokens, update: true)
+        realm.add(tokens, update: .all)
         try! realm.commitWrite()
         return tokens
     }
@@ -743,3 +744,4 @@ class TokensDataStore {
         ethTimer.invalidate()
     }
 }
+// swiftlint:enable type_body_length

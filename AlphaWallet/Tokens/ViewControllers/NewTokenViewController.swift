@@ -55,6 +55,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     var server: RPCServerOrAuto
     weak var delegate: NewTokenViewControllerDelegate?
 
+// swiftlint:disable function_body_length
     init(server: RPCServerOrAuto) {
         self.server = server
         super.init(nibName: nil, bundle: nil)
@@ -144,7 +145,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -xMargin),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            
+
             buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
             buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
             buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
@@ -165,6 +166,7 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
         resizeViewToAccommodateKeyboard()
     }
+// swiftlint:enable function_body_length
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -299,11 +301,11 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         guard let tokenType = self.tokenType else { return }
         //TODO looks wrong to mention ERC875TokenBalance specifically
         var balance: [String] = viewModel.ERC875TokenBalance
-        
+
         guard let address = AlphaWallet.Address(string: contract) else {
             return displayError(error: Errors.invalidAddress)
         }
-        
+
         if balance.isEmpty {
             balance.append("0")
         }
