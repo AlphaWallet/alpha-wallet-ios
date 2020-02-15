@@ -108,19 +108,19 @@ class TokensViewModel {
                 return tokens
             } else {
                 return tokens.filter {
-                    if keyword.lowercased() == "erc20" || keyword.lowercased() == "erc 20" {
+                    if lowercasedKeyword == "erc20" || lowercasedKeyword == "erc 20" {
                         return $0.type == .erc20
-                    } else if keyword.lowercased() == "erc721" || keyword.lowercased() == "erc 721" {
+                    } else if lowercasedKeyword == "erc721" || lowercasedKeyword == "erc 721" {
                         return $0.type == .erc721
-                    } else if keyword.lowercased() == "erc875" || keyword.lowercased() == "erc 875" {
+                    } else if lowercasedKeyword == "erc875" || lowercasedKeyword == "erc 875" {
                         return $0.type == .erc875
-                    } else if keyword.lowercased() == "tokenscript" {
+                    } else if lowercasedKeyword == "tokenscript" {
                         let xmlHandler = XMLHandler(contract: $0.contractAddress, assetDefinitionStore: assetDefinitionStore)
                         return xmlHandler.hasAssetDefinition && xmlHandler.server == $0.server
                     } else {
                         return $0.name.trimmed.lowercased().contains(lowercasedKeyword) ||
                                 $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) ||
-                                $0.contractAddress.eip55String.lowercased().contains(lowercasedKeyword) ||
+                                $0.contract.lowercased().contains(lowercasedKeyword) ||
                                 $0.title(withAssetDefinitionStore: assetDefinitionStore).trimmed.lowercased().contains(lowercasedKeyword) ||
                                 $0.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore).trimmed.lowercased().contains(lowercasedKeyword)
                     }
