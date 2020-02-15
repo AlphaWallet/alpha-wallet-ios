@@ -8,6 +8,7 @@ protocol ImportWalletViewControllerDelegate: class {
     func didImportAccount(account: Wallet, in viewController: ImportWalletViewController)
 }
 
+// swiftlint:disable type_body_length
 class ImportWalletViewController: UIViewController, CanScanQRCode {
     struct ValidationError: LocalizedError {
         var msg: String
@@ -37,6 +38,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     weak var delegate: ImportWalletViewControllerDelegate?
 
+// swiftlint:disable function_body_length
     init(keystore: Keystore) {
         self.keystore = keystore
 
@@ -218,6 +220,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             }
         }
     }
+// swiftlint:enable function_body_length
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -531,6 +534,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         }
     }
 }
+// swiftlint:enable type_body_length
 
 extension ImportWalletViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {

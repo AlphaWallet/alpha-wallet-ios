@@ -277,7 +277,7 @@ extension Double {
         var string = String(format: "%.\(value)f", self)
 
         while string.last == "0" || string.last == "." {
-            if string.last == "." { string = String(string.dropLast()); break}
+            if string.last == "." { string = String(string.dropLast()); break }
             string = String(string.dropLast())
         }
         return string

@@ -4,6 +4,7 @@ import Foundation
 import web3swift
 import BigInt
 
+// swiftlint:disable type_body_length
 enum RPCServer: Hashable, CaseIterable {
     case main
     case kovan
@@ -430,3 +431,4 @@ enum RPCServer: Hashable, CaseIterable {
         ]
     }
 }
+// swiftlint:enable type_body_length

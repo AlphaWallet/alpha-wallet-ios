@@ -7,6 +7,7 @@ protocol OpenSeaNonFungibleTokenCardRowViewDelegate: class {
     func didTapURL(url: URL)
 }
 
+// swiftlint:disable type_body_length
 class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
     private static let xMargin = CGFloat(7)
     private static let yMargin = CGFloat(5)
@@ -169,6 +170,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         setupLayout()
     }
 
+// swiftlint:disable function_body_length
     private func setupLayout() {
         addSubview(background)
 
@@ -354,6 +356,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
             spacers.atBottom,
         ]
     }
+// swiftlint:enable function_body_length
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -368,6 +371,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         configure(viewModel: .init(tokenHolder: tokenHolder, areDetailsVisible: areDetailsVisible, width: width))
     }
 
+// swiftlint:disable function_body_length
     func configure(viewModel: OpenSeaNonFungibleTokenCardRowViewModel) {
         self.viewModel = viewModel
 
@@ -558,6 +562,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         spacers.aboveStatsLabel.isHidden = viewModel.isStatsTitleHidden
         spacers.belowStatsLabel.isHidden = viewModel.isStatsTitleHidden
     }
+// swiftlint:enable function_body_length
 
     //So collection views know the width to calculate their "full" height so they don't need to scroll
     private func relayoutParent(withWidth width: CGFloat) {
@@ -576,6 +581,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         setupParallaxEffect(forView: thumbnailImageView, max: 15)
     }
 }
+// swiftlint:enable type_body_length
 
 extension OpenSeaNonFungibleTokenCardRowView: TokenRowView {
     func configure(tokenHolder: TokenHolder) {

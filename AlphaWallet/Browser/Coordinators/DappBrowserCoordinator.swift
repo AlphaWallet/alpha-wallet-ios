@@ -315,6 +315,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     //TODO remove completely if we don't bring suggestions back. Might be useful to include for history, but it might look like we are suggesting dapps if the history includes dapps' URLs
     private func showDappSuggestions(forText text: String) {
         //Disabled dapp suggestions
+// swiftlint:disable:next trailing_semicolon
         return;
 
         if let viewController = navigationController.topViewController as? DappsAutoCompletionViewController {

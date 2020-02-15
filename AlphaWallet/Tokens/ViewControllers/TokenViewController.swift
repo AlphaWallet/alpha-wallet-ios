@@ -175,20 +175,18 @@ class TokenViewController: UIViewController {
     @objc private func actionButtonTapped(sender: UIButton) {
         guard let viewModel = viewModel else { return }
         let actions = viewModel.actions
-        for (action, button) in zip(actions, buttonsBar.buttons) {
-            if button == sender {
-                switch action.type {
-                case .erc20Send:
-                    send()
-                case .erc20Receive:
-                    receive()
-                case .nftRedeem, .nftSell, .nonFungibleTransfer:
-                    break
-                case .tokenScript:
-                    delegate?.didTap(action: action, transferType: transferType, viewController: self)
-                }
+        for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
+            switch action.type {
+            case .erc20Send:
+                send()
+            case .erc20Receive:
+                receive()
+            case .nftRedeem, .nftSell, .nonFungibleTransfer:
                 break
+            case .tokenScript:
+                delegate?.didTap(action: action, transferType: transferType, viewController: self)
             }
+            break
         }
     }
 }

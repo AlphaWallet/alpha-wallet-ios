@@ -216,22 +216,20 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     @objc private func actionButtonTapped(sender: UIButton) {
         guard let tokenHolder = selectedTokenHolder else { return }
         let actions = viewModel.actions
-        for (action, button) in zip(actions, buttonsBar.buttons) {
-            if button == sender {
-                switch action.type {
-                case .erc20Send, .erc20Receive:
-                    break
-                case .nftRedeem:
-                    redeem()
-                case .nftSell:
-                    sell()
-                case .nonFungibleTransfer:
-                    transfer()
-                case .tokenScript:
-                    delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
-                }
+        for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
+            switch action.type {
+            case .erc20Send, .erc20Receive:
                 break
+            case .nftRedeem:
+                redeem()
+            case .nftSell:
+                sell()
+            case .nonFungibleTransfer:
+                transfer()
+            case .tokenScript:
+                delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
             }
+            break
         }
     }
 
