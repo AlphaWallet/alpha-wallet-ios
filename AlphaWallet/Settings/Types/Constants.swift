@@ -116,7 +116,6 @@ public struct Constants {
     static let ENSRegistrarRopsten = ENSRegistrarAddress
     static let ENSRegistrarRinkeby = ENSRegistrarAddress
     static let ENSRegistrarGoerli = ENSRegistrarAddress
-    static let ENSRegistrarXDAI = AlphaWallet.Address(string: "0x17734f3709486b1d7015f941c069cebf8017a833")!
 
     //Misc
     public static let etherReceivedNotificationIdentifier = "etherReceivedNotificationIdentifier"
