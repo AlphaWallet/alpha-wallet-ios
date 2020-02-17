@@ -28,8 +28,6 @@ class TokensViewController: UIViewController {
     private let account: Wallet
     lazy private var tableViewFilterView = SegmentedControl(titles: TokensViewModel.segmentedControlTitles)
     lazy private var collectiblesCollectionViewFilterView = SegmentedControl(titles: TokensViewModel.segmentedControlTitles)
-    private var importWalletView: UIView?
-    private var importWalletLayer = CAShapeLayer()
     private let tableView: UITableView
     private let tableViewRefreshControl = UIRefreshControl()
     private let collectiblesCollectionViewRefreshControl = UIRefreshControl()
@@ -207,10 +205,6 @@ class TokensViewController: UIViewController {
     }
 
     override func viewDidLayoutSubviews() {
-        if let importWalletView = importWalletView {
-            importWalletLayer.frame = importWalletView.bounds
-            importWalletLayer.path = createImportWalletImagePath().cgPath
-        }
         //viewDidLayoutSubviews() is called many times
         configureSearchBarOnce()
     }
@@ -230,57 +224,6 @@ class TokensViewController: UIViewController {
             } else {
                 tableView.dataSource = self
             }
-            hideImportWalletImage()
-        } else {
-            showImportWalletImage()
-        }
-    }
-
-    private func hideImportWalletImage() {
-        importWalletView?.isHidden = true
-    }
-
-    private func showImportWalletImage() {
-        guard !searchController.isActive else { return }
-        if let importWalletView = importWalletView {
-            importWalletView.isHidden = false
-            return
-        }
-        importWalletView = UIView()
-        if let importWalletView = importWalletView {
-            view.addSubview(importWalletView)
-
-            let imageView = UIImageView(image: R.image.wallet_import()?.withRenderingMode(.alwaysTemplate))
-            imageView.tintColor = Colors.navigationTitleColor
-
-            importWalletLayer.path = createImportWalletImagePath().cgPath
-            importWalletLayer.lineDashPattern = [5, 5]
-            importWalletLayer.strokeColor = Colors.navigationTitleColor.cgColor
-            importWalletLayer.fillColor = UIColor.clear.cgColor
-            importWalletView.layer.addSublayer(importWalletLayer)
-
-            let label = UILabel()
-            label.textColor = Colors.appText
-            label.text = R.string.localizable.aWalletImportWalletTitle()
-
-            let stackView = [
-                imageView,
-                label,
-            ].asStackView(axis: .vertical, spacing: 10, alignment: .center)
-            stackView.translatesAutoresizingMaskIntoConstraints = false
-            importWalletView.addSubview(stackView)
-
-            let sideMargin = CGFloat(7)
-            importWalletView.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                importWalletView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sideMargin),
-                importWalletView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -sideMargin),
-                importWalletView.topAnchor.constraint(equalTo: view.topAnchor, constant: 52),
-                importWalletView.heightAnchor.constraint(equalToConstant: 138),
-
-                stackView.centerXAnchor.constraint(equalTo: importWalletView.centerXAnchor),
-                stackView.centerYAnchor.constraint(equalTo: importWalletView.centerYAnchor),
-            ])
         }
     }
 
@@ -295,15 +238,6 @@ class TokensViewController: UIViewController {
 
     @objc func addToken() {
         delegate?.didPressAddToken(in: self)
-    }
-
-    private func createImportWalletImagePath() -> UIBezierPath {
-        if let importWalletView = importWalletView {
-            let path = UIBezierPath(roundedRect: importWalletView.bounds, cornerRadius: 20)
-            return path
-        } else {
-            return UIBezierPath()
-        }
     }
 
     //Reloading the collectibles tab is very obvious visually, with the flashing images even if there are no changes. So we used this to check if the list of collectibles have changed, if not, don't refresh. We could have used a library that tracks diff, but that is overkill and one more dependency
