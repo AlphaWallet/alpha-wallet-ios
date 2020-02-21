@@ -285,8 +285,8 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			canDetailsBeVisible = false
 			nativelyRenderedAttributeViews.hideAll()
 			tokenScriptRendererView.isHidden = false
-			let html = viewModel.tokenScriptHtml
-			tokenScriptRendererView.loadHtml(html)
+			let (html: html, hash: hash) = viewModel.tokenScriptHtml
+			tokenScriptRendererView.loadHtml(html, hash: hash)
 			//TODO not good to explicitly check for different types. Easy to miss
 			if let viewModel = viewModel as? TokenCardRowViewModel {
 				tokenScriptRendererView.update(withTokenHolder: viewModel.tokenHolder, isFungible: false)
