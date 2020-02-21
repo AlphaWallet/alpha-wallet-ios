@@ -16,7 +16,7 @@ protocol TokenCardRowViewModelProtocol {
     var onlyShowTitle: Bool { get }
     ///TODO get rid of this at some point
     var isMeetupContract: Bool { get }
-    var tokenScriptHtml: String { get }
+    var tokenScriptHtml: (html: String, hash: Int) { get }
     var hasTokenScriptHtml: Bool { get }
     func subscribeStreetLocalityStateCountry(withBlock block: @escaping (String) -> Void)
     func subscribeBuilding(withBlock block: @escaping (String) -> Void)
