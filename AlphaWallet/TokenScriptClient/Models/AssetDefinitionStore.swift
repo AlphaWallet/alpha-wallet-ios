@@ -72,6 +72,10 @@ class AssetDefinitionStore {
                src: url('\(Constants.tokenScriptUrlSchemeForResources)SourceSansPro-Bold.otf') format('opentype');
                font-weight: bold;
                }
+               .token-card {
+               padding: 0pt;
+               margin: 0pt;
+               }
                </style>
                """
     }
