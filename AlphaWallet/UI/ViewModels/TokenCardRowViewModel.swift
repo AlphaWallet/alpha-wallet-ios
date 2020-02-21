@@ -148,18 +148,21 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
         return !tokenHolder.hasAssetDefinition
     }
 
-    var tokenScriptHtml: String {
+    var tokenScriptHtml: (html: String, hash: Int) {
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let html: String
         switch tokenView {
         case .view:
-            return wrapWithHtmlViewport(xmlHandler.tokenViewHtml)
+            html = xmlHandler.tokenViewHtml
         case .viewIconified:
-            return wrapWithHtmlViewport(xmlHandler.tokenViewIconifiedHtml)
+            html = xmlHandler.tokenViewIconifiedHtml
         }
+        let hash = html.hashForCachingHeight
+        return (html: wrapWithHtmlViewport(html, forTokenHolder: tokenHolder), hash: hash)
     }
 
     var hasTokenScriptHtml: Bool {
         //TODO improve performance? Because it is generated again when used
-        return !tokenScriptHtml.isEmpty
+        return !tokenScriptHtml.html.isEmpty
     }
 }

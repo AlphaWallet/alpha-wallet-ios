@@ -123,14 +123,16 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
         }
     }
 
-    var tokenScriptHtml: String {
-        guard let tokenHolder = importMagicTokenViewControllerViewModel.tokenHolder else { return "" }
+    var tokenScriptHtml: (html: String, hash: Int) {
+        guard let tokenHolder = importMagicTokenViewControllerViewModel.tokenHolder else { return (html: "", hash: 0) }
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
-        return wrapWithHtmlViewport(xmlHandler.tokenViewIconifiedHtml)
+        let html = xmlHandler.tokenViewIconifiedHtml
+        let hash = html.hashForCachingHeight
+        return (html: wrapWithHtmlViewport(html, forTokenHolder: tokenHolder), hash: hash)
     }
 
     var hasTokenScriptHtml: Bool {
         //TODO improve performance? Because it is generated again when used
-        return !tokenScriptHtml.isEmpty
+        return !tokenScriptHtml.html.isEmpty
     }
 }
