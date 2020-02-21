@@ -42,8 +42,7 @@ class RequestViewController: UIViewController {
 		label.font = viewModel.addressFont
 		label.text = viewModel.myAddressText
 		label.textAlignment = .center
-		label.minimumScaleFactor = 0.5
-		label.adjustsFontSizeToFitWidth = true
+		label.numberOfLines = 0
 		return label
 	}()
 
@@ -85,6 +84,7 @@ class RequestViewController: UIViewController {
 		ensContainerView.addSubview(ensStackView)
 
 		copyAddressButton.addTarget(self, action: #selector(copyAddress), for: .touchUpInside)
+		copyAddressButton.setContentHuggingPriority(.required, for: .horizontal)
 
 		let addressStackView = [.spacerWidth(7), addressLabel, .spacerWidth(10), copyAddressButton, .spacerWidth(7)].asStackView(axis: .horizontal)
 		addressStackView.addSubview(forBackgroundColor: viewModel.addressBackgroundColor)
