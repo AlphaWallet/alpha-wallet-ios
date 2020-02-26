@@ -38,9 +38,9 @@ struct TokensCardViewModel {
         }
     }
 
-    init(token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore) {
+    init(token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
         self.token = token
-        self.tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore).getTokenHolders(forWallet: account)
+        self.tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: account)
         self.assetDefinitionStore = assetDefinitionStore
     }
 

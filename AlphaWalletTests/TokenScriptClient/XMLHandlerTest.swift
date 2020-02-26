@@ -22,7 +22,7 @@ class XMLHandlerTest: XCTestCase {
         let token = XMLHandler(contract: Constants.nullAddress, assetDefinitionStore: assetDefinitionStore).getToken(
                 name: "",
                 symbol: "",
-                fromTokenId: BigUInt(tokenHex, radix: 16)!,
+                fromTokenIdOrEvent: .tokenId(tokenId: BigUInt(tokenHex, radix: 16)!),
                 index: UInt16(1),
                 inWallet: .make(),
                 server: .main,
@@ -92,7 +92,7 @@ class XMLHandlerTest: XCTestCase {
         let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main
-        let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenId: tokenId, index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc875)
+        let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc875)
         let values = token.values
         XCTAssertEqual(values["locality"]?.stringValue, "Saint Petersburg")
     }
