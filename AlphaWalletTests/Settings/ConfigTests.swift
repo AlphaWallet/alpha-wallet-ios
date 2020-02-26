@@ -22,7 +22,8 @@ class ConfigTests: XCTestCase {
                 sessions: sessions,
                 account: .make(),
                 tokenCollection: .init(assetDefinitionStore: assetDefinitionStore, tokenDataStores: [FakeTokensDataStore()]),
-                assetDefinitionStore: assetDefinitionStore
+                assetDefinitionStore: assetDefinitionStore,
+                eventsDataStore: FakeEventsDataStore()
         )
         XCTAssertEqual(vc1.title, "Wallet")
 
@@ -31,7 +32,8 @@ class ConfigTests: XCTestCase {
                 sessions: sessions,
                 account: .make(),
                 tokenCollection: .init(assetDefinitionStore: assetDefinitionStore, tokenDataStores: [FakeTokensDataStore()]),
-                assetDefinitionStore: assetDefinitionStore
+                assetDefinitionStore: assetDefinitionStore,
+                eventsDataStore: FakeEventsDataStore()
         )
         XCTAssertEqual(vc2.title, "我的钱包")
 

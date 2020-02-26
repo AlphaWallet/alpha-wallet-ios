@@ -14,7 +14,10 @@ struct Token {
         case available, sold, redeemed, forSale, transferred, pending, availableButDataUnavailable
     }
 
-    let id: BigUInt
+    var id: BigUInt {
+        tokenIdOrEvent.tokenId
+    }
+    let tokenIdOrEvent: TokenIdOrEvent
     let tokenType: TokenType
     let index: UInt16
     let name: String
@@ -24,7 +27,7 @@ struct Token {
 
     static var empty: Token {
         return Token(
-                id: Constants.nullTokenIdBigUInt,
+                tokenIdOrEvent: .tokenId(tokenId: Constants.nullTokenIdBigUInt),
                 tokenType: TokenType.erc875,
                 index: 0,
                 name: R.string.localizable.tokensTitlecase(),

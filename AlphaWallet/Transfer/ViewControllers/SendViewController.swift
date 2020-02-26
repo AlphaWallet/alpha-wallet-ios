@@ -213,7 +213,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         let input = targetAddressTextField.value.trimmed
         guard let address = AlphaWallet.Address(string: input) else { return displayError(error: Errors.invalidAddress) }
         let amountString = amountTextField.ethCost
-        let parsedValue: BigInt? = {
+        let parsedValue: BigInt? = {1
             switch transferType {
             case .nativeCryptocurrency, .dapp:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)

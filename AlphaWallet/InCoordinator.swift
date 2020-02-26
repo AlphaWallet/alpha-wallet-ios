@@ -45,6 +45,10 @@ class InCoordinator: NSObject, Coordinator {
     }
     //TODO We might not need this anymore once we stop using the vendored Web3Swift library which uses a WKWebView underneath
     private var claimOrderCoordinator: ClaimOrderCoordinator?
+    lazy private var eventsDataStore: EventsDataStore = {
+        EventsDataStore(realm: self.realm(forAccount: wallet))
+    }()
+    private var eventSourceCoordinator: EventSourceCoordinator?
     var tokensStorages = ServerDictionary<TokensDataStore>()
     lazy var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> = {
         return createEtherPricesSubscribablesForAllChains()
@@ -106,6 +110,20 @@ class InCoordinator: NSObject, Coordinator {
         addCoordinator(helpUsCoordinator)
         fetchXMLAssetDefinitions()
         listOfBadTokenScriptFilesChanged(fileNames: assetDefinitionStore.listOfBadTokenScriptFiles + assetDefinitionStore.conflictingTokenScriptFileNames.all)
+        setupWatchingTokenScriptFileChangesToFetchEvents()
+    }
+
+    private func setupWatchingTokenScriptFileChangesToFetchEvents() {
+        //TODO this is firing twice for each contract. We can be more efficient
+        assetDefinitionStore.subscribe { [weak self] contract in
+            guard let strongSelf = self else { return }
+            let xmlHandler = XMLHandler(contract: contract, assetDefinitionStore: strongSelf.assetDefinitionStore)
+            guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return }
+            let tokensDataStore = strongSelf.tokensStorages[server]
+            guard let token = tokensDataStore.token(forContract: contract) else { return }
+            strongSelf.eventsDataStore.deleteEvents(forTokenContract: contract)
+            let _ = strongSelf.eventSourceCoordinator?.fetchEventsByTokenId(forToken: token)
+        }
     }
 
     private func createTokensDatastore(forConfig config: Config, server: RPCServer) -> TokensDataStore {
@@ -205,6 +223,10 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
+    private func setUpEventSourceCoordinator() {
+        eventSourceCoordinator = EventSourceCoordinator(wallet: wallet, config: config, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+    }
+
     private func setupTokenDataStores() {
         tokensStorages = .init()
         for each in RPCServer.allCases {
@@ -266,6 +288,18 @@ class InCoordinator: NSObject, Coordinator {
         setupEtherBalances()
         setupWalletSessions()
         setupCallForAssetAttributeCoordinators()
+        setUpEventSourceCoordinator()
+    }
+
+    private func fetchEthereumEvents() {
+        eventSourceCoordinator?.fetchEthereumEvents()
+    }
+
+    private func pollEthereumEvents(tokenCollection: TokenCollection) {
+        tokenCollection.subscribe { [weak self] result in
+            guard let strongSelf = self else { return }
+            strongSelf.fetchEthereumEvents()
+        }
     }
 
     func showTabBar(for account: Wallet) {
@@ -273,6 +307,7 @@ class InCoordinator: NSObject, Coordinator {
         wallet = account
 
         setupResourcesOnMultiChain()
+        fetchEthereumEvents()
 
         //TODO creating many objects here. Messy. Improve?
         let realm = self.realm(forAccount: wallet)
@@ -292,6 +327,7 @@ class InCoordinator: NSObject, Coordinator {
         let tokensStoragesForEnabledServers = config.enabledServers.map { tokensStorages[$0] }
         let tokenCollection = TokenCollection(assetDefinitionStore: assetDefinitionStore, tokenDataStores: tokensStoragesForEnabledServers)
         promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(withTokenCollection: tokenCollection)
+        pollEthereumEvents(tokenCollection: tokenCollection)
         let coordinator = TokensCoordinator(
                 sessions: walletSessions,
                 keystore: keystore,
@@ -299,6 +335,7 @@ class InCoordinator: NSObject, Coordinator {
                 tokenCollection: tokenCollection,
                 nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices,
                 assetDefinitionStore: assetDefinitionStore,
+                eventsDataStore: eventsDataStore,
                 promptBackupCoordinator: promptBackupCoordinator
         )
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)

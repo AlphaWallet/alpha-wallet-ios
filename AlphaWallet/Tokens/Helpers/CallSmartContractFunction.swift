@@ -35,7 +35,7 @@ func getEventLogs(
         abiString: String,
         filter: EventFilter
 ) -> Promise<[EventParserResultProtocol]> {
-    return firstly { () -> Promise<(EthereumAddress)> in
+    firstly { () -> Promise<(EthereumAddress)> in
         let contractAddress = EthereumAddress(address: contract)
         return .value(contractAddress)
     }.then { contractAddress -> Promise<[EventParserResultProtocol]> in
@@ -44,7 +44,6 @@ func getEventLogs(
         }
 
         let web3 = web3swift.web3(provider: webProvider)
-
         guard let contractInstance = web3swift.web3.web3contract(web3: web3, abiString: abiString, at: contractAddress, options: web3.options) else {
             return Promise(error: Web3Error(description: "Error creating web3swift contract instance to call \(eventName)()"))
         }
