@@ -2,7 +2,7 @@
 
 import Foundation
 
-enum AssetImplicitAttributes: CaseIterable {
+enum AssetImplicitAttributes: String, CaseIterable {
     case name
     case symbol
     case contractAddress

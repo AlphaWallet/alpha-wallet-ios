@@ -20,7 +20,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let keystore: Keystore
     private let token: TokenObject
     private lazy var rootViewController: TokensCardViewController = {
-        let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore)
+        let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
         return makeTokensCardViewController(with: session.account, viewModel: viewModel)
     }()
 
@@ -28,6 +28,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let tokensStorage: TokensDataStore
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
+    private let eventsDataStore: EventsDataStoreProtocol
 
     weak var delegate: TokensCardCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -46,7 +47,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
             tokensStorage: TokensDataStore,
             ethPrice: Subscribable<Double>,
             token: TokenObject,
-            assetDefinitionStore: AssetDefinitionStore
+            assetDefinitionStore: AssetDefinitionStore,
+            eventsDataStore: EventsDataStoreProtocol
     ) {
         self.session = session
         self.keystore = keystore
@@ -55,6 +57,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         self.ethPrice = ethPrice
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
+        self.eventsDataStore = eventsDataStore
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -62,30 +65,42 @@ class TokensCardCoordinator: NSObject, Coordinator {
         rootViewController.configure()
         navigationController.viewControllers = [rootViewController]
         refreshUponAssetDefinitionChanges()
+        refreshUponEthereumEventChanges()
+    }
+
+    private func refreshUponEthereumEventChanges() {
+        eventsDataStore.subscribe { [weak self] contract in
+            guard let strongSelf = self else { return }
+            strongSelf.refreshScreen(forContract: contract)
+        }
     }
 
     private func refreshUponAssetDefinitionChanges() {
         assetDefinitionStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
-            guard contract.sameContract(as: strongSelf.token.contractAddress) else { return }
-            for each in strongSelf.navigationController.viewControllers {
-                switch each {
-                case let vc as TokensCardViewController:
-                    let viewModel = TokensCardViewModel(token: strongSelf.token, forWallet: strongSelf.session.account, assetDefinitionStore: strongSelf.assetDefinitionStore)
+            strongSelf.refreshScreen(forContract: contract)
+        }
+    }
+
+    private func refreshScreen(forContract contract: AlphaWallet.Address) {
+        guard contract.sameContract(as: token.contractAddress) else { return }
+        for each in navigationController.viewControllers {
+            switch each {
+            case let vc as TokensCardViewController:
+                let viewModel = TokensCardViewModel(token: token, forWallet: session.account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
+                vc.configure(viewModel: viewModel)
+            case let vc as TokenInstanceViewController:
+                let updatedTokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: session.account)
+                let tokenHolder = vc.firstMatchingTokenHolder(fromTokenHolders: updatedTokenHolders)
+                if let tokenHolder = tokenHolder {
+                    let viewModel: TokenInstanceViewModel = .init(token: token, tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
                     vc.configure(viewModel: viewModel)
-                case let vc as TokenInstanceViewController:
-                    let updatedTokenHolders = TokenAdaptor(token: strongSelf.token, assetDefinitionStore: strongSelf.assetDefinitionStore).getTokenHolders(forWallet: strongSelf.session.account)
-                    let tokenHolder = vc.firstMatchingTokenHolder(fromTokenHolders: updatedTokenHolders)
-                    if let tokenHolder = tokenHolder {
-                        let viewModel: TokenInstanceViewModel = .init(token: strongSelf.token, tokenHolder: tokenHolder, assetDefinitionStore: strongSelf.assetDefinitionStore)
-                        vc.configure(viewModel: viewModel)
-                    }
-                case let vc as TokenInstanceActionViewController:
-                    //TODO it reloads, but doesn't live-reload the changes because the action contains the HTML and it doesn't change
-                    vc.configure()
-                default:
-                    break
                 }
+            case let vc as TokenInstanceActionViewController:
+                //TODO it reloads, but doesn't live-reload the changes because the action contains the HTML and it doesn't change
+                vc.configure()
+            default:
+                break
             }
         }
     }

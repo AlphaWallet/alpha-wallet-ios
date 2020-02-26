@@ -41,6 +41,7 @@ enum Origin {
     case tokenId(TokenIdOrigin)
     case function(FunctionOrigin)
     case userEntry(UserEntryOrigin)
+    case event(EventOrigin)
 
     private var originElement: XMLElement {
         switch self {
@@ -49,6 +50,8 @@ enum Origin {
         case .function(let origin):
             return origin.originElement
         case .userEntry(let origin):
+            return origin.originElement
+        case .event(let origin):
             return origin.originElement
         }
     }
@@ -60,11 +63,13 @@ enum Origin {
             return origin.xmlContext
         case .userEntry(let origin):
             return origin.xmlContext
+        case .event(let origin):
+            return origin.xmlContext
         }
     }
     var userEntryId: AttributeId? {
         switch self {
-        case .tokenId, .function:
+        case .tokenId, .function, .event:
             return nil
         case .userEntry(let origin):
             return origin.attributeId
@@ -72,7 +77,7 @@ enum Origin {
     }
     var isImmediatelyAvailable: Bool {
         switch self {
-        case .tokenId, .userEntry:
+        case .tokenId, .userEntry, .event:
             return true
         case .function:
             return false
@@ -100,6 +105,13 @@ enum Origin {
         self = .userEntry(.init(originElement: userEntryElement, xmlContext: xmlContext, attributeId: attributeId, asType: asType, bitmask: bitmask, bitShift: bitShift))
     }
 
+    init?(forEthereumEventElement eventElement: XMLElement, sourceContractElement: XMLElement, xmlContext: XmlContext) {
+        guard let eventParameterName = XMLHandler.getEventParameterName(fromEthereumEventElement: eventElement) else { return nil }
+        guard let eventFilter = XMLHandler.getEventFilter(fromEthereumEventElement: eventElement) else { return nil }
+        guard let eventDefinition = XMLHandler.getEventDefinition(fromContractElement: sourceContractElement, xmlContext: xmlContext) else { return nil }
+        self = .event(.init(originElement: eventElement, xmlContext: xmlContext, eventDefinition: eventDefinition, eventParameterName: eventParameterName, eventFilter: eventFilter))
+    }
+
     ///Used to truncate bits to the right of the bitmask
     private static func bitShiftCount(forBitMask bitmask: BigUInt) -> Int {
         var count = 0
@@ -109,16 +121,23 @@ enum Origin {
         return count - 1
     }
 
-    func extractValue(fromTokenId tokenId: TokenId, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator, userEntryValues: [AttributeId: String], tokenLevelNonSubscribableAttributesAndValues: [AttributeId: AssetInternalValue]) -> AssetInternalValue? {
+    func extractValue(fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator, userEntryValues: [AttributeId: String], tokenLevelNonSubscribableAttributesAndValues: [AttributeId: AssetInternalValue]) -> AssetInternalValue? {
         switch self {
         case .tokenId(let origin):
-            return origin.extractValue(fromTokenId: tokenId)
+            return origin.extractValue(fromTokenId: tokenIdOrEvent.tokenId)
         case .function(let origin):
             //We don't pass in attributes with function-origins because the order is undefined at the moment
-            return origin.extractValue(withTokenId: tokenId, account: account, server: server, attributeAndValues: tokenLevelNonSubscribableAttributesAndValues, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator)
+            return origin.extractValue(withTokenId: tokenIdOrEvent.tokenId, account: account, server: server, attributeAndValues: tokenLevelNonSubscribableAttributesAndValues, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator)
         case .userEntry(let origin):
             guard let input = userEntryValues[origin.attributeId] else { return nil }
             return origin.extractValue(fromUserEntry: input)
+        case .event(let origin):
+            switch tokenIdOrEvent {
+            case .tokenId:
+                return nil
+            case .event(_, event: let event):
+                return origin.extractValue(fromEvent: event)
+            }
         }
     }
 

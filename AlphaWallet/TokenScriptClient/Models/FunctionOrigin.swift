@@ -16,18 +16,20 @@ struct FunctionOrigin {
         case functionCall(functionName: String, inputs: [AssetFunctionCall.Argument], output: AssetFunctionCall.ReturnType)
         case functionTransaction(functionName: String, inputs: [AssetFunctionCall.Argument], inputValue: AssetFunctionCall.Argument?)
         case paymentTransaction(inputValue: AssetFunctionCall.Argument)
+        //Not actually a function call/invocation. But it fits really well here
+        case eventFiltering
 
         var isCall: Bool {
             switch self {
             case .functionCall:
                 return true
-            case .functionTransaction, .paymentTransaction:
+            case .functionTransaction, .paymentTransaction, .eventFiltering:
                 return false
             }
         }
         var isTransaction: Bool {
             switch self {
-            case .functionCall:
+            case .functionCall, .eventFiltering:
                 return false
             case .functionTransaction, .paymentTransaction:
                 return true
@@ -35,7 +37,7 @@ struct FunctionOrigin {
         }
         var isFunctionTransaction: Bool {
             switch self {
-            case .functionCall, .paymentTransaction:
+            case .functionCall, .paymentTransaction, .eventFiltering:
                 return false
             case .functionTransaction:
                 return true
@@ -45,7 +47,7 @@ struct FunctionOrigin {
             switch self {
             case .functionCall(let functionName, _, _), .functionTransaction(let functionName, _, _):
                 return functionName
-            case .paymentTransaction:
+            case .paymentTransaction, .eventFiltering:
                 return nil
             }
         }
@@ -53,7 +55,7 @@ struct FunctionOrigin {
             switch self {
             case .functionCall(_, let inputs, _), .functionTransaction(_, let inputs, _):
                 return inputs
-            case .paymentTransaction:
+            case .paymentTransaction, .eventFiltering:
                 return .init()
             }
         }
@@ -61,13 +63,13 @@ struct FunctionOrigin {
             switch self {
             case .functionCall(_, _, let output):
                 return output
-            case .functionTransaction, .paymentTransaction:
+            case .functionTransaction, .paymentTransaction, .eventFiltering:
                 return .init(type: .void)
             }
         }
         var inputValue: AssetFunctionCall.Argument? {
             switch self {
-            case .functionCall:
+            case .functionCall, .eventFiltering:
                 return nil
             case .functionTransaction(_, _, let inputValue):
                 return inputValue
@@ -268,7 +270,7 @@ struct FunctionOrigin {
         let payload: Data
         let value: BigUInt
         switch functionType {
-        case .functionCall:
+        case .functionCall, .eventFiltering:
             return .init(error: FunctionError.postTransaction)
         case .paymentTransaction:
             payload = .init()
@@ -287,7 +289,7 @@ struct FunctionOrigin {
         let payload: Data?
         let value: BigUInt
         switch functionType {
-        case .functionCall:
+        case .functionCall, .eventFiltering:
             return nil
         case .paymentTransaction:
             payload = nil
