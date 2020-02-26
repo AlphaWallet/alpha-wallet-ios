@@ -7,19 +7,21 @@
 //
 
 import Foundation
-import RealmSwift
 import BigInt
 
 class TokenAdaptor {
     private let token: TokenObject
     private let assetDefinitionStore: AssetDefinitionStore
+    private let eventsDataStore: EventsDataStoreProtocol
 
-    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore) {
+    init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
+        self.eventsDataStore = eventsDataStore
     }
 
-    public func getTokenHolders(forWallet account: Wallet) -> [TokenHolder] {
+    //`sourceFromEvents`: We'll usually source from events if available, except when we are actually using this func to create the filter to fetch the events
+    public func getTokenHolders(forWallet account: Wallet, sourceFromEvents: Bool = true) -> [TokenHolder] {
         switch token.type {
         case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
             return getNotSupportedByOpenSeaTokenHolders(forWallet: account)
@@ -27,7 +29,7 @@ class TokenAdaptor {
             let tokenType = OpenSeaSupportedNonFungibleTokenHandling(token: token)
             switch tokenType {
             case .supportedByOpenSea:
-                return getSupportedByOpenSeaTokenHolders(forWallet: account)
+                return getSupportedByOpenSeaTokenHolders(forWallet: account, sourceFromEvents: sourceFromEvents)
             case .notSupportedByOpenSea:
                 return getNotSupportedByOpenSeaTokenHolders(forWallet: account)
             }
@@ -43,7 +45,8 @@ class TokenAdaptor {
             guard isNonZeroBalance(id) else { continue }
             if let tokenInt = BigUInt(id.drop0x, radix: 16) {
                 let server = self.token.server
-                let token = getToken(name: self.token.name, symbol: self.token.symbol, for: tokenInt, index: UInt16(index), inWallet: account, server: server)
+                //TODO Event support, if/when designed, for non-OpenSea. Probably need `distinct` or something to that effect
+                let token = getToken(name: self.token.name, symbol: self.token.symbol, forTokenIdOrEvent: .tokenId(tokenId: tokenInt), index: UInt16(index), inWallet: account, server: server)
                 tokens.append(token)
             }
         }
@@ -51,12 +54,12 @@ class TokenAdaptor {
         return bundle(tokens: tokens)
     }
 
-    private func getSupportedByOpenSeaTokenHolders(forWallet account: Wallet) -> [TokenHolder] {
+    private func getSupportedByOpenSeaTokenHolders(forWallet account: Wallet, sourceFromEvents: Bool) -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
         for item in balance {
             let jsonString = item.balance
-            if let token = getTokenForOpenSeaNonFungible(forJSONString: jsonString, inWallet: account, server: self.token.server) {
+            if let token = getTokenForOpenSeaNonFungible(forJSONString: jsonString, inWallet: account, server: self.token.server, sourceFromEvents: sourceFromEvents) {
                 tokens.append(token)
             }
         }
@@ -138,14 +141,42 @@ class TokenAdaptor {
     }
 
     //TODO pass lang into here
-    private func getToken(name: String, symbol: String, for id: BigUInt, index: UInt16, inWallet account: Wallet, server: RPCServer) -> Token {
-        return XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenId: id, index: index, inWallet: account, server: server, tokenType: token.type)
+    private func getToken(name: String, symbol: String, forTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer) -> Token {
+        XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
-    private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer) -> Token? {
+    private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer, sourceFromEvents: Bool) -> Token? {
         guard let data = jsonString.data(using: .utf8), let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: data) else { return nil }
-        var values = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
-                .resolveAttributesBypassingCache(withTokenId: BigUInt(nonFungible.tokenId) ?? BigUInt(0), server: server, account: account)
+        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let event: EventInstance?
+        if sourceFromEvents, let attributeWithEventSource = xmlHandler.attributesWithEventSource.first, let eventFilter = attributeWithEventSource.eventOrigin?.eventFilter, let eventName = attributeWithEventSource.eventOrigin?.eventName, let eventContract = attributeWithEventSource.eventOrigin?.contract {
+            let filterName = eventFilter.name
+            let filterValue: String
+            if let implicitAttribute = EventSourceCoordinator.convertToImplicitAttribute(string: eventFilter.value) {
+                switch implicitAttribute {
+                case .tokenId:
+                    filterValue = eventFilter.value.replacingOccurrences(of: "${tokenId}", with: nonFungible.tokenId)
+                case .ownerAddress:
+                    filterValue = eventFilter.value.replacingOccurrences(of: "${ownerAddress}", with: account.address.eip55String)
+                case .name, .contractAddress, .symbol:
+                    filterValue = eventFilter.value
+                }
+            } else {
+                filterValue = eventFilter.value
+            }
+            let eventsFromDatabase = eventsDataStore.getMatchingEvents(forContract: eventContract, tokenContract: token.contractAddress, server: server, eventName: eventName, filterName: filterName, filterValue: filterValue)
+            event = eventsFromDatabase.first
+        } else {
+            event = nil
+        }
+        let tokenId = BigUInt(nonFungible.tokenId) ?? BigUInt(0)
+        let tokenIdOrEvent: TokenIdOrEvent
+        if let eventNonOptional = event {
+            tokenIdOrEvent = .event(tokenId: tokenId, event: eventNonOptional)
+        } else {
+            tokenIdOrEvent = .tokenId(tokenId: tokenId)
+        }
+        var values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
         values["tokenId"] = .init(directoryString: nonFungible.tokenId)
         values["name"] = .init(directoryString: nonFungible.name)
         values["description"] = .init(directoryString: nonFungible.description)
@@ -164,7 +195,7 @@ class TokenAdaptor {
             status = .available
         }
         return Token(
-                id: BigUInt(nonFungible.tokenId)!,
+                tokenIdOrEvent: tokenIdOrEvent,
                 tokenType: TokenType.erc721,
                 index: 0,
                 name: nonFungible.contractName,

@@ -17,6 +17,7 @@ class TokensViewController: UIViewController {
 
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
+    private let eventsDataStore: EventsDataStoreProtocol
 
     private var viewModel: TokensViewModel {
         didSet {
@@ -112,12 +113,14 @@ class TokensViewController: UIViewController {
     init(sessions: ServerDictionary<WalletSession>,
          account: Wallet,
          tokenCollection: TokenCollection,
-         assetDefinitionStore: AssetDefinitionStore
+         assetDefinitionStore: AssetDefinitionStore,
+         eventsDataStore: EventsDataStoreProtocol
     ) {
 		self.sessions = sessions
         self.account = account
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
+        self.eventsDataStore = eventsDataStore
         self.viewModel = TokensViewModel(assetDefinitionStore: assetDefinitionStore, tokens: [], tickers: .init())
         tableView = UITableView(frame: .zero, style: .plain)
         searchController = UISearchController(searchResultsController: nil)
@@ -405,7 +408,7 @@ extension TokensViewController: UICollectionViewDataSource {
         let server = token.server
         let session = sessions[server]
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier, for: indexPath) as! OpenSeaNonFungibleTokenViewCell
-        cell.configure(viewModel: .init(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore))
+        cell.configure(viewModel: .init(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore))
         return cell
     }
 

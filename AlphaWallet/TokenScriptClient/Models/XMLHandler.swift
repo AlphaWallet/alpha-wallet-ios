@@ -245,6 +245,10 @@ private class PrivateXMLHandler {
         return results
     }
 
+    var attributesWithEventSource: [AssetAttribute] {
+        fields.values.filter { $0.isEventOriginBased }
+    }
+
     lazy var fieldIdsAndNames: [AttributeId: String] = {
         return Dictionary(uniqueKeysWithValues: fields.map { idAndAttribute in
             return (idAndAttribute.0, idAndAttribute.1.name)
@@ -365,24 +369,24 @@ private class PrivateXMLHandler {
     func getToken(
             name: String,
             symbol: String,
-            fromTokenId tokenId: TokenId,
+            fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
             index: UInt16,
             inWallet account: Wallet,
             server: RPCServer,
             callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator,
             tokenType: TokenType
     ) -> Token {
-        guard tokenId != 0 else { return .empty }
+        guard tokenIdOrEvent.tokenId != 0 else { return .empty }
         let values: [AttributeId: AssetAttributeSyntaxValue]
         if fields.isEmpty {
             values = .init()
         } else {
             //TODO read from cache again, perhaps based on a timeout/TTL for each attribute. There was a bug with reading from cache sometimes. e.g. cache a token with 8 token origin attributes and 1 function origin attribute and when displaying it and reading from the cache, sometimes it'll only return the 1 function origin attribute in the cache
-            values = resolveAttributesBypassingCache(withTokenId: tokenId, server: server, account: account)
-            cache(attributeValues: values, forTokenId: tokenId)
+            values = resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
+            cache(attributeValues: values, forTokenId: tokenIdOrEvent.tokenId)
         }
         return Token(
-                id: tokenId,
+                tokenIdOrEvent: tokenIdOrEvent,
                 tokenType: tokenType,
                 index: index,
                 name: name,
@@ -392,8 +396,8 @@ private class PrivateXMLHandler {
         )
     }
 
-    func resolveAttributesBypassingCache(withTokenId tokenId: TokenId, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
-        return fields.resolve(withTokenId: tokenId, userEntryValues: .init(), server: server, account: account, additionalValues: .init())
+    func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
+        fields.resolve(withTokenIdOrEvent: tokenIdOrEvent, userEntryValues: .init(), server: server, account: account, additionalValues: .init())
     }
 
     private static func computeTokenScriptStatus(forContract contract: AlphaWallet.Address, xmlString: String, isOfficial: Bool, isCanonicalized: Bool, assetDefinitionStore: AssetDefinitionStore) -> Promise<TokenLevelTokenScriptDisplayStatus> {
@@ -540,7 +544,7 @@ private class PrivateXMLHandler {
         for each in XMLHandler.getAttributeTypeElements(fromAttributeTypesElement: element, xmlContext: xmlContext) {
             guard let id = each["id"] else { continue }
             //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
-            guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
+            guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
             fields[id] = attribute
         }
         return fields
@@ -576,7 +580,9 @@ private class PrivateXMLHandler {
         let namespaces = [
             "ts": PrivateXMLHandler.tokenScriptNamespace,
             "ds": "http://www.w3.org/2000/09/xmldsig#",
-            "xhtml": "http://www.w3.org/1999/xhtml"
+            "xhtml": "http://www.w3.org/1999/xhtml",
+            "asnx": "urn:ietf:params:xml:ns:asnx",
+            "ethereum": "urn:ethereum:constantinople",
         ]
         return .init(namespacePrefix: rootNamespacePrefix, namespaces: namespaces, lang: lang)
     }
@@ -634,6 +640,10 @@ public class XMLHandler {
         return privateXMLHandler.server
     }
 
+    var attributesWithEventSource: [AssetAttribute] {
+        privateXMLHandler.attributesWithEventSource
+    }
+
     var fieldIdsAndNames: [AttributeId: String] {
         return privateXMLHandler.fieldIdsAndNames
     }
@@ -687,10 +697,10 @@ public class XMLHandler {
         xmlHandlers.removeAll()
     }
 
-    func getToken(name: String, symbol: String, fromTokenId tokenId: TokenId, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> Token {
+    func getToken(name: String, symbol: String, fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> Token {
         //TODO get rid of the forced unwrap
         let callForAssetAttributeCoordinator = (XMLHandler.callForAssetAttributeCoordinators?[server])!
-        return privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: index, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, tokenType: tokenType)
+        return privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, tokenType: tokenType)
     }
 
     func getName(fallback: String = R.string.localizable.tokenTitlecase()) -> String {
@@ -754,8 +764,8 @@ public class XMLHandler {
         }
     }
 
-    func resolveAttributesBypassingCache(withTokenId tokenId: TokenId, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
-        return privateXMLHandler.resolveAttributesBypassingCache(withTokenId: tokenId, server: server, account: account)
+    func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
+        privateXMLHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
     }
 }
 
@@ -829,12 +839,41 @@ extension XMLHandler {
         return attributeTypeElement.at_xpath("origins/token-id".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
-    static func getOriginFunctionElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
+    static func getEthereumOriginElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
         return attributeTypeElement.at_xpath("origins/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getOriginUserEntryElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
         return attributeTypeElement.at_xpath("origins/user-entry".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getEventParameterName(fromEthereumEventElement ethereumEventElement: XMLElement) -> String? {
+        guard let eventParameterName = ethereumEventElement["select"] else { return nil }
+        return eventParameterName
+    }
+
+    static func getEventDefinition(fromContractElement contractElement: XMLElement, xmlContext: XmlContext) -> EventDefinition? {
+        let addressElements = XMLHandler.getAddressElements(fromContractElement: contractElement, xmlContext: xmlContext)
+        guard let address = addressElements.first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed)}) else { return nil }
+        guard let eventName = contractElement.at_xpath("asnx:module", namespaces: xmlContext.namespaces)?["name"] else { return nil }
+        let parameters = contractElement.xpath("asnx:module/sequence/element", namespaces: xmlContext.namespaces).compactMap { each -> EventParameter? in
+            guard let name = each["name"], let type = each["type"] else { return nil }
+            let isIndexed = each["indexed"] == "true"
+            return .init(name: name, type: type, isIndexed: isIndexed)
+        }
+        if parameters.isEmpty {
+            return nil
+        } else {
+            return .init(contract: address, name: eventName, parameters: parameters)
+        }
+    }
+
+    ///The value to be a template containing variables. e.g. for the filter "label=${tokenId}", the extracted name is "label" and value is "${tokenId}"
+    static func getEventFilter(fromEthereumEventElement ethereumEventElement: XMLElement) -> (name: String, value: String)? {
+        guard let filter = ethereumEventElement["filter"] else { return nil }
+        let components = filter.split(separator: "=", maxSplits: 1)
+        guard components.count == 2 else { return nil }
+        return (name: String(components[0]), value: String(components[1]))
     }
 
     //Remember `1` in XPath selects the first node, not `0`
