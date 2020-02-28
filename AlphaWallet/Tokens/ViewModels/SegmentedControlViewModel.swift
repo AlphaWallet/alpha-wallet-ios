@@ -50,6 +50,6 @@ struct SegmentedControlViewModel {
 	}
 
 	var selectedBarColor: UIColor {
-		return R.color.azure()!
+		return Colors.appTint
 	}
 }
