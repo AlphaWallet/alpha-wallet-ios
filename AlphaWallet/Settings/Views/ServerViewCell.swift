@@ -26,7 +26,7 @@ class ServerViewCell: UITableViewCell {
     }
 
     func configure(viewModel: ServerViewModel) {
-        selectionStyle = .none
+        selectionStyle = .default
         backgroundColor = viewModel.backgroundColor
 
         accessoryType = viewModel.accessoryType
