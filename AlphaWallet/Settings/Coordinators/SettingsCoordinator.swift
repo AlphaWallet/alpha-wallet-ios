@@ -85,6 +85,12 @@ class SettingsCoordinator: Coordinator {
 		coordinator.delegate = self
 		coordinator.start()
 		addCoordinator(coordinator)
+		switch UIDevice.current.userInterfaceIdiom {
+		case .pad:
+			coordinator.navigationController.modalPresentationStyle = .formSheet
+		case .unspecified, .tv, .carPlay, .phone:
+			coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
+		}
 		navigationController.present(coordinator.navigationController, animated: true, completion: nil)
 	}
 

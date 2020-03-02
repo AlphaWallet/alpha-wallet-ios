@@ -326,9 +326,11 @@ class SingleChainTokenCoordinator: Coordinator {
         switch (type, session.account.type) {
         case (.send, .real), (.request, _):
             makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: tokensCardCoordinator, token: token)
+            tokensCardCoordinator.navigationController.makePresentationFullScreenForiOS13Migration()
             navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
         case (.send, .watch):
             tokensCardCoordinator.isReadOnly = true
+            tokensCardCoordinator.navigationController.makePresentationFullScreenForiOS13Migration()
             navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
         case (_, _):
             navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
@@ -370,7 +372,12 @@ class SingleChainTokenCoordinator: Coordinator {
         let viewModel = TokenViewControllerViewModel(transferType: transferType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore)
         viewController.configure(viewModel: viewModel)
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
-        navigationController.present(UINavigationController(rootViewController: viewController), animated: true, completion: nil)
+
+        //navigationController.present(UINavigationController(rootViewController: viewController), animated: true, completion: nil)
+        let nc = UINavigationController(rootViewController: viewController)
+        nc.makePresentationFullScreenForiOS13Migration()
+        navigationController.present(nc, animated: true, completion: nil)
+
         refreshTokenViewControllerUponAssetDefinitionChanges(viewController, forTransferType: transferType, transactionsStore: transactionsStore)
     }
 

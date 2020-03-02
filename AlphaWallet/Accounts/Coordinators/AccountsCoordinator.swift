@@ -55,6 +55,7 @@ class AccountsCoordinator: Coordinator {
     }
 
     @objc private func addWallet() {
+        guard let barButtonItem = accountsViewController.navigationItem.rightBarButtonItem else { return }
         UIAlertController.alert(title: nil,
                 message: nil,
                 alertButtonTitles: [
@@ -70,7 +71,7 @@ class AccountsCoordinator: Coordinator {
                     .cancel
                 ],
                 viewController: navigationController,
-                preferredStyle: .actionSheet) { [weak self] index in
+                style: .actionSheet(source: .barButtonItem(barButtonItem))) { [weak self] index in
                     guard let strongSelf = self else { return }
 			        if index == 0 {
                         strongSelf.showCreateWallet()
@@ -91,6 +92,7 @@ class AccountsCoordinator: Coordinator {
         addCoordinator(coordinator)
         let showUI = coordinator.start(entryPoint)
         if showUI {
+            coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
             navigationController.present(coordinator.navigationController, animated: true, completion: nil)
         }
     }
@@ -146,6 +148,7 @@ class AccountsCoordinator: Coordinator {
 
         controller.addAction(copyAction)
         controller.addAction(cancelAction)
+        controller.makePresentationFullScreenForiOS13Migration()
         navigationController.present(controller, animated: true, completion: nil)
     }
 }

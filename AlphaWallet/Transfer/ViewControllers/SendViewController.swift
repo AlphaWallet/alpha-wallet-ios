@@ -425,6 +425,7 @@ extension SendViewController: AddressTextFieldDelegate {
         }
         let controller = QRCodeReaderViewController(cancelButtonTitle: nil, chooseFromPhotoLibraryButtonTitle: R.string.localizable.photos())
         controller.delegate = self
+        controller.makePresentationFullScreenForiOS13Migration()
         present(controller, animated: true, completion: nil)
     }
 
