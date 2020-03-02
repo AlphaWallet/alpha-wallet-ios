@@ -108,6 +108,7 @@ class WalletCoordinator: Coordinator {
         coordinator.delegate = self
         addCoordinator(coordinator)
         let _ = coordinator.start(entryPoint)
+        coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
         navigationController.present(coordinator.navigationController, animated: true, completion: nil)
     }
 

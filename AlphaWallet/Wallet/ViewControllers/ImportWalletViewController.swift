@@ -405,13 +405,14 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         delegate?.didImportAccount(account: demoWallet, in: self)
     }
 
-    @objc func importOptions(sender: UIBarButtonItem) {
+    @objc func importOptions(sender: UIButton) {
         let alertController = UIAlertController(
             title: R.string.localizable.importWalletImportAlertSheetTitle(),
             message: .none,
             preferredStyle: .actionSheet
         )
-        alertController.popoverPresentationController?.barButtonItem = sender
+        alertController.popoverPresentationController?.sourceView = sender
+        alertController.popoverPresentationController?.sourceRect = sender.bounds
         alertController.addAction(UIAlertAction(
             title: R.string.localizable.importWalletImportAlertSheetOptionTitle(),
             style: .default
@@ -426,7 +427,12 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         let types = ["public.text", "public.content", "public.item", "public.data"]
         let controller = UIDocumentPickerViewController(documentTypes: types, in: .import)
         controller.delegate = self
-        controller.modalPresentationStyle = .formSheet
+        switch UIDevice.current.userInterfaceIdiom {
+        case .pad:
+            controller.modalPresentationStyle = .formSheet
+        case .unspecified, .tv, .carPlay, .phone:
+            controller.makePresentationFullScreenForiOS13Migration()
+        }
         present(controller, animated: true, completion: nil)
     }
 
@@ -437,6 +443,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         }
         let controller = QRCodeReaderViewController(cancelButtonTitle: nil, chooseFromPhotoLibraryButtonTitle: R.string.localizable.photos())
         controller.delegate = self
+        controller.makePresentationFullScreenForiOS13Migration()
         present(controller, animated: true, completion: nil)
     }
 

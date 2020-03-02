@@ -190,6 +190,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             strongSelf.navigationController.dismiss(animated: true, completion: nil)
         }
         coordinator.start()
+        coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
         navigationController.present(coordinator.navigationController, animated: true, completion: nil)
     }
 
@@ -262,7 +263,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         reloadAction.isEnabled = hasWebPageLoaded
 
         let shareAction = UIAlertAction(title: R.string.localizable.share(), style: .default) { [weak self] _ in
-            self?.share()
+            self?.share(sender: sender)
         }
         shareAction.isEnabled = hasWebPageLoaded
 
@@ -294,10 +295,10 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         return alertController
     }
 
-    private func share() {
+    private func share(sender: UIView) {
         guard let url = currentUrl else { return }
         rootViewController.displayLoading()
-        rootViewController.showShareActivity(from: UIView(), with: [url]) { [weak self] in
+        rootViewController.showShareActivity(fromSource: .view(sender), with: [url]) { [weak self] in
             self?.rootViewController.hideLoading()
         }
     }
@@ -370,6 +371,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         let coordinator = ScanQRCodeCoordinator(navigationController: NavigationController())
         coordinator.delegate = self
         addCoordinator(coordinator)
+        coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
         navigationController.present(coordinator.qrcodeController, animated: true, completion: nil)
     }
 
@@ -379,7 +381,9 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
-        navigationController.present(UINavigationController(rootViewController: coordinator.serversViewController), animated: true)
+        let nc = UINavigationController(rootViewController: coordinator.serversViewController)
+        nc.makePresentationFullScreenForiOS13Migration()
+        navigationController.present(nc, animated: true)
     }
 
     private func withCurrentUrl(handler: (URL?) -> Void) {
@@ -602,6 +606,7 @@ extension DappBrowserCoordinator: MyDappsViewControllerDelegate {
         vc.delegate = self
         vc.configure(viewModel: .init(dapp: dapp))
         vc.hidesBottomBarWhenPushed = true
+        vc.makePresentationFullScreenForiOS13Migration()
         navigationController.present(vc, animated: true)
     }
 

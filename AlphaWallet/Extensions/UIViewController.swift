@@ -95,10 +95,22 @@ extension UIViewController {
         viewController.removeFromParent()
     }
 
-    func showShareActivity(from sender: UIView, with items: [Any], completion: (() -> Swift.Void)? = nil) {
+    func showShareActivity(fromSource source: PopoverPresentationControllerSource, with items: [Any], completion: (() -> Swift.Void)? = nil) {
         let activityViewController = UIActivityViewController.make(items: items)
-        activityViewController.popoverPresentationController?.sourceView = sender
-        activityViewController.popoverPresentationController?.sourceRect = sender.centerRect
+        switch source {
+        case .barButtonItem(let barButtonItem):
+            activityViewController.popoverPresentationController?.barButtonItem = barButtonItem
+        case .view(let view):
+            activityViewController.popoverPresentationController?.sourceView = view
+            //Cannot use view.rect because it might be too small (e.g. it's a button)
+            activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 0, y: 0, width: 500, height: 500)
+        }
         present(activityViewController, animated: true, completion: completion)
+    }
+
+    //TODO remove all callers for this function. This is added for a scoped down migration to Xcode 11.x (building for iOS 13), to make sure that all presented screens remain fullscreen. We should decide to either show them by presenting as (A) fullscreen (B) card or (C) push onto a navigation controller
+    //Shouldn't be called for UIActivityViewController and UIAlertController
+    func makePresentationFullScreenForiOS13Migration() {
+        modalPresentationStyle = .fullScreen
     }
 }
