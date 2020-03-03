@@ -31,8 +31,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         } catch {
             print("EtherKeystore init issue.")
         }
-        //Status bar hidden at launch so launch screen is not distorted when call/tether bar is activated in phones without a notch, like iPhone 8 and earlier
-        application.isStatusBarHidden = false
         protectionCoordinator.didFinishLaunchingWithOptions()
 
         return true
