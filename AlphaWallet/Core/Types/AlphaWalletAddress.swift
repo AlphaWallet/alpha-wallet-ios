@@ -20,7 +20,9 @@ extension AlphaWallet {
         init?(string: String) {
             let string = string.add0x
             guard string.count == 42 else { return nil }
-            guard let address = TrustKeystore.Address(string: string) else { return nil }
+            //Workaround for crash on iOS 11 and 12 when built with Xcode 11.3 (for iOS 13). Passing in `string` crashes with specific addresses at specific places, perhaps due to a compiler/runtime bug with following error message despite subscripting being done correctly:
+            //    Terminating app due to uncaught exception 'NSRangeException', reason: '*** -[NSPathStore2 characterAtIndex:]: index (42) beyond bounds (42)'
+            guard let address = TrustKeystore.Address(string: "\(string)") else { return nil }
             self = .ethereumAddress(eip55String: address.eip55String)
         }
 
