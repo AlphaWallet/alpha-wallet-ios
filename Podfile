@@ -1,6 +1,6 @@
 platform :ios, '10.0'
 inhibit_all_warnings!
-source 'https://github.com/CocoaPods/Specs.git'
+source 'https://cdn.cocoapods.org/'
 
 target 'AlphaWallet' do
   use_frameworks!
@@ -20,7 +20,7 @@ target 'AlphaWallet' do
   pod 'JavaScriptKit'
   pod 'CryptoSwift'
   pod 'SwiftyXMLParser', :git => 'https://github.com/yahoojapan/SwiftyXMLParser.git'
-  pod 'Kingfisher', '~> 4.0'
+  pod 'Kingfisher'
   pod 'AlphaWalletWeb3Provider', :git=>'https://github.com/AlphaWallet/AlphaWallet-web3-provider', :commit => '1c1aafb566361e7067e69f6e38b0fdc30b801429'
   pod 'TrezorCrypto', :git=>'https://github.com/AlphaWallet/trezor-crypto-ios.git', :commit => '50c16ba5527e269bbc838e80aee5bac0fe304cc7'
   pod 'TrustKeystore', :git => 'https://github.com/alpha-wallet/trust-keystore.git', :commit => '37f7eaf9531cb4e33d06129543b3a56972f59d2a'
@@ -31,7 +31,7 @@ target 'AlphaWallet' do
   pod 'PromiseKit/Alamofire'
   #To force SWXMLHash which Macaw depends on to be Swift >= 4
   pod 'SWXMLHash', '~> 5.0.0'
-  pod "Macaw", :git => 'https://github.com/alpha-wallet/Macaw.git', :commit => 'c13e70e63dd1a2554b59e0aa75c12b93e2ee9dd8'
+  pod "Macaw", :git => 'https://github.com/alpha-wallet/Macaw.git', :commit => '2596ad0229e7c8b69471355ed44506dcdaf27e9d'
   pod "Kanna", :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
   pod 'TrustWalletCore'
   pod 'AWSSNS'
@@ -57,19 +57,13 @@ post_install do |installer|
       end
     end
     if [
-        'APIKit',
-        'Kingfisher',
-        'Macaw',
-        'R.swift.Library',
-        'RealmSwift',
         'Result',
-        'SeedStackViewController',
         'SwiftyXMLParser',
         'JSONRPCKit',
 		'SWXMLHash'
     ].include? target.name
       target.build_configurations.each do |config|
-        config.build_settings['SWIFT_VERSION'] = '4'
+        config.build_settings['SWIFT_VERSION'] = '4.2'
       end
     end
   end
