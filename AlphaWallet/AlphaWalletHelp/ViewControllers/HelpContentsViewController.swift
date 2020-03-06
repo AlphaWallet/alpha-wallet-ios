@@ -34,6 +34,7 @@ class HelpContentsViewController: StaticHTMLViewController {
 
 extension HelpContentsViewController: ContactUsBannerViewDelegate {
     func present(_ viewController: UIViewController, for view: ContactUsBannerView) {
+        viewController.makePresentationFullScreenForiOS13Migration()
         present(viewController, animated: true, completion: nil)
     }
 }

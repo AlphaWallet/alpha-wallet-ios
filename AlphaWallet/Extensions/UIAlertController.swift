@@ -1,8 +1,19 @@
 // Copyright SIX DAY LLC. All rights reserved.
+// Copyright © 2020 Stormbird PTE. LTD.
 
 import Foundation
 import UIKit
 import Result
+
+enum PopoverPresentationControllerSource {
+    case barButtonItem(UIBarButtonItem)
+    case view(UIView)
+}
+
+enum AlertControllerPreferredStyle {
+    case alert
+    case actionSheet(source: PopoverPresentationControllerSource)
+}
 
 extension UIAlertController {
 
@@ -36,20 +47,31 @@ extension UIAlertController {
                       alertButtonTitles: [String],
                       alertButtonStyles: [UIAlertAction.Style],
                       viewController: UIViewController,
-                      preferredStyle: UIAlertController.Style = .alert,
-                      sourceView: UIView? = nil,
+                      style: AlertControllerPreferredStyle = .alert,
                       completion: ((Int) -> Void)?) {
-
+        let preferredStyle: UIAlertController.Style
+        let popoverSource:  PopoverPresentationControllerSource?
+        switch style {
+        case .alert:
+            preferredStyle = .alert
+            popoverSource = nil
+        case .actionSheet(let source):
+            preferredStyle = .actionSheet
+            popoverSource = source
+        }
         let alertController = UIAlertController(
                 title: title,
                 message: message,
                 preferredStyle: preferredStyle)
-
-        if let sourceView = sourceView {
-            alertController.popoverPresentationController?.sourceView = sourceView
-            alertController.popoverPresentationController?.sourceRect = sourceView.centerRect
+        switch popoverSource {
+        case .some(.barButtonItem(let barButtonItem)):
+            alertController.popoverPresentationController?.barButtonItem = barButtonItem
+        case .some(.view(let view)):
+            alertController.popoverPresentationController?.sourceView = view
+            alertController.popoverPresentationController?.sourceRect = view.centerRect
+        case .none:
+            break
         }
-
         alertButtonTitles.forEach { title in
             let alertStyle = alertButtonStyles[alertButtonTitles.index(of: title)!]
             let action = UIAlertAction(title: title, style: alertStyle, handler: { action in

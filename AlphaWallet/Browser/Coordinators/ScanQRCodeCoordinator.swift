@@ -28,6 +28,7 @@ final class  ScanQRCodeCoordinator: NSObject, Coordinator {
     }
 
     func start() {
+        qrcodeController.makePresentationFullScreenForiOS13Migration()
         navigationController.present(qrcodeController, animated: true, completion: nil)
     }
 

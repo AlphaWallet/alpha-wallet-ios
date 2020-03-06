@@ -77,6 +77,7 @@ class TransactionCoordinator: Coordinator {
             let nav = UINavigationController(rootViewController: controller)
             nav.modalPresentationStyle = .formSheet
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
+            nav.makePresentationFullScreenForiOS13Migration()
             navigationController.present(nav, animated: true, completion: nil)
         } else {
             controller.hidesBottomBarWhenPushed = true
@@ -95,6 +96,7 @@ class TransactionCoordinator: Coordinator {
         )
         let nav = UINavigationController(rootViewController: controller)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: controller, action: #selector(dismiss))
+        nav.makePresentationFullScreenForiOS13Migration()
         viewController.present(nav, animated: true, completion: nil)
     }
 

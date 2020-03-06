@@ -1,5 +1,5 @@
 language: swift
-osx_image: xcode10.1
+osx_image: xcode11.3
 
 branches:
   only:
@@ -19,7 +19,7 @@ before_install:
 
 script:
   - set -o pipefail
-  - xcodebuild -workspace AlphaWallet.xcworkspace -scheme AlphaWalletTests -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone X" test | xcpretty
+  - xcodebuild -workspace AlphaWallet.xcworkspace -scheme AlphaWalletTests -sdk iphonesimulator -destination "platform=iOS Simulator,name=iPhone X,OS=12.4" test | xcpretty
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

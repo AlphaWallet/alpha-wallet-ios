@@ -448,6 +448,7 @@ class InCoordinator: NSObject, Coordinator {
                     assetDefinitionStore: assetDefinitionStore
             )
             coordinator.delegate = self
+            coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
             if let topVC = navigationController.presentedViewController {
                 topVC.present(coordinator.navigationController, animated: true, completion: nil)
             } else {
@@ -600,9 +601,12 @@ class InCoordinator: NSObject, Coordinator {
         let viewController = createConsoleViewController()
         viewController.navigationItem.rightBarButtonItem =  .init(barButtonSystemItem: .done, target: viewController, action: #selector(viewController.dismissConsole))
         if let topVC = navigationController.presentedViewController {
+            viewController.makePresentationFullScreenForiOS13Migration()
             topVC.present(viewController, animated: true)
         } else {
-            navigationController.present(UINavigationController(rootViewController: viewController), animated: true)
+            let nc = UINavigationController(rootViewController: viewController)
+            nc.makePresentationFullScreenForiOS13Migration()
+            navigationController.present(nc, animated: true)
         }
     }
 
@@ -622,6 +626,7 @@ extension InCoordinator: CanOpenURL {
         let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: true)
         let controller = browserCoordinator.navigationController
         browserCoordinator.open(url: url, animated: false)
+        controller.makePresentationFullScreenForiOS13Migration()
         viewController.present(controller, animated: true, completion: nil)
     }
 

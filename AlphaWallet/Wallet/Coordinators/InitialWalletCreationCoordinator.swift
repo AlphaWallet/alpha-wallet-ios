@@ -53,6 +53,7 @@ class InitialWalletCreationCoordinator: Coordinator {
         let coordinator = WalletCoordinator(config: config, keystore: keystore)
         coordinator.delegate = self
         let _ = coordinator.start(entryPoint)
+        coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
         navigationController.present(coordinator.navigationController, animated: true, completion: nil)
         addCoordinator(coordinator)
     }
@@ -61,6 +62,7 @@ class InitialWalletCreationCoordinator: Coordinator {
         let coordinator = WalletCoordinator(config: config, keystore: keystore)
         coordinator.delegate = self
         let _ = coordinator.start(entryPoint)
+        coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
         navigationController.present(coordinator.navigationController, animated: true, completion: nil)
         addCoordinator(coordinator)
     }
