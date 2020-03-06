@@ -119,6 +119,11 @@ class AddressTextField: UIControl {
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
 
         let targetAddressRightView = [pasteButton, scanQRCodeButton].asStackView(distribution: .equalSpacing)
+        //As of iOS 13, we need to constrain the width of `rightView`
+        let rightViewFittingSize = targetAddressRightView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+        NSLayoutConstraint.activate([
+            targetAddressRightView.widthAnchor.constraint(equalToConstant: rightViewFittingSize.width),
+        ])
         targetAddressRightView.translatesAutoresizingMaskIntoConstraints = false
 
         return targetAddressRightView

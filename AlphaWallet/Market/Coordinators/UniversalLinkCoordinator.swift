@@ -517,7 +517,9 @@ class UniversalLinkCoordinator: Coordinator {
         guard let vc = importTokenViewController else { return }
         vc.delegate = self
         vc.configure(viewModel: .init(state: .validating, server: server))
-        viewController.present(UINavigationController(rootViewController: vc), animated: true)
+        let nc = UINavigationController(rootViewController: vc)
+        nc.makePresentationFullScreenForiOS13Migration()
+        viewController.present(nc, animated: true)
 	}
 
     private func updateTokenFields() {

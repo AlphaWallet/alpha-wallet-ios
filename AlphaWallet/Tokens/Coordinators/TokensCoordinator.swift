@@ -146,7 +146,12 @@ class TokensCoordinator: Coordinator {
         let controller = createNewTokenViewController()
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
         let nav = UINavigationController(rootViewController: controller)
-        nav.modalPresentationStyle = .formSheet
+        switch UIDevice.current.userInterfaceIdiom {
+        case .pad:
+            nav.modalPresentationStyle = .formSheet
+        case .unspecified, .tv, .carPlay, .phone:
+            nav.makePresentationFullScreenForiOS13Migration()
+        }
         navigationController.present(nav, animated: true, completion: nil)
         newTokenViewController = controller
     }
@@ -164,7 +169,9 @@ class TokensCoordinator: Coordinator {
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
-        viewController.present(UINavigationController(rootViewController: coordinator.serversViewController), animated: true)
+        let nc = UINavigationController(rootViewController: coordinator.serversViewController)
+        nc.makePresentationFullScreenForiOS13Migration()
+        viewController.present(nc, animated: true)
     }
 
     private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address, inViewController viewController: NewTokenViewController) -> Promise<TokenType> {

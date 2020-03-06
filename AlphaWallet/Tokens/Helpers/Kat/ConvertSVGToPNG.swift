@@ -75,8 +75,10 @@ class ConvertSVGToPNG {
                     seal.resolve(nil, GenerationError(errorDescription: "Can't retrieve new graphics context from URL: \(url) tokenId: \(tokenId)"))
                     return
                 }
-                graphicsContext.concatenate(LayoutHelper().getTransform(group, ContentLayout.of(contentMode: .scaleAspectFit), size.toMacaw()))
                 let renderer = RenderUtils.createNodeRenderer(group)
+                let transform = LayoutHelper().getTransform(renderer, ContentLayout.of(contentMode: .scaleAspectFit), size.toMacaw())
+                let affineTransform = CGAffineTransform(a: CGFloat(transform.m11), b: CGFloat(transform.m12), c: CGFloat(transform.m21), d: CGFloat(transform.m22), tx: CGFloat(transform.dx), ty: CGFloat(transform.dy))
+                graphicsContext.concatenate(affineTransform)
                 renderer.render(in: graphicsContext, force: false, opacity: group.opacity)
                 guard let image = UIGraphicsGetImageFromCurrentImageContext() else {
                     UIGraphicsEndImageContext()

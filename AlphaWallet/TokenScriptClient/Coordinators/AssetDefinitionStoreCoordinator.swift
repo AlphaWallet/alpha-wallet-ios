@@ -183,6 +183,6 @@ extension AssetDefinitionStoreCoordinator: AssetDefinitionsOverridesViewControll
     }
 
     func didTapShare(file: URL, in viewController: AssetDefinitionsOverridesViewController) {
-        viewController.showShareActivity(from: UIView(), with: [file])
+        viewController.showShareActivity(fromSource: .view(viewController.view), with: [file])
     }
 }

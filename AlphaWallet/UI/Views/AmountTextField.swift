@@ -155,8 +155,6 @@ class AmountTextField: UIControl {
         switch currentPair.left {
         case .cryptoCurrency(let symbol), .usd(let symbol):
             fiatButton.setTitle(symbol, for: .normal)
-            //Have to re-create `rightView`, otherwise building with older Xcode and deploying on newer iOS version causes the `rightView` to move around when tapped. Specifically reproducible by building with Xcode 10.3 and running on iOS 13.3
-            textField.rightView = makeAmountRightView()
         }
     }
 

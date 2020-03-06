@@ -57,7 +57,8 @@ struct AppFormAppearance {
                     $0.cell.height = { 33 }
                     $0.cell.textLabel?.textColor = .red
                 }
-                row.section?.insert(labelRow, at: row.indexPath!.row + index + 1)
+                let indexPath = row.indexPath!.row + index + 1
+                row.section?.insert(labelRow, at: indexPath)
             }
         }
     }
