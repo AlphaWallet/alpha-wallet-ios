@@ -330,7 +330,7 @@
 "accounts.delete.error.accountNotFound" = "No se ha encontrado la cuenta";
 "accounts.delete.error.failedToSignMessage" = "Error al firmar el mensaje";
 "accounts.delete.error.failedToExportPrivateKey" = "Error al exportar la clave privada";
-"accounts.delete.error.failedToExportSeed" = "Failed to export wallet seed";
+"accounts.delete.error.failedToExportSeed" = "Failed to export wallet seed. If you have migrated to a new phone or restored your device, you need to import your wallet again";
 "Chain ID" = "ID de cadena";
 "Endpoint" = "Punto final";
 "settings.preferences.button.title" = "Mostrar tokens al iniciar";
@@ -401,7 +401,7 @@
 "keystore.accessKey.hd.verify" = "Accessing your wallet seed phrase to verify against it";
 "keystore.accessKey.hd.prepareToVerify" = "Accessing your wallet seed phrase to let you verify against it";
 "keystore.accessKey.sign" = "Accessing your wallet key to sign";
-"keystore.accessKey.needImportOrPasscode" = "Can't access your wallet. Import your wallet again or enable passcode";
+"keystore.accessKey.needImportOrPasscode" = "Can't access your wallet. If you have migrated to a new phone or restored your device, you need to import your wallet again";
 "keystore.accessKey.cancelled" = "You have denied access to your wallet";
 "keystore.accessKey.lock.fail" = "Can't lock your wallet key. Maybe your iOS Passcode is not enabled?";
 "keystore.accessKey.hd.lock" = "To lock your seed phrase to increase security";

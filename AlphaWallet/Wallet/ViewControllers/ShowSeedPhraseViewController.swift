@@ -181,6 +181,7 @@ class ShowSeedPhraseViewController: UIViewController {
         errorLabel.textColor = viewModel.errorColor
         errorLabel.font = viewModel.errorFont
         errorLabel.text = viewModel.errorMessage
+        errorLabel.numberOfLines = 0
 
         seedPhraseCollectionView.configure()
 
