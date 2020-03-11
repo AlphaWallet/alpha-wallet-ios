@@ -32,7 +32,8 @@ func getEventLogs(
         withServer server: RPCServer,
         contract: AlphaWallet.Address,
         eventName: String,
-        abiString: String
+        abiString: String,
+        filter: EventFilter
 ) -> Promise<[EventParserResultProtocol]> {
     return firstly { () -> Promise<(EthereumAddress)> in
         let contractAddress = EthereumAddress(address: contract)
@@ -50,7 +51,7 @@ func getEventLogs(
 
         return contractInstance.getIndexedEventsPromise(
                 eventName: eventName,
-                filter: EventFilter(fromBlock: nil, toBlock: nil)
+                filter: filter
         )
     }
 }
