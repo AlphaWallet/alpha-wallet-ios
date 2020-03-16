@@ -25,8 +25,8 @@ class EthCurrencyHelper {
     }
 
     private var percentageChange24h: Double? {
-        if let percent_change_24h = ticker?.percent_change_24h, let percentChange = Double(percent_change_24h) {
-            return percentChange
+        if let percent_change_24h = ticker?.percent_change_24h {
+            return percent_change_24h.rounded(to: 2)
         } else {
             return nil
         }

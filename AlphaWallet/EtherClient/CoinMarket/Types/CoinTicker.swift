@@ -4,12 +4,17 @@ import Foundation
 import RealmSwift
 
 struct CoinTicker: Codable {
+    
+    private enum CodingKeys : String, CodingKey {
+        case price_usd = "current_price", percent_change_24h = "market_cap_change_percentage_24h", id = "id", symbol = "symbol", image = "image"
+    }
+    
     private let id: String
     private let symbol: String
     private let image: String = ""
 
-    let price_usd: String
-    let percent_change_24h: String
+    let price_usd: Double
+    let percent_change_24h: Double
     //TODO use AlphaWallet.Address? Note that the containing struct is Codable
     let contract: String = Constants.nativeCryptoAddressInDatabase.eip55String
 
@@ -19,7 +24,7 @@ struct CoinTicker: Codable {
             rates: [
                 Rate(
                     code: symbol,
-                    price: Double(price_usd) ?? 0,
+                    price: price_usd,
                     contract: contract
                 ),
             ]
