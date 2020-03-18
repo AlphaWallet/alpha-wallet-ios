@@ -116,7 +116,7 @@ struct TokenViewControllerViewModel {
     }
 
     var showAlternativeAmount: Bool {
-        guard let currentTokenInfo = tokensStore.tickers?[destinationAddress], let price = Double(currentTokenInfo.price_usd), price > 0 else {
+        guard let currentTokenInfo = tokensStore.tickers?[destinationAddress], currentTokenInfo.price_usd > 0 else {
             return false
         }
         return true

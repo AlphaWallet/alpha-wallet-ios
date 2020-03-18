@@ -51,7 +51,6 @@ class TokensViewModel {
         }
     }
 
-
     var shouldShowCollectiblesCollectionView: Bool {
         switch filter {
         case .all, .currencyOnly, .assetsOnly, .keyword:
@@ -137,7 +136,7 @@ class TokensViewModel {
         guard let tickers = tickers[token.server] else { return 0 }
         guard !token.valueBigInt.isZero, let tickersSymbol = tickers[token.contractAddress] else { return 0 }
         let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
-        let price = Double(tickersSymbol.price_usd) ?? 0
+        let price = tickersSymbol.price_usd
         return tokenValue * price
     }
 
