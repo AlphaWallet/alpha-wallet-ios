@@ -95,7 +95,7 @@ struct Config {
         self.defaults = defaults
     }
 
-    let priceInfoEndpoints = URL(string: "https://api.coinmarketcap.com")!
+    let priceInfoEndpoints = URL(string: "https://api.coingecko.com")!
 
     var oldWalletAddressesAlreadyPromptedForBackUp: [String] {
         //We hard code the key here because it's used for migrating off the old value, there should be no reason why this key will change in the next line
