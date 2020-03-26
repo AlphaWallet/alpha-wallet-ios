@@ -22,6 +22,7 @@ class TokensCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let promptBackupCoordinator: PromptBackupCoordinator
+    private let filterTokensCoordinator: FilterTokensCoordinator
     private var serverToAddCustomTokenOn: RPCServerOrAuto = .auto {
         didSet {
             switch serverToAddCustomTokenOn {
@@ -51,7 +52,8 @@ class TokensCoordinator: Coordinator {
                 account: sessions.anyValue.account,
                 tokenCollection: tokenCollection,
                 assetDefinitionStore: assetDefinitionStore,
-                eventsDataStore: eventsDataStore
+                eventsDataStore: eventsDataStore,
+                filterTokensCoordinator: filterTokensCoordinator
         )
         controller.delegate = self
         return controller
@@ -81,8 +83,10 @@ class TokensCoordinator: Coordinator {
             nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>>,
             assetDefinitionStore: AssetDefinitionStore,
             eventsDataStore: EventsDataStoreProtocol,
-            promptBackupCoordinator: PromptBackupCoordinator
+            promptBackupCoordinator: PromptBackupCoordinator,
+            filterTokensCoordinator: FilterTokensCoordinator
     ) {
+        self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.sessions = sessions
@@ -137,31 +141,6 @@ class TokensCoordinator: Coordinator {
         let server = Constants.uefaRpcServer
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
         coordinator.addImportedToken(forContract: Constants.uefaMainnet, onlyIfThereIsABalance: true)
-    }
-
-    private func createNewTokenViewController() -> NewTokenViewController {
-        serverToAddCustomTokenOn = .auto
-        let controller = NewTokenViewController(server: serverToAddCustomTokenOn)
-        controller.delegate = self
-        return controller
-    }
-
-    @objc func addToken() {
-        let controller = createNewTokenViewController()
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
-        let nav = UINavigationController(rootViewController: controller)
-        switch UIDevice.current.userInterfaceIdiom {
-        case .pad:
-            nav.modalPresentationStyle = .formSheet
-        case .unspecified, .tv, .carPlay, .phone:
-            nav.makePresentationFullScreenForiOS13Migration()
-        }
-        navigationController.present(nav, animated: true, completion: nil)
-        newTokenViewController = controller
-    }
-
-    @objc func dismiss() {
-        navigationController.dismiss(animated: true, completion: nil)
     }
 
     private func singleChainTokenCoordinator(forServer server: RPCServer) -> SingleChainTokenCoordinator? {
@@ -236,6 +215,23 @@ class TokensCoordinator: Coordinator {
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
+    func didPressAddHideTokens(viewModel: TokensViewModel) {
+        let coordinator: AddHideTokensCoordinator = .init(
+            tokens: viewModel.tokens,
+            assetDefinitionStore: assetDefinitionStore,
+            filterTokensCoordinator: filterTokensCoordinator,
+            tickers: viewModel.tickers,
+            sessions: sessions,
+            navigationController: navigationController,
+            tokenCollection: tokenCollection,
+            config: config,
+            singleChainTokenCoordinators: singleChainTokenCoordinators
+        )
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start()
+    }
+
     func didSelect(token: TokenObject, in viewController: UIViewController) {
         let server = token.server
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
@@ -251,57 +247,13 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         }
     }
 
-    func didDelete(token: TokenObject, in viewController: UIViewController) {
+    func didHide(token: TokenObject, in viewController: UIViewController) {
         guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
-        coordinator.delete(token: token)
+        coordinator.mark(token: token, isHidden: true)
     }
 
     func didTapOpenConsole(in viewController: UIViewController) {
         delegate?.openConsole(inCoordinator: self)
-    }
-
-    func didPressAddToken(in viewController: UIViewController) {
-        addToken()
-    }
-}
-
-extension TokensCoordinator: NewTokenViewControllerDelegate {
-    func didAddToken(token: ERCToken, in viewController: NewTokenViewController) {
-        guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
-        coordinator.add(token: token)
-        dismiss()
-    }
-
-    func didAddAddress(address: AlphaWallet.Address, in viewController: NewTokenViewController) {
-        switch viewController.server {
-        case .auto:
-            addressToAutoDetectServerFor = address
-            var serversFailed = 0
-
-            //TODO be good if we can check every chain, including those that are not enabled: https://github.com/AlphaWallet/alpha-wallet-ios/issues/1166
-            let servers = tokenCollection.tokenDataStores.map { $0.server }
-            for each in servers {
-                //It's possible we'll find the contracts with the same address across different chains, but let's not worry about it. User can manually choose a chain if they encounter this
-                fetchContractDataPromise(forServer: each, address: address, inViewController: viewController).done { [weak self] (tokenType) in
-                    self?.serverToAddCustomTokenOn = .server(each)
-                    viewController.updateForm(forTokenType: tokenType)
-                    viewController.server = .server(each)
-                    viewController.configure()
-                }.catch { _ in
-                    serversFailed += 1
-                    if serversFailed == servers.count {
-                        //So that we can enable the Done button
-                        viewController.updateForm(forTokenType: .erc20)
-                    }
-                }
-            }
-        case .server(let server):
-            fetchContractData(forServer: server, address: address, inViewController: viewController)
-        }
-    }
-
-    func didTapChangeServer(in viewController: NewTokenViewController) {
-        showServers(inViewController: viewController)
     }
 }
 
@@ -365,5 +317,11 @@ extension TokensCoordinator: PromptBackupCoordinatorProminentPromptDelegate {
 
     func updatePrompt(inCoordinator coordinator: PromptBackupCoordinator) {
         tokensViewController.promptBackupWalletView = coordinator.prominentPromptView
+    }
+}
+
+extension TokensCoordinator: AddHideTokensCoordinatorDelegate {
+    func didClose(coordinator: AddHideTokensCoordinator) {
+        removeCoordinator(coordinator)
     }
 }

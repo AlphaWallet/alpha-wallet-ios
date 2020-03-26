@@ -7,10 +7,9 @@ import UIKit
 class TokensViewModel {
     static let segmentedControlTitles = WalletFilter.orderedTabs.map { $0.title }
 
-    private let assetDefinitionStore: AssetDefinitionStore
-    private let tokens: [TokenObject]
-    private let tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
-
+    private let filterTokensCoordinator: FilterTokensCoordinator
+    var tokens: [TokenObject]
+    let tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
     private var amount: String? {
         var totalAmount: Double = 0
         filteredTokens.forEach { token in
@@ -22,13 +21,14 @@ class TokensViewModel {
 
     var filter: WalletFilter = .all {
         didSet {
-            filteredTokens = getFilteredtokens()
+            filteredTokens = filteredAndSortedTokens()
         }
     }
 
     lazy var filteredTokens: [TokenObject] = {
-        return getFilteredtokens()
+        return filteredAndSortedTokens()
     }()
+
     var headerBackgroundColor: UIColor {
         return .white
     }
@@ -85,47 +85,26 @@ class TokensViewModel {
         return true
     }
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
-        self.assetDefinitionStore = assetDefinitionStore
+    init(filterTokensCoordinator: FilterTokensCoordinator, tokens: [TokenObject], tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]) {
+        self.filterTokensCoordinator = filterTokensCoordinator
         self.tokens = tokens
         self.tickers = tickers
     }
 
-    private func getFilteredtokens() -> [TokenObject] {
-        switch filter {
-        case .all:
-            return tokens
-        case .currencyOnly:
-            return tokens.filter { $0.type == .nativeCryptocurrency || $0.type == .erc20 }
-        case .assetsOnly:
-            return tokens.filter { $0.type != .nativeCryptocurrency && $0.type != .erc20 }
-        case .collectiblesOnly:
-            return tokens.filter { $0.type == .erc721 && !$0.balance.isEmpty }
-        case .keyword(let keyword):
-            let lowercasedKeyword = keyword.trimmed.lowercased()
-            if lowercasedKeyword.isEmpty {
-                return tokens
-            } else {
-                return tokens.filter {
-                    if lowercasedKeyword == "erc20" || lowercasedKeyword == "erc 20" {
-                        return $0.type == .erc20
-                    } else if lowercasedKeyword == "erc721" || lowercasedKeyword == "erc 721" {
-                        return $0.type == .erc721
-                    } else if lowercasedKeyword == "erc875" || lowercasedKeyword == "erc 875" {
-                        return $0.type == .erc875
-                    } else if lowercasedKeyword == "tokenscript" {
-                        let xmlHandler = XMLHandler(contract: $0.contractAddress, assetDefinitionStore: assetDefinitionStore)
-                        return xmlHandler.hasAssetDefinition && xmlHandler.server == $0.server
-                    } else {
-                        return $0.name.trimmed.lowercased().contains(lowercasedKeyword) ||
-                                $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) ||
-                                $0.contract.lowercased().contains(lowercasedKeyword) ||
-                                $0.title(withAssetDefinitionStore: assetDefinitionStore).trimmed.lowercased().contains(lowercasedKeyword) ||
-                                $0.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore).trimmed.lowercased().contains(lowercasedKeyword)
-                    }
-                }
-            }
+    func markTokenHidden(token: TokenObject) -> Bool {
+        if let index = tokens.firstIndex(where: { $0.primaryKey == token.primaryKey }) {
+            tokens.remove(at: index)
+            filteredTokens = filteredAndSortedTokens()
+
+            return true
         }
+
+        return false
+    }
+
+    private func filteredAndSortedTokens() -> [TokenObject] {
+        let displayedTokens = filterTokensCoordinator.filterTokens(tokens: tokens, filter: filter)
+        return filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
     }
 
     func nativeCryptoCurrencyToken(forServer server: RPCServer) -> TokenObject? {

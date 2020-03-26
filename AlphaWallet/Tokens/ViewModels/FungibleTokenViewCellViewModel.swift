@@ -9,11 +9,13 @@ struct FungibleTokenViewCellViewModel {
     private let token: TokenObject
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
+    private let isVisible: Bool
 
-    init(token: TokenObject, server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
+    init(token: TokenObject, server: RPCServer, assetDefinitionStore: AssetDefinitionStore, isVisible: Bool = true) {
         self.token = token
         self.server = server
         self.assetDefinitionStore = assetDefinitionStore
+        self.isVisible = isVisible
     }
 
     var title: String {
@@ -82,5 +84,9 @@ struct FungibleTokenViewCellViewModel {
 
     var subtitleFont: UIFont {
         return Screen.TokenCard.Font.subtitle
+    }
+
+    var alpha: CGFloat {
+        return isVisible ? 1.0 : 0.4
     }
 }

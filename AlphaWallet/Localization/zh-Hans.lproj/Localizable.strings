@@ -85,6 +85,12 @@
 "wallets.verifySeedPhrase.title" = "Verify Seed Phrase";
 "wallets.verifySeedPhrase.wrong" = "Invalid seed phrase. Please check and try again.";
 "wallets.verifySeedPhrase.doNotTakeScreenshotDescription" = "It's not a good idea to take a screenshot of your seed phrase";
+"wallets.addHideTokens.title" = "显示或隐藏通证";
+"wallets.hideToken.title" = "Hide";
+"addHideTokens.title" = "显示或隐藏通证";
+"addHideTokens.section.newTokens" = "New Token Found";
+"addHideTokens.section.displayedTokens" = "Displayed Tokens";
+"addHideTokens.section.hiddenTokens" = "Hidden Tokens";
 "transactions.tabbar.item.title" = "我的账单";
 "transactions.received.ether" = "你已收到 %@ %@";
 "transactions.received.ether.notification.prompt" = "当你收到 %@ 的时候是否允许系统通知?";

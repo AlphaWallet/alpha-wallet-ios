@@ -4,7 +4,6 @@ import XCTest
 @testable import AlphaWallet
 
 class TokensCoordinatorTests: XCTestCase {
-
     func testRootViewController() {
         var sessions = ServerDictionary<WalletSession>()
         sessions[.main] = WalletSession.make()
@@ -15,11 +14,12 @@ class TokensCoordinatorTests: XCTestCase {
             sessions: sessions,
             keystore: FakeKeystore(),
             config: config,
-            tokenCollection: .init(assetDefinitionStore: assetDefinitionStore, tokenDataStores: []),
+            tokenCollection: .init(filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore), tokenDataStores: []),
             nativeCryptoCurrencyPrices: .init(),
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
-            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config)
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config),
+            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore)
         )
         coordinator.start()
 

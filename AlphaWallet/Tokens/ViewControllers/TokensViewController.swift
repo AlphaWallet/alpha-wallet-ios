@@ -1,23 +1,28 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
-import Foundation
 import UIKit
-import StatefulViewController
 import Result
+import StatefulViewController
 
 protocol TokensViewControllerDelegate: class {
-    func didPressAddToken( in viewController: UIViewController)
+    func didPressAddHideTokens(viewModel: TokensViewModel)
     func didSelect(token: TokenObject, in viewController: UIViewController)
-    func didDelete(token: TokenObject, in viewController: UIViewController)
+    func didHide(token: TokenObject, in viewController: UIViewController)
     func didTapOpenConsole(in viewController: UIViewController)
 }
 
 class TokensViewController: UIViewController {
     private static let filterViewHeight = CGFloat(50)
 
+    private enum Section {
+        case addHideToken
+        case tokens
+    }
+
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
+    private let sections: [Section] = [.addHideToken, .tokens]
 
     private var viewModel: TokensViewModel {
         didSet {
@@ -77,6 +82,7 @@ class TokensViewController: UIViewController {
             adjustTableViewHeaderHeightToFitContents()
         }
     }
+    private let hideTokenWidth: CGFloat = 170
 
     weak var delegate: TokensViewControllerDelegate?
     //TODO The name "bad" isn't correct. Because it includes "conflicts" too
@@ -114,20 +120,20 @@ class TokensViewController: UIViewController {
          account: Wallet,
          tokenCollection: TokenCollection,
          assetDefinitionStore: AssetDefinitionStore,
-         eventsDataStore: EventsDataStoreProtocol
+         eventsDataStore: EventsDataStoreProtocol,
+         filterTokensCoordinator: FilterTokensCoordinator
     ) {
-		self.sessions = sessions
+        self.sessions = sessions
         self.account = account
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
-        self.viewModel = TokensViewModel(assetDefinitionStore: assetDefinitionStore, tokens: [], tickers: .init())
+        self.viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], tickers: .init())
         tableView = UITableView(frame: .zero, style: .plain)
         searchController = UISearchController(searchResultsController: nil)
 
         super.init(nibName: nil, bundle: nil)
         handleTokenCollectionUpdates()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addToken))
 
         view.backgroundColor = viewModel.backgroundColor
 
@@ -139,6 +145,7 @@ class TokensViewController: UIViewController {
 
         consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
 
+        tableView.register(AddHideTokensCell.self, forCellReuseIdentifier: AddHideTokensCell.identifier)
         tableView.register(FungibleTokenViewCell.self, forCellReuseIdentifier: FungibleTokenViewCell.identifier)
         tableView.register(EthTokenViewCell.self, forCellReuseIdentifier: EthTokenViewCell.identifier)
         tableView.register(NonFungibleTokenViewCell.self, forCellReuseIdentifier: NonFungibleTokenViewCell.identifier)
@@ -212,10 +219,14 @@ class TokensViewController: UIViewController {
         configureSearchBarOnce()
     }
 
+    private func reloadTableData() {
+        tableView.reloadData()
+    }
+
     private func reload() {
         isPromptBackupWalletViewHolderHidden = !(viewModel.shouldShowBackupPromptViewHolder && !promptBackupWalletViewHolder.subviews.isEmpty) || shouldHidePromptBackupWalletViewHolderBecauseSearchIsActive
         collectiblesCollectionView.isHidden = !viewModel.shouldShowCollectiblesCollectionView
-        tableView.reloadData()
+        reloadTableData()
         if viewModel.hasContent {
             if viewModel.shouldShowCollectiblesCollectionView {
                 let contractsForCollectibles = contractsForCollectiblesFromViewModel()
@@ -237,10 +248,6 @@ class TokensViewController: UIViewController {
     func refreshView(viewModel: TokensViewModel) {
         title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
-    }
-
-    @objc func addToken() {
-        delegate?.didPressAddToken(in: self)
     }
 
     //Reloading the collectibles tab is very obvious visually, with the flashing images even if there are no changes. So we used this to check if the list of collectibles have changed, if not, don't refresh. We could have used a library that tracks diff, but that is overkill and one more dependency
@@ -295,16 +302,6 @@ extension TokensViewController: UITableViewDelegate {
         delegate?.didSelect(token: token, in: self)
     }
 
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return viewModel.canDelete(for: indexPath.row, section: indexPath.section)
-    }
-
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            delegate?.didDelete(token: viewModel.item(for: indexPath.row, section: indexPath.section), in: self)
-        }
-    }
-
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard section == 0 else { return 0 }
         return TokensViewController.filterViewHeight
@@ -314,12 +311,30 @@ extension TokensViewController: UITableViewDelegate {
         guard section == 0 else { return nil }
         let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: TableViewSectionHeader.reuseIdentifier) as? TableViewSectionHeader ?? TableViewSectionHeader(reuseIdentifier: TableViewSectionHeader.reuseIdentifier)
         header.filterView = tableViewFilterView
+
         return header
     }
 }
 
 extension TokensViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let section = sections[indexPath.section]
+        switch section {
+        case .addHideToken:
+            return addHideTokenCell(forIndexPath: indexPath)
+        case .tokens:
+            return tokenCell(forIndexPath: indexPath)
+        }
+    }
+
+    private func addHideTokenCell(forIndexPath indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: AddHideTokensCell.identifier, for: indexPath) as! AddHideTokensCell
+        cell.delegate = self
+        cell.configure()
+        return cell
+    }
+
+    private func tokenCell(forIndexPath indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
         let server = token.server
         let session = sessions[server]
@@ -353,11 +368,52 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.numberOfItems()
+        let section = sections[section]
+        switch section {
+        case .addHideToken:
+            return 1
+        case .tokens:
+            return viewModel.numberOfItems()
+        }
     }
 
-    public func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+    func numberOfSections(in tableView: UITableView) -> Int {
+        sections.count
+    }
+
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let section = sections[indexPath.section]
+        switch section {
+        case .addHideToken:
+            return nil
+        case .tokens:
+            return trailingSwipeActionsConfiguration(forRowAt: indexPath)
+        }
+    }
+
+    private func trailingSwipeActionsConfiguration(forRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let title = R.string.localizable.walletsHideTokenTitle()
+        let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
+            guard let strongSelf = self else { return }
+            let token = strongSelf.viewModel.item(for: indexPath.row, section: indexPath.section)
+            strongSelf.delegate?.didHide(token: token, in: strongSelf)
+
+            let didHideToken = strongSelf.viewModel.markTokenHidden(token: token)
+            if didHideToken {
+                strongSelf.tableView.deleteRows(at: [indexPath], with: .automatic)
+            } else {
+                strongSelf.reloadTableData()
+            }
+
+            completionHandler(didHideToken)
+        }
+
+        hideAction.backgroundColor = R.color.danger()
+        hideAction.image = R.image.hideToken()
+        let configuration = UISwipeActionsConfiguration(actions: [hideAction])
+        configuration.performsFirstActionWithFullSwipe = true
+
+        return configuration
     }
 }
 
@@ -485,6 +541,7 @@ extension TokensViewController {
     private func fixTableViewBackgroundColor() {
         let v = UIView()
         v.backgroundColor = GroupedTable.Color.background
+        tableView.backgroundView?.backgroundColor = viewModel.backgroundColor
         tableView.backgroundView = v
     }
 
@@ -516,5 +573,11 @@ extension TokensViewController {
         }
         //Hack to hide the horizontal separator below the search bar
         searchController.searchBar.superview?.firstSubview(ofType: UIImageView.self)?.isHidden = true
+    }
+}
+
+extension TokensViewController: ShowAddHideTokensViewDelegate {
+    func view(_ view: ShowAddHideTokensView, didSelectAddHideTokensButton sender: UIButton) {
+        delegate?.didPressAddHideTokens(viewModel: viewModel)
     }
 }
