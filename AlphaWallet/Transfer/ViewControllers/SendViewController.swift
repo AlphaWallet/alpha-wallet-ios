@@ -387,7 +387,7 @@ extension SendViewController: QRCodeReaderDelegate {
         guard let tokenObject = storage.token(forContract: contract) else { return }
         let amount = amount.flatMap { EtherNumberFormatter.full.string(from: $0, decimals: tokenObject.decimals) }
         let transferType: TransferType
-        if let amount = amount {
+        if let amount = amount, amount != "0" {
             transferType = TransferType(token: tokenObject, recipient: recipient, amount: amount)
         } else {
             switch viewModel.transferType {
