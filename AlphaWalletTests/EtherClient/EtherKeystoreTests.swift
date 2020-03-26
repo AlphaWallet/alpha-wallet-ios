@@ -9,7 +9,7 @@ import TrustKeystore
 import TrustWalletCore
 
 class EtherKeystoreTests: XCTestCase {
-    
+
     func testInitialization() {
         let keystore = FakeEtherKeystore()
 

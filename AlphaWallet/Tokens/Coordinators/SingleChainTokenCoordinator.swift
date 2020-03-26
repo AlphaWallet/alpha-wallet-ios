@@ -405,6 +405,16 @@ class SingleChainTokenCoordinator: Coordinator {
         delegate?.tokensDidChange(inCoordinator: self)
     }
 
+    func updateOrderedTokens(with orderedTokens: [TokenObject]) {
+        self.storage.updateOrderedTokens(with: orderedTokens)
+
+        delegate?.tokensDidChange(inCoordinator: self)
+    }
+
+    func mark(token: TokenObject, isHidden: Bool) {
+        self.storage.update(token: token, action: .isHidden(isHidden))
+    }
+
     func add(token: ERCToken) {
         storage.addCustom(token: token)
         delegate?.tokensDidChange(inCoordinator: self)

@@ -75,6 +75,10 @@ class InCoordinator: NSObject, Coordinator {
         )
     }()
 
+    lazy var filterTokensCoordinator: FilterTokensCoordinator = {
+        return .init(assetDefinitionStore: assetDefinitionStore)
+    }()
+
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     var keystore: Keystore
@@ -128,7 +132,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func createTokensDatastore(forConfig config: Config, server: RPCServer) -> TokensDataStore {
         let realm = self.realm(forAccount: wallet)
-        return TokensDataStore(realm: realm, account: wallet, server: server, config: config, assetDefinitionStore: assetDefinitionStore)
+        return TokensDataStore(realm: realm, account: wallet, server: server, config: config, assetDefinitionStore: assetDefinitionStore, filterTokensCoordinator: filterTokensCoordinator)
     }
 
     private func createTransactionsStorage(server: RPCServer) -> TransactionsStorage {
@@ -323,9 +327,9 @@ class InCoordinator: NSObject, Coordinator {
         showTab(inCoordinatorViewModel.initialTab)
     }
 
-    private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator) -> TokensCoordinator {
+    private func createTokensCoordinator(promptBackupCoordinator: PromptBackupCoordinator, realm: Realm) -> TokensCoordinator {
         let tokensStoragesForEnabledServers = config.enabledServers.map { tokensStorages[$0] }
-        let tokenCollection = TokenCollection(assetDefinitionStore: assetDefinitionStore, tokenDataStores: tokensStoragesForEnabledServers)
+        let tokenCollection = TokenCollection(filterTokensCoordinator: filterTokensCoordinator, tokenDataStores: tokensStoragesForEnabledServers)
         promptBackupCoordinator.listenToNativeCryptoCurrencyBalance(withTokenCollection: tokenCollection)
         pollEthereumEvents(tokenCollection: tokenCollection)
         let coordinator = TokensCoordinator(
@@ -336,7 +340,8 @@ class InCoordinator: NSObject, Coordinator {
                 nativeCryptoCurrencyPrices: nativeCryptoCurrencyPrices,
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
-                promptBackupCoordinator: promptBackupCoordinator
+                promptBackupCoordinator: promptBackupCoordinator,
+                filterTokensCoordinator: filterTokensCoordinator
         )
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
         coordinator.delegate = self
@@ -392,7 +397,7 @@ class InCoordinator: NSObject, Coordinator {
         let promptBackupCoordinator = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config)
         addCoordinator(promptBackupCoordinator)
 
-        let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator)
+        let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator, realm: realm)
         configureNavigationControllerForLargeTitles(tokensCoordinator.navigationController)
         viewControllers.append(tokensCoordinator.navigationController)
 

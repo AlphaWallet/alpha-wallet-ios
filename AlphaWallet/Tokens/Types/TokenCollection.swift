@@ -5,14 +5,14 @@ import Result
 
 ///This contains tokens across multiple-chains
 class TokenCollection {
-    private let assetDefinitionStore: AssetDefinitionStore
     private var subscribers: [(Result<TokensViewModel, TokenError>) -> Void] = []
     private var rateLimitedUpdater: RateLimiter?
+    private let filterTokensCoordinator: FilterTokensCoordinator
 
     let tokenDataStores: [TokensDataStore]
 
-    init(assetDefinitionStore: AssetDefinitionStore, tokenDataStores: [TokensDataStore]) {
-        self.assetDefinitionStore = assetDefinitionStore
+    init(filterTokensCoordinator: FilterTokensCoordinator, tokenDataStores: [TokensDataStore]) {
+        self.filterTokensCoordinator = filterTokensCoordinator
         self.tokenDataStores = tokenDataStores
         for each in tokenDataStores {
             each.delegate = self
@@ -81,14 +81,14 @@ extension TokenCollection: TokensDataStoreDelegate {
             }
         }
 
-        let tokensViewModel = TokensViewModel(assetDefinitionStore: assetDefinitionStore, tokens: tokens, tickers: tickers)
+        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: tokens, tickers: tickers)
         for each in subscribers {
             each(.success(tokensViewModel))
         }
     }
 }
 
-fileprivate extension RPCServer {
+extension RPCServer {
     var displayOrderPriority: Int {
         switch self {
         case .main: return 1
