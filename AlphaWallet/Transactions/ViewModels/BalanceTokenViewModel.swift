@@ -14,7 +14,7 @@ struct BalanceTokenViewModel: BalanceBaseViewModel {
     }
 
     var amountShort: String {
-        return EtherNumberFormatter.full.string(from: token.valueBigInt, decimals: token.decimals)
+        return EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
     }
 
     var name: String {

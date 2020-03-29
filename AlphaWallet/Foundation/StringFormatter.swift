@@ -9,6 +9,7 @@ final class StringFormatter {
         formatter.currencySymbol = ""
         formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 2
+        formatter.roundingMode = .down
         formatter.numberStyle = .currencyAccounting
         formatter.isLenient = true
         return formatter

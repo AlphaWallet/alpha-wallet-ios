@@ -7,6 +7,7 @@ class CurrencyFormatter {
         let formatter = NumberFormatter()
         formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 2
+        formatter.roundingMode = .down
         //TODO support multiple currency values
         formatter.currencyCode = Currency.USD.rawValue
         formatter.numberStyle = .currency
