@@ -22,7 +22,7 @@ struct AccountViewModel {
         return wallet.type == .watch(wallet.address)
     }
     var balance: String {
-        let amount = walletBalance?.amountFull ?? "--"
+        let amount = walletBalance?.amountShort ?? "--"
         return "\(amount) \(server.symbol)"
     }
     var address: AlphaWallet.Address {
