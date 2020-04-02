@@ -1,4 +1,4 @@
-# AlphaWallet - AN ADVANCED ETHEREUM MOBILE WALLET
+# AlphaWallet - An advanced Ethereum mobile wallet
 
 [![Build Status](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)
 [![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
@@ -43,7 +43,3 @@ For Android:
 
 For iOS:
 <https://github.com/AlphaWallet/alpha-wallet-ios/blob/master/AlphaWallet/Browser/ViewModel/Dapps.swift>
-
-## GPL Acknowledgement
-
-The codebase for this app is originally forked from the Trust ethereum wallet and has had many major modifications. Their iOS repo can be seen here: https://github.com/TrustWallet/trust-wallet-ios
