@@ -39,7 +39,7 @@ struct BrowserHistoryCellViewModel {
     }
 
     var urlColor: UIColor? {
-        return Colors.appBackground
+        return Colors.appTint
     }
 
     var imageViewShadowColor: UIColor {
