@@ -39,7 +39,7 @@ struct MyDappCellViewModel {
     }
 
     var domainNameColor: UIColor? {
-        return Colors.appBackground
+        return Colors.appTint
     }
 
     var addRemoveButtonFont: UIFont {
