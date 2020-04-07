@@ -50,7 +50,7 @@ class TokenInstanceWebView: UIView {
         super.init(frame: .zero)
 
         webView.isUserInteractionEnabled = false
-        webView.scrollView.isScrollEnabled = false
+        webView.scrollView.isScrollEnabled = true
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.translatesAutoresizingMaskIntoConstraints = false
