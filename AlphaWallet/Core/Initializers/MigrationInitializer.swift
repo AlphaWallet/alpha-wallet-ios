@@ -28,8 +28,6 @@ class MigrationInitializer: Initializer {
                     }
                 }
             }
-        }
-        config.migrationBlock = { migration, oldSchemaVersion in
             if oldSchemaVersion < 3 {
                 migration.enumerateObjects(ofType: Transaction.className()) { oldObject, newObject in
                     guard let _ = oldObject else { return }
@@ -37,8 +35,6 @@ class MigrationInitializer: Initializer {
                     newObject["isERC20Interaction"] = false 
                 }
             }
-        }
-        config.migrationBlock = { migration, oldSchemaVersion in
             if oldSchemaVersion < 4 {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
                     guard let oldObject = oldObject else { return }
@@ -48,8 +44,6 @@ class MigrationInitializer: Initializer {
                     newObject["rawType"] = "ERC20"
                 }
             }
-        }
-        config.migrationBlock = { migration, oldSchemaVersion in
             if oldSchemaVersion < 5 {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
                     guard let oldObject = oldObject else { return }
