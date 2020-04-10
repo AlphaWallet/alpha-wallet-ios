@@ -650,6 +650,12 @@
 		B138ABD0208C2C93000FC28A /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */; };
 		BBF4F9B72029D0B3009E04C0 /* GasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */; };
+		C601B18324407D1700C763D9 /* SettingsViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C601B18224407D1700C763D9 /* SettingsViewController2.swift */; };
+		C601B18524407D2D00C763D9 /* SettingConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = C601B18424407D2D00C763D9 /* SettingConnector.swift */; };
+		C601B18924407D3B00C763D9 /* SettingViewHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C601B18624407D3A00C763D9 /* SettingViewHeader.swift */; };
+		C601B18A24407D3B00C763D9 /* SettingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C601B18724407D3B00C763D9 /* SettingTableViewCell.swift */; };
+		C601B18B24407D3B00C763D9 /* appInfoTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C601B18824407D3B00C763D9 /* appInfoTableCell.swift */; };
+		C601B18D24407F4300C763D9 /* SettingModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C601B18C24407F4300C763D9 /* SettingModel.swift */; };
 		C80DC77E22AB7FAD009CFA1C /* XDAI-bridge.tsml in Resources */ = {isa = PBXBuildFile; fileRef = C80DC77D22AB7FAD009CFA1C /* XDAI-bridge.tsml */; };
 		C868C5292053BDE00059672B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C868C5282053BDE00059672B /* LaunchScreen.storyboard */; };
 		C868C536205409160059672B /* redeemInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C868C534205409160059672B /* redeemInfo.html */; };
@@ -1347,6 +1353,12 @@
 		B9F84D10470B22C957A61EAE /* Pods-AlphaWalletTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletTests/Pods-AlphaWalletTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CurrencyRate+Fee.swift"; sourceTree = "<group>"; };
 		BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasViewModel.swift; sourceTree = "<group>"; };
+		C601B18224407D1700C763D9 /* SettingsViewController2.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController2.swift; sourceTree = "<group>"; };
+		C601B18424407D2D00C763D9 /* SettingConnector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingConnector.swift; sourceTree = "<group>"; };
+		C601B18624407D3A00C763D9 /* SettingViewHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingViewHeader.swift; sourceTree = "<group>"; };
+		C601B18724407D3B00C763D9 /* SettingTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingTableViewCell.swift; sourceTree = "<group>"; };
+		C601B18824407D3B00C763D9 /* appInfoTableCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = appInfoTableCell.swift; sourceTree = "<group>"; };
+		C601B18C24407F4300C763D9 /* SettingModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingModel.swift; sourceTree = "<group>"; };
 		C6EE5EADD8373DB85ADD1966 /* Pods-AlphaWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWallet.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet.release.xcconfig"; sourceTree = "<group>"; };
 		C80DC77D22AB7FAD009CFA1C /* XDAI-bridge.tsml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "XDAI-bridge.tsml"; sourceTree = "<group>"; };
 		C825940EC6CB472A443A7997 /* Pods-AlphaWalletUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletUITests/Pods-AlphaWalletUITests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -2034,6 +2046,7 @@
 		298542F11FBD593900CB5081 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				C601B18C24407F4300C763D9 /* SettingModel.swift */,
 				29F1C85E200369BA003780D8 /* HelpUsViewModel.swift */,
 				298542F21FBD594D00CB5081 /* SettingsViewModel.swift */,
 				5E7C7FCE2427A30ACD860DF8 /* ServerViewModel.swift */,
@@ -2461,6 +2474,7 @@
 				5E7C74D5CEC9A6C4483B1C77 /* PreferencesController.swift */,
 				5E7C7B6A80324059B3EDA38C /* EnabledServersViewController.swift */,
 				5E7C7CF1465A1DCB44371BA9 /* ConsoleViewController.swift */,
+				C601B18224407D1700C763D9 /* SettingsViewController2.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -2790,6 +2804,7 @@
 			isa = PBXGroup;
 			children = (
 				5E7C7CD7ABB18C1121D5776F /* LiveLocaleSwitcherBundle.swift */,
+				C601B18424407D2D00C763D9 /* SettingConnector.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -2960,6 +2975,9 @@
 		5E7C7D3F20599F40EC05F8DF /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C601B18724407D3B00C763D9 /* SettingTableViewCell.swift */,
+				C601B18624407D3A00C763D9 /* SettingViewHeader.swift */,
+				C601B18824407D3B00C763D9 /* appInfoTableCell.swift */,
 				5E7C7CDB0BAD5D27D2F24F57 /* ServerViewCell.swift */,
 				5E7C79E3BC4CACB123840A42 /* LocaleViewCell.swift */,
 				5E7C75D384C0D727BB43305E /* SettingsHeaderView.swift */,
@@ -3832,6 +3850,7 @@
 				29AD8A041F93D6CD008E10E7 /* Constants.swift in Sources */,
 				2963B6B11F9891F5003063C1 /* UIButton.swift in Sources */,
 				29F114F21FA7966300114A29 /* PrivateKeyRule.swift in Sources */,
+				C601B18B24407D3B00C763D9 /* appInfoTableCell.swift in Sources */,
 				29F1C853200363B2003780D8 /* PassphraseViewController.swift in Sources */,
 				29B9345D1F88459C009FCABB /* SplashView.swift in Sources */,
 				29E2E33A1F7A008C000CF94A /* UIView.swift in Sources */,
@@ -4127,12 +4146,14 @@
 				5E7C7EDA1BB781A45C1C19CD /* ImportWalletTab.swift in Sources */,
 				5E7C731D0F6128BE8885A2D3 /* ServersCoordinator.swift in Sources */,
 				5E7C732BD09AABEEE6096BF4 /* ServersViewController.swift in Sources */,
+				C601B18924407D3B00C763D9 /* SettingViewHeader.swift in Sources */,
 				5E7C70AE62DBB193399C7F5E /* ServerViewCell.swift in Sources */,
 				5E7C7EB845B0EE96CC8DCF43 /* ServerViewModel.swift in Sources */,
 				5E7C745A423BD10CFDED9A81 /* ServersViewModel.swift in Sources */,
 				5E7C7ECE164289A89734B4EF /* LocalesCoordinator.swift in Sources */,
 				5E7C730C6AEF556AFB9A4B2C /* LocalesViewController.swift in Sources */,
 				5E7C718043636901114BF76C /* LocalesViewModel.swift in Sources */,
+				C601B18324407D1700C763D9 /* SettingsViewController2.swift in Sources */,
 				5E7C7A91D0F6CBDA3C89DEAC /* LocaleViewCell.swift in Sources */,
 				5E7C74BD08801CABF9695853 /* LocaleViewModel.swift in Sources */,
 				76F1D74912F5D8CDA72363BD /* GetContractInteractions.swift in Sources */,
@@ -4228,6 +4249,7 @@
 				5E7C7186B20660F2C1462AA9 /* DiscoverDappsViewControllerViewModel.swift in Sources */,
 				5E7C70861A499FF79B7DA903 /* DiscoverDappCell.swift in Sources */,
 				5E7C72B359B220D0CBA7DCF1 /* DappsAutoCompletionViewController.swift in Sources */,
+				C601B18D24407F4300C763D9 /* SettingModel.swift in Sources */,
 				5E7C702C4B29AF2B8D61CCA4 /* DappsAutoCompletionViewControllerViewModel.swift in Sources */,
 				76F1DD3DF34BCCFE9BE3CEBB /* MyDappsViewControllerViewModel.swift in Sources */,
 				76F1D3B0E2CDBE82B764C0C7 /* MyDappCell.swift in Sources */,
@@ -4339,6 +4361,7 @@
 				5E7C7A4700C79350AA486E09 /* SeedPhraseCell.swift in Sources */,
 				5E7C767848E46E079557A039 /* SeedPhraseCellViewModel.swift in Sources */,
 				5E7C7BAF922C3EB4D1B22C46 /* VerifySeedPhraseViewController.swift in Sources */,
+				C601B18A24407D3B00C763D9 /* SettingTableViewCell.swift in Sources */,
 				5E7C7CCA2D436A940E874D47 /* VerifySeedPhraseViewModel.swift in Sources */,
 				5E7C7E34C8D389FB7056EB7D /* CollectionViewLeftAlignedFlowLayout.swift in Sources */,
 				5E7C7AD59EA28935E32B3E91 /* KeystoreBackupIntroductionViewController.swift in Sources */,
@@ -4364,6 +4387,7 @@
 				5E7C743467F5D428AF4E4F0F /* ElevateWalletSecurityViewModel.swift in Sources */,
 				5E7C7751F57FE1B8A563A79B /* WalletSecurityLevelIndicator.swift in Sources */,
 				5E7C70CF44075CF73F03AD4B /* TokensViewControllerTableViewHeader.swift in Sources */,
+				C601B18524407D2D00C763D9 /* SettingConnector.swift in Sources */,
 				5E7C7233A9A5F9D1A89FF569 /* TokensViewControllerTableViewSectionHeader.swift in Sources */,
 				5E7C756B31278B71E68D5E10 /* TokensViewControllerCollectiblesCollectionViewHeader.swift in Sources */,
 				5E7C721B569E1CD1C68295F6 /* LayoutConstraintsWrapper.swift in Sources */,
