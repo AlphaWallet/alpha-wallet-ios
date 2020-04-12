@@ -114,12 +114,11 @@ DEPENDENCIES:
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, commit `37f7eaf9531cb4e33d06129543b3a56972f59d2a`)
   - TrustWalletCore
-  - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, commit `2b3c5ee878212ce70768568def7e727f0f1ebf86`)
+  - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, commit `ae74a86c09dbec703e2aaf27217d7fb0722948ed`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - Alamofire
-    - Alamofire-Synchronous
     - APIKit
     - AWSCore
     - AWSSNS
@@ -130,7 +129,6 @@ SPEC REPOS:
     - JavaScriptKit
     - JSONRPCKit
     - Kingfisher
-    - libsodium
     - MBProgressHUD
     - Moya
     - PromiseKit
@@ -149,6 +147,9 @@ SPEC REPOS:
     - SwiftyJSON
     - SWXMLHash
     - TrustWalletCore
+  trunk:
+    - Alamofire-Synchronous
+    - libsodium
 
 EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
@@ -175,7 +176,7 @@ EXTERNAL SOURCES:
     :commit: 37f7eaf9531cb4e33d06129543b3a56972f59d2a
     :git: https://github.com/alpha-wallet/trust-keystore.git
   web3swift:
-    :commit: 2b3c5ee878212ce70768568def7e727f0f1ebf86
+    :commit: ae74a86c09dbec703e2aaf27217d7fb0722948ed
     :git: https://github.com/alpha-wallet/web3swift.git
 
 CHECKOUT OPTIONS:
@@ -204,7 +205,7 @@ CHECKOUT OPTIONS:
     :commit: 37f7eaf9531cb4e33d06129543b3a56972f59d2a
     :git: https://github.com/alpha-wallet/trust-keystore.git
   web3swift:
-    :commit: 2b3c5ee878212ce70768568def7e727f0f1ebf86
+    :commit: ae74a86c09dbec703e2aaf27217d7fb0722948ed
     :git: https://github.com/alpha-wallet/web3swift.git
 
 SPEC CHECKSUMS:
@@ -249,6 +250,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: dd8c81d5958f1eb737abea1e14675efcc6a104aa
   web3swift: 1597d4997976d21325882db4c523f1dfd5459406
 
-PODFILE CHECKSUM: 5b81a56a7c2ec2d230861408b90c3cdf78e96d4e
+PODFILE CHECKSUM: 68ca8e87d9727fae431309a8f266c36395fd9f40
 
 COCOAPODS: 1.8.4
