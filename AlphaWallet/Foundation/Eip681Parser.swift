@@ -7,10 +7,10 @@ import PromiseKit
 //In the future, this can include invoking functions other than for sending of Ether and tokens
 enum Eip681Type {
     case nativeCryptoSend(server: RPCServer?, recipient: AddressOrEnsName, amount: String)
-    case erc20Send(contract: AlphaWallet.Address, server: RPCServer?, recipient: AddressOrEnsName, amount: String)
+    case erc20Send(contract: AlphaWallet.Address, server: RPCServer?, recipient: AddressOrEnsName?, amount: String)
     case invalidOrNotSupported
 
-    var parameters: (contract: AlphaWallet.Address, RPCServer?, recipient: AddressOrEnsName, amount: String)? {
+    var parameters: (contract: AlphaWallet.Address, RPCServer?, recipient: AddressOrEnsName?, amount: String)? {
         switch self {
         case .nativeCryptoSend(let server, let recipient, let amount):
             return (Constants.nativeCryptoAddressInDatabase, server, recipient, amount)
@@ -41,7 +41,8 @@ struct Eip681Parser {
     //https://github.com/ethereum/EIPs/blob/master/EIPS/eip-681.md
     func parse() -> Promise<Eip681Type> {
         let chainId = params["chainId"].flatMap { Int($0) }
-        if let recipient = params["address"].flatMap({ AddressOrEnsName(string: $0) }), functionName == "transfer", let contract = address.contract {
+        if functionName == "transfer", let contract = address.contract {
+            let recipient = params["address"].flatMap({ AddressOrEnsName(string: $0) })
             let optionalAmountBigInt = params["uint256"].flatMap({ Double($0) }).flatMap({ BigInt($0) })
             let amount: String
             if let amountBigInt = optionalAmountBigInt {

@@ -383,7 +383,7 @@ extension SendViewController: QRCodeReaderDelegate {
         return amountString.flatMap { BigInt($0) }
     }
 
-    private func configureFor(contract: AlphaWallet.Address, recipient: AddressOrEnsName, amount: BigInt?, shouldConfigureBalance: Bool = true) {
+    private func configureFor(contract: AlphaWallet.Address, recipient: AddressOrEnsName?, amount: BigInt?, shouldConfigureBalance: Bool = true) {
         guard let tokenObject = storage.token(forContract: contract) else { return }
         let amount = amount.flatMap { EtherNumberFormatter.full.string(from: $0, decimals: tokenObject.decimals) }
         let transferType: TransferType
