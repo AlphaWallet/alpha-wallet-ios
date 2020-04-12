@@ -67,7 +67,7 @@ class CustomUrlSchemeCoordinator: Coordinator {
         return true
     }
 
-    private func openSendPayFlowFor(server: RPCServer, contract: AlphaWallet.Address, recipient: AddressOrEnsName, amount: String) {
+    private func openSendPayFlowFor(server: RPCServer, contract: AlphaWallet.Address, recipient: AddressOrEnsName?, amount: String) {
         let tokensDatastore = tokensDatastores[server]
         guard let tokenObject = tokensDatastore.token(forContract: contract) else { return }
         let amountConsideringDecimals: String
