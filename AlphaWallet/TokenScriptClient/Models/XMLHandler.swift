@@ -488,18 +488,18 @@ private class PrivateXMLHandler {
     }
 
     private func extractFieldsForToken() -> [AttributeId: AssetAttribute] {
-        if let attributeTypesElement = XMLHandler.getTokenAttributeTypesElement(fromRoot: xml, xmlContext: xmlContext) {
-            return extractFields(fromAttributeTypesElement: attributeTypesElement)
+        if let tokensElement = XMLHandler.getTokenElement(fromRoot: xml, xmlContext: xmlContext) {
+            return extractFields(fromElementContainingAttributes: tokensElement)
         } else {
             return .init()
         }
     }
 
     private func extractFields(forActionElement actionElement: XMLElement) -> [AttributeId: AssetAttribute] {
-        return extractFields(fromAttributeTypesElement: actionElement)
+        extractFields(fromElementContainingAttributes: actionElement)
     }
 
-    private func extractFields(fromAttributeTypesElement element: XMLElement) -> [AttributeId: AssetAttribute] {
+    private func extractFields(fromElementContainingAttributes element: XMLElement) -> [AttributeId: AssetAttribute] {
         var fields = [AttributeId: AssetAttribute]()
         for each in XMLHandler.getAttributeTypeElements(fromAttributeTypesElement: element, xmlContext: xmlContext) {
             guard let id = each["id"] else { continue }
@@ -745,10 +745,6 @@ extension String {
 extension XMLHandler {
     fileprivate static func getTokenElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
         return root.at_xpath("/token".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
-    }
-
-    fileprivate static func getTokenAttributeTypesElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
-        return root.at_xpath("/token/attribute-types".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getHoldingContractElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
