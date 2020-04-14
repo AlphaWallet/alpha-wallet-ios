@@ -29,6 +29,7 @@ class TokenInstanceWebView: UIView {
     }()
     //Used to track asynchronous calls are called for correctly
     private var loadId: Int?
+    private var lastInjectedJavaScript: String?
 
     var isWebViewInteractionEnabled: Bool = false {
         didSet {
@@ -153,6 +154,12 @@ class TokenInstanceWebView: UIView {
     }
 
     @discardableResult func inject(javaScript: String, afterDocumentIsLoaded: Bool = false) -> Promise<Any?>? {
+        if let lastInjectedJavaScript = lastInjectedJavaScript, lastInjectedJavaScript == javaScript {
+            return nil
+        } else {
+            lastInjectedJavaScript = javaScript
+        }
+
         let javaScriptWrappedInScope = """
                                        {
                                           \(javaScript)
@@ -189,7 +196,6 @@ class TokenInstanceWebView: UIView {
                 return
             }
         }
-
         webView.loadHTMLString(html, baseURL: nil)
         hashOfLoadedHtml = hashOfCurrentHtml
     }

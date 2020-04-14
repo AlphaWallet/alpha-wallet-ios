@@ -23,7 +23,7 @@ class SmartContractHelperTests: XCTestCase {
         when(resolved: getEventsPromise).done { result in
             print(result)
             //TODO make this consistent like this address has exactly one nameregistered from block a to block b
-            if !result.description.contains("rejected") {
+            if result[0].isFulfilled {
                 expectation.fulfill()
             }
         }
