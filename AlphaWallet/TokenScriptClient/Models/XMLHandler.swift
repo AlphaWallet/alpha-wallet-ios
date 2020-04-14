@@ -112,6 +112,7 @@ private class PrivateXMLHandler {
     var server: RPCServer?
     //Explicit type so that the variable autocompletes with AppCode
     private lazy var fields: [AttributeId: AssetAttribute] = extractFieldsForToken()
+    private lazy var selections = extractSelectionsForToken()
     private let isOfficial: Bool
     private let isCanonicalized: Bool
     lazy private var contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]] = extractContractNamesAndAddresses()
@@ -168,7 +169,10 @@ private class PrivateXMLHandler {
                 guard !html.isEmpty else { continue }
                 let attributes = extractFields(forActionElement: actionElement)
                 let functionOrigin = XMLHandler.getActionTransactionFunctionElement(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { self.createFunctionOriginFrom(ethereumFunctionElement: $0) }
-                results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: (html: html, style: style), attributes: attributes, transactionFunction: functionOrigin)))
+                let selection = XMLHandler.getExcludeSelectionId(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { id in
+                    self.selections.first { $0.id == id }
+                }
+                results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: (html: html, style: style), attributes: attributes, transactionFunction: functionOrigin, selection: selection)))
             }
         }
         if fromActionAsTopLevel.isEmpty {
@@ -199,7 +203,7 @@ private class PrivateXMLHandler {
             return R.string.localizable.katTitlecase()
         }
 
-        if  let nameStringElement = XMLHandler.getNameStringElement(fromTokenElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
+        if  let nameStringElement = XMLHandler.getNameStringElement(fromElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
             return name
         } else {
             return nil
@@ -211,7 +215,7 @@ private class PrivateXMLHandler {
             return R.string.localizable.katTitlecase()
         }
 
-        if  let nameElement = XMLHandler.getNameElementForPluralForm(fromTokenElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
+        if  let nameElement = XMLHandler.getNameElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
             return name
         } else {
             return nameInSingularForm
@@ -495,6 +499,18 @@ private class PrivateXMLHandler {
         }
     }
 
+    private func extractSelectionsForToken() -> [TokenScriptSelection] {
+        XMLHandler.getSelectionElements(fromRoot: xml, xmlContext: xmlContext).compactMap { each in
+            guard let id = each["id"], let filter = each["filter"]  else { return nil }
+            let names = (
+                    singular: XMLHandler.getNameStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
+                    plural: XMLHandler.getNameElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text
+            )
+            let denial: String? = XMLHandler.getDenialString(fromElement: each, xmlContext: xmlContext)?.text
+            return TokenScriptSelection(id: id, filter: filter, names: names, denial: denial)
+        }
+    }
+
     private func extractFields(forActionElement actionElement: XMLElement) -> [AttributeId: AssetAttribute] {
         extractFields(fromElementContainingAttributes: actionElement)
     }
@@ -540,7 +556,7 @@ private class PrivateXMLHandler {
         let namespaces = [
             "ts": PrivateXMLHandler.tokenScriptNamespace,
             "ds": "http://www.w3.org/2000/09/xmldsig#",
-            "xhtml": "http://www.w3.org/1999/xhtml",
+            "xhtml": "http://www.w3.org/1999/xhtml", 
             "asnx": "urn:ietf:params:xml:ns:asnx",
             "ethereum": "urn:ethereum:constantinople",
         ]
@@ -834,8 +850,8 @@ extension XMLHandler {
 
     //Remember `1` in XPath selects the first node, not `0`
     //<plural> tag is optional
-    fileprivate static func getNameStringElement(fromTokenElement tokenElement: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
-        guard let tokenElement = tokenElement else { return nil }
+    fileprivate static func getNameStringElement(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+        guard let tokenElement = element else { return nil }
         if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='one']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
         } else if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
@@ -850,12 +866,24 @@ extension XMLHandler {
         }
     }
 
-    fileprivate static func getNameElementForPluralForm(fromTokenElement tokenElement: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
-        guard let tokenElement = tokenElement else { return nil }
+    fileprivate static func getNameElementForPluralForm(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+        guard let tokenElement = element else { return nil }
         if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='other']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
         } else {
-            return getNameStringElement(fromTokenElement: tokenElement, xmlContext: xmlContext)
+            return getNameStringElement(fromElement: tokenElement, xmlContext: xmlContext)
+        }
+    }
+
+    fileprivate static func getDenialString(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+        guard let element = element else { return nil }
+        if let tag = element.at_xpath("denial/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+            return tag
+        } else if let tag = element.at_xpath("denial/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+            return tag
+        } else {
+            let fallback = element.at_xpath("denial[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return fallback
         }
     }
 
@@ -891,6 +919,17 @@ extension XMLHandler {
         return root.at_xpath("/token/appearance/introduction[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
+    fileprivate static func getSelectionElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+        let tokenChildren = root.xpath("/token/selection".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        // swiftlint:disable empty_count
+        if tokenChildren.count > 0 {
+        // swiftlint:enable empty_count
+            return tokenChildren
+        } else {
+            return root.xpath("/action/selection".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        }
+    }
+
     fileprivate static func getTokenScriptTokenInstanceActionElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
         return root.xpath("/token/cards/action".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
@@ -901,6 +940,10 @@ extension XMLHandler {
 
     fileprivate static func getActionTransactionFunctionElement(fromActionElement actionElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
         return actionElement.at_xpath("transaction/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    fileprivate static func getExcludeSelectionId(fromActionElement actionElement: XMLElement, xmlContext: XmlContext) -> String? {
+        actionElement.at_xpath("exclude".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?["selection"] ?? actionElement["exclude"]
     }
 
     fileprivate static func getRecipientAddress(fromEthereumFunctionElement ethereumFunctionElement: XMLElement, xmlContext: XmlContext) -> AlphaWallet.Address? {

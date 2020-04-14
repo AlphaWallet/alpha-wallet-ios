@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import BigInt
 import PromiseKit
 
 struct TokenViewControllerViewModel {
@@ -10,7 +11,8 @@ struct TokenViewControllerViewModel {
     private let tokensStore: TokensDataStore
     private let transactionsStore: TransactionsStorage
     private let assetDefinitionStore: AssetDefinitionStore
-    private var token: TokenObject? {
+
+    var token: TokenObject? {
         switch transferType {
         case .nativeCryptocurrency:
             //TODO might as well just make .nativeCryptocurrency hold the TokenObject instance too
@@ -74,6 +76,18 @@ struct TokenViewControllerViewModel {
         } else {
             assertImpossibleCodePath()
             return .value(.type2BadTokenScript(isDebugMode: false, message: "Unknown", reason: nil))
+        }
+    }
+
+    var fungibleBalance: BigInt? {
+        switch transferType {
+        case .nativeCryptocurrency(_, _, amount: let amount):
+            let string: String? = session.balanceViewModel.value?.amountShort
+            return string.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: session.server.decimals) }
+        case .ERC20Token(let tokenObject, _, _):
+            return tokenObject.valueBigInt
+        case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+            return nil
         }
     }
 

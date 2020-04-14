@@ -71,7 +71,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         view.backgroundColor = Colors.appBackground
-		
+
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
@@ -129,7 +129,15 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
             switch account.type {
             case .real:
-                button.isEnabled = true
+                if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                    if selection.denial == nil {
+                        button.isHidden = true
+                    } else {
+                        button.isHidden = false
+                    }
+                } else {
+                    button.isHidden = false
+                }
             case .watch:
                 button.isEnabled = false
             }
@@ -169,7 +177,22 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             case .nonFungibleTransfer:
                 transfer()
             case .tokenScript:
-                delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+                if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                    if let denialMessage = selection.denial {
+                        let alertController = UIAlertController.alert(
+                                title: nil,
+                                message: denialMessage,
+                                alertButtonTitles: [R.string.localizable.oK()],
+                                alertButtonStyles: [.default],
+                                viewController: self,
+                                completion: nil
+                        )
+                    } else {
+                        //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                    }
+                } else {
+                    delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+                }
             }
             break
         }

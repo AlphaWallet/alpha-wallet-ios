@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import BigInt
 
 struct TokenInstanceAction {
     enum ActionType {
@@ -10,7 +11,7 @@ struct TokenInstanceAction {
         case nftRedeem
         case nftSell
         case nonFungibleTransfer
-        case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: (html: String, style: String), attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?)
+        case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: (html: String, style: String), attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?, selection: TokenScriptSelection?)
     }
     var name: String {
         switch type {
@@ -24,7 +25,7 @@ struct TokenInstanceAction {
             return R.string.localizable.aWalletTokenSellButtonTitle()
         case .nonFungibleTransfer:
             return R.string.localizable.aWalletTokenTransferButtonTitle()
-        case .tokenScript(_, let title, _, _, _):
+        case .tokenScript(_, let title, _, _, _, _):
             return title
         }
     }
@@ -34,7 +35,7 @@ struct TokenInstanceAction {
             return .init()
         case .nftRedeem, .nftSell, .nonFungibleTransfer:
             return .init()
-        case .tokenScript(_, _, _, let attributes, _):
+        case .tokenScript(_, _, _, let attributes, _, _):
             return attributes
         }
     }
@@ -44,7 +45,7 @@ struct TokenInstanceAction {
             return nil
         case .nftRedeem, .nftSell, .nonFungibleTransfer:
             return nil
-        case .tokenScript(_, _, _, _, let transactionFunction):
+        case .tokenScript(_, _, _, _, let transactionFunction, _):
             return transactionFunction
         }
     }
@@ -54,7 +55,7 @@ struct TokenInstanceAction {
             return nil
         case .nftRedeem, .nftSell, .nonFungibleTransfer:
             return nil
-        case .tokenScript(let contract, _, _, _, _):
+        case .tokenScript(let contract, _, _, _, _, _):
             return contract
         }
     }
@@ -74,10 +75,30 @@ struct TokenInstanceAction {
             return (html: "", hash: 0)
         case .nonFungibleTransfer:
             return (html: "", hash: 0)
-        case .tokenScript(_, _, (html: let html, style: let style) , _, _):
+        case .tokenScript(_, _, (html: let html, style: let style), _, _, _):
             //Just an easy way to generate a hash for style + HTML
             let hash = "\(style)\(html)".hashForCachingHeight
             return (html: wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder), hash: hash)
+        }
+    }
+
+    func activeExcludingSelection(selectedTokenHolders: [TokenHolder], forWalletAddress walletAddress: AlphaWallet.Address, fungibleBalance: BigInt? = nil) -> TokenScriptSelection? {
+        switch type {
+        case .erc20Send, .erc20Receive:
+            return nil
+        case .nftRedeem, .nftSell, .nonFungibleTransfer:
+            return nil
+        case .tokenScript(_, _, _, _, _, let selection):
+            guard let selection = selection else { return nil }
+            //TODO handle multiple TokenHolder. We only do single-selections now
+            let tokenHolder = selectedTokenHolders[0]
+            let parser = TokenScriptFilterParser(expression: selection.filter)
+            let filterExpressionIsTrue = parser.parse(withValues: tokenHolder.values, ownerAddress: walletAddress, symbol: tokenHolder.symbol, fungibleBalance: fungibleBalance)
+            if filterExpressionIsTrue {
+                return selection
+            } else {
+                return nil
+            }
         }
     }
 }
