@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import BigInt
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSend(forTransferType transferType: TransferType, inViewController viewController: TokenViewController)
@@ -17,6 +18,7 @@ class TokenViewController: UIViewController {
     }()
     lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server)
     private var viewModel: TokenViewControllerViewModel?
+    private var tokenHolder: TokenHolder?
     private let session: WalletSession
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
@@ -124,7 +126,15 @@ class TokenViewController: UIViewController {
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
             switch session.account.type {
             case .real:
-                button.isEnabled = true
+                if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
+                    if selection.denial == nil {
+                        button.isHidden = true
+                    } else {
+                        button.isHidden = false
+                    }
+                } else {
+                    button.isHidden = false
+                }
             case .watch:
                 button.isEnabled = false
             }
@@ -188,10 +198,56 @@ class TokenViewController: UIViewController {
             case .nftRedeem, .nftSell, .nonFungibleTransfer:
                 break
             case .tokenScript:
-                delegate?.didTap(action: action, transferType: transferType, viewController: self)
+                if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
+                    if let denialMessage = selection.denial {
+                        let alertController = UIAlertController.alert(
+                                title: nil,
+                                message: denialMessage,
+                                alertButtonTitles: [R.string.localizable.oK()],
+                                alertButtonStyles: [.default],
+                                viewController: self,
+                                completion: nil
+                        )
+                    } else {
+                        //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                    }
+                } else {
+                    delegate?.didTap(action: action, transferType: transferType, viewController: self)
+                }
             }
             break
         }
+    }
+
+    private func generateTokenHolder() -> TokenHolder? {
+        //TODO is it correct to generate the TokenHolder instance once and never replace it? If not, we have to be very careful with subscriptions. Not re-subscribing in an infinite loop
+        guard tokenHolder == nil else { return tokenHolder }
+
+        //TODO id 1 for fungibles. Might come back to bite us?
+        let hardcodedTokenIdForFungibles = BigUInt(1)
+        guard let tokenObject = viewModel?.token else {return nil }
+        let xmlHandler = XMLHandler(contract: tokenObject.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        //TODO Event support, if/when designed for fungibles
+        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: self.session.server, account: self.session.account)
+        let subscribablesForAttributeValues = values.values
+        let allResolved = subscribablesForAttributeValues.allSatisfy { $0.subscribableValue?.value != nil }
+        if allResolved {
+            //no-op
+        } else {
+            for each in subscribablesForAttributeValues {
+                guard let subscribable = each.subscribableValue else { continue }
+                let subscriptionKey = subscribable.subscribe { [weak self] value in
+                    guard let strongSelf = self else { return }
+                    guard let viewModel = strongSelf.viewModel else { return }
+                    strongSelf.configure(viewModel: viewModel)
+                }
+            }
+        }
+
+
+        let token = Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: tokenObject.type, index: 0, name: tokenObject.name, symbol: tokenObject.symbol, status: .available, values: values)
+        tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)
+        return tokenHolder
     }
 }
 

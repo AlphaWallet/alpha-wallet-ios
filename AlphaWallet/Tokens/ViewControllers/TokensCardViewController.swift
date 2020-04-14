@@ -149,7 +149,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         header.layoutIfNeeded()
         tableView.tableHeaderView = header
 
-        if selectedTokenHolder != nil {
+        if let selectedTokenHolder = selectedTokenHolder {
             let actions = viewModel.actions
             buttonsBar.numberOfButtons = actions.count
             buttonsBar.configure()
@@ -158,7 +158,15 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                 button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
                 switch account.type {
                 case .real:
-                    button.isEnabled = true
+                    if let selection = action.activeExcludingSelection(selectedTokenHolders: [selectedTokenHolder], forWalletAddress: account.address) {
+                        if selection.denial == nil {
+                            button.isHidden = true
+                        } else {
+                            button.isHidden = false
+                        }
+                    } else {
+                        button.isHidden = false
+                    }
                 case .watch:
                     button.isEnabled = false
                 }
@@ -227,7 +235,22 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             case .nonFungibleTransfer:
                 transfer()
             case .tokenScript:
-                delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+                if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                    if let denialMessage = selection.denial {
+                        let alertController = UIAlertController.alert(
+                                title: nil,
+                                message: denialMessage,
+                                alertButtonTitles: [R.string.localizable.oK()],
+                                alertButtonStyles: [.default],
+                                viewController: self,
+                                completion: nil
+                        )
+                    } else {
+                        //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                    }
+                } else {
+                    delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+                }
             }
             break
         }
