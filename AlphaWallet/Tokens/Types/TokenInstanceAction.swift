@@ -10,7 +10,7 @@ struct TokenInstanceAction {
         case nftRedeem
         case nftSell
         case nonFungibleTransfer
-        case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: String, attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?)
+        case tokenScript(contract: AlphaWallet.Address, title: String, viewHtml: (html: String, style: String), attributes: [AttributeId: AssetAttribute], transactionFunction: FunctionOrigin?)
     }
     var name: String {
         switch type {
@@ -74,9 +74,10 @@ struct TokenInstanceAction {
             return (html: "", hash: 0)
         case .nonFungibleTransfer:
             return (html: "", hash: 0)
-        case .tokenScript(_, _, let viewHtml, _, _):
-            let hash = viewHtml.hashForCachingHeight
-            return (html: wrapWithHtmlViewport(viewHtml, forTokenHolder: tokenHolder), hash: hash)
+        case .tokenScript(_, _, (html: let html, style: let style) , _, _):
+            //Just an easy way to generate a hash for style + HTML
+            let hash = "\(style)\(html)".hashForCachingHeight
+            return (html: wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder), hash: hash)
         }
     }
 }
