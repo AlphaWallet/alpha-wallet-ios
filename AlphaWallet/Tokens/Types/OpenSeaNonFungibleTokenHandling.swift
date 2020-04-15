@@ -16,9 +16,9 @@ enum OpenSeaBackedNonFungibleTokenHandling {
                 let view: String
                 switch tokenViewType {
                 case .viewIconified:
-                    view = xmlHandler.tokenViewIconifiedHtml
+                    view = xmlHandler.tokenViewIconifiedHtml.html
                 case .view:
-                    view = xmlHandler.tokenViewHtml
+                    view = xmlHandler.tokenViewHtml.html
                 }
                 if xmlHandler.hasAssetDefinition && !view.isEmpty {
                     return .notBackedByOpenSea

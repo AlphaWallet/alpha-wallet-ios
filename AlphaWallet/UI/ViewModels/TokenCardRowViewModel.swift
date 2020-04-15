@@ -151,14 +151,15 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
     var tokenScriptHtml: (html: String, hash: Int) {
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
         let html: String
+        let style: String
         switch tokenView {
         case .view:
-            html = xmlHandler.tokenViewHtml
+            (html, style) = xmlHandler.tokenViewHtml
         case .viewIconified:
-            html = xmlHandler.tokenViewIconifiedHtml
+            (html, style) = xmlHandler.tokenViewIconifiedHtml
         }
         let hash = html.hashForCachingHeight
-        return (html: wrapWithHtmlViewport(html, forTokenHolder: tokenHolder), hash: hash)
+        return (html: wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder), hash: hash)
     }
 
     var hasTokenScriptHtml: Bool {

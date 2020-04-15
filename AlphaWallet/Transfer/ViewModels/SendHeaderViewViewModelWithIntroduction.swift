@@ -109,7 +109,7 @@ struct SendHeaderViewViewModelWithIntroduction {
         guard let contract = contractAddress else { return "" }
         let xmlHandler = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore)
         //Any number works for tokenId here, since it's only used for generating the unique CSS ID
-        return wrapWithHtmlViewport(xmlHandler.introductionHtmlString, forTokenId: 1)
+        return wrapWithHtmlViewport(html: xmlHandler.introductionHtmlString, style: "", forTokenId: 1)
     }
 
     init(server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {
