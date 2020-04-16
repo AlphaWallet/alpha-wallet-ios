@@ -393,7 +393,7 @@ private func generateContainerCssId(forTokenId tokenId: TokenId) -> String {
     return "token-card-\(tokenId)"
 }
 
-func wrapWithHtmlViewport(_ html: String, forTokenId tokenId: TokenId) -> String {
+func wrapWithHtmlViewport(html: String, style: String, forTokenId tokenId: TokenId) -> String {
     if html.isEmpty {
         return ""
     } else {
@@ -402,17 +402,20 @@ func wrapWithHtmlViewport(_ html: String, forTokenId tokenId: TokenId) -> String
                <html>
                <head>
                <meta name="viewport" content="width=device-width, initial-scale=1,  maximum-scale=1, shrink-to-fit=no">
+               \(style)
                </head>
+               <body>
                <div id="\(containerCssId)" class="token-card">
                \(html)
                </div>
+               </body>
                </html>
                """
     }
 }
 
-func wrapWithHtmlViewport(_ html: String, forTokenHolder tokenHolder: TokenHolder) -> String {
-    return wrapWithHtmlViewport(html, forTokenId: tokenHolder.tokenIds[0])
+func wrapWithHtmlViewport(html: String, style: String, forTokenHolder tokenHolder: TokenHolder) -> String {
+    return wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenHolder.tokenIds[0])
 }
 
 extension String {

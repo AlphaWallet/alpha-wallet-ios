@@ -126,9 +126,10 @@ struct ImportMagicTokenCardRowViewModel: TokenCardRowViewModelProtocol {
     var tokenScriptHtml: (html: String, hash: Int) {
         guard let tokenHolder = importMagicTokenViewControllerViewModel.tokenHolder else { return (html: "", hash: 0) }
         let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
-        let html = xmlHandler.tokenViewIconifiedHtml
-        let hash = html.hashForCachingHeight
-        return (html: wrapWithHtmlViewport(html, forTokenHolder: tokenHolder), hash: hash)
+        let (html: html, style: style) = xmlHandler.tokenViewIconifiedHtml
+        //Just an easy way to generate a hash for style + HTML
+        let hash = "\(style)\(html)".hashForCachingHeight
+        return (html: wrapWithHtmlViewport(html: html, style: style, forTokenHolder: tokenHolder), hash: hash)
     }
 
     var hasTokenScriptHtml: Bool {

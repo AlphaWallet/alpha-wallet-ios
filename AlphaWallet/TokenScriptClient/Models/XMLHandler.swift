@@ -137,58 +137,21 @@ private class PrivateXMLHandler {
         }
     }
 
-    var tokenViewIconifiedHtml: String {
-        guard hasValidTokenScriptFile else { return "" }
+    var tokenViewIconifiedHtml: (html: String, style: String) {
+        guard hasValidTokenScriptFile else { return (html: "", style: "") }
         if let element = XMLHandler.getTokenScriptTokenViewIconifiedHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
-            let html = element.innerHTML ?? ""
-            if let sanitizedHtml = sanitize(html: html).nilIfEmpty {
-                if let styleElement = XMLHandler.getTokenScriptTokenViewIconifiedStyleElement(fromRoot: xml, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix), let style = styleElement.text {
-                    return """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           <style type="text/css">
-                           \(style)
-                           </style>
-                           \(sanitizedHtml)
-                           """
-                } else {
-                    return """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           \(sanitizedHtml)
-                           """
-                }
-            } else {
-                return ""
-            }
+            return extractHtml(fromViewElement: element)
         } else {
-            return ""
+            return (html: "", style: "")
         }
     }
 
-    var tokenViewHtml: String {
-        guard hasValidTokenScriptFile else { return "" }
+    var tokenViewHtml: (html: String, style: String) {
+        guard hasValidTokenScriptFile else { return (html: "", style: "") }
         if let element = XMLHandler.getTokenScriptTokenViewHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
-            let html = element.innerHTML ?? ""
-            let sanitizedHtml = sanitize(html: html)
-            if sanitizedHtml.isEmpty {
-                return sanitizedHtml
-            } else {
-                if let styleElement = XMLHandler.getTokenScriptTokenViewIconifiedStyleElement(fromRoot: xml, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix), let style = styleElement.text {
-                    return """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           <style type="text/css">
-                           \(style)
-                           </style>
-                           \(sanitizedHtml)
-                           """
-                } else {
-                    return """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           \(sanitizedHtml)
-                           """
-                }
-            }
+            return extractHtml(fromViewElement: element)
         } else {
-            return ""
+            return (html: "", style: "")
         }
     }
 
@@ -201,35 +164,11 @@ private class PrivateXMLHandler {
         for actionElement in actionElements {
             if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty,
                let viewElement = XMLHandler.getViewElement(fromActionElement: actionElement, xmlContext: xmlContext) {
-                let rawHtml = viewElement.innerHTML ?? ""
-                let sanitizedHtml = sanitize(html: rawHtml)
-                guard !sanitizedHtml.isEmpty else { continue }
-                let html: String
-                if let styleElement = XMLHandler.getTokenScriptTokenActionViewStyleElement(fromRoot: xml, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix), let style = styleElement.text {
-                    html = """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           <style type="text/css">
-                           \(style)
-                           </style>
-                           \(sanitizedHtml)
-                           """
-                } else if let styleElement = XMLHandler.getTokenScriptActionOnlyActionViewStyleElement(fromRoot: xml, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix), let style = styleElement.text {
-                    html = """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           <style type="text/css">
-                           \(style)
-                           </style>
-                           \(sanitizedHtml)
-                           """
-                } else {
-                    html = """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           \(sanitizedHtml)
-                           """
-                }
+                let (html: html, style: style) = extractHtml(fromViewElement: viewElement)
+                guard !html.isEmpty else { continue }
                 let attributes = extractFields(forActionElement: actionElement)
                 let functionOrigin = XMLHandler.getActionTransactionFunctionElement(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { self.createFunctionOriginFrom(ethereumFunctionElement: $0) }
-                results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: html, attributes: attributes, transactionFunction: functionOrigin)))
+                results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: (html: html, style: style), attributes: attributes, transactionFunction: functionOrigin)))
             }
         }
         if fromActionAsTopLevel.isEmpty {
@@ -335,6 +274,27 @@ private class PrivateXMLHandler {
                 self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: self.xmlContext, matchingContract: contract)
                 self.assetDefinitionStore?.invalidateSignatureStatus(forContract: self.contractAddress)
             }.cauterize()
+        }
+    }
+
+    private func extractHtml(fromViewElement element: XMLElement) -> (html: String, style: String) {
+        let (style: style, script: script, body: body) = XMLHandler.getTokenScriptTokenViewContents(fromViewElement: element, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix)
+        let sanitizedHtml = sanitize(html: body)
+        if sanitizedHtml.isEmpty && script.isEmpty {
+            return (html: "", style: "")
+        } else {
+            return (html: """
+                          <script type="text/javascript">
+                          \(script)
+                          </script>
+                          \(sanitizedHtml)
+                          """,
+                    style: """
+                           \(AssetDefinitionStore.standardTokenScriptStyles)
+                           <style type="text/css">
+                           \(style)
+                           </style>
+                           """)
         }
     }
 
@@ -624,11 +584,11 @@ public class XMLHandler {
         return privateXMLHandler.introductionHtmlString
     }
 
-    var tokenViewIconifiedHtml: String {
+    var tokenViewIconifiedHtml: (html: String, style: String) {
         return privateXMLHandler.tokenViewIconifiedHtml
     }
 
-    var tokenViewHtml: String {
+    var tokenViewHtml: (html: String, style: String) {
         return privateXMLHandler.tokenViewHtml
     }
 
@@ -951,17 +911,43 @@ extension XMLHandler {
         return ethereumFunctionElement.at_xpath("to".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?.text.flatMap { AlphaWallet.Address(string: $0.trimmed) }
     }
 
+    static func getTokenScriptTokenViewContents(fromViewElement element: XMLElement, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> (style: String, script: String, body: String) {
+        let styleElements = element.xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
+        let scriptElements = element.xpath("script".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
+        let bodyElements = element.xpath("body".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
+        let style: String
+        let script: String
+        let body: String
+        // swiftlint:disable empty_count
+        if styleElements.count > 0 {
+            // swiftlint:enable empty_count
+            style = styleElements.compactMap { $0.text }.joined(separator: "\n")
+        } else {
+            style = ""
+        }
+        // swiftlint:disable empty_count
+        if scriptElements.count > 0 {
+            // swiftlint:enable empty_count
+            script = scriptElements.compactMap { $0.text }.joined(separator: "\n")
+        } else {
+            script = ""
+        }
+        // swiftlint:disable empty_count
+        if bodyElements.count > 0 {
+            // swiftlint:enable empty_count
+            body = bodyElements.compactMap { $0.innerHTML }.joined(separator: "\n")
+        } else {
+            body = ""
+        }
+        return (style: style, script: script, body: body)
+    }
+
     static func getTokenScriptTokenViewIconifiedHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
         if let element = root.at_xpath("/token/cards/token-card/item-view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
         } else {
             return root.at_xpath("/token/cards/token-card/item-view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
-    }
-
-    static func getTokenScriptTokenViewIconifiedStyleElement(fromRoot root: XMLDocument, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> XMLElement? {
-        guard let element = root.at_xpath("/token/cards/token-card".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) else { return nil }
-        return element.at_xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getTokenScriptTokenViewHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
@@ -988,16 +974,6 @@ extension XMLHandler {
         } else {
             return actionElement.at_xpath("view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
-    }
-
-    static func getTokenScriptTokenActionViewStyleElement(fromRoot root: XMLDocument, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> XMLElement? {
-        guard let element = root.at_xpath("/token/cards/action".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) else { return nil }
-        return element.at_xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
-    }
-
-    static func getTokenScriptActionOnlyActionViewStyleElement(fromRoot root: XMLDocument, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> XMLElement? {
-        guard let element = root.at_xpath("/action".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) else { return nil }
-        return element.at_xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getContractElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
