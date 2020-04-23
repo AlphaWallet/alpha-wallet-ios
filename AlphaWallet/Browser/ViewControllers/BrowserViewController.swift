@@ -221,16 +221,13 @@ extension BrowserViewController: WKNavigationDelegate {
         guard let url = navigationAction.request.url, let scheme = url.scheme else {
             return decisionHandler(.allow)
         }
-        guard ["tel", "mailto"].contains(scheme) else {
-            return decisionHandler(.allow)
-        }
         let app = UIApplication.shared
-        if app.canOpenURL(url) {
-            decisionHandler(.cancel)
+        if ["tel", "mailto"].contains(scheme), app.canOpenURL(url) {
             app.open(url)
-        } else {
-            decisionHandler(.allow)
+            return decisionHandler(.cancel)
         }
+        decisionHandler(.allow)
+
     }
 }
 
