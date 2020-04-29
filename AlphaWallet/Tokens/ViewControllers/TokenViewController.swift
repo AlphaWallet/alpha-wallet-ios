@@ -106,7 +106,11 @@ class TokenViewController: UIViewController {
                 self.configure(viewModel: viewModel)
             }.cauterize()
         }
-        header.tokenScriptFileStatus = tokenScriptStatusPromise.value
+        if let server = xmlHandler.server, server == session.server {
+            header.tokenScriptFileStatus = tokenScriptStatusPromise.value
+        } else {
+            header.tokenScriptFileStatus = .type0NoTokenScript
+        }
         header.sendHeaderView.configure(viewModel: headerViewModel)
         header.frame.size.height = header.systemLayoutSizeFitting(.zero).height
 
