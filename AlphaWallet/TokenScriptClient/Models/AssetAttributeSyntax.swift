@@ -19,7 +19,7 @@ enum AssetAttributeSyntax: String {
     var defaultValue: AssetInternalValue {
         switch self {
         case .directoryString, .iA5String:
-            return .string("N/A")
+            return .string("")
         case .generalisedTime:
             return .generalisedTime(.init())
         case .integer:
