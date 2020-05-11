@@ -357,4 +357,8 @@ extension TokenCardRowView: TokenInstanceWebViewDelegate {
 	func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView) {
         delegate?.heightChangedFor(tokenCardRowView: self)
 	}
+
+	func reinject(tokenInstanceWebView: TokenInstanceWebView) {
+		//no-op
+    }
 }

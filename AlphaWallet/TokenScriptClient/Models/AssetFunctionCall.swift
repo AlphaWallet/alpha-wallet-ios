@@ -26,11 +26,12 @@ struct AssetFunctionCall: Equatable, Hashable {
 
     enum Argument: Equatable {
         case ref(ref: String, type: SolidityType)
+        case localRef(ref: String, type: SolidityType)
         case value(value: String, type: SolidityType)
 
         var type: SolidityType {
             switch self {
-            case .ref(_, let type), .value(_, let type):
+            case .ref(_, let type), .localRef(_, let type), .value(_, let type):
                 return type
             }
         }
