@@ -39,6 +39,24 @@ struct TokenInstanceAction {
             return attributes
         }
     }
+    var attributesDependencies: [AttributeId: AssetAttribute] {
+        guard let transactionFunction = transactionFunction else { return .init() }
+        let inputs: [AssetFunctionCall.Argument]
+        if let inputValue = transactionFunction.inputValue {
+            inputs = transactionFunction.inputs + [inputValue]
+        } else {
+            inputs = transactionFunction.inputs
+        }
+        let attributeDependencies = inputs.compactMap { each -> String? in
+            switch each {
+            case .value, .localRef:
+                return nil
+            case .ref(ref: let ref, _):
+                return ref
+            }
+        }
+        return attributes.filter { attributeDependencies.contains($0.key) }
+    }
     var transactionFunction: FunctionOrigin? {
         switch type {
         case .erc20Send, .erc20Receive:

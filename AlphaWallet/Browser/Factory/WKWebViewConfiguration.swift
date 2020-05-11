@@ -69,6 +69,8 @@ extension WKWebViewConfiguration {
         webViewConfig.userContentController.add(messageHandler, name: Method.signPersonalMessage.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.signMessage.rawValue)
         webViewConfig.userContentController.add(messageHandler, name: Method.signTypedMessage.rawValue)
+        //TODO extract like `Method.signTypedMessage.rawValue` when we have more than 1
+        webViewConfig.userContentController.add(messageHandler, name: TokenInstanceWebView.SetProperties.setActionProps)
         return webViewConfig
     }
 
@@ -157,6 +159,11 @@ extension WKWebViewConfiguration {
                      const { id = 8888 } = msgParams
                      window.web3CallBacks[id] = cb
                      webkit.messageHandlers.signPersonalMessage.postMessage({"name": "signPersonalMessage", "object":  { data }, id: id})
+                   }
+                 },
+                 action: {
+                   setProps: function (object) {
+                     webkit.messageHandlers.\(TokenInstanceWebView.SetProperties.setActionProps).postMessage(object)
                    }
                  }
                }

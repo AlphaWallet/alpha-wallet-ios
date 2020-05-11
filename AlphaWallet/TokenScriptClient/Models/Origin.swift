@@ -122,13 +122,13 @@ enum Origin {
         return count - 1
     }
 
-    func extractValue(fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator, userEntryValues: [AttributeId: String], tokenLevelNonSubscribableAttributesAndValues: [AttributeId: AssetInternalValue]) -> AssetInternalValue? {
+    func extractValue(fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator, userEntryValues: [AttributeId: String], tokenLevelNonSubscribableAttributesAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue]) -> AssetInternalValue? {
         switch self {
         case .tokenId(let origin):
             return origin.extractValue(fromTokenId: tokenIdOrEvent.tokenId)
         case .function(let origin):
             //We don't pass in attributes with function-origins because the order is undefined at the moment
-            return origin.extractValue(withTokenId: tokenIdOrEvent.tokenId, account: account, server: server, attributeAndValues: tokenLevelNonSubscribableAttributesAndValues, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator)
+            return origin.extractValue(withTokenId: tokenIdOrEvent.tokenId, account: account, server: server, attributeAndValues: tokenLevelNonSubscribableAttributesAndValues, localRefs: localRefs, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator)
         case .userEntry(let origin):
             guard let input = userEntryValues[origin.attributeId] else { return nil }
             return origin.extractValue(fromUserEntry: input)

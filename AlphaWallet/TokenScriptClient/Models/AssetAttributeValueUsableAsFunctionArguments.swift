@@ -200,7 +200,11 @@ enum AssetAttributeValueUsableAsFunctionArguments {
         case .uint(let uint):
             return uint.serialize() as AnyObject
         case .string(let string):
-            return string.data(using: .utf8) as AnyObject
+            if string.hasPrefix("0x"), string.count > 2, string.count % 2 == 0 {
+                return Data(hex: string) as AnyObject
+            } else {
+                return string.data(using: .utf8) as AnyObject
+            }
         case .bytes(let data):
             return data as AnyObject
         case .address, .generalisedTime, .bool:
