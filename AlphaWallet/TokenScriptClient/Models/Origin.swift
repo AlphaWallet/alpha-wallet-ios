@@ -11,6 +11,7 @@ enum OriginAsType: String {
     case utf8
     case e18
     case e8
+    case e6
     case e4
     case e2
     case bytes
@@ -25,7 +26,7 @@ enum OriginAsType: String {
             return .uint256
         case .utf8:
             return .string
-        case .e18, .e8, .e4, .e2:
+        case .e18, .e8, .e6, .e4, .e2:
             return .uint256
         case .bytes:
             return .bytes
