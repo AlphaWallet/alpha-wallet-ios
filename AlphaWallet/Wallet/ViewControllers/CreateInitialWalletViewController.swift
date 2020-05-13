@@ -11,6 +11,7 @@ protocol CreateInitialWalletViewControllerDelegate: class {
 class CreateInitialWalletViewController: UIViewController {
     private let keystore: Keystore
     private var viewModel = CreateInitialViewModel()
+    private let analyticsCoordinator: AnalyticsCoordinator?
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
@@ -37,8 +38,9 @@ class CreateInitialWalletViewController: UIViewController {
 
     weak var delegate: CreateInitialWalletViewControllerDelegate?
 
-    init(keystore: Keystore) {
+    init(keystore: Keystore, analyticsCoordinator: AnalyticsCoordinator?) {
         self.keystore = keystore
+        self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false

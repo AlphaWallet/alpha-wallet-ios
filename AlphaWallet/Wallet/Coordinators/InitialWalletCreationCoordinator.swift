@@ -12,6 +12,7 @@ class InitialWalletCreationCoordinator: Coordinator {
     private let keystore: Keystore
     private let entryPoint: WalletEntryPoint
     private let config: Config
+    private let analyticsCoordinator: AnalyticsCoordinator?
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
@@ -21,12 +22,14 @@ class InitialWalletCreationCoordinator: Coordinator {
         config: Config,
         navigationController: UINavigationController = UINavigationController(),
         keystore: Keystore,
-        entryPoint: WalletEntryPoint
+        entryPoint: WalletEntryPoint,
+        analyticsCoordinator: AnalyticsCoordinator?
     ) {
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
         self.entryPoint = entryPoint
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start() {
@@ -43,14 +46,14 @@ class InitialWalletCreationCoordinator: Coordinator {
     }
 
     func showCreateWallet() {
-        let coordinator = WalletCoordinator(config: config, navigationController: navigationController, keystore: keystore)
+        let coordinator = WalletCoordinator(config: config, navigationController: navigationController, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         let _ = coordinator.start(entryPoint)
         addCoordinator(coordinator)
     }
 
     func presentImportOrWatchWallet() {
-        let coordinator = WalletCoordinator(config: config, keystore: keystore)
+        let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         let _ = coordinator.start(entryPoint)
         coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
@@ -59,7 +62,7 @@ class InitialWalletCreationCoordinator: Coordinator {
     }
 
     func presentAddInitialWallet() {
-        let coordinator = WalletCoordinator(config: config, keystore: keystore)
+        let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         let _ = coordinator.start(entryPoint)
         coordinator.navigationController.makePresentationFullScreenForiOS13Migration()

@@ -115,10 +115,15 @@ class AppCoordinator: NSObject, Coordinator {
         let coordinator = MixpanelCoordinator(withKey: Constants.Credentials.analyticsKey)
         addCoordinator(coordinator)
         coordinator.start()
+        if let keystore = keystore as? EtherKeystore {
+            //TODO improve so we don't to set this here
+            keystore.analyticsCoordinator = analyticsCoordinator
+        }
     }
 
     private func migrateToStoringRawPrivateKeysInKeychain() {
-        (try? LegacyFileBasedKeystore())?.migrateKeystoreFilesToRawPrivateKeysInKeychain()
+        //TODO enable analytics, instead of nil
+        (try? LegacyFileBasedKeystore(analyticsCoordinator: nil))?.migrateKeystoreFilesToRawPrivateKeysInKeychain()
     }
 
     /// Return true if handled
@@ -169,7 +174,7 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func initializers() {
         var paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .allDomainsMask, true).compactMap { URL(fileURLWithPath: $0) }
-        paths.append((try! LegacyFileBasedKeystore()).keystoreDirectory)
+        paths.append((try! LegacyFileBasedKeystore(analyticsCoordinator: nil)).keystoreDirectory)
 
         let initializers: [Initializer] = [
             SkipBackupFilesInitializer(paths: paths),
@@ -205,7 +210,8 @@ class AppCoordinator: NSObject, Coordinator {
                 config: config,
                 navigationController: navigationController,
                 keystore: keystore,
-                entryPoint: entryPoint
+                entryPoint: entryPoint,
+                analyticsCoordinator: analyticsCoordinator
         )
         coordinator.delegate = self
         coordinator.start()
@@ -213,7 +219,7 @@ class AppCoordinator: NSObject, Coordinator {
     }
 
     private func createInitialWalletIfMissing() {
-        WalletCoordinator(config: config, keystore: keystore).createInitialWalletIfMissing()
+        WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator).createInitialWalletIfMissing()
     }
 
     @discardableResult func handleUniversalLink(url: URL) -> Bool {

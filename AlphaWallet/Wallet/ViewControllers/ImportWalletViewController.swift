@@ -20,6 +20,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private static let menmonicSuggestionsBarHeight: CGFloat = 60
 
     private let keystore: Keystore
+    private let analyticsCoordinator: AnalyticsCoordinator?
     private let viewModel = ImportWalletViewModel()
     //We don't actually use the rounded corner here, but it's a useful "content" view here
     private let roundedBackground = RoundedBackground()
@@ -72,8 +73,10 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     weak var delegate: ImportWalletViewControllerDelegate?
 
 // swiftlint:disable function_body_length
-    init(keystore: Keystore) {
+    init(keystore: Keystore, analyticsCoordinator: AnalyticsCoordinator?) {
         self.keystore = keystore
+        self.analyticsCoordinator = analyticsCoordinator
+
         super.init(nibName: nil, bundle: nil)
 
         title = viewModel.title

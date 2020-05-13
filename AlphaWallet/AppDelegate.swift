@@ -25,7 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         //Necessary to make UIAlertController have the correct tint colors, despite already doing: `UIWindow.appearance().tintColor = Colors.appTint`
         window?.tintColor = Colors.appTint
         do {
-            let keystore = try EtherKeystore()
+            let keystore = try EtherKeystore(analyticsCoordinator: nil)
             appCoordinator = AppCoordinator(window: window!, keystore: keystore)
             appCoordinator.start()
         } catch {

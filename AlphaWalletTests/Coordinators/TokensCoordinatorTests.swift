@@ -18,8 +18,9 @@ class TokensCoordinatorTests: XCTestCase {
             nativeCryptoCurrencyPrices: .init(),
             assetDefinitionStore: AssetDefinitionStore(),
             eventsDataStore: FakeEventsDataStore(),
-            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config),
-            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore)
+            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: nil),
+            filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore),
+            analyticsCoordinator: nil
         )
         coordinator.start()
 

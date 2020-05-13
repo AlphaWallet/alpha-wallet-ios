@@ -23,7 +23,7 @@ class SettingsCoordinatorTests: XCTestCase {
         }
 
         let storage = FakeTransactionsStorage()
-        let promptBackupCoordinator = PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make())
+        let promptBackupCoordinator = PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make(), analyticsCoordinator: nil)
         let coordinator = SettingsCoordinator(
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(),
@@ -42,7 +42,8 @@ class SettingsCoordinatorTests: XCTestCase {
             config: .make(),
             navigationController: FakeNavigationController(),
             keystore: FakeEtherKeystore(),
-            promptBackupCoordinator: promptBackupCoordinator
+            promptBackupCoordinator: promptBackupCoordinator,
+            analyticsCoordinator: nil
         )
 
         XCTAssertFalse(delegate.deleteDelegateMethodCalled)

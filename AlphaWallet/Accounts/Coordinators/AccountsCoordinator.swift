@@ -17,14 +17,14 @@ class AccountsCoordinator: Coordinator {
     private let balanceCoordinator = GetNativeCryptoCurrencyBalanceCoordinator(forServer: .main)
     private let keystore: Keystore
     private let promptBackupCoordinator: PromptBackupCoordinator
+    private let analyticsCoordinator: AnalyticsCoordinator?
 
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
-        let controller = AccountsViewController(keystore: keystore, balanceCoordinator: balanceCoordinator)
+        let controller = AccountsViewController(keystore: keystore, balanceCoordinator: balanceCoordinator, analyticsCoordinator: analyticsCoordinator)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .done, target: self, action: #selector(dismiss))
-        
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem(title: R.string.localizable.addButtonTitle(), style: .plain, target: self, action: #selector(addWallet))
         controller.allowsAccountDeletion = true
         controller.delegate = self
@@ -37,12 +37,14 @@ class AccountsCoordinator: Coordinator {
         config: Config,
         navigationController: UINavigationController,
         keystore: Keystore,
-        promptBackupCoordinator: PromptBackupCoordinator
+        promptBackupCoordinator: PromptBackupCoordinator,
+        analyticsCoordinator: AnalyticsCoordinator?
     ) {
         self.config = config
         self.navigationController = navigationController
         self.keystore = keystore
         self.promptBackupCoordinator = promptBackupCoordinator
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start() {
@@ -81,8 +83,22 @@ class AccountsCoordinator: Coordinator {
                         strongSelf.showWatchWallet()
                     }
         }
+	}
+
+    private func importOrCreateWallet(entryPoint: WalletEntryPoint) {
+        let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
+        if case .createInstantWallet = entryPoint {
+            coordinator.navigationController = navigationController
+        }
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        let showUI = coordinator.start(entryPoint)
+        if showUI {
+            coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
+            navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+        }
     }
-    
+
     private func showInfoSheet(for account: Wallet, sender: UIView) {
         let controller = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         controller.popoverPresentationController?.sourceView = sender
@@ -97,11 +113,7 @@ class AccountsCoordinator: Coordinator {
             }
             let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
                 guard let strongSelf = self else { return }
-                let coordinator = BackupCoordinator(
-                        navigationController: strongSelf.navigationController,
-                        keystore: strongSelf.keystore,
-                        account: account
-                )
+                let coordinator = BackupCoordinator(navigationController: strongSelf.navigationController, keystore: strongSelf.keystore, account: account, analyticsCoordinator: strongSelf.analyticsCoordinator)
                 coordinator.delegate = strongSelf
                 coordinator.start()
                 strongSelf.addCoordinator(coordinator)
@@ -118,24 +130,10 @@ class AccountsCoordinator: Coordinator {
             controller.addAction(cancelAction)
 
             controller.makePresentationFullScreenForiOS13Migration()
-            
+
             navigationController.present(controller, animated: true, completion: nil)
         case .watch:
             break
-        }
-    }
-
-    private func importOrCreateWallet(entryPoint: WalletEntryPoint) {
-        let coordinator = WalletCoordinator(config: config, keystore: keystore)
-        if case .createInstantWallet = entryPoint {
-            coordinator.navigationController = navigationController
-        }
-        coordinator.delegate = self
-        addCoordinator(coordinator)
-        let showUI = coordinator.start(entryPoint)
-        if showUI {
-            coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-            navigationController.present(coordinator.navigationController, animated: true, completion: nil)
         }
     }
 
@@ -153,7 +151,7 @@ class AccountsCoordinator: Coordinator {
 }
 
 extension AccountsCoordinator: AccountsViewControllerDelegate {
-    
+
     func didSelectAccount(account: Wallet, in viewController: AccountsViewController) {
         delegate?.didSelectAccount(account: account, in: self)
     }
@@ -192,7 +190,7 @@ extension AccountsCoordinator: WalletCoordinatorDelegate {
 }
 
 extension AccountsCoordinator: BackupCoordinatorDelegate {
-    
+
     func didCancel(coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)
     }
