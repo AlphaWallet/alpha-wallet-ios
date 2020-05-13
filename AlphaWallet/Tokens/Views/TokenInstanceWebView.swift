@@ -463,7 +463,7 @@ extension TokenInstanceWebView {
         //TODO pass in keystore
         let coordinator = SignMessageCoordinator(
                 navigationController: navigationController,
-                keystore: try! EtherKeystore(),
+                keystore: try! EtherKeystore(analyticsCoordinator: nil),
                 account: account
         )
         coordinator.didComplete = { [weak self] result in

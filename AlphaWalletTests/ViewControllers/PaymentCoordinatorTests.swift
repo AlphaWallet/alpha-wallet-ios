@@ -14,7 +14,8 @@ class PaymentCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(),
             storage: FakeTokensDataStore(),
             ethPrice: Subscribable<Double>(nil),
-            assetDefinitionStore: AssetDefinitionStore()
+            assetDefinitionStore: AssetDefinitionStore(),
+            analyticsCoordinator: nil
         )
         coordinator.start()
 
@@ -30,7 +31,8 @@ class PaymentCoordinatorTests: XCTestCase {
             keystore: FakeKeystore(),
             storage: FakeTokensDataStore(),
             ethPrice: Subscribable<Double>(nil),
-            assetDefinitionStore: AssetDefinitionStore()
+            assetDefinitionStore: AssetDefinitionStore(),
+            analyticsCoordinator: nil
         )
 
         coordinator.start()

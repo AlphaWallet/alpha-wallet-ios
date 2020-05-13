@@ -20,17 +20,18 @@ class AccountsViewController: UIViewController {
     private var balances: [AlphaWallet.Address: Balance?] = [:]
     private let keystore: Keystore
     private let balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator
-    private var etherKeystore = try? EtherKeystore()
-    
+    private let analyticsCoordinator: AnalyticsCoordinator?
+    lazy private var etherKeystore = try? EtherKeystore(analyticsCoordinator: analyticsCoordinator)
     weak var delegate: AccountsViewControllerDelegate?
     var allowsAccountDeletion: Bool = false
     var hasWallets: Bool {
         return !keystore.wallets.isEmpty
     }
-    
-    init(keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator) {
+
+    init(keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator, analyticsCoordinator: AnalyticsCoordinator?) {
         self.keystore = keystore
         self.balanceCoordinator = balanceCoordinator
+        self.analyticsCoordinator = analyticsCoordinator
         super.init(nibName: nil, bundle: nil)
 
         view.backgroundColor = Colors.appBackground
@@ -167,11 +168,11 @@ extension AccountsViewController: UITableViewDataSource {
         var cellViewModel = getAccountViewModels(for: indexPath)
         cell.configure(viewModel: cellViewModel)
         cell.account = cellViewModel.wallet
-        
+
         let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress))
         gesture.minimumPressDuration = 0.6
         cell.addGestureRecognizer(gesture)
-        
+
         let serverToResolveEns = RPCServer.main
         let address = cellViewModel.address
         ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { result in
@@ -198,10 +199,10 @@ extension AccountsViewController: UITableViewDataSource {
             return false
         }
     }
-    
+
     @objc private func didLongPress(_ recognizer: UILongPressGestureRecognizer) {
         guard let cell = recognizer.view as? AccountViewCell, let account = cell.account, recognizer.state == .began else { return }
-        
+
         delegate?.didSelectInfoForAccount(account: account, sender: cell, in: self)
     }
 }
@@ -220,7 +221,7 @@ extension AccountsViewController: UITableViewDelegate {
         }
         return false
     }
-    
+
     private func shouldHideHeader(in section: Int) -> (shouldHide: Bool, section: AccountViewTableSectionHeader.HeaderType)? {
         let shouldHideSectionHeaders = shouldHideAllSectionHeaders()
         switch AccountViewTableSectionHeader.HeaderType(rawValue: section) {
@@ -246,48 +247,48 @@ extension AccountsViewController: UITableViewDelegate {
             return nil
         }
     }
-    
+
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         return nil
     }
-    
+
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 0.01
     }
-    
+
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        
+
         let copyAction = UIContextualAction(style: .normal, title: R.string.localizable.copyAddress()) { _, _, complete in
             let account = self.account(for: indexPath)
             UIPasteboard.general.string = account.address.eip55String
             complete(true)
         }
-        
+
         copyAction.image = R.image.copy()?.withRenderingMode(.alwaysTemplate)
         copyAction.backgroundColor = R.color.azure()
-        
+
         let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.accountsConfirmDeleteAction()) { _, _, complete in
             let account = self.account(for: indexPath)
             self.confirmDelete(account: account)
-            
+
             complete(true)
         }
-        
+
         deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
         deleteAction.backgroundColor = R.color.danger()
-        
+
         let configuration = UISwipeActionsConfiguration(actions: [copyAction, deleteAction])
         configuration.performsFirstActionWithFullSwipe = true
-        
+
         return configuration
     }
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        
+
         let account = self.account(for: indexPath)
         guard etherKeystore?.recentlyUsedWallet != account else { return }
-        
+
         delegate?.didSelectAccount(account: account, in: self)
     }
 }

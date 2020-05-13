@@ -19,6 +19,7 @@ class SendCoordinator: Coordinator {
     private let ethPrice: Subscribable<Double>
     private let tokenHolders: [TokenHolder]!
     private let assetDefinitionStore: AssetDefinitionStore
+    private let analyticsCoordinator: AnalyticsCoordinator?
 
     lazy var sendViewController: SendViewController = {
         return makeSendViewController()
@@ -37,7 +38,8 @@ class SendCoordinator: Coordinator {
             account: EthereumAccount,
             ethPrice: Subscribable<Double>,
             tokenHolders: [TokenHolder] = [],
-            assetDefinitionStore: AssetDefinitionStore
+            assetDefinitionStore: AssetDefinitionStore,
+            analyticsCoordinator: AnalyticsCoordinator?
     ) {
         self.transferType = transferType
         self.navigationController = navigationController
@@ -49,6 +51,7 @@ class SendCoordinator: Coordinator {
         self.ethPrice = ethPrice
         self.tokenHolders = tokenHolders
         self.assetDefinitionStore = assetDefinitionStore
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func start() {

@@ -182,7 +182,7 @@ struct FunctionOrigin {
     }
 
     private func postTransaction(withPayload payload: Data, value: BigUInt, server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<SentTransaction> {
-        let account = try! EtherKeystore().getAccount(for: session.account.address)!
+        let account = try! EtherKeystore(analyticsCoordinator: nil).getAccount(for: session.account.address)!
         return Promise { seal in
             TransactionConfigurator.estimateGasPrice(server: server).done { gasPrice in
                 //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct

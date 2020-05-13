@@ -33,6 +33,7 @@ class VerifySeedPhraseViewController: UIViewController {
     private var viewModel: VerifySeedPhraseViewModel
     private let keystore: Keystore
     private let account: EthereumAccount
+    private let analyticsCoordinator: AnalyticsCoordinator?
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let seedPhraseTextView = UITextView()
@@ -97,9 +98,10 @@ class VerifySeedPhraseViewController: UIViewController {
 
     weak var delegate: VerifySeedPhraseViewControllerDelegate?
 
-    init(keystore: Keystore, account: EthereumAccount) {
+    init(keystore: Keystore, account: EthereumAccount, analyticsCoordinator: AnalyticsCoordinator?) {
         self.keystore = keystore
         self.account = account
+        self.analyticsCoordinator = analyticsCoordinator
         self.viewModel = .init()
         self.state = .notDisplayedSeedPhrase
         super.init(nibName: nil, bundle: nil)

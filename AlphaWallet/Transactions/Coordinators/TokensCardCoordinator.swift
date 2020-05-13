@@ -31,6 +31,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private weak var transferTokensViewController: TransferTokensCardViaWalletAddressViewController?
+    private let analyticsCoordinator: AnalyticsCoordinator?
 
     weak var delegate: TokensCardCoordinatorDelegate?
     let navigationController: UINavigationController
@@ -50,7 +51,8 @@ class TokensCardCoordinator: NSObject, Coordinator {
             ethPrice: Subscribable<Double>,
             token: TokenObject,
             assetDefinitionStore: AssetDefinitionStore,
-            eventsDataStore: EventsDataStoreProtocol
+            eventsDataStore: EventsDataStoreProtocol,
+            analyticsCoordinator: AnalyticsCoordinator?
     ) {
         self.session = session
         self.keystore = keystore
@@ -60,6 +62,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
         self.token = token
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
+        self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -303,8 +306,9 @@ class TokensCardCoordinator: NSObject, Coordinator {
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
-        let account = try! EtherKeystore().getAccount(for: address!)
-        let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!, tokenType: tokenHolder.tokenType)
+        let etherKeystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
+        let account = etherKeystore.getAccount(for: address!)
+        let signedOrders = try! OrderHandler(keystore: etherKeystore).signOrders(orders: orders, account: account!, tokenType: tokenHolder.tokenType)
         return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
 
@@ -329,8 +333,9 @@ class TokensCardCoordinator: NSObject, Coordinator {
         )
         let orders = [order]
         let address = keystore.recentlyUsedWallet?.address
-        let account = try! EtherKeystore().getAccount(for: address!)
-        let signedOrders = try! OrderHandler().signOrders(orders: orders, account: account!, tokenType: tokenHolder.tokenType)
+        let etherKeystore = try! EtherKeystore(analyticsCoordinator: analyticsCoordinator)
+        let account = etherKeystore.getAccount(for: address!)
+        let signedOrders = try! OrderHandler(keystore: etherKeystore).signOrders(orders: orders, account: account!, tokenType: tokenHolder.tokenType)
         return UniversalLinkHandler(server: server).createUniversalLink(signedOrder: signedOrders[0], tokenType: tokenHolder.tokenType)
     }
 

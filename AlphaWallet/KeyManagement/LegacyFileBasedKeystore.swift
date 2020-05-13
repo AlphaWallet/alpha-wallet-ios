@@ -15,10 +15,11 @@ class LegacyFileBasedKeystore {
     private let keychain: KeychainSwift
     private let datadir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
     private let keyStore: KeyStore
+    private let analyticsCoordinator: AnalyticsCoordinator?
 
     let keystoreDirectory: URL
 
-    public init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), keyStoreSubfolder: String = "/keystore") throws {
+    public init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), keyStoreSubfolder: String = "/keystore", analyticsCoordinator: AnalyticsCoordinator?) throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw FileBasedKeystoreError.protectionDisabled
         }
@@ -26,6 +27,7 @@ class LegacyFileBasedKeystore {
         self.keychain = keychain
         self.keychain.synchronizable = false
         self.keyStore = try KeyStore(keydir: keystoreDirectory)
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     func getPrivateKeyFromKeystoreFile(json: String, password: String) -> Result<Data, KeystoreError> {
@@ -97,7 +99,7 @@ class LegacyFileBasedKeystore {
     }
 
     func migrateKeystoreFilesToRawPrivateKeysInKeychain() {
-        guard let etherKeystore = try? EtherKeystore() else { return }
+        guard let etherKeystore = try? EtherKeystore(analyticsCoordinator: analyticsCoordinator) else { return }
         guard !etherKeystore.hasMigratedFromKeystoreFiles else { return }
 
         for each in keyStore.accounts {
