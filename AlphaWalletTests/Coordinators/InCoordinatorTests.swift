@@ -15,7 +15,8 @@ class InCoordinatorTests: XCTestCase {
             wallet: .make(),
             keystore: FakeKeystore(wallets: [wallet]),
             assetDefinitionStore: AssetDefinitionStore(),
-            config: config
+            config: config,
+            analyticsCoordinator: nil
         )
 
         coordinator.start()
@@ -46,7 +47,8 @@ class InCoordinatorTests: XCTestCase {
             wallet: .make(),
             keystore: keystore,
             assetDefinitionStore: AssetDefinitionStore(),
-            config: .make()
+            config: .make(),
+            analyticsCoordinator: nil
         )
 
         coordinator.showTabBar(for: account1)
@@ -65,7 +67,8 @@ class InCoordinatorTests: XCTestCase {
                 wallet: wallet,
                 keystore: FakeKeystore(wallets: [wallet]),
                 assetDefinitionStore: AssetDefinitionStore(),
-                config: .make()
+                config: .make(),
+                analyticsCoordinator: nil
         )
         coordinator.showTabBar(for: .make())
 
@@ -84,7 +87,8 @@ class InCoordinatorTests: XCTestCase {
             wallet: wallet,
             keystore: FakeKeystore(wallets: [wallet]),
             assetDefinitionStore: AssetDefinitionStore(),
-            config: .make()
+            config: .make(),
+            analyticsCoordinator: nil
         )
         coordinator.showTabBar(for: .make())
 
@@ -102,7 +106,8 @@ class InCoordinatorTests: XCTestCase {
             wallet: .make(),
             keystore: FakeKeystore(),
             assetDefinitionStore: AssetDefinitionStore(),
-            config: .make()
+            config: .make(),
+            analyticsCoordinator: nil
         )
         coordinator.showTabBar(for: .make())
 
@@ -139,7 +144,8 @@ class InCoordinatorTests: XCTestCase {
                     wallet: wallet,
                     keystore: keystore,
                     assetDefinitionStore: AssetDefinitionStore(),
-                    config: .make()
+                    config: .make(),
+                    analyticsCoordinator: nil
             )
             coordinator.showTabBar(for: wallet)
 

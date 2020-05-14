@@ -21,6 +21,9 @@ class AppCoordinator: NSObject, Coordinator {
     private var pushNotificationsCoordinator: PushNotificationsCoordinator? {
         return coordinators.first { $0 is PushNotificationsCoordinator } as? PushNotificationsCoordinator
     }
+    private var analyticsCoordinator: AnalyticsCoordinator? {
+        coordinators.compactMap { $0 as? AnalyticsCoordinator }.first
+    }
     private var universalLinkCoordinator: UniversalLinkCoordinator? {
         return coordinators.first { $0 is UniversalLinkCoordinator } as? UniversalLinkCoordinator
     }
@@ -86,6 +89,7 @@ class AppCoordinator: NSObject, Coordinator {
             return false
         }
 
+        setupAnalytics()
         window.rootViewController = navigationController
         initializers()
         appTracker.start()
@@ -103,6 +107,14 @@ class AppCoordinator: NSObject, Coordinator {
 
         assetDefinitionStore.delegate = self
         return true
+    }
+
+    private func setupAnalytics() {
+        guard !Constants.Credentials.analyticsKey.isEmpty else { return }
+
+        let coordinator = MixpanelCoordinator(withKey: Constants.Credentials.analyticsKey)
+        addCoordinator(coordinator)
+        coordinator.start()
     }
 
     private func migrateToStoringRawPrivateKeysInKeychain() {
@@ -137,7 +149,8 @@ class AppCoordinator: NSObject, Coordinator {
                 keystore: keystore,
                 assetDefinitionStore: assetDefinitionStore,
                 config: config,
-                appTracker: appTracker
+                appTracker: appTracker,
+                analyticsCoordinator: analyticsCoordinator
         )
         coordinator.delegate = self
         coordinator.start()

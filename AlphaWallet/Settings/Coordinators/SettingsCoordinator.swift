@@ -16,9 +16,10 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 
 class SettingsCoordinator: Coordinator {
 	private let keystore: Keystore
-	var config: Config
+	private var config: Config
 	private let sessions: ServerDictionary<WalletSession>
     private let promptBackupCoordinator: PromptBackupCoordinator
+	private let analyticsCoordinator: AnalyticsCoordinator?
 
 	private var account: Wallet {
 		return sessions.anyValue.account
@@ -46,7 +47,8 @@ class SettingsCoordinator: Coordinator {
 			keystore: Keystore,
 			config: Config,
 			sessions: ServerDictionary<WalletSession>,
-			promptBackupCoordinator: PromptBackupCoordinator
+			promptBackupCoordinator: PromptBackupCoordinator,
+			analyticsCoordinator: AnalyticsCoordinator?
 	) {
 		self.navigationController = navigationController
 		self.navigationController.modalPresentationStyle = .formSheet
@@ -54,6 +56,7 @@ class SettingsCoordinator: Coordinator {
 		self.config = config
 		self.sessions = sessions
         self.promptBackupCoordinator = promptBackupCoordinator
+		self.analyticsCoordinator = analyticsCoordinator
 		promptBackupCoordinator.subtlePromptDelegate = self
 	}
 
