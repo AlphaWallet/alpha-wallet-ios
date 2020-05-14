@@ -1,7 +1,6 @@
 # AlphaWallet - An advanced Ethereum mobile wallet
 
 [![Build Status](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)
-[![License](https://img.shields.io/badge/license-GPL3-green.svg?style=flat)](https://github.com/fastlane/fastlane/blob/master/LICENSE)
 [![codecov](https://codecov.io/gh/AlphaWallet/alpha-wallet-ios/branch/master/graph/badge.svg)](https://codecov.io/gh/AlphaWallet/alpha-wallet-ios)
 
 [<img src="https://alphawallet.com/wp-content/uploads/2020/03/aw_coverphoto-comp.jpg" width="347" height="434">](https://alphawallet.com/)
