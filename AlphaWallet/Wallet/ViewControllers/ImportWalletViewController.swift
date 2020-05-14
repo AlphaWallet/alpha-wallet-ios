@@ -36,16 +36,28 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private let importSeedDescriptionLabel = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
 
+    weak var bottomConstraint: NSLayoutConstraint!
     weak var delegate: ImportWalletViewControllerDelegate?
+    
+     let allMnemonic = NSArray(contentsOfFile: Bundle.main.path(forResource: "suggested_keyword", ofType: "plist")!)
+     var mnemonicCollectionArray: [String] = []
+    var keyboardHeight = 0.0
+    fileprivate let collectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        cv.translatesAutoresizingMaskIntoConstraints = false
+        cv.register(SeedPhraseSuggestionViewCell.self, forCellWithReuseIdentifier: "cell")
+        return cv
+    }()
 
 // swiftlint:disable function_body_length
     init(keystore: Keystore) {
         self.keystore = keystore
-
         super.init(nibName: nil, bundle: nil)
 
         title = viewModel.title
-
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
@@ -56,6 +68,9 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         tabBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tabBar)
 
+        mnemonicTextView.countLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(mnemonicTextView.countLabel)
+        
         mnemonicTextView.label.translatesAutoresizingMaskIntoConstraints = false
         mnemonicTextView.delegate = self
         mnemonicTextView.translatesAutoresizingMaskIntoConstraints = false
@@ -172,6 +187,10 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
             mnemonicControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
             mnemonicControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
+            
+            mnemonicTextView.countLabel.topAnchor.constraint(equalTo: mnemonicControlsStackView.bottomAnchor, constant: xMargin),
+            mnemonicTextView.countLabel.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
+            
             keystoreJSONControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
             keystoreJSONControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
             privateKeyControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
@@ -219,9 +238,63 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
                 strongSelf.demo()
             }
         }
+        
+        view.addSubview(collectionView)
+        collectionView.backgroundColor = .white
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.backgroundColor = Colors.seedTypingBackground
+        bottomConstraint = collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 80)
+        bottomConstraint.isActive = true
+        collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+        collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+        collectionView.heightAnchor.constraint(equalToConstant: 60).isActive = true
+        collectionView.showsHorizontalScrollIndicator = false
+        
+        mnemonicCollectionArray = allMnemonic!.compactMap({ $0 as? String })
+        
+        let layout = SeedPhraseSuggestionFlowLayout()
+        layout.estimatedItemSize = CGSize(width: 140, height: 40)
+        layout.scrollDirection = .horizontal
+        collectionView.collectionViewLayout = layout
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-// swiftlint:enable function_body_length
+   @objc private func keyboardWillShow(notification: NSNotification) {
+        if let keyboardEndFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue, let _ = notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue {
 
+            keyboardHeight = Double(keyboardEndFrame.height)
+            guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return }
+            if tab ==  .mnemonic && mnemonicTextView.textView.text.count > 1 {
+                showSuggestedMnemonic(keyboardFrame: CGFloat(keyboardHeight))
+            } else {
+                hideSuggestedMnemonic()
+            }
+        }
+    }
+
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return }
+        if tab ==  .mnemonic {
+            hideSuggestedMnemonic()
+        }
+    }
+    
+    func hideSuggestedMnemonic() {
+        bottomConstraint.constant = 80
+        UIView.animate(withDuration: 0.5, animations: { () -> Void in
+            self.view.layoutIfNeeded()
+        })
+    }
+    func showSuggestedMnemonic(keyboardFrame: CGFloat) {
+        bottomConstraint.constant = -keyboardFrame
+        UIView.animate(withDuration: 0.5, animations: { () -> Void in
+            self.view.layoutIfNeeded()
+        })
+    }
+    
+// swiftlint:enable function_body_length
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         //Because we want the filter to look like it's a part of the navigation bar
@@ -542,7 +615,6 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     }
 }
 // swiftlint:enable type_body_length
-
 extension ImportWalletViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
         guard controller.documentPickerMode == UIDocumentPickerMode.import else { return }
@@ -605,6 +677,21 @@ extension ImportWalletViewController: TextViewDelegate {
 
     func didChange(inTextView textView: TextView) {
         showCorrectTab()
+        if textView == mnemonicTextView {
+            let enteredMnemonic = textView.textView.text!
+            //Logic for show/hide collectionview with filer data
+            let mnemonicArr = enteredMnemonic.split(separator: " ")
+            mnemonicCollectionArray = allMnemonic!.compactMap({ $0 as? String })
+            mnemonicTextView.countLabel.text = "\(mnemonicArr.count)"
+            if mnemonicArr.count > 1 && mnemonicArr.last!.count > 1 {
+                let lastMnemonic = mnemonicArr.last!
+                showSuggestedMnemonic(keyboardFrame: CGFloat(keyboardHeight))
+                mnemonicCollectionArray = mnemonicCollectionArray.filter { $0.hasPrefix(lastMnemonic) }
+                collectionView.reloadData()
+            } else {
+                 hideSuggestedMnemonic()
+            }
+        }
     }
 }
 
@@ -636,5 +723,27 @@ extension ImportWalletViewController: SegmentedControlDelegate {
     func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl) {
         tabBar.selection = selection
         showCorrectTab()
+    }
+}
+extension ImportWalletViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return mnemonicCollectionArray.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell",
+                                                            for: indexPath) as? SeedPhraseSuggestionViewCell else {
+                                                                return SeedPhraseSuggestionViewCell()
+        }
+        cell.textLabel.text = mnemonicCollectionArray[indexPath.row]
+        return cell
+    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        var mnemonicArr = mnemonicTextView.textView.text.split(separator: " ")
+        mnemonicArr.removeLast()
+        mnemonicArr.append("\(mnemonicCollectionArray[indexPath.row]) ")
+        let stringRepresentation = mnemonicArr.map { String($0) }.joined(separator: " ")
+        mnemonicTextView.textView.text = stringRepresentation
+        hideSuggestedMnemonic()
     }
 }

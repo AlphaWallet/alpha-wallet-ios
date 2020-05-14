@@ -24,6 +24,7 @@ class TextView: UIControl {
 
     let textView = UITextView()
     let label = UILabel()
+    let countLabel = UILabel()
     var value: String {
         get {
             return textView.text ?? ""
@@ -78,6 +79,9 @@ class TextView: UIControl {
 
         label.font = DataEntry.Font.label
         label.textColor = DataEntry.Color.label
+        
+        countLabel.font = DataEntry.Font.label
+        countLabel.textColor = DataEntry.Color.label
 
         textView.textColor = DataEntry.Color.text
         textView.font = DataEntry.Font.text

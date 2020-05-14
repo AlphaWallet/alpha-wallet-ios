@@ -650,6 +650,9 @@
 		B138ABD0208C2C93000FC28A /* MonkeyTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B138ABCF208C2C93000FC28A /* MonkeyTest.swift */; };
 		BB5D6A9E20232EE8000FC5AB /* CurrencyRate+Fee.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */; };
 		BBF4F9B72029D0B3009E04C0 /* GasViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */; };
+		C6959E30246C1D540095DE91 /* SeedPhraseSuggestionFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6959E2F246C1D540095DE91 /* SeedPhraseSuggestionFlowLayout.swift */; };
+		C6959E32246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6959E31246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift */; };
+		C6959E34246C1E3F0095DE91 /* suggested_keyword.plist in Resources */ = {isa = PBXBuildFile; fileRef = C6959E33246C1E3F0095DE91 /* suggested_keyword.plist */; };
 		C80DC77E22AB7FAD009CFA1C /* XDAI-bridge.tsml in Resources */ = {isa = PBXBuildFile; fileRef = C80DC77D22AB7FAD009CFA1C /* XDAI-bridge.tsml */; };
 		C868C5292053BDE00059672B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C868C5282053BDE00059672B /* LaunchScreen.storyboard */; };
 		C868C536205409160059672B /* redeemInfo.html in Resources */ = {isa = PBXBuildFile; fileRef = C868C534205409160059672B /* redeemInfo.html */; };
@@ -1347,6 +1350,9 @@
 		B9F84D10470B22C957A61EAE /* Pods-AlphaWalletTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletTests/Pods-AlphaWalletTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BB5D6A9D20232EE8000FC5AB /* CurrencyRate+Fee.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CurrencyRate+Fee.swift"; sourceTree = "<group>"; };
 		BBF4F9B62029D0B2009E04C0 /* GasViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GasViewModel.swift; sourceTree = "<group>"; };
+		C6959E2F246C1D540095DE91 /* SeedPhraseSuggestionFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPhraseSuggestionFlowLayout.swift; sourceTree = "<group>"; };
+		C6959E31246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedPhraseSuggestionViewCell.swift; sourceTree = "<group>"; };
+		C6959E33246C1E3F0095DE91 /* suggested_keyword.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = suggested_keyword.plist; sourceTree = "<group>"; };
 		C6EE5EADD8373DB85ADD1966 /* Pods-AlphaWallet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWallet.release.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet.release.xcconfig"; sourceTree = "<group>"; };
 		C80DC77D22AB7FAD009CFA1C /* XDAI-bridge.tsml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "XDAI-bridge.tsml"; sourceTree = "<group>"; };
 		C825940EC6CB472A443A7997 /* Pods-AlphaWalletUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWalletUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWalletUITests/Pods-AlphaWalletUITests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1913,6 +1919,7 @@
 				5E7C74A5B5B9D8AD0BD913C1 /* CreateInitialWalletViewController.swift */,
 				5E7C753A2216F043CBDEC07C /* ElevateWalletSecurityViewController.swift */,
 				5E7C78CF45AA54EF8647C44B /* SeedPhraseBackupIntroductionViewController.swift */,
+				C6959E33246C1E3F0095DE91 /* suggested_keyword.plist */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -3224,6 +3231,8 @@
 				5E7C791C60E8AAF3F4239375 /* SeedPhraseCell.swift */,
 				5E7C7D8A8A4E7A77F7344E2F /* CollectionViewLeftAlignedFlowLayout.swift */,
 				5E7C77BCBD2C2BE682D384DB /* SeedPhraseCollectionView.swift */,
+				C6959E2F246C1D540095DE91 /* SeedPhraseSuggestionFlowLayout.swift */,
+				C6959E31246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3564,6 +3573,7 @@
 				C880332020551DF800D73D6F /* howDoIGetMyMoneyInfo.html in Resources */,
 				613D04891FDE15F8008DE72E /* COMODO ECC Domain Validation Secure Server CA 2.cer in Resources */,
 				C887C53A2057B703005ACF81 /* termsOfService.html in Resources */,
+				C6959E34246C1E3F0095DE91 /* suggested_keyword.plist in Resources */,
 				C876FF7D204A79D300B7D0EA /* SourceSansPro-Bold.otf in Resources */,
 				C880330D2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png in Resources */,
 				771AA966200D5F1900D25403 /* WordCollectionViewCell.xib in Resources */,
@@ -4295,6 +4305,7 @@
 				5E7C70E4C7053E9794A8FE30 /* CallForAssetAttribute.swift in Sources */,
 				5E7C78374AD8C536E0DF264C /* AssetDefinitionDiskBackingStoreWithOverrides.swift in Sources */,
 				5E7C716F9A06085DF5F903E8 /* UserEntryOrigin.swift in Sources */,
+				C6959E32246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift in Sources */,
 				5E7C742B144FBC72E082B8F3 /* TokenScript.swift in Sources */,
 				5E7C740398B56DAED1D0C75A /* XmlContext.swift in Sources */,
 				5E7C798A5D213DD92F24CBFB /* AssetImplicitAttributes.swift in Sources */,
@@ -4358,6 +4369,7 @@
 				5E7C768CFA892DEBB633961B /* SeedPhraseCollectionViewModel.swift in Sources */,
 				5E7C7E8E89279EB6DB805620 /* SuccessOverlayView.swift in Sources */,
 				5E7C738BCA59B1DE116ECC96 /* WhereIsWalletAddressFoundOverlayView.swift in Sources */,
+				C6959E30246C1D540095DE91 /* SeedPhraseSuggestionFlowLayout.swift in Sources */,
 				5E7C70F407FBA1BD69901861 /* SecureEnclave.swift in Sources */,
 				5E7C7CF6B5C96376B7BF382B /* ElevateWalletSecurityCoordinator.swift in Sources */,
 				5E7C7F53A21D1D0FE576DD8F /* ElevateWalletSecurityViewController.swift in Sources */,
