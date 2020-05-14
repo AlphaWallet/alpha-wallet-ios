@@ -11,10 +11,32 @@ protocol TokenInstanceWebViewDelegate: class {
     func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController?
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView)
     func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView)
+    func reinject(tokenInstanceWebView: TokenInstanceWebView)
 }
 
-
 class TokenInstanceWebView: UIView {
+    enum SetProperties {
+        static let setActionProps = "setActionProps"
+        //Values ought to be typed. But it's just much easier to keep them as `Any` and convert them to the correct types when accessed (based on TokenScript syntax and XML tag). We don't know what those are here
+        typealias Properties = [String: Any]
+
+        case action(changedProperties: Properties)
+    }
+
+    enum BrowserMessageType {
+        case dappAction(DappCommand)
+        case setActionProps(SetProperties)
+
+        static func fromMessage(_ message: WKScriptMessage) -> BrowserMessageType? {
+            if message.name == SetProperties.setActionProps, let changedProperties = message.body as? SetProperties.Properties  {
+                return .setActionProps(.action(changedProperties: changedProperties))
+            } else if let command = DappAction.fromMessage(message) {
+                return .dappAction(command)
+            }
+            return nil
+        }
+    }
+
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
     private let server: RPCServer
     private let walletAddress: AlphaWallet.Address
@@ -30,6 +52,8 @@ class TokenInstanceWebView: UIView {
     //Used to track asynchronous calls are called for correctly
     private var loadId: Int?
     private var lastInjectedJavaScript: String?
+    var actionProperties: TokenInstanceWebView.SetProperties.Properties = .init()
+    private var lastActionLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
 
     var isWebViewInteractionEnabled: Bool = false {
         didSet {
@@ -43,6 +67,20 @@ class TokenInstanceWebView: UIView {
     //B. Action views
     //TODO improve further. It's not reliable enough
     var isStandalone = false
+
+    var isAction = false
+
+    var localRefs: [AttributeId: AssetInternalValue] {
+        var results: [AttributeId: AssetInternalValue] = .init()
+        for (key, value) in actionProperties {
+            if let string = value as? String {
+                results[key] = .string(string)
+            } else if let int = value as? Int {
+                results[key] = .int(BigInt(int))
+            }
+        }
+        return results
+    }
 
     init(server: RPCServer, walletAddress: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
@@ -76,11 +114,19 @@ class TokenInstanceWebView: UIView {
     }
 
     //Implementation: String concatentation is slow, but it's not obvious at all
-    func update(withTokenHolder tokenHolder: TokenHolder, isFungible: Bool, isFirstUpdate: Bool = true) {
+    func update(withTokenHolder tokenHolder: TokenHolder, actionLevelAttributeValues updatedActionLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
+        let actionLevelAttributeValues = (updatedActionLevelAttributeValues ?? lastActionLevelAttributeValues) ?? .init()
+        lastActionLevelAttributeValues = actionLevelAttributeValues
         var token = [AttributeId: String]()
         token["_count"] = String(tokenHolder.count)
 
-        let attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
+        let attributeValues: AssetAttributeValues
+        if isAction {
+            attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values.merging(actionLevelAttributeValues) { _, new in new })
+        } else {
+            attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
+        }
+
         let resolvedAttributeNameValues = attributeValues.resolve { [weak self] _ in
             guard let strongSelf = self else { return }
             guard isFirstUpdate else { return }
@@ -277,8 +323,30 @@ private extension TokenInstanceWebView {
 
 extension TokenInstanceWebView: WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard let command = DappAction.fromMessage(message) else { return }
+        switch BrowserMessageType.fromMessage(message) {
+        case .some(.dappAction(let command)):
+            handleCommandForDappAction(command)
+        case .some(.setActionProps(.action(let changedProperties))):
+            handleSetActionProperties(changedProperties)
+        case .none:
+            break
+        }
+    }
 
+    private func handleSetActionProperties(_ changedProperties: SetProperties.Properties) {
+        guard !changedProperties.isEmpty else { return }
+        let oldProperties = actionProperties
+        for (key, value) in changedProperties {
+            actionProperties[key] = value
+        }
+
+        guard let oldJsonString = oldProperties.jsonString, let newJsonString = actionProperties.jsonString, oldJsonString != newJsonString else { return }
+        if lastActionLevelAttributeValues  != nil {
+            delegate?.reinject(tokenInstanceWebView: self)
+        }
+    }
+
+    private func handleCommandForDappAction(_ command: DappCommand) {
         //limited signing capability exposed for TokenScript for now. Be careful not to expose more than we want to
         switch command.name {
         case .signPersonalMessage:
