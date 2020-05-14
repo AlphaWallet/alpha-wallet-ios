@@ -4,6 +4,13 @@
 [![codecov](https://codecov.io/gh/AlphaWallet/alpha-wallet-ios/branch/master/graph/badge.svg)](https://codecov.io/gh/AlphaWallet/alpha-wallet-ios)
 [<img src=resources/app-store-badge.png height="35">](https://itunes.apple.com/us/app/alphawallet/id1358230430?ls=1&mt=8)
 
+AlphaWallet is an open source programmable blockchain apps platform. It is compatible with tokenisation framework TokenScript, offering businesses and their users in-depth token interaction, a clean white label user experience and advanced security options. Supports all Ethereum based networks.
+
+AlphaWallet and TokenScript have been used by tokenisation projects like FIFA and UEFA’s [blockchain tickets](https://apps.apple.com/au/app/shankai/id1492559481), Bartercard’s [Qoin ecosystem](https://apps.apple.com/au/app/qoin-wallet/id1483718254), Sevral Automobiles’ [car ownership portal](https://github.com/AlphaWallet/TokenScript-Examples/tree/master/examples/Karma) and many more.  
+
+
+⭐ Star us on GitHub — it helps!
+
 
 [<img src="https://alphawallet.com/wp-content/uploads/2020/03/aw_coverphoto-comp.jpg" width="347" height="434">](https://alphawallet.com/)
 
