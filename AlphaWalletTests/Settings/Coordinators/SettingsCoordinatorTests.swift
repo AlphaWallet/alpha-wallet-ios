@@ -29,7 +29,8 @@ class SettingsCoordinatorTests: XCTestCase {
             keystore: FakeEtherKeystore(),
             config: .make(),
             sessions: .init(),
-            promptBackupCoordinator: promptBackupCoordinator
+            promptBackupCoordinator: promptBackupCoordinator,
+            analyticsCoordinator: nil
         )
         let delegate = Delegate()
         coordinator.delegate = delegate

@@ -38,6 +38,7 @@ class InCoordinator: NSObject, Coordinator {
     private let appTracker: AppTracker
     private var transactionsStorages = ServerDictionary<TransactionsStorage>()
     private var walletSessions = ServerDictionary<WalletSession>()
+    private let analyticsCoordinator: AnalyticsCoordinator?
     private var callForAssetAttributeCoordinators = ServerDictionary<CallForAssetAttributeCoordinator>() {
         didSet {
             XMLHandler.callForAssetAttributeCoordinators = callForAssetAttributeCoordinators
@@ -93,13 +94,15 @@ class InCoordinator: NSObject, Coordinator {
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
             config: Config,
-            appTracker: AppTracker = AppTracker()
+            appTracker: AppTracker = AppTracker(),
+            analyticsCoordinator: AnalyticsCoordinator?
     ) {
         self.navigationController = navigationController
         self.wallet = wallet
         self.keystore = keystore
         self.config = config
         self.appTracker = appTracker
+        self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
         self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
@@ -381,7 +384,8 @@ class InCoordinator: NSObject, Coordinator {
                 keystore: keystore,
                 config: config,
                 sessions: walletSessions,
-                promptBackupCoordinator: promptBackupCoordinator
+                promptBackupCoordinator: promptBackupCoordinator,
+                analyticsCoordinator: analyticsCoordinator
         )
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(), image: R.image.tab_settings(), selectedImage: nil)
         coordinator.delegate = self
