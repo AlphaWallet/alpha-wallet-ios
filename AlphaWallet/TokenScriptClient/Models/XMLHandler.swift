@@ -203,7 +203,7 @@ private class PrivateXMLHandler {
             return R.string.localizable.katTitlecase()
         }
 
-        if  let nameStringElement = XMLHandler.getNameStringElement(fromElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
+        if  let nameStringElement = XMLHandler.getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
             return name
         } else {
             return nil
@@ -215,7 +215,7 @@ private class PrivateXMLHandler {
             return R.string.localizable.katTitlecase()
         }
 
-        if  let nameElement = XMLHandler.getNameElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
+        if  let nameElement = XMLHandler.getLabelElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
             return name
         } else {
             return nameInSingularForm
@@ -504,8 +504,8 @@ private class PrivateXMLHandler {
         XMLHandler.getSelectionElements(fromRoot: xml, xmlContext: xmlContext).compactMap { each in
             guard let id = each["id"], let filter = each["filter"]  else { return nil }
             let names = (
-                    singular: XMLHandler.getNameStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
-                    plural: XMLHandler.getNameElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text
+                    singular: XMLHandler.getLabelStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
+                    plural: XMLHandler.getLabelElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text
             )
             let denial: String? = XMLHandler.getDenialString(fromElement: each, xmlContext: xmlContext)?.text
             return TokenScriptSelection(id: id, filter: filter, names: names, denial: denial)
@@ -803,10 +803,10 @@ extension XMLHandler {
     }
 
     static func getNameElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
-        if let nameElement = attributeTypeElement.at_xpath("name[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let nameElement = attributeTypeElement.at_xpath("label[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameElement
         } else {
-            let fallback = attributeTypeElement.at_xpath("name[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            let fallback = attributeTypeElement.at_xpath("label[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
             return fallback
         }
     }
@@ -859,28 +859,28 @@ extension XMLHandler {
 
     //Remember `1` in XPath selects the first node, not `0`
     //<plural> tag is optional
-    fileprivate static func getNameStringElement(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+    fileprivate static func getLabelStringElement(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
         guard let tokenElement = element else { return nil }
-        if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='one']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let nameStringElementMatchingLanguage = tokenElement.at_xpath("label/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='one']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
-        } else if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        } else if let nameStringElementMatchingLanguage = tokenElement.at_xpath("label/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
-        } else if let fallbackInPluralsTag = tokenElement.at_xpath("name/plurals[1]/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        } else if let fallbackInPluralsTag = tokenElement.at_xpath("label/plurals[1]/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return fallbackInPluralsTag
-        } else if let fallbackWithoutPluralsTag = tokenElement.at_xpath("name/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        } else if let fallbackWithoutPluralsTag = tokenElement.at_xpath("label/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return fallbackWithoutPluralsTag
         } else {
-            let fallback = tokenElement.at_xpath("name[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            let fallback = tokenElement.at_xpath("label[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
             return fallback
         }
     }
 
-    fileprivate static func getNameElementForPluralForm(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+    fileprivate static func getLabelElementForPluralForm(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
         guard let tokenElement = element else { return nil }
-        if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='other']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let nameStringElementMatchingLanguage = tokenElement.at_xpath("label/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='other']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
         } else {
-            return getNameStringElement(fromElement: tokenElement, xmlContext: xmlContext)
+            return getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext)
         }
     }
 
@@ -1007,12 +1007,12 @@ extension XMLHandler {
     }
 
     fileprivate static func getNameElement(fromActionElement actionElement: Searchable, xmlContext: XmlContext) -> XMLElement? {
-        if let element = actionElement.at_xpath("name/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let element = actionElement.at_xpath("label/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
-        } else if let element = actionElement.at_xpath("name[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        } else if let element = actionElement.at_xpath("label[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
         } else {
-            return actionElement.at_xpath("name".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return actionElement.at_xpath("label".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 
