@@ -787,7 +787,7 @@ extension XMLHandler {
     }
 
     fileprivate static func getServerForNativeCurrencyAction(fromRoot root: XMLDocument, xmlContext: XmlContext) -> RPCServer? {
-        return root.at_xpath("/card/input/token/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?["network"].flatMap { Int($0) }.flatMap { RPCServer(chainID: $0) }
+        return root.at_xpath("/card/input/token/ethereum:transfer".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?["network"].flatMap { Int($0) }.flatMap { RPCServer(chainID: $0) }
     }
 
     fileprivate static func getAttributeTypeElements(fromAttributeTypesElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
@@ -948,7 +948,7 @@ extension XMLHandler {
     }
 
     fileprivate static func getActionTransactionFunctionElement(fromActionElement actionElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
-        return actionElement.at_xpath("transaction/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        return actionElement.at_xpath("transaction/ethereum:call".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getExcludeSelectionId(fromActionElement actionElement: XMLElement, xmlContext: XmlContext) -> String? {
