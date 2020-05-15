@@ -159,7 +159,7 @@ private class PrivateXMLHandler {
     var actions: [TokenInstanceAction] {
         guard hasValidTokenScriptFile else { return [] }
         var results = [TokenInstanceAction]()
-        let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceActionElements(fromRoot: xml, xmlContext: xmlContext))
+        let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceCardElements(fromRoot: xml, xmlContext: xmlContext))
         let fromActionAsTopLevel = Array(XMLHandler.getTokenScriptActionOnlyActionElements(fromRoot: xml, xmlContext: xmlContext))
         let actionElements = fromTokenAsTopLevel + fromActionAsTopLevel
         for actionElement in actionElements {
@@ -787,7 +787,7 @@ extension XMLHandler {
     }
 
     fileprivate static func getServerForNativeCurrencyAction(fromRoot root: XMLDocument, xmlContext: XmlContext) -> RPCServer? {
-        return root.at_xpath("/action/input/token/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?["network"].flatMap { Int($0) }.flatMap { RPCServer(chainID: $0) }
+        return root.at_xpath("/card/input/token/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?["network"].flatMap { Int($0) }.flatMap { RPCServer(chainID: $0) }
     }
 
     fileprivate static func getAttributeTypeElements(fromAttributeTypesElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
@@ -935,16 +935,16 @@ extension XMLHandler {
         // swiftlint:enable empty_count
             return tokenChildren
         } else {
-            return root.xpath("/action/selection".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return root.xpath("/card/selection".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 
-    fileprivate static func getTokenScriptTokenInstanceActionElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
-        return root.xpath("/token/cards/action".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    fileprivate static func getTokenScriptTokenInstanceCardElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+        return root.xpath("/token/cards/card".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getTokenScriptActionOnlyActionElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
-        return root.xpath("/action".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        return root.xpath("/card".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getActionTransactionFunctionElement(fromActionElement actionElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
