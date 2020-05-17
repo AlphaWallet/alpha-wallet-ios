@@ -519,10 +519,10 @@ private class PrivateXMLHandler {
     private func extractFields(fromElementContainingAttributes element: XMLElement) -> [AttributeId: AssetAttribute] {
         var fields = [AttributeId: AssetAttribute]()
         for each in XMLHandler.getAttributeTypeElements(fromAttributeTypesElement: element, xmlContext: xmlContext) {
-            guard let id = each["id"] else { continue }
+            guard let name = each["name"] else { continue }
             //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
             guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
-            fields[id] = attribute
+            fields[name] = attribute
         }
         return fields
     }
