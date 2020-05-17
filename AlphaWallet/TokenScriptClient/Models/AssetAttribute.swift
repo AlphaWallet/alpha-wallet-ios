@@ -91,17 +91,17 @@ struct AssetAttribute {
             originFound = Origin(forTokenIdElement: tokenIdElement, xmlContext: xmlContext)
         } else if let ethereumFunctionElement = XMLHandler.getEthereumOriginElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
                   ethereumFunctionElement["function"] != nil,
-                  let attributeId = attribute["id"],
+                  let attributeName = attribute["name"],
                   let functionOriginContractName = ethereumFunctionElement["contract"].nilIfEmpty,
                   let contract = XMLHandler.getNonTokenHoldingContract(byName: functionOriginContractName, server: server, fromContractNamesAndAddresses: contractNamesAndAddresses) {
-            originFound = Origin(forEthereumFunctionElement: ethereumFunctionElement, root: root, attributeId: attributeId, originContract: contract, xmlContext: xmlContext)
+            originFound = Origin(forEthereumFunctionElement: ethereumFunctionElement, root: root, attributeName: attributeName, originContract: contract, xmlContext: xmlContext)
         } else if let userEntryElement = XMLHandler.getOriginUserEntryElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
-                  let attributeId = attribute["id"] {
-            originFound = Origin(forUserEntryElement: userEntryElement, attributeId: attributeId, xmlContext: xmlContext)
+                  let attributeName = attribute["name"] {
+            originFound = Origin(forUserEntryElement: userEntryElement, attributeName: attributeName, xmlContext: xmlContext)
         } else if let ethereumEventElement = XMLHandler.getEthereumOriginElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
                   let eventName = ethereumEventElement["event"],
                   let eventSourceContractElement = root.at_xpath("contract[asnx:module[@name='\(eventName)']]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces),
-                  let _ = attribute["id"] {
+                  let _ = attribute["name"] {
             originFound = Origin(forEthereumEventElement: ethereumEventElement, sourceContractElement: eventSourceContractElement, xmlContext: xmlContext)
         }
 
