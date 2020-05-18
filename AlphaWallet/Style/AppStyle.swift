@@ -106,7 +106,7 @@ enum Metrics {
     enum CornerRadius {
         static let popups = CGFloat(20)
         static let box = CGFloat(2)
-        static let textbox = CGFloat(4)
+        static let textbox = CGFloat(5)
         static let button = CGFloat(4)
     }
 
@@ -145,19 +145,34 @@ enum DataEntry {
         static let border = UIColor(red: 194, green: 194, blue: 194)
         static let text = Colors.appText
         static let label = Colors.appGrayLabel
+        static let textFieldStatus = UIColor.red
         static let icon = Colors.appTint
         static let secondary = Colors.appGrayLabel
+        static let textFieldError = R.color.danger()!
+        static let textFieldShadowWhileEditing = Colors.appTint
+        static let textFieldBackground = UIColor(hex: "FBFBFB")
+        static let textFieldBackgroundWhileEditing = UIColor.white
+        static let placeholder = UIColor(hex: "919191")
+        static let ensText = UIColor(red: 117, green: 185, blue: 67)
+        static let searchTextFieldBackground = UIColor(red: 243, green: 244, blue: 245)
     }
 
     enum Metric {
-        static let borderThickness = CGFloat(0.5)
+        static let borderThickness = CGFloat(1.0)
         static let cornerRadius = Metrics.CornerRadius.textbox
+        static let shadowRadius = CGFloat(2.0)
+        static let textFieldInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        static let currencyIconInset = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
     }
 
     enum Font {
         static let text = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14: 18)
         static let label = Fonts.regular(size: 10)
-        static let accessory = Fonts.regular(size: 14)
+        static let textFieldTitle = Fonts.regular(size: 13)
+        static let textFieldStatus = Fonts.bold(size: 13)
+        static let textField = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14: 17)
+        static let accessory = Fonts.bold(size: ScreenChecker().isNarrowScreen ? 14: 17)
+        static let amountTextField = Fonts.regular(size: 36)
     }
 }
 

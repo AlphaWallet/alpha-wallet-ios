@@ -76,23 +76,44 @@ class SendViewController: UIViewController, CanScanQRCode {
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
         targetAddressTextField.returnKeyType = .next
-
+        targetAddressTextField.addresBookButton.isHidden = true
+        
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
 
+        let addressControlsContainer = UIView()
+        addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        addressControlsContainer.backgroundColor = .clear
+        
+        let addressControlsStackView = [
+            targetAddressTextField.addresBookButton,
+            targetAddressTextField.pasteButton,
+            targetAddressTextField.clearButton
+        ].asStackView(axis: .horizontal)
+        addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
+        addressControlsStackView.setContentHuggingPriority(.required, for: .horizontal)
+        addressControlsStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        
+        addressControlsContainer.addSubview(addressControlsStackView)
+        
         let stackView = [
             header,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 20),
             targetAddressLabel,
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             targetAddressTextField,
-            targetAddressTextField.ensAddressLabel,
+            .spacer(height: 4), [
+                [targetAddressTextField.ensAddressLabel, targetAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
+                addressControlsContainer
+            ].asStackView(axis: .horizontal),
+            .spacer(height: 4),
             .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 14),
             amountLabel,
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             amountTextField,
+            .spacer(height: 4),
             amountTextField.alternativeAmountLabel,
-        ].asStackView(axis: .vertical, alignment: .center)
+        ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
@@ -133,6 +154,13 @@ class SendViewController: UIViewController, CanScanQRCode {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+            
+            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor),
+            addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
+            addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
+            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
+            addressControlsContainer.heightAnchor.constraint(equalToConstant: 30)
+            
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         storage.updatePrices()
@@ -211,7 +239,13 @@ class SendViewController: UIViewController, CanScanQRCode {
 
     @objc func send() {
         let input = targetAddressTextField.value.trimmed
-        guard let address = AlphaWallet.Address(string: input) else { return displayError(error: Errors.invalidAddress) }
+        self.targetAddressTextField.errorState = .none
+        
+        guard let address = AlphaWallet.Address(string: input) else {
+            self.targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
+            return
+        }
+        
         let amountString = amountTextField.ethCost
         let parsedValue: BigInt? = {
             switch transferType {
@@ -414,8 +448,9 @@ extension SendViewController: AmountTextFieldDelegate {
 }
 
 extension SendViewController: AddressTextFieldDelegate {
+    
     func displayError(error: Error, for textField: AddressTextField) {
-        displayError(error: error)
+        textField.errorState = .error(error.prettyError)
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
@@ -423,6 +458,7 @@ extension SendViewController: AddressTextFieldDelegate {
             promptUserOpenSettingsToChangeCameraPermission()
             return
         }
+        
         let controller = QRCodeReaderViewController(cancelButtonTitle: nil, chooseFromPhotoLibraryButtonTitle: R.string.localizable.photos())
         controller.delegate = self
         controller.makePresentationFullScreenForiOS13Migration()

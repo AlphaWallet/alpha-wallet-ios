@@ -10,7 +10,7 @@ PODS:
   - BigInt (3.0.1):
     - SipHash (~> 1.2)
   - CryptoSwift (0.10.0)
-  - Eureka (4.3.0)
+  - Eureka (5.2.1)
   - iOSSnapshotTestCase (3.0.0):
     - iOSSnapshotTestCase/SwiftSupport (= 3.0.0)
   - iOSSnapshotTestCase/Core (3.0.0)
@@ -89,7 +89,7 @@ DEPENDENCIES:
   - AWSSNS
   - BigInt (~> 3.0)
   - CryptoSwift
-  - Eureka (~> 4.3)
+  - Eureka (~> 5.2.1)
   - iOSSnapshotTestCase
   - JavaScriptKit
   - JSONRPCKit (~> 2.0.0)
@@ -125,7 +125,6 @@ SPEC REPOS:
     - AWSSNS
     - BigInt
     - CryptoSwift
-    - Eureka
     - iOSSnapshotTestCase
     - JavaScriptKit
     - JSONRPCKit
@@ -149,6 +148,8 @@ SPEC REPOS:
     - SwiftyJSON
     - SWXMLHash
     - TrustWalletCore
+  trunk:
+    - Eureka
 
 EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
@@ -216,7 +217,7 @@ SPEC CHECKSUMS:
   AWSSNS: a67710a80c8d380e34248b16e503e0719f02a28d
   BigInt: 8e8a52161c745cd3ab78e3dc346a9fbee51e6cf6
   CryptoSwift: 6c778d69282bed3b4e975ff97a79d074f20bb011
-  Eureka: 6d711cb30ca333b4bc893110285a722ae3840114
+  Eureka: c883105488e05bc65539f583246ecf9657cabbfe
   iOSSnapshotTestCase: 23984ffe05289728d646cbb6a7a10b4fb1c93440
   JavaScriptKit: 9ff565209e6efe21bcb9c6d6ca3e863a67a8ecf7
   JSONRPCKit: b2991f2f242d72022083f9d869140dabd26d65c7
@@ -249,6 +250,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: dd8c81d5958f1eb737abea1e14675efcc6a104aa
   web3swift: 1597d4997976d21325882db4c523f1dfd5459406
 
-PODFILE CHECKSUM: 5b81a56a7c2ec2d230861408b90c3cdf78e96d4e
+PODFILE CHECKSUM: 1fcd4adfd9393dc80a0a90573776eb40d495fe2c
 
 COCOAPODS: 1.8.4

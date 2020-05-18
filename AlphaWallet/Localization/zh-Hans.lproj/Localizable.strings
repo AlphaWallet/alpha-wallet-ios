@@ -53,6 +53,7 @@
 "send.error.invalidAddress" = "无效的地址";
 "send.error.wrongInput" = "错误的输入";
 "send.paste.button.title" = "粘贴";
+"send.paste.button.addressBook" = "Address Book";
 "settings.biometricsDisabled.label.title" = "密码";
 "settings.biometricsEnabled.label.title" = "密码 / %@";
 "settings.error.failedToSendEmail" = "无法发送邮件。请确保你已经安装了邮件应用。";

@@ -94,15 +94,17 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         privateKeyTextView.returnKeyType = .done
         privateKeyTextView.textView.autocorrectionType = .no
         privateKeyTextView.textView.autocapitalizationType = .none
-
+        
         watchAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         watchAddressTextField.delegate = self
         watchAddressTextField.returnKeyType = .done
-
+        
         mnemonicControlsStackView = [
             mnemonicTextView.label,
             .spacer(height: 4),
             mnemonicTextView,
+            .spacer(height: 4),
+            mnemonicTextView.statusLabel
         ].asStackView(axis: .vertical)
         mnemonicControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -110,10 +112,14 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             keystoreJSONTextView.label,
             .spacer(height: 4),
             keystoreJSONTextView,
+            .spacer(height: 4),
+            keystoreJSONTextView.statusLabel,
             .spacer(height: 10),
             passwordTextField.label,
             .spacer(height: 4),
             passwordTextField,
+            .spacer(height: 4),
+            passwordTextField.statusLabel
         ].asStackView(axis: .vertical)
         keystoreJSONControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -121,14 +127,36 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             privateKeyTextView.label,
             .spacer(height: 4),
             privateKeyTextView,
+            .spacer(height: 4),
+            privateKeyTextView.statusLabel
         ].asStackView(axis: .vertical)
         privateKeyControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
+        watchAddressTextField.addresBookButton.isHidden = true
+        
+        let addressControlsContainer = UIView()
+        addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        addressControlsContainer.backgroundColor = .clear
+        
+        let addressControlsStackView = [
+            watchAddressTextField.addresBookButton,
+            watchAddressTextField.pasteButton,
+            watchAddressTextField.clearButton
+        ].asStackView(axis: .horizontal)
+        addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
+        
+        addressControlsContainer.addSubview(addressControlsStackView)
+        
         watchControlsStackView = [
             watchAddressTextField.label,
             .spacer(height: 4),
-            watchAddressTextField,
-            watchAddressTextField.ensAddressLabel,
+            watchAddressTextField,  
+            .spacer(height: 4), [
+                [watchAddressTextField.ensAddressLabel, watchAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
+                addressControlsContainer
+            ].asStackView(axis: .horizontal),
+            .spacer(height: 4),
+            
         ].asStackView(axis: .vertical)
         watchControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -139,7 +167,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             keystoreJSONControlsStackView,
             privateKeyControlsStackView,
             watchControlsStackView,
-        ].asStackView(axis: .vertical, alignment: .center)
+        ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
@@ -206,6 +234,12 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
+            
+            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor),
+            addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
+            addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
+            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
+
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         configure()
@@ -252,23 +286,18 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         view.backgroundColor = viewModel.backgroundColor
 
         mnemonicTextView.configureOnce()
-        mnemonicTextView.label.textAlignment = .center
         mnemonicTextView.label.text = viewModel.mnemonicLabel
 
         keystoreJSONTextView.configureOnce()
-        keystoreJSONTextView.label.textAlignment = .center
         keystoreJSONTextView.label.text = viewModel.keystoreJSONLabel
 
         passwordTextField.configureOnce()
-        passwordTextField.label.textAlignment = .center
         passwordTextField.label.text = viewModel.passwordLabel
 
         privateKeyTextView.configureOnce()
-        privateKeyTextView.label.textAlignment = .center
         privateKeyTextView.label.text = viewModel.privateKeyLabel
 
         watchAddressTextField.label.text = viewModel.watchAddressLabel
-
         watchAddressTextField.configureOnce()
 
         importKeystoreJsonFromCloudButton.addTarget(self, action: #selector(importOptions), for: .touchUpInside)
@@ -313,12 +342,15 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     ///Returns true only if valid
     private func validateMnemonic() -> Bool {
+        mnemonicTextView.errorState = .none
+        
         if let validationError = MnemonicLengthRule().isValid(value: mnemonicTextView.value) {
-            displayError(error: ValidationError(msg: validationError.msg))
+            mnemonicTextView.errorState = .error(validationError.msg)
+            
             return false
         }
         if let validationError = MnemonicInWordListRule().isValid(value: mnemonicTextView.value) {
-            displayError(error: ValidationError(msg: validationError.msg))
+            mnemonicTextView.errorState = .error(validationError.msg)
             return false
         }
         return true
@@ -326,12 +358,13 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     ///Returns true only if valid
     private func validateKeystore() -> Bool {
+        keystoreJSONTextView.errorState = .none
         if keystoreJSONTextView.value.isEmpty {
-            displayError(title: viewModel.keystoreJSONLabel, error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
+            keystoreJSONTextView.errorState = .error(R.string.localizable.warningFieldRequired())
             return false
         }
         if passwordTextField.value.isEmpty {
-            displayError(title: viewModel.passwordLabel, error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
+            keystoreJSONTextView.errorState = .error(R.string.localizable.warningFieldRequired())
             return false
         }
         return true
@@ -339,8 +372,9 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     ///Returns true only if valid
     private func validatePrivateKey() -> Bool {
+        privateKeyTextView.errorState = .none
         if let validationError = PrivateKeyRule().isValid(value: privateKeyTextView.value.trimmed) {
-            displayError(error: ValidationError(msg: validationError.msg))
+            privateKeyTextView.errorState = .error(validationError.msg)
             return false
         }
         return true
@@ -348,8 +382,9 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     ///Returns true only if valid
     private func validateWatch() -> Bool {
+        watchAddressTextField.errorState = .none
         if let validationError = EthereumAddressRule().isValid(value: watchAddressTextField.value) {
-            displayError(error: ValidationError(msg: validationError.msg))
+            watchAddressTextField.errorState = .error(validationError.msg)
             return false
         }
         return true
@@ -376,9 +411,10 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             case .privateKey:
                 guard let data = Data(hexString: privateKeyInput) else {
                     hideLoading(animated: false)
-                    displayError(error: ValidationError(msg: R.string.localizable.importWalletImportInvalidPrivateKey()))
+                    privateKeyTextView.errorState = .error(R.string.localizable.importWalletImportInvalidPrivateKey())
                     return nil
                 }
+                privateKeyTextView.errorState = .none
                 return .privateKey(privateKey: data)
             case .watch:
                 let address = AlphaWallet.Address(string: watchInput)! // Address validated by form view.
@@ -535,7 +571,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         passwordTextField.isSecureTextEntry = !passwordTextField.isSecureTextEntry
         guard let button = passwordTextField.textField.rightView as? UIButton else { return }
         if passwordTextField.isSecureTextEntry {
-            button.tintColor = Colors.navigationTitleColor
+            button.tintColor = Colors.appTint
         } else {
             button.tintColor = .init(red: 111, green: 111, blue: 111)
         }
@@ -610,7 +646,7 @@ extension ImportWalletViewController: TextViewDelegate {
 
 extension ImportWalletViewController: AddressTextFieldDelegate {
     func displayError(error: Error, for textField: AddressTextField) {
-        displayError(error: error)
+        textField.errorState = .error(error.prettyError)
     }
 
     func openQRCodeReader(for textField: AddressTextField) {

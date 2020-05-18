@@ -19,6 +19,7 @@ private enum State {
 }
 
 private struct Layout {
+    static let textFieldHeight: CGFloat = 40
     static let width: CGFloat = 34
     static let moreButtonWidth: CGFloat = 24
 }
@@ -77,7 +78,6 @@ final class DappBrowserNavigationBar: UINavigationBar {
 
         textField.backgroundColor = .white
         textField.layer.cornerRadius = 5
-        textField.layer.borderWidth = 0.5
         textField.layer.borderColor = Colors.lightGray.cgColor
         textField.autocapitalizationType = .none
         textField.autoresizingMask = .flexibleWidth
@@ -85,11 +85,16 @@ final class DappBrowserNavigationBar: UINavigationBar {
         textField.autocorrectionType = .no
         textField.returnKeyType = .go
         textField.clearButtonMode = .whileEditing
-        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 6, height: 30))
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 30))
         textField.leftViewMode = .always
         textField.placeholder = R.string.localizable.browserUrlTextfieldPlaceholder()
         textField.keyboardType = .webSearch
-
+        textField.borderStyle = .none
+        
+        textField.layer.borderWidth = DataEntry.Metric.borderThickness
+        textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
+        textField.layer.borderColor = UIColor.clear.cgColor
+        
         domainNameLabel.isHidden = true
 
         moreButton.setImage(R.image.toolbarMenu(), for: .normal)
@@ -156,7 +161,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
             leadingAnchorConstraint,
             trailingAnchorConstraint,
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
-
+            textField.heightAnchor.constraint(equalToConstant: Layout.textFieldHeight),
             backButton.widthAnchor.constraint(equalToConstant: Layout.width),
             forwardButton.widthAnchor.constraint(equalToConstant: Layout.width),
             moreButton.widthAnchor.constraint(equalToConstant: Layout.moreButtonWidth),
@@ -262,6 +267,21 @@ final class DappBrowserNavigationBar: UINavigationBar {
 }
 
 extension DappBrowserNavigationBar: UITextFieldDelegate {
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.layer.borderColor = UIColor.clear.cgColor
+        textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
+        
+        textField.dropShadow(color: .clear, radius: DataEntry.Metric.shadowRadius)
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.backgroundColor = DataEntry.Color.textFieldBackgroundWhileEditing
+        textField.layer.borderColor = DataEntry.Color.textFieldShadowWhileEditing.cgColor
+        
+        textField.dropShadow(color: DataEntry.Color.textFieldShadowWhileEditing, radius: DataEntry.Metric.shadowRadius)
+    }
+    
     private func queue(typedText text: String) {
         navigationBarDelegate?.didTyped(text: text, inNavigationBar: self)
     }

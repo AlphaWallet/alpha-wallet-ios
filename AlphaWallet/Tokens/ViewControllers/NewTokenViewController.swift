@@ -70,63 +70,85 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(scrollView)
 
-        addressTextField.translatesAutoresizingMaskIntoConstraints = false
         addressTextField.delegate = self
         addressTextField.returnKeyType = .next
-
-        symbolTextField.label.translatesAutoresizingMaskIntoConstraints = false
+        addressTextField.addresBookButton.isHidden = true
+        
         symbolTextField.delegate = self
-        symbolTextField.translatesAutoresizingMaskIntoConstraints = false
         symbolTextField.returnKeyType = .next
 
-        decimalsTextField.label.translatesAutoresizingMaskIntoConstraints = false
         decimalsTextField.delegate = self
         decimalsTextField.inputAccessoryButtonType = .next
-        decimalsTextField.translatesAutoresizingMaskIntoConstraints = false
         decimalsTextField.keyboardType = .decimalPad
         decimalsTextField.returnKeyType = .next
 
-        balanceTextField.label.translatesAutoresizingMaskIntoConstraints = false
         balanceTextField.delegate = self
         balanceTextField.inputAccessoryButtonType = .next
-        balanceTextField.translatesAutoresizingMaskIntoConstraints = false
         balanceTextField.keyboardType = .numbersAndPunctuation
         balanceTextField.isHidden = true
         balanceTextField.label.isHidden = true
 
-        nameTextField.label.translatesAutoresizingMaskIntoConstraints = false
         nameTextField.delegate = self
-        nameTextField.translatesAutoresizingMaskIntoConstraints = false
         nameTextField.returnKeyType = .done
 
+        let addressControlsContainer = UIView()
+        addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        addressControlsContainer.backgroundColor = .clear
+
+        let addressControlsStackView = [
+            addressTextField.addresBookButton,
+            addressTextField.pasteButton,
+            addressTextField.clearButton
+        ].asStackView(axis: .horizontal)
+        addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
+
+        addressControlsContainer.addSubview(addressControlsStackView)
+        
         let stackView = [
             header,
             addressTextField.label,
             .spacer(height: 4),
             addressTextField,
-            addressTextField.ensAddressLabel,
-            .spacer(height: 10),
+            
+            .spacer(height: 4), [
+                [addressTextField.ensAddressLabel, addressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
+                addressControlsContainer
+            ].asStackView(axis: .horizontal),
+            .spacer(height: 4),
+            
             symbolTextField.label,
             .spacer(height: 4),
             symbolTextField,
+            .spacer(height: 4),
+            symbolTextField.statusLabel,
+            
             .spacer(height: 10),
+            
             decimalsTextField.label,
             .spacer(height: 4),
             decimalsTextField,
+            .spacer(height: 4),
+            decimalsTextField.statusLabel,
+            
             balanceTextField.label,
             .spacer(height: 4),
             balanceTextField,
+            .spacer(height: 4),
+            balanceTextField.statusLabel,
             .spacer(height: 6),
+            
             nameTextField.label,
             .spacer(height: 4),
             nameTextField,
+            .spacer(height: 4),
+            nameTextField.statusLabel
 
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
         buttonsBar.buttons[0].isEnabled = true
-
+        
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = .clear
         roundedBackground.addSubview(footerBar)
@@ -160,6 +182,13 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollViewBottomAnchorConstraint,
+            
+            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor),
+            addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
+            addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
+            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
+            addressControlsContainer.heightAnchor.constraint(equalToConstant: 30)
+            
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         configure()
@@ -187,16 +216,16 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         balanceTextField.configureOnce()
         nameTextField.configureOnce()
 
-        symbolTextField.label.textAlignment = .center
+        symbolTextField.label.textAlignment = .left
         symbolTextField.label.text = viewModel.symbolLabel
 
-        decimalsTextField.label.textAlignment = .center
+        decimalsTextField.label.textAlignment = .left
         decimalsTextField.label.text = viewModel.decimalsLabel
 
-        balanceTextField.label.textAlignment = .center
+        balanceTextField.label.textAlignment = .left
         balanceTextField.label.text = viewModel.balanceLabel
 
-        nameTextField.label.textAlignment = .center
+        nameTextField.label.textAlignment = .left
         nameTextField.label.text = viewModel.nameLabel
 
         buttonsBar.configure()
@@ -210,7 +239,6 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         if tokenType == nil {
             saveButton.isEnabled = false
             saveButton.setTitle(R.string.localizable.detectingTokenTypeTitle(), for: .normal)
-
         } else {
             saveButton.isEnabled = true
             saveButton.setTitle(R.string.localizable.done(), for: .normal)
@@ -254,34 +282,55 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     }
 
     private func validate() -> Bool {
-        guard !addressTextField.value.trimmed.isEmpty else {
-            displayError(title: R.string.localizable.contractAddress(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-            return false
+        var isValid: Bool = true
+        
+        if addressTextField.value.trimmed.isEmpty {
+            let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
+            addressTextField.errorState = .error(error.prettyError)
+            isValid = false
+        } else {
+            addressTextField.errorState = .none
         }
-        guard !nameTextField.value.trimmed.isEmpty else {
-            displayError(title: R.string.localizable.name(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-            return false
+        
+        if nameTextField.value.trimmed.isEmpty {
+            let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
+            nameTextField.status = .error(error.prettyError)
+            isValid = false
+        } else {
+            nameTextField.status = .none
         }
-        guard !symbolTextField.value.trimmed.isEmpty else {
-            displayError(title: R.string.localizable.symbol(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-            return false
+        
+        if symbolTextField.value.trimmed.isEmpty {
+            let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
+            symbolTextField.status = .error(error.prettyError)
+            isValid = false
+        } else {
+            symbolTextField.status = .none
         }
-        guard let tokenType = tokenType else { return false }
-
-        switch tokenType {
-        case .nativeCryptocurrency, .erc20:
-            guard !decimalsTextField.value.trimmed.isEmpty else {
-                displayError(title: R.string.localizable.decimals(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-                return false
+        
+        if let tokenType = tokenType {
+            decimalsTextField.status = .none
+            balanceTextField.status = .none
+            
+            switch tokenType {
+            case .nativeCryptocurrency, .erc20:
+                if decimalsTextField.value.trimmed.isEmpty {
+                    let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
+                    decimalsTextField.status = .error(error.prettyError)
+                    isValid = false
+                }
+            case .erc721, .erc875, .erc721ForTickets:
+                if balanceTextField.value.trimmed.isEmpty {
+                    let error = ValidationError(msg: R.string.localizable.warningFieldRequired())
+                    balanceTextField.status = .error(error.prettyError)
+                    isValid = false
+                } 
             }
-        case .erc721, .erc875, .erc721ForTickets:
-            guard !balanceTextField.value.trimmed.isEmpty else {
-                displayError(title: R.string.localizable.balance(), error: ValidationError(msg: R.string.localizable.warningFieldRequired()))
-                return false
-            }
+        } else {
+            isValid = false
         }
 
-        return true
+        return isValid
     }
 
     @objc func addToken() {
@@ -303,9 +352,11 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         var balance: [String] = viewModel.ERC875TokenBalance
 
         guard let address = AlphaWallet.Address(string: contract) else {
-            return displayError(error: Errors.invalidAddress)
+            addressTextField.errorState = .error(Errors.invalidAddress.prettyError)
+            return
         }
-
+        addressTextField.errorState = .none
+        
         if balance.isEmpty {
             balance.append("0")
         }
@@ -406,8 +457,9 @@ extension NewTokenViewController: QRCodeReaderDelegate {
 }
 
 extension NewTokenViewController: AddressTextFieldDelegate {
+    
     func displayError(error: Error, for textField: AddressTextField) {
-        displayError(error: error)
+        textField.errorState = .error(error.prettyError)
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
@@ -422,6 +474,7 @@ extension NewTokenViewController: AddressTextFieldDelegate {
     }
 
     func didPaste(in textField: AddressTextField) {
+        textField.errorState = .none
         updateContractValue(value: textField.value.trimmed)
         view.endEditing(true)
     }
