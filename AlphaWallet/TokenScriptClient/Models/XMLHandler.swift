@@ -140,7 +140,7 @@ private class PrivateXMLHandler {
 
     var tokenViewIconifiedHtml: (html: String, style: String) {
         guard hasValidTokenScriptFile else { return (html: "", style: "") }
-        if let element = XMLHandler.getTokenScriptTokenViewIconifiedHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
+        if let element = XMLHandler.getTokenScriptTokenItemViewHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
             return extractHtml(fromViewElement: element)
         } else {
             return (html: "", style: "")
@@ -940,15 +940,15 @@ extension XMLHandler {
     }
 
     fileprivate static func getTokenScriptTokenInstanceCardElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
-        return root.xpath("/token/cards/card".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        return root.xpath("/token/cards/card[@type='action']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getTokenScriptActionOnlyActionElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
-        return root.xpath("/card".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        return root.xpath("/card[@type='action']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getActionTransactionFunctionElement(fromActionElement actionElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
-        return actionElement.at_xpath("transaction/ethereum:transaction".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        return actionElement.at_xpath("transaction".addToXPath(namespacePrefix: xmlContext.namespacePrefix) + "/ethereum:transaction", namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getExcludeSelectionId(fromActionElement actionElement: XMLElement, xmlContext: XmlContext) -> String? {
@@ -990,19 +990,19 @@ extension XMLHandler {
         return (style: style, script: script, body: body)
     }
 
-    static func getTokenScriptTokenViewIconifiedHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
-        if let element = root.at_xpath("/token/cards/token/item-view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+    static func getTokenScriptTokenItemViewHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
+        if let element = root.at_xpath("/token/cards/card[@type='token']/item-view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
         } else {
-            return root.at_xpath("/token/cards/token/item-view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return root.at_xpath("/token/cards/card[@type='token']/item-view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 
     static func getTokenScriptTokenViewHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
-        if let element = root.at_xpath("/token/cards/token/view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let element = root.at_xpath("/token/cards/card[@type='token']/view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
         } else {
-            return root.at_xpath("/token/cards/token/view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return root.at_xpath("/token/cards/card[@type='token']/view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 
