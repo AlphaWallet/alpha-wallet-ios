@@ -70,6 +70,10 @@ struct EditMyDappViewControllerViewModel {
         return R.string.localizable.dappBrowserMyDappsEditUrlLabel()
     }
 
+    var titleTextFieldTextAlignment: NSTextAlignment {
+        return .left
+    }
+    
     var titleTextFieldBorderStyle: UITextField.BorderStyle {
         return .roundedRect
     }

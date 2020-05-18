@@ -22,6 +22,12 @@ class TextView: UIControl {
         case none
     }
 
+    let statusLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
     let textView = UITextView()
     let label = UILabel()
     var value: String {
@@ -53,6 +59,26 @@ class TextView: UIControl {
             textView.returnKeyType = newValue
         }
     }
+    
+    var errorState: TextField.TextFieldErrorState = .none {
+        didSet {
+            switch errorState {
+            case .error(let error):
+                statusLabel.text = error
+                statusLabel.isHidden = error.isEmpty
+            case .none:
+                statusLabel.text = nil
+                statusLabel.isHidden = true
+            }
+            
+            let borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder)
+            let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: isFirstResponder)
+            
+            layer.borderColor = borderColor.cgColor
+            
+            dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
+        }
+    }
 
     private var isConfigured = false
     weak var delegate: TextViewDelegate?
@@ -76,14 +102,24 @@ class TextView: UIControl {
         guard !isConfigured else { return }
         isConfigured = true
 
-        label.font = DataEntry.Font.label
+        label.font = DataEntry.Font.textFieldTitle
         label.textColor = DataEntry.Color.label
 
+        statusLabel.font = DataEntry.Font.textFieldStatus
+        statusLabel.textColor = DataEntry.Color.textFieldStatus
+        
         textView.textColor = DataEntry.Color.text
         textView.font = DataEntry.Font.text
         textView.layer.borderColor = DataEntry.Color.border.cgColor
         textView.layer.borderWidth = DataEntry.Metric.borderThickness
         textView.layer.cornerRadius = DataEntry.Metric.cornerRadius
+        
+        cornerRadius = DataEntry.Metric.cornerRadius
+        layer.borderWidth = DataEntry.Metric.borderThickness
+        backgroundColor = DataEntry.Color.textFieldBackground
+        textView.backgroundColor = .clear
+        layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
+        errorState = .none
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -132,6 +168,24 @@ class TextView: UIControl {
 }
 
 extension TextView: UITextViewDelegate {
+
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        let borderColor = errorState.textFieldBorderColor(whileEditing: true)
+        layer.borderColor = borderColor.cgColor
+        backgroundColor = Colors.appWhite
+
+        dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        let borderColor = errorState.textFieldBorderColor(whileEditing: false)
+        let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: false)
+        layer.borderColor = borderColor.cgColor
+        backgroundColor = DataEntry.Color.textFieldBackground
+
+        dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
+    }
+    
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         if text == "\n" {
             guard let delegate = delegate else { return true }

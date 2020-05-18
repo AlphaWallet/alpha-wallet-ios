@@ -8,7 +8,7 @@ target 'AlphaWallet' do
   pod 'R.swift'
   pod 'JSONRPCKit', '~> 2.0.0'
   pod 'APIKit'
-  pod 'Eureka', '~> 4.3'
+  pod 'Eureka', '~> 5.2.1'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
   pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'f0c4c1c374d2dc031b9fedfc5bfa974333d9a5c6'

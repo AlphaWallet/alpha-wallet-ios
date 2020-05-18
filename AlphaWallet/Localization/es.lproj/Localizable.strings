@@ -61,6 +61,7 @@
 "send.error.invalidAmount" = "Cantidad no válida";
 "send.error.wrongInput" = "Entrada incorrecta";
 "send.paste.button.title" = "Pegar";
+"send.paste.button.addressBook" = "Address Book";
 "settings.biometricsDisabled.label.title" = "Código de acceso";
 "settings.biometricsEnabled.label.title" = "Código de acceso / %@";
 "settings.error.failedToSendEmail" = "Error al enviar el correo electrónico. Asegúrate de que tienes una aplicación de correo instalada.";

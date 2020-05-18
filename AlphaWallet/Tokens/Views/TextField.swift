@@ -13,7 +13,7 @@ extension TextFieldDelegate {
     func shouldChangeCharacters(inRange range: NSRange, replacementString string: String, for textField: TextField) -> Bool {
         return true
     }
-}
+} 
 
 class TextField: UIControl {
     enum InputAccessoryButtonType {
@@ -22,6 +22,29 @@ class TextField: UIControl {
         case none
     }
 
+    enum TextFieldErrorState {
+        case error(String)
+        case none
+        
+        func textFieldBorderColor(whileEditing: Bool = false) -> UIColor {
+            switch self {
+            case .none:
+                return whileEditing ? DataEntry.Color.textFieldShadowWhileEditing : DataEntry.Color.border
+            case .error:
+                return DataEntry.Color.textFieldError 
+            }
+        }
+
+        func textFieldShowShadow(whileEditing: Bool = false) -> Bool {
+            switch self {
+            case .error:
+                return true
+            default:
+                return whileEditing
+            }
+        }
+    }
+    
     private var isConfigured = false
 
     var returnKeyType: UIReturnKeyType {
@@ -51,8 +74,27 @@ class TextField: UIControl {
         }
     }
 
-    let label = UILabel()
-    let textField = UITextField()
+    let label: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
+    
+    let statusLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
+    
+    let textField: UITextField = {
+        let textField = UITextField()
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        
+        return textField
+    }()
+    
     weak var delegate: TextFieldDelegate?
 
     var value: String {
@@ -61,6 +103,26 @@ class TextField: UIControl {
         }
         set {
             textField.text = newValue
+        }
+    }
+    
+    var status: TextFieldErrorState = .none {
+        didSet {
+            switch status {
+            case .error(let error):
+                statusLabel.text = error
+                statusLabel.isHidden = error.isEmpty
+            case .none:
+                statusLabel.text = nil
+                statusLabel.isHidden = true 
+            }
+            
+            let borderColor = status.textFieldBorderColor(whileEditing: isFirstResponder)
+            let shouldDropShadow = status.textFieldShowShadow(whileEditing: isFirstResponder)
+            
+            layer.borderColor = borderColor.cgColor
+            
+            dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
         }
     }
 
@@ -89,7 +151,7 @@ class TextField: UIControl {
         addSubview(textField)
 
         NSLayoutConstraint.activate([
-            textField.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 22, bottom: 0, right: 22)),
+            textField.anchorsConstraint(to: self, edgeInsets: DataEntry.Metric.textFieldInsets),
 
             heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
         ])
@@ -101,13 +163,21 @@ class TextField: UIControl {
 
         cornerRadius = DataEntry.Metric.cornerRadius
 
-        label.font = DataEntry.Font.label
+        label.font = DataEntry.Font.textFieldTitle
         label.textColor = DataEntry.Color.label
-
+        label.textAlignment = .left
+        
+        statusLabel.font = DataEntry.Font.textFieldStatus
+        statusLabel.textColor = DataEntry.Color.textFieldStatus
+        statusLabel.textAlignment = .left
+        
         textField.textColor = DataEntry.Color.text
-        textField.font = DataEntry.Font.text
-        layer.borderColor = DataEntry.Color.border.cgColor
+        textField.font = DataEntry.Font.textField
+        
         layer.borderWidth = DataEntry.Metric.borderThickness
+        backgroundColor = DataEntry.Color.textFieldBackground
+        layer.borderColor = status.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
+        status = .none
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -149,13 +219,31 @@ class TextField: UIControl {
         delegate?.nextButtonTapped(for: self)
     }
 
-    override func becomeFirstResponder() -> Bool {
+    @discardableResult override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
         return textField.becomeFirstResponder()
     }
 }
 
 extension TextField: UITextFieldDelegate {
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        let borderColor = status.textFieldBorderColor(whileEditing: false)
+        let shouldDropShadow = status.textFieldShowShadow(whileEditing: false)
+        layer.borderColor = borderColor.cgColor
+        backgroundColor = DataEntry.Color.textFieldBackground
+        
+        dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        let borderColor = status.textFieldBorderColor(whileEditing: true)
+        layer.borderColor = borderColor.cgColor
+        backgroundColor = Colors.appWhite
+        
+        dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
+    }
+    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let delegate = delegate else { return true }
         return delegate.shouldReturn(in: self)

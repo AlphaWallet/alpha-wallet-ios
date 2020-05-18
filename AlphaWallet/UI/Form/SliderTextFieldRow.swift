@@ -80,6 +80,19 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
             contentView.addSubview(slider)
             addConstraints()
         }
+        
+        textField.leftView = .spacerWidth(16)
+        textField.leftViewMode = .always
+        textField.rightView = .spacerWidth(16)
+        textField.rightViewMode = .always
+        textField.font = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 10: 13)
+        textField.borderStyle = .none
+        textField.backgroundColor = .white
+        textField.layer.borderWidth = DataEntry.Metric.borderThickness
+        textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
+        textField.layer.borderColor = UIColor.clear.cgColor
+        textField.cornerRadius = DataEntry.Metric.cornerRadius
+        
         selectionStyle = .none
         slider.minimumValue = sliderRow.minimumValue
         slider.maximumValue = sliderRow.maximumValue
@@ -102,9 +115,9 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
 
         textField.heightAnchor.constraint(equalToConstant: 30).isActive = true
         textField.widthAnchor.constraint(equalToConstant: 140).isActive = true
-
+        
         let views: [String: Any] = ["titleLabel": titleLabel, "textField": textField, "slider": slider]
-        let metrics = ["vPadding": 12.0, "spacing": 12.0]
+        let metrics = ["vPadding": 12, "spacing": 12.0]
         if shouldShowTitle {
             contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "H:|-[titleLabel]-[textField]-|", options: .alignAllLastBaseline, metrics: metrics, views: views))
             contentView.addConstraints(NSLayoutConstraint.constraints(withVisualFormat: "V:|-vPadding-[titleLabel]-spacing-[slider]-vPadding-|", options: .alignAllLeft, metrics: metrics, views: views))
@@ -152,6 +165,20 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
 
         row.value = value
         slider.value = value
+    }
+    
+    open func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.layer.borderColor = UIColor.clear.cgColor
+        textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
+        
+        textField.dropShadow(color: .clear, radius: DataEntry.Metric.shadowRadius)
+    }
+    
+    open func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.backgroundColor = Colors.appWhite
+        textField.layer.borderColor = DataEntry.Color.textFieldShadowWhileEditing.cgColor
+        
+        textField.dropShadow(color: DataEntry.Color.textFieldShadowWhileEditing, radius: DataEntry.Metric.shadowRadius)
     }
 
     @objc public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
