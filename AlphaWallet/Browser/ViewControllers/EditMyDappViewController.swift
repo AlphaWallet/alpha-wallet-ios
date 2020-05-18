@@ -12,10 +12,8 @@ class EditMyDappViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let screenTitleLabel = UILabel()
     private var imageHolder = ContainerViewWithShadow(aroundView: UIImageView())
-    private let titleLabel = UILabel()
-    private let titleTextField = UITextField()
-    private let urlLabel = UILabel()
-    private let urlTextField = UITextField()
+    private let titleTextField = TextField()
+    private let urlTextField = TextField()
     private let cancelButton = UIButton(type: .system)
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: EditMyDappViewControllerViewModel?
@@ -29,7 +27,6 @@ class EditMyDappViewController: UIViewController {
         view.addSubview(roundedBackground)
 
         titleTextField.delegate = self
-
         urlTextField.delegate = self
 
         let stackView = [
@@ -38,13 +35,16 @@ class EditMyDappViewController: UIViewController {
             UIView.spacer(height: 28),
             imageHolder,
             UIView.spacer(height: 28),
-            titleLabel,
-            UIView.spacer(height: 7),
+            
+            titleTextField.label,
+            UIView.spacer(height: 4),
             titleTextField,
             UIView.spacer(height: 18),
-            urlLabel,
+            
+            urlTextField.label,
             UIView.spacer(height: 7),
             urlTextField
+            
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
@@ -64,12 +64,10 @@ class EditMyDappViewController: UIViewController {
             imageHolder.widthAnchor.constraint(equalToConstant: 80),
             imageHolder.widthAnchor.constraint(equalTo: imageHolder.heightAnchor),
 
-            titleLabel.widthAnchor.constraint(equalTo: stackView.widthAnchor),
-
-            urlLabel.widthAnchor.constraint(equalTo: stackView.widthAnchor),
-
+            titleTextField.label.widthAnchor.constraint(equalTo: stackView.widthAnchor),
             titleTextField.widthAnchor.constraint(equalTo: stackView.widthAnchor),
-
+            
+            urlTextField.label.widthAnchor.constraint(equalTo: stackView.widthAnchor),
             urlTextField.widthAnchor.constraint(equalTo: stackView.widthAnchor),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -118,30 +116,20 @@ class EditMyDappViewController: UIViewController {
         screenTitleLabel.textAlignment = .center
         screenTitleLabel.font = viewModel.screenFont
 
-        titleLabel.textColor = viewModel.titleColor
-        titleLabel.font = viewModel.titleFont
-        titleLabel.text = viewModel.titleText
+        titleTextField.label.textAlignment = viewModel.titleTextFieldTextAlignment
+        titleTextField.label.text = viewModel.titleText
 
-        urlLabel.textColor = viewModel.urlColor
-        urlLabel.font = viewModel.urlFont
-        urlLabel.text = viewModel.urlText
-
-        titleTextField.borderStyle = viewModel.titleTextFieldBorderStyle
-        titleTextField.borderWidth = viewModel.titleTextFieldBorderWidth
-        titleTextField.borderColor = viewModel.titleTextFieldBorderColor
-        titleTextField.cornerRadius = viewModel.titleTextFieldCornerRadius
-        titleTextField.font = viewModel.titleTextFieldFont
         titleTextField.returnKeyType = .next
-        titleTextField.text = viewModel.titleTextFieldText
+        titleTextField.value = viewModel.titleTextFieldText
 
-        urlTextField.borderStyle = viewModel.urlTextFieldBorderStyle
-        urlTextField.borderWidth = viewModel.urlTextFieldBorderWidth
-        urlTextField.borderColor = viewModel.urlTextFieldBorderColor
-        urlTextField.cornerRadius = viewModel.urlTextFieldCornerRadius
-        urlTextField.font = viewModel.urlTextFieldFont
+        urlTextField.label.text = viewModel.urlText
+        urlTextField.label.textAlignment = viewModel.titleTextFieldTextAlignment
         urlTextField.returnKeyType = .done
-        urlTextField.text = viewModel.urlTextFieldText
+        urlTextField.value = viewModel.urlTextFieldText
 
+        urlTextField.configureOnce()
+        titleTextField.configureOnce()
+        
         buttonsBar.configure()
         let saveButton = buttonsBar.buttons[0]
         saveButton.addTarget(self, action: #selector(save), for: .touchUpInside)
@@ -161,9 +149,9 @@ class EditMyDappViewController: UIViewController {
 
     @objc private func save() {
         guard let dapp = viewModel?.dapp else { return }
-        guard let url = urlTextField.text?.trimmed else { return }
+        let url = urlTextField.value.trimmed
         guard !url.isEmpty else { return }
-        let title = titleTextField.text?.trimmed ?? ""
+        let title = titleTextField.value.trimmed
         delegate?.didTapSave(dapp: dapp, withTitle: title, url: url, inViewController: self)
     }
 
@@ -172,8 +160,9 @@ class EditMyDappViewController: UIViewController {
     }
 }
 
-extension EditMyDappViewController: UITextFieldDelegate {
-    public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+extension EditMyDappViewController: TextFieldDelegate {
+    
+    func shouldReturn(in textField: TextField) -> Bool {
         switch textField {
         case titleTextField:
             urlTextField.becomeFirstResponder()
@@ -183,5 +172,13 @@ extension EditMyDappViewController: UITextFieldDelegate {
             break
         }
         return true
+    }
+    
+    func doneButtonTapped(for textField: TextField) {
+        
+    }
+    
+    func nextButtonTapped(for textField: TextField) {
+        
     }
 }

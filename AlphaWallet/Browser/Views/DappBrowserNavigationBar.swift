@@ -76,9 +76,6 @@ final class DappBrowserNavigationBar: UINavigationBar {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        textField.backgroundColor = .white
-        textField.layer.cornerRadius = 5
-        textField.layer.borderColor = Colors.lightGray.cgColor
         textField.autocapitalizationType = .none
         textField.autoresizingMask = .flexibleWidth
         textField.delegate = self
@@ -90,10 +87,11 @@ final class DappBrowserNavigationBar: UINavigationBar {
         textField.placeholder = R.string.localizable.browserUrlTextfieldPlaceholder()
         textField.keyboardType = .webSearch
         textField.borderStyle = .none
-        
+        textField.backgroundColor = .white
         textField.layer.borderWidth = DataEntry.Metric.borderThickness
         textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
         textField.layer.borderColor = UIColor.clear.cgColor
+        textField.cornerRadius = DataEntry.Metric.cornerRadius
         
         domainNameLabel.isHidden = true
 
@@ -147,7 +145,7 @@ final class DappBrowserNavigationBar: UINavigationBar {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
         stackView.distribution = .fill
-        stackView.spacing = 4
+        stackView.spacing = 4 
         addSubview(stackView)
 
         let leadingAnchorConstraint = stackView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: 10)
@@ -157,11 +155,11 @@ final class DappBrowserNavigationBar: UINavigationBar {
         trailingAnchorConstraint.priority = .required - 1
 
         NSLayoutConstraint.activate([
+            heightAnchor.constraint(equalToConstant: 54),
             stackView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
             leadingAnchorConstraint,
             trailingAnchorConstraint,
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
-            textField.heightAnchor.constraint(equalToConstant: Layout.textFieldHeight),
             backButton.widthAnchor.constraint(equalToConstant: Layout.width),
             forwardButton.widthAnchor.constraint(equalToConstant: Layout.width),
             moreButton.widthAnchor.constraint(equalToConstant: Layout.moreButtonWidth),

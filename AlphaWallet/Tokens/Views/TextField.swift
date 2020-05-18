@@ -219,7 +219,7 @@ class TextField: UIControl {
         delegate?.nextButtonTapped(for: self)
     }
 
-    override func becomeFirstResponder() -> Bool {
+    @discardableResult override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
         return textField.becomeFirstResponder()
     }
