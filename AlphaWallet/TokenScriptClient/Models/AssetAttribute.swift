@@ -54,6 +54,21 @@ struct AssetAttribute {
             return false
         }
     }
+    var isDependentOnProps: Bool {
+        switch origin {
+        case .function(let functionOrigin):
+            return functionOrigin.inputs.contains(where: {
+                switch $0 {
+                case .prop:
+                    return true
+                case .value, .ref, .cardRef:
+                    return false
+                }
+            })
+        case .tokenId, .userEntry, .event:
+            return false
+        }
+    }
     var name: String {
         return XMLHandler.getNameElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext)?.text ?? ""
     }
@@ -79,7 +94,7 @@ struct AssetAttribute {
                   let attributeId = attribute["id"],
                   let functionOriginContractName = ethereumFunctionElement["contract"].nilIfEmpty,
                   let contract = XMLHandler.getNonTokenHoldingContract(byName: functionOriginContractName, server: server, fromContractNamesAndAddresses: contractNamesAndAddresses) {
-            originFound = Origin(forEthereumFunctionElement: ethereumFunctionElement, attributeId: attributeId, originContract: contract, xmlContext: xmlContext)
+            originFound = Origin(forEthereumFunctionElement: ethereumFunctionElement, root: root, attributeId: attributeId, originContract: contract, xmlContext: xmlContext)
         } else if let userEntryElement = XMLHandler.getOriginUserEntryElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
                   let attributeId = attribute["id"] {
             originFound = Origin(forUserEntryElement: userEntryElement, attributeId: attributeId, xmlContext: xmlContext)
