@@ -23,8 +23,9 @@ class AccountsCoordinator: Coordinator {
 
     lazy var accountsViewController: AccountsViewController = {
         let controller = AccountsViewController(keystore: keystore, balanceCoordinator: balanceCoordinator)
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(dismiss))
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addWallet))
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .done, target: self, action: #selector(dismiss))
+        
+        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(title: R.string.localizable.addButtonTitle(), style: .plain, target: self, action: #selector(addWallet))
         controller.allowsAccountDeletion = true
         controller.delegate = self
         return controller
@@ -108,52 +109,10 @@ class AccountsCoordinator: Coordinator {
     private func showWatchWallet() {
         importOrCreateWallet(entryPoint: .watchWallet)
     }
-
-    private func showInfoSheet(for account: Wallet, sender: UIView) {
-        let controller = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        controller.popoverPresentationController?.sourceView = sender
-        controller.popoverPresentationController?.sourceRect = sender.centerRect
-
-        switch account.type {
-        case .real(let account):
-            let actionTitle: String
-            if keystore.isHdWallet(account: account) {
-                actionTitle = R.string.localizable.walletsBackupHdWalletAlertSheetTitle()
-            } else {
-                actionTitle = R.string.localizable.walletsBackupKeystoreWalletAlertSheetTitle()
-            }
-            let backupKeystoreAction = UIAlertAction(title: actionTitle, style: .default) { [weak self] _ in
-                guard let strongSelf = self else { return }
-                let coordinator = BackupCoordinator(
-                        navigationController: strongSelf.navigationController,
-                        keystore: strongSelf.keystore,
-                        account: account
-                )
-                coordinator.delegate = strongSelf
-                coordinator.start()
-                strongSelf.addCoordinator(coordinator)
-            }
-            controller.addAction(backupKeystoreAction)
-        case .watch:
-            break
-        }
-
-        let copyAction = UIAlertAction(
-            title: R.string.localizable.copyAddress(),
-            style: .default
-        ) { _ in
-            UIPasteboard.general.string = account.address.eip55String
-        }
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
-
-        controller.addAction(copyAction)
-        controller.addAction(cancelAction)
-        controller.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(controller, animated: true, completion: nil)
-    }
 }
 
 extension AccountsCoordinator: AccountsViewControllerDelegate {
+    
     func didSelectAccount(account: Wallet, in viewController: AccountsViewController) {
         delegate?.didSelectAccount(account: account, in: self)
     }
@@ -162,8 +121,39 @@ extension AccountsCoordinator: AccountsViewControllerDelegate {
         delegate?.didDeleteAccount(account: account, in: self)
     }
 
-    func didSelectInfoForAccount(account: Wallet, sender: UIView, in viewController: AccountsViewController) {
-        showInfoSheet(for: account, sender: sender)
+    func didSelectInfoForAccount(account: Wallet, balance: Balance?, in viewController: AccountsViewController) {
+
+        let coordinator = ManageAccountCoordinator(wallet: account, balance: balance, balanceCoordinator: balanceCoordinator, navigationController: navigationController, keystore: keystore)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start()
+    }
+}
+
+extension AccountsCoordinator: ManageAccountCoordinatorDelegate {
+    
+    func coordinator(_ coordinator: ManageAccountCoordinator, didSelectOption option: ManageAccountOption, in account: Wallet) {
+        switch option {
+        case .copyAddress:
+            UIPasteboard.general.string = account.address.eip55String
+        case .loseWallet:
+            break
+        case .showSeedPhrase:
+            switch account.type {
+            case .real(let account):
+                let backupCoordinator = BackupCoordinator(
+                        navigationController: self.navigationController,
+                        keystore: self.keystore,
+                        account: account
+                )
+                
+                backupCoordinator.delegate = self
+                backupCoordinator.start()
+                addCoordinator(backupCoordinator)
+            case .watch:
+                break
+            }
+        }
     }
 }
 
@@ -192,6 +182,7 @@ extension AccountsCoordinator: WalletCoordinatorDelegate {
 }
 
 extension AccountsCoordinator: BackupCoordinatorDelegate {
+    
     func didCancel(coordinator: BackupCoordinator) {
         removeCoordinator(coordinator)
     }

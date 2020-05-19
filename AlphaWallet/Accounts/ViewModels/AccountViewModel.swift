@@ -10,14 +10,17 @@ struct AccountViewModel {
     let current: Wallet?
     let walletBalance: Balance?
     var ensName: String?
-
-    init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, ensName: String? = nil, server: RPCServer) {
+    var showSelectionIcon: Bool
+    
+    init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, ensName: String? = nil, server: RPCServer, showSelectionIcon: Bool = true) {
         self.wallet = wallet
         self.current = current
         self.walletBalance = walletBalance
         self.ensName = ensName
         self.server = server
+        self.showSelectionIcon = showSelectionIcon
     }
+    
     var showWatchIcon: Bool {
         return wallet.type == .watch(wallet.address)
     }
@@ -28,7 +31,20 @@ struct AccountViewModel {
     var address: AlphaWallet.Address {
         return wallet.address
     }
-    var showActiveIcon: Bool {
+    
+    var icon: UIImage? {
+        return R.image.xDai()
+    }
+    
+    var selectionIcon: UIImage? {
+        return isSelected ? R.image.ticket_bundle_checked() : R.image.ticket_bundle_unchecked()
+    }
+    
+    var iconTintColor: UIColor? {
+        return isSelected ? Colors.appTint : Colors.gray
+    }
+    
+    var isSelected: Bool {
         return wallet == current
     }
 
@@ -37,22 +53,22 @@ struct AccountViewModel {
     }
 
     var balanceFont: UIFont {
-        return Fonts.light(size: 20)!
+        return Fonts.regular(size: 20)!
     }
 
     var addressFont: UIFont {
-        return Fonts.semibold(size: 12)!
+        return Fonts.regular(size: 12)!
     }
 
     var addressTextColor: UIColor {
-        return Colors.gray
+        return Colors.balanceLabel
     }
 
     var addresses: String {
         if let ensName = ensName {
             return "\(ensName) | \(wallet.address.truncateMiddle)"
         } else {
-            return wallet.address.eip55String
+            return wallet.address.truncateMiddle
         }
     }
 }

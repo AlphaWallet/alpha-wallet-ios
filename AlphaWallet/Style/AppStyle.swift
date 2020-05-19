@@ -71,6 +71,7 @@ struct Colors {
     static let appRed = UIColor(red: 204, green: 71, blue: 65)
     static let appGrayLabel = UIColor(red: 155, green: 155, blue: 155)
     static let settingsSubtitle = UIColor(red: 141, green: 141, blue: 141)
+    static let balanceLabel = UIColor(red: 114, green: 114, blue: 114)
 }
 
 struct StyleLayout {
@@ -127,7 +128,7 @@ enum GroupedTable {
     }
 
     enum Color {
-        static let title = UIColor(red: 76, green: 76, blue: 76)
+        static let title = UIColor(red: 114, green: 114, blue: 114)
         static let background = UIColor(red: 245, green: 245, blue: 245)
         static let cellSeparator = UIColor(red: 233, green: 233, blue: 233)
     }
