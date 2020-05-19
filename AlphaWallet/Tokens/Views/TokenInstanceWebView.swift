@@ -115,16 +115,27 @@ class TokenInstanceWebView: UIView {
 
     //Implementation: String concatentation is slow, but it's not obvious at all
     func update(withTokenHolder tokenHolder: TokenHolder, actionLevelAttributeValues updatedActionLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
+        let unresolvedAttributesDependentOnProps = self.unresolvedAttributesDependentOnProps(tokenHolder: tokenHolder)
+
         let actionLevelAttributeValues = (updatedActionLevelAttributeValues ?? lastActionLevelAttributeValues) ?? .init()
         lastActionLevelAttributeValues = actionLevelAttributeValues
         var token = [AttributeId: String]()
         token["_count"] = String(tokenHolder.count)
 
+        //TODO We are stuffing the props-dependent attributes into lastActionLevelAttributeValues. Should not be doing this as it's not intention revealing and wrong
+        if lastActionLevelAttributeValues != nil {
+            lastActionLevelAttributeValues = lastActionLevelAttributeValues?.merging(unresolvedAttributesDependentOnProps) { _, new in new }
+        } else {
+            lastActionLevelAttributeValues = unresolvedAttributesDependentOnProps
+        }
+
         let attributeValues: AssetAttributeValues
         if isAction {
             attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values.merging(actionLevelAttributeValues) { _, new in new })
         } else {
-            attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
+            attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values
+                    .merging(unresolvedAttributesDependentOnProps, uniquingKeysWith: { _, new in new })
+                    .merging(actionLevelAttributeValues, uniquingKeysWith: { _, new in new }))
         }
 
         let resolvedAttributeNameValues = attributeValues.resolve { [weak self] _ in
@@ -176,6 +187,15 @@ class TokenInstanceWebView: UIView {
         } else {
             inject(javaScript: javaScript, afterDocumentIsLoaded: true)
         }
+    }
+
+    private func unresolvedAttributesDependentOnProps(tokenHolder: TokenHolder) -> [AttributeId: AssetAttributeSyntaxValue] {
+        guard !localRefs.isEmpty else { return .init() }
+        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let attributes = xmlHandler.fields.filter { $0.value.isDependentOnProps && lastActionLevelAttributeValues?[$0.key] == nil }
+        //TODO it's not important for now whether it is .real or .watch, but should fix
+        let account = Wallet(type: .watch(walletAddress))
+        return attributes.resolve(withTokenIdOrEvent: .tokenId(tokenId: tokenHolder.tokenIds[0]), userEntryValues: .init(), server: server, account: account, additionalValues: .init(), localRefs: localRefs)
     }
 
     private func implicitAttributes(tokenHolder: TokenHolder, isFungible: Bool) -> [String: AssetInternalValue] {
@@ -341,7 +361,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         }
 
         guard let oldJsonString = oldProperties.jsonString, let newJsonString = actionProperties.jsonString, oldJsonString != newJsonString else { return }
-        if lastActionLevelAttributeValues  != nil {
+        if lastActionLevelAttributeValues != nil {
             delegate?.reinject(tokenInstanceWebView: self)
         }
     }

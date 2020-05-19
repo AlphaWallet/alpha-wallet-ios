@@ -28,6 +28,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	private let spaceAboveBottomRowStack = UIView.spacer(height: 10)
 	private var checkboxRelatedConstraintsWhenShown = [NSLayoutConstraint]()
 	private var checkboxRelatedConstraintsWhenHidden = [NSLayoutConstraint]()
+	private var lastTokenHolder: TokenHolder?
 	private var onlyShowTitle: Bool = false {
 		didSet {
 			if onlyShowTitle {
@@ -199,6 +200,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	}
 
 	func configure(tokenHolder: TokenHolder, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore) {
+		lastTokenHolder = tokenHolder
         configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
 	}
 
@@ -341,6 +343,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 
 extension TokenCardRowView: TokenRowView {
 	func configure(tokenHolder: TokenHolder) {
+		lastTokenHolder = tokenHolder
 		configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
 	}
 }
@@ -359,6 +362,12 @@ extension TokenCardRowView: TokenInstanceWebViewDelegate {
 	}
 
 	func reinject(tokenInstanceWebView: TokenInstanceWebView) {
-		//no-op
+		//Refresh if view, but not item-view
+        if isStandalone {
+			guard let lastTokenHolder = lastTokenHolder else { return }
+			configure(tokenHolder: lastTokenHolder)
+		} else {
+			//no-op for item-views
+		}
     }
 }
