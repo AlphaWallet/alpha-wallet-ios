@@ -111,7 +111,6 @@ private class PrivateXMLHandler {
     private weak var assetDefinitionStore: AssetDefinitionStore?
     var server: RPCServer?
     //Explicit type so that the variable autocompletes with AppCode
-    private lazy var fields: [AttributeId: AssetAttribute] = extractFieldsForToken()
     private lazy var selections = extractSelectionsForToken()
     private let isOfficial: Bool
     private let isCanonicalized: Bool
@@ -127,6 +126,7 @@ private class PrivateXMLHandler {
 
     var hasValidTokenScriptFile: Bool
     let tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus>
+    lazy var fields: [AttributeId: AssetAttribute] = extractFieldsForToken()
 
     var introductionHtmlString: String {
         //TODO fallback to first if not found
@@ -472,10 +472,10 @@ private class PrivateXMLHandler {
         if let contract = ethereumFunctionElement["contract"].nilIfEmpty {
             guard let server = server else { return nil }
             return XMLHandler.getNonTokenHoldingContract(byName: contract, server: server, fromContractNamesAndAddresses: self.contractNamesAndAddresses)
-                    .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, attributeId: "", originContract: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
+                    .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, root: xml, attributeId: "", originContract: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
         } else {
             return XMLHandler.getRecipientAddress(fromEthereumFunctionElement: ethereumFunctionElement, xmlContext: xmlContext)
-                    .flatMap { FunctionOrigin(forEthereumPaymentElement: ethereumFunctionElement, attributeId: "", recipientAddress: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
+                    .flatMap { FunctionOrigin(forEthereumPaymentElement: ethereumFunctionElement, root: xml, attributeId: "", recipientAddress: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
         }
     }
 
@@ -591,6 +591,10 @@ public class XMLHandler {
 
     var hasAssetDefinition: Bool {
         return privateXMLHandler.hasValidTokenScriptFile
+    }
+
+    var fields: [AttributeId: AssetAttribute] {
+        privateXMLHandler.fields
     }
 
     var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
@@ -788,6 +792,10 @@ extension XMLHandler {
 
     fileprivate static func getAttributeTypeElements(fromAttributeTypesElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
         return element.xpath("attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getCardAttributeTypeElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+        root.xpath("cards/action/attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getMappingElement(fromOriginElement originElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {

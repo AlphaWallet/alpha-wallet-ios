@@ -49,9 +49,11 @@ struct TokenInstanceAction {
         }
         let attributeDependencies = inputs.compactMap { each -> String? in
             switch each {
-            case .value, .localRef:
+            case .value, .prop:
                 return nil
             case .ref(ref: let ref, _):
+                return ref
+            case .cardRef(ref: let ref, _):
                 return ref
             }
         }

@@ -96,21 +96,21 @@ struct FunctionOrigin {
         functionType.inputValue
     }
 
-    init?(forEthereumFunctionTransactionElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
+    init?(forEthereumFunctionTransactionElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
         guard let functionName = ethereumFunctionElement["function"].nilIfEmpty else { return nil }
         let inputs: [AssetFunctionCall.Argument]
         if let dataElement = XMLHandler.getDataElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext) {
-            inputs = FunctionOrigin.extractInputs(fromDataElement: dataElement)
+            inputs = FunctionOrigin.extractInputs(fromDataElement: dataElement, root: root, xmlContext: xmlContext)
         } else {
             inputs = []
         }
-        let value = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext).flatMap { FunctionOrigin.createInput(fromInputElement: $0, withInputType: .uint) }
+        let value = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext).flatMap { FunctionOrigin.createInput(fromInputElement: $0, root: root, xmlContext: xmlContext, withInputType: .uint) }
         let functionType = FunctionType.functionTransaction(functionName: functionName, inputs: inputs, inputValue: value)
         self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
     }
 
-    init?(forEthereumPaymentElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, recipientAddress: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
-        if let valueElement = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext), let value = FunctionOrigin.createInput(fromInputElement: valueElement, withInputType: .uint) {
+    init?(forEthereumPaymentElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeId: AttributeId, recipientAddress: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
+        if let valueElement = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext), let value = FunctionOrigin.createInput(fromInputElement: valueElement, root: root, xmlContext: xmlContext, withInputType: .uint) {
             let functionType = FunctionType.paymentTransaction(inputValue: value)
             self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: recipientAddress, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
         } else {
@@ -118,13 +118,13 @@ struct FunctionOrigin {
         }
     }
 
-    init?(forEthereumFunctionCallElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
+    init?(forEthereumFunctionCallElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
         guard let functionName = ethereumFunctionElement["function"].nilIfEmpty else { return nil }
         guard let asType: OriginAsType = ethereumFunctionElement["as"].flatMap({ OriginAsType(rawValue: $0) }) else { return nil }
         let inputs: [AssetFunctionCall.Argument]
         let output = AssetFunctionCall.ReturnType(type: asType.solidityReturnType)
         if let dataElement = XMLHandler.getDataElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext) {
-            inputs = FunctionOrigin.extractInputs(fromDataElement: dataElement)
+            inputs = FunctionOrigin.extractInputs(fromDataElement: dataElement, root: root, xmlContext: xmlContext)
         } else {
             inputs = []
         }
@@ -217,7 +217,7 @@ struct FunctionOrigin {
     private func formArguments(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], account: Wallet) -> [AnyObject]? {
         let arguments: [AnyObject] = functionType.inputs.compactMap {
             switch $0 {
-            case .ref(let ref, let solidityType):
+            case .ref(let ref, let solidityType), .cardRef(let ref, let solidityType):
                 let ref = AssetFunctionCall.ArgumentReferences(string: ref)
                 switch ref {
                 case .ownerAddress:
@@ -229,7 +229,7 @@ struct FunctionOrigin {
                     guard let value = availableAttributes[attributeId] else { return nil }
                     return value.coerce(toArgumentType: solidityType, forFunctionType: functionType)
                 }
-            case .localRef(let ref, let solidityType):
+            case .prop(let ref, let solidityType):
                 let availableAttributes = AssetAttributeValueUsableAsFunctionArguments.dictionary(fromAssetAttributeKeyValues: localRefs)
                 guard let value = availableAttributes[ref] else { return nil }
                 return value.coerce(toArgumentType: solidityType, forFunctionType: functionType)
@@ -260,7 +260,7 @@ struct FunctionOrigin {
     private func formValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> BigUInt? {
         guard let value = functionType.inputValue else { return nil }
         switch value {
-        case .ref(let ref, let solidityType):
+        case .ref(let ref, let solidityType), .cardRef(let ref, let solidityType):
             let ref = AssetFunctionCall.ArgumentReferences(string: ref)
             switch ref {
             case .ownerAddress:
@@ -272,7 +272,7 @@ struct FunctionOrigin {
                 guard let value = availableAttributes[attributeId] else { return nil }
                 return (value.coerce(toArgumentType: solidityType, forFunctionType: functionType) as? BigUInt)
             }
-        case .localRef(let ref, let solidityType):
+        case .prop(let ref, let solidityType):
             let availableAttributes = AssetAttributeValueUsableAsFunctionArguments.dictionary(fromAssetAttributeKeyValues: localRefs)
             guard let value = availableAttributes[ref] else { return nil }
             return (value.coerce(toArgumentType: solidityType, forFunctionType: functionType) as? BigUInt)
@@ -320,18 +320,24 @@ struct FunctionOrigin {
         return (payload, value)
     }
 
-    fileprivate static func extractInputs(fromDataElement dataElement: XMLElement) -> [AssetFunctionCall.Argument] {
+    fileprivate static func extractInputs(fromDataElement dataElement: XMLElement, root: XMLDocument, xmlContext: XmlContext) -> [AssetFunctionCall.Argument] {
         return XMLHandler.getInputs(fromDataElement: dataElement).compactMap {
             guard let inputType = $0.tagName.nilIfEmpty.flatMap({ SolidityType(rawValue: $0) }) else { return nil }
-            return createInput(fromInputElement: $0, withInputType: inputType)
+            return createInput(fromInputElement: $0, root: root, xmlContext: xmlContext, withInputType: inputType)
         }
     }
 
-    fileprivate static func createInput(fromInputElement inputElement: XMLElement, withInputType inputType: SolidityType) -> AssetFunctionCall.Argument? {
+    fileprivate static func createInput(fromInputElement inputElement: XMLElement, root: XMLDocument, xmlContext: XmlContext, withInputType inputType: SolidityType) -> AssetFunctionCall.Argument? {
         if let inputName = inputElement["ref"].nilIfEmpty {
             return .ref(ref: inputName, type: inputType)
         } else if let inputName = inputElement["local-ref"].nilIfEmpty {
-            return .localRef(ref: inputName, type: inputType)
+            let attributes = XMLHandler.getCardAttributeTypeElements(fromRoot: root, xmlContext: xmlContext)
+            let attributeIds = attributes.compactMap { $0["id"] }
+            if attributeIds.contains(inputName) {
+                return .cardRef(ref: inputName, type: inputType)
+            } else {
+                return .prop(ref: inputName, type: inputType)
+            }
         } else if let value = inputElement.text.nilIfEmpty {
             return .value(value: value, type: inputType)
         } else {
