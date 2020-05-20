@@ -5,6 +5,32 @@ import BigInt
 import PromiseKit
 
 enum AssetInternalValue: Codable {
+    var description: String {
+        switch self {
+        case .address(let value):
+            return value.eip55String
+        case .string(let value):
+            return value
+        case .int(let value):
+            return String(value)
+        case .uint(let value):
+            return String(value)
+        case .generalisedTime(let value):
+            return value.formatAsGeneralisedTime
+        case .bool(let value):
+            return String(value)
+        case .subscribable(let subscribable):
+            if let resolvedValue = subscribable.value {
+                return ".subscribable<\(resolvedValue.description)>"
+            } else {
+                return ".subscribable<unresolved>"
+            }
+        case .bytes(let value):
+            return value.hexEncoded
+        case .openSeaNonFungibleTraits:
+            return ".openSeaNonFungibleTraits"
+        }
+    }
     case address(AlphaWallet.Address)
     case string(String)
     case bytes(Data)

@@ -22,7 +22,7 @@ class XMLHandlerTest: XCTestCase {
         let token = XMLHandler(contract: Constants.nullAddress, assetDefinitionStore: assetDefinitionStore).getToken(
                 name: "",
                 symbol: "",
-                fromTokenId: BigUInt(tokenHex, radix: 16)!,
+                fromTokenIdOrEvent: .tokenId(tokenId: BigUInt(tokenHex, radix: 16)!),
                 index: UInt16(1),
                 inWallet: .make(),
                 server: .main,
@@ -44,9 +44,9 @@ class XMLHandlerTest: XCTestCase {
     func testExtractingAttributesWithNamespaceInXML() {
         let xml = """
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-        <ts:token xmlns:ts="http://tokenscript.org/2019/10/tokenscript"
+        <ts:token xmlns:ts="http://tokenscript.org/2020/03/tokenscript"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                    xsi:schemaLocation="http://tokenscript.org/2019/10/tokenscript ../../tsml.xsd"
+                    xsi:schemaLocation="http://tokenscript.org/2020/03/tokenscript ../../tsml.xsd"
                     xmlns:xml="http://www.w3.org/XML/1998/namespace">
           <ts:name>
             <ts:string xml:lang="en">Tickets</ts:string>
@@ -59,31 +59,29 @@ class XMLHandlerTest: XCTestCase {
           <ts:origins>
               <ts:ethereum contract="Token"/>
           </ts:origins>
-          <ts:attribute-types>
-            <ts:attribute-type id="locality" syntax="1.3.6.1.4.1.1466.115.121.1.15">
-              <ts:name>
-                <ts:string xml:lang="en">City</ts:string>
-                <ts:string xml:lang="zh">城市</ts:string>
-                <ts:string xml:lang="es">Ciudad</ts:string>
-                <ts:string xml:lang="ru">город</ts:string>
-              </ts:nam>
-              <ts:origins>
-                <ts:token-id bitmask="00000000000000000000000000000000FF000000000000000000000000000000" as="uint">
-                  <ts:mapping>
-                    <ts:option key="1">
-                      <ts:value xml:lang="ru">Москва́</ts:value>
-                      <ts:value xml:lang="en">Moscow</ts:value>
-                      <ts:value xml:lang="zh">莫斯科</ts:value>
-                      <ts:value xml:lang="es">Moscú</ts:value>
-                    </ts:option>
-                    <ts:option key="2">
-                      <ts:value xml:lang="ru">Санкт-Петербу́рг</ts:value>
-                      <ts:value xml:lang="en">Saint Petersburg</ts:value>
-                  </ts:mapping>
-                </ts:token-id>
-              </ts:origins>
-            </ts:attribute-type>
-          </ts:attribute-types>
+          <ts:attribute-type id="locality" syntax="1.3.6.1.4.1.1466.115.121.1.15">
+            <ts:name>
+              <ts:string xml:lang="en">City</ts:string>
+              <ts:string xml:lang="zh">城市</ts:string>
+              <ts:string xml:lang="es">Ciudad</ts:string>
+              <ts:string xml:lang="ru">город</ts:string>
+            </ts:nam>
+            <ts:origins>
+              <ts:token-id bitmask="00000000000000000000000000000000FF000000000000000000000000000000" as="uint">
+                <ts:mapping>
+                  <ts:option key="1">
+                    <ts:value xml:lang="ru">Москва́</ts:value>
+                    <ts:value xml:lang="en">Moscow</ts:value>
+                    <ts:value xml:lang="zh">莫斯科</ts:value>
+                    <ts:value xml:lang="es">Moscú</ts:value>
+                  </ts:option>
+                  <ts:option key="2">
+                    <ts:value xml:lang="ru">Санкт-Петербу́рг</ts:value>
+                    <ts:value xml:lang="en">Saint Petersburg</ts:value>
+                </ts:mapping>
+              </ts:token-id>
+            </ts:origins>
+          </ts:attribute-type>
         </ts:token>
         """
         let contractAddress = AlphaWallet.Address(string: "0x830E1650a87a754e37ca7ED76b700395A7C61614")!
@@ -92,7 +90,7 @@ class XMLHandlerTest: XCTestCase {
         let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main
-        let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenId: tokenId, index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc875)
+        let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc875)
         let values = token.values
         XCTAssertEqual(values["locality"]?.stringValue, "Saint Petersburg")
     }

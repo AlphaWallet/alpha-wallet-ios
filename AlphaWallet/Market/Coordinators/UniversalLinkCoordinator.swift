@@ -244,7 +244,7 @@ class UniversalLinkCoordinator: Coordinator {
         }
         count = amt
         let token = Token(
-                id: 0,
+                tokenIdOrEvent: .tokenId(tokenId: 0),
                 tokenType: TokenType.nativeCryptocurrency,
                 index: 0,
                 name: labelForCurrencyDrops,
@@ -500,7 +500,7 @@ class UniversalLinkCoordinator: Coordinator {
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {
-                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: UInt16(i), inWallet: account, server: server, tokenType: tokenType)
+                let token = xmlHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: UInt16(i), inWallet: account, server: server, tokenType: tokenType)
                 tokens.append(token)
             }
         }

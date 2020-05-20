@@ -29,6 +29,7 @@ class SingleChainTokenCoordinator: Coordinator {
     private let storage: TokensDataStore
     private let cryptoPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
+    private let eventsDataStore: EventsDataStoreProtocol
     private let navigationController: UINavigationController
     private let autoDetectTransactedTokensQueue: OperationQueue
     private let autoDetectTokensQueue: OperationQueue
@@ -45,6 +46,7 @@ class SingleChainTokenCoordinator: Coordinator {
             tokensStorage: TokensDataStore,
             ethPrice: Subscribable<Double>,
             assetDefinitionStore: AssetDefinitionStore,
+            eventsDataStore: EventsDataStoreProtocol,
             navigationController: UINavigationController,
             withAutoDetectTransactedTokensQueue autoDetectTransactedTokensQueue: OperationQueue,
             withAutoDetectTokensQueue autoDetectTokensQueue: OperationQueue
@@ -54,6 +56,7 @@ class SingleChainTokenCoordinator: Coordinator {
         self.storage = tokensStorage
         self.cryptoPrice = ethPrice
         self.assetDefinitionStore = assetDefinitionStore
+        self.eventsDataStore = eventsDataStore
         self.navigationController = navigationController
         self.autoDetectTransactedTokensQueue = autoDetectTransactedTokensQueue
         self.autoDetectTokensQueue = autoDetectTokensQueue
@@ -318,7 +321,8 @@ class SingleChainTokenCoordinator: Coordinator {
                 tokensStorage: storage,
                 ethPrice: cryptoPrice,
                 token: token,
-                assetDefinitionStore: assetDefinitionStore
+                assetDefinitionStore: assetDefinitionStore,
+                eventsDataStore: eventsDataStore
         )
         addCoordinator(tokensCardCoordinator)
         tokensCardCoordinator.delegate = self
@@ -485,8 +489,9 @@ class SingleChainTokenCoordinator: Coordinator {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
         let xmlHandler = XMLHandler(contract: tokenObject.contractAddress, assetDefinitionStore: assetDefinitionStore)
-        let values = xmlHandler.resolveAttributesBypassingCache(withTokenId: hardcodedTokenIdForFungibles, server: self.session.server, account: self.session.account)
-        let token = Token(id: hardcodedTokenIdForFungibles, tokenType: tokenObject.type, index: 0, name: tokenObject.name, symbol: tokenObject.symbol, status: .available, values: values)
+        //TODO Event support, if/when designed for fungibles
+        let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: self.session.server, account: self.session.account)
+        let token = Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: tokenObject.type, index: 0, name: tokenObject.name, symbol: tokenObject.symbol, status: .available, values: values)
         let tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)
         let vc = TokenInstanceActionViewController(tokenObject: tokenObject, tokenHolder: tokenHolder, tokensStorage: storage, assetDefinitionStore: assetDefinitionStore, action: action, session: session, keystore: keystore)
         vc.delegate = self

@@ -111,7 +111,7 @@ private class PrivateXMLHandler {
     private weak var assetDefinitionStore: AssetDefinitionStore?
     var server: RPCServer?
     //Explicit type so that the variable autocompletes with AppCode
-    private lazy var fields: [AttributeId: AssetAttribute] = extractFieldsForToken()
+    private lazy var selections = extractSelectionsForToken()
     private let isOfficial: Bool
     private let isCanonicalized: Bool
     lazy private var contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]] = extractContractNamesAndAddresses()
@@ -126,6 +126,7 @@ private class PrivateXMLHandler {
 
     var hasValidTokenScriptFile: Bool
     let tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus>
+    lazy var fields: [AttributeId: AssetAttribute] = extractFieldsForToken()
 
     var introductionHtmlString: String {
         //TODO fallback to first if not found
@@ -137,58 +138,21 @@ private class PrivateXMLHandler {
         }
     }
 
-    var tokenViewIconifiedHtml: String {
-        guard hasValidTokenScriptFile else { return "" }
+    var tokenViewIconifiedHtml: (html: String, style: String) {
+        guard hasValidTokenScriptFile else { return (html: "", style: "") }
         if let element = XMLHandler.getTokenScriptTokenViewIconifiedHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
-            let html = element.innerHTML ?? ""
-            if let sanitizedHtml = sanitize(html: html).nilIfEmpty {
-                if let styleElement = XMLHandler.getTokenScriptTokenViewIconifiedStyleElement(fromRoot: xml, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix), let style = styleElement.text {
-                    return """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           <style type="text/css">
-                           \(style)
-                           </style>
-                           \(sanitizedHtml)
-                           """
-                } else {
-                    return """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           \(sanitizedHtml)
-                           """
-                }
-            } else {
-                return ""
-            }
+            return extractHtml(fromViewElement: element)
         } else {
-            return ""
+            return (html: "", style: "")
         }
     }
 
-    var tokenViewHtml: String {
-        guard hasValidTokenScriptFile else { return "" }
+    var tokenViewHtml: (html: String, style: String) {
+        guard hasValidTokenScriptFile else { return (html: "", style: "") }
         if let element = XMLHandler.getTokenScriptTokenViewHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
-            let html = element.innerHTML ?? ""
-            let sanitizedHtml = sanitize(html: html)
-            if sanitizedHtml.isEmpty {
-                return sanitizedHtml
-            } else {
-                if let styleElement = XMLHandler.getTokenScriptTokenViewIconifiedStyleElement(fromRoot: xml, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix), let style = styleElement.text {
-                    return """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           <style type="text/css">
-                           \(style)
-                           </style>
-                           \(sanitizedHtml)
-                           """
-                } else {
-                    return """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           \(sanitizedHtml)
-                           """
-                }
-            }
+            return extractHtml(fromViewElement: element)
         } else {
-            return ""
+            return (html: "", style: "")
         }
     }
 
@@ -201,35 +165,14 @@ private class PrivateXMLHandler {
         for actionElement in actionElements {
             if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty,
                let viewElement = XMLHandler.getViewElement(fromActionElement: actionElement, xmlContext: xmlContext) {
-                let rawHtml = viewElement.innerHTML ?? ""
-                let sanitizedHtml = sanitize(html: rawHtml)
-                guard !sanitizedHtml.isEmpty else { continue }
-                let html: String
-                if let styleElement = XMLHandler.getTokenScriptTokenActionViewStyleElement(fromRoot: xml, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix), let style = styleElement.text {
-                    html = """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           <style type="text/css">
-                           \(style)
-                           </style>
-                           \(sanitizedHtml)
-                           """
-                } else if let styleElement = XMLHandler.getTokenScriptActionOnlyActionViewStyleElement(fromRoot: xml, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix), let style = styleElement.text {
-                    html = """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           <style type="text/css">
-                           \(style)
-                           </style>
-                           \(sanitizedHtml)
-                           """
-                } else {
-                    html = """
-                           \(AssetDefinitionStore.standardTokenScriptStyles)
-                           \(sanitizedHtml)
-                           """
-                }
+                let (html: html, style: style) = extractHtml(fromViewElement: viewElement)
+                guard !html.isEmpty else { continue }
                 let attributes = extractFields(forActionElement: actionElement)
                 let functionOrigin = XMLHandler.getActionTransactionFunctionElement(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { self.createFunctionOriginFrom(ethereumFunctionElement: $0) }
-                results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: html, attributes: attributes, transactionFunction: functionOrigin)))
+                let selection = XMLHandler.getExcludeSelectionId(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { id in
+                    self.selections.first { $0.id == id }
+                }
+                results.append(.init(type: .tokenScript(contract: contractAddress, title: name, viewHtml: (html: html, style: style), attributes: attributes, transactionFunction: functionOrigin, selection: selection)))
             }
         }
         if fromActionAsTopLevel.isEmpty {
@@ -245,6 +188,10 @@ private class PrivateXMLHandler {
         return results
     }
 
+    var attributesWithEventSource: [AssetAttribute] {
+        fields.values.filter { $0.isEventOriginBased }
+    }
+
     lazy var fieldIdsAndNames: [AttributeId: String] = {
         return Dictionary(uniqueKeysWithValues: fields.map { idAndAttribute in
             return (idAndAttribute.0, idAndAttribute.1.name)
@@ -256,7 +203,7 @@ private class PrivateXMLHandler {
             return R.string.localizable.katTitlecase()
         }
 
-        if  let nameStringElement = XMLHandler.getNameStringElement(fromTokenElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
+        if  let nameStringElement = XMLHandler.getNameStringElement(fromElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
             return name
         } else {
             return nil
@@ -268,7 +215,7 @@ private class PrivateXMLHandler {
             return R.string.localizable.katTitlecase()
         }
 
-        if  let nameElement = XMLHandler.getNameElementForPluralForm(fromTokenElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
+        if  let nameElement = XMLHandler.getNameElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
             return name
         } else {
             return nameInSingularForm
@@ -334,6 +281,27 @@ private class PrivateXMLHandler {
         }
     }
 
+    private func extractHtml(fromViewElement element: XMLElement) -> (html: String, style: String) {
+        let (style: style, script: script, body: body) = XMLHandler.getTokenScriptTokenViewContents(fromViewElement: element, xmlContext: xmlContext, xhtmlNamespacePrefix: xhtmlNamespacePrefix)
+        let sanitizedHtml = sanitize(html: body)
+        if sanitizedHtml.isEmpty && script.isEmpty {
+            return (html: "", style: "")
+        } else {
+            return (html: """
+                          <script type="text/javascript">
+                          \(script)
+                          </script>
+                          \(sanitizedHtml)
+                          """,
+                    style: """
+                           \(AssetDefinitionStore.standardTokenScriptStyles)
+                           <style type="text/css">
+                           \(style)
+                           </style>
+                           """)
+        }
+    }
+
     private static func storeXmlAccordingToTokenScriptStatus(xmlString: String, tokenScriptStatus: TokenLevelTokenScriptDisplayStatus) -> (xml: XMLDocument, hasValidTokenScriptFile: Bool) {
         let xml: XMLDocument
         let hasValidTokenScriptFile: Bool
@@ -365,24 +333,24 @@ private class PrivateXMLHandler {
     func getToken(
             name: String,
             symbol: String,
-            fromTokenId tokenId: TokenId,
+            fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent,
             index: UInt16,
             inWallet account: Wallet,
             server: RPCServer,
             callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator,
             tokenType: TokenType
     ) -> Token {
-        guard tokenId != 0 else { return .empty }
+        guard tokenIdOrEvent.tokenId != 0 else { return .empty }
         let values: [AttributeId: AssetAttributeSyntaxValue]
         if fields.isEmpty {
             values = .init()
         } else {
             //TODO read from cache again, perhaps based on a timeout/TTL for each attribute. There was a bug with reading from cache sometimes. e.g. cache a token with 8 token origin attributes and 1 function origin attribute and when displaying it and reading from the cache, sometimes it'll only return the 1 function origin attribute in the cache
-            values = resolveAttributesBypassingCache(withTokenId: tokenId, server: server, account: account)
-            cache(attributeValues: values, forTokenId: tokenId)
+            values = resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
+            cache(attributeValues: values, forTokenId: tokenIdOrEvent.tokenId)
         }
         return Token(
-                id: tokenId,
+                tokenIdOrEvent: tokenIdOrEvent,
                 tokenType: tokenType,
                 index: index,
                 name: name,
@@ -392,8 +360,9 @@ private class PrivateXMLHandler {
         )
     }
 
-    func resolveAttributesBypassingCache(withTokenId tokenId: TokenId, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
-        return fields.resolve(withTokenId: tokenId, userEntryValues: .init(), server: server, account: account, additionalValues: .init())
+
+    func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
+        fields.resolve(withTokenIdOrEvent: tokenIdOrEvent, userEntryValues: .init(), server: server, account: account, additionalValues: .init(), localRefs: .init())
     }
 
     private static func computeTokenScriptStatus(forContract contract: AlphaWallet.Address, xmlString: String, isOfficial: Bool, isCanonicalized: Bool, assetDefinitionStore: AssetDefinitionStore) -> Promise<TokenLevelTokenScriptDisplayStatus> {
@@ -503,10 +472,10 @@ private class PrivateXMLHandler {
         if let contract = ethereumFunctionElement["contract"].nilIfEmpty {
             guard let server = server else { return nil }
             return XMLHandler.getNonTokenHoldingContract(byName: contract, server: server, fromContractNamesAndAddresses: self.contractNamesAndAddresses)
-                    .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, attributeId: "", originContract: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
+                    .flatMap { FunctionOrigin(forEthereumFunctionTransactionElement: ethereumFunctionElement, root: xml, attributeId: "", originContract: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
         } else {
             return XMLHandler.getRecipientAddress(fromEthereumFunctionElement: ethereumFunctionElement, xmlContext: xmlContext)
-                    .flatMap { FunctionOrigin(forEthereumPaymentElement: ethereumFunctionElement, attributeId: "", recipientAddress: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
+                    .flatMap { FunctionOrigin(forEthereumPaymentElement: ethereumFunctionElement, root: xml, attributeId: "", recipientAddress: $0, xmlContext: xmlContext, bitmask: nil, bitShift: 0) }
         }
     }
 
@@ -524,23 +493,35 @@ private class PrivateXMLHandler {
     }
 
     private func extractFieldsForToken() -> [AttributeId: AssetAttribute] {
-        if let attributeTypesElement = XMLHandler.getTokenAttributeTypesElement(fromRoot: xml, xmlContext: xmlContext) {
-            return extractFields(fromAttributeTypesElement: attributeTypesElement)
+        if let tokensElement = XMLHandler.getTokenElement(fromRoot: xml, xmlContext: xmlContext) {
+            return extractFields(fromElementContainingAttributes: tokensElement)
         } else {
             return .init()
         }
     }
 
-    private func extractFields(forActionElement actionElement: XMLElement) -> [AttributeId: AssetAttribute] {
-        return extractFields(fromAttributeTypesElement: actionElement)
+    private func extractSelectionsForToken() -> [TokenScriptSelection] {
+        XMLHandler.getSelectionElements(fromRoot: xml, xmlContext: xmlContext).compactMap { each in
+            guard let id = each["id"], let filter = each["filter"]  else { return nil }
+            let names = (
+                    singular: XMLHandler.getNameStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
+                    plural: XMLHandler.getNameElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text
+            )
+            let denial: String? = XMLHandler.getDenialString(fromElement: each, xmlContext: xmlContext)?.text
+            return TokenScriptSelection(id: id, filter: filter, names: names, denial: denial)
+        }
     }
 
-    private func extractFields(fromAttributeTypesElement element: XMLElement) -> [AttributeId: AssetAttribute] {
+    private func extractFields(forActionElement actionElement: XMLElement) -> [AttributeId: AssetAttribute] {
+        extractFields(fromElementContainingAttributes: actionElement)
+    }
+
+    private func extractFields(fromElementContainingAttributes element: XMLElement) -> [AttributeId: AssetAttribute] {
         var fields = [AttributeId: AssetAttribute]()
         for each in XMLHandler.getAttributeTypeElements(fromAttributeTypesElement: element, xmlContext: xmlContext) {
             guard let id = each["id"] else { continue }
             //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
-            guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
+            guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
             fields[id] = attribute
         }
         return fields
@@ -576,7 +557,9 @@ private class PrivateXMLHandler {
         let namespaces = [
             "ts": PrivateXMLHandler.tokenScriptNamespace,
             "ds": "http://www.w3.org/2000/09/xmldsig#",
-            "xhtml": "http://www.w3.org/1999/xhtml"
+            "xhtml": "http://www.w3.org/1999/xhtml", 
+            "asnx": "urn:ietf:params:xml:ns:asnx",
+            "ethereum": "urn:ethereum:constantinople",
         ]
         return .init(namespacePrefix: rootNamespacePrefix, namespaces: namespaces, lang: lang)
     }
@@ -610,6 +593,10 @@ public class XMLHandler {
         return privateXMLHandler.hasValidTokenScriptFile
     }
 
+    var fields: [AttributeId: AssetAttribute] {
+        privateXMLHandler.fields
+    }
+
     var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
         return privateXMLHandler.tokenScriptStatus
     }
@@ -618,11 +605,11 @@ public class XMLHandler {
         return privateXMLHandler.introductionHtmlString
     }
 
-    var tokenViewIconifiedHtml: String {
+    var tokenViewIconifiedHtml: (html: String, style: String) {
         return privateXMLHandler.tokenViewIconifiedHtml
     }
 
-    var tokenViewHtml: String {
+    var tokenViewHtml: (html: String, style: String) {
         return privateXMLHandler.tokenViewHtml
     }
 
@@ -632,6 +619,10 @@ public class XMLHandler {
 
     var server: RPCServer? {
         return privateXMLHandler.server
+    }
+
+    var attributesWithEventSource: [AssetAttribute] {
+        privateXMLHandler.attributesWithEventSource
     }
 
     var fieldIdsAndNames: [AttributeId: String] {
@@ -687,10 +678,10 @@ public class XMLHandler {
         xmlHandlers.removeAll()
     }
 
-    func getToken(name: String, symbol: String, fromTokenId tokenId: TokenId, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> Token {
+    func getToken(name: String, symbol: String, fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> Token {
         //TODO get rid of the forced unwrap
         let callForAssetAttributeCoordinator = (XMLHandler.callForAssetAttributeCoordinators?[server])!
-        return privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenId: tokenId, index: index, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, tokenType: tokenType)
+        return privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, tokenType: tokenType)
     }
 
     func getName(fallback: String = R.string.localizable.tokenTitlecase()) -> String {
@@ -754,8 +745,8 @@ public class XMLHandler {
         }
     }
 
-    func resolveAttributesBypassingCache(withTokenId tokenId: TokenId, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
-        return privateXMLHandler.resolveAttributesBypassingCache(withTokenId: tokenId, server: server, account: account)
+    func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
+        privateXMLHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
     }
 }
 
@@ -775,10 +766,6 @@ extension String {
 extension XMLHandler {
     fileprivate static func getTokenElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
         return root.at_xpath("/token".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
-    }
-
-    fileprivate static func getTokenAttributeTypesElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
-        return root.at_xpath("/token/attribute-types".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getHoldingContractElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
@@ -807,6 +794,10 @@ extension XMLHandler {
         return element.xpath("attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
+    static func getCardAttributeTypeElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+        root.xpath("cards/action/attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
     static func getMappingElement(fromOriginElement originElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
         return originElement.at_xpath("mapping".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
@@ -829,7 +820,7 @@ extension XMLHandler {
         return attributeTypeElement.at_xpath("origins/token-id".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
-    static func getOriginFunctionElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
+    static func getEthereumOriginElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
         return attributeTypeElement.at_xpath("origins/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
@@ -837,10 +828,39 @@ extension XMLHandler {
         return attributeTypeElement.at_xpath("origins/user-entry".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
+    static func getEventParameterName(fromEthereumEventElement ethereumEventElement: XMLElement) -> String? {
+        guard let eventParameterName = ethereumEventElement["select"] else { return nil }
+        return eventParameterName
+    }
+
+    static func getEventDefinition(fromContractElement contractElement: XMLElement, xmlContext: XmlContext) -> EventDefinition? {
+        let addressElements = XMLHandler.getAddressElements(fromContractElement: contractElement, xmlContext: xmlContext)
+        guard let address = addressElements.first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed)}) else { return nil }
+        guard let eventName = contractElement.at_xpath("asnx:module", namespaces: xmlContext.namespaces)?["name"] else { return nil }
+        let parameters = contractElement.xpath("asnx:module/sequence/element", namespaces: xmlContext.namespaces).compactMap { each -> EventParameter? in
+            guard let name = each["name"], let type = each["type"] else { return nil }
+            let isIndexed = each["indexed"] == "true"
+            return .init(name: name, type: type, isIndexed: isIndexed)
+        }
+        if parameters.isEmpty {
+            return nil
+        } else {
+            return .init(contract: address, name: eventName, parameters: parameters)
+        }
+    }
+
+    ///The value to be a template containing variables. e.g. for the filter "label=${tokenId}", the extracted name is "label" and value is "${tokenId}"
+    static func getEventFilter(fromEthereumEventElement ethereumEventElement: XMLElement) -> (name: String, value: String)? {
+        guard let filter = ethereumEventElement["filter"] else { return nil }
+        let components = filter.split(separator: "=", maxSplits: 1)
+        guard components.count == 2 else { return nil }
+        return (name: String(components[0]), value: String(components[1]))
+    }
+
     //Remember `1` in XPath selects the first node, not `0`
     //<plural> tag is optional
-    fileprivate static func getNameStringElement(fromTokenElement tokenElement: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
-        guard let tokenElement = tokenElement else { return nil }
+    fileprivate static func getNameStringElement(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+        guard let tokenElement = element else { return nil }
         if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='one']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
         } else if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
@@ -855,12 +875,24 @@ extension XMLHandler {
         }
     }
 
-    fileprivate static func getNameElementForPluralForm(fromTokenElement tokenElement: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
-        guard let tokenElement = tokenElement else { return nil }
+    fileprivate static func getNameElementForPluralForm(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+        guard let tokenElement = element else { return nil }
         if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='other']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
         } else {
-            return getNameStringElement(fromTokenElement: tokenElement, xmlContext: xmlContext)
+            return getNameStringElement(fromElement: tokenElement, xmlContext: xmlContext)
+        }
+    }
+
+    fileprivate static func getDenialString(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+        guard let element = element else { return nil }
+        if let tag = element.at_xpath("denial/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+            return tag
+        } else if let tag = element.at_xpath("denial/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+            return tag
+        } else {
+            let fallback = element.at_xpath("denial[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return fallback
         }
     }
 
@@ -896,6 +928,17 @@ extension XMLHandler {
         return root.at_xpath("/token/appearance/introduction[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
+    fileprivate static func getSelectionElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+        let tokenChildren = root.xpath("/token/selection".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        // swiftlint:disable empty_count
+        if tokenChildren.count > 0 {
+        // swiftlint:enable empty_count
+            return tokenChildren
+        } else {
+            return root.xpath("/action/selection".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        }
+    }
+
     fileprivate static func getTokenScriptTokenInstanceActionElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
         return root.xpath("/token/cards/action".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
@@ -908,28 +951,58 @@ extension XMLHandler {
         return actionElement.at_xpath("transaction/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
+    fileprivate static func getExcludeSelectionId(fromActionElement actionElement: XMLElement, xmlContext: XmlContext) -> String? {
+        actionElement.at_xpath("exclude".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?["selection"] ?? actionElement["exclude"]
+    }
+
     fileprivate static func getRecipientAddress(fromEthereumFunctionElement ethereumFunctionElement: XMLElement, xmlContext: XmlContext) -> AlphaWallet.Address? {
         return ethereumFunctionElement.at_xpath("to".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?.text.flatMap { AlphaWallet.Address(string: $0.trimmed) }
     }
 
+    static func getTokenScriptTokenViewContents(fromViewElement element: XMLElement, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> (style: String, script: String, body: String) {
+        let styleElements = element.xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
+        let scriptElements = element.xpath("script".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
+        let bodyElements = element.xpath("body".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
+        let style: String
+        let script: String
+        let body: String
+        // swiftlint:disable empty_count
+        if styleElements.count > 0 {
+            // swiftlint:enable empty_count
+            style = styleElements.compactMap { $0.text }.joined(separator: "\n")
+        } else {
+            style = ""
+        }
+        // swiftlint:disable empty_count
+        if scriptElements.count > 0 {
+            // swiftlint:enable empty_count
+            script = scriptElements.compactMap { $0.text }.joined(separator: "\n")
+        } else {
+            script = ""
+        }
+        // swiftlint:disable empty_count
+        if bodyElements.count > 0 {
+            // swiftlint:enable empty_count
+            body = bodyElements.compactMap { $0.innerHTML }.joined(separator: "\n")
+        } else {
+            body = ""
+        }
+        return (style: style, script: script, body: body)
+    }
+
     static func getTokenScriptTokenViewIconifiedHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
-        if let element = root.at_xpath("/token/cards/token-card/view-iconified[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let element = root.at_xpath("/token/cards/token/item-view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
         } else {
-            return root.at_xpath("/token/cards/token-card/view-iconified[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return root.at_xpath("/token/cards/token/item-view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 
-    static func getTokenScriptTokenViewIconifiedStyleElement(fromRoot root: XMLDocument, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> XMLElement? {
-        guard let element = root.at_xpath("/token/cards/token-card".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) else { return nil }
-        return element.at_xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
-    }
-
     static func getTokenScriptTokenViewHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
-        if let element = root.at_xpath("/token/cards/token-card/view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let element = root.at_xpath("/token/cards/token/view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
         } else {
-            return root.at_xpath("/token/cards/token-card/view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return root.at_xpath("/token/cards/token/view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 
@@ -949,16 +1022,6 @@ extension XMLHandler {
         } else {
             return actionElement.at_xpath("view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
-    }
-
-    static func getTokenScriptTokenActionViewStyleElement(fromRoot root: XMLDocument, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> XMLElement? {
-        guard let element = root.at_xpath("/token/cards/action".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) else { return nil }
-        return element.at_xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
-    }
-
-    static func getTokenScriptActionOnlyActionViewStyleElement(fromRoot root: XMLDocument, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> XMLElement? {
-        guard let element = root.at_xpath("/action".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) else { return nil }
-        return element.at_xpath("style".addToXPath(namespacePrefix: xhtmlNamespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getContractElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {

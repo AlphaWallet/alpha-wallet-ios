@@ -11,10 +11,40 @@ protocol TokenInstanceWebViewDelegate: class {
     func navigationControllerFor(tokenInstanceWebView: TokenInstanceWebView) -> UINavigationController?
     func shouldClose(tokenInstanceWebView: TokenInstanceWebView)
     func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView)
+    func reinject(tokenInstanceWebView: TokenInstanceWebView)
 }
 
-
 class TokenInstanceWebView: UIView {
+    enum SetProperties {
+        static let setActionProps = "setActionProps"
+        //Values ought to be typed. But it's just much easier to keep them as `Any` and convert them to the correct types when accessed (based on TokenScript syntax and XML tag). We don't know what those are here
+        typealias Properties = [String: Any]
+
+        case action(id: Int, changedProperties: Properties)
+
+        static func fromMessage(_ message: WKScriptMessage) -> SetProperties? {
+            guard message.name == SetProperties.setActionProps else { return nil }
+            guard var body = message.body as? [String: AnyObject] else { return nil }
+            guard let changedProperties = body["object"] as? SetProperties.Properties else { return nil }
+            guard let id = body["id"] as? Int else { return nil }
+            return .action(id: id, changedProperties: changedProperties)
+        }
+    }
+
+    enum BrowserMessageType {
+        case dappAction(DappCommand)
+        case setActionProps(SetProperties)
+
+        static func fromMessage(_ message: WKScriptMessage) -> BrowserMessageType? {
+            if let action = SetProperties.fromMessage(message) {
+                return .setActionProps(action)
+            } else if let command = DappAction.fromMessage(message) {
+                return .dappAction(command)
+            }
+            return nil
+        }
+    }
+
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
     private let server: RPCServer
     private let walletAddress: AlphaWallet.Address
@@ -29,6 +59,11 @@ class TokenInstanceWebView: UIView {
     }()
     //Used to track asynchronous calls are called for correctly
     private var loadId: Int?
+    private var lastInjectedJavaScript: String?
+    //TODO remove once we refactor internals to include a TokenScriptContext
+    private var lastTokenHolder: TokenHolder?
+    var actionProperties: TokenInstanceWebView.SetProperties.Properties = .init()
+    private var lastActionLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
 
     var isWebViewInteractionEnabled: Bool = false {
         didSet {
@@ -42,6 +77,20 @@ class TokenInstanceWebView: UIView {
     //B. Action views
     //TODO improve further. It's not reliable enough
     var isStandalone = false
+
+    var isAction = false
+
+    var localRefs: [AttributeId: AssetInternalValue] {
+        var results: [AttributeId: AssetInternalValue] = .init()
+        for (key, value) in actionProperties {
+            if let string = value as? String {
+                results[key] = .string(string)
+            } else if let int = value as? Int {
+                results[key] = .int(BigInt(int))
+            }
+        }
+        return results
+    }
 
     init(server: RPCServer, walletAddress: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) {
         self.server = server
@@ -75,11 +124,31 @@ class TokenInstanceWebView: UIView {
     }
 
     //Implementation: String concatentation is slow, but it's not obvious at all
-    func update(withTokenHolder tokenHolder: TokenHolder, isFungible: Bool, isFirstUpdate: Bool = true) {
+    func update(withTokenHolder tokenHolder: TokenHolder, actionLevelAttributeValues updatedActionLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
+        lastTokenHolder = tokenHolder
+        let unresolvedAttributesDependentOnProps = self.unresolvedAttributesDependentOnProps(tokenHolder: tokenHolder)
+
+        let actionLevelAttributeValues = (updatedActionLevelAttributeValues ?? lastActionLevelAttributeValues) ?? .init()
+        lastActionLevelAttributeValues = actionLevelAttributeValues
         var token = [AttributeId: String]()
         token["_count"] = String(tokenHolder.count)
 
-        let attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
+        //TODO We are stuffing the props-dependent attributes into lastActionLevelAttributeValues. Should not be doing this as it's not intention revealing and wrong
+        if lastActionLevelAttributeValues != nil {
+            lastActionLevelAttributeValues = lastActionLevelAttributeValues?.merging(unresolvedAttributesDependentOnProps) { _, new in new }
+        } else {
+            lastActionLevelAttributeValues = unresolvedAttributesDependentOnProps
+        }
+
+        let attributeValues: AssetAttributeValues
+        if isAction {
+            attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values.merging(actionLevelAttributeValues) { _, new in new })
+        } else {
+            attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values
+                    .merging(unresolvedAttributesDependentOnProps, uniquingKeysWith: { _, new in new })
+                    .merging(actionLevelAttributeValues, uniquingKeysWith: { _, new in new }))
+        }
+
         let resolvedAttributeNameValues = attributeValues.resolve { [weak self] _ in
             guard let strongSelf = self else { return }
             guard isFirstUpdate else { return }
@@ -114,11 +183,12 @@ class TokenInstanceWebView: UIView {
 //        string += "\n}"
 //        string += "\n}"
 
+        let containerCssId = generateContainerCssId(forTokenHolder: tokenHolder)
         string += """
-                  \nweb3.tokens.dataChanged(oldTokens, web3.tokens.data)
+                  \nweb3.tokens.dataChanged(oldTokens, web3.tokens.data, "\(containerCssId)")
                   """
         let javaScript = """
-                         console.log('update() ran')
+                         console.log(`update() ran`)
                          const oldTokens = web3.tokens.data
                          """ + string
 
@@ -128,6 +198,15 @@ class TokenInstanceWebView: UIView {
         } else {
             inject(javaScript: javaScript, afterDocumentIsLoaded: true)
         }
+    }
+
+    private func unresolvedAttributesDependentOnProps(tokenHolder: TokenHolder) -> [AttributeId: AssetAttributeSyntaxValue] {
+        guard !localRefs.isEmpty else { return .init() }
+        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let attributes = xmlHandler.fields.filter { $0.value.isDependentOnProps && lastActionLevelAttributeValues?[$0.key] == nil }
+        //TODO it's not important for now whether it is .real or .watch, but should fix
+        let account = Wallet(type: .watch(walletAddress))
+        return attributes.resolve(withTokenIdOrEvent: .tokenId(tokenId: tokenHolder.tokenIds[0]), userEntryValues: .init(), server: server, account: account, additionalValues: .init(), localRefs: localRefs)
     }
 
     private func implicitAttributes(tokenHolder: TokenHolder, isFungible: Bool) -> [String: AssetInternalValue] {
@@ -152,6 +231,12 @@ class TokenInstanceWebView: UIView {
     }
 
     @discardableResult func inject(javaScript: String, afterDocumentIsLoaded: Bool = false) -> Promise<Any?>? {
+        if let lastInjectedJavaScript = lastInjectedJavaScript, lastInjectedJavaScript == javaScript {
+            return nil
+        } else {
+            lastInjectedJavaScript = javaScript
+        }
+
         let javaScriptWrappedInScope = """
                                        {
                                           \(javaScript)
@@ -174,8 +259,7 @@ class TokenInstanceWebView: UIView {
         }
     }
 
-    func loadHtml(_ html: String) {
-        let hash = html.hashForCachingHeight
+    func loadHtml(_ html: String, hash: Int) {
         hashOfCurrentHtml = hash
         if let cachedHeight = TokenInstanceWebView.htmlHeightCache[hash] {
             //When live-reloading, we load a different HTML, so we must proceed to load the HTML even if the height already correct
@@ -189,7 +273,6 @@ class TokenInstanceWebView: UIView {
                 return
             }
         }
-
         webView.loadHTMLString(html, baseURL: nil)
         hashOfLoadedHtml = hashOfCurrentHtml
     }
@@ -271,8 +354,55 @@ private extension TokenInstanceWebView {
 
 extension TokenInstanceWebView: WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        guard let command = DappAction.fromMessage(message) else { return }
+        switch BrowserMessageType.fromMessage(message) {
+        case .some(.dappAction(let command)):
+            handleCommandForDappAction(command)
+        case .some(.setActionProps(.action(let id, let changedProperties))):
+            handleSetActionProperties(id: id, changedProperties: changedProperties)
+        case .none:
+            break
+        }
+    }
 
+    private func handleSetActionProperties(id: Int,  changedProperties: SetProperties.Properties) {
+        guard !changedProperties.isEmpty else { return }
+        let oldProperties = actionProperties
+
+        let errorMessage = checkPropsNameClashErrorWithCardAttributes()
+
+        notifyTokenScriptFinish(callbackID: id, errorMessage: errorMessage)
+        guard errorMessage == nil else { return }
+
+        for (key, value) in changedProperties {
+            actionProperties[key] = value
+        }
+
+        guard let oldJsonString = oldProperties.jsonString, let newJsonString = actionProperties.jsonString, oldJsonString != newJsonString else { return }
+        if lastActionLevelAttributeValues != nil {
+            delegate?.reinject(tokenInstanceWebView: self)
+        }
+    }
+
+    private func checkPropsNameClashErrorWithCardAttributes() -> String? {
+        guard let lastTokenHolder = lastTokenHolder else { return nil }
+        let xmlHandler = XMLHandler(contract: lastTokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let attributes = xmlHandler.fields
+        let attributeIds: [AttributeId]
+        if let lastActionLevelAttributeValues = lastActionLevelAttributeValues {
+            attributeIds = Array(attributes.keys) + Array(lastActionLevelAttributeValues.keys)
+        } else {
+            attributeIds = Array(attributes.keys)
+        }
+        let propsClashed = actionProperties.keys.filter { attributeIds.contains($0) }
+        if propsClashed.isEmpty {
+            return nil
+        } else {
+            let propsListThatClashed = propsClashed.joined(separator: ", ")
+            return "Error in setProps() because these props clash with attribute(s): \(propsListThatClashed)"
+        }
+    }
+
+    private func handleCommandForDappAction(_ command: DappCommand) {
         //limited signing capability exposed for TokenScript for now. Be careful not to expose more than we want to
         switch command.name {
         case .signPersonalMessage:
@@ -376,25 +506,55 @@ extension TokenInstanceWebView {
         }()
         webView.evaluateJavaScript(script, completionHandler: nil)
     }
+
+    func notifyTokenScriptFinish(callbackID: Int, errorMessage: String?) {
+        let script: String = {
+            if let errorMessage = errorMessage {
+                return "executeTokenScriptCallback(\(callbackID), \"\(errorMessage)\")"
+            } else {
+                return "executeTokenScriptCallback(\(callbackID), null)"
+            }
+        }()
+        webView.evaluateJavaScript(script, completionHandler: nil)
+    }
 }
 
-func wrapWithHtmlViewport(_ html: String) -> String {
+private func generateContainerCssId(forTokenHolder tokenHolder: TokenHolder) -> String {
+    //TODO this assumes tokenId is unique within an instance
+    return generateContainerCssId(forTokenId: tokenHolder.tokenIds[0])
+}
+
+private func generateContainerCssId(forTokenId tokenId: TokenId) -> String {
+    return "token-card-\(tokenId)"
+}
+
+func wrapWithHtmlViewport(html: String, style: String, forTokenId tokenId: TokenId) -> String {
     if html.isEmpty {
         return ""
     } else {
+        let containerCssId = generateContainerCssId(forTokenId: tokenId)
         return """
                <html>
                <head>
                <meta name="viewport" content="width=device-width, initial-scale=1,  maximum-scale=1, shrink-to-fit=no">
+               \(style)
                </head>
+               <body>
+               <div id="\(containerCssId)" class="token-card">
                \(html)
+               </div>
+               </body>
                </html>
                """
     }
 }
 
+func wrapWithHtmlViewport(html: String, style: String, forTokenHolder tokenHolder: TokenHolder) -> String {
+    return wrapWithHtmlViewport(html: html, style: style, forTokenId: tokenHolder.tokenIds[0])
+}
+
 extension String {
-    fileprivate var hashForCachingHeight: Int {
+    var hashForCachingHeight: Int {
         return hashValue
     }
 }

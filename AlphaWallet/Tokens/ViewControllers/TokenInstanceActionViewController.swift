@@ -26,6 +26,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         webView.isWebViewInteractionEnabled = true
         webView.delegate = self
         webView.isStandalone = true
+        webView.isAction = true
         return webView
     }()
 
@@ -136,8 +137,14 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         button.setTitle(R.string.localizable.confirmPaymentConfirmButtonTitle(), for: .normal)
         button.addTarget(self, action: #selector(proceed), for: .touchUpInside)
 
-        tokenScriptRendererView.loadHtml(action.viewHtml)
-        tokenScriptRendererView.update(withTokenHolder: tokenHolder, isFungible: isFungible)
+        let (html: html, hash: hash) = action.viewHtml(forTokenHolder: tokenHolder)
+        tokenScriptRendererView.loadHtml(html, hash: hash)
+
+        //TODO this will only contain values that has been resolved and might not refresh properly when the values are 1st resolved or updated
+        let existingAttributeValues = tokenHolder.values
+        let actionLevelAttributeValues = action.attributes.resolve(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, userEntryValues: .init(), server: server, account: session.account, additionalValues: existingAttributeValues, localRefs: tokenScriptRendererView.localRefs)
+
+        tokenScriptRendererView.update(withTokenHolder: tokenHolder, actionLevelAttributeValues: actionLevelAttributeValues, isFungible: isFungible)
     }
 
     @objc func proceed() {
@@ -155,7 +162,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
                 .map { "document.getElementById(\"\($0)\").value" }
                 .compactMap { tokenScriptRendererView.inject(javaScript: $0) }
         let xmlHandler = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore)
-        let tokenLevelAttributeValues = xmlHandler.resolveAttributesBypassingCache(withTokenId: tokenId, server: server, account: session.account)
+        let tokenLevelAttributeValues = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, server: server, account: session.account)
         let resolveTokenLevelSubscribableAttributes = Array(tokenLevelAttributeValues.values).filterToSubscribables.createPromiseForSubscribeOnce()
 
         firstly {
@@ -194,14 +201,14 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             }
 
             func postTransaction() {
-                transactionFunction.postTransaction(withTokenId: tokenId, attributeAndValues: values, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore).done {
+                transactionFunction.postTransaction(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore).done {
                     notify(message: "Posted Transaction Successfully")
                 }.catch { error in
                     notify(message: "Transaction Failed")
                 }
             }
 
-            guard let (data, value) = transactionFunction.generateDataAndValue(withTokenId: tokenId, attributeAndValues: values, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore) else { return }
+            guard let (data, value) = transactionFunction.generateDataAndValue(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore) else { return }
             let eth = EtherNumberFormatter.full.string(from: BigInt(value))
             let nativeCryptSymbol: String
             switch strongSelf.server {
@@ -237,7 +244,8 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private func resolveActionAttributeValues(withUserEntryValues userEntryValues: [AttributeId: String], tokenLevelTokenIdOriginAttributeValues: [AttributeId: AssetAttributeSyntaxValue]) -> Promise<[AttributeId: AssetInternalValue]> {
         return Promise { seal in
             //TODO Not reading/writing from/to cache here because we haven't worked out volatility of attributes yet. So we assume all attributes used by an action as volatile, have to fetch the latest
-            let attributeNameValues = action.attributes.resolve(withTokenId: tokenId, userEntryValues: userEntryValues, server: server, account: session.account, additionalValues: tokenLevelTokenIdOriginAttributeValues).mapValues { $0.value }
+            //Careful to only resolve (and wait on) attributes that the smart contract function invocation is dependent on. Some action-level attributes might only be used for display
+            let attributeNameValues = action.attributesDependencies.resolve(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, userEntryValues: userEntryValues, server: server, account: session.account, additionalValues: tokenLevelTokenIdOriginAttributeValues, localRefs: tokenScriptRendererView.localRefs).mapValues { $0.value }
             var allResolved = false
             let attributes = AssetAttributeValues(attributeValues: attributeNameValues)
             let resolvedAttributeNameValues = attributes.resolve { updatedValues in
@@ -283,5 +291,9 @@ extension TokenInstanceActionViewController: TokenInstanceWebViewDelegate {
 
     func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView) {
         //no-op. Auto layout handles it
+    }
+
+    func reinject(tokenInstanceWebView: TokenInstanceWebView) {
+        configure()
     }
 }

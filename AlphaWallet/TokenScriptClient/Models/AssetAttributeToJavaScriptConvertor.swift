@@ -9,7 +9,12 @@ struct AssetAttributeToJavaScriptConvertor {
         case .address(let address):
             return "\"\(address.eip55String)\""
         case .string(let string):
-            return "\"\(string)\""
+            if string.contains("\n") {
+                //Multiple line JavaScript literals must be quoted with `` instead of single or double quotes
+                return "`\(string.replacingOccurrences(of: "`", with: "\\`"))`"
+            } else {
+                return "\"\(string)\""
+            }
         case .bytes(let bytes):
             return "\"\(bytes.hexEncoded)\""
         case .int(let int):
