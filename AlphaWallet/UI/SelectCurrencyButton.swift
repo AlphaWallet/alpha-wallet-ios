@@ -9,7 +9,7 @@ import UIKit
 
 class SelectCurrencyButton: UIControl {
 
-    let textLabel: UILabel = {
+    private let textLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.setContentHuggingPriority(.required, for: .horizontal)
@@ -19,7 +19,7 @@ class SelectCurrencyButton: UIControl {
         return label
     }()
     
-    let expandImageView: UIImageView = {
+    private let expandImageView: UIImageView = {
         let imageView = UIImageView(image: R.image.expandMore())
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.setContentHuggingPriority(.required, for: .horizontal)

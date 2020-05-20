@@ -134,9 +134,9 @@ class AmountTextField: UIControl {
     init(server: RPCServer) {
         switch server {
         case .xDai:
-            currentPair = Pair(left: .cryptoCurrency("xDAI", #imageLiteral(resourceName: "xDai")), right: .usd("USD", #imageLiteral(resourceName: "eth")))
+            currentPair = Pair(left: .cryptoCurrency("xDAI", #imageLiteral(resourceName: "xDai")), right: .usd("USD", R.image.usaFlag()!))
         case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli, .artis_sigma1, .artis_tau1:
-            currentPair = Pair(left: .cryptoCurrency("ETH", #imageLiteral(resourceName: "eth")), right: .usd("USD", #imageLiteral(resourceName: "eth")))
+            currentPair = Pair(left: .cryptoCurrency("ETH", #imageLiteral(resourceName: "eth")), right: .usd("USD", R.image.usaFlag()!))
         }
 
         super.init(frame: .zero)

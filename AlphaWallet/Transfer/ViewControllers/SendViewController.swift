@@ -76,7 +76,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
         targetAddressTextField.returnKeyType = .next
-        targetAddressTextField.addresBookButton.isHidden = true
         
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
@@ -86,7 +85,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         addressControlsContainer.backgroundColor = .clear
         
         let addressControlsStackView = [
-            targetAddressTextField.addresBookButton,
             targetAddressTextField.pasteButton,
             targetAddressTextField.clearButton
         ].asStackView(axis: .horizontal)
@@ -98,6 +96,12 @@ class SendViewController: UIViewController, CanScanQRCode {
         
         let stackView = [
             header,
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 14),
+            amountLabel,
+            .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
+            amountTextField,
+            .spacer(height: 4),
+            amountTextField.alternativeAmountLabel,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 20),
             targetAddressLabel,
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
@@ -105,14 +109,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             .spacer(height: 4), [
                 [targetAddressTextField.ensAddressLabel, targetAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
                 addressControlsContainer
-            ].asStackView(axis: .horizontal),
-            .spacer(height: 4),
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 14),
-            amountLabel,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
-            amountTextField,
-            .spacer(height: 4),
-            amountTextField.alternativeAmountLabel,
+            ].asStackView(axis: .horizontal), 
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)

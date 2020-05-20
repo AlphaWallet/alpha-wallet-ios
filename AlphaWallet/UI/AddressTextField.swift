@@ -16,6 +16,30 @@ class AddressTextField: UIControl {
     //Always resolve on mainnet
     private let serverToResolveEns = RPCServer.main
 
+    var pasteButton: Button = {
+        let button = Button(size: .normal, style: .borderless)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
+        button.titleLabel?.font = DataEntry.Font.accessory
+        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.backgroundColor = .clear
+        button.contentHorizontalAlignment = .right
+        
+        return button
+    }()
+    
+    var clearButton: Button = {
+        let button = Button(size: .normal, style: .borderless)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Clear", for: .normal)
+        button.titleLabel?.font = DataEntry.Font.accessory
+        button.setTitleColor(DataEntry.Color.icon, for: .normal)
+        button.backgroundColor = .clear
+        button.contentHorizontalAlignment = .right
+        
+        return button
+    }()
+    
     let label = UILabel()
     let ensAddressLabel: UILabel = {
         let label = UILabel()
@@ -92,7 +116,9 @@ class AddressTextField: UIControl {
 
     init() {
         super.init(frame: .zero)
-
+        pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
+        clearButton.addTarget(self, action: #selector(clearAction), for: .touchUpInside)
+        
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
         textField.leftViewMode = .always
@@ -181,43 +207,6 @@ class AddressTextField: UIControl {
         errorState = .none
     }
     
-    var pasteButton: Button = {
-        let button = Button(size: .normal, style: .borderless)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
-        button.backgroundColor = .clear
-        button.contentHorizontalAlignment = .right
-        return button
-    }()
-    
-    var clearButton: Button = {
-        let button = Button(size: .normal, style: .borderless)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Clear", for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.addTarget(self, action: #selector(clearAction), for: .touchUpInside)
-        button.backgroundColor = .clear
-        button.contentHorizontalAlignment = .right
-        return button
-    }()
-    
-    var addresBookButton: Button = {
-        let button = Button(size: .normal, style: .borderless)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(R.string.localizable.sendPasteButtonAddressBook(), for: .normal)
-        button.titleLabel?.font = DataEntry.Font.accessory
-        button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.addTarget(self, action: #selector(addressBookAction), for: .touchUpInside)
-        button.backgroundColor = .clear
-        button.contentHorizontalAlignment = .right
-        
-        return button
-    }()
-    
     private func makeTargetAddressRightView() -> UIView {
         let scanQRCodeButton = Button(size: .normal, style: .borderless)
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
@@ -234,10 +223,6 @@ class AddressTextField: UIControl {
         targetAddressRightView.translatesAutoresizingMaskIntoConstraints = false
 
         return targetAddressRightView
-    }
-
-    @objc func addressBookAction() {
-        
     }
     
     @objc func clearAction() {
@@ -334,7 +319,7 @@ extension AddressTextField: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         let borderColor = errorState.textFieldBorderColor(whileEditing: true)
         layer.borderColor = borderColor.cgColor
-        backgroundColor = DataEntry.Color.textFieldBackgroundWhileEditing
+        backgroundColor = Colors.appWhite
         
         dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
     }

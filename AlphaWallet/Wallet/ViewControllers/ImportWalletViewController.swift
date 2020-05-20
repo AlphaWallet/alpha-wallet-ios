@@ -132,14 +132,11 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         ].asStackView(axis: .vertical)
         privateKeyControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
-        watchAddressTextField.addresBookButton.isHidden = true
-        
         let addressControlsContainer = UIView()
         addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
         addressControlsContainer.backgroundColor = .clear
         
         let addressControlsStackView = [
-            watchAddressTextField.addresBookButton,
             watchAddressTextField.pasteButton,
             watchAddressTextField.clearButton
         ].asStackView(axis: .horizontal)

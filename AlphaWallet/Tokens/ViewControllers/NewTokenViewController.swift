@@ -72,7 +72,6 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
 
         addressTextField.delegate = self
         addressTextField.returnKeyType = .next
-        addressTextField.addresBookButton.isHidden = true
         
         symbolTextField.delegate = self
         symbolTextField.returnKeyType = .next
@@ -96,7 +95,6 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
         addressControlsContainer.backgroundColor = .clear
 
         let addressControlsStackView = [
-            addressTextField.addresBookButton,
             addressTextField.pasteButton,
             addressTextField.clearButton
         ].asStackView(axis: .horizontal)

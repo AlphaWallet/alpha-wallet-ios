@@ -172,7 +172,7 @@ extension TextView: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
         let borderColor = errorState.textFieldBorderColor(whileEditing: true)
         layer.borderColor = borderColor.cgColor
-        backgroundColor = DataEntry.Color.textFieldBackgroundWhileEditing
+        backgroundColor = Colors.appWhite
 
         dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
     }

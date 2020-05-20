@@ -145,13 +145,12 @@ enum DataEntry {
         static let border = UIColor(red: 194, green: 194, blue: 194)
         static let text = Colors.appText
         static let label = Colors.appGrayLabel
-        static let textFieldStatus = UIColor.red
+        static let textFieldStatus = R.color.danger()
         static let icon = Colors.appTint
         static let secondary = Colors.appGrayLabel
         static let textFieldError = R.color.danger()!
         static let textFieldShadowWhileEditing = Colors.appTint
         static let textFieldBackground = UIColor(hex: "FBFBFB")
-        static let textFieldBackgroundWhileEditing = UIColor.white
         static let placeholder = UIColor(hex: "919191")
         static let ensText = UIColor(red: 117, green: 185, blue: 67)
         static let searchTextFieldBackground = UIColor(red: 243, green: 244, blue: 245)
@@ -172,7 +171,7 @@ enum DataEntry {
         static let textFieldStatus = Fonts.bold(size: 13)
         static let textField = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14: 17)
         static let accessory = Fonts.bold(size: ScreenChecker().isNarrowScreen ? 14: 17)
-        static let amountTextField = Fonts.regular(size: 36)
+        static let amountTextField = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 18: 36)
     }
 }
 

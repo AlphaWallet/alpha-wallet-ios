@@ -274,7 +274,7 @@ extension DappBrowserNavigationBar: UITextFieldDelegate {
     }
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        textField.backgroundColor = DataEntry.Color.textFieldBackgroundWhileEditing
+        textField.backgroundColor = Colors.appWhite
         textField.layer.borderColor = DataEntry.Color.textFieldShadowWhileEditing.cgColor
         
         textField.dropShadow(color: DataEntry.Color.textFieldShadowWhileEditing, radius: DataEntry.Metric.shadowRadius)
