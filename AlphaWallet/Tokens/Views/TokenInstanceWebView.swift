@@ -20,7 +20,15 @@ class TokenInstanceWebView: UIView {
         //Values ought to be typed. But it's just much easier to keep them as `Any` and convert them to the correct types when accessed (based on TokenScript syntax and XML tag). We don't know what those are here
         typealias Properties = [String: Any]
 
-        case action(changedProperties: Properties)
+        case action(id: Int, changedProperties: Properties)
+
+        static func fromMessage(_ message: WKScriptMessage) -> SetProperties? {
+            guard message.name == SetProperties.setActionProps else { return nil }
+            guard var body = message.body as? [String: AnyObject] else { return nil }
+            guard let changedProperties = body["object"] as? SetProperties.Properties else { return nil }
+            guard let id = body["id"] as? Int else { return nil }
+            return .action(id: id, changedProperties: changedProperties)
+        }
     }
 
     enum BrowserMessageType {
@@ -28,8 +36,8 @@ class TokenInstanceWebView: UIView {
         case setActionProps(SetProperties)
 
         static func fromMessage(_ message: WKScriptMessage) -> BrowserMessageType? {
-            if message.name == SetProperties.setActionProps, let changedProperties = message.body as? SetProperties.Properties  {
-                return .setActionProps(.action(changedProperties: changedProperties))
+            if let action = SetProperties.fromMessage(message) {
+                return .setActionProps(action)
             } else if let command = DappAction.fromMessage(message) {
                 return .dappAction(command)
             }
@@ -52,6 +60,8 @@ class TokenInstanceWebView: UIView {
     //Used to track asynchronous calls are called for correctly
     private var loadId: Int?
     private var lastInjectedJavaScript: String?
+    //TODO remove once we refactor internals to include a TokenScriptContext
+    private var lastTokenHolder: TokenHolder?
     var actionProperties: TokenInstanceWebView.SetProperties.Properties = .init()
     private var lastActionLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
 
@@ -115,6 +125,7 @@ class TokenInstanceWebView: UIView {
 
     //Implementation: String concatentation is slow, but it's not obvious at all
     func update(withTokenHolder tokenHolder: TokenHolder, actionLevelAttributeValues updatedActionLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
+        lastTokenHolder = tokenHolder
         let unresolvedAttributesDependentOnProps = self.unresolvedAttributesDependentOnProps(tokenHolder: tokenHolder)
 
         let actionLevelAttributeValues = (updatedActionLevelAttributeValues ?? lastActionLevelAttributeValues) ?? .init()
@@ -346,16 +357,22 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         switch BrowserMessageType.fromMessage(message) {
         case .some(.dappAction(let command)):
             handleCommandForDappAction(command)
-        case .some(.setActionProps(.action(let changedProperties))):
-            handleSetActionProperties(changedProperties)
+        case .some(.setActionProps(.action(let id, let changedProperties))):
+            handleSetActionProperties(id: id, changedProperties: changedProperties)
         case .none:
             break
         }
     }
 
-    private func handleSetActionProperties(_ changedProperties: SetProperties.Properties) {
+    private func handleSetActionProperties(id: Int,  changedProperties: SetProperties.Properties) {
         guard !changedProperties.isEmpty else { return }
         let oldProperties = actionProperties
+
+        let errorMessage = checkPropsNameClashErrorWithCardAttributes()
+
+        notifyTokenScriptFinish(callbackID: id, errorMessage: errorMessage)
+        guard errorMessage == nil else { return }
+
         for (key, value) in changedProperties {
             actionProperties[key] = value
         }
@@ -363,6 +380,25 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         guard let oldJsonString = oldProperties.jsonString, let newJsonString = actionProperties.jsonString, oldJsonString != newJsonString else { return }
         if lastActionLevelAttributeValues != nil {
             delegate?.reinject(tokenInstanceWebView: self)
+        }
+    }
+
+    private func checkPropsNameClashErrorWithCardAttributes() -> String? {
+        guard let lastTokenHolder = lastTokenHolder else { return nil }
+        let xmlHandler = XMLHandler(contract: lastTokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let attributes = xmlHandler.fields
+        let attributeIds: [AttributeId]
+        if let lastActionLevelAttributeValues = lastActionLevelAttributeValues {
+            attributeIds = Array(attributes.keys) + Array(lastActionLevelAttributeValues.keys)
+        } else {
+            attributeIds = Array(attributes.keys)
+        }
+        let propsClashed = actionProperties.keys.filter { attributeIds.contains($0) }
+        if propsClashed.isEmpty {
+            return nil
+        } else {
+            let propsListThatClashed = propsClashed.joined(separator: ", ")
+            return "Error in setProps() because these props clash with attribute(s): \(propsListThatClashed)"
         }
     }
 
@@ -466,6 +502,17 @@ extension TokenInstanceWebView {
                 return "executeCallback(\(callbackID), null, \"\(result.value.object)\")"
             case .failure(let error):
                 return "executeCallback(\(callbackID), \"\(error)\", null)"
+            }
+        }()
+        webView.evaluateJavaScript(script, completionHandler: nil)
+    }
+
+    func notifyTokenScriptFinish(callbackID: Int, errorMessage: String?) {
+        let script: String = {
+            if let errorMessage = errorMessage {
+                return "executeTokenScriptCallback(\(callbackID), \"\(errorMessage)\")"
+            } else {
+                return "executeTokenScriptCallback(\(callbackID), null)"
             }
         }()
         webView.evaluateJavaScript(script, completionHandler: nil)
