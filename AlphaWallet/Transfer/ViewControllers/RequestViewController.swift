@@ -43,6 +43,8 @@ class RequestViewController: UIViewController {
 		label.text = viewModel.myAddressText
 		label.textAlignment = .center
 		label.numberOfLines = 0
+        label.isUserInteractionEnabled = true
+        
 		return label
 	}()
 
@@ -60,16 +62,22 @@ class RequestViewController: UIViewController {
 		label.textAlignment = .center
 		label.minimumScaleFactor = 0.5
 		label.adjustsFontSizeToFitWidth = true
+        label.isUserInteractionEnabled = true
 		return label
 	}()
 
-	private let viewModel: RequestViewModel
-
+	private let viewModel: RequestViewModel 
+    
 	init(viewModel: RequestViewModel) {
 		self.viewModel = viewModel
-
-		super.init(nibName: nil, bundle: nil)
-
+        super.init(nibName: nil, bundle: nil)
+        
+        let addressGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(copyAddress))
+        addressLabel.addGestureRecognizer(addressGestureRecognizer)
+        
+        let esnGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(copyEns))
+        ensLabel.addGestureRecognizer(esnGestureRecognizer)
+        
         title = R.string.localizable.aSettingsContentsMyWalletAddress()
 
 		view.backgroundColor = viewModel.backgroundColor
