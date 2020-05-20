@@ -70,6 +70,21 @@ If you’d like to include TokenScript and extend your token functionalities, pl
 Submit a PR to the following file:
 https://github.com/AlphaWallet/alpha-wallet-ios/blob/master/AlphaWallet/Browser/ViewModel/Dapps.swift
 
+
+### Replace API Keys
+
+API keys are stored in the file `AlphaWallet/Settings/Types/Constants+Credentials.swift`. You can replace the keys for your own build. Tell git to ignore changes to that file by running:
+
+```
+git update-index --assume-unchanged AlphaWallet/Settings/Types/Constants+Credentials.swift
+```
+
+Undo this with:
+
+```
+git update-index --no-assume-unchanged AlphaWallet/Settings/Types/Constants+Credentials.swift
+```
+
 ## How to Contribute
 
 You can submit feedback and report bugs as Github issues. Please be sure to include your operating system, device, version number, and steps to reproduce reported bugs.
