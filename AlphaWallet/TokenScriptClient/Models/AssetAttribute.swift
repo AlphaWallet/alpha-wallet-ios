@@ -98,7 +98,7 @@ struct AssetAttribute {
         } else if let userEntryElement = XMLHandler.getOriginUserEntryElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
                   let attributeName = attribute["name"] {
             originFound = Origin(forUserEntryElement: userEntryElement, attributeName: attributeName, xmlContext: xmlContext)
-        } else if let ethereumEventElement = XMLHandler.getEthereumOriginElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
+        } else if let ethereumEventElement = XMLHandler.getEthereumOriginElementEvents(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
                   let eventName = ethereumEventElement["module"],
                   let eventSourceContractElement = root.at_xpath("contract[asnx:module[@name='\(eventName)']]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces),
                   let _ = attribute["name"] {

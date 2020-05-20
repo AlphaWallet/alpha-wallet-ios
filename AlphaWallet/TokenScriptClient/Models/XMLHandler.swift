@@ -824,6 +824,10 @@ extension XMLHandler {
         return attributeTypeElement.at_xpath("origins".addToXPath(namespacePrefix: xmlContext.namespacePrefix) + "/ethereum:call", namespaces: xmlContext.namespaces)
     }
 
+    static func getEthereumOriginElementEvents(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
+        return attributeTypeElement.at_xpath("origins".addToXPath(namespacePrefix: xmlContext.namespacePrefix) + "/ethereum:event", namespaces: xmlContext.namespaces)
+    }
+
     static func getOriginUserEntryElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
         return attributeTypeElement.at_xpath("origins/user-entry".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
