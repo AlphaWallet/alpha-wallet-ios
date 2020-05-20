@@ -10,15 +10,13 @@ struct AccountViewModel {
     let current: Wallet?
     let walletBalance: Balance?
     var ensName: String?
-    var showSelectionIcon: Bool
     
-    init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, ensName: String? = nil, server: RPCServer, showSelectionIcon: Bool = true) {
+    init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, ensName: String? = nil, server: RPCServer) {
         self.wallet = wallet
         self.current = current
         self.walletBalance = walletBalance
         self.ensName = ensName
-        self.server = server
-        self.showSelectionIcon = showSelectionIcon
+        self.server = server 
     }
     
     var showWatchIcon: Bool {
@@ -37,11 +35,7 @@ struct AccountViewModel {
     }
     
     var selectionIcon: UIImage? {
-        return isSelected ? R.image.ticket_bundle_checked() : R.image.ticket_bundle_unchecked()
-    }
-    
-    var iconTintColor: UIColor? {
-        return isSelected ? Colors.appTint : Colors.gray
+        return isSelected ? R.image.check_mark() : nil
     }
     
     var isSelected: Bool {

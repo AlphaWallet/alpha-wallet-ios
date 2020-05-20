@@ -640,13 +640,7 @@
 		8499D8751F2D70FBD13F3C93 /* GetERC721ForTicketsBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8499DA6A661E357C9D69BA18 /* GetERC721ForTicketsBalance.swift */; };
 		8499DAB3D06965FDC1E8FCAF /* GetInterfaceSupported165Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8499D1861F30C1360B1047CE /* GetInterfaceSupported165Coordinator.swift */; };
 		873F8063246E8E3E00EEE5EF /* SelectCurrencyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */; };
-		873F80652472CA0A00EEE5EF /* ManageAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F80642472CA0900EEE5EF /* ManageAccountViewController.swift */; };
-		873F80672472CA2C00EEE5EF /* ManageAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F80662472CA2C00EEE5EF /* ManageAccountViewModel.swift */; };
-		873F80692472D04700EEE5EF /* ManageAccountCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F80682472D04700EEE5EF /* ManageAccountCoordinator.swift */; };
-		873F806B2473CD3A00EEE5EF /* AccountOptionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F806A2473CD3A00EEE5EF /* AccountOptionViewModel.swift */; };
-		873F806D2473CD5A00EEE5EF /* AccountOptionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F806C2473CD5A00EEE5EF /* AccountOptionViewCell.swift */; };
 		873F806F2473CFD700EEE5EF /* TableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F806E2473CFD700EEE5EF /* TableViewCell.swift */; };
-		8746962024741219009FB5AC /* ManagedAccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8746961F24741219009FB5AC /* ManagedAccountTableViewCell.swift */; };
 		8746962224741787009FB5AC /* UILabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8746962124741787009FB5AC /* UILabel.swift */; };
 		AA26C61F20412A1E00318B9B /* TokensCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C61D20412A1D00318B9B /* TokensCardViewController.swift */; };
 		AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */; };
@@ -1343,13 +1337,7 @@
 		8499DA6A661E357C9D69BA18 /* GetERC721ForTicketsBalance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721ForTicketsBalance.swift; sourceTree = "<group>"; };
 		8499DFC3A9D0B1E42D74905E /* GetERC721ForTicketsBalanceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721ForTicketsBalanceCoordinator.swift; sourceTree = "<group>"; };
 		873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectCurrencyButton.swift; sourceTree = "<group>"; };
-		873F80642472CA0900EEE5EF /* ManageAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageAccountViewController.swift; sourceTree = "<group>"; };
-		873F80662472CA2C00EEE5EF /* ManageAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageAccountViewModel.swift; sourceTree = "<group>"; };
-		873F80682472D04700EEE5EF /* ManageAccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageAccountCoordinator.swift; sourceTree = "<group>"; };
-		873F806A2473CD3A00EEE5EF /* AccountOptionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOptionViewModel.swift; sourceTree = "<group>"; };
-		873F806C2473CD5A00EEE5EF /* AccountOptionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOptionViewCell.swift; sourceTree = "<group>"; };
 		873F806E2473CFD700EEE5EF /* TableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewCell.swift; sourceTree = "<group>"; };
-		8746961F24741219009FB5AC /* ManagedAccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedAccountTableViewCell.swift; sourceTree = "<group>"; };
 		8746962124741787009FB5AC /* UILabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UILabel.swift; sourceTree = "<group>"; };
 		AA26C61D20412A1D00318B9B /* TokensCardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensCardViewController.swift; sourceTree = "<group>"; };
 		AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewInspectableEnhancements.swift; sourceTree = "<group>"; };
@@ -1750,8 +1738,6 @@
 			children = (
 				295247DE1F8326EF007FDC31 /* AccountViewCell.swift */,
 				5E7C7E7720DE64069CCF37D5 /* AccountViewTableSectionHeader.swift */,
-				873F806C2473CD5A00EEE5EF /* AccountOptionViewCell.swift */,
-				8746961F24741219009FB5AC /* ManagedAccountTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1844,7 +1830,6 @@
 			isa = PBXGroup;
 			children = (
 				295A59371F71C1B90092F0FC /* AccountsCoordinator.swift */,
-				873F80682472D04700EEE5EF /* ManageAccountCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -1852,12 +1837,9 @@
 		2977CAE71F7E0B87009682A0 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				873F806A2473CD3A00EEE5EF /* AccountOptionViewModel.swift */,
 				290B2B601F9179880053C83E /* AccountViewModel.swift */,
 				291F52C01F6C8A1F00B369AB /* AccountsViewModel.swift */,
-				873F80662472CA2C00EEE5EF /* ManageAccountViewModel.swift */,
 				291F52BE1F6C874E00B369AB /* AccountsViewController.swift */,
-				873F80642472CA0900EEE5EF /* ManageAccountViewController.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -4052,7 +4034,6 @@
 				291ED08D1F6F5F0A00E7E93A /* KeyStoreError.swift in Sources */,
 				296AF9A31F733AB30058AF78 /* WalletCoordinator.swift in Sources */,
 				442FCBBFCC5926B4D416E6D3 /* GetNameCoordinator.swift in Sources */,
-				873F80672472CA2C00EEE5EF /* ManageAccountViewModel.swift in Sources */,
 				442FC5F70AF003F331F7C841 /* GetSymbolCoordinator.swift in Sources */,
 				442FCE0709E29BF233F32CAB /* GetERC875BalanceCoordinator.swift in Sources */,
 				442FC58B7558F28F9452D383 /* GetIsERC875ContractCoordinator.swift in Sources */,
@@ -4184,7 +4165,6 @@
 				5E7C7B129C55A8458AEF3F61 /* URLViewModel.swift in Sources */,
 				5E7C716AB8079EA1283B2317 /* Bookmark.swift in Sources */,
 				5E7C7B8242E31B4DA0263BE5 /* EthTypedData.swift in Sources */,
-				8746962024741219009FB5AC /* ManagedAccountTableViewCell.swift in Sources */,
 				5E7C76D09352C069C140B6CF /* PreferencesController.swift in Sources */,
 				5E7C7569C4D26E565F3E4F56 /* PreferenceOption.swift in Sources */,
 				5E7C7D4CC66FE44C01C0F393 /* Scrollable.swift in Sources */,
@@ -4309,7 +4289,6 @@
 				5E7C7A656817D7E5AADF310E /* TokenInstanceViewController.swift in Sources */,
 				5E7C72402E57B627B6E56934 /* TokenInstanceViewModel.swift in Sources */,
 				5E7C7ACB2F44B820940EACEB /* TokenInstanceActionViewController.swift in Sources */,
-				873F80652472CA0A00EEE5EF /* ManageAccountViewController.swift in Sources */,
 				5E7C7A69B5A0E540D9D2A4B5 /* TokenInstanceActionViewModel.swift in Sources */,
 				5E7C76AE768F82036ED2B2D8 /* TokenInstanceAction.swift in Sources */,
 				5E7C77E30FA9E84DA58C937E /* Optional.swift in Sources */,
@@ -4372,7 +4351,6 @@
 				5E7C7A4700C79350AA486E09 /* SeedPhraseCell.swift in Sources */,
 				5E7C767848E46E079557A039 /* SeedPhraseCellViewModel.swift in Sources */,
 				5E7C7BAF922C3EB4D1B22C46 /* VerifySeedPhraseViewController.swift in Sources */,
-				873F80692472D04700EEE5EF /* ManageAccountCoordinator.swift in Sources */,
 				5E7C7CCA2D436A940E874D47 /* VerifySeedPhraseViewModel.swift in Sources */,
 				5E7C7E34C8D389FB7056EB7D /* CollectionViewLeftAlignedFlowLayout.swift in Sources */,
 				5E7C7AD59EA28935E32B3E91 /* KeystoreBackupIntroductionViewController.swift in Sources */,
@@ -4388,8 +4366,6 @@
 				5E7C70DDE7C3BD32FA525753 /* PromptBackupWalletAfterIntervalViewViewModel.swift in Sources */,
 				5E7C76A585ED45EDAD8825CF /* BackupState.swift in Sources */,
 				5E7C76738DDAAD623C6FB4DC /* PromptBackupWalletAfterExceedingThresholdViewViewModel.swift in Sources */,
-				873F806D2473CD5A00EEE5EF /* AccountOptionViewCell.swift in Sources */,
-				873F806B2473CD3A00EEE5EF /* AccountOptionViewModel.swift in Sources */,
 				5E7C7F01A771565A1BCF7FFA /* SeedPhraseCollectionView.swift in Sources */,
 				5E7C768CFA892DEBB633961B /* SeedPhraseCollectionViewModel.swift in Sources */,
 				5E7C7E8E89279EB6DB805620 /* SuccessOverlayView.swift in Sources */,

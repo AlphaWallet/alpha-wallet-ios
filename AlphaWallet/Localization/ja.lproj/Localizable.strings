@@ -88,9 +88,6 @@
 "wallets.backupKeystoreWallet.introduction.title" = "What is Keystore JSON?";
 "wallets.backupKeystoreWallet.introduction.description" = "A Keystore is a text file. You can copy its contents when you want to import your wallet. This is a safe way to back up a wallet.";
 "wallets.backupHdWallet.alertSheet.title" = "Show Seed Phrase";
-"wallets.backupHdWallet.alertSheet.description" = "If you lose access to this device, your funds will be lost, unless you back up!";
-"wallets.loseWallet.alertSheet.title" = "Lose this Wallet";
-"wallets.loseWallet.alertSheet.description" = "Be careful with deleting your wallet. If you have not backed up your wallet, you might lose all your funds.";
 "settings.general.title" = "一般的な";
 "wallets.backupHdWallet.introduction.button.title" = "Back up my Wallet";
 "wallets.backupHdWallet.introduction.title" = "Back up your Wallet with Seed Phrase";
@@ -320,7 +317,7 @@
 "a.send.receive.button.title" = "送信/受信";
 "a.send.recipient.address.title" = "アドレス";
 "a.send.balance.insufficient" = "残高不足";
-"accounts.confirm.delete.action" = "Lose this Wallet";
+"accounts.confirm.delete.action" = "Lose Wallet";
 "accounts.confirm.delete.title" = "このウォレットを削除してもよろしいですか?";
 "accounts.confirm.delete.message" = "あなたのウォレットのバックアップがあることを確認してください。";
 "accounts.confirm.delete.okTitle" = "削除";

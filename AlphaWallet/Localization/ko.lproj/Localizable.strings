@@ -88,9 +88,6 @@
 "wallets.backupKeystoreWallet.introduction.title" = "What is Keystore JSON?";
 "wallets.backupKeystoreWallet.introduction.description" = "A Keystore is a text file. You can copy its contents when you want to import your wallet. This is a safe way to back up a wallet.";
 "wallets.backupHdWallet.alertSheet.title" = "Show Seed Phrase";
-"wallets.backupHdWallet.alertSheet.description" = "If you lose access to this device, your funds will be lost, unless you back up!";
-"wallets.loseWallet.alertSheet.title" = "Lose this Wallet";
-"wallets.loseWallet.alertSheet.description" = "Be careful with deleting your wallet. If you have not backed up your wallet, you might lose all your funds.";
 "wallets.backupHdWallet.introduction.button.title" = "Back up my Wallet";
 "wallets.backupHdWallet.introduction.title" = "Back up your Wallet with Seed Phrase";
 "wallets.showSeedPhrase.description" = "just write down 12 words and keep them in a safe place, offline";
@@ -319,7 +316,7 @@
 "a.send.receive.button.title" = "보내기/받기";
 "a.send.recipient.address.title" = "주소";
 "a.send.balance.insufficient" = "잔고 부족";
-"accounts.confirm.delete.action" = "Lose this Wallet";
+"accounts.confirm.delete.action" = "Lose Wallet";
 "accounts.confirm.delete.title" = "이 지갑을 삭제하시겠습니까?";
 "accounts.confirm.delete.message" = "지갑이 백업되어 있는지 확인하십시오.";
 "accounts.confirm.delete.okTitle" = "삭제";

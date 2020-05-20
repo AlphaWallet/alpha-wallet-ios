@@ -5,7 +5,7 @@ import UIKit
 protocol AccountsViewControllerDelegate: class {
     func didSelectAccount(account: Wallet, in viewController: AccountsViewController)
     func didDeleteAccount(account: Wallet, in viewController: AccountsViewController)
-    func didSelectInfoForAccount(account: Wallet, balance: Balance?, in viewController: AccountsViewController)
+    func didSelectInfoForAccount(account: Wallet, in viewController: AccountsViewController)
 }
 
 class AccountsViewController: UIViewController {
@@ -245,16 +245,23 @@ extension AccountsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 0.01
-    } 
-
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let action = UITableViewRowAction(style: .destructive, title: R.string.localizable.accountsConfirmDeleteAction()) { rowAction, indexPath in
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let deleteAction = UIContextualAction(style: .destructive, title: R.string.localizable.accountsConfirmDeleteAction()) { action, view, complete in
             let account = self.account(for: indexPath)
             self.confirmDelete(account: account)
+            
+            complete(true)
         }
+        deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
+        deleteAction.backgroundColor = R.color.danger()
         
-        return [action]
-    }
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        configuration.performsFirstActionWithFullSwipe = true
+        
+        return configuration
+    } 
 }
 
 extension AccountsViewController: AccountViewCellDelegate {
@@ -268,10 +275,7 @@ extension AccountsViewController: AccountViewCellDelegate {
         delegate?.didSelectAccount(account: account, in: self)
     }
 
-    func accountViewCell(_ cell: AccountViewCell, didSelecteAccount account: Wallet) {
-        guard let account = cell.account else { return }
-        let balance = self.balances[account.address].flatMap { $0 }
-        
-        delegate?.didSelectInfoForAccount(account: account, balance: balance, in: self)
+    func accountViewCell(_ cell: AccountViewCell, didTapInfoViewForAccount account: Wallet) {
+        delegate?.didSelectInfoForAccount(account: account, in: self)
     }
 }

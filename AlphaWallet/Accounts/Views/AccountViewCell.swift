@@ -3,13 +3,12 @@
 import UIKit
 
 protocol AccountViewCellDelegate: class {
-    func accountViewCell(_ cell: AccountViewCell, didSelecteAccount _: Wallet)
+    func accountViewCell(_ cell: AccountViewCell, didTapInfoViewForAccount _: Wallet)
 }
 
 class AccountViewCell: UITableViewCell {
     static let identifier = "AccountViewCell"
 
-    private var optionsButton = UIButton()
     private var icon = UIImageView()
     private var selectionImageView = UIImageView()
     private var addressLabel = UILabel()
@@ -26,28 +25,20 @@ class AccountViewCell: UITableViewCell {
         
         icon.contentMode = .scaleAspectFit
         selectionImageView.contentMode = .scaleAspectFit
-        optionsButton.setImage(R.image.toolbarMenu(), for: .normal)
-        optionsButton.tintColor = Colors.gray
         addressLabel.lineBreakMode = .byTruncatingMiddle
-
-        optionsButton.addTarget(self, action: #selector(optionsSelected), for: .touchUpInside)
 
         let leftStackView = [
             balanceLabel,
             addressLabel,
         ].asStackView(axis: .vertical, distribution: .fillProportionally, spacing: 0)
 
-        let rightStackView = [optionsButton].asStackView()
-
-        let stackView = [rightStackView, .spacerWidth(12), icon, .spacerWidth(12), leftStackView, .spacerWidth(20), selectionImageView].asStackView(spacing: 0, alignment: .center)
+        let stackView = [icon, .spacerWidth(12), leftStackView, .spacerWidth(20), selectionImageView].asStackView(spacing: 0, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         icon.setContentHuggingPriority(.required, for: .horizontal)
         addressLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         balanceLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
 
-        optionsButton.setContentHuggingPriority(.required, for: .horizontal)
-        optionsButton.setContentCompressionResistancePriority(.required, for: .horizontal)
         stackView.setContentHuggingPriority(.required, for: .horizontal)
 
         contentView.addSubview(stackView)
@@ -65,13 +56,12 @@ class AccountViewCell: UITableViewCell {
 
     @objc func optionsSelected() {
         guard let account = account else { return }
-        delegate?.accountViewCell(self, didSelecteAccount: account)
+        delegate?.accountViewCell(self, didTapInfoViewForAccount: account)
     }
 
     func configure(viewModel: AccountViewModel) {
         self.viewModel = viewModel
 
-        
         backgroundColor = viewModel.backgroundColor
 
         icon.image = viewModel.icon
@@ -83,10 +73,6 @@ class AccountViewCell: UITableViewCell {
         addressLabel.textColor = viewModel.addressTextColor
         addressLabel.text = viewModel.addresses
 
-        optionsButton.isHidden = !viewModel.showSelectionIcon
-        selectionImageView.isHidden = !viewModel.showSelectionIcon
-        
-        selectionImageView.image = viewModel.selectionIcon?.withRenderingMode(.alwaysTemplate)
-        selectionImageView.tintColor = viewModel.iconTintColor
+        selectionImageView.image = viewModel.selectionIcon 
     }
 }
