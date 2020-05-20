@@ -795,7 +795,7 @@ extension XMLHandler {
     }
 
     static func getCardAttributeTypeElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
-        root.xpath("cards/action/attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        root.xpath("/token/cards/card[@type='action']/attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getMappingElement(fromOriginElement originElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
@@ -821,7 +821,7 @@ extension XMLHandler {
     }
 
     static func getEthereumOriginElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
-        return attributeTypeElement.at_xpath("origins/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        return attributeTypeElement.at_xpath("origins".addToXPath(namespacePrefix: xmlContext.namespacePrefix) + "/ethereum:call", namespaces: xmlContext.namespaces)
     }
 
     static func getOriginUserEntryElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
