@@ -21,20 +21,19 @@ class AccountsViewController: UIViewController {
     private let keystore: Keystore
     private let balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator
     private var etherKeystore = try? EtherKeystore()
-
+    
     weak var delegate: AccountsViewControllerDelegate?
     var allowsAccountDeletion: Bool = false
     var hasWallets: Bool {
         return !keystore.wallets.isEmpty
     }
-
+    
     init(keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator) {
         self.keystore = keystore
         self.balanceCoordinator = balanceCoordinator
         super.init(nibName: nil, bundle: nil)
 
         view.backgroundColor = Colors.appBackground
-
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
@@ -168,8 +167,11 @@ extension AccountsViewController: UITableViewDataSource {
         var cellViewModel = getAccountViewModels(for: indexPath)
         cell.configure(viewModel: cellViewModel)
         cell.account = cellViewModel.wallet
-        cell.delegate = self
-
+        
+        let gesture = UILongPressGestureRecognizer(target: self, action: #selector(didLongPress))
+        gesture.minimumPressDuration = 0.6
+        cell.addGestureRecognizer(gesture)
+        
         let serverToResolveEns = RPCServer.main
         let address = cellViewModel.address
         ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { result in
@@ -195,6 +197,12 @@ extension AccountsViewController: UITableViewDataSource {
         case .none:
             return false
         }
+    }
+    
+    @objc private func didLongPress(_ recognizer: UILongPressGestureRecognizer) {
+        guard let cell = recognizer.view as? AccountViewCell, let account = cell.account, recognizer.state == .began else { return }
+        
+        delegate?.didSelectInfoForAccount(account: account, in: self)
     }
 }
 
@@ -248,23 +256,31 @@ extension AccountsViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let deleteAction = UIContextualAction(style: .destructive, title: R.string.localizable.accountsConfirmDeleteAction()) { action, view, complete in
+        
+        let copyAction = UIContextualAction(style: .destructive, title: R.string.localizable.copyAddress()) { _, _, complete in
+            let account = self.account(for: indexPath)
+            UIPasteboard.general.string = account.address.eip55String
+            complete(true)
+        }
+        
+        copyAction.image = R.image.copy()?.withRenderingMode(.alwaysTemplate)
+        copyAction.backgroundColor = R.color.azure()
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: R.string.localizable.accountsConfirmDeleteAction()) { _, _, complete in
             let account = self.account(for: indexPath)
             self.confirmDelete(account: account)
             
             complete(true)
         }
+        
         deleteAction.image = R.image.close()?.withRenderingMode(.alwaysTemplate)
         deleteAction.backgroundColor = R.color.danger()
         
-        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        let configuration = UISwipeActionsConfiguration(actions: [copyAction, deleteAction])
         configuration.performsFirstActionWithFullSwipe = true
         
         return configuration
-    } 
-}
-
-extension AccountsViewController: AccountViewCellDelegate {
+    }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -273,9 +289,5 @@ extension AccountsViewController: AccountViewCellDelegate {
         guard etherKeystore?.recentlyUsedWallet != account else { return }
         
         delegate?.didSelectAccount(account: account, in: self)
-    }
-
-    func accountViewCell(_ cell: AccountViewCell, didTapInfoViewForAccount account: Wallet) {
-        delegate?.didSelectInfoForAccount(account: account, in: self)
     }
 }

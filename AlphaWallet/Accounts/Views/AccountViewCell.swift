@@ -2,10 +2,6 @@
 
 import UIKit
 
-protocol AccountViewCellDelegate: class {
-    func accountViewCell(_ cell: AccountViewCell, didTapInfoViewForAccount _: Wallet)
-}
-
 class AccountViewCell: UITableViewCell {
     static let identifier = "AccountViewCell"
 
@@ -14,15 +10,14 @@ class AccountViewCell: UITableViewCell {
     private var addressLabel = UILabel()
     private var balanceLabel = UILabel()
     
-    var viewModel: AccountViewModel?
-    weak var delegate: AccountViewCellDelegate?
+    var viewModel: AccountViewModel? 
     var account: Wallet?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         separatorInset = .zero
         selectionStyle = .none
-        
+        self.isUserInteractionEnabled = true
         icon.contentMode = .scaleAspectFit
         selectionImageView.contentMode = .scaleAspectFit
         addressLabel.lineBreakMode = .byTruncatingMiddle
@@ -46,18 +41,13 @@ class AccountViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             icon.widthAnchor.constraint(equalToConstant: 40),
             selectionImageView.widthAnchor.constraint(equalToConstant: 30),
-            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 15, left: 20, bottom: 15, right: 20)),
+            stackView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 20, left: 20, bottom: 20, right: 20)),
         ])
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    @objc func optionsSelected() {
-        guard let account = account else { return }
-        delegate?.accountViewCell(self, didTapInfoViewForAccount: account)
-    }
+    } 
 
     func configure(viewModel: AccountViewModel) {
         self.viewModel = viewModel

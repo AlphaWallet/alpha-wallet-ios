@@ -107,24 +107,17 @@ class AccountsCoordinator: Coordinator {
                 strongSelf.addCoordinator(coordinator)
             }
             controller.addAction(backupKeystoreAction)
+            
+            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+
+            controller.addAction(cancelAction)
+            controller.makePresentationFullScreenForiOS13Migration()
+            
+            navigationController.present(controller, animated: true, completion: nil)
         case .watch:
             break
         }
-
-        let copyAction = UIAlertAction(
-            title: R.string.localizable.copyAddress(),
-            style: .default
-        ) { _ in
-            UIPasteboard.general.string = account.address.eip55String
-        }
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
-
-        controller.addAction(copyAction)
-        controller.addAction(cancelAction)
-        controller.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(controller, animated: true, completion: nil)
     }
-
 
     private func importOrCreateWallet(entryPoint: WalletEntryPoint) {
         let coordinator = WalletCoordinator(config: config, keystore: keystore)
