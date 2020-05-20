@@ -146,10 +146,20 @@ extension WKWebViewConfiguration {
     fileprivate static func javaScriptForTokenScriptRenderer(server: RPCServer, address: AlphaWallet.Address) -> String {
         return """
                window.web3CallBacks = {}
+               window.tokenScriptCallBacks = {}
 
                function executeCallback (id, error, value) {
                    window.web3CallBacks[id](error, value)
                    delete window.web3CallBacks[id]
+               }
+
+               function executeTokenScriptCallback (id, error, value) {
+                   let cb = window.tokenScriptCallBacks[id]
+                   if (cb) {
+                       window.tokenScriptCallBacks[id](error, value)
+                       delete window.tokenScriptCallBacks[id]
+                   } else {
+                   }
                }
 
                web3 = {
@@ -162,8 +172,10 @@ extension WKWebViewConfiguration {
                    }
                  },
                  action: {
-                   setProps: function (object) {
-                     webkit.messageHandlers.\(TokenInstanceWebView.SetProperties.setActionProps).postMessage(object)
+                   setProps: function (object, cb) {
+                     const id = 8888
+                     window.tokenScriptCallBacks[id] = cb
+                     webkit.messageHandlers.\(TokenInstanceWebView.SetProperties.setActionProps).postMessage({"object":  object, id: id})
                    }
                  }
                }
