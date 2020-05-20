@@ -10,7 +10,7 @@ struct AccountViewModel {
     let current: Wallet?
     let walletBalance: Balance?
     var ensName: String?
-
+    
     init(wallet: Wallet, current: Wallet?, walletBalance: Balance?, ensName: String? = nil, server: RPCServer) {
         self.wallet = wallet
         self.current = current
@@ -18,6 +18,7 @@ struct AccountViewModel {
         self.ensName = ensName
         self.server = server
     }
+    
     var showWatchIcon: Bool {
         return wallet.type == .watch(wallet.address)
     }
@@ -28,7 +29,16 @@ struct AccountViewModel {
     var address: AlphaWallet.Address {
         return wallet.address
     }
-    var showActiveIcon: Bool {
+    
+    var icon: UIImage? {
+        return R.image.xDai()
+    }
+    
+    var selectionIcon: UIImage? {
+        return isSelected ? R.image.check_mark() : nil
+    }
+    
+    var isSelected: Bool {
         return wallet == current
     }
 
@@ -37,22 +47,22 @@ struct AccountViewModel {
     }
 
     var balanceFont: UIFont {
-        return Fonts.light(size: 20)!
+        return Fonts.regular(size: 20)!
     }
 
     var addressFont: UIFont {
-        return Fonts.semibold(size: 12)!
+        return Fonts.regular(size: 12)!
     }
 
     var addressTextColor: UIColor {
-        return Colors.gray
+        return R.color.dove()!
     }
 
     var addresses: String {
         if let ensName = ensName {
             return "\(ensName) | \(wallet.address.truncateMiddle)"
         } else {
-            return wallet.address.eip55String
+            return wallet.address.truncateMiddle
         }
     }
 }
