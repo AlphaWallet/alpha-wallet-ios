@@ -31,7 +31,7 @@ struct UserEntryOrigin {
             let number: BigUInt = (bitmask & userEntryNumber) >> bitShift
             return .uint(number)
         case .utf8:
-            return String(data: Data(bytes: userEntry.hexa2Bytes), encoding: .utf8).flatMap { .string($0) }
+            return .string(userEntry)
         case .bytes:
             guard let userEntryNumber = BigUInt(userEntry, radix: 16) else { return .bytes(Data(bytes: userEntry.drop0x.hexa2Bytes)) }
             let number: BigUInt = (bitmask & userEntryNumber) >> bitShift
@@ -40,6 +40,8 @@ struct UserEntryOrigin {
             return EtherNumberFormatter().number(from: userEntry).flatMap { .uint(BigUInt($0)) }
         case .e8:
             return EtherNumberFormatter().number(from: userEntry, decimals: 8).flatMap { .uint(BigUInt($0)) }
+        case .e6:
+            return EtherNumberFormatter().number(from: userEntry, decimals: 6).flatMap { .uint(BigUInt($0)) }
         case .e4:
             return EtherNumberFormatter().number(from: userEntry, decimals: 4).flatMap { .uint(BigUInt($0)) }
         case .e2:

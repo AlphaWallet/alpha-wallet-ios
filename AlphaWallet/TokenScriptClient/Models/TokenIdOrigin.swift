@@ -33,6 +33,8 @@ struct TokenIdOrigin {
             return EtherNumberFormatter().number(from: String(number)).flatMap { .uint(BigUInt($0)) }
         case .e8:
             return EtherNumberFormatter().number(from: String(number), decimals: 8).flatMap { .uint(BigUInt($0)) }
+        case .e6:
+            return EtherNumberFormatter().number(from: String(number), decimals: 6).flatMap { .uint(BigUInt($0)) }
         case .e4:
             return EtherNumberFormatter().number(from: String(number), decimals: 4).flatMap { .uint(BigUInt($0)) }
         case .e2:

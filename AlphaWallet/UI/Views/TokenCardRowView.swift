@@ -28,6 +28,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	private let spaceAboveBottomRowStack = UIView.spacer(height: 10)
 	private var checkboxRelatedConstraintsWhenShown = [NSLayoutConstraint]()
 	private var checkboxRelatedConstraintsWhenHidden = [NSLayoutConstraint]()
+	private var lastTokenHolder: TokenHolder?
 	private var onlyShowTitle: Bool = false {
 		didSet {
 			if onlyShowTitle {
@@ -199,6 +200,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	}
 
 	func configure(tokenHolder: TokenHolder, tokenView: TokenView, areDetailsVisible: Bool, width: CGFloat, assetDefinitionStore: AssetDefinitionStore) {
+		lastTokenHolder = tokenHolder
         configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
 	}
 
@@ -285,8 +287,8 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			canDetailsBeVisible = false
 			nativelyRenderedAttributeViews.hideAll()
 			tokenScriptRendererView.isHidden = false
-			let html = viewModel.tokenScriptHtml
-			tokenScriptRendererView.loadHtml(html)
+			let (html: html, hash: hash) = viewModel.tokenScriptHtml
+			tokenScriptRendererView.loadHtml(html, hash: hash)
 			//TODO not good to explicitly check for different types. Easy to miss
 			if let viewModel = viewModel as? TokenCardRowViewModel {
 				tokenScriptRendererView.update(withTokenHolder: viewModel.tokenHolder, isFungible: false)
@@ -341,6 +343,7 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 
 extension TokenCardRowView: TokenRowView {
 	func configure(tokenHolder: TokenHolder) {
+		lastTokenHolder = tokenHolder
 		configure(viewModel: TokenCardRowViewModel(tokenHolder: tokenHolder, tokenView: tokenView, assetDefinitionStore: assetDefinitionStore))
 	}
 }
@@ -357,4 +360,14 @@ extension TokenCardRowView: TokenInstanceWebViewDelegate {
 	func heightChangedFor(tokenInstanceWebView: TokenInstanceWebView) {
         delegate?.heightChangedFor(tokenCardRowView: self)
 	}
+
+	func reinject(tokenInstanceWebView: TokenInstanceWebView) {
+		//Refresh if view, but not item-view
+        if isStandalone {
+			guard let lastTokenHolder = lastTokenHolder else { return }
+			configure(tokenHolder: lastTokenHolder)
+		} else {
+			//no-op for item-views
+		}
+    }
 }

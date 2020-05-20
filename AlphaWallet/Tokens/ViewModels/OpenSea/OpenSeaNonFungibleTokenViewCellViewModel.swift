@@ -13,10 +13,10 @@ class OpenSeaNonFungibleTokenViewCellViewModel {
         return token.name
     }
 
-    init(config: Config, token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore) {
+    init(config: Config, token: TokenObject, forWallet account: Wallet, assetDefinitionStore: AssetDefinitionStore, eventsDataStore: EventsDataStoreProtocol) {
         self.token = token
         //We use the contract's image and fallback to the first token ID's image if the former is not available
-        if let tokenHolder = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore).getTokenHolders(forWallet: account).first {
+        if let tokenHolder = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: account).first {
             var url = tokenHolder.values["contractImageUrl"]?.stringValue ?? ""
             if url.isEmpty {
                 url = tokenHolder.values["imageUrl"]?.stringValue ?? ""

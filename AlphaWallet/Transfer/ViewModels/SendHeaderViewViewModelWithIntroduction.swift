@@ -45,7 +45,7 @@ struct SendHeaderViewViewModelWithIntroduction {
     var subtitleFont: UIFont {
         return Screen.TokenCard.Font.subtitle
     }
-    
+
     var borderColor: UIColor {
         return UIColor(red: 236, green: 236, blue: 236)
     }
@@ -108,7 +108,8 @@ struct SendHeaderViewViewModelWithIntroduction {
     var tbmlIntroductionHtmlString: String {
         guard let contract = contractAddress else { return "" }
         let xmlHandler = XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore)
-        return wrapWithHtmlViewport(xmlHandler.introductionHtmlString)
+        //Any number works for tokenId here, since it's only used for generating the unique CSS ID
+        return wrapWithHtmlViewport(html: xmlHandler.introductionHtmlString, style: "", forTokenId: 1)
     }
 
     init(server: RPCServer, assetDefinitionStore: AssetDefinitionStore) {

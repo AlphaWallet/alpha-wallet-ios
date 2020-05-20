@@ -12,13 +12,13 @@ enum OpenSeaBackedNonFungibleTokenHandling {
     init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore, tokenViewType: TokenView) {
         self = {
             if !token.balance.isEmpty && token.balance[0].balance.hasPrefix("{") {
-                let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: AssetDefinitionStore())
+                let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
                 let view: String
                 switch tokenViewType {
                 case .viewIconified:
-                    view = xmlHandler.tokenViewIconifiedHtml
+                    view = xmlHandler.tokenViewIconifiedHtml.html
                 case .view:
-                    view = xmlHandler.tokenViewHtml
+                    view = xmlHandler.tokenViewHtml.html
                 }
                 if xmlHandler.hasAssetDefinition && !view.isEmpty {
                     return .notBackedByOpenSea

@@ -9,6 +9,10 @@ struct AssetAttributeSyntaxValue {
     let syntax: AssetAttributeSyntax
     var value: AssetInternalValue
 
+    var description: String {
+        "\(syntax): \(value.description)"
+    }
+
     init(syntax: AssetAttributeSyntax, value: AssetInternalValue) {
         self.syntax = syntax
         self._value = value

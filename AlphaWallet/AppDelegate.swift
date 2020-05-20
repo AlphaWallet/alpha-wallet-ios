@@ -52,7 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func applicationWillResignActive(_ application: UIApplication) {
         protectionCoordinator.applicationWillResignActive()
     }
-    
+
     func applicationDidBecomeActive(_ application: UIApplication) {
         //Lokalise.shared.checkForUpdates { _, _ in }
         protectionCoordinator.applicationDidBecomeActive()
@@ -90,7 +90,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         //TODO: if we handle other types of URLs, check if handled==false, then we pass the url to another handlers
         return handled
     }
-    
+
     // Respond to amazon SNS registration
     func application(_ application: UIApplication,
                      didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {

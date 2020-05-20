@@ -16,18 +16,20 @@ struct FunctionOrigin {
         case functionCall(functionName: String, inputs: [AssetFunctionCall.Argument], output: AssetFunctionCall.ReturnType)
         case functionTransaction(functionName: String, inputs: [AssetFunctionCall.Argument], inputValue: AssetFunctionCall.Argument?)
         case paymentTransaction(inputValue: AssetFunctionCall.Argument)
+        //Not actually a function call/invocation. But it fits really well here
+        case eventFiltering
 
         var isCall: Bool {
             switch self {
             case .functionCall:
                 return true
-            case .functionTransaction, .paymentTransaction:
+            case .functionTransaction, .paymentTransaction, .eventFiltering:
                 return false
             }
         }
         var isTransaction: Bool {
             switch self {
-            case .functionCall:
+            case .functionCall, .eventFiltering:
                 return false
             case .functionTransaction, .paymentTransaction:
                 return true
@@ -35,7 +37,7 @@ struct FunctionOrigin {
         }
         var isFunctionTransaction: Bool {
             switch self {
-            case .functionCall, .paymentTransaction:
+            case .functionCall, .paymentTransaction, .eventFiltering:
                 return false
             case .functionTransaction:
                 return true
@@ -45,7 +47,7 @@ struct FunctionOrigin {
             switch self {
             case .functionCall(let functionName, _, _), .functionTransaction(let functionName, _, _):
                 return functionName
-            case .paymentTransaction:
+            case .paymentTransaction, .eventFiltering:
                 return nil
             }
         }
@@ -53,7 +55,7 @@ struct FunctionOrigin {
             switch self {
             case .functionCall(_, let inputs, _), .functionTransaction(_, let inputs, _):
                 return inputs
-            case .paymentTransaction:
+            case .paymentTransaction, .eventFiltering:
                 return .init()
             }
         }
@@ -61,13 +63,13 @@ struct FunctionOrigin {
             switch self {
             case .functionCall(_, _, let output):
                 return output
-            case .functionTransaction, .paymentTransaction:
+            case .functionTransaction, .paymentTransaction, .eventFiltering:
                 return .init(type: .void)
             }
         }
         var inputValue: AssetFunctionCall.Argument? {
             switch self {
-            case .functionCall:
+            case .functionCall, .eventFiltering:
                 return nil
             case .functionTransaction(_, _, let inputValue):
                 return inputValue
@@ -86,21 +88,29 @@ struct FunctionOrigin {
     let originElement: XMLElement
     let xmlContext: XmlContext
 
-    init?(forEthereumFunctionTransactionElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
+    var inputs: [AssetFunctionCall.Argument] {
+        functionType.inputs
+    }
+
+    var inputValue: AssetFunctionCall.Argument? {
+        functionType.inputValue
+    }
+
+    init?(forEthereumFunctionTransactionElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
         guard let functionName = ethereumFunctionElement["function"].nilIfEmpty else { return nil }
         let inputs: [AssetFunctionCall.Argument]
         if let dataElement = XMLHandler.getDataElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext) {
-            inputs = FunctionOrigin.extractInputs(fromDataElement: dataElement)
+            inputs = FunctionOrigin.extractInputs(fromDataElement: dataElement, root: root, xmlContext: xmlContext)
         } else {
             inputs = []
         }
-        let value = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext).flatMap { FunctionOrigin.createInput(fromInputElement: $0, withInputType: .uint) }
+        let value = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext).flatMap { FunctionOrigin.createInput(fromInputElement: $0, root: root, xmlContext: xmlContext, withInputType: .uint) }
         let functionType = FunctionType.functionTransaction(functionName: functionName, inputs: inputs, inputValue: value)
         self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: originContract, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
     }
 
-    init?(forEthereumPaymentElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, recipientAddress: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
-        if let valueElement = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext), let value = FunctionOrigin.createInput(fromInputElement: valueElement, withInputType: .uint) {
+    init?(forEthereumPaymentElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeId: AttributeId, recipientAddress: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
+        if let valueElement = XMLHandler.getValueElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext), let value = FunctionOrigin.createInput(fromInputElement: valueElement, root: root, xmlContext: xmlContext, withInputType: .uint) {
             let functionType = FunctionType.paymentTransaction(inputValue: value)
             self = .init(originElement: ethereumFunctionElement, xmlContext: xmlContext, originalContractOrRecipientAddress: recipientAddress, attributeId: attributeId, functionType: functionType, bitmask: bitmask, bitShift: bitShift)
         } else {
@@ -108,13 +118,13 @@ struct FunctionOrigin {
         }
     }
 
-    init?(forEthereumFunctionCallElement ethereumFunctionElement: XMLElement, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
+    init?(forEthereumFunctionCallElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext, bitmask: BigUInt?, bitShift: Int) {
         guard let functionName = ethereumFunctionElement["function"].nilIfEmpty else { return nil }
         guard let asType: OriginAsType = ethereumFunctionElement["as"].flatMap({ OriginAsType(rawValue: $0) }) else { return nil }
         let inputs: [AssetFunctionCall.Argument]
         let output = AssetFunctionCall.ReturnType(type: asType.solidityReturnType)
         if let dataElement = XMLHandler.getDataElement(fromFunctionElement: ethereumFunctionElement, xmlContext: xmlContext) {
-            inputs = FunctionOrigin.extractInputs(fromDataElement: dataElement)
+            inputs = FunctionOrigin.extractInputs(fromDataElement: dataElement, root: root, xmlContext: xmlContext)
         } else {
             inputs = []
         }
@@ -132,12 +142,13 @@ struct FunctionOrigin {
         self.bitShift = bitShift
     }
 
-    func extractValue(withTokenId tokenId: TokenId, account: Wallet, server: RPCServer, attributeAndValues: [AttributeId: AssetInternalValue], callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator) -> AssetInternalValue? {
+    func extractValue(withTokenId tokenId: TokenId, account: Wallet, server: RPCServer, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator) -> AssetInternalValue? {
         guard let functionName = functionType.functionName else { return nil }
         guard let subscribable = callSmartContractFunction(
                 forAttributeId: attributeId,
                 tokenId: tokenId,
                 attributeAndValues: attributeAndValues,
+                localRefs: localRefs,
                 account: account,
                 server: server,
                 originContract: originContractOrRecipientAddress,
@@ -203,10 +214,10 @@ struct FunctionOrigin {
     }
 
     //We encode slightly differently depending on whether the function is a call or a transaction. Specifically addresses should be a string (actually EthereumAddress would do too, but we don't it so we don't have to import the framework here) for calls, which uses Web3Swift, and Address for calls (which uses vendored TrustCore)
-    private func formArguments(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], account: Wallet) -> [AnyObject]? {
+    private func formArguments(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], account: Wallet) -> [AnyObject]? {
         let arguments: [AnyObject] = functionType.inputs.compactMap {
             switch $0 {
-            case .ref(let ref, let solidityType):
+            case .ref(let ref, let solidityType), .cardRef(let ref, let solidityType):
                 let ref = AssetFunctionCall.ArgumentReferences(string: ref)
                 switch ref {
                 case .ownerAddress:
@@ -218,6 +229,10 @@ struct FunctionOrigin {
                     guard let value = availableAttributes[attributeId] else { return nil }
                     return value.coerce(toArgumentType: solidityType, forFunctionType: functionType)
                 }
+            case .prop(let ref, let solidityType):
+                let availableAttributes = AssetAttributeValueUsableAsFunctionArguments.dictionary(fromAssetAttributeKeyValues: localRefs)
+                guard let value = availableAttributes[ref] else { return nil }
+                return value.coerce(toArgumentType: solidityType, forFunctionType: functionType)
             case .value(let value, let solidityType):
                 return AssetAttributeValueUsableAsFunctionArguments.string(value).coerce(toArgumentType: solidityType, forFunctionType: functionType)
             }
@@ -226,10 +241,10 @@ struct FunctionOrigin {
         return arguments
     }
 
-    private func formTransactionPayload(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> Data? {
+    private func formTransactionPayload(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> Data? {
         assert(functionType.isFunctionTransaction)
         guard let functionName = functionType.functionName else { return nil }
-        guard let arguments = formArguments(withTokenId: tokenId, attributeAndValues: attributeAndValues, account: account) else { return nil }
+        guard let arguments = formArguments(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, account: account) else { return nil }
         let parameters = functionType.inputs.map { $0.abiType }
         let functionEncoder = Function(name: functionName, parameters: parameters)
         let encoder = ABIEncoder()
@@ -242,10 +257,10 @@ struct FunctionOrigin {
         }
     }
 
-    private func formValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> BigUInt? {
+    private func formValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, account: Wallet) -> BigUInt? {
         guard let value = functionType.inputValue else { return nil }
         switch value {
-        case .ref(let ref, let solidityType):
+        case .ref(let ref, let solidityType), .cardRef(let ref, let solidityType):
             let ref = AssetFunctionCall.ArgumentReferences(string: ref)
             switch ref {
             case .ownerAddress:
@@ -257,60 +272,72 @@ struct FunctionOrigin {
                 guard let value = availableAttributes[attributeId] else { return nil }
                 return (value.coerce(toArgumentType: solidityType, forFunctionType: functionType) as? BigUInt)
             }
+        case .prop(let ref, let solidityType):
+            let availableAttributes = AssetAttributeValueUsableAsFunctionArguments.dictionary(fromAssetAttributeKeyValues: localRefs)
+            guard let value = availableAttributes[ref] else { return nil }
+            return (value.coerce(toArgumentType: solidityType, forFunctionType: functionType) as? BigUInt)
         case .value(let value, let solidityType):
             return (AssetAttributeValueUsableAsFunctionArguments.string(value).coerce(toArgumentType: solidityType, forFunctionType: functionType) as? BigUInt)
         }
     }
 
     //TODO duplicated from InCoordinator.importPaidSignedOrder. Extract
-    func postTransaction(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<Void> {
+    func postTransaction(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<Void> {
         assert(functionType.isTransaction)
         let payload: Data
         let value: BigUInt
         switch functionType {
-        case .functionCall:
+        case .functionCall, .eventFiltering:
             return .init(error: FunctionError.postTransaction)
         case .paymentTransaction:
             payload = .init()
-            guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, server: server, account: session.account) else { return .init(error: FunctionError.formValue) }
+            guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else { return .init(error: FunctionError.formValue) }
             value = val
         case .functionTransaction:
-            guard let data = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, server: server, account: session.account) else { return .init(error: FunctionError.formPayload) }
+            guard let data = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else { return .init(error: FunctionError.formPayload) }
             payload = data
-            value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, server: server, account: session.account) ?? 0
+            value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) ?? 0
         }
         return postTransaction(withPayload: payload, value: value, server: server, session: session, keystore: keystore)
     }
 
-    func generateDataAndValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> (Data?, BigUInt)? {
+    func generateDataAndValue(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> (Data?, BigUInt)? {
         assert(functionType.isTransaction)
         let payload: Data?
         let value: BigUInt
         switch functionType {
-        case .functionCall:
+        case .functionCall, .eventFiltering:
             return nil
         case .paymentTransaction:
             payload = nil
-            guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, server: server, account: session.account) else { return nil }
+            guard let val = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else { return nil }
             value = val
         case .functionTransaction:
-            guard let data = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, server: server, account: session.account) else { return nil }
+            guard let data = formTransactionPayload(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) else { return nil }
             payload = data
-            value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, server: server, account: session.account) ?? 0
+            value = formValue(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, server: server, account: session.account) ?? 0
         }
         return (payload, value)
     }
 
-    fileprivate static func extractInputs(fromDataElement dataElement: XMLElement) -> [AssetFunctionCall.Argument] {
+    fileprivate static func extractInputs(fromDataElement dataElement: XMLElement, root: XMLDocument, xmlContext: XmlContext) -> [AssetFunctionCall.Argument] {
         return XMLHandler.getInputs(fromDataElement: dataElement).compactMap {
             guard let inputType = $0.tagName.nilIfEmpty.flatMap({ SolidityType(rawValue: $0) }) else { return nil }
-            return createInput(fromInputElement: $0, withInputType: inputType)
+            return createInput(fromInputElement: $0, root: root, xmlContext: xmlContext, withInputType: inputType)
         }
     }
 
-    fileprivate static func createInput(fromInputElement inputElement: XMLElement, withInputType inputType: SolidityType) -> AssetFunctionCall.Argument? {
+    fileprivate static func createInput(fromInputElement inputElement: XMLElement, root: XMLDocument, xmlContext: XmlContext, withInputType inputType: SolidityType) -> AssetFunctionCall.Argument? {
         if let inputName = inputElement["ref"].nilIfEmpty {
             return .ref(ref: inputName, type: inputType)
+        } else if let inputName = inputElement["local-ref"].nilIfEmpty {
+            let attributes = XMLHandler.getCardAttributeTypeElements(fromRoot: root, xmlContext: xmlContext)
+            let attributeIds = attributes.compactMap { $0["id"] }
+            if attributeIds.contains(inputName) {
+                return .cardRef(ref: inputName, type: inputType)
+            } else {
+                return .prop(ref: inputName, type: inputType)
+            }
         } else if let value = inputElement.text.nilIfEmpty {
             return .value(value: value, type: inputType)
         } else {
@@ -322,6 +349,7 @@ struct FunctionOrigin {
             forAttributeId attributeId: AttributeId,
             tokenId: TokenId,
             attributeAndValues: [AttributeId: AssetInternalValue],
+            localRefs: [AttributeId: AssetInternalValue],
             account: Wallet,
             server: RPCServer,
             originContract: AlphaWallet.Address,
@@ -330,7 +358,7 @@ struct FunctionOrigin {
             callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator
     ) -> Subscribable<AssetInternalValue>? {
         assert(functionType.isCall)
-        guard let arguments = formArguments(withTokenId: tokenId, attributeAndValues: attributeAndValues, account: account) else { return nil }
+        guard let arguments = formArguments(withTokenId: tokenId, attributeAndValues: attributeAndValues, localRefs: localRefs, account: account) else { return nil }
         guard let functionName = functionType.functionName else { return nil }
         let functionCall = AssetFunctionCall(server: server, contract: originContract, functionName: functionName, inputs: functionType.inputs, output: output, arguments: arguments)
         return callForAssetAttributeCoordinator.getValue(forAttributeId: attributeId, tokenId: tokenId, functionCall: functionCall)

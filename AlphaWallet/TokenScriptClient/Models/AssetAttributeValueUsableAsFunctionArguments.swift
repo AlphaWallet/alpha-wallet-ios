@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 import TrustKeystore
+import web3swift
 
 enum AssetAttributeValueUsableAsFunctionArguments {
     case address(AlphaWallet.Address)
@@ -55,6 +56,25 @@ enum AssetAttributeValueUsableAsFunctionArguments {
         }
     }
 
+    func coerceToArgumentTypeForEventFilter(_ parameterType: SolidityType) -> EventFilterable? {
+        guard let value = coerce(toArgumentType: parameterType, forFunctionType: .eventFiltering) else { return nil }
+        //Need to perform an intermediate cast to BigInt, Data, etc before returning (and hence "casting" as `EventFilterable`)
+        switch value {
+        case let int as BigInt:
+            return int
+        case let uint as BigUInt:
+            return uint
+        case let data as Data:
+            return data
+        case let string as String:
+            return string
+        case let address as EthereumAddress:
+            return address
+        default:
+            return nil
+        }
+    }
+
     private func coerceToAddress(forFunctionType functionType: FunctionOrigin.FunctionType) -> AnyObject? {
         switch self {
         case .address(let address):
@@ -63,6 +83,8 @@ enum AssetAttributeValueUsableAsFunctionArguments {
                 return address.eip55String as AnyObject
             case .functionTransaction, .paymentTransaction:
                 return Address(address: address) as AnyObject
+            case .eventFiltering:
+                return EthereumAddress(address: address) as AnyObject
             }
         case .string(let string):
             switch functionType {
@@ -70,6 +92,8 @@ enum AssetAttributeValueUsableAsFunctionArguments {
                 return AlphaWallet.Address(string: string)?.eip55String as AnyObject
             case .functionTransaction, .paymentTransaction:
                 return Address(string: string) as AnyObject
+            case .eventFiltering:
+                return EthereumAddress(string) as AnyObject
             }
         case .int, .uint, .generalisedTime, .bool, .bytes:
             return nil
@@ -176,7 +200,11 @@ enum AssetAttributeValueUsableAsFunctionArguments {
         case .uint(let uint):
             return uint.serialize() as AnyObject
         case .string(let string):
-            return string.data(using: .utf8) as AnyObject
+            if string.hasPrefix("0x"), string.count > 2, string.count % 2 == 0 {
+                return Data(hex: string) as AnyObject
+            } else {
+                return string.data(using: .utf8) as AnyObject
+            }
         case .bytes(let data):
             return data as AnyObject
         case .address, .generalisedTime, .bool:
