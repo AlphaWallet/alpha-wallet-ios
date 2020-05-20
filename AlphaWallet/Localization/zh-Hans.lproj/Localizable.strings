@@ -85,9 +85,9 @@
 "suppport.title" = "Support";
 "transactions.noTransactions.label.title" = "暂无记录";
 "wallet.navigation.title" = "Change Wallet";
-"wallet.types.hdWallets" = "HD Wallets";
+"wallet.types.hdWallets" = "Your Wallets";
 "wallet.types.keystoreWallets" = "Keystore Wallets";
-"wallet.types.watchedWallets" = "Watched Wallets";
+"wallet.types.watchedWallets" = "Watch-only Wallets";
 "wallets.backupKeystoreWallet.alertSheet.title" = "Export Keystore JSON";
 "wallets.backupKeystoreWallet.alertSheet.title.shorter" = "Export Keystore";
 "wallets.backupKeystoreWallet.introduction.title" = "What is Keystore JSON?";
