@@ -1,8 +1,8 @@
 # AlphaWallet - Advanced, Open Source Ethereum Mobile Wallet & dApp Browser for iOS
 
-[![Build Status](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)
+[![Build Status](https://travis-ci.com/AlphaWallet/alpha-wallet-ios.svg?branch=master)](https://github.com/AlphaWallet/alpha-wallet-ios/tree/master)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg )](https://GitHub.com/AlphaWallet/alpha-wallet-ios/graphs/commit-activity)
-![GitHub contributors](https://img.shields.io/github/contributors/AlphaWallet/alpha-wallet-ios.svg )
+[![GitHub contributors](https://img.shields.io/github/contributors/AlphaWallet/alpha-wallet-ios.svg)](https://github.com/AlphaWallet/alpha-wallet-ios/graphs/contributors)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/AlphaWallet/alpha-wallet-ios/blob/master/LICENSE)
 [![codecov](https://codecov.io/gh/AlphaWallet/alpha-wallet-ios/branch/master/graph/badge.svg )](https://codecov.io/gh/AlphaWallet/alpha-wallet-ios)
 
