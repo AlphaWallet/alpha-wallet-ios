@@ -33,6 +33,8 @@ class RequestViewController: UIViewController {
 	private lazy var addressContainerView: UIView = {
 		let v = UIView()
 		v.backgroundColor = viewModel.addressBackgroundColor
+        v.isUserInteractionEnabled = true
+
 		return v
 	}()
 
@@ -43,6 +45,7 @@ class RequestViewController: UIViewController {
 		label.text = viewModel.myAddressText
 		label.textAlignment = .center
 		label.numberOfLines = 0
+
 		return label
 	}()
 
@@ -50,6 +53,8 @@ class RequestViewController: UIViewController {
 		let v = UIView()
 		v.backgroundColor = viewModel.addressBackgroundColor
         v.isHidden = true
+        v.isUserInteractionEnabled = true
+
 		return v
 	}()
 
@@ -60,6 +65,7 @@ class RequestViewController: UIViewController {
 		label.textAlignment = .center
 		label.minimumScaleFactor = 0.5
 		label.adjustsFontSizeToFitWidth = true
+
 		return label
 	}()
 
@@ -74,6 +80,9 @@ class RequestViewController: UIViewController {
 
 		view.backgroundColor = viewModel.backgroundColor
 		view.addSubview(roundedBackground)
+
+        ensContainerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(copyEns)))
+        addressContainerView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(copyAddress)))
 
 		copyEnsButton.addTarget(self, action: #selector(copyEns), for: .touchUpInside)
         copyEnsButton.setContentHuggingPriority(.required, for: .horizontal)
