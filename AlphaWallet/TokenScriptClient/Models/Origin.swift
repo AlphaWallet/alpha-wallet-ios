@@ -92,18 +92,18 @@ enum Origin {
         self = .tokenId(.init(originElement: tokenIdElement, xmlContext: xmlContext, bitmask: bitmask, bitShift: bitShift, asType: asType))
     }
 
-    init?(forEthereumFunctionElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeId: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext) {
+    init?(forEthereumFunctionElement ethereumFunctionElement: XMLElement, root: XMLDocument, attributeName: AttributeId, originContract: AlphaWallet.Address, xmlContext: XmlContext) {
         let bitmask = XMLHandler.getBitMask(fromTokenIdElement: ethereumFunctionElement) ?? TokenScript.defaultBitmask
         let bitShift = Origin.bitShiftCount(forBitMask: bitmask)
-        guard let result = FunctionOrigin(forEthereumFunctionCallElement: ethereumFunctionElement, root: root, attributeId: attributeId, originContract: originContract, xmlContext: xmlContext, bitmask: bitmask, bitShift: bitShift) else { return nil }
+        guard let result = FunctionOrigin(forEthereumFunctionCallElement: ethereumFunctionElement, root: root, attributeName: attributeName, originContract: originContract, xmlContext: xmlContext, bitmask: bitmask, bitShift: bitShift) else { return nil }
         self = .function(result)
     }
 
-    init?(forUserEntryElement userEntryElement: XMLElement, attributeId: AttributeId, xmlContext: XmlContext) {
+    init?(forUserEntryElement userEntryElement: XMLElement, attributeName: AttributeId, xmlContext: XmlContext) {
         let bitmask = XMLHandler.getBitMask(fromTokenIdElement: userEntryElement) ?? TokenScript.defaultBitmask
         let bitShift = Origin.bitShiftCount(forBitMask: bitmask)
         guard let asType = userEntryElement["as"].flatMap({ OriginAsType(rawValue: $0) }) else { return nil }
-        self = .userEntry(.init(originElement: userEntryElement, xmlContext: xmlContext, attributeId: attributeId, asType: asType, bitmask: bitmask, bitShift: bitShift))
+        self = .userEntry(.init(originElement: userEntryElement, xmlContext: xmlContext, attributeId: attributeName, asType: asType, bitmask: bitmask, bitShift: bitShift))
     }
 
     init?(forEthereumEventElement eventElement: XMLElement, sourceContractElement: XMLElement, xmlContext: XmlContext) {
