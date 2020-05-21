@@ -140,7 +140,7 @@ private class PrivateXMLHandler {
 
     var tokenViewIconifiedHtml: (html: String, style: String) {
         guard hasValidTokenScriptFile else { return (html: "", style: "") }
-        if let element = XMLHandler.getTokenScriptTokenViewIconifiedHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
+        if let element = XMLHandler.getTokenScriptTokenItemViewHtmlElement(fromRoot: xml, xmlContext: xmlContext) {
             return extractHtml(fromViewElement: element)
         } else {
             return (html: "", style: "")
@@ -159,7 +159,7 @@ private class PrivateXMLHandler {
     var actions: [TokenInstanceAction] {
         guard hasValidTokenScriptFile else { return [] }
         var results = [TokenInstanceAction]()
-        let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceActionElements(fromRoot: xml, xmlContext: xmlContext))
+        let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceCardElements(fromRoot: xml, xmlContext: xmlContext))
         let fromActionAsTopLevel = Array(XMLHandler.getTokenScriptActionOnlyActionElements(fromRoot: xml, xmlContext: xmlContext))
         let actionElements = fromTokenAsTopLevel + fromActionAsTopLevel
         for actionElement in actionElements {
@@ -203,7 +203,7 @@ private class PrivateXMLHandler {
             return R.string.localizable.katTitlecase()
         }
 
-        if  let nameStringElement = XMLHandler.getNameStringElement(fromElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
+        if  let nameStringElement = XMLHandler.getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
             return name
         } else {
             return nil
@@ -215,7 +215,7 @@ private class PrivateXMLHandler {
             return R.string.localizable.katTitlecase()
         }
 
-        if  let nameElement = XMLHandler.getNameElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
+        if  let nameElement = XMLHandler.getLabelElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
             return name
         } else {
             return nameInSingularForm
@@ -504,8 +504,8 @@ private class PrivateXMLHandler {
         XMLHandler.getSelectionElements(fromRoot: xml, xmlContext: xmlContext).compactMap { each in
             guard let id = each["id"], let filter = each["filter"]  else { return nil }
             let names = (
-                    singular: XMLHandler.getNameStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
-                    plural: XMLHandler.getNameElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text
+                    singular: XMLHandler.getLabelStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
+                    plural: XMLHandler.getLabelElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text
             )
             let denial: String? = XMLHandler.getDenialString(fromElement: each, xmlContext: xmlContext)?.text
             return TokenScriptSelection(id: id, filter: filter, names: names, denial: denial)
@@ -519,10 +519,10 @@ private class PrivateXMLHandler {
     private func extractFields(fromElementContainingAttributes element: XMLElement) -> [AttributeId: AssetAttribute] {
         var fields = [AttributeId: AssetAttribute]()
         for each in XMLHandler.getAttributeTypeElements(fromAttributeTypesElement: element, xmlContext: xmlContext) {
-            guard let id = each["id"] else { continue }
+            guard let name = each["name"] else { continue }
             //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
             guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
-            fields[id] = attribute
+            fields[name] = attribute
         }
         return fields
     }
@@ -795,7 +795,7 @@ extension XMLHandler {
     }
 
     static func getCardAttributeTypeElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
-        root.xpath("cards/action/attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        root.xpath("/token/cards/card[@type='action']/attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getMappingElement(fromOriginElement originElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
@@ -803,10 +803,10 @@ extension XMLHandler {
     }
 
     static func getNameElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
-        if let nameElement = attributeTypeElement.at_xpath("name[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let nameElement = attributeTypeElement.at_xpath("label[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameElement
         } else {
-            let fallback = attributeTypeElement.at_xpath("name[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            let fallback = attributeTypeElement.at_xpath("label[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
             return fallback
         }
     }
@@ -821,7 +821,11 @@ extension XMLHandler {
     }
 
     static func getEthereumOriginElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
-        return attributeTypeElement.at_xpath("origins/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        return attributeTypeElement.at_xpath("origins".addToXPath(namespacePrefix: xmlContext.namespacePrefix) + "/ethereum:call", namespaces: xmlContext.namespaces)
+    }
+
+    static func getEthereumOriginElementEvents(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
+        return attributeTypeElement.at_xpath("origins".addToXPath(namespacePrefix: xmlContext.namespacePrefix) + "/ethereum:event", namespaces: xmlContext.namespaces)
     }
 
     static func getOriginUserEntryElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
@@ -859,28 +863,28 @@ extension XMLHandler {
 
     //Remember `1` in XPath selects the first node, not `0`
     //<plural> tag is optional
-    fileprivate static func getNameStringElement(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+    fileprivate static func getLabelStringElement(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
         guard let tokenElement = element else { return nil }
-        if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='one']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let nameStringElementMatchingLanguage = tokenElement.at_xpath("label/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='one']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
-        } else if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        } else if let nameStringElementMatchingLanguage = tokenElement.at_xpath("label/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
-        } else if let fallbackInPluralsTag = tokenElement.at_xpath("name/plurals[1]/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        } else if let fallbackInPluralsTag = tokenElement.at_xpath("label/plurals[1]/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return fallbackInPluralsTag
-        } else if let fallbackWithoutPluralsTag = tokenElement.at_xpath("name/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        } else if let fallbackWithoutPluralsTag = tokenElement.at_xpath("label/string[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return fallbackWithoutPluralsTag
         } else {
-            let fallback = tokenElement.at_xpath("name[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            let fallback = tokenElement.at_xpath("label[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
             return fallback
         }
     }
 
-    fileprivate static func getNameElementForPluralForm(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
+    fileprivate static func getLabelElementForPluralForm(fromElement element: XMLElement?, xmlContext: XmlContext) -> XMLElement? {
         guard let tokenElement = element else { return nil }
-        if let nameStringElementMatchingLanguage = tokenElement.at_xpath("name/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='other']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let nameStringElementMatchingLanguage = tokenElement.at_xpath("label/plurals[@xml:lang='\(xmlContext.lang)']/string[@quantity='other']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return nameStringElementMatchingLanguage
         } else {
-            return getNameStringElement(fromElement: tokenElement, xmlContext: xmlContext)
+            return getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext)
         }
     }
 
@@ -935,20 +939,20 @@ extension XMLHandler {
         // swiftlint:enable empty_count
             return tokenChildren
         } else {
-            return root.xpath("/action/selection".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return root.xpath("/card/selection".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 
-    fileprivate static func getTokenScriptTokenInstanceActionElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
-        return root.xpath("/token/cards/action".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    fileprivate static func getTokenScriptTokenInstanceCardElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+        return root.xpath("/token/cards/card[@type='action']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getTokenScriptActionOnlyActionElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
-        return root.xpath("/action".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        return root.xpath("/card[@type='action']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getActionTransactionFunctionElement(fromActionElement actionElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
-        return actionElement.at_xpath("transaction/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        return actionElement.at_xpath("transaction".addToXPath(namespacePrefix: xmlContext.namespacePrefix) + "/ethereum:transaction", namespaces: xmlContext.namespaces)
     }
 
     fileprivate static func getExcludeSelectionId(fromActionElement actionElement: XMLElement, xmlContext: XmlContext) -> String? {
@@ -990,29 +994,29 @@ extension XMLHandler {
         return (style: style, script: script, body: body)
     }
 
-    static func getTokenScriptTokenViewIconifiedHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
-        if let element = root.at_xpath("/token/cards/token/item-view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+    static func getTokenScriptTokenItemViewHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
+        if let element = root.at_xpath("/token/cards/card[@type='token']/item-view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
         } else {
-            return root.at_xpath("/token/cards/token/item-view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return root.at_xpath("/token/cards/card[@type='token']/item-view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 
     static func getTokenScriptTokenViewHtmlElement(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
-        if let element = root.at_xpath("/token/cards/token/view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let element = root.at_xpath("/token/cards/card[@type='token']/view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
         } else {
-            return root.at_xpath("/token/cards/token/view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return root.at_xpath("/token/cards/card[@type='token']/view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 
     fileprivate static func getNameElement(fromActionElement actionElement: Searchable, xmlContext: XmlContext) -> XMLElement? {
-        if let element = actionElement.at_xpath("name/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        if let element = actionElement.at_xpath("label/string[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
-        } else if let element = actionElement.at_xpath("name[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+        } else if let element = actionElement.at_xpath("label[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
         } else {
-            return actionElement.at_xpath("name".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return actionElement.at_xpath("label".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 
