@@ -172,6 +172,7 @@
 "browser.reload.button.title" = "Reload";
 "browser.addbookmark.button.title" = "Add to My Bookmarks";
 "browser.scanQRCode.button.title" = "Scan QR Code for URL";
+"browser.scanQRCode.title" = "Scan QR Code";
 "browser.tabbar.item.title" = "Browser";
 "browser.history.confirm.delete.title" = "Remove History?";
 "browser.noHistory.label.title" = "Your browser history appears here.";
@@ -379,7 +380,9 @@
 "blockchain.XDAI" = "xDAI Chain";
 "blockchain.ARTIS.sigma1" = "ARTIS sigma1 Network";
 "blockchain.ARTIS.tau1" = "ARTIS tau1 Network";
-"photos" = "Photos";
+"photos" = "Browse";
+"light" = "Light";
+"qrCode.title" = "Point your camera on QR code";
 "tokenScript.notSupportedSchema.error" = "Please upgrade AlphaWallet to support this TokenScript file";
 "TokenScript.verifying" = "Verifying...";
 "TokenScript.showErrors" = "Show errors";

@@ -19,10 +19,10 @@ class PaymentCoordinator: Coordinator {
 
     weak var delegate: PaymentCoordinatorDelegate?
     var coordinators: [Coordinator] = []
-    let navigationController: UINavigationController
+    let navigationController: NavigationController
 
     init(
-            navigationController: UINavigationController = UINavigationController(),
+            navigationController: NavigationController = NavigationController(),
             flow: PaymentFlow,
             session: WalletSession,
             keystore: Keystore,

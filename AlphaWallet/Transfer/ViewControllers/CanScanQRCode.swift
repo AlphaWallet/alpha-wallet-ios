@@ -1,12 +1,21 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import AVFoundation
 
 protocol CanScanQRCode: class {
     func promptUserOpenSettingsToChangeCameraPermission()
 }
 
 extension CanScanQRCode where Self: UIViewController {
+    func ensureHasDeviceAuthorization() -> Bool {
+        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
+            promptUserOpenSettingsToChangeCameraPermission()
+            return false
+        }
+        return true
+    }
+
     func promptUserOpenSettingsToChangeCameraPermission() {
         //TODO app will be killed by iOS after user changes camera permission. Ideally, we should note that the user has reached here and on app launch, prompt user if they want to resume
         confirm(
