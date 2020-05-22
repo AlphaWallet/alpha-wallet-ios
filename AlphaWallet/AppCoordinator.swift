@@ -35,7 +35,7 @@ class AppCoordinator: NSObject, Coordinator {
         }
     }
 
-    let navigationController: UINavigationController
+    let navigationController: NavigationController
     var coordinators: [Coordinator] = []
     var inCoordinator: InCoordinator? {
         return coordinators.first { $0 is InCoordinator } as? InCoordinator
@@ -44,7 +44,7 @@ class AppCoordinator: NSObject, Coordinator {
     init(
         window: UIWindow,
         keystore: Keystore,
-        navigationController: UINavigationController = NavigationController()
+        navigationController: NavigationController = NavigationController()
     ) {
         self.navigationController = navigationController
         self.keystore = keystore

@@ -13,13 +13,13 @@ class InitialWalletCreationCoordinator: Coordinator {
     private let entryPoint: WalletEntryPoint
     private let config: Config
 
-    let navigationController: UINavigationController
+    let navigationController: NavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: InitialWalletCreationCoordinatorDelegate?
 
     init(
         config: Config,
-        navigationController: UINavigationController = NavigationController(),
+        navigationController: NavigationController = NavigationController(),
         keystore: Keystore,
         entryPoint: WalletEntryPoint
     ) {

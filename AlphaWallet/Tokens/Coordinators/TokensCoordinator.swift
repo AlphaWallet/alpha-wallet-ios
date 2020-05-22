@@ -59,14 +59,13 @@ class TokensCoordinator: Coordinator {
         return controller
     }()
 
-    private var newTokenViewController: NewTokenViewController?
     private var addressToAutoDetectServerFor: AlphaWallet.Address?
 
     private var singleChainTokenCoordinators: [SingleChainTokenCoordinator] {
         return coordinators.compactMap { $0 as? SingleChainTokenCoordinator }
     }
 
-    let navigationController: UINavigationController
+    let navigationController: NavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: TokensCoordinatorDelegate?
 
@@ -75,7 +74,7 @@ class TokensCoordinator: Coordinator {
     }()
 
     init(
-            navigationController: UINavigationController = NavigationController(),
+            navigationController: NavigationController = NavigationController(),
             sessions: ServerDictionary<WalletSession>,
             keystore: Keystore,
             config: Config,
@@ -145,68 +144,6 @@ class TokensCoordinator: Coordinator {
 
     private func singleChainTokenCoordinator(forServer server: RPCServer) -> SingleChainTokenCoordinator? {
         return singleChainTokenCoordinators.first { $0.isServer(server) }
-    }
-
-    private func showServers(inViewController viewController: UIViewController) {
-        let coordinator = ServersCoordinator(defaultServer: serverToAddCustomTokenOn, config: config)
-        coordinator.delegate = self
-        coordinator.start()
-        addCoordinator(coordinator)
-        let nc = UINavigationController(rootViewController: coordinator.serversViewController)
-        nc.makePresentationFullScreenForiOS13Migration()
-        viewController.present(nc, animated: true)
-    }
-
-    private func fetchContractDataPromise(forServer server: RPCServer, address: AlphaWallet.Address, inViewController viewController: NewTokenViewController) -> Promise<TokenType> {
-        guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return .init() { _ in } }
-        return Promise { seal in
-            coordinator.fetchContractData(for: address) { [weak self] (data) in
-                guard let strongSelf = self else { return }
-                guard strongSelf.addressToAutoDetectServerFor == address else { return }
-                switch data {
-                case .name, .symbol, .balance, .decimals:
-                    break
-                case .nonFungibleTokenComplete(let name, let symbol, let balance, let tokenType):
-                    viewController.updateNameValue(name)
-                    viewController.updateSymbolValue(symbol)
-                    viewController.updateBalanceValue(balance)
-                    seal.fulfill(tokenType)
-                case .fungibleTokenComplete(let name, let symbol, let decimals):
-                    viewController.updateNameValue(name)
-                    viewController.updateSymbolValue(symbol)
-                    viewController.updateDecimalsValue(decimals)
-                    seal.fulfill(.erc20)
-                case .delegateTokenComplete:
-                    seal.reject(NoContractDetailsDetected())
-                case .failed:
-                    seal.reject(NoContractDetailsDetected())
-                }
-            }
-        }
-    }
-
-    private func fetchContractData(forServer server: RPCServer, address: AlphaWallet.Address, inViewController viewController: NewTokenViewController) {
-        guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
-        coordinator.fetchContractData(for: address) { data in
-            switch data {
-            case .name(let name):
-                viewController.updateNameValue(name)
-            case .symbol(let symbol):
-                viewController.updateSymbolValue(symbol)
-            case .balance(let balance):
-                viewController.updateBalanceValue(balance)
-            case .decimals(let decimals):
-                viewController.updateDecimalsValue(decimals)
-            case .nonFungibleTokenComplete(_, _, _, let tokenType):
-                viewController.updateForm(forTokenType: tokenType)
-            case .fungibleTokenComplete:
-                viewController.updateForm(forTokenType: .erc20)
-            case .delegateTokenComplete:
-                viewController.updateForm(forTokenType: .erc20)
-            case .failed:
-                break
-            }
-        }
     }
 
     func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
@@ -288,25 +225,6 @@ extension TokensCoordinator: CanOpenURL {
 
     func didPressOpenWebPage(_ url: URL, in viewController: UIViewController) {
         delegate?.didPressOpenWebPage(url, in: viewController)
-    }
-}
-
-extension TokensCoordinator: ServersCoordinatorDelegate {
-    func didSelectServer(server: RPCServerOrAuto, in coordinator: ServersCoordinator) {
-        serverToAddCustomTokenOn = server
-        coordinator.serversViewController.navigationController?.dismiss(animated: true) { [weak self] in
-            guard let strongSelf = self else { return }
-            guard let vc = strongSelf.newTokenViewController else { return }
-            vc.server = strongSelf.serverToAddCustomTokenOn
-            vc.configure()
-            vc.redetectToken()
-        }
-        removeCoordinator(coordinator)
-    }
-
-    func didSelectDismiss(in coordinator: ServersCoordinator) {
-        coordinator.serversViewController.navigationController?.dismiss(animated: true)
-        removeCoordinator(coordinator)
     }
 }
 
