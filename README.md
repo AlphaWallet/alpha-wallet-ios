@@ -95,7 +95,7 @@ All contibutions welcome.
 
 Would you like to request a feature? Please get in touch with us [Telegram](https://t.me/AlphaWalletGroup), [Twitter](https://twitter.com/AlphaWallet) or through our [community forums](https://community.tokenscript.org/).
 
-If you’d like to contribute code with a Pull Request, please make sure to follow code submtission guidelines.
+If you’d like to contribute code with a Pull Request, please make sure to follow code submission guidelines.
 
 ### Spread the word :hatched_chick:
 
@@ -118,6 +118,64 @@ To learn more about us, please check our Blog or join the conversation:
 
 ## Contributors
 Thank you to all the contributors! You are awesome.
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="http://hboon.com"><img src="https://avatars1.githubusercontent.com/u/56189?v=4" width="100px;" alt=""/><br /><sub><b>Hwee-Boon Yar</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=hboon" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.alphawallet.com"><img src="https://avatars2.githubusercontent.com/u/16630514?v=4" width="100px;" alt=""/><br /><sub><b>James Sangalli</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=James-Sangalli" title="Code">💻</a></td>
+    <td align="center"><a href=aslan-apps.com"><img src="https://avatars3.githubusercontent.com/u/2621082?v=4" width="100px;" alt=""/><br /><sub><b>Oguzhan Gungor</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=ocgungor" title="Code">💻</a></td>
+    <td align="center"><a href="http://gordiichuk.com/"><img src="https://avatars3.githubusercontent.com/u/3758731?v=4" width="100px;" alt=""/><br /><sub><b>Oleg Gordiichuk</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=OlegGordiichuk" title="Code">💻</a></td>
+    <td align="center"><a href="https://alphawallet.com/"><img src="https://avatars0.githubusercontent.com/u/33795543?v=4" width="100px;" alt=""/><br /><sub><b>Victor Zhang</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=zhangzhongnan928" title="Code">💻</a></td>
+    <td align="center"><a href="https://twitter.com/vikmeup"><img src="https://avatars0.githubusercontent.com/u/1641795?v=4" width="100px;" alt=""/><br /><sub><b>Viktor Radchenko</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=vikmeup" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/michaelScoff"><img src="https://avatars0.githubusercontent.com/u/32179653?v=4" width="100px;" alt=""/><br /><sub><b>Michael Scoff</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=michaelScoff" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/rip32700"><img src="https://avatars1.githubusercontent.com/u/15885971?v=4" width="100px;" alt=""/><br /><sub><b>Philipp Rieger</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=rip32700" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/alejandro-isaza"><img src="https://avatars3.githubusercontent.com/u/167236?v=4" width="100px;" alt=""/><br /><sub><b>Alejandro Isaza</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=alejandro-isaza" title="Code">💻</a></td>
+    <td align="center"><a href="https://wenqixiang.com/"><img src="https://avatars1.githubusercontent.com/u/943683?v=4" width="100px;" alt=""/><br /><sub><b>Qixiang</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=bootingman" title="Code">💻</a></td>
+    <td align="center"><a href="https://twitter.com/hewigovens"><img src="https://avatars3.githubusercontent.com/u/360470?v=4" width="100px;" alt=""/><br /><sub><b>hewig</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=hewigovens" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/MillerApps"><img src="https://avatars2.githubusercontent.com/u/3836934?v=4" width="100px;" alt=""/><br /><sub><b>Tyler Miller</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=MillerApps" title="Code">💻</a></td>
+    <td align="center"><a href="http://knowyouralgorithms.wordpress.com/"><img src="https://avatars3.githubusercontent.com/u/3628920?v=4" width="100px;" alt=""/><br /><sub><b>Marat Subkhankulov</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=maratsubkhankulov" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.lovincyrus.com/"><img src="https://avatars3.githubusercontent.com/u/1021101?v=4" width="100px;" alt=""/><br /><sub><b>Cyrus Goh</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=lovincyrus" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/colourful-land"><img src="https://avatars3.githubusercontent.com/u/548435?v=4" width="100px;" alt=""/><br /><sub><b>Weiwu Zhang</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=colourful-land" title="Code">💻</a></td>
+    <td align="center"><a href="https://kamuelafranco.com/"><img src="https://avatars3.githubusercontent.com/u/2804336?v=4" width="100px;" alt=""/><br /><sub><b>Kamuela Franco</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=KamuelaFranco" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/mishfit"><img src="https://avatars0.githubusercontent.com/u/817064?v=4" width="100px;" alt=""/><br /><sub><b>Mish Ochu</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=mishfit" title="Code">💻</a></td>
+    <td align="center"><a href="http://medium.com/@james.zaki"><img src="https://avatars3.githubusercontent.com/u/939603?v=4" width="100px;" alt=""/><br /><sub><b>James Zaki</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=jzaki" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.lucastoledo.co"><img src="https://avatars3.githubusercontent.com/u/17125002?v=4" width="100px;" alt=""/><br /><sub><b>Lucas Toledo</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=hellolucas" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/vladi8556"><img src="https://avatars0.githubusercontent.com/u/14859488?v=4" width="100px;" alt=""/><br /><sub><b>vladi8556</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=vladi8556" title="Code">💻</a></td>
+    <td align="center"><a href="http://vmiroshnikov.com/"><img src="https://avatars3.githubusercontent.com/u/902950?v=4" width="100px;" alt=""/><br /><sub><b>Victor Miroshnikov</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=superduper" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://swolfe.me/"><img src="https://avatars0.githubusercontent.com/u/7443178?v=4" width="100px;" alt=""/><br /><sub><b>Steven Wolfe</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=s32x" title="Code">💻</a></td>
+    <td align="center"><a href="https://multisender.app/"><img src="https://avatars0.githubusercontent.com/u/9360827?v=4" width="100px;" alt=""/><br /><sub><b>Roman Storm</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=rstormsf" title="Code">💻</a></td>
+    <td align="center"><a href="http://sugartin.info/"><img src="https://avatars1.githubusercontent.com/u/708425?v=4" width="100px;" alt=""/><br /><sub><b>Nimit</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=nimitparekh2020" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.kerrmarin.com/"><img src="https://avatars0.githubusercontent.com/u/2995710?v=4" width="100px;" alt=""/><br /><sub><b>Kerr Marin Miller</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=kerrmarin" title="Code">💻</a></td>
+    <td align="center"><a href="https://1inch.exchange/"><img src="https://avatars2.githubusercontent.com/u/762226?v=4" width="100px;" alt=""/><br /><sub><b>Sergej Kunz</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=deacix" title="Code">💻</a></td>
+    <td align="center"><a href="https://mohsen.dev/"><img src="https://avatars1.githubusercontent.com/u/2979743?v=4" width="100px;" alt=""/><br /><sub><b>Mohsen</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=coybit" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.bidali.com/"><img src="https://avatars3.githubusercontent.com/u/7315?v=4" width="100px;" alt=""/><br /><sub><b>Cory Smith</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=corymsmith" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://dolomite.io/"><img src="https://avatars3.githubusercontent.com/u/13280244?v=4" width="100px;" alt=""/><br /><sub><b>Corey Caplan</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=coreycaplan3" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/bejavu"><img src="https://avatars3.githubusercontent.com/u/10231448?v=4" width="100px;" alt=""/><br /><sub><b>Tal Beja</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=bejavu" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/asoong"><img src="https://avatars0.githubusercontent.com/u/3453571?v=4" width="100px;" alt=""/><br /><sub><b>Alex Soong</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=asoong" title="Code">💻</a></td>
+    <td align="center"><a href="https://antsankov.com/"><img src="https://avatars3.githubusercontent.com/u/2533512?v=4" width="100px;" alt=""/><br /><sub><b>Alex Tsankov</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=antsankov" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/TamirTian"><img src="https://avatars2.githubusercontent.com/u/20901836?v=4" width="100px;" alt=""/><br /><sub><b>TamirTian</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=TamirTian" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/SpasiboKojima"><img src="https://avatars2.githubusercontent.com/u/34808650?v=4" width="100px;" alt=""/><br /><sub><b>Andrew</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=SpasiboKojima" title="Code">💻</a></td>
+    <td align="center"><a href="http://petergrassberger.com/"><img src="https://avatars1.githubusercontent.com/u/666289?v=4" width="100px;" alt=""/><br /><sub><b>Peter Grassberger</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=PeterTheOne" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/LingTian"><img src="https://avatars1.githubusercontent.com/u/4249432?v=4" width="100px;" alt=""/><br /><sub><b>Ling</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=LingTian" title="Code">💻</a></td>
+    <td align="center"><a href="https://destiner.io/"><img src="https://avatars1.githubusercontent.com/u/4247901?v=4" width="100px;" alt=""/><br /><sub><b>Timur Badretdinov</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=Destiner" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/BorisButakov"><img src="https://avatars1.githubusercontent.com/u/35042417?v=4" width="100px;" alt=""/><br /><sub><b></b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=BorisButakov" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/2at2"><img src="https://avatars0.githubusercontent.com/u/3911535?v=4" width="100px;" alt=""/><br /><sub><b>Stanislav Strebul</b></sub></a><br /><a href="https://github.com/AlphaWallet/alpha-wallet-ios/commits?author=2at2" title="Code">💻</a></td>
+  </tr>
+</table>
+
 
 ## License
 AlphaWallet iOS is available under the [MIT license](https://github.com/AlphaWallet/alpha-wallet-ios/blob/master/LICENSE). Free for commercial and non-commercial use.
