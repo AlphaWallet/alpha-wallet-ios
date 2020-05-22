@@ -95,7 +95,7 @@ All contibutions welcome.
 
 Would you like to request a feature? Please get in touch with us [Telegram](https://t.me/AlphaWalletGroup), [Twitter](https://twitter.com/AlphaWallet) or through our [community forums](https://community.tokenscript.org/).
 
-If you’d like to contribute code with a Pull Request, please make sure to follow code submtission guidelines.
+If you’d like to contribute code with a Pull Request, please make sure to follow code submission guidelines.
 
 ### Spread the word :hatched_chick:
 
