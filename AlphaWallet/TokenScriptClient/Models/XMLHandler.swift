@@ -518,7 +518,7 @@ private class PrivateXMLHandler {
 
     private func extractFields(fromElementContainingAttributes element: XMLElement) -> [AttributeId: AssetAttribute] {
         var fields = [AttributeId: AssetAttribute]()
-        for each in XMLHandler.getAttributeTypeElements(fromAttributeTypesElement: element, xmlContext: xmlContext) {
+        for each in XMLHandler.getAttributeElements(fromAttributeElement: element, xmlContext: xmlContext) {
             guard let name = each["name"] else { continue }
             //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
             guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
@@ -790,12 +790,12 @@ extension XMLHandler {
         return root.at_xpath("/action/input/token/ethereum".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?["network"].flatMap { Int($0) }.flatMap { RPCServer(chainID: $0) }
     }
 
-    fileprivate static func getAttributeTypeElements(fromAttributeTypesElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
-        return element.xpath("attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    fileprivate static func getAttributeElements(fromAttributeElement element: XMLElement, xmlContext: XmlContext) -> XPathObject {
+        return element.xpath("attribute".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
-    static func getCardAttributeTypeElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
-        root.xpath("/token/cards/card[@type='action']/attribute-type".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    static func getCardAttributeElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+        root.xpath("/token/cards/card[@type='action']/attribute".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getMappingElement(fromOriginElement originElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
@@ -818,6 +818,10 @@ extension XMLHandler {
 
     static func getTokenIdElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
         return attributeTypeElement.at_xpath("origins/token-id".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getSyntaxElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
+        return attributeTypeElement.at_xpath("type/syntax".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getEthereumOriginElement(fromAttributeTypeElement attributeTypeElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
