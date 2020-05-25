@@ -17,12 +17,15 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         }
     }
 
+    private static let menmonicSuggestionsBarHeight: CGFloat = 60
+
     private let keystore: Keystore
     private let viewModel = ImportWalletViewModel()
     //We don't actually use the rounded corner here, but it's a useful "content" view here
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
     private let tabBar = SegmentedControl(titles: ImportWalletViewModel.segmentedControlTitles)
+    private let mnemonicCountLabel = UILabel()
     private let mnemonicTextView = TextView()
     private let keystoreJSONTextView = TextView()
     private let passwordTextField = TextField()
@@ -35,17 +38,40 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private let importKeystoreJsonFromCloudButton = UIButton(type: .system)
     private let importSeedDescriptionLabel = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private var mnemonicSuggestions: [String] = .init() {
+        didSet {
+            mnemonicSuggestionsCollectionView.reloadData()
+        }
+    }
+
+    private let mnemonicSuggestionsCollectionView: UICollectionView = {
+        let layout = UICollectionViewFlowLayout()
+        layout.estimatedItemSize = CGSize(width: 140, height: 40)
+        layout.scrollDirection = .horizontal
+
+        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        cv.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+        cv.register(SeedPhraseSuggestionViewCell.self, forCellWithReuseIdentifier: SeedPhraseSuggestionViewCell.identifier)
+
+        return cv
+    }()
+
+    private var mnemonicInput: [String] {
+        mnemonicInputString.split(separator: " ").map { String($0) }
+    }
+
+    private var mnemonicInputString: String {
+        mnemonicTextView.value.lowercased()
+    }
 
     weak var delegate: ImportWalletViewControllerDelegate?
 
 // swiftlint:disable function_body_length
     init(keystore: Keystore) {
         self.keystore = keystore
-
         super.init(nibName: nil, bundle: nil)
 
         title = viewModel.title
-
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
 
@@ -62,6 +88,9 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         mnemonicTextView.returnKeyType = .done
         mnemonicTextView.textView.autocorrectionType = .no
         mnemonicTextView.textView.autocapitalizationType = .none
+
+        mnemonicCountLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(mnemonicCountLabel)
 
         keystoreJSONTextView.label.translatesAutoresizingMaskIntoConstraints = false
         keystoreJSONTextView.delegate = self
@@ -152,6 +181,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         importSeedDescriptionLabel.textAlignment = .center
         roundedBackground.addSubview(importSeedDescriptionLabel)
 
+        mnemonicSuggestionsCollectionView.frame = .init(x: 0, y: 0, width: 0, height: ImportWalletViewController.menmonicSuggestionsBarHeight)
+
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
         footerBar.backgroundColor = .clear
@@ -172,6 +203,10 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
             mnemonicControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
             mnemonicControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
+
+            mnemonicCountLabel.topAnchor.constraint(equalTo: mnemonicControlsStackView.bottomAnchor, constant: xMargin),
+            mnemonicCountLabel.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
+
             keystoreJSONControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
             keystoreJSONControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
             privateKeyControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
@@ -255,6 +290,15 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         mnemonicTextView.label.textAlignment = .center
         mnemonicTextView.label.text = viewModel.mnemonicLabel
 
+        mnemonicCountLabel.font = DataEntry.Font.label
+        mnemonicCountLabel.textColor = DataEntry.Color.label
+
+        mnemonicSuggestionsCollectionView.backgroundColor = .white
+        mnemonicSuggestionsCollectionView.backgroundColor = R.color.mike()
+        mnemonicSuggestionsCollectionView.showsHorizontalScrollIndicator = false
+        mnemonicSuggestionsCollectionView.delegate = self
+        mnemonicSuggestionsCollectionView.dataSource = self
+
         keystoreJSONTextView.configureOnce()
         keystoreJSONTextView.label.textAlignment = .center
         keystoreJSONTextView.label.text = viewModel.keystoreJSONLabel
@@ -313,11 +357,11 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
     ///Returns true only if valid
     private func validateMnemonic() -> Bool {
-        if let validationError = MnemonicLengthRule().isValid(value: mnemonicTextView.value) {
+        if let validationError = MnemonicLengthRule().isValid(value: mnemonicInputString) {
             displayError(error: ValidationError(msg: validationError.msg))
             return false
         }
-        if let validationError = MnemonicInWordListRule().isValid(value: mnemonicTextView.value) {
+        if let validationError = MnemonicInWordListRule().isValid(value: mnemonicInputString) {
             displayError(error: ValidationError(msg: validationError.msg))
             return false
         }
@@ -358,7 +402,6 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     @objc func importWallet() {
         guard validate() else { return }
 
-        let mnemonicInput = mnemonicTextView.value.trimmed
         let keystoreInput = keystoreJSONTextView.value.trimmed
         let privateKeyInput = privateKeyTextView.value.trimmed.drop0x
         let password = passwordTextField.value.trimmed
@@ -370,7 +413,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             guard let tab = viewModel.convertSegmentedControlSelectionToFilter(tabBar.selection) else { return nil }
             switch tab {
             case .mnemonic:
-                return .mnemonic(words: mnemonicInput.split(separator: " ").map { String($0) }, password: "")
+                return .mnemonic(words: mnemonicInput, password: "")
             case .keystore:
                 return .keystore(string: keystoreInput, password: password)
             case .privateKey:
@@ -476,6 +519,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         importSeedDescriptionLabel.isHidden = false
         let importButton = buttonsBar.buttons[0]
         importButton.isEnabled = !mnemonicTextView.value.isEmpty
+        mnemonicTextView.textView.inputAccessoryView = mnemonicSuggestionsCollectionView
+        mnemonicTextView.textView.reloadInputViews()
     }
 
     private func showKeystoreControlsOnly() {
@@ -488,6 +533,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         importSeedDescriptionLabel.isHidden = true
         let importButton = buttonsBar.buttons[0]
         importButton.isEnabled = !keystoreJSONTextView.value.isEmpty && !passwordTextField.value.isEmpty
+        mnemonicTextView.textView.inputAccessoryView = nil
+        mnemonicTextView.textView.reloadInputViews()
     }
 
     private func showPrivateKeyControlsOnly() {
@@ -500,6 +547,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         importSeedDescriptionLabel.isHidden = true
         let importButton = buttonsBar.buttons[0]
         importButton.isEnabled = !privateKeyTextView.value.isEmpty
+        mnemonicTextView.textView.inputAccessoryView = nil
+        mnemonicTextView.textView.reloadInputViews()
     }
 
     private func showWatchControlsOnly() {
@@ -512,6 +561,8 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         importSeedDescriptionLabel.isHidden = true
         let importButton = buttonsBar.buttons[0]
         importButton.isEnabled = !watchAddressTextField.value.isEmpty
+        mnemonicTextView.textView.inputAccessoryView = nil
+        mnemonicTextView.textView.reloadInputViews()
     }
 
     private func moveFocusToTextEntryField(after textInput: UIView) {
@@ -542,7 +593,6 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     }
 }
 // swiftlint:enable type_body_length
-
 extension ImportWalletViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
         guard controller.documentPickerMode == UIDocumentPickerMode.import else { return }
@@ -605,6 +655,13 @@ extension ImportWalletViewController: TextViewDelegate {
 
     func didChange(inTextView textView: TextView) {
         showCorrectTab()
+        guard textView == mnemonicTextView else { return }
+        mnemonicCountLabel.text = "\(mnemonicInput.count)"
+        if let lastMnemonic = mnemonicInput.last {
+            mnemonicSuggestions = HDWallet.getSuggestions(forWord: String(lastMnemonic))
+        } else {
+            mnemonicSuggestions = .init()
+        }
     }
 }
 
@@ -636,5 +693,29 @@ extension ImportWalletViewController: SegmentedControlDelegate {
     func didTapSegment(atSelection selection: SegmentedControl.Selection, inSegmentedControl segmentedControl: SegmentedControl) {
         tabBar.selection = selection
         showCorrectTab()
+    }
+}
+
+extension ImportWalletViewController: UICollectionViewDelegateFlowLayout, UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        mnemonicSuggestions.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SeedPhraseSuggestionViewCell.identifier, for: indexPath) as? SeedPhraseSuggestionViewCell else { return SeedPhraseSuggestionViewCell() }
+        cell.configure(word: mnemonicSuggestions[indexPath.row])
+        return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let words = replacingLastWord(of: mnemonicInput, with: "\(mnemonicSuggestions[indexPath.row]) ")
+        mnemonicTextView.value = words.joined(separator: " ")
+    }
+
+    private func replacingLastWord(of words: [String], with replacement: String) -> [String] {
+        var words = words
+        words.removeLast()
+        words.append(replacement)
+        return words
     }
 }
