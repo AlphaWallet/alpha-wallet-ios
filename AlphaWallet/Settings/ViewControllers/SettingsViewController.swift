@@ -1,29 +1,32 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import Eureka
-import StoreKit
-import MessageUI
 
 protocol SettingsViewControllerDelegate: class, CanOpenURL {
-    func didAction(action: AlphaWalletSettingsAction, in viewController: SettingsViewController)
-    func assetDefinitionsOverrideViewController(for: SettingsViewController) -> UIViewController?
-    func consoleViewController(for: SettingsViewController) -> UIViewController?
+    func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController)
+    func settingsViewControllerChangeWalletSelected(in controller: SettingsViewController)
+    func settingsViewControllerMyWalletAddressSelected(in controller: SettingsViewController)
+    func settingsViewControllerBackupWalletSelected(in controller: SettingsViewController)
+    func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController)
+    func settingsViewControllerHelpSelected(in controller: SettingsViewController)
 }
 
-class SettingsViewController: FormViewController {
-    private let iconInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 0)
-    private let cellWithSubtitleHeight = CGFloat(66)
+class SettingsViewController: UIViewController {
     private let lock = Lock()
-    private var isPasscodeEnabled: Bool {
-        return lock.isPasscodeSet
-    }
-    private lazy var viewModel: SettingsViewModel = {
-        return SettingsViewModel(isDebug: isDebug)
-    }()
     private let keystore: Keystore
     private let account: Wallet
     private let promptBackupWalletViewHolder = UIView()
+    private let tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .plain)
+        tableView.tableFooterView = UIView()
+        tableView.register(SettingViewHeader.self, forHeaderFooterViewReuseIdentifier: SettingViewHeader.reuseIdentifier)
+        tableView.register(SettingTableViewCell.self, forCellReuseIdentifier: SettingTableViewCell.reuseIdentifier)
+        tableView.register(SwitchTableViewCell.self, forCellReuseIdentifier: SwitchTableViewCell.reuseIdentifier)
+        tableView.separatorStyle = .singleLine
+
+        return tableView
+    }()
+    private lazy var viewModel: SettingsViewModel = SettingsViewModel(account: account)
 
     weak var delegate: SettingsViewControllerDelegate?
     var promptBackupWalletView: UIView? {
@@ -47,192 +50,31 @@ class SettingsViewController: FormViewController {
         }
     }
 
+    override func loadView() {
+        view = tableView
+    }
+
     init(keystore: Keystore, account: Wallet) {
         self.keystore = keystore
         self.account = account
-        super.init(style: .plain)
-        title = R.string.localizable.aSettingsNavigationTitle()
+        super.init(nibName: nil, bundle: nil)
+
+        tableView.dataSource = self
+        tableView.delegate = self
     }
 
-// swiftlint:disable function_body_length
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        title = R.string.localizable.aSettingsNavigationTitle()
         view.backgroundColor = Screen.Setting.Color.background
-        tableView.separatorStyle = .singleLine
+        navigationItem.largeTitleDisplayMode = .automatic
         tableView.backgroundColor = GroupedTable.Color.background
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.contentInset.bottom = 60
-        view.addSubview(tableView)
 
-        let section = Section()
-
-        <<< AlphaWalletSettingsButtonRow { button in
-            button.cellStyle = .subtitle
-        }.onCellSelection { [unowned self] _, _ in
-            self.delegate?.didAction(action: .myWalletAddress, in: self)
-        }.cellUpdate { [weak self] cell, _ in
-            guard let strongSelf = self else { return }
-            cell.height = { strongSelf.cellWithSubtitleHeight }
-            cell.imageView?.image = R.image.settings_wallet1()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = R.string.localizable.aSettingsContentsMyWalletAddress()
-            cell.detailTextLabel?.text = strongSelf.account.address.eip55String
-            cell.detailTextLabel?.lineBreakMode = .byTruncatingMiddle
-            cell.accessoryType = .disclosureIndicator
-        }
-
-        <<< AlphaWalletSettingsButtonRow { button in
-            button.cellStyle = .value1
-        }.onCellSelection { [unowned self] _, _ in
-            self.run(action: .wallets)
-        }.cellUpdate { [weak self] cell, _ in
-            guard let strongSelf = self else { return }
-            cell.imageView?.image = R.image.settings_wallet()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = R.string.localizable.settingsWalletsButtonTitle()
-            cell.accessoryType = .disclosureIndicator
-        }
-
-        switch account.type {
-        case .real:
-            section
-            <<< AlphaWalletSettingsButtonRow {
-                $0.title = R.string.localizable.settingsBackupWalletButtonTitle()
-            }.onCellSelection { [unowned self] _, _ in
-                self.delegate?.didAction(action: .backupWallet, in: self)
-            }.cellUpdate { [weak self] cell, _ in
-                guard let strongSelf = self else { return }
-                cell.imageView?.image = R.image.settings_wallet_backup()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
-                let walletSecurityLevel = PromptBackupCoordinator(keystore: strongSelf.keystore, wallet: strongSelf.account, config: .init()).securityLevel
-                cell.accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
-                cell.textLabel?.textAlignment = .left
-            }
-        case .watch:
-            break
-        }
-
-        section
-
-        <<< AlphaWalletSettingsButtonRow { button in
-            button.cellStyle = .subtitle
-        }.onCellSelection { [unowned self] _, _ in
-            self.run(action: .locales)
-        }.cellUpdate { [weak self] cell, _ in
-            guard let strongSelf = self else { return }
-            cell.height = { strongSelf.cellWithSubtitleHeight }
-            cell.imageView?.image = R.image.settings_language()?.imageWithInsets(insets: strongSelf.iconInset)?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = strongSelf.viewModel.localeTitle
-            cell.detailTextLabel?.text = AppLocale(id: Config.getLocale()).displayName
-            cell.accessoryType = .disclosureIndicator
-        }
-
-        <<< AlphaWalletSettingsSwitchRow { [weak self] in
-            $0.title = self?.viewModel.passcodeTitle
-            $0.value = self?.isPasscodeEnabled
-        }.onChange { [unowned self] row in
-            if row.value == true {
-                self.setPasscode { result in
-                    row.value = result
-                    row.updateCell()
-                }
-            } else {
-                self.lock.deletePasscode()
-            }
-        }.cellUpdate { cell, _ in
-            cell.textLabel?.textColor = Screen.Setting.Color.title
-            cell.imageView?.tintColor = Screen.Setting.Color.image
-            cell.imageView?.image = R.image.settings_lock()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
-        }
-
-        <<< AlphaWalletSettingsButtonRow { button in
-            button.cellStyle = .value1
-        }.onCellSelection { [unowned self] _, _ in
-            self.run(action: .enabledServers)
-        }.cellUpdate { cell, _ in
-            cell.imageView?.image = R.image.settings_server()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = R.string.localizable.settingsEnabledNetworksButtonTitle()
-            cell.accessoryType = .disclosureIndicator
-        }
-        <<< AlphaWalletSettingsButtonRow { row in
-            row.cellStyle = .value1
-            row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-                let vc = self.delegate?.assetDefinitionsOverrideViewController(for: self) ?? UIViewController()
-                vc.navigationItem.largeTitleDisplayMode = .never
-                return vc
-            }, onDismiss: { _ in
-            })
-        }.cellUpdate { cell, _ in
-            cell.textLabel?.text = R.string.localizable.aHelpAssetDefinitionOverridesTitle()
-            cell.imageView?.image = R.image.settings_tokenscript_overrides()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
-            cell.accessoryType = .disclosureIndicator
-        }
-        <<< AlphaWalletSettingsButtonRow { row in
-            row.cellStyle = .value1
-            row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-                let vc = self.delegate?.consoleViewController(for: self) ?? UIViewController()
-                vc.navigationItem.largeTitleDisplayMode = .never
-                return vc
-            }, onDismiss: { _ in
-            })
-        }.cellUpdate { cell, _ in
-            cell.imageView?.image = R.image.settings_console()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = R.string.localizable.aConsoleTitle()
-            cell.accessoryType = .disclosureIndicator
-        }
-        <<< AlphaWalletSettingsButtonRow { row in
-            row.cellStyle = .value1
-        }.onCellSelection { [unowned self] _, _ in
-            self.delegate?.didAction(action: .clearDappBrowserCache, in: self)
-        }.cellUpdate { cell, _ in
-            cell.textLabel?.text = R.string.localizable.aSettingsContentsClearDappBrowserCache()
-            cell.imageView?.image = R.image.settings_clear_dapp_cache()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
-        }
-
-        <<< linkProvider(type: .telegram)
-        <<< linkProvider(type: .twitter)
-        <<< linkProvider(type: .reddit)
-        <<< linkProvider(type: .facebook)
-        <<< AlphaWalletSettingsButtonRow { row in
-            row.cellStyle = .value1
-            row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-                let vc = HelpViewController(delegate: self)
-                vc.navigationItem.largeTitleDisplayMode = .never
-                vc.hidesBottomBarWhenPushed = true
-                return vc
-            }, onDismiss: { _ in
-            })
-        }.cellUpdate { cell, _ in
-            cell.imageView?.image = R.image.settings_faq()?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
-            cell.textLabel?.text = R.string.localizable.aHelpNavigationTitle()
-            cell.accessoryType = .disclosureIndicator
-        }
-
-        <<< AlphaWalletSettingsTextRow {
-            $0.disabled = true
-        }.cellSetup { cell, _ in
-            cell.mainLabel.text = R.string.localizable.settingsVersionLabelTitle()
-            cell.subLabel.text = "\(Bundle.main.fullVersion)"
-        }
-        <<< AlphaWalletSettingsTextRow {
-            $0.disabled = true
-        }.cellSetup { cell, _ in
-            cell.mainLabel.text = R.string.localizable.settingsTokenScriptStandardTitle()
-            cell.subLabel.text = "\(TokenScript.supportedTokenScriptNamespaceVersion)"
-        }.onCellSelection { [unowned self] _, _ in
-            self.delegate?.didPressOpenWebPage(TokenScript.tokenScriptSite, in: self)
-        }
-
-        form +++ section
-
-        //Check for nil is important because the prompt might have been shown before viewDidLoad
         if promptBackupWalletView == nil {
             hidePromptBackupWalletView()
         }
-
-        NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view),
-        ])
     }
-// swiftlint:enable function_body_length
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -242,14 +84,11 @@ class SettingsViewController: FormViewController {
     private func showPromptBackupWalletViewAsTableHeaderView() {
         let size = promptBackupWalletViewHolder.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         promptBackupWalletViewHolder.bounds.size.height = size.height
-        //Access `view` to force it to be created to avoid crashing when we access `tableView` next, because `tableView` is only created after that, and is defined as `UITableView!`.
-        let _ = view
+
         tableView.tableHeaderView = promptBackupWalletViewHolder
     }
 
     private func hidePromptBackupWalletView() {
-        //`tableView` is defined as `UIUTableView!` and may not have been created yet
-        guard tableView != nil && tableView.tableHeaderView != nil else { return }
         tableView.tableHeaderView = nil
     }
 
@@ -257,8 +96,10 @@ class SettingsViewController: FormViewController {
         tableView.reloadData()
     }
 
-    func setPasscode(completion: ((Bool) -> Void)? = .none) {
-        let lock = LockCreatePasscodeCoordinator(navigationController: navigationController!, model: LockCreatePasscodeViewModel())
+    private func setPasscode(completion: ((Bool) -> Void)? = .none) {
+        guard let navigationController = navigationController else { return }
+        let viewModel = LockCreatePasscodeViewModel()
+        let lock = LockCreatePasscodeCoordinator(navigationController: navigationController, model: viewModel)
         lock.start()
         lock.lockViewController.willFinishWithResult = { result in
             completion?(result)
@@ -266,36 +107,13 @@ class SettingsViewController: FormViewController {
         }
     }
 
-    private func linkProvider(
-            type: URLServiceProvider
-    ) -> AlphaWalletSettingsButtonRow {
-        return AlphaWalletSettingsButtonRow {
-            $0.title = type.title
-        }.onCellSelection { [unowned self] _, _ in
-            if let localURL = type.localURL, UIApplication.shared.canOpenURL(localURL) {
-                UIApplication.shared.open(localURL, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: .none)
-            } else {
-                self.delegate?.didPressOpenWebPage(type.remoteURL, in: self)
-            }
-        }.cellUpdate { cell, _ in
-            cell.textLabel?.textAlignment = .left
-            cell.imageView?.image = type.image?.imageWithInsets(insets: self.iconInset)?.withRenderingMode(.alwaysTemplate)
-        }
-    }
-
-    func run(action: AlphaWalletSettingsAction) {
-        delegate?.didAction(action: action, in: self)
-    }
-
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
 
-extension SettingsViewController: HelpViewControllerDelegate {
-}
-
 extension SettingsViewController: CanOpenURL {
+
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
@@ -309,19 +127,125 @@ extension SettingsViewController: CanOpenURL {
     }
 }
 
-// Helper function inserted by Swift 4.2 migrator.
-private func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
-	return Dictionary(uniqueKeysWithValues: input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value) })
+extension SettingsViewController: SwitchTableViewCellDelegate {
+
+    func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
+        if isOn {
+            self.setPasscode { result in
+                cell.isOn = result
+            }
+        } else {
+            self.lock.deletePasscode()
+        }
+    }
 }
 
-extension UIImage {
-    fileprivate func imageWithInsets(insets: UIEdgeInsets) -> UIImage? {
-        UIGraphicsBeginImageContextWithOptions( CGSize(width: size.width + insets.left + insets.right, height: size.height + insets.top + insets.bottom), false, scale)
-        let _ = UIGraphicsGetCurrentContext()
-        let origin = CGPoint(x: insets.left, y: insets.top)
-        draw(at: origin)
-        let imageWithInsets = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return imageWithInsets
+extension SettingsViewController: UITableViewDataSource {
+
+    public func numberOfSections(in tableView: UITableView) -> Int {
+        return viewModel.numberOfSections()
+    }
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return viewModel.numberOfSections(in: section)
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        switch viewModel.sections[indexPath.section] {
+        case .system(let rows):
+            let row = rows[indexPath.row]
+            switch row {
+            case .passcode:
+                let cell = tableView.dequeueReusableCell(withIdentifier: SwitchTableViewCell.reuseIdentifier, for: indexPath) as! SwitchTableViewCell
+                cell.delegate = self
+                cell.configure(viewModel: .init(
+                    titleText: viewModel.passcodeTitle,
+                    icon: R.image.biometrics()!,
+                    value: lock.isPasscodeSet)
+                )
+
+                return cell
+            default:
+                let cell = tableView.dequeueReusableCell(withIdentifier: SettingTableViewCell.reuseIdentifier, for: indexPath) as! SettingTableViewCell
+                cell.configure(viewModel: .init(settingsSystemRow: row))
+
+                return cell
+            }
+        case .help:
+            let cell = tableView.dequeueReusableCell(withIdentifier: SettingTableViewCell.reuseIdentifier, for: indexPath) as! SettingTableViewCell
+            cell.configure(viewModel: .init(titleText: R.string.localizable.settingsSupportTitle(), icon: R.image.support()!))
+
+            return cell
+        case .wallet(let rows):
+            let cell = tableView.dequeueReusableCell(withIdentifier: SettingTableViewCell.reuseIdentifier, for: indexPath) as! SettingTableViewCell
+            let row = rows[indexPath.row]
+            switch row {
+            case .changeWallet:
+                let viewModel: SettingTableViewCellViewModel = .init(
+                    titleText: row.title,
+                    subTitleText: account.address.eip55String,
+                    icon: row.icon
+                )
+                cell.configure(viewModel: viewModel)
+            case .backup:
+                cell.configure(viewModel: .init(settingsWalletRow: row))
+                let walletSecurityLevel = PromptBackupCoordinator(keystore: self.keystore, wallet: self.account, config: .init()).securityLevel
+                cell.accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
+                cell.accessoryType = .disclosureIndicator
+            default:
+                cell.configure(viewModel: .init(settingsWalletRow: row))
+            }
+
+            return cell
+        case .tokenStandart, .version:
+            return UITableViewCell()
+        }
+    }
+}
+
+extension SettingsViewController: UITableViewDelegate {
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: SettingViewHeader.reuseIdentifier) as! SettingViewHeader
+        let section = viewModel.sections[section]
+        let viewModel = SettingViewHeaderViewModel(section: section)
+        headerView.configure(viewModel: viewModel)
+
+        return headerView
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        switch viewModel.sections[indexPath.section] {
+        case .wallet(let rows):
+            switch rows[indexPath.row] {
+            case .backup:
+                delegate?.settingsViewControllerBackupWalletSelected(in: self)
+            case .changeWallet:
+                delegate?.settingsViewControllerChangeWalletSelected(in: self)
+            case .showMyWallet:
+                delegate?.settingsViewControllerMyWalletAddressSelected(in: self)
+            }
+        case .system(let rows):
+            switch rows[indexPath.row] {
+            case .advanced:
+                delegate?.settingsViewControllerAdvancedSettingsSelected(in: self)
+            case .notifications:
+                break
+            case .passcode:
+                break
+            case .selectActiveNetworks:
+                delegate?.settingsViewControllerActiveNetworksSelected(in: self)
+            }
+        case .help:
+            delegate?.settingsViewControllerHelpSelected(in: self)
+        case .tokenStandart:
+            self.delegate?.didPressOpenWebPage(TokenScript.tokenScriptSite, in: self)
+        case .version:
+            break
+        }
     }
 }
