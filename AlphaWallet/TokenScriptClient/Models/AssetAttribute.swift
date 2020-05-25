@@ -82,8 +82,9 @@ struct AssetAttribute {
     }
 
     init?(attribute: XMLElement, xmlContext: XmlContext, root: XMLDocument, server: RPCServer, contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]]) {
-        guard let rawSyntax = attribute["syntax"],
-              let syntax = AssetAttributeSyntax(rawValue: rawSyntax) else { return nil }
+        guard let syntaxElement = XMLHandler.getSyntaxElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
+              let rawValue = syntaxElement.text,
+              let syntax = AssetAttributeSyntax(rawValue: rawValue) else { return nil }
 
         var originFound: Origin? = nil
         if let tokenIdElement = XMLHandler.getTokenIdElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
