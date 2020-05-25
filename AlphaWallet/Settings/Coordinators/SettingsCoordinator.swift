@@ -34,6 +34,12 @@ class SettingsCoordinator: Coordinator {
 		controller.modalPresentationStyle = .pageSheet
 		return controller
 	}()
+    
+    lazy var advancedSettingsViewController: AdvancedSettingsViewController = {
+        let controller = AdvancedSettingsViewController()
+        controller.delegate = self
+        return controller
+    }()
 
 	init(
 			navigationController: UINavigationController = NavigationController(),
@@ -54,98 +60,76 @@ class SettingsCoordinator: Coordinator {
 	func start() {
 		navigationController.viewControllers = [rootViewController]
 	}
-
-	@objc func showMyWalletAddress() {
-		delegate?.didPressShowWallet(in: self)
-	}
-
-	func backupWallet() {
-		switch account.type {
-		case .real(let account):
-			let coordinator = BackupCoordinator(
-					navigationController: navigationController,
-					keystore: keystore,
-					account: account
-			)
-			coordinator.delegate = self
-			coordinator.start()
-			addCoordinator(coordinator)
-		case .watch:
-			break
-		}
-	}
-
-	@objc func showAccounts() {
-		let coordinator = AccountsCoordinator(
-				config: config,
-				navigationController: NavigationController(),
-				keystore: keystore,
-				promptBackupCoordinator: promptBackupCoordinator
-		)
-		coordinator.delegate = self
-		coordinator.start()
-		addCoordinator(coordinator)
-		switch UIDevice.current.userInterfaceIdiom {
-		case .pad:
-			coordinator.navigationController.modalPresentationStyle = .formSheet
-		case .unspecified, .tv, .carPlay, .phone:
-			coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-		}
-		navigationController.present(coordinator.navigationController, animated: true, completion: nil)
-	}
-
-	@objc func showLocales() {
-		let coordinator = LocalesCoordinator()
-		coordinator.delegate = self
-		coordinator.start()
-		addCoordinator(coordinator)
-		coordinator.localesViewController.navigationItem.largeTitleDisplayMode = .never
-		navigationController.pushViewController(coordinator.localesViewController, animated: true)
-	}
-
-	func clearDappBrowserCache() {
-		let coordinator = ClearDappBrowserCacheCoordinator(inViewController: rootViewController)
-		coordinator.start()
-		addCoordinator(coordinator)
-	}
-
-	func showEnabledServers() {
-		let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers)
-		coordinator.delegate = self
-		coordinator.start()
-		addCoordinator(coordinator)
-	}
-
+    
 	func restart(for wallet: Wallet) {
 		delegate?.didRestart(with: wallet, in: self)
 	}
 }
 
+extension SettingsCoordinator: SupportViewControllerDelegate {
+    
+}
+
 extension SettingsCoordinator: SettingsViewControllerDelegate {
-	func didAction(action: AlphaWalletSettingsAction, in viewController: SettingsViewController) {
-		switch action {
-		case .myWalletAddress:
-			showMyWalletAddress()
-		case .wallets:
-			showAccounts()
-		case .backupWallet:
-			backupWallet()
-		case .locales:
-			showLocales()
-		case .enabledServers:
-            showEnabledServers()
-		case .clearDappBrowserCache:
-			clearDappBrowserCache()
-		}
-	}
-
-	func assetDefinitionsOverrideViewController(for: SettingsViewController) -> UIViewController? {
-        return delegate?.assetDefinitionsOverrideViewController(for: self)
-	}
-
-	func consoleViewController(for: SettingsViewController) -> UIViewController? {
-		return delegate?.consoleViewController(for: self)
-	}
+    
+    func settingsViewControllerHelpSelected(in controller: SettingsViewController) {
+        let viewController = SupportViewController()
+        viewController.delegate = self
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        viewController.hidesBottomBarWhenPushed = true
+        
+        navigationController.pushViewController(viewController, animated: true)
+    }
+    
+    func settingsViewControllerChangeWalletSelected(in controller: SettingsViewController) {
+        let coordinator = AccountsCoordinator(
+                config: config,
+                navigationController: NavigationController(),
+                keystore: keystore,
+                promptBackupCoordinator: promptBackupCoordinator
+        )
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+        switch UIDevice.current.userInterfaceIdiom {
+        case .pad:
+            coordinator.navigationController.modalPresentationStyle = .formSheet
+        case .unspecified, .tv, .carPlay, .phone:
+            coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
+        }
+        navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+    }
+    
+    func settingsViewControllerMyWalletAddressSelected(in controller: SettingsViewController) {
+        delegate?.didPressShowWallet(in: self)
+    }
+    
+    func settingsViewControllerBackupWalletSelected(in controller: SettingsViewController) {
+        switch account.type {
+        case .real(let account):
+            let coordinator = BackupCoordinator(
+                    navigationController: navigationController,
+                    keystore: keystore,
+                    account: account
+            )
+            coordinator.delegate = self
+            coordinator.start()
+            addCoordinator(coordinator)
+        case .watch:
+            break
+        }
+    }
+    
+    func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController) {
+        let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers)
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+    }
+    
+    func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController) {
+        navigationController.pushViewController(advancedSettingsViewController, animated: true)
+    }
 }
 
 extension SettingsCoordinator: CanOpenURL {
@@ -239,4 +223,44 @@ extension SettingsCoordinator: BackupCoordinatorDelegate {
 		promptBackupCoordinator.showHideCurrentPrompt()
 		removeCoordinator(coordinator)
 	}
+}
+
+extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
+    
+    func advancedSettingsViewControllerConsoleSelected(in controller: AdvancedSettingsViewController) {
+        guard let controller = delegate?.consoleViewController(for: self) else { return }
+        controller.navigationItem.largeTitleDisplayMode = .never
+        
+        navigationController.pushViewController(controller, animated: true)
+    }
+    
+    func advancedSettingsViewControllerClearBrowserCacheSelected(in controller: AdvancedSettingsViewController) {
+        let coordinator = ClearDappBrowserCacheCoordinator(inViewController: rootViewController)
+        coordinator.start()
+        addCoordinator(coordinator)
+    }
+    
+    func advancedSettingsViewControllerTokenScriptSelected(in controller: AdvancedSettingsViewController) {
+        guard let controller = delegate?.assetDefinitionsOverrideViewController(for: self) else { return }
+        controller.navigationItem.largeTitleDisplayMode = .never
+        
+        navigationController.pushViewController(controller, animated: true)
+    }
+    
+    func advancedSettingsViewControllerChangeLanguageSelected(in controller: AdvancedSettingsViewController) {
+        let coordinator = LocalesCoordinator()
+        coordinator.delegate = self
+        coordinator.start()
+        addCoordinator(coordinator)
+        coordinator.localesViewController.navigationItem.largeTitleDisplayMode = .never
+        navigationController.pushViewController(coordinator.localesViewController, animated: true)
+    }
+    
+    func advancedSettingsViewControllerChangeCurrencySelected(in controller: AdvancedSettingsViewController) {
+        
+    }
+    
+    func advancedSettingsViewControllerAnalyticsSelected(in controller: AdvancedSettingsViewController) {
+        
+    }
 }

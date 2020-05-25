@@ -77,6 +77,18 @@
 "settings.tokenScriptStandard.title" = "TokenScript Compatibility";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";
+"settings.changeCurrency.title" = "Change Currency";
+"settings.analitycs.title" = "Analytics";
+"settings.support.title" = "Support";
+"settings.notifications.title" = "Notifications";
+"settings.passcode.title" = "Passcode / Touch ID";
+"settings.selectActiveNetworks.title" = "Select Active Networks";
+"settings.section.help.title" = "Help";
+"settings.section.system.title" = "System";
+"settings.section.wallet.title" = "Wallet";
+"settings.change.wallet.title" = "Change / Add Wallet";
+"settings.show.my.wallet.title" = "Show My Wallet Address";
+"suppport.title" = "Support";
 "transactions.noTransactions.label.title" = "아직 거래가 없습니다!";
 "wallet.navigation.title" = "Change Wallet";
 "wallet.types.hdWallets" = "HD Wallets";
@@ -298,6 +310,7 @@
 "a.wallet.address.scan.instructions" = "QR 코드를 스캔하거나 아래 텍스트를 복사하십시오.";
 "a.wallet.address.title" = "내 %@ 지갑 주소";
 "a.settings.navigation.title" = "설정";
+"a.advanced.settings.navigation.title" = "Advanced";
 "a.settings.contents.myWalletAddress" = "내 지갑 주소";
 "a.settings.contents.clearDappBrowserCache" = "Clear Browser cache";
 "a.welcome.navigation.title" = "환영합니다";
