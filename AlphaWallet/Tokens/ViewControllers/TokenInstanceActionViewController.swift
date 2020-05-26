@@ -30,7 +30,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     }()
 
     //TODO might have to change the number of buttons? if the action type change or should we just go back since the flow may be broken if we remain in this screen
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var isFungible: Bool {
         switch tokenObject.type {
         case .nativeCryptocurrency:
@@ -129,7 +129,6 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         //TODO this should be from the action which knows what type it is and what buttons to provide. Currently just "Confirm"
-        buttonsBar.numberOfButtons = 1
         buttonsBar.configure()
         let button = buttonsBar.buttons[0]
         //TODO better localized string, but we do want "Confirm" here

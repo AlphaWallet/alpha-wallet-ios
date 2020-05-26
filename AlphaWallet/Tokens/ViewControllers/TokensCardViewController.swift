@@ -33,7 +33,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     private let header = TokenCardsViewControllerHeader()
     private let roundedBackground = RoundedBackground()
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private let buttonsBar = ButtonsBar(numberOfButtons: 3)
+    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
     private var isMultipleSelectionMode = false {
         didSet {
             if isMultipleSelectionMode {
@@ -123,7 +123,6 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
-
         registerForPreviewing(with: self, sourceView: tableView)
     }
 
@@ -151,8 +150,10 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
 
         if selectedTokenHolder != nil {
             let actions = viewModel.actions
-            buttonsBar.numberOfButtons = actions.count
+            buttonsBar.configuration = .combined(buttons: actions.count)
+            buttonsBar.optionButtons.first?.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
             buttonsBar.configure()
+            
             for (action, button) in zip(actions, buttonsBar.buttons) {
                 button.setTitle(action.name, for: .normal)
                 button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
@@ -164,9 +165,9 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                 }
             }
         } else {
-            buttonsBar.numberOfButtons = 0
+            buttonsBar.configuration = .empty
         }
-
+        
         sizingCell = nil
         tableView.reloadData()
     }
@@ -211,24 +212,57 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         let transferType = TransferType(token: viewModel.token)
         delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: transferType), tokenHolders: viewModel.tokenHolders, in: self)
     }
-
+    
+    private func handle(action: TokenInstanceAction) {
+        guard let tokenHolder = self.selectedTokenHolder else { return }
+        switch action.type {
+        case .erc20Send, .erc20Receive:
+            break
+        case .nftRedeem:
+            self.redeem()
+        case .nftSell:
+            self.sell()
+        case .nonFungibleTransfer:
+            self.transfer()
+        case .tokenScript:
+            self.delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+        }
+    }
+    
+    @objc private func optionsButtonTapped(sender: UIButton) {
+        var actions = viewModel.actions
+        actions.removeFirst(buttonsBar.buttons.count)
+        
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        alertController.popoverPresentationController?.sourceView = sender
+        alertController.popoverPresentationController?.sourceRect = sender.centerRect
+        
+        actions.forEach { action in
+            let action = UIAlertAction(title: action.name, style: .default) { [weak self] _ in
+                self?.handle(action: action)
+            }
+            
+            switch account.type {
+            case .real:
+                action.isEnabled = true
+            case .watch:
+                action.isEnabled = false
+            }
+            
+            alertController.addAction(action)
+        }
+        
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true)
+    }
+    
     //TODO multi-selection. Only supports selecting one tokenHolder for now
     @objc private func actionButtonTapped(sender: UIButton) {
-        guard let tokenHolder = selectedTokenHolder else { return }
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
-            switch action.type {
-            case .erc20Send, .erc20Receive:
-                break
-            case .nftRedeem:
-                redeem()
-            case .nftSell:
-                sell()
-            case .nonFungibleTransfer:
-                transfer()
-            case .tokenScript:
-                delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
-            }
+            handle(action: action)
             break
         }
     }

@@ -34,7 +34,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private var watchControlsStackView: UIStackView!
     private let importKeystoreJsonFromCloudButton = UIButton(type: .system)
     private let importSeedDescriptionLabel = UILabel()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     weak var delegate: ImportWalletViewControllerDelegate?
 

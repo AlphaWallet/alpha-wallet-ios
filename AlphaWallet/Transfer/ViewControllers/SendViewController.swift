@@ -25,7 +25,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     private let header = SendHeaderViewWithIntroduction()
     private let targetAddressLabel = UILabel()
     private let amountLabel = UILabel()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: SendViewModel
     lazy private var headerViewModel = SendHeaderViewViewModelWithIntroduction(server: session.server, assetDefinitionStore: assetDefinitionStore)
     private var balanceViewModel: BalanceBaseViewModel?
@@ -208,7 +208,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             }
         }
     }
-
+    
     @objc func send() {
         let input = targetAddressTextField.value.trimmed
         guard let address = AlphaWallet.Address(string: input) else { return displayError(error: Errors.invalidAddress) }
