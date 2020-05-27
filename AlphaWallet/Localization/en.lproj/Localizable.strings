@@ -70,7 +70,7 @@
 "settings.backupWallet.button.title" = "Back up this Wallet";
 "settings.language.useSystem.title" = "Use System Setting";
 "settings.version.label.title" = "Version";
-"settings.tokenScriptStandard.title" = "TokenScript Standard";
+"settings.tokenScriptStandard.title" = "TokenScript Compatibiity";
 "settings.general.title" = "General";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";
