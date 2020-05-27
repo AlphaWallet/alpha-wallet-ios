@@ -13,7 +13,7 @@ class ChooseTokenCardTransferModeViewController: UIViewController, TokenVerifiab
     private let roundedBackground = RoundedBackground()
     private let header = TokensCardViewControllerTitleHeader()
     private let tokenRowView: TokenRowView & UIView
-    private let buttonsBar = ButtonsBar(numberOfButtons: 2)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 2))
     private var viewModel: ChooseTokenCardTransferModeViewControllerViewModel
     private let tokenHolder: TokenHolder
 

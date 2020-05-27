@@ -24,7 +24,7 @@ class TokenViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
     private let transferType: TransferType
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private let buttonsBar = ButtonsBar(numberOfButtons: 2)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 2))
 
     weak var delegate: TokenViewControllerDelegate?
 
@@ -119,8 +119,9 @@ class TokenViewController: UIViewController {
         tableView.tableHeaderView = header
 
         let actions = viewModel.actions
-        buttonsBar.numberOfButtons = actions.count
+        buttonsBar.configuration = .green(buttons: actions.count)
         buttonsBar.configure()
+        
         for (action, button) in zip(actions, buttonsBar.buttons) {
             button.setTitle(action.name, for: .normal)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)

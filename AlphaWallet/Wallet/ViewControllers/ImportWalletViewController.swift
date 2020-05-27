@@ -37,7 +37,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private var watchControlsStackView: UIStackView!
     private let importKeystoreJsonFromCloudButton = UIButton(type: .system)
     private let importSeedDescriptionLabel = UILabel()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+
     private var mnemonicSuggestions: [String] = .init() {
         didSet {
             mnemonicSuggestionsCollectionView.reloadData()
@@ -63,6 +63,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private var mnemonicInputString: String {
         mnemonicTextView.value.lowercased()
     }
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     weak var delegate: ImportWalletViewControllerDelegate?
 
