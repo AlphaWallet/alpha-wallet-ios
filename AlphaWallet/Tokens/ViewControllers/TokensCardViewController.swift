@@ -33,7 +33,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     private let header = TokenCardsViewControllerHeader()
     private let roundedBackground = RoundedBackground()
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private let buttonsBar = ButtonsBar(numberOfButtons: 3)
+    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
     private var isMultipleSelectionMode = false {
         didSet {
             if isMultipleSelectionMode {
@@ -47,6 +47,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         let selectedTokenHolders = viewModel.tokenHolders.filter { $0.isSelected }
         return selectedTokenHolders.first
     }
+    private var moreActions: [TokenInstanceAction] = []
 
     var server: RPCServer {
         return tokenObject.server
@@ -123,7 +124,6 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
-
         registerForPreviewing(with: self, sourceView: tableView)
     }
 
@@ -150,10 +150,15 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.tableHeaderView = header
 
         if let selectedTokenHolder = selectedTokenHolder {
-            let actions = viewModel.actions
-            buttonsBar.numberOfButtons = actions.count
-            buttonsBar.configure()
-            for (action, button) in zip(actions, buttonsBar.buttons) {
+            buttonsBar.configure(.combined(buttons: viewModel.actions.count))
+            buttonsBar.delegate = self
+            buttonsBar.dataSource = self
+            
+            var actions = viewModel.actions
+            actions.removeFirst(buttonsBar.buttons.count)
+            moreActions = actions
+            
+            for (action, button) in zip(viewModel.actions, buttonsBar.buttons) {
                 button.setTitle(action.name, for: .normal)
                 button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
                 switch account.type {
@@ -172,9 +177,9 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                 }
             }
         } else {
-            buttonsBar.numberOfButtons = 0
+            buttonsBar.configuration = .empty
         }
-
+        
         sizingCell = nil
         tableView.reloadData()
     }
@@ -219,39 +224,43 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         let transferType = TransferType(token: viewModel.token)
         delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: transferType), tokenHolders: viewModel.tokenHolders, in: self)
     }
-
+    
+    private func handle(action: TokenInstanceAction) {
+        guard let tokenHolder = self.selectedTokenHolder else { return }
+        switch action.type {
+        case .erc20Send, .erc20Receive:
+            break
+        case .nftRedeem:
+            self.redeem()
+        case .nftSell:
+            self.sell()
+        case .nonFungibleTransfer:
+            self.transfer()
+        case .tokenScript:
+            if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                if let denialMessage = selection.denial {
+                    let alertController = UIAlertController.alert(
+                            title: nil,
+                            message: denialMessage,
+                            alertButtonTitles: [R.string.localizable.oK()],
+                            alertButtonStyles: [.default],
+                            viewController: self,
+                            completion: nil
+                    )
+                } else {
+                    //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                }
+            } else {
+                delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+            }
+        }
+    }
+    
     //TODO multi-selection. Only supports selecting one tokenHolder for now
     @objc private func actionButtonTapped(sender: UIButton) {
-        guard let tokenHolder = selectedTokenHolder else { return }
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
-            switch action.type {
-            case .erc20Send, .erc20Receive:
-                break
-            case .nftRedeem:
-                redeem()
-            case .nftSell:
-                sell()
-            case .nonFungibleTransfer:
-                transfer()
-            case .tokenScript:
-                if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
-                    if let denialMessage = selection.denial {
-                        let alertController = UIAlertController.alert(
-                                title: nil,
-                                message: denialMessage,
-                                alertButtonTitles: [R.string.localizable.oK()],
-                                alertButtonStyles: [.default],
-                                viewController: self,
-                                completion: nil
-                        )
-                    } else {
-                        //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
-                    }
-                } else {
-                    delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
-                }
-            }
+            handle(action: action)
             break
         }
     }
@@ -480,5 +489,31 @@ extension TokensCardViewController: TokenCardRowViewDelegate {
         tableView.reloadRows(at: visibleRows, with: .none)
         tableView.endUpdates()
         UIView.setAnimationsEnabled(true)
+    }
+}
+
+extension TokensCardViewController: ButtonsBarDataSource {
+    
+    func buttonsBarNumberOfMoreActions(_ buttonsBar: ButtonsBar) -> Int {
+        return moreActions.count
+    }
+    
+    func buttonsBar(_ buttonsBar: ButtonsBar, moreActionViewModelAtIndex index: Int) -> MoreBarButtonViewModel {
+        let isEnabled: Bool
+        switch account.type {
+        case .real:
+            isEnabled = true
+        case .watch:
+            isEnabled = false
+        }
+        
+        return MoreBarButtonViewModel(title: moreActions[index].name, isEnabled: isEnabled)
+    }
+}
+
+extension TokensCardViewController: ButtonsBarDelegate {
+    
+    func buttonsBar(_ buttonsBar: ButtonsBar, didSelectMoreAction index: Int) {
+        handle(action: moreActions[index])
     }
 }

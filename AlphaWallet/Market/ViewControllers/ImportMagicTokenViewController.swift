@@ -24,7 +24,7 @@ class ImportMagicTokenViewController: UIViewController, OptionalTokenVerifiableS
     private let ethCostLabel = UILabel()
     private let dollarCostLabelLabel = UILabel()
     private let dollarCostLabel = PaddedLabel()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 2)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 2))
     private var viewModel: ImportMagicTokenViewControllerViewModel?
 
     let server: RPCServer

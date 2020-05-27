@@ -49,7 +49,7 @@ class NewTokenViewController: UIViewController {
     private let decimalsTextField = TextField()
     private let balanceTextField = TextField()
     private let nameTextField = TextField()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let changeServerButton = UIButton()
     private var scrollViewBottomAnchorConstraint: NSLayoutConstraint!
 

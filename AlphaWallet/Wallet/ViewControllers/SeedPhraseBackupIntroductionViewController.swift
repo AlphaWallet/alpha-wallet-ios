@@ -14,7 +14,8 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
     private let descriptionLabel1 = UILabel()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let descriptionLabel2 = UILabel()
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     private var imageViewDimension: CGFloat {
         if ScreenChecker().isNarrowScreen {

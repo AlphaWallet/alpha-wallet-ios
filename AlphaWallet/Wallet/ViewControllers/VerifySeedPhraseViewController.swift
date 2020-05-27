@@ -39,7 +39,7 @@ class VerifySeedPhraseViewController: UIViewController {
     private let seedPhraseCollectionView = SeedPhraseCollectionView()
     private let errorLabel = UILabel()
     private let clearChooseSeedPhraseButton = UIButton(type: .system)
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var state: State {
         didSet {
             switch state {
