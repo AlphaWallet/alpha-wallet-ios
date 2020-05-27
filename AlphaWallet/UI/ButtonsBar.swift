@@ -49,18 +49,20 @@ enum ButtonsBarConfiguration {
 enum ButtonsBarButtonType {
     case green
     case white
-    case more
-    
-    var viewModel: ButtonsBarViewModel {
-        switch self {
-        case .green:
-            return ButtonsBarViewModel.greenButton
-        case .white:
-            return ButtonsBarViewModel.whiteButton
-        case .more:
-            return ButtonsBarViewModel.moreButton
-        }
-    }
+}
+
+struct MoreBarButtonViewModel {
+    var title: String
+    var isEnabled: Bool
+}
+
+protocol ButtonsBarDataSource: class {
+    func buttonsBarNumberOfMoreActions(_ buttonsBar: ButtonsBar) -> Int
+    func buttonsBar(_ buttonsBar: ButtonsBar, moreActionViewModelAtIndex index: Int) -> MoreBarButtonViewModel
+}
+
+protocol ButtonsBarDelegate: class {
+    func buttonsBar(_ buttonsBar: ButtonsBar, didSelectMoreAction index: Int)
 }
 
 class ButtonsBar: UIView {
@@ -69,15 +71,16 @@ class ButtonsBar: UIView {
     static let marginAtBottomScreen = CGFloat(3)
 
     private var buttonContainerViews: [ContainerViewWithShadow<UIButton>] = []
-    private var optionsButtonContainerViews: [ContainerViewWithShadow<UIButton>] = []
+    private var moreButtonContainerViews: [ContainerViewWithShadow<UIButton>] = []
+    private var innerStackView: UIStackView
     private let buttonsStackView: UIStackView
-
+    
     var buttons: [UIButton] {
         return buttonContainerViews.map { $0.childView }
     }
     
-    var optionButtons: [UIButton] {
-        return optionsButtonContainerViews.map { $0.childView }
+    var moreButtons: [UIButton] {
+        return moreButtonContainerViews.map { $0.childView }
     }
 
     var isEmpty: Bool {
@@ -86,28 +89,18 @@ class ButtonsBar: UIView {
     
     var configuration: ButtonsBarConfiguration = .empty {
         didSet {
-            buttonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.buttonViewModels.count)
-            optionsButtonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.showMoreButton ? 1 : 0)
-            
-            for each in buttonsStackView.arrangedSubviews + innerStackView.arrangedSubviews {
-                each.removeFromSuperview()
-            }
-            
-            buttonsStackView.addArrangedSubviews(buttons)
-            innerStackView.addArrangedSubviews([buttonsStackView] + optionButtons)
+            self.didUpdateView(with: configuration)
         }
     }
     
-    private var innerStackView: UIStackView
+    weak var delegate: ButtonsBarDelegate?
+    weak var dataSource: (ButtonsBarDataSource & UIViewController)?
     
-    init(buttonsDistribution: UIStackView.Distribution = .fillEqually, configuration: ButtonsBarConfiguration = .green(buttons: 1)) {
-        buttonsStackView = [UIView]().asStackView(axis: .horizontal, distribution: buttonsDistribution, spacing: 7)
+    init(configuration: ButtonsBarConfiguration = .green(buttons: 1)) {
+        buttonsStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fillEqually, spacing: 7)
         innerStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fill, spacing: 7)
         
-        defer {
-            self.configuration = configuration
-        }
-        
+        self.configuration = configuration
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -123,10 +116,24 @@ class ButtonsBar: UIView {
         NSLayoutConstraint.activate([
             innerStackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: margin, bottom: 0, right: margin)),
         ])
+        
+        self.didUpdateView(with: configuration)
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func didUpdateView(with configuration: ButtonsBarConfiguration) {
+        buttonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.buttonViewModels.count)
+        moreButtonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.showMoreButton ? 1 : 0)
+        
+        for each in buttonsStackView.arrangedSubviews + innerStackView.arrangedSubviews {
+            each.removeFromSuperview()
+        }
+        
+        buttonsStackView.addArrangedSubviews(buttons)
+        innerStackView.addArrangedSubviews([buttonsStackView] + moreButtons)
     }
     
     fileprivate func setup(viewModel: ButtonsBarViewModel, view: ContainerViewWithShadow<UIButton>) {
@@ -149,18 +156,58 @@ class ButtonsBar: UIView {
         button.borderWidth = viewModel.buttonBorderWidth
     }
     
-    func configure() {
-        configuration.buttonViewModels.enumerated().forEach { (index, buttonType) in
-            let view = buttonContainerViews[index]
-            self.setup(viewModel: buttonType.viewModel, view: view)
+    func configure(_ newConfiguration: ButtonsBarConfiguration? = nil) {
+        if let newConfiguration = newConfiguration {
+            self.configuration = newConfiguration
         }
         
-        optionsButtonContainerViews.forEach { view in
-            self.setup(viewModel: .moreButton, view: view)
+        for (index, buttonType) in configuration.buttonViewModels.enumerated() {
+            switch buttonType {
+            case .green:
+                setup(viewModel: .greenButton, view: buttonContainerViews[index])
+            case .white:
+                setup(viewModel: .whiteButton, view: buttonContainerViews[index])
+            }
+        }
+        
+        for view in moreButtonContainerViews {
+            setup(viewModel: .moreButton, view: view)
+            
+            view.childView.setContentHuggingPriority(.required, for: .horizontal)
+            view.childView.setContentCompressionResistancePriority(.required, for: .horizontal)
+            view.childView.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
             view.childView.setBackgroundImage(R.image.more(), for: .normal)
         }
     }
 
+    @objc private func optionsButtonTapped(sender: UIButton) {
+        guard let dataSource = dataSource else { return }
+        let actions = dataSource.buttonsBarNumberOfMoreActions(self)
+        
+        guard actions > 0 else { return }
+        
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        alertController.popoverPresentationController?.sourceView = sender
+        alertController.popoverPresentationController?.sourceRect = sender.centerRect
+        
+        (0..<actions).forEach { index in
+            let viewModel = dataSource.buttonsBar(self, moreActionViewModelAtIndex: index)
+            let action = UIAlertAction(title: viewModel.title, style: .default) { _ in
+                guard let delegate = self.delegate else { return }
+                
+                delegate.buttonsBar(self, didSelectMoreAction: index)
+            }
+            action.isEnabled = viewModel.isEnabled 
+            
+            alertController.addAction(action)
+        }
+        
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+        alertController.addAction(cancelAction)
+        
+        dataSource.present(alertController, animated: true)
+    }
+    
     private static func bar(numberOfButtons: Int) -> [ContainerViewWithShadow<UIButton>] {
          return (0..<numberOfButtons).map { _ in
              let button = UIButton(type: .system)

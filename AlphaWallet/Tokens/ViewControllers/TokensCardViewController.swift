@@ -47,7 +47,8 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         let selectedTokenHolders = viewModel.tokenHolders.filter { $0.isSelected }
         return selectedTokenHolders.first
     }
-
+    private var moreActions: [TokenInstanceAction] = []
+    
     var server: RPCServer {
         return tokenObject.server
     }
@@ -149,12 +150,15 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.tableHeaderView = header
 
         if selectedTokenHolder != nil {
-            let actions = viewModel.actions
-            buttonsBar.configuration = .combined(buttons: actions.count)
-            buttonsBar.optionButtons.first?.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
-            buttonsBar.configure()
+            buttonsBar.configure(.combined(buttons: viewModel.actions.count))
+            buttonsBar.delegate = self
+            buttonsBar.dataSource = self
             
-            for (action, button) in zip(actions, buttonsBar.buttons) {
+            var actions = viewModel.actions
+            actions.removeFirst(buttonsBar.buttons.count)
+            moreActions = actions
+            
+            for (action, button) in zip(viewModel.actions, buttonsBar.buttons) {
                 button.setTitle(action.name, for: .normal)
                 button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
                 switch account.type {
@@ -491,5 +495,30 @@ extension TokensCardViewController: TokenCardRowViewDelegate {
         tableView.reloadRows(at: visibleRows, with: .none)
         tableView.endUpdates()
         UIView.setAnimationsEnabled(true)
+    }
+}
+
+extension TokensCardViewController: ButtonsBarDataSource {
+    
+    func buttonsBarNumberOfMoreActions(_ buttonsBar: ButtonsBar) -> Int {
+        return moreActions.count
+    }
+    
+    func buttonsBar(_ buttonsBar: ButtonsBar, moreActionViewModelAtIndex index: Int) -> MoreBarButtonViewModel {
+        let isEnabled: Bool
+        switch account.type {
+        case .real:
+            isEnabled = true
+        case .watch:
+            isEnabled = false
+        }
+        return MoreBarButtonViewModel(title: moreActions[index].name, isEnabled: isEnabled)
+    }
+}
+
+extension TokensCardViewController: ButtonsBarDelegate {
+    
+    func buttonsBar(_ buttonsBar: ButtonsBar, didSelectMoreAction index: Int) {
+        handle(action: moreActions[index])
     }
 }

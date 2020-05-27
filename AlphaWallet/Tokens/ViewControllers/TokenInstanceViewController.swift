@@ -22,7 +22,8 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     private lazy var tokenRowView: TokenCardRowViewProtocol & UIView = createTokenRowView()
     private let separators = (bar: UIView(), line: UIView())
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
-
+    private var moreActions: [TokenInstanceAction] = []
+    
     var tokenHolder: TokenHolder {
         return viewModel.tokenHolder
     }
@@ -34,7 +35,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     }
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenInstanceViewControllerDelegate?
-
+     
     var isReadOnly = false {
         didSet {
             configure()
@@ -121,8 +122,13 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
 
         header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server, assetDefinitionStore: assetDefinitionStore))
 
-        buttonsBar.configuration = .combined(buttons: viewModel.actions.count)
-        buttonsBar.configure()
+        buttonsBar.configure(.combined(buttons: viewModel.actions.count))
+        buttonsBar.delegate = self
+        buttonsBar.dataSource = self
+        
+        var actions = viewModel.actions
+        actions.removeFirst(buttonsBar.buttons.count)
+        moreActions = actions
         
         buttonsBar.buttons.enumerated().forEach { (index, button) in
             let action = viewModel.actions[index]
@@ -135,39 +141,9 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
                 button.isEnabled = false
             }
         }
-        buttonsBar.optionButtons.first?.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
         
         tokenRowView.configure(tokenHolder: tokenHolder, tokenView: .view, areDetailsVisible: tokenHolder.areDetailsVisible, width: 0, assetDefinitionStore: assetDefinitionStore)
-    }
-    
-    @objc private func optionsButtonTapped(sender: UIButton) {
-        var actions = viewModel.actions
-        actions.removeFirst(buttonsBar.buttons.count)
-        
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        alertController.popoverPresentationController?.sourceView = sender
-        alertController.popoverPresentationController?.sourceRect = sender.centerRect
-        
-        actions.forEach { action in
-            let action = UIAlertAction(title: action.name, style: .default) { [weak self] _ in
-                self?.handle(action: action)
-            }
-            
-            switch account.type {
-            case .real:
-                action.isEnabled = true
-            case .watch:
-                action.isEnabled = false
-            }
-            
-            alertController.addAction(action)
-        }
-        
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
-        alertController.addAction(cancelAction)
-        
-        self.present(alertController, animated: true)
-    }
+    } 
 
     func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
         return tokenHolders.first { $0.tokens[0].id == tokenHolder.tokens[0].id }
@@ -279,3 +255,27 @@ extension TokenInstanceViewController: OpenSeaNonFungibleTokenCardRowViewDelegat
 //    }
 }
 
+extension TokenInstanceViewController: ButtonsBarDataSource {
+    
+    func buttonsBarNumberOfMoreActions(_ buttonsBar: ButtonsBar) -> Int {
+        return moreActions.count
+    }
+    
+    func buttonsBar(_ buttonsBar: ButtonsBar, moreActionViewModelAtIndex index: Int) -> MoreBarButtonViewModel {
+        let isEnabled: Bool
+        switch account.type {
+        case .real:
+            isEnabled = true
+        case .watch:
+            isEnabled = false
+        }
+        return MoreBarButtonViewModel(title: moreActions[index].name, isEnabled: isEnabled)
+    }
+}
+
+extension TokenInstanceViewController: ButtonsBarDelegate {
+    
+    func buttonsBar(_ buttonsBar: ButtonsBar, didSelectMoreAction index: Int) {
+        handle(action: moreActions[index])
+    }
+}
