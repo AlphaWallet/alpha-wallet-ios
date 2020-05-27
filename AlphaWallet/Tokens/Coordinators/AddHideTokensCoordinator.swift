@@ -197,6 +197,15 @@ extension AddHideTokensCoordinator: NewTokenViewControllerDelegate {
     func didTapChangeServer(in viewController: NewTokenViewController) {
         showServers(inViewController: viewController)
     }
+
+    func openQRCode(in controller: NewTokenViewController) {
+        guard let nc = controller.navigationController else { return }
+        guard nc.ensureHasDeviceAuthorization() else { return }
+        let coordinator = ScanQRCodeCoordinator(navigationController: nc)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start()
+    }
 }
 
 extension AddHideTokensCoordinator: AddHideTokensViewControllerDelegate {
@@ -237,5 +246,16 @@ extension AddHideTokensCoordinator: ServersCoordinatorDelegate {
     func didSelectDismiss(in coordinator: ServersCoordinator) {
         coordinator.serversViewController.navigationController?.dismiss(animated: true)
         removeCoordinator(coordinator)
+    }
+}
+
+extension AddHideTokensCoordinator: ScanQRCodeCoordinatorDelegate {
+    func didCancel(in coordinator: ScanQRCodeCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func didScan(result: String, in coordinator: ScanQRCodeCoordinator) {
+        removeCoordinator(coordinator)
+        newTokenViewController?.didScanQRCode(result)
     }
 }

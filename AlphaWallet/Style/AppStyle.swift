@@ -71,6 +71,7 @@ struct Colors {
     static let appRed = UIColor(red: 204, green: 71, blue: 65)
     static let appGrayLabel = UIColor(red: 155, green: 155, blue: 155)
     static let settingsSubtitle = UIColor(red: 141, green: 141, blue: 141)
+    static let qrCodeRectBorders = UIColor(red: 216, green: 216, blue: 216)
 }
 
 struct StyleLayout {
