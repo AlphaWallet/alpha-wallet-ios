@@ -1,12 +1,13 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
 import Foundation
-import QRCodeReaderViewController
+import UIKit
 
 protocol NewTokenViewControllerDelegate: class {
     func didAddToken(token: ERCToken, in viewController: NewTokenViewController)
     func didAddAddress(address: AlphaWallet.Address, in viewController: NewTokenViewController)
     func didTapChangeServer(in viewController: NewTokenViewController)
+    func openQRCode(in controller: NewTokenViewController)
 }
 
 enum RPCServerOrAuto: Hashable {
@@ -32,7 +33,7 @@ enum RPCServerOrAuto: Hashable {
     }
 }
 
-class NewTokenViewController: UIViewController, CanScanQRCode {
+class NewTokenViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
     private let footerBar = UIView()
@@ -385,16 +386,8 @@ class NewTokenViewController: UIViewController, CanScanQRCode {
     }
 }
 
-extension NewTokenViewController: QRCodeReaderDelegate {
-    func readerDidCancel(_ reader: QRCodeReaderViewController!) {
-        reader.stopScanning()
-        reader.dismiss(animated: true, completion: nil)
-    }
-
-    func reader(_ reader: QRCodeReaderViewController!, didScanResult result: String!) {
-        reader.stopScanning()
-        reader.dismiss(animated: true, completion: nil)
-
+extension NewTokenViewController: AddressTextFieldDelegate {
+    func didScanQRCode(_ result: String) {
         guard let result = QRCodeValueParser.from(string: result) else { return }
         switch result {
         case .address(let address):
@@ -403,22 +396,13 @@ extension NewTokenViewController: QRCodeReaderDelegate {
             break
         }
     }
-}
 
-extension NewTokenViewController: AddressTextFieldDelegate {
     func displayError(error: Error, for textField: AddressTextField) {
         displayError(error: error)
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
-        guard AVCaptureDevice.authorizationStatus(for: .video) != .denied else {
-            promptUserOpenSettingsToChangeCameraPermission()
-            return
-        }
-        let controller = QRCodeReaderViewController(cancelButtonTitle: nil, chooseFromPhotoLibraryButtonTitle: R.string.localizable.photos())
-        controller.delegate = self
-        controller.makePresentationFullScreenForiOS13Migration()
-        present(controller, animated: true, completion: nil)
+        delegate?.openQRCode(in: self)
     }
 
     func didPaste(in textField: AddressTextField) {

@@ -29,9 +29,10 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private let ethPrice: Subscribable<Double>
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
+    private weak var transferTokensViewController: TransferTokensCardViaWalletAddressViewController?
 
     weak var delegate: TokensCardCoordinatorDelegate?
-    let navigationController: UINavigationController
+    let navigationController: NavigationController
     var coordinators: [Coordinator] = []
 
     var isReadOnly = false {
@@ -42,7 +43,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     init(
             session: WalletSession,
-            navigationController: UINavigationController = NavigationController(),
+            navigationController: NavigationController = NavigationController(),
             keystore: Keystore,
             tokensStorage: TokensDataStore,
             ethPrice: Subscribable<Double>,
@@ -429,6 +430,7 @@ extension TokensCardCoordinator: TokensCardViewControllerDelegate {
         switch token.type {
         case .erc721:
             let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: type)
+            transferTokensViewController = vc
             vc.navigationItem.largeTitleDisplayMode = .never
             viewController.navigationController?.pushViewController(vc, animated: true)
         case .erc875, .erc721ForTickets:
@@ -481,6 +483,7 @@ extension TokensCardCoordinator: TokenInstanceViewControllerDelegate {
         switch token.type {
         case .erc721:
             let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: paymentFlow)
+            transferTokensViewController = vc
             vc.navigationItem.largeTitleDisplayMode = .never
             viewController.navigationController?.pushViewController(vc, animated: true)
         case .erc875, .erc721ForTickets:
@@ -584,6 +587,7 @@ extension TokensCardCoordinator: ChooseTokenCardTransferModeViewControllerDelega
 
     func didChooseTransferNow(token: TokenObject, tokenHolder: TokenHolder, in viewController: ChooseTokenCardTransferModeViewController) {
         let vc = makeTransferTokensCardViaWalletAddressViewController(token: token, for: tokenHolder, paymentFlow: viewController.paymentFlow)
+        transferTokensViewController = vc
         vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
@@ -613,7 +617,28 @@ extension TokensCardCoordinator: GenerateTransferMagicLinkViewControllerDelegate
     }
 }
 
+extension TokensCardCoordinator: ScanQRCodeCoordinatorDelegate {
+    func didCancel(in coordinator: ScanQRCodeCoordinator) {
+        removeCoordinator(coordinator)
+    }
+
+    func didScan(result: String, in coordinator: ScanQRCodeCoordinator) {
+        removeCoordinator(coordinator)
+        transferTokensViewController?.didScanQRCode(result)
+    }
+}
+
 extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControllerDelegate {
+
+    func openQRCode(in controller: TransferTokensCardViaWalletAddressViewController) {
+        guard navigationController.ensureHasDeviceAuthorization() else { return }
+
+        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+        coordinator.start()
+    }
+
     func didEnterWalletAddress(tokenHolder: TokenHolder, to walletAddress: AlphaWallet.Address, paymentFlow: PaymentFlow, in viewController: TransferTokensCardViaWalletAddressViewController) {
         UIAlertController.alert(title: "", message: R.string.localizable.aWalletTokenTransferModeWalletAddressConfirmation(walletAddress.eip55String), alertButtonTitles: [R.string.localizable.aWalletTokenTransferButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: navigationController) { [weak self] in
             guard let strongSelf = self else { return }
