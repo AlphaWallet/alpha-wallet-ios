@@ -101,7 +101,6 @@ class ButtonsBar: UIView {
         innerStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fill, spacing: 7)
         
         self.configuration = configuration
-        
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
@@ -117,11 +116,24 @@ class ButtonsBar: UIView {
         NSLayoutConstraint.activate([
             innerStackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: margin, bottom: 0, right: margin)),
         ])
+        
         self.didUpdateView(with: configuration)
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func didUpdateView(with configuration: ButtonsBarConfiguration) {
+        buttonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.buttonViewModels.count)
+        moreButtonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.showMoreButton ? 1 : 0)
+        
+        for each in buttonsStackView.arrangedSubviews + innerStackView.arrangedSubviews {
+            each.removeFromSuperview()
+        }
+        
+        buttonsStackView.addArrangedSubviews(buttons)
+        innerStackView.addArrangedSubviews([buttonsStackView] + moreButtons)
     }
     
     fileprivate func setup(viewModel: ButtonsBarViewModel, view: ContainerViewWithShadow<UIButton>) {
@@ -144,17 +156,6 @@ class ButtonsBar: UIView {
         button.borderWidth = viewModel.buttonBorderWidth
     }
     
-    private func didUpdateView(with configuration: ButtonsBarConfiguration) {
-        buttonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.buttonViewModels.count)
-        moreButtonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.showMoreButton ? 1 : 0)
-        
-        for each in buttonsStackView.arrangedSubviews + innerStackView.arrangedSubviews {
-            each.removeFromSuperview()
-        }
-        
-        buttonsStackView.addArrangedSubviews(buttons)
-        innerStackView.addArrangedSubviews([buttonsStackView] + moreButtons)
-    }
 
     func configure(_ newConfiguration: ButtonsBarConfiguration? = nil) {
         if let newConfiguration = newConfiguration {
@@ -169,7 +170,6 @@ class ButtonsBar: UIView {
                 setup(viewModel: .whiteButton, view: buttonContainerViews[index])
             }
         }
-
         for view in moreButtonContainerViews {
              setup(viewModel: .moreButton, view: view)
 
@@ -197,7 +197,7 @@ class ButtonsBar: UIView {
                 
                 delegate.buttonsBar(self, didSelectMoreAction: index)
             }
-            action.isEnabled = viewModel.isEnabled
+            action.isEnabled = viewModel.isEnabled 
             
             alertController.addAction(action)
         }
@@ -207,7 +207,7 @@ class ButtonsBar: UIView {
         
         dataSource.present(alertController, animated: true)
     }
-
+    
     private static func bar(numberOfButtons: Int) -> [ContainerViewWithShadow<UIButton>] {
          return (0..<numberOfButtons).map { _ in
              let button = UIButton(type: .system)

@@ -150,6 +150,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.tableHeaderView = header
 
         if let selectedTokenHolder = selectedTokenHolder {
+
             buttonsBar.configure(.combined(buttons: viewModel.actions.count))
             buttonsBar.delegate = self
             buttonsBar.dataSource = self
@@ -506,7 +507,6 @@ extension TokensCardViewController: ButtonsBarDataSource {
         case .watch:
             isEnabled = false
         }
-        
         return MoreBarButtonViewModel(title: moreActions[index].name, isEnabled: isEnabled)
     }
 }
