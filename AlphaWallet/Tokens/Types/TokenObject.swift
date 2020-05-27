@@ -18,7 +18,8 @@ class TokenObject: Object {
     @objc dynamic var value: String = ""
     @objc dynamic var isDisabled: Bool = false
     @objc dynamic var rawType: String = TokenType.erc20.rawValue
-
+    @objc dynamic var shouldDisplay: Bool = true
+    var sortIndex = RealmOptional<Int>()
     let balance = List<TokenBalance>()
 
     var nonZeroBalance: [TokenBalance] {

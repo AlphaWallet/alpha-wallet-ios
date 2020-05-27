@@ -12,14 +12,15 @@ struct EthTokenViewCellViewModel {
     private let ticker: CoinTicker?
     private let server: RPCServer
     private let assetDefinitionStore: AssetDefinitionStore
-
+    private let isVisible: Bool
     init(
         token: TokenObject,
         ticker: CoinTicker?,
         currencyAmount: String?,
         currencyAmountWithoutSymbol: Double?,
         server: RPCServer,
-        assetDefinitionStore: AssetDefinitionStore
+        assetDefinitionStore: AssetDefinitionStore,
+        isVisible: Bool = true
     ) {
         self.token = token
         self.ticker = ticker
@@ -27,6 +28,7 @@ struct EthTokenViewCellViewModel {
         self.currencyAmountWithoutSymbol = currencyAmountWithoutSymbol
         self.server = server
         self.assetDefinitionStore = assetDefinitionStore
+        self.isVisible = isVisible
     }
 
     var title: String {
@@ -154,5 +156,9 @@ struct EthTokenViewCellViewModel {
 
     var valueName: String {
         return R.string.localizable.aWalletContentsValueDollarTitle()
+    }
+
+    var alpha: CGFloat {
+        return isVisible ? 1.0 : 0.4
     }
 }
