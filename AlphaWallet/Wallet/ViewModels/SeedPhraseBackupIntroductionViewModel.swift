@@ -10,37 +10,41 @@ struct SeedPhraseBackupIntroductionViewModel {
 
     var title: String {
         return R.string.localizable.walletsBackupHdWalletIntroductionButtonTitle()
-    }
-
-    var subtitle: String {
-        return R.string.localizable.walletsBackupHdWalletIntroductionTitle()
-    }
-
-    var subtitleColor: UIColor {
-        return Screen.Backup.subtitleColor
-    }
-
-    var subtitleFont: UIFont {
-        return Screen.Backup.subtitleFont
-    }
+    } 
 
     var imageViewImage: UIImage {
         return R.image.hdIntroduction()!
     }
-
-    var description1: String {
-        return R.string.localizable.walletsShowSeedPhraseSubtitle()
+    
+    var attributedSubtitle: NSAttributedString {
+        let subtitle = R.string.localizable.walletsBackupHdWalletIntroductionTitle()
+        let attributeString = NSMutableAttributedString(string: subtitle)
+        let style = NSMutableParagraphStyle()
+        style.alignment = .center
+        style.lineSpacing = 23
+        
+        attributeString.addAttributes([
+            .paragraphStyle: style,
+            .font: Screen.Backup.subtitleFont,
+            .foregroundColor: R.color.black()!
+        ], range: NSRange(location: 0, length: subtitle.count))
+        
+        return attributeString
     }
-
-    var description2: String {
-        return R.string.localizable.walletsShowSeedPhraseDescription()
-    }
-
-    var descriptionColor: UIColor {
-        return Screen.Backup.descriptionColor
-    }
-
-    var descriptionFont: UIFont {
-        return Screen.Backup.descriptionFont
+    
+    var attributedDescription: NSAttributedString {
+        let description = R.string.localizable.walletsShowSeedPhraseSubtitle()
+        let attributeString = NSMutableAttributedString(string: description)
+        let style = NSMutableParagraphStyle()
+        style.alignment = .center
+        style.lineSpacing = 14
+        
+        attributeString.addAttributes([
+            .paragraphStyle: style,
+            .font: Screen.Backup.descriptionFont,
+            .foregroundColor: Colors.appText
+        ], range: NSRange(location: 0, length: description.count))
+        
+        return attributeString
     }
 }

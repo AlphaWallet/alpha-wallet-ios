@@ -14,7 +14,6 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
     private let descriptionLabel1 = UILabel()
-    private let descriptionLabel2 = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
 
     private var imageViewDimension: CGFloat {
@@ -39,13 +38,12 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
 
         let stackView = [
-            UIView.spacer(height: 30),
+            UIView.spacer(height: 32),
             subtitleLabel,
-            UIView.spacer(height: 40),
+            UIView.spacer(height: 24),
             imageView,
-            UIView.spacer(height: 40),
-            descriptionLabel1,
-            descriptionLabel2,
+            UIView.spacer(height: 17),
+            descriptionLabel1
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
@@ -92,25 +90,13 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     func configure() {
         view.backgroundColor = Colors.appBackground
 
-        subtitleLabel.textAlignment = .center
         subtitleLabel.numberOfLines = 0
-        subtitleLabel.textColor = viewModel.subtitleColor
-        subtitleLabel.font = viewModel.subtitleFont
-        subtitleLabel.text = viewModel.subtitle
-
+        subtitleLabel.attributedText = viewModel.attributedSubtitle
+        
         imageView.image = viewModel.imageViewImage
 
-        descriptionLabel1.textAlignment = .center
-        descriptionLabel1.textColor = viewModel.descriptionColor
-        descriptionLabel1.font = viewModel.descriptionFont
         descriptionLabel1.numberOfLines = 0
-        descriptionLabel1.text = viewModel.description1
-
-        descriptionLabel2.textAlignment = .center
-        descriptionLabel2.textColor = viewModel.descriptionColor
-        descriptionLabel2.font = viewModel.descriptionFont
-        descriptionLabel2.numberOfLines = 0
-        descriptionLabel2.text = viewModel.description2
+        descriptionLabel1.attributedText = viewModel.attributedDescription
 
         buttonsBar.configure()
         let exportButton = buttonsBar.buttons[0]
