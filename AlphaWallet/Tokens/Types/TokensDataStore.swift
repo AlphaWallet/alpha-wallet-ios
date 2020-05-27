@@ -62,7 +62,7 @@ class TokensDataStore {
     }()
 
     private let provider = AlphaWalletProviderFactory.makeProvider()
-
+    private let filterTokensCoordinator: FilterTokensCoordinator
     private let account: Wallet
     private let assetDefinitionStore: AssetDefinitionStore
     private let realm: Realm
@@ -148,8 +148,10 @@ class TokensDataStore {
             account: Wallet,
             server: RPCServer,
             config: Config,
-            assetDefinitionStore: AssetDefinitionStore
+            assetDefinitionStore: AssetDefinitionStore,
+            filterTokensCoordinator: FilterTokensCoordinator
     ) {
+        self.filterTokensCoordinator = filterTokensCoordinator
         self.account = account
         self.server = server
         self.config = config
@@ -522,7 +524,7 @@ class TokensDataStore {
         tokensModel.value = enabledObject
         var tickersForThisServer = [RPCServer: [AlphaWallet.Address: CoinTicker]]()
         tickersForThisServer[server] = tickers
-        let tokensViewModel = TokensViewModel(assetDefinitionStore: assetDefinitionStore, tokens: enabledObject, tickers: tickersForThisServer)
+        let tokensViewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: enabledObject, tickers: tickersForThisServer)
         delegate?.didUpdate(result: .success( tokensViewModel ), refreshImmediately: refreshImmediately)
     }
 
@@ -612,7 +614,16 @@ class TokensDataStore {
     @discardableResult
     func add(tokens: [TokenObject]) -> [TokenObject] {
         realm.beginWrite()
-        realm.add(tokens, update: .all)
+
+        //TODO: save existed sort index and displaying state
+        for token in tokens {
+            if let object = self.realm.object(ofType: TokenObject.self, forPrimaryKey: token.primaryKey) {
+                token.sortIndex = object.sortIndex
+                token.shouldDisplay = object.shouldDisplay
+            }
+            realm.add(token, update: .all)
+        }
+
         try! realm.commitWrite()
         return tokens
     }
@@ -635,11 +646,33 @@ class TokensDataStore {
         case nonFungibleBalance([String])
         case name(String)
         case type(TokenType)
+        case isHidden(Bool)
+    }
+
+    func updateOrderedTokens(with orderedTokens: [TokenObject]) {
+        let orderedTokensIds = orderedTokens.map {
+            $0.primaryKey
+        }
+
+        let storedTokens = realm.objects(TokenObject.self)
+
+        for token in storedTokens {
+            try! realm.write {
+                token.sortIndex.value = orderedTokensIds.firstIndex(where: { $0 == token.primaryKey })
+            }
+        }
     }
 
     func update(token: TokenObject, action: TokenUpdateAction) {
         guard !token.isInvalidated else { return }
         switch action {
+        case .isHidden(let value):
+            try! realm.write {
+                token.shouldDisplay = !value
+                if !value {
+                    token.sortIndex.value = nil
+                }
+            }
         case .value(let value):
             try! realm.write {
                 token.value = value.description

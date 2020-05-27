@@ -15,17 +15,19 @@ extension TokensViewController {
                     }
                     return
                 }
+                filterView.backgroundColor = Colors.appWhite
                 filterView.translatesAutoresizingMaskIntoConstraints = false
                 contentView.addSubview(filterView)
                 NSLayoutConstraint.activate([
-                    filterView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 0, left: 0, bottom: 7, right: 0)),
+                    filterView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 0, left: 0, bottom: 0, right: 0)),
                 ])
             }
         }
 
         override init(reuseIdentifier: String?) {
             super.init(reuseIdentifier: reuseIdentifier)
-            contentView.backgroundColor = GroupedTable.Color.background
+            backgroundColor = Colors.appWhite
+            contentView.backgroundColor = Colors.appWhite
         }
 
         required init?(coder aDecoder: NSCoder) {

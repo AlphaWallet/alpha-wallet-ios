@@ -42,7 +42,7 @@ func applyStyle() {
 }
 
 func applyStyle(viewController: UIViewController) {
-	// See use of setBackButtonTitlePositionAdjustment(:for:) above
+// See use of setBackButtonTitlePositionAdjustment(:for:) above
 //    viewController.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
 }
 
@@ -162,6 +162,11 @@ enum DataEntry {
 }
 
 enum Screen {
+
+    enum Tokens {
+        static let addHideTokenFont = Fonts.semibold(size: 17)
+    }
+
     enum Backup {
         static let subtitleFont = Fonts.regular(size: 28)!
         static let subtitleColor = Colors.darkGray
