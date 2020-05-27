@@ -70,7 +70,7 @@
 "settings.backupWallet.button.title" = "Back up this Wallet";
 "settings.language.useSystem.title" = "システム設定を使用";
 "settings.version.label.title" = "バージョン";
-"settings.tokenScriptStandard.title" = "TokenScript Standard";
+"settings.tokenScriptStandard.title" = "TokenScript Compatibiity";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "トランザクションはまだありません!";
