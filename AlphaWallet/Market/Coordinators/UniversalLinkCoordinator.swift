@@ -472,7 +472,7 @@ class UniversalLinkCoordinator: Coordinator {
 
             let tokensDatastore = strongSelf.tokensDatastores[strongSelf.server]
             if let existingToken = tokensDatastore.token(forContract: contractAddress) {
-                let name = XMLHandler(contract: existingToken.contractAddress, assetDefinitionStore: strongSelf.assetDefinitionStore).getName(fallback: existingToken.name)
+                let name = XMLHandler(contract: existingToken.contractAddress, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
                 makeTokenHolder(name: name, symbol: existingToken.symbol)
             } else {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()

@@ -198,19 +198,19 @@ private class PrivateXMLHandler {
         })
     }()
 
-    var nameInSingularForm: String? {
+    var labelInSingularForm: String? {
         if contractAddress.sameContract(as: Constants.katContractAddress) {
             return R.string.localizable.katTitlecase()
         }
 
-        if  let nameStringElement = XMLHandler.getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext), let name = nameStringElement.text {
-            return name
+        if let labelStringElement = XMLHandler.getLabelStringElement(fromElement: tokenElement, xmlContext: xmlContext), let label = labelStringElement.text {
+            return label
         } else {
             return nil
         }
     }
 
-    var nameInPluralForm: String? {
+    var labelInPluralForm: String? {
         if contractAddress.sameContract(as: Constants.katContractAddress) {
             return R.string.localizable.katTitlecase()
         }
@@ -218,7 +218,7 @@ private class PrivateXMLHandler {
         if  let nameElement = XMLHandler.getLabelElementForPluralForm(fromElement: tokenElement, xmlContext: xmlContext), let name = nameElement.text {
             return name
         } else {
-            return nameInSingularForm
+            return labelInSingularForm
         }
     }
 
@@ -684,12 +684,12 @@ public class XMLHandler {
         return privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, tokenType: tokenType)
     }
 
-    func getName(fallback: String = R.string.localizable.tokenTitlecase()) -> String {
-        return privateXMLHandler.nameInSingularForm ?? fallback
+    func getLabel(fallback: String = R.string.localizable.tokenTitlecase()) -> String {
+        return privateXMLHandler.labelInSingularForm ?? fallback
     }
 
     func getNameInPluralForm(fallback: String = R.string.localizable.tokensTitlecase()) -> String {
-        return privateXMLHandler.nameInPluralForm ?? fallback
+        return privateXMLHandler.labelInPluralForm ?? fallback
     }
 
     static func checkTokenScriptSchema(forPath path: URL) -> TokenScriptSchema {
