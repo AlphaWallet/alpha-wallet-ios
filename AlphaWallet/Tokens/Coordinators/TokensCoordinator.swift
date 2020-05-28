@@ -105,7 +105,6 @@ class TokensCoordinator: Coordinator {
         for each in singleChainTokenCoordinators {
             each.start()
         }
-        addDiscoveryToken()
         addUefaTokenIfAny()
         showTokens()
     }
@@ -128,13 +127,6 @@ class TokensCoordinator: Coordinator {
     func addImportedToken(forContract contract: AlphaWallet.Address, server: RPCServer) {
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
         coordinator.addImportedToken(forContract: contract)
-    }
-
-    func addDiscoveryToken() {
-        //Should only be on mainnet for now
-        let server = RPCServer(chainID: 1)
-        guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
-        coordinator.addImportedToken(forContract: Constants.discoveryContractAddress)
     }
 
     func addUefaTokenIfAny() {
