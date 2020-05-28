@@ -62,7 +62,7 @@
 "settings.backupWallet.button.title" = "Back up this Wallet";
 "settings.language.useSystem.title" = "使用系统设置";
 "settings.version.label.title" = "版本";
-"settings.tokenScriptStandard.title" = "TokenScript Compatibiity";
+"settings.tokenScriptStandard.title" = "TokenScript Compatibility";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";
 "transactions.noTransactions.label.title" = "暂无记录";
