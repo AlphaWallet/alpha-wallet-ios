@@ -13,13 +13,13 @@ class WalletCoordinator: Coordinator {
     private var entryPoint: WalletEntryPoint?
     private var keystore: Keystore
     private weak var importWalletViewController: ImportWalletViewController?
-    var navigationController: NavigationController
+    var navigationController: UINavigationController
     weak var delegate: WalletCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
     init(
         config: Config,
-        navigationController: NavigationController = NavigationController(),
+        navigationController: UINavigationController = UINavigationController(),
         keystore: Keystore
     ) {
         self.config = config
