@@ -221,6 +221,7 @@ class TokensViewController: UIViewController {
 
     private func reloadTableData() {
         tableView.reloadData()
+        updateTableViewBackground()
     }
 
     private func reload() {
@@ -414,6 +415,14 @@ extension TokensViewController: UITableViewDataSource {
         configuration.performsFirstActionWithFullSwipe = true
 
         return configuration
+    }
+
+    private func updateTableViewBackground() {
+        if tableView.contentSize.height < tableView.frame.height {
+            tableView.backgroundView?.backgroundColor = viewModel.backgroundColor
+        } else {
+            tableView.backgroundView?.backgroundColor = GroupedTable.Color.background
+        }
     }
 }
 
