@@ -63,9 +63,6 @@ public struct Constants {
     //UEFA 721 balances function hash
     static let balances165Hash721Ticket = "0xc84aae17"
 
-    // Hardcoded discovery token address
-    static let discoveryContractAddress = AlphaWallet.Address(string: "0x8c0edb69ebf038ba0c7a4873e40fc09725064c2e")!
-
     //etherscan-compatible APIs
     public static let mainnetEtherscanAPI = "https://api.etherscan.io/api?module=account&action=txlist&address="
     public static let ropstenEtherscanAPI = "https://ropsten.etherscan.io/api?module=account&action=txlist&address="
