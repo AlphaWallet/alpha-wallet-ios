@@ -218,8 +218,8 @@ class TokenInstanceWebView: UIView {
                 results[each.javaScriptName] = .address(walletAddress)
             case .tokenId:
                 results[each.javaScriptName] = .uint(tokenHolder.tokens[0].id)
-            case .name:
-                let localizedNameFromAssetDefinition = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getName(fallback: tokenHolder.name)
+            case .label:
+                let localizedNameFromAssetDefinition = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getLabel(fallback: tokenHolder.name)
                 results[each.javaScriptName] = .string(localizedNameFromAssetDefinition)
             case .symbol:
                 results[each.javaScriptName] = .string(tokenHolder.symbol)
