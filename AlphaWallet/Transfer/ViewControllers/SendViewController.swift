@@ -213,7 +213,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         let input = targetAddressTextField.value.trimmed
         guard let address = AlphaWallet.Address(string: input) else { return displayError(error: Errors.invalidAddress) }
         let amountString = amountTextField.ethCost
-        let parsedValue: BigInt? = {1
+        let parsedValue: BigInt? = {
             switch transferType {
             case .nativeCryptocurrency, .dapp:
                 return EtherNumberFormatter.full.number(from: amountString, units: .ether)
@@ -229,12 +229,22 @@ class SendViewController: UIViewController, CanScanQRCode {
                 return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
             }
         }()
-        guard let value = parsedValue else {
+
+        guard let value = parsedValue, value > 0 else {
             return displayError(error: SendInputErrors.wrongInput)
         }
 
-        if case .nativeCryptocurrency = transferType, let balance = session.balance, balance.value < value {
-            return displayError(title: R.string.localizable.aSendBalanceInsufficient(), error: Errors.invalidAmount)
+        switch transferType {
+        case .nativeCryptocurrency:
+            if let balance = session.balance, balance.value < value {
+                return displayError(title: R.string.localizable.aSendBalanceInsufficient(), error: Errors.invalidAmount)
+            }
+        case .ERC20Token(let token, _, _):
+            if let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt, tokenBalance < value {
+                return displayError(title: R.string.localizable.aSendBalanceInsufficient(), error: Errors.invalidAmount)
+            }
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
+            break
         }
 
         let transaction = UnconfirmedTransaction(
