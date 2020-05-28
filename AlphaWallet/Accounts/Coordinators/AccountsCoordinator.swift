@@ -18,7 +18,7 @@ class AccountsCoordinator: Coordinator {
     private let keystore: Keystore
     private let promptBackupCoordinator: PromptBackupCoordinator
 
-    let navigationController: NavigationController
+    let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
@@ -34,7 +34,7 @@ class AccountsCoordinator: Coordinator {
 
     init(
         config: Config,
-        navigationController: NavigationController,
+        navigationController: UINavigationController,
         keystore: Keystore,
         promptBackupCoordinator: PromptBackupCoordinator
     ) {
