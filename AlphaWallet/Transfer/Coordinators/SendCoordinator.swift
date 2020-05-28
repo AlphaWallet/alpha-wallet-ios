@@ -24,13 +24,13 @@ class SendCoordinator: Coordinator {
         return makeSendViewController()
     }()
 
-    let navigationController: NavigationController
+    let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: SendCoordinatorDelegate?
 
     init(
             transferType: TransferType,
-            navigationController: NavigationController = NavigationController(),
+            navigationController: UINavigationController = UINavigationController(),
             session: WalletSession,
             keystore: Keystore,
             storage: TokensDataStore,

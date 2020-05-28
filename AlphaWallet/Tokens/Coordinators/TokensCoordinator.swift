@@ -65,7 +65,7 @@ class TokensCoordinator: Coordinator {
         return coordinators.compactMap { $0 as? SingleChainTokenCoordinator }
     }
 
-    let navigationController: NavigationController
+    let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: TokensCoordinatorDelegate?
 
@@ -74,7 +74,7 @@ class TokensCoordinator: Coordinator {
     }()
 
     init(
-            navigationController: NavigationController = NavigationController(),
+            navigationController: UINavigationController = UINavigationController(),
             sessions: ServerDictionary<WalletSession>,
             keystore: Keystore,
             config: Config,
