@@ -22,8 +22,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     private lazy var tokenRowView: TokenCardRowViewProtocol & UIView = createTokenRowView()
     private let separators = (bar: UIView(), line: UIView())
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
-    private var moreActions: [TokenInstanceAction] = []
-
+    
     var tokenHolder: TokenHolder {
         return viewModel.tokenHolder
     }
@@ -35,7 +34,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     }
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TokenInstanceViewControllerDelegate?
-     
+
     var isReadOnly = false {
         didSet {
             configure()
@@ -123,14 +122,9 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server, assetDefinitionStore: assetDefinitionStore))
 
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
-        buttonsBar.delegate = self
-        buttonsBar.dataSource = self
-        
-        var actions = viewModel.actions
-        actions.removeFirst(buttonsBar.buttons.count)
-        moreActions = actions
-        
-        buttonsBar.buttons.enumerated().forEach { (index, button) in
+        buttonsBar.viewController = self
+
+        for (index, button) in buttonsBar.buttons.enumerated() {
             let action = viewModel.actions[index]
             button.setTitle(action.name, for: .normal)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
@@ -139,19 +133,19 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
                 if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
                     if selection.denial == nil {
                         button.isHidden = true
-                    } else {
+                    } else if button.isHidden != true {
                         button.isHidden = false
                     }
-                } else {
+                } else if button.isHidden != true {
                     button.isHidden = false
                 }
             case .watch:
                 button.isEnabled = false
             }
         }
-        
+
         tokenRowView.configure(tokenHolder: tokenHolder, tokenView: .view, areDetailsVisible: tokenHolder.areDetailsVisible, width: 0, assetDefinitionStore: assetDefinitionStore)
-    } 
+    }
 
     func firstMatchingTokenHolder(fromTokenHolders tokenHolders: [TokenHolder]) -> TokenHolder? {
         return tokenHolders.first { $0.tokens[0].id == tokenHolder.tokens[0].id }
@@ -169,7 +163,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         let transferType = TransferType(token: tokenObject)
         delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: transferType), in: self)
     }
-    
+
     private func handle(action: TokenInstanceAction) {
         switch action.type {
         case .erc20Send, .erc20Receive:
@@ -277,29 +271,3 @@ extension TokenInstanceViewController: OpenSeaNonFungibleTokenCardRowViewDelegat
 //        delegate?.didPressOpenWebPage(url, in: self)
 //    }
 }
-
-extension TokenInstanceViewController: ButtonsBarDataSource {
-    
-    func buttonsBarNumberOfMoreActions(_ buttonsBar: ButtonsBar) -> Int {
-        return moreActions.count
-    }
-    
-    func buttonsBar(_ buttonsBar: ButtonsBar, moreActionViewModelAtIndex index: Int) -> MoreBarButtonViewModel {
-        let isEnabled: Bool
-        switch account.type {
-        case .real:
-            isEnabled = true
-        case .watch:
-            isEnabled = false
-        }
-
-        return MoreBarButtonViewModel(title: moreActions[index].name, isEnabled: isEnabled)
-    }
-}
-
-extension TokenInstanceViewController: ButtonsBarDelegate {
-    
-    func buttonsBar(_ buttonsBar: ButtonsBar, didSelectMoreAction index: Int) {
-        handle(action: moreActions[index])
-    }
-} 

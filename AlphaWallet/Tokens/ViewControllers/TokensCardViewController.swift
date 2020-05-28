@@ -47,8 +47,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         let selectedTokenHolders = viewModel.tokenHolders.filter { $0.isSelected }
         return selectedTokenHolders.first
     }
-    private var moreActions: [TokenInstanceAction] = []
-
+    
     var server: RPCServer {
         return tokenObject.server
     }
@@ -152,13 +151,8 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         if let selectedTokenHolder = selectedTokenHolder {
 
             buttonsBar.configure(.combined(buttons: viewModel.actions.count))
-            buttonsBar.delegate = self
-            buttonsBar.dataSource = self
-            
-            var actions = viewModel.actions
-            actions.removeFirst(buttonsBar.buttons.count)
-            moreActions = actions
-            
+            buttonsBar.viewController = self
+
             for (action, button) in zip(viewModel.actions, buttonsBar.buttons) {
                 button.setTitle(action.name, for: .normal)
                 button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
@@ -167,10 +161,10 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                     if let selection = action.activeExcludingSelection(selectedTokenHolders: [selectedTokenHolder], forWalletAddress: account.address) {
                         if selection.denial == nil {
                             button.isHidden = true
-                        } else {
+                        } else if button.isHidden != true {
                             button.isHidden = false
                         }
-                    } else {
+                    } else if button.isHidden != true {
                         button.isHidden = false
                     }
                 case .watch:
@@ -180,7 +174,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         } else {
             buttonsBar.configuration = .empty
         }
-        
+
         sizingCell = nil
         tableView.reloadData()
     }
@@ -225,18 +219,18 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         let transferType = TransferType(token: viewModel.token)
         delegate?.didPressTransfer(token: viewModel.token, tokenHolder: selectedTokenHolder, for: .send(type: transferType), tokenHolders: viewModel.tokenHolders, in: self)
     }
-    
+
     private func handle(action: TokenInstanceAction) {
-        guard let tokenHolder = self.selectedTokenHolder else { return }
+        guard let tokenHolder = selectedTokenHolder else { return }
         switch action.type {
         case .erc20Send, .erc20Receive:
             break
         case .nftRedeem:
-            self.redeem()
+            redeem()
         case .nftSell:
-            self.sell()
+            sell()
         case .nonFungibleTransfer:
-            self.transfer()
+            transfer()
         case .tokenScript:
             if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
                 if let denialMessage = selection.denial {
@@ -256,7 +250,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             }
         }
     }
-    
+
     //TODO multi-selection. Only supports selecting one tokenHolder for now
     @objc private func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
@@ -493,27 +487,3 @@ extension TokensCardViewController: TokenCardRowViewDelegate {
     }
 }
 
-extension TokensCardViewController: ButtonsBarDataSource {
-    
-    func buttonsBarNumberOfMoreActions(_ buttonsBar: ButtonsBar) -> Int {
-        return moreActions.count
-    }
-    
-    func buttonsBar(_ buttonsBar: ButtonsBar, moreActionViewModelAtIndex index: Int) -> MoreBarButtonViewModel {
-        let isEnabled: Bool
-        switch account.type {
-        case .real:
-            isEnabled = true
-        case .watch:
-            isEnabled = false
-        }
-        return MoreBarButtonViewModel(title: moreActions[index].name, isEnabled: isEnabled)
-    }
-}
-
-extension TokensCardViewController: ButtonsBarDelegate {
-    
-    func buttonsBar(_ buttonsBar: ButtonsBar, didSelectMoreAction index: Int) {
-        handle(action: moreActions[index])
-    }
-}
