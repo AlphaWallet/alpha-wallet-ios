@@ -124,11 +124,12 @@ class TransactionConfigurator {
                     switch result {
                     case .success(let balance):
                         if let gasPrice = BigInt(balance.drop0x, radix: 16) {
-                            if gasPrice > GasPriceConfiguration.maxPrice {
+                            if (gasPrice + GasPriceConfiguration.oneGwei) > GasPriceConfiguration.maxPrice {
                                 // Guard against really high prices
                                 seal.fulfill(GasPriceConfiguration.maxPrice)
                             } else {
-                                seal.fulfill(gasPrice)
+                                //Add an extra gwei because the estimate is sometimes too low
+                                seal.fulfill(gasPrice + GasPriceConfiguration.oneGwei)
                             }
                         } else {
                             seal.fulfill(GasPriceConfiguration.defaultPrice)
