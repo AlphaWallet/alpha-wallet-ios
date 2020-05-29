@@ -58,7 +58,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
 
     var tokenCountLabelText: String {
         if tokenCount == 1 {
-            let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getName()
+            let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getLabel()
             return R.string.localizable.aWalletTokenSellSingleTokenSelectedTitle(tokenTypeName)
         } else {
             let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
@@ -67,7 +67,7 @@ struct SetSellTokensCardExpiryDateViewControllerViewModel {
     }
 
     var perTokenPriceLabelText: String {
-        let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getName()
+        let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getLabel()
         let amount = ethCost / tokenCount
         return R.string.localizable.aWalletTokenSellPerTokenEthPriceTitle(amount.formattedDescription, server.symbol, tokenTypeName)
     }

@@ -38,7 +38,7 @@ struct EnterSellTokensCardPriceQuantityViewControllerViewModel {
     }
 
     var pricePerTokenLabelText: String {
-        let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getName()
+        let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getLabel()
         return R.string.localizable.aWalletTokenSellPricePerTokenTitle(tokenTypeName.localizedUppercase)
     }
 

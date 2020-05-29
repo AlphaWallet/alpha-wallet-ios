@@ -158,7 +158,7 @@ class TokenAdaptor {
                     filterValue = eventFilter.value.replacingOccurrences(of: "${tokenId}", with: nonFungible.tokenId)
                 case .ownerAddress:
                     filterValue = eventFilter.value.replacingOccurrences(of: "${ownerAddress}", with: account.address.eip55String)
-                case .name, .contractAddress, .symbol:
+                case .label, .contractAddress, .symbol:
                     filterValue = eventFilter.value
                 }
             } else {
