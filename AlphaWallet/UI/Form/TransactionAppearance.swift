@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 struct TransactionAppearance {
-    static func item(title: String, subTitle: String, completion:((_ title: String, _ value: String, _ sender: UIView) -> Void)? = .none) -> UIView {
+    static func item(title: String, subTitle: String, icon: UIImage? = nil, completion:((_ title: String, _ value: String, _ sender: UIView) -> Void)? = .none) -> UIView {
         let titleLabel = UILabel(frame: .zero)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = title
@@ -20,18 +20,45 @@ struct TransactionAppearance {
         subTitleLabel.font = Fonts.light(size: 15)
         subTitleLabel.numberOfLines = 0
 
-        let stackView = [
+        let textLabelsStackView = [
             titleLabel,
             subTitleLabel,
         ].asStackView(axis: .vertical, spacing: 10)
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
-        stackView.isLayoutMarginsRelativeArrangement = true
-
-        UITapGestureRecognizer(addToView: stackView) {
-            completion?(title, subTitle, stackView)
+        
+        textLabelsStackView.translatesAutoresizingMaskIntoConstraints = false
+        textLabelsStackView.layoutMargins = UIEdgeInsets(top: 0, left: 20, bottom: 0, right: 20)
+        textLabelsStackView.isLayoutMarginsRelativeArrangement = true
+        var view: UIView
+        
+        if let icon = icon {
+            let iconContainerView = UIView()
+            iconContainerView.translatesAutoresizingMaskIntoConstraints = false
+            iconContainerView.backgroundColor = .clear
+            
+            let iconImageView = UIImageView(image: icon)
+            iconImageView.translatesAutoresizingMaskIntoConstraints = false
+            iconImageView.contentMode = .scaleAspectFit
+            
+            iconContainerView.addSubview(iconImageView)
+            
+            let viewsToReturn = [textLabelsStackView, iconContainerView, .spacerWidth(20)].asStackView(axis: .horizontal)
+            
+            NSLayoutConstraint.activate([
+                iconContainerView.widthAnchor.constraint(equalToConstant: 24),
+                iconImageView.leadingAnchor.constraint(equalTo: iconContainerView.leadingAnchor),
+                iconImageView.trailingAnchor.constraint(equalTo: iconContainerView.trailingAnchor),
+                iconImageView.centerYAnchor.constraint(equalTo: subTitleLabel.centerYAnchor)
+            ])
+            
+            view = viewsToReturn
+        } else {
+            view = textLabelsStackView
+        }
+        
+        UITapGestureRecognizer(addToView: view) {
+            completion?(title, subTitle, view)
         }
 
-        return stackView
+        return view
     }
 }
