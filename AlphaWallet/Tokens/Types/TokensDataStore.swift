@@ -70,7 +70,6 @@ class TokensDataStore {
     private var ethTimer = Timer()
     //We should refresh prices every 5 minutes.
     private let intervalToRefreshPrices = 300.0
-    //We should refresh balance of the ETH every 10 seconds.
     private let intervalToETHRefresh = 10.0
 
     private var chainId: Int {
