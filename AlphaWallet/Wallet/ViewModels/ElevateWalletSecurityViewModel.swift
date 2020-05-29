@@ -26,14 +26,6 @@ struct ElevateWalletSecurityViewModel {
         }
     }
 
-    var subtitleColor: UIColor {
-        return Colors.appText
-    }
-
-    var subtitleFont: UIFont {
-        return Fonts.regular(size: 22)!
-    }
-
     var imageViewImage: UIImage {
         return R.image.biometricLock()!
     }
@@ -46,11 +38,37 @@ struct ElevateWalletSecurityViewModel {
         }
     }
 
-    var descriptionColor: UIColor {
-        return Colors.darkGray
+    var attributedSubtitle: NSAttributedString {
+        let attributeString = NSMutableAttributedString(string: subtitle)
+        let style = NSMutableParagraphStyle()
+        style.alignment = .center
+        style.lineSpacing = ScreenChecker().isNarrowScreen ? 7 : 23
+
+        attributeString.addAttributes([
+            .paragraphStyle: style,
+            .font: Screen.Backup.subtitleFont,
+            .foregroundColor: R.color.black()!
+        ], range: NSRange(location: 0, length: subtitle.count))
+
+        return attributeString
     }
 
-    var descriptionFont: UIFont {
+    var attributedDescription: NSAttributedString {
+        let attributeString = NSMutableAttributedString(string: description)
+        let style = NSMutableParagraphStyle()
+        style.alignment = .center
+        style.lineSpacing = ScreenChecker().isNarrowScreen ? 7 : 14
+
+        attributeString.addAttributes([
+            .paragraphStyle: style,
+            .font: descriptionFont,
+            .foregroundColor: Colors.appText
+        ], range: NSRange(location: 0, length: description.count))
+
+        return attributeString
+    }
+
+    private var descriptionFont: UIFont {
         if ScreenChecker().isNarrowScreen {
             return Fonts.regular(size: 16)!
         } else {
