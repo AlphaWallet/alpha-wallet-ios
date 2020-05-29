@@ -3,7 +3,7 @@
 import Foundation
 
 enum AssetImplicitAttributes: String, CaseIterable {
-    case name
+    case label
     case symbol
     case contractAddress
     case ownerAddress
@@ -11,8 +11,8 @@ enum AssetImplicitAttributes: String, CaseIterable {
 
     var javaScriptName: String {
         switch self {
-        case .name:
-            return "name"
+        case .label:
+            return "label"
         case .symbol:
             return "symbol"
         case .contractAddress:
@@ -27,7 +27,7 @@ enum AssetImplicitAttributes: String, CaseIterable {
     func shouldInclude(forAddress address: AlphaWallet.Address, isFungible: Bool) -> Bool {
         let isNativeCryptoCurrency = address.sameContract(as: Constants.nativeCryptoAddressInDatabase)
         switch self {
-        case .name:
+        case .label:
             return true
         case .symbol:
             return true

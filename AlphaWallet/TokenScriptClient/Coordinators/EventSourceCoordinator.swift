@@ -127,7 +127,7 @@ class EventSourceCoordinator {
                 optionalFilter = AssetAttributeValueUsableAsFunctionArguments(assetAttribute: .uint(tokenId)).flatMap { (filter: $0, textEquivalent: "\(filterName)=\(tokenId)") }
             case .ownerAddress:
                 optionalFilter = AssetAttributeValueUsableAsFunctionArguments(assetAttribute: .address(wallet.address)).flatMap { (filter: $0, textEquivalent: "\(filterName)=\(wallet.address.eip55String)") }
-            case .name, .contractAddress, .symbol:
+            case .label, .contractAddress, .symbol:
                 optionalFilter = nil
             }
         } else {
