@@ -3,6 +3,7 @@
 import UIKit
 import Result
 import SafariServices
+import MBProgressHUD
 
 protocol TransactionViewControllerDelegate: class, CanOpenURL {
 }
@@ -49,12 +50,12 @@ class TransactionViewController: UIViewController {
             .spacer(),
             header,
             .spacer(),
-            item(title: viewModel.fromLabelTitle, value: viewModel.from),
-            item(title: viewModel.toLabelTitle, value: viewModel.to),
+            item(title: viewModel.fromLabelTitle, value: viewModel.from, icon: R.image.copy()),
+            item(title: viewModel.toLabelTitle, value: viewModel.to, icon: R.image.copy()),
             item(title: viewModel.gasFeeLabelTitle, value: viewModel.gasFee),
             item(title: viewModel.confirmationLabelTitle, value: viewModel.confirmation),
             .spacer(),
-            item(title: viewModel.transactionIDLabelTitle, value: viewModel.transactionID),
+            item(title: viewModel.transactionIDLabelTitle, value: viewModel.transactionID, icon: R.image.copy()),
             item(title: viewModel.createdAtLabelTitle, value: viewModel.createdAt),
             item(title: viewModel.blockNumberLabelTitle, value: viewModel.blockNumber),
         ]
@@ -119,36 +120,40 @@ class TransactionViewController: UIViewController {
     private func configure() {
         buttonsBar.configure()
         let button = buttonsBar.buttons[0]
-        button.setTitle(R.string.localizable.moreDetails(), for: .normal)
+        button.setTitle(viewModel.detailsButtonText, for: .normal)
         button.addTarget(self, action: #selector(more), for: .touchUpInside)
 
         buttonsBar.isHidden = !viewModel.detailsAvailable
     }
 
-    private func item(title: String, value: String) -> UIView {
-        return  TransactionAppearance.item(
+    private func item(title: String, value: String, icon: UIImage? = nil) -> UIView {
+        return TransactionAppearance.item(
             title: title,
-            subTitle: value
-        ) { [weak self] in
-            self?.showAlertSheet(title: $0, value: $1, sourceView: $2)
+            subTitle: value,
+            icon: icon
+        ) { [weak self] _, _, _ in
+            self?.copy(value: value, showHUD: icon != nil)
+        }
+    }
+    
+    @objc func copy(value: String, showHUD: Bool = false) {
+        UIPasteboard.general.string = value
+
+        if showHUD {
+            let hud = MBProgressHUD.showAdded(to: view, animated: true)
+            hud.mode = .text
+            hud.label.text = viewModel.addressCopiedText
+            hud.hide(animated: true, afterDelay: 1.5)
+
+            showFeedback()
         }
     }
 
-    func showAlertSheet(title: String, value: String, sourceView: UIView) {
-        let alertController = UIAlertController(
-            title: nil,
-            message: value,
-            preferredStyle: .actionSheet
-        )
-        alertController.popoverPresentationController?.sourceView = sourceView
-        alertController.popoverPresentationController?.sourceRect = sourceView.bounds
-        let copyAction = UIAlertAction(title: R.string.localizable.copy(), style: .default) { _ in
-            UIPasteboard.general.string = value
-        }
-        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
-        alertController.addAction(copyAction)
-        alertController.addAction(cancelAction)
-        present(alertController, animated: true, completion: nil)
+    private func showFeedback() {
+        //TODO sound too
+        let feedbackGenerator = UINotificationFeedbackGenerator()
+        feedbackGenerator.prepare()
+        feedbackGenerator.notificationOccurred(.success)
     }
 
     @objc func more() {

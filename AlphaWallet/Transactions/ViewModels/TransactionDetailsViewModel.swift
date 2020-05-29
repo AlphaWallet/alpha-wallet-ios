@@ -54,9 +54,21 @@ struct TransactionDetailsViewModel {
     var shareAvailable: Bool {
         return detailsAvailable
     }
+    
+    var addressCopiedText: String {
+        return R.string.localizable.requestAddressCopiedTitle()
+    }
 
     var detailsURL: URL? {
-        return ConfigExplorer(server: server).transactionURL(for: transaction.id)
+        return ConfigExplorer(server: server).transactionURL(for: transaction.id)?.url
+    }
+    
+    var detailsButtonText: String {
+        if let name = ConfigExplorer(server: server).transactionURL(for: transaction.id)?.name {
+            return R.string.localizable.viewIn(name)
+        } else {
+            return R.string.localizable.moreDetails()
+        }
     }
 
     var transactionID: String {
