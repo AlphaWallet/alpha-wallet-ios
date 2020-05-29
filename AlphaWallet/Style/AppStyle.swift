@@ -36,9 +36,6 @@ func applyStyle() {
     UIRefreshControl.appearance().tintColor = Colors.navigationTitleColor
 
     UISwitch.appearance().onTintColor = Colors.appTint
-
-    BalanceTitleView.appearance().titleTextColor = Colors.navigationTitleColor
-    BalanceTitleView.appearance().subTitleTextColor = Colors.navigationTitleColor
 }
 
 func applyStyle(viewController: UIViewController) {
