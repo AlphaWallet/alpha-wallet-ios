@@ -1,8 +1,6 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
-import BigInt
-import PromiseKit
 //TODO make only XMLHandler import Kanna and hence be the only file to handle XML parsing
 import Kanna
 
@@ -101,7 +99,7 @@ struct AssetAttribute {
             originFound = Origin(forUserEntryElement: userEntryElement, attributeName: attributeName, xmlContext: xmlContext)
         } else if let ethereumEventElement = XMLHandler.getEthereumOriginElementEvents(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
                   let eventName = ethereumEventElement["module"],
-                  let eventSourceContractElement = root.at_xpath("contract[asnx:module[@name='\(eventName)']]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces),
+                  let eventSourceContractElement = XMLHandler.getEventSourceContractElement(fromRoot: root, xmlContext: xmlContext, forEventName: eventName),
                   let _ = attribute["name"] {
             originFound = Origin(forEthereumEventElement: ethereumEventElement, sourceContractElement: eventSourceContractElement, xmlContext: xmlContext)
         }
