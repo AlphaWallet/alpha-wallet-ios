@@ -501,7 +501,7 @@ private class PrivateXMLHandler {
 
     private func extractSelectionsForToken() -> [TokenScriptSelection] {
         XMLHandler.getSelectionElements(fromRoot: xml, xmlContext: xmlContext).compactMap { each in
-            guard let id = each["id"], let filter = each["filter"]  else { return nil }
+            guard let id = each["name"], let filter = each["filter"]  else { return nil }
             let names = (
                     singular: XMLHandler.getLabelStringElement(fromElement: each, xmlContext: xmlContext)?.text ?? "",
                     plural: XMLHandler.getLabelElementForPluralForm(fromElement: each, xmlContext: xmlContext)?.text

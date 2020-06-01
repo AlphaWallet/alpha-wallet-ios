@@ -98,10 +98,12 @@ struct AssetAttribute {
                   let attributeName = attribute["name"] {
             originFound = Origin(forUserEntryElement: userEntryElement, attributeName: attributeName, xmlContext: xmlContext)
         } else if let ethereumEventElement = XMLHandler.getEthereumOriginElementEvents(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
-                  let eventName = ethereumEventElement["module"],
-                  let eventSourceContractElement = XMLHandler.getEventSourceContractElement(fromRoot: root, xmlContext: xmlContext, forEventName: eventName),
+                  let eventName = ethereumEventElement["type"],
+                  let eventContractName = ethereumEventElement["contract"],
+                  let eventSourceContractElement = XMLHandler.getContractElementByName(contractName: eventContractName, fromRoot: root, xmlContext: xmlContext),
+                  let ansModuleElement = XMLHandler.getAsnModuleElement(fromRoot: root, xmlContext: xmlContext, forTypeName: eventName),
                   let _ = attribute["name"] {
-            originFound = Origin(forEthereumEventElement: ethereumEventElement, sourceContractElement: eventSourceContractElement, xmlContext: xmlContext)
+            originFound = Origin(forEthereumEventElement: ethereumEventElement, ansModuleElement: ansModuleElement, sourceContractElement: eventSourceContractElement, xmlContext: xmlContext)
         }
 
         guard let origin = originFound else { return nil }
