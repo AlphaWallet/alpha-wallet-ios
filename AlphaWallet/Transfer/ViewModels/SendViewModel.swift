@@ -55,4 +55,16 @@ struct SendViewModel {
     var textFieldsLabelFont: UIFont {
         return Fonts.regular(size: 10)!
     }
+    
+    var recepientLabelFont: UIFont {
+        return Fonts.regular(size: 13)!
+    }
+    
+    var recepientLabelTextColor: UIColor {
+        return R.color.dove()!
+    }
+    
+    var recipientsAddress: String {
+        return R.string.localizable.sendRecipientsAddress()
+    }
 }

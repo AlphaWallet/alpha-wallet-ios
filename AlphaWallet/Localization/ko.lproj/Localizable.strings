@@ -62,6 +62,9 @@
 "send.error.wrongInput" = "잘못된 입력";
 "send.paste.button.title" = "붙여넣기";
 "send.paste.button.addressBook" = "Address Book";
+"send.amount" = "Amount";
+"send.recipient" = "Recipient";
+"send.recipientsAddress" = "Recipient’s Address";
 "settings.biometricsDisabled.label.title" = "암호";
 "settings.biometricsEnabled.label.title" = "암호 / %@";
 "settings.error.failedToSendEmail" = "이메일을 전송하지 못했습니다. 메일 앱이 설치되어 있는지 확인하십시오.";
