@@ -22,12 +22,12 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
 class SendViewController: UIViewController, CanScanQRCode {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
-    private let header = SendHeaderViewWithIntroduction()
-    private let targetAddressLabel = UILabel()
+    private let recipientHeader = SendViewSectionHeader()
+    private let amountHeader = SendViewSectionHeader()
+    private let recepientAddressLabel = UILabel()
     private let amountLabel = UILabel()
     private let buttonsBar = ButtonsBar(numberOfButtons: 1)
     private var viewModel: SendViewModel
-    lazy private var headerViewModel = SendHeaderViewViewModelWithIntroduction(server: session.server, assetDefinitionStore: assetDefinitionStore)
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession
     private let account: EthereumAccount
@@ -40,6 +40,13 @@ class SendViewController: UIViewController, CanScanQRCode {
     }()
     private var currentSubscribableKeyForNativeCryptoCurrencyBalance: Subscribable<BalanceBaseViewModel>.SubscribableKey?
     private var currentSubscribableKeyForNativeCryptoCurrencyPrice: Subscribable<Double>.SubscribableKey?
+    private let amountViewModel = SendViewSectionHeaderViewModel(
+        text: R.string.localizable.sendAmount().uppercased(),
+        showTopSeparatorLine: false
+    )
+    private let recipientViewModel = SendViewSectionHeaderViewModel(
+        text: R.string.localizable.sendRecipient().uppercased()
+    )
     let targetAddressTextField = AddressTextField()
     lazy var amountTextField = AmountTextField(server: session.server)
     weak var delegate: SendViewControllerDelegate?
@@ -84,10 +91,11 @@ class SendViewController: UIViewController, CanScanQRCode {
         addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
         addressControlsContainer.backgroundColor = .clear
 
+        targetAddressTextField.pasteButton.contentHorizontalAlignment = .right
         let addressControlsStackView = [
             targetAddressTextField.pasteButton,
             targetAddressTextField.clearButton
-        ].asStackView(axis: .horizontal)
+        ].asStackView(axis: .horizontal, alignment: .trailing)
         addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
         addressControlsStackView.setContentHuggingPriority(.required, for: .horizontal)
         addressControlsStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -95,19 +103,21 @@ class SendViewController: UIViewController, CanScanQRCode {
         addressControlsContainer.addSubview(addressControlsStackView)
 
         let stackView = [
-            header,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 14),
+            amountHeader,
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7 : 27),
             amountLabel,
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             amountTextField,
             .spacer(height: 4),
-            amountTextField.alternativeAmountLabel,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 20),
-            targetAddressLabel,
+            [.spacerWidth(16), amountTextField.alternativeAmountLabel].asStackView(axis: .horizontal),
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
+            recipientHeader,
+            .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
+            [.spacerWidth(16), recepientAddressLabel].asStackView(axis: .horizontal),
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             targetAddressTextField,
             .spacer(height: 4), [
-                [targetAddressTextField.ensAddressLabel, targetAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
+                [.spacerWidth(16), targetAddressTextField.ensAddressLabel, targetAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
                 addressControlsContainer
             ].asStackView(axis: .horizontal),
         ].asStackView(axis: .vertical)
@@ -122,14 +132,20 @@ class SendViewController: UIViewController, CanScanQRCode {
         footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
-            header.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
-            header.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
+            amountHeader.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 0),
+            amountHeader.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: 0),
+            amountHeader.heightAnchor.constraint(equalToConstant: 50),
 
-            targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
-            targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
+            recipientHeader.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 0),
+            recipientHeader.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: 0),
+            recipientHeader.heightAnchor.constraint(equalToConstant: 50),
 
-            amountTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
-            amountTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
+            recepientAddressLabel.heightAnchor.constraint(equalToConstant: 22),
+            targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 16),
+            targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -16),
+
+            amountTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 16),
+            amountTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -16),
             amountTextField.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
 
             stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
@@ -152,7 +168,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
-            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor),
+            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor, constant: -7),
             addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
             addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
             addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
@@ -162,6 +178,11 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         storage.updatePrices()
         getGasPrice()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        activateAmountView()
     }
 
     @objc func closeKeyboard() {
@@ -179,17 +200,19 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         view.backgroundColor = viewModel.backgroundColor
 
-        headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
-        header.configure(viewModel: headerViewModel)
+        amountHeader.configure(viewModel: amountViewModel)
+        recipientHeader.configure(viewModel: recipientViewModel)
 
-        targetAddressLabel.font = viewModel.textFieldsLabelFont
-        targetAddressLabel.textColor = viewModel.textFieldsLabelTextColor
+        recepientAddressLabel.text = viewModel.recipientsAddress
+        recepientAddressLabel.font = viewModel.recepientLabelFont
+        recepientAddressLabel.textColor = viewModel.recepientLabelTextColor
 
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
 
         switch transferType {
         case .nativeCryptocurrency(_, let recipient, let amount):
+            amountTextField.selectCurrencyButton.isHidden = false
             if let recipient = recipient {
                 targetAddressTextField.value = recipient.stringValue
                 targetAddressTextField.queueEnsResolution(ofValue: recipient.stringValue)
@@ -202,7 +225,9 @@ class SendViewController: UIViewController, CanScanQRCode {
                     self?.amountTextField.cryptoToDollarRate = value
                 }
             }
+            amountTextField.isAlternativeAmountEnabled = true
         case .ERC20Token(_, let recipient, let amount):
+            amountTextField.selectCurrencyButton.isHidden = true
             if let recipient = recipient {
                 targetAddressTextField.value = recipient.stringValue
                 targetAddressTextField.queueEnsResolution(ofValue: recipient.stringValue)
@@ -213,6 +238,7 @@ class SendViewController: UIViewController, CanScanQRCode {
             amountTextField.isAlternativeAmountEnabled = false
             amountTextField.isFiatButtonHidden = true
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+            amountTextField.selectCurrencyButton.isHidden = true
             amountTextField.isAlternativeAmountEnabled = false
             amountTextField.isFiatButtonHidden = true
         }
@@ -221,6 +247,12 @@ class SendViewController: UIViewController, CanScanQRCode {
         let nextButton = buttonsBar.buttons[0]
         nextButton.setTitle(R.string.localizable.send(), for: .normal)
         nextButton.addTarget(self, action: #selector(send), for: .touchUpInside)
+
+        updateNavigationTitle()
+    }
+
+    private func updateNavigationTitle() {
+        title = "\(R.string.localizable.send()) \(transferType.symbol)"
     }
 
     func getGasPrice() {
@@ -236,10 +268,10 @@ class SendViewController: UIViewController, CanScanQRCode {
 
     @objc func send() {
         let input = targetAddressTextField.value.trimmed
-        self.targetAddressTextField.errorState = .none
+        targetAddressTextField.errorState = .none
 
         guard let address = AlphaWallet.Address(string: input) else {
-            self.targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
+            targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
             return
         }
 
@@ -309,47 +341,23 @@ class SendViewController: UIViewController, CanScanQRCode {
         currentSubscribableKeyForNativeCryptoCurrencyBalance.flatMap { session.balanceViewModel.unsubscribe($0) }
         currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
         switch transferType {
-        case .nativeCryptocurrency:
+        case .nativeCryptocurrency(_, let recipient, let amount):
             currentSubscribableKeyForNativeCryptoCurrencyBalance = session.balanceViewModel.subscribe { [weak self] viewModel in
-                guard let celf = self, let viewModel = viewModel else { return }
-                let amount = viewModel.amountShort
-                celf.headerViewModel.title = "\(amount) \(celf.session.server.name) (\(viewModel.symbol))"
-                let etherToken = TokensDataStore.etherToken(forServer: celf.session.server)
-                let ticker = celf.storage.coinTicker(for: etherToken)
-                celf.headerViewModel.ticker = ticker
-                celf.headerViewModel.currencyAmount = celf.session.balanceCoordinator.viewModel.currencyAmount
-                celf.headerViewModel.currencyAmountWithoutSymbol = celf.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
+                guard let celf = self else { return }
                 guard let tokenObject = celf.storage.token(forContract: celf.viewModel.transferType.contract) else { return }
-                //TODO handle if no ens/address? Seems no need to worry for now
-                guard let ensOrAddress = AddressOrEnsName(string: celf.targetAddressTextField.value) else { return }
-                let amountAsIntWithDecimals = EtherNumberFormatter.full.number(from: celf.amountTextField.ethCost, decimals: tokenObject.decimals)
-                celf.configureFor(contract: celf.viewModel.transferType.contract, recipient: ensOrAddress, amount: amountAsIntWithDecimals, shouldConfigureBalance: false)
+                celf.configureFor(contract: celf.viewModel.transferType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
             }
             session.refresh(.ethBalance)
-        case .ERC20Token(let token, _, _):
-            let viewModel = BalanceTokenViewModel(token: token)
-            let amount = viewModel.amountShort
-            //Note that if we want to display the token name directly from token.name, we have to be careful that DAI token's name has trailing \0
-            headerViewModel.title = "\(amount) \(token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
-            let etherToken = TokensDataStore.etherToken(forServer: session.server)
-            let ticker = storage.coinTicker(for: etherToken)
-            headerViewModel.ticker = ticker
-            headerViewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
-            headerViewModel.currencyAmountWithoutSymbol = session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
-
-            //TODO is this the best place to put it? because this func is called configureBalanceViewModel() "balance"
-            headerViewModel.contractAddress = token.contractAddress
-
-            let amountAsIntWithDecimals = EtherNumberFormatter.full.number(from: amountTextField.ethCost, decimals: token.decimals)
-            guard let ensOrAddress = AddressOrEnsName(string: targetAddressTextField.value) else { return }
-            configureFor(contract: self.viewModel.transferType.contract, recipient: ensOrAddress, amount: amountAsIntWithDecimals, shouldConfigureBalance: false)
+        case .ERC20Token(let token, let recipient, let amount):
+            let amount = amount.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: token.decimals) }
+            configureFor(contract: viewModel.transferType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
             break
         }
     }
 
     func didScanQRCode(_ result: String) {
-        self.activateAmountView()
+        activateAmountView()
 
         guard let result = QRCodeValueParser.from(string: result) else { return }
         switch result {
@@ -441,7 +449,7 @@ extension SendViewController: AmountTextFieldDelegate {
     }
 
     func changeType(in textField: AmountTextField) {
-        //do nothing
+        updateNavigationTitle()
     }
 }
 
@@ -460,7 +468,7 @@ extension SendViewController: AddressTextFieldDelegate {
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
-        activateAmountView()
+        textField.resignFirstResponder()
         return true
     }
 

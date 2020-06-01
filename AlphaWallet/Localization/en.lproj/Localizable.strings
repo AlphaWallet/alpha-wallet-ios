@@ -62,6 +62,9 @@
 "send.error.wrongInput" = "Wrong Input";
 "send.paste.button.title" = "Paste";
 "send.paste.button.addressBook" = "Address Book";
+"send.amount" = "Amount";
+"send.recipient" = "Recipient";
+"send.recipientsAddress" = "Recipient’s Address";
 "settings.biometricsDisabled.label.title" = "Passcode";
 "settings.biometricsEnabled.label.title" = "Passcode / %@";
 "settings.error.failedToSendEmail" = "Failed to send email. Make sure you have Mail app installed.";
