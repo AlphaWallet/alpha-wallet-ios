@@ -102,11 +102,11 @@ extension XMLHandler {
         return eventParameterName
     }
 
-    static func getEventDefinition(contractElement: XMLElement, ansModuleElement: XMLElement, xmlContext: XmlContext) -> EventDefinition? {
+    static func getEventDefinition(contractElement: XMLElement, asnModuleElement: XMLElement, xmlContext: XmlContext) -> EventDefinition? {
         let addressElements = XMLHandler.getAddressElements(fromContractElement: contractElement, xmlContext: xmlContext)
         guard let address = addressElements.first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed)}) else { return nil }
-        guard let eventName = ansModuleElement.at_xpath("namedType", namespaces: xmlContext.namespaces)?["name"] else { return nil }
-        let parameters = ansModuleElement.xpath("namedType/sequence/element", namespaces: xmlContext.namespaces).compactMap { each -> EventParameter? in
+        guard let eventName = asnModuleElement.at_xpath("namedType", namespaces: xmlContext.namespaces)?["name"] else { return nil }
+        let parameters = asnModuleElement.xpath("namedType/sequence/element", namespaces: xmlContext.namespaces).compactMap { each -> EventParameter? in
             guard let name = each["name"], let type = each["type"] else { return nil }
             let isIndexed = each["indexed"] == "true"
             return .init(name: name, type: type, isIndexed: isIndexed)
