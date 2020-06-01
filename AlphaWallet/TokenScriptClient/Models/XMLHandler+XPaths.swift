@@ -26,12 +26,16 @@ extension XMLHandler {
         return root.at_xpath("/\(p)token/\(p)contract[@name=../\(p)origins/\(p)ethereum/@contract]", namespaces: xmlContext.namespaces)
     }
 
-    static func getAddressElements(fromContractElement contractElement: Searchable, xmlContext: XmlContext) -> XPathObject {
-        return contractElement.xpath("address".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    static func getContractElementByName(contractName: String, fromRoot root: XMLDocument, xmlContext: XmlContext) -> XMLElement? {
+        return root.at_xpath("/token/contract[@name='\(contractName)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
-    static func getEventSourceContractElement(fromRoot root: XMLDocument, xmlContext: XmlContext, forEventName eventName: String) -> XMLElement? {
-        root.at_xpath("contract[asnx:module[@name='\(eventName)']]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    static func getAsnModuleElement(fromRoot root: XMLDocument, xmlContext: XmlContext, forTypeName typeName: String) -> XMLElement? {
+        root.at_xpath("asnx:module/namedType[@name='\(typeName)']", namespaces: xmlContext.namespaces)?.parent
+    }
+
+    static func getAddressElements(fromContractElement contractElement: Searchable, xmlContext: XmlContext) -> XPathObject {
+        return contractElement.xpath("address".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getAddressElementsForHoldingContracts(fromRoot root: XMLDocument, xmlContext: XmlContext, server: RPCServer? = nil) -> XPathObject {
@@ -98,11 +102,11 @@ extension XMLHandler {
         return eventParameterName
     }
 
-    static func getEventDefinition(fromContractElement contractElement: XMLElement, xmlContext: XmlContext) -> EventDefinition? {
+    static func getEventDefinition(contractElement: XMLElement, ansModuleElement: XMLElement, xmlContext: XmlContext) -> EventDefinition? {
         let addressElements = XMLHandler.getAddressElements(fromContractElement: contractElement, xmlContext: xmlContext)
         guard let address = addressElements.first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed)}) else { return nil }
-        guard let eventName = contractElement.at_xpath("asnx:module", namespaces: xmlContext.namespaces)?["name"] else { return nil }
-        let parameters = contractElement.xpath("asnx:module/sequence/element", namespaces: xmlContext.namespaces).compactMap { each -> EventParameter? in
+        guard let eventName = ansModuleElement.at_xpath("namedType", namespaces: xmlContext.namespaces)?["name"] else { return nil }
+        let parameters = ansModuleElement.xpath("namedType/sequence/element", namespaces: xmlContext.namespaces).compactMap { each -> EventParameter? in
             guard let name = each["name"], let type = each["type"] else { return nil }
             let isIndexed = each["indexed"] == "true"
             return .init(name: name, type: type, isIndexed: isIndexed)

@@ -106,11 +106,11 @@ enum Origin {
         self = .userEntry(.init(originElement: userEntryElement, xmlContext: xmlContext, attributeId: attributeName, asType: asType, bitmask: bitmask, bitShift: bitShift))
     }
 
-    init?(forEthereumEventElement eventElement: XMLElement, sourceContractElement: XMLElement, xmlContext: XmlContext) {
-        guard let eventParameterName = XMLHandler.getEventParameterName(fromEthereumEventElement: eventElement) else { return nil }
-        guard let eventFilter = XMLHandler.getEventFilter(fromEthereumEventElement: eventElement) else { return nil }
-        guard let eventDefinition = XMLHandler.getEventDefinition(fromContractElement: sourceContractElement, xmlContext: xmlContext) else { return nil }
-        self = .event(.init(originElement: eventElement, xmlContext: xmlContext, eventDefinition: eventDefinition, eventParameterName: eventParameterName, eventFilter: eventFilter))
+    init?(forEthereumEventElement eventElementOrigin: XMLElement, ansModuleElement: XMLElement, sourceContractElement: XMLElement, xmlContext: XmlContext) {
+        guard let eventParameterName = XMLHandler.getEventParameterName(fromEthereumEventElement: eventElementOrigin) else { return nil }
+        guard let eventFilter = XMLHandler.getEventFilter(fromEthereumEventElement: eventElementOrigin) else { return nil }
+        guard let eventDefinition = XMLHandler.getEventDefinition(contractElement: sourceContractElement, ansModuleElement: ansModuleElement, xmlContext: xmlContext) else { return nil }
+        self = .event(.init(originElement: eventElementOrigin, xmlContext: xmlContext, eventDefinition: eventDefinition, eventParameterName: eventParameterName, eventFilter: eventFilter))
     }
 
     ///Used to truncate bits to the right of the bitmask
