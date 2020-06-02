@@ -175,7 +175,7 @@ extension XMLHandler {
     }
 
     static func getValueElement(fromFunctionElement functionElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
-        return functionElement.at_xpath("value".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        return functionElement.at_xpath("ethereum:value", namespaces: xmlContext.namespaces)
     }
 
     static func getInputs(fromDataElement dataElement: XMLElement) -> XPathObject {
@@ -225,7 +225,7 @@ extension XMLHandler {
     }
 
     static func getRecipientAddress(fromEthereumFunctionElement ethereumFunctionElement: XMLElement, xmlContext: XmlContext) -> AlphaWallet.Address? {
-        return ethereumFunctionElement.at_xpath("to".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)?.text.flatMap { AlphaWallet.Address(string: $0.trimmed) }
+        return ethereumFunctionElement.at_xpath("ethereum:to", namespaces: xmlContext.namespaces)?.text.flatMap { AlphaWallet.Address(string: $0.trimmed) }
     }
 
     static func getTokenScriptTokenViewContents(fromViewElement element: XMLElement, xmlContext: XmlContext, xhtmlNamespacePrefix: String) -> (style: String, script: String, body: String) {
