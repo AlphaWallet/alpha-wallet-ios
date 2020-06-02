@@ -1408,19 +1408,12 @@
 		C88033092054371500D73D6F /* non_asset_catalog_redemption_location.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = non_asset_catalog_redemption_location.png; sourceTree = "<group>"; };
 		C880330A2054371500D73D6F /* non_asset_catalog_redemption_location@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "non_asset_catalog_redemption_location@2x.png"; sourceTree = "<group>"; };
 		C880330B2054371500D73D6F /* non_asset_catalog_redemption_location@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "non_asset_catalog_redemption_location@3x.png"; sourceTree = "<group>"; };
-		C880330F205500C300D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/redeemInfo.html"; sourceTree = "<group>"; };
 		C88033112055034E00D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/sellInfo.html; sourceTree = "<group>"; };
-		C88033132055035200D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/sellInfo.html"; sourceTree = "<group>"; };
 		C880331720551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/howDoITransferETHIntoMyWalletInfo.html; sourceTree = "<group>"; };
 		C880331920551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/howDoIGetMyMoneyInfo.html; sourceTree = "<group>"; };
 		C880331D20551DF700D73D6F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/whatIsEthereumInfo.html; sourceTree = "<group>"; };
-		C880332320552FED00D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/howDoIGetMyMoneyInfo.html"; sourceTree = "<group>"; };
-		C880332420552FF100D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/howDoITransferETHIntoMyWalletInfo.html"; sourceTree = "<group>"; };
-		C880332620552FF700D73D6F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/whatIsEthereumInfo.html"; sourceTree = "<group>"; };
 		C887C5362057B703005ACF81 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/privacyPolicy.html; sourceTree = "<group>"; };
 		C887C5382057B703005ACF81 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = en; path = en.lproj/termsOfService.html; sourceTree = "<group>"; };
-		C887C53B2057B707005ACF81 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/privacyPolicy.html"; sourceTree = "<group>"; };
-		C887C53C2057B70A005ACF81 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = "zh-Hans"; path = "zh-Hans.lproj/termsOfService.html"; sourceTree = "<group>"; };
 		CA4F65A76A018D8DFF4A0314 /* Pods-AlphaWallet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AlphaWallet.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AlphaWallet/Pods-AlphaWallet.debug.xcconfig"; sourceTree = "<group>"; };
 		CCA4FE321FD3655900749AE4 /* CheckDeviceCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckDeviceCoordinatorTests.swift; sourceTree = "<group>"; };
 		CCA4FE351FD4282400749AE4 /* DeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceChecker.swift; sourceTree = "<group>"; };
@@ -4607,7 +4600,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				C868C535205409160059672B /* en */,
-				C880330F205500C300D73D6F /* zh-Hans */,
 			);
 			name = redeemInfo.html;
 			sourceTree = "<group>";
@@ -4616,7 +4608,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				C88033112055034E00D73D6F /* en */,
-				C88033132055035200D73D6F /* zh-Hans */,
 			);
 			name = sellInfo.html;
 			sourceTree = "<group>";
@@ -4625,7 +4616,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				C880331720551DF700D73D6F /* en */,
-				C880332420552FF100D73D6F /* zh-Hans */,
 			);
 			name = howDoITransferETHIntoMyWalletInfo.html;
 			sourceTree = "<group>";
@@ -4634,7 +4624,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				C880331920551DF700D73D6F /* en */,
-				C880332320552FED00D73D6F /* zh-Hans */,
 			);
 			name = howDoIGetMyMoneyInfo.html;
 			sourceTree = "<group>";
@@ -4643,7 +4632,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				C880331D20551DF700D73D6F /* en */,
-				C880332620552FF700D73D6F /* zh-Hans */,
 			);
 			name = whatIsEthereumInfo.html;
 			sourceTree = "<group>";
@@ -4652,7 +4640,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				C887C5362057B703005ACF81 /* en */,
-				C887C53B2057B707005ACF81 /* zh-Hans */,
 			);
 			name = privacyPolicy.html;
 			sourceTree = "<group>";
@@ -4661,7 +4648,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				C887C5382057B703005ACF81 /* en */,
-				C887C53C2057B70A005ACF81 /* zh-Hans */,
 			);
 			name = termsOfService.html;
 			sourceTree = "<group>";
