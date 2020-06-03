@@ -62,6 +62,9 @@
 "send.error.wrongInput" = "誤った入力";
 "send.paste.button.title" = "ペースト";
 "send.paste.button.addressBook" = "Address Book";
+"send.amount" = "Amount";
+"send.recipient" = "Recipient";
+"send.recipientsAddress" = "Recipient’s Address";
 "settings.biometricsDisabled.label.title" = "パスコード";
 "settings.biometricsEnabled.label.title" = "パスコード/ %@";
 "settings.error.failedToSendEmail" = "メールを送信できませんでした。メール アプリのインストールを確認してください。";
