@@ -30,7 +30,7 @@ class ConfirmPaymentViewController: UIViewController {
         return SendTransactionCoordinator(session: session, keystore: keystore, confirmType: confirmType)
     }()
     private let scrollView = UIScrollView()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let viewModel = ConfirmPaymentViewModel()
     private var configurator: TransactionConfigurator
     private let confirmType: ConfirmType

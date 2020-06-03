@@ -46,7 +46,7 @@ class ShowSeedPhraseViewController: UIViewController {
         }
     }
     private let seedPhraseCollectionView = SeedPhraseCollectionView()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var notDisplayingSeedPhrase: Bool {
         switch state {
         case .notDisplayedSeedPhrase:
