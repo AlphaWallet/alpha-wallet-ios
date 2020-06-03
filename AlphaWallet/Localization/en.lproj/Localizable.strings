@@ -65,6 +65,7 @@
 "send.amount" = "Amount";
 "send.recipient" = "Recipient";
 "send.recipientsAddress" = "Recipient’s Address";
+"send.invalid.Token" = "Invalid token";
 "settings.biometricsDisabled.label.title" = "Passcode";
 "settings.biometricsEnabled.label.title" = "Passcode / %@";
 "settings.error.failedToSendEmail" = "Failed to send email. Make sure you have Mail app installed.";
