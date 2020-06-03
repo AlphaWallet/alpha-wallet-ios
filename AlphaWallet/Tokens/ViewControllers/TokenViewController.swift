@@ -24,7 +24,7 @@ class TokenViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
     private let transferType: TransferType
     private let tableView = UITableView(frame: .zero, style: .plain)
-    private let buttonsBar = ButtonsBar(numberOfButtons: 2)
+    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
 
     weak var delegate: TokenViewControllerDelegate?
 
@@ -119,8 +119,9 @@ class TokenViewController: UIViewController {
         tableView.tableHeaderView = header
 
         let actions = viewModel.actions
-        buttonsBar.numberOfButtons = actions.count
-        buttonsBar.configure()
+        buttonsBar.configure(.combined(buttons: viewModel.actions.count))
+        buttonsBar.viewController = self
+        
         for (action, button) in zip(actions, buttonsBar.buttons) {
             button.setTitle(action.name, for: .normal)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
@@ -128,13 +129,9 @@ class TokenViewController: UIViewController {
             case .real:
                 if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
                     if selection.denial == nil {
-                        button.isHidden = true
-                    } else {
-                        button.isHidden = false
+                        button.displayButton = false
                     }
-                } else {
-                    button.isHidden = false
-                }
+                }  
             case .watch:
                 button.isEnabled = false
             }

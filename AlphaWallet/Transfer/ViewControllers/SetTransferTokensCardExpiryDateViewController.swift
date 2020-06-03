@@ -22,7 +22,7 @@ class SetTransferTokensCardExpiryDateViewController: UIViewController, TokenVeri
     private let noteTitleLabel = UILabel()
     private let noteLabel = UILabel()
     private let noteBorderView = UIView()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: SetTransferTokensCardExpiryDateViewControllerViewModel
     private let tokenHolder: TokenHolder
 

@@ -26,7 +26,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     private let amountHeader = SendViewSectionHeader()
     private let recepientAddressLabel = UILabel()
     private let amountLabel = UILabel()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: SendViewModel
     private var balanceViewModel: BalanceBaseViewModel?
     private let session: WalletSession

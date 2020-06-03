@@ -24,7 +24,7 @@ class SetSellTokensCardExpiryDateViewController: UIViewController, TokenVerifiab
     private let noteLabel = UILabel()
     private let noteBorderView = UIView()
     private let tokenRowView: TokenRowView & UIView
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let datePicker = UIDatePicker()
     private let timePicker = UIDatePicker()
     private var viewModel: SetSellTokensCardExpiryDateViewControllerViewModel

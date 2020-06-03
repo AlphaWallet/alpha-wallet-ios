@@ -15,7 +15,7 @@ class EditMyDappViewController: UIViewController {
     private let titleTextField = TextField()
     private let urlTextField = TextField()
     private let cancelButton = UIButton(type: .system)
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: EditMyDappViewControllerViewModel?
 
     weak var delegate: EditMyDappViewControllerDelegate?
