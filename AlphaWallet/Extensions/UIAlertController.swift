@@ -42,15 +42,16 @@ extension UIAlertController {
         return alertController
     }
 
-    static func alert(title: String?,
-                      message: String?,
+    @discardableResult
+    static func alert(title: String? = nil,
+                      message: String? = nil,
                       alertButtonTitles: [String],
                       alertButtonStyles: [UIAlertAction.Style],
                       viewController: UIViewController,
                       style: AlertControllerPreferredStyle = .alert,
-                      completion: ((Int) -> Void)?) {
+                      completion: ((Int) -> Void)? = nil) -> UIViewController {
         let preferredStyle: UIAlertController.Style
-        let popoverSource:  PopoverPresentationControllerSource?
+        let popoverSource: PopoverPresentationControllerSource?
         switch style {
         case .alert:
             preferredStyle = .alert
@@ -82,6 +83,8 @@ extension UIAlertController {
             alertController.addAction(action)
         }
         viewController.present(alertController, animated: true, completion: nil)
+
+        return alertController
     }
 
     static func alertController(
