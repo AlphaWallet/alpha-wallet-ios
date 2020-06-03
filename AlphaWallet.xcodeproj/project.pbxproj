@@ -661,6 +661,8 @@
 		87D163A4242CD811002662D2 /* AddHideTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D163A1242CD811002662D2 /* AddHideTokensCoordinator.swift */; };
 		87D163A7242CD9A2002662D2 /* AddHideTokenSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D163A5242CD9A1002662D2 /* AddHideTokenSectionHeaderView.swift */; };
 		87D163A8242CD9A2002662D2 /* AddHideTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D163A6242CD9A1002662D2 /* AddHideTokensView.swift */; };
+		87ED8F8F2484F0D40005C69B /* SendViewSectionHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F8E2484F0D40005C69B /* SendViewSectionHeaderViewModel.swift */; };
+		87ED8F912484F1740005C69B /* SendViewSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F902484F1740005C69B /* SendViewSectionHeader.swift */; };
 		AA26C61F20412A1E00318B9B /* TokensCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C61D20412A1D00318B9B /* TokensCardViewController.swift */; };
 		AA26C62320412A4100318B9B /* UIViewInspectableEnhancements.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */; };
 		AA26C62420412A4100318B9B /* Double.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA26C62220412A4100318B9B /* Double.swift */; };
@@ -1378,6 +1380,8 @@
 		87D163A1242CD811002662D2 /* AddHideTokensCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddHideTokensCoordinator.swift; sourceTree = "<group>"; };
 		87D163A5242CD9A1002662D2 /* AddHideTokenSectionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddHideTokenSectionHeaderView.swift; sourceTree = "<group>"; };
 		87D163A6242CD9A1002662D2 /* AddHideTokensView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddHideTokensView.swift; sourceTree = "<group>"; };
+		87ED8F8E2484F0D40005C69B /* SendViewSectionHeaderViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewSectionHeaderViewModel.swift; sourceTree = "<group>"; };
+		87ED8F902484F1740005C69B /* SendViewSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendViewSectionHeader.swift; sourceTree = "<group>"; };
 		AA26C61D20412A1D00318B9B /* TokensCardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokensCardViewController.swift; sourceTree = "<group>"; };
 		AA26C62120412A4100318B9B /* UIViewInspectableEnhancements.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewInspectableEnhancements.swift; sourceTree = "<group>"; };
 		AA26C62220412A4100318B9B /* Double.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Double.swift; sourceTree = "<group>"; };
@@ -2005,6 +2009,7 @@
 				5E7C73BD3FD2C2844F5DEA45 /* SegmentedControl.swift */,
 				5E7C78FF8A5682C27E15B488 /* UITableViewCell+TokenCell.swift */,
 				5E7C709FA1317A56BC12CD35 /* AddHideTokensCell.swift */,
+				87ED8F902484F1740005C69B /* SendViewSectionHeader.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2053,6 +2058,7 @@
 				5E7C799AF966DBF0D59DFB20 /* SegmentedControlViewModel.swift */,
 				8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */,
 				87C8018B24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift */,
+				87ED8F8E2484F0D40005C69B /* SendViewSectionHeaderViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -4194,6 +4200,7 @@
 				5E7C70AE62DBB193399C7F5E /* ServerViewCell.swift in Sources */,
 				5E7C7EB845B0EE96CC8DCF43 /* ServerViewModel.swift in Sources */,
 				5E7C745A423BD10CFDED9A81 /* ServersViewModel.swift in Sources */,
+				87ED8F912484F1740005C69B /* SendViewSectionHeader.swift in Sources */,
 				5E7C7ECE164289A89734B4EF /* LocalesCoordinator.swift in Sources */,
 				5E7C730C6AEF556AFB9A4B2C /* LocalesViewController.swift in Sources */,
 				5E7C718043636901114BF76C /* LocalesViewModel.swift in Sources */,
@@ -4376,6 +4383,7 @@
 				5E7C79DE18FC5CB46E75753A /* AssetAttributeMapping.swift in Sources */,
 				5E7C76DD6335158C70AA4F12 /* TokenScriptSignatureVerifier.swift in Sources */,
 				5E7C77AF8CA540D8F1404B6F /* AssetAttribute.swift in Sources */,
+				87ED8F8F2484F0D40005C69B /* SendViewSectionHeaderViewModel.swift in Sources */,
 				5E7C733D2CA2A0FC585D93D1 /* AssetInternalValue.swift in Sources */,
 				5E7C70794E07FF6B26AE297B /* DirectoryContentsWatcher.swift in Sources */,
 				5E7C757F9E9F7738B213C8B8 /* AssetDefinitionDiskBackingStore.swift in Sources */,

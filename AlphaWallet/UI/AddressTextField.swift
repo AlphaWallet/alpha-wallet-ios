@@ -24,10 +24,10 @@ class AddressTextField: UIControl {
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
         button.backgroundColor = .clear
         button.contentHorizontalAlignment = .right
-        
+
         return button
     }()
-    
+
     var clearButton: Button = {
         let button = Button(size: .normal, style: .borderless)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -36,10 +36,10 @@ class AddressTextField: UIControl {
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
         button.backgroundColor = .clear
         button.contentHorizontalAlignment = .right
-        
+
         return button
     }()
-    
+
     let label = UILabel()
     let ensAddressLabel: UILabel = {
         let label = UILabel()
@@ -47,20 +47,20 @@ class AddressTextField: UIControl {
         label.numberOfLines = 0
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
-        
+
         return label
     }()
-    
+
     let statusLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         label.setContentHuggingPriority(.required, for: .horizontal)
         label.setContentCompressionResistancePriority(.required, for: .horizontal)
-        
+
         return label
     }()
-    
+
     var value: String {
         get {
             if let ensResolvedAddress = ensAddressLabel.text, !ensResolvedAddress.isEmpty {
@@ -73,10 +73,10 @@ class AddressTextField: UIControl {
             //Client code sometimes sets back the address. We only set (and thus clear the ENS name) if it doesn't match the resolved address
             guard ensAddressLabel.text != newValue else { return }
             textField.text = newValue
-            
+
             let notification = Notification(name: UITextField.textDidChangeNotification, object: textField)
             NotificationCenter.default.post(notification)
-            
+
             clearAddressFromResolvingEnsName()
         }
     }
@@ -89,7 +89,7 @@ class AddressTextField: UIControl {
             textField.returnKeyType = newValue
         }
     }
-    
+
     var errorState: TextField.TextFieldErrorState = .none {
         didSet {
             switch errorState {
@@ -100,14 +100,14 @@ class AddressTextField: UIControl {
                 self.ensAddressLabel.isHidden = true
             case .none:
                 statusLabel.text = nil
-                statusLabel.isHidden = true 
+                statusLabel.isHidden = true
             }
-            
+
             let borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder)
             let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: isFirstResponder)
-            
+
             layer.borderColor = borderColor.cgColor
-            
+
             dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
         }
     }
@@ -118,7 +118,7 @@ class AddressTextField: UIControl {
         super.init(frame: .zero)
         pasteButton.addTarget(self, action: #selector(pasteAction), for: .touchUpInside)
         clearButton.addTarget(self, action: #selector(clearAction), for: .touchUpInside)
-        
+
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self
         textField.leftViewMode = .always
@@ -137,25 +137,25 @@ class AddressTextField: UIControl {
         ensAddressLabel.font = DataEntry.Font.label
         ensAddressLabel.textAlignment = .center
         updateClearAndPasteButtons(textField.text ?? "")
-        
+
         NSLayoutConstraint.activate([
             textField.anchorsConstraint(to: self),
             heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
         ])
-        
+
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(textDidChangeNotification(_:)),
                                                name: UITextField.textDidChangeNotification, object: nil)
     }
-    
+
     @objc private func textDidChangeNotification(_ notification: Notification) {
         guard textField == notification.object as? UITextField, let text = textField.text else {
             return
         }
-        
+
         updateClearAndPasteButtons(text)
     }
-    
+
     private func updateClearAndPasteButtons(_ text: String) {
         clearButton.isHidden = text.isEmpty
         pasteButton.isHidden = !text.isEmpty
@@ -175,11 +175,11 @@ class AddressTextField: UIControl {
         isConfigured = true
 
         cornerRadius = DataEntry.Metric.cornerRadius
-        
+
         label.font = DataEntry.Font.textFieldTitle
         label.textColor = DataEntry.Color.label
         label.textAlignment = .left
-        
+
         ensAddressLabel.font = DataEntry.Font.label
         ensAddressLabel.textColor = DataEntry.Color.ensText
         ensAddressLabel.isHidden = true
@@ -193,27 +193,27 @@ class AddressTextField: UIControl {
         textField.placeholder = R.string.localizable.addressEnsLabelMessage()
         textField.autocapitalizationType = .none
         textField.autocorrectionType = .no
-        
+
         statusLabel.font = DataEntry.Font.textFieldStatus
         statusLabel.textColor = DataEntry.Color.textFieldStatus
         statusLabel.textAlignment = .left
-        
+
         textField.textColor = DataEntry.Color.text
         textField.font = DataEntry.Font.textField
-        
+
         layer.borderWidth = DataEntry.Metric.borderThickness
         backgroundColor = DataEntry.Color.textFieldBackground
         layer.borderColor = errorState.textFieldBorderColor(whileEditing: isFirstResponder).cgColor
         errorState = .none
     }
-    
+
     private func makeTargetAddressRightView() -> UIView {
         let scanQRCodeButton = Button(size: .normal, style: .borderless)
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
         scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
         scanQRCodeButton.backgroundColor = .clear
-        
+
         let targetAddressRightView = [scanQRCodeButton].asStackView(distribution: .fill)
         //As of iOS 13, we need to constrain the width of `rightView`
         let rightViewFittingSize = targetAddressRightView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
@@ -224,23 +224,23 @@ class AddressTextField: UIControl {
 
         return targetAddressRightView
     }
-    
+
     @objc func clearAction() {
         textField.text?.removeAll()
         clearAddressFromResolvingEnsName()
-        
+
         let notification = Notification(name: UITextField.textDidChangeNotification, object: textField)
         NotificationCenter.default.post(notification)
     }
-    
+
     @objc func pasteAction() {
         clearAddressFromResolvingEnsName()
-        
+
         guard let value = UIPasteboard.general.string?.trimmed else {
             delegate?.displayError(error: SendInputErrors.emptyClipBoard, for: self)
             return
         }
-        
+
         if CryptoAddressValidator.isValidAddress(value) {
             self.value = value
             delegate?.didPaste(in: self)
@@ -252,23 +252,23 @@ class AddressTextField: UIControl {
             textField.text = value
             let notification = Notification(name: UITextField.textDidChangeNotification, object: textField)
             NotificationCenter.default.post(notification)
-            
+
             GetENSAddressCoordinator(server: serverToResolveEns).getENSAddressFromResolver(for: value) { result in
                 guard let address = result.value else {
                     //Don't show an error when pasting what seems like a wrong ENS name for better usability
                     self.delegate?.didPaste(in: self)
                     return
                 }
-                
+
                 guard CryptoAddressValidator.isValidAddress(address.address) else {
                     self.delegate?.displayError(error: Errors.invalidAddress, for: self)
                     return
                 }
-                
+
                 self.errorState = .none
                 self.ensAddressLabel.isHidden = false
                 self.ensAddressLabel.text = address.address
-                
+
                 self.delegate?.didPaste(in: self)
             }
         }
@@ -280,7 +280,7 @@ class AddressTextField: UIControl {
 
     func queueEnsResolution(ofValue value: String) {
         errorState = .none
-        
+
         let value = value.trimmed
         guard value.isPossibleEnsName else { return }
         let oldTextValue = textField.text?.trimmed
@@ -291,7 +291,7 @@ class AddressTextField: UIControl {
                     //TODO good to show an error message in the UI/label that it is not a valid ENS name
                     return
                 }
-                
+
                 guard oldTextValue == strongSelf.textField.text?.trimmed else { return }
                 strongSelf.ensAddressLabel.isHidden = false
                 strongSelf.ensAddressLabel.text = address.address
@@ -303,27 +303,32 @@ class AddressTextField: UIControl {
         ensAddressLabel.text = nil
         ensAddressLabel.isHidden = true
     }
+
+    override func resignFirstResponder() -> Bool {
+        super.resignFirstResponder()
+        return textField.resignFirstResponder()
+    }
 }
 
 extension AddressTextField: UITextFieldDelegate {
-    
+
     func textFieldDidEndEditing(_ textField: UITextField) {
         let borderColor = errorState.textFieldBorderColor(whileEditing: false)
         let shouldDropShadow = errorState.textFieldShowShadow(whileEditing: false)
         layer.borderColor = borderColor.cgColor
         backgroundColor = DataEntry.Color.textFieldBackground
-        
+
         dropShadow(color: shouldDropShadow ? borderColor : .clear, radius: DataEntry.Metric.shadowRadius)
     }
-    
+
     func textFieldDidBeginEditing(_ textField: UITextField) {
         let borderColor = errorState.textFieldBorderColor(whileEditing: true)
         layer.borderColor = borderColor.cgColor
         backgroundColor = Colors.appWhite
-        
+
         dropShadow(color: borderColor, radius: DataEntry.Metric.shadowRadius)
     }
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         guard let delegate = delegate else { return true }
         return delegate.shouldReturn(in: self)
