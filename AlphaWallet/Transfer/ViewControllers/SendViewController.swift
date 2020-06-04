@@ -464,11 +464,13 @@ extension SendViewController: AddressTextFieldDelegate {
     }
 
     func didPaste(in textField: AddressTextField) {
+        textField.errorState = .none
+        
         activateAmountView()
     }
 
     func shouldReturn(in textField: AddressTextField) -> Bool {
-        textField.resignFirstResponder()
+        _ = textField.resignFirstResponder()
         return true
     }
 
