@@ -47,12 +47,15 @@ class SendViewController: UIViewController, CanScanQRCode {
     private let recipientViewModel = SendViewSectionHeaderViewModel(
         text: R.string.localizable.sendRecipient().uppercased()
     )
+//    private let initialTransferType: TransferType
     let targetAddressTextField = AddressTextField()
     lazy var amountTextField = AmountTextField(server: session.server)
     weak var delegate: SendViewControllerDelegate?
+
     var transferType: TransferType {
         return viewModel.transferType
     }
+
     let storage: TokensDataStore
 
     init(
@@ -68,6 +71,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         self.storage = storage
         self.ethPrice = cryptoPrice
         self.assetDefinitionStore = assetDefinitionStore
+//        self.initialTransferType = transferType
         self.viewModel = .init(transferType: transferType, session: session, storage: storage)
 
         super.init(nibName: nil, bundle: nil)
@@ -210,10 +214,13 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
+        amountTextField.currentPair = viewModel.amountTextFieldPair
+        amountTextField.isAlternativeAmountEnabled = viewModel.isAlternativeAmountEnabled
+        amountTextField.selectCurrencyButton.isHidden = viewModel.selectCurrencyButtonHidden
+        amountTextField.selectCurrencyButton.expandIconHidden = !viewModel.isAlternativeAmountEnabled
 
         switch transferType {
         case .nativeCryptocurrency(_, let recipient, let amount):
-            amountTextField.selectCurrencyButton.isHidden = false
             if let recipient = recipient {
                 targetAddressTextField.value = recipient.stringValue
                 targetAddressTextField.queueEnsResolution(ofValue: recipient.stringValue)
@@ -226,9 +233,10 @@ class SendViewController: UIViewController, CanScanQRCode {
                     self?.amountTextField.cryptoToDollarRate = value
                 }
             }
-            amountTextField.isAlternativeAmountEnabled = true
         case .ERC20Token(_, let recipient, let amount):
-            amountTextField.selectCurrencyButton.isHidden = true
+            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
+            amountTextField.cryptoToDollarRate = nil
+
             if let recipient = recipient {
                 targetAddressTextField.value = recipient.stringValue
                 targetAddressTextField.queueEnsResolution(ofValue: recipient.stringValue)
@@ -236,12 +244,9 @@ class SendViewController: UIViewController, CanScanQRCode {
             if let amount = amount {
                 amountTextField.ethCost = amount
             }
-            amountTextField.isAlternativeAmountEnabled = false
-            amountTextField.isFiatButtonHidden = true
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
-            amountTextField.selectCurrencyButton.isHidden = true
-            amountTextField.isAlternativeAmountEnabled = false
-            amountTextField.isFiatButtonHidden = true
+            currentSubscribableKeyForNativeCryptoCurrencyPrice.flatMap { ethPrice.unsubscribe($0) }
+            amountTextField.cryptoToDollarRate = nil
         }
 
         buttonsBar.configure()
@@ -440,6 +445,7 @@ class SendViewController: UIViewController, CanScanQRCode {
                 transferType = TransferType(token: tokenObject, recipient: recipient, amount: nil)
             }
         }
+
         configure(viewModel: .init(transferType: transferType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
     }
 }

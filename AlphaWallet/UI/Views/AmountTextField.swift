@@ -30,10 +30,10 @@ class AmountTextField: UIControl {
 
         var icon: UIImage {
             switch self {
-                case .cryptoCurrency(_, let image):
-                    return image
-                case .usd:
-                    return R.image.usaFlag()!
+            case .cryptoCurrency(_, let image):
+                return image
+            case .usd:
+                return R.image.usaFlag()!
             }
         }
     }
@@ -41,6 +41,11 @@ class AmountTextField: UIControl {
     struct Pair {
         let left: Currency
         let right: Currency
+
+        init(left: Currency, right: Currency = .usd("USD")) {
+            self.left = left
+            self.right = right
+        }
 
         func swapPair() -> Pair {
             return Pair(left: right, right: left)
@@ -57,7 +62,6 @@ class AmountTextField: UIControl {
         textField.delegate = self
         textField.keyboardType = .decimalPad
         textField.leftViewMode = .always
-        textField.rightViewMode = .always
         textField.inputAccessoryView = makeToolbarWithDoneButton()
         textField.textColor = .black
         textField.font = DataEntry.Font.amountTextField
@@ -91,6 +95,7 @@ class AmountTextField: UIControl {
             if let _ = cryptoToDollarRate {
                 updateAlternatePricingDisplay()
             }
+            update(selectCurrencyButton: selectCurrencyButton)
         }
     }
 
@@ -126,12 +131,9 @@ class AmountTextField: UIControl {
             return Double(textFieldString() ?? "")
         }
     }
-
-    var currentPair: Pair
-    
-    var isFiatButtonHidden: Bool = false {
+    var currentPair: Pair {
         didSet {
-            textField.rightView?.isHidden = isFiatButtonHidden
+            update(selectCurrencyButton: selectCurrencyButton)
         }
     }
 
@@ -155,11 +157,7 @@ class AmountTextField: UIControl {
     lazy var selectCurrencyButton: SelectCurrencyButton = {
         let button = SelectCurrencyButton()
 
-        switch currentPair.left {
-        case .cryptoCurrency(let symbol, _), .usd(let symbol):
-            button.text = symbol
-            button.image = currentPair.left.icon
-        }
+        update(selectCurrencyButton: button)
 
         button.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
 
@@ -205,7 +203,6 @@ class AmountTextField: UIControl {
         addSubview(stackView)
 
         computeAlternateAmount()
-        isAlternativeAmountEnabled = cryptoToDollarRate != nil
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self),
         ])
@@ -216,6 +213,14 @@ class AmountTextField: UIControl {
     override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
         return textField.becomeFirstResponder()
+    }
+
+    private func update(selectCurrencyButton button: SelectCurrencyButton) {
+        switch currentPair.left {
+        case .cryptoCurrency(let symbol, _), .usd(let symbol):
+            button.text = symbol
+            button.image = currentPair.left.icon
+        }
     }
 
     @objc func fiatAction(button: UIButton) {
