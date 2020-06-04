@@ -34,6 +34,9 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     private let roundedBackground = RoundedBackground()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(numberOfButtons: 3)
+    //TODO this wouldn't scale if there are many cells
+    //Cache the cells used by position so we aren't dequeuing the standard UITableView way. This is so the webviews load the correct values, especially when scrolling
+    private var cells = [Int: TokenCardTableViewCellWithCheckbox]()
     private var isMultipleSelectionMode = false {
         didSet {
             if isMultipleSelectionMode {
@@ -350,6 +353,10 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             cell.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressedTokenInstanceIconified)))
         }
     }
+
+    private func reusableCell(forRowAt row: Int) -> TokenCardTableViewCellWithCheckbox {
+        cells[row, default: TokenCardTableViewCellWithCheckbox(frame: .zero)]
+    }
 }
 
 extension TokensCardViewController: VerifiableStatusViewController {
@@ -383,7 +390,7 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
         }
 
         let tokenType = OpenSeaBackedNonFungibleTokenHandling(token: tokenObject, assetDefinitionStore: assetDefinitionStore, tokenViewType: .viewIconified)
-        let cell = tableView.dequeueReusableCell(withIdentifier: TokenCardTableViewCellWithCheckbox.identifier, for: indexPath) as! TokenCardTableViewCellWithCheckbox
+        let cell = reusableCell(forRowAt: indexPath.row)
         var rowView: TokenCardRowViewProtocol & UIView
         switch tokenType {
         case .backedByOpenSea:
