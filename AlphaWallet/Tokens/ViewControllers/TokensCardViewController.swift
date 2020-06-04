@@ -171,12 +171,18 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                     button.isEnabled = false
                 }
             }
+            configureButtonsBarParentUserInteractionEnabledToPassthroughTouch(isEnabled: !actions.isEmpty)
         } else {
             buttonsBar.numberOfButtons = 0
+            configureButtonsBarParentUserInteractionEnabledToPassthroughTouch(isEnabled: false)
         }
 
         sizingCell = nil
         tableView.reloadData()
+    }
+
+    private func configureButtonsBarParentUserInteractionEnabledToPassthroughTouch(isEnabled: Bool) {
+        buttonsBar.superview?.isUserInteractionEnabled = isEnabled
     }
 
     override
