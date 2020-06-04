@@ -37,6 +37,16 @@ enum TransferType {
 }
 
 extension TransferType {
+
+    var icon: UIImage {
+        switch symbol {
+        case "ETH":
+            return R.image.eth()!
+        default:
+            return R.image.ethSmall()!
+        }
+    }
+
     var symbol: String {
         switch self {
         case .nativeCryptocurrency(let server, _, _):
