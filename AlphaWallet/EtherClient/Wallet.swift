@@ -18,4 +18,13 @@ struct Wallet: Equatable {
             return address
         }
     }
+    
+    var allowBackup: Bool {
+        switch type {
+        case .real:
+            return true
+        case .watch:
+            return false
+        }
+    }
 }
