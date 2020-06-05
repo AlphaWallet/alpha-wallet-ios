@@ -66,6 +66,7 @@
 "send.recipient" = "Recipient";
 "send.recipientsAddress" = "Recipient’s Address";
 "send.invalid.Token" = "Invalid token";
+"send.available" = "Available: %@";
 "settings.biometricsDisabled.label.title" = "암호";
 "settings.biometricsEnabled.label.title" = "암호 / %@";
 "settings.error.failedToSendEmail" = "이메일을 전송하지 못했습니다. 메일 앱이 설치되어 있는지 확인하십시오.";

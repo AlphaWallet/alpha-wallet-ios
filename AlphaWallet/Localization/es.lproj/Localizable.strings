@@ -66,6 +66,7 @@
 "send.recipient" = "Recipient";
 "send.recipientsAddress" = "Recipient’s Address";
 "send.invalid.Token" = "Invalid token";
+"send.available" = "Available: %@";
 "settings.biometricsDisabled.label.title" = "Código de acceso";
 "settings.biometricsEnabled.label.title" = "Código de acceso / %@";
 "settings.error.failedToSendEmail" = "Error al enviar el correo electrónico. Asegúrate de que tienes una aplicación de correo instalada.";
