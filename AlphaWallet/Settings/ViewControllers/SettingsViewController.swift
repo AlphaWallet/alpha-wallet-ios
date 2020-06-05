@@ -107,6 +107,28 @@ class SettingsViewController: UIViewController {
         }
     }
 
+    private func configureChangeWalletCellWithResolvedESN(_ row: SettingsWalletRow, cell: SettingTableViewCell) {
+        cell.configure(viewModel: .init(
+            titleText: row.title,
+            subTitleText: self.viewModel.addressReplacedWithESN(),
+            icon: row.icon)
+        )
+
+        let serverToResolveEns = RPCServer.main
+        let address = account.address
+
+        ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
+            guard let strongSelf = self else { return }
+
+            let viewModel: SettingTableViewCellViewModel = .init(
+                titleText: row.title,
+                subTitleText: strongSelf.viewModel.addressReplacedWithESN(result.value),
+                icon: row.icon
+            )
+            cell.configure(viewModel: viewModel)
+        }
+    }
+
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -181,12 +203,7 @@ extension SettingsViewController: UITableViewDataSource {
             let row = rows[indexPath.row]
             switch row {
             case .changeWallet:
-                let viewModel: SettingTableViewCellViewModel = .init(
-                    titleText: row.title,
-                    subTitleText: account.address.eip55String,
-                    icon: row.icon
-                )
-                cell.configure(viewModel: viewModel)
+                configureChangeWalletCellWithResolvedESN(row, cell: cell)
             case .backup:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
                 let walletSecurityLevel = PromptBackupCoordinator(keystore: self.keystore, wallet: self.account, config: .init()).securityLevel
