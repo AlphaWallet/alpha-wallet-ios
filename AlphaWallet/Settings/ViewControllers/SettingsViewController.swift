@@ -197,7 +197,7 @@ extension SettingsViewController: UITableViewDataSource {
             }
 
             return cell
-        case .tokenStandart, .version:
+        case .tokenStandard, .version:
             return UITableViewCell()
         }
     }
@@ -242,7 +242,7 @@ extension SettingsViewController: UITableViewDelegate {
             }
         case .help:
             delegate?.settingsViewControllerHelpSelected(in: self)
-        case .tokenStandart:
+        case .tokenStandard:
             self.delegate?.didPressOpenWebPage(TokenScript.tokenScriptSite, in: self)
         case .version:
             break
