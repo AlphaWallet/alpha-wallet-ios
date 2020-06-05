@@ -5,9 +5,25 @@ import UIKit
 protocol AmountTextFieldDelegate: class {
     func changeAmount(in textField: AmountTextField)
     func changeType(in textField: AmountTextField)
+    func shouldReturn(in textField: AmountTextField) -> Bool
 }
 
 class AmountTextField: UIControl {
+
+    enum AccessoryButtonTitle {
+        case done
+        case next
+
+        fileprivate var buttonTitle: String {
+            switch self {
+            case .done:
+                return R.string.localizable.done()
+            case .next:
+                return R.string.localizable.next()
+            }
+        }
+    }
+
     enum Currency {
         case cryptoCurrency(String, UIImage)
         case usd(String)
@@ -50,6 +66,19 @@ class AmountTextField: UIControl {
         return textField
     }()
 
+    private lazy var inputAccessoryButton: UIButton = {
+        let button = UIButton()
+        button.setTitle(accessoryButtonTitle.buttonTitle, for: .normal)
+        button.setTitleColor(R.color.black(), for: .normal)
+
+        return button
+    }()
+
+    private var allowedCharacters: String = {
+        let decimalSeparator = Locale.current.decimalSeparator ?? ""
+        return "0123456789" + decimalSeparator + EtherNumberFormatter.decimalPoint
+    }()
+
     let statusLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -64,6 +93,7 @@ class AmountTextField: UIControl {
             }
         }
     }
+
     var ethCost: String {
         get {
             switch currentPair.left {
@@ -87,6 +117,7 @@ class AmountTextField: UIControl {
             updateAlternatePricingDisplay()
         }
     }
+
     var dollarCost: Double? {
         switch currentPair.left {
         case .cryptoCurrency:
@@ -95,16 +126,19 @@ class AmountTextField: UIControl {
             return Double(textFieldString() ?? "")
         }
     }
+
     var currentPair: Pair
+    
     var isFiatButtonHidden: Bool = false {
         didSet {
             textField.rightView?.isHidden = isFiatButtonHidden
         }
     }
 
-    override func becomeFirstResponder() -> Bool {
-        super.becomeFirstResponder()
-        return textField.becomeFirstResponder()
+    var accessoryButtonTitle: AccessoryButtonTitle = .done {
+        didSet {
+            inputAccessoryButton.setTitle(accessoryButtonTitle.buttonTitle, for: .normal)
+        }
     }
 
     let alternativeAmountLabel: UILabel = {
@@ -130,11 +164,6 @@ class AmountTextField: UIControl {
         button.addTarget(self, action: #selector(fiatAction), for: .touchUpInside)
 
         return button
-    }()
-
-    private var allowedCharacters: String = {
-        let decimalSeparator = Locale.current.decimalSeparator ?? ""
-        return "0123456789" + decimalSeparator + EtherNumberFormatter.decimalPoint
     }()
 
     lazy var decimalFormatter: DecimalFormatter = {
@@ -180,6 +209,13 @@ class AmountTextField: UIControl {
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self),
         ])
+
+        inputAccessoryButton.addTarget(self, action: #selector(closeKeyboard), for: .touchUpInside)
+    }
+
+    override func becomeFirstResponder() -> Bool {
+        super.becomeFirstResponder()
+        return textField.becomeFirstResponder()
     }
 
     @objc func fiatAction(button: UIButton) {
@@ -216,16 +252,22 @@ class AmountTextField: UIControl {
         toolbar.barStyle = .default
 
         let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done = UIBarButtonItem(title: R.string.localizable.done(), style: .done, target: self, action: #selector(closeKeyboard))
-
-        toolbar.items = [flexSpace, done]
+        let button = UIBarButtonItem(customView: inputAccessoryButton)
+        toolbar.items = [flexSpace, button]
         toolbar.sizeToFit()
 
         return toolbar
     }
 
     @objc func closeKeyboard() {
-        endEditing(true)
+        guard let delegate = delegate else {
+            endEditing(true)
+            return
+        }
+
+        if delegate.shouldReturn(in: self) {
+            endEditing(true)
+        }
     }
 
     private func amountChanged(in range: NSRange, to string: String) -> Bool {
@@ -303,6 +345,11 @@ class AmountTextField: UIControl {
 }
 
 extension AmountTextField: UITextFieldDelegate {
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        guard let delegate = delegate else { return true }
+        return delegate.shouldReturn(in: self)
+    }
 
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         let allowChange = amountChanged(in: range, to: string)
