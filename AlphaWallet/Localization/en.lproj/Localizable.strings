@@ -78,6 +78,18 @@
 "settings.general.title" = "General";
 "settings.advanced.title" = "Advanced";
 "settings.contactUs.title" = "Contact Us";
+"settings.changeCurrency.title" = "Change Currency";
+"settings.analitycs.title" = "Analytics";
+"settings.support.title" = "Support";
+"settings.notifications.title" = "Notifications";
+"settings.passcode.title" = "Passcode / Touch ID";
+"settings.selectActiveNetworks.title" = "Select Active Networks";
+"settings.section.help.title" = "Help";
+"settings.section.system.title" = "System";
+"settings.section.wallet.title" = "Wallet";
+"settings.change.wallet.title" = "Change / Add Wallet";
+"settings.show.my.wallet.title" = "Show My Wallet Address";
+"suppport.title" = "Support";
 "transactions.noTransactions.label.title" = "No Transactions Yet!";
 "wallet.navigation.title" = "Change Wallet";
 "wallet.types.hdWallets" = "HD Wallets";
@@ -299,6 +311,7 @@
 "a.wallet.address.scan.instructions" = "Scan the QR Code or copy the text below:";
 "a.wallet.address.title" = "My %@ Wallet Address";
 "a.settings.navigation.title" = "Settings";
+"a.advanced.settings.navigation.title" = "Advanced";
 "a.settings.contents.myWalletAddress" = "My Wallet Address";
 "a.settings.contents.clearDappBrowserCache" = "Clear Browser cache";
 "a.welcome.navigation.title" = "Welcome";
