@@ -133,6 +133,7 @@
 "importWallet.import.seedPhrase.description" = "If your seed phrase is not in English, please convert it to English first";
 "Keystore JSON" = "Keystore JSON";
 "More Details" = "詳細";
+"view in" = "View in %@";
 "Keystore" = "Keystore JSON";
 "Keystore.shorter" = "Keystore";
 "Private Key" = "秘密鍵";
