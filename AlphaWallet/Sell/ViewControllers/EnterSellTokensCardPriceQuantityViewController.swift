@@ -342,6 +342,11 @@ extension EnterSellTokensCardPriceQuantityViewController: VerifiableStatusViewCo
 }
 
 extension EnterSellTokensCardPriceQuantityViewController: AmountTextFieldDelegate {
+
+    func shouldReturn(in textField: AmountTextField) -> Bool {
+        return true
+    }
+
     func changeAmount(in textField: AmountTextField) {
         updateTotalCostsLabels()
     }
