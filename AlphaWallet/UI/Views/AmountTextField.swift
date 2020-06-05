@@ -24,6 +24,57 @@ class AmountTextField: UIControl {
         }
     }
 
+    enum ErrorState : Error {
+        case error
+        case none
+
+        var textColor: UIColor {
+            switch self {
+            case .error:
+                return DataEntry.Color.textFieldStatus!
+            case .none:
+                return R.color.black()!
+            }
+        }
+
+        var statusLabelTextColor: UIColor {
+            switch self {
+            case .error:
+                return DataEntry.Color.textFieldStatus!
+            case .none:
+                return R.color.dove()!
+            }
+        }
+
+        var statusLabelFont: UIFont {
+            switch self {
+            case .error:
+                return Fonts.semibold(size: 13)!
+            case .none:
+                return Fonts.regular(size: 13)!
+            }
+        }
+
+        var textFieldTextColor: UIColor {
+            switch self {
+            case .error:
+                return DataEntry.Color.textFieldStatus!
+            case .none:
+                return R.color.black()!
+            }
+        }
+
+        var textFieldPlaceholderTextColor: UIColor {
+            switch self {
+            case .error:
+                return DataEntry.Color.textFieldStatus!
+            case .none:
+                return DataEntry.Color.placeholder
+            }
+
+        }
+    }
+
     enum Currency {
         case cryptoCurrency(String, UIImage)
         case usd(String)
@@ -63,7 +114,7 @@ class AmountTextField: UIControl {
         textField.keyboardType = .decimalPad
         textField.leftViewMode = .always
         textField.inputAccessoryView = makeToolbarWithDoneButton()
-        textField.textColor = .black
+        textField.textColor = R.color.black()!
         textField.font = DataEntry.Font.amountTextField
         textField.textAlignment = .right
 
@@ -137,6 +188,18 @@ class AmountTextField: UIControl {
         }
     }
 
+    var errorState: AmountTextField.ErrorState = .none {
+        didSet {
+            statusLabel.textColor = errorState.statusLabelTextColor
+            statusLabel.font = errorState.statusLabelFont
+            textField.textColor = errorState.textFieldTextColor
+
+            textField.attributedPlaceholder = NSAttributedString(string: "0", attributes: [
+                .font: DataEntry.Font.amountTextField!, .foregroundColor: errorState.textFieldPlaceholderTextColor
+            ])
+        }
+    }
+
     var accessoryButtonTitle: AccessoryButtonTitle = .done {
         didSet {
             inputAccessoryButton.setTitle(accessoryButtonTitle.buttonTitle, for: .normal)
@@ -170,12 +233,30 @@ class AmountTextField: UIControl {
 
     var isAlternativeAmountEnabled: Bool {
         get {
-            return !alternativeAmountLabel.isHidden
+            return !alternativeAmountLabelContainer.isHidden
         }
         set {
-            alternativeAmountLabel.isHidden = !newValue
+            //Intentionally not sure the equivalent amount for now
+            alternativeAmountLabelContainer.isHidden = true //!newValue
         }
     }
+
+    var availableTextHidden: Bool {
+        get {
+            return statusLabelContainer.isHidden
+        }
+        set {
+            statusLabelContainer.isHidden = newValue
+        }
+    }
+
+    lazy var statusLabelContainer: UIView = {
+        return [.spacerWidth(16), statusLabel].asStackView(axis: .horizontal)
+    }()
+
+    lazy var alternativeAmountLabelContainer: UIView = {
+        return [.spacerWidth(16), alternativeAmountLabel].asStackView(axis: .horizontal)
+    }()
 
     var currencySymbol: String {
         switch currentPair.left {
@@ -202,6 +283,7 @@ class AmountTextField: UIControl {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
 
+        errorState = .none
         computeAlternateAmount()
         NSLayoutConstraint.activate([
             stackView.anchorsConstraint(to: self),

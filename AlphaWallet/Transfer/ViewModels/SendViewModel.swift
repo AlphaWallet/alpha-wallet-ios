@@ -2,6 +2,7 @@
 
 import Foundation
 import UIKit
+import BigInt
 
 struct SendViewModel {
     private let session: WalletSession
@@ -98,5 +99,76 @@ struct SendViewModel {
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
             return true
         }
+    }
+
+    var availableLabelText: String? {
+        switch transferType {
+        case .nativeCryptocurrency:
+            if let balance = session.balance {
+                let balanceValue = CurrencyFormatter.plainFormatter.string(from: balance.value).doubleValue
+                let value = CurrencyFormatter.shortFormatter.string(for: balanceValue)!
+                return R.string.localizable.sendAvailable("\(value) \(transferType.symbol)")
+            }
+        case .ERC20Token(let token, _, _):
+            let balanceValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
+            let value = CurrencyFormatter.shortFormatter.string(for: balanceValue)!
+            return R.string.localizable.sendAvailable("\(value) \(transferType.symbol)")
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
+            break
+        }
+
+        return nil
+    }
+
+    var availableTextHidden: Bool {
+        switch transferType {
+        case .nativeCryptocurrency:
+            return session.balance == nil
+        case .ERC20Token(let token, _, _):
+            let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt
+            return tokenBalance == nil
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
+            break
+        }
+        return true
+    }
+
+    func validatedAmount(value amountString: String, checkIfGreaterThenZero: Bool = true) -> BigInt? {
+        let parsedValue: BigInt? = {
+            switch transferType {
+            case .nativeCryptocurrency, .dapp:
+                return EtherNumberFormatter.full.number(from: amountString, units: .ether)
+            case .ERC20Token(let token, _, _):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC875Token(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC875TokenOrder(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC721Token(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            case .ERC721ForTicketToken(let token):
+                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
+            }
+        }()
+
+        guard let value = parsedValue, checkIfGreaterThenZero ? value > 0 : true else {
+            return nil
+        }
+
+        switch transferType {
+        case .nativeCryptocurrency:
+            if let balance = session.balance, balance.value < value {
+                return nil
+            }
+        case .ERC20Token(let token, _, _):
+            if let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt, tokenBalance < value {
+                return nil
+            }
+        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
+            break
+        }
+
+        return value
+
     }
 }
