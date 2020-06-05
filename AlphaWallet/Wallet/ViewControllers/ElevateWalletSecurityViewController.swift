@@ -41,9 +41,9 @@ class ElevateWalletSecurityViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
 
         let stackView = [
-            UIView.spacer(height: 30),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 15 : 30),
             subtitleLabel,
-            UIView.spacer(height: 40),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 15 : 40),
             imageView,
             UIView.spacer(height: ScreenChecker().isNarrowScreen ? 15 : 40),
             descriptionLabel,
@@ -94,19 +94,13 @@ class ElevateWalletSecurityViewController: UIViewController {
 
         title = viewModel.title
 
-        subtitleLabel.textAlignment = .center
         subtitleLabel.numberOfLines = 0
-        subtitleLabel.textColor = viewModel.subtitleColor
-        subtitleLabel.font = viewModel.subtitleFont
-        subtitleLabel.text = viewModel.subtitle
+        subtitleLabel.attributedText = viewModel.attributedSubtitle
 
         imageView.image = viewModel.imageViewImage
 
-        descriptionLabel.textAlignment = .center
-        descriptionLabel.textColor = viewModel.descriptionColor
-        descriptionLabel.font = viewModel.descriptionFont
         descriptionLabel.numberOfLines = 0
-        descriptionLabel.text = viewModel.description
+        descriptionLabel.attributedText = viewModel.attributedDescription
 
         cancelButton.addTarget(self, action: #selector(cancel), for: .touchUpInside)
         cancelButton.setTitle(R.string.localizable.skip(), for: .normal)
