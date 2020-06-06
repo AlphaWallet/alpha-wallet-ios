@@ -78,7 +78,7 @@ class AmountTextField: UIControl {
             case .cryptoCurrency:
                 textField.text = newValue
             case .usd:
-                if let amount = Double(newValue), let cryptoToDollarRate = cryptoToDollarRate {
+                if let amount = Double(newValue.withDecimalSeparatorReplacedByPeriod), let cryptoToDollarRate = cryptoToDollarRate {
                     textField.text = String(amount * cryptoToDollarRate)
                 } else {
                     textField.text = ""
@@ -92,7 +92,7 @@ class AmountTextField: UIControl {
         case .cryptoCurrency:
             return convertToAlternateAmountNumeric()
         case .usd:
-            return Double(textField.text ?? "")
+            return Double(textFieldString() ?? "")
         }
     }
     var currentPair: Pair
@@ -267,7 +267,7 @@ class AmountTextField: UIControl {
     }
 
     private func convertToAlternateAmount() -> String {
-        if let cryptoToDollarRate = cryptoToDollarRate, let string = textField.text, let amount = Double(string) {
+        if let cryptoToDollarRate = cryptoToDollarRate, let string = textFieldString(), let amount = Double(string) {
             switch currentPair.left {
             case .cryptoCurrency:
                 return StringFormatter().currency(with: amount * cryptoToDollarRate, and: "USD")
@@ -280,7 +280,7 @@ class AmountTextField: UIControl {
     }
 
     private func convertToAlternateAmountNumeric() -> Double? {
-        if let cryptoToDollarRate = cryptoToDollarRate, let string = textField.text, let amount = Double(string) {
+        if let cryptoToDollarRate = cryptoToDollarRate, let string = textFieldString(), let amount = Double(string) {
             switch currentPair.left {
             case .cryptoCurrency:
                 return amount * cryptoToDollarRate
@@ -295,6 +295,10 @@ class AmountTextField: UIControl {
     private func updateAlternatePricingDisplay() {
         computeAlternateAmount()
         delegate?.changeAmount(in: self)
+    }
+
+    private func textFieldString() -> String? {
+        textField.text?.withDecimalSeparatorReplacedByPeriod
     }
 }
 
@@ -327,3 +331,14 @@ extension Double {
     }
 }
 
+fileprivate extension String {
+    var withDecimalSeparatorReplacedByPeriod: String {
+        guard let decimalSeparator = Locale.current.decimalSeparator else { return self }
+        let period = "."
+        if decimalSeparator == period {
+            return self
+        } else {
+            return replacingOccurrences(of: decimalSeparator, with: period)
+        }
+    }
+}
