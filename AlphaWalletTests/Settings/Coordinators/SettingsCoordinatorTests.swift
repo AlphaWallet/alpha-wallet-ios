@@ -4,22 +4,6 @@ import XCTest
 @testable import AlphaWallet
 
 class SettingsCoordinatorTests: XCTestCase {
-    
-    func testShowAccounts() {
-        let coordinator = SettingsCoordinator(
-            navigationController: FakeNavigationController(),
-            keystore: FakeEtherKeystore(),
-            config: .make(),
-            sessions: .init(),
-            promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: .make())
-        )
-        
-        coordinator.showAccounts()
-        
-        XCTAssertTrue(coordinator.coordinators.first is AccountsCoordinator)
-        XCTAssertTrue((coordinator.navigationController.presentedViewController as? UINavigationController)?.viewControllers[0] is AccountsViewController)
-    }
-
     func testOnDeleteCleanStorage() {
         class Delegate: SettingsCoordinatorDelegate, CanOpenURL {
             var deleteDelegateMethodCalled = false
@@ -50,9 +34,9 @@ class SettingsCoordinatorTests: XCTestCase {
         let delegate = Delegate()
         coordinator.delegate = delegate
         storage.add([.make()])
-        
+
         XCTAssertEqual(1, storage.count)
-        
+
         let accountCoordinator = AccountsCoordinator(
             config: .make(),
             navigationController: FakeNavigationController(),
@@ -63,7 +47,7 @@ class SettingsCoordinatorTests: XCTestCase {
         XCTAssertFalse(delegate.deleteDelegateMethodCalled)
         coordinator.didDeleteAccount(account: .make(), in: accountCoordinator)
         XCTAssertTrue(delegate.deleteDelegateMethodCalled)
-        
+
 //        XCTAssertEqual(0, storage.count)
     }
 }
