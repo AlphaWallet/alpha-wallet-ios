@@ -5,7 +5,7 @@ import UIKit
 
 struct SettingsViewModel {
     private let account: Wallet
-    
+
     var passcodeTitle: String {
         switch BiometryAuthenticationType.current {
         case .faceID, .touchID:
@@ -18,9 +18,9 @@ struct SettingsViewModel {
     var localeTitle: String {
         return R.string.localizable.settingsLanguageButtonTitle()
     }
-    
+
     let sections: [SettingsSection]
-    
+
     init(account: Wallet) {
         self.account = account
         let walletRows: [SettingsWalletRow] = account.allowBackup ? SettingsWalletRow.allCases : [.showMyWallet, .changeWallet]
@@ -29,14 +29,14 @@ struct SettingsViewModel {
             .system(rows: [.passcode, .selectActiveNetworks, .advanced]),
             .help,
             .version(value: Bundle.main.fullVersion),
-            .tokenStandart(value: "\(TokenScript.supportedTokenScriptNamespaceVersion)")
+            .tokenStandard(value: "\(TokenScript.supportedTokenScriptNamespaceVersion)")
         ]
     }
-    
+
     func numberOfSections() -> Int {
         return sections.count
     }
-    
+
     func numberOfSections(in section: Int) -> Int {
         switch sections[section] {
         case .wallet(let rows):
@@ -45,7 +45,7 @@ struct SettingsViewModel {
             return 1
         case .system(let rows):
             return rows.count
-        case .version, .tokenStandart:
+        case .version, .tokenStandard:
             return 0
         }
     }
@@ -55,7 +55,7 @@ enum SettingsWalletRow: CaseIterable {
     case showMyWallet
     case changeWallet
     case backup
-    
+
     var title: String {
         switch self {
         case .showMyWallet:
@@ -66,7 +66,7 @@ enum SettingsWalletRow: CaseIterable {
             return R.string.localizable.settingsBackupWalletButtonTitle()
         }
     }
-    
+
     var icon: UIImage {
         switch self {
         case .showMyWallet:
@@ -84,7 +84,7 @@ enum SettingsSystemRow: CaseIterable {
     case passcode
     case selectActiveNetworks
     case advanced
-    
+
     var title: String {
         switch self {
         case .notifications:
@@ -97,7 +97,7 @@ enum SettingsSystemRow: CaseIterable {
             return R.string.localizable.advanced()
         }
     }
-    
+
     var icon: UIImage {
         switch self {
         case .notifications:
@@ -117,8 +117,8 @@ enum SettingsSection {
     case system(rows: [SettingsSystemRow])
     case help
     case version(value: String)
-    case tokenStandart(value: String)
-    
+    case tokenStandard(value: String)
+
     var title: String {
         switch self {
         case .wallet:
@@ -129,11 +129,11 @@ enum SettingsSection {
             return R.string.localizable.settingsSectionHelpTitle().uppercased()
         case .version:
             return R.string.localizable.settingsVersionLabelTitle()
-        case .tokenStandart:
+        case .tokenStandard:
             return R.string.localizable.settingsTokenScriptStandardTitle()
         }
     }
-    
+
     var numberOfRows: Int {
         switch self {
         case .wallet(let rows):
@@ -142,7 +142,7 @@ enum SettingsSection {
             return 1
         case .system(let rows):
             return rows.count
-        case .version, .tokenStandart:
+        case .version, .tokenStandard:
             return 0
         }
     }
