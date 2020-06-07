@@ -23,7 +23,8 @@ final class StringFormatter {
     func currency(with value: Double, and currencyCode: String) -> String {
         let formatter = currencyFormatter
         formatter.currencyCode = currencyCode
-        return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
+        //Trimming is important because the formatter output for `1.2` becomes "1.2 " (with trailing space) when region = Poland
+        return formatter.string(from: NSNumber(value: value))?.trimmed ?? "\(value)"
     }
     /// Converts a Double to a `String`.
     ///
