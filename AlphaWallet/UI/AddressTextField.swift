@@ -26,7 +26,14 @@ class AddressTextField: UIControl {
 
     private var addressOrEnsName: AddressOrEnsName? {
         didSet {
-            ensAddressLabel.text = addressOrEnsName?.stringValue
+            switch addressOrEnsName {
+            case .some(.address(let address)):
+                ensAddressLabel.text = address.truncateMiddle
+            case .some(.ensName(let string)):
+                ensAddressLabel.text = string
+            case .none:
+                ensAddressLabel.text = nil
+            }
             ensAddressLabel.isHidden = ensAddressLabel.text == nil
         }
     }
@@ -316,7 +323,6 @@ class AddressTextField: UIControl {
 
                 strongSelf.errorState = .none
                 strongSelf.addressOrEnsName = .address(AlphaWallet.Address(address: address))
-
                 strongSelf.delegate?.didPaste(in: strongSelf)
             }
         }
