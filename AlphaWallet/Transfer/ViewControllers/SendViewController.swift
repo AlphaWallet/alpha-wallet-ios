@@ -82,10 +82,11 @@ class SendViewController: UIViewController, CanScanQRCode {
 
         targetAddressTextField.translatesAutoresizingMaskIntoConstraints = false
         targetAddressTextField.delegate = self
-        targetAddressTextField.returnKeyType = .next
+        targetAddressTextField.returnKeyType = .done
 
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
+        amountTextField.accessoryButtonTitle = .next
 
         let addressControlsContainer = UIView()
         addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -444,6 +445,11 @@ class SendViewController: UIViewController, CanScanQRCode {
 }
 
 extension SendViewController: AmountTextFieldDelegate {
+    func shouldReturn(in textField: AmountTextField) -> Bool {
+        _ = targetAddressTextField.becomeFirstResponder()
+        return false
+    }
+
     func changeAmount(in textField: AmountTextField) {
         //do nothing
     }
