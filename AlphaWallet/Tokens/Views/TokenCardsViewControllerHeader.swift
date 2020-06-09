@@ -13,8 +13,6 @@ class TokenCardsViewControllerHeader: UIView {
     private let titleLabel = UILabel()
     //TODO rename? Button now
     private let blockchainLabel = UIButton(type: .system)
-    private let separator = UILabel()
-    private let issuerLabel = UILabel()
     private let blockChainTagLabel = UILabel()
 
     weak var delegate: TokenCardsViewControllerHeaderDelegate?
@@ -31,7 +29,7 @@ class TokenCardsViewControllerHeader: UIView {
 
         blockChainTagLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
-        let bottomRowStack = [blockchainLabel, separator, issuerLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
+        let bottomRowStack = [blockchainLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
         let stackView = [
             titleLabel,
             bottomRowStack
@@ -71,18 +69,6 @@ class TokenCardsViewControllerHeader: UIView {
         blockchainLabel.setTitleColor(viewModel.subtitleColor, for: .normal)
         blockchainLabel.titleLabel?.font = viewModel.subtitleFont
         blockchainLabel.setTitle(viewModel.blockChainName, for: .normal)
-
-        issuerLabel.textColor = viewModel.subtitleColor
-        issuerLabel.font = viewModel.subtitleFont
-        let issuer = viewModel.issuer
-        if issuer.isEmpty {
-            issuerLabel.text = ""
-        } else {
-            issuerLabel.text = issuer
-        }
-        separator.textColor = viewModel.subtitleColor
-        separator.font = viewModel.subtitleFont
-        separator.text = viewModel.issuerSeparator
 
         blockChainTagLabel.textAlignment = viewModel.blockChainNameTextAlignment
         blockChainTagLabel.cornerRadius = 7

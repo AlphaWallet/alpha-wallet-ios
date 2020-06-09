@@ -10,7 +10,6 @@ class SendHeaderView: UIView {
     private let titleLabel = UILabel()
     //TODO rename? Button now
     private let blockchainLabel = UIButton(type: .system)
-    private let issuerLabel = UILabel()
     private let blockChainTagLabel = UILabel()
     private let middleBorder = UIView()
     private var footerStackView: UIStackView?
@@ -48,7 +47,7 @@ class SendHeaderView: UIView {
         blockChainTagLabel.setContentHuggingPriority(.required, for: .horizontal)
         let titleRowStack = [titleLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15, alignment: .center)
 
-        let bottomRowStack = [blockchainLabel, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
+        let bottomRowStack = [blockchainLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
         blockchainLabel.setContentCompressionResistancePriority(.required, for: .vertical)
 
         let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .equalCentering, spacing: 15)
@@ -122,15 +121,6 @@ class SendHeaderView: UIView {
         blockchainLabel.setTitleColor(viewModel.subtitleColor, for: .normal)
         blockchainLabel.titleLabel?.font = viewModel.subtitleFont
         blockchainLabel.setTitle(viewModel.blockChainName, for: .normal)
-
-        issuerLabel.textColor = viewModel.subtitleColor
-        issuerLabel.font = viewModel.subtitleFont
-        let issuer = viewModel.issuer
-        if issuer.isEmpty {
-            issuerLabel.text = ""
-        } else {
-            issuerLabel.text = "\(R.string.localizable.aWalletContentsIssuerTitle()): \(issuer)"
-        }
 
         blockChainTagLabel.textAlignment = viewModel.blockChainNameTextAlignment
         blockChainTagLabel.cornerRadius = viewModel.blockChainNameCornerRadius

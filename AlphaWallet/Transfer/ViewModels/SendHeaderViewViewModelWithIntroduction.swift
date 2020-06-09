@@ -14,10 +14,6 @@ struct SendHeaderViewViewModelWithIntroduction {
     var showAlternativeAmount = false
     var contractAddress: AlphaWallet.Address?
 
-    var issuer: String {
-        return ""
-    }
-
     var blockChainName: String {
         return server.blockChainName
     }

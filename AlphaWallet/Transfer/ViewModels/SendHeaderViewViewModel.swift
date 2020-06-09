@@ -18,10 +18,6 @@ struct SendHeaderViewViewModel {
         currencyAmountWithoutSymbol = nil
     }
 
-    var issuer: String {
-        return ""
-    }
-
     var blockChainNameFont: UIFont {
         return Screen.TokenCard.Font.blockChainName
     }

@@ -10,8 +10,6 @@ class EthTokenViewCell: UITableViewCell {
     private let background = UIView()
     private let titleLabel = UILabel()
     private let blockchainLabel = UILabel()
-    private let separator = UILabel()
-    private let issuerLabel = UILabel()
     private let blockChainTagLabel = UILabel()
     private lazy var cellSeparators = UITableViewCell.createTokenCellSeparators(height: GroupedTable.Metric.cellSpacing, separatorHeight: GroupedTable.Metric.cellSeparatorHeight)
     private let middleBorder = UIView()
@@ -22,7 +20,7 @@ class EthTokenViewCell: UITableViewCell {
     private let valueLabel = UILabel()
     private let valueNameLabel = UILabel()
     private var viewsWithContent: [UIView] {
-        [titleLabel, blockchainLabel, separator, issuerLabel, blockChainTagLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, valueChangeLabel, valueChangeNameLabel, valueLabel, valueNameLabel]
+        [titleLabel, blockchainLabel, blockChainTagLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, valueChangeLabel, valueChangeNameLabel, valueLabel, valueNameLabel]
     }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -41,7 +39,7 @@ class EthTokenViewCell: UITableViewCell {
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
 
-        let bottomRowStack = [blockchainLabel, separator, issuerLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
+        let bottomRowStack = [blockchainLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
         let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .fillEqually, spacing: 15)
         let footerNamesStack = [valuePercentageChangePeriodLabel, valueChangeNameLabel, valueNameLabel].asStackView(distribution: .fillEqually, spacing: 15)
         let footerStackView = [
@@ -112,14 +110,6 @@ class EthTokenViewCell: UITableViewCell {
         blockchainLabel.textColor = viewModel.subtitleColor
         blockchainLabel.font = viewModel.subtitleFont
         blockchainLabel.text = viewModel.blockChainName
-
-        issuerLabel.textColor = viewModel.subtitleColor
-        issuerLabel.font = viewModel.subtitleFont
-        issuerLabel.text = viewModel.issuer
-
-        separator.textColor = viewModel.subtitleColor
-        separator.font = viewModel.subtitleFont
-        separator.text = ""
 
         middleBorder.backgroundColor = viewModel.borderColor
 
