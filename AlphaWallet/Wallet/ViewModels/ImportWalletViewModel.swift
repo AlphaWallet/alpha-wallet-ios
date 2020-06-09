@@ -3,7 +3,8 @@
 import UIKit
 
 struct ImportWalletViewModel {
-    static let segmentedControlTitles = ImportWalletTab.orderedTabs.map { $0.title }
+    //Must be computed because localization can be overridden by user dynamically
+    static var segmentedControlTitles: [String] { ImportWalletTab.orderedTabs.map { $0.title } }
 
     var backgroundColor: UIColor {
         return Colors.appBackground

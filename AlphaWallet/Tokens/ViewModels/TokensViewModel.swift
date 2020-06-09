@@ -5,7 +5,8 @@ import UIKit
 
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
-    static let segmentedControlTitles = WalletFilter.orderedTabs.map { $0.title }
+    //Must be computed because localization can be overridden by user dynamically
+    static var segmentedControlTitles: [String] { WalletFilter.orderedTabs.map { $0.title } }
 
     private let filterTokensCoordinator: FilterTokensCoordinator
     var tokens: [TokenObject]
