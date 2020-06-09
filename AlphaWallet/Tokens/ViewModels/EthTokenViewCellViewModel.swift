@@ -39,10 +39,6 @@ struct EthTokenViewCellViewModel {
         return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
     }
 
-    var issuer: String {
-        return ""
-    }
-
     var blockChainNameFont: UIFont {
         return Screen.TokenCard.Font.blockChainName
     }

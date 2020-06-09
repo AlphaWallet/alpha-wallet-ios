@@ -26,24 +26,6 @@ struct NonFungibleTokenViewCellViewModel {
         return actualBalance.count.toString()
     }
 
-    var issuer: String {
-        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
-        let issuer = xmlHandler.issuer
-        if issuer.isEmpty {
-            return ""
-        } else {
-            return "\(R.string.localizable.aWalletContentsIssuerTitle()): \(issuer)"
-        }
-    }
-
-    var issuerSeparator: String {
-        if issuer.isEmpty {
-            return ""
-        } else {
-            return "|"
-        }
-    }
-
     var blockChainNameFont: UIFont {
         return Screen.TokenCard.Font.blockChainName
     }

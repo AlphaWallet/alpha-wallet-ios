@@ -17,24 +17,6 @@ struct TokensCardViewControllerHeaderViewModelWithIntroduction {
         return "\((totalValidTokenCount)) \(tokenObject.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
     }
 
-    var issuer: String {
-        let xmlHandler = XMLHandler(contract: tokenObject.contractAddress)
-        let issuer = xmlHandler.getIssuer()
-        if issuer.isEmpty {
-            return ""
-        } else {
-            return "\(R.string.localizable.aWalletContentsIssuerTitle()): \(issuer)"
-        }
-    }
-
-    var issuerSeparator: String {
-        if issuer.isEmpty {
-            return ""
-        } else {
-            return "|"
-        }
-    }
-
     var blockChainName: String {
         return server.blockChainName
     }
