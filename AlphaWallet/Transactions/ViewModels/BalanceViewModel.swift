@@ -31,7 +31,7 @@ struct BalanceViewModel: BalanceBaseViewModel {
 
     var currencyAmount: String? {
         guard let totalAmount = currencyAmountWithoutSymbol else { return nil }
-        return CurrencyFormatter.formatter.string(from: NSNumber(value: totalAmount))
+        return CurrencyFormatter.usdFormatter.string(from: NSNumber(value: totalAmount)) 
     }
 
     var currencyAmountWithoutSymbol: Double? {
