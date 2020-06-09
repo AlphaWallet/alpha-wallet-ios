@@ -102,7 +102,7 @@ class AddHideTokensViewController: UIViewController {
         tableView.estimatedRowHeight = 100
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
         tableView.separatorInset = .zero
         tableView.contentInset = .zero
         tableView.contentOffset = .zero
