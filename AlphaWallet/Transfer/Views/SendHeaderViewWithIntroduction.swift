@@ -8,7 +8,6 @@ class SendHeaderViewWithIntroduction: UIView {
     private let background = UIView()
     private let titleLabel = UILabel()
     private let blockchainLabel = UILabel()
-    private let issuerLabel = UILabel()
     private let middleBorder = UIView()
     private var footerStackView: UIStackView?
     private let valuePercentageChangeValueLabel = UILabel()
@@ -35,7 +34,7 @@ class SendHeaderViewWithIntroduction: UIView {
         valueLabel.textAlignment = .center
         valueNameLabel.textAlignment = .center
 
-        let bottomRowStack = [blockchainLabel, issuerLabel].asStackView(spacing: 15)
+        let bottomRowStack = [blockchainLabel].asStackView(spacing: 15)
 
         let footerValuesStack = [valuePercentageChangeValueLabel, valueChangeLabel, valueLabel].asStackView(distribution: .fillEqually, spacing: 15)
 
@@ -97,15 +96,6 @@ class SendHeaderViewWithIntroduction: UIView {
         blockchainLabel.textColor = viewModel.subtitleColor
         blockchainLabel.font = viewModel.subtitleFont
         blockchainLabel.text = viewModel.blockChainName
-
-        issuerLabel.textColor = viewModel.subtitleColor
-        issuerLabel.font = viewModel.subtitleFont
-        let issuer = viewModel.issuer
-        if issuer.isEmpty {
-            issuerLabel.text = ""
-        } else {
-            issuerLabel.text = "\(R.string.localizable.aWalletContentsIssuerTitle()): \(issuer)"
-        }
 
         middleBorder.backgroundColor = viewModel.borderColor
 
