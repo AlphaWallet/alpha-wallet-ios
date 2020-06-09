@@ -235,15 +235,6 @@ private class PrivateXMLHandler {
         return "en"
     }
 
-    //TODO may need to support action-only. Is it the same? Do along with signature verification
-    var issuer: String {
-        if let keyNameElement = XMLHandler.getKeyNameElement(fromRoot: xml, xmlContext: xmlContext, signatureNamespacePrefix: signatureNamespacePrefix), let issuer = keyNameElement.text {
-            return issuer
-        } else {
-            return ""
-        }
-    }
-
     //TODO maybe this should be removed. We should not use AssetDefinitionStore here because it's easy to create cyclical references and infinite loops since they refer to each other
     convenience init(contract: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) {
         let xmlString = assetDefinitionStore[contract]
@@ -626,10 +617,6 @@ public class XMLHandler {
 
     var fieldIdsAndNames: [AttributeId: String] {
         return privateXMLHandler.fieldIdsAndNames
-    }
-
-    var issuer: String {
-        return privateXMLHandler.issuer
     }
 
     init(contract: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) {
