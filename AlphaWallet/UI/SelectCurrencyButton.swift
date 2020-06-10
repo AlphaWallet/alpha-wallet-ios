@@ -44,7 +44,14 @@ class SelectCurrencyButton: UIControl {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
+
+    var expandIconHidden: Bool = false {
+        didSet {
+            expandImageView.isHidden = expandIconHidden
+            actionButton.isUserInteractionEnabled = !expandIconHidden
+        }
+    }
+
     var text: String {
         get {
             return textLabel.text ?? ""
