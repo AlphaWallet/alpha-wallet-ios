@@ -187,7 +187,7 @@ extension SettingsViewController: UITableViewDataSource {
                 )
 
                 return cell
-            default:
+            case .notifications, .selectActiveNetworks, .advanced:
                 let cell = tableView.dequeueReusableCell(withIdentifier: SettingTableViewCell.reuseIdentifier, for: indexPath) as! SettingTableViewCell
                 cell.configure(viewModel: .init(settingsSystemRow: row))
 
@@ -209,7 +209,7 @@ extension SettingsViewController: UITableViewDataSource {
                 let walletSecurityLevel = PromptBackupCoordinator(keystore: self.keystore, wallet: self.account, config: .init()).securityLevel
                 cell.accessoryView = walletSecurityLevel.flatMap { WalletSecurityLevelIndicator(level: $0) }
                 cell.accessoryType = .disclosureIndicator
-            default:
+            case .showMyWallet:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
             }
 
