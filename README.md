@@ -57,8 +57,8 @@ We want to give businesses the whitelabel tools they need to develop their ether
 
 # Getting Started
 
-1.  [Download](https://developer.apple.com/xcode/download/) the Xcode 9 and above release.
-2. Clone this repository and get the submodules with: `git submodule init && git submodule update`.
+1.  [Download](https://developer.apple.com/download/more/) Xcode 11.3
+2. Clone this repository
 3. Run `make bootstrap` to install tools and dependencies.
 
 ### Add your token to AlphaWallet
