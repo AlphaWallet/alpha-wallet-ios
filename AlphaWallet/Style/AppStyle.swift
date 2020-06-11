@@ -201,17 +201,11 @@ enum Screen {
 
     enum TokenCard {
         enum Font {
-            static let title: UIFont = {
-                if ScreenChecker().isNarrowScreen {
-                    return Fonts.regular(size: 22)!
-                } else {
-                    return Fonts.regular(size: 25)!
-                }
-            }()
-            static let subtitle = Fonts.regular(size: 13)!
+            static let title: UIFont = Fonts.regular(size: 20)!
+            static let subtitle = Fonts.regular(size: 12)!
             static let blockChainName = Fonts.semibold(size: 12)!
-            static let valueChangeLabel = Fonts.regular(size: 11)!
-            static let valueChangeValue = Fonts.semibold(size: 15)!
+            static let valueChangeLabel = Fonts.regular(size: 12)!
+            static let valueChangeValue = Fonts.semibold(size: 12)!
         }
 
         enum Color {

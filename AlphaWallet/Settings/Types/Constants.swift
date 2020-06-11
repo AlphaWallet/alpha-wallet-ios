@@ -25,6 +25,9 @@ public struct Constants {
     public static let artisTau1MagicLinkHost = "artis_tau1.aw.app"
     public static let customMagicLinkHost = "custom.aw.app"
 
+    public enum Currency {
+        static let usd = "USD"
+    }
     // Magic link networks
     public static let legacyMagicLinkPrefix = "https://app.awallet.io/"
 

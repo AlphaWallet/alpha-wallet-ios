@@ -26,30 +26,6 @@ struct FungibleTokenViewCellViewModel {
         return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
     }
 
-    var blockChainNameFont: UIFont {
-        return Screen.TokenCard.Font.blockChainName
-    }
-
-    var blockChainNameColor: UIColor {
-        return Screen.TokenCard.Color.blockChainName
-    }
-
-    var blockChainNameBackgroundColor: UIColor {
-        return server.blockChainNameColor
-    }
-
-    var blockChainTag: String {
-        return "  \(server.name)     "
-    }
-
-    var blockChainNameTextAlignment: NSTextAlignment {
-        return .center
-    }
-
-    var blockChainNameCornerRadius: CGFloat {
-        return Screen.TokenCard.Metric.blockChainTagCornerRadius
-    }
-
     var blockChainName: String {
         return server.blockChainName
     }
@@ -60,11 +36,7 @@ struct FungibleTokenViewCellViewModel {
 
     var contentsBackgroundColor: UIColor {
         return Screen.TokenCard.Color.background
-    }
-
-    var contentsCornerRadius: CGFloat {
-        return Metrics.CornerRadius.box
-    }
+    } 
 
     var titleColor: UIColor {
         return Screen.TokenCard.Color.title
