@@ -39,7 +39,7 @@ class TextField: UIControl {
             switch self {
             case .error:
                 return true
-            default:
+            case .none: 
                 return whileEditing
             }
         }

@@ -157,7 +157,7 @@ public indirect enum ABIValue: Equatable {
             self = .dynamicArray(type, try array.map({ try ABIValue($0, type: type) }))
         case (.tuple(let types), let array as [Any]):
             self = .tuple(try zip(types, array).map({ try ABIValue($1, type: $0) }))
-        default:
+        case (_, _):
             throw ABIError.invalidArgumentType
         }
     }

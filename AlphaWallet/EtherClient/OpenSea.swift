@@ -99,7 +99,7 @@ class OpenSea {
             return Constants.openseaAPI
         case .rinkeby:
             return Constants.openseaRinkebyAPI
-        default:
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .xDai, .goerli, .artis_sigma1, .artis_tau1, .custom:
             return Constants.openseaAPI
         }
     }
