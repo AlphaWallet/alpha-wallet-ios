@@ -125,7 +125,7 @@ extension SupportViewController: UITableViewDelegate {
             openURL(.reddit)
         case .facebook:
             openURL(.facebook)
-        default:
+        case .blog: 
             break
         }
     }
