@@ -37,35 +37,7 @@ struct EthTokenViewCellViewModel {
 
     var amount: String {
         return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
-    }
-
-    var blockChainNameFont: UIFont {
-        return Screen.TokenCard.Font.blockChainName
-    }
-
-    var blockChainNameColor: UIColor {
-        return Screen.TokenCard.Color.blockChainName
-    }
-
-    var blockChainNameBackgroundColor: UIColor {
-        return server.blockChainNameColor
-    }
-
-    var blockChainTag: String {
-        return "  \(server.name)     "
-    }
-
-    var blockChainNameTextAlignment: NSTextAlignment {
-        return .center
-    }
-
-    var blockChainNameCornerRadius: CGFloat {
-        return Screen.TokenCard.Metric.blockChainTagCornerRadius
-    }
-
-    var blockChainName: String {
-        return server.blockChainName
-    }
+    } 
 
     var backgroundColor: UIColor {
         return Screen.TokenCard.Color.background
@@ -73,10 +45,6 @@ struct EthTokenViewCellViewModel {
 
     var contentsBackgroundColor: UIColor {
         return Screen.TokenCard.Color.background
-    }
-
-    var contentsCornerRadius: CGFloat {
-        return Metrics.CornerRadius.box
     }
 
     var titleColor: UIColor {
@@ -99,6 +67,10 @@ struct EthTokenViewCellViewModel {
         return Screen.TokenCard.Font.subtitle
     }
 
+    var blockChainName: String {
+        return server.blockChainName
+    }
+
     var textColor: UIColor {
         return Screen.TokenCard.Color.valueChangeLabel
     }
@@ -108,7 +80,7 @@ struct EthTokenViewCellViewModel {
     }
 
     var textValueFont: UIFont {
-        return Screen.TokenCard.Font.valueChangeValue
+        return Screen.TokenCard.Font.valueChangeLabel
     }
 
     var textLabelFont: UIFont {
@@ -118,40 +90,24 @@ struct EthTokenViewCellViewModel {
     var valuePercentageChangeValue: String {
         switch EthCurrencyHelper(ticker: ticker).change24h {
         case .appreciate(let percentageChange24h):
-            return "\(percentageChange24h)%"
+            return "(\(percentageChange24h)%)"
         case .depreciate(let percentageChange24h):
-            return "\(percentageChange24h)%"
+            return "(\(percentageChange24h)%)"
         case .none:
             return "-"
         }
     }
-
-    var valuePercentageChangePeriod: String {
-        return R.string.localizable.aWalletContentsValuePeriodTitle()
+    
+    var valueChange: String? {
+        return EthCurrencyHelper(ticker: ticker).valueChanged24h(currencyAmountWithoutSymbol: currencyAmountWithoutSymbol)
     }
 
-    var valueChange: String {
-        if let value = EthCurrencyHelper(ticker: ticker).valueChanged24h(currencyAmountWithoutSymbol: currencyAmountWithoutSymbol) {
-            return value
-        } else {
-            return "-"
-        }
-    }
+    var value: String? {
+        return currencyAmount
+    } 
 
-    var valueChangeName: String {
-        return R.string.localizable.aWalletContentsValueAppreciationTitle()
-    }
-
-    var value: String {
-        if let currencyAmount = currencyAmount {
-            return currencyAmount
-        } else {
-            return "-"
-        }
-    }
-
-    var valueName: String {
-        return R.string.localizable.aWalletContentsValueDollarTitle()
+    var blockChainLabelHidden: Bool {
+        return currencyAmount != nil
     }
 
     var alpha: CGFloat {

@@ -153,7 +153,9 @@ class TokensViewController: UIViewController {
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .singleLine
+        tableView.separatorInset = .zero
+        tableView.tableFooterView = UIView()
         tableView.backgroundColor = GroupedTable.Color.background
         tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         tableView.addSubview(tableViewRefreshControl)
