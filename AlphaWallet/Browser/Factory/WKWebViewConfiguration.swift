@@ -60,9 +60,7 @@ extension WKWebViewConfiguration {
 //                    webViewConfig.userContentController.add(contentRuleList)
 //                }
 //            }
-            if #available(iOS 11.0, *) {
-                webViewConfig.setURLSchemeHandler(webViewConfig, forURLScheme: "tokenscript-resource")
-            }
+            webViewConfig.setURLSchemeHandler(webViewConfig, forURLScheme: "tokenscript-resource")
         }
 
         webViewConfig.userContentController.add(messageHandler, name: Method.signTransaction.rawValue)
@@ -220,7 +218,6 @@ extension WKWebViewConfiguration {
     }
 }
 
-@available(iOS 11.0, *)
 extension WKWebViewConfiguration: WKURLSchemeHandler {
     public func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
         if urlSchemeTask.request.url?.path != nil {
