@@ -47,7 +47,9 @@ class SendViewController: UIViewController, CanScanQRCode {
     private let recipientViewModel = SendViewSectionHeaderViewModel(
         text: R.string.localizable.sendRecipient().uppercased()
     )
-//    private let initialTransferType: TransferType
+    //We use weak link to make sure that token alert will be deallocated by close button tapping.
+    //We storing link to make shure that only one alert is displaying on the screen.
+    private weak var invalidTokenAlert: UIViewController?
     let targetAddressTextField = AddressTextField()
     lazy var amountTextField = AmountTextField(server: session.server)
     weak var delegate: SendViewControllerDelegate?
@@ -71,7 +73,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         self.storage = storage
         self.ethPrice = cryptoPrice
         self.assetDefinitionStore = assetDefinitionStore
-//        self.initialTransferType = transferType
         self.viewModel = .init(transferType: transferType, session: session, storage: storage)
 
         super.init(nibName: nil, bundle: nil)
@@ -350,7 +351,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         case .nativeCryptocurrency(_, let recipient, let amount):
             currentSubscribableKeyForNativeCryptoCurrencyBalance = session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self else { return }
-                guard let tokenObject = celf.storage.token(forContract: celf.viewModel.transferType.contract) else { return }
+                guard celf.storage.token(forContract: celf.viewModel.transferType.contract) != nil else { return }
                 celf.configureFor(contract: celf.viewModel.transferType.contract, recipient: recipient, amount: amount, shouldConfigureBalance: false)
             }
             session.refresh(.ethBalance)
@@ -363,18 +364,29 @@ class SendViewController: UIViewController, CanScanQRCode {
     }
 
     func didScanQRCode(_ result: String) {
-        activateAmountView()
-
         guard let result = QRCodeValueParser.from(string: result) else { return }
         switch result {
         case .address(let recipient):
             guard let tokenObject = storage.token(forContract: viewModel.transferType.contract) else { return }
             let amountAsIntWithDecimals = EtherNumberFormatter.full.number(from: amountTextField.ethCost, decimals: tokenObject.decimals)
             configureFor(contract: transferType.contract, recipient: .address(recipient), amount: amountAsIntWithDecimals)
+            activateAmountView()
         case .eip681(let protocolName, let address, let functionName, let params):
             checkAndFillEIP681Details(protocolName: protocolName, address: address, functionName: functionName, params: params)
         }
     }
+
+    private func showInvalidToken() {
+        guard invalidTokenAlert == nil else { return }
+
+        invalidTokenAlert = UIAlertController.alert(
+            message: R.string.localizable.sendInvalidToken(),
+            alertButtonTitles: [R.string.localizable.oK()],
+            alertButtonStyles: [.cancel],
+            viewController: self
+        )
+    }
+
 
     private func checkAndFillEIP681Details(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String]) {
         //TODO error display on returns
@@ -389,14 +401,14 @@ class SendViewController: UIViewController, CanScanQRCode {
             if self.storage.token(forContract: contract) != nil {
                 //For user-safety and simpler implementation, we ignore the link if it is for a different chain
                 self.configureFor(contract: contract, recipient: recipient, amount: amount)
+                self.activateAmountView()
             } else {
                 self.delegate?.lookup(contract: contract, in: self) { data in
                     switch data {
                     case .name, .symbol, .balance, .decimals:
                         break
                     case .nonFungibleTokenComplete:
-                        //Not expecting NFT
-                        break
+                        self.showInvalidToken()
                     case .fungibleTokenComplete(let name, let symbol, let decimals):
                         //TODO update fetching to retrieve balance too so we can display the correct balance in the view controller
                         let token = ERCToken(
@@ -410,8 +422,9 @@ class SendViewController: UIViewController, CanScanQRCode {
                         )
                         self.storage.addCustom(token: token)
                         self.configureFor(contract: contract, recipient: recipient, amount: amount)
+                        self.activateAmountView()
                     case .delegateTokenComplete:
-                        break
+                        self.showInvalidToken()
                     case .failed:
                         break
                     }
@@ -477,7 +490,7 @@ extension SendViewController: AddressTextFieldDelegate {
 
     func didPaste(in textField: AddressTextField) {
         textField.errorState = .none
-        
+
         activateAmountView()
     }
 
