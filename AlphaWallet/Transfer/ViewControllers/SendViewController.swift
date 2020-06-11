@@ -232,7 +232,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         case .nativeCryptocurrency(_, let recipient, let amount):
             if let recipient = recipient {
                 targetAddressTextField.value = recipient.stringValue
-                targetAddressTextField.queueEnsResolution(ofValue: recipient.stringValue)
             }
             if let amount = amount {
                 amountTextField.ethCost = EtherNumberFormatter.full.string(from: amount, units: .ether)
@@ -248,7 +247,6 @@ class SendViewController: UIViewController, CanScanQRCode {
 
             if let recipient = recipient {
                 targetAddressTextField.value = recipient.stringValue
-                targetAddressTextField.queueEnsResolution(ofValue: recipient.stringValue)
             }
             if let amount = amount {
                 amountTextField.ethCost = amount

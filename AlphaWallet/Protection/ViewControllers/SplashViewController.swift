@@ -9,16 +9,16 @@ class SplashViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
         splashView.translatesAutoresizingMaskIntoConstraints = false
+        splashView.frame =  UIScreen.main.bounds
         view.addSubview(splashView)
+        let guide = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            splashView.topAnchor.constraint(equalTo: view.topAnchor),
-            splashView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            splashView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            splashView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            splashView.topAnchor.constraint(equalToSystemSpacingBelow: guide.topAnchor, multiplier: 1.0),
+            splashView.bottomAnchor.constraint(equalToSystemSpacingBelow: guide.bottomAnchor, multiplier: 1.0)
         ])
+        splashView.layoutSubviews()
     }
-
-    required init?(coder aDecoder: NSCoder) {
+     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 }
