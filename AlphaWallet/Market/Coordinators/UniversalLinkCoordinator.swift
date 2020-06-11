@@ -66,7 +66,7 @@ class UniversalLinkCoordinator: Coordinator {
         switch server {
         case .xDai:
             return "xDAI"
-        default:
+        case .classic, .main, .poa, .callisto, .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_sigma1, .artis_tau1, .custom:
             return "ETH"
         }
     }
