@@ -20,7 +20,7 @@ struct ConfigExplorer {
                 return endpoint + "/txid/search/" + ID
             case .custom, .callisto:
                 return .none
-            default:
+            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1:
                 return endpoint + "/tx/" + ID
             }
         }()

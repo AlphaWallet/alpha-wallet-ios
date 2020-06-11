@@ -160,9 +160,11 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                         if transaction.date > Date().addingTimeInterval(TransactionDataCoordinator.deleteMissingInternalSeconds) {
                             strongSelf.update(state: .failed, for: transaction)
                         }
-                    default: break
+                    case .responseNotFound, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse:
+                        break
                     }
-                default: break
+                case .connectionError, .requestError:
+                    break
                 }
             }
         }

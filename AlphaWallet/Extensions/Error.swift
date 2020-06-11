@@ -23,7 +23,8 @@ extension Error {
                     switch JSONError {
                     case .responseError(_, let message, _):
                         return message
-                    default: return R.string.localizable.undefinedError()
+                    case .responseNotFound, .resultObjectParseError, .errorObjectParseError, .unsupportedVersion, .unexpectedTypeObject, .missingBothResultAndError, .nonArrayResponse:
+                        return R.string.localizable.undefinedError()
                     }
                 }
             default:
