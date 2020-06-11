@@ -15,6 +15,33 @@ class AddressTextField: UIControl {
     private let textField = UITextField()
     //Always resolve on mainnet
     private let serverToResolveEns = RPCServer.main
+    private var addressString: String? {
+        switch addressOrEnsName {
+        case .address(let value):
+            return value.eip55String
+        case .ensName, .none:
+            return nil
+        }
+    }
+
+    private var addressOrEnsName: AddressOrEnsName? {
+        didSet {
+            ensAddressLabel.text = addressOrEnsName?.stringValue
+            ensAddressLabel.isHidden = ensAddressLabel.text == nil
+        }
+    }
+
+    private var textFieldText: String {
+        get {
+            return textField.text ?? ""
+        }
+        set {
+            textField.text = newValue
+
+            let notification = Notification(name: UITextField.textDidChangeNotification, object: textField)
+            NotificationCenter.default.post(notification)
+        }
+    }
 
     var pasteButton: Button = {
         let button = Button(size: .normal, style: .borderless)
@@ -61,23 +88,27 @@ class AddressTextField: UIControl {
         return label
     }()
 
+
     var value: String {
         get {
-            if let ensResolvedAddress = ensAddressLabel.text, !ensResolvedAddress.isEmpty {
+            if let ensResolvedAddress = addressString, !ensResolvedAddress.isEmpty {
                 return ensResolvedAddress
             } else {
-                return textField.text ?? ""
+                return textFieldText
             }
         }
         set {
             //Client code sometimes sets back the address. We only set (and thus clear the ENS name) if it doesn't match the resolved address
-            guard ensAddressLabel.text != newValue else { return }
-            textField.text = newValue
-
-            let notification = Notification(name: UITextField.textDidChangeNotification, object: textField)
-            NotificationCenter.default.post(notification)
+            guard addressOrEnsName?.stringValue != newValue else { return }
+            textFieldText = newValue
 
             clearAddressFromResolvingEnsName()
+
+            if CryptoAddressValidator.isValidAddress(newValue) {
+                queueEnsResolution(ofValue: newValue)
+            } else if newValue.isPossibleEnsName {
+                queueAddressResolution(ofValue: newValue)
+            }
         }
     }
 
@@ -136,7 +167,7 @@ class AddressTextField: UIControl {
         ensAddressLabel.textColor = DataEntry.Color.label
         ensAddressLabel.font = DataEntry.Font.label
         ensAddressLabel.textAlignment = .center
-        updateClearAndPasteButtons(textField.text ?? "")
+        updateClearAndPasteButtons(textFieldText)
 
         NSLayoutConstraint.activate([
             textField.anchorsConstraint(to: self),
@@ -182,7 +213,7 @@ class AddressTextField: UIControl {
 
         ensAddressLabel.font = DataEntry.Font.label
         ensAddressLabel.textColor = DataEntry.Color.ensText
-        ensAddressLabel.isHidden = true
+        addressOrEnsName = nil
         textField.layer.cornerRadius = DataEntry.Metric.cornerRadius
         textField.leftView = .spacerWidth(16)
         textField.rightView = makeTargetAddressRightView()
@@ -226,11 +257,8 @@ class AddressTextField: UIControl {
     }
 
     @objc func clearAction() {
-        textField.text?.removeAll()
         clearAddressFromResolvingEnsName()
-
-        let notification = Notification(name: UITextField.textDidChangeNotification, object: textField)
-        NotificationCenter.default.post(notification)
+        textFieldText = String()
     }
 
     @objc func pasteAction() {
@@ -242,34 +270,54 @@ class AddressTextField: UIControl {
         }
 
         if CryptoAddressValidator.isValidAddress(value) {
-            self.value = value
-            delegate?.didPaste(in: self)
-            return
+            textFieldText = value
+
+            let serverToResolveEns = RPCServer.main
+            guard let address = AlphaWallet.Address(string: value) else {
+                //Don't show an error when pasting what seems like a wrong ENS name for better usability
+                self.addressOrEnsName = nil
+                self.delegate?.didPaste(in: self)
+                return
+            }
+
+            ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
+                guard let strongSelf = self else { return }
+                guard let resolvedESNname = result.value else {
+                    //Don't show an error when pasting what seems like a wrong ENS name for better usability
+                    strongSelf.addressOrEnsName = nil
+                    strongSelf.delegate?.didPaste(in: strongSelf)
+                    return
+                }
+
+                strongSelf.addressOrEnsName = .ensName(resolvedESNname)
+
+                strongSelf.delegate?.didPaste(in: strongSelf)
+            }
+
         } else if !value.contains(".") {
             delegate?.displayError(error: Errors.invalidAddress, for: self)
             return
         } else {
-            textField.text = value
-            let notification = Notification(name: UITextField.textDidChangeNotification, object: textField)
-            NotificationCenter.default.post(notification)
+            textFieldText = value
 
-            GetENSAddressCoordinator(server: serverToResolveEns).getENSAddressFromResolver(for: value) { result in
+            GetENSAddressCoordinator(server: serverToResolveEns).getENSAddressFromResolver(for: value) { [weak self] result in
+                guard let strongSelf = self else { return }
                 guard let address = result.value else {
                     //Don't show an error when pasting what seems like a wrong ENS name for better usability
-                    self.delegate?.didPaste(in: self)
+                    strongSelf.addressOrEnsName = nil
+                    strongSelf.delegate?.didPaste(in: strongSelf)
                     return
                 }
 
                 guard CryptoAddressValidator.isValidAddress(address.address) else {
-                    self.delegate?.displayError(error: Errors.invalidAddress, for: self)
+                    strongSelf.delegate?.displayError(error: Errors.invalidAddress, for: strongSelf)
                     return
                 }
 
-                self.errorState = .none
-                self.ensAddressLabel.isHidden = false
-                self.ensAddressLabel.text = address.address
+                strongSelf.errorState = .none
+                strongSelf.addressOrEnsName = .address(AlphaWallet.Address(address: address))
 
-                self.delegate?.didPaste(in: self)
+                strongSelf.delegate?.didPaste(in: strongSelf)
             }
         }
     }
@@ -278,12 +326,13 @@ class AddressTextField: UIControl {
         delegate?.openQRCodeReader(for: self)
     }
 
-    func queueEnsResolution(ofValue value: String) {
+    private func queueAddressResolution(ofValue value: String) {
         errorState = .none
 
         let value = value.trimmed
         guard value.isPossibleEnsName else { return }
         let oldTextValue = textField.text?.trimmed
+
         GetENSAddressCoordinator(server: serverToResolveEns).queueGetENSOwner(for: value) { [weak self] result in
             guard let strongSelf = self else { return }
             if let address = result.value {
@@ -293,9 +342,24 @@ class AddressTextField: UIControl {
                 }
 
                 guard oldTextValue == strongSelf.textField.text?.trimmed else { return }
-                strongSelf.ensAddressLabel.isHidden = false
-                strongSelf.ensAddressLabel.text = address.address
+
+                strongSelf.addressOrEnsName = .address(AlphaWallet.Address(address: address))
             }
+        }
+    }
+
+    private func queueEnsResolution(ofValue addressString: String) {
+        errorState = .none
+
+        let serverToResolveEns = RPCServer.main
+        guard let address = AlphaWallet.Address(string: addressString) else { return }
+        let oldTextValue = textField.text?.trimmed
+
+        ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
+            guard let strongSelf = self else { return }
+            guard let value = result.value, oldTextValue == strongSelf.textField.text?.trimmed else { return }
+
+            strongSelf.addressOrEnsName = .ensName(value)
         }
     }
 
@@ -338,14 +402,20 @@ extension AddressTextField: UITextFieldDelegate {
         clearAddressFromResolvingEnsName()
         guard delegate != nil else { return true }
         let newValue = (self.textField.text as NSString?)?.replacingCharacters(in: range, with: string)
-        if let newValue = newValue, !CryptoAddressValidator.isValidAddress(newValue) {
-            if newValue.isPossibleEnsName {
+        if let newValue = newValue {
+            if CryptoAddressValidator.isValidAddress(newValue) {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     //Retain self because it's still useful to resolve and cache even if not used immediately
                     self.queueEnsResolution(ofValue: newValue)
                 }
+            } else if newValue.isPossibleEnsName {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    //Retain self because it's still useful to resolve and cache even if not used immediately
+                    self.queueAddressResolution(ofValue: newValue)
+                }
             }
         }
+
         informDelegateDidChange(to: newValue ?? "")
         return true
     }
