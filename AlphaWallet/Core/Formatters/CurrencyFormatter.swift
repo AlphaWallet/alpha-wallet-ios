@@ -33,4 +33,16 @@ class CurrencyFormatter {
         formatter.groupingSeparator = ""
         return formatter
     }
+
+    static var shortFormatter: NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.minimumFractionDigits = 4
+        formatter.maximumFractionDigits = 4
+        formatter.roundingMode = .down
+        formatter.positiveFormat = "0.0000"
+        formatter.negativeFormat = "-0.0000"
+        
+        return formatter
+    }
 }

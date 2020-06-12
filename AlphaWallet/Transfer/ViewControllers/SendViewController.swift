@@ -92,6 +92,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountTextField.translatesAutoresizingMaskIntoConstraints = false
         amountTextField.delegate = self
         amountTextField.accessoryButtonTitle = .next
+        amountTextField.errorState = .none
 
         let addressControlsContainer = UIView()
         addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
@@ -115,7 +116,8 @@ class SendViewController: UIViewController, CanScanQRCode {
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             amountTextField,
             .spacer(height: 4),
-            [.spacerWidth(16), amountTextField.alternativeAmountLabel].asStackView(axis: .horizontal),
+            amountTextField.statusLabelContainer,
+            amountTextField.alternativeAmountLabelContainer,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 14),
             recipientHeader,
             .spacer(height: ScreenChecker().isNarrowScreen ? 7: 16),
@@ -220,6 +222,9 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountTextField.selectCurrencyButton.isHidden = viewModel.selectCurrencyButtonHidden
         amountTextField.selectCurrencyButton.expandIconHidden = !viewModel.isAlternativeAmountEnabled
 
+        amountTextField.statusLabel.text = viewModel.availableLabelText
+        amountTextField.availableTextHidden = viewModel.availableTextHidden
+
         switch transferType {
         case .nativeCryptocurrency(_, let recipient, let amount):
             if let recipient = recipient {
@@ -276,45 +281,16 @@ class SendViewController: UIViewController, CanScanQRCode {
     @objc func send() {
         let input = targetAddressTextField.value.trimmed
         targetAddressTextField.errorState = .none
+        amountTextField.errorState = .none
+
+        guard let value = viewModel.validatedAmount(value: amountTextField.ethCost) else {
+            amountTextField.errorState = .error
+            return
+        }
 
         guard let address = AlphaWallet.Address(string: input) else {
             targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
             return
-        }
-
-        let amountString = amountTextField.ethCost
-        let parsedValue: BigInt? = {
-            switch transferType {
-            case .nativeCryptocurrency, .dapp:
-                return EtherNumberFormatter.full.number(from: amountString, units: .ether)
-            case .ERC20Token(let token, _, _):
-                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .ERC875Token(let token):
-                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .ERC875TokenOrder(let token):
-                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .ERC721Token(let token):
-                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            case .ERC721ForTicketToken(let token):
-                return EtherNumberFormatter.full.number(from: amountString, decimals: token.decimals)
-            }
-        }()
-
-        guard let value = parsedValue, value > 0 else {
-            return displayError(error: SendInputErrors.wrongInput)
-        }
-
-        switch transferType {
-        case .nativeCryptocurrency:
-            if let balance = session.balance, balance.value < value {
-                return displayError(title: R.string.localizable.aSendBalanceInsufficient(), error: Errors.invalidAmount)
-            }
-        case .ERC20Token(let token, _, _):
-            if let tokenBalance = storage.token(forContract: token.contractAddress)?.valueBigInt, tokenBalance < value {
-                return displayError(title: R.string.localizable.aSendBalanceInsufficient(), error: Errors.invalidAmount)
-            }
-        case .dapp, .ERC721ForTicketToken, .ERC721Token, .ERC875Token, .ERC875TokenOrder:
-            break
         }
 
         let transaction = UnconfirmedTransaction(
@@ -333,6 +309,7 @@ class SendViewController: UIViewController, CanScanQRCode {
                 indices: .none,
                 tokenIds: .none
         )
+
         delegate?.didPressConfirm(transaction: transaction, transferType: transferType, in: self)
     }
 
@@ -464,13 +441,21 @@ class SendViewController: UIViewController, CanScanQRCode {
 }
 
 extension SendViewController: AmountTextFieldDelegate {
+
     func shouldReturn(in textField: AmountTextField) -> Bool {
         _ = targetAddressTextField.becomeFirstResponder()
         return false
     }
 
     func changeAmount(in textField: AmountTextField) {
-        //do nothing
+        textField.errorState = .none
+        textField.statusLabel.text = viewModel.availableLabelText
+        textField.availableTextHidden = viewModel.availableTextHidden
+
+        guard let _ = viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThenZero: false) else {
+            textField.errorState = .error
+            return
+        }
     }
 
     func changeType(in textField: AmountTextField) {
