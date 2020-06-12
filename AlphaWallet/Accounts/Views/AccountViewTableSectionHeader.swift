@@ -12,28 +12,26 @@ class AccountViewTableSectionHeader: UIView {
         var title: String {
             switch self {
             case .hdWallet:
-                return R.string.localizable.walletTypesHdWallets()
+                return R.string.localizable.walletTypesHdWallets().uppercased()
             case .keystoreWallet:
-                return R.string.localizable.walletTypesKeystoreWallets()
+                return R.string.localizable.walletTypesKeystoreWallets().uppercased()
             case .watchedWallet:
-                return R.string.localizable.walletTypesWatchedWallets()
+                return R.string.localizable.walletTypesWatchedWallets().uppercased()
             }
         }
     }
 
     private let label = UILabel()
-    private var topConstraint: NSLayoutConstraint?
-    private var bottomConstraint: NSLayoutConstraint?
     private var heightConstraint: NSLayoutConstraint?
-    private var constraintsWhenVisible: [NSLayoutConstraint]?
+    private var constraintsWhenVisible: [NSLayoutConstraint] = []
 
     override init(frame: CGRect) {
         super.init(frame: CGRect())
 
         label.translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
-        let topConstraint = label.topAnchor.constraint(equalTo: topAnchor, constant: 7)
-        let bottomConstraint = label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -7)
+        let topConstraint = label.topAnchor.constraint(equalTo: topAnchor, constant: 13)
+        let bottomConstraint = label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -13)
         let constraintsWhenVisible = [
             label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             label.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -43,8 +41,6 @@ class AccountViewTableSectionHeader: UIView {
 
         NSLayoutConstraint.activate(constraintsWhenVisible)
 
-        self.topConstraint = topConstraint
-        self.bottomConstraint = bottomConstraint
         //UIKit doesn't like headers with a height of 0
         self.heightConstraint = heightAnchor.constraint(equalToConstant: 1)
         self.constraintsWhenVisible = constraintsWhenVisible
@@ -65,21 +61,9 @@ class AccountViewTableSectionHeader: UIView {
 
         heightConstraint?.isActive = shouldHide
         if shouldHide {
-            NSLayoutConstraint.deactivate(constraintsWhenVisible!)
+            NSLayoutConstraint.deactivate(constraintsWhenVisible)
         } else {
-            NSLayoutConstraint.activate(constraintsWhenVisible!)
-        }
-
-        switch type {
-        case .hdWallet:
-            topConstraint?.constant = 0
-            bottomConstraint?.constant = 0
-        case .keystoreWallet:
-            topConstraint?.constant = 4
-            bottomConstraint?.constant = -16
-        case .watchedWallet:
-            topConstraint?.constant = 4
-            bottomConstraint?.constant = -16
+            NSLayoutConstraint.activate(constraintsWhenVisible)
         }
     }
 }
