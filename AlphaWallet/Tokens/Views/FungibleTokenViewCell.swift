@@ -9,25 +9,41 @@ class FungibleTokenViewCell: UITableViewCell {
 
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let blockchainLabel = UILabel() 
+    private let symbolLabel = UILabel()
+    private let blockchainLabel = UILabel()
     private var viewsWithContent: [UIView] {
         [self.titleLabel, blockchainLabel]
     }
+    private var tokenIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         contentView.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
-        let bottomRowStack = [blockchainLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
-        let stackView = [
+        let col0 = tokenIconImageView
+        let col1 = [
             titleLabel,
-            bottomRowStack,
+            [blockchainLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
         ].asStackView(axis: .vertical)
+        let stackView = [col0, col1].asStackView(spacing: 12)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
 
+        symbolLabel.translatesAutoresizingMaskIntoConstraints = false
+        background.addSubview(symbolLabel)
+
         NSLayoutConstraint.activate([
+            symbolLabel.anchorsConstraint(to: tokenIconImageView),
+
+            tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),
+            tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)),
             background.anchorsConstraint(to: contentView)
         ])
@@ -50,6 +66,12 @@ class FungibleTokenViewCell: UITableViewCell {
         titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
         titleLabel.baselineAdjustment = .alignCenters
 
+        symbolLabel.textColor = viewModel.symbolColor
+        symbolLabel.font = viewModel.symbolFont
+        symbolLabel.textAlignment = .center
+        symbolLabel.adjustsFontSizeToFitWidth = true
+        symbolLabel.text = viewModel.symbolInIcon
+
         blockchainLabel.textColor = viewModel.subtitleColor
         blockchainLabel.font = viewModel.subtitleFont
         blockchainLabel.text = viewModel.blockChainName
@@ -57,5 +79,7 @@ class FungibleTokenViewCell: UITableViewCell {
         viewsWithContent.forEach {
             $0.alpha = viewModel.alpha
         }
+
+        tokenIconImageView.image = viewModel.iconImage
     }
 }

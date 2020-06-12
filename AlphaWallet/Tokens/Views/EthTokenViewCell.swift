@@ -9,6 +9,7 @@ class EthTokenViewCell: UITableViewCell {
 
     private let background = UIView()
     private let titleLabel = UILabel()
+    private let symbolLabel = UILabel()
     private let valuePercentageChangeValueLabel = UILabel()
     private let valuePercentageChangePeriodLabel = UILabel()
     private let valueChangeLabel = UILabel()
@@ -17,6 +18,12 @@ class EthTokenViewCell: UITableViewCell {
     private var viewsWithContent: [UIView] {
         [titleLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, valueChangeLabel]
     }
+    private var tokenIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -28,14 +35,23 @@ class EthTokenViewCell: UITableViewCell {
         valueChangeLabel.textAlignment = .center
         valueLabel.textAlignment = .center
 
-        let stackView = [
+        let col0 = tokenIconImageView
+        let col1 = [
             titleLabel,
             [blockchainLabel, valueLabel, UIView.spacerWidth(flexible: true), valueChangeLabel, valuePercentageChangeValueLabel].asStackView(spacing: 5)
         ].asStackView(axis: .vertical)
+        let stackView = [col0, col1].asStackView(spacing: 12)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
 
+        symbolLabel.translatesAutoresizingMaskIntoConstraints = false
+        background.addSubview(symbolLabel)
+
         NSLayoutConstraint.activate([
+            symbolLabel.anchorsConstraint(to: tokenIconImageView),
+
+            tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),
+            tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)),
             background.anchorsConstraint(to: contentView)
         ])
@@ -56,7 +72,13 @@ class EthTokenViewCell: UITableViewCell {
         titleLabel.textColor = viewModel.titleColor
         titleLabel.font = viewModel.titleFont
         titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
-        titleLabel.baselineAdjustment = .alignCenters 
+        titleLabel.baselineAdjustment = .alignCenters
+
+        symbolLabel.textColor = viewModel.symbolColor
+        symbolLabel.font = viewModel.symbolFont
+        symbolLabel.textAlignment = .center
+        symbolLabel.adjustsFontSizeToFitWidth = true
+        symbolLabel.text = viewModel.symbolInIcon
 
         valuePercentageChangeValueLabel.textColor = viewModel.valuePercentageChangeColor
         valuePercentageChangeValueLabel.font = viewModel.textValueFont
@@ -74,9 +96,10 @@ class EthTokenViewCell: UITableViewCell {
         blockchainLabel.font = viewModel.subtitleFont
         blockchainLabel.text = viewModel.blockChainName
         blockchainLabel.isHidden = viewModel.blockChainLabelHidden
-        
+
         viewsWithContent.forEach {
             $0.alpha = viewModel.alpha
         }
+        tokenIconImageView.image = viewModel.iconImage
     }
 }
