@@ -27,7 +27,7 @@ struct TransactionsViewModel {
     }
 
     var backgroundColor: UIColor {
-        return GroupedTable.Color.background
+        return Colors.appWhite
     }
 
     var headerBackgroundColor: UIColor {

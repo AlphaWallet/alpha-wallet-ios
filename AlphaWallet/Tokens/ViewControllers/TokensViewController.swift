@@ -153,10 +153,9 @@ class TokensViewController: UIViewController {
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.separatorStyle = .singleLine
-        tableView.separatorInset = .zero
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.separatorInset = .zero
+
         tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         tableView.addSubview(tableViewRefreshControl)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -223,7 +222,6 @@ class TokensViewController: UIViewController {
 
     private func reloadTableData() {
         tableView.reloadData()
-        updateTableViewBackground()
     }
 
     private func reload() {
@@ -251,6 +249,7 @@ class TokensViewController: UIViewController {
     func refreshView(viewModel: TokensViewModel) {
         title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
+        tableView.backgroundColor = viewModel.backgroundColor
     }
 
     //Reloading the collectibles tab is very obvious visually, with the flashing images even if there are no changes. So we used this to check if the list of collectibles have changed, if not, don't refresh. We could have used a library that tracks diff, but that is overkill and one more dependency
@@ -418,14 +417,6 @@ extension TokensViewController: UITableViewDataSource {
 
         return configuration
     }
-
-    private func updateTableViewBackground() {
-        if tableView.contentSize.height < tableView.frame.height {
-            tableView.backgroundView?.backgroundColor = viewModel.backgroundColor
-        } else {
-            tableView.backgroundView?.backgroundColor = GroupedTable.Color.background
-        }
-    }
 }
 
 extension TokensViewController: SegmentedControlDelegate {
@@ -551,7 +542,7 @@ extension TokensViewController {
 
     private func fixTableViewBackgroundColor() {
         let v = UIView()
-        v.backgroundColor = GroupedTable.Color.background
+        v.backgroundColor = viewModel.backgroundColor
         tableView.backgroundView?.backgroundColor = viewModel.backgroundColor
         tableView.backgroundView = v
     }
