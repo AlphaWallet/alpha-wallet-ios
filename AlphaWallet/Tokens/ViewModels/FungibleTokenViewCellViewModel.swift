@@ -36,7 +36,7 @@ struct FungibleTokenViewCellViewModel {
 
     var contentsBackgroundColor: UIColor {
         return Screen.TokenCard.Color.background
-    } 
+    }
 
     var titleColor: UIColor {
         return Screen.TokenCard.Color.title
@@ -56,5 +56,27 @@ struct FungibleTokenViewCellViewModel {
 
     var alpha: CGFloat {
         return isVisible ? 1.0 : 0.4
+    }
+
+    var iconImage: UIImage? {
+        if let image = token.iconImage {
+            return image
+        } else {
+            return UIView.tokenSymbolBackgroundImage(backgroundColor: token.symbolBackgroundColor)
+        }
+    }
+
+    var symbolInIcon: String {
+        guard token.iconImage == nil else { return "" }
+        let i = [EthTokenViewCellViewModel.numberOfCharactersOfSymbolToShow, token.symbol.count].min()!
+        return token.symbol.substring(to: i)
+    }
+
+    var symbolColor: UIColor {
+        Colors.appWhite
+    }
+
+    var symbolFont: UIFont {
+        UIFont.systemFont(ofSize: 13)
     }
 }

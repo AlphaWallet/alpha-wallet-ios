@@ -5,6 +5,8 @@ import UIKit
 import BigInt
 
 struct EthTokenViewCellViewModel {
+    static let numberOfCharactersOfSymbolToShow = 4
+
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
     private let currencyAmount: String?
@@ -37,7 +39,7 @@ struct EthTokenViewCellViewModel {
 
     var amount: String {
         return shortFormatter.string(from: BigInt(token.value) ?? BigInt(), decimals: token.decimals)
-    } 
+    }
 
     var backgroundColor: UIColor {
         return Screen.TokenCard.Color.background
@@ -97,14 +99,14 @@ struct EthTokenViewCellViewModel {
             return "-"
         }
     }
-    
+
     var valueChange: String? {
         return EthCurrencyHelper(ticker: ticker).valueChanged24h(currencyAmountWithoutSymbol: currencyAmountWithoutSymbol)
     }
 
     var value: String? {
         return currencyAmount
-    } 
+    }
 
     var blockChainLabelHidden: Bool {
         return currencyAmount != nil
@@ -112,5 +114,27 @@ struct EthTokenViewCellViewModel {
 
     var alpha: CGFloat {
         return isVisible ? 1.0 : 0.4
+    }
+
+    var iconImage: UIImage? {
+        if let image = token.iconImage {
+            return image
+        } else {
+            return UIView.tokenSymbolBackgroundImage(backgroundColor: token.symbolBackgroundColor)
+        }
+    }
+
+    var symbolInIcon: String {
+        guard token.iconImage == nil else { return "" }
+        let i = [EthTokenViewCellViewModel.numberOfCharactersOfSymbolToShow, token.symbol.count].min()!
+        return token.symbol.substring(to: i)
+    }
+
+    var symbolColor: UIColor {
+        Colors.appWhite
+    }
+
+    var symbolFont: UIFont {
+        UIFont.systemFont(ofSize: 13)
     }
 }
