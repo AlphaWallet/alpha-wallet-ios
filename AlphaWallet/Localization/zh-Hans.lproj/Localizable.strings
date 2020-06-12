@@ -58,6 +58,7 @@
 "send.recipient" = "Recipient";
 "send.recipientsAddress" = "Recipient’s Address";
 "send.invalid.Token" = "Invalid token";
+"send.available" = "Available: %@";
 "settings.biometricsDisabled.label.title" = "密码";
 "settings.biometricsEnabled.label.title" = "密码 / %@";
 "settings.error.failedToSendEmail" = "无法发送邮件。请确保你已经安装了邮件应用。";
