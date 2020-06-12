@@ -94,9 +94,9 @@
 "suppport.title" = "Support";
 "transactions.noTransactions.label.title" = "No Transactions Yet!";
 "wallet.navigation.title" = "Change Wallet";
-"wallet.types.hdWallets" = "HD Wallets";
+"wallet.types.hdWallets" = "Your Wallets";
 "wallet.types.keystoreWallets" = "Keystore Wallets";
-"wallet.types.watchedWallets" = "Watched Wallets";
+"wallet.types.watchedWallets" = "Watch-only Wallets";
 "wallet.create.button.title" = "Create Wallet";
 "wallet.watch.button.title" = "Watch Wallet";
 "wallet.create.inProgress" = "Creating wallet...";
