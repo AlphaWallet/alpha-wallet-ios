@@ -3,123 +3,305 @@
 import Foundation
 import UIKit
 
+enum ButtonsBarConfiguration {
+    case empty
+    case combined(buttons: Int)
+    case green(buttons: Int)
+    case white(buttons: Int)
+    case custom(types: [ButtonsBarButtonType])
+
+    static let maxCombinedButtons: Int = 2
+
+    var barButtonTypes: [ButtonsBarButtonType] {
+        switch self {
+        case .green(let buttons):
+            return (0..<buttons).compactMap { _ in .green }
+        case .white(let buttons):
+            return (0..<buttons).compactMap { _ in .white }
+        case .custom(let types):
+            return types
+        case .combined(let buttons):
+            let buttonsToShow: [ButtonsBarButtonType] = [.green, .white]
+            if buttons > ButtonsBarConfiguration.maxCombinedButtons {
+                let hiddenButtonsCount = buttons - buttonsToShow.count
+                
+                return buttonsToShow + [ButtonsBarButtonType].init(repeating: .white, count: hiddenButtonsCount)
+            } else {
+                return [ButtonsBarButtonType](buttonsToShow.prefix(buttons))
+            }
+        case .empty:
+            return []
+        }
+    }
+    
+    func shouldHideButton(at index: Int) -> Bool {
+        switch self {
+        case .green, .white:
+            return false
+        case .custom:
+            return false
+        case .combined(let buttons):
+            return buttons >= ButtonsBarConfiguration.maxCombinedButtons && index >= ButtonsBarConfiguration.maxCombinedButtons
+        case .empty:
+            return false
+        }
+    }
+    
+    var showMoreButton: Bool {
+        switch self {
+        case .green, .white:
+            return false
+        case .custom:
+            return false
+        case .combined(let buttons):
+            return buttons > ButtonsBarConfiguration.maxCombinedButtons
+        case .empty:
+            return false
+        }
+    }
+}
+
+enum ButtonsBarButtonType {
+    case green
+    case white
+}
+
+class BarButton: UIButton {
+
+    private var observation: NSKeyValueObservation?
+    private var borderColorMap: [UInt: UIColor?] = [:]
+    @objc dynamic var displayButton: Bool = true
+
+    init() {
+        super.init(frame: .zero)
+        self.observation = observe(\.isEnabled, options: [.old, .new]) { [weak self] object, change in
+            guard let strongSelf = self else { return }
+
+            for pair in strongSelf.borderColorMap where pair.key == object.state.rawValue {
+                strongSelf.layer.borderColor = pair.value?.cgColor
+            }
+        }
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func setBorderColor(_ color: UIColor?, for state: UIControl.State) {
+        borderColorMap[state.rawValue] = color
+    }
+}
+
 class ButtonsBar: UIView {
     static let buttonsHeight = CGFloat(48)
     //A gap so it doesn't stick to the bottom of devices without a bottom safe area
     static let marginAtBottomScreen = CGFloat(3)
 
-    private var buttonContainerViews: [ContainerViewWithShadow<UIButton>]
+    private var buttonContainerViews: [ContainerViewWithShadow<BarButton>] = []
+    private var moreButtonContainerViews: [ContainerViewWithShadow<BarButton>] = []
     private let buttonsStackView: UIStackView
+    private var innerStackView: UIStackView
+    private var observations: [NSKeyValueObservation] = []
 
-    var numberOfButtons: Int {
-        didSet {
-            buttonContainerViews = ButtonsBar.bar(numberOfButtons: numberOfButtons)
-            for each in buttonsStackView.arrangedSubviews {
-                each.removeFromSuperview()
-            }
-            buttonsStackView.addArrangedSubviews(buttons)
-        }
-    }
-
-    var buttons: [UIButton] {
+    var buttons: [BarButton] {
         return buttonContainerViews.map { $0.childView }
     }
 
-    var isEmpty: Bool {
-        return numberOfButtons == 0
+    var moreButtons: [BarButton] {
+        return moreButtonContainerViews.map { $0.childView }
     }
 
-    init(numberOfButtons: Int, buttonsDistribution: UIStackView.Distribution = .fillEqually) {
-        self.numberOfButtons = numberOfButtons
-        buttonsStackView =  [UIView]().asStackView(axis: .horizontal, distribution: buttonsDistribution, spacing: 7)
-        buttonContainerViews = ButtonsBar.bar(numberOfButtons: numberOfButtons)
+    var isEmpty: Bool {
+        return configuration.barButtonTypes.isEmpty
+    }
 
+    var configuration: ButtonsBarConfiguration = .empty {
+        didSet {
+            didUpdateView(with: configuration)
+        }
+    }
+
+    weak var viewController: UIViewController?
+
+    init(configuration: ButtonsBarConfiguration = .green(buttons: 1)) {
+        buttonsStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fillEqually, spacing: 7)
+        innerStackView = [UIView]().asStackView(axis: .horizontal, distribution: .fill, spacing: 7)
+
+        self.configuration = configuration
         super.init(frame: .zero)
 
         translatesAutoresizingMaskIntoConstraints = false
 
-        buttonsStackView.addArrangedSubviews(buttons)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(buttonsStackView)
+        innerStackView.translatesAutoresizingMaskIntoConstraints = false
+
+        innerStackView.addArrangedSubview(buttonsStackView)
+
+        addSubview(innerStackView)
 
         let margin = CGFloat(20)
         NSLayoutConstraint.activate([
-            buttonsStackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: margin, bottom: 0, right: margin)),
+            innerStackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: margin, bottom: 0, right: margin)),
         ])
+
+        didUpdateView(with: configuration)
     }
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configure() {
-        let viewModel = ButtonsBarViewModel()
+    private func didUpdateView(with configuration: ButtonsBarConfiguration) {
+        buttonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.barButtonTypes.count)
+        resetIsHiddenObservers()
 
-        for each in buttonContainerViews {
-            each.configureShadow(color: viewModel.buttonShadowColor, offset: viewModel.buttonShadowOffset, opacity: viewModel.buttonShadowOpacity, radius: viewModel.buttonShadowRadius, cornerRadius: viewModel.buttonCornerRadius)
+        for view in buttonContainerViews {
+            let observation = view.childView.observe(\.displayButton, options: [.new]) { [weak self] object, change in
+                self?.updateButtonsTypes()
+            }
+            observations.append(observation)
+        }
+        
+        moreButtonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.showMoreButton ? 1 : 0)
 
-            let button = each.childView
-            button.setBackgroundColor(viewModel.buttonBackgroundColor, forState: .normal)
-            button.setBackgroundColor(viewModel.disabledButtonBackgroundColor, forState: .disabled)
-            button.setTitleColor(viewModel.buttonTitleColor, for: .normal)
-            button.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
-            button.titleLabel?.font = viewModel.buttonFont
-            button.titleLabel?.adjustsFontSizeToFitWidth = true
-            //So long titles (that cause font to be adjusted) have some margins on the left and right
-            button.contentEdgeInsets = .init(top: 0, left: 3, bottom: 0, right: 3)
+        for each in buttonsStackView.arrangedSubviews + innerStackView.arrangedSubviews {
+            each.removeFromSuperview()
+        }
+
+        buttonsStackView.addArrangedSubviews(buttons)
+        innerStackView.addArrangedSubviews([buttonsStackView] + moreButtons)
+    }
+
+    fileprivate func setup(viewModel: ButtonsBarViewModel, view: ContainerViewWithShadow<BarButton>) {
+        view.configureShadow(color: viewModel.buttonShadowColor, offset: viewModel.buttonShadowOffset, opacity: viewModel.buttonShadowOpacity, radius: viewModel.buttonShadowRadius, cornerRadius: viewModel.buttonCornerRadius)
+
+        let button = view.childView
+        button.setBackgroundColor(viewModel.buttonBackgroundColor, forState: .normal)
+        button.setBackgroundColor(viewModel.disabledButtonBackgroundColor, forState: .disabled)
+
+        button.setTitleColor(viewModel.buttonTitleColor, for: .normal)
+        button.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
+        button.setBorderColor(viewModel.buttonBorderColor, for: .normal)
+        button.setBorderColor(viewModel.disabledButtonBorderColor, for: .disabled)
+        button.titleLabel?.font = viewModel.buttonFont
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
+        //So long titles (that cause font to be adjusted) have some margins on the left and right
+        button.contentEdgeInsets = .init(top: 0, left: 3, bottom: 0, right: 3)
+
+        button.cornerRadius = viewModel.buttonCornerRadius
+        button.borderColor = viewModel.buttonBorderColor
+        button.borderWidth = viewModel.buttonBorderWidth
+    }
+
+    private func resetIsHiddenObservers() {
+        observations.forEach {
+            $0.invalidate()
+        }
+        observations.removeAll()
+    }
+
+    func configure(_ newConfiguration: ButtonsBarConfiguration? = nil) {
+        if let newConfiguration = newConfiguration {
+            configuration = newConfiguration
+        }
+
+        updateButtonsTypes()
+
+        for view in moreButtonContainerViews {
+             setup(viewModel: .moreButton, view: view)
+
+             view.childView.setContentHuggingPriority(.required, for: .horizontal)
+             view.childView.setContentCompressionResistancePriority(.required, for: .horizontal)
+             view.childView.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
+             view.childView.setBackgroundImage(R.image.more(), for: .normal)
+         }
+    }
+
+    private func updateButtonsTypes() {
+        let viewsToDisplay = buttonContainerViews.filter { $0.childView.displayButton }
+
+        for (index, combined) in zip(configuration.barButtonTypes, viewsToDisplay).enumerated() {
+            combined.1.childView.isHidden = configuration.shouldHideButton(at: index)
+
+            switch combined.0 {
+            case .green:
+                setup(viewModel: .greenButton, view: combined.1)
+            case .white:
+                setup(viewModel: .whiteButton, view: combined.1)
+            }
+        }
+
+        for view in buttonContainerViews.filter({ !$0.childView.displayButton }) {
+            view.childView.isHidden = true
         }
     }
 
-    func configureSecondary() {
-        let viewModel = ButtonsBarViewModel()
+    @objc private func optionsButtonTapped(sender: BarButton) {
+        let buttons = self.buttons.filter { $0.displayButton }.enumerated().filter { configuration.shouldHideButton(at: $0.offset) }.map { $0.element }
+        guard buttons.isEmpty == false else { return }
+        
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        alertController.popoverPresentationController?.sourceView = sender
+        alertController.popoverPresentationController?.sourceRect = sender.centerRect
 
-        for each in buttonContainerViews {
-            each.configureShadow(color: viewModel.buttonShadowColor, offset: viewModel.buttonShadowOffset, opacity: viewModel.buttonShadowOpacity, radius: viewModel.buttonShadowRadius, cornerRadius: viewModel.buttonCornerRadius)
+        for button in buttons {
+            guard let title = button.title(for: .normal) else { continue }
+            
+            let action = UIAlertAction(title: title, style: .default) { _ in
+                button.sendActions(for: .touchUpInside)
+            }
+            action.isEnabled = button.isEnabled
 
-            let button = each.childView
-            button.setBackgroundColor(viewModel.buttonSecondaryBackgroundColor, forState: .normal)
-            button.setBackgroundColor(viewModel.disabledButtonBackgroundColor, forState: .disabled)
-            button.setTitleColor(viewModel.buttonSecondaryTitleColor, for: .normal)
-            button.setTitleColor(viewModel.disabledButtonTitleColor, for: .disabled)
-            button.titleLabel?.font = viewModel.buttonFont
-            button.titleLabel?.adjustsFontSizeToFitWidth = true
-            //So long titles (that cause font to be adjusted) have some margins on the left and right
-            button.contentEdgeInsets = .init(top: 0, left: 3, bottom: 0, right: 3)
-
-            button.cornerRadius = viewModel.buttonSecondaryCornerRadius
-            button.borderColor = viewModel.buttonSecondaryBorderColor
-            button.borderWidth = viewModel.buttonSecondaryBorderWidth
+            alertController.addAction(action)
         }
+
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+        alertController.addAction(cancelAction)
+
+        viewController?.present(alertController, animated: true)
     }
 
-    private static func bar(numberOfButtons: Int) -> [ContainerViewWithShadow<UIButton>] {
+    private static func bar(numberOfButtons: Int) -> [ContainerViewWithShadow<BarButton>] {
          return (0..<numberOfButtons).map { _ in
-             let button = UIButton(type: .system)
+             let button = BarButton()
              button.titleLabel?.baselineAdjustment = .alignCenters
+
              return ContainerViewWithShadow(aroundView: button)
          }
     }
 }
 
 private struct ButtonsBarViewModel {
-    var buttonBackgroundColor: UIColor {
-        return Colors.appActionButtonGreen
-    }
+    
+    static let greenButton = ButtonsBarViewModel(
+        buttonBackgroundColor: Colors.appActionButtonGreen,
+        disabledButtonBackgroundColor: Colors.appActionButtonGreen.withAlphaComponent(0.3),
+        disabledButtonBorderColor: Colors.appActionButtonGreen,
+        buttonTitleColor: Colors.appWhite,
+        buttonBorderColor: Colors.appActionButtonGreen,
+        buttonBorderWidth: 0
+    )
 
-    var disabledButtonBackgroundColor: UIColor {
-        return Colors.disabledActionButton
-    }
+    static let whiteButton = ButtonsBarViewModel(
+        buttonBackgroundColor: Colors.appWhite,
+        disabledButtonBackgroundColor: Colors.appWhite,
+        disabledButtonBorderColor: R.color.azure()!.withAlphaComponent(0.3),
+        disabledButtonTitleColor: R.color.azure()!.withAlphaComponent(0.3)
+    )
 
-    var buttonTitleColor: UIColor {
-        return Colors.appWhite
-    }
+    static let moreButton = ButtonsBarViewModel()
 
-    var disabledButtonTitleColor: UIColor {
-        return Colors.appWhite
-    }
+    var buttonBackgroundColor: UIColor = Colors.appWhite
+
+    var disabledButtonBackgroundColor: UIColor = Colors.disabledActionButton
+    var disabledButtonBorderColor: UIColor = Colors.disabledActionButton
+
+    var buttonTitleColor: UIColor = R.color.azure()!
+
+    var disabledButtonTitleColor: UIColor = Colors.appWhite
 
     var buttonCornerRadius: CGFloat {
-        return 4
+        return ButtonsBar.buttonsHeight / 2.0
     }
 
     var buttonShadowColor: UIColor {
@@ -139,26 +321,10 @@ private struct ButtonsBarViewModel {
     }
 
     var buttonFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.semibold(size: 20)!
     }
 
-    var buttonSecondaryBackgroundColor: UIColor {
-        return Colors.appWhite
-    }
+    var buttonBorderColor: UIColor = R.color.azure()!
 
-    var buttonSecondaryTitleColor: UIColor? {
-        return nil
-    }
-
-    var buttonSecondaryCornerRadius: CGFloat {
-        return 4
-    }
-
-    var buttonSecondaryBorderColor: UIColor {
-        return .init(red: 202, green: 202, blue: 202)
-    }
-
-    var buttonSecondaryBorderWidth: CGFloat {
-        return 1
-    }
+    var buttonBorderWidth: CGFloat = 1.0
 }

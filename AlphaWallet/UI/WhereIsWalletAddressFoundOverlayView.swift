@@ -86,7 +86,7 @@ private protocol DialogDelegate: class {
 private class Dialog: UIView {
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     weak var delegate: DialogDelegate?
 
