@@ -25,7 +25,7 @@ class BackupCoordinator: Coordinator {
     }
 
     func start() {
-        export(for: account)
+        export()
     }
 
     private func finish(result: Result<Bool, AnyError>) {
@@ -104,7 +104,7 @@ class BackupCoordinator: Coordinator {
         addCoordinator(coordinator)
     }
 
-    private func export(for account: EthereumAccount) {
+    private func export() {
         if keystore.isHdWallet(account: account) {
             let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account)
             coordinator.delegate = self
