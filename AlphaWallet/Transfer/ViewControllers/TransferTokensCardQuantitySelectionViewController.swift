@@ -13,7 +13,7 @@ class TransferTokensCardQuantitySelectionViewController: UIViewController, Token
 	private let subtitleLabel = UILabel()
     private let quantityStepper = NumberStepper()
     private let tokenRowView: TokenRowView & UIView
-    private let buttonsBar = ButtonsBar(numberOfButtons: 1)
+    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var viewModel: TransferTokensCardQuantitySelectionViewModel
     private let token: TokenObject
 

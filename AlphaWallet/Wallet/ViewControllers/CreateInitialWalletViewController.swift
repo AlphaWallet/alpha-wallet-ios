@@ -14,10 +14,11 @@ class CreateInitialWalletViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
-    private let createWalletButtonBar = ButtonsBar(numberOfButtons: 1)
+    private let createWalletButtonBar = ButtonsBar(configuration: .green(buttons: 1))
     private let separator = UIView.spacer(height: 1)
     private let haveWalletLabel = UILabel()
-    private let buttonsBar = ButtonsBar(numberOfButtons: 2)
+    private let buttonsBar = ButtonsBar(configuration: .white(buttons: 2))
+
 
     private var imageViewDimension: CGFloat {
         if ScreenChecker().isNarrowScreen {
@@ -118,7 +119,7 @@ class CreateInitialWalletViewController: UIViewController {
         createWalletButton.setTitle(viewModel.createButtonTitle, for: .normal)
         createWalletButton.addTarget(self, action: #selector(createWallet), for: .touchUpInside)
 
-        buttonsBar.configureSecondary()
+        buttonsBar.configure()
         let watchButton = buttonsBar.buttons[0]
         watchButton.setTitle(viewModel.watchButtonTitle, for: .normal)
         watchButton.addTarget(self, action: #selector(watchWallet), for: .touchUpInside)

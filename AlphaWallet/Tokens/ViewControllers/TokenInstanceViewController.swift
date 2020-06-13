@@ -21,8 +21,8 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     private let roundedBackground = RoundedBackground()
     private lazy var tokenRowView: TokenCardRowViewProtocol & UIView = createTokenRowView()
     private let separators = (bar: UIView(), line: UIView())
-    private let buttonsBar = ButtonsBar(numberOfButtons: 3)
-
+    private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
+    
     var tokenHolder: TokenHolder {
         return viewModel.tokenHolder
     }
@@ -121,23 +121,20 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
 
         header.configure(viewModel: .init(tokenObject: tokenObject, server: tokenObject.server, assetDefinitionStore: assetDefinitionStore))
 
-        let actions = viewModel.actions
-        buttonsBar.numberOfButtons = actions.count
-        buttonsBar.configure()
-        for (action, button) in zip(actions, buttonsBar.buttons) {
+        buttonsBar.configure(.combined(buttons: viewModel.actions.count))
+        buttonsBar.viewController = self
+
+        for (index, button) in buttonsBar.buttons.enumerated() {
+            let action = viewModel.actions[index]
             button.setTitle(action.name, for: .normal)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
             switch account.type {
             case .real:
                 if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
                     if selection.denial == nil {
-                        button.isHidden = true
-                    } else {
-                        button.isHidden = false
+                        button.displayButton = false
                     }
-                } else {
-                    button.isHidden = false
-                }
+                }  
             case .watch:
                 button.isEnabled = false
             }
@@ -163,37 +160,41 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         delegate?.didPressTransfer(token: tokenObject, tokenHolder: tokenHolder, forPaymentFlow: .send(type: transferType), in: self)
     }
 
+    private func handle(action: TokenInstanceAction) {
+        switch action.type {
+        case .erc20Send, .erc20Receive:
+            //TODO when we support TokenScript views for ERC20s, we need to perform the action here
+            break
+        case .nftRedeem:
+            redeem()
+        case .nftSell:
+            sell()
+        case .nonFungibleTransfer:
+            transfer()
+        case .tokenScript:
+            if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
+                if let denialMessage = selection.denial {
+                    let alertController = UIAlertController.alert(
+                            title: nil,
+                            message: denialMessage,
+                            alertButtonTitles: [R.string.localizable.oK()],
+                            alertButtonStyles: [.default],
+                            viewController: self,
+                            completion: nil
+                    )
+                } else {
+                    //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
+                }
+            } else {
+                delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
+            }
+        }
+    }
+
     @objc func actionButtonTapped(sender: UIButton) {
         let actions = viewModel.actions
         for (action, button) in zip(actions, buttonsBar.buttons) where button == sender {
-            switch action.type {
-            case .erc20Send, .erc20Receive:
-                //TODO when we support TokenScript views for ERC20s, we need to perform the action here
-                break
-            case .nftRedeem:
-                redeem()
-            case .nftSell:
-                sell()
-            case .nonFungibleTransfer:
-                transfer()
-            case .tokenScript:
-                if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
-                    if let denialMessage = selection.denial {
-                        let alertController = UIAlertController.alert(
-                                title: nil,
-                                message: denialMessage,
-                                alertButtonTitles: [R.string.localizable.oK()],
-                                alertButtonStyles: [.default],
-                                viewController: self,
-                                completion: nil
-                        )
-                    } else {
-                        //no-op shouldn't have reached here since the button should be disabled. So just do nothing to be safe
-                    }
-                } else {
-                    delegate?.didTap(action: action, tokenHolder: tokenHolder, viewController: self)
-                }
-            }
+            handle(action: action)
             break
         }
     }
@@ -266,4 +267,3 @@ extension TokenInstanceViewController: OpenSeaNonFungibleTokenCardRowViewDelegat
 //        delegate?.didPressOpenWebPage(url, in: self)
 //    }
 }
-
