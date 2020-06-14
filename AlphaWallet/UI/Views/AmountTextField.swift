@@ -24,7 +24,7 @@ class AmountTextField: UIControl {
         }
     }
 
-    enum ErrorState : Error {
+    enum ErrorState: Error {
         case error
         case none
 

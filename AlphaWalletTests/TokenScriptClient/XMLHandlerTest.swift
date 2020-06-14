@@ -41,6 +41,7 @@ class XMLHandlerTest: XCTestCase {
 //        XCTAssertFalse(XMLHandler(contract: address2.eip55String, assetDefinitionStore: store).hasAssetDefinition)
 //    }
 
+// swiftlint:disable function_body_length
     func testExtractingAttributesWithNamespaceInXML() {
         // swiftlint:disable line_length
         let xml = """
@@ -909,6 +910,7 @@ class XMLHandlerTest: XCTestCase {
         let values = token.values
         XCTAssertEqual(values["locality"]?.stringValue, "Saint Petersburg")
     }
+// swiftlint:enable function_body_length
 
     func testNoAssetDefinition() {
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
@@ -926,3 +928,4 @@ class XMLHandlerTest: XCTestCase {
         XCTAssertEqual("part1/part2/part3".addToXPath(namespacePrefix: "tb1:"), "tb1:part1/tb1:part2/tb1:part3")
     }
 }
+// swiftlint:enable type_body_length

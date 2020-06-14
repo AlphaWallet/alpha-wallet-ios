@@ -143,7 +143,7 @@ public class OrderHandler {
     public static func uInt16ArrayToUInt8(arrayOfUInt16: [UInt16]) -> [UInt8] {
         var arrayOfUint8 = [UInt8]()
         for i in 0..<arrayOfUInt16.count {
-            var UInt8ArrayPair = arrayOfUInt16[i].bigEndian.data.array
+            let UInt8ArrayPair = arrayOfUInt16[i].bigEndian.data.array
             arrayOfUint8.append(UInt8ArrayPair[0])
             arrayOfUint8.append(UInt8ArrayPair[1])
         }

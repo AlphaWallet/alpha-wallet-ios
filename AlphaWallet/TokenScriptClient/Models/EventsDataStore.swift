@@ -6,8 +6,8 @@ import RealmSwift
 protocol EventsDataStoreProtocol {
     func add(events: [EventInstance], forTokenContract contract: AlphaWallet.Address)
     func deleteEvents(forTokenContract contract: AlphaWallet.Address)
-    func getMatchingEvents(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> Array<EventInstance>
-    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Array<EventInstance>
+    func getMatchingEvents(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> [EventInstance]
+    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> [EventInstance]
     func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void)
 }
 
@@ -27,7 +27,7 @@ class EventsDataStore: EventsDataStoreProtocol {
         subscribers.forEach { $0(contract) }
     }
 
-    func getMatchingEvents(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> Array<EventInstance> {
+    func getMatchingEvents(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String, filterName: String, filterValue: String) -> [EventInstance] {
         Array(realm.objects(EventInstance.self)
                 .filter("contract = '\(contract.eip55String)'")
                 .filter("tokenContract = '\(tokenContract.eip55String)'")
@@ -37,7 +37,7 @@ class EventsDataStore: EventsDataStoreProtocol {
                 .filter("filter = '\(filterName)=\(filterValue)'"))
     }
 
-    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> Array<EventInstance> {
+    func getMatchingEventsSortedByBlockNumber(forContract contract: AlphaWallet.Address, tokenContract: AlphaWallet.Address, server: RPCServer, eventName: String) -> [EventInstance] {
         Array(realm.objects(EventInstance.self)
                 .filter("contract = '\(contract.eip55String)'")
                 .filter("tokenContract = '\(tokenContract.eip55String)'")

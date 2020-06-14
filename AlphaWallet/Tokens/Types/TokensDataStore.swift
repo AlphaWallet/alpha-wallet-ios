@@ -743,7 +743,7 @@ class TokensDataStore {
         let tokenIdInt = BigUInt(tokenId.drop0x, radix: 16)
         guard let balance = token.balance.first(where: { BigUInt($0.balance.drop0x, radix: 16) == tokenIdInt }) else { return nil }
         let json = balance.json
-        if let data = json.data(using: .utf8), var dictionary = ((try? JSONSerialization.jsonObject(with: data)) as? [String: Any]) {
+        if let data = json.data(using: .utf8), let dictionary = ((try? JSONSerialization.jsonObject(with: data)) as? [String: Any]) {
             return dictionary[attributeId]
         } else {
             return nil

@@ -24,6 +24,7 @@ protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
 }
 
+// swiftlint:disable type_body_length
 class SingleChainTokenCoordinator: Coordinator {
     private let keystore: Keystore
     private let storage: TokensDataStore
@@ -509,8 +510,8 @@ class SingleChainTokenCoordinator: Coordinator {
         vc.navigationItem.largeTitleDisplayMode = .never
         viewController.navigationController?.pushViewController(vc, animated: true)
     }
-
 }
+// swiftlint:enable type_body_length
 
 extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
     func didCancel(in coordinator: TokensCardCoordinator) {

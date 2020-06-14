@@ -164,7 +164,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                         if selection.denial == nil {
                             button.displayButton = false
                         }
-                    }  
+                    }
                 case .watch:
                     button.isEnabled = false
                 }
@@ -238,7 +238,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         case .tokenScript:
             if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
                 if let denialMessage = selection.denial {
-                    let alertController = UIAlertController.alert(
+                    UIAlertController.alert(
                             title: nil,
                             message: denialMessage,
                             alertButtonTitles: [R.string.localizable.oK()],
