@@ -28,7 +28,7 @@ class AddHideTokensCoordinator: Coordinator {
 
     private let tokenCollection: TokenCollection
     private let sessions: ServerDictionary<WalletSession>
-    private let tickers: [RPCServer : [AlphaWallet.Address : CoinTicker]]
+    private let tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
     private let filterTokensCoordinator: FilterTokensCoordinator
     private let tokens: [TokenObject]
     private let assetDefinitionStore: AssetDefinitionStore
@@ -50,7 +50,7 @@ class AddHideTokensCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
 
-    init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, tickers: [RPCServer : [AlphaWallet.Address : CoinTicker]], sessions: ServerDictionary<WalletSession>, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
+    init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]], sessions: ServerDictionary<WalletSession>, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.config = config
         self.filterTokensCoordinator = filterTokensCoordinator
         self.tickers = tickers

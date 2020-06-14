@@ -619,6 +619,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     }
 }
 // swiftlint:enable type_body_length
+
 extension ImportWalletViewController: UIDocumentPickerDelegate {
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentAt url: URL) {
         guard controller.documentPickerMode == UIDocumentPickerMode.import else { return }

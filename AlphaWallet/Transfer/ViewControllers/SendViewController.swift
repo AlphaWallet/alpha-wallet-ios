@@ -19,6 +19,7 @@ protocol SendViewControllerDelegate: class, CanOpenURL {
     func openQRCode(in controller: SendViewController)
 }
 
+// swiftlint:disable type_body_length
 class SendViewController: UIViewController, CanScanQRCode {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
@@ -60,6 +61,7 @@ class SendViewController: UIViewController, CanScanQRCode {
 
     let storage: TokensDataStore
 
+// swiftlint:disable function_body_length
     init(
             session: WalletSession,
             storage: TokensDataStore,
@@ -187,6 +189,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         storage.updatePrices()
         getGasPrice()
     }
+// swiftlint:enable function_body_length
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -439,6 +442,7 @@ class SendViewController: UIViewController, CanScanQRCode {
         configure(viewModel: .init(transferType: transferType, session: session, storage: storage), shouldConfigureBalance: shouldConfigureBalance)
     }
 }
+// swiftlint:enable type_body_length
 
 extension SendViewController: AmountTextFieldDelegate {
 

@@ -81,7 +81,7 @@ struct TokenViewControllerViewModel {
 
     var fungibleBalance: BigInt? {
         switch transferType {
-        case .nativeCryptocurrency(_, _, amount: let amount):
+        case .nativeCryptocurrency:
             let string: String? = session.balanceViewModel.value?.amountShort
             return string.flatMap { EtherNumberFormatter.full.number(from: $0, decimals: session.server.decimals) }
         case .ERC20Token(let tokenObject, _, _):

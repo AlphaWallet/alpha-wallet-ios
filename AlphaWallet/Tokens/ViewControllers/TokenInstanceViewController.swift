@@ -22,7 +22,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
     private lazy var tokenRowView: TokenCardRowViewProtocol & UIView = createTokenRowView()
     private let separators = (bar: UIView(), line: UIView())
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 3))
-    
+
     var tokenHolder: TokenHolder {
         return viewModel.tokenHolder
     }
@@ -134,7 +134,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
                     if selection.denial == nil {
                         button.displayButton = false
                     }
-                }  
+                }
             case .watch:
                 button.isEnabled = false
             }
@@ -174,7 +174,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
         case .tokenScript:
             if let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: account.address) {
                 if let denialMessage = selection.denial {
-                    let alertController = UIAlertController.alert(
+                    UIAlertController.alert(
                             title: nil,
                             message: denialMessage,
                             alertButtonTitles: [R.string.localizable.oK()],
