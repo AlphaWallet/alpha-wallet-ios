@@ -21,22 +21,22 @@ class SupportViewController: UIViewController {
         tableView.register(SettingTableViewCell.self, forCellReuseIdentifier: SettingTableViewCell.reuseIdentifier)
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
-        
+
         return tableView
     }()
     weak var delegate: SupportViewControllerDelegate?
-    
+
     override func loadView() {
         view = tableView
     }
 
     init() {
         super.init(nibName: nil, bundle: nil)
-        
+
         tableView.dataSource = self
         tableView.delegate = self
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -52,7 +52,7 @@ class SupportViewController: UIViewController {
 }
 
 extension SupportViewController: UITableViewDataSource {
-    
+
     public func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -64,17 +64,17 @@ extension SupportViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: SettingTableViewCell.reuseIdentifier, for: indexPath) as! SettingTableViewCell
         cell.configure(viewModel: viewModel.cellViewModel(indexPath: indexPath))
-        
+
         return cell
     }
 }
 
 extension SupportViewController: HelpViewControllerDelegate {
-    
+
 }
 
 extension SupportViewController: CanOpenURL {
-    
+
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
@@ -89,7 +89,7 @@ extension SupportViewController: CanOpenURL {
 }
 
 extension SupportViewController: UITableViewDelegate {
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
@@ -100,22 +100,22 @@ extension SupportViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
         return nil
     }
-    
+
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 0.01
     }
-    
+
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 0.01
     }
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch viewModel.rows[indexPath.row] {
         case .faq:
             let viewController = HelpViewController(delegate: self)
             viewController.navigationItem.largeTitleDisplayMode = .never
             viewController.hidesBottomBarWhenPushed = true
-            
+
             navigationController?.pushViewController(viewController, animated: true)
         case .telegram:
             openURL(.telegram)
@@ -125,11 +125,11 @@ extension SupportViewController: UITableViewDelegate {
             openURL(.reddit)
         case .facebook:
             openURL(.facebook)
-        case .blog: 
+        case .blog:
             break
         }
     }
-    
+
     private func openURL(_ provider: URLServiceProvider) {
         if let localURL = provider.localURL, UIApplication.shared.canOpenURL(localURL) {
             UIApplication.shared.open(localURL, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: .none)
@@ -142,6 +142,6 @@ extension SupportViewController: UITableViewDelegate {
 // Helper function inserted by Swift 4.2 migrator.
 private func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
     return Dictionary(uniqueKeysWithValues:
-        input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value)}
+        input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value) }
     )
 }

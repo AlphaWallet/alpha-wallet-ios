@@ -242,7 +242,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
         let title = R.string.localizable.walletsHideTokenTitle()
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] _, _, completionHandler in
             guard let strongSelf = self else { return }
-            if let result = strongSelf.viewModel.deleteToken(indexPath: indexPath){
+            if let result = strongSelf.viewModel.deleteToken(indexPath: indexPath) {
                 strongSelf.delegate?.didMark(token: result.token, in: strongSelf, isHidden: true)
                 tableView.performBatchUpdates({
                     tableView.deleteRows(at: [indexPath], with: .automatic)

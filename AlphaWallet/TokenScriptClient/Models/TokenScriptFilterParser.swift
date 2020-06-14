@@ -3,6 +3,7 @@
 import Foundation
 import BigInt
 
+// swiftlint:disable type_body_length
 struct TokenScriptFilterParser {
     enum Operator: String {
         case equal = "="
@@ -11,6 +12,7 @@ struct TokenScriptFilterParser {
         case lessThanOrEqual = "<="
         case greaterThanOrEqual = ">="
 
+// swiftlint:disable function_body_length
         func isTrueFor(attributeValue: AssetInternalValue, value: String) -> Bool {
             switch attributeValue {
             case .address(let address):
@@ -131,6 +133,7 @@ struct TokenScriptFilterParser {
                 return false
             }
         }
+// swiftlint:enable function_body_length
     }
 
     struct Lexer {
@@ -334,7 +337,6 @@ struct TokenScriptFilterParser {
         private var tokens: [Lexer.Token]
 
         static func valuesWithImplicitValues(_ values: [AttributeId: AssetAttributeSyntaxValue], ownerAddress: AlphaWallet.Address, symbol: String, fungibleBalance: BigInt?) -> [AttributeId: AssetAttributeSyntaxValue] {
-            var values = values
             let todayString = GeneralisedTime().formatAsGeneralisedTime.substring(to: 8)
             var implicitValues: [AttributeId: AssetAttributeSyntaxValue] = [
                 "symbol": .init(syntax: .directoryString, value: .string(symbol)),
@@ -454,7 +456,7 @@ struct TokenScriptFilterParser {
             guard let op = tokens.removeFirst().binaryOperatorValue.flatMap({ Operator(rawValue: $0) }) else { return false }
             guard let value = tokens.removeFirst().valueValue else { return false }
             guard let interpolatedValue = interpolate(value: value) else { return nil }
-            return op.isTrueFor(attributeValue: attributeValue, value:interpolatedValue)
+            return op.isTrueFor(attributeValue: attributeValue, value: interpolatedValue)
         }
 
         //TODO replace the very dumb regex for now. And also recursively interpolates (not good). Should involve parser
@@ -502,10 +504,11 @@ struct TokenScriptFilterParser {
 
     func parse(withValues values: [AttributeId: AssetAttributeSyntaxValue], ownerAddress: AlphaWallet.Address, symbol: String, fungibleBalance: BigInt?) -> Bool {
         let tokens = Lexer().tokenize(expression: expression)
-        var values = Parser.valuesWithImplicitValues(values, ownerAddress: ownerAddress, symbol: symbol, fungibleBalance: fungibleBalance)
+        let values = Parser.valuesWithImplicitValues(values, ownerAddress: ownerAddress, symbol: symbol, fungibleBalance: fungibleBalance)
         return Parser(tokens: tokens, values: values).parse()
     }
 }
+// swiftlint:enable type_body_length
 
 fileprivate extension String {
 	subscript(i: Int) -> String {

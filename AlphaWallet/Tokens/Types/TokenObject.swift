@@ -60,7 +60,7 @@ class TokenObject: Object {
 
     var contractAddress: AlphaWallet.Address {
         get {
-            return AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
+            AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
         }
         set {
             contract = contractAddress.eip55String
