@@ -121,7 +121,7 @@ class TokenViewController: UIViewController {
         let actions = viewModel.actions
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
         buttonsBar.viewController = self
-        
+
         for (action, button) in zip(actions, buttonsBar.buttons) {
             button.setTitle(action.name, for: .normal)
             button.addTarget(self, action: #selector(actionButtonTapped), for: .touchUpInside)
@@ -131,7 +131,7 @@ class TokenViewController: UIViewController {
                     if selection.denial == nil {
                         button.displayButton = false
                     }
-                }  
+                }
             case .watch:
                 button.isEnabled = false
             }
@@ -196,7 +196,7 @@ class TokenViewController: UIViewController {
             case .tokenScript:
                 if let tokenHolder = generateTokenHolder(), let selection = action.activeExcludingSelection(selectedTokenHolders: [tokenHolder], forWalletAddress: session.account.address, fungibleBalance: viewModel.fungibleBalance) {
                     if let denialMessage = selection.denial {
-                        let alertController = UIAlertController.alert(
+                        UIAlertController.alert(
                                 title: nil,
                                 message: denialMessage,
                                 alertButtonTitles: [R.string.localizable.oK()],
@@ -221,7 +221,7 @@ class TokenViewController: UIViewController {
 
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
-        guard let tokenObject = viewModel?.token else {return nil }
+        guard let tokenObject = viewModel?.token else { return nil }
         let xmlHandler = XMLHandler(contract: tokenObject.contractAddress, assetDefinitionStore: assetDefinitionStore)
         //TODO Event support, if/when designed for fungibles
         let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: self.session.server, account: self.session.account)
@@ -232,7 +232,7 @@ class TokenViewController: UIViewController {
         } else {
             for each in subscribablesForAttributeValues {
                 guard let subscribable = each.subscribableValue else { continue }
-                let subscriptionKey = subscribable.subscribe { [weak self] value in
+                subscribable.subscribe { [weak self] value in
                     guard let strongSelf = self else { return }
                     guard let viewModel = strongSelf.viewModel else { return }
                     strongSelf.configure(viewModel: viewModel)

@@ -64,8 +64,8 @@ class StaticHTMLViewController: UIViewController {
 }
 
 extension StaticHTMLViewController: WKNavigationDelegate {
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> ()) {
-        guard let url = navigationAction.request.url, let scheme = url.scheme else {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        guard let url = navigationAction.request.url, url.scheme != nil else {
             return decisionHandler(.allow)
         }
 

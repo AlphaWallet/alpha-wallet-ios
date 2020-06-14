@@ -582,7 +582,7 @@ class InCoordinator: NSObject, Coordinator {
                             print(error)
                         }
                     }
-                }
+                }.cauterize()
             case .failure: break
             }
         }

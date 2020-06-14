@@ -24,7 +24,7 @@ class TokenInstanceWebView: UIView {
 
         static func fromMessage(_ message: WKScriptMessage) -> SetProperties? {
             guard message.name == SetProperties.setActionProps else { return nil }
-            guard var body = message.body as? [String: AnyObject] else { return nil }
+            guard let body = message.body as? [String: AnyObject] else { return nil }
             guard let changedProperties = body["object"] as? SetProperties.Properties else { return nil }
             guard let id = body["id"] as? Int else { return nil }
             return .action(id: id, changedProperties: changedProperties)
@@ -364,7 +364,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         }
     }
 
-    private func handleSetActionProperties(id: Int,  changedProperties: SetProperties.Properties) {
+    private func handleSetActionProperties(id: Int, changedProperties: SetProperties.Properties) {
         guard !changedProperties.isEmpty else { return }
         let oldProperties = actionProperties
 

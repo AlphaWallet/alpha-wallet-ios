@@ -209,7 +209,7 @@ struct FunctionOrigin {
                         seal.reject(FunctionError.postTransaction)
                     }
                 }
-            }
+            }.cauterize()
         }
     }
 

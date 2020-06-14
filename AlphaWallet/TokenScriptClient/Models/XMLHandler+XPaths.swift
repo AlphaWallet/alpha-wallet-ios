@@ -104,7 +104,7 @@ extension XMLHandler {
 
     static func getEventDefinition(contractElement: XMLElement, asnModuleElement: XMLElement, xmlContext: XmlContext) -> EventDefinition? {
         let addressElements = XMLHandler.getAddressElements(fromContractElement: contractElement, xmlContext: xmlContext)
-        guard let address = addressElements.first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed)}) else { return nil }
+        guard let address = addressElements.first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed) }) else { return nil }
         guard let eventName = asnModuleElement.at_xpath("namedType", namespaces: xmlContext.namespaces)?["name"] else { return nil }
         let parameters = asnModuleElement.xpath("namedType/sequence/element", namespaces: xmlContext.namespaces).compactMap { each -> EventParameter? in
             guard let name = each["name"], let type = each["type"] else { return nil }
