@@ -4,7 +4,23 @@ import Foundation
 import UIKit
 
 extension UIView {
-    
+    static var tokenSymbolBackgroundImageCache: [UIColor: UIImage] = .init()
+    static func tokenSymbolBackgroundImage(backgroundColor: UIColor) -> UIImage {
+        if let cachedValue = tokenSymbolBackgroundImageCache[backgroundColor] {
+            return cachedValue
+        }
+        let size = CGSize(width: 40, height: 40)
+        let rect = CGRect(origin: .zero, size: size)
+        let renderer = UIGraphicsImageRenderer(size: size)
+        let image = renderer.image { ctx in
+            ctx.cgContext.setFillColor(backgroundColor.cgColor)
+            ctx.cgContext.addEllipse(in: rect)
+            ctx.cgContext.drawPath(using: .fill)
+        }
+        tokenSymbolBackgroundImageCache[backgroundColor] = image
+        return image
+    }
+
     func dropShadow(color: UIColor, opacity: Float = 0.5, offSet: CGSize = .zero, radius: CGFloat = 1, scale: Bool = true, shouldRasterize: Bool = true) {
         layer.masksToBounds = false
         layer.shadowColor = color.cgColor
@@ -16,7 +32,7 @@ extension UIView {
         layer.shouldRasterize = shouldRasterize
         layer.rasterizationScale = scale ? UIScreen.main.scale : 1
     }
-    
+
     func anchorsConstraint(to view: UIView, edgeInsets: UIEdgeInsets = .zero) -> [NSLayoutConstraint] {
         return [
             leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: edgeInsets.left),
