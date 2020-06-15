@@ -342,6 +342,25 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
+    var iconImage: UIImage? {
+        switch self {
+        case .main:
+            return R.image.eth()!
+        case .xDai:
+            return R.image.xDai()!
+        case .poa:
+            return R.image.tokenPoa()!
+        case  .classic:
+            return R.image.tokenEtc()!
+        case .callisto:
+            return R.image.tokenCallisto()!
+        case .artis_sigma1:
+            return R.image.tokenArtis()!
+        case .kovan, .ropsten, .rinkeby, .sokol, .goerli, .artis_tau1, .custom:
+            return nil
+        }
+    }
+
     init(name: String) {
         self = {
             switch name {
