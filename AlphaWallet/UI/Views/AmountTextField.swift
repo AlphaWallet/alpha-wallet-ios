@@ -76,15 +76,39 @@ class AmountTextField: UIControl {
     }
 
     enum Currency {
-        case cryptoCurrency(String, UIImage)
-        case usd(String)
+        case cryptoCurrency(TokenObject)
+        case usd
 
         var icon: UIImage {
             switch self {
-            case .cryptoCurrency(_, let image):
-                return image
+            case .cryptoCurrency(let tokenObject):
+                if let image = tokenObject.iconImage {
+                    return image
+                } else {
+                    return UIView.tokenSymbolBackgroundImage(backgroundColor: tokenObject.symbolBackgroundColor)
+                }
             case .usd:
                 return R.image.usaFlag()!
+            }
+        }
+
+        var symbol: String {
+            switch self {
+            case .cryptoCurrency(let tokenObject):
+                return tokenObject.symbol
+            case .usd:
+                return "USD"
+            }
+        }
+
+        var symbolInIcon: String {
+            switch self {
+            case .cryptoCurrency(let tokenObject):
+                guard tokenObject.iconImage == nil else { return "" }
+                let i = [EthTokenViewCellViewModel.numberOfCharactersOfSymbolToShow, tokenObject.symbol.count].min()!
+                return tokenObject.symbol.substring(to: i)
+            case .usd:
+                return ""
             }
         }
     }
@@ -92,11 +116,6 @@ class AmountTextField: UIControl {
     struct Pair {
         let left: Currency
         let right: Currency
-
-        init(left: Currency, right: Currency = .usd("USD")) {
-            self.left = left
-            self.right = right
-        }
 
         func swapPair() -> Pair {
             return Pair(left: right, right: left)
@@ -146,7 +165,7 @@ class AmountTextField: UIControl {
             if let _ = cryptoToDollarRate {
                 updateAlternatePricingDisplay()
             }
-            update(selectCurrencyButton: selectCurrencyButton)
+            updateFiatButtonTitle()
         }
     }
 
@@ -184,7 +203,7 @@ class AmountTextField: UIControl {
     }
     var currentPair: Pair {
         didSet {
-            update(selectCurrencyButton: selectCurrencyButton)
+            updateFiatButtonTitle()
         }
     }
 
@@ -259,21 +278,13 @@ class AmountTextField: UIControl {
     }()
 
     var currencySymbol: String {
-        switch currentPair.left {
-        case .cryptoCurrency(let symbol, _), .usd(let symbol):
-            return symbol
-        }
+        currentPair.left.symbol
     }
 
     weak var delegate: AmountTextFieldDelegate?
 
-    init(server: RPCServer) {
-        switch server {
-        case .xDai:
-            currentPair = Pair(left: .cryptoCurrency("xDAI", #imageLiteral(resourceName: "xDai")), right: .usd("USD"))
-        case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli, .artis_sigma1, .artis_tau1:
-            currentPair = Pair(left: .cryptoCurrency("ETH", #imageLiteral(resourceName: "eth")), right: .usd("USD"))
-        }
+    init(tokenObject: TokenObject) {
+        currentPair = Pair(left: .cryptoCurrency(tokenObject), right: .usd)
 
         super.init(frame: .zero)
 
@@ -298,11 +309,9 @@ class AmountTextField: UIControl {
     }
 
     private func update(selectCurrencyButton button: SelectCurrencyButton) {
-        switch currentPair.left {
-        case .cryptoCurrency(let symbol, _), .usd(let symbol):
-            button.text = symbol
-            button.image = currentPair.left.icon
-        }
+        button.text = currentPair.left.symbol
+        button.image = currentPair.left.icon
+        button.symbolInIcon = currentPair.left.symbolInIcon
     }
 
     @objc func fiatAction(button: UIButton) {
@@ -318,11 +327,7 @@ class AmountTextField: UIControl {
     }
 
     private func updateFiatButtonTitle() {
-        switch currentPair.left {
-        case .cryptoCurrency(let symbol, _), .usd(let symbol):
-            selectCurrencyButton.text = symbol
-            selectCurrencyButton.image = currentPair.left.icon
-        }
+        update(selectCurrencyButton: selectCurrencyButton)
     }
 
     private func activateAmountView() {
@@ -386,8 +391,8 @@ class AmountTextField: UIControl {
                 alternativeAmountLabel.text = "~ \(amount) USD"
             case .usd:
                 switch currentPair.right {
-                case .cryptoCurrency(let symbol, _):
-                    alternativeAmountLabel.text = "~ \(amount) " + symbol
+                case .cryptoCurrency:
+                    alternativeAmountLabel.text = "~ \(amount) " + currentPair.right.symbol
                 case .usd:
                     break
                 }
