@@ -13,7 +13,7 @@ enum TransferType {
         self = {
             switch token.type {
             case .nativeCryptocurrency:
-                return .nativeCryptocurrency(server: token.server, destination: recipient, amount: amount.flatMap { EtherNumberFormatter().number(from: $0, units: .ether) })
+                return .nativeCryptocurrency(token, destination: recipient, amount: amount.flatMap { EtherNumberFormatter().number(from: $0, units: .ether) })
             case .erc20:
                 //TODO why is this inconsistent with `.nativeCryptocurrency` which uses an integer value (i.e. taking into account decimals) instead
                 return .ERC20Token(token, destination: recipient, amount: amount)
@@ -27,7 +27,7 @@ enum TransferType {
         }()
     }
 
-    case nativeCryptocurrency(server: RPCServer, destination: AddressOrEnsName?, amount: BigInt?)
+    case nativeCryptocurrency(TokenObject, destination: AddressOrEnsName?, amount: BigInt?)
     case ERC20Token(TokenObject, destination: AddressOrEnsName?, amount: String?)
     case ERC875Token(TokenObject)
     case ERC875TokenOrder(TokenObject)
@@ -57,10 +57,29 @@ extension TransferType {
         }
     }
 
+    var tokenObject: TokenObject {
+        switch self {
+        case .nativeCryptocurrency(let token, _, _):
+            return token
+        case .dapp(let token, _):
+            return token
+        case .ERC20Token(let token, _, _):
+            return token
+        case .ERC875Token(let token):
+            return token
+        case .ERC875TokenOrder(let token):
+            return token
+        case .ERC721Token(let token):
+            return token
+        case .ERC721ForTicketToken(let token):
+            return token
+        }
+    }
+
     var server: RPCServer {
         switch self {
-        case .nativeCryptocurrency(let server, _, _):
-            return server
+        case .nativeCryptocurrency(let token, _, _):
+            return token.server
         case .dapp(let token, _):
             return token.server
         case .ERC20Token(let token, _, _):

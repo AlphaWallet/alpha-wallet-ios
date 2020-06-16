@@ -166,7 +166,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
         guard let coordinator = singleChainTokenCoordinator(forServer: server) else { return }
         switch token.type {
         case .nativeCryptocurrency:
-            coordinator.show(fungibleToken: token, transferType: .nativeCryptocurrency(server: server, destination: .none, amount: nil))
+            coordinator.show(fungibleToken: token, transferType: .nativeCryptocurrency(token, destination: .none, amount: nil))
         case .erc20:
             coordinator.show(fungibleToken: token, transferType: .ERC20Token(token, destination: nil, amount: nil))
         case .erc721:
