@@ -41,7 +41,7 @@ class TransactionConfigurator {
         }
     }
 
-    private var requestEstimateGas: Bool {
+    private var gasLimitNotSet: Bool {
         return transaction.gasLimit == .none
     }
 
@@ -112,6 +112,17 @@ class TransactionConfigurator {
         }
     }
 
+    func estimateGasPrice() {
+        TransactionConfigurator.estimateGasPrice(server: self.session.server).done { [weak self] gasPrice in
+            guard let strongSelf = self else { return }
+            strongSelf.configuration = TransactionConfiguration(
+                    gasPrice: gasPrice,
+                    gasLimit: strongSelf.transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit,
+                    data: strongSelf.configuration.data
+            )
+        }
+    }
+
     // Generic function to derive the typical acceptable gas price on each network
     static public func estimateGasPrice(server: RPCServer) -> Promise<BigInt> {
         return Promise { seal in
@@ -144,15 +155,22 @@ class TransactionConfigurator {
 
 // swiftlint:disable function_body_length
     func load(completion: @escaping (ResultResult<Void, AnyError>.t) -> Void) {
-        switch transaction.transferType {
-        case .nativeCryptocurrency, .dapp:
-            guard requestEstimateGas else {
-                return completion(.success(()))
-            }
+        if gasLimitNotSet {
             estimateGasLimit()
+        }
+        switch transaction.transferType {
+        case .dapp:
+            estimateGasPrice()
             configuration = TransactionConfiguration(
                     gasPrice: calculatedGasPrice,
                     gasLimit: GasLimitConfiguration.maxGasLimit,
+                    data: transaction.data ?? configuration.data
+            )
+            completion(.success(()))
+        case .nativeCryptocurrency:
+            configuration = TransactionConfiguration(
+                    gasPrice: calculatedGasPrice,
+                    gasLimit: GasLimitConfiguration.minGasLimit,
                     data: transaction.data ?? configuration.data
             )
             completion(.success(()))
