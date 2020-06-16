@@ -5,8 +5,6 @@ import UIKit
 import BigInt
 
 struct EthTokenViewCellViewModel {
-    static let numberOfCharactersOfSymbolToShow = 4
-
     private let shortFormatter = EtherNumberFormatter.short
     private let token: TokenObject
     private let currencyAmount: String?
@@ -116,18 +114,12 @@ struct EthTokenViewCellViewModel {
         return isVisible ? 1.0 : 0.4
     }
 
-    var iconImage: UIImage? {
-        if let image = token.iconImage {
-            return image
-        } else {
-            return UIView.tokenSymbolBackgroundImage(backgroundColor: token.symbolBackgroundColor)
-        }
+    var iconImage: UIImage {
+        token.icon.image
     }
 
     var symbolInIcon: String {
-        guard token.iconImage == nil else { return "" }
-        let i = [EthTokenViewCellViewModel.numberOfCharactersOfSymbolToShow, token.symbol.count].min()!
-        return token.symbol.substring(to: i)
+        token.icon.symbol
     }
 
     var symbolColor: UIColor {
