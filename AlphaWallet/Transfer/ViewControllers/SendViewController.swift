@@ -52,7 +52,7 @@ class SendViewController: UIViewController, CanScanQRCode {
     //We storing link to make shure that only one alert is displaying on the screen.
     private weak var invalidTokenAlert: UIViewController?
     let targetAddressTextField = AddressTextField()
-    lazy var amountTextField = AmountTextField(server: session.server)
+    lazy var amountTextField = AmountTextField(tokenObject: transferType.tokenObject)
     weak var delegate: SendViewControllerDelegate?
 
     var transferType: TransferType {

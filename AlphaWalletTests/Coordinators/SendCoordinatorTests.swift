@@ -5,10 +5,10 @@ import XCTest
 import TrustKeystore
 
 class SendCoordinatorTests: XCTestCase {
-    
+
     func testRootViewController() {
         let coordinator = SendCoordinator(
-            transferType: .nativeCryptocurrency(server: .main, destination: .none, amount: nil),
+            transferType: .nativeCryptocurrency(TokenObject(), destination: .none, amount: nil),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),
@@ -26,7 +26,7 @@ class SendCoordinatorTests: XCTestCase {
     func testDestination() {
         let address: AlphaWallet.Address = .make()
         let coordinator = SendCoordinator(
-            transferType: .nativeCryptocurrency(server: .main, destination: .init(address: address), amount: nil),
+            transferType: .nativeCryptocurrency(TokenObject(), destination: .init(address: address), amount: nil),
             navigationController: FakeNavigationController(),
             session: .make(),
             keystore: FakeKeystore(),

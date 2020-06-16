@@ -70,17 +70,7 @@ struct SendViewModel {
     }
 
     var amountTextFieldPair: AmountTextField.Pair {
-        switch transferType {
-        case .nativeCryptocurrency, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
-            switch session.server {
-            case .xDai:
-                return AmountTextField.Pair(left: .cryptoCurrency("xDAI", R.image.xDai()!), right: .usd("USD"))
-            case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli, .artis_sigma1, .artis_tau1:
-                return AmountTextField.Pair(left: .cryptoCurrency("ETH", R.image.eth()!), right: .usd("USD"))
-            }
-        case .ERC20Token:
-            return AmountTextField.Pair(left: .cryptoCurrency(transferType.symbol, R.image.ethSmall()!))
-        }
+        return AmountTextField.Pair(left: .cryptoCurrency(transferType.tokenObject), right: .usd)
     }
 
     var isAlternativeAmountEnabled: Bool {
