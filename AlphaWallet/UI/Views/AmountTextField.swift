@@ -82,11 +82,7 @@ class AmountTextField: UIControl {
         var icon: UIImage {
             switch self {
             case .cryptoCurrency(let tokenObject):
-                if let image = tokenObject.iconImage {
-                    return image
-                } else {
-                    return UIView.tokenSymbolBackgroundImage(backgroundColor: tokenObject.symbolBackgroundColor)
-                }
+                return tokenObject.icon.image
             case .usd:
                 return R.image.usaFlag()!
             }
@@ -104,9 +100,7 @@ class AmountTextField: UIControl {
         var symbolInIcon: String {
             switch self {
             case .cryptoCurrency(let tokenObject):
-                guard tokenObject.iconImage == nil else { return "" }
-                let i = [EthTokenViewCellViewModel.numberOfCharactersOfSymbolToShow, tokenObject.symbol.count].min()!
-                return tokenObject.symbol.substring(to: i)
+                return tokenObject.icon.symbol
             case .usd:
                 return ""
             }

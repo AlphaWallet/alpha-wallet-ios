@@ -58,18 +58,12 @@ struct FungibleTokenViewCellViewModel {
         return isVisible ? 1.0 : 0.4
     }
 
-    var iconImage: UIImage? {
-        if let image = token.iconImage {
-            return image
-        } else {
-            return UIView.tokenSymbolBackgroundImage(backgroundColor: token.symbolBackgroundColor)
-        }
+    var iconImage: UIImage {
+        token.icon.image
     }
 
     var symbolInIcon: String {
-        guard token.iconImage == nil else { return "" }
-        let i = [EthTokenViewCellViewModel.numberOfCharactersOfSymbolToShow, token.symbol.count].min()!
-        return token.symbol.substring(to: i)
+        token.icon.symbol
     }
 
     var symbolColor: UIColor {
