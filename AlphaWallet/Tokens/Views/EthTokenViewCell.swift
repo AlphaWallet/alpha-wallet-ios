@@ -9,7 +9,6 @@ class EthTokenViewCell: UITableViewCell {
 
     private let background = UIView()
     private let titleLabel = UILabel()
-    private let symbolLabel = UILabel()
     private let valuePercentageChangeValueLabel = UILabel()
     private let valuePercentageChangePeriodLabel = UILabel()
     private let valueChangeLabel = UILabel()
@@ -18,9 +17,8 @@ class EthTokenViewCell: UITableViewCell {
     private var viewsWithContent: [UIView] {
         [titleLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, valueChangeLabel]
     }
-    private var tokenIconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
+    private var tokenIconImageView: TokenImageView = {
+        let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -44,12 +42,7 @@ class EthTokenViewCell: UITableViewCell {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
 
-        symbolLabel.translatesAutoresizingMaskIntoConstraints = false
-        background.addSubview(symbolLabel)
-
         NSLayoutConstraint.activate([
-            symbolLabel.anchorsConstraint(to: tokenIconImageView),
-
             tokenIconImageView.heightAnchor.constraint(equalToConstant: 40),
             tokenIconImageView.widthAnchor.constraint(equalToConstant: 40),
             stackView.anchorsConstraint(to: background, edgeInsets: .init(top: 16, left: 20, bottom: 16, right: 16)),
@@ -74,12 +67,6 @@ class EthTokenViewCell: UITableViewCell {
         titleLabel.text = "\(viewModel.amount) \(viewModel.title)"
         titleLabel.baselineAdjustment = .alignCenters
 
-        symbolLabel.textColor = viewModel.symbolColor
-        symbolLabel.font = viewModel.symbolFont
-        symbolLabel.textAlignment = .center
-        symbolLabel.adjustsFontSizeToFitWidth = true
-        symbolLabel.text = viewModel.symbolInIcon
-
         valuePercentageChangeValueLabel.textColor = viewModel.valuePercentageChangeColor
         valuePercentageChangeValueLabel.font = viewModel.textValueFont
         valuePercentageChangeValueLabel.text = viewModel.valuePercentageChangeValue
@@ -100,6 +87,6 @@ class EthTokenViewCell: UITableViewCell {
         viewsWithContent.forEach {
             $0.alpha = viewModel.alpha
         }
-        tokenIconImageView.image = viewModel.iconImage
+        tokenIconImageView.subscribable = viewModel.iconImage
     }
 }
