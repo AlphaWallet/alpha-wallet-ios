@@ -79,12 +79,12 @@ class AmountTextField: UIControl {
         case cryptoCurrency(TokenObject)
         case usd
 
-        var icon: UIImage {
+        var icon: Subscribable<TokenImage> {
             switch self {
             case .cryptoCurrency(let tokenObject):
-                return tokenObject.icon.image
+                return tokenObject.icon
             case .usd:
-                return R.image.usaFlag()!
+                return .init((image: R.image.usaFlag()!, symbol: ""))
             }
         }
 
@@ -94,15 +94,6 @@ class AmountTextField: UIControl {
                 return tokenObject.symbol
             case .usd:
                 return "USD"
-            }
-        }
-
-        var symbolInIcon: String {
-            switch self {
-            case .cryptoCurrency(let tokenObject):
-                return tokenObject.icon.symbol
-            case .usd:
-                return ""
             }
         }
     }
@@ -304,8 +295,7 @@ class AmountTextField: UIControl {
 
     private func update(selectCurrencyButton button: SelectCurrencyButton) {
         button.text = currentPair.left.symbol
-        button.image = currentPair.left.icon
-        button.symbolInIcon = currentPair.left.symbolInIcon
+        button.tokenIcon = currentPair.left.icon
     }
 
     @objc func fiatAction(button: UIButton) {
