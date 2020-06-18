@@ -86,19 +86,7 @@ struct NonFungibleTokenViewCellViewModel {
         return isVisible ? 1.0 : 0.4
     }
 
-    var iconImage: UIImage {
-        token.icon.image
-    }
-
-    var symbolInIcon: String {
-        token.icon.symbol
-    }
-
-    var symbolColor: UIColor {
-        Colors.appWhite
-    }
-
-    var symbolFont: UIFont {
-        UIFont.systemFont(ofSize: 13)
+    var iconImage: Subscribable<TokenImage> {
+        token.icon
     }
 }

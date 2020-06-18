@@ -136,7 +136,7 @@ class OpenSea {
                     if imageUrl.isEmpty {
                         imageUrl = each["image_url"].stringValue
                     }
-                    let contractImageUrl = each["asset_contract"]["featured_image_url"].stringValue
+                    let contractImageUrl = each["asset_contract"]["image_url"].stringValue
                     let externalLink = each["external_link"].stringValue
                     let backgroundColor = each["background_color"].stringValue
                     var traits = [OpenSeaNonFungibleTrait]()

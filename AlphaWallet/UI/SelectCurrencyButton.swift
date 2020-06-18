@@ -29,24 +29,13 @@ class SelectCurrencyButton: UIControl {
         return imageView
     }()
 
-    private let currencyIconImageView: UIImageView = {
-        let imageView = UIImageView(image: #imageLiteral(resourceName: "eth"))
+    private let currencyIconImageView: TokenImageView = {
+        let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.setContentHuggingPriority(.required, for: .horizontal)
         imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
-        imageView.contentMode = .scaleAspectFit
 
         return imageView
-    }()
-
-    private let symbolLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textColor = Colors.appWhite
-        label.font = UIFont.systemFont(ofSize: 13)
-        label.textAlignment = .center
-        label.adjustsFontSizeToFitWidth = true
-        return label
     }()
 
     private let actionButton: UIButton = {
@@ -71,18 +60,12 @@ class SelectCurrencyButton: UIControl {
         }
     }
 
-    var image: UIImage? {
+    var tokenIcon: Subscribable<TokenImage>? {
         get {
-            return currencyIconImageView.image
+            currencyIconImageView.subscribable
         }
         set {
-            currencyIconImageView.image = newValue
-        }
-    }
-
-    var symbolInIcon: String = "" {
-        didSet {
-            symbolLabel.text = symbolInIcon
+            currencyIconImageView.subscribable = newValue
         }
     }
 
@@ -104,14 +87,11 @@ class SelectCurrencyButton: UIControl {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stackView)
         addSubview(actionButton)
-        addSubview(symbolLabel)
 
         setContentHuggingPriority(.required, for: .horizontal)
         setContentCompressionResistancePriority(.required, for: .horizontal)
 
         NSLayoutConstraint.activate([
-            symbolLabel.anchorsConstraint(to: currencyIconImageView),
-
             stackView.anchorsConstraint(to: self),
             actionButton.anchorsConstraint(to: self),
             currencyIconImageView.widthAnchor.constraint(equalToConstant: 40),
