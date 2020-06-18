@@ -1,11 +1,14 @@
 // Copyright © 2020 Stormbird PTE. LTD.
 
 import UIKit
+import PromiseKit
+
+typealias TokenImage = (image: UIImage, symbol: String)
 
 extension TokenObject {
-    private static let numberOfCharactersOfSymbolToShow = 4
+    fileprivate static let numberOfCharactersOfSymbolToShowInIcon = 4
 
-    private var programmaticallyGeneratedIconImage: UIImage {
+    fileprivate var programmaticallyGeneratedIconImage: UIImage {
         UIView.tokenSymbolBackgroundImage(backgroundColor: symbolBackgroundColor)
     }
 
@@ -25,21 +28,113 @@ extension TokenObject {
         }
     }
 
-    var icon: (image: UIImage, symbol: String) {
-        let image: UIImage?
-
+    var icon: Subscribable<TokenImage> {
         switch type {
         case .nativeCryptocurrency:
-            image = server.iconImage
+            if let img = server.iconImage {
+                return .init((image: img, symbol: ""))
+            }
         case .erc20, .erc875, .erc721, .erc721ForTickets:
-            image = nil
+            break
+        }
+        return TokenImageFetcher.instance.image(forToken: self)
+    }
+}
+
+fileprivate class TokenImageFetcher {
+    private enum ImageAvailabilityError: LocalizedError {
+        case notAvailable
+    }
+
+    static var instance = TokenImageFetcher()
+
+    private var subscribables: [String: Subscribable<TokenImage>] = .init()
+
+    private func programmaticallyGenerateIcon(forToken tokenObject: TokenObject) -> TokenImage {
+        let i = [TokenObject.numberOfCharactersOfSymbolToShowInIcon, tokenObject.symbol.count].min()!
+        let symbol = tokenObject.symbol.substring(to: i)
+        return (image: tokenObject.programmaticallyGeneratedIconImage, symbol: symbol)
+    }
+
+    //Relies on built-in HTTP/HTTPS caching in iOS for the images
+    func image(forToken tokenObject: TokenObject) -> Subscribable<TokenImage> {
+        let subscribable: Subscribable<TokenImage>
+        let key = "\(tokenObject.contractAddress.eip55String)-\(tokenObject.server.chainID)"
+        if let sub = subscribables[key] {
+            subscribable = sub
+        } else {
+            let sub = Subscribable<TokenImage>(nil)
+            subscribables[key] = sub
+            subscribable = sub
         }
 
-        if let img = image {
-            return (image: img, symbol: "")
-        } else {
-            let i = [TokenObject.numberOfCharactersOfSymbolToShow, symbol.count].min()!
-            return (image: programmaticallyGeneratedIconImage, symbol: symbol.substring(to: i))
+        if tokenObject.contractAddress.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
+            subscribable.value = programmaticallyGenerateIcon(forToken: tokenObject)
+            return subscribable
+        }
+
+        fetchFromOpenSea(tokenObject).done {
+            subscribable.value = (image: $0, symbol: "")
+        }.catch { [weak self] _ in
+            guard let strongSelf = self else { return }
+            strongSelf.fetchFromAssetGitHubRepo(tokenObject).done {
+                subscribable.value = (image: $0, symbol: "")
+            }.catch { [weak self] _ in
+                guard let strongSelf = self else { return }
+                subscribable.value = strongSelf.programmaticallyGenerateIcon(forToken: tokenObject)
+            }
+        }
+
+        return subscribable
+    }
+
+    private func fetchFromOpenSea(_ tokenObject: TokenObject) -> Promise<UIImage> {
+        Promise { seal in
+            switch tokenObject.type {
+            case .erc721:
+                if let json = tokenObject.balance.first?.balance, let data = json.data(using: .utf8), let openSeaNonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: data), !openSeaNonFungible.contractImageUrl.isEmpty {
+                    let request = URLRequest(url: URL(string: openSeaNonFungible.contractImageUrl)!)
+                    fetch(request: request).done { image in
+                        seal.fulfill(image)
+                    }.catch { error in
+                        seal.reject(ImageAvailabilityError.notAvailable)
+                    }
+                }
+            case .nativeCryptocurrency, .erc20, .erc875, .erc721ForTickets:
+                seal.reject(ImageAvailabilityError.notAvailable)
+            }
+        }
+    }
+
+    private func fetchFromAssetGitHubRepo(_ tokenObject: TokenObject) -> Promise<UIImage> {
+        Promise { seal in
+            let request = URLRequest(url: URL(string: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/\(tokenObject.contractAddress.eip55String)/logo.png")!)
+            fetch(request: request).done { image in
+                seal.fulfill(image)
+            }.catch { error in
+                seal.reject(ImageAvailabilityError.notAvailable)
+            }
+        }
+    }
+
+    private func fetch(request: URLRequest) -> Promise<UIImage> {
+        Promise { seal in
+            do {
+                try NSURLConnection.sendAsynchronousRequest(request, queue: .main) { _, data, error in
+                    if let data = data {
+                        let image = UIImage(data: data)
+                        if let img = image {
+                            seal.fulfill(img)
+                        } else {
+                            seal.reject(ImageAvailabilityError.notAvailable)
+                        }
+                    } else {
+                        seal.reject(ImageAvailabilityError.notAvailable)
+                    }
+                }
+            } catch {
+                seal.reject(ImageAvailabilityError.notAvailable)
+            }
         }
     }
 }
