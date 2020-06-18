@@ -155,11 +155,11 @@ class TransactionConfigurator {
 
 // swiftlint:disable function_body_length
     func load(completion: @escaping (ResultResult<Void, AnyError>.t) -> Void) {
-        if gasLimitNotSet {
-            estimateGasLimit()
-        }
         switch transaction.transferType {
         case .dapp:
+            if gasLimitNotSet {
+                estimateGasLimit()
+            }
             estimateGasPrice()
             configuration = TransactionConfiguration(
                     gasPrice: calculatedGasPrice,
@@ -176,6 +176,9 @@ class TransactionConfigurator {
             completion(.success(()))
         case .ERC20Token:
             do {
+                if gasLimitNotSet {
+                    estimateGasLimit()
+                }
                 let function = Function(name: "transfer", parameters: [ABIType.address, ABIType.uint(bits: 256)])
                 //Note: be careful here with the BigUInt and BigInt, the type needs to be exact
                 let parameters: [Any] = [Address(address: transaction.to!), BigUInt(transaction.value)]
@@ -192,6 +195,9 @@ class TransactionConfigurator {
             }
         case .ERC875Token(let token):
             do {
+                if gasLimitNotSet {
+                    estimateGasLimit()
+                }
                 let parameters: [Any] = [TrustKeystore.Address(address: transaction.to!), transaction.indices!.map({ BigUInt($0) })]
                 let arrayType: ABIType
                 if token.contractAddress.isLegacy875Contract {
@@ -217,6 +223,9 @@ class TransactionConfigurator {
             }
         case .ERC875TokenOrder(let token):
             do {
+                if gasLimitNotSet {
+                    estimateGasLimit()
+                }
                 let parameters: [Any] = [
                     transaction.expiry!,
                     transaction.indices!.map({ BigUInt($0) }),
@@ -250,6 +259,9 @@ class TransactionConfigurator {
             }
         case .ERC721Token(let token), .ERC721ForTicketToken(let token):
             do {
+                if gasLimitNotSet {
+                    estimateGasLimit()
+                }
                 let function: Function
                 let parameters: [Any]
                 if token.contractAddress.isLegacy721Contract {
