@@ -362,6 +362,7 @@
 		5E7C75D46140FACBD12333BF /* EthTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7EE374A74F2B00013C18 /* EthTokenViewCell.swift */; };
 		5E7C75E5C64619ABFD246183 /* TransferTokensCardViaWalletAddressViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78B63FDE2FAF25389260 /* TransferTokensCardViaWalletAddressViewController.swift */; };
 		5E7C75E81F85353844CACECC /* EnterSellTokensCardPriceQuantityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7F610139D24D947B1625 /* EnterSellTokensCardPriceQuantityViewController.swift */; };
+		5E7C75EFEA605549C8E87E4D /* AlphaWalletAddress+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D111692DE8ED67D29B7 /* AlphaWalletAddress+UI.swift */; };
 		5E7C75F1B2340BB6AA86A2EE /* ShowSeedPhraseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7346D83DE2DB22E28F16 /* ShowSeedPhraseViewModel.swift */; };
 		5E7C75F80A7E178B49830BCD /* TokenCardsViewControllerHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C796039C0F47CDCA236C0 /* TokenCardsViewControllerHeader.swift */; };
 		5E7C760D5AF93B79BB9BDB5A /* OpenSeaNonFungibleTokenAttributeCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C34A7BDCFE17CEF8F79 /* OpenSeaNonFungibleTokenAttributeCellViewModel.swift */; };
@@ -1246,6 +1247,7 @@
 		5E7C7CFDE7DEA8C06C4100AF /* TextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextField.swift; sourceTree = "<group>"; };
 		5E7C7D0476B2C4EEB526189D /* NativeCryptoCurrencyBalanceView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativeCryptoCurrencyBalanceView.swift; sourceTree = "<group>"; };
 		5E7C7D0BC856442683F18DDF /* XMLHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLHandler.swift; sourceTree = "<group>"; };
+		5E7C7D111692DE8ED67D29B7 /* AlphaWalletAddress+UI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AlphaWalletAddress+UI.swift"; sourceTree = "<group>"; };
 		5E7C7D19E3CF96929FB8CEA3 /* DappsAutoCompletionViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsAutoCompletionViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C7D27B0DA47F340CEA70C /* TokenListFormatRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenListFormatRowView.swift; sourceTree = "<group>"; };
 		5E7C7D2C43C15D0762C7F374 /* UIStackView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIStackView.swift; sourceTree = "<group>"; };
@@ -1689,6 +1691,7 @@
 				5E7C78CDFEB86A8356EA5818 /* TokenCardRowViewProtocol.swift */,
 				5E7C74F1B6944E7BD06DD2C2 /* TokenObject+UI.swift */,
 				5E7C7C67C1FF0BFDDA82C61E /* TokenImageView.swift */,
+				5E7C7D111692DE8ED67D29B7 /* AlphaWalletAddress+UI.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -4519,6 +4522,7 @@
 				5E7C750721DA2745432B1857 /* TokenObject+UI.swift in Sources */,
 				5E7C74B615A84B248D3BE76C /* TokenImageView.swift in Sources */,
 				5E7C7066794663954D9C18E5 /* withRetry.swift in Sources */,
+				5E7C75EFEA605549C8E87E4D /* AlphaWalletAddress+UI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
