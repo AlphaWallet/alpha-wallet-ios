@@ -67,7 +67,7 @@ public struct Constants {
     static let balances165Hash721Ticket = "0xc84aae17"
 
     //etherscan-compatible APIs
-    public static let mainnetEtherscanAPI = "https://api.etherscan.io/api?module=account&action=txlist&address="
+    public static let mainnetEtherscanAPI = "https://api-cn.etherscan.com/api?module=account&action=txlist&address="
     public static let ropstenEtherscanAPI = "https://ropsten.etherscan.io/api?module=account&action=txlist&address="
     public static let kovanEtherscanAPI = "https://api-kovan.etherscan.io/api?module=account&action=txlist&address="
     public static let rinkebyEtherscanAPI = "https://rinkeby.etherscan.io/api?module=account&action=txlist&address="
@@ -79,7 +79,7 @@ public struct Constants {
 
     //etherscan-compatible erc20 transaction event APIs
     //The fetch ERC20 transactions endpoint from Etherscan returns only ERC20 token transactions but the Blockscout version also includes ERC721 transactions too (so it's likely other types that it can detect will be returned too); thus we check the token type rather than assume that they are all ERC20
-    public static let mainnetEtherscanAPIErc20Events = "https://api.etherscan.io/api?module=account&action=tokentx&address="
+    public static let mainnetEtherscanAPIErc20Events = "https://api-cn.etherscan.com/api?module=account&action=tokentx&address="
     public static let ropstenEtherscanAPIErc20Events = "https://ropsten.etherscan.io/api?module=account&action=tokentx&address="
     public static let kovanEtherscanAPIErc20Events = "https://api-kovan.etherscan.io/api?module=account&action=tokentx&address="
     public static let rinkebyEtherscanAPIErc20Events = "https://rinkeby.etherscan.io/api?module=account&action=tokentx&address="
@@ -90,7 +90,7 @@ public struct Constants {
     public static let artisTau1NetworkCoreAPIErc20Events = "https://explorer.tau1.artis.network/api?module=account&action=tokentx&address="
 
     //etherscan-compatible contract details web page
-    public static let mainnetEtherscanContractDetailsWebPageURL = "https://etherscan.io/address/"
+    public static let mainnetEtherscanContractDetailsWebPageURL = "https://cn.etherscan.com/address/"
     public static let kovanEtherscanContractDetailsWebPageURL = "https://kovan.etherscan.io/address/"
     public static let rinkebyEtherscanContractDetailsWebPageURL = "https://rinkeby.etherscan.io/address/"
     public static let ropstenEtherscanContractDetailsWebPageURL = "https://ropsten.etherscan.io/address/"

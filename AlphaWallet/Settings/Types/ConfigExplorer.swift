@@ -52,7 +52,7 @@ struct ConfigExplorer {
         let nameForServer = explorerName(for: server)
         switch server {
         case .main:
-            return ("https://etherscan.io", nameForServer)
+            return ("https://cn.etherscan.com", nameForServer)
         case .classic:
             return ("https://gastracker.io", nameForServer)
         case .kovan:
