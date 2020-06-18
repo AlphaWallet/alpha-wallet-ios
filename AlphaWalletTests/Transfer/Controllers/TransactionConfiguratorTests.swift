@@ -32,11 +32,12 @@ class TransactionConfiguratorTests: XCTestCase {
     }
     
     func testLoadEtherConfiguration() {
-        let configurator = TransactionConfigurator(session: .make(), account: .make(), transaction: .make(gasLimit: BigInt(90000), gasPrice: .none))
+        let configurator = TransactionConfigurator(session: .make(), account: .make(), transaction: .make(gasLimit: BigInt(50000), gasPrice: .none))
 
         configurator.load { _ in }
         
         XCTAssertEqual(BigInt(GasPriceConfiguration.defaultPrice), configurator.configuration.gasPrice)
-        XCTAssertEqual(BigInt(90000), configurator.configuration.gasLimit)
+        //gas limit is always 21k for native ether transfers
+        XCTAssertEqual(BigInt(21000), configurator.configuration.gasLimit)
     }
 }
