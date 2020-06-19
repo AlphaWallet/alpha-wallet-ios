@@ -16,7 +16,7 @@ class GetNameCoordinator {
         completion: @escaping (Result<String, AnyError>) -> Void
     ) {
         let functionName = "name"
-        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI).done { nameResult in
+        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, timeout: TokensDataStore.fetchContractDataTimeout).done { nameResult in
             if let name = nameResult["0"] as? String {
                 completion(.success(name))
             } else {
