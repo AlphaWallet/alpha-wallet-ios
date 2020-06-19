@@ -13,7 +13,7 @@ class GetERC721ForTicketsBalanceCoordinator {
 
     func getERC721ForTicketsTokenBalance(for address: AlphaWallet.Address, contract: AlphaWallet.Address, completion: @escaping (Result<[String], AnyError>) -> Void) {
         let function = GetERC721ForTicketsBalance()
-        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject]).done { balanceResult in
+        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).done { balanceResult in
             let balances = self.adapt(balanceResult["0"])
             completion(.success(balances))
         }.catch {

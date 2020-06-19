@@ -18,7 +18,7 @@ class GetInterfaceSupported165Coordinator {
             completion: @escaping (Result<Bool, AnyError>) -> Void
     ) {
         let function = GetInterfaceSupported165Encode()
-        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [hash] as [AnyObject]).done { result in
+        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [hash] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).done { result in
             if let supported = result["0"] as? Bool {
                 completion(.success(supported))
             } else {
