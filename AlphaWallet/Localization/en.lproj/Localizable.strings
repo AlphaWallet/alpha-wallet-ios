@@ -16,6 +16,7 @@
 "Google" = "Google";
 "configureTransaction.error.gasFeeTooHigh" = "Gas Fee too high. Max available: %@";
 "configureTransaction.error.gasLimitTooHigh" = "Gas Limit too high. Max available: %d";
+"configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
 "configureTransaction.gasLimit.label.description" = "The gas limit prevents smart contracts from consuming all your %@. We will try to calculate the gas limit automatically for you, but some smart contracts may require a custom gas limit.";
 "configureTransaction.gasLimit.label.title" = "Gas Limit";
 "configureTransaction.gasPrice.label.description" = "The higher the gas price, the more expensive your transaction fee will be, but the quicker your tranasction will be processed by the %@ network.";
@@ -27,6 +28,7 @@
 "transaction.time.label.title" = "Transaction time";
 "transaction.id.label.title" = "Transaction #";
 "transaction.blockNumber.label.title" = "Block #";
+"transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "Confirm";
 "confirmPayment.from.label.title" = "From";
 "confirmPayment.gasFee.label.title" = "Network Fee";
@@ -127,7 +129,9 @@
 "transaction.navigation.title" = "Transaction";
 "import.navigation.title" = "Import Wallet";
 "configureTransaction.data.label.title" = "Transaction Data (Optional)";
+"configureTransaction.nonce.label.title" = "Nonce (Optional)";
 "confirmPayment.data.label.title" = "Data";
+"confirmPayment.nonce.label.title" = "Nonce";
 "Contract Address" = "Contract Address";
 "Copy Address" = "Copy Address";
 "Decimals" = "Decimals";

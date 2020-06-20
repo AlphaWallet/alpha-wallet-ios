@@ -18,6 +18,7 @@ class ConfigureTransactionViewController: FormViewController {
     private struct Values {
         static let gasPrice = "gasPrice"
         static let gasLimit = "gasLimit"
+        static let nonce = "nonce"
         static let totalFee = "totalFee"
         static let data = "data"
     }
@@ -27,6 +28,9 @@ class ConfigureTransactionViewController: FormViewController {
     }
     private var gasLimitRow: SliderTextFieldRow? {
         return form.rowBy(tag: Values.gasLimit) as? SliderTextFieldRow
+    }
+    private var nonceRow: TextFloatLabelRow? {
+        return form.rowBy(tag: Values.nonce) as? TextFloatLabelRow
     }
     private var totalFeeRow: TextRow? {
         return form.rowBy(tag: Values.totalFee) as? TextRow
@@ -40,6 +44,9 @@ class ConfigureTransactionViewController: FormViewController {
     }
     private var gasPrice: BigInt {
         return fullFormatter.number(from: String(Int(gasPriceRow?.value ?? 1)), units: UnitConfiguration.gasPriceUnit) ?? BigInt()
+    }
+    private var nonceString: String {
+        return nonceRow?.value?.trimmed ?? ""
     }
     private var totalFee: BigInt {
         return gasPrice * gasLimit
@@ -125,6 +132,16 @@ class ConfigureTransactionViewController: FormViewController {
             }
         }
 
+        +++ Section()
+
+        <<< AppFormAppearance.textFieldFloat(tag: Values.nonce) { [weak self] in
+            guard let strongSelf = self else { return }
+            $0.title = R.string.localizable.configureTransactionNonceLabelTitle()
+            $0.value = strongSelf.configuration.nonce.flatMap { String($0) }
+        }.cellUpdate { cell, row in
+            cell.textField.keyboardType = .numberPad
+        }
+
         +++ Section {
             $0.hidden = Eureka.Condition.function([], { [weak self] _ in
                 guard let strongSelf = self else { return true }
@@ -162,6 +179,12 @@ class ConfigureTransactionViewController: FormViewController {
             return displayError(error: ConfigureTransactionError.gasFeeTooHigh)
         }
 
+        if !nonceString.isEmpty {
+            guard let nonce = Int(nonceString), nonce > 0 else {
+                return displayError(error: ConfigureTransactionError.nonceNotPositiveNumber)
+            }
+        }
+
         let data: Data = {
             if dataString.isEmpty {
                 return Data()
@@ -169,10 +192,13 @@ class ConfigureTransactionViewController: FormViewController {
             return Data(hex: dataString.drop0x)
         }()
 
+        let nonce: Int? = Int(nonceString)
+
         let configuration = TransactionConfiguration(
             gasPrice: gasPrice,
             gasLimit: gasLimit,
-            data: data
+            data: data,
+            nonce: nonce
         )
         delegate?.didEdit(configuration: configuration, in: self)
     }

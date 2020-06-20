@@ -16,6 +16,7 @@
 "Google" = "Google";
 "configureTransaction.error.gasFeeTooHigh" = "가스 수수료가 너무 높습니다. 최대 이용 한도: %@";
 "configureTransaction.error.gasLimitTooHigh" = "가스 한도가 너무 높습니다. 최대 이용 한도: %d";
+"configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
 "configureTransaction.gasLimit.label.description" = "가스 한도는 스마트 계약이 %@을(를) 전부 소비하지 않도록 합니다. 가스 한도는 자동으로 계산되지만, 일부 스마트 계약은 사용자 정의 가스 한도가 필요할 수 있습니다.";
 "configureTransaction.gasLimit.label.title" = "가스 한도";
 "configureTransaction.gasPrice.label.description" = "가스 요금이 높을수록 거래 수수료는 더 비싸지지만, %@ 네트워크에서 거래는 더 빨리 처리됩니다.";
@@ -27,6 +28,7 @@
 "transaction.time.label.title" = "거래 시간";
 "transaction.id.label.title" = "거래 번호";
 "transaction.blockNumber.label.title" = "블록 번호";
+"transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "확인";
 "confirmPayment.from.label.title" = "발신인";
 "confirmPayment.gasFee.label.title" = "네트워크 수수료";
@@ -126,7 +128,9 @@
 "transaction.navigation.title" = "거래";
 "import.navigation.title" = "지갑 가져오기";
 "configureTransaction.data.label.title" = "거래 데이터 (선택 사항)";
+"configureTransaction.nonce.label.title" = "Nonce (Optional)";
 "confirmPayment.data.label.title" = "데이터";
+"confirmPayment.nonce.label.title" = "Nonce";
 "Contract Address" = "계약 주소";
 "Copy Address" = "주소 복사";
 "Decimals" = "소수점";
