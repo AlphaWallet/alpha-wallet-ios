@@ -58,6 +58,7 @@ class TransactionViewController: UIViewController {
             item(title: viewModel.transactionIDLabelTitle, value: viewModel.transactionID, icon: R.image.copy()),
             item(title: viewModel.createdAtLabelTitle, value: viewModel.createdAt),
             item(title: viewModel.blockNumberLabelTitle, value: viewModel.blockNumber),
+            item(title: viewModel.nonceLabelTitle, value: viewModel.nonce),
         ]
 
         scrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -135,7 +136,7 @@ class TransactionViewController: UIViewController {
             self?.copy(value: value, showHUD: icon != nil)
         }
     }
-    
+
     @objc func copy(value: String, showHUD: Bool = false) {
         UIPasteboard.general.string = value
 

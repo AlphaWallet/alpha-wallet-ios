@@ -96,6 +96,18 @@ struct ConfirmPaymentDetailsViewModel {
         return transaction.data.description
     }
 
+    var nonceTitle: String {
+        return R.string.localizable.confirmPaymentNonceLabelTitle()
+    }
+
+    var nonceText: String {
+        transaction.nonce.description
+    }
+
+    var isNonceSet: Bool {
+        transaction.nonce > -1
+    }
+
     var amountAttributedString: NSAttributedString {
         switch transaction.transferType {
         case .ERC20Token(let token, _, _):

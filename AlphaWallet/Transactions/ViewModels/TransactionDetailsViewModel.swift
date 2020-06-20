@@ -54,7 +54,7 @@ struct TransactionDetailsViewModel {
     var shareAvailable: Bool {
         return detailsAvailable
     }
-    
+
     var addressCopiedText: String {
         return R.string.localizable.requestAddressCopiedTitle()
     }
@@ -62,7 +62,7 @@ struct TransactionDetailsViewModel {
     var detailsURL: URL? {
         return ConfigExplorer(server: server).transactionURL(for: transaction.id)?.url
     }
-    
+
     var detailsButtonText: String {
         if let name = ConfigExplorer(server: server).transactionURL(for: transaction.id)?.name {
             return R.string.localizable.viewIn(name)
@@ -138,6 +138,14 @@ struct TransactionDetailsViewModel {
 
     var blockNumberLabelTitle: String {
         return R.string.localizable.transactionBlockNumberLabelTitle()
+    }
+
+    var nonce: String {
+        String(transaction.nonce)
+    }
+
+    var nonceLabelTitle: String {
+        R.string.localizable.transactionNonceLabelTitle()
     }
 
     var amountAttributedString: NSAttributedString {

@@ -16,6 +16,7 @@
 "Google" = "Google";
 "configureTransaction.error.gasFeeTooHigh" = "ガス料金が高すぎます。利用可能な最大: %@";
 "configureTransaction.error.gasLimitTooHigh" = "ガス制限が高すぎます。利用可能な最大: %d";
+"configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
 "configureTransaction.gasLimit.label.description" = "ガスの制限によって、スマート契約はすべての %@を消費できなくします。このアプリは、自動的にガスの制限を計算を試行しまが、スマート契約によってはカスタムのガス制限を必要とすることがあります。";
 "configureTransaction.gasLimit.label.title" = "ガスの制限";
 "configureTransaction.gasPrice.label.description" = "ガスの価格が高くなるほど、トランザクションの手数料が高くなりますが、%@ ネットワークによりトランザクションがより速く処理されます。";
@@ -27,6 +28,7 @@
 "transaction.time.label.title" = "トランザクション時間";
 "transaction.id.label.title" = "トランザクション番号";
 "transaction.blockNumber.label.title" = "ブロック番号";
+"transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "確認";
 "confirmPayment.from.label.title" = "送信元";
 "confirmPayment.gasFee.label.title" = "ネットワーク料金";
@@ -127,7 +129,9 @@
 "transaction.navigation.title" = "トランザクション";
 "import.navigation.title" = "ウォレットをインポート";
 "configureTransaction.data.label.title" = "トランザクション データ (オプション)";
+"configureTransaction.nonce.label.title" = "Nonce (Optional)";
 "confirmPayment.data.label.title" = "データ";
+"confirmPayment.nonce.label.title" = "Nonce";
 "Contract Address" = "契約アドレス";
 "Copy Address" = "アドレスをコピー";
 "Decimals" = "小数点";
