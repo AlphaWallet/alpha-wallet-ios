@@ -42,10 +42,18 @@ class GetIsERC721ContractCoordinator {
             return
         }
 
+        //TODO use callSmartContract() instead
+
         guard let webProvider = Web3HttpProvider(server.rpcURL, network: server.web3Network) else {
             completion(.failure(AnyError(Web3Error(description: "Error creating web provider for: \(server.rpcURL) + \(server.web3Network)"))))
             return
         }
+
+        let configuration = webProvider.session.configuration
+        configuration.timeoutIntervalForRequest = TokensDataStore.fetchContractDataTimeout
+        configuration.timeoutIntervalForResource = TokensDataStore.fetchContractDataTimeout
+        let session = URLSession(configuration: configuration)
+        webProvider.session = session
 
         let contractAddress = EthereumAddress(address: contract)
         let web3 = web3swift.web3(provider: webProvider)

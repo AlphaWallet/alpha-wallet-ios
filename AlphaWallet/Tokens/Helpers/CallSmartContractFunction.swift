@@ -5,13 +5,20 @@ import PromiseKit
 import web3swift
 
 //TODO maybe we should cache promises that haven't resolved yet. This is useful/needed because users can switch between Wallet and Transactions tab multiple times quickly and trigger the same call to fire many times before any of them have been completed
-func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [AnyObject]()) -> Promise<[String: Any]> {
+func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [AnyObject](), timeout: TimeInterval? = nil) -> Promise<[String: Any]> {
     return firstly { () -> Promise<(EthereumAddress)> in
         let contractAddress = EthereumAddress(address: contract)
         return .value(contractAddress)
     }.then { contractAddress -> Promise<[String: Any]> in
         guard let webProvider = Web3HttpProvider(server.rpcURL, network: server.web3Network) else {
             return Promise(error: Web3Error(description: "Error creating web provider for: \(server.rpcURL) + \(server.web3Network)"))
+        }
+        if let timeout = timeout {
+            let configuration = webProvider.session.configuration
+            configuration.timeoutIntervalForRequest = timeout
+            configuration.timeoutIntervalForResource = timeout
+            let session = URLSession(configuration: configuration)
+            webProvider.session = session
         }
 
         let web3 = web3swift.web3(provider: webProvider)

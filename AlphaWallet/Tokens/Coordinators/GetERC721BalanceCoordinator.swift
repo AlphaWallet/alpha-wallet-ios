@@ -20,7 +20,7 @@ class GetERC721BalanceCoordinator {
             completion: @escaping (Result<BigUInt, AnyError>) -> Void
     ) {
         let function = GetERC721Balance()
-        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject]).done { balanceResult in
+        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, parameters: [address.eip55String] as [AnyObject], timeout: TokensDataStore.fetchContractDataTimeout).done { balanceResult in
             let balance = self.adapt(balanceResult["0"] as Any)
             completion(.success(balance))
         }.catch { error in
