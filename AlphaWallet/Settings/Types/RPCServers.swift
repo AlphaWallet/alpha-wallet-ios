@@ -266,7 +266,7 @@ enum RPCServer: Hashable, CaseIterable {
     var transactionInfoEndpoints: URL {
         let urlString: String = {
             switch self {
-            case .main: return "https://api.etherscan.io"
+            case .main: return "https://api-cn.etherscan.com"
             case .classic: return "https://blockscout.com/etc/mainnet/api"
             case .callisto: return "https://callisto.trustwalletapp.com"
             case .kovan: return "https://api-kovan.etherscan.io"
