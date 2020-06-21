@@ -17,6 +17,8 @@ protocol TokensDataStoreDelegate: class {
 
 // swiftlint:disable type_body_length
 class TokensDataStore {
+    static let fetchContractDataTimeout = TimeInterval(4)
+
     private lazy var getNameCoordinator: GetNameCoordinator = {
         return GetNameCoordinator(forServer: server)
     }()
@@ -71,6 +73,7 @@ class TokensDataStore {
     //We should refresh prices every 5 minutes.
     private let intervalToRefreshPrices = 300.0
     private let intervalToETHRefresh = 10.0
+    private let numberOfTimesToRetryFetchContractData = 2
 
     private var chainId: Int {
         return server.chainID
@@ -197,28 +200,58 @@ class TokensDataStore {
 
     func getContractName(for address: AlphaWallet.Address,
                          completion: @escaping (ResultResult<String, AnyError>.t) -> Void) {
-        getNameCoordinator.getName(for: address) { (result) in
-            completion(result)
+        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+            guard let strongSelf = self else { return }
+            strongSelf.getNameCoordinator.getName(for: address) { (result) in
+                switch result {
+                case .success(let value):
+                    completion(result)
+                case .failure:
+                    if !triggerRetry() {
+                        completion(result)
+                    }
+                }
+            }
         }
     }
 
     func getContractSymbol(for address: AlphaWallet.Address,
                            completion: @escaping (ResultResult<String, AnyError>.t) -> Void) {
-        getSymbolCoordinator.getSymbol(for: address) { result in
-            completion(result)
+        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+            guard let strongSelf = self else { return }
+            strongSelf.getSymbolCoordinator.getSymbol(for: address) { result in
+                switch result {
+                case .success(let value):
+                    completion(result)
+                case .failure:
+                    if !triggerRetry() {
+                        completion(result)
+                    }
+                }
+            }
         }
     }
 
     func getDecimals(for address: AlphaWallet.Address,
                      completion: @escaping (ResultResult<UInt8, AnyError>.t) -> Void) {
-        getDecimalsCoordinator.getDecimals(for: address) { result in
-            completion(result)
+        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+            guard let strongSelf = self else { return }
+            strongSelf.getDecimalsCoordinator.getDecimals(for: address) { result in
+                switch result {
+                case .success(let value):
+                    completion(result)
+                case .failure:
+                    if !triggerRetry() {
+                        completion(result)
+                    }
+                }
+            }
         }
     }
 
     func getContractName(for address: AlphaWallet.Address) -> Promise<String> {
-        return Promise { seal in
-            getNameCoordinator.getName(for: address) { (result) in
+        Promise { seal in
+            getContractName(for: address) { (result) in
                 switch result {
                 case .success(let name):
                     seal.fulfill(name)
@@ -230,8 +263,8 @@ class TokensDataStore {
     }
 
     func getContractSymbol(for address: AlphaWallet.Address) -> Promise<String> {
-        return Promise { seal in
-            getSymbolCoordinator.getSymbol(for: address) { result in
+        Promise { seal in
+            getContractSymbol(for: address) { result in
                 switch result {
                 case .success(let name):
                     seal.fulfill(name)
@@ -243,8 +276,8 @@ class TokensDataStore {
     }
 
     func getDecimals(for address: AlphaWallet.Address) -> Promise<UInt8> {
-        return Promise { seal in
-            getDecimalsCoordinator.getDecimals(for: address) { result in
+        Promise { seal in
+            getDecimals(for: address) { result in
                 switch result {
                 case .success(let name):
                     seal.fulfill(name)
@@ -256,7 +289,7 @@ class TokensDataStore {
     }
 
     func getTokenType(for address: AlphaWallet.Address) -> Promise<TokenType> {
-        return Promise { seal in
+        Promise { seal in
             getTokenType(for: address) { tokenType in
                 seal.fulfill(tokenType)
             }
@@ -264,43 +297,88 @@ class TokensDataStore {
     }
 
     func getERC20Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<BigInt, AnyError>.t) -> Void) {
-        getERC20BalanceCoordinator.getBalance(for: account.address, contract: address) { result in
-            completion(result)
+        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+            guard let strongSelf = self else { return }
+            strongSelf.getERC20BalanceCoordinator.getBalance(for: strongSelf.account.address, contract: address) { result in
+                switch result {
+                case .success(let value):
+                    completion(result)
+                case .failure:
+                    if !triggerRetry() {
+                        completion(result)
+                    }
+                }
+            }
         }
     }
 
     func getERC875Balance(for address: AlphaWallet.Address,
                           completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
-        getERC875BalanceCoordinator.getERC875TokenBalance(for: account.address, contract: address) { result in
-            completion(result)
+        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+            guard let strongSelf = self else { return }
+            strongSelf.getERC875BalanceCoordinator.getERC875TokenBalance(for: strongSelf.account.address, contract: address) { result in
+                switch result {
+                case .success(let value):
+                    completion(result)
+                case .failure:
+                    if !triggerRetry() {
+                        completion(result)
+                    }
+                }
+            }
         }
     }
 
     func getERC721ForTicketsBalance(for address: AlphaWallet.Address,
                                     completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
-        getERC721ForTicketsBalanceCoordinator.getERC721ForTicketsTokenBalance(for: account.address, contract: address) { result in
-            completion(result)
+        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+            guard let strongSelf = self else { return }
+            strongSelf.getERC721ForTicketsBalanceCoordinator.getERC721ForTicketsTokenBalance(for: strongSelf.account.address, contract: address) { result in
+                switch result {
+                case .success(let value):
+                    completion(result)
+                case .failure:
+                    if !triggerRetry() {
+                        completion(result)
+                    }
+                }
+            }
         }
     }
 
     func getIsERC875Contract(for address: AlphaWallet.Address,
                              completion: @escaping (ResultResult<Bool, AnyError>.t) -> Void) {
-        getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { result in
-            completion(result)
+        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+            guard let strongSelf = self else { return }
+            strongSelf.getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { result in
+                switch result {
+                case .success(let value):
+                    completion(result)
+                case .failure:
+                    if !triggerRetry() {
+                        completion(result)
+                    }
+                }
+            }
         }
     }
 
     func getERC721Balance(for address: AlphaWallet.Address, completion: @escaping (ResultResult<[String], AnyError>.t) -> Void) {
-        getERC721BalanceCoordinator.getERC721TokenBalance(for: account.address, contract: address) { result in
-            switch result {
-            case .success(let balance):
-                if balance >= Int.max {
-                    completion(.failure(AnyError(Web3Error(description: ""))))
-                } else {
-                    completion(.success([String](repeating: "0", count: Int(balance))))
+        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+            guard let strongSelf = self else { return }
+            strongSelf.getERC721BalanceCoordinator.getERC721TokenBalance(for: strongSelf.account.address, contract: address) { result in
+                switch result {
+                case .success(let balance):
+                    if balance >= Int.max {
+                        completion(.failure(AnyError(Web3Error(description: ""))))
+                    } else {
+                        completion(.success([String](repeating: "0", count: Int(balance))))
+                    }
+                case .failure(let error):
+                    if !triggerRetry() {
+                        completion(.failure(error))
+                    }
                 }
-            case .failure(let error):
-                completion(.failure(error))
             }
         }
     }
@@ -314,49 +392,64 @@ class TokensDataStore {
                       completion: @escaping (TokenType) -> Void) {
         var knownToBeNotERC721 = false
         var knownToBeNotERC875 = false
-        getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { [weak self] result in
-            guard self != nil else { return }
-            switch result {
-            case .success(let isERC875):
-                if isERC875 {
-                    completion(.erc875)
-                    return
-                } else {
-                    knownToBeNotERC875 = true
+        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
+            guard let strongSelf = self else { return }
+            strongSelf.getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { [weak self] result in
+                guard self != nil else { return }
+                switch result {
+                case .success(let isERC875):
+                    if isERC875 {
+                        completion(.erc875)
+                        return
+                    } else {
+                        knownToBeNotERC875 = true
+                    }
+                case .failure:
+                    if !triggerRetry() {
+                        knownToBeNotERC875 = true
+                    }
                 }
-            case .failure:
-                knownToBeNotERC875 = true
-            }
-            if knownToBeNotERC721 && knownToBeNotERC875 {
-                completion(.erc20)
+                if knownToBeNotERC721 && knownToBeNotERC875 {
+                    completion(.erc20)
+                }
             }
         }
 
-        getIsERC721ContractCoordinator.getIsERC721Contract(for: address) { [weak self] result in
+        withRetry(times: numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry in
             guard let strongSelf = self else { return }
-            switch result {
-            case .success(let isERC721):
-                if isERC721 {
-                    strongSelf.getIsERC721ForTicketsContractCoordinator.getIsERC721ForTicketContract(for: address) { result in
-                        switch result {
-                        case .success(let isERC721ForTickets):
-                            if isERC721ForTickets {
-                                completion(.erc721ForTickets)
-                            } else {
-                                completion(.erc721)
+            strongSelf.getIsERC721ContractCoordinator.getIsERC721Contract(for: address) { [weak self] result in
+                guard let strongSelf = self else { return }
+                switch result {
+                case .success(let isERC721):
+                    if isERC721 {
+                        withRetry(times: strongSelf.numberOfTimesToRetryFetchContractData) { [weak self] triggerRetry2 in
+                            guard let strongSelf = self else { return }
+                            strongSelf.getIsERC721ForTicketsContractCoordinator.getIsERC721ForTicketContract(for: address) { result in
+                                switch result {
+                                case .success(let isERC721ForTickets):
+                                    if isERC721ForTickets {
+                                        completion(.erc721ForTickets)
+                                    } else {
+                                        completion(.erc721)
+                                    }
+                                case .failure:
+                                    if !triggerRetry2() {
+                                        completion(.erc721)
+                                    }
+                                }
                             }
-                        case .failure:
-                            completion(.erc721)
                         }
+                    } else {
+                        knownToBeNotERC721 = true
                     }
-                } else {
-                    knownToBeNotERC721 = true
+                case .failure:
+                    if !triggerRetry() {
+                        knownToBeNotERC721 = true
+                    }
                 }
-            case .failure:
-                knownToBeNotERC721 = true
-            }
-            if knownToBeNotERC721 && knownToBeNotERC875 {
-                completion(.erc20)
+                if knownToBeNotERC721 && knownToBeNotERC875 {
+                    completion(.erc20)
+                }
             }
         }
     }

@@ -15,7 +15,7 @@ class GetIsERC875ContractCoordinator {
         completion: @escaping (Result<Bool, AnyError>) -> Void
     ) {
         let function = GetIsERC875()
-        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi).done { dictionary in
+        callSmartContract(withServer: server, contract: contract, functionName: function.name, abiString: function.abi, timeout: TokensDataStore.fetchContractDataTimeout).done { dictionary in
             if let isERC875 = dictionary["0"] as? Bool {
                 completion(.success(isERC875))
             } else {

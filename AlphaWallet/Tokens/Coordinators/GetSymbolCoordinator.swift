@@ -16,7 +16,7 @@ class GetSymbolCoordinator {
         completion: @escaping (Result<String, AnyError>) -> Void
     ) {
         let functionName = "symbol"
-        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI).done { symbolsResult in
+        callSmartContract(withServer: server, contract: contract, functionName: functionName, abiString: web3swift.Web3.Utils.erc20ABI, timeout: TokensDataStore.fetchContractDataTimeout).done { symbolsResult in
             if let symbol = symbolsResult["0"] as? String {
                 completion(.success(symbol))
             } else {
