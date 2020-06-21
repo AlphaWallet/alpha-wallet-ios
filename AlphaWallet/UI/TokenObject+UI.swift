@@ -35,7 +35,9 @@ extension TokenObject {
                 return .init((image: img, symbol: ""))
             }
         case .erc20, .erc875, .erc721, .erc721ForTickets:
-            break
+            if let img = contractAddress.tokenImage {
+                return .init((image: img, symbol: ""))
+            }
         }
         return TokenImageFetcher.instance.image(forToken: self)
     }
