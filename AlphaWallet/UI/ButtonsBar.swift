@@ -24,7 +24,7 @@ enum ButtonsBarConfiguration {
             let buttonsToShow: [ButtonsBarButtonType] = [.green, .white]
             if buttons > ButtonsBarConfiguration.maxCombinedButtons {
                 let hiddenButtonsCount = buttons - buttonsToShow.count
-                
+
                 return buttonsToShow + [ButtonsBarButtonType].init(repeating: .white, count: hiddenButtonsCount)
             } else {
                 return [ButtonsBarButtonType](buttonsToShow.prefix(buttons))
@@ -33,7 +33,7 @@ enum ButtonsBarConfiguration {
             return []
         }
     }
-    
+
     func shouldHideButton(at index: Int) -> Bool {
         switch self {
         case .green, .white:
@@ -46,7 +46,7 @@ enum ButtonsBarConfiguration {
             return false
         }
     }
-    
+
     var showMoreButton: Bool {
         switch self {
         case .green, .white:
@@ -102,6 +102,10 @@ class ButtonsBar: UIView {
     private let buttonsStackView: UIStackView
     private var innerStackView: UIStackView
     private var observations: [NSKeyValueObservation] = []
+
+    private var visibleButtons: [BarButton] {
+        buttons.filter { $0.displayButton }.enumerated().filter { configuration.shouldHideButton(at: $0.offset) }.map { $0.element }
+    }
 
     var buttons: [BarButton] {
         return buttonContainerViews.map { $0.childView }
@@ -161,7 +165,7 @@ class ButtonsBar: UIView {
             }
             observations.append(observation)
         }
-        
+
         moreButtonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.showMoreButton ? 1 : 0)
 
         for each in buttonsStackView.arrangedSubviews + innerStackView.arrangedSubviews {
@@ -237,18 +241,33 @@ class ButtonsBar: UIView {
     }
 
     @objc private func optionsButtonTapped(sender: BarButton) {
-        let buttons = self.buttons.filter { $0.displayButton }.enumerated().filter { configuration.shouldHideButton(at: $0.offset) }.map { $0.element }
+        let buttons = visibleButtons
         guard buttons.isEmpty == false else { return }
-        
+
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alertController.popoverPresentationController?.sourceView = sender
         alertController.popoverPresentationController?.sourceRect = sender.centerRect
 
-        for button in buttons {
+        for (i, button) in buttons.enumerated() {
             guard let title = button.title(for: .normal) else { continue }
-            
-            let action = UIAlertAction(title: title, style: .default) { _ in
-                button.sendActions(for: .touchUpInside)
+
+            let action = UIAlertAction(title: title, style: .default) { [weak self] _ in
+                guard let strongSelf = self else { return }
+                let buttons = strongSelf.visibleButtons
+                let actualButton: UIButton
+                if i < buttons.count {
+                    //This sequence of event is possible and common, so we have to figure out the button in the current set of buttons after refresh:
+                    //1. Tap more button to show action sheet
+                    //2. UI refreshes and buttons B are replaced with B'
+                    //3. User tap button X in action sheet
+                    //4. We use B to send the action, which is no longer there. We need to find B' instead
+                    //A problem with this approach is if the actions has changed in terms of order or number, the wrong action might be chosen
+                    //TODO close actionsheet if actions are different from before?
+                    actualButton = buttons[i]
+                } else {
+                    actualButton = button
+                }
+                actualButton.sendActions(for: .touchUpInside)
             }
             action.isEnabled = button.isEnabled
 
@@ -272,7 +291,7 @@ class ButtonsBar: UIView {
 }
 
 private struct ButtonsBarViewModel {
-    
+
     static let greenButton = ButtonsBarViewModel(
         buttonBackgroundColor: Colors.appActionButtonGreen,
         disabledButtonBackgroundColor: Colors.appActionButtonGreen.withAlphaComponent(0.3),
