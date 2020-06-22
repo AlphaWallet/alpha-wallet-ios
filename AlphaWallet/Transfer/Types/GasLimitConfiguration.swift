@@ -5,6 +5,6 @@ import BigInt
 
 public struct GasLimitConfiguration {
     static let defaultGasLimit = BigInt(90_000)
-    static let minGasLimit = BigInt(21_000)
+    static let minGasLimit = BigInt(21_000) // ETH transfers are always 21k
     static let maxGasLimit = BigInt(1_000_000)
 }
