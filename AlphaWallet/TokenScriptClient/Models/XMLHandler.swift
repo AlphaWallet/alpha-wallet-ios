@@ -158,12 +158,12 @@ private class PrivateXMLHandler {
     var actions: [TokenInstanceAction] {
         guard hasValidTokenScriptFile else { return [] }
         var results = [TokenInstanceAction]()
-        let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceCardElements(fromRoot: xml, xmlContext: xmlContext))
+        let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceActionCardElements(fromRoot: xml, xmlContext: xmlContext))
         let fromActionAsTopLevel = Array(XMLHandler.getTokenScriptActionOnlyActionElements(fromRoot: xml, xmlContext: xmlContext))
         let actionElements = fromTokenAsTopLevel + fromActionAsTopLevel
         for actionElement in actionElements {
             if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty,
-               let viewElement = XMLHandler.getViewElement(fromActionElement: actionElement, xmlContext: xmlContext) {
+               let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext) {
                 let (html: html, style: style) = extractHtml(fromViewElement: viewElement)
                 guard !html.isEmpty else { continue }
                 let attributes = extractFields(forActionElement: actionElement)
@@ -189,6 +189,49 @@ private class PrivateXMLHandler {
 
     var attributesWithEventSource: [AssetAttribute] {
         fields.values.filter { $0.isEventOriginBased }
+    }
+
+    var activityCards: [TokenScriptCard] {
+        let cards = Array(XMLHandler.getTokenScriptTokenInstanceActivityCardElements(fromRoot: xml, xmlContext: xmlContext))
+        let results: [TokenScriptCard] = cards.compactMap { eachCard in
+            guard let name = eachCard["name"],
+              let ethereumEventElement = XMLHandler.getEthereumOriginElementEvents(fromAttributeTypeElement: eachCard, xmlContext: xmlContext),
+               let eventName = ethereumEventElement["type"],
+               let asnModuleNamedElement = XMLHandler.getAsnModuleNamedTypeElement(fromRoot: xml, xmlContext: xmlContext, forTypeName: eventName) else { return nil }
+            let optionalContract: AlphaWallet.Address?
+            if let eventContractName = ethereumEventElement["contract"],
+               let eventSourceContractElement = XMLHandler.getContractElementByName(contractName: eventContractName, fromRoot: xml, xmlContext: xmlContext) {
+                let addressElements = XMLHandler.getAddressElements(fromContractElement: eventSourceContractElement, xmlContext: xmlContext)
+                optionalContract = addressElements.first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed) })
+            } else {
+                optionalContract = contractAddress
+            }
+            guard let contract = optionalContract, let origin = Origin(forEthereumEventElement: ethereumEventElement, asnModuleNamedTypeElement: asnModuleNamedElement, contract: contract, xmlContext: xmlContext) else { return nil }
+            switch origin {
+            case .event(let eventOrigin):
+                let viewHtml: String
+                let viewStyle: String
+                let itemViewHtml: String
+                let itemViewStyle: String
+
+                if let viewElement = XMLHandler.getViewElement(fromCardElement: eachCard, xmlContext: xmlContext) {
+                    (html: viewHtml, style: viewStyle) = extractHtml(fromViewElement: viewElement)
+                } else {
+                    viewHtml = ""
+                    viewStyle = ""
+                }
+                if let itemViewElement = XMLHandler.getItemViewElement(fromCardElement: eachCard, xmlContext: xmlContext) {
+                    (html: itemViewHtml, style: itemViewStyle) = extractHtml(fromViewElement: itemViewElement)
+                } else {
+                    itemViewHtml = ""
+                    itemViewStyle = ""
+                }
+                return .init(name: name, eventOrigin: eventOrigin, view: (html: viewHtml, style: viewStyle), itemView: (html: itemViewHtml, style: itemViewStyle))
+            case .tokenId, .userEntry, .function:
+                return nil
+            }
+        }
+        return results
     }
 
     lazy var fieldIdsAndNames: [AttributeId: String] = {
@@ -243,7 +286,7 @@ private class PrivateXMLHandler {
         self.init(contract: contract, xmlString: xmlString, isOfficial: isOfficial, isCanonicalized: isCanonicalized, assetDefinitionStore: assetDefinitionStore)
     }
 
-    init(contract: AlphaWallet.Address, xmlString: String?, isOfficial: Bool, isCanonicalized: Bool, assetDefinitionStore: AssetDefinitionStore) {
+    private init(contract: AlphaWallet.Address, xmlString: String?, isOfficial: Bool, isCanonicalized: Bool, assetDefinitionStore: AssetDefinitionStore) {
         let xmlString = xmlString ?? ""
         self.contractAddress = contract
         self.isOfficial = isOfficial
@@ -256,16 +299,49 @@ private class PrivateXMLHandler {
             let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus)
             self.xml = xml
             self.hasValidTokenScriptFile = hasValidTokenScriptFile
-            self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
+            //TODO fix for activities. Support base (inheritance)
+            if assetDefinitionStore.isBase(contract: contract) {
+                if let (_, server, _) = Constants.erc20ContractsSupportingActivities.first(where: { $0.address.sameContract(as: contract) }) {
+                    self.server = server
+                }
+            } else {
+                if let (_, server, _) = Constants.erc20ContractsSupportingActivities.first(where: { $0.address.sameContract(as: contract) }) {
+                    self.server = server
+                } else {
+                    self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
+                }
+            }
         } else {
             xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
             hasValidTokenScriptFile = true
-            server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
+            //TODO fix for activities. Support base (inheritance)
+            if assetDefinitionStore.isBase(contract: contract) {
+                if let (_, server, _) = Constants.erc20ContractsSupportingActivities.first(where: { $0.address.sameContract(as: contract) }) {
+                    self.server = server
+                }
+            } else {
+                if let (_, server, _) = Constants.erc20ContractsSupportingActivities.first(where: { $0.address.sameContract(as: contract) }) {
+                    self.server = server
+                } else {
+                    server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
+                }
+            }
             tokenScriptStatusPromise.done { tokenScriptStatus in
                 let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus)
                 self.xml = xml
                 self.hasValidTokenScriptFile = hasValidTokenScriptFile
-                self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: self.xmlContext, matchingContract: contract)
+                //TODO fix for activities. Support base (inheritance)
+                if assetDefinitionStore.isBase(contract: contract) {
+                    if let (_, server, _) = Constants.erc20ContractsSupportingActivities.first(where: { $0.address.sameContract(as: contract) }) {
+                        self.server = server
+                    }
+                } else {
+                    if let (_, server, _) = Constants.erc20ContractsSupportingActivities.first(where: { $0.address.sameContract(as: contract) }) {
+                        self.server = server
+                    } else {
+                        self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: self.xmlContext, matchingContract: contract)
+                    }
+                }
                 self.assetDefinitionStore?.invalidateSignatureStatus(forContract: self.contractAddress)
             }.cauterize()
         }
@@ -511,7 +587,7 @@ private class PrivateXMLHandler {
         for each in XMLHandler.getAttributeElements(fromAttributeElement: element, xmlContext: xmlContext) {
             guard let name = each["name"] else { continue }
             //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
-            guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
+            guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, tokenContract: contractAddress, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
             fields[name] = attribute
         }
         return fields
@@ -547,7 +623,7 @@ private class PrivateXMLHandler {
         let namespaces = [
             "ts": PrivateXMLHandler.tokenScriptNamespace,
             "ds": "http://www.w3.org/2000/09/xmldsig#",
-            "xhtml": "http://www.w3.org/1999/xhtml", 
+            "xhtml": "http://www.w3.org/1999/xhtml",
             "asnx": "urn:ietf:params:xml:ns:asnx",
             "ethereum": "urn:ethereum:constantinople",
         ]
@@ -613,6 +689,10 @@ public class XMLHandler {
 
     var attributesWithEventSource: [AssetAttribute] {
         privateXMLHandler.attributesWithEventSource
+    }
+
+    var activityCards: [TokenScriptCard] {
+        privateXMLHandler.activityCards
     }
 
     var fieldIdsAndNames: [AttributeId: String] {

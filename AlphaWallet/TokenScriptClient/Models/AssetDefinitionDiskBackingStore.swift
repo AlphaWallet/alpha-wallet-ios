@@ -126,6 +126,13 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
 
     subscript(contract: AlphaWallet.Address) -> String? {
         get {
+            //TODO fix for activities. Overriding doesn't work for native crypto 0x00..00
+            if isOfficial {
+                if let (_, _, tokenScript: tokenScript) = Constants.erc20ContractsSupportingActivities.first(where: { $0.address.sameContract(as: contract) }) {
+                    return tokenScript
+                }
+            }
+
             //TODO this is the bundled version of the XDai bridge. Should remove it when the repo server can server action-only TokenScripts
             if isOfficial && contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
                 if cachedVersionOfXDaiBridgeTokenScript == nil {
@@ -166,6 +173,11 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
             //We return true because then it'll be treated as needing a higher security level rather than a non-canonicalized (debug version)
             return true
         }
+    }
+
+    func isBase(contract: AlphaWallet.Address) -> Bool {
+        //TODO fix for activities. Support base (inheritance)
+        return false
     }
 
     func hasConflictingFile(forContract contract: AlphaWallet.Address) -> Bool {

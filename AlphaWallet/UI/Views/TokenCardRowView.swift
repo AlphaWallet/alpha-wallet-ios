@@ -47,7 +47,6 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	lazy private var tokenScriptRendererView: TokenInstanceWebView = {
 		//TODO pass in keystore or wallet address instead
 		let walletAddress = EtherKeystore.current!.address
-		//TODO this can't sign personal message because we didn't set a delegate, but we don't need it also
 		let webView = TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
 		webView.delegate = self
 		return webView

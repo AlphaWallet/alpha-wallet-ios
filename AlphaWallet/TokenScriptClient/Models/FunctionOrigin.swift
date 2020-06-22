@@ -331,7 +331,7 @@ struct FunctionOrigin {
         if let inputName = inputElement["ref"].nilIfEmpty {
             return .ref(ref: inputName, type: inputType)
         } else if let inputName = inputElement["local-ref"].nilIfEmpty {
-            let attributes = XMLHandler.getCardAttributeElements(fromRoot: root, xmlContext: xmlContext)
+            let attributes = XMLHandler.getActionCardAttributeElements(fromRoot: root, xmlContext: xmlContext)
             let attributeNames = attributes.compactMap { $0["name"] }
             if attributeNames.contains(inputName) {
                 return .cardRef(ref: inputName, type: inputType)

@@ -126,6 +126,7 @@
 "transactions.received.ether" = "You have received %@ %@";
 "transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";
 "transaction.navigation.title" = "거래";
+"activity.tabbar.item.title" = "Activity";
 "import.navigation.title" = "지갑 가져오기";
 "configureTransaction.data.label.title" = "거래 데이터 (선택 사항)";
 "configureTransaction.nonce.label.title" = "Nonce (Optional)";

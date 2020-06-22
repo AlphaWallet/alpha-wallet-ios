@@ -45,6 +45,10 @@ class AssetDefinitionInMemoryBackingStore: AssetDefinitionBackingStore {
         return true
     }
 
+    func isBase(contract: AlphaWallet.Address) -> Bool {
+        false
+    }
+
     func hasConflictingFile(forContract contract: AlphaWallet.Address) -> Bool {
         return false
     }

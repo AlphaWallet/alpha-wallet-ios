@@ -35,6 +35,8 @@ class TransactionDataCoordinator: Coordinator {
     }()
 
     weak var delegate: TransactionDataCoordinatorDelegate?
+    //TODO fix for activities: remove to support transactions appearing in Activity tab properly
+    weak var delegate2: TransactionDataCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
     init(
@@ -121,6 +123,7 @@ class TransactionDataCoordinator: Coordinator {
 
     private func handleUpdateItems() {
         delegate?.didUpdate(result: .success(transactionCollection.objects))
+        delegate2?.didUpdate(result: .success(transactionCollection.objects))
     }
 }
 

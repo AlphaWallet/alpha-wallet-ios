@@ -15,6 +15,9 @@ class AssetDefinitionStore {
         case error
     }
 
+    //TODO fix for activities: remove
+    static var instance: AssetDefinitionStore!
+
     private var httpHeaders: HTTPHeaders = {
         guard let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else { return [:] }
         return [
@@ -83,6 +86,7 @@ class AssetDefinitionStore {
     init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides()) {
         self.backingStore = backingStore
         self.backingStore.delegate = self
+        AssetDefinitionStore.instance = self
     }
 
     func hasConflict(forContract contract: AlphaWallet.Address) -> Bool {
@@ -118,6 +122,11 @@ class AssetDefinitionStore {
 
     func isCanonicalized(contract: AlphaWallet.Address) -> Bool {
         return backingStore.isCanonicalized(contract: contract)
+    }
+
+    //TODO fix for activities. Support base (inheritance)
+    func isBase(contract: AlphaWallet.Address) -> Bool {
+        return false
     }
 
     func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {

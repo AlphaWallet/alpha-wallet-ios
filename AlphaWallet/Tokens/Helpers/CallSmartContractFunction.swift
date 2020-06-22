@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import Foundation
+import BigInt
 import PromiseKit
 import web3swift
 
@@ -59,5 +60,29 @@ func getEventLogs(
                 eventName: eventName,
                 filter: filter
         )
+    }
+}
+
+//TODO fix for activities: tidy up. Need a class?
+class GetBlockTimestamp {
+    //TODO fix for activities: move
+    private static var blockTimestampCache: [RPCServer: [BigUInt: Date]] = .init()
+
+    func getBlockTimestamp(_ blockNumber: BigUInt, onServer server: RPCServer) -> Promise<Date> {
+        var cacheForServer = GetBlockTimestamp.blockTimestampCache[server] ?? .init()
+        if let date = cacheForServer[blockNumber] {
+            return .value(date)
+        }
+
+        guard let webProvider = Web3HttpProvider(server.rpcURL, network: server.web3Network) else {
+            return Promise(error: Web3Error(description: "Error creating web provider for: \(server.rpcURL) + \(server.web3Network)"))
+        }
+        let web3 = web3swift.web3(provider: webProvider)
+        return web3.eth.getBlockByNumberPromise(blockNumber).map {
+            let result = $0.timestamp
+            cacheForServer[blockNumber] = result
+            GetBlockTimestamp.blockTimestampCache[server] = cacheForServer
+            return result
+        }
     }
 }
