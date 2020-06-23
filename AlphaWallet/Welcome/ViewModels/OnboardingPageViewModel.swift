@@ -9,7 +9,7 @@ struct OnboardingPageViewModel {
 
     init() {
         title = ""
-        image = #imageLiteral(resourceName: "onboarding_lock")
+        image = R.image.onboarding_lock()!
     }
 
     init(title: String, image: UIImage) {
