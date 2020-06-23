@@ -135,6 +135,7 @@ class TokensViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         handleTokenCollectionUpdates()
 
+        hidesBottomBarWhenPushed = true
         view.backgroundColor = viewModel.backgroundColor
 
         tableViewFilterView.delegate = self
@@ -196,6 +197,9 @@ class TokensViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.applyTintAdjustment()
+        navigationController?.navigationBar.prefersLargeTitles = false
+        hidesBottomBarWhenPushed = false
+        
         fetch()
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
     }

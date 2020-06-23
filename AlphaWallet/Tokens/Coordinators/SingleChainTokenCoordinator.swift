@@ -318,6 +318,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
         let tokensCardCoordinator = TokensCardCoordinator(
                 session: session,
+                navigationController: navigationController,
                 keystore: keystore,
                 tokensStorage: storage,
                 ethPrice: cryptoPrice,
@@ -328,17 +329,12 @@ class SingleChainTokenCoordinator: Coordinator {
         addCoordinator(tokensCardCoordinator)
         tokensCardCoordinator.delegate = self
         tokensCardCoordinator.start()
+
         switch (type, session.account.type) {
         case (.send, .real), (.request, _):
             makeCoordinatorReadOnlyIfNotSupportedByOpenSeaERC721(coordinator: tokensCardCoordinator, token: token)
-            tokensCardCoordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-            navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
         case (.send, .watch):
             tokensCardCoordinator.isReadOnly = true
-            tokensCardCoordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-            navigationController.present(tokensCardCoordinator.navigationController, animated: true, completion: nil)
-        case (_, _):
-            navigationController.displayError(error: InCoordinatorError.onlyWatchAccount)
         }
     }
 
@@ -376,12 +372,9 @@ class SingleChainTokenCoordinator: Coordinator {
         viewController.delegate = self
         let viewModel = TokenViewControllerViewModel(transferType: transferType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore)
         viewController.configure(viewModel: viewModel)
-        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
+        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: self, action: #selector(dismiss))
 
-        //navigationController.present(UINavigationController(rootViewController: viewController), animated: true, completion: nil)
-        let nc = UINavigationController(rootViewController: viewController)
-        nc.makePresentationFullScreenForiOS13Migration()
-        navigationController.present(nc, animated: true, completion: nil)
+        navigationController.pushViewController(viewController, animated: true)
 
         refreshTokenViewControllerUponAssetDefinitionChanges(viewController, forTransferType: transferType, transactionsStore: transactionsStore)
     }
@@ -396,7 +389,7 @@ class SingleChainTokenCoordinator: Coordinator {
     }
 
     @objc func dismiss() {
-        navigationController.dismiss(animated: true, completion: nil)
+        navigationController.popToRootViewController(animated: true)
     }
 
     func delete(token: TokenObject) {
@@ -517,7 +510,7 @@ class SingleChainTokenCoordinator: Coordinator {
 
 extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
     func didCancel(in coordinator: TokensCardCoordinator) {
-        navigationController.dismiss(animated: true)
+        navigationController.popToRootViewController(animated: true)
         removeCoordinator(coordinator)
     }
 }
