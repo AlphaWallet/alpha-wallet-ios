@@ -31,7 +31,7 @@ class WelcomeViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(R.string.localizable.aWelcomeOnboardingCreatewalletButtonTitle(), for: .normal)
         button.titleLabel?.font = Fonts.semibold(size: 16)
-        button.backgroundColor = Colors.appTint
+        button.setBackgroundColor(Colors.appTint, forState: .normal) 
         button.setTitleColor(Colors.appWhite, for: .normal)
         return button
     }()
