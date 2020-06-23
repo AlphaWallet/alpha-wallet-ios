@@ -49,7 +49,7 @@ class AddressTextField: UIControl {
         button.setTitle(R.string.localizable.sendPasteButtonTitle(), for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.backgroundColor = .clear
+        button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
 
         return button
@@ -61,7 +61,7 @@ class AddressTextField: UIControl {
         button.setTitle("Clear", for: .normal)
         button.titleLabel?.font = DataEntry.Font.accessory
         button.setTitleColor(DataEntry.Color.icon, for: .normal)
-        button.backgroundColor = .clear
+        button.setBackgroundColor(.clear, forState: .normal)
         button.contentHorizontalAlignment = .right
 
         return button
@@ -243,7 +243,7 @@ class AddressTextField: UIControl {
         scanQRCodeButton.translatesAutoresizingMaskIntoConstraints = false
         scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
-        scanQRCodeButton.backgroundColor = .clear
+        scanQRCodeButton.setBackgroundColor(.clear, forState: .normal)
 
         let targetAddressRightView = [scanQRCodeButton].asStackView(distribution: .fill)
         //As of iOS 13, we need to constrain the width of `rightView`
