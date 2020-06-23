@@ -110,7 +110,7 @@ class NewTokenViewController: UIViewController {
             addressTextField,
 
             .spacer(height: 4), [
-                [addressTextField.ensAddressLabel, addressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
+                [addressTextField.ensAddressView, addressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
                 addressControlsContainer
             ].asStackView(axis: .horizontal),
             .spacer(height: 4),
