@@ -38,7 +38,7 @@ class NumberStepper: UIControl {
     public var buttonsBackgroundColor: UIColor = .clear {
         didSet {
             for button in [leftButton, rightButton] {
-                button.backgroundColor = buttonsBackgroundColor
+                button.setBackgroundColor(buttonsBackgroundColor, forState: .normal)
             }
             backgroundColor = buttonsBackgroundColor
         }
