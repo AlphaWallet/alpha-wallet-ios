@@ -32,7 +32,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private weak var transferTokensViewController: TransferTokensCardViaWalletAddressViewController?
 
     weak var delegate: TokensCardCoordinatorDelegate?
-    let navigationController: NavigationController
+    let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
 
     var isReadOnly = false {
@@ -43,7 +43,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     init(
             session: WalletSession,
-            navigationController: NavigationController = NavigationController(),
+            navigationController: UINavigationController,
             keystore: Keystore,
             tokensStorage: TokensDataStore,
             ethPrice: Subscribable<Double>,
@@ -64,7 +64,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
 
     func start() {
         rootViewController.configure()
-        navigationController.viewControllers = [rootViewController]
+        navigationController.pushViewController(rootViewController, animated: true)
         refreshUponAssetDefinitionChanges()
         refreshUponEthereumEventChanges()
     }
@@ -109,6 +109,7 @@ class TokensCardCoordinator: NSObject, Coordinator {
     private func makeTokensCardViewController(with account: Wallet, viewModel: TokensCardViewModel) -> TokensCardViewController {
         let controller = TokensCardViewController(tokenObject: token, account: account, tokensStorage: tokensStorage, assetDefinitionStore: assetDefinitionStore, viewModel: viewModel)
         controller.makePresentationFullScreenForiOS13Migration()
+        controller.hidesBottomBarWhenPushed = true
         controller.delegate = self
         return controller
     }
