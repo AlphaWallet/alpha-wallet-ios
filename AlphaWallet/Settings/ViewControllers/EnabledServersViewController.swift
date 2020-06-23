@@ -19,7 +19,7 @@ class EnabledServersViewController: UIViewController {
 
         navigationItem.rightBarButtonItem = .init(barButtonSystemItem: .save, target: self, action: #selector(done))
 
-        view.backgroundColor = Colors.appBackground
+        view.backgroundColor = GroupedTable.Color.background
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -27,7 +27,8 @@ class EnabledServersViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(ServerViewCell.self, forCellReuseIdentifier: ServerViewCell.identifier)
         roundedBackground.addSubview(tableView)
 

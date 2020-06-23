@@ -153,7 +153,7 @@ class TokensViewController: UIViewController {
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.tableFooterView = UIView()
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.separatorInset = .zero
 
         tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)

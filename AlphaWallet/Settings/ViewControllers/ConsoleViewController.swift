@@ -20,7 +20,10 @@ class ConsoleViewController: UIViewController {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        view.backgroundColor = GroupedTable.Color.background
+        
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
