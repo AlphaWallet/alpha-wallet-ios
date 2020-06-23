@@ -16,7 +16,7 @@ class ServersViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
 
-        view.backgroundColor = Colors.appBackground
+        view.backgroundColor = GroupedTable.Color.background
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -25,6 +25,7 @@ class ServersViewController: UIViewController {
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(ServerViewCell.self, forCellReuseIdentifier: ServerViewCell.identifier)
         roundedBackground.addSubview(tableView)
 

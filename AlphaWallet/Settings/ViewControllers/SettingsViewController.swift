@@ -18,7 +18,7 @@ class SettingsViewController: UIViewController {
     private let promptBackupWalletViewHolder = UIView()
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.tableFooterView = UIView()
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingViewHeader.self, forHeaderFooterViewReuseIdentifier: SettingViewHeader.reuseIdentifier)
         tableView.register(SettingTableViewCell.self, forCellReuseIdentifier: SettingTableViewCell.reuseIdentifier)
         tableView.register(SwitchTableViewCell.self, forCellReuseIdentifier: SwitchTableViewCell.reuseIdentifier)
@@ -67,7 +67,7 @@ class SettingsViewController: UIViewController {
         super.viewDidLoad()
 
         title = R.string.localizable.aSettingsNavigationTitle()
-        view.backgroundColor = Screen.Setting.Color.background
+        view.backgroundColor = GroupedTable.Color.background
         navigationItem.largeTitleDisplayMode = .automatic
         tableView.backgroundColor = GroupedTable.Color.background
 

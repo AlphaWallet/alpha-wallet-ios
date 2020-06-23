@@ -21,7 +21,7 @@ class AdvancedSettingsViewController: UIViewController {
     private lazy var viewModel: AdvancedSettingsViewModel = AdvancedSettingsViewModel()
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.tableFooterView = UIView()
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingTableViewCell.self, forCellReuseIdentifier: SettingTableViewCell.reuseIdentifier)
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
@@ -45,7 +45,7 @@ class AdvancedSettingsViewController: UIViewController {
         super.viewDidLoad()
 
         title = R.string.localizable.aAdvancedSettingsNavigationTitle()
-        view.backgroundColor = Screen.Setting.Color.background
+        view.backgroundColor = GroupedTable.Color.background
         navigationItem.largeTitleDisplayMode = .never
         tableView.backgroundColor = GroupedTable.Color.background
     }

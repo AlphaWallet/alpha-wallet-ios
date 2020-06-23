@@ -16,7 +16,7 @@ class LocalesViewController: UIViewController {
     init() {
         super.init(nibName: nil, bundle: nil)
 
-        view.backgroundColor = Colors.appBackground
+        view.backgroundColor = GroupedTable.Color.background
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -24,7 +24,8 @@ class LocalesViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
-        tableView.backgroundColor = Colors.appBackground
+        tableView.backgroundColor = GroupedTable.Color.background
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(LocaleViewCell.self, forCellReuseIdentifier: LocaleViewCell.identifier)
         roundedBackground.addSubview(tableView)
 
