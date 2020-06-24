@@ -21,7 +21,6 @@ class ProtectionCoordinator: Coordinator {
 	}
 
 	func didFinishLaunchingWithOptions() {
-		splashCoordinator.start()
 		lockEnterPasscodeCoordinator.start()
 		lockEnterPasscodeCoordinator.showAuthentication()
 	}
