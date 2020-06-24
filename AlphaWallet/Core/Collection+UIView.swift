@@ -6,7 +6,7 @@ extension Collection where Element == UIView {
     var alpha: CGFloat {
         set {
             for each in self {
-                each.alpha = alpha
+                each.alpha = newValue
             }
         }
         get {
