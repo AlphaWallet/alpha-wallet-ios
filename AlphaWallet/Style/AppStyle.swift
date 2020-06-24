@@ -164,7 +164,7 @@ enum DataEntry {
 
     enum Font {
         static let text = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14: 18)
-        static let label = Fonts.regular(size: 10)
+        static let label = Fonts.bold(size: 13)
         static let textFieldTitle = Fonts.regular(size: 13)
         static let textFieldStatus = Fonts.bold(size: 13)
         static let textField = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14: 17)
