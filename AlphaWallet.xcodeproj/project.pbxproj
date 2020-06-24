@@ -3527,6 +3527,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2912CD1F1F6A830700C6CBE3 /* Build configuration list for PBXNativeTarget "AlphaWallet" */;
 			buildPhases = (
+				C83F787024A1C1DB00783B67 /* Check correct credentials used for API keys */,
 				7C3903F7FBE1023CAA5AED0C /* [CP] Check Pods Manifest.lock */,
 				29336FE81F6B24FF005E3BFC /* R.Swift */,
 				2912CCF11F6A830700C6CBE3 /* Sources */,
@@ -3873,6 +3874,24 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AlphaWalletTests/Pods-AlphaWalletTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		C83F787024A1C1DB00783B67 /* Check correct credentials used for API keys */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Check correct credentials used for API keys";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ]; then\n  if [ \"${PRODUCT_BUNDLE_IDENTIFIER}\" = \"com.stormbird.alphawallet\" ]; then\n    if grep -q 'static let infuraKey = \"3f22' \"AlphaWallet/Settings/Types/Constants+Credentials.swift\"; then\n        exit 0\n    else\n        echo \"Make sure Constants+Credentials.swift has the correct keys for production builds\"\n        exit 1\n    fi\n  fi\nfi\n\n\n";
 		};
 		C8FC0401219E9CC000445E21 /* R.swift */ = {
 			isa = PBXShellScriptBuildPhase;
