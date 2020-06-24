@@ -50,12 +50,7 @@ class EthCurrencyHelper {
 
     public func valueChanged24h(currencyAmountWithoutSymbol: Double?) -> String? {
         if let percentChange = percentageChange24h, let value = currencyAmountWithoutSymbol {
-            let change = value * percentChange / 100
-            if let string = CurrencyFormatter.usdFormatter.string(from: NSNumber(value: change)) {
-                return string
-            } else {
-                return nil
-            }
+            return NumberFormatter.usd.string(from: value * percentChange / 100)
         } else {
             return nil
         }
