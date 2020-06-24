@@ -221,9 +221,9 @@ class SendViewController: UIViewController, CanScanQRCode {
         amountLabel.font = viewModel.textFieldsLabelFont
         amountLabel.textColor = viewModel.textFieldsLabelTextColor
         amountTextField.currentPair = viewModel.amountTextFieldPair
-        amountTextField.isAlternativeAmountEnabled = viewModel.isAlternativeAmountEnabled
-        amountTextField.selectCurrencyButton.isHidden = viewModel.selectCurrencyButtonHidden
-        amountTextField.selectCurrencyButton.expandIconHidden = !viewModel.isAlternativeAmountEnabled
+        amountTextField.isAlternativeAmountEnabled = false
+        amountTextField.selectCurrencyButton.isHidden = viewModel.currencyButtonHidden
+        amountTextField.selectCurrencyButton.expandIconHidden = viewModel.selectCurrencyButtonHidden
 
         amountTextField.statusLabel.text = viewModel.availableLabelText
         amountTextField.availableTextHidden = viewModel.availableTextHidden
