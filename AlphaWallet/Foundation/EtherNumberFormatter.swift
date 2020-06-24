@@ -9,11 +9,18 @@ final class EtherNumberFormatter {
     /// Formatter that preserves full precision.
     static let full = EtherNumberFormatter()
 
-    // Formatter that caps the number of decimal digits to 4.
     static let short: EtherNumberFormatter = {
-        let formatter = EtherNumberFormatter()
-        formatter.maximumFractionDigits = 4
-        return formatter
+       let formatter = EtherNumberFormatter()
+       formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
+
+       return formatter
+    }()
+
+    static var plain: EtherNumberFormatter = {
+       let formatter = EtherNumberFormatter()
+       formatter.groupingSeparator = ""
+
+       return formatter
     }()
 
     /// Minimum number of digits after the decimal point.

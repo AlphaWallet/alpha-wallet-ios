@@ -156,6 +156,12 @@ public struct Constants {
 
     //validator API
     static let tokenScriptValidatorAPI = "https://aw.app/api/v1/verifyXMLDSig"
+
+    //CurrencyFormatter
+    static let formatterFractionDigits = 2
+
+    //EtherNumberFormatter
+    static let etherFormatterFractionDigits = 4
 }
 
 public struct UnitConfiguration {
