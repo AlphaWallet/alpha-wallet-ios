@@ -34,7 +34,7 @@ struct ConfigExplorer {
         case .main, .kovan, .ropsten, .rinkeby, .goerli:
             return "Etherscan"
         case .classic:
-            return "Gastracker"
+            return "ETC Explorer"
         case .poa:
             return "POA Explorer"
         case .custom, .callisto:
@@ -54,7 +54,7 @@ struct ConfigExplorer {
         case .main:
             return ("https://cn.etherscan.com", nameForServer)
         case .classic:
-            return ("https://gastracker.io", nameForServer)
+            return ("https://blockscout.com/etc/mainnet/", nameForServer)
         case .kovan:
             return ("https://kovan.etherscan.io", nameForServer)
         case .ropsten:
