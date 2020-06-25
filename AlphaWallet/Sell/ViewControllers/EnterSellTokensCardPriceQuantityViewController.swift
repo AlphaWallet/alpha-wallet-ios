@@ -49,7 +49,7 @@ class EnterSellTokensCardPriceQuantityViewController: UIViewController, TokenVer
         return viewModel.token.server
     }
     let assetDefinitionStore: AssetDefinitionStore
-    lazy var pricePerTokenField = AmountTextField(tokenObject: viewModel.token)
+    lazy var pricePerTokenField = AmountTextField(tokenObject: viewModel.ethToken)
     let paymentFlow: PaymentFlow
     weak var delegate: EnterSellTokensCardPriceQuantityViewControllerDelegate?
 
