@@ -75,7 +75,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .kovan: return Constants.kovanEtherscanAPI
         case .poa: return Constants.poaNetworkCoreAPI
         case .sokol: return nil
-        case .classic: return nil
+        case .classic: return Constants.classicEtherscanAPI
         case .callisto: return nil
         case .goerli: return Constants.goerliEtherscanAPI
         case .xDai: return Constants.xDaiAPI
@@ -94,7 +94,7 @@ enum RPCServer: Hashable, CaseIterable {
         case .kovan: return Constants.kovanEtherscanAPIErc20Events
         case .poa: return Constants.poaNetworkCoreAPIErc20Events
         case .sokol: return nil
-        case .classic: return nil
+        case .classic: return Constants.classicAPIErc20Events
         case .callisto: return nil
         case .goerli: return Constants.goerliEtherscanAPIErc20Events
         case .xDai: return Constants.xDaiAPIErc20Events
@@ -245,7 +245,7 @@ enum RPCServer: Hashable, CaseIterable {
         let urlString: String = {
             switch self {
             case .main: return "https://mainnet.infura.io/v3/\(Constants.Credentials.infuraKey)"
-            case .classic: return "https://ethereumclassic.network"
+            case .classic: return "https://www.ethercluster.com/etc"
             case .callisto: return "https://callisto.network/" //TODO Add endpoint
             case .kovan: return "https://kovan.infura.io/v3/\(Constants.Credentials.infuraKey)"
             case .ropsten: return "https://ropsten.infura.io/v3/\(Constants.Credentials.infuraKey)"
