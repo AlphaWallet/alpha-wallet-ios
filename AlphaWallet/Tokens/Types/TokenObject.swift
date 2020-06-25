@@ -63,7 +63,7 @@ class TokenObject: Object {
             AlphaWallet.Address(uncheckedAgainstNullAddress: contract)!
         }
         set {
-            contract = contractAddress.eip55String
+            contract = newValue.eip55String
         }
     }
 
