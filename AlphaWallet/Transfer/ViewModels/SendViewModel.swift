@@ -41,14 +41,7 @@ struct SendViewModel {
         case .dapp:
             return nil
         }
-    }
-
-    var showAlternativeAmount: Bool {
-        guard let currentTokenInfo = storage.tickers?[destinationAddress], currentTokenInfo.price_usd > 0 else {
-            return false
-        }
-        return true
-    }
+    } 
 
     var textFieldsLabelTextColor: UIColor {
         return Colors.appGrayLabel
@@ -73,16 +66,19 @@ struct SendViewModel {
         return AmountTextField.Pair(left: .cryptoCurrency(transferType.tokenObject), right: .usd)
     }
 
-    var isAlternativeAmountEnabled: Bool {
+    var selectCurrencyButtonHidden: Bool {
         switch transferType {
         case .nativeCryptocurrency:
-            return true
-        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+            guard let currentTokenInfo = storage.tickers?[destinationAddress], currentTokenInfo.price_usd > 0 else {
+                return true
+            }
             return false
+        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+            return true
         }
     }
 
-    var selectCurrencyButtonHidden: Bool {
+    var currencyButtonHidden: Bool {
         switch transferType {
         case .nativeCryptocurrency, .ERC20Token:
             return false
