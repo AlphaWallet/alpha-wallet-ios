@@ -101,9 +101,21 @@ struct AssetAttribute {
                   let eventName = ethereumEventElement["type"],
                   let eventContractName = ethereumEventElement["contract"],
                   let eventSourceContractElement = XMLHandler.getContractElementByName(contractName: eventContractName, fromRoot: root, xmlContext: xmlContext),
+                  let contract = XMLHandler.getAddressElements(fromContractElement: eventSourceContractElement, xmlContext: xmlContext).first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed) }),
                   let asnModuleElement = XMLHandler.getAsnModuleElement(fromRoot: root, xmlContext: xmlContext, forTypeName: eventName),
                   attribute["name"] != nil {
-            originFound = Origin(forEthereumEventElement: ethereumEventElement, asnModuleElement: asnModuleElement, sourceContractElement: eventSourceContractElement, xmlContext: xmlContext)
+            let possibleOrigin = Origin(forEthereumEventElement: ethereumEventElement, asnModuleElement: asnModuleElement, contract: contract, xmlContext: xmlContext)
+            switch possibleOrigin {
+            case .some(.event(let eventOrigin)):
+                //We only want event origins when there's a `select` attribute for attributes, unlike when we use event origins for activity
+                if eventOrigin.hasEventParameterName {
+                    originFound = possibleOrigin
+                } else {
+                    originFound = nil
+                }
+            case .some(.function), .some(.userEntry), .some(.userEntry), .some(.tokenId), .none:
+                originFound = possibleOrigin
+            }
         }
 
         guard let origin = originFound else { return nil }
