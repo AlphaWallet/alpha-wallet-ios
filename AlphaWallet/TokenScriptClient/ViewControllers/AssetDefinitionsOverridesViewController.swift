@@ -17,7 +17,7 @@ class AssetDefinitionsOverridesViewController: UIViewController {
         self.fileExtension = fileExtension
         super.init(nibName: nil, bundle: nil)
 
-        view.backgroundColor = Colors.appBackground
+        view.backgroundColor = GroupedTable.Color.background
 
         tableView.register(AssetDefinitionsOverridesViewCell.self, forCellReuseIdentifier: AssetDefinitionsOverridesViewCell.identifier)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -25,6 +25,8 @@ class AssetDefinitionsOverridesViewController: UIViewController {
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
