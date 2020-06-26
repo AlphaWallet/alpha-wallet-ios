@@ -16,7 +16,7 @@ class SupportViewController: UIViewController {
     private lazy var viewModel: SupportViewModel = SupportViewModel()
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.tableFooterView = UIView()
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         tableView.register(SettingViewHeader.self, forHeaderFooterViewReuseIdentifier: SettingViewHeader.reuseIdentifier)
         tableView.register(SettingTableViewCell.self, forCellReuseIdentifier: SettingTableViewCell.reuseIdentifier)
         tableView.separatorStyle = .singleLine
