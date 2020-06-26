@@ -17,21 +17,18 @@ class AddHideTokensViewController: UIViewController {
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
     private lazy var tableView: UITableView = UITableView(frame: .zero, style: .grouped)
-    private let tableViewRefreshControl = UIRefreshControl()
+    private let refreshControl = UIRefreshControl()
     private var prefersLargeTitles: Bool?
-    private let tokenCollection: TokenCollection
 
     weak var delegate: AddHideTokensViewControllerDelegate?
 
-    init(viewModel: AddHideTokensViewModel, sessions: ServerDictionary<WalletSession>, assetDefinitionStore: AssetDefinitionStore, tokenCollection: TokenCollection) {
-        self.tokenCollection = tokenCollection
+    init(viewModel: AddHideTokensViewModel, sessions: ServerDictionary<WalletSession>, assetDefinitionStore: AssetDefinitionStore) { 
         self.assetDefinitionStore = assetDefinitionStore
         self.sessions = sessions
         self.viewModel = viewModel
         searchController = UISearchController(searchResultsController: nil)
 
         super.init(nibName: nil, bundle: nil)
-        handleTokenCollectionUpdates()
         hidesBottomBarWhenPushed = true
     }
 
@@ -61,7 +58,7 @@ class AddHideTokensViewController: UIViewController {
         prefersLargeTitles = navigationController?.navigationBar.prefersLargeTitles
         navigationController?.navigationBar.prefersLargeTitles = false
 
-        fetch()
+        reload()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -107,25 +104,9 @@ class AddHideTokensViewController: UIViewController {
         tableView.contentInset = .zero
         tableView.contentOffset = .zero
         tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: 0.01))
-        tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
-        tableView.addSubview(tableViewRefreshControl)
     }
 
-    @objc func pullToRefresh() {
-        tableViewRefreshControl.beginRefreshing()
-        fetch()
-    }
-
-    private func fetch() {
-        startLoading()
-        tokenCollection.fetch()
-    }
-
-    private func handleTokenCollectionUpdates() {
-        //no-op because we do not want to refresh this screen as it's a bad user experience if the tokens reload while the user is toggling their visibility
-    }
-
-    private func reload() {
+    func reload() {
         tableView.reloadData()
     }
 }

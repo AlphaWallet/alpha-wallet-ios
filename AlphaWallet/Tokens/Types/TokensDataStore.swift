@@ -624,7 +624,7 @@ class TokensDataStore {
         return tickers?[token.contractAddress]
     }
 
-    func addCustom(token: ERCToken) {
+    func addCustom(token: ERCToken) -> TokenObject {
         let newToken = TokenObject(
                 contract: token.contract,
                 server: token.server,
@@ -639,6 +639,8 @@ class TokensDataStore {
             newToken.balance.append(TokenBalance(balance: balance))
         }
         add(tokens: [newToken])
+
+        return newToken
     }
 
     func updatePricesAfterComingOnline() {
