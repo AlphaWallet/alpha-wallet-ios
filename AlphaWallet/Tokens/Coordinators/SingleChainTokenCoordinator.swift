@@ -416,9 +416,11 @@ class SingleChainTokenCoordinator: Coordinator {
         self.storage.update(token: token, action: .isHidden(isHidden))
     }
 
-    func add(token: ERCToken) {
-        storage.addCustom(token: token)
+    func add(token: ERCToken) -> TokenObject {
+        let tokenObject = storage.addCustom(token: token)
         delegate?.tokensDidChange(inCoordinator: self)
+
+        return tokenObject
     }
 
     class AutoDetectTransactedTokensOperation: Operation {

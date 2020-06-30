@@ -13,24 +13,17 @@ protocol AddHideTokensCoordinatorDelegate: class {
 
 class AddHideTokensCoordinator: Coordinator {
     private let navigationController: UINavigationController
-    private lazy var viewModel = AddHideTokensViewModel(
-        tokens: tokens,
-        tickers: tickers,
-        filterTokensCoordinator: filterTokensCoordinator
-    )
+    private var viewModel: AddHideTokensViewModel
 
     private lazy var viewController: AddHideTokensViewController = .init(
         viewModel: viewModel,
         sessions: sessions,
-        assetDefinitionStore: assetDefinitionStore,
-        tokenCollection: tokenCollection
+        assetDefinitionStore: assetDefinitionStore
     )
 
     private let tokenCollection: TokenCollection
     private let sessions: ServerDictionary<WalletSession>
-    private let tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
     private let filterTokensCoordinator: FilterTokensCoordinator
-    private let tokens: [TokenObject]
     private let assetDefinitionStore: AssetDefinitionStore
     private var newTokenViewController: NewTokenViewController?
     private var serverToAddCustomTokenOn: RPCServerOrAuto = .auto {
@@ -53,13 +46,17 @@ class AddHideTokensCoordinator: Coordinator {
     init(tokens: [TokenObject], assetDefinitionStore: AssetDefinitionStore, filterTokensCoordinator: FilterTokensCoordinator, tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]], sessions: ServerDictionary<WalletSession>, navigationController: UINavigationController, tokenCollection: TokenCollection, config: Config, singleChainTokenCoordinators: [SingleChainTokenCoordinator]) {
         self.config = config
         self.filterTokensCoordinator = filterTokensCoordinator
-        self.tickers = tickers
         self.sessions = sessions
-        self.tokens = tokens
+
         self.navigationController = navigationController
         self.tokenCollection = tokenCollection
         self.assetDefinitionStore = assetDefinitionStore
         self.singleChainTokenCoordinators = singleChainTokenCoordinators
+        self.viewModel = AddHideTokensViewModel(
+            tokens: tokens,
+            tickers: tickers,
+            filterTokensCoordinator: filterTokensCoordinator
+        )
         viewController.delegate = self
     }
 
@@ -110,7 +107,12 @@ class AddHideTokensCoordinator: Coordinator {
 extension AddHideTokensCoordinator: NewTokenViewControllerDelegate {
     func didAddToken(token: ERCToken, in viewController: NewTokenViewController) {
         guard let coordinator = singleChainTokenCoordinator(forServer: token.server) else { return }
-        coordinator.add(token: token)
+        let token = coordinator.add(token: token)
+
+        viewModel.add(token: token)
+
+        self.viewController.reload()
+        
         dismiss()
     }
 

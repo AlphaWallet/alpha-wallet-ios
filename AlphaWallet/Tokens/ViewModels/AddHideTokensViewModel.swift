@@ -19,7 +19,8 @@ private enum AddHideTokenSections: Int {
     }
 }
 
-struct AddHideTokensViewModel {
+//NOTE: Changed to class to prevent update all ViewModel copies and apply updates only in one place.
+class AddHideTokensViewModel {
     private let sections: [AddHideTokenSections] = [.displayedTokens, .hiddenTokens]
     private let filterTokensCoordinator: FilterTokensCoordinator
     private var tokens: [TokenObject]
@@ -79,14 +80,15 @@ struct AddHideTokensViewModel {
         }
     }
 
-    mutating func update(tokensViewModel viewModel: TokensViewModel) {
-        tickers = viewModel.tickers
-        tokens = viewModel.tokens
+    func add(token: TokenObject) {
+        if !tokens.contains(token) {
+            tokens.append(token)
+        }
 
         filter(tokens: tokens)
     }
 
-    mutating func addDisplayed(indexPath: IndexPath) -> (token: TokenObject, indexPathToInsert: IndexPath)? {
+    func addDisplayed(indexPath: IndexPath) -> (token: TokenObject, indexPathToInsert: IndexPath)? {
         switch sections[indexPath.section] {
         case .displayedTokens:
             break
@@ -104,7 +106,7 @@ struct AddHideTokensViewModel {
         return nil
     }
 
-    mutating func deleteToken(indexPath: IndexPath) -> (token: TokenObject, indexPathToInsert: IndexPath)? {
+    func deleteToken(indexPath: IndexPath) -> (token: TokenObject, indexPathToInsert: IndexPath)? {
         switch sections[indexPath.section] {
         case .displayedTokens:
             let token = displayedTokens.remove(at: indexPath.row)
@@ -155,7 +157,7 @@ struct AddHideTokensViewModel {
         }
     }
 
-    mutating func moveItem(from: IndexPath, to: IndexPath) -> [TokenObject]? {
+    func moveItem(from: IndexPath, to: IndexPath) -> [TokenObject]? {
         switch sections[from.section] {
         case .displayedTokens:
             let token = displayedTokens.remove(at: from.row)
@@ -173,7 +175,7 @@ struct AddHideTokensViewModel {
         return tickers[token.server]?[token.contractAddress]
     }
 
-    private mutating func filter(tokens: [TokenObject]) {
+    private func filter(tokens: [TokenObject]) {
         displayedTokens.removeAll()
         hiddenTokens.removeAll()
 
