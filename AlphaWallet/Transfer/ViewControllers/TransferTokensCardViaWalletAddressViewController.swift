@@ -73,7 +73,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
             targetAddressLabel,
             .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
             targetAddressTextField,
-            targetAddressTextField.ensAddressLabel,
+            targetAddressTextField.ensAddressView,
         ].asStackView(axis: .vertical, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
