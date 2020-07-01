@@ -178,7 +178,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             .spacer(height: 4),
             watchAddressTextField,
             .spacer(height: 4), [
-                [watchAddressTextField.ensAddressLabel, watchAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
+                watchAddressTextField.ensAddressView,
                 addressControlsContainer
             ].asStackView(axis: .horizontal),
             .spacer(height: 4),
