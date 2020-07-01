@@ -257,7 +257,7 @@ extension AccountsViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         
-        let copyAction = UIContextualAction(style: .destructive, title: R.string.localizable.copyAddress()) { _, _, complete in
+        let copyAction = UIContextualAction(style: .normal, title: R.string.localizable.copyAddress()) { _, _, complete in
             let account = self.account(for: indexPath)
             UIPasteboard.general.string = account.address.eip55String
             complete(true)
@@ -266,7 +266,7 @@ extension AccountsViewController: UITableViewDelegate {
         copyAction.image = R.image.copy()?.withRenderingMode(.alwaysTemplate)
         copyAction.backgroundColor = R.color.azure()
         
-        let deleteAction = UIContextualAction(style: .destructive, title: R.string.localizable.accountsConfirmDeleteAction()) { _, _, complete in
+        let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.accountsConfirmDeleteAction()) { _, _, complete in
             let account = self.account(for: indexPath)
             self.confirmDelete(account: account)
             
