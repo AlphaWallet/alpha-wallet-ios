@@ -227,7 +227,7 @@ enum Screen {
         }
 
         enum Metric {
-            static let blockChainTagCornerRadius = CGFloat(7)
+            static let blockChainTagCornerRadius = CGFloat(4)
             static let blockChainTagHeight = CGFloat(20)
         }
     }
