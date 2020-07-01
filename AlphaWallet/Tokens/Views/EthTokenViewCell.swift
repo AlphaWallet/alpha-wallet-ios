@@ -11,11 +11,11 @@ class EthTokenViewCell: UITableViewCell {
     private let titleLabel = UILabel()
     private let valuePercentageChangeValueLabel = UILabel()
     private let valuePercentageChangePeriodLabel = UILabel()
-    private let valueChangeLabel = UILabel()
+    private let marketPriceLabel = UILabel()
     private let valueLabel = UILabel()
     private let blockchainLabel = UILabel()
     private var viewsWithContent: [UIView] {
-        [titleLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, valueChangeLabel]
+        [titleLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, marketPriceLabel]
     }
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
@@ -30,13 +30,13 @@ class EthTokenViewCell: UITableViewCell {
         background.translatesAutoresizingMaskIntoConstraints = false
         valuePercentageChangeValueLabel.textAlignment = .center
         valuePercentageChangePeriodLabel.textAlignment = .center
-        valueChangeLabel.textAlignment = .center
+        marketPriceLabel.textAlignment = .center
         valueLabel.textAlignment = .center
 
         let col0 = tokenIconImageView
         let col1 = [
             titleLabel,
-            [blockchainLabel, valueLabel, UIView.spacerWidth(flexible: true), valueChangeLabel, valuePercentageChangeValueLabel].asStackView(spacing: 5)
+            [blockchainLabel, valueLabel, UIView.spacerWidth(flexible: true), marketPriceLabel, valuePercentageChangeValueLabel].asStackView(spacing: 5)
         ].asStackView(axis: .vertical)
         let stackView = [col0, col1].asStackView(spacing: 12)
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -71,9 +71,9 @@ class EthTokenViewCell: UITableViewCell {
         valuePercentageChangeValueLabel.font = viewModel.textValueFont
         valuePercentageChangeValueLabel.text = viewModel.valuePercentageChangeValue
 
-        valueChangeLabel.textColor = viewModel.textColor
-        valueChangeLabel.font = viewModel.textValueFont
-        valueChangeLabel.text = viewModel.valueChange
+        marketPriceLabel.textColor = viewModel.textColor
+        marketPriceLabel.font = viewModel.textValueFont
+        marketPriceLabel.text = viewModel.marketPriceValue
 
         valueLabel.textColor = viewModel.textColor
         valueLabel.font = viewModel.textValueFont
