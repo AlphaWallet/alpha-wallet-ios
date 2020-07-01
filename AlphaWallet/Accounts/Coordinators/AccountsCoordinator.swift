@@ -41,14 +41,13 @@ class AccountsCoordinator: Coordinator {
     ) {
         self.config = config
         self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
         self.promptBackupCoordinator = promptBackupCoordinator
     }
 
     func start() {
         accountsViewController.navigationItem.largeTitleDisplayMode = .never
-        navigationController.pushViewController(accountsViewController, animated: false)
+        navigationController.pushViewController(accountsViewController, animated: true)
     }
 
     @objc private func dismiss() {
