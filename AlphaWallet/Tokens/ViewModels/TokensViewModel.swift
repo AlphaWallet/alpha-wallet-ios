@@ -11,14 +11,6 @@ class TokensViewModel {
     private let filterTokensCoordinator: FilterTokensCoordinator
     var tokens: [TokenObject]
     let tickers: [RPCServer: [AlphaWallet.Address: CoinTicker]]
-    private var amount: String? {
-        var totalAmount: Double = 0
-        filteredTokens.forEach { token in
-            totalAmount += amount(for: token)
-        }
-        guard totalAmount != 0 else { return "--" }
-        return CurrencyFormatter.formatter.string(from: NSNumber(value: totalAmount))
-    }
 
     var filter: WalletFilter = .all {
         didSet {
@@ -115,7 +107,7 @@ class TokensViewModel {
     func amount(for token: TokenObject) -> Double {
         guard let tickers = tickers[token.server] else { return 0 }
         guard !token.valueBigInt.isZero, let tickersSymbol = tickers[token.contractAddress] else { return 0 }
-        let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
+        let tokenValue = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
         let price = tickersSymbol.price_usd
         return tokenValue * price
     }
