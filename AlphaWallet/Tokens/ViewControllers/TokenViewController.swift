@@ -35,6 +35,7 @@ class TokenViewController: UIViewController {
         self.transferType = transferType
 
         super.init(nibName: nil, bundle: nil)
+        hidesBottomBarWhenPushed = true
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -79,6 +80,11 @@ class TokenViewController: UIViewController {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = false
     }
 
     override func viewDidLayoutSubviews() {
