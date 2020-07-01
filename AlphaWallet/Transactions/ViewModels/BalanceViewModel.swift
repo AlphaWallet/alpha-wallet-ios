@@ -20,7 +20,7 @@ struct BalanceViewModel: BalanceBaseViewModel {
 
     var amount: Double {
         guard let balance = balance else { return 0.00 }
-        return CurrencyFormatter.plainFormatter.string(from: balance.value).doubleValue
+        return EtherNumberFormatter.plain.string(from: balance.value).doubleValue
     }
 
     var amountString: String {
@@ -31,7 +31,7 @@ struct BalanceViewModel: BalanceBaseViewModel {
 
     var currencyAmount: String? {
         guard let totalAmount = currencyAmountWithoutSymbol else { return nil }
-        return CurrencyFormatter.usdFormatter.string(from: NSNumber(value: totalAmount)) 
+        return NumberFormatter.usd.string(from: totalAmount)
     }
 
     var currencyAmountWithoutSymbol: Double? {
