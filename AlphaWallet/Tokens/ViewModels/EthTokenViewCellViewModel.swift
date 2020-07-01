@@ -98,8 +98,12 @@ struct EthTokenViewCellViewModel {
         }
     }
 
-    var valueChange: String? {
-        return EthCurrencyHelper(ticker: ticker).valueChanged24h(currencyAmountWithoutSymbol: currencyAmountWithoutSymbol)
+    var marketPriceValue: String? {
+        if let value = EthCurrencyHelper(ticker: ticker).marketPrice {
+            return NumberFormatter.usd.string(from: value)
+        } else {
+            return nil
+        }
     }
 
     var value: String? {
