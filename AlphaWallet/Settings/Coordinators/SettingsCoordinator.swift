@@ -84,20 +84,13 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
     func settingsViewControllerChangeWalletSelected(in controller: SettingsViewController) {
         let coordinator = AccountsCoordinator(
                 config: config,
-                navigationController: NavigationController(),
+                navigationController: navigationController,
                 keystore: keystore,
                 promptBackupCoordinator: promptBackupCoordinator
         )
         coordinator.delegate = self
         coordinator.start()
-        addCoordinator(coordinator)
-        switch UIDevice.current.userInterfaceIdiom {
-        case .pad:
-            coordinator.navigationController.modalPresentationStyle = .formSheet
-        case .unspecified, .tv, .carPlay, .phone:
-            coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
-        }
-        navigationController.present(coordinator.navigationController, animated: true, completion: nil)
+        addCoordinator(coordinator) 
     }
     
     func settingsViewControllerMyWalletAddressSelected(in controller: SettingsViewController) {
@@ -158,17 +151,17 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
 		}
 		delegate?.didUpdateAccounts(in: self)
 		guard !coordinator.accountsViewController.hasWallets else { return }
-		coordinator.navigationController.dismiss(animated: true, completion: nil)
+        coordinator.navigationController.popViewController(animated: true)
 		delegate?.didCancel(in: self)
 	}
 
 	func didCancel(in coordinator: AccountsCoordinator) {
-		coordinator.navigationController.dismiss(animated: true, completion: nil)
+		coordinator.navigationController.popViewController(animated: true)
 		removeCoordinator(coordinator)
 	}
 
 	func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-		coordinator.navigationController.dismiss(animated: true, completion: nil)
+        coordinator.navigationController.popViewController(animated: true)
 		removeCoordinator(coordinator)
 		restart(for: account)
 	}
