@@ -2,7 +2,7 @@
 
 import Foundation
 import UIKit
-import PromiseKit
+import PromiseKit 
 
 protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didTapSwap(forTransactionType transactionType: TransactionType, service: SwapTokenURLProviderType, in coordinator: TokensCoordinator)
@@ -52,13 +52,14 @@ class TokensCoordinator: Coordinator {
 
     private lazy var tokensViewController: TokensViewController = {
         let controller = TokensViewController(
-                sessions: sessions,
-                account: sessions.anyValue.account,
-                tokenCollection: tokenCollection,
-                assetDefinitionStore: assetDefinitionStore,
-                eventsDataStore: eventsDataStore,
-                filterTokensCoordinator: filterTokensCoordinator,
-                config: config
+            sessions: sessions,
+            account: sessions.anyValue.account,
+            tokenCollection: tokenCollection,
+            assetDefinitionStore: assetDefinitionStore,
+            eventsDataStore: eventsDataStore,
+            filterTokensCoordinator: filterTokensCoordinator,
+            config: config,
+            walletConnectCoordinator: walletConnectCoordinator
         )
         controller.delegate = self
         return controller
@@ -69,7 +70,7 @@ class TokensCoordinator: Coordinator {
     private var singleChainTokenCoordinators: [SingleChainTokenCoordinator] {
         return coordinators.compactMap { $0 as? SingleChainTokenCoordinator }
     }
-
+    private let walletConnectCoordinator: WalletConnectCoordinator
     let navigationController: UINavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: TokensCoordinatorDelegate?
@@ -90,7 +91,8 @@ class TokensCoordinator: Coordinator {
             promptBackupCoordinator: PromptBackupCoordinator,
             filterTokensCoordinator: FilterTokensCoordinator,
             analyticsCoordinator: AnalyticsCoordinator?,
-            swapTokenService: SwapTokenServiceType
+            swapTokenService: SwapTokenServiceType,
+            walletConnectCoordinator: WalletConnectCoordinator
     ) {
         self.filterTokensCoordinator = filterTokensCoordinator
         self.navigationController = navigationController
@@ -105,6 +107,8 @@ class TokensCoordinator: Coordinator {
         self.promptBackupCoordinator = promptBackupCoordinator
         self.analyticsCoordinator = analyticsCoordinator
         self.swapTokenService = swapTokenService
+        self.walletConnectCoordinator = walletConnectCoordinator
+
         promptBackupCoordinator.prominentPromptDelegate = self
         setupSingleChainTokenCoordinators()
     }
@@ -165,6 +169,11 @@ class TokensCoordinator: Coordinator {
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
+
+    func walletConnectSelected(in viewController: UIViewController) {
+        walletConnectCoordinator.perform(.openSessionDetails(navigationController: navigationController))
+    }
+
     func didPressAddHideTokens(viewModel: TokensViewModel) {
         let coordinator: AddHideTokensCoordinator = .init(
             tokens: viewModel.tokens,
@@ -324,8 +333,10 @@ extension TokensCoordinator: QRCodeResolutionCoordinatorDelegate {
         delegate?.didPressOpenWebPage(url, in: tokensViewController)
     }
 
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: WCURL) {
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: WalletConnectURL) {
         removeCoordinator(coordinator)
+
+        walletConnectCoordinator.perform(.startWalletConnectSession(url))
     }
 
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveString value: String) {

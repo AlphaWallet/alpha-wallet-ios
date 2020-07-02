@@ -281,8 +281,7 @@ class SendViewController: UIViewController {
         let transaction = UnconfirmedTransaction(
                 transactionType: transactionType,
                 value: value,
-                recipient: recipient,
-                contract: transactionType.contractForFungibleSend,
+                recipient: recipient, 
                 data: nil
         )
         delegate?.didPressConfirm(transaction: transaction, in: self, amount: amountTextField.ethCost)

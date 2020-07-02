@@ -36,7 +36,8 @@ class TokensCoordinatorTests: XCTestCase {
             promptBackupCoordinator: PromptBackupCoordinator(keystore: FakeKeystore(), wallet: .make(), config: config, analyticsCoordinator: nil),
             filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService),
             analyticsCoordinator: nil,
-            swapTokenService: swapTokenService
+            swapTokenService: swapTokenService,
+            walletConnectCoordinator: .fake()
         )
         coordinator.start()
 

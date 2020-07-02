@@ -12,7 +12,7 @@ import PromiseKit
 protocol QRCodeResolutionCoordinatorDelegate: class {
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveAddress address: AlphaWallet.Address, action: ScanQRCodeAction)
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveTransactionType transactionType: TransactionType, token: TokenObject)
-    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: WCURL)
+    func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveWalletConnectURL url: WalletConnectURL)
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveString value: String)
     func coordinator(_ coordinator: QRCodeResolutionCoordinator, didResolveURL url: URL)
 
@@ -39,17 +39,16 @@ enum ScanQRCodeAction: CaseIterable {
     }
 }
 
-typealias WCURL = String
 private enum ScanQRCodeResolution {
     case value(value: QRCodeValue)
-    case walletConnect(WCURL)
+    case walletConnect(WalletConnectURL)
     case other(String)
     case url(URL)
 
     init(rawValue: String) {
         if let value = QRCodeValueParser.from(string: rawValue.trimmed) {
             self = .value(value: value)
-        } else if rawValue.hasPrefix("wc:") {
+        } else if let rawValue = WalletConnectURL(rawValue) {
             self = .walletConnect(rawValue)
         } else if let url = URL(string: rawValue) {
             self = .url(url)

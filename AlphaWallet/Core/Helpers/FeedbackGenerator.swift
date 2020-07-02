@@ -26,12 +26,13 @@ enum NotificationFeedbackType {
 
 extension UINotificationFeedbackGenerator {
 
-    static func show(feedbackType result: NotificationFeedbackType) {
+    static func show(feedbackType result: NotificationFeedbackType, completion: @escaping () -> Void = {}) {
         let feedbackGenerator = UINotificationFeedbackGenerator()
         feedbackGenerator.prepare()
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             feedbackGenerator.notificationOccurred(result.feedbackType)
+            completion()
         }
     }
 }

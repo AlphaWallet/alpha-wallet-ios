@@ -46,4 +46,5 @@ protocol Keystore {
     func signMessage(_ data: Data, for account: AlphaWallet.Address) -> Result<Data, KeystoreError>
     func signHash(_ data: Data, for account: AlphaWallet.Address) -> Result<Data, KeystoreError>
     func signTransaction(_ signTransaction: UnsignedTransaction) -> Result<Data, KeystoreError>
+    func signEip712TypedData(_ data: EIP712TypedData, for account: AlphaWallet.Address) -> Result<Data, KeystoreError>
 }

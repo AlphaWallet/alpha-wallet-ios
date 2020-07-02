@@ -10,6 +10,7 @@ enum DappAction {
     case signTypedMessage([EthTypedData])
     case signTransaction(UnconfirmedTransaction)
     case sendTransaction(UnconfirmedTransaction)
+    case sendRawTransaction(String)
     case unknown
 }
 
@@ -53,8 +54,7 @@ extension DappAction {
         return UnconfirmedTransaction(
             transactionType: transactionType,
             value: value,
-            recipient: nil,
-            contract: to,
+            recipient: to, 
             data: data,
             gasLimit: gasLimit,
             gasPrice: gasPrice,
