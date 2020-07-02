@@ -51,6 +51,7 @@ enum ConfirmType {
 enum ConfirmResult {
     case signedTransaction(Data)
     case sentTransaction(SentTransaction)
+    case sentRawTransaction(id: String, original: String)
 }
 
 protocol TransactionConfirmationCoordinatorDelegate: class {
@@ -105,14 +106,16 @@ class TransactionConfirmationCoordinator: Coordinator {
         }
     }
 
-    private func showFeedbackOnSuccess() {
-        let feedbackGenerator = UINotificationFeedbackGenerator()
-        feedbackGenerator.prepare()
-        //Hackish, but delay necessary because of the switch to and from user-presence for signing
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            //TODO sound too
-            feedbackGenerator.notificationOccurred(.success)
+    func close() -> Promise<Void> {
+        return Promise { seal in
+            self.close {
+                seal.fulfill(())
+            }
         }
+    }
+
+    private func showFeedbackOnSuccess() {
+        UINotificationFeedbackGenerator.show(feedbackType: .success)
     }
 }
 

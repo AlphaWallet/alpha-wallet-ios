@@ -39,6 +39,8 @@ target 'AlphaWallet' do
   pod 'Mixpanel-swift'
   pod 'UnstoppableDomainsResolution', '0.1.6'
   pod 'BlockiesSwift'
+  pod 'WalletConnectSwift' 
+
   # pod 'AWSCognito'
   target 'AlphaWalletTests' do
       inherit! :search_paths
@@ -75,7 +77,11 @@ post_install do |installer|
         if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] <= '8.0'
           config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0';
         end
-      end 
+      end
+      #WalletConnectSwift requires minimum deploy target 11.0
+      if ['WalletConnectSwift'].include? target.name
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0';
+      end
     end
   end
 end

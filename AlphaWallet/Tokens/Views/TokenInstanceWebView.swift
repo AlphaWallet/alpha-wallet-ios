@@ -442,7 +442,7 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
                 let msg = convertMessageToHex(msg: hexMessage)
                 let callbackID = command.id
                 signMessage(with: .personalMessage(Data(hex: msg)), account: account, callbackID: callbackID)
-            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown:
+            case .signTransaction, .sendTransaction, .signMessage, .signTypedMessage, .unknown, .sendRawTransaction:
                 return
             }
         case .watch:
@@ -499,6 +499,8 @@ extension TokenInstanceWebView {
                 case .personalMessage:
                     callback = DappCallback(id: callbackID, value: .signPersonalMessage(data))
                 case .typedMessage:
+                    callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
+                case .eip712:
                     callback = DappCallback(id: callbackID, value: .signTypedMessage(data))
                 }
                 strongSelf.notifyFinish(callbackID: callbackID, value: .success(callback))

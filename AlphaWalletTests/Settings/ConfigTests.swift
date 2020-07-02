@@ -3,6 +3,14 @@
 import XCTest
 @testable import AlphaWallet
 
+extension WalletConnectCoordinator {
+
+    static func fake() -> WalletConnectCoordinator {
+        let keystore = FakeEtherKeystore()
+        return .init(keystore: keystore, configuration: .init(wallet: .make(), rpcServer: .main), navigationController: .init(), analyticsCoordinator: nil, config: .make())
+    }
+}
+
 class ConfigTests: XCTestCase {
 
     //This is still used by Dapp browser
@@ -19,7 +27,7 @@ class ConfigTests: XCTestCase {
         sessions[.main] = WalletSession.make()
         Config.setLocale(AppLocale.english)
         let swapTokenService = FakeSwapTokenService()
-        
+
         let vc1 = TokensViewController(
                 sessions: sessions,
                 account: .make(),
@@ -27,7 +35,8 @@ class ConfigTests: XCTestCase {
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: FakeEventsDataStore(),
                 filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService),
-                config: .make()
+                config: .make(),
+                walletConnectCoordinator: .fake()
         )
         vc1.viewWillAppear(false)
         XCTAssertEqual(vc1.title, "Wallet")
@@ -41,7 +50,8 @@ class ConfigTests: XCTestCase {
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: FakeEventsDataStore(),
                 filterTokensCoordinator: FilterTokensCoordinator(assetDefinitionStore: assetDefinitionStore, swapTokenService: swapTokenService),
-                config: .make()
+                config: .make(),
+                walletConnectCoordinator: .fake()
         )
         vc2.viewWillAppear(false)
         XCTAssertEqual(vc2.title, "我的钱包")
