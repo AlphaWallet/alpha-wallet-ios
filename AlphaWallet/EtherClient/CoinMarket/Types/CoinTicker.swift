@@ -5,7 +5,7 @@ import RealmSwift
 
 struct CoinTicker: Codable {
     private enum CodingKeys: String, CodingKey {
-        case price_usd = "current_price", percent_change_24h = "market_cap_change_percentage_24h", id = "id", symbol = "symbol", image = "image"
+        case price_usd = "current_price", percent_change_24h = "price_change_percentage_24h", id = "id", symbol = "symbol", image = "image"
     }
 
     private let id: String
