@@ -24,6 +24,10 @@ class EthCurrencyHelper {
         }
     }
 
+    var marketPrice: Double? {
+        return ticker?.price_usd
+    }
+
     private var percentageChange24h: Double? {
         if let percent_change_24h = ticker?.percent_change_24h {
             return percent_change_24h.rounded(to: 2)
