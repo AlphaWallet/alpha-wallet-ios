@@ -101,6 +101,9 @@ class TokensViewController: UIViewController {
         return TableViewHeader(consoleButton: UIButton(type: .system), promptBackupWalletViewHolder: UIView())
     }()
     private var isSearchBarConfigured = false
+    private let hideTokenWidth: CGFloat = 170
+    private var bottomConstraint: NSLayoutConstraint!
+    private lazy var keyboardChecker = KeyboardChecker(self, resetHeightDefaultValue: 0)
 
     var isConsoleButtonHidden: Bool {
         get {
@@ -122,7 +125,6 @@ class TokensViewController: UIViewController {
             adjustTableViewHeaderHeightToFitContents()
         }
     }
-    private let hideTokenWidth: CGFloat = 170
 
     weak var delegate: TokensViewControllerDelegate?
     //TODO The name "bad" isn't correct. Because it includes "conflicts" too
@@ -188,10 +190,17 @@ class TokensViewController: UIViewController {
         view.addSubview(tableView)
         view.addSubview(collectiblesCollectionView)
 
+        bottomConstraint = tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        keyboardChecker.constraint = bottomConstraint
+
         NSLayoutConstraint.activate([
-            tableView.anchorsConstraint(to: view),
-            tableView.anchorsConstraint(to: collectiblesCollectionView),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomConstraint,
+            collectiblesCollectionView.anchorsConstraint(to: tableView)
         ])
+
         errorView = ErrorView(onRetry: { [weak self] in
             self?.startLoading()
             self?.tokenCollection.fetch()
@@ -205,7 +214,7 @@ class TokensViewController: UIViewController {
         })
         refreshView(viewModel: viewModel)
 
-        setupFilteringWithKeyword()
+        setupFilteringWithKeyword() 
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -213,9 +222,15 @@ class TokensViewController: UIViewController {
         navigationController?.applyTintAdjustment()
         navigationController?.navigationBar.prefersLargeTitles = false
         hidesBottomBarWhenPushed = false
-        
+
         fetch()
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
+        keyboardChecker.viewWillAppear()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        keyboardChecker.viewWillDisappear()
     }
 
     @objc func pullToRefresh() {
