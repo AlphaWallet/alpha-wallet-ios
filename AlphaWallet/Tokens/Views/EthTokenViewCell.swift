@@ -17,12 +17,16 @@ class EthTokenViewCell: UITableViewCell {
     private var viewsWithContent: [UIView] {
         [titleLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, marketPriceLabel]
     }
+    private lazy var changeValueContainer: UIView = [marketPriceLabel, valuePercentageChangeValueLabel].asStackView(spacing: 5)
+
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
 
+    private var blockChainTagLabel = BlockchainTagLabel()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -36,9 +40,9 @@ class EthTokenViewCell: UITableViewCell {
         let col0 = tokenIconImageView
         let col1 = [
             titleLabel,
-            [blockchainLabel, valueLabel, UIView.spacerWidth(flexible: true), marketPriceLabel, valuePercentageChangeValueLabel].asStackView(spacing: 5)
-        ].asStackView(axis: .vertical)
-        let stackView = [col0, col1].asStackView(spacing: 12)
+            [blockchainLabel, valueLabel, UIView.spacerWidth(flexible: true), changeValueContainer, blockChainTagLabel].asStackView(spacing: 5)
+        ].asStackView(axis: .vertical, spacing: 2)
+        let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
 
@@ -88,5 +92,8 @@ class EthTokenViewCell: UITableViewCell {
             $0.alpha = viewModel.alpha
         }
         tokenIconImageView.subscribable = viewModel.iconImage
+
+        blockChainTagLabel.configure(viewModel: viewModel.blockChaintagViewModel)
+        changeValueContainer.isHidden = !viewModel.blockChaintagViewModel.blockChainNameLabelHidden
     }
 }
