@@ -4,8 +4,6 @@ import Foundation
 import UIKit
 
 class BrowserHistoryCell: UITableViewCell {
-    static let identifier = "BrowserHistoryCell"
-
     private var viewModel: BrowserHistoryCellViewModel?
     private var iconImageViewHolder = ContainerViewWithShadow(aroundView: UIImageView())
     private let titleLabel = UILabel()

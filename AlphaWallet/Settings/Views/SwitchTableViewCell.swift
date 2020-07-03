@@ -12,8 +12,6 @@ protocol SwitchTableViewCellDelegate: class {
 }
 
 class SwitchTableViewCell: UITableViewCell {
-    static let reuseIdentifier = String(describing: SwitchTableViewCell.self)
-
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit

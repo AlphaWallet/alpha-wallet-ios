@@ -45,7 +45,7 @@ class ConfirmSignMessageViewController: UIViewController {
         view.addSubview(background)
         background.translatesAutoresizingMaskIntoConstraints = false
 
-        tableView.register(ConfirmSignMessageTableViewCell.self, forCellReuseIdentifier: ConfirmSignMessageTableViewCell.identifier)
+        tableView.register(ConfirmSignMessageTableViewCell.self)
         tableView.dataSource = self
         tableView.separatorStyle = .none
 
@@ -182,7 +182,7 @@ class ConfirmSignMessageViewController: UIViewController {
 
 extension ConfirmSignMessageViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: ConfirmSignMessageTableViewCell.identifier, for: indexPath) as! ConfirmSignMessageTableViewCell
+        let cell: ConfirmSignMessageTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         if let viewModel = viewModel {
             cell.configure(viewModel: viewModel.viewModelForTypedMessage(at: indexPath.row))
         }

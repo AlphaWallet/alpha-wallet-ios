@@ -3,8 +3,6 @@
 import UIKit
 
 class AddHideTokenSectionHeaderView: UITableViewHeaderFooterView {
-    static let identifier = String(describing: self)
-    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false

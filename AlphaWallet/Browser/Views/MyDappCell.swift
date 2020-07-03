@@ -4,9 +4,6 @@ import Foundation
 import UIKit
 
 class MyDappCell: UITableViewCell {
-
-    static let identifier = "MyDappCell"
-
     private var iconImageViewHolder = ContainerViewWithShadow(aroundView: UIImageView())
     private var viewModel: MyDappCellViewModel?
     private let titleLabel = UILabel()

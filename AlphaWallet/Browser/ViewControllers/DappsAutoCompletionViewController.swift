@@ -20,7 +20,7 @@ class DappsAutoCompletionViewController: UIViewController {
         self.viewModel = .init()
         super.init(nibName: nil, bundle: nil)
 
-        tableView.register(DappsAutoCompletionCell.self, forCellReuseIdentifier: DappsAutoCompletionCell.identifier)
+        tableView.register(DappsAutoCompletionCell.self)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
@@ -60,7 +60,7 @@ class DappsAutoCompletionViewController: UIViewController {
 
 extension DappsAutoCompletionViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: DappsAutoCompletionCell.identifier, for: indexPath) as! DappsAutoCompletionCell
+        let cell: DappsAutoCompletionCell = tableView.dequeueReusableCell(for: indexPath)
         let dapp = viewModel.dappSuggestions[indexPath.row]
         cell.configure(viewModel: .init(dapp: dapp, keyword: viewModel.keyword))
         return cell

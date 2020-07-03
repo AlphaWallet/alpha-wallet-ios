@@ -4,8 +4,6 @@ import Foundation
 import UIKit
 
 class OpenSeaNonFungibleTokenViewCell: UICollectionViewCell {
-    static let identifier = "OpenSeaNonFungibleTokenViewCell"
-
     private var currentDisplayedImageUrl: URL?
     private let background = UIView()
     private let imageView = UIImageView()

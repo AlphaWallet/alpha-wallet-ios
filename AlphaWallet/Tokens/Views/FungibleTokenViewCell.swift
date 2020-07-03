@@ -5,8 +5,6 @@ import UIKit
 import Kingfisher
 
 class FungibleTokenViewCell: UITableViewCell {
-    static let identifier = "FungibleTokenViewCell"
-
     private let background = UIView()
     private let titleLabel = UILabel()
     private let blockchainLabel = UILabel()

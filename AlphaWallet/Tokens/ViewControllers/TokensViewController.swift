@@ -146,10 +146,11 @@ class TokensViewController: UIViewController {
 
         consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
 
-        tableView.register(AddHideTokensCell.self, forCellReuseIdentifier: AddHideTokensCell.identifier)
-        tableView.register(FungibleTokenViewCell.self, forCellReuseIdentifier: FungibleTokenViewCell.identifier)
-        tableView.register(EthTokenViewCell.self, forCellReuseIdentifier: EthTokenViewCell.identifier)
-        tableView.register(NonFungibleTokenViewCell.self, forCellReuseIdentifier: NonFungibleTokenViewCell.identifier)
+        tableView.register(AddHideTokensCell.self)
+        tableView.register(FungibleTokenViewCell.self)
+        tableView.register(EthTokenViewCell.self)
+        tableView.register(NonFungibleTokenViewCell.self)
+        tableView.registerHeaderFooterView(TableViewSectionHeader.self)
 //        tableView.estimatedRowHeight = 0
         tableView.estimatedRowHeight = 100
         tableView.delegate = self
@@ -165,8 +166,8 @@ class TokensViewController: UIViewController {
         collectiblesCollectionView.backgroundColor = viewModel.backgroundColor
         collectiblesCollectionView.translatesAutoresizingMaskIntoConstraints = false
         collectiblesCollectionView.alwaysBounceVertical = true
-        collectiblesCollectionView.register(OpenSeaNonFungibleTokenViewCell.self, forCellWithReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier)
-        collectiblesCollectionView.register(CollectiblesCollectionViewHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: CollectiblesCollectionViewHeader.reuseIdentifier)
+        collectiblesCollectionView.register(OpenSeaNonFungibleTokenViewCell.self)
+        collectiblesCollectionView.registerSupplementaryView(CollectiblesCollectionViewHeader.self, of: UICollectionView.elementKindSectionHeader)
         collectiblesCollectionView.dataSource = self
         collectiblesCollectionView.isHidden = true
         collectiblesCollectionView.delegate = self
@@ -315,7 +316,7 @@ extension TokensViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard section == 0 else { return nil }
-        let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: TableViewSectionHeader.reuseIdentifier) as? TableViewSectionHeader ?? TableViewSectionHeader(reuseIdentifier: TableViewSectionHeader.reuseIdentifier)
+        let header: TableViewSectionHeader = tableView.dequeueReusableHeaderFooterView()
         header.filterView = tableViewFilterView
 
         return header
@@ -334,7 +335,7 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     private func addHideTokenCell(forIndexPath indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: AddHideTokensCell.identifier, for: indexPath) as! AddHideTokensCell
+        let cell: AddHideTokensCell = tableView.dequeueReusableCell(for: indexPath)
         cell.delegate = self
         cell.configure()
         return cell
@@ -346,7 +347,7 @@ extension TokensViewController: UITableViewDataSource {
         let session = sessions[server]
         switch token.type {
         case .nativeCryptocurrency:
-            let cell = tableView.dequeueReusableCell(withIdentifier: EthTokenViewCell.identifier, for: indexPath) as! EthTokenViewCell
+            let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(
                     viewModel: .init(
                             token: token,
@@ -359,15 +360,15 @@ extension TokensViewController: UITableViewDataSource {
             )
             return cell
         case .erc20:
-            let cell = tableView.dequeueReusableCell(withIdentifier: FungibleTokenViewCell.identifier, for: indexPath) as! FungibleTokenViewCell
+            let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             return cell
         case .erc721, .erc721ForTickets:
-            let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
+            let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             return cell
         case .erc875:
-            let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
+            let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(token: token, server: server, assetDefinitionStore: assetDefinitionStore))
             return cell
         }
@@ -469,13 +470,13 @@ extension TokensViewController: UICollectionViewDataSource {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
         let server = token.server
         let session = sessions[server]
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OpenSeaNonFungibleTokenViewCell.identifier, for: indexPath) as! OpenSeaNonFungibleTokenViewCell
+        let cell: OpenSeaNonFungibleTokenViewCell = collectionView.dequeueReusableCell(for: indexPath)
         cell.configure(viewModel: .init(config: session.config, token: token, forWallet: account, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore))
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: CollectiblesCollectionViewHeader.reuseIdentifier, for: indexPath) as! CollectiblesCollectionViewHeader
+        let header: CollectiblesCollectionViewHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, for: indexPath)
         header.filterView = collectiblesCollectionViewFilterView
         return header
     }

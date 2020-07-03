@@ -155,15 +155,15 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
         urlButtonHolder.isHidden = true
         urlButton.addTarget(self, action: #selector(tappedUrl), for: .touchUpInside)
 
-        attributesCollectionView.register(OpenSeaNonFungibleTokenTraitCell.self, forCellWithReuseIdentifier: OpenSeaNonFungibleTokenTraitCell.identifier)
+        attributesCollectionView.register(OpenSeaNonFungibleTokenTraitCell.self)
         attributesCollectionView.isUserInteractionEnabled = false
         attributesCollectionView.dataSource = self
 
-        rankingsCollectionView.register(OpenSeaNonFungibleTokenTraitCell.self, forCellWithReuseIdentifier: OpenSeaNonFungibleTokenTraitCell.identifier)
+        rankingsCollectionView.register(OpenSeaNonFungibleTokenTraitCell.self)
         rankingsCollectionView.isUserInteractionEnabled = false
         rankingsCollectionView.dataSource = self
 
-        statsCollectionView.register(OpenSeaNonFungibleTokenTraitCell.self, forCellWithReuseIdentifier: OpenSeaNonFungibleTokenTraitCell.identifier)
+        statsCollectionView.register(OpenSeaNonFungibleTokenTraitCell.self)
         statsCollectionView.isUserInteractionEnabled = false
         statsCollectionView.dataSource = self
 
@@ -605,7 +605,7 @@ extension OpenSeaNonFungibleTokenCardRowView: UICollectionViewDataSource {
     }
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OpenSeaNonFungibleTokenTraitCell.identifier, for: indexPath) as! OpenSeaNonFungibleTokenTraitCell
+        let cell: OpenSeaNonFungibleTokenTraitCell = collectionView.dequeueReusableCell(for: indexPath)
         if let viewModel = viewModel {
             let nameAndValues: OpenSeaNonFungibleTokenAttributeCellViewModel
             switch collectionView {

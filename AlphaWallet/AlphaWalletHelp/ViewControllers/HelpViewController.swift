@@ -25,7 +25,7 @@ class HelpViewController: UIViewController {
         view.backgroundColor = Colors.appBackground
 
         let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.register(HelpViewCell.self, forCellReuseIdentifier: HelpViewCell.identifier)
+        tableView.register(HelpViewCell.self)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
@@ -83,7 +83,7 @@ extension HelpViewController: UITableViewDelegate {
 
 extension HelpViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: HelpViewCell.identifier, for: indexPath) as! HelpViewCell
+        let cell: HelpViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.configure(text: rows[indexPath.row].title)
         return cell
     }

@@ -3,8 +3,6 @@
 import UIKit
 
 class AccountViewCell: UITableViewCell {
-    static let identifier = "AccountViewCell"
-
     private let addressLabel = UILabel()
     private let balanceLabel = UILabel()
     

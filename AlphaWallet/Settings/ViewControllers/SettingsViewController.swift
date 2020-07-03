@@ -19,9 +19,9 @@ class SettingsViewController: UIViewController {
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .plain)
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.register(SettingViewHeader.self, forHeaderFooterViewReuseIdentifier: SettingViewHeader.reuseIdentifier)
-        tableView.register(SettingTableViewCell.self, forCellReuseIdentifier: SettingTableViewCell.reuseIdentifier)
-        tableView.register(SwitchTableViewCell.self, forCellReuseIdentifier: SwitchTableViewCell.reuseIdentifier)
+        tableView.registerHeaderFooterView(SettingViewHeader.self)
+        tableView.register(SettingTableViewCell.self)
+        tableView.register(SwitchTableViewCell.self)
         tableView.separatorStyle = .singleLine
 
         return tableView
@@ -178,8 +178,7 @@ extension SettingsViewController: UITableViewDataSource {
             let row = rows[indexPath.row]
             switch row {
             case .passcode:
-                let cell = tableView.dequeueReusableCell(withIdentifier: SwitchTableViewCell.reuseIdentifier, for: indexPath) as! SwitchTableViewCell
-                cell.delegate = self
+                let cell: SwitchTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: .init(
                     titleText: viewModel.passcodeTitle,
                     icon: R.image.biometrics()!,
@@ -188,18 +187,18 @@ extension SettingsViewController: UITableViewDataSource {
 
                 return cell
             case .notifications, .selectActiveNetworks, .advanced:
-                let cell = tableView.dequeueReusableCell(withIdentifier: SettingTableViewCell.reuseIdentifier, for: indexPath) as! SettingTableViewCell
+                let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
                 cell.configure(viewModel: .init(settingsSystemRow: row))
 
                 return cell
             }
         case .help:
-            let cell = tableView.dequeueReusableCell(withIdentifier: SettingTableViewCell.reuseIdentifier, for: indexPath) as! SettingTableViewCell
+            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel: .init(titleText: R.string.localizable.settingsSupportTitle(), icon: R.image.support()!))
 
             return cell
         case .wallet(let rows):
-            let cell = tableView.dequeueReusableCell(withIdentifier: SettingTableViewCell.reuseIdentifier, for: indexPath) as! SettingTableViewCell
+            let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
             let row = rows[indexPath.row]
             switch row {
             case .changeWallet:
@@ -227,7 +226,7 @@ extension SettingsViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = tableView.dequeueReusableHeaderFooterView(withIdentifier: SettingViewHeader.reuseIdentifier) as! SettingViewHeader
+        let headerView: SettingViewHeader = tableView.dequeueReusableHeaderFooterView()
         let section = viewModel.sections[section]
         let viewModel = SettingViewHeaderViewModel(section: section)
         headerView.configure(viewModel: viewModel)

@@ -4,7 +4,6 @@ import Foundation
 import UIKit
 
 class OpenSeaNonFungibleTokenTraitCell: UICollectionViewCell {
-    static let identifier = "OpenSeaNonFungibleTokenTraitCell"
     private let iconImageView = UIImageView()
     private let nameLabel = UILabel()
     private let valueLabel = UILabel()

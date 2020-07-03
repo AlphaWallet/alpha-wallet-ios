@@ -4,8 +4,6 @@ import Foundation
 import UIKit
 
 class SeedPhraseCell: UICollectionViewCell {
-    static let identifier = "SeedPhraseCell"
-
     private let sequenceLabel = UILabel()
     private let label = UILabel()
 
