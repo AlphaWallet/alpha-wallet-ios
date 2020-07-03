@@ -33,7 +33,7 @@ class EventSourceCoordinator {
             let tokenHolders = TokenAdaptor(token: token, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore).getTokenHolders(forWallet: wallet, sourceFromEvents: false)
             for eachTokenHolder in tokenHolders {
                 guard let tokenId = eachTokenHolder.tokenIds.first else { continue }
-                let promise = fetchEvents(forTokenId: tokenId, token: token, eventOrigin: eventOrigin, assetAttribute: each)
+                let promise = fetchEvents(forTokenId: tokenId, token: token, eventOrigin: eventOrigin)
                 fetchPromises.append(promise)
             }
         }
@@ -66,7 +66,7 @@ class EventSourceCoordinator {
         }
     }
 
-    private func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin, assetAttribute: AssetAttribute) -> Promise<Void> {
+    private func fetchEvents(forTokenId tokenId: TokenId, token: TokenObject, eventOrigin: EventOrigin) -> Promise<Void> {
         let (filterName, filterValue) = eventOrigin.eventFilter
         let filterParam: [(filter: [EventFilterable], textEquivalent: String)?] = eventOrigin.parameters
                 .filter { $0.isIndexed }
