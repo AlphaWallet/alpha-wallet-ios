@@ -147,7 +147,7 @@ class AmountTextField: UIControl {
 
     var cryptoToDollarRate: Double? = nil {
         didSet {
-            if let _ = cryptoToDollarRate {
+            if cryptoToDollarRate != nil {
                 updateAlternatePricingDisplay()
             }
             updateFiatButtonTitle()

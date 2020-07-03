@@ -102,7 +102,7 @@ struct AssetAttribute {
                   let eventContractName = ethereumEventElement["contract"],
                   let eventSourceContractElement = XMLHandler.getContractElementByName(contractName: eventContractName, fromRoot: root, xmlContext: xmlContext),
                   let asnModuleElement = XMLHandler.getAsnModuleElement(fromRoot: root, xmlContext: xmlContext, forTypeName: eventName),
-                  let _ = attribute["name"] {
+                  attribute["name"] != nil {
             originFound = Origin(forEthereumEventElement: ethereumEventElement, asnModuleElement: asnModuleElement, sourceContractElement: eventSourceContractElement, xmlContext: xmlContext)
         }
 

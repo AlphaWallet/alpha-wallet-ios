@@ -454,7 +454,7 @@ extension SendViewController: AmountTextFieldDelegate {
         textField.statusLabel.text = viewModel.availableLabelText
         textField.availableTextHidden = viewModel.availableTextHidden
 
-        guard let _ = viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThenZero: false) else {
+        guard viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThenZero: false) != nil else {
             textField.errorState = .error
             return
         }

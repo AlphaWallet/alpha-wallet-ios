@@ -126,7 +126,7 @@ public class _FloatLabelCell<T>: Cell<T>, UITextFieldDelegate, TextFieldCell whe
 
     public func textFieldDidBeginEditing(_ textField: UITextField) {
         formViewController()?.beginEditing(of: self)
-        if let fieldRowConformance = row as? FormatterConformance, let _ = fieldRowConformance.formatter, fieldRowConformance.useFormatterOnDidBeginEditing ?? fieldRowConformance.useFormatterDuringInput {
+        if let fieldRowConformance = row as? FormatterConformance, fieldRowConformance.formatter != nil, fieldRowConformance.useFormatterOnDidBeginEditing ?? fieldRowConformance.useFormatterDuringInput {
             textField.text = displayValue(useFormatter: true)
         } else {
             textField.text = displayValue(useFormatter: false)

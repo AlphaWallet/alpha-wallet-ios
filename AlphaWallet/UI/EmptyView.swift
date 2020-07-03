@@ -43,7 +43,7 @@ class EmptyView: UIView {
         ].asStackView(axis: .vertical, spacing: 30, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
-        if let _ = onRetry {
+        if onRetry != nil {
             stackView.addArrangedSubview(button)
         }
 
