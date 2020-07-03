@@ -24,17 +24,32 @@ class AccountViewTableSectionHeader: UIView {
     private let label = UILabel()
     private var heightConstraint: NSLayoutConstraint?
     private var constraintsWhenVisible: [NSLayoutConstraint] = []
+    private let topSeperatorView = UIView.tableHeaderFooterViewSeparatorView()
+    private let bottomSeperatorView = UIView.tableHeaderFooterViewSeparatorView()
 
     override init(frame: CGRect) {
         super.init(frame: CGRect())
 
         label.translatesAutoresizingMaskIntoConstraints = false
+
+        addSubview(topSeperatorView)
+        addSubview(bottomSeperatorView)
         addSubview(label)
-        let topConstraint = label.topAnchor.constraint(equalTo: topAnchor, constant: 13)
-        let bottomConstraint = label.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -13)
+
+        let topConstraint = label.topAnchor.constraint(equalTo: topSeperatorView.bottomAnchor, constant: 13)
+        let bottomConstraint = label.bottomAnchor.constraint(equalTo: bottomSeperatorView.topAnchor, constant: -13)
         let constraintsWhenVisible = [
             label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 20),
             label.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            topSeperatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            topSeperatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            topSeperatorView.topAnchor.constraint(equalTo: topAnchor),
+
+            bottomSeperatorView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            bottomSeperatorView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            bottomSeperatorView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
             topConstraint,
             bottomConstraint
         ]
@@ -42,7 +57,7 @@ class AccountViewTableSectionHeader: UIView {
         NSLayoutConstraint.activate(constraintsWhenVisible)
 
         //UIKit doesn't like headers with a height of 0
-        self.heightConstraint = heightAnchor.constraint(equalToConstant: 1)
+        heightConstraint = heightAnchor.constraint(equalToConstant: 1)
         self.constraintsWhenVisible = constraintsWhenVisible
     }
 
@@ -65,5 +80,16 @@ class AccountViewTableSectionHeader: UIView {
         } else {
             NSLayoutConstraint.activate(constraintsWhenVisible)
         }
+    }
+}
+
+extension UIView {
+    static func tableHeaderFooterViewSeparatorView() -> UIView {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.heightAnchor.constraint(equalToConstant: 0.5).isActive = true
+        view.backgroundColor = DataEntry.Color.border
+        
+        return view
     }
 }
