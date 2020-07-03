@@ -8,8 +8,6 @@
 import UIKit
 
 class SettingTableViewCell: UITableViewCell {
-    static let reuseIdentifier = String(describing: SettingTableViewCell.self)
-
     private let iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill

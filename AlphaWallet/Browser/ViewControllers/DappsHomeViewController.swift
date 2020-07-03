@@ -16,8 +16,6 @@ protocol DappsHomeViewControllerDelegate: class {
 }
 
 class DappsHomeViewController: UIViewController {
-    private static let headerIdentifier = "header"
-
     private var isEditingDapps = false {
         didSet {
             dismissKeyboard()
@@ -82,8 +80,8 @@ class DappsHomeViewController: UIViewController {
 
         dappsCollectionView.translatesAutoresizingMaskIntoConstraints = false
         dappsCollectionView.alwaysBounceVertical = true
-        dappsCollectionView.register(DappsHomeViewControllerHeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: DappsHomeViewController.headerIdentifier)
-        dappsCollectionView.register(DappViewCell.self, forCellWithReuseIdentifier: DappViewCell.identifier)
+        dappsCollectionView.registerSupplementaryView(DappsHomeViewControllerHeaderView.self, of: UICollectionView.elementKindSectionHeader)
+        dappsCollectionView.register(DappViewCell.self)
         dappsCollectionView.dataSource = self
         dappsCollectionView.delegate = self
         view.addSubview(dappsCollectionView)
@@ -148,7 +146,7 @@ extension DappsHomeViewController: UICollectionViewDataSource {
 
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let dapp = viewModel.dapp(atIndex: indexPath.item)
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: DappViewCell.identifier, for: indexPath) as! DappViewCell
+        let cell: DappViewCell = collectionView.dequeueReusableCell(for: indexPath)
         cell.delegate = self
         cell.configure(viewModel: .init(dapp: dapp))
         cell.isEditing = isEditingDapps
@@ -156,7 +154,7 @@ extension DappsHomeViewController: UICollectionViewDataSource {
     }
 
     public func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: DappsHomeViewController.headerIdentifier, for: indexPath) as! DappsHomeViewControllerHeaderView
+        let headerView: DappsHomeViewControllerHeaderView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, for: indexPath)
         headerView.delegate = self
         headerView.configure(viewModel: .init(isEditing: isEditingDapps))
         headerView.myDappsButton.addTarget(self, action: #selector(showMyDappsViewController), for: .touchUpInside)

@@ -3,7 +3,6 @@
 import UIKit
 
 class LocaleViewCell: UITableViewCell {
-    static let identifier = "LocaleViewCell"
     static let selectionAccessoryType: (selected: UITableViewCell.AccessoryType, unselected: UITableViewCell.AccessoryType) = (selected: .checkmark, unselected: .none)
 
     private let nameLabel = UILabel()

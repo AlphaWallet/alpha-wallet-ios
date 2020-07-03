@@ -7,8 +7,6 @@
 import UIKit
 
 class SeedPhraseSuggestionViewCell: UICollectionViewCell {
-    static let identifier = "SeedPhraseSuggestionViewCell"
-
     private let viewContainer: UIView = {
         let view = UIView()
         view.backgroundColor = R.color.alabaster()

@@ -3,8 +3,6 @@
 import UIKit
 
 class TransactionViewCell: UITableViewCell {
-    static let identifier = "TransactionTableViewCell"
-
     private let background = UIView()
     private let statusImageView = UIImageView()
     private let titleLabel = UILabel()

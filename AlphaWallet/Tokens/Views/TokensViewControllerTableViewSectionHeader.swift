@@ -5,8 +5,6 @@ import UIKit
 
 extension TokensViewController {
     class TableViewSectionHeader: UITableViewHeaderFooterView {
-        static let reuseIdentifier = String(describing: TableViewSectionHeader.self)
-
         var filterView: SegmentedControl? {
             didSet {
                 guard let filterView = filterView else {

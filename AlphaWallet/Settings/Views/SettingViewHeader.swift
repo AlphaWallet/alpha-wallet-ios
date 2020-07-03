@@ -8,8 +8,6 @@
 import UIKit
 
 class SettingViewHeader: UITableViewHeaderFooterView {
-    static let reuseIdentifier = String(describing: self)
-
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false

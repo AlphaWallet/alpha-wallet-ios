@@ -5,8 +5,6 @@ import UIKit
 import Kingfisher
 
 class EthTokenViewCell: UITableViewCell {
-    static let identifier = "EthTokenViewCell"
-
     private let background = UIView()
     private let titleLabel = UILabel()
     private let valuePercentageChangeValueLabel = UILabel()

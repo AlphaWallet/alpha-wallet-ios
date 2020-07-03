@@ -10,8 +10,6 @@ protocol DappViewCellDelegate: class {
 
 //Because of how we implemented shadows parallex doesn't work anymore. Fix it again by adding another wrapper around imageHolder? Maybe shadow should just be implemented with a sublayer
 class DappViewCell: UICollectionViewCell {
-    static let identifier = "DappViewCell"
-
     private let marginAroundImage = CGFloat(7)
     private let jiggleAnimationKey = "jiggle"
     private var viewModel: DappViewCellViewModel?

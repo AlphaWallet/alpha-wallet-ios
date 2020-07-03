@@ -3,8 +3,6 @@
 import UIKit
 
 class HelpViewCell: UITableViewCell {
-    static let identifier = "HelpViewCell"
-
     private let titleLabel = UILabel()
     private let iconImageView = UIImageView()
 
