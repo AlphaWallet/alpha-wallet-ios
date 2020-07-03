@@ -124,7 +124,7 @@ extension Notification {
         }
     }
 
-    fileprivate var keyboardInfo: Info? {
+    var keyboardInfo: Info? {
         return Info(self)
     }
 }
