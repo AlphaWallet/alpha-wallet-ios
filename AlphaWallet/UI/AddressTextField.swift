@@ -11,6 +11,7 @@ protocol AddressTextFieldDelegate: class {
 }
 
 class AddressTextField: UIControl {
+    private let notifications = NotificationCenter.default
     private var isConfigured = false
     private let textField = UITextField()
     //Always resolve on mainnet
@@ -148,9 +149,41 @@ class AddressTextField: UIControl {
             heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
         ])
 
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(textDidChangeNotification(_:)),
-                                               name: UITextField.textDidChangeNotification, object: nil)
+        notifications.addObserver(self,
+                                  selector: #selector(textDidChangeNotification),
+                                  name: UITextField.textDidChangeNotification, object: nil)
+    }
+    //NOTE: maybe it's not a good name, but reasons using this function to extract default layout in separate function to prevent copying code
+    func defaultLayout() -> UIView {
+        let addressControlsContainer = UIView()
+        addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        addressControlsContainer.backgroundColor = .clear
+
+        let addressControlsStackView = [
+            pasteButton,
+            clearButton
+        ].asStackView(axis: .horizontal)
+        addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
+
+        addressControlsContainer.addSubview(addressControlsStackView)
+
+        let stackView = [
+            self, .spacer(height: 4), [
+                ensAddressView,
+                addressControlsContainer
+            ].asStackView(axis: .horizontal),
+        ].asStackView(axis: .vertical)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor, constant: -7),
+            addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
+            addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
+            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
+            addressControlsContainer.heightAnchor.constraint(equalToConstant: 30),
+        ])
+
+        return stackView
     }
 
     @objc private func textDidChangeNotification(_ notification: Notification) {
@@ -213,11 +246,18 @@ class AddressTextField: UIControl {
         scanQRCodeButton.setImage(R.image.qr_code_icon(), for: .normal)
         scanQRCodeButton.addTarget(self, action: #selector(openReader), for: .touchUpInside)
         scanQRCodeButton.setBackgroundColor(.clear, forState: .normal)
+        //NOTE: Fix clipped shadow on textField (iPhone 5S)
+        scanQRCodeButton.clipsToBounds = false
+        scanQRCodeButton.layer.masksToBounds = false
 
         let targetAddressRightView = [scanQRCodeButton].asStackView(distribution: .fill)
+        targetAddressRightView.clipsToBounds = false
+        targetAddressRightView.layer.masksToBounds = false
+
         //As of iOS 13, we need to constrain the width of `rightView`
         let rightViewFittingSize = targetAddressRightView.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
         NSLayoutConstraint.activate([
+            targetAddressRightView.heightAnchor.constraint(equalToConstant: ScreenChecker().isNarrowScreen ? 30 : 50),
             targetAddressRightView.widthAnchor.constraint(equalToConstant: rightViewFittingSize.width),
         ])
         targetAddressRightView.translatesAutoresizingMaskIntoConstraints = false

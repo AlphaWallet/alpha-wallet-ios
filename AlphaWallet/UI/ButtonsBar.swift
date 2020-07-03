@@ -93,7 +93,7 @@ class BarButton: UIButton {
 }
 
 class ButtonsBar: UIView {
-    static let buttonsHeight = CGFloat(48)
+    static let buttonsHeight = CGFloat(ScreenChecker().isNarrowScreen ? 38 : 48)
     //A gap so it doesn't stick to the bottom of devices without a bottom safe area
     static let marginAtBottomScreen = CGFloat(3)
 
@@ -340,7 +340,7 @@ private struct ButtonsBarViewModel {
     }
 
     var buttonFont: UIFont {
-        return Fonts.semibold(size: 20)!
+        return Fonts.semibold(size: ScreenChecker().isNarrowScreen ? 16 : 20)!
     }
 
     var buttonBorderColor: UIColor = R.color.azure()!
