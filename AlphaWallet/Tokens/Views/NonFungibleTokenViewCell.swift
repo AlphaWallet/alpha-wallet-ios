@@ -19,6 +19,8 @@ class NonFungibleTokenViewCell: UITableViewCell {
         return imageView
     }()
 
+    private var blockChainTagLabel = BlockchainTagLabel()
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -28,9 +30,9 @@ class NonFungibleTokenViewCell: UITableViewCell {
         let col0 = tokenIconImageView
         let col1 = [
             titleLabel,
-            [blockchainLabel, UIView.spacerWidth(flexible: true)].asStackView(spacing: 15)
-        ].asStackView(axis: .vertical)
-        let stackView = [col0, col1].asStackView(spacing: 12)
+            [blockchainLabel, UIView.spacerWidth(flexible: true), blockChainTagLabel].asStackView(spacing: 15)
+        ].asStackView(axis: .vertical, spacing: 5)
+        let stackView = [col0, col1].asStackView(spacing: 12, alignment: .center)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         background.addSubview(stackView)
 
@@ -67,5 +69,7 @@ class NonFungibleTokenViewCell: UITableViewCell {
             $0.alpha = viewModel.alpha
         }
         tokenIconImageView.subscribable = viewModel.iconImage
+
+        blockChainTagLabel.configure(viewModel: viewModel.blockChaintagViewModel)
     }
 }

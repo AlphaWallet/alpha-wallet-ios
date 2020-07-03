@@ -663,6 +663,8 @@
 		87D163A4242CD811002662D2 /* AddHideTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D163A1242CD811002662D2 /* AddHideTokensCoordinator.swift */; };
 		87D163A7242CD9A2002662D2 /* AddHideTokenSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D163A5242CD9A1002662D2 /* AddHideTokenSectionHeaderView.swift */; };
 		87D163A8242CD9A2002662D2 /* AddHideTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D163A6242CD9A1002662D2 /* AddHideTokensView.swift */; };
+		87D1757824ADAEEB002130D2 /* BlockchainTagLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D1757724ADAEEB002130D2 /* BlockchainTagLabel.swift */; };
+		87D1757A24ADAF07002130D2 /* BlockchainTagLabelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D1757924ADAF07002130D2 /* BlockchainTagLabelViewModel.swift */; };
 		87ED8F93248534E30005C69B /* SwitchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */; };
 		87ED8F95248535400005C69B /* SwitchTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F94248535400005C69B /* SwitchTableViewCellViewModel.swift */; };
 		87ED8F97248540F90005C69B /* AdvancedSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F96248540F90005C69B /* AdvancedSettingsViewController.swift */; };
@@ -1395,6 +1397,8 @@
 		87D163A1242CD811002662D2 /* AddHideTokensCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddHideTokensCoordinator.swift; sourceTree = "<group>"; };
 		87D163A5242CD9A1002662D2 /* AddHideTokenSectionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddHideTokenSectionHeaderView.swift; sourceTree = "<group>"; };
 		87D163A6242CD9A1002662D2 /* AddHideTokensView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddHideTokensView.swift; sourceTree = "<group>"; };
+		87D1757724ADAEEB002130D2 /* BlockchainTagLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainTagLabel.swift; sourceTree = "<group>"; };
+		87D1757924ADAF07002130D2 /* BlockchainTagLabelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainTagLabelViewModel.swift; sourceTree = "<group>"; };
 		87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCell.swift; sourceTree = "<group>"; };
 		87ED8F94248535400005C69B /* SwitchTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		87ED8F96248540F90005C69B /* AdvancedSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsViewController.swift; sourceTree = "<group>"; };
@@ -2036,6 +2040,7 @@
 				5E7C73BD3FD2C2844F5DEA45 /* SegmentedControl.swift */,
 				5E7C78FF8A5682C27E15B488 /* UITableViewCell+TokenCell.swift */,
 				5E7C709FA1317A56BC12CD35 /* AddHideTokensCell.swift */,
+				87D1757724ADAEEB002130D2 /* BlockchainTagLabel.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -2084,6 +2089,7 @@
 				5E7C799AF966DBF0D59DFB20 /* SegmentedControlViewModel.swift */,
 				8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */,
 				87C8018B24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift */,
+				87D1757924ADAF07002130D2 /* BlockchainTagLabelViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -4363,6 +4369,7 @@
 				5E7C70861A499FF79B7DA903 /* DiscoverDappCell.swift in Sources */,
 				5E7C72B359B220D0CBA7DCF1 /* DappsAutoCompletionViewController.swift in Sources */,
 				C601B18D24407F4300C763D9 /* SettingTableViewCellViewModel.swift in Sources */,
+				87D1757A24ADAF07002130D2 /* BlockchainTagLabelViewModel.swift in Sources */,
 				5E7C702C4B29AF2B8D61CCA4 /* DappsAutoCompletionViewControllerViewModel.swift in Sources */,
 				76F1DD3DF34BCCFE9BE3CEBB /* MyDappsViewControllerViewModel.swift in Sources */,
 				76F1D3B0E2CDBE82B764C0C7 /* MyDappCell.swift in Sources */,
@@ -4522,6 +4529,7 @@
 				5E7C77217AFE4BD40C25FD8C /* AddressOrEnsName.swift in Sources */,
 				87ED8FAD2488EA610005C69B /* SupportViewController.swift in Sources */,
 				5E7C72D6C4AB97A1FCB3AA32 /* MnemonicInWordListRule.swift in Sources */,
+				87D1757824ADAEEB002130D2 /* BlockchainTagLabel.swift in Sources */,
 				8499D446C6ADE858FE633096 /* GetERC721ForTicketsBalanceCoordinator.swift in Sources */,
 				8499D8751F2D70FBD13F3C93 /* GetERC721ForTicketsBalance.swift in Sources */,
 				8499D235831FBC245735B2C7 /* GetInterfaceSupported165Encode.swift in Sources */,

@@ -61,4 +61,8 @@ struct FungibleTokenViewCellViewModel {
     var iconImage: Subscribable<TokenImage> {
         token.icon
     }
+
+    var blockChaintagViewModel: BlockchainTagLabelViewModel {
+        return .init(server: server)
+    }
 }
