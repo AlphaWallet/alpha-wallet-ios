@@ -188,8 +188,6 @@ class AddressTextField: UIControl {
         textField.layer.cornerRadius = DataEntry.Metric.cornerRadius
         textField.leftView = .spacerWidth(16)
         textField.rightView = makeTargetAddressRightView()
-        textField.textColor = DataEntry.Color.text
-        textField.font = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 10: 13)
         textField.layer.borderColor = DataEntry.Color.border.cgColor
         textField.layer.borderWidth = DataEntry.Metric.borderThickness
         textField.placeholder = R.string.localizable.addressEnsLabelMessage()
