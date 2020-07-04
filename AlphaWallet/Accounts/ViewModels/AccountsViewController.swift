@@ -10,7 +10,7 @@ protocol AccountsViewControllerDelegate: class {
 
 class AccountsViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
-    private let tableView = UITableView(frame: .zero, style: .grouped)
+    private let tableView = UITableView(frame: .zero, style: .plain)
     private var viewModel: AccountsViewModel {
         return AccountsViewModel(hdWallets: hdWallets, keystoreWallets: keystoreWallets, watchedWallets: watchedWallets)
     }
