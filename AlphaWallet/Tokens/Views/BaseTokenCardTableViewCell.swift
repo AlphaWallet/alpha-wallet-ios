@@ -8,7 +8,6 @@ protocol BaseTokenCardTableViewCellDelegate: class {
 
 // Override showCheckbox() to return true or false
 class BaseTokenCardTableViewCell: UITableViewCell {
-    static let identifier = "TokenCardTableViewCell"
     //This is declared optional because we have no way to set it upon cell instance creation. But it has to be set immediately. Check where it's accessed. It's forced unwrapped
     private var assetDefinitionStore: AssetDefinitionStore?
     private let cellSeparators = (top: UIView(), bottom: UIView())

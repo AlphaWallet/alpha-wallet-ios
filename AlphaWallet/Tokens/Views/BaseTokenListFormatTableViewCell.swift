@@ -9,8 +9,6 @@ protocol BaseTokenListFormatTableViewCellDelegate: class {
 //TODO might be unnecessary in the future. Full-text search for TokenRowViewProtocol
 // Override showCheckbox() to return true or false
 class BaseTokenListFormatTableViewCell: UITableViewCell {
-    static let identifier = "BaseTokenListFormatTableViewCell"
-
     private lazy var rowView: TokenListFormatRowView = {
         let result = TokenListFormatRowView(showCheckbox: showCheckbox())
         result.delegate = self

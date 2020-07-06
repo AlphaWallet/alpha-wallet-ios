@@ -4,7 +4,6 @@ import Foundation
 import UIKit
 
 class DappsAutoCompletionCell: UITableViewCell {
-    static let identifier = "DappsAutoCompletionCell"
     let titleLabel = UILabel()
     let descriptionLabel = UILabel()
 

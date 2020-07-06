@@ -93,7 +93,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
 
         header.delegate = self
 
-        tableView.register(TokenCardTableViewCellWithCheckbox.self, forCellReuseIdentifier: TokenCardTableViewCellWithCheckbox.identifier)
+        tableView.register(TokenCardTableViewCellWithCheckbox.self)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.separatorStyle = .none

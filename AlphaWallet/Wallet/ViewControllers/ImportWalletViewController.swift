@@ -51,7 +51,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
         let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
         cv.contentInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        cv.register(SeedPhraseSuggestionViewCell.self, forCellWithReuseIdentifier: SeedPhraseSuggestionViewCell.identifier)
+        cv.register(SeedPhraseSuggestionViewCell.self)
 
         return cv
     }()
@@ -721,7 +721,7 @@ extension ImportWalletViewController: UICollectionViewDelegateFlowLayout, UIColl
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SeedPhraseSuggestionViewCell.identifier, for: indexPath) as? SeedPhraseSuggestionViewCell else { return SeedPhraseSuggestionViewCell() }
+        let cell: SeedPhraseSuggestionViewCell = collectionView.dequeueReusableCell(for: indexPath)
         cell.configure(word: mnemonicSuggestions[indexPath.row])
         return cell
     }

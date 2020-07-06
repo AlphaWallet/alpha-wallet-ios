@@ -8,12 +8,6 @@ final class OnboardingPage: UICollectionViewCell {
     private var imageView: UIImageView!
     private var titleLabel: UILabel!
 
-    static let identifier = "Page"
-
-    override var reuseIdentifier: String? {
-        return OnboardingPage.identifier
-    }
-
     var model = OnboardingPageViewModel() {
         didSet {
             imageView.image = model.image

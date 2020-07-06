@@ -26,7 +26,7 @@ class ServersViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.register(ServerViewCell.self, forCellReuseIdentifier: ServerViewCell.identifier)
+        tableView.register(ServerViewCell.self)
         roundedBackground.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -55,7 +55,7 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: ServerViewCell.identifier, for: indexPath) as! ServerViewCell
+        let cell:ServerViewCell = tableView.dequeueReusableCell(for: indexPath)
         if let viewModel = viewModel {
             let server = viewModel.server(for: indexPath)
             let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))

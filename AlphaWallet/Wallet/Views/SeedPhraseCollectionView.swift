@@ -24,7 +24,7 @@ class SeedPhraseCollectionView: UICollectionView {
         layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
         self.init(frame: .zero, collectionViewLayout: layout)
 
-        register(SeedPhraseCell.self, forCellWithReuseIdentifier: SeedPhraseCell.identifier)
+        register(SeedPhraseCell.self)
         dataSource = self
         delegate = self
     }
@@ -49,7 +49,7 @@ extension SeedPhraseCollectionView: UICollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SeedPhraseCell.identifier, for: indexPath) as! SeedPhraseCell
+        let cell: SeedPhraseCell = collectionView.dequeueReusableCell(for: indexPath)
         let index = indexPath.item
         let word = viewModel.seedPhraseWord(atIndex: index)
         let isSelected = viewModel.isWordSelected(atIndex: index)

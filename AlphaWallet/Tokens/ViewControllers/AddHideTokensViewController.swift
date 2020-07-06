@@ -90,11 +90,10 @@ class AddHideTokensViewController: UIViewController {
     }
 
     private func setup(tableView: UITableView) {
-        tableView.register(FungibleTokenViewCell.self, forCellReuseIdentifier: FungibleTokenViewCell.identifier)
-        tableView.register(NonFungibleTokenViewCell.self, forCellReuseIdentifier: NonFungibleTokenViewCell.identifier)
-        tableView.register(EthTokenViewCell.self, forCellReuseIdentifier: EthTokenViewCell.identifier)
-        tableView.register(AddHideTokenSectionHeaderView.self, forHeaderFooterViewReuseIdentifier: AddHideTokenSectionHeaderView.identifier)
-
+        tableView.register(FungibleTokenViewCell.self)
+        tableView.register(NonFungibleTokenViewCell.self)
+        tableView.register(EthTokenViewCell.self) 
+        tableView.registerHeaderFooterView(AddHideTokenSectionHeaderView.self)
         tableView.isEditing = true
         tableView.estimatedRowHeight = 100
         tableView.dataSource = self
@@ -134,7 +133,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
         let session = sessions[token.server]
         switch token.type {
         case .nativeCryptocurrency:
-            let cell = tableView.dequeueReusableCell(withIdentifier: EthTokenViewCell.identifier, for: indexPath) as! EthTokenViewCell
+            let cell:EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
 
             cell.configure(
                     viewModel: .init(
@@ -149,7 +148,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
             )
             return cell
         case .erc20:
-            let cell = tableView.dequeueReusableCell(withIdentifier: FungibleTokenViewCell.identifier, for: indexPath) as! FungibleTokenViewCell
+            let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel:
                 .init(token: token,
                       server: token.server,
@@ -159,7 +158,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
             )
             return cell
         case .erc721, .erc721ForTickets:
-            let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
+            let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel:
                 .init(token: token,
                       server: token.server,
@@ -169,7 +168,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
             )
             return cell
         case .erc875:
-            let cell = tableView.dequeueReusableCell(withIdentifier: NonFungibleTokenViewCell.identifier, for: indexPath) as! NonFungibleTokenViewCell
+            let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
             cell.configure(viewModel:
                 .init(token: token,
                       server: token.server,
@@ -266,8 +265,9 @@ extension AddHideTokensViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: AddHideTokenSectionHeaderView.identifier) as? AddHideTokenSectionHeaderView
-        view?.configure(viewModel: .init(text: viewModel.titleForSection(section)))
+        let view: AddHideTokenSectionHeaderView = tableView.dequeueReusableHeaderFooterView()
+        view.configure(viewModel: .init(text: viewModel.titleForSection(section)))
+        
         return view
     }
 

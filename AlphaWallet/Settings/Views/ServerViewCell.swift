@@ -3,7 +3,6 @@
 import UIKit
 
 class ServerViewCell: UITableViewCell {
-    static let identifier = "ServerViewCell"
     static let selectionAccessoryType: (selected: UITableViewCell.AccessoryType, unselected: UITableViewCell.AccessoryType) = (selected: .checkmark, unselected: .none)
 
     private let nameLabel = UILabel()

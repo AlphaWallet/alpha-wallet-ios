@@ -30,7 +30,7 @@ class MyDappsViewController: UIViewController {
         self.viewModel = .init(bookmarksStore: bookmarksStore)
         super.init(nibName: nil, bundle: nil)
 
-        tableView.register(MyDappCell.self, forCellReuseIdentifier: MyDappCell.identifier)
+        tableView.register(MyDappCell.self)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableHeaderView = headerView
         tableView.delegate = self
@@ -102,7 +102,7 @@ extension MyDappsViewController: StatefulViewController {
 
 extension MyDappsViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: MyDappCell.identifier, for: indexPath) as! MyDappCell
+        let cell: MyDappCell = tableView.dequeueReusableCell(for: indexPath)
         let dapp = viewModel.dapp(atIndex: indexPath.row)
         cell.configure(viewModel: .init(dapp: dapp))
         return cell

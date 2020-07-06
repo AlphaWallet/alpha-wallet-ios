@@ -3,8 +3,6 @@
 import UIKit
 
 class AssetDefinitionsOverridesViewCell: UITableViewCell {
-    static let identifier = "AssetDefinitionsOverridesViewCell"
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
     }

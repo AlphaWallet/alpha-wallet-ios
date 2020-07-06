@@ -19,7 +19,7 @@ class AssetDefinitionsOverridesViewController: UIViewController {
 
         view.backgroundColor = GroupedTable.Color.background
 
-        tableView.register(AssetDefinitionsOverridesViewCell.self, forCellReuseIdentifier: AssetDefinitionsOverridesViewCell.identifier)
+        tableView.register(AssetDefinitionsOverridesViewCell.self)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
@@ -58,7 +58,7 @@ extension AssetDefinitionsOverridesViewController: UITableViewDelegate {
 
 extension AssetDefinitionsOverridesViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: AssetDefinitionsOverridesViewCell.identifier, for: indexPath) as! AssetDefinitionsOverridesViewCell
+        let cell: AssetDefinitionsOverridesViewCell = tableView.dequeueReusableCell(for: indexPath) 
         cell.configure(viewModel: .init(url: overriddenURLs[indexPath.row], fileExtension: fileExtension))
         return cell
     }

@@ -9,8 +9,6 @@ protocol DiscoverDappCellDelegate: class {
 }
 
 class DiscoverDappCell: UITableViewCell {
-    static let identifier = "DiscoverDappCell"
-
     private let addButton = UIButton(type: .system)
     private let removeButton = UIButton(type: .system)
     private var viewModel: DiscoverDappCellViewModel?
