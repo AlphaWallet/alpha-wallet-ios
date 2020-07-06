@@ -25,7 +25,12 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private let roundedBackground = RoundedBackground()
     private let scrollView = UIScrollView()
     private let tabBar = SegmentedControl(titles: ImportWalletViewModel.segmentedControlTitles)
-    private let mnemonicCountLabel = UILabel()
+    private let mnemonicCountLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .right
+        return label
+    }()
     private let mnemonicTextView = TextView()
     private let keystoreJSONTextView = TextView()
     private let passwordTextField = TextField()
@@ -89,9 +94,6 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         mnemonicTextView.textView.autocorrectionType = .no
         mnemonicTextView.textView.autocapitalizationType = .none
 
-        mnemonicCountLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(mnemonicCountLabel)
-
         keystoreJSONTextView.label.translatesAutoresizingMaskIntoConstraints = false
         keystoreJSONTextView.delegate = self
         keystoreJSONTextView.translatesAutoresizingMaskIntoConstraints = false
@@ -128,13 +130,15 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         watchAddressTextField.delegate = self
         watchAddressTextField.returnKeyType = .done
 
+        let row2 = [mnemonicTextView.statusLabel, mnemonicCountLabel].asStackView()
+        row2.translatesAutoresizingMaskIntoConstraints = false
         mnemonicControlsStackView = [
             mnemonicTextView.label,
             .spacer(height: 4),
             mnemonicTextView,
             .spacer(height: 4),
-            mnemonicTextView.statusLabel
-        ].asStackView(axis: .vertical)
+            row2
+        ].asStackView(axis: .vertical, distribution: .fill)
         mnemonicControlsStackView.translatesAutoresizingMaskIntoConstraints = false
 
         keystoreJSONControlsStackView = [
@@ -229,9 +233,6 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             mnemonicControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
             mnemonicControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
 
-            mnemonicCountLabel.topAnchor.constraint(equalTo: mnemonicControlsStackView.bottomAnchor, constant: xMargin),
-            mnemonicCountLabel.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
-
             keystoreJSONControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
             keystoreJSONControlsStackView.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: -xMargin),
             privateKeyControlsStackView.leadingAnchor.constraint(equalTo: stackView.leadingAnchor, constant: xMargin),
@@ -322,6 +323,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
         mnemonicCountLabel.font = DataEntry.Font.label
         mnemonicCountLabel.textColor = DataEntry.Color.label
+        mnemonicCountLabel.text = "\(mnemonicInput.count)"
 
         mnemonicSuggestionsCollectionView.backgroundColor = .white
         mnemonicSuggestionsCollectionView.backgroundColor = R.color.mike()
