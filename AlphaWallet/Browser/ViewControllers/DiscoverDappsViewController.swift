@@ -24,7 +24,7 @@ class DiscoverDappsViewController: UIViewController {
         self.bookmarksStore = bookmarksStore
         super.init(nibName: nil, bundle: nil)
 
-        tableView.register(DiscoverDappCell.self, forCellReuseIdentifier: DiscoverDappCell.identifier)
+        tableView.register(DiscoverDappCell.self)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.tableHeaderView = headerBoxView
         tableView.delegate = self
@@ -86,7 +86,7 @@ extension DiscoverDappsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: DiscoverDappCell.identifier, for: indexPath) as! DiscoverDappCell
+        let cell: DiscoverDappCell = tableView.dequeueReusableCell(for: indexPath)
         let dapp = viewModel.dappCategories[indexPath.section].dapps[indexPath.row]
         cell.configure(viewModel: .init(bookmarksStore: bookmarksStore, dapp: dapp))
         cell.delegate = self

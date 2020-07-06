@@ -41,7 +41,7 @@ class AccountsViewController: UIViewController {
         tableView.delegate = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
-        tableView.register(AccountViewCell.self, forCellReuseIdentifier: AccountViewCell.identifier)
+        tableView.register(AccountViewCell.self)
         roundedBackground.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -163,7 +163,7 @@ extension AccountsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: AccountViewCell.identifier, for: indexPath) as! AccountViewCell
+        let cell: AccountViewCell = tableView.dequeueReusableCell(for: indexPath)
         var cellViewModel = getAccountViewModels(for: indexPath)
         cell.configure(viewModel: cellViewModel)
         cell.account = cellViewModel.wallet

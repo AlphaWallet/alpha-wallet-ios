@@ -26,7 +26,7 @@ class LocalesViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.register(LocaleViewCell.self, forCellReuseIdentifier: LocaleViewCell.identifier)
+        tableView.register(LocaleViewCell.self)
         roundedBackground.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -55,7 +55,7 @@ extension LocalesViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: LocaleViewCell.identifier, for: indexPath) as! LocaleViewCell
+        let cell: LocaleViewCell = tableView.dequeueReusableCell(for: indexPath)
         if let viewModel = viewModel {
             let locale = viewModel.locale(for: indexPath)
             let cellViewModel = LocaleViewModel(locale: locale, selected: viewModel.isLocaleSelected(locale))

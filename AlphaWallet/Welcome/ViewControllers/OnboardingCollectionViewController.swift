@@ -10,7 +10,7 @@ class OnboardingCollectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        collectionView?.register(OnboardingPage.self, forCellWithReuseIdentifier: OnboardingPage.identifier)
+        collectionView?.register(OnboardingPage.self)
     }
 
     override func viewDidLayoutSubviews() {
@@ -26,7 +26,7 @@ class OnboardingCollectionViewController: UICollectionViewController {
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: OnboardingPage.identifier, for: indexPath) as! OnboardingPage
+        let cell: OnboardingPage = collectionView.dequeueReusableCell(for: indexPath)
         cell.model = pages[indexPath.row]
         return cell
     }

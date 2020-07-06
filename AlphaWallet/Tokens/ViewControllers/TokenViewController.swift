@@ -42,7 +42,7 @@ class TokenViewController: UIViewController {
 
         header.delegate = self
 
-        tableView.register(TokenViewControllerTransactionCell.self, forCellReuseIdentifier: TokenViewControllerTransactionCell.identifier)
+        tableView.register(TokenViewControllerTransactionCell.self)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.tableHeaderView = header
@@ -255,7 +255,7 @@ class TokenViewController: UIViewController {
 
 extension TokenViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewControllerTransactionCell.identifier, for: indexPath) as! TokenViewControllerTransactionCell
+        let cell: TokenViewControllerTransactionCell = tableView.dequeueReusableCell(for: indexPath)
         if let transaction = viewModel?.recentTransactions[indexPath.row] {
             let viewModel = TokenViewControllerTransactionCellViewModel(
                     transaction: transaction,

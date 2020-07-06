@@ -4,8 +4,6 @@ import Foundation
 import UIKit
 
 class TokenViewControllerTransactionCell: UITableViewCell {
-    static let identifier = "TokenViewControllerTransactionCell"
-
     private let dateLabel = UILabel()
     private let typeLabel = UILabel()
     private let amountLabel = UILabel()

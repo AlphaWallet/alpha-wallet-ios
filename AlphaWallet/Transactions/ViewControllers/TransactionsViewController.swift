@@ -34,7 +34,7 @@ class TransactionsViewController: UIViewController {
 
         view.backgroundColor = self.viewModel.backgroundColor
 
-        tableView.register(TransactionViewCell.self, forCellReuseIdentifier: TransactionViewCell.identifier)
+        tableView.register(TransactionViewCell.self)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
@@ -161,7 +161,7 @@ extension TransactionsViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let transaction = viewModel.item(for: indexPath.row, section: indexPath.section)
-        let cell = tableView.dequeueReusableCell(withIdentifier: TransactionViewCell.identifier, for: indexPath) as! TransactionViewCell
+        let cell: TransactionViewCell = tableView.dequeueReusableCell(for: indexPath)
         let session = sessions[transaction.server]
         cell.configure(viewModel: .init(
                 transaction: transaction,

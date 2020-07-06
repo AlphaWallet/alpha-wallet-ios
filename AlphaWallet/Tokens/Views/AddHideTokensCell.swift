@@ -3,8 +3,6 @@
 import UIKit
 
 class AddHideTokensCell: UITableViewCell {
-    static let identifier = "AddHideTokensCell"
-
     lazy private var addHideTokensView = ShowAddHideTokensView()
 
     weak var delegate: ShowAddHideTokensViewDelegate?

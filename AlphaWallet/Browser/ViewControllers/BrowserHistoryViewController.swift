@@ -31,7 +31,7 @@ final class BrowserHistoryViewController: UIViewController {
         tableView.dataSource = self
         tableView.tableHeaderView = headerView
         tableView.separatorStyle = .none
-        tableView.register(BrowserHistoryCell.self, forCellReuseIdentifier: BrowserHistoryCell.identifier)
+        tableView.register(BrowserHistoryCell.self)
         view.addSubview(tableView)
         emptyView = {
             let emptyView = DappsHomeEmptyView()
@@ -105,7 +105,7 @@ extension BrowserHistoryViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: BrowserHistoryCell.identifier, for: indexPath) as! BrowserHistoryCell
+        let cell: BrowserHistoryCell = tableView.dequeueReusableCell(for: indexPath)
         cell.configure(viewModel: .init(history: viewModel.item(for: indexPath)))
         return cell
     }

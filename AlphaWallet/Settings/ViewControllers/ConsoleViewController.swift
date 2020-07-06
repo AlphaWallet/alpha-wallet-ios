@@ -5,8 +5,6 @@ import UIKit
 
 //TODO reload when the list of files (and hence list of messages change)
 class ConsoleViewController: UIViewController {
-    static let cellIdentifier = "cellIdentifier"
-
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var messages = [String]()
 
@@ -16,14 +14,14 @@ class ConsoleViewController: UIViewController {
         title = R.string.localizable.aConsoleTitle()
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: ConsoleViewController.cellIdentifier)
+        tableView.register(UITableViewCell.self)
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
         view.backgroundColor = GroupedTable.Color.background
-        
+
         view.addSubview(tableView)
 
         NSLayoutConstraint.activate([
@@ -53,7 +51,7 @@ extension ConsoleViewController: UITableViewDelegate {
 
 extension ConsoleViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: ConsoleViewController.cellIdentifier, for: indexPath)
+        let cell: UITableViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.textLabel?.numberOfLines = 0
         cell.textLabel?.text = messages[indexPath.row]
         return cell
