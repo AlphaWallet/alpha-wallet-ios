@@ -16,6 +16,7 @@
 "Google" = "Google";
 "configureTransaction.error.gasFeeTooHigh" = "交易手续费用太高，最大可用：%@";
 "configureTransaction.error.gasLimitTooHigh" = "燃料限制太高，最大可用：%d";
+"configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
 "configureTransaction.gasLimit.label.description" = "燃料限制用于防止智能合约消耗你所有的%@。我们会尽可能得为你自动计算燃料限制，但是一些智能合约可能需要自定义的燃料限制。";
 "configureTransaction.gasLimit.label.title" = "燃料限制";
 "configureTransaction.gasPrice.label.description" = "燃料价格越高，交易费用就越贵，但是交易被 %@ 网络处理的速度越快。";
@@ -114,7 +115,9 @@
 "transaction.navigation.title" = "交易";
 "import.navigation.title" = "导入钱包";
 "configureTransaction.data.label.title" = "交易数据(可选)";
+"configureTransaction.nonce.label.title" = "Nonce (Optional)";
 "confirmPayment.data.label.title" = "数据";
+"confirmPayment.nonce.label.title" = "Nonce";
 "Contract Address" = "合约地址";
 "Copy Address" = "复制地址";
 "Decimals" = "位数";
@@ -180,6 +183,7 @@
 "transaction.time.label.title" = "交易时间";
 "transaction.id.label.title" = "交易#";
 "transaction.blockNumber.label.title" = "区块#";
+"transaction.nonce.label.title" = "Nonce";
 "send.error.invalidAmount" = "错误数额";
 "wallet.create.button.title" = "创建钱包";
 "wallet.watch.button.title" = "Watch Wallet";

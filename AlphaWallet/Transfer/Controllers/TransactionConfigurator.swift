@@ -105,7 +105,8 @@ class TransactionConfigurator {
                 strongSelf.configuration =  TransactionConfiguration(
                     gasPrice: strongSelf.calculatedGasPrice,
                     gasLimit: gasLimit,
-                    data: strongSelf.configuration.data
+                    data: strongSelf.configuration.data,
+                    nonce: strongSelf.configuration.nonce
                 )
             case .failure: break
             }
@@ -118,7 +119,8 @@ class TransactionConfigurator {
             strongSelf.configuration = TransactionConfiguration(
                     gasPrice: gasPrice,
                     gasLimit: strongSelf.transaction.gasLimit ?? GasLimitConfiguration.maxGasLimit,
-                    data: strongSelf.configuration.data
+                    data: strongSelf.configuration.data,
+                    nonce: strongSelf.configuration.nonce
             )
         }
     }
@@ -164,14 +166,16 @@ class TransactionConfigurator {
             configuration = TransactionConfiguration(
                     gasPrice: calculatedGasPrice,
                     gasLimit: GasLimitConfiguration.maxGasLimit,
-                    data: transaction.data ?? configuration.data
+                    data: transaction.data ?? configuration.data,
+                    nonce: configuration.nonce
             )
             completion(.success(()))
         case .nativeCryptocurrency:
             configuration = TransactionConfiguration(
                     gasPrice: calculatedGasPrice,
                     gasLimit: GasLimitConfiguration.minGasLimit,
-                    data: transaction.data ?? configuration.data
+                    data: transaction.data ?? configuration.data,
+                    nonce: configuration.nonce
             )
             completion(.success(()))
         case .ERC20Token:
@@ -292,7 +296,8 @@ class TransactionConfigurator {
             account: account,
             address: transaction.to,
             contract: .none,
-            nonce: -1,
+                //TODO Can we make these `-1` for nonce be nil instead?
+            nonce: configuration.nonce ?? -1,
             data: configuration.data,
             gasPrice: configuration.gasPrice,
             gasLimit: configuration.gasLimit,
@@ -325,7 +330,7 @@ class TransactionConfigurator {
             value: value,
             account: account,
             to: address,
-            nonce: -1,
+            nonce: configuration.nonce ?? -1,
             data: configuration.data,
             gasPrice: configuration.gasPrice,
             gasLimit: configuration.gasLimit,

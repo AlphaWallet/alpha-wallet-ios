@@ -16,6 +16,7 @@
 "Google" = "Google";
 "configureTransaction.error.gasFeeTooHigh" = "Tarifa de gas demasiado alta. Máximo disponible: %@";
 "configureTransaction.error.gasLimitTooHigh" = "Límite de gas demasiado alto. Máximo disponible: %d";
+"configureTransaction.error.nonceNotPositiveNumber" = "Nonce must be a positive number";
 "configureTransaction.gasLimit.label.description" = "El límite de gas evita que los contratos inteligentes consuman todo tu %@. Intentaremos calcular el límite de gas de forma automática, pero algunos contratos inteligentes requieren un límite de gas personalizado.";
 "configureTransaction.gasLimit.label.title" = "Límite de gas";
 "configureTransaction.gasPrice.label.description" = "Cuanto más alto sea el precio del gas, más cara será la tarifa de tu transacción, pero más rápido se procesará por la red %@.";
@@ -27,6 +28,7 @@
 "transaction.time.label.title" = "Hora de la transacción";
 "transaction.id.label.title" = "Transacción n.º";
 "transaction.blockNumber.label.title" = "Bloque n.º";
+"transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "Confirmar";
 "confirmPayment.from.label.title" = "De";
 "confirmPayment.gasFee.label.title" = "Tarifa de red";
@@ -126,7 +128,9 @@
 "transaction.navigation.title" = "Transacción";
 "import.navigation.title" = "Importar monedero";
 "configureTransaction.data.label.title" = "Datos de la transacción (opcional)";
+"configureTransaction.nonce.label.title" = "Nonce (Optional)";
 "confirmPayment.data.label.title" = "Datos";
+"confirmPayment.nonce.label.title" = "Nonce";
 "Contract Address" = "Dirección del contrato";
 "Copy Address" = "Copiar dirección";
 "Decimals" = "Decimales";
