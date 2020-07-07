@@ -18,10 +18,10 @@ struct TransferTokensCardViaWalletAddressViewControllerViewModel {
     }
 
     var targetAddressLabelFont: UIFont {
-        return Fonts.regular(size: 10)!
+        return Fonts.regular(size: 13)!
     }
 
     var targetAddressLabelTextColor: UIColor {
-        return Colors.appGrayLabel
+        return R.color.dove()!
     }
 }
