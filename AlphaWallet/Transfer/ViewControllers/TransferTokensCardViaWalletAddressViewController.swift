@@ -66,15 +66,35 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
 
         view.addSubview(tokenRowView)
 
+        let addressControlsContainer = UIView()
+        addressControlsContainer.translatesAutoresizingMaskIntoConstraints = false
+        addressControlsContainer.backgroundColor = .clear
+
+        targetAddressTextField.pasteButton.contentHorizontalAlignment = .right
+        
+        let addressControlsStackView = [
+            targetAddressTextField.pasteButton,
+            targetAddressTextField.clearButton
+        ].asStackView(axis: .horizontal, alignment: .trailing)
+        addressControlsStackView.translatesAutoresizingMaskIntoConstraints = false
+        addressControlsStackView.setContentHuggingPriority(.required, for: .horizontal)
+        addressControlsStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        addressControlsContainer.addSubview(addressControlsStackView)
+
         let stackView = [
             header,
             tokenRowView,
             .spacer(height: 10),
-            targetAddressLabel,
-            .spacer(height: ScreenChecker().isNarrowScreen ? 2 : 4),
+            [.spacerWidth(16), targetAddressLabel].asStackView(axis: .horizontal),
+            .spacer(height: 4),
             targetAddressTextField,
-            targetAddressTextField.ensAddressView,
-        ].asStackView(axis: .vertical, alignment: .center)
+            .spacer(height: 4), [
+                [.spacerWidth(16), targetAddressTextField.ensAddressView, targetAddressTextField.statusLabel].asStackView(axis: .horizontal, alignment: .leading),
+                addressControlsContainer
+            ].asStackView(axis: .horizontal),
+        ].asStackView(axis: .vertical)
+
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
 
@@ -91,11 +111,19 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
             tokenRowView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tokenRowView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 30),
-            targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -30),
+            targetAddressLabel.heightAnchor.constraint(equalToConstant: 22),
+            
+            targetAddressTextField.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor, constant: 16),
+            targetAddressTextField.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor, constant: -16),
 
-            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            addressControlsStackView.trailingAnchor.constraint(equalTo: addressControlsContainer.trailingAnchor, constant: -7),
+            addressControlsStackView.topAnchor.constraint(equalTo: addressControlsContainer.topAnchor),
+            addressControlsStackView.bottomAnchor.constraint(equalTo: addressControlsContainer.bottomAnchor),
+            addressControlsStackView.leadingAnchor.constraint(greaterThanOrEqualTo: addressControlsContainer.leadingAnchor),
+            addressControlsContainer.heightAnchor.constraint(equalToConstant: 30),
+
+            stackView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
 
@@ -120,16 +148,17 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     @objc func nextButtonTapped() {
-        guard let address = AlphaWallet.Address(string: targetAddressTextField.value.trimmed) else {
-            navigationController?.displayError(error: Errors.invalidAddress)
-            return
-        }
+        targetAddressTextField.errorState = .none
 
-        delegate?.didEnterWalletAddress(tokenHolder: tokenHolder, to: address, paymentFlow: paymentFlow, in: self)
+        if let address = AlphaWallet.Address(string: targetAddressTextField.value.trimmed) {
+            delegate?.didEnterWalletAddress(tokenHolder: tokenHolder, to: address, paymentFlow: paymentFlow, in: self)
+        } else {
+            targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
+        }
     }
 
     func configure(viewModel newViewModel: TransferTokensCardViaWalletAddressViewControllerViewModel? = nil) {
@@ -149,7 +178,7 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         targetAddressLabel.font = viewModel.targetAddressLabelFont
         targetAddressLabel.textColor = viewModel.targetAddressLabelTextColor
         targetAddressLabel.text = R.string.localizable.aSendRecipientAddressTitle()
-
+        
         targetAddressTextField.configureOnce()
 
         buttonsBar.configure()
@@ -209,7 +238,7 @@ extension TransferTokensCardViaWalletAddressViewController: AddressTextFieldDele
     }
 
     func displayError(error: Error, for textField: AddressTextField) {
-        displayError(error: error)
+        targetAddressTextField.errorState = .error(Errors.invalidAddress.prettyError)
     }
 
     func openQRCodeReader(for textField: AddressTextField) {
