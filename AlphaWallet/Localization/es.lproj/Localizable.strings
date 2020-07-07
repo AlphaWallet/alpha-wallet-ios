@@ -284,6 +284,8 @@
 "a.wallet.token.transfer.success.title" = "Tu %@ se ha transferido";
 "a.wallet.token.transfer.failed.title" = "Tu %@ no se ha transferido";
 "a.wallet.token.transfer.inProgress.title" = "Transfiriendo %@...";
+"a.wallet.token.marketPrice" = "Market Price: %@ %@";
+"a.wallet.token.value" = "Value: %@";
 "a.wallet.tokenBundle.status.sold.title" = "Vendido";
 "a.wallet.tokenBundle.status.redeemed.title" = "Canjeado";
 "a.wallet.tokenBundle.status.transferred.title" = "Transferido";

@@ -106,7 +106,26 @@ class TokenObject: Object {
             } else {
                 return "\(compositeName) (\(symbol))"
             }
+        }
+    }
 
+    func symbolInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
+        let localizedNameFromAssetDefinition = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: name)
+        return symbol(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+    }
+
+    private func symbol(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore, localizedNameFromAssetDefinition: String) -> String {
+        let compositeName = compositeTokenName(forContract: contractAddress, fromContractName: name, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
+        if compositeName.isEmpty {
+            return symbol
+        } else {
+            let daiSymbol = "DAI\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}\u{0}"
+            //We could have just trimmed away all trailing \0, but this is faster and safer since only DAI seems to have this problem
+            if daiSymbol == symbol {
+                return "DAI"
+            } else {
+                return symbol
+            }
         }
     }
 

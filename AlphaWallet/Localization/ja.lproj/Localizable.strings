@@ -285,6 +285,8 @@
 "a.wallet.token.transfer.success.title" = "%@ が送信されました";
 "a.wallet.token.transfer.failed.title" = "%@ が送信されませんでした";
 "a.wallet.token.transfer.inProgress.title" = "%@ を送信しています...";
+"a.wallet.token.marketPrice" = "Market Price: %@ %@";
+"a.wallet.token.value" = "Value: %@";
 "a.wallet.tokenBundle.status.sold.title" = "売却済み";
 "a.wallet.tokenBundle.status.redeemed.title" = "交換済み";
 "a.wallet.tokenBundle.status.transferred.title" = "送信済み";
