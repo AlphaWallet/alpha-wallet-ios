@@ -17,9 +17,10 @@ class TokenViewController: UIViewController {
     lazy private var header = {
         return TokenViewControllerHeaderView(contract: transferType.contract)
     }()
-    lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server)
+    lazy private var headerViewModel = SendHeaderViewViewModel(server: session.server, token: token, transferType: transferType)
     private var viewModel: TokenViewControllerViewModel?
     private var tokenHolder: TokenHolder?
+    private let token: TokenObject
     private let session: WalletSession
     private let tokensDataStore: TokensDataStore
     private let assetDefinitionStore: AssetDefinitionStore
@@ -30,7 +31,8 @@ class TokenViewController: UIViewController {
 
     weak var delegate: TokenViewControllerDelegate?
 
-    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transferType: TransferType) {
+    init(session: WalletSession, tokensDataStore: TokensDataStore, assetDefinition: AssetDefinitionStore, transferType: TransferType, token: TokenObject) {
+        self.token = token
         self.session = session
         self.tokensDataStore = tokensDataStore
         self.assetDefinitionStore = assetDefinition
@@ -107,8 +109,6 @@ class TokenViewController: UIViewController {
         self.viewModel = viewModel
         view.backgroundColor = viewModel.backgroundColor
 
-        headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
-
         updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
 
         header.sendHeaderView.configure(viewModel: headerViewModel)
@@ -168,12 +168,11 @@ class TokenViewController: UIViewController {
             session.balanceViewModel.subscribe { [weak self] viewModel in
                 guard let celf = self, let viewModel = viewModel else { return }
                 let amount = viewModel.amountShort
-                celf.headerViewModel.title = "\(amount) \(celf.session.server.name) (\(viewModel.symbol))"
+                celf.headerViewModel.title = "\(amount) \(viewModel.symbol)"
                 let etherToken = TokensDataStore.etherToken(forServer: celf.session.server)
                 let ticker = celf.tokensDataStore.coinTicker(for: etherToken)
                 celf.headerViewModel.ticker = ticker
                 celf.headerViewModel.currencyAmount = celf.session.balanceCoordinator.viewModel.currencyAmount
-                celf.headerViewModel.currencyAmountWithoutSymbol = celf.session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
                 if let viewModel = celf.viewModel {
                     celf.configure(viewModel: viewModel)
                 }
@@ -182,18 +181,20 @@ class TokenViewController: UIViewController {
         case .ERC20Token(let token, _, _):
             let amount = EtherNumberFormatter.short.string(from: token.valueBigInt, decimals: token.decimals)
             //Note that if we want to display the token name directly from token.name, we have to be careful that DAI token's name has trailing \0
-            headerViewModel.title = "\(amount) \(token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
+            headerViewModel.title = "\(amount) \(token.symbolInPluralForm(withAssetDefinitionStore: assetDefinitionStore))"
+
             let etherToken = TokensDataStore.etherToken(forServer: session.server)
             let ticker = tokensDataStore.coinTicker(for: etherToken)
             headerViewModel.ticker = ticker
             headerViewModel.currencyAmount = session.balanceCoordinator.viewModel.currencyAmount
-            headerViewModel.currencyAmountWithoutSymbol = session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol
             if let viewModel = self.viewModel {
                 configure(viewModel: viewModel)
             }
         case .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
             break
         }
+
+        title = token.titleInPluralForm(withAssetDefinitionStore: assetDefinitionStore)
     }
 
     @objc private func send() {
@@ -311,5 +312,10 @@ extension TokenViewController: CanOpenURL2 {
 extension TokenViewController: TokenViewControllerHeaderViewDelegate {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, inHeaderView: TokenViewControllerHeaderView) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
+    }
+
+    func didShowHideMarketPrice(inHeaderView: TokenViewControllerHeaderView) {
+        headerViewModel.isShowingValue.toggle()
+        header.sendHeaderView.configure(viewModel: headerViewModel)
     }
 }
