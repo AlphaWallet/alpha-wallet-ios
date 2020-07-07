@@ -31,7 +31,7 @@
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "Confirm";
 "confirmPayment.from.label.title" = "From";
-"confirmPayment.gasFee.label.title" = "Network Fee";
+"confirmPayment.gasFee.label.title" = "Estimate Network Fee";
 "confirmPayment.gasLimit.label.title" = "Gas Limit";
 "confirmPayment.gasPrice.label.title" = "Gas Price";
 "confirmPayment.to.label.title" = "To";
