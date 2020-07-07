@@ -23,7 +23,7 @@
 "configureTransaction.totalNetworkFee.label.title" = "交易手续费用总计";
 "confirmPayment.confirm.button.title" = "确认";
 "confirmPayment.from.label.title" = "来自";
-"confirmPayment.gasFee.label.title" = "交易手续费";
+"confirmPayment.gasFee.label.title" = "Estimate Network Fee";
 "confirmPayment.gasLimit.label.title" = "燃料限制";
 "confirmPayment.gasPrice.label.title" = "燃料价格";
 "confirmPayment.to.label.title" = "去到";

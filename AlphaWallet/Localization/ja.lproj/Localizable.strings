@@ -31,7 +31,7 @@
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "確認";
 "confirmPayment.from.label.title" = "送信元";
-"confirmPayment.gasFee.label.title" = "ネットワーク料金";
+"confirmPayment.gasFee.label.title" = "Estimate Network Fee";
 "confirmPayment.gasLimit.label.title" = "ガスの制限";
 "confirmPayment.gasPrice.label.title" = "ガス価格";
 "confirmPayment.to.label.title" = "宛先";
