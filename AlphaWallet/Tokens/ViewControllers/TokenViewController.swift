@@ -3,6 +3,7 @@
 import Foundation
 import UIKit
 import BigInt
+import PromiseKit
 
 protocol TokenViewControllerDelegate: class, CanOpenURL {
     func didTapSend(forTransferType transferType: TransferType, inViewController viewController: TokenViewController)
@@ -25,6 +26,7 @@ class TokenViewController: UIViewController {
     private let transferType: TransferType
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
+    private lazy var tokenScriptFileStatusHandler = XMLHandler(contract: transferType.contract, assetDefinitionStore: assetDefinitionStore)
 
     weak var delegate: TokenViewControllerDelegate?
 
@@ -107,18 +109,8 @@ class TokenViewController: UIViewController {
 
         headerViewModel.showAlternativeAmount = viewModel.showAlternativeAmount
 
-        let xmlHandler = XMLHandler(contract: transferType.contract, assetDefinitionStore: assetDefinitionStore)
-        let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
-        if tokenScriptStatusPromise.isPending {
-            tokenScriptStatusPromise.done { _ in
-                self.configure(viewModel: viewModel)
-            }.cauterize()
-        }
-        if let server = xmlHandler.server, server == session.server {
-            header.tokenScriptFileStatus = tokenScriptStatusPromise.value
-        } else {
-            header.tokenScriptFileStatus = .type0NoTokenScript
-        }
+        updateNavigationRightBarButtons(tokenScriptFileStatusHandler: tokenScriptFileStatusHandler)
+
         header.sendHeaderView.configure(viewModel: headerViewModel)
         header.frame.size.height = header.systemLayoutSizeFitting(.zero).height
 
@@ -144,6 +136,30 @@ class TokenViewController: UIViewController {
         }
 
         tableView.reloadData()
+    }
+
+    private func updateNavigationRightBarButtons(tokenScriptFileStatusHandler xmlHandler: XMLHandler) {
+        let tokenScriptStatusPromise = xmlHandler.tokenScriptStatus
+        if tokenScriptStatusPromise.isPending {
+            let label: UIBarButtonItem = .init(title: R.string.localizable.tokenScriptVerifying(), style: .plain, target: nil, action: nil)
+            navigationItem.rightBarButtonItem = label
+
+            tokenScriptStatusPromise.done { _ in
+                self.updateNavigationRightBarButtons(tokenScriptFileStatusHandler: xmlHandler)
+            }.cauterize()
+        }
+
+        if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server == session.server {
+            switch status {
+            case .type0NoTokenScript:
+                navigationItem.rightBarButtonItem = nil
+            case .type1GoodTokenScriptSignatureGoodOrOptional, .type2BadTokenScript:
+                let button = createTokenScriptFileStatusButton(withStatus: status, urlOpener: self)
+                navigationItem.rightBarButtonItem = UIBarButtonItem(customView: button)
+            }
+        } else {
+            navigationItem.rightBarButtonItem = nil
+        }
     }
 
     private func configureBalanceViewModel() {
@@ -246,7 +262,6 @@ class TokenViewController: UIViewController {
             }
         }
 
-
         let token = Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: tokenObject.type, index: 0, name: tokenObject.name, symbol: tokenObject.symbol, status: .available, values: values)
         tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)
         return tokenHolder
@@ -287,12 +302,14 @@ extension TokenViewController: UITableViewDelegate {
     }
 }
 
+extension TokenViewController: CanOpenURL2 {
+    func open(url: URL) {
+        delegate?.didPressOpenWebPage(url, in: self)
+    }
+}
+
 extension TokenViewController: TokenViewControllerHeaderViewDelegate {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, inHeaderView: TokenViewControllerHeaderView) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: session.server, in: self)
-    }
-
-    func didPressViewWebPage(url: URL, inHeaderView: TokenViewControllerHeaderView) {
-        delegate?.didPressOpenWebPage(url, in: self)
     }
 }
