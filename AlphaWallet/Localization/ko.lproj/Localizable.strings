@@ -31,7 +31,7 @@
 "transaction.nonce.label.title" = "Nonce";
 "confirmPayment.confirm.button.title" = "확인";
 "confirmPayment.from.label.title" = "발신인";
-"confirmPayment.gasFee.label.title" = "네트워크 수수료";
+"confirmPayment.gasFee.label.title" = "Estimate Network Fee";
 "confirmPayment.gasLimit.label.title" = "가스 한도";
 "confirmPayment.gasPrice.label.title" = "가스 요금";
 "confirmPayment.to.label.title" = "수취인";
