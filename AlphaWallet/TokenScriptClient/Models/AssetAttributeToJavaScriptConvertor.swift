@@ -18,9 +18,9 @@ struct AssetAttributeToJavaScriptConvertor {
         case .bytes(let bytes):
             return "\"\(bytes.hexEncoded)\""
         case .int(let int):
-            return "\"\(String(int))\""
+            return String(int)
         case .uint(let uint):
-            return "\"\(String(uint))\""
+            return String(uint)
         case .generalisedTime(let generalisedTime):
             return generalisedTime.formatAsTokenScriptJavaScript
         case .bool(let bool):
