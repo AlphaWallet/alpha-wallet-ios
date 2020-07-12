@@ -28,10 +28,6 @@ struct TransactionCellViewModel {
         )
     }
 
-    private var confirmations: Int? {
-        return chainState.confirmations(fromBlock: transaction.blockNumber)
-    }
-
     private var operationTitle: String? {
         guard let operation = transaction.operation else { return .none }
         switch operation.operationType {
