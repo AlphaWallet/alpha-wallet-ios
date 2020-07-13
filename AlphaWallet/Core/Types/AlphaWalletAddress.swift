@@ -74,6 +74,16 @@ extension AlphaWallet {
     }
 }
 
+extension AlphaWallet.Address {
+    func addressReplacedWithESN(_ ensName: String? = nil) -> String {
+        if let ensName = ensName {
+            return "\(ensName) | \(truncateMiddle)"
+        } else {
+            return truncateMiddle
+        }
+    }
+}
+
 extension AlphaWallet.Address: CustomStringConvertible {
     //TODO should not be using this in production code
     public var description: String {

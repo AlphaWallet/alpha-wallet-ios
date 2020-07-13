@@ -484,9 +484,9 @@ extension TokensViewController: UICollectionViewDataSource {
 
 extension TokensViewController: UICollectionViewDelegate {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        collectiblesCollectionView.deselectItem(at: indexPath, animated: true)
-        let token = viewModel.item(for: indexPath.item, section: indexPath.section)
-        delegate?.didSelect(token: token, in: self)
+////        collectiblesCollectionView.deselectItem(at: indexPath, animated: true)
+////        let token = viewModel.item(for: indexPath.item, section: indexPath.section)
+////        delegate?.didSelect(token: token, in: self)
     }
 }
 

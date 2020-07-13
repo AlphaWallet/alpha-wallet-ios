@@ -21,7 +21,7 @@ class ConfirmCoordinator: Coordinator {
     weak var delegate: ConfirmCoordinatorDelegate?
 
     init(
-        navigationController: UINavigationController = NavigationController(),
+        navigationController: UINavigationController = UINavigationController(),
         session: WalletSession,
         configurator: TransactionConfigurator,
         keystore: Keystore,
@@ -41,7 +41,8 @@ class ConfirmCoordinator: Coordinator {
             session: session,
             keystore: keystore,
             configurator: configurator,
-            confirmType: type
+            confirmType: type,
+            account: account
         )
         controller.didCompleted = { [weak self] result in
             guard let strongSelf = self else { return }
