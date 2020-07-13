@@ -157,6 +157,9 @@ class TransactionConfigurator {
 
 // swiftlint:disable function_body_length
     func load(completion: @escaping (ResultResult<Void, AnyError>.t) -> Void) {
+        /* the node can provide reliable gas limit estimates, this prevents running out of gas or defaulting to an
+        inappropriately high gas limit. This can also be an issue for native transfers which are 21k if send to an EOA
+        address but may be higher if sent to a contract address. */
         if gasLimitNotSet {
             estimateGasLimit()
         }
