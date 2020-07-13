@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "not_expand.pdf",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -9,7 +10,6 @@
       "scale" : "2x"
     },
     {
-      "filename" : "chevron-right.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
