@@ -7,5 +7,5 @@ enum WalletEntryPoint {
     case addInitialWallet
     case createInstantWallet
     case importWallet
-    case watchWallet
+    case watchWallet(address: AlphaWallet.Address?)
 }

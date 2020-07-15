@@ -372,7 +372,6 @@ class SendViewController: UIViewController, CanScanQRCode {
         )
     }
 
-
     private func checkAndFillEIP681Details(protocolName: String, address: AddressOrEnsName, functionName: String?, params: [String: String]) {
         //TODO error display on returns
         Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in

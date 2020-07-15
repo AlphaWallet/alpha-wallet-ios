@@ -350,6 +350,7 @@ class InCoordinator: NSObject, Coordinator {
                 filterTokensCoordinator: filterTokensCoordinator,
                 analyticsCoordinator: analyticsCoordinator
         )
+        
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
         coordinator.delegate = self
         coordinator.start()

@@ -97,6 +97,7 @@ class AccountsCoordinator: Coordinator {
             coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
             navigationController.present(coordinator.navigationController, animated: true, completion: nil)
         }
+
     }
 
     private func showInfoSheet(for account: Wallet, sender: UIView) {
@@ -146,7 +147,7 @@ class AccountsCoordinator: Coordinator {
     }
 
     private func showWatchWallet() {
-        importOrCreateWallet(entryPoint: .watchWallet)
+        importOrCreateWallet(entryPoint: .watchWallet(address: nil))
     }
 }
 
