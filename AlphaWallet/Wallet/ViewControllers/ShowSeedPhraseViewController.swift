@@ -85,11 +85,11 @@ class ShowSeedPhraseViewController: UIViewController {
         view.addSubview(roundedBackground)
 
         let stackView = [
-            UIView.spacer(height: 30),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 10 : 30),
             subtitleLabel,
             UIView.spacer(height: 10),
             errorLabel,
-            UIView.spacer(height: 50),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 10 : 50),
             seedPhraseCollectionView,
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
