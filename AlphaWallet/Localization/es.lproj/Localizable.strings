@@ -450,7 +450,10 @@
 "wallet.security.level.green" = "100% SECURE";
 "settings.general.title" = "General";
 "wallets.showSeedPhrase.subtitle.error" = "No comparta su copia de seguridad. Los miembros del equipo AlphaWallet no lo pedirán.";
-"token.confirmTransaction.gas.title" = "Speed (Gas)";
-"token.confirmTransaction.contract.title" = "Contract";
-"token.confirmTransaction.default" = "Default";
-"token.confirmTransfer.title" = "Confirm Transfer?";
+"token.transactionConfirmation.gas.title" = "Speed (Gas)";
+"token.transactionConfirmation.contract.title" = "Contract";
+"token.transactionConfirmation.default" = "Default";
+"token.transactionConfirmation.title" = "Confirm Transfer?";
+"a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
+"a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
+"a.wallet.token.transaction.inProgress.confirm" = "OK, great!";

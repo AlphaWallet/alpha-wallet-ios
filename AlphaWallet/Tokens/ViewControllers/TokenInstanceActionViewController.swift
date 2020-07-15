@@ -8,6 +8,7 @@ import PromiseKit
 protocol TokenInstanceActionViewControllerDelegate: class, CanOpenURL {
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController)
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController)
+    func didCompleteTransaction(in viewController: TokenInstanceActionViewController)
 }
 
 class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -173,7 +174,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             guard let values = userEntryValues as? [String] else { return .init() }
             let zippedIdsAndValues = zip(userEntryIds, values).map { (userEntryId, value) -> (AttributeId, String)? in
                 //Should always find a matching attribute
-                guard let attribute = self.action.attributes.values.first(where: { $0.userEntryId == userEntryId }) else { return nil }
+                guard self.action.attributes.values.first(where: { $0.userEntryId == userEntryId }) != nil else { return nil }
                 return (userEntryId, value)
             }.compactMap { $0 }
             return Dictionary(uniqueKeysWithValues: zippedIdsAndValues)
@@ -193,16 +194,17 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
 
             func notify(message: String) {
                 UIAlertController.alert(title: message,
-                        message: "",
-                        alertButtonTitles: [R.string.localizable.oK()],
-                        alertButtonStyles: [.default],
-                        viewController: strongSelf,
-                        completion: nil)
+                    message: "",
+                    alertButtonTitles: [R.string.localizable.oK()],
+                    alertButtonStyles: [.default],
+                    viewController: strongSelf,
+                    completion: nil
+                )
             }
 
             func postTransaction() {
                 transactionFunction.postTransaction(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore).done {
-                    notify(message: "Posted Transaction Successfully")
+                    strongSelf.delegate?.didCompleteTransaction(in: strongSelf)
                 }.catch { error in
                     notify(message: "Transaction Failed")
                 }
@@ -212,8 +214,8 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
 
             guard let navigationController = strongSelf.navigationController else { return }
 
-            let viewModel = ConfirmTransactionViewModel(contract: contract)
-            let controller = ConfirmTransactionViewController(viewModel: viewModel)
+            let viewModel = TransactionConfirmationViewModel(contract: contract)
+            let controller = TransactionConfirmationViewController(viewModel: viewModel)
             controller.didCompleted = postTransaction
 
             let transitionController = ConfirmationTransitionController(sourceViewController: navigationController, destinationViewController: controller)

@@ -679,11 +679,27 @@ extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
+
+    func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
+        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+
+        coordinator.start()
+    }
+
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {
         showViewRedemptionInfo(in: viewController)
     }
 
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController) {
         viewController.navigationController?.popViewController(animated: true)
+    }
+}
+
+extension TokensCardCoordinator: TransactionInProgressCoordinatorDelegate {
+    
+    func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
+        removeCoordinator(coordinator)
     }
 }
