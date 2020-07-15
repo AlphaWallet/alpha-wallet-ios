@@ -109,15 +109,4 @@ class TransactionInProgressViewController: UIViewController {
     @objc private func okButtonSelected(_ sender: UIButton) {
         delegate?.controller(self, okButtonSelected: sender)
     }
-}
-
-extension UIBarButtonItem {
-    static func closeBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        return UIBarButtonItem(
-            image: R.image.close(),
-            style: .done,
-            target: target,
-            action: selector
-        )
-    }
-}
+} 

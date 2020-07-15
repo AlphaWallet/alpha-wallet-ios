@@ -640,7 +640,7 @@ extension TokensCardCoordinator: TransferTokensCardViaWalletAddressViewControlle
     func openQRCode(in controller: TransferTokensCardViaWalletAddressViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController)
+        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()
