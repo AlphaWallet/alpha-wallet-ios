@@ -3,11 +3,11 @@
 import Foundation
 import BigInt
 
-struct ConfirmTransactionViewModel {
+struct TransactionConfirmationViewModel {
 
     let contract: AlphaWallet.Address
     var navigationTitle: String {
-        return R.string.localizable.tokenConfirmTransferTitle()
+        return R.string.localizable.tokenTransactionConfirmationTitle()
     }
 
     var title: String {
@@ -22,9 +22,9 @@ struct ConfirmTransactionViewModel {
         return R.color.white()!
     }
 
-    var sections: [ConfirmTransactionSection] = ConfirmTransactionSection.allCases
+    var sections: [TransactionConfirmationSection] = TransactionConfirmationSection.allCases
 
-    var numberOfSections: Int{
+    var numberOfSections: Int {
         return sections.count
     }
 
@@ -32,13 +32,13 @@ struct ConfirmTransactionViewModel {
         return 0
     }
 
-    func viewModel(section: Int) -> ConfirmTransactionTableViewHeaderViewModel {
+    func viewModel(section: Int) -> TransactionConfirmationTableViewHeaderViewModel {
         let placeholder = sections[section].title
 
         switch sections[section] {
         case .gas:
             return .init(
-                title: R.string.localizable.tokenConfirmTransactionDefault(),
+                title: R.string.localizable.tokenTransactionConfirmationDefault(),
                 placeholder: placeholder
             )
         case .contract:
@@ -50,16 +50,16 @@ struct ConfirmTransactionViewModel {
     }
 }
 
-enum ConfirmTransactionSection: Int, CaseIterable {
+enum TransactionConfirmationSection: Int, CaseIterable {
     case gas
     case contract
 
     var title: String {
         switch self {
         case .gas:
-            return R.string.localizable.tokenConfirmTransactionGasTitle()
+            return R.string.localizable.tokenTransactionConfirmationGasTitle()
         case .contract:
-            return R.string.localizable.tokenConfirmTransactionContractTitle()
+            return R.string.localizable.tokenTransactionConfirmationContractTitle()
         }
     }
 }
