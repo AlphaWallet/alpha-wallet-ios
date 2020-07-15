@@ -5,10 +5,10 @@ import Foundation
 import UIKit
 import Result
 
-class ConfirmTransactionViewController: UIViewController, UpdatablePreferredContentSize {
+class TransactionConfirmationViewController: UIViewController, UpdatablePreferredContentSize {
 
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
-    private var viewModel: ConfirmTransactionViewModel
+    private var viewModel: TransactionConfirmationViewModel
 
     private lazy var tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
@@ -16,7 +16,7 @@ class ConfirmTransactionViewController: UIViewController, UpdatablePreferredCont
         tableView.dataSource = self
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.rowHeight = UITableView.automaticDimension
-        tableView.registerHeaderFooterView(ConfirmTransactionTableViewHeader.self)
+        tableView.registerHeaderFooterView(TransactionConfirmationTableViewHeader.self)
         tableView.separatorStyle = .none
 
         return tableView
@@ -44,7 +44,7 @@ class ConfirmTransactionViewController: UIViewController, UpdatablePreferredCont
     var updatePreferredContentSizeAnimated: Bool = false
     var didCompleted: (() -> Void)?
 
-    init(viewModel: ConfirmTransactionViewModel) {
+    init(viewModel: TransactionConfirmationViewModel) {
         self.viewModel = viewModel
 
         super.init(nibName: nil, bundle: nil)
@@ -114,7 +114,7 @@ class ConfirmTransactionViewController: UIViewController, UpdatablePreferredCont
         dismiss(animated: true)
     }
 
-    private func configure(for detailsViewModel: ConfirmTransactionViewModel) {
+    private func configure(for detailsViewModel: TransactionConfirmationViewModel) {
         buttonsBar.configure()
         let button = buttonsBar.buttons[0]
         button.setTitle(viewModel.confirmButtonTitle, for: .normal)
@@ -132,11 +132,11 @@ class ConfirmTransactionViewController: UIViewController, UpdatablePreferredCont
     }
 }
 
-extension ConfirmTransactionViewController: UITableViewDelegate {
+extension TransactionConfirmationViewController: UITableViewDelegate {
 
 }
 
-extension ConfirmTransactionViewController: UITableViewDataSource {
+extension TransactionConfirmationViewController: UITableViewDataSource {
 
     func numberOfSections(in tableView: UITableView) -> Int {
         return viewModel.numberOfSections
@@ -151,7 +151,7 @@ extension ConfirmTransactionViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let header: ConfirmTransactionTableViewHeader = tableView.dequeueReusableHeaderFooterView()
+        let header: TransactionConfirmationTableViewHeader = tableView.dequeueReusableHeaderFooterView()
         header.configure(viewModel: viewModel.viewModel(section: section))
 
         return header
@@ -185,9 +185,5 @@ private extension UIBarButtonItem {
         ])
 
         return UIBarButtonItem(customView: container)
-    }
-
-    static func closeBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
-        return .init(image: R.image.close(), style: .plain, target: target, action: selector)
-    }
+    } 
 }

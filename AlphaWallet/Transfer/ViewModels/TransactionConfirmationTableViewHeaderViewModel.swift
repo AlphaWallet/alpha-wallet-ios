@@ -1,5 +1,5 @@
 //
-//  ConfirmTransactionTableViewHeaderViewModel.swift
+//  TransactionConfirmationTableViewHeaderViewModel.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 13.07.2020.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct ConfirmTransactionTableViewHeaderViewModel {
+struct TransactionConfirmationTableViewHeaderViewModel {
     let title: String
     let placeholder: String
     let details: String = String()

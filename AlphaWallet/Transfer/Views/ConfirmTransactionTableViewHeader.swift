@@ -1,5 +1,5 @@
 //
-//  ConfirmTransactionTableViewHeader.swift
+//  TransactionConfirmationTableViewHeader.swift
 //  AlphaWallet
 //
 //  Created by Vladyslav Shepitko on 10.07.2020.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ConfirmTransactionTableViewHeader: UITableViewHeaderFooterView {
+class TransactionConfirmationTableViewHeader: UITableViewHeaderFooterView {
 
     private let placeholderLabel: UILabel = {
         let label = UILabel()
@@ -30,7 +30,7 @@ class ConfirmTransactionTableViewHeader: UITableViewHeaderFooterView {
         return label
     }()
 
-    private var viewModel: ConfirmTransactionTableViewHeaderViewModel?
+    private var viewModel: TransactionConfirmationTableViewHeaderViewModel?
 
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
@@ -68,7 +68,7 @@ class ConfirmTransactionTableViewHeader: UITableViewHeaderFooterView {
         return nil
     }
 
-    func configure(viewModel: ConfirmTransactionTableViewHeaderViewModel) {
+    func configure(viewModel: TransactionConfirmationTableViewHeaderViewModel) {
         self.viewModel = viewModel
 
         contentView.backgroundColor = viewModel.backgoundColor
