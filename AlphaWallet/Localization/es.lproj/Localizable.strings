@@ -110,7 +110,7 @@
 "wallets.backupHdWallet.introduction.button.title" = "Back up my Wallet";
 "wallets.backupHdWallet.introduction.title" = "Back up your Wallet with Seed Phrase";
 "wallets.showSeedPhrase.title" = "Your Seed Phrase";
-"wallets.showSeedPhrase.subtitle" = "Write down seed phrase on paper: \njust write down 12 words and keep them in a safe place, offline.";
+"wallets.showSeedPhrase.subtitle" = "Write down the seed phrase on paper: \njust write down 12 words and keep them in a safe place, offline.";
 "wallets.showSeedPhrase.testSeedPhrase" = "OK, I wrote this down";
 "wallets.showSeedPhrase.doNotTakeScreenshotDescription" = "It's not a good idea to take a screenshot of your seed phrase";
 "wallets.verifySeedPhrase.title" = "Verify Seed Phrase";
@@ -448,3 +448,4 @@
 "wallet.security.level.orange" = "NOT LOCKED";
 "wallet.security.level.green" = "100% SECURE";
 "settings.general.title" = "General";
+"wallets.showSeedPhrase.subtitle.error" = "No comparta su copia de seguridad. Los miembros del equipo AlphaWallet no lo pedirán.";
