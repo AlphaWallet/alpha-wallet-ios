@@ -14,6 +14,7 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
     private let descriptionLabel1 = UILabel()
+    private let descriptionLabel2 = UILabel()
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     private var imageViewDimension: CGFloat {
@@ -43,7 +44,9 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             UIView.spacer(height: 24),
             imageView,
             UIView.spacer(height: 17),
-            descriptionLabel1
+            descriptionLabel1,
+            UIView.spacer(height: 17),
+            descriptionLabel2
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(stackView)
@@ -97,6 +100,9 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
 
         descriptionLabel1.numberOfLines = 0
         descriptionLabel1.attributedText = viewModel.attributedDescription
+
+        descriptionLabel2.numberOfLines = 0
+        descriptionLabel2.attributedText = viewModel.attributedWarningDescription
 
         buttonsBar.configure()
         let exportButton = buttonsBar.buttons[0]

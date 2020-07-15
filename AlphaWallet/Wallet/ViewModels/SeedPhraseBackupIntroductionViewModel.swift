@@ -47,4 +47,20 @@ struct SeedPhraseBackupIntroductionViewModel {
         
         return attributeString
     }
+
+    var attributedWarningDescription: NSAttributedString {
+        let description = R.string.localizable.walletsShowSeedPhraseSubtitleError()
+        let attributeString = NSMutableAttributedString(string: description)
+        let style = NSMutableParagraphStyle()
+        style.alignment = .center
+        style.lineSpacing = 14
+
+        attributeString.addAttributes([
+            .paragraphStyle: style,
+            .font: Screen.Backup.descriptionFont,
+            .foregroundColor: Colors.appRed
+        ], range: NSRange(location: 0, length: description.count))
+
+        return attributeString
+    }
 }
