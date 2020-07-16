@@ -451,3 +451,7 @@
 "wallet.security.level.green" = "100% SECURE";
 "settings.general.title" = "General";
 "wallets.showSeedPhrase.subtitle.error" = "No comparta su copia de seguridad. Los miembros del equipo AlphaWallet no lo pedirán.";
+"token.confirmTransaction.gas.title" = "Speed (Gas)";
+"token.confirmTransaction.contract.title" = "Contract";
+"token.confirmTransaction.default" = "Default";
+"token.confirmTransfer.title" = "Confirm Transfer?";
