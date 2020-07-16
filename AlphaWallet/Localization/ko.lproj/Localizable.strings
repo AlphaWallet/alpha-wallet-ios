@@ -295,6 +295,7 @@
 "a.wallet.contents.filter.currencyOnly.title" = "통화";
 "a.wallet.contents.filter.assetsOnly.title" = "자산";
 "a.wallet.contents.filter.collectiblesOnly.title" = "Collectibles";
+"a.wallet.contents.filter.finances.title" = "Finances";
 "a.wallet.contents.issuer.title" = "발행자";
 "a.wallet.next.button.title" = "다음";
 "a.wallet.no.tokens" = "토큰이 없습니다";

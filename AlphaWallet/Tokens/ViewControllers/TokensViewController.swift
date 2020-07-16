@@ -446,7 +446,7 @@ extension TokensViewController: SegmentedControlDelegate {
             //do nothing
         } else {
             switch filter {
-            case .all, .currencyOnly, .assetsOnly, .collectiblesOnly:
+            case .all, .currencyOnly, .assetsOnly, .collectiblesOnly, .finances:
                 searchController.isActive = false
             case .keyword:
                 break
@@ -461,7 +461,7 @@ extension TokensViewController: UICollectionViewDataSource {
         switch viewModel.filter {
         case .collectiblesOnly:
             return viewModel.numberOfItems()
-        case .all, .currencyOnly, .assetsOnly, .keyword:
+        case .all, .currencyOnly, .assetsOnly, .keyword, .finances:
             return 0
         }
     }
@@ -507,7 +507,7 @@ extension TokensViewController: UISearchResultsUpdating {
         }
         guard searchController.isActive else {
             switch viewModel.filter {
-            case .all, .currencyOnly, .assetsOnly, .collectiblesOnly:
+            case .all, .currencyOnly, .assetsOnly, .collectiblesOnly, .finances:
                 break
             case .keyword:
                 //Handle when user taps Cancel button to stop search

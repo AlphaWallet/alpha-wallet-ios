@@ -295,6 +295,7 @@
 "a.wallet.contents.filter.currencyOnly.title" = "Moneda";
 "a.wallet.contents.filter.assetsOnly.title" = "Activos";
 "a.wallet.contents.filter.collectiblesOnly.title" = "Collectibles";
+"a.wallet.contents.filter.finances.title" = "Finances";
 "a.wallet.contents.issuer.title" = "Emisor";
 "a.wallet.next.button.title" = "Siguiente";
 "a.wallet.no.tokens" = "No tienes ningún token";
