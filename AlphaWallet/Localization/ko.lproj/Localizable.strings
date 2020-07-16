@@ -451,3 +451,7 @@
 "wallet.security.level.green" = "100% SECURE";
 "settings.general.title" = "일반";
 "wallets.showSeedPhrase.subtitle.error" = "백업을 공유하지 마십시오. AlphaWallet 팀원은 요청하지 않습니다.";
+"token.confirmTransaction.gas.title" = "Speed (Gas)";
+"token.confirmTransaction.contract.title" = "Contract";
+"token.confirmTransaction.default" = "Default";
+"token.confirmTransfer.title" = "Confirm Transfer?";

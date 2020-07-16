@@ -451,3 +451,7 @@
 "wallet.security.level.orange" = "NOT LOCKED";
 "wallet.security.level.green" = "100% SECURE";
 "wallets.showSeedPhrase.subtitle.error" = "Do not share your backup. AlphaWallet team members will not ask for it.";
+"token.confirmTransaction.gas.title" = "Speed (Gas)";
+"token.confirmTransaction.contract.title" = "Contract";
+"token.confirmTransaction.default" = "Default";
+"token.confirmTransfer.title" = "Confirm Transfer?";
