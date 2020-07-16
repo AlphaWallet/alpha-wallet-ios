@@ -4,7 +4,7 @@
   },
   "dependencies": {
     "kind-of": "6.0.3",
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.19",
     "mem": "^4.0.0",
     "minimist": "1.2.3",
     "npm": "^6.14.6"
