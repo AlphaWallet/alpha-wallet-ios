@@ -30,6 +30,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         return webView
     }()
 
+    
     //TODO might have to change the number of buttons? if the action type change or should we just go back since the flow may be broken if we remain in this screen
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var isFungible: Bool {
@@ -187,7 +188,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             return allAttributesAndValues
         }.done { values in
             let strongSelf = self
-            guard strongSelf.action.contract != nil, let transactionFunction = strongSelf.action.transactionFunction else { return }
+            guard let contract = strongSelf.action.contract, let transactionFunction = strongSelf.action.transactionFunction else { return }
             let tokenId = strongSelf.tokenId
 
             func notify(message: String) {
@@ -207,35 +208,17 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
                 }
             }
 
-            guard let (data, value) = transactionFunction.generateDataAndValue(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore) else { return }
-            let eth = EtherNumberFormatter.full.string(from: BigInt(value))
-            let nativeCryptSymbol: String
-            switch strongSelf.server {
-            case .xDai:
-                nativeCryptSymbol = "xDAI"
-            case .artis_sigma1, .artis_tau1:
-                nativeCryptSymbol = "ATS"
-            case .rinkeby, .ropsten, .main, .custom, .callisto, .classic, .kovan, .sokol, .poa, .goerli:
-                nativeCryptSymbol = "ETH"
-            }
-            if let data = data {
-                if value > 0 {
-                    UIAlertController.alert(title: "Confirm Transaction?", message: "Data: \(data.hexEncoded)\nAmount: \(eth) \(nativeCryptSymbol)", alertButtonTitles: [R.string.localizable.confirmPaymentConfirmButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: self, style: .actionSheet(source: .view(strongSelf.buttonsBar.buttons[0]))) {
-                        guard $0 == 0 else { return }
-                        postTransaction()
-                    }
-                } else {
-                    UIAlertController.alert(title: "Confirm Transaction?", message: "Data: \(data.hexEncoded)", alertButtonTitles: [R.string.localizable.confirmPaymentConfirmButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: self, style: .actionSheet(source: .view(strongSelf.buttonsBar.buttons[0]))) {
-                        guard $0 == 0 else { return }
-                        postTransaction()
-                    }
-                }
-            } else {
-                UIAlertController.alert(title: "Confirm Transfer?", message: "Amount: \(eth) \(nativeCryptSymbol)", alertButtonTitles: [R.string.localizable.confirmPaymentConfirmButtonTitle(), R.string.localizable.cancel()], alertButtonStyles: [.default, .cancel], viewController: self, style: .actionSheet(source: .view(strongSelf.buttonsBar.buttons[0]))) {
-                    guard $0 == 0 else { return }
-                    postTransaction()
-                }
-            }
+            guard transactionFunction.generateDataAndValue(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore) != nil else { return }
+
+            guard let navigationController = strongSelf.navigationController else { return }
+
+            let viewModel = ConfirmTransactionViewModel(contract: contract)
+            let controller = ConfirmTransactionViewController(viewModel: viewModel)
+            controller.didCompleted = postTransaction
+
+            let transitionController = ConfirmationTransitionController(sourceViewController: navigationController, destinationViewController: controller)
+            transitionController.start()
+
         }.cauterize()
         //TODO catch
     }
