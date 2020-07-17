@@ -296,6 +296,7 @@
 "a.wallet.contents.filter.currencyOnly.title" = "通貨";
 "a.wallet.contents.filter.assetsOnly.title" = "資産";
 "a.wallet.contents.filter.collectiblesOnly.title" = "Collectibles";
+"a.wallet.contents.filter.finances.title" = "Finances";
 "a.wallet.contents.issuer.title" = "発行者";
 "a.wallet.next.button.title" = "次へ";
 "a.wallet.no.tokens" = "まだトークンがありません";

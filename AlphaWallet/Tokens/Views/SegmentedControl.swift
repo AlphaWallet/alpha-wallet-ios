@@ -38,7 +38,7 @@ class SegmentedControl: UIView {
         for each in buttons {
             each.addTarget(self, action: #selector(segmentTapped(_:)), for: .touchUpInside)
         }
-        let buttonsStackView = buttons.map { $0 as UIView }.asStackView(spacing: 20)
+        let buttonsStackView = buttons.map { $0 as UIView }.asStackView(spacing: ScreenChecker().isNarrowScreen ? 6 : 20)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(buttonsStackView)
 
