@@ -39,9 +39,9 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
         imageView.contentMode = .scaleAspectFit
 
         let stackView = [
-            UIView.spacer(height: 32),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 22 : 32),
             subtitleLabel,
-            UIView.spacer(height: 24),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 20 : 24),
             imageView,
             UIView.spacer(height: 17),
             descriptionLabel1,
