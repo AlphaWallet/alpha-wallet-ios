@@ -21,7 +21,7 @@ struct SeedPhraseBackupIntroductionViewModel {
         let attributeString = NSMutableAttributedString(string: subtitle)
         let style = NSMutableParagraphStyle()
         style.alignment = .center
-        style.lineSpacing = 23
+        style.lineSpacing = ScreenChecker().isNarrowScreen ? 7 : 23
         
         attributeString.addAttributes([
             .paragraphStyle: style,
@@ -37,7 +37,7 @@ struct SeedPhraseBackupIntroductionViewModel {
         let attributeString = NSMutableAttributedString(string: description)
         let style = NSMutableParagraphStyle()
         style.alignment = .center
-        style.lineSpacing = 14
+        style.lineSpacing = ScreenChecker().isNarrowScreen ? 7 : 14
         
         attributeString.addAttributes([
             .paragraphStyle: style,
@@ -53,7 +53,7 @@ struct SeedPhraseBackupIntroductionViewModel {
         let attributeString = NSMutableAttributedString(string: description)
         let style = NSMutableParagraphStyle()
         style.alignment = .center
-        style.lineSpacing = 14
+        style.lineSpacing = ScreenChecker().isNarrowScreen ? 7 : 14
 
         attributeString.addAttributes([
             .paragraphStyle: style,
