@@ -204,7 +204,7 @@ class TokensDataStore {
             guard let strongSelf = self else { return }
             strongSelf.getNameCoordinator.getName(for: address) { (result) in
                 switch result {
-                case .success(let value):
+                case .success:
                     completion(result)
                 case .failure:
                     if !triggerRetry() {
@@ -221,7 +221,7 @@ class TokensDataStore {
             guard let strongSelf = self else { return }
             strongSelf.getSymbolCoordinator.getSymbol(for: address) { result in
                 switch result {
-                case .success(let value):
+                case .success:
                     completion(result)
                 case .failure:
                     if !triggerRetry() {
@@ -238,7 +238,7 @@ class TokensDataStore {
             guard let strongSelf = self else { return }
             strongSelf.getDecimalsCoordinator.getDecimals(for: address) { result in
                 switch result {
-                case .success(let value):
+                case .success:
                     completion(result)
                 case .failure:
                     if !triggerRetry() {
@@ -301,7 +301,7 @@ class TokensDataStore {
             guard let strongSelf = self else { return }
             strongSelf.getERC20BalanceCoordinator.getBalance(for: strongSelf.account.address, contract: address) { result in
                 switch result {
-                case .success(let value):
+                case .success:
                     completion(result)
                 case .failure:
                     if !triggerRetry() {
@@ -318,7 +318,7 @@ class TokensDataStore {
             guard let strongSelf = self else { return }
             strongSelf.getERC875BalanceCoordinator.getERC875TokenBalance(for: strongSelf.account.address, contract: address) { result in
                 switch result {
-                case .success(let value):
+                case .success:
                     completion(result)
                 case .failure:
                     if !triggerRetry() {
@@ -335,7 +335,7 @@ class TokensDataStore {
             guard let strongSelf = self else { return }
             strongSelf.getERC721ForTicketsBalanceCoordinator.getERC721ForTicketsTokenBalance(for: strongSelf.account.address, contract: address) { result in
                 switch result {
-                case .success(let value):
+                case .success:
                     completion(result)
                 case .failure:
                     if !triggerRetry() {
@@ -352,7 +352,7 @@ class TokensDataStore {
             guard let strongSelf = self else { return }
             strongSelf.getIsERC875ContractCoordinator.getIsERC875Contract(for: address) { result in
                 switch result {
-                case .success(let value):
+                case .success:
                     completion(result)
                 case .failure:
                     if !triggerRetry() {
@@ -588,6 +588,7 @@ class TokensDataStore {
                             type: .erc721,
                             balance: listOfJson
                     )
+
                     strongSelf.addCustom(token: token)
                 }
             }
@@ -624,7 +625,7 @@ class TokensDataStore {
         return tickers?[token.contractAddress]
     }
 
-    func addCustom(token: ERCToken) -> TokenObject {
+    @discardableResult func addCustom(token: ERCToken) -> TokenObject {
         let newToken = TokenObject(
                 contract: token.contract,
                 server: token.server,

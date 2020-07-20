@@ -133,7 +133,7 @@ extension AddHideTokensViewController: UITableViewDataSource {
         let session = sessions[token.server]
         switch token.type {
         case .nativeCryptocurrency:
-            let cell:EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
+            let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
 
             cell.configure(
                     viewModel: .init(

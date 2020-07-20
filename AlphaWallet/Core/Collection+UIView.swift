@@ -3,6 +3,7 @@
 import UIKit
 
 extension Collection where Element == UIView {
+    // swiftlint:disable all
     var alpha: CGFloat {
         set {
             for each in self {
@@ -13,7 +14,8 @@ extension Collection where Element == UIView {
             return 1
         }
     }
-
+    // swiftlint:enable all
+    
     func hideAll() {
         for each in self {
             each.isHidden = true

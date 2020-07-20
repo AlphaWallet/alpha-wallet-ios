@@ -43,7 +43,7 @@ extension TokenObject {
     }
 }
 
-fileprivate class TokenImageFetcher {
+private class TokenImageFetcher {
     private enum ImageAvailabilityError: LocalizedError {
         case notAvailable
     }
@@ -121,22 +121,19 @@ fileprivate class TokenImageFetcher {
 
     private func fetch(request: URLRequest) -> Promise<UIImage> {
         Promise { seal in
-            do {
-                try NSURLConnection.sendAsynchronousRequest(request, queue: .main) { _, data, error in
-                    if let data = data {
-                        let image = UIImage(data: data)
-                        if let img = image {
-                            seal.fulfill(img)
-                        } else {
-                            seal.reject(ImageAvailabilityError.notAvailable)
-                        }
+            let task = URLSession.shared.dataTask(with: request) { data, response, error in
+                if let data = data {
+                    let image = UIImage(data: data)
+                    if let img = image {
+                        seal.fulfill(img)
                     } else {
                         seal.reject(ImageAvailabilityError.notAvailable)
                     }
+                } else {
+                    seal.reject(ImageAvailabilityError.notAvailable)
                 }
-            } catch {
-                seal.reject(ImageAvailabilityError.notAvailable)
             }
+            task.resume()
         }
     }
 }

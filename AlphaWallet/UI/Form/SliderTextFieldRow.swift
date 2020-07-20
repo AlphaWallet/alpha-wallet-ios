@@ -32,6 +32,7 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
     public required init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .value1, reuseIdentifier: reuseIdentifier)
 
+        // swiftlint:disable all
         NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: nil) { [weak self] _ in
             guard let me = self else { return }
             if me.shouldShowTitle {
@@ -40,6 +41,7 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
                 me.addConstraints()
             }
         }
+        // swiftlint:enable all
     }
 
     deinit {

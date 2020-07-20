@@ -316,21 +316,21 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
     private func showDappSuggestions(forText text: String) {
         //Disabled dapp suggestions
 // swiftlint:disable:next trailing_semicolon
-        return;
-
-        if let viewController = navigationController.topViewController as? DappsAutoCompletionViewController {
-            let hasResults = viewController.filter(withText: text)
-            if !hasResults {
-                navigationController.popViewController(animated: false)
-            }
-        } else {
-            let viewController = DappsAutoCompletionViewController()
-            viewController.delegate = self
-            let hasResults = viewController.filter(withText: text)
-            if hasResults {
-                pushOntoNavigationController(viewController: viewController, animated: false)
-            }
-        }
+//        return;
+//
+//        if let viewController = navigationController.topViewController as? DappsAutoCompletionViewController {
+//            let hasResults = viewController.filter(withText: text)
+//            if !hasResults {
+//                navigationController.popViewController(animated: false)
+//            }
+//        } else {
+//            let viewController = DappsAutoCompletionViewController()
+//            viewController.delegate = self
+//            let hasResults = viewController.filter(withText: text)
+//            if hasResults {
+//                pushOntoNavigationController(viewController: viewController, animated: false)
+//            }
+//        }
     }
 
     private func pushOntoNavigationController(viewController: UIViewController, animated: Bool) {
