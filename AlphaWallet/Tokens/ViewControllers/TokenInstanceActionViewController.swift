@@ -203,7 +203,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             }
 
             func postTransaction() {
-                transactionFunction.postTransaction(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore).done {
+                transactionFunction.postTransaction(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore).done {_ in
                     strongSelf.delegate?.didCompleteTransaction(in: strongSelf)
                 }.catch { error in
                     notify(message: "Transaction Failed")
