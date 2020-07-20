@@ -289,7 +289,7 @@ class TokenInstanceWebView: UIView {
         }
         webView.loadHTMLString(html, baseURL: nil)
         hashOfLoadedHtml = hashOfCurrentHtml
-    }
+    } 
 
     private func makeIntroductionWebViewFullHeight(renderingAttempt: RenderingAttempt) {
         let forLoadId: Int? = loadId
