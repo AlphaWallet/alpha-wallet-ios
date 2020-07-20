@@ -35,6 +35,7 @@ final class BrowserViewController: UIViewController {
         errorView.delegate = self
         return errorView
     }()
+    private var estimatedProgressObservation: NSKeyValueObservation!
 
     weak var delegate: BrowserViewControllerDelegate?
 
@@ -90,7 +91,15 @@ final class BrowserViewController: UIViewController {
             errorView.anchorsConstraint(to: webView),
         ])
         view.backgroundColor = .white
-        webView.addObserver(self, forKeyPath: Keys.estimatedProgress, options: .new, context: &myContext)
+
+        estimatedProgressObservation = webView.observe(\.estimatedProgress) { [weak self] webView, _ in
+            guard let strongSelf = self else { return }
+
+            let progress = Float(webView.estimatedProgress)
+
+            strongSelf.progressView.progress = progress
+            strongSelf.progressView.isHidden = progress == 1
+        }
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -166,24 +175,10 @@ final class BrowserViewController: UIViewController {
 
     private func hideErrorView() {
         errorView.isHidden = true
-    }
-
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-        guard let change = change else { return }
-        if context != &myContext {
-            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
-            return
-        }
-        if keyPath == Keys.estimatedProgress {
-            if let progress = (change[NSKeyValueChangeKey.newKey] as AnyObject).floatValue {
-                progressView.progress = progress
-                progressView.isHidden = progress == 1
-            }
-        }
-    }
+    } 
 
     deinit {
-        webView.removeObserver(self, forKeyPath: Keys.estimatedProgress)
+        estimatedProgressObservation.invalidate()
     }
 
     func handleError(error: Error) {

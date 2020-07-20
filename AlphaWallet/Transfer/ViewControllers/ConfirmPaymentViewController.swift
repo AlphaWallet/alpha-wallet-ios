@@ -124,12 +124,9 @@ class ConfirmPaymentViewController: UIViewController {
         header.translatesAutoresizingMaskIntoConstraints = false
         header.configure(amount: detailsViewModel.amountAttributedString)
 
-        let nonceRow = TransactionAppearance.item(
-                    title: detailsViewModel.nonceTitle,
-                    subTitle: detailsViewModel.nonceText
-                ) { [unowned self] _, _, _ in
-                    self.edit()
-                }
+        let nonceRow = TransactionAppearance.item(title: detailsViewModel.nonceTitle, subTitle: detailsViewModel.nonceText) { [unowned self] _, _, _ in
+            self.edit()
+        }
         nonceRow.isHidden = !detailsViewModel.isNonceSet
         let items: [UIView] = [
             .spacer(),

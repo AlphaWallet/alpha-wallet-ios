@@ -9,6 +9,7 @@ class UITextFieldAdditions: NSObject {
 }
 
 extension UITextField {
+    // swiftlint:disable all
     var isCopyPasteDisabled: Bool {
         get {
             return getAdditions().isCopyPasteDisabled
@@ -16,6 +17,7 @@ extension UITextField {
             getAdditions().isCopyPasteDisabled = newValue
         }
     }
+    // swiftlint:enable all
     private func getAdditions() -> UITextFieldAdditions {
         var additions = objc_getAssociatedObject(self, &key) as? UITextFieldAdditions
         if additions == nil {
