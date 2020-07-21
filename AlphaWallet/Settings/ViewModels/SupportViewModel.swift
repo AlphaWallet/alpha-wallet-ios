@@ -8,21 +8,22 @@
 import UIKit
 
 class SupportViewModel: NSObject {
+
     var title: String {
         R.string.localizable.settingsSupportTitle()
     }
     
-    var rows: [SupportRow] = [.telegram, .twitter, .reddit, .facebook, .faq]
+    var rows: [SupportRow] = [.telegramCustomer, .telegramPublic, .twitter, .reddit, .facebook, .faq]
     
     func cellViewModel(indexPath: IndexPath) -> SettingTableViewCellViewModel {
         let row = rows[indexPath.row]
         return .init(titleText: row.title, subTitleText: nil, icon: row.image)
     }
-    
 }
 
 enum SupportRow {
-    case telegram
+    case telegramPublic
+    case telegramCustomer
     case twitter
     case reddit
     case facebook
@@ -31,8 +32,10 @@ enum SupportRow {
     
     var urlProvider: URLServiceProvider? {
         switch self {
-        case .telegram:
-            return URLServiceProvider.telegram
+        case .telegramPublic:
+            return URLServiceProvider.telegramPublic
+        case .telegramCustomer:
+            return URLServiceProvider.telegramCustomer
         case .twitter:
             return URLServiceProvider.twitter
         case .reddit:
@@ -46,8 +49,10 @@ enum SupportRow {
     
     var title: String {
         switch self {
-        case .telegram:
-            return URLServiceProvider.telegram.title
+        case .telegramPublic:
+            return URLServiceProvider.telegramPublic.title
+        case .telegramCustomer:
+            return URLServiceProvider.telegramCustomer.title
         case .twitter:
             return URLServiceProvider.twitter.title
         case .reddit:
@@ -63,8 +68,8 @@ enum SupportRow {
     
     var image: UIImage {
         switch self {
-        case .telegram:
-            return URLServiceProvider.telegram.image!
+        case .telegramPublic, .telegramCustomer:
+            return URLServiceProvider.telegramPublic.image!
         case .twitter:
             return URLServiceProvider.twitter.image!
         case .reddit:
