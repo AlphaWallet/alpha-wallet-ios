@@ -13,7 +13,7 @@ class CollectionViewLeftAlignedFlowLayout: UICollectionViewFlowLayout {
         }
         return updatedAttributes
     }
-
+    // swiftlint:disable all
     //Force each item in every row, other than the first item in each row, to be place to the right of the previous item
     override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
         guard let currentItemAttributes = super.layoutAttributesForItem(at: indexPath) else { return nil }
@@ -40,6 +40,7 @@ class CollectionViewLeftAlignedFlowLayout: UICollectionViewFlowLayout {
         currentItemAttributes.positionFrameX(x: previousFrameRightPoint + minimumInteritemSpacing)
         return currentItemAttributes
     }
+    // swiftlint:enable all
 
     private func previousItemFrameOfItem(withIndexPath indexPath: IndexPath) -> CGRect? {
         let previousIndexPath = IndexPath(item: indexPath.item - 1, section: indexPath.section)

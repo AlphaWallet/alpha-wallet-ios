@@ -18,6 +18,7 @@ class SendHeaderViewWithIntroduction: UIView {
     private let valueNameLabel = UILabel()
     private let introductionWebView = WKWebView(frame: .zero, configuration: .init())
     lazy private var introductionWebViewHeightConstraint = introductionWebView.heightAnchor.constraint(equalToConstant: 200)
+    private var estimatedProgressObservation: NSKeyValueObservation!
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -46,8 +47,6 @@ class SendHeaderViewWithIntroduction: UIView {
             footerNamesStack,
         ].asStackView(axis: .vertical, perpendicularContentHuggingPriority: .defaultLow)
         footerStackView?.translatesAutoresizingMaskIntoConstraints = false
-
-        introductionWebView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
 
         let titleLabelHolder = [UIView.spacerWidth(7), titleLabel, UIView.spacerWidth(7)].asStackView()
         let bottomRowStackHolder = [UIView.spacerWidth(7), bottomRowStack, UIView.spacerWidth(7)].asStackView()
@@ -79,6 +78,13 @@ class SendHeaderViewWithIntroduction: UIView {
             stackView.topAnchor.constraint(equalTo: background.topAnchor, constant: 16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: background.bottomAnchor, constant: -16),
         ] + [introductionWebViewHeightConstraint])
+
+        estimatedProgressObservation = introductionWebView.observe(\.estimatedProgress, options: [.new]) { webView, _ in
+            guard webView.estimatedProgress == 1 else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.makeIntroductionWebViewFullHeight()
+            }
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -129,14 +135,6 @@ class SendHeaderViewWithIntroduction: UIView {
             introductionWebView.scrollView.isScrollEnabled = false
             introductionWebView.navigationDelegate = self
             introductionWebView.loadHTMLString(html, baseURL: nil)
-        }
-    }
-
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-        guard keyPath == "estimatedProgress" else { return }
-        guard introductionWebView.estimatedProgress == 1 else { return }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.makeIntroductionWebViewFullHeight()
         }
     }
 

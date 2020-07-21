@@ -30,13 +30,8 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
     let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: TransferTokensCardViaWalletAddressViewControllerDelegate?
 
-    init(
-            token: TokenObject,
-            tokenHolder: TokenHolder,
-            paymentFlow: PaymentFlow,
-            viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel,
-            assetDefinitionStore: AssetDefinitionStore
-    ) {
+    // swiftlint:disable function_body_length
+    init(token: TokenObject, tokenHolder: TokenHolder, paymentFlow: PaymentFlow, viewModel: TransferTokensCardViaWalletAddressViewControllerViewModel, assetDefinitionStore: AssetDefinitionStore) {
         self.token = token
         self.tokenHolder = tokenHolder
         self.paymentFlow = paymentFlow
@@ -146,7 +141,8 @@ class TransferTokensCardViaWalletAddressViewController: UIViewController, TokenV
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-
+    // swiftlint:enable function_body_length
+    
     required init?(coder aDecoder: NSCoder) {
         return nil
     }
