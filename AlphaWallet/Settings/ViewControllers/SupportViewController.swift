@@ -47,7 +47,7 @@ class SupportViewController: UIViewController {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 }
 
@@ -117,8 +117,10 @@ extension SupportViewController: UITableViewDelegate {
             viewController.hidesBottomBarWhenPushed = true
 
             navigationController?.pushViewController(viewController, animated: true)
-        case .telegram:
-            openURL(.telegram)
+        case .telegramPublic:
+            openURL(.telegramPublic)
+        case .telegramCustomer:
+            openURL(.telegramCustomer)
         case .twitter:
             openURL(.twitter)
         case .reddit:
@@ -132,16 +134,9 @@ extension SupportViewController: UITableViewDelegate {
 
     private func openURL(_ provider: URLServiceProvider) {
         if let localURL = provider.localURL, UIApplication.shared.canOpenURL(localURL) {
-            UIApplication.shared.open(localURL, options: convertToUIApplicationOpenExternalURLOptionsKeyDictionary([:]), completionHandler: .none)
+            UIApplication.shared.open(localURL, options: [:], completionHandler: .none)
         } else {
-            self.delegate?.didPressOpenWebPage(provider.remoteURL, in: self)
+            delegate?.didPressOpenWebPage(provider.remoteURL, in: self)
         }
     }
-}
-
-// Helper function inserted by Swift 4.2 migrator.
-private func convertToUIApplicationOpenExternalURLOptionsKeyDictionary(_ input: [String: Any]) -> [UIApplication.OpenExternalURLOptionsKey: Any] {
-    return Dictionary(uniqueKeysWithValues:
-        input.map { key, value in (UIApplication.OpenExternalURLOptionsKey(rawValue: key), value) }
-    )
 }
