@@ -2,7 +2,7 @@
 
 import Foundation
 
-func withRetry(times: Int, task: @escaping (_ triggerRetry: @escaping () -> Bool) -> ()) {
+func withRetry(times: Int, task: @escaping (_ triggerRetry: @escaping () -> Bool) -> Void) {
     var retriedCount = 0
     func triggerRetry() -> Bool {
         guard retriedCount < times else { return false }

@@ -64,6 +64,7 @@ class TokenInstanceWebView: UIView {
     private var lastTokenHolder: TokenHolder?
     var actionProperties: TokenInstanceWebView.SetProperties.Properties = .init()
     private var lastActionLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
+    private var estimatedProgressObservation: NSKeyValueObservation!
 
     var isWebViewInteractionEnabled: Bool = false {
         didSet {
@@ -105,7 +106,20 @@ class TokenInstanceWebView: UIView {
         webView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(webView)
 
-        webView.addObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), options: .new, context: nil)
+        estimatedProgressObservation = webView.observe(\.estimatedProgress, options: [.new]) { [weak self] webView, _ in
+            guard let strongSelf = self, webView.estimatedProgress == 1 else { return }
+            //Needs a second time in case the TokenScript is heavy and slow to render, or if the device is slow. Value is empirical
+            strongSelf.loadId = Int.random(in: 0...Int.max)
+            let forLoadId: Int? = strongSelf.loadId
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                guard strongSelf.loadId == forLoadId else { return }
+                strongSelf.makeIntroductionWebViewFullHeight(renderingAttempt: .first)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                guard strongSelf.loadId == forLoadId else { return }
+                strongSelf.makeIntroductionWebViewFullHeight(renderingAttempt: .second)
+            }
+        }
 
         NSLayoutConstraint.activate([
             webView.anchorsConstraint(to: self),
@@ -275,25 +289,7 @@ class TokenInstanceWebView: UIView {
         }
         webView.loadHTMLString(html, baseURL: nil)
         hashOfLoadedHtml = hashOfCurrentHtml
-    }
-
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-        guard keyPath == "estimatedProgress" else { return }
-        guard webView.estimatedProgress == 1 else { return }
-        //Needs a second time in case the TokenScript is heavy and slow to render, or if the device is slow. Value is empirical
-        loadId = Int.random(in: 0...Int.max)
-        let forLoadId: Int? = loadId
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
-            guard let strongSelf = self else { return }
-            guard strongSelf.loadId == forLoadId else { return }
-            strongSelf.makeIntroductionWebViewFullHeight(renderingAttempt: .first)
-        }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
-            guard let strongSelf = self else { return }
-            guard strongSelf.loadId == forLoadId else { return }
-            strongSelf.makeIntroductionWebViewFullHeight(renderingAttempt: .second)
-        }
-    }
+    } 
 
     private func makeIntroductionWebViewFullHeight(renderingAttempt: RenderingAttempt) {
         let forLoadId: Int? = loadId

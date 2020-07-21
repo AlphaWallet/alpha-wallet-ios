@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+// swiftlint:disable all
 extension UIView {
     @IBInspectable var cornerRadius: CGFloat {
         get {
@@ -37,3 +37,4 @@ extension UIView {
         }
     }
 }
+// swiftlint:enable all

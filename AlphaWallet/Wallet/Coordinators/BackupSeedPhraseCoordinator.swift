@@ -102,6 +102,7 @@ class BackupSeedPhraseCoordinator: Coordinator {
 }
 
 extension BackupSeedPhraseCoordinator: ShowSeedPhraseViewControllerDelegate {
+    // swiftlint:disable all
     var isInactiveBecauseWeAccessingBiometrics: Bool {
         get {
             return _isInactiveBecauseWeAccessingBiometrics
@@ -110,6 +111,7 @@ extension BackupSeedPhraseCoordinator: ShowSeedPhraseViewControllerDelegate {
             _isInactiveBecauseWeAccessingBiometrics = newValue
         }
     }
+    // swiftlint:enable all
 
     var contextToShowSeedPhrase: LAContext {
         return context

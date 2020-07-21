@@ -7,7 +7,7 @@ import web3swift
 public struct Constants {
     public static let keychainKeyPrefix = "alphawallet"
     public static let xdaiDropPrefix = Data(bytes:
-        Array(arrayLiteral: 0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50)
+        [0x58, 0x44, 0x41, 0x49, 0x44, 0x52, 0x4F, 0x50]
     ).hex()
 
     public static let mainnetMagicLinkHost = "aw.app"

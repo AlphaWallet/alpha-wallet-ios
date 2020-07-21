@@ -55,7 +55,7 @@ extension ServersViewController: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell:ServerViewCell = tableView.dequeueReusableCell(for: indexPath)
+        let cell: ServerViewCell = tableView.dequeueReusableCell(for: indexPath)
         if let viewModel = viewModel {
             let server = viewModel.server(for: indexPath)
             let cellViewModel = ServerViewModel(server: server, selected: viewModel.isServerSelected(server))

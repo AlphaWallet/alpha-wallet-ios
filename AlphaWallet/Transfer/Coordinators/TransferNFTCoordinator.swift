@@ -68,7 +68,7 @@ class TransferNFTCoordinator: Coordinator {
 
     private func transfer() {
         if case .send(let transferType) = paymentFlow {
-            TransactionConfigurator.estimateGasPrice(server: self.session.server).done { [weak self] gasPrice in
+            _ = TransactionConfigurator.estimateGasPrice(server: self.session.server).done { [weak self] gasPrice in
                 guard let strongSelf = self else {
                     return
                 }

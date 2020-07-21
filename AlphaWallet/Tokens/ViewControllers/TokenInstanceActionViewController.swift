@@ -172,7 +172,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             guard let values = userEntryValues as? [String] else { return .init() }
             let zippedIdsAndValues = zip(userEntryIds, values).map { (userEntryId, value) -> (AttributeId, String)? in
                 //Should always find a matching attribute
-                guard let attribute = self.action.attributes.values.first(where: { $0.userEntryId == userEntryId }) else { return nil }
+                guard self.action.attributes.values.first(where: { $0.userEntryId == userEntryId }) != nil else { return nil }
                 return (userEntryId, value)
             }.compactMap { $0 }
             return Dictionary(uniqueKeysWithValues: zippedIdsAndValues)
