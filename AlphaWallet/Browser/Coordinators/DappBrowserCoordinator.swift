@@ -240,7 +240,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
             }
             coordinator.didComplete = nil
             strongSelf.removeCoordinator(coordinator)
-            strongSelf.nativeCryptoCurrencyBalanceView.show()
         }
         coordinator.delegate = self
         addCoordinator(coordinator)
@@ -312,27 +311,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         open(url: url, animated: false)
     }
 
-    //TODO remove completely if we don't bring suggestions back. Might be useful to include for history, but it might look like we are suggesting dapps if the history includes dapps' URLs
-    private func showDappSuggestions(forText text: String) {
-        //Disabled dapp suggestions
-// swiftlint:disable:next trailing_semicolon
-//        return;
-//
-//        if let viewController = navigationController.topViewController as? DappsAutoCompletionViewController {
-//            let hasResults = viewController.filter(withText: text)
-//            if !hasResults {
-//                navigationController.popViewController(animated: false)
-//            }
-//        } else {
-//            let viewController = DappsAutoCompletionViewController()
-//            viewController.delegate = self
-//            let hasResults = viewController.filter(withText: text)
-//            if hasResults {
-//                pushOntoNavigationController(viewController: viewController, animated: false)
-//            }
-//        }
-    }
-
     private func pushOntoNavigationController(viewController: UIViewController, animated: Bool) {
         viewController.navigationItem.setHidesBackButton(true, animated: false)
         viewController.navigationItem.largeTitleDisplayMode = .never
@@ -387,10 +365,6 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
 
     func willHide() {
         nativeCryptoCurrencyBalanceView.hide()
-    }
-
-    func didShow() {
-        nativeCryptoCurrencyBalanceView.show()
     }
 
     func isMagicLink(_ url: URL) -> Bool {
@@ -672,8 +646,6 @@ extension DappBrowserCoordinator: DappBrowserNavigationBarDelegate {
             if navigationController.topViewController as? DappsAutoCompletionViewController != nil {
                 navigationController.popViewController(animated: false)
             }
-        } else {
-            showDappSuggestions(forText: text)
         }
     }
 
@@ -731,12 +703,10 @@ extension DappBrowserCoordinator: ServersCoordinatorDelegate {
                 open(url: url, animated: false)
             }
         }
-        nativeCryptoCurrencyBalanceView.show()
     }
 
     func didSelectDismiss(in coordinator: ServersCoordinator) {
         coordinator.serversViewController.navigationController?.dismiss(animated: true)
         removeCoordinator(coordinator)
-        nativeCryptoCurrencyBalanceView.show()
     }
 }

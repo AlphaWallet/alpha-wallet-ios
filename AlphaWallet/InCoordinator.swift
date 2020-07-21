@@ -797,13 +797,7 @@ extension InCoordinator: UITabBarControllerDelegate {
             dappBrowserCoordinator?.willHide()
         }
         return true
-    }
-
-    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-        if isViewControllerDappBrowserTab(viewController) {
-            dappBrowserCoordinator?.didShow()
-        }
-    }
+    } 
 }
 
 extension InCoordinator: TransactionsStorageDelegate {
