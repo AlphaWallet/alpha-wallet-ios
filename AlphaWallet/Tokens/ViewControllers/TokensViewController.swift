@@ -13,16 +13,9 @@ protocol TokensViewControllerDelegate: class {
 
 class TokensViewController: UIViewController {
     private static let filterViewHeight = CGFloat(50)
-
-    private enum Section {
-        case addHideToken
-        case tokens
-    }
-
     private let tokenCollection: TokenCollection
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
-    private let sections: [Section] = [.addHideToken, .tokens]
 
     private var viewModel: TokensViewModel {
         didSet {
@@ -34,10 +27,31 @@ class TokensViewController: UIViewController {
     private let account: Wallet
     lazy private var tableViewFilterView = SegmentedControl(titles: TokensViewModel.segmentedControlTitles)
     lazy private var collectiblesCollectionViewFilterView = SegmentedControl(titles: TokensViewModel.segmentedControlTitles)
-    private let tableView: UITableView
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.register(FungibleTokenViewCell.self)
+        tableView.register(EthTokenViewCell.self)
+        tableView.register(NonFungibleTokenViewCell.self)
+        tableView.registerHeaderFooterView(FilterTokensTableHeaderView.self)
+        tableView.registerHeaderFooterView(AddHideTokensTableHeaderView.self)
+        tableView.registerHeaderFooterView(TokensTableHeaderView.self)
+
+        tableView.estimatedRowHeight = 100
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
+        tableView.separatorInset = .zero
+
+        tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
+        tableView.addSubview(tableViewRefreshControl)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+
+        return tableView
+    }()
+
     private let tableViewRefreshControl = UIRefreshControl()
     private let collectiblesCollectionViewRefreshControl = UIRefreshControl()
-    private let collectiblesCollectionView = { () -> UICollectionView in
+    private lazy var collectiblesCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let numberOfColumns = CGFloat(3)
         let dimension = (UIScreen.main.bounds.size.width / numberOfColumns).rounded(.down)
@@ -45,9 +59,24 @@ class TokensViewController: UIViewController {
         layout.itemSize = CGSize(width: dimension, height: dimension + heightForLabel)
         layout.minimumInteritemSpacing = 0
         layout.headerReferenceSize = .init(width: 100, height: TokensViewController.filterViewHeight)
-        layout.sectionHeadersPinToVisibleBounds = true
-        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+        //NOTE: set it to false to make the same behaviour as for UITableView, hide header view, when it out of bounds
+        layout.sectionHeadersPinToVisibleBounds = false
+
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = viewModel.backgroundColor
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.alwaysBounceVertical = true
+        collectionView.register(OpenSeaNonFungibleTokenViewCell.self)
+        collectionView.registerSupplementaryView(FilterTokensCollectionHeaderView.self, of: UICollectionView.elementKindSectionHeader)
+        collectionView.dataSource = self
+        collectionView.isHidden = true
+        collectionView.delegate = self
+        collectiblesCollectionViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
+        collectionView.refreshControl = collectiblesCollectionViewRefreshControl
+        
+        return collectionView
     }()
+
     private var currentCollectiblesContractsDisplayed = [AlphaWallet.Address]()
     private let searchController: UISearchController
     private var consoleButton: UIButton {
@@ -129,7 +158,7 @@ class TokensViewController: UIViewController {
         self.assetDefinitionStore = assetDefinitionStore
         self.eventsDataStore = eventsDataStore
         self.viewModel = TokensViewModel(filterTokensCoordinator: filterTokensCoordinator, tokens: [], tickers: .init())
-        tableView = UITableView(frame: .zero, style: .plain)
+
         searchController = UISearchController(searchResultsController: nil)
 
         super.init(nibName: nil, bundle: nil)
@@ -146,33 +175,8 @@ class TokensViewController: UIViewController {
 
         consoleButton.addTarget(self, action: #selector(openConsole), for: .touchUpInside)
 
-        tableView.register(AddHideTokensCell.self)
-        tableView.register(FungibleTokenViewCell.self)
-        tableView.register(EthTokenViewCell.self)
-        tableView.register(NonFungibleTokenViewCell.self)
-        tableView.registerHeaderFooterView(TableViewSectionHeader.self)
-//        tableView.estimatedRowHeight = 0
-        tableView.estimatedRowHeight = 100
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
-        tableView.separatorInset = .zero
-
-        tableViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
-        tableView.addSubview(tableViewRefreshControl)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableViewFilterView)
         view.addSubview(tableView)
-
-        collectiblesCollectionView.backgroundColor = viewModel.backgroundColor
-        collectiblesCollectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectiblesCollectionView.alwaysBounceVertical = true
-        collectiblesCollectionView.register(OpenSeaNonFungibleTokenViewCell.self)
-        collectiblesCollectionView.registerSupplementaryView(CollectiblesCollectionViewHeader.self, of: UICollectionView.elementKindSectionHeader)
-        collectiblesCollectionView.dataSource = self
-        collectiblesCollectionView.isHidden = true
-        collectiblesCollectionView.delegate = self
-        collectiblesCollectionViewRefreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
-        collectiblesCollectionView.refreshControl = collectiblesCollectionViewRefreshControl
         view.addSubview(collectiblesCollectionView)
 
         NSLayoutConstraint.activate([
@@ -193,7 +197,7 @@ class TokensViewController: UIViewController {
         refreshView(viewModel: viewModel)
 
         setupFilteringWithKeyword()
-    }
+    } 
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -248,7 +252,7 @@ class TokensViewController: UIViewController {
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func refreshView(viewModel: TokensViewModel) {
@@ -260,7 +264,7 @@ class TokensViewController: UIViewController {
     //Reloading the collectibles tab is very obvious visually, with the flashing images even if there are no changes. So we used this to check if the list of collectibles have changed, if not, don't refresh. We could have used a library that tracks diff, but that is overkill and one more dependency
     private func contractsForCollectiblesFromViewModel() -> [AlphaWallet.Address] {
         var contractsForCollectibles = [AlphaWallet.Address]()
-        for i in (0..<viewModel.numberOfItems()) {
+        for i in (0..<viewModel.numberOfItems(section: 1)) {
             let token = viewModel.item(for: i, section: 0)
             contractsForCollectibles.append(token.contractAddress)
         }
@@ -303,61 +307,68 @@ extension TokensViewController: StatefulViewController {
 }
 
 extension TokensViewController: UITableViewDelegate {
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
         delegate?.didSelect(token: token, in: self)
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        guard section == 0 else { return 0 }
-        return TokensViewController.filterViewHeight
+        return viewModel.heightForHeader(in: section)
+    }
+
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        return nil
+    }
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0.01
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        guard section == 0 else { return nil }
-        let header: TableViewSectionHeader = tableView.dequeueReusableHeaderFooterView()
-        header.filterView = tableViewFilterView
-
-        return header
+        switch viewModel.sections[section] {
+        case .filter:
+            let view: FilterTokensTableHeaderView = tableView.dequeueReusableHeaderFooterView()
+            view.filterView = tableViewFilterView
+            return view
+        case .addHideToken:
+            let view: AddHideTokensTableHeaderView = tableView.dequeueReusableHeaderFooterView()
+            view.delegate = self
+            view.configure()
+            return view
+        case .deposit:
+            let view: TokensTableHeaderView = tableView.dequeueReusableHeaderFooterView()
+            view.configure(viewModel: .init(title: viewModel.depositTitleLabel))
+            return view
+        case .loans:
+            let view: TokensTableHeaderView = tableView.dequeueReusableHeaderFooterView()
+            view.configure(viewModel: .init(title: viewModel.loansTitleLabel))
+            return view
+        default:
+            return nil
+        }
     }
 }
 
 extension TokensViewController: UITableViewDataSource {
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let section = sections[indexPath.section]
-        switch section {
-        case .addHideToken:
-            return addHideTokenCell(forIndexPath: indexPath)
-        case .tokens:
-            return tokenCell(forIndexPath: indexPath)
-        }
-    }
-
-    private func addHideTokenCell(forIndexPath indexPath: IndexPath) -> UITableViewCell {
-        let cell: AddHideTokensCell = tableView.dequeueReusableCell(for: indexPath)
-        cell.delegate = self
-        cell.configure()
-        return cell
-    }
-
-    private func tokenCell(forIndexPath indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row, section: indexPath.section)
         let server = token.server
         let session = sessions[server]
+
         switch token.type {
         case .nativeCryptocurrency:
             let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(
-                    viewModel: .init(
-                            token: token,
-                            ticker: viewModel.ticker(for: token),
-                            currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
-                            currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                            server: server,
-                            assetDefinitionStore: assetDefinitionStore
-                    )
-            )
+            cell.configure(viewModel: .init(
+                token: token,
+                ticker: viewModel.ticker(for: token),
+                currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
+                currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
+                server: server,
+                assetDefinitionStore: assetDefinitionStore
+            ))
             return cell
         case .erc20:
             let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
@@ -375,30 +386,14 @@ extension TokensViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let section = sections[section]
-        switch section {
-        case .addHideToken:
-            return 1
-        case .tokens:
-            return viewModel.numberOfItems()
-        }
+        return viewModel.numberOfRows(in: section)
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        sections.count
+        return viewModel.sectionCount
     }
 
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let section = sections[indexPath.section]
-        switch section {
-        case .addHideToken:
-            return nil
-        case .tokens:
-            return trailingSwipeActionsConfiguration(forRowAt: indexPath)
-        }
-    }
-
-    private func trailingSwipeActionsConfiguration(forRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let title = R.string.localizable.walletsHideTokenTitle()
         let hideAction = UIContextualAction(style: .destructive, title: title) { [weak self] (_, _, completionHandler) in
             guard let strongSelf = self else { return }
@@ -460,7 +455,7 @@ extension TokensViewController: UICollectionViewDataSource {
         //Defensive check to make sure we don't return the wrong count. iOS might decide to load (the first time especially) the collection view at some point even if we don't switch to it, thus getting the wrong count and then at some point asking for a cell for those non-existent rows/items. E.g 10 tokens total, only 3 are collectibles and asked for the 6th cell
         switch viewModel.filter {
         case .collectiblesOnly:
-            return viewModel.numberOfItems()
+            return viewModel.numberOfItems(section: section)
         case .all, .currencyOnly, .assetsOnly, .keyword, .finances:
             return 0
         }
@@ -476,7 +471,7 @@ extension TokensViewController: UICollectionViewDataSource {
     }
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        let header: CollectiblesCollectionViewHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, for: indexPath)
+        let header: FilterTokensCollectionHeaderView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, for: indexPath)
         header.filterView = collectiblesCollectionViewFilterView
         return header
     }
@@ -484,7 +479,7 @@ extension TokensViewController: UICollectionViewDataSource {
 
 extension TokensViewController: UICollectionViewDelegate {
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        collectiblesCollectionView.deselectItem(at: indexPath, animated: true)
+        collectionView.deselectItem(at: indexPath, animated: true)
         let token = viewModel.item(for: indexPath.item, section: indexPath.section)
         delegate?.didSelect(token: token, in: self)
     }
@@ -546,10 +541,10 @@ extension TokensViewController {
     }
 
     private func fixTableViewBackgroundColor() {
-        let v = UIView()
-        v.backgroundColor = viewModel.backgroundColor
+        let view = UIView()
+        view.backgroundColor = viewModel.backgroundColor
         tableView.backgroundView?.backgroundColor = viewModel.backgroundColor
-        tableView.backgroundView = v
+        tableView.backgroundView = view
     }
 
     private func fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1() {
