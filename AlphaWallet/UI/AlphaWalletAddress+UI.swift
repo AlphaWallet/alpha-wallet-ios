@@ -29,7 +29,7 @@ extension AlphaWallet.Address {
             return R.image.tokenPltc()
         case "0xea5c61205fB4A255Af041E8350AAA9343C516E55":
             return R.image.tokenPusdt()
-        
+
 //        case "":
 //            return R.image.tokenPeos()
 //        case "":
@@ -80,6 +80,8 @@ extension AlphaWallet.Address {
             return R.image.tokenSgbp()
         case "0xF48e200EAF9906362BB1442fca31e0835773b8B4":
             return R.image.tokenSaud()
+        case "0x38bA1173F498f7a89ac474EdBA1D587Cc1ab021D":
+            return R.image.tokenAaveDaiDebt()
         default:
             return nil
         }

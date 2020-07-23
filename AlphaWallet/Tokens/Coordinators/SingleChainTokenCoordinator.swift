@@ -368,6 +368,30 @@ class SingleChainTokenCoordinator: Coordinator {
     func show(fungibleToken token: TokenObject, transferType: TransferType) {
         guard let transactionsStore = createTransactionsStore() else { return }
 
+        //TODO fix for activities: remove or maybe support this properly as a TokenScript webview?
+        if token.contractAddress.sameContract(as: Constants.Contracts.aEth) {
+            let viewController = HardcodedTokenCardViewController(session: session, assetDefinition: assetDefinitionStore, transferType: transferType, viewModel: AEthTokenViewControllerViewModel(title: R.string.localizable.aEthTokenViewTitle(), description: R.string.localizable.aEthTokenViewDescription(), transferType: transferType, session: session, assetDefinitionStore: assetDefinitionStore))
+            viewController.delegate = self
+            viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: self, action: #selector(dismiss))
+
+            navigationController.pushViewController(viewController, animated: true)
+
+            //TODO fix for activities
+            //refreshTokenViewControllerUponAssetDefinitionChanges(viewController, forTransferType: transferType, transactionsStore: transactionsStore)
+            return;
+        }
+        if token.contractAddress.sameContract(as: Constants.Contracts.aaveDebt) {
+            let viewController = HardcodedTokenCardViewController(session: session, assetDefinition: assetDefinitionStore, transferType: transferType, viewModel: AaveDebtTokenViewControllerViewModel(title: R.string.localizable.aaveDebtTokenViewTitle(), description: R.string.localizable.aaveDebtTokenViewDescription(), transferType: transferType, session: session, assetDefinitionStore: assetDefinitionStore))
+            viewController.delegate = self
+            viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: self, action: #selector(dismiss))
+
+            navigationController.pushViewController(viewController, animated: true)
+
+            //TODO fix for activities
+            //refreshTokenViewControllerUponAssetDefinitionChanges(viewController, forTransferType: transferType, transactionsStore: transactionsStore)
+            return;
+        }
+
         let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transferType: transferType)
         viewController.delegate = self
         let viewModel = TokenViewControllerViewModel(transferType: transferType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore)
@@ -550,6 +574,37 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
     }
 }
 
+extension SingleChainTokenCoordinator: HardcodedTokenCardViewControllerDelegate {
+    func didTapSend(forTransferType transferType: TransferType, inViewController viewController: HardcodedTokenCardViewController) {
+        delegate?.didPress(for: .send(type: transferType), inCoordinator: self)
+    }
+
+    func didTapReceive(forTransferType transferType: TransferType, inViewController viewController: HardcodedTokenCardViewController) {
+        delegate?.didPress(for: .request, inCoordinator: self)
+    }
+
+    func didTap(action: TokenInstanceAction, transferType: TransferType, viewController: HardcodedTokenCardViewController) {
+        let token: TokenObject
+        switch transferType {
+        case .ERC20Token(let erc20Token, _, _):
+            token = erc20Token
+        case .dapp, .ERC721Token, .ERC875Token, .ERC875TokenOrder, .ERC721ForTicketToken:
+            return
+        case .nativeCryptocurrency:
+            token = TokensDataStore.etherToken(forServer: session.server)
+            showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, viewController: viewController)
+            return
+        }
+        switch action.type {
+        case .tokenScript:
+            showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, viewController: viewController)
+        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer:
+            //Couldn't have reached here
+            break
+        }
+    }
+}
+
 extension SingleChainTokenCoordinator: CanOpenURL {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
@@ -640,6 +695,12 @@ func fetchContractDataFor(address: AlphaWallet.Address, storage: TokensDataStore
                 completion(.fungibleTokenComplete(name: completedName, symbol: completedSymbol, decimals: completedDecimals))
             }
         }
+    }
+
+    //TODO fix for activities
+    if storage.server == .main && address.sameContract(as: Constants.Contracts.aaveDebt) {
+        completion(.fungibleTokenComplete(name: "Dai Debt", symbol: "DEBT", decimals: 18))
+        return
     }
 
     assetDefinitionStore.fetchXML(forContract: address)

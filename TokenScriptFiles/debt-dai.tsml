@@ -1,0 +1,667 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><ts:token xmlns:ts="http://tokenscript.org/2020/06/tokenscript" xmlns:asnx="urn:ietf:params:xml:ns:asnx" xmlns:ethereum="urn:ethereum:constantinople" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" custodian="false" xsi:schemaLocation="http://tokenscript.org/2020/06/tokenscript http://tokenscript.org/2020/06/tokenscript.xsd">
+    <asnx:module>
+        <namedType name="userReserveData">
+            <type>
+                <sequence>
+                    <element ethereum:type="uint256" name="currentATokenBalance"/>
+                    <element ethereum:type="uint256" name="currentBorrowBalance"/>
+                    <element ethereum:type="uint256" name="principalBorrowBalance"/>
+                    <element ethereum:type="uint256" name="borrowRateMode"/>
+                    <element ethereum:type="uint256" name="borrowRate"/>
+                    <element ethereum:type="uint256" name="liquidityRate"/>
+                    <element ethereum:type="uint256" name="originationFee"/>
+                    <element ethereum:type="uint256" name="variableBorrowIndex"/>
+                    <element ethereum:type="uint256" name="lastUpdateTimestamp"/>
+                    <element ethereum:type="bool" name="usageAsCollateralEnabled"/>
+                </sequence>
+            </type>
+        </namedType>
+        <namedType name="userAccountData">
+            <!-- reflects the shared collateralisable asset - would be a token of its own
+            as this set of data is same for all kinds of debts -->
+            <type>
+                <sequence>
+                    <element ethereum:type="uint256" name="totalLiquidityETH"/>
+                    <element ethereum:type="uint256" name="totalCollateralETH"/>
+                    <element ethereum:type="uint256" name="totalBorrowsETH"/>
+                    <element ethereum:type="uint256" name="totalFeesETH"/>
+                    <element ethereum:type="uint256" name="availableBorrowsETH"/>
+                    <element ethereum:type="uint256" name="currentLiquidationThreshold"/>
+                    <element ethereum:type="uint256" name="ltv"/>
+                    <element ethereum:type="uint256" name="healthFactor"/>
+                </sequence>
+            </type>
+        </namedType>
+    </asnx:module>
+    <ts:label>
+        <ts:string xml:lang="en">Dai Debt</ts:string>
+    </ts:label>
+    <ts:contract name="LendingPool">
+        <ts:address network="1">0x398eC7346DcD622eDc5ae82352F02bE94C62d119</ts:address>
+    </ts:contract>
+    <ts:contract name="AAVEGetters">
+        <ts:address network="1">0x38ba1173f498f7a89ac474edba1d587cc1ab021d</ts:address>
+    </ts:contract>
+    <ts:contract name="LendingPoolProvider">
+        <ts:address network="1">0x24a42fD28C976A61Df5D00D0599C34c4f90748c8</ts:address>
+    </ts:contract>
+    <ts:contract name="PriceOracle">
+        <ts:address network="1">0x76B47460d7F7c5222cFb6b6A75615ab10895DDe4</ts:address>
+    </ts:contract>
+    <ts:origins>
+        <!-- TODO: should be LendingPool -->
+        <ts:ethereum contract="AAVEGetters"/>
+    </ts:origins>
+    <ts:cards>
+        <!-- TODO: finish these to make it a test case for supporting view for Token Card -->
+        <ts:card type="token">
+            <ts:view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                <style type="text/css">table {
+    width: 100%;
+}
+
+table caption {
+    font-size: large;
+    font-weight: bold;
+    text-align: left;
+}
+
+table tr th {
+    text-align: left;
+}
+
+table tr td {
+    text-align: right;
+}
+
+table tr {
+    border-top: thin solid grey;
+    border-bottom: thin solid grey;
+}
+
+.subtitle {
+    text-align: center;
+    color: darkgrey;
+}</style>
+                <body>
+                    <h1><!-- -17.75DAI -->
+</h1>
+<p class="subtitle">Total borrowed from AAVE + Interest</p>
+<table>
+    <caption>Debt</caption>
+    <tbody>
+    <tr><th>DeFi Provider</th><td><strong>AAVE</strong></td></tr>
+    <tr><th>Borrowed</th><td id="principalBorrowBalance"/></tr>
+    <tr><th>Interest to date</th><td id="interest"/></tr>
+    <tr><th>Interest Rate</th><td id="interestRate"/></tr>
+    </tbody>
+</table>
+                    <table>
+    <!-- this is shared between aToken and Debt token, per Tomke's design -->
+    <caption>Credit</caption>
+    <tbody>
+    <tr><th>Your Collateral</th><td id="totalCollateralETH"/></tr>
+    <tr><th>Loan to value</th><td id="totalLiquidityETH"/></tr>
+    <tr><th>Borrowing Power Used</th><td id="borrowingPowerUsed"/></tr>
+    </tbody>
+</table>
+                </body>
+            </ts:view>
+            <ts:view xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh">
+                <style type="text/css">table {
+    width: 100%;
+}
+
+table caption {
+    font-size: large;
+    font-weight: bold;
+    text-align: left;
+}
+
+table tr th {
+    text-align: left;
+}
+
+table tr td {
+    text-align: right;
+}
+
+table tr {
+    border-top: thin solid grey;
+    border-bottom: thin solid grey;
+}
+
+.subtitle {
+    text-align: center;
+    color: darkgrey;
+}</style>
+                <body>
+                    <h1>
+    <!-- -17.75DAI -->
+</h1>
+<p class="subtitle">Total Deposited to AAVE + Interest</p>
+<table>
+    <caption>贷款</caption>
+    <tbody>
+    <tr><th>贷款合约</th><td><strong>AAVE</strong></td></tr>
+    <tr><th>贷款额（本金）</th><td>currentBorrowBalance</td></tr>
+    <tr><th>累计利息</th><td>interest</td></tr>
+    <tr><th>利率</th><td>interestRate</td></tr>
+    </tbody>
+</table>
+                    <table border="0">
+    <!-- this is shared between aToken and Debt token, per Tomke's design -->
+    <caption>信用额度</caption>
+    <tbody>
+    <tr><th>总抵押品</th><td>totalCollateralETH</td></tr>
+    <tr><th>贷款价值比</th><td>totalLiquidityETH</td></tr>
+    <tr><th>已经使用额度</th><td>borrowingPowerUsed</td></tr>
+    </tbody>
+</table>
+                </body>
+            </ts:view>
+        </ts:card>
+
+        <ts:card exclude="notEnabled" type="action">
+            <ts:label>
+                <ts:string xml:lang="en">Repay</ts:string>
+            </ts:label>
+            <ts:attribute name="repayAmount">
+                <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+                <ts:label>
+                    <ts:string xml:lang="en">Amount to Repay</ts:string>
+                </ts:label>
+                <ts:origins>
+                    <!-- e18 is a hard coded multiplier.
+                    rationale for hardcoding: avoiding over-design  -->
+                    <ts:user-entry as="e18"/>
+                </ts:origins>
+            </ts:attribute>
+
+            <ts:transaction>
+                <ethereum:transaction as="uint" contract="LendingPoolProvider" function="repay">
+                    <ts:data>
+                        <ts:address>0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
+                        <ts:uint256 ref="repayAmount"/>
+                        <ts:address ref="ownerAddress"/>
+                    </ts:data>
+                </ethereum:transaction>
+            </ts:transaction>
+            <ts:view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                <xhtml:style type="text/css">.separator {
+  width: 100%;
+  height: 1px;
+  background-color: #e9e9e9;
+  margin-top: 7.5%;
+}
+
+.action {
+  height: 50px;
+}
+
+body{
+  margin-top: 0;
+}
+
+h1 {
+  margin-top: 0;
+  line-height: 2;
+  background-color: #fbfbfb;
+  border-bottom: thin solid rgb(235,235,235);
+  text-align: left;
+  font-variant: all-small-caps;
+}
+
+h2 {
+  float: left;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+p.hint {
+  clear: left;
+}
+
+input {
+  float: right;
+  font-size: x-large;
+  border: none;
+  line-height: 40px;
+  text-align: right;
+  width: 5ex;
+}
+
+h2 img {
+  vertical-align: middle;
+}
+
+.action {
+  font-family: SourceSansPro, sans-serif;
+}
+
+.enable.action  {
+  font-size: large;
+  text-align: center;
+  margin-left: 8%;
+  margin-right: 8%;
+  margin-top: 35%;
+}
+
+.enable.action img {
+  padding-bottom: 40px;
+}
+
+.titleAction {
+  width: 272px;
+  height: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.67;
+  letter-spacing: normal;
+  color: #727272;
+}
+
+.detailsTitle {
+  width: 246px;
+  height: 41px;
+  font-family: SourceSansPro-Semibold, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.71;
+  letter-spacing: normal;
+  color: black;
+}
+
+table {
+  margin-top: 1em;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table caption {
+  font-weight: bold;
+  font-size: x-large;
+  line-height: 2;
+  text-align: left;
+}
+
+table th {
+  font-weight: normal; /* Tomek likes to deemphasize field names */
+  text-align: left;
+  line-height: 3;
+}
+
+table td {
+  text-align: right;
+  font-weight: bold;
+  font-size: large;
+  line-height: 3;
+}
+
+table tr {
+  border-top: 1px solid #727272;
+}
+
+table tr:last-child {
+  border-bottom: 1px solid #727272;
+}
+</xhtml:style>
+                <xhtml:script type="text/javascript">//
+class Token {
+
+    constructor(token, card) {
+        this.token = token;
+        this.card = card;
+    }
+
+    render() {
+        const decimals18 = 1e+18;
+        let totalBorrowsWithInterest = this.token.borrowBalance / decimals18;
+        let interestAccrued = (this.token.borrowBalance - this.token.borrowBalancePrincipal) / decimals18;
+        let principal = this.token.borrowBalancePrincipal / decimals18;
+        return`
+        &lt;div class="repay action"&gt;
+           &lt;h1&gt;Repay&lt;/h1&gt;
+           &lt;h2&gt;&lt;img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAAXNSR0IArs4c6QAABVdJREFUWAnNWV1oHFUUPmcys+vu5getVlwbtVkr8QfF5KUWKhXBtE81paKIUioiGlsQ4oOC2EYo+NBShKIvYu2DQm21+CCmirQoTSt2g/hTKiYWE0yxqWLS3c3+zvWcu7mzM7tz9ydu416YzJnzc++3d+ace84JwhJH+qv+mJ21N9sI/TRFFAREEelOQwiYAaQLYMYQEDcCxqfXPByfZFmjAxsxEMfXrUyJhR0CcJBQ3NOILSD+hCCOhTF0AAfGLtVrWxdAcWJDeyo7P0ygXqbdaa93cj892uUEgd0bDnTuw4dOJvx03LyaAFOf922xUbxNr/BGt+F/phH+NAQOhTeNf1JtLkMnFEJg8njfLoHiaNPB8aL0g3luuQatpcPhKxBjD4RSc5lDAsRjOsNm8hHwSLgruA3XnV4on7diB3nnlhMcA+KNkGv67GQFwNQX/a8v1865d0uCpLXdPKY9r5gdgr8L8lQPnxWD9+4BM7qJyapDFDIgcvMgFmbAnvsZCpdPywvArmrHQvJwWh63uh3HAcKhJJmZm9A5RL0A/VDYmcuQ++0Q5KcO0/vM+6mUeOTdkWDX7SoEmUpSjHP1hZLs5Hu0IVll6rmj1QEYupmuKBjtPYCGCUbwegjeOQzWqs2QPrsDRKZKnCbvllgARnhiuYOLJ8RktSDs3sHkl+sBCkkPML8HDN4AZvdWsLq3AAZXSBWbXn36uyEQqSk/E8njYE4nToxPHOkkKcjsrAZOO1MNgcjMQm7iHUh9Mwh5+hZ5GLSzobUHASOrtdaMhY9Uqc9/KLQ8qtVuhiCfgMzZnZCbLh4aGLgWgvftoffXpp1dnvckNTgrafjg105bTWBD9tybYF+ZkEptnb1grhrUG1AywthMTpl0WkbnXSWR1eXQRlcvQL4i6DvyakRu6ggE735Vqli3PUWh6Jyjbs+XaGYyNkyM3v8BhZYnHS0XEdk47nq6+mRytM+7CMKH7CQyyfRKWuYpatLuaQHmpj5ykLatWAtG5Bb5LD/2WgHXsawkkD4X86YBKbCTv0Phr28rlZhD2ExO08mtfQd/1GpwHFQAs+f31xUHlW35nYO4A/DKr9J5ynX4mbEZlEBo4PmZNIvnXtJNe+dnbHTUiYvE7vCKik9W7FmHbXTEHNrq2aY96hylKgQGiqcKq2C4G9Q6ucl3y6zERfbiE/SuN5RJ5GMLePFJ9mIuD1t1zJhct1Km5hsH0/GXHODW6qeh7TougQHS379CTpJ2ZI0QRscaCNzxojSxExcg+8tbWnPGZnJRTRF7n59WYfZrh628jhmF2VNL82I6e601zztz5i68T3OV1nAEiwRjM2TFT0V1ubD5zwiB3mHgM5hH4Z8fIf/HZ/plCBNj42+QkkJxTK/ZBElbBIJ9+8G69Qk5GWfYmR9eI1pfBihMEqBsR3DF3+SBlElbsecgtP5jMFc+WASXmob0me2UsE5rV1tMWA+wgkz5OXOlAnovpV27tVYugRV7hn58zsUpkWi2y3TfnfIraWH+vEz5Ifu3YvnfqTWi+jdOTcK9EiqaXqCYWLPFEejZ7j+xhmunL1HRdBDy00fpXChotBbZVDQxFqXkAOQqisrOIV3ZqQxq3SvLzjEqO8+Qmf57U3PSq+Wyc0hVdMyXRZNS4Lvsldj1vWq3XTNoNHB3ZGB8xD1XBUDZ+hjtP7zc3QXZn9kYfxzRm7xIL/YgJgXZyKGGjpt/NWmneVQGjtes2EEFRO4k90qE2EX5olZP6S/lzt8cJX0j4Ufib5TvnJqv5sL/dwOzJkD+JS3dAlZbLYFyE112IajQb6Umuhukopfr3xD/AsXlPp3EbzwjAAAAAElFTkSuQmCC"&gt; DAI&lt;/h2&gt;
+           &lt;input id="repayAmount" type="number" placeholder="0"&gt;
+           &lt;p class="hint"&gt;Remaining to Repay: ${totalBorrowsWithInterest} DAI&lt;/p&gt;
+           &lt;table&gt;
+              &lt;caption&gt;Details&lt;/caption&gt;
+              &lt;tbody&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;Total to repay &lt;/th&gt;
+                    &lt;td&gt;${totalBorrowsWithInterest.toFixed(2)}&lt;/td&gt;
+                 &lt;/tr&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;Borrowed&lt;/th&gt;
+                    &lt;td&gt;${(principal).toFixed(2)} DAI&lt;/td&gt;
+                 &lt;/tr&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;Interest to Repay&lt;/th&gt;
+                    &lt;td&gt;${interestAccrued.toFixed(7)} DAI&lt;/td&gt;
+                 &lt;/tr&gt;
+              &lt;/tbody&gt;
+           &lt;/table&gt;
+        &lt;/div&gt;
+`;
+    }
+}
+
+web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
+    document.getElementById(tokenIdCard).innerHTML = new Token(updated.token, updated.card).render();
+};
+//
+</xhtml:script>
+            </ts:view>
+        </ts:card>
+
+    </ts:cards>
+
+    <ts:attribute name="borrowInterestAccrued">
+        <!-- used in the Repay action card -->
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Borrow balance compounded</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getCompoundedBalanceMinusPrincipal">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="assetPriceDAI">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">asset price</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="PriceOracle" function="getAssetPrice">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="currentBorrowBalance">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax>
+        </ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Payable</ts:string>
+        </ts:label>
+        <ts:origins>
+            <!-- TODO: alternatively, consider using SELECT
+            <ethereum:call contract="LendingPool" function="getUserReserveData" as="e18"
+                           type="userReserveData" select="currentBorrowBalance">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+            -->
+            <ethereum:call as="uint" function="getCurrentBorrowBalance">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="principalBorrowBalance">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax>
+        </ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Principle</ts:string>
+        </ts:label>
+        <ts:origins>
+            <!-- TODO: alternatively, consider using SELECT
+            <ethereum:call contract="LendingPool" function="getUserReserveData" as="e18"
+                           type="userReserveData" select="principalBorrowBalance">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+            -->
+            <ethereum:call as="uint" function="getPrincipalBorrowBalance">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="borrowRateMode">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax>
+        </ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Borrowing Rate Mode</ts:string>
+        </ts:label>
+        <ts:origins>
+            <!-- TODO: consider if mapping is applicable here -->
+            <ethereum:call as="uint" function="getBorrowRateMode">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="borrowRate">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax>
+        </ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Borrowing Rate Mode</ts:string>
+        </ts:label>
+        <ts:origins>
+            <!-- strange enough, they seem to be using e23 here and we don't have as="e23" -->
+            <ethereum:call as="uint" function="getBorrowRate">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="liquidityRate">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax>
+        </ts:type>
+        <ts:origins>
+            <!-- strange enough, they seem to be using e23 here and we don't have as="e23" -->
+            <ethereum:call as="uint" function="getLiquidityRate">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="totalCollateralETH">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax>
+        </ts:type>
+        <ts:origins>
+            <ethereum:call as="uint" function="getTotalCollateralETH">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="totalBorrows">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">total borrows in ETH</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getTotalBorrowsETH">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="availableBorrowsETH">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax>
+        </ts:type>
+        <ts:origins>
+            <ethereum:call as="uint" function="getAvailableBorrowsETH">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="ltv">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax>
+        </ts:type>
+        <ts:origins>
+            <!-- strange enough, they seem to be using e23 here and we don't have as="e23" -->
+            <ethereum:call as="uint" function="getLTV">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="borrowBalance">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Borrow balance compounded</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getCompoundedBorrowBalance">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="borrowBalancePrincipal">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Borrow balance compounded</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getCompoundedBalanceMinusPrincipal">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<ds:SignedInfo>
+<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+<ds:Reference URI="">
+<ds:Transforms>
+<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+</ds:Transforms>
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+<ds:DigestValue>v9NRwB71TNh7LAQzmSBChfV/RrSd/UeJhVE21llSJog=</ds:DigestValue>
+</ds:Reference>
+</ds:SignedInfo>
+<ds:SignatureValue>
+ldlGYTBuNS7RI95UyE2XiJm23Xzo8BlfuidQPahsB/0Yd8I0PcOVnwFWn+nyJnJXM6ROqpSDyXuJ
+WVb/KVPjWGmyjEoPewTNK2AjJDiIOT/W0VwNb9e1br30wnF+UV2fLzerbzxk1mSJ/pd+kpo+hADt
+iEv1dZBQhyl3NCHJ/C/qf1xIDltBL0YP7Qgl/Lots82XJPvoMdf+tVAIDbEA3WHTNXaEOxl5olHj
+KLLQ5S9tbyajITmY5YeC6E9/TAVyEVnCBgv2NdBWJDKi54uZ+v1dV7cfk6MIQFtAhGo6enn3z5RM
+MtwJKj15QSsm3hXg8ByZ5bmm6rO8oA3WGQxUfg==
+</ds:SignatureValue>
+<ds:KeyInfo>
+<ds:KeyName>AlphaWallet</ds:KeyName>
+<ds:KeyValue>
+<ds:RSAKeyValue>
+<ds:Modulus>
+tDHBH8jKLPEjpXsy/V9/XsXBYmc64SXx6IWG9CdJzm+iSrk3Od2ZZTS3DsR5+hp9hk6UwRyb1XKG
++TMrBODfxIIWricmnhxYMqiyvwDhecm4RU4YFteekBFAsuhEGCJBtmJSrle5G3iE/9FwvTfw/cxo
+yAydv85OWc4UkxkfjzaXVqGGKCzSFhRm48HwG51/1nmC1mmPh070EMY4Km4N/ieJZ8egLjDAIZEI
+EY5Cj7ig9PPnGf2pF21/z7vm3zQViXi6XJIBn1E5CTXzDW1y1BYe0QI+dxxY0o+97mwisZu7fVfB
+/rJJm3g7Ye4/lITkZeRMP+OLYyG1pathItlrVQ==
+</ds:Modulus>
+<ds:Exponent>AQAB</ds:Exponent>
+</ds:RSAKeyValue>
+</ds:KeyValue>
+<ds:X509Data>
+<ds:X509Certificate>
+MIIFUDCCBDigAwIBAgISAy095xt55U0Cc0++zYon7TT0MA0GCSqGSIb3DQEBCwUAMEoxCzAJBgNV
+BAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQDExpMZXQncyBFbmNyeXB0IEF1
+dGhvcml0eSBYMzAeFw0xOTA5MjQxMTA1MTdaFw0xOTEyMjMxMTA1MTdaMBMxETAPBgNVBAMMCCou
+YXcuYXBwMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtDHBH8jKLPEjpXsy/V9/XsXB
+Ymc64SXx6IWG9CdJzm+iSrk3Od2ZZTS3DsR5+hp9hk6UwRyb1XKG+TMrBODfxIIWricmnhxYMqiy
+vwDhecm4RU4YFteekBFAsuhEGCJBtmJSrle5G3iE/9FwvTfw/cxoyAydv85OWc4UkxkfjzaXVqGG
+KCzSFhRm48HwG51/1nmC1mmPh070EMY4Km4N/ieJZ8egLjDAIZEIEY5Cj7ig9PPnGf2pF21/z7vm
+3zQViXi6XJIBn1E5CTXzDW1y1BYe0QI+dxxY0o+97mwisZu7fVfB/rJJm3g7Ye4/lITkZeRMP+OL
+YyG1pathItlrVQIDAQABo4ICZTCCAmEwDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUF
+BwMBBggrBgEFBQcDAjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBRaKDKFkPztPgQee3418kofZddy
+MTAfBgNVHSMEGDAWgBSoSmpjBH3duubRObemRWXv86jsoTBvBggrBgEFBQcBAQRjMGEwLgYIKwYB
+BQUHMAGGImh0dHA6Ly9vY3NwLmludC14My5sZXRzZW5jcnlwdC5vcmcwLwYIKwYBBQUHMAKGI2h0
+dHA6Ly9jZXJ0LmludC14My5sZXRzZW5jcnlwdC5vcmcvMBsGA1UdEQQUMBKCCCouYXcuYXBwggZh
+dy5hcHAwTAYDVR0gBEUwQzAIBgZngQwBAgEwNwYLKwYBBAGC3xMBAQEwKDAmBggrBgEFBQcCARYa
+aHR0cDovL2Nwcy5sZXRzZW5jcnlwdC5vcmcwggEEBgorBgEEAdZ5AgQCBIH1BIHyAPAAdwB0ftqD
+Ma0zEJEhnM4lT0Jwwr/9XkIgCMY3NXnmEHvMVgAAAW1jKVxwAAAEAwBIMEYCIQCHuWOuAiqXC7Bn
+nYLS4BDrOrVeObYC7zcQvru7Aqx5DAIhAP9ukUp9nnQBWgAgTdfK+GdhHxboIaxJz7456ws6myft
+AHUAY/Lbzeg7zCzPC3KEJ1drM6SNYXePvXWmOLHHaFRL2I0AAAFtYyladwAABAMARjBEAiBaxydV
+JMY5/hQyrjaMMonJgQBhEKBHvv4FbthX+lZfpAIga4sB0hDaoT4knZfVhVP/u/Uv47t6z1+TEWnL
+/TresTwwDQYJKoZIhvcNAQELBQADggEBAGSPK0ivDprmvO72TVLZsuk/JDhCmXQcYe6cRGPiX7WL
+c0B6wfLaxb0rrQdmGpTiTEHS6wEa6tOMEsfxutPWeOxlqFPU97QHhLrdBlf4IDfk8i1Em3rpPPQu
+3M2u5nfeRXvsIxyB5vLQvuR/NwCQqA2bwkCrlLz7dr1iGem35DGI0ikIkdODTPI+RpwHK8b2iApA
+w6XaVGA99eCJS2dHqeyHPAc1Yf+Klv+z0FyM38ZUfazRRIQ17LtolM1U/9Ynld20SXtCrIFbcmbo
+w3piXuHLlDRcRxWqdL33yPoTEbPuLtS6vqDXefYP0RiYpQHHwJz4E6q5VCbK6LgILnIyX+M=
+</ds:X509Certificate>
+<ds:X509Certificate>
+MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/MSQwIgYDVQQK
+ExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMTDkRTVCBSb290IENBIFgzMB4X
+DTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0NlowSjELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUxl
+dCdzIEVuY3J5cHQxIzAhBgNVBAMTGkxldCdzIEVuY3J5cHQgQXV0aG9yaXR5IFgzMIIBIjANBgkq
+hkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnNMM8FrlLke3cl03g7NoYzDq1zUmGSXhvb418XCSL7e4
+S0EFq6meNQhY7LEqxGiHC6PjdeTm86dicbp5gWAf15Gan/PQeGdxyGkOlZHP/uaZ6WA8SMx+yk13
+EiSdRxta67nsHjcAHJyse6cF6s5K671B5TaYucv9bTyWaN8jKkKQDIZ0Z8h/pZq4UmEUEz9l6YKH
+y9v6Dlb2honzhT+Xhq+w3Brvaw2VFn3EK6BlspkENnWAa6xK8xuQSXgvopZPKiAlKQTGdMDQMc2P
+MTiVFrqoM7hD8bEfwzB/onkxEz0tNvjj/PIzark5McWvxI0NHWQWM6r6hCm21AvA2H3DkwIDAQAB
+o4IBfTCCAXkwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAYYwfwYIKwYBBQUHAQEE
+czBxMDIGCCsGAQUFBzABhiZodHRwOi8vaXNyZy50cnVzdGlkLm9jc3AuaWRlbnRydXN0LmNvbTA7
+BggrBgEFBQcwAoYvaHR0cDovL2FwcHMuaWRlbnRydXN0LmNvbS9yb290cy9kc3Ryb290Y2F4My5w
+N2MwHwYDVR0jBBgwFoAUxKexpHsscfrb4UuQdf/EFWCFiRAwVAYDVR0gBE0wSzAIBgZngQwBAgEw
+PwYLKwYBBAGC3xMBAQEwMDAuBggrBgEFBQcCARYiaHR0cDovL2Nwcy5yb290LXgxLmxldHNlbmNy
+eXB0Lm9yZzA8BgNVHR8ENTAzMDGgL6AthitodHRwOi8vY3JsLmlkZW50cnVzdC5jb20vRFNUUk9P
+VENBWDNDUkwuY3JsMB0GA1UdDgQWBBSoSmpjBH3duubRObemRWXv86jsoTANBgkqhkiG9w0BAQsF
+AAOCAQEA3TPXEfNjWDjdGBX7CVW+dla5cEilaUcne8IkCJLxWh9KEik3JHRRHGJouM2VcGfl96S8
+TihRzZvoroed6ti6WqEBmtzw3Wodatg+VyOeph4EYpr/1wXKtx8/wApIvJSwtmVi4MFU5aMqrSDE
+6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwuX4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPM
+TZ+sOPAveyxindmjkW8lGy+QsRlGPfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M
++X+Q7UNKEkROb3N6KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==
+</ds:X509Certificate>
+</ds:X509Data>
+</ds:KeyInfo>
+</ds:Signature></ts:token>

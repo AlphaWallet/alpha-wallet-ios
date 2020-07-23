@@ -290,7 +290,7 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
                 </ts:origins>
             </ts:attribute>
             <ts:transaction>
-                <ethereum:transaction as="uint" contract="LendingPoolProvider" function="borrow">
+                <ethereum:transaction as="uint" contract="AAVELendingPool" function="borrow">
                     <ts:data>
                         <ts:address>0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
                         <ts:uint256 ref="borrowAmount"/>
@@ -457,7 +457,7 @@ class Token {
                  &lt;/tr&gt;
                  &lt;tr&gt;
                     &lt;th&gt;You Already Borrowed&lt;/th&gt;
-                    &lt;td&gt;${((this.token.totalBorrows / this.token.assetPriceDAI)).toFixed(2)} DAI&lt;/td&gt;
+                    &lt;td&gt;${((this.token.totalBorrowsDAI / 1e+18)).toFixed(2)} DAI&lt;/td&gt;
                  &lt;/tr&gt;
                  &lt;tr&gt;
                     &lt;th&gt;New Health Factor&lt;/th&gt;
@@ -1292,6 +1292,21 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
         </ts:origins>
     </ts:attribute>
 
+    <ts:attribute name="totalBorrowsDAI">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">total borrows in ETH</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getCurrentBorrowBalance">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
     <ts:attribute name="totalBorrows">
         <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
         <ts:label>
@@ -1359,15 +1374,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>MjAduHV1TznoqpY9xTez0ExAx/HBg+K8d720w39z5O0=</ds:DigestValue>
+<ds:DigestValue>KwYJDNH6NI1RMgTLiDk9p9/tduLqct2QDjqdDhY/hOw=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-pjgNQ6wxnPVGOfxik/tPWxWvrDYj1BTqIXJbdrmBGSRGnBWK9NPq8p/TqhhmLmpG0ExLaiIUYwWu
-6d8DyU6dpHz2+oTJUg2woz5afQyzhZxnT2yFSexsfr7f0085O+Hf1zFf1J22TShrzAHr37mxRMgZ
-xr2A3I+i88sM8OlXFy01i82+KDptojJFdDd1823YyvZ/6HVQKJdmZ9XRk3zi26oGsDiETtqaTOUG
-xEIS4Wx/PF8ADNAbCJs6F97Cdw/J+G47Nncxz63H5FO9s4zxxqK8TJt7uZmEF9Tm3E/t/ia5PQzQ
-c1oEL2bYvykzR8ZHzs9qLpcyDFLlJLNw2SNsMQ==
+laCbJ8FHAhqjIpRBHfZsXbWCBeGhOmZBVPXSSyDAICs8lsrZY2G8LwWK7wQ2URe51O6Dv+eInbnL
+dgM20ZPvXdUeU7SfV5AOhVE1HrzrvVVLL6Ro+YTyeT/34UiW0jb6S83WAIcLV4CotcX1w2hJuLSg
+nHGU6jimvcMKos+gm3XPUkDYy4yCF3Sz3tRIunzhbIU94wcFTs7F63PXu1EVbQfoOFJ2rdPtKJzk
+avB9KJwTaWjjLztX7O0RIRxUnbptrEzvkJtHZ0S6BHq+hsbjGbWAso4yTWGLF8ddW5qiwLkvSUkC
+cVbfB2bRirvLsIz02gSS45AchED8q2t8wOH/iQ==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
