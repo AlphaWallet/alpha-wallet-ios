@@ -22,6 +22,7 @@ protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
+    func didSelect(token: TokenObject, in viewController: UIViewController)
 }
 
 // swiftlint:disable type_body_length
@@ -566,8 +567,8 @@ extension SingleChainTokenCoordinator: CanOpenURL {
 
 extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
 
-    func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
-        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController)
+    func didCompleteTransaction(in viewController: TokenInstanceActionViewController, action: TokenInstanceAction, token: TokenObject) {
+        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController, transaction: .action(action, token))
         coordinator.delegate = self
         addCoordinator(coordinator)
 
@@ -585,7 +586,23 @@ extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate
 
 extension SingleChainTokenCoordinator: TransactionInProgressCoordinatorDelegate {
 
-    func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
+    func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator, transaction: TransactionInProgress) {
+        switch transaction {
+        case .action where transaction.isDepositeToAAVE:
+            navigationController.popToRootViewController(animated: true)
+
+            //NOTE: delay to make sure that view controller popped to parent
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                if let token = self.storage.token(forContract: Constants.aETH) {
+                    self.delegate?.didSelect(token: token, in: coordinator.viewControllerToPresent)
+                } else {
+                    //NOTE: handle this case
+                }
+            }
+        case .action:
+            navigationController.popViewController(animated: true)
+        }
+
         removeCoordinator(coordinator)
     }
 }

@@ -74,7 +74,7 @@ class SettingViewHeader: UITableViewHeaderFooterView {
         detailsLabel.font = viewModel.detailsTextFont
         topSperator.backgroundColor = viewModel.separatorColor
         bottomSperator.backgroundColor = viewModel.separatorColor
-        contentView.backgroundColor = viewModel.backgoundColor
+        contentView.backgroundColor = viewModel.backgroundColor
         topSeparatorHeight.constant = viewModel.showTopSeparator ? 1 : 0
     }
 }

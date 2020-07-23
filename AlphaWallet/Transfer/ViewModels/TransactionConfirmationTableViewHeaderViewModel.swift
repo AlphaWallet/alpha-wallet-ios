@@ -8,10 +8,26 @@
 import UIKit
 
 struct TransactionConfirmationTableViewHeaderViewModel {
+    
+    enum HeaderViewExpandingState {
+        case opened(section: Int, isOpened: Bool)
+        case closed
+
+        var shouldHideExpandButton: Bool {
+            switch self {
+            case .opened:
+                return false
+            case .closed:
+                return true
+            }
+        }
+    }
+
     let title: String
     let placeholder: String
-    let details: String = String()
-    
+    var details: String = String()
+    var expandingState: HeaderViewExpandingState = .closed
+
     var titleLabelFont: UIFont {
         return Fonts.regular(size: 17)!
     }
@@ -36,7 +52,7 @@ struct TransactionConfirmationTableViewHeaderViewModel {
         return R.color.dove()!
     }
 
-    var backgoundColor: UIColor {
+    var backgroundColor: UIColor {
         return Colors.appBackground
     }
 }

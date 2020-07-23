@@ -8,7 +8,7 @@ import PromiseKit
 protocol TokenInstanceActionViewControllerDelegate: class, CanOpenURL {
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController)
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController)
-    func didCompleteTransaction(in viewController: TokenInstanceActionViewController)
+    func didCompleteTransaction(in viewController: TokenInstanceActionViewController, action: TokenInstanceAction, token: TokenObject)
 }
 
 class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatusViewController {
@@ -205,7 +205,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
 
             func postTransaction() {
                 transactionFunction.postTransaction(withTokenId: tokenId, attributeAndValues: values, localRefs: strongSelf.tokenScriptRendererView.localRefs, server: strongSelf.server, session: strongSelf.session, keystore: strongSelf.keystore).done {
-                    strongSelf.delegate?.didCompleteTransaction(in: strongSelf)
+                    strongSelf.delegate?.didCompleteTransaction(in: strongSelf, action: strongSelf.action, token: strongSelf.tokenObject)
                 }.catch { error in
                     notify(message: "Transaction Failed")
                 }
@@ -215,7 +215,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
 
             guard let navigationController = strongSelf.navigationController else { return }
 
-            let viewModel = TransactionConfirmationViewModel(contract: contract)
+            let viewModel = TransactionConfirmationViewModel(confirmationType: .deposit(address: strongSelf.tokenObject.contractAddress))
             let controller = TransactionConfirmationViewController(viewModel: viewModel)
             controller.didCompleted = postTransaction
 

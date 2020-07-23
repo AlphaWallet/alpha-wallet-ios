@@ -5,6 +5,10 @@ import Foundation
 import UIKit
 import Result
 
+protocol TransactionConfirmationViewControllerDelegate: class {
+    func transactionConfirmationDidComplete(in controller: TransactionConfirmationViewController)
+}
+
 class TransactionConfirmationViewController: UIViewController, UpdatablePreferredContentSize {
 
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
@@ -43,6 +47,9 @@ class TransactionConfirmationViewController: UIViewController, UpdatablePreferre
     //NOTE: we are using flag to disable animation until first UITableView open/hide action
     var updatePreferredContentSizeAnimated: Bool = false
     var didCompleted: (() -> Void)?
+
+    //NOTE: we are using delegate method to remove completion and use coordinator in future
+    weak var delegate: TransactionConfirmationViewControllerDelegate?
 
     init(viewModel: TransactionConfirmationViewModel) {
         self.viewModel = viewModel
@@ -91,13 +98,13 @@ class TransactionConfirmationViewController: UIViewController, UpdatablePreferre
 
         //NOTE: we observe UITableView.contentSize to determine view controller height.
         //we are using Throttler because during UITableViewUpdate procces contentSize changes with range of values, so we need latest valid value.
-        let limitter = RateLimiter(limit: 0.05) { [weak self] in
-            guard let strongSelf = self, let controller = strongSelf.navigationController else { return }
-            controller.preferredContentSize = strongSelf.contentSize
-        }
-
-        contentSizeObservation = tableView.observe(\.contentSize, options: [.new, .initial]) { _, _ in
-            limitter.run()
+        let trottler = Throttler(minimumDelay: 0.05)
+        
+        contentSizeObservation = tableView.observe(\.contentSize, options: [.new, .initial]) { [weak self] _, _ in
+            trottler.throttle {
+                guard let strongSelf = self, let controller = strongSelf.navigationController else { return }
+                controller.preferredContentSize = strongSelf.contentSize
+            }
         }
     }
 
@@ -124,7 +131,10 @@ class TransactionConfirmationViewController: UIViewController, UpdatablePreferre
     }
 
     @objc func confirmButtonSelected(_ sender: UIButton) {
-        dismiss(animated: true, completion: didCompleted)
+        dismiss(animated: true) {
+            self.didCompleted?()
+            self.delegate?.transactionConfirmationDidComplete(in: self)
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -152,7 +162,7 @@ extension TransactionConfirmationViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let header: TransactionConfirmationTableViewHeader = tableView.dequeueReusableHeaderFooterView()
-        header.configure(viewModel: viewModel.viewModel(section: section))
+        header.configure(viewModel: viewModel.tableHeaderViewModel(section))
 
         return header
     }
@@ -166,6 +176,22 @@ extension TransactionConfirmationViewController: UITableViewDataSource {
     }
 }
 
+extension TransactionConfirmationViewController: TransactionConfirmationTableViewHeaderDelegate {
+
+    func headerView(_ header: TransactionConfirmationTableViewHeader, didSelectExpand sender: UIButton, section: Int) {
+        updatePreferredContentSizeAnimated = true
+
+        if !viewModel.openedSections.contains(section) {
+            viewModel.openedSections.insert(section)
+
+            tableView.insertRows(at: viewModel.indexPaths(for: section), with: .none)
+        } else {
+            viewModel.openedSections.remove(section)
+
+            tableView.deleteRows(at: viewModel.indexPaths(for: section), with: .none)
+        }
+    }
+}
 private extension UIBarButtonItem {
 
     static var appIconBarButton: UIBarButtonItem {

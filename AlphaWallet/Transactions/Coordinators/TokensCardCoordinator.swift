@@ -680,8 +680,8 @@ extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
 
 extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
 
-    func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
-        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController)
+    func didCompleteTransaction(in viewController: TokenInstanceActionViewController, action: TokenInstanceAction, token: TokenObject) {
+        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController, transaction: .action(action, token))
         coordinator.delegate = self
         addCoordinator(coordinator)
 
@@ -699,7 +699,34 @@ extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
 
 extension TokensCardCoordinator: TransactionInProgressCoordinatorDelegate {
     
-    func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
+    func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator, transaction: TransactionInProgress) {
+        navigationController.popViewController(animated: true)
         removeCoordinator(coordinator)
+    }
+}
+
+extension UINavigationController {
+    func pushViewController(viewController: UIViewController, animated: Bool, completion: @escaping () -> Void) {
+        pushViewController(viewController, animated: animated)
+
+        if let coordinator = transitionCoordinator, animated {
+            coordinator.animate(alongsideTransition: nil) { _ in
+                completion()
+            }
+        } else {
+            completion()
+        }
+    }
+
+    func popViewController(animated: Bool, completion: @escaping () -> Void) {
+        popViewController(animated: animated)
+
+        if let coordinator = transitionCoordinator, animated {
+            coordinator.animate(alongsideTransition: nil) { _ in
+                completion()
+            }
+        } else {
+            completion()
+        }
     }
 }

@@ -130,6 +130,9 @@ public struct Constants {
         AlphaWallet.Address(string: "0x7fdcd2a1e52f10c28cb7732f46393e297ecadda1")!
     ]
 
+    //aETH Token
+    static let aETH = AlphaWallet.Address(string: "0x3a3A65aAb0dd2A17E3F1947bA16138cd37d08c04")!
+
     static let ethDenverXDaiPartnerContracts = [
         (name: "DEN", contract: AlphaWallet.Address(string: "0x6a814843de5967cf94d7720ce15cba8b0da81967")!),
         (name: "BURN", contract: AlphaWallet.Address(string: "0x94819805310cf736198df0de856b0ff5584f0903")!),
@@ -142,6 +145,7 @@ public struct Constants {
     ]
 
     static let partnerContracts = [
+        (name: "aETH", contract: aETH),
         (name: "DAI", contract: AlphaWallet.Address(string: "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359")!),
         (name: "GUSD", contract: AlphaWallet.Address(string: "0x056Fd409E1d7A124BD7017459dFEa2F387b6d5Cd")!),
         (name: "PAX", contract: AlphaWallet.Address(string: "0x8e870d67f660d95d5be530380d0ec0bd388289e1")!),
