@@ -126,6 +126,7 @@
 "transactions.received.ether" = "You have received %@ %@";
 "transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";
 "transaction.navigation.title" = "Transacción";
+"activity.tabbar.item.title" = "Activity";
 "import.navigation.title" = "Importar monedero";
 "configureTransaction.data.label.title" = "Datos de la transacción (opcional)";
 "configureTransaction.nonce.label.title" = "Nonce (Optional)";

@@ -39,6 +39,23 @@ class TokenAdaptor {
     private func getNotSupportedByOpenSeaTokenHolders(forWallet account: Wallet) -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
+        //TODO support ERC721 for activities: so for fungibles like ERC20, we have to get 1 token even if the balance.count is 0. Maybe we check value? No, even if value is 0, there might be attributes. Also whether there's TokenScript, maybe?
+        //TODO support ERC721 for activities: is it correct to check for type here? If so, move the code after the switch into the switch-case
+        switch token.type {
+        case .erc875, .erc721ForTickets, .erc721, .nativeCryptocurrency:
+            break
+        case .erc20:
+            //hardcoded for fungible
+            let tokenInt: BigUInt = .init(1)
+            let index = 0
+
+            let server = self.token.server
+            //TODO Event support, if/when designed, for non-OpenSea. Probably need `distinct` or something to that effect
+            let token = getToken(name: self.token.name, symbol: self.token.symbol, forTokenIdOrEvent: .tokenId(tokenId: tokenInt), index: UInt16(index), inWallet: account, server: server)
+            tokens.append(token)
+            return bundle(tokens: tokens)
+        }
+
         for (index, item) in balance.enumerated() {
             //id is the value of the bytes32 token
             let id = item.balance

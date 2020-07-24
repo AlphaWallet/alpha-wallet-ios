@@ -79,7 +79,7 @@ struct AssetAttribute {
         }
     }
 
-    init?(attribute: XMLElement, xmlContext: XmlContext, root: XMLDocument, server: RPCServer, contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]]) {
+    init?(attribute: XMLElement, xmlContext: XmlContext, root: XMLDocument, tokenContract: AlphaWallet.Address, server: RPCServer, contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]]) {
         guard let syntaxElement = XMLHandler.getSyntaxElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
               let rawValue = syntaxElement.text,
               let syntax = AssetAttributeSyntax(rawValue: rawValue) else { return nil }
@@ -88,11 +88,10 @@ struct AssetAttribute {
         if let tokenIdElement = XMLHandler.getTokenIdElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
            XMLHandler.getBitMask(fromTokenIdElement: tokenIdElement) != nil {
             originFound = Origin(forTokenIdElement: tokenIdElement, xmlContext: xmlContext)
-        } else if let ethereumFunctionElement = XMLHandler.getEthereumOriginElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
+        } else if let ethereumFunctionElement: XMLElement = XMLHandler.getEthereumOriginElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
                   ethereumFunctionElement["function"] != nil,
                   let attributeName = attribute["name"],
-                  let functionOriginContractName = ethereumFunctionElement["contract"].nilIfEmpty,
-                  let contract = XMLHandler.getNonTokenHoldingContract(byName: functionOriginContractName, server: server, fromContractNamesAndAddresses: contractNamesAndAddresses) {
+                  let contract = AssetAttribute.getContract(fromEthereumFunctionElement: ethereumFunctionElement, forTokenContract: tokenContract, server: server, contractNamesAndAddresses: contractNamesAndAddresses) {
             originFound = Origin(forEthereumFunctionElement: ethereumFunctionElement, root: root, attributeName: attributeName, originContract: contract, xmlContext: xmlContext)
         } else if let userEntryElement = XMLHandler.getOriginUserEntryElement(fromAttributeTypeElement: attribute, xmlContext: xmlContext),
                   let attributeName = attribute["name"] {
@@ -101,9 +100,21 @@ struct AssetAttribute {
                   let eventName = ethereumEventElement["type"],
                   let eventContractName = ethereumEventElement["contract"],
                   let eventSourceContractElement = XMLHandler.getContractElementByName(contractName: eventContractName, fromRoot: root, xmlContext: xmlContext),
-                  let asnModuleElement = XMLHandler.getAsnModuleElement(fromRoot: root, xmlContext: xmlContext, forTypeName: eventName),
+                  let contract = XMLHandler.getAddressElements(fromContractElement: eventSourceContractElement, xmlContext: xmlContext).first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed) }),
+                  let asnModuleNamedTypeElement = XMLHandler.getAsnModuleNamedTypeElement(fromRoot: root, xmlContext: xmlContext, forTypeName: eventName),
                   attribute["name"] != nil {
-            originFound = Origin(forEthereumEventElement: ethereumEventElement, asnModuleElement: asnModuleElement, sourceContractElement: eventSourceContractElement, xmlContext: xmlContext)
+            let possibleOrigin = Origin(forEthereumEventElement: ethereumEventElement, asnModuleNamedTypeElement: asnModuleNamedTypeElement, contract: contract, xmlContext: xmlContext)
+            switch possibleOrigin {
+            case .some(.event(let eventOrigin)):
+                //We only want event origins when there's a `select` attribute for attributes, unlike when we use event origins for activity
+                if eventOrigin.hasEventParameterName {
+                    originFound = possibleOrigin
+                } else {
+                    originFound = nil
+                }
+            case .some(.function), .some(.userEntry), .some(.userEntry), .some(.tokenId), .none:
+                originFound = possibleOrigin
+            }
         }
 
         guard let origin = originFound else { return nil }
@@ -112,6 +123,15 @@ struct AssetAttribute {
         self.syntax = syntax
         self.origin = origin
         self.mapping = origin.extractMapping()
+    }
+
+    private static func getContract(fromEthereumFunctionElement ethereumFunctionElement: XMLElement, forTokenContract contract: AlphaWallet.Address, server: RPCServer, contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]]) -> AlphaWallet.Address? {
+        if let functionOriginContractName = ethereumFunctionElement["contract"].nilIfEmpty {
+            return XMLHandler.getNonTokenHoldingContract(byName: functionOriginContractName, server: server, fromContractNamesAndAddresses: contractNamesAndAddresses)
+        } else {
+            //TODO falling back to the token contract should only be for activity cards
+            return contract
+        }
     }
 
     func value(from tokenIdOrEvent: TokenIdOrEvent, inWallet account: Wallet, server: RPCServer, callForAssetAttributeCoordinator: CallForAssetAttributeCoordinator, userEntryValues: [AttributeId: String], tokenLevelNonSubscribableAttributesAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue]) -> AssetAttributeSyntaxValue {

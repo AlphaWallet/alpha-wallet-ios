@@ -19,7 +19,7 @@ class AddressTextField: UIControl {
         let label = AddressOrEnsNameLabel()
         label.addressFormat = .truncateMiddle
         label.shouldShowLoadingIndicator = true
-        
+
         return label
     }()
 

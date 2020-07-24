@@ -11,6 +11,7 @@ protocol EventsDataStoreProtocol {
     func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void)
 }
 
+//TODO rename to indicate it's for instances, not activity
 class EventsDataStore: EventsDataStoreProtocol {
     private let realm: Realm
     private var subscribers: [(AlphaWallet.Address) -> Void] = []

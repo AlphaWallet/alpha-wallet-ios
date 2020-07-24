@@ -127,6 +127,7 @@
 "transactions.received.ether" = "You have received %@ %@";
 "transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";
 "transaction.navigation.title" = "Transaction";
+"activity.tabbar.item.title" = "Activity";
 "import.navigation.title" = "Import Wallet";
 "configureTransaction.data.label.title" = "Transaction Data (Optional)";
 "configureTransaction.nonce.label.title" = "Nonce (Optional)";

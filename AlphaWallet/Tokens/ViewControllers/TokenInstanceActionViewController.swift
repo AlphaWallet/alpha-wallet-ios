@@ -142,10 +142,11 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         tokenScriptRendererView.loadHtml(html, hash: hash)
 
         //TODO this will only contain values that has been resolved and might not refresh properly when the values are 1st resolved or updated
+        //TODO rename this. Not actually `existingAttributeValues`, but token attributes
         let existingAttributeValues = tokenHolder.values
-        let actionLevelAttributeValues = action.attributes.resolve(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, userEntryValues: .init(), server: server, account: session.account, additionalValues: existingAttributeValues, localRefs: tokenScriptRendererView.localRefs)
+        let cardLevelAttributeValues = action.attributes.resolve(withTokenIdOrEvent: tokenHolder.tokens[0].tokenIdOrEvent, userEntryValues: .init(), server: server, account: session.account, additionalValues: existingAttributeValues, localRefs: tokenScriptRendererView.localRefs)
 
-        tokenScriptRendererView.update(withTokenHolder: tokenHolder, actionLevelAttributeValues: actionLevelAttributeValues, isFungible: isFungible)
+        tokenScriptRendererView.update(withTokenHolder: tokenHolder, cardLevelAttributeValues: cardLevelAttributeValues, isFungible: isFungible)
     }
 
     @objc func proceed() {

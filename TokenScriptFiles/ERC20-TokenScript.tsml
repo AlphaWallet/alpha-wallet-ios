@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE token  [
+        <!ENTITY style SYSTEM "layouts/shared.css">
+        <!ENTITY item-view-sent.en SYSTEM "layouts/item-view-sent.en.js">
+        <!ENTITY item-view-received.en SYSTEM "layouts/item-view-sent.en.js">
+        <!ENTITY item-view-approvalObtained.en SYSTEM "layouts/item-view-approvalObtained.en.js">
+        <!ENTITY item-view-ownerApproved.en SYSTEM "layouts/item-view-ownerApproved.en.js">
+        <!ENTITY sent.en SYSTEM "layouts/sent.en.js">
+        <!ENTITY received.en SYSTEM "layouts/received.en.js">
+        <!ENTITY receivedApproval.en SYSTEM "layouts/receivedApproval.en.js">
+        <!ENTITY gaveApproval.en SYSTEM "layouts/gaveApproval.en.js">
+        ]>
+<ts:token xmlns:ts="http://tokenscript.org/2020/06/tokenscript"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:asnx="urn:ietf:params:xml:ns:asnx"
+    xmlns:ethereum="urn:ethereum:constantinople"
+    xsi:schemaLocation="http://tokenscript.org/2020/06/tokenscript http://tokenscript.org/2020/06/tokenscript.xsd"
+    custodian="false"
+>
+    <asnx:module name="ERC20-Events">
+        <namedType name="Approval">
+          <type>
+            <sequence>
+                <element name="owner" ethereum:type="address" ethereum:indexed="true"/>
+                <element name="spender" ethereum:type="address" ethereum:indexed="true"/>
+                <element name="amount" ethereum:type="uint256" ethereum:indexed="false"/>
+            </sequence>
+          </type>
+        </namedType>
+        <namedType name="Transfer">
+          <type>
+            <sequence>
+                <element name="from" ethereum:type="address" ethereum:indexed="true"/>
+                <element name="to" ethereum:type="address" ethereum:indexed="true"/>
+                <element name="amount" ethereum:type="uint256" ethereum:indexed="false"/>
+            </sequence>
+          </type>
+        </namedType>
+    </asnx:module>
+    <ts:cards>
+        <ts:card type="activity" name="sent">
+          <ts:origins>
+            <ethereum:event type="Transfer" filter="from=${ownerAddress}"/>
+          </ts:origins>
+            <ts:item-view xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+                <style type="text/css">&style;</style>
+				<script  type="text/javascript">
+
+class Token {
+
+    constructor(tokenInstance) {
+        this.props = tokenInstance;
+        this.setConfirm();
+    }
+
+    setConfirm() {
+        window.onConfirm = function() {
+            window.close();
+        }
+    }
+
+    render() {
+        let message = "Sample about page for your token, fill me up!";
+        return`
+        &lt;div class="ui container"&gt;
+          &lt;div class="ui segment"&gt;
+            &lt;span&gt;&lt;bold&gt;&lt;h3&gt;Sent ${this.props.symbol} ${this.props.amount}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+`;
+    }
+}
+
+web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
+    const currentTokenInstance = web3.tokens.data.currentInstance;
+    document.getElementById(tokenIdCard).innerHTML = new Token(currentTokenInstance).render();
+};
+
+
+				</script>
+            </ts:item-view>
+            <ts:view xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+                <style type="text/css">&style;</style>
+				<script  type="text/javascript">
+class Token {
+    constructor(tokenInstance) {
+        this.props = tokenInstance;
+    }
+
+    render() {
+        let message = `Sent ${this.props.symbol}`;
+        return`
+        &lt;div class="ui container"&gt;
+          &lt;div class="ui segment"&gt;
+            &lt;span&gt;&lt;bold&gt;&lt;h3&gt;${message}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
+            &lt;p&gt;Sent -${this.props.amount} ${this.props.symbol}&lt;/p&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+`;
+    }
+}
+
+web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
+    const currentTokenInstance = web3.tokens.data.currentInstance;
+    document.getElementById(tokenIdCard).innerHTML = new Token(currentTokenInstance).render();
+};
+						</script>
+            </ts:view>
+        </ts:card>
+        <ts:card type="activity" name="received">
+          <ts:origins>
+            <ethereum:event type="Transfer" filter="to=${ownerAddress}"/>
+          </ts:origins>
+            <ts:item-view xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+                <style type="text/css">&style;</style>
+                <script  type="text/javascript">&item-view-received.en;</script>
+            </ts:item-view>
+            <ts:view xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+                <style type="text/css">&style;</style>
+                <script  type="text/javascript">&received.en;</script>
+            </ts:view>
+        </ts:card>
+
+        <ts:card type="activity" name="ownerApproved">
+          <ts:origins>
+            <ethereum:event type="Approval" filter="owner=${ownerAddress}"/>
+          </ts:origins>
+            <ts:item-view xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+                <style type="text/css">&style;</style>
+                <script  type="text/javascript">&item-view-ownerApproved.en;</script>
+            </ts:item-view>
+            <ts:view xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+                <style type="text/css">&style;</style>
+                <script  type="text/javascript">&gaveApproval.en;</script>
+            </ts:view>
+        </ts:card>
+
+        <ts:card type="activity" name="approvalObtained">
+          <ts:origins>
+            <ethereum:event type="Approval" filter="spender=${ownerAddress}"/>
+          </ts:origins>
+            <ts:item-view xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+                <style type="text/css">&style;</style>
+                <script  type="text/javascript">&item-view-approvalObtained.en;</script>
+            </ts:item-view>
+            <ts:view xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+                <style type="text/css">&style;</style>
+                <script  type="text/javascript">&receivedApproval.en;</script>
+            </ts:view>
+        </ts:card>
+
+    </ts:cards>
+    <ts:attribute name="name">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.26</ts:syntax>
+        </ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">name</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call function="name" as="utf8"/>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="ownerBalance">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax>
+        </ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">balance</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call function="balanceOf" as="uint">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="decimals">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax>
+        </ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">decimals</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call function="decimals" as="uint"/>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="symbol">
+        <ts:type>
+            <ts:syntax>1.3.6.1.4.1.1466.115.121.1.26</ts:syntax>
+        </ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">symbol</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call function="symbol" as="utf8"/>
+        </ts:origins>
+    </ts:attribute>
+
+</ts:token>

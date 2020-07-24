@@ -13,6 +13,7 @@ protocol AssetDefinitionBackingStore {
     func forEachContractWithXML(_ body: (AlphaWallet.Address) -> Void)
     func isOfficial(contract: AlphaWallet.Address) -> Bool
     func isCanonicalized(contract: AlphaWallet.Address) -> Bool
+    func isBase(contract: AlphaWallet.Address) -> Bool
     func hasConflictingFile(forContract contract: AlphaWallet.Address) -> Bool
     func hasOutdatedTokenScript(forContract contract: AlphaWallet.Address) -> Bool
     func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType?

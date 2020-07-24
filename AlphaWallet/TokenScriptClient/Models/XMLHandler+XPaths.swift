@@ -30,8 +30,8 @@ extension XMLHandler {
         return root.at_xpath("/token/contract[@name='\(contractName)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
-    static func getAsnModuleElement(fromRoot root: XMLDocument, xmlContext: XmlContext, forTypeName typeName: String) -> XMLElement? {
-        root.at_xpath("asnx:module/namedType[@name='\(typeName)']", namespaces: xmlContext.namespaces)?.parent
+    static func getAsnModuleNamedTypeElement(fromRoot root: XMLDocument, xmlContext: XmlContext, forTypeName typeName: String) -> XMLElement? {
+        root.at_xpath("asnx:module/namedType[@name='\(typeName)']", namespaces: xmlContext.namespaces)
     }
 
     static func getAddressElements(fromContractElement contractElement: Searchable, xmlContext: XmlContext) -> XPathObject {
@@ -55,8 +55,12 @@ extension XMLHandler {
         return element.xpath("attribute".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
-    static func getCardAttributeElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+    static func getActionCardAttributeElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
         root.xpath("/token/cards/card[@type='action']/attribute".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getActivityCardAttributeElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+        root.xpath("/token/cards/card[@type='activity']/attribute".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getMappingElement(fromOriginElement originElement: XMLElement, xmlContext: XmlContext) -> XMLElement? {
@@ -102,11 +106,10 @@ extension XMLHandler {
         return eventParameterName
     }
 
-    static func getEventDefinition(contractElement: XMLElement, asnModuleElement: XMLElement, xmlContext: XmlContext) -> EventDefinition? {
-        let addressElements = XMLHandler.getAddressElements(fromContractElement: contractElement, xmlContext: xmlContext)
-        guard let address = addressElements.first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed) }) else { return nil }
-        guard let eventName = asnModuleElement.at_xpath("namedType", namespaces: xmlContext.namespaces)?["name"] else { return nil }
-        let parameters = asnModuleElement.xpath("namedType/type/sequence/element|namedType/sequence/element", namespaces: xmlContext.namespaces).compactMap { each -> EventParameter? in
+    static func getEventDefinition(contract: AlphaWallet.Address, asnModuleNamedTypeElement: XMLElement, xmlContext: XmlContext) -> EventDefinition? {
+        guard let eventName = asnModuleNamedTypeElement["name"] else { return nil }
+        //Should remove the second XPath and only keep the first, with "type". https://github.com/AlphaWallet/alpha-wallet-ios/pull/1971#discussion_r445407138
+        let parameters = asnModuleNamedTypeElement.xpath("type/sequence/element|sequence/element", namespaces: xmlContext.namespaces).compactMap { each -> EventParameter? in
             guard let name = each["name"], let type = each["type"] else { return nil }
             let isIndexed = each["indexed"] == "true"
             return .init(name: name, type: type, isIndexed: isIndexed)
@@ -114,7 +117,7 @@ extension XMLHandler {
         if parameters.isEmpty {
             return nil
         } else {
-            return .init(contract: address, name: eventName, parameters: parameters)
+            return .init(contract: contract, name: eventName, parameters: parameters)
         }
     }
 
@@ -208,8 +211,12 @@ extension XMLHandler {
         }
     }
 
-    static func getTokenScriptTokenInstanceCardElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+    static func getTokenScriptTokenInstanceActionCardElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
         return root.xpath("/token/cards/card[@type='action']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+    }
+
+    static func getTokenScriptTokenInstanceActivityCardElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
+        return root.xpath("/token/cards/card[@type='activity']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
     }
 
     static func getTokenScriptActionOnlyActionElements(fromRoot root: XMLDocument, xmlContext: XmlContext) -> XPathObject {
@@ -285,11 +292,19 @@ extension XMLHandler {
         }
     }
 
-    static func getViewElement(fromActionElement actionElement: Searchable, xmlContext: XmlContext) -> XMLElement? {
-        if let element = actionElement.at_xpath("view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+    static func getViewElement(fromCardElement cardElement: Searchable, xmlContext: XmlContext) -> XMLElement? {
+        if let element = cardElement.at_xpath("view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
             return element
         } else {
-            return actionElement.at_xpath("view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+            return cardElement.at_xpath("view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
+        }
+    }
+
+    static func getItemViewElement(fromCardElement cardElement: Searchable, xmlContext: XmlContext) -> XMLElement? {
+        if let element = cardElement.at_xpath("item-view[@xml:lang='\(xmlContext.lang)']".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces) {
+            return element
+        } else {
+            return cardElement.at_xpath("item-view[1]".addToXPath(namespacePrefix: xmlContext.namespacePrefix), namespaces: xmlContext.namespaces)
         }
     }
 

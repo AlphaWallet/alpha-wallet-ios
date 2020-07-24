@@ -106,10 +106,10 @@ enum Origin {
         self = .userEntry(.init(originElement: userEntryElement, xmlContext: xmlContext, attributeId: attributeName, asType: asType, bitmask: bitmask, bitShift: bitShift))
     }
 
-    init?(forEthereumEventElement eventElementOrigin: XMLElement, asnModuleElement: XMLElement, sourceContractElement: XMLElement, xmlContext: XmlContext) {
-        guard let eventParameterName = XMLHandler.getEventParameterName(fromEthereumEventElement: eventElementOrigin) else { return nil }
+    init?(forEthereumEventElement eventElementOrigin: XMLElement, asnModuleNamedTypeElement: XMLElement, contract: AlphaWallet.Address, xmlContext: XmlContext) {
         guard let eventFilter = XMLHandler.getEventFilter(fromEthereumEventElement: eventElementOrigin) else { return nil }
-        guard let eventDefinition = XMLHandler.getEventDefinition(contractElement: sourceContractElement, asnModuleElement: asnModuleElement, xmlContext: xmlContext) else { return nil }
+        guard let eventDefinition = XMLHandler.getEventDefinition(contract: contract, asnModuleNamedTypeElement: asnModuleNamedTypeElement, xmlContext: xmlContext) else { return nil }
+        let eventParameterName = XMLHandler.getEventParameterName(fromEthereumEventElement: eventElementOrigin)
         self = .event(.init(originElement: eventElementOrigin, xmlContext: xmlContext, eventDefinition: eventDefinition, eventParameterName: eventParameterName, eventFilter: eventFilter))
     }
 

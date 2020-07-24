@@ -114,6 +114,7 @@
 "transactions.received.ether" = "你已收到 %@ %@";
 "transactions.received.ether.notification.prompt" = "当你收到 %@ 的时候是否允许系统通知?";
 "transaction.navigation.title" = "交易";
+"activity.tabbar.item.title" = "Activity";
 "import.navigation.title" = "导入钱包";
 "configureTransaction.data.label.title" = "交易数据(可选)";
 "configureTransaction.nonce.label.title" = "Nonce (Optional)";

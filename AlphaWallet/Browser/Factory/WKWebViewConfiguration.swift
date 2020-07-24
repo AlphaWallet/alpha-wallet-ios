@@ -5,18 +5,18 @@ import WebKit
 import JavaScriptCore
 
 enum WebViewType {
-    case dappBrowser
+    case dappBrowser(RPCServer)
     case tokenScriptRenderer
 }
 
 extension WKWebViewConfiguration {
 
-    static func make(forType type: WebViewType, server: RPCServer, address: AlphaWallet.Address, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
+    static func make(forType type: WebViewType, address: AlphaWallet.Address, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
         let webViewConfig = WKWebViewConfiguration()
         var js = ""
 
         switch type {
-        case .dappBrowser:
+        case .dappBrowser(let server):
             guard
                     let bundlePath = Bundle.main.path(forResource: "AlphaWalletWeb3Provider", ofType: "bundle"),
                     let bundle = Bundle(path: bundlePath) else { return webViewConfig }
@@ -28,16 +28,20 @@ extension WKWebViewConfiguration {
             }
             js += javaScriptForDappBrowser(server: server, address: address)
         case .tokenScriptRenderer:
-            js += javaScriptForTokenScriptRenderer(server: server, address: address)
+            js += javaScriptForTokenScriptRenderer(address: address)
             js += """
                   \n
                   web3.tokens = {
                       data: {
                           currentInstance: {
                           },
+                          token: {
+                          },
+                          card: {
+                          },
                       },
-                      dataChanged: (tokens) => {
-                        console.log(\"web3.tokens.data changed. You should assign a function to `web3.tokens.dataChanged` to monitor for changes like this:\\n    `web3.tokens.dataChanged = (oldTokens, updatedTokens) => { //do something }`\")
+                      dataChanged: (old, updated, tokenCardId) => {
+                        console.log(\"web3.tokens.data changed. You should assign a function to `web3.tokens.dataChanged` to monitor for changes like this:\\n    `web3.tokens.dataChanged = (old, updated, tokenCardId) => { //do something }`\")
                       }
                   }
                   """
@@ -141,7 +145,7 @@ extension WKWebViewConfiguration {
              """
     }
 
-    fileprivate static func javaScriptForTokenScriptRenderer(server: RPCServer, address: AlphaWallet.Address) -> String {
+    fileprivate static func javaScriptForTokenScriptRenderer(address: AlphaWallet.Address) -> String {
         return """
                window.web3CallBacks = {}
                window.tokenScriptCallBacks = {}

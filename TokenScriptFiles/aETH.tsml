@@ -1,0 +1,1438 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><ts:token xmlns:ts="http://tokenscript.org/2020/06/tokenscript" xmlns:asnx="urn:ietf:params:xml:ns:asnx" xmlns:ethereum="urn:ethereum:constantinople" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" custodian="false" xsi:schemaLocation="http://tokenscript.org/2020/06/tokenscript http://tokenscript.org/2020/06/tokenscript.xsd">
+
+    <asnx:module name="ERC20-Events">
+        <namedType name="MintOnDeposit">
+            <type>
+                <sequence>
+                    <element ethereum:indexed="true" ethereum:type="address" name="_fromMinter"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_valueMinted"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_fromBalanceIncreaseMinted"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_fromIndexMinted"/>
+                </sequence>
+            </type>
+        </namedType>
+        <namedType name="Borrow">
+            <type>
+                <sequence>
+                    <element ethereum:indexed="true" ethereum:type="address" name="_reserve"/>
+                    <element ethereum:indexed="true" ethereum:type="address" name="_user"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_amount"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_borrowRateMode"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_borrowRate"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_originationFee"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_borrowBalanceIncrease"/>
+                    <element ethereum:indexed="true" ethereum:type="uint16" name="_referral"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_timestamp"/>
+                </sequence>
+            </type>
+        </namedType>
+        <namedType name="Redeem">
+            <type>
+                <sequence>
+                    <element ethereum:indexed="true" ethereum:type="address" name="_fromRedeemer"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_valueRedeemed"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_fromBalanceIncreaseRedeemed"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="_fromIndexRedeemed"/>
+                </sequence>
+            </type>
+        </namedType>
+        <namedType name="Transfer">
+            <type>
+                <sequence>
+                    <element ethereum:indexed="true" ethereum:type="address" name="from"/>
+                    <element ethereum:indexed="true" ethereum:type="address" name="to"/>
+                    <element ethereum:indexed="false" ethereum:type="uint256" name="amount"/>
+                </sequence>
+            </type>
+        </namedType>
+    </asnx:module>
+
+    <ts:label>
+        <ts:string xml:lang="en">aETH</ts:string>
+    </ts:label>
+
+    <ts:contract name="balance">
+        <ts:address network="1">0xb8c9fc923e67da6d7979bf2c290bd1df9c512bfa</ts:address>
+    </ts:contract>
+    <ts:contract name="AAVEGetters">
+        <ts:address network="1">0x38ba1173f498f7a89ac474edba1d587cc1ab021d</ts:address>
+    </ts:contract>
+    <ts:contract name="PriceOracle">
+        <ts:address network="1">0x76B47460d7F7c5222cFb6b6A75615ab10895DDe4</ts:address>
+    </ts:contract>
+    <ts:contract interface="erc20" name="aETH">
+        <ts:address network="1">0x3a3a65aab0dd2a17e3f1947ba16138cd37d08c04</ts:address>
+    </ts:contract>
+    <ts:contract name="LendingPoolProvider">
+        <ts:address network="1">0x24a42fD28C976A61Df5D00D0599C34c4f90748c8</ts:address>
+    </ts:contract>
+    <ts:contract name="AAVELendingPool">
+        <ts:address network="1">0x398eC7346DcD622eDc5ae82352F02bE94C62d119</ts:address>
+    </ts:contract>
+    <ts:contract name="AAVELendingPoolCore">
+        <ts:address network="1">0x3dfd23A6c5E8BbcFc9581d2E864a68feb6a076d3</ts:address>
+    </ts:contract>
+
+    <ts:origins>
+        <ts:ethereum contract="aETH"/>
+    </ts:origins>
+
+    <ts:cards>
+        <ts:card type="action">
+            <ts:label>
+                <ts:string xml:lang="en">Withdraw ETH from Aave</ts:string>
+            </ts:label>
+            <ts:attribute name="redeemAmount">
+                <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+                <ts:label>
+                    <ts:string xml:lang="en">Amount to withdraw</ts:string>
+                </ts:label>
+                <ts:origins>
+                    <ts:user-entry as="e8"/>
+                </ts:origins>
+            </ts:attribute>
+            <ts:transaction>
+                <ethereum:transaction as="uint" contract="aETH" function="redeem">
+                    <ts:data>
+                        <ts:uint256 ref="redeemAmount"/>
+                    </ts:data>
+                </ethereum:transaction>
+            </ts:transaction>
+            <ts:view xml:lang="en">
+                <xhtml:style type="text/css">.separator {
+  width: 100%;
+  height: 1px;
+  background-color: #e9e9e9;
+  margin-top: 7.5%;
+}
+
+.action {
+  height: 50px;
+}
+
+body{
+  margin-top: 0;
+}
+
+h1 {
+  margin-top: 0;
+  line-height: 2;
+  background-color: #fbfbfb;
+  border-bottom: thin solid rgb(235,235,235);
+  text-align: left;
+  font-variant: all-small-caps;
+}
+
+h2 {
+  float: left;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+p.hint {
+  clear: left;
+}
+
+input {
+  float: right;
+  font-size: x-large;
+  border: none;
+  line-height: 40px;
+  text-align: right;
+  width: 5ex;
+}
+
+h2 img {
+  vertical-align: middle;
+}
+
+.action {
+  font-family: SourceSansPro, sans-serif;
+}
+
+.enable.action  {
+  font-size: large;
+  text-align: center;
+  margin-left: 8%;
+  margin-right: 8%;
+  margin-top: 35%;
+}
+
+.enable.action img {
+  padding-bottom: 40px;
+}
+
+.titleAction {
+  width: 272px;
+  height: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.67;
+  letter-spacing: normal;
+  color: #727272;
+}
+
+.detailsTitle {
+  width: 246px;
+  height: 41px;
+  font-family: SourceSansPro-Semibold, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.71;
+  letter-spacing: normal;
+  color: black;
+}
+
+table {
+  margin-top: 1em;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table caption {
+  font-weight: bold;
+  font-size: x-large;
+  line-height: 2;
+  text-align: left;
+}
+
+table th {
+  font-weight: normal; /* Tomek likes to deemphasize field names */
+  text-align: left;
+  line-height: 3;
+}
+
+table td {
+  text-align: right;
+  font-weight: bold;
+  font-size: large;
+  line-height: 3;
+}
+
+table tr {
+  border-top: 1px solid #727272;
+}
+
+table tr:last-child {
+  border-bottom: 1px solid #727272;
+}
+</xhtml:style>
+                <xhtml:script type="text/javascript">//
+class Token {
+
+    constructor(token, card) {
+        this.token = token;
+        this.card = card;
+    }
+
+    render() {
+        const decimals18 = 1e+18;
+        let aTokenBalance = (this.token.aTokenBalance / decimals18).toFixed(2);
+        let totalBorrows = (this.token.totalBorrows / decimals18).toFixed(2);
+        let withdrawable = (this.token.availableBorrowsETH / decimals18);
+        //if you have other assets that add to your collateral, your withdrawable could be larger than your aETH balance
+        if(withdrawable &gt; aTokenBalance) {
+            withdrawable = aTokenBalance;
+        }
+
+        return `&lt;div class="withdraw action"&gt;
+           &lt;h1&gt;Withdraw&lt;/h1&gt;
+           &lt;h2&gt;&lt;img src="data:image/png;base64,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"&gt;&lt;/h2&gt;
+           &lt;input id="redeemAmount" type="number" placeholder="0"&gt;
+           &lt;p class="hint"&gt;Available to withdraw ${withdrawable.toFixed(3)} ETH&lt;/p&gt;
+           &lt;table&gt;
+              &lt;caption&gt;Deposits&lt;/caption&gt;
+              &lt;tbody&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;Total Deposited + Interest &lt;/th&gt;
+                    &lt;td&gt;${aTokenBalance}&lt;/td&gt;
+                 &lt;/tr&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;Borrowed&lt;/th&gt;
+                    &lt;td&gt;${totalBorrows} ETH&lt;/td&gt;
+                 &lt;/tr&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;Available to withdraw&lt;/th&gt;
+                    &lt;td&gt;${withdrawable.toFixed(3)} ETH&lt;/td&gt;
+                 &lt;/tr&gt;
+              &lt;/tbody&gt;
+           &lt;/table&gt;
+        &lt;/div&gt;`;
+    }
+}
+
+web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
+    document.getElementById(tokenIdCard).innerHTML = new Token(updated.token, updated.card).render();
+};
+
+//
+</xhtml:script>
+            </ts:view>
+        </ts:card>
+
+        <ts:card type="action">
+            <ts:label>
+                <ts:string xml:lang="en">Borrow DAI</ts:string>
+            </ts:label>
+            <ts:attribute name="borrowAmount">
+                <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+                <ts:label>
+                    <ts:string xml:lang="en">Amount to Borrow</ts:string>
+                </ts:label>
+                <ts:origins>
+                    <!-- e18 is a hard coded multiplier.
+                    rationale for hardcoding: avoiding over-design  -->
+                    <ts:user-entry as="e18"/>
+                </ts:origins>
+            </ts:attribute>
+            <ts:transaction>
+                <ethereum:transaction as="uint" contract="LendingPoolProvider" function="borrow">
+                    <ts:data>
+                        <ts:address>0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
+                        <ts:uint256 ref="borrowAmount"/>
+                        <ts:uint256>2</ts:uint256> <!-- 1 is stable rate, 2 is variable rate -->
+                        <ts:uint256>0</ts:uint256> <!-- referral code -->
+                    </ts:data>
+                </ethereum:transaction>
+            </ts:transaction>
+            <ts:view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                <xhtml:style type="text/css">.separator {
+  width: 100%;
+  height: 1px;
+  background-color: #e9e9e9;
+  margin-top: 7.5%;
+}
+
+.action {
+  height: 50px;
+}
+
+body{
+  margin-top: 0;
+}
+
+h1 {
+  margin-top: 0;
+  line-height: 2;
+  background-color: #fbfbfb;
+  border-bottom: thin solid rgb(235,235,235);
+  text-align: left;
+  font-variant: all-small-caps;
+}
+
+h2 {
+  float: left;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+p.hint {
+  clear: left;
+}
+
+input {
+  float: right;
+  font-size: x-large;
+  border: none;
+  line-height: 40px;
+  text-align: right;
+  width: 5ex;
+}
+
+h2 img {
+  vertical-align: middle;
+}
+
+.action {
+  font-family: SourceSansPro, sans-serif;
+}
+
+.enable.action  {
+  font-size: large;
+  text-align: center;
+  margin-left: 8%;
+  margin-right: 8%;
+  margin-top: 35%;
+}
+
+.enable.action img {
+  padding-bottom: 40px;
+}
+
+.titleAction {
+  width: 272px;
+  height: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.67;
+  letter-spacing: normal;
+  color: #727272;
+}
+
+.detailsTitle {
+  width: 246px;
+  height: 41px;
+  font-family: SourceSansPro-Semibold, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.71;
+  letter-spacing: normal;
+  color: black;
+}
+
+table {
+  margin-top: 1em;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table caption {
+  font-weight: bold;
+  font-size: x-large;
+  line-height: 2;
+  text-align: left;
+}
+
+table th {
+  font-weight: normal; /* Tomek likes to deemphasize field names */
+  text-align: left;
+  line-height: 3;
+}
+
+table td {
+  text-align: right;
+  font-weight: bold;
+  font-size: large;
+  line-height: 3;
+}
+
+table tr {
+  border-top: 1px solid #727272;
+}
+
+table tr:last-child {
+  border-bottom: 1px solid #727272;
+}
+</xhtml:style>
+                <xhtml:script type="text/javascript">//
+class Token {
+
+    constructor(token, card) {
+        this.token = token;
+        this.card = card;
+    }
+
+    render() {
+        const decimals18 = 1e+18;
+        let borrowAPY = ((this.token.userInterestRateBorrow / 1e+27) * 100).toFixed(2) + "%";
+        if(this.token.userInterestRateBorrow === 0) {
+            borrowAPY = "N/A";
+        }
+        let collateralValueInEth = (this.token.totalCollateral / decimals18).toFixed(2);
+
+        return `
+        &lt;div class="borrow action"&gt;
+           &lt;h1&gt;Borrow&lt;/h1&gt;
+           &lt;h2&gt;&lt;img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAAXNSR0IArs4c6QAABVdJREFUWAnNWV1oHFUUPmcys+vu5getVlwbtVkr8QfF5KUWKhXBtE81paKIUioiGlsQ4oOC2EYo+NBShKIvYu2DQm21+CCmirQoTSt2g/hTKiYWE0yxqWLS3c3+zvWcu7mzM7tz9ydu416YzJnzc++3d+ace84JwhJH+qv+mJ21N9sI/TRFFAREEelOQwiYAaQLYMYQEDcCxqfXPByfZFmjAxsxEMfXrUyJhR0CcJBQ3NOILSD+hCCOhTF0AAfGLtVrWxdAcWJDeyo7P0ygXqbdaa93cj892uUEgd0bDnTuw4dOJvx03LyaAFOf922xUbxNr/BGt+F/phH+NAQOhTeNf1JtLkMnFEJg8njfLoHiaNPB8aL0g3luuQatpcPhKxBjD4RSc5lDAsRjOsNm8hHwSLgruA3XnV4on7diB3nnlhMcA+KNkGv67GQFwNQX/a8v1865d0uCpLXdPKY9r5gdgr8L8lQPnxWD9+4BM7qJyapDFDIgcvMgFmbAnvsZCpdPywvArmrHQvJwWh63uh3HAcKhJJmZm9A5RL0A/VDYmcuQ++0Q5KcO0/vM+6mUeOTdkWDX7SoEmUpSjHP1hZLs5Hu0IVll6rmj1QEYupmuKBjtPYCGCUbwegjeOQzWqs2QPrsDRKZKnCbvllgARnhiuYOLJ8RktSDs3sHkl+sBCkkPML8HDN4AZvdWsLq3AAZXSBWbXn36uyEQqSk/E8njYE4nToxPHOkkKcjsrAZOO1MNgcjMQm7iHUh9Mwh5+hZ5GLSzobUHASOrtdaMhY9Uqc9/KLQ8qtVuhiCfgMzZnZCbLh4aGLgWgvftoffXpp1dnvckNTgrafjg105bTWBD9tybYF+ZkEptnb1grhrUG1AywthMTpl0WkbnXSWR1eXQRlcvQL4i6DvyakRu6ggE735Vqli3PUWh6Jyjbs+XaGYyNkyM3v8BhZYnHS0XEdk47nq6+mRytM+7CMKH7CQyyfRKWuYpatLuaQHmpj5ykLatWAtG5Bb5LD/2WgHXsawkkD4X86YBKbCTv0Phr28rlZhD2ExO08mtfQd/1GpwHFQAs+f31xUHlW35nYO4A/DKr9J5ynX4mbEZlEBo4PmZNIvnXtJNe+dnbHTUiYvE7vCKik9W7FmHbXTEHNrq2aY96hylKgQGiqcKq2C4G9Q6ucl3y6zERfbiE/SuN5RJ5GMLePFJ9mIuD1t1zJhct1Km5hsH0/GXHODW6qeh7TougQHS379CTpJ2ZI0QRscaCNzxojSxExcg+8tbWnPGZnJRTRF7n59WYfZrh628jhmF2VNL82I6e601zztz5i68T3OV1nAEiwRjM2TFT0V1ubD5zwiB3mHgM5hH4Z8fIf/HZ/plCBNj42+QkkJxTK/ZBElbBIJ9+8G69Qk5GWfYmR9eI1pfBihMEqBsR3DF3+SBlElbsecgtP5jMFc+WASXmob0me2UsE5rV1tMWA+wgkz5OXOlAnovpV27tVYugRV7hn58zsUpkWi2y3TfnfIraWH+vEz5Ifu3YvnfqTWi+jdOTcK9EiqaXqCYWLPFEejZ7j+xhmunL1HRdBDy00fpXChotBbZVDQxFqXkAOQqisrOIV3ZqQxq3SvLzjEqO8+Qmf57U3PSq+Wyc0hVdMyXRZNS4Lvsldj1vWq3XTNoNHB3ZGB8xD1XBUDZ+hjtP7zc3QXZn9kYfxzRm7xIL/YgJgXZyKGGjpt/NWmneVQGjtes2EEFRO4k90qE2EX5olZP6S/lzt8cJX0j4Ufib5TvnJqv5sL/dwOzJkD+JS3dAlZbLYFyE112IajQb6Umuhukopfr3xD/AsXlPp3EbzwjAAAAAElFTkSuQmCC"&gt;&lt;/h2&gt;
+           &lt;input id="borrowAmount" type="number" placeholder="0"&gt;
+           &lt;p class="hint"&gt;Available to borrow: ${((this.token.availableBorrowsETH / this.token.assetPriceDAI)).toFixed(2)} DAI&lt;/p&gt;
+           &lt;table&gt;
+              &lt;caption&gt;Details&lt;/caption&gt;
+              &lt;tbody&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;Variable Borrow APY &lt;/th&gt;
+                    &lt;td&gt;${borrowAPY}&lt;/td&gt;
+                 &lt;/tr&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;Maximum you can borrow&lt;/th&gt;
+                    &lt;td&gt;${((this.token.availableBorrowsETH / this.token.assetPriceDAI)).toFixed(2)} DAI&lt;/td&gt;
+                 &lt;/tr&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;You Already Borrowed&lt;/th&gt;
+                    &lt;td&gt;${((this.token.totalBorrows / this.token.assetPriceDAI)).toFixed(2)} DAI&lt;/td&gt;
+                 &lt;/tr&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;New Health Factor&lt;/th&gt;
+                    &lt;td&gt;${(this.token.healthFactor / 1e+18).toFixed(2)}&lt;/td&gt;
+                 &lt;/tr&gt;
+                 &lt;tr&gt;
+                    &lt;th&gt;Your collateral is worth&lt;/th&gt;
+                    &lt;td&gt;${collateralValueInEth} ETH (${((this.token.totalCollateral / this.token.assetPriceDAI)).toFixed(2)} DAI)&lt;/td&gt;
+                 &lt;/tr&gt;
+              &lt;/tbody&gt;
+           &lt;/table&gt;
+        &lt;/div&gt;`;
+    }
+}
+
+web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
+    document.getElementById(tokenIdCard).innerHTML = new Token(updated.token, updated.card).render();
+};
+//
+</xhtml:script>
+            </ts:view>
+        </ts:card>
+
+
+        <ts:card name="aETHRedeemed" type="activity">
+            <ts:origins>
+                <ethereum:event contract="aETH" filter="_fromRedeemer=${ownerAddress}" type="Redeem"/>
+            </ts:origins>
+            <ts:item-view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                <style type="text/css">.icons {
+  margin-top: 10%;
+}
+
+.date {
+  margin-top: 2%;
+  justify-content: center;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.sentSolid {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.depositContainer {
+  width: 375px;
+  height: 34px;
+  font-family: SourceSansPro-Semibold, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.7;
+  letter-spacing: normal;
+  text-align: center;
+  color: black;
+}
+
+.headerRectangle {
+  width: 375px;
+  height: 150px;
+  background-color: #ffffff;
+  margin-top: 10%;
+  text-align: center;
+}
+
+.date {
+  font-family: SourceSansPro, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.67;
+  letter-spacing: normal;
+  text-align: center;
+  color: #727272;
+}
+
+.separator {
+  width: 100%;
+  height: 1px;
+  background-color: #e9e9e9;
+  margin-top: 7.5%;
+}
+
+.amountBox{
+  width: 375px;
+  height: 47px;
+  font-family: SourceSansPro-Regular, sans-serif;
+  font-size: 28px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.68;
+  letter-spacing: normal;
+  text-align: center;
+  color: black;
+}
+
+.midSection {
+  width: 375px;
+  height: 81px;
+  background-color: white;
+}
+</style>
+                <xhtml:script type="text/javascript">//
+class Token {
+
+    constructor(token, card) {
+        this.token = token;
+        this.card = card;
+        this.time = this.formatTimeStamp(this.card.timestamp.date);
+    }
+
+    formatTimeStamp(time) {
+        let a = new Date(time);
+        let hours = a.getHours();
+        let minutes = a.getMinutes();
+        let ampm = hours &gt;= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes &lt; 10 ? '0' + minutes : minutes;
+        return hours + ':' + minutes + ' ' + ampm;
+    }
+
+    render() {
+        return`
+        &lt;div&gt;
+            &lt;div class="container"&gt;
+                &lt;div class="logo"&gt;
+                    &lt;img src="data:image/png;base64,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"&gt;
+                &lt;/div&gt;
+                &lt;div class="info"&gt;
+                    - ${this.card._valueRedeemed / 1e+18} ETH&lt;br/&gt;
+                    &lt;div class="time"&gt;${this.time}&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class="title"&gt;
+                    Withdrew &lt;strong&gt;ETH&lt;/strong&gt;
+                &lt;/div&gt;
+                &lt;div class="subtitle"&gt;
+                    from Aave
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+`;
+    }
+}
+
+web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
+    document.getElementById(tokenIdCard).innerHTML = new Token(updated.token, updated.card).render();
+};
+//
+</xhtml:script>
+            </ts:item-view>
+            <ts:view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                <xhtml:style type="text/css">.icons {
+  margin-top: 10%;
+}
+
+.date {
+  margin-top: 2%;
+  justify-content: center;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.sentSolid {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.depositContainer {
+  width: 375px;
+  height: 34px;
+  font-family: SourceSansPro-Semibold, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.7;
+  letter-spacing: normal;
+  text-align: center;
+  color: black;
+}
+
+.headerRectangle {
+  width: 375px;
+  height: 150px;
+  background-color: #ffffff;
+  margin-top: 10%;
+  text-align: center;
+}
+
+.date {
+  font-family: SourceSansPro, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.67;
+  letter-spacing: normal;
+  text-align: center;
+  color: #727272;
+}
+
+.separator {
+  width: 100%;
+  height: 1px;
+  background-color: #e9e9e9;
+  margin-top: 7.5%;
+}
+
+.amountBox{
+  width: 375px;
+  height: 47px;
+  font-family: SourceSansPro-Regular, sans-serif;
+  font-size: 28px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.68;
+  letter-spacing: normal;
+  text-align: center;
+  color: black;
+}
+
+.midSection {
+  width: 375px;
+  height: 81px;
+  background-color: white;
+}
+</xhtml:style>
+                <xhtml:script type="text/javascript">//
+class Token {
+
+    constructor(token, card) {
+        this.token = token;
+        this.card = card;
+        this.time = this.formatTimeStampTodayTime(this.card.timestamp.date) + " | " + this.formatTimeStamp(this.card.timestamp.date);
+    }
+
+    formatTimeStampTodayTime(time) {
+        let a = new Date(time);
+        let hours = a.getHours();
+        let minutes = a.getMinutes();
+        let ampm = hours &gt;= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes &lt; 10 ? '0' + minutes : minutes;
+        return hours + ':' + minutes + ' ' + ampm;
+    }
+
+    formatTimeStamp(time) {
+        let a = new Date(time);
+        let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let year = a.getFullYear();
+        let month = months[a.getMonth()];
+        let date = a.getDate();
+        return date + ' ' + month + ' ' + year;
+    }
+
+    render() {
+        return`
+        &lt;div&gt;
+            &lt;div class="headerRectangle"&gt;
+                &lt;div class="date"&gt;
+                    &lt;p&gt;${this.time}&lt;/p&gt;
+                &lt;/div&gt;
+                
+                &lt;div class="icons"&gt;
+                    &lt;img class="logo" src="data:image/png;base64,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"&gt;
+                &lt;/div&gt;
+                
+                &lt;div class="depositContainer"&gt;
+                    &lt;p&gt;Withdrew ETH&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="separator"&gt;&lt;/div&gt;
+             
+            &lt;div class="amountBox"&gt;
+                &lt;p&gt;- ${this.card._valueRedeemed} ETH&lt;/p&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+`;
+    }
+}
+
+web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
+    document.getElementById(tokenIdCard).innerHTML = new Token(updated.token, updated.card).render();
+};
+//
+</xhtml:script>
+            </ts:view>
+        </ts:card>
+
+        <ts:card name="aETHBorrowed" type="activity">
+            <ts:origins>
+                <ethereum:event contract="aETH" filter="_user=${ownerAddress}" type="Borrow"/>
+            </ts:origins>
+            <ts:item-view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                <xhtml:style type="text/css">.icons {
+  margin-top: 10%;
+}
+
+.date {
+  margin-top: 2%;
+  justify-content: center;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.sentSolid {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.depositContainer {
+  width: 375px;
+  height: 34px;
+  font-family: SourceSansPro-Semibold, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.7;
+  letter-spacing: normal;
+  text-align: center;
+  color: black;
+}
+
+.headerRectangle {
+  width: 375px;
+  height: 150px;
+  background-color: #ffffff;
+  margin-top: 10%;
+  text-align: center;
+}
+
+.date {
+  font-family: SourceSansPro, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.67;
+  letter-spacing: normal;
+  text-align: center;
+  color: #727272;
+}
+
+.separator {
+  width: 100%;
+  height: 1px;
+  background-color: #e9e9e9;
+  margin-top: 7.5%;
+}
+
+.amountBox{
+  width: 375px;
+  height: 47px;
+  font-family: SourceSansPro-Regular, sans-serif;
+  font-size: 28px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.68;
+  letter-spacing: normal;
+  text-align: center;
+  color: black;
+}
+
+.midSection {
+  width: 375px;
+  height: 81px;
+  background-color: white;
+}
+</xhtml:style>
+                <xhtml:script type="text/javascript">//
+class Token {
+
+    constructor(token, card) {
+        this.token = token;
+        this.card = card;
+        this.time = this.formatTimeStamp(this.card.timestamp.date);
+    }
+
+    formatTimeStamp(time) {
+        let a = new Date(time);
+        let hours = a.getHours();
+        let minutes = a.getMinutes();
+        let ampm = hours &gt;= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes &lt; 10 ? '0' + minutes : minutes;
+        return hours + ':' + minutes + ' ' + ampm;
+    }
+
+    render() {
+        return`
+        &lt;div&gt;
+            &lt;div class="container"&gt;
+                &lt;div class="logo"&gt;
+                    &lt;img src="data:image/png;base64,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"&gt;
+                &lt;/div&gt;
+                &lt;div class="info"&gt;
+                    + ${this.card._amount / 1e+18} DAI&lt;br/&gt;
+                    &lt;div class="time"&gt;${this.time}&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class="title"&gt;
+                    Borrowing &lt;strong&gt;DAI&lt;/strong&gt;
+                &lt;/div&gt;
+                &lt;div class="subtitle"&gt;
+                    from Aave
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+`;
+    }
+}
+
+web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
+    document.getElementById(tokenIdCard).innerHTML = new Token(updated.token, updated.card).render();
+};
+//
+</xhtml:script>
+            </ts:item-view>
+            <ts:view xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                <xhtml:style type="text/css">.icons {
+  margin-top: 10%;
+}
+
+.date {
+  margin-top: 2%;
+  justify-content: center;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.sentSolid {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.depositContainer {
+  width: 375px;
+  height: 34px;
+  font-family: SourceSansPro-Semibold, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.7;
+  letter-spacing: normal;
+  text-align: center;
+  color: black;
+}
+
+.headerRectangle {
+  width: 375px;
+  height: 150px;
+  background-color: #ffffff;
+  margin-top: 10%;
+  text-align: center;
+}
+
+.date {
+  font-family: SourceSansPro, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.67;
+  letter-spacing: normal;
+  text-align: center;
+  color: #727272;
+}
+
+.separator {
+  width: 100%;
+  height: 1px;
+  background-color: #e9e9e9;
+  margin-top: 7.5%;
+}
+
+.amountBox{
+  width: 375px;
+  height: 47px;
+  font-family: SourceSansPro-Regular, sans-serif;
+  font-size: 28px;
+  font-weight: normal;
+  font-stretch: normal;
+  font-style: normal;
+  line-height: 1.68;
+  letter-spacing: normal;
+  text-align: center;
+  color: black;
+}
+
+.midSection {
+  width: 375px;
+  height: 81px;
+  background-color: white;
+}
+</xhtml:style>
+                <xhtml:script type="text/javascript">//
+class Token {
+
+    constructor(token, card) {
+        this.token = token;
+        this.card = card;
+        this.time = this.formatTimeStampTodayTime(this.card.timestamp.date) + " | " + this.formatTimeStamp(this.card.timestamp.date);
+    }
+
+    formatTimeStampTodayTime(time) {
+        let a = new Date(time);
+        let hours = a.getHours();
+        let minutes = a.getMinutes();
+        let ampm = hours &gt;= 12 ? 'pm' : 'am';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        minutes = minutes &lt; 10 ? '0' + minutes : minutes;
+        return hours + ':' + minutes + ' ' + ampm;
+    }
+
+    formatTimeStamp(time) {
+        let a = new Date(time);
+        let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let year = a.getFullYear();
+        let month = months[a.getMonth()];
+        let date = a.getDate();
+        return date + ' ' + month + ' ' + year;
+    }
+
+    render() {
+        return`
+        &lt;div&gt;
+            &lt;div class="headerRectangle"&gt;
+                &lt;div class="date"&gt;
+                    &lt;p&gt;${this.time}&lt;/p&gt;
+                &lt;/div&gt;
+                
+                &lt;div class="icons"&gt;
+                    &lt;img class="logo" src="data:image/png;base64,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"&gt;
+                &lt;/div&gt;
+                
+                &lt;div class="depositContainer"&gt;
+                    &lt;p&gt;Borrowing DAI&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="separator"&gt;&lt;/div&gt;
+             
+            &lt;div class="amountBox"&gt;
+                &lt;p&gt;+ ${this.card._amount} DAI&lt;/p&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+`;
+    }
+}
+
+web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
+    document.getElementById(tokenIdCard).innerHTML = new Token(updated.token, updated.card).render();
+};
+//
+</xhtml:script>
+            </ts:view>
+        </ts:card>
+
+    </ts:cards>
+
+    <!-- your balance in ETH -->
+    <ts:attribute name="tokenBalance">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Balance</ts:string>
+            <ts:string xml:lang="zh">餘額</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="balance" function="balanceOf">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="lendingPoolAddress">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.15</ts:syntax></ts:type>
+        <ts:origins>
+            <ethereum:call as="address" contract="LendingPoolProvider" function="getLendingPool">
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="allowance">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:origins>
+            <ethereum:call as="uint" contract="aETH" function="allowance">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                    <ts:address>0x3a3a65aab0dd2a17e3f1947ba16138cd37d08c04</ts:address>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="aTokenBalance">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Balance</ts:string>
+            <ts:string xml:lang="zh">餘額</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="aETH" function="balanceOf">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="userInterestRateBorrow">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Variable interest rate borrow</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getBorrowRate">
+                <ts:data>
+                    <ts:address>0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="userInterestRateBorrowMode">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Variable interest rate borrow</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getBorrowRateMode">
+                <ts:data>
+                    <ts:address>0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="originationFee">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Origination fee</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getOriginationFee">
+                <ts:data>
+                    <ts:address>0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="variableBorrowIndex">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Variable borrow index</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getVariableBorrowIndex">
+                <ts:data>
+                    <ts:address>0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="lastUpdateTimestamp">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">last update</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getLastUpdateTimestamp">
+                <ts:data>
+                    <ts:address>0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="usageAsCollateralEnabled">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">usage as collateral enabled</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getUsageAsCollateralEnabled">
+                <ts:data>
+                    <ts:address>0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="interestRateSupply">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">interest rate supply</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getLiquidityRate">
+                <ts:data>
+                    <ts:address>0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="aTokenPrincipleBalance">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Principal Balance</ts:string>
+            <ts:string xml:lang="zh">餘額</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="aETH" function="principalBalanceOf">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="enabledForBorrowing">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">enabled for borrowing</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="bool" contract="LendingPoolProvider" function="isUserUseReserveAsCollateralEnabled">
+                <ts:data>
+                    <ts:address>0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="loanToValue">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">LTV</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getLTV">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="availableBorrowsETH">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">borrowable</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getAvailableBorrowsETH">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="healthFactor">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">health factor</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getHealthFactor">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="totalCollateral">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">total collateral in ETH</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getTotalCollateralETH">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="totalBorrows">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">total borrows in ETH</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getTotalBorrowsETH">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="liquidityRate">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Depositor rate APY for ETH</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getLiquidityRate">
+                <ts:data>
+                    <ts:address>0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE</ts:address>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="liquidationThreshold">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">liquidation threshold</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVEGetters" function="getCurrentLiquidationThreshold">
+                <ts:data>
+                    <ts:address ref="ownerAddress"/>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+    <ts:attribute name="assetPriceDAI">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">asset price</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="PriceOracle" function="getAssetPrice">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
+<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<ds:SignedInfo>
+<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+<ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/>
+<ds:Reference URI="">
+<ds:Transforms>
+<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+</ds:Transforms>
+<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
+<ds:DigestValue>MjAduHV1TznoqpY9xTez0ExAx/HBg+K8d720w39z5O0=</ds:DigestValue>
+</ds:Reference>
+</ds:SignedInfo>
+<ds:SignatureValue>
+pjgNQ6wxnPVGOfxik/tPWxWvrDYj1BTqIXJbdrmBGSRGnBWK9NPq8p/TqhhmLmpG0ExLaiIUYwWu
+6d8DyU6dpHz2+oTJUg2woz5afQyzhZxnT2yFSexsfr7f0085O+Hf1zFf1J22TShrzAHr37mxRMgZ
+xr2A3I+i88sM8OlXFy01i82+KDptojJFdDd1823YyvZ/6HVQKJdmZ9XRk3zi26oGsDiETtqaTOUG
+xEIS4Wx/PF8ADNAbCJs6F97Cdw/J+G47Nncxz63H5FO9s4zxxqK8TJt7uZmEF9Tm3E/t/ia5PQzQ
+c1oEL2bYvykzR8ZHzs9qLpcyDFLlJLNw2SNsMQ==
+</ds:SignatureValue>
+<ds:KeyInfo>
+<ds:KeyName>AlphaWallet</ds:KeyName>
+<ds:KeyValue>
+<ds:RSAKeyValue>
+<ds:Modulus>
+tDHBH8jKLPEjpXsy/V9/XsXBYmc64SXx6IWG9CdJzm+iSrk3Od2ZZTS3DsR5+hp9hk6UwRyb1XKG
++TMrBODfxIIWricmnhxYMqiyvwDhecm4RU4YFteekBFAsuhEGCJBtmJSrle5G3iE/9FwvTfw/cxo
+yAydv85OWc4UkxkfjzaXVqGGKCzSFhRm48HwG51/1nmC1mmPh070EMY4Km4N/ieJZ8egLjDAIZEI
+EY5Cj7ig9PPnGf2pF21/z7vm3zQViXi6XJIBn1E5CTXzDW1y1BYe0QI+dxxY0o+97mwisZu7fVfB
+/rJJm3g7Ye4/lITkZeRMP+OLYyG1pathItlrVQ==
+</ds:Modulus>
+<ds:Exponent>AQAB</ds:Exponent>
+</ds:RSAKeyValue>
+</ds:KeyValue>
+<ds:X509Data>
+<ds:X509Certificate>
+MIIFUDCCBDigAwIBAgISAy095xt55U0Cc0++zYon7TT0MA0GCSqGSIb3DQEBCwUAMEoxCzAJBgNV
+BAYTAlVTMRYwFAYDVQQKEw1MZXQncyBFbmNyeXB0MSMwIQYDVQQDExpMZXQncyBFbmNyeXB0IEF1
+dGhvcml0eSBYMzAeFw0xOTA5MjQxMTA1MTdaFw0xOTEyMjMxMTA1MTdaMBMxETAPBgNVBAMMCCou
+YXcuYXBwMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtDHBH8jKLPEjpXsy/V9/XsXB
+Ymc64SXx6IWG9CdJzm+iSrk3Od2ZZTS3DsR5+hp9hk6UwRyb1XKG+TMrBODfxIIWricmnhxYMqiy
+vwDhecm4RU4YFteekBFAsuhEGCJBtmJSrle5G3iE/9FwvTfw/cxoyAydv85OWc4UkxkfjzaXVqGG
+KCzSFhRm48HwG51/1nmC1mmPh070EMY4Km4N/ieJZ8egLjDAIZEIEY5Cj7ig9PPnGf2pF21/z7vm
+3zQViXi6XJIBn1E5CTXzDW1y1BYe0QI+dxxY0o+97mwisZu7fVfB/rJJm3g7Ye4/lITkZeRMP+OL
+YyG1pathItlrVQIDAQABo4ICZTCCAmEwDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUF
+BwMBBggrBgEFBQcDAjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBRaKDKFkPztPgQee3418kofZddy
+MTAfBgNVHSMEGDAWgBSoSmpjBH3duubRObemRWXv86jsoTBvBggrBgEFBQcBAQRjMGEwLgYIKwYB
+BQUHMAGGImh0dHA6Ly9vY3NwLmludC14My5sZXRzZW5jcnlwdC5vcmcwLwYIKwYBBQUHMAKGI2h0
+dHA6Ly9jZXJ0LmludC14My5sZXRzZW5jcnlwdC5vcmcvMBsGA1UdEQQUMBKCCCouYXcuYXBwggZh
+dy5hcHAwTAYDVR0gBEUwQzAIBgZngQwBAgEwNwYLKwYBBAGC3xMBAQEwKDAmBggrBgEFBQcCARYa
+aHR0cDovL2Nwcy5sZXRzZW5jcnlwdC5vcmcwggEEBgorBgEEAdZ5AgQCBIH1BIHyAPAAdwB0ftqD
+Ma0zEJEhnM4lT0Jwwr/9XkIgCMY3NXnmEHvMVgAAAW1jKVxwAAAEAwBIMEYCIQCHuWOuAiqXC7Bn
+nYLS4BDrOrVeObYC7zcQvru7Aqx5DAIhAP9ukUp9nnQBWgAgTdfK+GdhHxboIaxJz7456ws6myft
+AHUAY/Lbzeg7zCzPC3KEJ1drM6SNYXePvXWmOLHHaFRL2I0AAAFtYyladwAABAMARjBEAiBaxydV
+JMY5/hQyrjaMMonJgQBhEKBHvv4FbthX+lZfpAIga4sB0hDaoT4knZfVhVP/u/Uv47t6z1+TEWnL
+/TresTwwDQYJKoZIhvcNAQELBQADggEBAGSPK0ivDprmvO72TVLZsuk/JDhCmXQcYe6cRGPiX7WL
+c0B6wfLaxb0rrQdmGpTiTEHS6wEa6tOMEsfxutPWeOxlqFPU97QHhLrdBlf4IDfk8i1Em3rpPPQu
+3M2u5nfeRXvsIxyB5vLQvuR/NwCQqA2bwkCrlLz7dr1iGem35DGI0ikIkdODTPI+RpwHK8b2iApA
+w6XaVGA99eCJS2dHqeyHPAc1Yf+Klv+z0FyM38ZUfazRRIQ17LtolM1U/9Ynld20SXtCrIFbcmbo
+w3piXuHLlDRcRxWqdL33yPoTEbPuLtS6vqDXefYP0RiYpQHHwJz4E6q5VCbK6LgILnIyX+M=
+</ds:X509Certificate>
+<ds:X509Certificate>
+MIIEkjCCA3qgAwIBAgIQCgFBQgAAAVOFc2oLheynCDANBgkqhkiG9w0BAQsFADA/MSQwIgYDVQQK
+ExtEaWdpdGFsIFNpZ25hdHVyZSBUcnVzdCBDby4xFzAVBgNVBAMTDkRTVCBSb290IENBIFgzMB4X
+DTE2MDMxNzE2NDA0NloXDTIxMDMxNzE2NDA0NlowSjELMAkGA1UEBhMCVVMxFjAUBgNVBAoTDUxl
+dCdzIEVuY3J5cHQxIzAhBgNVBAMTGkxldCdzIEVuY3J5cHQgQXV0aG9yaXR5IFgzMIIBIjANBgkq
+hkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnNMM8FrlLke3cl03g7NoYzDq1zUmGSXhvb418XCSL7e4
+S0EFq6meNQhY7LEqxGiHC6PjdeTm86dicbp5gWAf15Gan/PQeGdxyGkOlZHP/uaZ6WA8SMx+yk13
+EiSdRxta67nsHjcAHJyse6cF6s5K671B5TaYucv9bTyWaN8jKkKQDIZ0Z8h/pZq4UmEUEz9l6YKH
+y9v6Dlb2honzhT+Xhq+w3Brvaw2VFn3EK6BlspkENnWAa6xK8xuQSXgvopZPKiAlKQTGdMDQMc2P
+MTiVFrqoM7hD8bEfwzB/onkxEz0tNvjj/PIzark5McWvxI0NHWQWM6r6hCm21AvA2H3DkwIDAQAB
+o4IBfTCCAXkwEgYDVR0TAQH/BAgwBgEB/wIBADAOBgNVHQ8BAf8EBAMCAYYwfwYIKwYBBQUHAQEE
+czBxMDIGCCsGAQUFBzABhiZodHRwOi8vaXNyZy50cnVzdGlkLm9jc3AuaWRlbnRydXN0LmNvbTA7
+BggrBgEFBQcwAoYvaHR0cDovL2FwcHMuaWRlbnRydXN0LmNvbS9yb290cy9kc3Ryb290Y2F4My5w
+N2MwHwYDVR0jBBgwFoAUxKexpHsscfrb4UuQdf/EFWCFiRAwVAYDVR0gBE0wSzAIBgZngQwBAgEw
+PwYLKwYBBAGC3xMBAQEwMDAuBggrBgEFBQcCARYiaHR0cDovL2Nwcy5yb290LXgxLmxldHNlbmNy
+eXB0Lm9yZzA8BgNVHR8ENTAzMDGgL6AthitodHRwOi8vY3JsLmlkZW50cnVzdC5jb20vRFNUUk9P
+VENBWDNDUkwuY3JsMB0GA1UdDgQWBBSoSmpjBH3duubRObemRWXv86jsoTANBgkqhkiG9w0BAQsF
+AAOCAQEA3TPXEfNjWDjdGBX7CVW+dla5cEilaUcne8IkCJLxWh9KEik3JHRRHGJouM2VcGfl96S8
+TihRzZvoroed6ti6WqEBmtzw3Wodatg+VyOeph4EYpr/1wXKtx8/wApIvJSwtmVi4MFU5aMqrSDE
+6ea73Mj2tcMyo5jMd6jmeWUHK8so/joWUoHOUgwuX4Po1QYz+3dszkDqMp4fklxBwXRsW10KXzPM
+TZ+sOPAveyxindmjkW8lGy+QsRlGPfZ+G6Z6h7mjem0Y+iWlkYcV4PIWL1iwBi8saCbGS5jN2p8M
++X+Q7UNKEkROb3N6KOqkqm57TH2H3eDJAkSnh6/DNFu0Qg==
+</ds:X509Certificate>
+</ds:X509Data>
+</ds:KeyInfo>
+</ds:Signature></ts:token>
