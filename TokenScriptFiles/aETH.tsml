@@ -292,7 +292,7 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
                         <ts:address>0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
                         <ts:uint256 ref="borrowAmount"/>
                         <ts:uint256>2</ts:uint256> <!-- 1 is stable rate, 2 is variable rate -->
-                        <ts:uint256>0</ts:uint256> <!-- referral code -->
+                        <ts:uint16>0</ts:uint16> <!-- referral code -->
                     </ts:data>
                 </ethereum:transaction>
             </ts:transaction>
@@ -1321,15 +1321,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>EeWw6VP3b8ePVMgDevh2BfMRGfbUDLYmS2c/7865Vkw=</ds:DigestValue>
+<ds:DigestValue>ruq8+O+daNbYaCI7f+W4KncKSYU+ZT7Ui7F/atOYqYA=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-PLhBk8FOuziK1SEL2z5Ha7cIp/MTVN3hEmav/cD3gp0EIWR1BwoMlGuJM2ClX3qW4HKDkAqg1CZz
-tCZx+xxI7mDzMOLyyYZZJMJ/7rw/fpyWZvceOh9QYdCdLho0y0urO56r1W6iQmoONWIMUBg1eWuB
-81pYc7i/Qs4r4VfU7N7DDYY/DXgqB719iQHFYVbLcs1WN1OHx5JoyBxg34v9qi5+stA88+QZ5Vr6
-b0U5n4s0y8SWyK9XR2NJ7Vs41mMduytstMz3AtJop3IFSpxUlSSrxVLphe4xVnI9ptgKXwCgn5SY
-Vq0LG1p3mhMgo9xdlzK+/Wu8LqxGulCuXX+PzA==
+aJDj2y4m8ve6XS9lVF/0VhGn2kPpRyxdSM9nQDLpIfQUsH6i7f4yYccY9iRFZeVG+s9JMYyLjN4N
+PPikBu+VHz5w5OqpPyphUAE/3AZ4Ia1geP3+SzZnq/VWv8wO2PwonQ6NybdwLoStOoQC2zY7bgSt
+IBLQtffJQx2UmpKLK003I7fUsJ31NTondEwYyjF/7ET7qiWv9PW5qzveYCX4SxZGFCm44OWJAQLE
+p/BJiz5Zaid0IrqE3YHPhAga2Pa2YxHgrl7Rv8K0imrw6k5XseMvfgjIBWC+5WvJB+ML+EB4V50L
+KcvUXHVkO/LxU0aoSAU+9gQNkOfpY6ysOCcAMQ==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>

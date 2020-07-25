@@ -67,11 +67,11 @@
                 </ts:origins>
             </ts:attribute>
             <ts:transaction>
-                <ethereum:transaction as="uint" contract="aETH" function="deposit">
+                <ethereum:transaction as="uint" contract="AAVELendingPool" function="deposit">
                     <ts:data>
                         <ts:address>0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE</ts:address>
                         <ts:uint256 ref="mintAmount"/>
-                        <ts:uint256>1101</ts:uint256> <!-- placeholder referral -->
+                        <ts:uint16>1101</ts:uint16> <!-- placeholder referral -->
                     </ts:data>
                     <ethereum:value ref="mintAmount"/>
                 </ethereum:transaction>
@@ -890,15 +890,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>MxG8K3SLLd0ZWjj2CPG+AKf1lUHsiGFxz55YwIY11G4=</ds:DigestValue>
+<ds:DigestValue>OXSoZRsVbMMEiGqsMxK8LnLEAS8hXGkDnjHgUE/HWqI=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-GcqLcXZd7pCay41Q8U11r0crTG4GBsu0ICIrSogplQ1JKxupaNn5KJy8qOqnvKrptG4TIZWhf9Kl
-nisSP+Xa2NMmm7MtFU0BxmiOi0tojZWnGASjKoPR7pr3uEceAfXf7OtUYqorGw9JOYgy/03YbEdd
-JFTEc9VneM7MDqb9Q4eYZ+mNSm9dw7S4bQ7cD19djiyNg+UcCyIxIA+0/BaTSg8BZpdT6mGrtdg6
-Thvu+uj5VKM5E7D4GX3RN+52/S9yff6NebzO5jAoFoN9OGSzP/Qs5VMlUJpUb8FEGxyD0TgHesqq
-IxDbO8/nYOG8oDyew9cA4K1xqCF508usAtUV3A==
+XCESDZq1WZ1Y6yZuVBBczM8q+ZHw+viPlpeWIxJSAsG8jB1oufR2+9ncC2Y5GoQhKTXmMkPbmf79
+FoZuq/ZgpuxT7lrwvu5pCdSn1iEg77uDiCqqXNvvwaQ4hoTAkAUsDQgCpnWinZ4CE8xUjc2EfDt4
+5vbe/pVNCJXcGbcmTbVZJ9wjpQ/1amlxOkzsbacpb4cp9TS599q9aJxFtovoUrzU3/5LmAKHFmo2
+EvDz9Votp1nbWT7cvbn2JQCJaVfQHZMmBZgPgYAQPiHXpnDpUg+nzsZT8wFoKuvfBdx54bvdyTKA
+hmLyt1RuF5GmMrAYNat3xHMTSIcZwRihyEf82Q==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
