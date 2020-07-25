@@ -163,7 +163,6 @@ private class PrivateXMLHandler {
         let actionElements = fromTokenAsTopLevel + fromActionAsTopLevel
         for actionElement in actionElements {
             if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty,
-               let actionName = actionElement["name"]?.trimmed.nilIfEmpty,
                let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext) {
                 let (html: html, style: style) = extractHtml(fromViewElement: viewElement)
                 guard !html.isEmpty else { continue }
@@ -172,6 +171,7 @@ private class PrivateXMLHandler {
                 let selection = XMLHandler.getExcludeSelectionId(fromActionElement: actionElement, xmlContext: xmlContext).flatMap { id in
                     self.selections.first { $0.id == id }
                 }
+                let actionName = actionElement["name"] ?? ""
                 results.append(.init(type: .tokenScript(contract: contractAddress, actionName: actionName, title: name, viewHtml: (html: html, style: style), attributes: attributes, transactionFunction: functionOrigin, selection: selection)))
             }
         }
