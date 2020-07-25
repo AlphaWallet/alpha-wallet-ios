@@ -25,6 +25,8 @@ class HardcodedTokenCardViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
     private var values: [AttributeId: AssetInternalValue] = .init()
+    private var refreshTimer = Timer()
+    private let refreshInterval = 10.0
 
     weak var delegate: HardcodedTokenCardViewControllerDelegate?
 
@@ -78,6 +80,7 @@ class HardcodedTokenCardViewController: UIViewController {
         ])
 
         configure(viewModel: viewModel)
+        scheduleRefresh()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -101,6 +104,14 @@ class HardcodedTokenCardViewController: UIViewController {
         } else {
             tableView.contentInset = .init(top: 0, left: 0, bottom: tableView.frame.size.height - buttonsBarHolder.frame.origin.y, right: 0)
         }
+    }
+
+    private func scheduleRefresh() {
+        refreshTimer = Timer.scheduledTimer(timeInterval: refreshInterval, target: BlockOperation { [weak self] in
+            self?.tokenHolder = nil
+            self?.generateTokenHolder()
+            self?.reloadAttributes()
+        }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
     private func configure(viewModel: HardcodedTokenViewControllerViewModel) {
@@ -146,7 +157,7 @@ class HardcodedTokenCardViewController: UIViewController {
         let attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
         let resolvedAttributeNameValues = attributeValues.resolve { [weak self] values in
             guard let strongSelf = self else { return }
-            strongSelf.values = values
+            strongSelf.values = strongSelf.values.merging(values) { _, new in new }
             strongSelf.header.balanceLabel.text = strongSelf.viewModel.headerValueFormatter(values)
             strongSelf.header.frame.size.height = strongSelf.header.systemLayoutSizeFitting(.zero).height
             strongSelf.tableView.tableHeaderView = strongSelf.header
