@@ -47,11 +47,17 @@ enum ActivityOrTransaction {
 
 //TODO fix for activities: remove the need for this. Which includes support base TokenScript files
 extension Constants {
+    enum Contracts {
+        static let aEth = AlphaWallet.Address(string: "0x3a3a65aab0dd2a17e3f1947ba16138cd37d08c04")!
+        static let aaveDebt = AlphaWallet.Address(string: "0x38bA1173F498f7a89ac474EdBA1D587Cc1ab021D")!
+    }
+
     static let erc20ContractsSupportingActivities: [(address: AlphaWallet.Address, server: RPCServer, tokenScript: String)] = [
         //TODO fix for activities: remove. But for now, list all the bundled files and their contract here. Remember to remove R.file.erc20TokenScriptTsml()
         //(address: AlphaWallet.Address(string: "0x7f1511708E51A3088e4e8505F16523300668476E")!, server: .rinkeby, tokenScript: (try! String(contentsOf: R.file.erc20TokenScriptTsml()!))),
         (address: AlphaWallet.Address(string: "0x6b175474e89094c44da98b954eedeac495271d0f")!, server: .main, tokenScript: (try! String(contentsOf: R.file.daiTsml()!))),
+        (address: Constants.Contracts.aaveDebt, server: .main, tokenScript: (try! String(contentsOf: R.file.debtDaiTsml()!))),
         (address: AlphaWallet.Address(uncheckedAgainstNullAddress: "0x0000000000000000000000000000000000000000")!, server: .main, tokenScript: (try! String(contentsOf: R.file.ethTsml()!))),
-        (address: AlphaWallet.Address(uncheckedAgainstNullAddress: "0x3a3a65aab0dd2a17e3f1947ba16138cd37d08c04")!, server: .main, tokenScript: (try! String(contentsOf: R.file.aETHTsml()!))),
+        (address: Constants.Contracts.aEth, server: .main, tokenScript: (try! String(contentsOf: R.file.aETHTsml()!))),
     ]
 }

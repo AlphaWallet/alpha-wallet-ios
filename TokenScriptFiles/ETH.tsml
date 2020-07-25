@@ -34,9 +34,6 @@
     <ts:contract interface="erc20" name="ETH">
         <ts:address network="1">0x0000000000000000000000000000000000000000</ts:address>
     </ts:contract>
-    <ts:contract name="LendingPoolProvider">
-        <ts:address network="1">0x24a42fD28C976A61Df5D00D0599C34c4f90748c8</ts:address>
-    </ts:contract>
     <ts:contract name="AAVELendingPool">
         <ts:address network="1">0x398eC7346DcD622eDc5ae82352F02bE94C62d119</ts:address>
     </ts:contract>
@@ -70,12 +67,13 @@
                 </ts:origins>
             </ts:attribute>
             <ts:transaction>
-                <ethereum:transaction as="uint" contract="LendingPoolProvider" function="deposit">
+                <ethereum:transaction as="uint" contract="AAVELendingPool" function="deposit">
                     <ts:data>
                         <ts:address>0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE</ts:address>
                         <ts:uint256 ref="mintAmount"/>
-                        <ts:uint256>1101</ts:uint256> <!-- placeholder referral -->
+                        <ts:uint16>1101</ts:uint16> <!-- placeholder referral -->
                     </ts:data>
+                    <ethereum:value ref="mintAmount"/>
                 </ethereum:transaction>
             </ts:transaction>
             <ts:view xml:lang="en">
@@ -807,26 +805,6 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
         </ts:origins>
     </ts:attribute>
 
-    <ts:attribute name="lendingPoolAddress">
-        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.15</ts:syntax></ts:type>
-        <ts:origins>
-            <ethereum:call as="address" contract="LendingPoolProvider" function="getLendingPool">
-            </ethereum:call>
-        </ts:origins>
-    </ts:attribute>
-
-    <ts:attribute name="allowance">
-        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
-        <ts:origins>
-            <ethereum:call as="uint" contract="ETH" function="allowance">
-                <ts:data>
-                    <ts:address ref="ownerAddress"/>
-                    <ts:address>0x3a3a65aab0dd2a17e3f1947ba16138cd37d08c04</ts:address>
-                </ts:data>
-            </ethereum:call>
-        </ts:origins>
-    </ts:attribute>
-
     <ts:attribute name="aTokenBalance">
         <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
         <ts:label>
@@ -902,22 +880,6 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
         </ts:origins>
     </ts:attribute>
 
-    <ts:attribute name="enabledForBorrowing">
-        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
-        <ts:label>
-            <ts:string xml:lang="en">Enabled for Collateralization</ts:string>
-            <ts:string xml:lang="zh">已授权用于抵押贷款</ts:string>
-        </ts:label>
-        <ts:origins>
-            <ethereum:call as="bool" contract="LendingPoolProvider" function="isUserUseReserveAsCollateralEnabled">
-                <ts:data>
-                    <ts:address>0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE</ts:address>
-                    <ts:address ref="ownerAddress"/>
-                </ts:data>
-            </ethereum:call>
-        </ts:origins>
-    </ts:attribute>
-
 <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 <ds:SignedInfo>
 <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -928,15 +890,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>uM4wbgeb5jaeOVuP3Du7asH5kC078uedzNH/gOGQ/Yw=</ds:DigestValue>
+<ds:DigestValue>OXSoZRsVbMMEiGqsMxK8LnLEAS8hXGkDnjHgUE/HWqI=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-cVaX8zZ6C/ynWJ3V8Y2eFttLYPEb0uJJkunwJ5y1zNA3lTgdxarc9rDYP/GDs9KIAlPinyQY1M7U
-HoNP0YDqA7+8XX1vAlZcfrOAjcaVL1a9mZZyTCmRHdWUilk6vqK6LhVzJyURS1En7Pu3lrPNzEMr
-TBxuMwh7S7UfXZ4q87WKC979UkcNM/dFdA7/BmA3y0BGu95p8OP07oaithFmiBmN7f3hQRjl/jom
-B4m9UmGtSwyFegMoHR1B1delklaeJa+5HIYswEaK9SNDT4aorA2sBT+Jv6cPC+WGx/LFR8Yj6m0W
-1RodyvpofZrnB25pnLf30GwhVLUFy5/nH/e37w==
+XCESDZq1WZ1Y6yZuVBBczM8q+ZHw+viPlpeWIxJSAsG8jB1oufR2+9ncC2Y5GoQhKTXmMkPbmf79
+FoZuq/ZgpuxT7lrwvu5pCdSn1iEg77uDiCqqXNvvwaQ4hoTAkAUsDQgCpnWinZ4CE8xUjc2EfDt4
+5vbe/pVNCJXcGbcmTbVZJ9wjpQ/1amlxOkzsbacpb4cp9TS599q9aJxFtovoUrzU3/5LmAKHFmo2
+EvDz9Votp1nbWT7cvbn2JQCJaVfQHZMmBZgPgYAQPiHXpnDpUg+nzsZT8wFoKuvfBdx54bvdyTKA
+hmLyt1RuF5GmMrAYNat3xHMTSIcZwRihyEf82Q==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>

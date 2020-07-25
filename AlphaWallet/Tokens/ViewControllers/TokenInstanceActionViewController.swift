@@ -15,7 +15,8 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
     private let tokenObject: TokenObject
     private let tokenHolder: TokenHolder
     private let viewModel: TokenInstanceActionViewModel
-    private let action: TokenInstanceAction
+    //TODO fix for activities: So we switch to the aEth token after action
+    let action: TokenInstanceAction
     private let session: WalletSession
     private let keystore: Keystore
     private let tokensStorage: TokensDataStore
@@ -31,7 +32,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         return webView
     }()
 
-    
+
     //TODO might have to change the number of buttons? if the action type change or should we just go back since the flow may be broken if we remain in this screen
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var isFungible: Bool {

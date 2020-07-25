@@ -6,6 +6,8 @@ extension NumberFormatter {
 
     static let currency = Formatter(.currency)
     static let usd = Formatter(.usd)
+    static let percent = Formatter(.percent)
+    static let crypto = Formatter(.crypto)
 
     class Formatter {
         private let formatter: NumberFormatter
@@ -16,13 +18,15 @@ extension NumberFormatter {
 
         func string(from number: Double) -> String? {
             return formatter.string(from: number as NSNumber)
-        } 
+        }
     }
 }
 
 private enum NumberFormatterConfiguration {
     case usd
     case currency
+    case percent
+    case crypto
 
     var formatter: NumberFormatter {
         let formatter = NumberFormatter()
@@ -39,6 +43,16 @@ private enum NumberFormatterConfiguration {
             formatter.positiveFormat = "0.00" + " " + Constants.Currency.usd
             formatter.negativeFormat = "-0.00" + " " + Constants.Currency.usd
             formatter.currencyCode = String()
+        case .percent:
+            formatter.positiveFormat = "0.00%"
+            formatter.negativeFormat = "-0.00%"
+            formatter.numberStyle = .percent
+        case .crypto:
+            formatter.positiveFormat = "0.0000"
+            formatter.negativeFormat = "-0.0000"
+            formatter.numberStyle = .none
+            formatter.minimumFractionDigits = Constants.etherFormatterFractionDigits
+            formatter.maximumFractionDigits = Constants.etherFormatterFractionDigits
         }
 
         return formatter

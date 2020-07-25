@@ -56,6 +56,8 @@ class EventSourceCoordinatorForActivities {
         var fetchPromises = [Promise<Void>]()
         for eachTokenStorage in tokensStoragesForEnabledServers {
             for eachToken in eachTokenStorage.enabledObject {
+                //TODO fix for activities: we are hardcoding the list of tokens support for activities for performance reasons
+                guard Constants.Contracts.aaveDebt.sameContract(as: eachToken.contract) || Constants.erc20ContractsSupportingActivities.contains(where: { $0.address.sameContract(as: eachToken.contract) }) else { continue }
                 let promises = fetchEvents(forToken: eachToken)
                 fetchPromises.append(contentsOf: promises)
             }

@@ -17,6 +17,7 @@ class ActivitiesCoordinator: Coordinator {
     private var transactions: [Transaction] = .init()
     private var tokensAndTokenHolders: [AlphaWallet.Address: (tokenObject: TokenObject, tokenHolders: [TokenHolder])] = .init()
     weak private var activityViewController:  ActivityViewController?
+    private var rateLimitedUpdater: RateLimiter?
 
     weak var delegate: ActivitiesCoordinatorDelegate?
 
@@ -96,6 +97,16 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     func reload() {
+        if rateLimitedUpdater == nil {
+            rateLimitedUpdater = RateLimiter(name: "Fetch activity from events in database", limit: 5, autoRun: true) { [weak self] in
+                self?.reloadImpl()
+            }
+        } else {
+            rateLimitedUpdater?.run()
+        }
+    }
+
+    func reloadImpl() {
         var activitiesAndTokens: [(Activity, TokenObject, TokenHolder)] = .init()
         for (eachContract, eachServer) in contractsAndServerInDatabase {
             let xmlHandler = XMLHandler(contract: eachContract, assetDefinitionStore: assetDefinitionStore)

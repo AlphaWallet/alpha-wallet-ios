@@ -681,7 +681,10 @@ extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
 extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
 
     func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
-        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController)
+        //TODO fix for activities: So we switch to the aEth token after action
+        let shouldSwitchToAEthToken = viewController.action.actionName == "depositeAAVE"
+
+        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController, shouldSwitchToAEthToken: shouldSwitchToAEthToken)
         coordinator.delegate = self
         addCoordinator(coordinator)
 
@@ -698,7 +701,7 @@ extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: TransactionInProgressCoordinatorDelegate {
-    
+
     func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
     }
