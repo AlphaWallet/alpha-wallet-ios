@@ -34,9 +34,6 @@
     <ts:contract interface="erc20" name="ETH">
         <ts:address network="1">0x0000000000000000000000000000000000000000</ts:address>
     </ts:contract>
-    <ts:contract name="LendingPoolProvider">
-        <ts:address network="1">0x24a42fD28C976A61Df5D00D0599C34c4f90748c8</ts:address>
-    </ts:contract>
     <ts:contract name="AAVELendingPool">
         <ts:address network="1">0x398eC7346DcD622eDc5ae82352F02bE94C62d119</ts:address>
     </ts:contract>
@@ -808,26 +805,6 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
         </ts:origins>
     </ts:attribute>
 
-    <ts:attribute name="lendingPoolAddress">
-        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.15</ts:syntax></ts:type>
-        <ts:origins>
-            <ethereum:call as="address" contract="LendingPoolProvider" function="getLendingPool">
-            </ethereum:call>
-        </ts:origins>
-    </ts:attribute>
-
-    <ts:attribute name="allowance">
-        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
-        <ts:origins>
-            <ethereum:call as="uint" contract="ETH" function="allowance">
-                <ts:data>
-                    <ts:address ref="ownerAddress"/>
-                    <ts:address>0x3a3a65aab0dd2a17e3f1947ba16138cd37d08c04</ts:address>
-                </ts:data>
-            </ethereum:call>
-        </ts:origins>
-    </ts:attribute>
-
     <ts:attribute name="aTokenBalance">
         <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
         <ts:label>
@@ -903,22 +880,6 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
         </ts:origins>
     </ts:attribute>
 
-    <ts:attribute name="enabledForBorrowing">
-        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
-        <ts:label>
-            <ts:string xml:lang="en">Enabled for Collateralization</ts:string>
-            <ts:string xml:lang="zh">已授权用于抵押贷款</ts:string>
-        </ts:label>
-        <ts:origins>
-            <ethereum:call as="bool" contract="LendingPoolProvider" function="isUserUseReserveAsCollateralEnabled">
-                <ts:data>
-                    <ts:address>0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE</ts:address>
-                    <ts:address ref="ownerAddress"/>
-                </ts:data>
-            </ethereum:call>
-        </ts:origins>
-    </ts:attribute>
-
 <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 <ds:SignedInfo>
 <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -929,15 +890,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>VNI0U6X3OcpZvBg2yweyhvrFG2CtmJYo+mXjM1FixI0=</ds:DigestValue>
+<ds:DigestValue>MxG8K3SLLd0ZWjj2CPG+AKf1lUHsiGFxz55YwIY11G4=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-LNF3DYfyCtftAI9LO1OI3QZ16wtQ+rdmx6irTFA90ehbulYw9cpF9QaXAXL6tWRh7Be5DwfGPDXw
-aFiNN/ssnW0jNUFAG90ewLtyN/1nNLntxdi8EChEY2/VfG8ctJX3tpQYh3vt6OQ1/d4xziM0m2Cv
-vKwh4kehsaD9tRcYQwlus+xw4LnoPJcImSPxnY3e4aI2OjjsI3upDLMgYuLt/ZAqKjHztTkXdL/p
-g3OABBouBbFaNMJbQsT82PtJxS9mP8o6xwzQDQXmJ661XlEIh1TgBZzUtE48v5I2nFNY34eFzmF8
-k2TZu26Q6V1gDId83NIH5nck2E3FLx6Qv+tOEA==
+GcqLcXZd7pCay41Q8U11r0crTG4GBsu0ICIrSogplQ1JKxupaNn5KJy8qOqnvKrptG4TIZWhf9Kl
+nisSP+Xa2NMmm7MtFU0BxmiOi0tojZWnGASjKoPR7pr3uEceAfXf7OtUYqorGw9JOYgy/03YbEdd
+JFTEc9VneM7MDqb9Q4eYZ+mNSm9dw7S4bQ7cD19djiyNg+UcCyIxIA+0/BaTSg8BZpdT6mGrtdg6
+Thvu+uj5VKM5E7D4GX3RN+52/S9yff6NebzO5jAoFoN9OGSzP/Qs5VMlUJpUb8FEGxyD0TgHesqq
+IxDbO8/nYOG8oDyew9cA4K1xqCF508usAtUV3A==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
