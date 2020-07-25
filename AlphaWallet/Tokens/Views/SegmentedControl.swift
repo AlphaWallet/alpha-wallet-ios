@@ -17,7 +17,8 @@ class SegmentedControl: UIView {
     private let highlightedBar = UIView()
     private var highlightBarHorizontalConstraints: [NSLayoutConstraint]?
     private lazy var viewModel = SegmentedControlViewModel(selection: selection)
-
+    private let scrollView = UIScrollView()
+    
     weak var delegate: SegmentedControlDelegate?
     var selection: Selection = .selected(0) {
         didSet {
@@ -38,9 +39,14 @@ class SegmentedControl: UIView {
         for each in buttons {
             each.addTarget(self, action: #selector(segmentTapped(_:)), for: .touchUpInside)
         }
-        let buttonsStackView = buttons.map { $0 as UIView }.asStackView(spacing: ScreenChecker().isNarrowScreen ? 6 : 20)
+        let buttonsStackView = buttons.map { $0 as UIView }.asStackView(spacing: 20)
         buttonsStackView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(buttonsStackView)
+
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(buttonsStackView)
+
+        addSubview(scrollView)
 
         let fullWidthBar = UIView()
         fullWidthBar.translatesAutoresizingMaskIntoConstraints = false
@@ -50,15 +56,23 @@ class SegmentedControl: UIView {
         highlightedBar.translatesAutoresizingMaskIntoConstraints = false
         fullWidthBar.addSubview(highlightedBar)
 
-        let barHeightConstraint = fullWidthBar.heightAnchor.constraint(equalToConstant: 2)
+        let barHeightConstraint = fullWidthBar.heightAnchor.constraint(equalToConstant: 1)
         barHeightConstraint.priority = .defaultHigh
-        let stackViewLeadingConstraint = buttonsStackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 17)
+
+        let stackViewLeadingConstraint = buttonsStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor, constant: 17)
         stackViewLeadingConstraint.priority = .defaultHigh
-        let stackViewTrailingConstraint = buttonsStackView.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, constant: -17)
+        let stackViewTrailingConstraint = buttonsStackView.trailingAnchor.constraint(lessThanOrEqualTo: scrollView.trailingAnchor, constant: -17)
         stackViewTrailingConstraint.priority = .defaultHigh
+
         NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: fullWidthBar.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+
             stackViewLeadingConstraint,
             stackViewTrailingConstraint,
+
             buttonsStackView.topAnchor.constraint(equalTo: topAnchor),
             buttonsStackView.bottomAnchor.constraint(equalTo: fullWidthBar.topAnchor),
 

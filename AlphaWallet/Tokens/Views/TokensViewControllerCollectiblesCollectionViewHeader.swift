@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 extension TokensViewController {
-    class CollectiblesCollectionViewHeader: UICollectionReusableView {
+    class FilterTokensCollectionHeaderView: UICollectionReusableView {
         var filterView: SegmentedControl? {
             didSet {
                 guard let filterView = filterView else {
@@ -13,22 +13,24 @@ extension TokensViewController {
                     }
                     return
                 }
+
+                filterView.backgroundColor = Colors.appWhite
                 filterView.translatesAutoresizingMaskIntoConstraints = false
                 addSubview(filterView)
 
                 NSLayoutConstraint.activate([
-                    filterView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 0, bottom: 7, right: 0)),
+                    filterView.anchorsConstraint(to: self)
                 ])
             }
         }
 
         override init(frame: CGRect) {
             super.init(frame: frame)
-            backgroundColor = GroupedTable.Color.background
+            backgroundColor = Colors.appWhite
         }
 
         required init?(coder aDecoder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
+            return nil
         }
     }
 }

@@ -2,13 +2,13 @@
 
 import UIKit
 
-class AddHideTokensCell: UITableViewCell {
+class AddHideTokensTableHeaderView: UITableViewHeaderFooterView {
     lazy private var addHideTokensView = ShowAddHideTokensView()
 
     weak var delegate: ShowAddHideTokensViewDelegate?
 
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
 
         addHideTokensView.delegate = self
 
@@ -16,13 +16,12 @@ class AddHideTokensCell: UITableViewCell {
         contentView.addSubview(addHideTokensView)
 
         NSLayoutConstraint.activate([
-            addHideTokensView.anchorsConstraint(to: contentView),
-            addHideTokensView.heightAnchor.constraint(equalToConstant: 60),
+            addHideTokensView.anchorsConstraint(to: contentView)
         ])
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     func configure() {
@@ -30,7 +29,7 @@ class AddHideTokensCell: UITableViewCell {
     }
 }
 
-extension AddHideTokensCell: ShowAddHideTokensViewDelegate {
+extension AddHideTokensTableHeaderView: ShowAddHideTokensViewDelegate {
     func view(_ view: ShowAddHideTokensView, didSelectAddHideTokensButton sender: UIButton) {
         delegate?.view(view, didSelectAddHideTokensButton: sender)
     }

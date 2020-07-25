@@ -13,7 +13,7 @@ class ShowAddHideTokensView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.semanticContentAttribute = .forceRightToLeft
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: -addTokenTitleLeftInset, bottom: 0, right: addTokenTitleLeftInset)
-        button.addTarget(self, action: #selector(addHideTokensSelected(_:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(addHideTokensSelected), for: .touchUpInside)
 
         return button
     }()
@@ -55,7 +55,7 @@ class ShowAddHideTokensView: UIView {
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     private func setupViews() {

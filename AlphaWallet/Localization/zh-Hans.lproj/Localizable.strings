@@ -458,3 +458,5 @@
 "a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
 "a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
 "a.wallet.token.transaction.inProgress.confirm" = "OK, great!";
+"a.wallet.tokens.deposit" = "Deposits";
+"a.wallet.tokens.loans" = "Loans";

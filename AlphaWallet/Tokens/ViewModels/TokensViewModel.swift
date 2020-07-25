@@ -3,6 +3,25 @@
 import Foundation
 import UIKit
 
+enum TokensSection {
+    case filter
+    case addHideToken
+    case filtered
+    case deposit
+    case loans 
+}
+
+private struct TokenFilteringResult {
+
+    let loans: [TokenObject]
+    let deposit: [TokenObject]
+    let filtered: [TokenObject]
+
+    var hasContant: Bool {
+        return !loans.isEmpty || !deposit.isEmpty || !filtered.isEmpty
+    }
+}
+
 //Must be a class, and not a struct, otherwise changing `filter` will silently create a copy of TokensViewModel when user taps to change the filter in the UI and break filtering
 class TokensViewModel {
     //Must be computed because localization can be overridden by user dynamically
@@ -14,13 +33,11 @@ class TokensViewModel {
 
     var filter: WalletFilter = .all {
         didSet {
-            filteredTokens = filteredAndSortedTokens()
+            filteringResult = filteredAndSortedTokenResult()
         }
     }
 
-    lazy var filteredTokens: [TokenObject] = {
-        return filteredAndSortedTokens()
-    }()
+    private lazy var filteringResult: TokenFilteringResult = filteredAndSortedTokenResult()
 
     var headerBackgroundColor: UIColor {
         return .white
@@ -54,15 +71,29 @@ class TokensViewModel {
     }
 
     var hasContent: Bool {
-        return !filteredTokens.isEmpty
+        return filteringResult.hasContant
     }
 
-    func numberOfItems() -> Int {
-        return filteredTokens.count
+    func numberOfItems(section: Int) -> Int {
+        switch filter {
+        case .collectiblesOnly:
+            return filteringResult.filtered.count
+        case .all, .assetsOnly, .currencyOnly, .finances, .keyword:
+            return 0
+        }
     }
 
     func item(for row: Int, section: Int) -> TokenObject {
-        return filteredTokens[row]
+        switch sections[section] {
+        case .addHideToken, .filter:
+            return filteringResult.filtered[row]
+        case .deposit:
+            return filteringResult.deposit[row]
+        case .filtered:
+            return filteringResult.filtered[row]
+        case .loans:
+            return filteringResult.loans[row]
+        }
     }
 
     func ticker(for token: TokenObject) -> CoinTicker? {
@@ -87,7 +118,7 @@ class TokensViewModel {
     func markTokenHidden(token: TokenObject) -> Bool {
         if let index = tokens.firstIndex(where: { $0.primaryKey == token.primaryKey }) {
             tokens.remove(at: index)
-            filteredTokens = filteredAndSortedTokens()
+            filteringResult = filteredAndSortedTokenResult()
 
             return true
         }
@@ -95,9 +126,26 @@ class TokensViewModel {
         return false
     }
 
-    private func filteredAndSortedTokens() -> [TokenObject] {
-        let displayedTokens = filterTokensCoordinator.filterTokens(tokens: tokens, filter: filter)
-        return filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
+    private func filteredAndSortedTokenResult() -> TokenFilteringResult {
+        
+        var loans: [TokenObject] = []
+        var deposit: [TokenObject] = []
+        var filtered: [TokenObject] = []
+
+        switch filter {
+        case .finances:
+            let displayedLoans = filterTokensCoordinator.loansFinancesTokens(tokens: tokens)
+            let displayedDeposits = filterTokensCoordinator.depositFinancesTokens(tokens: tokens)
+
+            loans = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedLoans)
+            deposit = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedDeposits)
+        case .all, .assetsOnly, .collectiblesOnly, .currencyOnly, .keyword:
+            let displayedTokens = filterTokensCoordinator.filterTokens(tokens: tokens, filter: filter)
+
+            filtered = filterTokensCoordinator.sortDisplayedTokens(tokens: displayedTokens)
+        }
+
+        return .init(loans: loans, deposit: deposit, filtered: filtered)
     }
 
     func nativeCryptoCurrencyToken(forServer server: RPCServer) -> TokenObject? {
@@ -108,8 +156,7 @@ class TokensViewModel {
         guard let tickers = tickers[token.server] else { return 0 }
         guard !token.valueBigInt.isZero, let tickersSymbol = tickers[token.contractAddress] else { return 0 }
         let tokenValue = EtherNumberFormatter.plain.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
-        let price = tickersSymbol.price_usd
-        return tokenValue * price
+        return tokenValue * tickersSymbol.price_usd
     }
 
     func convertSegmentedControlSelectionToFilter(_ selection: SegmentedControl.Selection) -> WalletFilter? {
@@ -119,6 +166,53 @@ class TokensViewModel {
         case .unselected:
             return nil
         }
+    }
+
+    var sectionCount: Int {
+        return sections.count
+    }
+
+    var sections: [TokensSection] {
+        switch filter {
+        case .finances:
+            return [.filter, .deposit, .loans]
+        case .all, .assetsOnly, .collectiblesOnly, .currencyOnly, .keyword:
+            return [.filter, .addHideToken, .filtered]
+        }
+    }
+
+    func heightForHeader(in section: Int) -> CGFloat {
+        switch sections[section] {
+        case .addHideToken, .filter:
+            return 50.0
+        case .loans:
+            return filteringResult.loans.isEmpty ? 0.01 : 50.0
+        case .deposit:
+            return filteringResult.deposit.isEmpty ? 0.01 : 50.0
+        case .filtered:
+            return 0.01
+        }
+    }
+
+    func numberOfRows(in section: Int) -> Int {
+        switch sections[section] {
+        case .addHideToken, .filter:
+            return 0
+        case .deposit:
+            return filteringResult.deposit.count
+        case .filtered:
+            return filteringResult.filtered.count
+        case .loans:
+            return filteringResult.loans.count
+        }
+    }
+
+    var depositTitleLabel: String {
+        return R.string.localizable.aWalletTokensDeposit()
+    }
+
+    var loansTitleLabel: String {
+        return R.string.localizable.aWalletTokensLoans()
     }
 }
 

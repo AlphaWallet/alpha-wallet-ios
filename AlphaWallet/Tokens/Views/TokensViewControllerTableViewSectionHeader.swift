@@ -4,7 +4,7 @@ import Foundation
 import UIKit
 
 extension TokensViewController {
-    class TableViewSectionHeader: UITableViewHeaderFooterView {
+    class FilterTokensTableHeaderView: UITableViewHeaderFooterView {
         var filterView: SegmentedControl? {
             didSet {
                 guard let filterView = filterView else {
@@ -13,11 +13,13 @@ extension TokensViewController {
                     }
                     return
                 }
+
                 filterView.backgroundColor = Colors.appWhite
                 filterView.translatesAutoresizingMaskIntoConstraints = false
                 contentView.addSubview(filterView)
+
                 NSLayoutConstraint.activate([
-                    filterView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 0, left: 0, bottom: 0, right: 0)),
+                    filterView.anchorsConstraint(to: contentView),
                 ])
             }
         }
@@ -29,7 +31,7 @@ extension TokensViewController {
         }
 
         required init?(coder aDecoder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
+            return nil
         }
     }
 }
