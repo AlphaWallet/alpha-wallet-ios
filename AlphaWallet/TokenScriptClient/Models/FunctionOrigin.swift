@@ -79,12 +79,12 @@ struct FunctionOrigin {
         }
     }
 
-    private let originContractOrRecipientAddress: AlphaWallet.Address
     private let attributeId: AttributeId
     private let functionType: FunctionType
     private let bitmask: BigUInt?
     private let bitShift: Int
 
+    let originContractOrRecipientAddress: AlphaWallet.Address
     let originElement: XMLElement
     let xmlContext: XmlContext
 

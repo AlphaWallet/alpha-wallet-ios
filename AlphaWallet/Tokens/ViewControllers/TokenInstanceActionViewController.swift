@@ -191,7 +191,8 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
             return allAttributesAndValues
         }.done { values in
             let strongSelf = self
-            guard let contract = strongSelf.action.contract, let transactionFunction = strongSelf.action.transactionFunction else { return }
+            guard let transactionFunction = strongSelf.action.transactionFunction else { return }
+            let contract = transactionFunction.originContractOrRecipientAddress
             let tokenId = strongSelf.tokenId
 
             func notify(message: String) {
