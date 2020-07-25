@@ -171,7 +171,6 @@ public struct Constants {
         AlphaWallet.Address(string: "0xF5DCe57282A584D2746FaF1593d3121Fcac444dC")!,
         AlphaWallet.Address(string: "0xc00e94Cb662C3520282E6f5717214004A7f26888")!,
         AlphaWallet.Address(string: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2")!,
-        AlphaWallet.Address(string: "0x6B175474E89094C44Da98b954EedeAC495271d0F")!,
         AlphaWallet.Address(string: "0x04abEdA201850aC0124161F037Efd70c74ddC74C")!,
         AlphaWallet.Address(string: "0x2a1530C4C41db0B0b2bB646CB5Eb1A67b7158667")!,
         AlphaWallet.Address(string: "0x09cabEC1eAd1c0Ba254B09efb3EE13841712bE14")!,
