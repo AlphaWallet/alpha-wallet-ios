@@ -21,12 +21,15 @@ class TransactionInProgressCoordinator: Coordinator {
         return navigationController
     }()
     private let navigationController: UINavigationController
+    //TODO fix for activities: So we switch to the aEth token after action
+    let shouldSwitchToAEthToken: Bool
 
     var coordinators: [Coordinator] = []
     weak var delegate: TransactionInProgressCoordinatorDelegate?
 
-    init(navigationController: UINavigationController) {
+    init(navigationController: UINavigationController, shouldSwitchToAEthToken: Bool) {
         self.navigationController = navigationController
+        self.shouldSwitchToAEthToken = shouldSwitchToAEthToken
     }
 
     func start() {
@@ -37,13 +40,13 @@ class TransactionInProgressCoordinator: Coordinator {
 extension TransactionInProgressCoordinator: TransactionInProgressViewControllerDelegate {
 
     func transactionInProgressDidDissmiss(in controller: TransactionInProgressViewController) {
-        viewControllerToPresent.dismiss(animated: true) {
+        viewControllerToPresent.dismiss(animated: false) {
             self.delegate?.transactionInProgressDidDissmiss(in: self)
         }
     }
 
     func controller(_ controller: TransactionInProgressViewController, okButtonSelected sender: UIButton) {
-        viewControllerToPresent.dismiss(animated: true) {
+        viewControllerToPresent.dismiss(animated: false) {
             self.delegate?.transactionInProgressDidDissmiss(in: self)
         }
     }

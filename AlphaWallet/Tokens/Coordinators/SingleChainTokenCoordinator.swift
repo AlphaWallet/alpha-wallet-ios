@@ -622,7 +622,10 @@ extension SingleChainTokenCoordinator: CanOpenURL {
 extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
 
     func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
-        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController)
+        //TODO fix for activities: So we switch to the aEth token after action
+        let shouldSwitchToAEthToken = viewController.action.actionName == "depositeAAVE"
+
+        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController, shouldSwitchToAEthToken: shouldSwitchToAEthToken)
         coordinator.delegate = self
         addCoordinator(coordinator)
 
@@ -642,6 +645,49 @@ extension SingleChainTokenCoordinator: TransactionInProgressCoordinatorDelegate 
 
     func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
+        if coordinator.shouldSwitchToAEthToken {
+            navigationController.popToRootViewController(animated: false)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+                self.showAaveToken()
+            }
+        }
+    }
+
+    private func showAaveToken() {
+        let contract = Constants.Contracts.aEth
+        if let token = storage.token(forContract: contract) {
+            show(fungibleToken: token, transferType: .ERC20Token(token, destination: nil, amount: nil))
+        } else {
+            fetchContractDataFor(address: contract, storage: storage, assetDefinitionStore: assetDefinitionStore) { [weak self] data in
+                guard let strongSelf = self else { return }
+                switch data {
+                case .name, .symbol, .balance, .decimals:
+                    break
+                case .nonFungibleTokenComplete:
+                    //Not expecting NFT
+                    break
+                case .fungibleTokenComplete(let name, let symbol, let decimals):
+                    //TODO update fetching to retrieve balance too so we can display the correct balance in the view controller
+                    let token = ERCToken(
+                            contract: contract,
+                            server: strongSelf.storage.server,
+                            name: name,
+                            symbol: symbol,
+                            decimals: Int(decimals),
+                            type: .erc20,
+                            balance: ["0"]
+                    )
+                    strongSelf.storage.addCustom(token: token)
+                    if let token = strongSelf.storage.token(forContract: contract) {
+                        strongSelf.show(fungibleToken: token, transferType: .ERC20Token(token, destination: nil, amount: nil))
+                    }
+                case .delegateTokenComplete:
+                    break
+                case .failed:
+                    break
+                }
+            }
+        }
     }
 }
 
