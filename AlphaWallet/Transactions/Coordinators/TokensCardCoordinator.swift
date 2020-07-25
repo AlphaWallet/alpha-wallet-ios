@@ -704,5 +704,7 @@ extension TokensCardCoordinator: TransactionInProgressCoordinatorDelegate {
 
     func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
+        //TODO fix for activities: remove or make sure it works properly
+        navigationController.popViewController(animated: true)
     }
 }
