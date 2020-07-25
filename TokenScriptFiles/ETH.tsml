@@ -622,7 +622,7 @@ class Token {
                     &lt;div class="time"&gt;${this.time}&lt;/div&gt;
                 &lt;/div&gt;
                 &lt;div class="title"&gt;
-                    Deposit &lt;strong&gt;aETH&lt;/strong&gt;
+                    Deposit &lt;strong&gt;ETH&lt;/strong&gt;
                 &lt;/div&gt;
                 &lt;div class="subtitle"&gt;
                     to Aave
@@ -890,15 +890,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>1Uo0kfpMq9N1AmaUZ20ii69VQxDTv6zLgq449bJsYfk=</ds:DigestValue>
+<ds:DigestValue>RFEt0hNpAmwWLvCS1G/59HEL6whn5boSmlWAS/DMlJo=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-VjSe/k94b4ztax6h6Y8e9SMZKTLuq2IByyh6i4+C3SdkuduC5GJ4mMsX5dfU2mdfDdusH4mH0F32
-98fE+vpovbIJgLdzsLBmxcyjBUgOh7M2Ofrkv6QwVERlj9GmRp+LThyCAFpd8QR4mc7ul44YqvTV
-f7S9dRWJXIs5fWvsfD+9M937f6CwpYWpK/MfCZGTuoNPPF8SUemTLmuOD8B1RI0/6+BEErN/f51q
-no+/oHDsCuBAp183xgiz0/uYVa2cIEkYkddHsQe8Uw6p+S0qEhzeHT5MW9EmV+6gwrqoSb1D/AdF
-YQKpDad7G8+/0wSV4aTTh/5c/YLayrWQbt5njQ==
+OrDoPUdn+gxJ1bPw2N7oCVsq6y8WweimdRx8kzwxtzmXPFs94ffaFitZykkTXheuauT1lFGSH/Cd
+KrCFXPiXsrYWdy1ti1iq41lZU7ftvutGerzZAX6koT8B0QgORY3QGHju3suh9W5F2xvOIfaa+ci7
+P8r16L3SB3IhtILQX//Vv99IjPNA/ErnjmGCHTJVdTrUGbXvyEgUtKWBtIgAmxUace+w1NkaOeaz
+HgyEnHmxK4aG+9FFBDJagzD9rBq5cYaBdP91yhNxJ6slrtZ03ptM+IQ+zBy13qACP7T0MLCd4wjY
+5+JV93gksBreMIJnev/8ZYNarHhl2Q7NBoIjtQ==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
