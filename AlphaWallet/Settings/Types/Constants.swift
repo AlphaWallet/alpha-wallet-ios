@@ -58,7 +58,7 @@ public struct Constants {
     // FIFA hardcoded FIFA token address
     static let ticketContractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
     static let ticketContractAddressRopsten = AlphaWallet.Address(string: "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3")!
-    
+
     // UEFA hardcoded addresses
     static let uefaMainnet = AlphaWallet.Address(string: "0x89D142Bef8605646881C68dcD48cDAF17FE597dC")!
     static let uefaRpcServer = RPCServer.main
@@ -147,7 +147,11 @@ public struct Constants {
         (name: "PAX", contract: AlphaWallet.Address(string: "0x8e870d67f660d95d5be530380d0ec0bd388289e1")!),
         (name: "TUSD", contract: AlphaWallet.Address(string: "0x8dd5fbce2f6a956c3022ba3663759011dd51e73e")!),
         (name: "USDC", contract: AlphaWallet.Address(string: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")!),
-        (name: "USDO", contract: AlphaWallet.Address(string: "0x98f2ab72198f2e64527bdb28931f60c0f77ac2fc")!)
+        (name: "USDO", contract: AlphaWallet.Address(string: "0x98f2ab72198f2e64527bdb28931f60c0f77ac2fc")!),
+        //TODO fix for activities: remove
+        (name: "Aeth", contract: AlphaWallet.Address(string: "0x3a3a65aab0dd2a17e3f1947ba16138cd37d08c04")!),
+        (name: "aaveDebt", contract: AlphaWallet.Address(string: "0x38bA1173F498f7a89ac474EdBA1D587Cc1ab021D")!),
+        (name: "DAI", contract: AlphaWallet.Address(string: "0x6b175474e89094c44da98b954eedeac495271d0f")!),
     ]
 
     static let loansContracts = [

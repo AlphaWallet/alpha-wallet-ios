@@ -216,7 +216,8 @@ class SingleChainTokenCoordinator: Coordinator {
                         }
                         switch result {
                         case .success(let balance):
-                            if balance > 0 {
+                            //TODO fix for activities: remove. Just check for balance > 0
+                            if balance > 0 || Constants.erc20ContractsSupportingActivities.contains(where: { $0.address.sameContract(as: each) }) {
                                 strongSelf.addToken(for: each) {
                                     DispatchQueue.main.async {
                                         strongSelf.delegate?.tokensDidChange(inCoordinator: strongSelf)
