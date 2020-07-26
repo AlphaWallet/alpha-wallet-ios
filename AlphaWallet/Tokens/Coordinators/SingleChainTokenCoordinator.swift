@@ -646,12 +646,8 @@ extension SingleChainTokenCoordinator: TransactionInProgressCoordinatorDelegate 
 
     func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
-        if coordinator.shouldSwitchToAEthToken {
-            navigationController.popToRootViewController(animated: false)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
-                self.showAaveToken()
-            }
-        }
+        //TODO fix for activities: remove or make sure it works properly
+        navigationController.popViewController(animated: true)
     }
 
     private func showAaveToken() {
