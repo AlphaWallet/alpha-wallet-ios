@@ -70,7 +70,7 @@
                     <ts:string xml:lang="en">Amount to withdraw</ts:string>
                 </ts:label>
                 <ts:origins>
-                    <ts:user-entry as="e8"/>
+                    <ts:user-entry as="e18"/>
                 </ts:origins>
             </ts:attribute>
             <ts:transaction>
@@ -1020,15 +1020,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>60EQMk54jkRSQ4omcLFkd+ycF+gFnvqB49bsRzhRfQI=</ds:DigestValue>
+<ds:DigestValue>0x7i+0bGYf0FsCJOYL9xfMyjglTVoaLlMTitCmEhq6g=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-N0sPsQDmHpWUHXNFwh7Qm7dDBGp4kQGI0Fyx/I7KjqW3koBh9mDnRdPawORAFDZEpoe+CvKdVDy2
-fTNHZ3uivSxJxsoYJqxcigj645POOBOzwEC3tkdKukM8I6BTp0I6XuR7pueX3ufDZPwgyzaA9i1X
-imTNMB65kbf8vMwfXNPSyPMTAH6s3PZ6x6lTtoKSgqfrEmnzeyxXX69Utdlb4xxdkpIqWvZ9hB+Y
-c3QMbvNjGFO9aq6DeGgq2pCgWLPS83ZizEbCDpztS8j9Pm7lKO+7eT+R5QwVvTGftmXDx3tQ7m2f
-hNH/LljzFuUNLJgVTLQiIRK9En+7oXrp810WHw==
+jxGbcOYr0KU4bLlTron83z96uLajhj6LXus7mSsF2T5DH/AaWg7cDh5UQ13PTDX8oDp1XmKe3Tzb
+oiV2ljgT5/zJotlSV48iCDE29UnfMadnrDN7peHJq99tLYRhEQOejJ2WU7BAT1zH7oJBH2jfOWoO
+SeJ2cAb77XnnGtw/2DzB7ihvtDEW265uLAhiOk2cIsvyT9oonRxNDaBgRlwpLN4iVaSlum31Rahq
+In48GKwG8c4m06M+EFY3gCHSWDWJNPU6pxfKvR9si5vQQjTGRdz6nOgY93wH0gpZ5tc+1iXdfJnq
+IwkFsOKpb1XT9fGzz//lvoXqhusr/uvVv6baVA==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
