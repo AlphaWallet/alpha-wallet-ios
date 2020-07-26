@@ -22,6 +22,7 @@ protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
+    func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
 }
 
 // swiftlint:disable type_body_length
@@ -622,7 +623,7 @@ extension SingleChainTokenCoordinator: CanOpenURL {
 
 extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
 
-    func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
+    func didCompleteTransaction(_ transaction: SentTransaction, in viewController: TokenInstanceActionViewController) {
         //TODO fix for activities: So we switch to the aEth token after action
         let shouldSwitchToAEthToken = viewController.action.actionName == "depositeAAVE"
 
@@ -631,6 +632,8 @@ extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate
         addCoordinator(coordinator)
 
         coordinator.start()
+
+        delegate?.didPostTokenScriptTransaction(transaction, in: self)
     }
 
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {
