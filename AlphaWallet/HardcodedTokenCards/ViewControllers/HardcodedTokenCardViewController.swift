@@ -14,13 +14,12 @@ typealias HardcodedTokenCardRowFormatter = ([AttributeId: AssetInternalValue]) -
 typealias HardcodedTokenCardRowFloatBlock = ([AttributeId: AssetInternalValue]) -> Float
 
 //TODO fix for activities: remove and replace
-class HardcodedTokenCardViewController: UIViewController {
+class HardcodedTokenCardViewController: UIViewController, TokenVerifiableStatusViewController {
     private let roundedBackground = RoundedBackground()
     lazy private var header = HardcodedTokenViewControllerHeaderView()
     private var viewModel: HardcodedTokenViewControllerViewModel
     private var tokenHolder: TokenHolder?
     private let session: WalletSession
-    private let assetDefinitionStore: AssetDefinitionStore
     private let transferType: TransferType
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
@@ -28,7 +27,17 @@ class HardcodedTokenCardViewController: UIViewController {
     private var refreshTimer = Timer()
     private let refreshInterval = 10.0
 
+    let assetDefinitionStore: AssetDefinitionStore
     weak var delegate: HardcodedTokenCardViewControllerDelegate?
+
+    var contract: AlphaWallet.Address {
+        //TODO fix for activities: //Should not be possible to be nil
+        viewModel.token?.contractAddress ?? Constants.nativeCryptoAddressInDatabase
+    }
+
+    var server: RPCServer {
+        viewModel.session.server
+    }
 
     init(session: WalletSession, assetDefinition: AssetDefinitionStore, transferType: TransferType, viewModel: HardcodedTokenViewControllerViewModel) {
         self.session = session
@@ -42,6 +51,7 @@ class HardcodedTokenCardViewController: UIViewController {
         title = viewModel.title
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
 
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: nil)
 
         roundedBackground.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(roundedBackground)
@@ -117,6 +127,8 @@ class HardcodedTokenCardViewController: UIViewController {
     private func configure(viewModel: HardcodedTokenViewControllerViewModel) {
         self.viewModel = viewModel
         view.backgroundColor = viewModel.backgroundColor
+
+        updateNavigationRightBarButtons(withTokenScriptFileStatus: tokenScriptFileStatus)
 
         let actions = viewModel.actions
         buttonsBar.configure(.combined(buttons: viewModel.actions.count))
@@ -236,6 +248,20 @@ class HardcodedTokenCardViewController: UIViewController {
         let token = Token(tokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), tokenType: tokenObject.type, index: 0, name: tokenObject.name, symbol: tokenObject.symbol, status: .available, values: values)
         tokenHolder = TokenHolder(tokens: [token], contractAddress: tokenObject.contractAddress, hasAssetDefinition: true)
         return tokenHolder
+    }
+}
+
+extension HardcodedTokenCardViewController: VerifiableStatusViewController {
+    func showInfo() {
+        //no-op
+    }
+
+    func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(forContract: contract, server: server, in: self)
+    }
+
+    func open(url: URL) {
+        delegate?.didPressViewContractWebPage(url, in: self)
     }
 }
 
