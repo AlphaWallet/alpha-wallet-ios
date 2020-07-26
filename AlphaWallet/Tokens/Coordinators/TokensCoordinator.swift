@@ -8,6 +8,7 @@ protocol TokensCoordinatorDelegate: class, CanOpenURL {
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
+    func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator)
 }
 
 private struct NoContractDetailsDetected: Error {
@@ -203,6 +204,10 @@ extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
 
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator) {
         delegate?.didTap(transaction: transaction, inViewController: viewController, in: self)
+    }
+
+    func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didPostTokenScriptTransaction(transaction, in: self)
     }
 }
 
