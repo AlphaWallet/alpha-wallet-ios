@@ -16,6 +16,7 @@ class TokenScriptFilterParserTests: XCTestCase {
         XCTAssertEqual(TokenScriptFilterParser.Lexer().tokenize(expression: "expiry>=hello)world"), [.other("expiry"), .binaryOperator(">="), .value("hello"), .reserved(")"), .other("world")])
         XCTAssertEqual(TokenScriptFilterParser.Lexer().tokenize(expression: "expiry>=hello>world"), [.other("expiry"), .binaryOperator(">="), .value("hello"), .binaryOperator(">"), .value("world")])
         XCTAssertEqual(TokenScriptFilterParser.Lexer().tokenize(expression: "(&(birthDate=xxx)(expiry<=20200421000000))"), [.reserved("("), .reserved("&"), .reserved("("), .other("birthDate"), .binaryOperator("="), .value("xxx"), .reserved(")"), .reserved("("), .other("expiry"), .binaryOperator("<="), .value("20200421000000"), .reserved(")"), .reserved(")")])
+        XCTAssertEqual(TokenScriptFilterParser.Lexer().tokenize(expression: "_spender=0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d"), [.other("_spender"), .binaryOperator("="), .value("0xfC1E690f61EFd961294b3e1Ce3313fBD8aa4f85d")])
     }
 
     func testTokenizingWithParenthesis() {

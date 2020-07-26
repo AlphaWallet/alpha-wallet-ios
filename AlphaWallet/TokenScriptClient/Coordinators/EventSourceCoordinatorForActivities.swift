@@ -143,7 +143,7 @@ class EventSourceCoordinatorForActivities {
             }
         } else {
             //TODO support things like "$prefix-{tokenId}"
-            optionalFilter = nil
+            optionalFilter = (filter: .string(filterValue), textEquivalent: "\(filterName)=\(filterValue)")
         }
         guard let (filterValue, textEquivalent) = optionalFilter else { return nil }
         guard let filterValueTypedForEventFilters = filterValue.coerceToArgumentTypeForEventFilter(parameterType) else { return nil }

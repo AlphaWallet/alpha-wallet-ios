@@ -122,6 +122,7 @@ class EventSourceCoordinator {
         guard parameter.name == filterName else { return nil }
         guard let parameterType = SolidityType(rawValue: parameter.type) else { return nil }
         let optionalFilter: (filter: AssetAttributeValueUsableAsFunctionArguments, textEquivalent: String)?
+        //TODO fix for activities. Need to parse event filters properly like "name=prefix-${field}" as well as "name=CONSTANT"
         if let implicitAttribute = EventSourceCoordinator.convertToImplicitAttribute(string: filterValue) {
             switch implicitAttribute {
             case .tokenId:
@@ -140,6 +141,7 @@ class EventSourceCoordinator {
         return (filter: [filterValueTypedForEventFilters], textEquivalent: textEquivalent)
     }
 
+    //TODO fix for activities. Need to parse event filters properly like "name=prefix-${field}" as well as "name=CONSTANT"
     static func convertToImplicitAttribute(string: String) -> AssetImplicitAttributes? {
         let prefix = "${"
         let suffix = "}"
