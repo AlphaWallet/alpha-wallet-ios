@@ -353,7 +353,7 @@ class Token {
                     &lt;div class="time"&gt;&lt;div class="time"&gt;${this.time}&lt;/div&gt;&lt;/div&gt;
                 &lt;/div&gt;
                 &lt;div class="title"&gt;
-                    Receive &lt;strong&gt;aETH&lt;/strong&gt;
+                    Received &lt;strong&gt;aETH&lt;/strong&gt;
                 &lt;/div&gt;
                 &lt;div class="subtitle"&gt;
                     from Aave
@@ -622,7 +622,7 @@ class Token {
                     &lt;div class="time"&gt;${this.time}&lt;/div&gt;
                 &lt;/div&gt;
                 &lt;div class="title"&gt;
-                    Deposit &lt;strong&gt;ETH&lt;/strong&gt;
+                    Deposited &lt;strong&gt;ETH&lt;/strong&gt;
                 &lt;/div&gt;
                 &lt;div class="subtitle"&gt;
                     to Aave
@@ -764,7 +764,7 @@ class Token {
                 &lt;/div&gt;
                 
                 &lt;div class="depositContainer"&gt;
-                    &lt;p&gt;Deposit ETH&lt;/p&gt;
+                    &lt;p&gt;Deposited ETH&lt;/p&gt;
                 &lt;/div&gt;
             &lt;/div&gt;
             
@@ -890,15 +890,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>ailo64rSLCXfugMGQZPPCEkx8Wk8FSlkgLlk3hVSAqo=</ds:DigestValue>
+<ds:DigestValue>uh8bVwkXfzdatxX/oJ8I1Z3Iq2Nl/k6pNPjxPKuG4yg=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-ZwzB4BA0zBJOk6s5InUbAhfjg9Sfjo02hn3E3xkonf/XyQlFEJyAx4td0H48OJsZ3mSOQl6+fIlC
-G0qiMAiRF5UyQzLXZplmzZ4PUY6W0UhcfUHwDNAPtyhrU3JeceRTYZtIoV3QhiHtMEacFdrqE8qo
-0Mw3UjUirq0bFCMxlQd2GzJOrs20nmKxiAm7tG9wtsInAYeQJSqkGcH62BT39nmZ9Ac2T/IB8Fhr
-QCrUUA5s0n8XJBqqA40HXPVLxPzutSZ1EDKIYS0Vk8yo4xl150srHYIjY3Gtd73qPArb5QHc4oM+
-p2Wr1YFpLUIN32apGBmoE1y0LA0Ary+BepPy3w==
+opAShGxzX0m6I+KIvCyffphbofQJM1i385vF8Uc2AgmnUYOFqVuYKpx6mMZ7kPwE4DyuQa37Ck7l
+taCFDUswW85ioM/UkpVM/ZADdJbwQBdHWRuu5kRcFN7Zt8BL4jGz00+GpbsHifzZ9iGGd0opt7pI
+2Xo6ProuTCaYiW36RzeomIL3CuKJPJEVzxBEo/sfncPIZrztrDRJhzUo40DeVCN3cDzGCxz85HM0
+jmam/FlwBcUsLpws1r7wi+soE6T18nu4i4VNNXpYbKzrxQdHGvXZ7dAfTwQdqEvU4pmAkOWDujw0
+k9E8v9IAeTtmttU5LrD/VgDFODAW5xqR5tKxMg==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
