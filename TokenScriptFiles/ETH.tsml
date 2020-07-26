@@ -117,7 +117,7 @@ input {
   border: none;
   line-height: 40px;
   text-align: right;
-  width: 5ex;
+  width: 10ex;
 }
 
 h2 img {
@@ -218,7 +218,7 @@ class Token {
            &lt;h1&gt;Deposit&lt;/h1&gt;
            &lt;h2&gt;&lt;img src="data:image/png;base64,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"&gt;&lt;/h2&gt;
            &lt;input id="mintAmount" type="number" placeholder="0"&gt;
-           &lt;p class="hint"&gt;Available  ${tokenBalance} ETH&lt;/p&gt;
+           &lt;p class="hint"&gt;Available  ${tokenBalance.toFixed(4)} ETH&lt;/p&gt;
            &lt;table&gt;
               &lt;caption&gt;Details&lt;/caption&gt;
               &lt;tbody&gt;
@@ -890,15 +890,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>RFEt0hNpAmwWLvCS1G/59HEL6whn5boSmlWAS/DMlJo=</ds:DigestValue>
+<ds:DigestValue>ailo64rSLCXfugMGQZPPCEkx8Wk8FSlkgLlk3hVSAqo=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-OrDoPUdn+gxJ1bPw2N7oCVsq6y8WweimdRx8kzwxtzmXPFs94ffaFitZykkTXheuauT1lFGSH/Cd
-KrCFXPiXsrYWdy1ti1iq41lZU7ftvutGerzZAX6koT8B0QgORY3QGHju3suh9W5F2xvOIfaa+ci7
-P8r16L3SB3IhtILQX//Vv99IjPNA/ErnjmGCHTJVdTrUGbXvyEgUtKWBtIgAmxUace+w1NkaOeaz
-HgyEnHmxK4aG+9FFBDJagzD9rBq5cYaBdP91yhNxJ6slrtZ03ptM+IQ+zBy13qACP7T0MLCd4wjY
-5+JV93gksBreMIJnev/8ZYNarHhl2Q7NBoIjtQ==
+ZwzB4BA0zBJOk6s5InUbAhfjg9Sfjo02hn3E3xkonf/XyQlFEJyAx4td0H48OJsZ3mSOQl6+fIlC
+G0qiMAiRF5UyQzLXZplmzZ4PUY6W0UhcfUHwDNAPtyhrU3JeceRTYZtIoV3QhiHtMEacFdrqE8qo
+0Mw3UjUirq0bFCMxlQd2GzJOrs20nmKxiAm7tG9wtsInAYeQJSqkGcH62BT39nmZ9Ac2T/IB8Fhr
+QCrUUA5s0n8XJBqqA40HXPVLxPzutSZ1EDKIYS0Vk8yo4xl150srHYIjY3Gtd73qPArb5QHc4oM+
+p2Wr1YFpLUIN32apGBmoE1y0LA0Ary+BepPy3w==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
