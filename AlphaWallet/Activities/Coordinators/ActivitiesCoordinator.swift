@@ -18,6 +18,7 @@ class ActivitiesCoordinator: Coordinator {
     private var tokensAndTokenHolders: [AlphaWallet.Address: (tokenObject: TokenObject, tokenHolders: [TokenHolder])] = .init()
     weak private var activityViewController:  ActivityViewController?
     private var rateLimitedUpdater: RateLimiter?
+    private var rateLimitedViewControllerReloader: RateLimiter?
 
     weak var delegate: ActivitiesCoordinatorDelegate?
 
@@ -187,7 +188,18 @@ class ActivitiesCoordinator: Coordinator {
         }
     }
 
+    //TODO fix for activities: throttling reloading because sorting the activities for every attribute in every activity refreshed is really slow
     private func reloadViewController() {
+        if rateLimitedViewControllerReloader == nil {
+            rateLimitedViewControllerReloader = RateLimiter(name: "Reload activity/transactions in Activity tab", limit: 5, autoRun: true) { [weak self] in
+                self?.reloadViewControllerImpl()
+            }
+        } else {
+            rateLimitedViewControllerReloader?.run()
+        }
+    }
+
+    private func reloadViewControllerImpl() {
         let transactionAlreadyRepresentedAsActivities = activities.map { $0.transactionId }
         let items: [ActivityOrTransaction] = activities.map { .activity($0) } + transactions.filter { txn in !transactionAlreadyRepresentedAsActivities.contains(txn.id) }.map { .transaction($0) }
         rootViewController.configure(viewModel: .init(activities: items))
