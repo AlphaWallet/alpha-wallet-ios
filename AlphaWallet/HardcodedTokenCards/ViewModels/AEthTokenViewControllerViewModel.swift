@@ -48,9 +48,15 @@ struct AEthTokenViewControllerViewModel: HardcodedTokenViewControllerViewModel {
                     }
                 }, progressBlock: nil),
                 (title: R.string.localizable.aEthTokenViewRowAvailableToSend(), formatter: { values in
-                    if let value = values["availableBorrowsETH"]?.uintValue {
+                    if let value = values["totalCollateral"]?.uintValue, let borrows = values["totalBorrows"]?.uintValue, let aTokenBalance = values["aTokenBalance"]?.uintValue {
                         //TODO fix for activities. Hardcoded decimals and token symbol. Watch out which token this is for. Should use a TokenScript token attribute for the decimals too, probably
-                        let amount = EtherNumberFormatter.short.string(from: BigInt(value), decimals: 18)
+                        var withdrawable = value - borrows
+                        if withdrawable > aTokenBalance || borrows == 0 {
+                            withdrawable = aTokenBalance
+                        } else {
+                            withdrawable = (withdrawable * 85) / 100 // margin of safety
+                        }
+                        let amount = EtherNumberFormatter.short.string(from: BigInt(withdrawable), decimals: 18)
                         return "\(amount) aETH"
                     } else {
                         return "-"

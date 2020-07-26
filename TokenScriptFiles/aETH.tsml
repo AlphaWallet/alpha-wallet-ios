@@ -213,12 +213,15 @@ class Token {
 
     render() {
         const decimals18 = 1e+18;
-        let aTokenBalance = (this.token.aTokenBalance / decimals18).toFixed(2);
-        let totalBorrows = (this.token.totalBorrows / decimals18).toFixed(2);
-        let withdrawable = (this.token.availableBorrowsETH / decimals18);
+        const safetyMargin = 0.85;
+        let aTokenBalance = (this.token.aTokenBalance / decimals18);
+        let totalBorrows = (this.token.totalBorrows / decimals18);
+        let withdrawable = ((this.token.totalCollateral / decimals18) - totalBorrows);
         //if you have other assets that add to your collateral, your withdrawable could be larger than your aETH balance
-        if(withdrawable &gt; aTokenBalance) {
+        if(parseInt(withdrawable) &gt; parseInt(aTokenBalance) || totalBorrows == 0) {
             withdrawable = aTokenBalance;
+        } else {
+            withdrawable = withdrawable * safetyMargin;
         }
 
         return `&lt;div class="withdraw action"&gt;
@@ -231,15 +234,15 @@ class Token {
               &lt;tbody&gt;
                  &lt;tr&gt;
                     &lt;th&gt;Total Deposited + Interest &lt;/th&gt;
-                    &lt;td&gt;${aTokenBalance}&lt;/td&gt;
+                    &lt;td&gt;${aTokenBalance.toFixed(4)} ETH&lt;/td&gt;
                  &lt;/tr&gt;
                  &lt;tr&gt;
                     &lt;th&gt;Borrowed&lt;/th&gt;
-                    &lt;td&gt;${totalBorrows} ETH&lt;/td&gt;
+                    &lt;td&gt;${totalBorrows.toFixed(4)} ETH&lt;/td&gt;
                  &lt;/tr&gt;
                  &lt;tr&gt;
                     &lt;th&gt;Available to withdraw&lt;/th&gt;
-                    &lt;td&gt;${withdrawable.toFixed(3)} ETH&lt;/td&gt;
+                    &lt;td&gt;${withdrawable.toFixed(4)} ETH&lt;/td&gt;
                  &lt;/tr&gt;
               &lt;/tbody&gt;
            &lt;/table&gt;
@@ -1020,15 +1023,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>0x7i+0bGYf0FsCJOYL9xfMyjglTVoaLlMTitCmEhq6g=</ds:DigestValue>
+<ds:DigestValue>txeGJCIsFHkPwDN+q2XiEqXKlOqs4lIN3SJ2feOiPBI=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-jxGbcOYr0KU4bLlTron83z96uLajhj6LXus7mSsF2T5DH/AaWg7cDh5UQ13PTDX8oDp1XmKe3Tzb
-oiV2ljgT5/zJotlSV48iCDE29UnfMadnrDN7peHJq99tLYRhEQOejJ2WU7BAT1zH7oJBH2jfOWoO
-SeJ2cAb77XnnGtw/2DzB7ihvtDEW265uLAhiOk2cIsvyT9oonRxNDaBgRlwpLN4iVaSlum31Rahq
-In48GKwG8c4m06M+EFY3gCHSWDWJNPU6pxfKvR9si5vQQjTGRdz6nOgY93wH0gpZ5tc+1iXdfJnq
-IwkFsOKpb1XT9fGzz//lvoXqhusr/uvVv6baVA==
+CJ7dgQsALYDUd54I7HY4MbMADLNgyx/UZwsYR1oeiOQAVnGexjx64SYTjqSqdeq1QooeTyHENpox
+kwBAI3Sgxj/RgbTIEFP+GMMDE8D6343K+CTt478oySGQ2EDBva7y0BbLDSxP3ug1dUJUE7dX7eIx
+S/azq2pzmWrmmtGbdauqsZ4ZJZPRcnZNn6+i/iLOmMgHq1khpmTwpCuHr61/SFummxc5/EWKctsF
+DltSBvBgeHeyMS/gvRVdooupq5Jo/jhgnED7Ow58oIBpHQEfSCYGxNjTDtaVHPMeffuiCDOwc6VN
+OesyOeZ0zigWqw8jBNY3bMhbvGkuhPrCfLQPNg==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
