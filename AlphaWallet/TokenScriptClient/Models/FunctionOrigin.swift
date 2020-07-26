@@ -181,7 +181,7 @@ struct FunctionOrigin {
         }
     }
 
-    private func postTransaction(withPayload payload: Data, value: BigUInt, server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<Void> {
+    private func postTransaction(withPayload payload: Data, value: BigUInt, server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<SentTransaction> {
         let account = try! EtherKeystore().getAccount(for: session.account.address)!
         return Promise { seal in
             TransactionConfigurator.estimateGasPrice(server: server).done { gasPrice in
@@ -203,8 +203,14 @@ struct FunctionOrigin {
                 )
                 sendTransactionCoordinator.send(transaction: transactionToSign) { result in
                     switch result {
-                    case .success:
-                        seal.fulfill(Void())
+                    case .success(let confirmResult):
+                        switch confirmResult {
+                        case .signedTransaction:
+                            //Impossible to reach here
+                            seal.reject(FunctionError.postTransaction)
+                        case .sentTransaction(let transaction):
+                            seal.fulfill(transaction)
+                        }
                     case .failure:
                         seal.reject(FunctionError.postTransaction)
                     }
@@ -282,7 +288,7 @@ struct FunctionOrigin {
     }
 
     //TODO duplicated from InCoordinator.importPaidSignedOrder. Extract
-    func postTransaction(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<Void> {
+    func postTransaction(withTokenId tokenId: TokenId, attributeAndValues: [AttributeId: AssetInternalValue], localRefs: [AttributeId: AssetInternalValue], server: RPCServer, session: WalletSession, keystore: Keystore) -> Promise<SentTransaction> {
         assert(functionType.isTransaction)
         let payload: Data
         let value: BigUInt

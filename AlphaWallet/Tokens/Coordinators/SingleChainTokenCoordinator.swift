@@ -22,6 +22,7 @@ protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
+    func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
 }
 
 // swiftlint:disable type_body_length
@@ -513,6 +514,10 @@ extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
         navigationController.popToRootViewController(animated: true)
         removeCoordinator(coordinator)
     }
+
+    func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCardCoordinator) {
+        delegate?.didPostTokenScriptTransaction(transaction, in: self)
+    }
 }
 
 extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
@@ -565,6 +570,10 @@ extension SingleChainTokenCoordinator: CanOpenURL {
 }
 
 extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
+    func didCompleteTransaction(_ transaction: SentTransaction, in viewController: TokenInstanceActionViewController) {
+        delegate?.didPostTokenScriptTransaction(transaction, in: self)
+    }
+
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {
         //TODO: do nothing. We can probably even remove show redemption info?
     }
