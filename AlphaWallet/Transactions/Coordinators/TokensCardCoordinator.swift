@@ -680,7 +680,7 @@ extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
 
 extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
 
-    func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
+    func didCompleteTransaction(_ transaction: SentTransaction, in viewController: TokenInstanceActionViewController) {
         //TODO fix for activities: So we switch to the aEth token after action
         let shouldSwitchToAEthToken = viewController.action.actionName == "depositeAAVE"
 
