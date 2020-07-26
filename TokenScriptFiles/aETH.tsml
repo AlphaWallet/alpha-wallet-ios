@@ -414,10 +414,7 @@ class Token {
 
     render() {
         const decimals18 = 1e+18;
-        let borrowAPY = ((this.token.userInterestRateBorrow / 1e+27) * 100).toFixed(2) + "%";
-        if(this.token.userInterestRateBorrow === 0) {
-            borrowAPY = "N/A";
-        }
+        let borrowAPY = ((this.token.variableBorrowRate / 1e+27) * 100).toFixed(2) + "%";
         let collateralValueInEth = (this.token.totalCollateral / decimals18).toFixed(2);
 
         return `
@@ -999,6 +996,20 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
         </ts:origins>
     </ts:attribute>
 
+    <ts:attribute name="variableBorrowRate">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">variable borrow rate</ts:string>
+        </ts:label>
+        <ts:origins>
+            <ethereum:call as="uint" contract="AAVELendingPoolCore" function="getReserveCurrentVariableBorrowRate">
+                <ts:data>
+                    <ts:address>0x6B175474E89094C44Da98b954EedeAC495271d0F</ts:address>
+                </ts:data>
+            </ethereum:call>
+        </ts:origins>
+    </ts:attribute>
+
 <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 <ds:SignedInfo>
 <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
@@ -1009,15 +1020,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>2iAzdtiSBalh8cKvb6KnZaO+e+SOI8RFeMjJeX8OaiE=</ds:DigestValue>
+<ds:DigestValue>4n7HU+gN0huC42o2ioIa6be749glRyKwbv92vj4rokk=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-kQDBrZj1VnjlvuuQ4ax3tI0y6yDCVSTwKd213LFYgqzKeGMrcFODHxjnv/ORIWEp/n8IiLZz2So4
-xkxBEJsOqbWQFNpwv2MWmrqJ+wKFJP7uxb1BbVO1OUT9tVPraLE8AHUZk1KzNUxQcRbJyAARXCra
-9LyyMTtGfSLRVeC2grUjdfgDXQffBNbgnavBgrKEUOQD2qhrcaZT9HM2LxkEURxwc1QjjqcN6OSr
-Mu2Lyo5q6FQ51WtZrLEloFQxqHl/WIIzuy9PFFvhbvrjUk/wr4hirz31gqczaO5Oi4p1qhTdV79v
-ol/YHlOLDrCOk6AzeTf6VRPHK0dza4+U4cO83w==
+mo+DKIhNwA8JRj77ouXIl2MNbLbxXRrV2xAHWefDzPSi3ZUj2qjr0RfvWhhJboQU8zWVdrQV78O+
+JiA5w6WXy9RovLGCYAn6pslkBUGpzwK5ZkEbLkss+l2HJEvMstBuDtPneHGt9ojDqK/BPtrp1HMh
+qdJ5IQuI6o/mpZALc/fiaCuEdM76cIMAPjaZVfMEbb00hKFH8DkHe2O8GN/uWV3DRvf5iRWkjaI2
+oPks9kdTXLl1Pf82nCId7gBOIFx6wnHX7sfLC85EK6yqiK7sCSGW8Ej3SJfPk6bP7NMb1FFqT3u3
+7WHoFX0ItR4km17YeLw2UwmeGXwv3zkm2oJUrQ==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
