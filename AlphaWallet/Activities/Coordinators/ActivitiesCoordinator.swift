@@ -128,7 +128,7 @@ class ActivitiesCoordinator: Coordinator {
                     }
                 } else {
                     //TODO support things like "$prefix-{tokenId}"
-                    continue
+                    interpolatedFilter = "\(filterName)=\(filterValue)"
                 }
 
                 guard let server = xmlHandler.server else { continue }
