@@ -447,7 +447,7 @@ class Token {
                  &lt;/tr&gt;
                  &lt;tr&gt;
                     &lt;th&gt;Your collateral is worth&lt;/th&gt;
-                    &lt;td&gt;${collateralValueInEth} ETH (${((this.token.totalCollateral / this.token.assetPriceDAI)).toFixed(2)} DAI)&lt;/td&gt;
+                    &lt;td&gt;${collateralValueInEth} ETH (${((this.token.totalCollateral / this.token.assetPriceDAI)).toFixed(2)} USD)&lt;/td&gt;
                  &lt;/tr&gt;
               &lt;/tbody&gt;
            &lt;/table&gt;
@@ -1292,15 +1292,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>bo9rUmI8/qWP1kEL6PyMApv5WgImjtAShCHhRkePFp0=</ds:DigestValue>
+<ds:DigestValue>SmdE+YvGj55VNL59IyjPzpRfjfjDFqNmMcYUVN1qpkM=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-mHWB5sxH7Enh+eTnh4r8YcB6dh0Wadx5koLUFMt3WaUdKvpAlZZMt9n3DkmZWJGu7asuiDtWVY7L
-MNijNkCHgMHHshxapkaf10ytVNvD9IteQtlgQAgyosufGcs8XM/UZEZ+ynKF9TYQeQju0dP9uh/N
-YOQAS00omCRu9epHtidf9+nwc7w690jiC/vLVwaDCeLjatq8WUGgz+V7Vfx9vn/2ZFaZl3r40SJx
-kNrrlU4IRxa9iy+SV0W6fSdUQ83uuLEF0MMiTDdKEQi2MDn6ixmy609gBt8B8cdYn+hCDiTtcpqj
-A4Gp9VVn7wiP35J9KTzt3NwfLDadU/QcfQ37Sw==
+lxhLlNsgLSRCyr8EF7TY4dnRWzoYR4dGGmccYgGGj5YsXhQbrf72usrBn4D5R71YlwgXwNhQQK4d
+Eo0JoEK8BGyUZ/5IPSf87C6ObYM1gslxvr2Ljd4T8R0L9g5P2aVNhvOKrrdtrIkUL4mYGVKnZtFJ
+OgHwz00D0E3K678mjQHxF4RLFSBzzofeQb/nSqMxVXuSCo8ePhS0t7IBXa/VuX9uoPOze8z4AV0R
+73oYc8D3U7C2FoSis78Dx5+tq50TjoEFwPRplOUGJBxM/YgTFQmsec1KB0I45DO3G9sr1SUqQ5q5
+SxNdDXOwxyaCuirimpgx6Mm4Wj2Aj9G40n5qXQ==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
