@@ -209,9 +209,9 @@ class Token {
 
     render() {
         const decimals18 = 1e+18;
-        let aTokenBalance = (this.token.aTokenBalance / decimals18).toFixed(2);
-        let tokenBalance = (this.token.tokenBalance / decimals18).toFixed(2);
-        let APR = ((this.token.interestRateSupply / 1e+27) * 100).toFixed(2);
+        let aTokenBalance = (this.token.aTokenBalance / decimals18);
+        let tokenBalance = (this.token.tokenBalance / decimals18);
+        let APR = ((this.token.interestRateSupply / 1e+27) * 100);
         let annualEarnings = (aTokenBalance * APR) / 100;
         return`
         &lt;div class="deposit action"&gt;
@@ -224,7 +224,7 @@ class Token {
               &lt;tbody&gt;
                  &lt;tr&gt;
                     &lt;th&gt;Interest Rate (APY) &lt;/th&gt;
-                    &lt;td&gt;${APR}%&lt;/td&gt;
+                    &lt;td&gt;${APR.toFixed(4)}%&lt;/td&gt;
                  &lt;/tr&gt;
                  &lt;tr&gt;
                     &lt;th&gt;Annual Earnings&lt;/th&gt;
@@ -232,7 +232,7 @@ class Token {
                  &lt;/tr&gt;
                  &lt;tr&gt;
                     &lt;th&gt;Supply Balance&lt;/th&gt;
-                    &lt;td&gt;${aTokenBalance} ETH&lt;/td&gt;
+                    &lt;td&gt;${aTokenBalance.toFixed(4)} ETH&lt;/td&gt;
                  &lt;/tr&gt;
               &lt;/tbody&gt;
            &lt;/table&gt;
@@ -248,7 +248,7 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
             </ts:view>
         </ts:card>
 
-        <ts:card name="aETHMinted" type="activity">
+        <ts:card name="aETHReceived" type="activity">
             <ts:origins>
                 <ethereum:event contract="aETH" filter="to=${ownerAddress}" type="Transfer"/>
             </ts:origins>
@@ -517,7 +517,7 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
             </ts:view>
         </ts:card>
 
-        <ts:card name="aETHReceived" type="activity">
+        <ts:card name="aETHMinted" type="activity">
             <ts:origins>
                 <ethereum:event contract="aETH" filter="_fromMinter=${ownerAddress}" type="MintOnDeposit"/>
             </ts:origins>
@@ -890,15 +890,15 @@ web3.tokens.dataChanged = (oldTokens, updated, tokenIdCard) =&gt; {
 <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/>
-<ds:DigestValue>uh8bVwkXfzdatxX/oJ8I1Z3Iq2Nl/k6pNPjxPKuG4yg=</ds:DigestValue>
+<ds:DigestValue>aC8lg1Mji0YDGtBd6IKHtv0/Mx529Ezvb6XgJFsUyJo=</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>
 <ds:SignatureValue>
-opAShGxzX0m6I+KIvCyffphbofQJM1i385vF8Uc2AgmnUYOFqVuYKpx6mMZ7kPwE4DyuQa37Ck7l
-taCFDUswW85ioM/UkpVM/ZADdJbwQBdHWRuu5kRcFN7Zt8BL4jGz00+GpbsHifzZ9iGGd0opt7pI
-2Xo6ProuTCaYiW36RzeomIL3CuKJPJEVzxBEo/sfncPIZrztrDRJhzUo40DeVCN3cDzGCxz85HM0
-jmam/FlwBcUsLpws1r7wi+soE6T18nu4i4VNNXpYbKzrxQdHGvXZ7dAfTwQdqEvU4pmAkOWDujw0
-k9E8v9IAeTtmttU5LrD/VgDFODAW5xqR5tKxMg==
+Tgmo6yJzFMwnv4H0+gNoFcafMeJhSwiEvKuEguWQyS4iY5+CQgljyQFlDnlKacazPntMRpaLQ8hy
+noCQmf880858VhCkZsMTQusTvWTlyGAcjhLfhXkibOxZ0k03lV1YFC4Pq1DCiM6wP5Lway6m5iKf
+V0DmIa1EBZENXV3l8Hxlk5eGtDuNg1Tra8JrO0YAcDWziKL+S/7lsoCnVUnWCOhMFPa+0QJQzDAz
+KsC464j+qy5wo/b+0VT/3izN6w5YOtDkfbe++jaYPz+5UUjogl9pgoXPnymGl8Rtc/vHI+aHXVbz
+NbiWP77s+mKycgcZgcrSPu9XbyeWQkvCapO4YQ==
 </ds:SignatureValue>
 <ds:KeyInfo>
 <ds:KeyName>AlphaWallet</ds:KeyName>
