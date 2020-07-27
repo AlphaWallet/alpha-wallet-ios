@@ -472,7 +472,7 @@
 "aaveDebtTokenView.row.borrowed" = "Borrowed";
 "aaveDebtTokenView.row.interestToDate" = "Interest to Date";
 "aaveDebtTokenView.row.interestRate" = "Interest Rate";
-"aaveDebtTokenView.row.interestRate.float" = "%@ Float Rate";
+"aaveDebtTokenView.row.interestRate.float" = "%@ Variable Rate";
 "aaveDebtTokenView.row.interestRate.fixed" = "%@ Fixed Rate";
 "aEthTokenView.title" = "Aave Interest Bearing ETH (aETH)";
 "aEthTokenView.description" = "Total Deposited to AAVE + Interest";

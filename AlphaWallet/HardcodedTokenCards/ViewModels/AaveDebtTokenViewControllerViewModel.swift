@@ -57,7 +57,7 @@ struct AaveDebtTokenViewControllerViewModel: HardcodedTokenViewControllerViewMod
                 (title: R.string.localizable.aaveDebtTokenViewRowInterestRate(), formatter: { values in
                     if let borrowRate: Double = values["borrowRate"]?.uintValue.flatMap({ EtherNumberFormatter.short.string(from: BigInt($0), decimals: 25) })?.doubleValue,
                        let borrowRateMode = values["borrowRateMode"]?.uintValue {
-                        if let borrowRate = NumberFormatter.crypto.string(from: borrowRate) {
+                        if let borrowRate = NumberFormatter.percent.string(from: borrowRate / 100) {
                             if borrowRateMode == BigUInt(2) {
                                 return R.string.localizable.aaveDebtTokenViewRowInterestRateFloat(String(borrowRate))
                             } else {
