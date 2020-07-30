@@ -284,6 +284,8 @@
 "a.wallet.token.transfer.success.title" = "%@이(가) 전송되었습니다";
 "a.wallet.token.transfer.failed.title" = "%@이(가) 전송되지 않았습니다";
 "a.wallet.token.transfer.inProgress.title" = "%@ 전송 중...";
+"a.wallet.token.marketPrice" = "Market Price: %@ %@";
+"a.wallet.token.value" = "Value: %@";
 "a.wallet.tokenBundle.status.sold.title" = "판매됨";
 "a.wallet.tokenBundle.status.redeemed.title" = "상환됨";
 "a.wallet.tokenBundle.status.transferred.title" = "전송됨";

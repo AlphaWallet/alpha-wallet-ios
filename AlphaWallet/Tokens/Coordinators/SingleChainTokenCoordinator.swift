@@ -368,7 +368,7 @@ class SingleChainTokenCoordinator: Coordinator {
     func show(fungibleToken token: TokenObject, transferType: TransferType) {
         guard let transactionsStore = createTransactionsStore() else { return }
 
-        let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transferType: transferType)
+        let viewController = TokenViewController(session: session, tokensDataStore: storage, assetDefinition: assetDefinitionStore, transferType: transferType, token: token)
         viewController.delegate = self
         let viewModel = TokenViewControllerViewModel(transferType: transferType, session: session, tokensStore: storage, transactionsStore: transactionsStore, assetDefinitionStore: assetDefinitionStore)
         viewController.configure(viewModel: viewModel)

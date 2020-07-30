@@ -160,6 +160,7 @@ enum DataEntry {
         static let shadowRadius = CGFloat(2.0)
         static let textFieldInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         static let currencyIconInset = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
+        static let sendHeaderInset = UIEdgeInsets(top: 40, left: 0, bottom: 20, right: 0)
     }
 
     enum Font {
@@ -205,7 +206,8 @@ enum Screen {
             static let subtitle = Fonts.regular(size: 12)!
             static let blockChainName = Fonts.semibold(size: 12)!
             static let valueChangeLabel = Fonts.regular(size: 12)!
-            static let valueChangeValue = Fonts.semibold(size: 12)!
+            static let placeholderLabel = Fonts.regular(size: 17)!
+            static let valueChangeValue = Fonts.semibold(size: 17)!
         }
 
         enum Color {

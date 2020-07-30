@@ -285,6 +285,8 @@
 "a.wallet.token.transfer.success.title" = "你的%@已经被转让";
 "a.wallet.token.transfer.failed.title" = "你的%@没有被转让";
 "a.wallet.token.transfer.inProgress.title" = "转让%@中...";
+"a.wallet.token.marketPrice" = "Market Price: %@ %@";
+"a.wallet.token.value" = "Value: %@";
 "a.wallet.tokenBundle.status.sold.title" = "已出售";
 "a.wallet.tokenBundle.status.redeemed.title" = "已兑换";
 "a.wallet.tokenBundle.status.transferred.title" = "已转让";
