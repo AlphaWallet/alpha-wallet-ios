@@ -3,129 +3,107 @@
 import UIKit
 
 struct SendHeaderViewViewModel {
+    private let token: TokenObject
+    private let transferType: TransferType
     let server: RPCServer
     var title: String
     var ticker: CoinTicker?
     var currencyAmount: String?
-    var currencyAmountWithoutSymbol: Double?
-    var showAlternativeAmount = false
+    var isShowingValue: Bool = true
 
-    init(server: RPCServer) {
+    init(server: RPCServer, token: TokenObject, transferType: TransferType) {
         self.server = server
+        self.token = token
+        self.transferType = transferType
         title = ""
         ticker = nil
         currencyAmount = nil
-        currencyAmountWithoutSymbol = nil
     }
 
-    var blockChainNameFont: UIFont {
-        return Screen.TokenCard.Font.blockChainName
-    }
-
-    var blockChainNameColor: UIColor {
-        return Screen.TokenCard.Color.blockChainName
-    }
-
-    var blockChainNameBackgroundColor: UIColor {
-        return server.blockChainNameColor
-    }
-
-    var blockChainTag: String {
-        return "  \(server.name)     "
-    }
-
-    var blockChainNameTextAlignment: NSTextAlignment {
-        return .center
-    }
-
-    var blockChainNameCornerRadius: CGFloat {
-        return Screen.TokenCard.Metric.blockChainTagCornerRadius
-    }
-
-    var blockChainName: String {
-        return server.blockChainName
+    private var valuePercentageChangeValue: String? {
+        switch EthCurrencyHelper(ticker: ticker).change24h {
+        case .appreciate(let percentageChange24h):
+            return "(\(percentageChange24h)%)"
+        case .depreciate(let percentageChange24h):
+            return "(\(percentageChange24h)%)"
+        case .none:
+            return nil
+        }
     }
 
     var backgroundColor: UIColor {
         return Screen.TokenCard.Color.background
     }
 
-    var contentsBackgroundColor: UIColor {
-        return Screen.TokenCard.Color.background
+    var iconImage: Subscribable<TokenImage> {
+        token.icon
     }
 
-    var titleColor: UIColor {
-        return Screen.TokenCard.Color.title
+    var blockChaintagViewModel: BlockchainTagLabelViewModel {
+        .init(server: server)
     }
 
-    var subtitleColor: UIColor {
-        return Screen.TokenCard.Color.subtitle
+    var titleAttributedString: NSAttributedString {
+        return NSAttributedString(string: title, attributes: [
+            .font: Fonts.regular(size: 36)!,
+            .foregroundColor: Colors.black
+        ])
     }
 
-    var titleFont: UIFont {
-        return Screen.TokenCard.Font.title
-    }
-
-    var subtitleFont: UIFont {
-        return Screen.TokenCard.Font.subtitle
-    }
-    
-    var borderColor: UIColor {
-        return UIColor(red: 236, green: 236, blue: 236)
-    }
-
-    var textColor: UIColor {
-        return Screen.TokenCard.Color.valueChangeLabel
-    }
-
-    var valuePercentageChangeColor: UIColor {
-        return Screen.TokenCard.Color.valueChangeValue(ticker: ticker)
-    }
-
-    var textValueFont: UIFont {
-        return Screen.TokenCard.Font.valueChangeValue
-    }
-
-    var textLabelFont: UIFont {
-        return Screen.TokenCard.Font.valueChangeLabel
-    }
-
-    var valuePercentageChangeValue: String {
-        switch EthCurrencyHelper(ticker: ticker).change24h {
-        case .appreciate(let percentageChange24h):
-            return "\(percentageChange24h)%"
-        case .depreciate(let percentageChange24h):
-            return "\(percentageChange24h)%"
-        case .none:
-            return "-"
-        }
-    }
-
-    var valuePercentageChangePeriod: String {
-        return R.string.localizable.aWalletContentsValuePeriodTitle()
-    }
-
-    var valueChange: String {
-        if let value = EthCurrencyHelper(ticker: ticker).valueChanged24h(currencyAmountWithoutSymbol: currencyAmountWithoutSymbol) {
-            return value
+    var valueAttributedString: NSAttributedString? {
+        if server.isTestnet {
+            return nil
         } else {
-            return "-"
+            switch transferType {
+            case .nativeCryptocurrency:
+                if isShowingValue {
+                    return tokenValueAttributedString
+                } else {
+                    return marketPriceAttributedString
+                }
+            case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken, .dapp:
+                return nil
+            }
         }
     }
 
-    var valueChangeName: String {
-        return R.string.localizable.aWalletContentsValueAppreciationTitle()
+    private var tokenValueAttributedString: NSAttributedString? {
+        let string = R.string.localizable.aWalletTokenValue(currencyAmount ?? "-")
+
+        return NSAttributedString(string: string, attributes: [
+            .font: Screen.TokenCard.Font.placeholderLabel,
+            .foregroundColor: R.color.dove()!
+        ])
     }
 
-    var value: String {
-        if let currencyAmount = currencyAmount {
-            return currencyAmount
+    private var marketPriceAttributedString: NSAttributedString? {
+        guard let marketPrice = marketPriceValue, let valuePercentageChange = valuePercentageChangeValue else {
+            return nil
+        }
+
+        let string = R.string.localizable.aWalletTokenMarketPrice(marketPrice, valuePercentageChange)
+
+        guard let valuePercentageChangeRange = string.range(of: valuePercentageChange) else { return nil }
+
+        let mutableAttributedString = NSMutableAttributedString(string: string, attributes: [
+            .font: Screen.TokenCard.Font.placeholderLabel,
+            .foregroundColor: R.color.dove()!
+        ])
+
+        let range = NSRange(valuePercentageChangeRange, in: string)
+        mutableAttributedString.setAttributes([
+            .font: Fonts.semibold(size: 17)!,
+            .foregroundColor: Screen.TokenCard.Color.valueChangeValue(ticker: ticker)
+        ], range: range)
+
+        return mutableAttributedString
+    }
+
+    private var marketPriceValue: String? {
+        if let value = EthCurrencyHelper(ticker: ticker).marketPrice {
+            return NumberFormatter.usd.string(from: value)
         } else {
-            return "-"
+            return nil
         }
-    }
-
-    var valueName: String {
-        return R.string.localizable.aWalletContentsValueDollarTitle()
     }
 }

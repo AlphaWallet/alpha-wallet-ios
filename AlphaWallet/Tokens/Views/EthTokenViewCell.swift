@@ -15,8 +15,9 @@ class EthTokenViewCell: UITableViewCell {
     private var viewsWithContent: [UIView] {
         [titleLabel, valuePercentageChangeValueLabel, valuePercentageChangePeriodLabel, marketPriceLabel]
     }
+    
     private lazy var changeValueContainer: UIView = [marketPriceLabel, valuePercentageChangeValueLabel].asStackView(spacing: 5)
-
+    
     private var tokenIconImageView: TokenImageView = {
         let imageView = TokenImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false

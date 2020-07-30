@@ -5,6 +5,7 @@ import UIKit
 
 protocol TokenViewControllerHeaderViewDelegate: class {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, inHeaderView: TokenViewControllerHeaderView)
+    func didShowHideMarketPrice(inHeaderView: TokenViewControllerHeaderView)
 }
 
 class TokenViewControllerHeaderView: UIView {
@@ -63,14 +64,14 @@ class TokenViewControllerHeaderView: UIView {
         recentTransactionsLabelBorders.top.backgroundColor = UIColor(red: 236, green: 236, blue: 236)
         recentTransactionsLabelBorders.bottom.backgroundColor = UIColor(red: 236, green: 236, blue: 236)
     }
-
-    @objc private func showContractWebPage() {
-        delegate?.didPressViewContractWebPage(forContract: contract, inHeaderView: self)
-    }
-} 
+}
 
 extension TokenViewControllerHeaderView: SendHeaderViewDelegate {
     func didPressViewContractWebPage(inHeaderView: SendHeaderView) {
-        showContractWebPage()
+        delegate?.didPressViewContractWebPage(forContract: contract, inHeaderView: self)
+    }
+
+    func showHideMarketPriceSelected(inHeaderView: SendHeaderView) {
+        delegate?.didShowHideMarketPrice(inHeaderView: self)
     }
 }
