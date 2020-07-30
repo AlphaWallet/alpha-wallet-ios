@@ -50,20 +50,8 @@ class AppCoordinator: NSObject, Coordinator {
         self.keystore = keystore
         self.window = window
         super.init()
-        window.rootViewController = createTemporarySpashScreen()
+        window.rootViewController = SplashViewController()
         window.makeKeyAndVisible()
-    }
-
-    private func createTemporarySpashScreen() -> UIViewController {
-        let vc = UIViewController()
-        vc.view.backgroundColor = .white
-        let lockView = SplashView()
-        lockView.translatesAutoresizingMaskIntoConstraints = false
-        vc.view.addSubview(lockView)
-        NSLayoutConstraint.activate([
-            lockView.anchorsConstraint(to: vc.view)
-        ])
-        return vc
     }
 
     func start() {
