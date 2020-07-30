@@ -5,7 +5,6 @@ import UIKit
 
 protocol TokenViewControllerHeaderViewDelegate: class {
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, inHeaderView: TokenViewControllerHeaderView)
-    func didPressViewWebPage(url: URL, inHeaderView: TokenViewControllerHeaderView)
 }
 
 class TokenViewControllerHeaderView: UIView {
@@ -13,28 +12,8 @@ class TokenViewControllerHeaderView: UIView {
     private let recentTransactionsLabel = UILabel()
     private let recentTransactionsLabelBorders = (top: UIView(), bottom: UIView())
     private let spacers = (beforeTokenScriptFileStatus: UIView.spacer(height: 20), ())
-    private let tokenScriptFileStatusStackView = [].asStackView()
 
     let sendHeaderView = SendHeaderView()
-    var tokenScriptFileStatus: TokenLevelTokenScriptDisplayStatus? {
-        didSet {
-            for each in tokenScriptFileStatusStackView.subviews {
-                each.removeFromSuperview()
-            }
-            tokenScriptFileStatusStackView.isHidden = true
-            spacers.beforeTokenScriptFileStatus.isHidden = true
-            guard let tokenScriptFileStatus = tokenScriptFileStatus else { return }
-            switch tokenScriptFileStatus {
-            case .type0NoTokenScript:
-                return
-            case .type1GoodTokenScriptSignatureGoodOrOptional, .type2BadTokenScript:
-                let button = createTokenScriptFileStatusButton(withStatus: tokenScriptFileStatus, urlOpener: self)
-                tokenScriptFileStatusStackView.addArrangedSubviews([.spacerWidth(37), button, .spacerWidth(1, flexible: true)])
-                tokenScriptFileStatusStackView.isHidden = false
-                spacers.beforeTokenScriptFileStatus.isHidden = false
-            }
-        }
-    }
     weak var delegate: TokenViewControllerHeaderViewDelegate?
 
     init(contract: AlphaWallet.Address) {
@@ -50,7 +29,6 @@ class TokenViewControllerHeaderView: UIView {
 
         let stackView = [
             spacers.beforeTokenScriptFileStatus,
-            tokenScriptFileStatusStackView,
             sendHeaderView,
             recentTransactionsLabelBorders.top,
             recentTransactionsLabelHolder,
@@ -89,13 +67,7 @@ class TokenViewControllerHeaderView: UIView {
     @objc private func showContractWebPage() {
         delegate?.didPressViewContractWebPage(forContract: contract, inHeaderView: self)
     }
-}
-
-extension TokenViewControllerHeaderView: CanOpenURL2 {
-    func open(url: URL) {
-        delegate?.didPressViewWebPage(url: url, inHeaderView: self)
-    }
-}
+} 
 
 extension TokenViewControllerHeaderView: SendHeaderViewDelegate {
     func didPressViewContractWebPage(inHeaderView: SendHeaderView) {
