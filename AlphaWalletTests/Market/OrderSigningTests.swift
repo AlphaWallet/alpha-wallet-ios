@@ -6,7 +6,7 @@ import BigInt
 class OrderSigningTests: XCTestCase {
 
     func testSigningOrders() {
-        let keystore = try! EtherKeystore()
+        let keystore = try! EtherKeystore(analyticsCoordinator: nil)
         let contractAddress = AlphaWallet.Address(string: "0xacDe9017473D7dC82ACFd0da601E4de291a7d6b0")!
         let account = try! keystore.createAccount().dematerialize()
         var testOrdersList = [Order]()
@@ -27,7 +27,7 @@ class OrderSigningTests: XCTestCase {
         for _ in 0...2015 {
             testOrdersList.append(testOrder1)
         }
-        let signOrders = OrderHandler()
+        let signOrders = OrderHandler(keystore: keystore)
         let signedOrders = try! signOrders.signOrders(orders: testOrdersList, account: account, tokenType: TokenType.erc875)
         XCTAssertGreaterThanOrEqual(2016, signedOrders.count)
         keystore.delete(wallet: Wallet(type: WalletType.real(account)))

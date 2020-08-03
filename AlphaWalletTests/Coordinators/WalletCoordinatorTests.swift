@@ -4,12 +4,13 @@ import XCTest
 @testable import AlphaWallet
 
 class WalletCoordinatorTests: XCTestCase {
-    
+
     func testWelcome() {
         let coordinator = WalletCoordinator(
             config: .make(),
             navigationController: FakeNavigationController(),
-            keystore: FakeKeystore()
+            keystore: FakeKeystore(),
+            analyticsCoordinator: nil
         )
 
         coordinator.start(.welcome)
@@ -21,7 +22,8 @@ class WalletCoordinatorTests: XCTestCase {
         let coordinator = WalletCoordinator(
             config: .make(),
             navigationController: FakeNavigationController(),
-            keystore: FakeKeystore()
+            keystore: FakeKeystore(),
+            analyticsCoordinator: nil
         )
 
         coordinator.start(.importWallet)
@@ -34,7 +36,8 @@ class WalletCoordinatorTests: XCTestCase {
         let coordinator = WalletCoordinator(
             config: .make(),
             navigationController: FakeNavigationController(),
-            keystore: FakeEtherKeystore()
+            keystore: FakeEtherKeystore(),
+            analyticsCoordinator: nil
         )
         coordinator.delegate = delegate
 
@@ -45,7 +48,8 @@ class WalletCoordinatorTests: XCTestCase {
         let coordinator = WalletCoordinator(
             config: .make(),
             navigationController: FakeNavigationController(),
-            keystore: FakeKeystore()
+            keystore: FakeKeystore(),
+            analyticsCoordinator: nil
         )
 
         coordinator.start(.welcome)

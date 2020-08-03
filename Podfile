@@ -35,6 +35,7 @@ target 'AlphaWallet' do
   pod "Kanna", :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
   pod 'TrustWalletCore'
   pod 'AWSSNS'
+  pod 'Mixpanel-swift'
   # pod 'AWSCognito'
   target 'AlphaWalletTests' do
       inherit! :search_paths

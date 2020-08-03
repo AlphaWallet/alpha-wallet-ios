@@ -105,6 +105,8 @@ open class EtherKeystore: Keystore {
         }
     }
 
+    var analyticsCoordinator: AnalyticsCoordinator?
+
     //i.e if passcode is enabled. Face ID/Touch ID wouldn't work without passcode being enabled and we can't write to the keychain or generate a key in secure enclave when passcode is disabled
     var isUserPresenceCheckPossible: Bool {
         let authContext = LAContext()
@@ -143,15 +145,16 @@ open class EtherKeystore: Keystore {
     //TODO improve
     static var current: Wallet? {
         do {
-            return try EtherKeystore().recentlyUsedWallet
+            return try EtherKeystore(analyticsCoordinator: nil).recentlyUsedWallet
         } catch {
             return .none
         }
     }
 
-    public init(
+    init(
             keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix),
-            userDefaults: UserDefaults = UserDefaults.standard
+            userDefaults: UserDefaults = UserDefaults.standard,
+            analyticsCoordinator: AnalyticsCoordinator?
     ) throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw EtherKeystoreError.protectionDisabled
@@ -159,6 +162,7 @@ open class EtherKeystore: Keystore {
         self.keychain = keychain
         self.keychain.synchronizable = false
         self.userDefaults = userDefaults
+        self.analyticsCoordinator = analyticsCoordinator
     }
 
     // Async
@@ -179,7 +183,7 @@ open class EtherKeystore: Keystore {
         switch results {
         case .success(let wallet):
             //TODO not the best way to do this but let's see if there's a better way to inform the coordinator that a wallet has been imported to avoid it being prompted for back
-            PromptBackupCoordinator(keystore: self, wallet: wallet, config: .init()).markWalletAsImported()
+            PromptBackupCoordinator(keystore: self, wallet: wallet, config: .init(), analyticsCoordinator: analyticsCoordinator).markWalletAsImported()
         case .failure:
             break
         }
@@ -193,7 +197,7 @@ open class EtherKeystore: Keystore {
     func importWallet(type: ImportType) -> Result<Wallet, KeystoreError> {
         switch type {
         case .keystore(let json, let password):
-            guard let keystore = try? LegacyFileBasedKeystore() else {
+            guard let keystore = try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator) else {
                 return .failure(.failedToExportPrivateKey)
             }
             let result = keystore.getPrivateKeyFromKeystoreFile(json: json, password: password)
@@ -333,7 +337,7 @@ open class EtherKeystore: Keystore {
             return completion(.failure(.accountMayNeedImportingAgainOrEnablePasscode))
         }
         //Careful to not replace the if-let with a flatMap(). Because the value is a Result and it has flatMap() defined to "resolve" only when it's .success
-        if let result = (try? LegacyFileBasedKeystore())?.export(privateKey: key, newPassword: newPassword) {
+        if let result = (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.export(privateKey: key, newPassword: newPassword) {
             completion(result)
         } else {
             completion(.failure(.failedToExportPrivateKey))
@@ -372,7 +376,7 @@ open class EtherKeystore: Keystore {
         switch wallet.type {
         case .real(let account):
             //TODO not the best way to do this but let's see if there's a better way to inform the coordinator that a wallet has been deleted
-            PromptBackupCoordinator(keystore: self, wallet: wallet, config: .init()).deleteWallet()
+            PromptBackupCoordinator(keystore: self, wallet: wallet, config: .init(), analyticsCoordinator: analyticsCoordinator).deleteWallet()
 
             removeAccountFromBookkeeping(account)
             deleteKeysAndSeedCipherTextFromKeychain(forAccount: account)
@@ -380,7 +384,7 @@ open class EtherKeystore: Keystore {
         case .watch(let address):
             removeAccountFromBookkeeping(.init(address: address))
         }
-        (try? LegacyFileBasedKeystore())?.delete(wallet: wallet)
+        (try? LegacyFileBasedKeystore(analyticsCoordinator: analyticsCoordinator))?.delete(wallet: wallet)
         return .success(())
     }
 
@@ -605,7 +609,7 @@ open class EtherKeystore: Keystore {
         let context = createContext()
         let data = keychain.getData("\(prefix)\(account.address.eip55String)", prompt: prompt, withContext: context)
                 .flatMap { decryptPrivateKey(fromCipherTextData: $0, forAccount: account, withUserPresence: withUserPresence, withContext: context) }
-        
+
         //We copy the record that doesn't require user-presence make a new one which requires user-presence and read from that. We don't want to read the one without user-presence unless absolutely necessary (e.g user has disabled passcode)
         if data == nil && withUserPresence && shouldWriteWithUserPresenceIfNotFound && keychain.isDataNotFoundForLastAccess {
             switch getPrivateKeyFromNonHdWallet(forAccount: account, prompt: prompt, withUserPresence: false, shouldWriteWithUserPresenceIfNotFound: false) {

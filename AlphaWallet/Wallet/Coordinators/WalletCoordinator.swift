@@ -13,6 +13,8 @@ class WalletCoordinator: Coordinator {
     private var entryPoint: WalletEntryPoint?
     private var keystore: Keystore
     private weak var importWalletViewController: ImportWalletViewController?
+    private let analyticsCoordinator: AnalyticsCoordinator?
+
     var navigationController: UINavigationController
     weak var delegate: WalletCoordinatorDelegate?
     var coordinators: [Coordinator] = []
@@ -20,12 +22,14 @@ class WalletCoordinator: Coordinator {
     init(
         config: Config,
         navigationController: UINavigationController = UINavigationController(),
-        keystore: Keystore
+        keystore: Keystore,
+        analyticsCoordinator: AnalyticsCoordinator?
     ) {
         self.config = config
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
+        self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -39,13 +43,13 @@ class WalletCoordinator: Coordinator {
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             navigationController.viewControllers = [controller]
         case .importWallet:
-            let controller = ImportWalletViewController(keystore: keystore)
+            let controller = ImportWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator)
             controller.delegate = self
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             navigationController.viewControllers = [controller]
             importWalletViewController = controller
         case .watchWallet:
-            let controller = ImportWalletViewController(keystore: keystore)
+            let controller = ImportWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator)
             controller.delegate = self
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             controller.showWatchTab()
@@ -55,7 +59,7 @@ class WalletCoordinator: Coordinator {
             createInstantWallet()
             return false
         case .addInitialWallet:
-            let controller = CreateInitialWalletViewController(keystore: keystore)
+            let controller = CreateInitialWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator)
             controller.delegate = self
             controller.configure()
             navigationController.viewControllers = [controller]
@@ -64,7 +68,7 @@ class WalletCoordinator: Coordinator {
     }
 
     func pushImportWallet() {
-        let controller = ImportWalletViewController(keystore: keystore)
+        let controller = ImportWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         controller.delegate = self
         controller.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(controller, animated: true)
@@ -106,7 +110,7 @@ class WalletCoordinator: Coordinator {
 
     private func addWalletWith(entryPoint: WalletEntryPoint) {
         //Intentionally creating an instance of myself
-        let coordinator = WalletCoordinator(config: config, keystore: keystore)
+        let coordinator = WalletCoordinator(config: config, keystore: keystore, analyticsCoordinator: analyticsCoordinator)
         coordinator.delegate = self
         addCoordinator(coordinator)
         let _ = coordinator.start(entryPoint)

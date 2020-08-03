@@ -271,6 +271,7 @@
 		5E7C71DAA5DAFF764F92587D /* SetTransferTokensCardExpiryDateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C727433F7B8E322B3C68A /* SetTransferTokensCardExpiryDateViewController.swift */; };
 		5E7C71DBB4AD309920C45556 /* ConfirmSignMessageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78421F01D14741DDF5BF /* ConfirmSignMessageViewController.swift */; };
 		5E7C71DC13B2040F5408BF3C /* ImportMagicTokenCardRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C781F82F9E4903C460E33 /* ImportMagicTokenCardRowViewModel.swift */; };
+		5E7C71EFB766F41D1BA5E1FB /* AnalyticsTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7972F599DDFA552BBA2F /* AnalyticsTypes.swift */; };
 		5E7C71F8050CCF990539B293 /* LockView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79D674D45A07E694CE31 /* LockView.swift */; };
 		5E7C720C2A5CA7D41B12D666 /* RateLimiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7A92352937F37294F12C /* RateLimiter.swift */; };
 		5E7C721B569E1CD1C68295F6 /* LayoutConstraintsWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78C073F380B48D5BE94C /* LayoutConstraintsWrapper.swift */; };
@@ -364,6 +365,7 @@
 		5E7C75EFEA605549C8E87E4D /* AlphaWalletAddress+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D111692DE8ED67D29B7 /* AlphaWalletAddress+UI.swift */; };
 		5E7C75F1B2340BB6AA86A2EE /* ShowSeedPhraseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7346D83DE2DB22E28F16 /* ShowSeedPhraseViewModel.swift */; };
 		5E7C75F80A7E178B49830BCD /* TokenCardsViewControllerHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C796039C0F47CDCA236C0 /* TokenCardsViewControllerHeader.swift */; };
+		5E7C760168C99F9D50800DFD /* AnalyticsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C746AB3B09DC0E47614EA /* AnalyticsCoordinator.swift */; };
 		5E7C760D5AF93B79BB9BDB5A /* OpenSeaNonFungibleTokenAttributeCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C34A7BDCFE17CEF8F79 /* OpenSeaNonFungibleTokenAttributeCellViewModel.swift */; };
 		5E7C760E41FF2E035BC968C5 /* AssetFunctionCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70021319DD5C92314A8A /* AssetFunctionCall.swift */; };
 		5E7C760F9D7C178E17C75C52 /* ImportTokenViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7487BDF72352446E1266 /* ImportTokenViewControllerTests.swift */; };
@@ -380,6 +382,7 @@
 		5E7C768AA9654954A0DD87F0 /* OpenSeaNonFungibleTokenCardRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D913DAA3322F1C7DD46 /* OpenSeaNonFungibleTokenCardRowViewModel.swift */; };
 		5E7C768CFA892DEBB633961B /* SeedPhraseCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C788BDFBDF222B3F4BEAF /* SeedPhraseCollectionViewModel.swift */; };
 		5E7C7692C981580CD32228EB /* ChooseTokenCardTransferModeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70FB40612BB02594EC00 /* ChooseTokenCardTransferModeViewController.swift */; };
+		5E7C769C85D1EBB44DEA5AC5 /* AnalyticsEventPropertyValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7BA19A8F1DD72E574BE3 /* AnalyticsEventPropertyValue.swift */; };
 		5E7C76A0365D128B7F19A0C2 /* ProtectionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C74BEC095303B66FB4B1E /* ProtectionCoordinator.swift */; };
 		5E7C76A50F321F8A0A0005EB /* ABIValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7318B6059C18BE87ECAE /* ABIValue.swift */; };
 		5E7C76A585ED45EDAD8825CF /* BackupState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C70A03A120A74A832DD62 /* BackupState.swift */; };
@@ -497,6 +500,7 @@
 		5E7C7C0FBEF6206024FB355E /* ButtonsBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C774238AE6861A7935EEE /* ButtonsBar.swift */; };
 		5E7C7C21E5CAF122AA4F6617 /* HowDoIGetMyMoneyInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C78B001F9F95F404D5FEF /* HowDoIGetMyMoneyInfoViewController.swift */; };
 		5E7C7C3C16408F4782523D8D /* AssetAttributeSyntax.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7037994332AE52798488 /* AssetAttributeSyntax.swift */; };
+		5E7C7C5C350376B83D23154F /* MixpanelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C758EB5C7B77A0EE6BC9E /* MixpanelCoordinator.swift */; };
 		5E7C7C91C5FF48F51134A7DA /* SegmentedControlViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C799AF966DBF0D59DFB20 /* SegmentedControlViewModel.swift */; };
 		5E7C7C98EAF40E8110241DBD /* NonFungibleTokenViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C783E3ADA4CF9554A0E7D /* NonFungibleTokenViewCell.swift */; };
 		5E7C7C9E89056069C8FEFA76 /* AlphaWalletSettingsSwitchRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7534FB6BF4D199643246 /* AlphaWalletSettingsSwitchRow.swift */; };
@@ -1044,6 +1048,7 @@
 		5E7C74259A3F3B0277B0E8C5 /* SingleChainTransactionEtherscanDataCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SingleChainTransactionEtherscanDataCoordinator.swift; sourceTree = "<group>"; };
 		5E7C74294562EB79EFCD3559 /* DiscoverDappCellViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DiscoverDappCellViewModel.swift; sourceTree = "<group>"; };
 		5E7C742D015C0DEAE7759C0D /* TokenInstanceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenInstanceViewController.swift; sourceTree = "<group>"; };
+		5E7C746AB3B09DC0E47614EA /* AnalyticsCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7477E69BEDF0C4950D5A /* TokenListFormatTableViewCellWithCheckbox.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenListFormatTableViewCellWithCheckbox.swift; sourceTree = "<group>"; };
 		5E7C74822F5F71748184F6C1 /* EventInstance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventInstance.swift; sourceTree = "<group>"; };
 		5E7C7487BDF72352446E1266 /* ImportTokenViewControllerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImportTokenViewControllerTests.swift; sourceTree = "<group>"; };
@@ -1075,6 +1080,7 @@
 		5E7C7564AF453BAB0BDAAA57 /* SettingsAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsAction.swift; sourceTree = "<group>"; };
 		5E7C7570889AD33EA942D9A6 /* AlphaWalletAddressTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlphaWalletAddressTests.swift; sourceTree = "<group>"; };
 		5E7C7587F30FF1896039B8C8 /* TokenIdOrigin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenIdOrigin.swift; sourceTree = "<group>"; };
+		5E7C758EB5C7B77A0EE6BC9E /* MixpanelCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MixpanelCoordinator.swift; sourceTree = "<group>"; };
 		5E7C758EEBD945A3451C96C8 /* OpenSeaNonFungibleTokenHandling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenSeaNonFungibleTokenHandling.swift; sourceTree = "<group>"; };
 		5E7C75918317E13AD540DCA7 /* RoundedBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoundedBackground.swift; sourceTree = "<group>"; };
 		5E7C75B5AF76279A71395FC7 /* AddressTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressTextField.swift; sourceTree = "<group>"; };
@@ -1163,6 +1169,7 @@
 		5E7C796039C0F47CDCA236C0 /* TokenCardsViewControllerHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenCardsViewControllerHeader.swift; sourceTree = "<group>"; };
 		5E7C7962AE417E12F13FF58E /* SetSellTokensCardExpiryDateViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetSellTokensCardExpiryDateViewController.swift; sourceTree = "<group>"; };
 		5E7C796C7DEA3C2A70861828 /* PromptBackupWalletViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptBackupWalletViewViewModel.swift; sourceTree = "<group>"; };
+		5E7C7972F599DDFA552BBA2F /* AnalyticsTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsTypes.swift; sourceTree = "<group>"; };
 		5E7C79778E4BFE1322711EA6 /* LocaleViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocaleViewModel.swift; sourceTree = "<group>"; };
 		5E7C7981AB6584B25C72D46B /* LockEnterPasscodeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LockEnterPasscodeCoordinator.swift; sourceTree = "<group>"; };
 		5E7C799836611BEE66000EE1 /* DappsHomeHeaderViewViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappsHomeHeaderViewViewModel.swift; sourceTree = "<group>"; };
@@ -1210,6 +1217,7 @@
 		5E7C7B878AC9FDC342C435F7 /* AssetAttribute.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetAttribute.swift; sourceTree = "<group>"; };
 		5E7C7B8FD1E2BCC325DF4EE4 /* ServersCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServersCoordinator.swift; sourceTree = "<group>"; };
 		5E7C7B9220E616F82EDA956F /* PasscodeCharacterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PasscodeCharacterView.swift; sourceTree = "<group>"; };
+		5E7C7BA19A8F1DD72E574BE3 /* AnalyticsEventPropertyValue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsEventPropertyValue.swift; sourceTree = "<group>"; };
 		5E7C7BA578BE5FB0E613A6D6 /* ChooseTokenCardTransferModeViewControllerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChooseTokenCardTransferModeViewControllerViewModel.swift; sourceTree = "<group>"; };
 		5E7C7BA8A301CEEDE36D76A3 /* EtherKeystore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EtherKeystore.swift; sourceTree = "<group>"; };
 		5E7C7BAC4E511FE8446D212F /* Favicon.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Favicon.swift; sourceTree = "<group>"; };
@@ -1577,6 +1585,7 @@
 				5E7C7FC75FF544B1DF0B0D8B /* PushNotificationsCoordinator.swift */,
 				5E7C75F7FC107AE3CF396331 /* TokenScriptClient */,
 				5E7C7429614BD6865E3C63C5 /* KeyManagement */,
+				5E7C7493B40E287B7FDF9317 /* Analytics */,
 			);
 			path = AlphaWallet;
 			sourceTree = "<group>";
@@ -2828,6 +2837,15 @@
 			path = KeyManagement;
 			sourceTree = "<group>";
 		};
+		5E7C7493B40E287B7FDF9317 /* Analytics */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7ECF697783064450EEB0 /* Coordinators */,
+				5E7C7862E1D9A777DEBA2B7C /* Models */,
+			);
+			path = Analytics;
+			sourceTree = "<group>";
+		};
 		5E7C7543079DF1C7CA998A2D /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -2939,6 +2957,15 @@
 				5E7C77E52AD90BA044CFD67A /* TokenScriptFilterParser.swift */,
 				5E7C71E8E2D256BC461E9597 /* TokenScriptSelection.swift */,
 				5E7C77A1D9BAFAC05E2C96CC /* XMLHandler+XPaths.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		5E7C7862E1D9A777DEBA2B7C /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C7BA19A8F1DD72E574BE3 /* AnalyticsEventPropertyValue.swift */,
+				5E7C7972F599DDFA552BBA2F /* AnalyticsTypes.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -3116,6 +3143,15 @@
 				5E7C70165BA8A9F342DC7874 /* PromptBackupWalletView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		5E7C7ECF697783064450EEB0 /* Coordinators */ = {
+			isa = PBXGroup;
+			children = (
+				5E7C758EB5C7B77A0EE6BC9E /* MixpanelCoordinator.swift */,
+				5E7C746AB3B09DC0E47614EA /* AnalyticsCoordinator.swift */,
+			);
+			path = Coordinators;
 			sourceTree = "<group>";
 		};
 		5E7C7F4DD4AC9B413701BBAD /* web3swift-pod */ = {
@@ -3782,6 +3818,7 @@
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
 				"${BUILT_PRODUCTS_DIR}/MBProgressHUD/MBProgressHUD.framework",
 				"${BUILT_PRODUCTS_DIR}/Macaw/Macaw.framework",
+				"${BUILT_PRODUCTS_DIR}/Mixpanel-swift/Mixpanel.framework",
 				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
 				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
 				"${BUILT_PRODUCTS_DIR}/QRCodeReaderViewController/QRCodeReaderViewController.framework",
@@ -3821,6 +3858,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/MBProgressHUD.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Macaw.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Mixpanel.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/QRCodeReaderViewController.framework",
@@ -4554,6 +4592,10 @@
 				5E7C74B615A84B248D3BE76C /* TokenImageView.swift in Sources */,
 				5E7C7066794663954D9C18E5 /* withRetry.swift in Sources */,
 				5E7C75EFEA605549C8E87E4D /* AlphaWalletAddress+UI.swift in Sources */,
+				5E7C7C5C350376B83D23154F /* MixpanelCoordinator.swift in Sources */,
+				5E7C769C85D1EBB44DEA5AC5 /* AnalyticsEventPropertyValue.swift in Sources */,
+				5E7C71EFB766F41D1BA5E1FB /* AnalyticsTypes.swift in Sources */,
+				5E7C760168C99F9D50800DFD /* AnalyticsCoordinator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -49,8 +49,11 @@ extension Data {
 }
 
 public class OrderHandler {
+    private let keystore: EtherKeystore
 
-    private let keyStore = try! EtherKeystore()
+    init(keystore: EtherKeystore) {
+        self.keystore = keystore
+    }
 
     func signOrders(orders: [Order], account: EthereumAccount, tokenType: TokenType) throws -> [SignedOrder] {
         let messages = createMessagesFromOrders(orders: orders, tokenType: tokenType)
@@ -88,7 +91,7 @@ public class OrderHandler {
 
     private func bulkSignOrders(messages: [Data], account: EthereumAccount, orders: [Order]) throws -> [SignedOrder] {
         var signedOrders = [SignedOrder]()
-        let signatures = try! keyStore.signMessageBulk(messages, for: account).dematerialize()
+        let signatures = try! keystore.signMessageBulk(messages, for: account).dematerialize()
         for i in 0..<signatures.count {
             let signedOrder = SignedOrder(
                     order: orders[i],

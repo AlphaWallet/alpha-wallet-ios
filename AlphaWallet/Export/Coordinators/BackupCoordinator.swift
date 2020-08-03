@@ -12,15 +12,17 @@ protocol BackupCoordinatorDelegate: class {
 class BackupCoordinator: Coordinator {
     private let keystore: Keystore
     private let account: EthereumAccount
+    private let analyticsCoordinator: AnalyticsCoordinator?
 
     let navigationController: UINavigationController
     weak var delegate: BackupCoordinatorDelegate?
     var coordinators: [Coordinator] = []
 
-    init(navigationController: UINavigationController, keystore: Keystore, account: EthereumAccount) {
+    init(navigationController: UINavigationController, keystore: Keystore, account: EthereumAccount, analyticsCoordinator: AnalyticsCoordinator?) {
         self.navigationController = navigationController
         self.keystore = keystore
         self.account = account
+        self.analyticsCoordinator = analyticsCoordinator
         navigationController.navigationBar.isTranslucent = false
     }
 
@@ -106,7 +108,7 @@ class BackupCoordinator: Coordinator {
 
     private func export() {
         if keystore.isHdWallet(account: account) {
-            let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account)
+            let coordinator = BackupSeedPhraseCoordinator(navigationController: navigationController, keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator)
             coordinator.delegate = self
             coordinator.start()
             addCoordinator(coordinator)

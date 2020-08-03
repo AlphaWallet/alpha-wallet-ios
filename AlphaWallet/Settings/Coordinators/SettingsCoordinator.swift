@@ -16,9 +16,10 @@ protocol SettingsCoordinatorDelegate: class, CanOpenURL {
 
 class SettingsCoordinator: Coordinator {
 	private let keystore: Keystore
-	var config: Config
+	private var config: Config
 	private let sessions: ServerDictionary<WalletSession>
     private let promptBackupCoordinator: PromptBackupCoordinator
+	private let analyticsCoordinator: AnalyticsCoordinator?
 
 	private var account: Wallet {
 		return sessions.anyValue.account
@@ -29,12 +30,12 @@ class SettingsCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 
 	lazy var rootViewController: SettingsViewController = {
-		let controller = SettingsViewController(keystore: keystore, account: account)
+		let controller = SettingsViewController(keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator)
 		controller.delegate = self
 		controller.modalPresentationStyle = .pageSheet
 		return controller
 	}()
-    
+
     lazy var advancedSettingsViewController: AdvancedSettingsViewController = {
         let controller = AdvancedSettingsViewController()
         controller.delegate = self
@@ -46,7 +47,8 @@ class SettingsCoordinator: Coordinator {
 			keystore: Keystore,
 			config: Config,
 			sessions: ServerDictionary<WalletSession>,
-			promptBackupCoordinator: PromptBackupCoordinator
+			promptBackupCoordinator: PromptBackupCoordinator,
+			analyticsCoordinator: AnalyticsCoordinator?
 	) {
 		self.navigationController = navigationController
 		self.navigationController.modalPresentationStyle = .formSheet
@@ -54,56 +56,59 @@ class SettingsCoordinator: Coordinator {
 		self.config = config
 		self.sessions = sessions
         self.promptBackupCoordinator = promptBackupCoordinator
+		self.analyticsCoordinator = analyticsCoordinator
 		promptBackupCoordinator.subtlePromptDelegate = self
 	}
 
 	func start() {
 		navigationController.viewControllers = [rootViewController]
 	}
-    
+
 	func restart(for wallet: Wallet) {
 		delegate?.didRestart(with: wallet, in: self)
 	}
 }
 
 extension SettingsCoordinator: SupportViewControllerDelegate {
-    
+
 }
 
 extension SettingsCoordinator: SettingsViewControllerDelegate {
-    
+
     func settingsViewControllerHelpSelected(in controller: SettingsViewController) {
         let viewController = SupportViewController()
         viewController.delegate = self
         viewController.navigationItem.largeTitleDisplayMode = .never
         viewController.hidesBottomBarWhenPushed = true
-        
+
         navigationController.pushViewController(viewController, animated: true)
     }
-    
+
     func settingsViewControllerChangeWalletSelected(in controller: SettingsViewController) {
         let coordinator = AccountsCoordinator(
                 config: config,
                 navigationController: navigationController,
                 keystore: keystore,
-                promptBackupCoordinator: promptBackupCoordinator
+                promptBackupCoordinator: promptBackupCoordinator,
+				analyticsCoordinator: analyticsCoordinator
         )
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator) 
     }
-    
+
     func settingsViewControllerMyWalletAddressSelected(in controller: SettingsViewController) {
         delegate?.didPressShowWallet(in: self)
     }
-    
+
     func settingsViewControllerBackupWalletSelected(in controller: SettingsViewController) {
         switch account.type {
         case .real(let account):
             let coordinator = BackupCoordinator(
                     navigationController: navigationController,
                     keystore: keystore,
-                    account: account
+                    account: account,
+					analyticsCoordinator: analyticsCoordinator
             )
             coordinator.delegate = self
             coordinator.start()
@@ -112,14 +117,14 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
             break
         }
     }
-    
+
     func settingsViewControllerActiveNetworksSelected(in controller: SettingsViewController) {
         let coordinator = EnabledServersCoordinator(navigationController: navigationController, selectedServers: config.enabledServers)
         coordinator.delegate = self
         coordinator.start()
         addCoordinator(coordinator)
     }
-    
+
     func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController) {
         navigationController.pushViewController(advancedSettingsViewController, animated: true)
     }
@@ -219,27 +224,27 @@ extension SettingsCoordinator: BackupCoordinatorDelegate {
 }
 
 extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
-    
+
     func advancedSettingsViewControllerConsoleSelected(in controller: AdvancedSettingsViewController) {
         guard let controller = delegate?.consoleViewController(for: self) else { return }
         controller.navigationItem.largeTitleDisplayMode = .never
-        
+
         navigationController.pushViewController(controller, animated: true)
     }
-    
+
     func advancedSettingsViewControllerClearBrowserCacheSelected(in controller: AdvancedSettingsViewController) {
         let coordinator = ClearDappBrowserCacheCoordinator(inViewController: rootViewController)
         coordinator.start()
         addCoordinator(coordinator)
     }
-    
+
     func advancedSettingsViewControllerTokenScriptSelected(in controller: AdvancedSettingsViewController) {
         guard let controller = delegate?.assetDefinitionsOverrideViewController(for: self) else { return }
         controller.navigationItem.largeTitleDisplayMode = .never
-        
+
         navigationController.pushViewController(controller, animated: true)
     }
-    
+
     func advancedSettingsViewControllerChangeLanguageSelected(in controller: AdvancedSettingsViewController) {
         let coordinator = LocalesCoordinator()
         coordinator.delegate = self
@@ -248,12 +253,12 @@ extension SettingsCoordinator: AdvancedSettingsViewControllerDelegate {
         coordinator.localesViewController.navigationItem.largeTitleDisplayMode = .never
         navigationController.pushViewController(coordinator.localesViewController, animated: true)
     }
-    
+
     func advancedSettingsViewControllerChangeCurrencySelected(in controller: AdvancedSettingsViewController) {
-        
+
     }
-    
+
     func advancedSettingsViewControllerAnalyticsSelected(in controller: AdvancedSettingsViewController) {
-        
+
     }
 }
