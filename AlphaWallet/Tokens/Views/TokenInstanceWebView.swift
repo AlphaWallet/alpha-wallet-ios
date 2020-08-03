@@ -134,7 +134,7 @@ class TokenInstanceWebView: UIView {
 
     deinit {
         //Necessary to prevent crash when scrolling a table with several cells containing this class
-        webView.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress))
+        estimatedProgressObservation.invalidate()
     }
 
     //Implementation: String concatentation is slow, but it's not obvious at all
@@ -289,7 +289,7 @@ class TokenInstanceWebView: UIView {
         }
         webView.loadHTMLString(html, baseURL: nil)
         hashOfLoadedHtml = hashOfCurrentHtml
-    } 
+    }
 
     private func makeIntroductionWebViewFullHeight(renderingAttempt: RenderingAttempt) {
         let forLoadId: Int? = loadId
