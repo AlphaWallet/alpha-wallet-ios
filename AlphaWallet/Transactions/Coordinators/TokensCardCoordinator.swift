@@ -14,6 +14,7 @@ import BigInt
 
 protocol TokensCardCoordinatorDelegate: class, CanOpenURL {
     func didCancel(in coordinator: TokensCardCoordinator)
+    func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCardCoordinator)
 }
 
 class TokensCardCoordinator: NSObject, Coordinator {
@@ -679,6 +680,10 @@ extension TokensCardCoordinator: StaticHTMLViewControllerDelegate {
 }
 
 extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
+    func didCompleteTransaction(_ transaction: SentTransaction, in viewController: TokenInstanceActionViewController) {
+        delegate?.didPostTokenScriptTransaction(transaction, in: self)
+    }
+
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {
         showViewRedemptionInfo(in: viewController)
     }

@@ -747,6 +747,10 @@ extension InCoordinator: TokensCoordinatorDelegate {
     func openConsole(inCoordinator coordinator: TokensCoordinator) {
         showConsole()
     }
+
+    func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: TokensCoordinator) {
+        transactionCoordinator?.dataCoordinator.addSentTransaction(transaction)
+    }
 }
 
 extension InCoordinator: PaymentCoordinatorDelegate {
