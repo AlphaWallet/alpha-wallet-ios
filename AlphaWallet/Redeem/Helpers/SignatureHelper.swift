@@ -11,7 +11,7 @@ import BigInt
 
 class SignatureHelper {
     class func signatureAsHex(for message: String, account: EthereumAccount) throws -> String? {
-        let keystore = try EtherKeystore()
+        let keystore = try EtherKeystore(analyticsCoordinator: nil)
         let signature = keystore.signMessageData(message.data(using: String.Encoding.utf8), for: account)
         let signatureHex = try? signature.dematerialize().hex(options: .upperCase)
         guard let data = signatureHex else {

@@ -8,7 +8,8 @@ class BackupCoordinatorTests: XCTestCase {
         let coordinator = BackupCoordinator(
             navigationController: FakeNavigationController(),
             keystore: FakeKeystore(assumeAllWalletsType: .hdWallet),
-            account: .make()
+            account: .make(),
+            analyticsCoordinator: nil
         )
         coordinator.start()
 
@@ -19,7 +20,8 @@ class BackupCoordinatorTests: XCTestCase {
         let coordinator = BackupCoordinator(
                 navigationController: FakeNavigationController(),
                 keystore: FakeKeystore(assumeAllWalletsType: .keyStoreWallet),
-                account: .make()
+                account: .make(),
+                analyticsCoordinator: nil
         )
         coordinator.start()
 

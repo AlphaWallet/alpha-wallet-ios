@@ -38,6 +38,7 @@ class InCoordinator: NSObject, Coordinator {
     private let appTracker: AppTracker
     private var transactionsStorages = ServerDictionary<TransactionsStorage>()
     private var walletSessions = ServerDictionary<WalletSession>()
+    private let analyticsCoordinator: AnalyticsCoordinator?
     private var callForAssetAttributeCoordinators = ServerDictionary<CallForAssetAttributeCoordinator>() {
         didSet {
             XMLHandler.callForAssetAttributeCoordinators = callForAssetAttributeCoordinators
@@ -93,13 +94,15 @@ class InCoordinator: NSObject, Coordinator {
             keystore: Keystore,
             assetDefinitionStore: AssetDefinitionStore,
             config: Config,
-            appTracker: AppTracker = AppTracker()
+            appTracker: AppTracker = AppTracker(),
+            analyticsCoordinator: AnalyticsCoordinator?
     ) {
         self.navigationController = navigationController
         self.wallet = wallet
         self.keystore = keystore
         self.config = config
         self.appTracker = appTracker
+        self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
         self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
@@ -341,7 +344,8 @@ class InCoordinator: NSObject, Coordinator {
                 assetDefinitionStore: assetDefinitionStore,
                 eventsDataStore: eventsDataStore,
                 promptBackupCoordinator: promptBackupCoordinator,
-                filterTokensCoordinator: filterTokensCoordinator
+                filterTokensCoordinator: filterTokensCoordinator,
+                analyticsCoordinator: analyticsCoordinator
         )
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
         coordinator.delegate = self
@@ -381,7 +385,8 @@ class InCoordinator: NSObject, Coordinator {
                 keystore: keystore,
                 config: config,
                 sessions: walletSessions,
-                promptBackupCoordinator: promptBackupCoordinator
+                promptBackupCoordinator: promptBackupCoordinator,
+                analyticsCoordinator: analyticsCoordinator
         )
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.aSettingsNavigationTitle(), image: R.image.tab_settings(), selectedImage: nil)
         coordinator.delegate = self
@@ -394,7 +399,7 @@ class InCoordinator: NSObject, Coordinator {
     private func createTabBarController(realm: Realm) -> UITabBarController {
         var viewControllers = [UIViewController]()
 
-        let promptBackupCoordinator = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config)
+        let promptBackupCoordinator = PromptBackupCoordinator(keystore: keystore, wallet: wallet, config: config, analyticsCoordinator: analyticsCoordinator)
         addCoordinator(promptBackupCoordinator)
 
         let tokensCoordinator = createTokensCoordinator(promptBackupCoordinator: promptBackupCoordinator, realm: realm)
@@ -487,7 +492,8 @@ class InCoordinator: NSObject, Coordinator {
                     keystore: keystore,
                     storage: tokenStorage,
                     ethPrice: nativeCryptoCurrencyPrices[server],
-                    assetDefinitionStore: assetDefinitionStore
+                    assetDefinitionStore: assetDefinitionStore,
+                    analyticsCoordinator: analyticsCoordinator
             )
             coordinator.delegate = self
             coordinator.navigationController.makePresentationFullScreenForiOS13Migration()
@@ -554,7 +560,7 @@ class InCoordinator: NSObject, Coordinator {
             switch result {
             case .success(let payload):
                 let session = strongSelf.walletSessions[server]
-                let account = try! EtherKeystore().getAccount(for: wallet.address)!
+                let account = try! EtherKeystore(analyticsCoordinator: strongSelf.analyticsCoordinator).getAccount(for: wallet.address)!
                 TransactionConfigurator.estimateGasPrice(server: server).done { gasPrice in
                     //Note: since we have the data payload, it is unnecessary to load an UnconfirmedTransaction struct
                     let transactionToSign = UnsignedTransaction(

@@ -29,6 +29,9 @@ PODS:
   - Macaw (0.9.5):
     - SWXMLHash
   - MBProgressHUD (1.1.0)
+  - Mixpanel-swift (2.7.3):
+    - Mixpanel-swift/Complete (= 2.7.3)
+  - Mixpanel-swift/Complete (2.7.3)
   - Moya (10.0.1):
     - Moya/Core (= 10.0.1)
   - Moya/Core (10.0.1):
@@ -98,6 +101,7 @@ DEPENDENCIES:
   - Kingfisher
   - Macaw (from `https://github.com/alpha-wallet/Macaw.git`, commit `2596ad0229e7c8b69471355ed44506dcdaf27e9d`)
   - MBProgressHUD
+  - Mixpanel-swift
   - Moya (~> 10.0.1)
   - PromiseKit/Alamofire
   - PromiseKit/CorePromise
@@ -150,6 +154,7 @@ SPEC REPOS:
     - Alamofire-Synchronous
     - Eureka
     - libsodium
+    - Mixpanel-swift
 
 EXTERNAL SOURCES:
   AlphaWalletWeb3Provider:
@@ -227,6 +232,7 @@ SPEC CHECKSUMS:
   libsodium: 9a8faa5ef2fa0d2d57bd7f7d79bf8fb7c1a9f0ea
   Macaw: 9fcfcff649927df9a78074608191f8efb0fa582e
   MBProgressHUD: e7baa36a220447d8aeb12769bf0585582f3866d9
+  Mixpanel-swift: 0624c84b0746e3434d5a286ca590bd5769625d28
   Moya: 9e621707ff754eeb51ff3ec51a3d54e517c0733a
   PromiseKit: 32c36425387e9cfc7f1206f27bfd906d0b53c0d6
   QRCodeReaderViewController: e8f27d035b3e72b1d4b1c61ff66458287e3be0ff
@@ -250,6 +256,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: dd8c81d5958f1eb737abea1e14675efcc6a104aa
   web3swift: 1597d4997976d21325882db4c523f1dfd5459406
 
-PODFILE CHECKSUM: 4d513ea9af5a9550a53c8b47493983d196f33d13
+PODFILE CHECKSUM: 63c7550099e5b90c8d9ff1a91959f21dde1d9103
 
 COCOAPODS: 1.8.4
