@@ -29,7 +29,7 @@ struct EventDefinition {
 
 struct EventOrigin {
     private let eventDefinition: EventDefinition
-    private let eventParameterName: String
+    private let eventParameterName: String?
 
     let originElement: XMLElement
     let xmlContext: XmlContext
@@ -64,8 +64,15 @@ struct EventOrigin {
         let contents = result.jsonString ?? ""
         return "[\(contents)]"
     }
+    var hasEventParameterName: Bool {
+        if let eventParameterName = eventParameterName {
+            return !eventParameterName.isEmpty
+        } else {
+            return false
+        }
+    }
 
-    init(originElement: XMLElement, xmlContext: XmlContext, eventDefinition: EventDefinition, eventParameterName: String, eventFilter: (name: String, value: String)) {
+    init(originElement: XMLElement, xmlContext: XmlContext, eventDefinition: EventDefinition, eventParameterName: String?, eventFilter: (name: String, value: String)) {
         self.originElement = originElement
         self.xmlContext = xmlContext
         self.eventDefinition = eventDefinition
@@ -74,6 +81,6 @@ struct EventOrigin {
     }
 
     func extractValue(fromEvent event: EventInstance) -> AssetInternalValue? {
-        event.data[eventParameterName]
+        eventParameterName.flatMap { event.data[$0] }
     }
 }
