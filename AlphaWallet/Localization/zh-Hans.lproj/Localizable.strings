@@ -451,3 +451,10 @@
 "wallet.security.level.orange" = "未锁定";
 "wallet.security.level.green" = "100% 安全";
 "wallets.showSeedPhrase.subtitle.error" = "请勿将备份文件分享给他人。AlphaWallet 团队成员绝不会向您索要备份。";
+"token.transactionConfirmation.gas.title" = "Speed (Gas)";
+"token.transactionConfirmation.contract.title" = "Contract";
+"token.transactionConfirmation.default" = "Default";
+"token.transactionConfirmation.title" = "Confirm Transfer?";
+"a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
+"a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
+"a.wallet.token.transaction.inProgress.confirm" = "OK, great!";

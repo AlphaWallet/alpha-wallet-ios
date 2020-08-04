@@ -641,6 +641,22 @@ class InCoordinator: NSObject, Coordinator {
         }
     }
 
+    func show(openedURL filename: String) {
+        let controller = UIAlertController(title: nil, message: "\(filename) file imported with no error", preferredStyle: .alert)
+        controller.popoverPresentationController?.sourceView = presentationViewController.view
+        controller.addAction(.init(title: R.string.localizable.oK(), style: .default))
+
+        presentationViewController.present(controller, animated: true)
+    }
+
+    private var presentationViewController: UIViewController {
+        if let controller = navigationController.presentedViewController {
+            return controller
+        } else {
+            return navigationController
+        }
+    }
+
     func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
         tokensCoordinator?.listOfBadTokenScriptFilesChanged(fileNames: fileNames)
     }
