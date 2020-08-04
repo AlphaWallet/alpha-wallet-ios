@@ -180,7 +180,7 @@ class ConfigureTransactionViewController: FormViewController {
         }
 
         if !nonceString.isEmpty {
-            guard let nonce = Int(nonceString), nonce > 0 else {
+            guard let nonce = Int(nonceString), nonce >= 0 else {
                 return displayError(error: ConfigureTransactionError.nonceNotPositiveNumber)
             }
         }
