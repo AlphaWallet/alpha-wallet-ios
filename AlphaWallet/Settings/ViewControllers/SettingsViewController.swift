@@ -155,11 +155,11 @@ extension SettingsViewController: SwitchTableViewCellDelegate {
 
     func cell(_ cell: SwitchTableViewCell, switchStateChanged isOn: Bool) {
         if isOn {
-            self.setPasscode { result in
+            setPasscode { result in
                 cell.isOn = result
             }
         } else {
-            self.lock.deletePasscode()
+            lock.deletePasscode()
         }
     }
 }
@@ -186,6 +186,7 @@ extension SettingsViewController: UITableViewDataSource {
                     icon: R.image.biometrics()!,
                     value: lock.isPasscodeSet)
                 )
+                cell.delegate = self
 
                 return cell
             case .notifications, .selectActiveNetworks, .advanced:
