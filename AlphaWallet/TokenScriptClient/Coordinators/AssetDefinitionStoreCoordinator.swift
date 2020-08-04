@@ -5,13 +5,27 @@ import UIKit
 
 protocol AssetDefinitionStoreCoordinatorDelegate: class {
     func show(error: Error, for viewController: AssetDefinitionStoreCoordinator)
-    func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer)
+    func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer, destinationFileInUse: Bool, filename: String)
 }
 
 struct SchemaCheckError: LocalizedError {
     var msg: String
     var errorDescription: String? {
         return msg
+    }
+}
+
+enum OpenURLError: Error {
+    case unsupportedTokenScriptVersion
+    case copyTokenScriptURL(_ url: URL, _ destinationURL: URL, error: Error)
+
+    var localizedDescription: String {
+        switch self {
+        case .unsupportedTokenScriptVersion:
+            return R.string.localizable.tokenScriptNotSupportedSchemaError()
+        case .copyTokenScriptURL(let url, let destinationFileName, let error):
+            return R.string.localizable.tokenScriptMoveFileError(url.path, destinationFileName.path, error.localizedDescription)
+        }
     }
 }
 
@@ -128,7 +142,8 @@ class AssetDefinitionStoreCoordinator: Coordinator {
             isTokenScriptOrXml = true
         case .unsupportedTokenScriptVersion:
             try? FileManager.default.removeItem(at: url)
-            delegate?.show(error: SchemaCheckError(msg: R.string.localizable.tokenScriptNotSupportedSchemaError()), for: self)
+            delegate?.show(error: OpenURLError.unsupportedTokenScriptVersion, for: self)
+
             return true
         case .unknownXml:
             try? FileManager.default.removeItem(at: url)
@@ -139,6 +154,8 @@ class AssetDefinitionStoreCoordinator: Coordinator {
 
         let filename = url.lastPathComponent
         let destinationFileName = overridesDirectory.appendingPathComponent(filename)
+        let destinationFileInUse = overrides?.contains(destinationFileName) ?? false
+
         do {
             try? FileManager.default.removeItem(at: destinationFileName )
             try FileManager.default.moveItem(at: url, to: destinationFileName )
@@ -146,16 +163,18 @@ class AssetDefinitionStoreCoordinator: Coordinator {
                 if let contracts = XMLHandler.getHoldingContracts(forTokenScript: contents) {
                     for (contract, chainId) in contracts {
                         let server = RPCServer(chainID: chainId)
-                        delegate?.addedTokenScript(forContract: contract, forServer: server)
+                        delegate?.addedTokenScript(forContract: contract, forServer: server, destinationFileInUse: destinationFileInUse, filename: filename)
                     }
-                }
+                } 
+
                 return true
             }
         } catch {
-            NSLog("Error moving asset definition file from \(url.path) to: \(destinationFileName.path): \(error)")
+            delegate?.show(error: OpenURLError.copyTokenScriptURL(url, destinationFileName, error: error), for: self)
         }
+
         return false
-    }
+    } 
 
     private func watchDirectoryContents(changeHandler: @escaping () -> Void) {
         guard directoryWatcher == nil else { return }
