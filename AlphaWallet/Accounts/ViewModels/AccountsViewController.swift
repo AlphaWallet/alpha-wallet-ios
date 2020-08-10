@@ -108,9 +108,13 @@ class AccountsViewController: UIViewController {
 
     private func delete(account: Wallet) {
         navigationController?.displayLoading(text: R.string.localizable.deleting())
-        keystore.delete(wallet: account) { [weak self] result in
+        let result = keystore.delete(wallet: account)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
             guard let strongSelf = self else { return }
+
             strongSelf.navigationController?.hideLoading()
+
             switch result {
             case .success:
                 strongSelf.fetch()

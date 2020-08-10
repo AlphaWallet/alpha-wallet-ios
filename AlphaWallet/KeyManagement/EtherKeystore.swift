@@ -52,7 +52,6 @@ open class EtherKeystore: Keystore {
     private let defaultKeychainAccessUserPresenceRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: true)
     private let defaultKeychainAccessUserPresenceNotRequired: KeychainSwiftAccessOptions = .accessibleWhenUnlockedThisDeviceOnly(userPresenceRequired: false)
     private let userDefaults: UserDefaults
-
     private var watchAddresses: [String] {
         set {
             let data = NSKeyedArchiver.archivedData(withRootObject: newValue)
@@ -101,6 +100,7 @@ open class EtherKeystore: Keystore {
             guard let data = userDefaults.data(forKey: Keys.ethereumAddressesProtectedByUserPresence) else {
                 return []
             }
+
             return NSKeyedUnarchiver.unarchiveObject(with: data) as? [String] ?? []
         }
     }
@@ -151,18 +151,14 @@ open class EtherKeystore: Keystore {
         }
     }
 
-    init(
-            keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix),
-            userDefaults: UserDefaults = UserDefaults.standard,
-            analyticsCoordinator: AnalyticsCoordinator?
-    ) throws {
+    init(keychain: KeychainSwift = KeychainSwift(keyPrefix: Constants.keychainKeyPrefix), userDefaults: UserDefaults = .standard, analyticsCoordinator: AnalyticsCoordinator?) throws {
         if !UIApplication.shared.isProtectedDataAvailable {
             throw EtherKeystoreError.protectionDisabled
         }
         self.keychain = keychain
         self.keychain.synchronizable = false
-        self.userDefaults = userDefaults
         self.analyticsCoordinator = analyticsCoordinator
+        self.userDefaults = userDefaults
     }
 
     // Async
@@ -410,19 +406,7 @@ open class EtherKeystore: Keystore {
         ethereumAddressesWithSeed = ethereumAddressesWithSeed.filter { $0 != account.address.eip55String }
         ethereumAddressesProtectedByUserPresence = ethereumAddressesProtectedByUserPresence.filter { $0 != account.address.eip55String }
         watchAddresses = watchAddresses.filter { $0 != account.address.eip55String }
-    }
-
-    func delete(wallet: Wallet, completion: @escaping (Result<Void, KeystoreError>) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let strongSelf = self else {
-                return
-            }
-            let result = strongSelf.delete(wallet: wallet)
-            DispatchQueue.main.async {
-                completion(result)
-            }
-        }
-    }
+    } 
 
     func isHdWallet(account: EthereumAccount) -> Bool {
         return ethereumAddressesWithSeed.contains(account.address.eip55String)
