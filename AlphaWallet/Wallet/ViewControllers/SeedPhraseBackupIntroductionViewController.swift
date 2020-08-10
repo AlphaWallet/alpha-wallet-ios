@@ -14,8 +14,8 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
     private let subtitleLabel = UILabel()
     private let imageView = UIImageView()
     private let descriptionLabel1 = UILabel()
-    private let descriptionLabel2 = UILabel()
-    private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
+    let descriptionLabel2 = UILabel()
+    let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
 
     private var imageViewDimension: CGFloat {
         if ScreenChecker().isNarrowScreen {
@@ -43,9 +43,9 @@ class SeedPhraseBackupIntroductionViewController: UIViewController {
             subtitleLabel,
             UIView.spacer(height: ScreenChecker().isNarrowScreen ? 20 : 24),
             imageView,
-            UIView.spacer(height: 17),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 7 : 17),
             descriptionLabel1,
-            UIView.spacer(height: 17),
+            UIView.spacer(height: ScreenChecker().isNarrowScreen ? 7 : 17),
             descriptionLabel2
         ].asStackView(axis: .vertical)
         stackView.translatesAutoresizingMaskIntoConstraints = false

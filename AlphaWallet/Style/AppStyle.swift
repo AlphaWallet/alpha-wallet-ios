@@ -181,9 +181,9 @@ enum Screen {
     }
 
     enum Backup {
-        static let subtitleFont = Fonts.regular(size: 28)!
+        static let subtitleFont = ScreenChecker().isNarrowScreen ? Fonts.regular(size: 22)! : Fonts.regular(size: 28)!
         static let subtitleColor = Colors.darkGray
-        static let descriptionFont = Fonts.regular(size: 18)!
+        static let descriptionFont = ScreenChecker().isNarrowScreen ? Fonts.regular(size: 16)! : Fonts.regular(size: 18)!
         static let descriptionColor = Colors.darkGray
     }
 
