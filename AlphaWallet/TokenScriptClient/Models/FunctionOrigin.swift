@@ -79,7 +79,7 @@ struct FunctionOrigin {
         }
     }
 
-    private let originContractOrRecipientAddress: AlphaWallet.Address
+    let originContractOrRecipientAddress: AlphaWallet.Address
     private let attributeId: AttributeId
     private let functionType: FunctionType
     private let bitmask: BigUInt?
