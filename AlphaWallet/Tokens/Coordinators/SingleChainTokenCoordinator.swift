@@ -574,8 +574,12 @@ extension SingleChainTokenCoordinator: CanOpenURL {
 }
 
 extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate {
-    func didCompleteTransaction(_ transaction: SentTransaction, in viewController: TokenInstanceActionViewController) {
-        delegate?.didPostTokenScriptTransaction(transaction, in: self)
+    func didCompleteTransaction(in viewController: TokenInstanceActionViewController) {
+        let coordinator = TransactionInProgressCoordinator(navigationController: navigationController)
+        coordinator.delegate = self
+        addCoordinator(coordinator)
+
+        coordinator.start()
     }
 
     func didPressViewRedemptionInfo(in viewController: TokenInstanceActionViewController) {
@@ -584,6 +588,13 @@ extension SingleChainTokenCoordinator: TokenInstanceActionViewControllerDelegate
 
     func shouldCloseFlow(inViewController viewController: TokenInstanceActionViewController) {
         viewController.navigationController?.popViewController(animated: true)
+    }
+}
+
+extension SingleChainTokenCoordinator: TransactionInProgressCoordinatorDelegate {
+
+    func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
+        removeCoordinator(coordinator)
     }
 }
 
