@@ -13,6 +13,7 @@ protocol TokenViewControllerDelegate: class, CanOpenURL {
 }
 
 class TokenViewController: UIViewController {
+    private let headerViewRefreshInterval: TimeInterval = 5.0
     private let roundedBackground = RoundedBackground()
     lazy private var header = {
         return TokenViewControllerHeaderView(contract: transferType.contract)
@@ -28,6 +29,7 @@ class TokenViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
     private lazy var tokenScriptFileStatusHandler = XMLHandler(contract: transferType.contract, assetDefinitionStore: assetDefinitionStore)
+    private var headerRefreshTimer: Timer!
 
     weak var delegate: TokenViewControllerDelegate?
 
@@ -80,6 +82,11 @@ class TokenViewController: UIViewController {
 
             roundedBackground.createConstraintsWithContainer(view: view),
         ])
+
+        headerRefreshTimer = Timer(timeInterval: headerViewRefreshInterval, repeats: true) { [weak self] _ in
+            self?.refreshHeaderView()
+        }
+        RunLoop.main.add(headerRefreshTimer, forMode: .default)
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -315,6 +322,10 @@ extension TokenViewController: TokenViewControllerHeaderViewDelegate {
     }
 
     func didShowHideMarketPrice(inHeaderView: TokenViewControllerHeaderView) {
+        refreshHeaderView()
+    }
+
+    @objc private func refreshHeaderView() {
         headerViewModel.isShowingValue.toggle()
         header.sendHeaderView.configure(viewModel: headerViewModel)
     }
