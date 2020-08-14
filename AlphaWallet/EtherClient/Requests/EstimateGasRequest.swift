@@ -21,7 +21,7 @@ struct EstimateGasRequest: JSONRPCKit.Request {
             [
                 "from": from.description,
                 "to": to?.description ?? "",
-                "value": value.description.hexEncoded,
+                "value": "0x" + String(value, radix: 16) ?? "0x0",
                 "data": data.hexEncoded,
             ],
         ]

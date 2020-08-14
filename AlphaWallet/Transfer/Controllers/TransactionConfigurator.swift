@@ -85,10 +85,18 @@ class TransactionConfigurator {
                 return token.contractAddress
             }
         }()
+        //TODO transaction.value should only ever be the attached native currency, not the erc20 amount as that is included in the data
+        let value: BigInt = {
+            switch transaction.transferType {
+            case .nativeCryptocurrency, .dapp, .ERC875TokenOrder: return transaction.value
+            case .ERC20Token, .ERC721Token, .ERC721ForTicketToken, .ERC875Token:
+                return 0;
+            }
+        }()
         let request = EstimateGasRequest(
             from: session.account.address,
             to: to,
-            value: transaction.value,
+            value: value,
             data: configuration.data
         )
         Session.send(EtherServiceRequest(server: session.server, batch: BatchFactory().create(request))) { [weak self] result in
@@ -102,12 +110,7 @@ class TransactionConfigurator {
                     }
                     return min(limit + (limit * 20 / 100), GasLimitConfiguration.maxGasLimit)
                 }()
-                strongSelf.configuration =  TransactionConfiguration(
-                    gasPrice: strongSelf.calculatedGasPrice,
-                    gasLimit: gasLimit,
-                    data: strongSelf.configuration.data,
-                    nonce: strongSelf.configuration.nonce
-                )
+                strongSelf.configuration.gasLimit = gasLimit
             case .failure: break
             }
         }
@@ -157,12 +160,6 @@ class TransactionConfigurator {
 
 // swiftlint:disable function_body_length
     func load(completion: @escaping (ResultResult<Void, AnyError>.t) -> Void) {
-        /* the node can provide reliable gas limit estimates, this prevents running out of gas or defaulting to an
-        inappropriately high gas limit. This can also be an issue for native transfers which are 21k if send to an EOA
-        address but may be higher if sent to a contract address. */
-        if gasLimitNotSet {
-            estimateGasLimit()
-        }
         switch transaction.transferType {
         case .dapp:
             estimateGasPrice()
@@ -278,6 +275,10 @@ class TransactionConfigurator {
                 completion(.failure(AnyError(Web3Error(description: "malformed tx"))))
             }
         }
+        /* the node can provide reliable gas limit estimates, this prevents running out of gas or defaulting to an
+        inappropriately high gas limit. This can also be an issue for native transfers which are 21k if send to an EOA
+        address but may be higher if sent to a contract address. */
+        estimateGasLimit()
     }
 // swiftlint:enable function_body_length
 
