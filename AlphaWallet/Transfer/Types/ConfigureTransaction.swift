@@ -4,5 +4,5 @@ import Foundation
 
 struct ConfigureTransaction {
     static var gasLimitMax: Int = 6370515
-    static var gasFeeMax: Int64 = 1_000_000_000_000_000_000 / 10
+    static var gasFeeMax: Int64 = 2_000_000_000_000_000_000 / 10
 }
