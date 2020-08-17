@@ -283,8 +283,15 @@ class SendViewController: UIViewController, CanScanQRCode {
         let input = targetAddressTextField.value.trimmed
         targetAddressTextField.errorState = .none
         amountTextField.errorState = .none
-
-        guard let value = viewModel.validatedAmount(value: amountTextField.ethCost) else {
+        let checkIfGreaterThanZero: Bool
+        // allow users to input zero on native transactions as they may want to send custom data
+        switch transferType {
+        case .nativeCryptocurrency, .dapp:
+            checkIfGreaterThanZero = false
+        case .ERC20Token, .ERC875Token, .ERC875TokenOrder, .ERC721Token, .ERC721ForTicketToken:
+            checkIfGreaterThanZero = true
+        }
+        guard let value = viewModel.validatedAmount(value: amountTextField.ethCost, checkIfGreaterThanZero: checkIfGreaterThanZero) else {
             amountTextField.errorState = .error
             return
         }
@@ -454,7 +461,7 @@ extension SendViewController: AmountTextFieldDelegate {
         textField.statusLabel.text = viewModel.availableLabelText
         textField.availableTextHidden = viewModel.availableTextHidden
 
-        guard viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThenZero: false) != nil else {
+        guard viewModel.validatedAmount(value: textField.ethCost, checkIfGreaterThanZero: false) != nil else {
             textField.errorState = .error
             return
         }
