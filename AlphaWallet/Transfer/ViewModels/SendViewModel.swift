@@ -117,7 +117,7 @@ struct SendViewModel {
         return true
     }
 
-    func validatedAmount(value amountString: String, checkIfGreaterThenZero: Bool = true) -> BigInt? {
+    func validatedAmount(value amountString: String, checkIfGreaterThanZero: Bool = true) -> BigInt? {
         let parsedValue: BigInt? = {
             switch transferType {
             case .nativeCryptocurrency, .dapp:
@@ -135,7 +135,7 @@ struct SendViewModel {
             }
         }()
 
-        guard let value = parsedValue, checkIfGreaterThenZero ? value > 0 : true else {
+        guard let value = parsedValue, checkIfGreaterThanZero ? value > 0 : true else {
             return nil
         }
 
