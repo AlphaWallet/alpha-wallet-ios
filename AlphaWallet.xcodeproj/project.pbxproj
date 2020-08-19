@@ -438,7 +438,6 @@
 		5E7C78FF93B0DD68700FAFB6 /* NativeCryptoCurrencyBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7D0476B2C4EEB526189D /* NativeCryptoCurrencyBalanceView.swift */; };
 		5E7C79284D45EF4C5440E546 /* EnabledServersCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C7CB95B7EE4B2547585 /* EnabledServersCoordinator.swift */; };
 		5E7C792AA15C1D3560A18CF8 /* ConsoleCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7C51CEC4AAFDFBD75482 /* ConsoleCoordinator.swift */; };
-		5E7C793B619672CCC8EA02D9 /* AddHideTokensCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C709FA1317A56BC12CD35 /* AddHideTokensCell.swift */; };
 		5E7C793BF142AEC0792A68C3 /* BackupSeedPhraseCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C79107D8AAA345518435F /* BackupSeedPhraseCoordinator.swift */; };
 		5E7C793F7E346402CDAF771F /* AssetDefinitionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7FE30D58E4022AF04E48 /* AssetDefinitionStoreTests.swift */; };
 		5E7C797BE2C8DB7EF6F217B3 /* OnboardingPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E7C7103135DCCCAB96EE5FC /* OnboardingPage.swift */; };
@@ -983,7 +982,6 @@
 		5E7C706658D72CC1C8BB698C /* BookmarkViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BookmarkViewCell.swift; sourceTree = "<group>"; };
 		5E7C7084B3FA83B36252B129 /* TokenScriptFilterParserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenScriptFilterParserTests.swift; sourceTree = "<group>"; };
 		5E7C708DE897B6677EAD769B /* ScriptMessageProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScriptMessageProxy.swift; sourceTree = "<group>"; };
-		5E7C709FA1317A56BC12CD35 /* AddHideTokensCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddHideTokensCell.swift; sourceTree = "<group>"; };
 		5E7C70A03A120A74A832DD62 /* BackupState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackupState.swift; sourceTree = "<group>"; };
 		5E7C70A6D4A3737631D092D9 /* EnabledServersViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EnabledServersViewModel.swift; sourceTree = "<group>"; };
 		5E7C70B3651BDFE549C28466 /* PromptBackupCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PromptBackupCoordinator.swift; sourceTree = "<group>"; };
@@ -2066,7 +2064,6 @@
 				5E7C7F54FD247553A7427881 /* TokensViewControllerCollectiblesCollectionViewHeader.swift */,
 				5E7C73BD3FD2C2844F5DEA45 /* SegmentedControl.swift */,
 				5E7C78FF8A5682C27E15B488 /* UITableViewCell+TokenCell.swift */,
-				5E7C709FA1317A56BC12CD35 /* AddHideTokensCell.swift */,
 				87D1757724ADAEEB002130D2 /* BlockchainTagLabel.swift */,
 			);
 			path = Views;
@@ -4620,7 +4617,6 @@
 				5E7C7193C577A84710D71F5C /* TokenScriptFilterParser.swift in Sources */,
 				5E7C708F30E73521E6A494D5 /* TokenScriptSelection.swift in Sources */,
 				5E7C775B971EFCCEBE9B10A4 /* UITableViewCell+TokenCell.swift in Sources */,
-				5E7C793B619672CCC8EA02D9 /* AddHideTokensCell.swift in Sources */,
 				5E7C710D1522AFA533B0C22B /* XMLHandler+XPaths.swift in Sources */,
 				5E7C782069BAD4A667543979 /* SettingsViewController.swift in Sources */,
 				5E7C750721DA2745432B1857 /* TokenObject+UI.swift in Sources */,

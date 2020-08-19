@@ -17,7 +17,7 @@ extension TokensViewController {
                 addSubview(filterView)
 
                 NSLayoutConstraint.activate([
-                    filterView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 0, bottom: 7, right: 0)),
+                    filterView.anchorsConstraint(to: self, edgeInsets: .zero),
                 ])
             }
         }
@@ -28,7 +28,7 @@ extension TokensViewController {
         }
 
         required init?(coder aDecoder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
+            return nil
         }
     }
 }
