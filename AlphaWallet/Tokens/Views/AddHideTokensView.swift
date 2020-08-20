@@ -6,14 +6,14 @@ protocol ShowAddHideTokensViewDelegate: class {
     func view(_ view: ShowAddHideTokensView, didSelectAddHideTokensButton sender: UIButton)
 }
 
-class ShowAddHideTokensView: UIView {
+class ShowAddHideTokensView: UITableViewHeaderFooterView {
     private let addTokenTitleLeftInset: CGFloat = 7
     private lazy var addTokenButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.semanticContentAttribute = .forceRightToLeft
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: -addTokenTitleLeftInset, bottom: 0, right: addTokenTitleLeftInset)
-        button.addTarget(self, action: #selector(addHideTokensSelected(_:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(addHideTokensSelected), for: .touchUpInside)
 
         return button
     }()
@@ -49,13 +49,13 @@ class ShowAddHideTokensView: UIView {
 
     weak var delegate: ShowAddHideTokensViewDelegate?
 
-    init() {
-        super.init(frame: .zero)
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
         setupViews()
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     private func setupViews() {
