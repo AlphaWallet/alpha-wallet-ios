@@ -357,12 +357,17 @@ extension AppCoordinator: CustomUrlSchemeCoordinatorDelegate {
 }
 
 extension AppCoordinator: AssetDefinitionStoreCoordinatorDelegate {
+
     func show(error: Error, for viewController: AssetDefinitionStoreCoordinator) {
         inCoordinator?.show(error: error)
     }
 
-    func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer) {
+    func addedTokenScript(forContract contract: AlphaWallet.Address, forServer server: RPCServer, destinationFileInUse: Bool, filename: String) {
         inCoordinator?.addImported(contract: contract, forServer: server)
+
+        if !destinationFileInUse {
+            inCoordinator?.show(openedURL: filename)
+        }
     }
 }
 
