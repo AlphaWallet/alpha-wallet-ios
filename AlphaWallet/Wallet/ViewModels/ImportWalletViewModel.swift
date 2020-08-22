@@ -35,15 +35,18 @@ struct ImportWalletViewModel {
     }
 
     var importKeystoreJsonButtonFont: UIFont {
-        return Fonts.regular(size: 20)!
+        return Fonts.regular(size: ScreenChecker().isNarrowScreen ? 16 : 20)!
     }
 
-    var importSeedDescriptionFont: UIFont {
-        return Fonts.light(size: 16)!
-    }
-
-    var importSeedDescriptionColor: UIColor {
-        return .init(red: 116, green: 116, blue: 116)
+    var importSeedAtrributedText: NSAttributedString {
+        let style = NSMutableParagraphStyle()
+        style.alignment = .center
+            
+        return .init(string: R.string.localizable.importWalletImportSeedPhraseDescription(), attributes: [
+            .paragraphStyle: style,
+            .font: Fonts.light(size: ScreenChecker().isNarrowScreen ? 14 : 16)!,
+            .foregroundColor: UIColor(red: 116, green: 116, blue: 116)
+        ])
     }
 
     func convertSegmentedControlSelectionToFilter(_ selection: SegmentedControl.Selection) -> ImportWalletTab? {
