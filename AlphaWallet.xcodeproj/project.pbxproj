@@ -676,6 +676,7 @@
 		87D1757824ADAEEB002130D2 /* BlockchainTagLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D1757724ADAEEB002130D2 /* BlockchainTagLabel.swift */; };
 		87D1757A24ADAF07002130D2 /* BlockchainTagLabelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D1757924ADAF07002130D2 /* BlockchainTagLabelViewModel.swift */; };
 		87D175EB24AEF8B5002130D2 /* UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D175EA24AEF8B4002130D2 /* UITableView.swift */; };
+		87D175ED24AF1565002130D2 /* KeyboardChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D175EC24AF1565002130D2 /* KeyboardChecker.swift */; };
 		87ED8F93248534E30005C69B /* SwitchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */; };
 		87ED8F95248535400005C69B /* SwitchTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F94248535400005C69B /* SwitchTableViewCellViewModel.swift */; };
 		87ED8F97248540F90005C69B /* AdvancedSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F96248540F90005C69B /* AdvancedSettingsViewController.swift */; };
@@ -1422,6 +1423,7 @@
 		87D1757724ADAEEB002130D2 /* BlockchainTagLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainTagLabel.swift; sourceTree = "<group>"; };
 		87D1757924ADAF07002130D2 /* BlockchainTagLabelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockchainTagLabelViewModel.swift; sourceTree = "<group>"; };
 		87D175EA24AEF8B4002130D2 /* UITableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableView.swift; sourceTree = "<group>"; };
+		87D175EC24AF1565002130D2 /* KeyboardChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardChecker.swift; sourceTree = "<group>"; }; 
 		87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCell.swift; sourceTree = "<group>"; };
 		87ED8F94248535400005C69B /* SwitchTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		87ED8F96248540F90005C69B /* AdvancedSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsViewController.swift; sourceTree = "<group>"; };
@@ -3575,6 +3577,7 @@
 				5E7C77E1E6194F5A1DC8D645 /* ScreenChecker.swift */,
 				5E7C708DE897B6677EAD769B /* ScriptMessageProxy.swift */,
 				5E7C71AFE747055742986023 /* withRetry.swift */,
+				87D175EC24AF1565002130D2 /* KeyboardChecker.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -4509,6 +4512,7 @@
 				5E7C70E4C7053E9794A8FE30 /* CallForAssetAttribute.swift in Sources */,
 				5E7C78374AD8C536E0DF264C /* AssetDefinitionDiskBackingStoreWithOverrides.swift in Sources */,
 				87D163A2242CD811002662D2 /* AddHideTokensViewModel.swift in Sources */,
+				87D175ED24AF1565002130D2 /* KeyboardChecker.swift in Sources */,
 				5E7C716F9A06085DF5F903E8 /* UserEntryOrigin.swift in Sources */,
 				C6959E32246C1D720095DE91 /* SeedPhraseSuggestionViewCell.swift in Sources */,
 				5E7C742B144FBC72E082B8F3 /* TokenScript.swift in Sources */,
