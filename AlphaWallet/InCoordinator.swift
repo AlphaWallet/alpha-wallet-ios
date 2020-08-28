@@ -17,6 +17,7 @@ enum Tabs {
     case wallet
     case alphaWalletSettings
     case transactions
+    case browser
 
     var className: String {
         switch self {
@@ -26,6 +27,8 @@ enum Tabs {
             return String(describing: TransactionsViewController.self)
         case .alphaWalletSettings:
             return String(describing: SettingsViewController.self)
+        case .browser:
+            return String(describing: DappsHomeViewController.self)
         }
     }
 }
@@ -445,6 +448,7 @@ class InCoordinator: NSObject, Coordinator {
         guard let viewControllers = tabBarController?.viewControllers else {
             return
         }
+
         for controller in viewControllers {
             if let nav = controller as? UINavigationController {
                 if nav.viewControllers[0].className == selectTab.className {
@@ -758,6 +762,17 @@ extension InCoordinator: SettingsCoordinatorDelegate {
 }
 
 extension InCoordinator: TokensCoordinatorDelegate {
+
+    func didPressErc20ExchangeOnUniswap(for holder: UniswapHolder, in coordinator: TokensCoordinator) {
+        guard let dappBrowserCoordinator = dappBrowserCoordinator, let url = holder.url else { return }
+
+        coordinator.navigationController.popViewController(animated: false)
+
+        showTab(.browser)
+
+        dappBrowserCoordinator.open(url: url, animated: true, forceReload: true)
+    }
+
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator) {
         showPaymentFlow(for: type, server: server)
     }

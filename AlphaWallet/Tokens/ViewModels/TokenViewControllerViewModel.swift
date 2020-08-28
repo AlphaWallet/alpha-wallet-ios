@@ -30,6 +30,7 @@ struct TokenViewControllerViewModel {
         guard let token = token else { return [] }
         let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
+
         if actionsFromTokenScript.isEmpty {
             switch token.type {
             case .erc875:
@@ -38,32 +39,52 @@ struct TokenViewControllerViewModel {
                 return []
             case .erc721ForTickets:
                 return []
-            case .nativeCryptocurrency:
-                //TODO .erc20Send and .erc20Receive names aren't appropriate
-                return [
-                    .init(type: .erc20Send),
-                    .init(type: .erc20Receive)
-                ]
-            case .erc20:
-                return [
-                    .init(type: .erc20Send),
-                    .init(type: .erc20Receive)
-                ]
-            }
-        } else {
-            switch token.type {
-            case .erc875, .erc721, .erc20, .erc721ForTickets:
-                return actionsFromTokenScript
-            case .nativeCryptocurrency:
-                //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
-                if let server = xmlHandler.server, server == token.server {
-                    return actionsFromTokenScript
+            case .erc20, .nativeCryptocurrency:
+                if UniswapERC20Token.isSupport(token: token) {
+                    return [
+                        .init(type: .erc20Send),
+                        .init(type: .erc20Receive),
+                        .init(type: .erc20ExchangeOnUniswap)
+                    ]
                 } else {
-                    //TODO .erc20Send and .erc20Receive names aren't appropriate
                     return [
                         .init(type: .erc20Send),
                         .init(type: .erc20Receive)
                     ]
+                }
+            }
+        } else {
+            switch token.type {
+            case .erc875, .erc721, .erc721ForTickets:
+                return actionsFromTokenScript
+            case .erc20:
+                if UniswapERC20Token.isSupport(token: token) {
+                    return actionsFromTokenScript + [.init(type: .erc20ExchangeOnUniswap)]
+                } else {
+                    return actionsFromTokenScript
+                }
+            case .nativeCryptocurrency:
+                //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
+                if let server = xmlHandler.server, server == token.server {
+                    if UniswapERC20Token.isSupport(token: token) {
+                        return actionsFromTokenScript + [.init(type: .erc20ExchangeOnUniswap)]
+                    } else {
+                        return actionsFromTokenScript
+                    }
+                } else {
+                    //TODO .erc20Send and .erc20Receive names aren't appropriate
+                    if UniswapERC20Token.isSupport(token: token) {
+                        return [
+                            .init(type: .erc20Send),
+                            .init(type: .erc20Receive),
+                            .init(type: .erc20ExchangeOnUniswap)
+                        ]
+                    } else {
+                        return [
+                            .init(type: .erc20Send),
+                            .init(type: .erc20Receive)
+                        ]
+                    }
                 }
             }
         }

@@ -20,6 +20,7 @@ enum ContractData {
 
 protocol SingleChainTokenCoordinatorDelegate: class, CanOpenURL {
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator)
+    func didPressErc20ExchangeOnUniswap(for holder: UniswapHolder, in coordinator: SingleChainTokenCoordinator)
     func didPress(for type: PaymentFlow, inCoordinator coordinator: SingleChainTokenCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: SingleChainTokenCoordinator)
     func didPostTokenScriptTransaction(_ transaction: SentTransaction, in coordinator: SingleChainTokenCoordinator)
@@ -524,7 +525,41 @@ extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
     }
 }
 
+extension TransferType {
+    
+    func uniswapHolder(theme: UniswapHolder.Theme) -> UniswapHolder {
+        switch self {
+        case .ERC20Token(let token, _, _):
+            return .init(input: .input(token.contractAddress), theme: theme)
+        case .ERC721Token, .ERC721ForTicketToken, .ERC875TokenOrder, .ERC875Token, .dapp, .nativeCryptocurrency:
+            return .init(input: .none, theme: theme)
+        }
+    }
+}
+
+extension UITraitCollection {
+    var uniswapTheme: UniswapHolder.Theme {
+        if #available(iOS 12.0, *) {
+            switch userInterfaceStyle {
+            case .dark:
+                return .dark
+            case .light, .unspecified:
+                return .light
+            }
+        } else {
+            return .light
+        }
+    }
+}
+
 extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
+
+    func didTapErc20ExchangeOnUniswap(forTransferType transferType: TransferType, inViewController viewController: TokenViewController) {
+        let theme = viewController.traitCollection.uniswapTheme
+        
+        delegate?.didPressErc20ExchangeOnUniswap(for: transferType.uniswapHolder(theme: theme), in: self)
+    }
+
     func didTapSend(forTransferType transferType: TransferType, inViewController viewController: TokenViewController) {
         delegate?.didPress(for: .send(type: transferType), inCoordinator: self)
     }
@@ -552,7 +587,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
         switch action.type {
         case .tokenScript:
             showTokenInstanceActionView(forAction: action, fungibleTokenObject: token, viewController: viewController)
-        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer:
+        case .erc20Send, .erc20Receive, .nftRedeem, .nftSell, .nonFungibleTransfer, .erc20ExchangeOnUniswap:
             //Couldn't have reached here
             break
         }
