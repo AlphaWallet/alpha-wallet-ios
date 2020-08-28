@@ -162,7 +162,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
 
     private func handle(action: TokenInstanceAction) {
         switch action.type {
-        case .erc20Send, .erc20Receive:
+        case .erc20Send, .erc20Receive, .erc20ExchangeOnUniswap:
             //TODO when we support TokenScript views for ERC20s, we need to perform the action here
             break
         case .nftRedeem:
