@@ -352,7 +352,7 @@ extension TokensViewController: UITableViewDelegate {
         case .addHideToken:
             let header: ShowAddHideTokensView = tableView.dequeueReusableHeaderFooterView()
             header.delegate = self
-            header.configure(viewModel: .init())
+            header.configure()
 
             return header
         case .tokens:

@@ -71,9 +71,14 @@ class ShowAddHideTokensView: UITableViewHeaderFooterView {
             badgeIndicatorView.centerYAnchor.constraint(equalTo: addTokenButton.topAnchor),
             badgeLabel.anchorsConstraint(to: badgeIndicatorView)
         ])
+
+        //NOTE: We add tap gesture to prevent broke layout for 'badgeIndicatorView', because it snapped to buttons top, and we can't set buttons height is equal to superview height.
+        let tap = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
+        contentView.isUserInteractionEnabled = true
+        contentView.addGestureRecognizer(tap)
     }
 
-    func configure(viewModel: ShowAddHideTokensViewModel) {
+    func configure(viewModel: ShowAddHideTokensViewModel = .init()) {
         backgroundColor = R.color.alabaster()
         addTokenButton.setImage(viewModel.addHideTokensIcon, for: .normal)
         addTokenButton.setTitle(viewModel.addHideTokensTitle, for: .normal)
@@ -88,6 +93,10 @@ class ShowAddHideTokensView: UITableViewHeaderFooterView {
 
         let value = max(badgeIndicatorView.frame.height, badgeIndicatorView.frame.width)
         badgeIndicatorView.layer.cornerRadius = value / 2.0
+    }
+
+    @objc private func viewTapped(_ sender: UITapGestureRecognizer) {
+        delegate?.view(self, didSelectAddHideTokensButton: addTokenButton)
     }
 
     @objc private func addHideTokensSelected(_ sender: UIButton) {
