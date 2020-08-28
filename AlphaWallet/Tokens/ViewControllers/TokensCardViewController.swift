@@ -227,7 +227,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
     private func handle(action: TokenInstanceAction) {
         guard let tokenHolder = selectedTokenHolder else { return }
         switch action.type {
-        case .erc20Send, .erc20Receive:
+        case .erc20Send, .erc20Receive, .erc20ExchangeOnUniswap:
             break
         case .nftRedeem:
             redeem()
