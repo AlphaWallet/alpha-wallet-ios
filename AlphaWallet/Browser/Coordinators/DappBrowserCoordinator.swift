@@ -193,7 +193,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         navigationController.present(coordinator.navigationController, animated: true, completion: nil)
     }
 
-    func open(url: URL, animated: Bool = true) {
+    func open(url: URL, animated: Bool = true, forceReload: Bool = false) {
         //If users tap on the verified button in the import MagicLink UI, we don't want to treat it as a MagicLink to import and show the UI again. Just open in browser. This check means when we tap MagicLinks in browserOnly mode, the import UI doesn't show up; which is probably acceptable
         if !browserOnly && isMagicLink(url) {
             delegate?.importUniversalLink(url: url, forCoordinator: self)
@@ -211,8 +211,13 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         if browserOnly {
             browserNavBar?.makeBrowserOnly()
         }
+
         browserViewController.goTo(url: url)
-    }
+        //FIXME: for some reasons webView doesnt reload itself when load(URLRequest) method is called. we need to force reload it
+        if forceReload {
+            browserViewController.reload()
+        }
+    } 
 
     func signMessage(with type: SignMessageType, account: EthereumAccount, callbackID: Int) {
         nativeCryptoCurrencyBalanceView.hide()
