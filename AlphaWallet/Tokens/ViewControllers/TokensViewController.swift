@@ -12,8 +12,8 @@ protocol TokensViewControllerDelegate: class {
 }
 
 class TokensViewController: UIViewController {
-    private static let filterViewHeight = CGFloat(50)
-    private static let addHideTokensViewHeight = CGFloat(60)
+    private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
+    private static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
 
     private enum Section: CaseIterable {
         case filters
@@ -43,7 +43,7 @@ class TokensViewController: UIViewController {
         tableView.register(NonFungibleTokenViewCell.self)
         tableView.registerHeaderFooterView(TableViewSectionHeader.self)
         tableView.registerHeaderFooterView(ShowAddHideTokensView.self)
-        tableView.estimatedRowHeight = 100
+        tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.delegate = self
         tableView.dataSource = self
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
@@ -72,7 +72,7 @@ class TokensViewController: UIViewController {
         let heightForLabel = CGFloat(18)
         layout.itemSize = CGSize(width: dimension, height: dimension + heightForLabel)
         layout.minimumInteritemSpacing = 0
-        layout.headerReferenceSize = .init(width: 100, height: TokensViewController.filterViewHeight)
+        layout.headerReferenceSize = .init(width: DataEntry.Metric.TableView.headerReferenceSizeWidth, height: TokensViewController.filterViewHeight)
         layout.sectionHeadersPinToVisibleBounds = true
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -121,8 +121,7 @@ class TokensViewController: UIViewController {
             promptBackupWalletViewHolder.isHidden = newValue
             adjustTableViewHeaderHeightToFitContents()
         }
-    }
-    private let hideTokenWidth: CGFloat = 170
+    } 
 
     weak var delegate: TokensViewControllerDelegate?
     //TODO The name "bad" isn't correct. Because it includes "conflicts" too

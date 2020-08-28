@@ -49,9 +49,9 @@ class SendHeaderView: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            tokenIconImageView.heightAnchor.constraint(equalToConstant: 60),
-            tokenIconImageView.widthAnchor.constraint(equalToConstant: 60),
-            stackView.anchorsConstraint(to: self, edgeInsets: DataEntry.Metric.sendHeaderInset)
+            tokenIconImageView.heightAnchor.constraint(equalToConstant: DataEntry.Metric.SendHeader.iconSide),
+            tokenIconImageView.widthAnchor.constraint(equalToConstant: DataEntry.Metric.SendHeader.iconSide),
+            stackView.anchorsConstraint(to: self, edgeInsets: DataEntry.Metric.SendHeader.insets)
         ])
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(showContractWebPage))
