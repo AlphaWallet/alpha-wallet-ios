@@ -10,7 +10,7 @@ var smartContractCallsCache = [String: (promise: Promise<[String: Any]>, timesta
 func callSmartContract(withServer server: RPCServer, contract: AlphaWallet.Address, functionName: String, abiString: String, parameters: [AnyObject] = [AnyObject](), timeout: TimeInterval? = nil) -> Promise<[String: Any]> {
     //We must include the ABI string in the key because the order of elements in a dictionary when serialized in the string is not ordered. Parameters (which is ordered) should ensure it's the same function
     let cacheKey = "\(contract).\(functionName) \(parameters) \(server.chainID)"
-    let ttlForCache: TimeInterval = 3
+    let ttlForCache: TimeInterval = 10
     let now = Date()
     if let (cachedPromise, cacheTimestamp) = smartContractCallsCache[cacheKey] {
         let diff = now.timeIntervalSince(cacheTimestamp)
