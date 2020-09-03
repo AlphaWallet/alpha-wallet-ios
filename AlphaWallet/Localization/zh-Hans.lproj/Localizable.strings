@@ -405,6 +405,8 @@
 "blockchain.XDAI" = "xDAI 链";
 "blockchain.ARTIS.sigma1" = "ARTIS sigma1 网络";
 "blockchain.ARTIS.tau1" = "ARTIS tau1 网络";
+"blockchain.Binance" = "Binance Network";
+"blockchain.Binance" = "Binance Testnet Network";
 "photos" = "浏览";
 "light" = "闪光灯";
 "qrCode.title" = "将相机对准二维码";
