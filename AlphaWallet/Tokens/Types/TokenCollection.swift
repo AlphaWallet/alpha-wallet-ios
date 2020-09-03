@@ -103,6 +103,8 @@ extension RPCServer {
         case .goerli: return 10
         case .artis_sigma1: return 246529
         case .artis_tau1: return 246785
+        case .binance_smart_chain: return 12
+        case .binance_smart_chain_testnet: return 13
         case .custom: return 11
         }
     }

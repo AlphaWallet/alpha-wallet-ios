@@ -405,6 +405,8 @@
 "blockchain.XDAI" = "Cadena xDAI";
 "blockchain.ARTIS.sigma1" = "Red ARTIS sigma1";
 "blockchain.ARTIS.tau1" = "Red ARTIS tau1";
+"blockchain.Binance" = "Binance Network";
+"blockchain.Binance" = "Binance Testnet Network";
 "photos" = "Explorar";
 "light" = "Luz";
 "qrCode.title" = "Apunta la cámara al código QR";
