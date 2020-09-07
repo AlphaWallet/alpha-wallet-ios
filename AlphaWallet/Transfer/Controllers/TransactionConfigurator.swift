@@ -28,7 +28,7 @@ class TransactionConfigurator {
         case .xDai:
             //xdai transactions are always 1 gwei in gasPrice
             return GasPriceConfiguration.xDaiGasPrice
-        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:
+        case .main, .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
             return configureGasPrice()
         }
     }()

@@ -20,7 +20,7 @@ struct ConfigExplorer {
                 return endpoint + "/txid/search/" + ID
             case .custom, .callisto:
                 return .none
-            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1:
+            case .main, .kovan, .ropsten, .rinkeby, .sokol, .classic, .xDai, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet:
                 return endpoint + "/tx/" + ID
             }
         }()
@@ -43,6 +43,8 @@ struct ConfigExplorer {
             return "Sokol Explorer"
         case .xDai:
             return "Blockscout"
+        case .binance_smart_chain, .binance_smart_chain_testnet:
+            return "Binance Explorer"
         case .artis_sigma1, .artis_tau1:
             return "ARTIS" 
         }
@@ -73,6 +75,10 @@ struct ConfigExplorer {
             return ("https://explorer.sigma1.artis.network", nameForServer)
         case .artis_tau1:
             return ("https://explorer.tau1.artis.network", nameForServer)
+        case .binance_smart_chain:
+            return ("https://explorer.binance.org/smart", nameForServer)
+        case .binance_smart_chain_testnet:
+            return ("https://explorer.binance.org/smart-testnet", nameForServer)
         case .custom, .callisto:
             return (.none, nameForServer)
         }
