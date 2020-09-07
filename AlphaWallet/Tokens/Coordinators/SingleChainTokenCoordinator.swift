@@ -145,7 +145,7 @@ class SingleChainTokenCoordinator: Coordinator {
             autoDetectMainnetPartnerTokens()
         case .xDai:
             autoDetectXDaiPartnerTokens()
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom:
             break
         }
     }
