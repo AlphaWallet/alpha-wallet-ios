@@ -455,8 +455,9 @@ class TokensDataStore {
     }
 
     func token(forContract contract: AlphaWallet.Address) -> TokenObject? {
-        //TODO improved performance if contract is always stored as EIP55
-        return realm.objects(TokenObject.self).first { contract.sameContract(as: $0.contract) && $0.chainId == chainId }
+        realm.objects(TokenObject.self)
+                .filter("contract = '\(contract.eip55String)'")
+                .filter("chainId = \(chainId)").first
     }
 
     func refreshBalance() {
