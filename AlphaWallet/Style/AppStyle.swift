@@ -194,6 +194,11 @@ enum DataEntry {
             static let headerReferenceSizeWidth: CGFloat = 100
         }
 
+        enum ButtonsBar {
+            static let insets: UIEdgeInsets = .init(top: 20, left: 0, bottom: 20, right: 0)
+            static let separatorHeight: CGFloat = 1.0
+        }
+
     }
 
     enum Font {

@@ -102,12 +102,8 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         tableView.estimatedRowHeight = TokensCardViewController.anArbitaryRowHeightSoAutoSizingCellsWorkIniOS10
         roundedBackground.addSubview(tableView)
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: roundedBackground.leadingAnchor),
@@ -115,15 +111,7 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
             tableView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            footerBar.anchorsConstraint(to: view),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
 
         registerForPreviewing(with: self, sourceView: tableView)
@@ -169,18 +157,12 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
                     button.isEnabled = false
                 }
             }
-            configureButtonsBarParentUserInteractionEnabledToPassthroughTouch(isEnabled: !viewModel.actions.isEmpty)
         } else {
             buttonsBar.configuration = .empty
-            configureButtonsBarParentUserInteractionEnabledToPassthroughTouch(isEnabled: false)
         }
 
         sizingCell = nil
         tableView.reloadData()
-    }
-
-    private func configureButtonsBarParentUserInteractionEnabledToPassthroughTouch(isEnabled: Bool) {
-        buttonsBar.superview?.isUserInteractionEnabled = isEnabled
     }
 
     override
