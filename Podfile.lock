@@ -118,7 +118,7 @@ DEPENDENCIES:
   - TrezorCrypto (from `https://github.com/AlphaWallet/trezor-crypto-ios.git`, commit `50c16ba5527e269bbc838e80aee5bac0fe304cc7`)
   - TrustKeystore (from `https://github.com/alpha-wallet/trust-keystore.git`, commit `37f7eaf9531cb4e33d06129543b3a56972f59d2a`)
   - TrustWalletCore
-  - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, commit `7e2b99198acb2243b6a539cb32832a96f67c893d`)
+  - web3swift (from `https://github.com/alpha-wallet/web3swift.git`, commit `d863662b08f112dee48538a04ab704244e9c7bae`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
@@ -181,7 +181,7 @@ EXTERNAL SOURCES:
     :commit: 37f7eaf9531cb4e33d06129543b3a56972f59d2a
     :git: https://github.com/alpha-wallet/trust-keystore.git
   web3swift:
-    :commit: 7e2b99198acb2243b6a539cb32832a96f67c893d
+    :commit: d863662b08f112dee48538a04ab704244e9c7bae
     :git: https://github.com/alpha-wallet/web3swift.git
 
 CHECKOUT OPTIONS:
@@ -210,7 +210,7 @@ CHECKOUT OPTIONS:
     :commit: 37f7eaf9531cb4e33d06129543b3a56972f59d2a
     :git: https://github.com/alpha-wallet/trust-keystore.git
   web3swift:
-    :commit: 7e2b99198acb2243b6a539cb32832a96f67c893d
+    :commit: d863662b08f112dee48538a04ab704244e9c7bae
     :git: https://github.com/alpha-wallet/web3swift.git
 
 SPEC CHECKSUMS:
@@ -256,6 +256,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: dd8c81d5958f1eb737abea1e14675efcc6a104aa
   web3swift: 1597d4997976d21325882db4c523f1dfd5459406
 
-PODFILE CHECKSUM: ec2b391a12a22f8ccec61785b00f8d8eade47186
+PODFILE CHECKSUM: 2099838a6060fe419603c9225cc2d43ec0fd2117
 
 COCOAPODS: 1.8.4
