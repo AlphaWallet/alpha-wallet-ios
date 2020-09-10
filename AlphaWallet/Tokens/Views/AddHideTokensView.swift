@@ -79,7 +79,7 @@ class ShowAddHideTokensView: UITableViewHeaderFooterView {
     }
 
     func configure(viewModel: ShowAddHideTokensViewModel = .init()) {
-        backgroundColor = R.color.alabaster()
+        contentView.backgroundColor = R.color.alabaster()
         addTokenButton.setImage(viewModel.addHideTokensIcon, for: .normal)
         addTokenButton.setTitle(viewModel.addHideTokensTitle, for: .normal)
         addTokenButton.setTitleColor(viewModel.addHideTokensTintColor, for: .normal)
