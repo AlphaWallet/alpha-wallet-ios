@@ -29,7 +29,7 @@ class TokenViewController: UIViewController {
     private let transferType: TransferType
     private let tableView = UITableView(frame: .zero, style: .plain)
     private let buttonsBar = ButtonsBar(configuration: .combined(buttons: 2))
-    private lazy var tokenScriptFileStatusHandler = XMLHandler(contract: transferType.contract, assetDefinitionStore: assetDefinitionStore)
+    private lazy var tokenScriptFileStatusHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
     private var headerRefreshTimer: Timer!
 
     weak var delegate: TokenViewControllerDelegate?
@@ -144,7 +144,7 @@ class TokenViewController: UIViewController {
             }.cauterize()
         }
 
-        if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server == session.server {
+        if let server = xmlHandler.server, let status = tokenScriptStatusPromise.value, server.matches(server: session.server) {
             switch status {
             case .type0NoTokenScript:
                 navigationItem.rightBarButtonItem = nil
@@ -246,7 +246,7 @@ class TokenViewController: UIViewController {
         //TODO id 1 for fungibles. Might come back to bite us?
         let hardcodedTokenIdForFungibles = BigUInt(1)
         guard let tokenObject = viewModel?.token else { return nil }
-        let xmlHandler = XMLHandler(contract: tokenObject.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(token: tokenObject, assetDefinitionStore: assetDefinitionStore)
         //TODO Event support, if/when designed for fungibles
         let values = xmlHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: .tokenId(tokenId: hardcodedTokenIdForFungibles), server: self.session.server, account: self.session.account)
         let subscribablesForAttributeValues = values.values

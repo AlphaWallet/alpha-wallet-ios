@@ -39,19 +39,31 @@ class TokenAdaptor {
     private func getNotSupportedByOpenSeaTokenHolders(forWallet account: Wallet) -> [TokenHolder] {
         let balance = token.balance
         var tokens = [Token]()
-        for (index, item) in balance.enumerated() {
-            //id is the value of the bytes32 token
-            let id = item.balance
-            guard isNonZeroBalance(id) else { continue }
-            if let tokenInt = BigUInt(id.drop0x, radix: 16) {
-                let server = self.token.server
-                //TODO Event support, if/when designed, for non-OpenSea. Probably need `distinct` or something to that effect
-                let token = getToken(name: self.token.name, symbol: self.token.symbol, forTokenIdOrEvent: .tokenId(tokenId: tokenInt), index: UInt16(index), inWallet: account, server: server)
-                tokens.append(token)
+        switch token.type {
+        case .erc875, .erc721ForTickets, .erc721, .nativeCryptocurrency:
+            for (index, item) in balance.enumerated() {
+                //id is the value of the bytes32 token
+                let id = item.balance
+                guard isNonZeroBalance(id) else { continue }
+                if let tokenInt = BigUInt(id.drop0x, radix: 16) {
+                    let server = self.token.server
+                    //TODO Event support, if/when designed, for non-OpenSea. Probably need `distinct` or something to that effect
+                    let token = getToken(name: self.token.name, symbol: self.token.symbol, forTokenIdOrEvent: .tokenId(tokenId: tokenInt), index: UInt16(index), inWallet: account, server: server)
+                    tokens.append(token)
+                }
             }
-        }
+            return bundle(tokens: tokens)
+        case .erc20:
+            //For fungibles, we have to get 1 token even if the balance.count is 0. Maybe we check value? No, even if value is 0, there might be attributes
+            let tokenInt: BigUInt = .init(1)
+            let index = 0
 
-        return bundle(tokens: tokens)
+            let server = self.token.server
+            //TODO Event support, if/when designed, for non-OpenSea. Probably need `distinct` or something to that effect
+            let token = getToken(name: self.token.name, symbol: self.token.symbol, forTokenIdOrEvent: .tokenId(tokenId: tokenInt), index: UInt16(index), inWallet: account, server: server)
+            tokens.append(token)
+            return bundle(tokens: tokens)
+        }
     }
 
     private func getSupportedByOpenSeaTokenHolders(forWallet account: Wallet, sourceFromEvents: Bool) -> [TokenHolder] {
@@ -142,12 +154,12 @@ class TokenAdaptor {
 
     //TODO pass lang into here
     private func getToken(name: String, symbol: String, forTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer) -> Token {
-        XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
+        XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, tokenType: token.type)
     }
 
     private func getTokenForOpenSeaNonFungible(forJSONString jsonString: String, inWallet account: Wallet, server: RPCServer, sourceFromEvents: Bool) -> Token? {
         guard let data = jsonString.data(using: .utf8), let nonFungible = try? JSONDecoder().decode(OpenSeaNonFungible.self, from: data) else { return nil }
-        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let event: EventInstance?
         if sourceFromEvents, let attributeWithEventSource = xmlHandler.attributesWithEventSource.first, let eventFilter = attributeWithEventSource.eventOrigin?.eventFilter, let eventName = attributeWithEventSource.eventOrigin?.eventName, let eventContract = attributeWithEventSource.eventOrigin?.contract {
             let filterName = eventFilter.name
@@ -209,7 +221,7 @@ class TokenAdaptor {
         return TokenHolder(
                 tokens: tokens,
                 contractAddress: token.contractAddress,
-                hasAssetDefinition: XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).hasAssetDefinition
+                hasAssetDefinition: XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).hasAssetDefinition
         )
     }
 

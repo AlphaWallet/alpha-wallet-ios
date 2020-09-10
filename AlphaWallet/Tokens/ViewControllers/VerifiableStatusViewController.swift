@@ -143,7 +143,7 @@ protocol TokenVerifiableStatusViewController: VerifiableStatusViewController {
 
 extension TokenVerifiableStatusViewController {
     var tokenScriptFileStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
-        return XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).tokenScriptStatus
+        XMLHandler.tokenScriptStatus(forContract: contract, assetDefinitionStore: assetDefinitionStore)
     }
 }
 
@@ -156,6 +156,6 @@ protocol OptionalTokenVerifiableStatusViewController: VerifiableStatusViewContro
 extension OptionalTokenVerifiableStatusViewController {
     var tokenScriptFileStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
         guard let contract = contract else { return .value(.type0NoTokenScript) }
-        return XMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore).tokenScriptStatus
+        return XMLHandler.tokenScriptStatus(forContract: contract, assetDefinitionStore: assetDefinitionStore)
     }
 }

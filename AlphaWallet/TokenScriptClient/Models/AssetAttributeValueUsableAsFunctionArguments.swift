@@ -89,9 +89,11 @@ enum AssetAttributeValueUsableAsFunctionArguments {
         case .string(let string):
             switch functionType {
             case .functionCall:
-                return AlphaWallet.Address(string: string)?.eip55String as AnyObject
+                //Not use .init(string:) so that addresses like "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" can go through
+                return AlphaWallet.Address(uncheckedAgainstNullAddress: string)?.eip55String as AnyObject
             case .functionTransaction, .paymentTransaction:
-                return Address(string: string) as AnyObject
+                //Not use .init(string:) so that addresses like "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" can go through
+                return Address(uncheckedAgainstNullAddress: string) as AnyObject
             case .eventFiltering:
                 return EthereumAddress(string) as AnyObject
             }

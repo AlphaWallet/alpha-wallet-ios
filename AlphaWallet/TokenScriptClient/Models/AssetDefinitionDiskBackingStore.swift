@@ -126,6 +126,12 @@ class AssetDefinitionDiskBackingStore: AssetDefinitionBackingStore {
 
     subscript(contract: AlphaWallet.Address) -> String? {
         get {
+            if isOfficial {
+                if let (_, _, tokenScript: tokenScript) = Constants.erc20ContractsSupportingActivities.first(where: { $0.address.sameContract(as: contract) }) {
+                    return tokenScript
+                }
+            }
+
             //TODO this is the bundled version of the XDai bridge. Should remove it when the repo server can server action-only TokenScripts
             if isOfficial && contract.sameContract(as: Constants.nativeCryptoAddressInDatabase) {
                 if cachedVersionOfXDaiBridgeTokenScript == nil {

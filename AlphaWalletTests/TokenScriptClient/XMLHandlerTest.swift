@@ -19,7 +19,7 @@ class XMLHandlerTest: XCTestCase {
 
     func testParser() {
         let assetDefinitionStore = AssetDefinitionStore()
-        let token = XMLHandler(contract: Constants.nullAddress, assetDefinitionStore: assetDefinitionStore).getToken(
+        let token = XMLHandler(contract: Constants.nullAddress, tokenType: .erc20, assetDefinitionStore: assetDefinitionStore).getToken(
                 name: "",
                 symbol: "",
                 fromTokenIdOrEvent: .tokenId(tokenId: BigUInt(tokenHex, radix: 16)!),
@@ -903,7 +903,7 @@ class XMLHandlerTest: XCTestCase {
         let contractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
         store[contractAddress] = xml
-        let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: store)
+        let xmlHandler = XMLHandler(contract: contractAddress, tokenType: .erc20, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main
         let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc875)
@@ -914,7 +914,7 @@ class XMLHandlerTest: XCTestCase {
 
     func testNoAssetDefinition() {
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
-        let xmlHandler = XMLHandler(contract: Constants.nullAddress, assetDefinitionStore: store)
+        let xmlHandler = XMLHandler(contract: Constants.nullAddress, tokenType: .erc20, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main
         let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc721)
