@@ -474,7 +474,7 @@ class UniversalLinkCoordinator: Coordinator {
 
             let tokensDatastore = strongSelf.tokensDatastores[strongSelf.server]
             if let existingToken = tokensDatastore.token(forContract: contractAddress) {
-                let name = XMLHandler(contract: existingToken.contractAddress, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
+                let name = XMLHandler(token: existingToken, assetDefinitionStore: strongSelf.assetDefinitionStore).getLabel(fallback: existingToken.name)
                 makeTokenHolder(name: name, symbol: existingToken.symbol)
             } else {
                 let localizedTokenTypeName = R.string.localizable.tokensTitlecase()
@@ -498,7 +498,7 @@ class UniversalLinkCoordinator: Coordinator {
         guard let tokenType = type ?? (tokensDatastore.token(forContract: contractAddress)?.type) else { return }
         let account = EtherKeystore.current!
         var tokens = [Token]()
-        let xmlHandler = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: contractAddress, tokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
         for i in 0..<bytes32Tokens.count {
             let token = bytes32Tokens[i]
             if let tokenId = BigUInt(token.drop0x, radix: 16) {

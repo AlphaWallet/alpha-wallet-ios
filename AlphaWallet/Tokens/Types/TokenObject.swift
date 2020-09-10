@@ -85,12 +85,12 @@ class TokenObject: Object {
     }
 
     func title(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
-        let localizedNameFromAssetDefinition = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore).getLabel(fallback: name)
+        let localizedNameFromAssetDefinition = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore).getLabel(fallback: name)
         return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
     }
 
     func titleInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
-        let localizedNameFromAssetDefinition = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: name)
+        let localizedNameFromAssetDefinition = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: name)
         return title(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
     }
 
@@ -110,7 +110,7 @@ class TokenObject: Object {
     }
 
     func symbolInPluralForm(withAssetDefinitionStore assetDefinitionStore: AssetDefinitionStore) -> String {
-        let localizedNameFromAssetDefinition = XMLHandler(contract: contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: name)
+        let localizedNameFromAssetDefinition = XMLHandler(token: self, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm(fallback: name)
         return symbol(withAssetDefinitionStore: assetDefinitionStore, localizedNameFromAssetDefinition: localizedNameFromAssetDefinition)
     }
 

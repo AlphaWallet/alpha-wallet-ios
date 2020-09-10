@@ -56,8 +56,8 @@ class MigrationInitializerForOneChainPerDatabase: Initializer {
                 migration.enumerateObjects(ofType: TokenObject.className()) { oldObject, newObject in
                     guard let oldObject = oldObject else { return }
                     guard let newObject = newObject else { return }
-                    if let contract = (oldObject["contract"] as? String).flatMap({ AlphaWallet.Address(uncheckedAgainstNullAddress: $0) }) {
-                        let tokenTypeName = XMLHandler(contract: contract, assetDefinitionStore: self.assetDefinitionStore).getLabel(fallback: "")
+                    if let contract = (oldObject["contract"] as? String).flatMap({ AlphaWallet.Address(uncheckedAgainstNullAddress: $0) }), let type = (oldObject["rawType"] as? String).flatMap({ TokenType(rawValue: $0) }) {
+                        let tokenTypeName = XMLHandler(contract: contract, tokenType: type, assetDefinitionStore: self.assetDefinitionStore).getLabel(fallback: "")
                         if !tokenTypeName.isEmpty {
                             newObject["name"] = ""
                         }

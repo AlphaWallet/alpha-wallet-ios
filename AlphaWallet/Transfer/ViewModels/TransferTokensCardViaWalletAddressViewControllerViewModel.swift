@@ -9,7 +9,7 @@ struct TransferTokensCardViaWalletAddressViewControllerViewModel {
     let assetDefinitionStore: AssetDefinitionStore
 
     var headerTitle: String {
-        let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
 		return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 

@@ -28,7 +28,7 @@ struct TokenViewControllerViewModel {
 
     var actions: [TokenInstanceAction] {
         guard let token = token else { return [] }
-        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
 
         if actionsFromTokenScript.isEmpty {
@@ -65,7 +65,7 @@ struct TokenViewControllerViewModel {
                 }
             case .nativeCryptocurrency:
                 //TODO we should support retrieval of XML (and XMLHandler) based on address + server. For now, this is only important for native cryptocurrency. So might be ok to check like this for now
-                if let server = xmlHandler.server, server == token.server {
+                if let server = xmlHandler.server, server.matches(server: token.server) {
                     if UniswapERC20Token.isSupport(token: token) {
                         return actionsFromTokenScript + [.init(type: .erc20ExchangeOnUniswap)]
                     } else {
@@ -92,7 +92,7 @@ struct TokenViewControllerViewModel {
 
     var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
         if let token = token {
-            let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
+            let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
             return xmlHandler.tokenScriptStatus
         } else {
             assertImpossibleCodePath()

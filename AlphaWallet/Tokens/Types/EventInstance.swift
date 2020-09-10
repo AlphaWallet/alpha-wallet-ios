@@ -70,3 +70,4 @@ class EventInstance: Object {
         })
     }
 }
+
