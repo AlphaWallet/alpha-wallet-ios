@@ -5,6 +5,7 @@ import UIKit
 import PromiseKit
 
 protocol TokensCoordinatorDelegate: class, CanOpenURL {
+    func didPressErc20ExchangeOnUniswap(for holder: UniswapHolder, in coordinator: TokensCoordinator)
     func didPress(for type: PaymentFlow, server: RPCServer, in coordinator: TokensCoordinator)
     func didTap(transaction: Transaction, inViewController viewController: UIViewController, in coordinator: TokensCoordinator)
     func openConsole(inCoordinator coordinator: TokensCoordinator)
@@ -197,6 +198,11 @@ func -<T: Equatable>(left: [T], right: [T]) -> [T] {
 }
 
 extension TokensCoordinator: SingleChainTokenCoordinatorDelegate {
+
+    func didPressErc20ExchangeOnUniswap(for holder: UniswapHolder, in coordinator: SingleChainTokenCoordinator) {
+        delegate?.didPressErc20ExchangeOnUniswap(for: holder, in: self)
+    }
+
     func tokensDidChange(inCoordinator coordinator: SingleChainTokenCoordinator) {
         tokensViewController.fetch()
     }

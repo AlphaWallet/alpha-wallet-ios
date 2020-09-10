@@ -16,6 +16,7 @@ class TransactionsViewController: UIViewController {
     private let refreshControl = UIRefreshControl()
     private let dataCoordinator: TransactionDataCoordinator
     private let sessions: ServerDictionary<WalletSession>
+    private var timeOfLastFetchBecauseViewAppears: Date?
 
     var paymentType: PaymentFlow?
     weak var delegate: TransactionsViewControllerDelegate?
@@ -74,13 +75,12 @@ class TransactionsViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
-        fetch()
+        fetchWithThrottling()
     }
 
     @objc func pullToRefresh() {
         refreshControl.beginRefreshing()
-        fetch()
+        fetchWithThrottling()
     }
 
     func fetch() {
@@ -90,6 +90,23 @@ class TransactionsViewController: UIViewController {
             DispatchQueue.main.async { [weak self] in
                 self?.dataCoordinator.fetch()
             }
+        }
+    }
+
+    //To reduce chance of this error occurring:
+    //Error Domain=NSPOSIXErrorDomain Code=28 "No space left on device" UserInfo={_kCFStreamErrorCodeKey=28, _kCFStreamErrorDomainKey=1}
+    private func fetchWithThrottling() {
+        let ttl: TimeInterval = 60 * 5
+        if let timeOfLastFetchBecauseViewAppears = timeOfLastFetchBecauseViewAppears {
+            if Date().timeIntervalSince(timeOfLastFetchBecauseViewAppears) < ttl {
+                //no-op
+            } else {
+                fetch()
+                self.timeOfLastFetchBecauseViewAppears = Date()
+            }
+        } else {
+            fetch()
+            timeOfLastFetchBecauseViewAppears = Date()
         }
     }
 

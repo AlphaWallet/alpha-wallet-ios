@@ -139,6 +139,11 @@ enum Table {
 }
 
 enum DataEntry {
+    //NOTE: Helper method to decrease line width ;)
+    private static var isNarrowScreen: Bool {
+        ScreenChecker().isNarrowScreen
+    }
+
     enum Color {
         static let border = UIColor(red: 194, green: 194, blue: 194)
         static let text = Colors.appText
@@ -160,17 +165,45 @@ enum DataEntry {
         static let shadowRadius = CGFloat(2.0)
         static let textFieldInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         static let currencyIconInset = UIEdgeInsets(top: 0, left: -8, bottom: 0, right: 8)
-        static let sendHeaderInset = UIEdgeInsets(top: 40, left: 0, bottom: 20, right: 0)
+
+        enum SendHeader {
+            static let iconSide: CGFloat = isNarrowScreen ? 40 : 60
+            static let insets = UIEdgeInsets(top: isNarrowScreen ? 20 : 40, left: 0, bottom: isNarrowScreen ? 10 : 20, right: 0)
+            static let topSpacerHeight: CGFloat = isNarrowScreen ? 10 : 20
+            
+            enum RecentTransactionsLabel {
+                static let height: CGFloat = isNarrowScreen ? 40 : 50
+                static let edgeInsets: UIEdgeInsets = .init(top: 0, left: isNarrowScreen ? 15 : 30, bottom: 0, right: 0)
+            }
+        }
+
+        enum Tokens {
+            enum Filter {
+                static let height: CGFloat = isNarrowScreen ? 40 : 50
+            }
+        }
+
+        enum AddHideToken {
+            enum Header {
+                static let height: CGFloat = isNarrowScreen ? 50 : 60
+            }
+        }
+
+        enum TableView {
+            static let estimatedRowHeight: CGFloat = 100
+            static let headerReferenceSizeWidth: CGFloat = 100
+        }
+
     }
 
     enum Font {
-        static let text = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14: 18)
+        static let text = Fonts.regular(size: isNarrowScreen ? 14: 18)
         static let label = Fonts.bold(size: 13)
         static let textFieldTitle = Fonts.regular(size: 13)
         static let textFieldStatus = Fonts.bold(size: 13)
-        static let textField = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 14: 17)
-        static let accessory = Fonts.bold(size: ScreenChecker().isNarrowScreen ? 14: 17)
-        static let amountTextField = Fonts.regular(size: ScreenChecker().isNarrowScreen ? 18: 36)
+        static let textField = Fonts.regular(size: isNarrowScreen ? 14: 17)
+        static let accessory = Fonts.bold(size: isNarrowScreen ? 14: 17)
+        static let amountTextField = Fonts.regular(size: isNarrowScreen ? 18: 36)
     }
 }
 

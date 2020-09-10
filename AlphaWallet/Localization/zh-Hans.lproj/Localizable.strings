@@ -405,6 +405,8 @@
 "blockchain.XDAI" = "xDAI 链";
 "blockchain.ARTIS.sigma1" = "ARTIS sigma1 网络";
 "blockchain.ARTIS.tau1" = "ARTIS tau1 网络";
+"blockchain.Binance" = "Binance Network";
+"blockchain.Binance" = "Binance Testnet Network";
 "photos" = "浏览";
 "light" = "闪光灯";
 "qrCode.title" = "将相机对准二维码";
@@ -458,3 +460,4 @@
 "a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
 "a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
 "a.wallet.token.transaction.inProgress.confirm" = "OK, great!";
+"a.wallet.token.erc20ExchangeOnUniswap.button.title" = "Exchange with Uniswap";

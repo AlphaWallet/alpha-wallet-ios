@@ -12,7 +12,7 @@ class TokenViewControllerHeaderView: UIView {
     private let contract: AlphaWallet.Address
     private let recentTransactionsLabel = UILabel()
     private let recentTransactionsLabelBorders = (top: UIView(), bottom: UIView())
-    private let spacers = (beforeTokenScriptFileStatus: UIView.spacer(height: 20), ())
+    private let spacers = (beforeTokenScriptFileStatus: UIView.spacer(height: DataEntry.Metric.SendHeader.topSpacerHeight), ())
 
     let sendHeaderView = SendHeaderView()
     weak var delegate: TokenViewControllerHeaderViewDelegate?
@@ -43,17 +43,17 @@ class TokenViewControllerHeaderView: UIView {
             recentTransactionsLabelBorders.top.heightAnchor.constraint(equalToConstant: 1),
             recentTransactionsLabelBorders.bottom.heightAnchor.constraint(equalToConstant: 1),
 
-            recentTransactionsLabelHolder.heightAnchor.constraint(equalToConstant: 50),
-            recentTransactionsLabel.anchorsConstraint(to: recentTransactionsLabelHolder, edgeInsets: .init(top: 0, left: 30, bottom: 0, right: 0)),
+            recentTransactionsLabelHolder.heightAnchor.constraint(equalToConstant: DataEntry.Metric.SendHeader.RecentTransactionsLabel.height),
+            recentTransactionsLabel.anchorsConstraint(to: recentTransactionsLabelHolder, edgeInsets: DataEntry.Metric.SendHeader.RecentTransactionsLabel.edgeInsets),
 
-            stackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: 0, bottom: 0, right: 0)),
+            stackView.anchorsConstraint(to: self),
         ])
 
         configure()
     }
 
     required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     private func configure() {

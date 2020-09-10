@@ -485,45 +485,54 @@ class TokensDataStore {
             }
         }
         for tokenObject in tokens {
-            switch tokenObject.type {
-            case .nativeCryptocurrency:
-                incrementCountAndUpdateDelegate()
-            case .erc20:
-                getERC20Balance(for: tokenObject.contractAddress, completion: { [weak self] result in
-                    defer { incrementCountAndUpdateDelegate() }
-                    guard let strongSelf = self else { return }
-                    switch result {
-                    case .success(let balance):
-                        strongSelf.update(token: tokenObject, action: .value(balance))
-                    case .failure:
-                        break
-                    }
-                })
-            case .erc875:
-                getERC875Balance(for: tokenObject.contractAddress, completion: { [weak self] result in
-                    defer { incrementCountAndUpdateDelegate() }
-                    guard let strongSelf = self else { return }
-                    switch result {
-                    case .success(let balance):
-                        strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
-                    case .failure:
-                        break
-                    }
-                })
-            case .erc721:
-                break
-            case .erc721ForTickets:
-                getERC721ForTicketsBalance(for: tokenObject.contractAddress, completion: { [weak self] result in
-                    defer { incrementCountAndUpdateDelegate() }
-                    guard let strongSelf = self else { return }
-                    switch result {
-                    case .success(let balance):
-                        strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
-                    case .failure:
-                        break
-                    }
-                })
+            //We don't want a whole lot of RPC calls to go out at once. If the user has 100 ERC20 tokens, that's 100 `balanceOf`. iOS doesn't lke it and will return this error:
+            //Error Domain=NSPOSIXErrorDomain Code=28 "No space left on device" UserInfo={_kCFStreamErrorCodeKey=28, _kCFStreamErrorDomainKey=1}
+            let delay = TimeInterval.random(in: 0...20)
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                self.refreshBalance(forToken: tokenObject, completion: incrementCountAndUpdateDelegate)
             }
+        }
+    }
+
+    private func refreshBalance(forToken tokenObject: TokenObject, completion: @escaping () -> Void) {
+        switch tokenObject.type {
+        case .nativeCryptocurrency:
+            completion()
+        case .erc20:
+            getERC20Balance(for: tokenObject.contractAddress, completion: { [weak self] result in
+                defer { completion() }
+                guard let strongSelf = self else { return }
+                switch result {
+                case .success(let balance):
+                    strongSelf.update(token: tokenObject, action: .value(balance))
+                case .failure:
+                    break
+                }
+            })
+        case .erc875:
+            getERC875Balance(for: tokenObject.contractAddress, completion: { [weak self] result in
+                defer { completion() }
+                guard let strongSelf = self else { return }
+                switch result {
+                case .success(let balance):
+                    strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
+                case .failure:
+                    break
+                }
+            })
+        case .erc721:
+            break
+        case .erc721ForTickets:
+            getERC721ForTicketsBalance(for: tokenObject.contractAddress, completion: { [weak self] result in
+                defer { completion() }
+                guard let strongSelf = self else { return }
+                switch result {
+                case .success(let balance):
+                    strongSelf.update(token: tokenObject, action: .nonFungibleBalance(balance))
+                case .failure:
+                    break
+                }
+            })
         }
     }
 
@@ -683,7 +692,7 @@ class TokensDataStore {
             return .priceOfEth(config: config)
         case .xDai:
             return .priceOfDai(config: config)
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .custom:
+        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .artis_tau1, .binance_smart_chain, .binance_smart_chain_testnet, .custom:
             return nil
         }
     }
