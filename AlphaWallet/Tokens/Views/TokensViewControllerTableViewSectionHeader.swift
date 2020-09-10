@@ -17,7 +17,7 @@ extension TokensViewController {
                 filterView.translatesAutoresizingMaskIntoConstraints = false
                 contentView.addSubview(filterView)
                 NSLayoutConstraint.activate([
-                    filterView.anchorsConstraint(to: contentView, edgeInsets: .init(top: 0, left: 0, bottom: 0, right: 0)),
+                    filterView.anchorsConstraint(to: contentView),
                 ])
             }
         }
@@ -29,7 +29,7 @@ extension TokensViewController {
         }
 
         required init?(coder aDecoder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
+            return nil
         }
     }
 }

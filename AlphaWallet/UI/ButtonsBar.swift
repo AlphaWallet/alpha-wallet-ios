@@ -212,13 +212,17 @@ class ButtonsBar: UIView {
         updateButtonsTypes()
 
         for view in moreButtonContainerViews {
-             setup(viewModel: .moreButton, view: view)
+            setup(viewModel: .moreButton, view: view)
 
-             view.childView.setContentHuggingPriority(.required, for: .horizontal)
-             view.childView.setContentCompressionResistancePriority(.required, for: .horizontal)
-             view.childView.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
-             view.childView.setBackgroundImage(R.image.more(), for: .normal)
-         }
+            view.childView.setContentHuggingPriority(.required, for: .horizontal)
+            view.childView.setContentCompressionResistancePriority(.required, for: .horizontal)
+            view.childView.addTarget(self, action: #selector(optionsButtonTapped), for: .touchUpInside)
+            view.childView.setBackgroundImage(R.image.more(), for: .normal)
+
+            NSLayoutConstraint.activate([
+                view.childView.widthAnchor.constraint(equalTo: view.childView.heightAnchor)
+            ])
+        }
     }
 
     private func updateButtonsTypes() {

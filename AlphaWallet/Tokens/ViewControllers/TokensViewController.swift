@@ -12,8 +12,8 @@ protocol TokensViewControllerDelegate: class {
 }
 
 class TokensViewController: UIViewController {
-    private static let filterViewHeight = CGFloat(50)
-    private static let addHideTokensViewHeight = CGFloat(60)
+    private static let filterViewHeight = DataEntry.Metric.Tokens.Filter.height
+    private static let addHideTokensViewHeight = DataEntry.Metric.AddHideToken.Header.height
 
     private enum Section: CaseIterable {
         case filters
@@ -25,6 +25,7 @@ class TokensViewController: UIViewController {
     private let assetDefinitionStore: AssetDefinitionStore
     private let eventsDataStore: EventsDataStoreProtocol
     private let sections: [Section] = Section.allCases
+    private var timeOfLastFetchBecauseViewAppears: Date?
 
     private var viewModel: TokensViewModel {
         didSet {
@@ -43,7 +44,7 @@ class TokensViewController: UIViewController {
         tableView.register(NonFungibleTokenViewCell.self)
         tableView.registerHeaderFooterView(TableViewSectionHeader.self)
         tableView.registerHeaderFooterView(ShowAddHideTokensView.self)
-        tableView.estimatedRowHeight = 100
+        tableView.estimatedRowHeight = DataEntry.Metric.TableView.estimatedRowHeight
         tableView.delegate = self
         tableView.dataSource = self
         tableView.tableFooterView = UIView.tableFooterToRemoveEmptyCellSeparators()
@@ -72,7 +73,7 @@ class TokensViewController: UIViewController {
         let heightForLabel = CGFloat(18)
         layout.itemSize = CGSize(width: dimension, height: dimension + heightForLabel)
         layout.minimumInteritemSpacing = 0
-        layout.headerReferenceSize = .init(width: 100, height: TokensViewController.filterViewHeight)
+        layout.headerReferenceSize = .init(width: DataEntry.Metric.TableView.headerReferenceSizeWidth, height: TokensViewController.filterViewHeight)
         layout.sectionHeadersPinToVisibleBounds = true
 
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -222,8 +223,7 @@ class TokensViewController: UIViewController {
         navigationController?.applyTintAdjustment()
         navigationController?.navigationBar.prefersLargeTitles = false
         hidesBottomBarWhenPushed = false
-
-        fetch()
+        fetchWithThrottling()
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
         keyboardChecker.viewWillAppear()
     }
@@ -236,7 +236,7 @@ class TokensViewController: UIViewController {
     @objc func pullToRefresh() {
         tableViewRefreshControl.beginRefreshing()
         collectiblesCollectionViewRefreshControl.beginRefreshing()
-        fetch()
+        fetchWithThrottling()
     }
 
     @objc func openConsole() {
@@ -246,6 +246,24 @@ class TokensViewController: UIViewController {
     func fetch() {
         startLoading()
         tokenCollection.fetch()
+    }
+
+
+    //To reduce chance of this error occurring:
+    //Error Domain=NSPOSIXErrorDomain Code=28 "No space left on device" UserInfo={_kCFStreamErrorCodeKey=28, _kCFStreamErrorDomainKey=1}
+    private func fetchWithThrottling() {
+        let ttl: TimeInterval = 60 * 5
+        if let timeOfLastFetchBecauseViewAppears = timeOfLastFetchBecauseViewAppears {
+            if Date().timeIntervalSince(timeOfLastFetchBecauseViewAppears) < ttl {
+                //no-op
+            } else {
+                fetch()
+                self.timeOfLastFetchBecauseViewAppears = Date()
+            }
+        } else {
+            fetch()
+            timeOfLastFetchBecauseViewAppears = Date()
+        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -367,7 +385,7 @@ extension TokensViewController: UITableViewDelegate {
         case .addHideToken:
             let header: ShowAddHideTokensView = tableView.dequeueReusableHeaderFooterView()
             header.delegate = self
-            header.configure(viewModel: .init())
+            header.configure()
 
             return header
         case .tokens:

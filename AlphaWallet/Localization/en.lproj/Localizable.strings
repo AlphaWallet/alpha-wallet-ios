@@ -405,6 +405,8 @@
 "blockchain.XDAI" = "xDAI Chain";
 "blockchain.ARTIS.sigma1" = "ARTIS sigma1 Network";
 "blockchain.ARTIS.tau1" = "ARTIS tau1 Network";
+"blockchain.Binance" = "Binance Network";
+"blockchain.Binance.test" = "Binance Testnet Network";
 "photos" = "Browse";
 "light" = "Light";
 "qrCode.title" = "Point your camera on QR code";
@@ -459,3 +461,4 @@
 "a.wallet.token.transaction.inProgress.title" = "Transaction in Progress";
 "a.wallet.token.transaction.inProgress.subtitle" = "The transaction is sent to the Ethereum\nblockchain. It might take few minutes\nto be confirmed by miners.";
 "a.wallet.token.transaction.inProgress.confirm" = "OK, great!";
+"a.wallet.token.erc20ExchangeOnUniswap.button.title" = "Exchange with Uniswap";

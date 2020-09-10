@@ -16,10 +16,28 @@ class AddHideTokensViewController: UIViewController {
     private var viewModel: AddHideTokensViewModel
     private let searchController: UISearchController
     private var isSearchBarConfigured = false
-    private lazy var tableView: UITableView = UITableView(frame: .zero, style: .grouped)
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.register(FungibleTokenViewCell.self)
+        tableView.register(NonFungibleTokenViewCell.self)
+        tableView.register(EthTokenViewCell.self)
+        tableView.registerHeaderFooterView(AddHideTokenSectionHeaderView.self)
+
+        tableView.isEditing = true
+        tableView.estimatedRowHeight = 100
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.separatorStyle = .singleLine
+        tableView.separatorInset = .zero
+        tableView.contentInset = .zero
+        tableView.contentOffset = .zero
+        tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: 0.01))
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
+    }()
     private let refreshControl = UIRefreshControl()
     private var prefersLargeTitles: Bool?
-
+    private let notificationCenter = NotificationCenter.default
     weak var delegate: AddHideTokensViewControllerDelegate?
 
     init(viewModel: AddHideTokensViewModel, sessions: ServerDictionary<WalletSession>, assetDefinitionStore: AssetDefinitionStore) { 
@@ -33,11 +51,10 @@ class AddHideTokensViewController: UIViewController {
     }
 
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
 
     override func loadView() {
-        super.loadView()
         view = tableView
     }
 
@@ -45,7 +62,6 @@ class AddHideTokensViewController: UIViewController {
         super.viewDidLoad()
 
         refreshView(viewModel: viewModel)
-        setup(tableView: tableView)
         setupFilteringWithKeyword()
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.plus(), style: .plain, target: self, action: #selector(addToken))
@@ -54,6 +70,9 @@ class AddHideTokensViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
 
         prefersLargeTitles = navigationController?.navigationBar.prefersLargeTitles
         navigationController?.navigationBar.prefersLargeTitles = false
@@ -64,6 +83,8 @@ class AddHideTokensViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
+        notificationCenter.removeObserver(self)
+
         if isMovingFromParent || isBeingDismissed {
             delegate?.didClose(viewController: self)
             return
@@ -73,6 +94,36 @@ class AddHideTokensViewController: UIViewController {
             navigationController?.navigationBar.prefersLargeTitles = prefersLargeTitles
         }
         prefersLargeTitles = nil
+    }
+
+    @objc private func keyboardWillShow(_ notification: Notification) {
+        guard let change = notification.keyboardInfo else {
+            return
+        }
+
+        let bottom = change.endFrame.height - UIApplication.shared.bottomSafeAreaHeight
+
+        UIView.setAnimationCurve(change.curve)
+        UIView.animate(withDuration: change.duration, animations: {
+            self.tableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: bottom, right: 0)
+            self.tableView.scrollIndicatorInsets = self.tableView.contentInset
+        }, completion: { _ in
+
+        })
+    }
+
+    @objc private func keyboardWillHide(_ notification: Notification) {
+        guard let change = notification.keyboardInfo else {
+            return
+        }
+
+        UIView.setAnimationCurve(change.curve)
+        UIView.animate(withDuration: change.duration, animations: {
+            self.tableView.contentInset = .zero
+            self.tableView.scrollIndicatorInsets = self.tableView.contentInset
+        }, completion: { _ in
+
+        })
     }
 
     override func viewDidLayoutSubviews() {
@@ -87,22 +138,7 @@ class AddHideTokensViewController: UIViewController {
     private func refreshView(viewModel: AddHideTokensViewModel) {
         title = viewModel.title
         tableView.backgroundColor = viewModel.backgroundColor
-    }
-
-    private func setup(tableView: UITableView) {
-        tableView.register(FungibleTokenViewCell.self)
-        tableView.register(NonFungibleTokenViewCell.self)
-        tableView.register(EthTokenViewCell.self) 
-        tableView.registerHeaderFooterView(AddHideTokenSectionHeaderView.self)
-        tableView.isEditing = true
-        tableView.estimatedRowHeight = 100
-        tableView.dataSource = self
-        tableView.delegate = self
-        tableView.separatorStyle = .singleLine
-        tableView.separatorInset = .zero
-        tableView.contentInset = .zero
-        tableView.contentOffset = .zero
-        tableView.tableHeaderView = UIView(frame: CGRect(x: 0, y: 0, width: tableView.bounds.size.width, height: 0.01))
+        view.backgroundColor = viewModel.backgroundColor
     }
 
     func reload() {
@@ -135,47 +171,40 @@ extension AddHideTokensViewController: UITableViewDataSource {
         case .nativeCryptocurrency:
             let cell: EthTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
 
-            cell.configure(
-                    viewModel: .init(
-                            token: token,
-                            ticker: viewModel.ticker(for: token),
-                            currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
-                            currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
-                            server: token.server,
-                            assetDefinitionStore: assetDefinitionStore,
-                            isVisible: isVisible
-                    )
-            )
+            cell.configure(viewModel: .init(
+                token: token,
+                ticker: viewModel.ticker(for: token),
+                currencyAmount: session.balanceCoordinator.viewModel.currencyAmount,
+                currencyAmountWithoutSymbol: session.balanceCoordinator.viewModel.currencyAmountWithoutSymbol,
+                server: token.server,
+                assetDefinitionStore: assetDefinitionStore,
+                isVisible: isVisible
+            ))
             return cell
         case .erc20:
             let cell: FungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel:
-                .init(token: token,
-                      server: token.server,
-                      assetDefinitionStore: assetDefinitionStore,
-                      isVisible: isVisible
-                )
-            )
+            cell.configure(viewModel: .init(token: token,
+                server: token.server,
+                assetDefinitionStore: assetDefinitionStore,
+                isVisible: isVisible
+            ))
             return cell
         case .erc721, .erc721ForTickets:
             let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel:
-                .init(token: token,
-                      server: token.server,
-                      assetDefinitionStore: assetDefinitionStore,
-                      isVisible: isVisible
-                )
-            )
+            cell.configure(viewModel: .init(token: token,
+                server: token.server,
+                assetDefinitionStore: assetDefinitionStore,
+                isVisible: isVisible
+            ))
             return cell
         case .erc875:
             let cell: NonFungibleTokenViewCell = tableView.dequeueReusableCell(for: indexPath)
-            cell.configure(viewModel:
-                .init(token: token,
-                      server: token.server,
-                      assetDefinitionStore: assetDefinitionStore,
-                      isVisible: isVisible
-                )
-            )
+            cell.configure(viewModel: .init(
+                token: token,
+                server: token.server,
+                assetDefinitionStore: assetDefinitionStore,
+                isVisible: isVisible
+            ))
 
             return cell
         }
