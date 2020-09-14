@@ -29,11 +29,10 @@ extension AlphaWallet.Address {
             return R.image.tokenPltc()
         case "0xea5c61205fB4A255Af041E8350AAA9343C516E55":
             return R.image.tokenPusdt()
-        
-//        case "":
+//        case "p-sai":
+//            return R.image.tokenPsai()
+//        case "p-eos":
 //            return R.image.tokenPeos()
-//        case "":
-//            return R.image.ps
 
         //other
         case "0xbd31496feb604F9eC6a1C78c3371f8cFd220f5F2":
