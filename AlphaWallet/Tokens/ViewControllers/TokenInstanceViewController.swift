@@ -77,12 +77,8 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
 
         header.delegate = self
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
 
         NSLayoutConstraint.activate([
             header.heightAnchor.constraint(equalToConstant: TokenCardsViewControllerHeader.height),
@@ -94,15 +90,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             stackView.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: roundedBackground.topAnchor),
 
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            footerBar.anchorsConstraint(to: view),
         ] + roundedBackground.createConstraintsWithContainer(view: view))
     }
 
