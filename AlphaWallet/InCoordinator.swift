@@ -107,7 +107,8 @@ class InCoordinator: NSObject, Coordinator {
         self.appTracker = appTracker
         self.analyticsCoordinator = analyticsCoordinator
         self.assetDefinitionStore = assetDefinitionStore
-        self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
+        //Disabled for now. Refer to function's comment
+        //self.assetDefinitionStore.enableFetchXMLForContractInPasteboard()
 
         super.init()
     }
@@ -838,7 +839,7 @@ extension InCoordinator: UITabBarControllerDelegate {
             dappBrowserCoordinator?.willHide()
         }
         return true
-    } 
+    }
 }
 
 extension InCoordinator: TransactionsStorageDelegate {
