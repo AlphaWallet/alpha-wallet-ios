@@ -177,7 +177,6 @@ class TokensViewController: UIViewController {
         super.init(nibName: nil, bundle: nil)
         handleTokenCollectionUpdates()
 
-        hidesBottomBarWhenPushed = true
         view.backgroundColor = viewModel.backgroundColor
 
         tableViewFilterView.delegate = self
@@ -220,9 +219,11 @@ class TokensViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
         navigationController?.applyTintAdjustment()
-        navigationController?.navigationBar.prefersLargeTitles = false
+        navigationController?.navigationBar.prefersLargeTitles = true
         hidesBottomBarWhenPushed = false
+
         fetchWithThrottling()
         fixNavigationBarAndStatusBarBackgroundColorForiOS13Dot1()
         keyboardChecker.viewWillAppear()
@@ -247,7 +248,6 @@ class TokensViewController: UIViewController {
         startLoading()
         tokenCollection.fetch()
     }
-
 
     //To reduce chance of this error occurring:
     //Error Domain=NSPOSIXErrorDomain Code=28 "No space left on device" UserInfo={_kCFStreamErrorCodeKey=28, _kCFStreamErrorDomainKey=1}
