@@ -92,14 +92,65 @@ class BarButton: UIButton {
     }
 }
 
-class ButtonsBar: UIView {
+class ButtonsBarBackgroundView: UIView {
+
+    private let buttonsBar: ButtonsBar
+    private let separatorLine: UIView = {
+        let view = UIView()
+        view.backgroundColor = R.color.mike()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    private var observation: NSKeyValueObservation?
+
+    init(buttonsBar: ButtonsBar, edgeInsets: UIEdgeInsets = DataEntry.Metric.ButtonsBar.insets) {
+        self.buttonsBar = buttonsBar
+        super.init(frame: .zero)
+
+        addSubview(separatorLine)
+        addSubview(buttonsBar)
+        translatesAutoresizingMaskIntoConstraints = false
+        backgroundColor = Colors.appWhite
+
+        NSLayoutConstraint.activate([
+            separatorLine.leadingAnchor.constraint(equalTo: leadingAnchor),
+            separatorLine.trailingAnchor.constraint(equalTo: trailingAnchor),
+            separatorLine.topAnchor.constraint(equalTo: topAnchor),
+            separatorLine.heightAnchor.constraint(equalToConstant: DataEntry.Metric.ButtonsBar.separatorHeight),
+
+            buttonsBar.leadingAnchor.constraint(equalTo: leadingAnchor, constant: edgeInsets.left),
+            buttonsBar.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -edgeInsets.right),
+            buttonsBar.topAnchor.constraint(equalTo: separatorLine.bottomAnchor, constant: edgeInsets.top),
+            buttonsBar.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -edgeInsets.bottom),
+        ])
+
+        observation = buttonsBar.observe(\.buttons) { sender, _ in
+            self.isHidden = sender.buttons.isEmpty
+        }
+    }
+
+    func anchorsConstraint(to view: UIView) -> [NSLayoutConstraint] {
+        return [
+            leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ]
+    }
+
+    required init?(coder: NSCoder) {
+        return nil
+    }
+}
+
+@objc class ButtonsBar: UIView {
     static let buttonsHeight = CGFloat(ScreenChecker().isNarrowScreen ? 38 : 48)
     //A gap so it doesn't stick to the bottom of devices without a bottom safe area
     static let marginAtBottomScreen = CGFloat(3)
 
     private var buttonContainerViews: [ContainerViewWithShadow<BarButton>] = []
     private var moreButtonContainerViews: [ContainerViewWithShadow<BarButton>] = []
-    private let buttonsStackView: UIStackView
+    //NOTE: we need to handle buttont changes, for this we will use buttonsStackView, to make sure that number of button has changed
+    private var buttonsStackView: UIStackView
     private var innerStackView: UIStackView
     private var observations: [NSKeyValueObservation] = []
 
@@ -107,7 +158,7 @@ class ButtonsBar: UIView {
         buttons.filter { $0.displayButton }.enumerated().filter { configuration.shouldHideButton(at: $0.offset) }.map { $0.element }
     }
 
-    var buttons: [BarButton] {
+    @objc dynamic var buttons: [BarButton] {
         return buttonContainerViews.map { $0.childView }
     }
 
@@ -145,6 +196,7 @@ class ButtonsBar: UIView {
 
         let margin = CGFloat(20)
         NSLayoutConstraint.activate([
+            heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
             innerStackView.anchorsConstraint(to: self, edgeInsets: .init(top: 0, left: margin, bottom: 0, right: margin)),
         ])
 
@@ -156,6 +208,8 @@ class ButtonsBar: UIView {
     }
 
     private func didUpdateView(with configuration: ButtonsBarConfiguration) {
+        willChangeValue(for: \.buttons)
+
         buttonContainerViews = ButtonsBar.bar(numberOfButtons: configuration.barButtonTypes.count)
         resetIsHiddenObservers()
 
@@ -174,6 +228,8 @@ class ButtonsBar: UIView {
 
         buttonsStackView.addArrangedSubviews(buttons)
         innerStackView.addArrangedSubviews([buttonsStackView] + moreButtons)
+
+        didChangeValue(for: \.buttons)
     }
 
     fileprivate func setup(viewModel: ButtonsBarViewModel, view: ContainerViewWithShadow<BarButton>) {

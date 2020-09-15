@@ -56,12 +56,8 @@ class TokenViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         roundedBackground.addSubview(tableView)
 
-        let footerBar = UIView()
-        footerBar.translatesAutoresizingMaskIntoConstraints = false
-        footerBar.backgroundColor = .clear
+        let footerBar = ButtonsBarBackgroundView(buttonsBar: buttonsBar)
         roundedBackground.addSubview(footerBar)
-
-        footerBar.addSubview(buttonsBar)
 
         configureBalanceViewModel()
 
@@ -70,16 +66,7 @@ class TokenViewController: UIViewController {
             header.trailingAnchor.constraint(equalTo: roundedBackground.trailingAnchor),
 
             tableView.anchorsConstraint(to: roundedBackground),
-
-            buttonsBar.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor),
-            buttonsBar.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor),
-            buttonsBar.topAnchor.constraint(equalTo: footerBar.topAnchor),
-            buttonsBar.heightAnchor.constraint(equalToConstant: ButtonsBar.buttonsHeight),
-
-            footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerBar.topAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor, constant: -ButtonsBar.buttonsHeight - ButtonsBar.marginAtBottomScreen),
-            footerBar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            footerBar.anchorsConstraint(to: view),
 
             roundedBackground.createConstraintsWithContainer(view: view),
         ])
