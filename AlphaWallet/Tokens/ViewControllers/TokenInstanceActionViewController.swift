@@ -14,7 +14,6 @@ protocol TokenInstanceActionViewControllerDelegate: class, CanOpenURL {
 class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatusViewController {
     private let tokenObject: TokenObject
     private let tokenHolder: TokenHolder
-    private let viewModel: TokenInstanceActionViewModel
     private let action: TokenInstanceAction
     private let session: WalletSession
     private let keystore: Keystore
@@ -31,7 +30,7 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         return webView
     }()
 
-    
+
     //TODO might have to change the number of buttons? if the action type change or should we just go back since the flow may be broken if we remain in this screen
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private var isFungible: Bool {
@@ -82,7 +81,6 @@ class TokenInstanceActionViewController: UIViewController, TokenVerifiableStatus
         self.tokenHolder = tokenHolder
         self.tokensStorage = tokensStorage
         self.assetDefinitionStore = assetDefinitionStore
-        self.viewModel = .init(tokenHolder: tokenHolder, assetDefinitionStore: assetDefinitionStore)
         self.action = action
         self.session = session
         self.keystore = keystore
