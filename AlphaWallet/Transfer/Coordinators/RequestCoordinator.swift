@@ -8,14 +8,15 @@ protocol RequestCoordinatorDelegate: class {
 }
 
 class RequestCoordinator: Coordinator {
-    private let session: WalletSession
-
-    private lazy var viewModel: RequestViewModel = {
-        return .init(account: session.account, server: session.server)
-    }()
+    private let account: Wallet
+    private let server: RPCServer
 
     private lazy var requestViewController: RequestViewController = {
-        return makeRequestViewController()
+        let viewModel: RequestViewModel = .init(account: account, server: server)
+        let controller = RequestViewController(viewModel: viewModel)
+        controller.navigationItem.leftBarButtonItem = UIBarButtonItem.cancelBarButton(self, selector: #selector(dismiss))
+        
+        return controller
     }()
 
     let navigationController: UINavigationController
@@ -24,22 +25,18 @@ class RequestCoordinator: Coordinator {
 
     init(
         navigationController: UINavigationController = UINavigationController(),
-        session: WalletSession
+        account: Wallet,
+        server: RPCServer
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
-        self.session = session
+        self.account = account
+        self.server = server
     }
 
     func start() {
         navigationController.viewControllers = [requestViewController]
-    }
-
-    func makeRequestViewController() -> RequestViewController {
-        let controller = RequestViewController(viewModel: viewModel)
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
-        return controller
-    }
+    } 
 
     @objc func dismiss() {
         delegate?.didCancel(in: self)

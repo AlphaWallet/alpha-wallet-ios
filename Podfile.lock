@@ -105,7 +105,7 @@ DEPENDENCIES:
   - Moya (~> 10.0.1)
   - PromiseKit/Alamofire
   - PromiseKit/CorePromise
-  - QRCodeReaderViewController (from `https://github.com/AlphaWallet/QRCodeReaderViewController.git`, commit `f0c4c1c374d2dc031b9fedfc5bfa974333d9a5c6`)
+  - QRCodeReaderViewController (from `https://github.com/AlphaWallet/QRCodeReaderViewController.git`, commit `30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65`)
   - R.swift
   - RealmSwift (~> 4.3.2)
   - SAMKeychain
@@ -170,7 +170,7 @@ EXTERNAL SOURCES:
     :commit: 2596ad0229e7c8b69471355ed44506dcdaf27e9d
     :git: https://github.com/alpha-wallet/Macaw.git
   QRCodeReaderViewController:
-    :commit: f0c4c1c374d2dc031b9fedfc5bfa974333d9a5c6
+    :commit: 30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65
     :git: https://github.com/AlphaWallet/QRCodeReaderViewController.git
   SwiftyXMLParser:
     :git: https://github.com/yahoojapan/SwiftyXMLParser.git
@@ -198,7 +198,7 @@ CHECKOUT OPTIONS:
     :commit: 2596ad0229e7c8b69471355ed44506dcdaf27e9d
     :git: https://github.com/alpha-wallet/Macaw.git
   QRCodeReaderViewController:
-    :commit: f0c4c1c374d2dc031b9fedfc5bfa974333d9a5c6
+    :commit: 30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65
     :git: https://github.com/AlphaWallet/QRCodeReaderViewController.git
   SwiftyXMLParser:
     :commit: 1ddcad0a09efb85f2325d994c2169cd9ba116ae3
@@ -256,6 +256,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: dd8c81d5958f1eb737abea1e14675efcc6a104aa
   web3swift: 1597d4997976d21325882db4c523f1dfd5459406
 
-PODFILE CHECKSUM: ccb2db654a83c6cc6eed3f7297a37a2116d3c90d
+PODFILE CHECKSUM: a9bf6d3f2a168088ff4dc107162872cdeb8db6e4
 
 COCOAPODS: 1.8.4

@@ -86,7 +86,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         textView.textView.autocapitalizationType = .none
         return textView
     }()
-    private lazy var watchAddressTextField: AddressTextField = {
+    lazy var watchAddressTextField: AddressTextField = {
         let textField = AddressTextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
         textField.delegate = self

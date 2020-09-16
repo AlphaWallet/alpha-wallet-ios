@@ -22,7 +22,6 @@ class AddHideTokensViewController: UIViewController {
         tableView.register(NonFungibleTokenViewCell.self)
         tableView.register(EthTokenViewCell.self)
         tableView.registerHeaderFooterView(AddHideTokenSectionHeaderView.self)
-
         tableView.isEditing = true
         tableView.estimatedRowHeight = 100
         tableView.dataSource = self
@@ -61,7 +60,7 @@ class AddHideTokensViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        refreshView(viewModel: viewModel)
+        configure(viewModel: viewModel)
         setupFilteringWithKeyword()
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: R.image.plus(), style: .plain, target: self, action: #selector(addToken))
@@ -135,14 +134,19 @@ class AddHideTokensViewController: UIViewController {
         delegate?.didPressAddToken(in: self)
     }
 
-    private func refreshView(viewModel: AddHideTokensViewModel) {
+    private func configure(viewModel: AddHideTokensViewModel) {
         title = viewModel.title
         tableView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
     }
-
-    func reload() {
+    
+    private func reload() {
         tableView.reloadData()
+    }
+
+    func add(token: TokenObject) {
+        viewModel.add(token: token)
+        reload()
     }
 }
 

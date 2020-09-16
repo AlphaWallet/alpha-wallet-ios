@@ -48,9 +48,10 @@ class WalletCoordinator: Coordinator {
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             navigationController.viewControllers = [controller]
             importWalletViewController = controller
-        case .watchWallet:
+        case .watchWallet(let address):
             let controller = ImportWalletViewController(keystore: keystore, analyticsCoordinator: analyticsCoordinator)
             controller.delegate = self
+            controller.watchAddressTextField.value = address?.eip55String ?? ""
             controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: self, action: #selector(dismiss))
             controller.showWatchTab()
             navigationController.viewControllers = [controller]
@@ -166,10 +167,11 @@ extension WalletCoordinator: ScanQRCodeCoordinatorDelegate {
 extension WalletCoordinator: ImportWalletViewControllerDelegate {
 
     func openQRCode(in controller: ImportWalletViewController) {
-        guard navigationController.ensureHasDeviceAuthorization() else { return }
+        guard let wallet = keystore.recentlyUsedWallet, navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController)
+        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: wallet, server: config.server)
         coordinator.delegate = self
+        
         addCoordinator(coordinator)
         coordinator.start()
     }
@@ -186,7 +188,7 @@ extension WalletCoordinator: CreateInitialWalletViewControllerDelegate {
     }
 
     func didTapWatchWallet(inViewController viewController: CreateInitialWalletViewController) {
-        addWalletWith(entryPoint: .watchWallet)
+        addWalletWith(entryPoint: .watchWallet(address: nil))
     }
 
     func didTapImportWallet(inViewController viewController: CreateInitialWalletViewController) {
