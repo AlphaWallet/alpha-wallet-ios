@@ -125,7 +125,7 @@ extension SendCoordinator: SendViewControllerDelegate {
     func openQRCode(in controller: SendViewController) {
         guard navigationController.ensureHasDeviceAuthorization() else { return }
 
-        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController)
+        let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
         coordinator.delegate = self
         addCoordinator(coordinator)
         coordinator.start()

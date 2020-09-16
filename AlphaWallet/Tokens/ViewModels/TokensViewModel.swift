@@ -39,14 +39,14 @@ class TokensViewModel {
         switch filter {
         case .all, .currencyOnly, .keyword:
             return true
-        case .assetsOnly, .collectiblesOnly:
+        case .assetsOnly, .collectiblesOnly, .type:
             return false
         }
     }
 
     var shouldShowCollectiblesCollectionView: Bool {
         switch filter {
-        case .all, .currencyOnly, .assetsOnly, .keyword:
+        case .all, .currencyOnly, .assetsOnly, .keyword, .type:
             return false
         case .collectiblesOnly:
             return hasContent
@@ -146,7 +146,7 @@ fileprivate extension WalletFilter {
             return R.string.localizable.aWalletContentsFilterAssetsOnlyTitle()
         case .collectiblesOnly:
             return R.string.localizable.aWalletContentsFilterCollectiblesOnlyTitle()
-        case .keyword:
+        case .keyword, .type:
             return ""
         }
     }

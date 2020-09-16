@@ -658,7 +658,11 @@
 		8499DAB3D06965FDC1E8FCAF /* GetInterfaceSupported165Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8499D1861F30C1360B1047CE /* GetInterfaceSupported165Coordinator.swift */; };
 		873F8063246E8E3E00EEE5EF /* SelectCurrencyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */; };
 		874DED0C24C05E88006C8FCE /* TransactionConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED0A24C05E88006C8FCE /* TransactionConfirmationViewModel.swift */; };
+		874DED1524C1BAFF006C8FCE /* SelectAssetCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1424C1BAFF006C8FCE /* SelectAssetCoordinator.swift */; };
+		874DED1724C1BB0E006C8FCE /* SelectAssetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1624C1BB0E006C8FCE /* SelectAssetViewController.swift */; };
+		874DED1924C1BD2C006C8FCE /* SelectAssetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874DED1824C1BD2C006C8FCE /* SelectAssetViewModel.swift */; };
 		8750F91B24EFEC0300E19DFF /* UniswapHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8750F91A24EFEC0300E19DFF /* UniswapHolder.swift */; };
+		875B3C34250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */; };
 		8769888D24C6ED04002BF62B /* TransactionInProgressCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */; };
 		8782035D2431E66600792F12 /* FilterTokensCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */; };
 		8782035F2431FBC300792F12 /* ShowAddHideTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */; };
@@ -679,6 +683,7 @@
 		87D175EB24AEF8B5002130D2 /* UITableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D175EA24AEF8B4002130D2 /* UITableView.swift */; };
 		87D175ED24AF1565002130D2 /* KeyboardChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D175EC24AF1565002130D2 /* KeyboardChecker.swift */; };
 		87E2554A24F4E98000F025F7 /* UniswapERC20Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87E2554924F4E98000F025F7 /* UniswapERC20Token.swift */; };
+		87ED843B24C564B5001A3747 /* NewTokenCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */; };
 		87ED8F93248534E30005C69B /* SwitchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */; };
 		87ED8F95248535400005C69B /* SwitchTableViewCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F94248535400005C69B /* SwitchTableViewCellViewModel.swift */; };
 		87ED8F97248540F90005C69B /* AdvancedSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED8F96248540F90005C69B /* AdvancedSettingsViewController.swift */; };
@@ -1407,7 +1412,11 @@
 		8499DFC3A9D0B1E42D74905E /* GetERC721ForTicketsBalanceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetERC721ForTicketsBalanceCoordinator.swift; sourceTree = "<group>"; };
 		873F8062246E8E3E00EEE5EF /* SelectCurrencyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectCurrencyButton.swift; sourceTree = "<group>"; };
 		874DED0A24C05E88006C8FCE /* TransactionConfirmationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionConfirmationViewModel.swift; sourceTree = "<group>"; };
+		874DED1424C1BAFF006C8FCE /* SelectAssetCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectAssetCoordinator.swift; sourceTree = "<group>"; };
+		874DED1624C1BB0E006C8FCE /* SelectAssetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectAssetViewController.swift; sourceTree = "<group>"; };
+		874DED1824C1BD2C006C8FCE /* SelectAssetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectAssetViewModel.swift; sourceTree = "<group>"; };
 		8750F91A24EFEC0300E19DFF /* UniswapHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniswapHolder.swift; sourceTree = "<group>"; };
+		875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeResolutionCoordinator.swift; sourceTree = "<group>"; };
 		8769888C24C6ED04002BF62B /* TransactionInProgressCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionInProgressCoordinator.swift; sourceTree = "<group>"; };
 		8782035C2431E66600792F12 /* FilterTokensCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTokensCoordinator.swift; sourceTree = "<group>"; };
 		8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowAddHideTokensViewModel.swift; sourceTree = "<group>"; };
@@ -1428,6 +1437,7 @@
 		87D175EA24AEF8B4002130D2 /* UITableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableView.swift; sourceTree = "<group>"; };
 		87D175EC24AF1565002130D2 /* KeyboardChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardChecker.swift; sourceTree = "<group>"; };
 		87E2554924F4E98000F025F7 /* UniswapERC20Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniswapERC20Token.swift; sourceTree = "<group>"; };
+		87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewTokenCoordinator.swift; sourceTree = "<group>"; };
 		87ED8F92248534E30005C69B /* SwitchTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCell.swift; sourceTree = "<group>"; };
 		87ED8F94248535400005C69B /* SwitchTableViewCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchTableViewCellViewModel.swift; sourceTree = "<group>"; };
 		87ED8F96248540F90005C69B /* AdvancedSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedSettingsViewController.swift; sourceTree = "<group>"; };
@@ -2090,6 +2100,7 @@
 				5E7C774238AE6861A7935EEE /* ButtonsBar.swift */,
 				5E7C742D015C0DEAE7759C0D /* TokenInstanceViewController.swift */,
 				5E7C741DF75781BBB24CE6D0 /* TokenInstanceActionViewController.swift */,
+				874DED1624C1BB0E006C8FCE /* SelectAssetViewController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -2120,6 +2131,7 @@
 				8782035E2431FBC300792F12 /* ShowAddHideTokensViewModel.swift */,
 				87C8018B24350174007648CF /* AddHideTokenSectionHeaderViewModel.swift */,
 				87D1757924ADAF07002130D2 /* BlockchainTagLabelViewModel.swift */,
+				874DED1824C1BD2C006C8FCE /* SelectAssetViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -2477,6 +2489,7 @@
 			children = (
 				5E7C7721E0E4D4EFDD35E196 /* ScanQRCodeCoordinator.swift */,
 				76F1D4E689C3ECFD38CBBC47 /* DappBrowserCoordinator.swift */,
+				875B3C33250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -2542,6 +2555,8 @@
 				8499DFC3A9D0B1E42D74905E /* GetERC721ForTicketsBalanceCoordinator.swift */,
 				8499D1861F30C1360B1047CE /* GetInterfaceSupported165Coordinator.swift */,
 				5E7C7A916967B4BE3597F670 /* ENSReverseLookupCoordinator.swift */,
+				874DED1424C1BAFF006C8FCE /* SelectAssetCoordinator.swift */,
+				87ED843A24C564B5001A3747 /* NewTokenCoordinator.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -4184,6 +4199,7 @@
 				296AF9A91F737F6F0058AF78 /* SendRawTransactionRequest.swift in Sources */,
 				293112121FC4F48400966EEA /* ServiceProvider.swift in Sources */,
 				2912CD2F1F6A83A100C6CBE3 /* ImportWalletViewController.swift in Sources */,
+				874DED1724C1BB0E006C8FCE /* SelectAssetViewController.swift in Sources */,
 				2963B6AD1F981A96003063C1 /* TransactionAppearance.swift in Sources */,
 				29850D2B1F6B30FF00791A49 /* TransactionViewController.swift in Sources */,
 				296AF9AB1F7380920058AF78 /* GetTransactionCountRequest.swift in Sources */,
@@ -4386,6 +4402,7 @@
 				5E7C7FC76A025AD91D57B960 /* HistoriesViewModel.swift in Sources */,
 				5E7C7A6C28C59DB62DEE2D63 /* BookmarkViewCell.swift in Sources */,
 				5E7C7855E46A6604B2028C9D /* BrowserErrorView.swift in Sources */,
+				874DED1524C1BAFF006C8FCE /* SelectAssetCoordinator.swift in Sources */,
 				5E7C71A2EAA5124E07AA54B6 /* Favicon.swift in Sources */,
 				5E7C7EC725C711F5EA12CB1C /* History.swift in Sources */,
 				5E7C767C9166726E96ED4C07 /* DelegateContract.swift in Sources */,
@@ -4433,6 +4450,7 @@
 				76F1D5ECC391A932C96CAC13 /* GetENSOwnerCoordinator.swift in Sources */,
 				76F1D9BBB4ACAA00C8391172 /* GetENSInfoEncode.swift in Sources */,
 				76F1D5B10569F2351CA98A93 /* GasLimitConfiguration.swift in Sources */,
+				874DED1924C1BD2C006C8FCE /* SelectAssetViewModel.swift in Sources */,
 				5E7C7EB80D32A2F366E79140 /* SettingsHeaderView.swift in Sources */,
 				5E7C7A0B5FDADC60DC01F060 /* CallSmartContractFunction.swift in Sources */,
 				76F1D12A7ED6E35000B1B020 /* DappBrowserCoordinator.swift in Sources */,
@@ -4509,6 +4527,7 @@
 				5E7C7307F0253556A6BC57A9 /* AlphaWalletAddressExtension.swift in Sources */,
 				5E7C792AA15C1D3560A18CF8 /* ConsoleCoordinator.swift in Sources */,
 				5E7C7648BFF9AE93CD97A1BE /* ConsoleViewController.swift in Sources */,
+				87ED843B24C564B5001A3747 /* NewTokenCoordinator.swift in Sources */,
 				5E7C73092E428F9519787284 /* Core.swift in Sources */,
 				5E7C70397E7E3A9C88E995B1 /* WKWebViewExtension.swift in Sources */,
 				5E7C74E1ECC13899FA369E1C /* ClearDappBrowserCacheCoordinator.swift in Sources */,
@@ -4599,6 +4618,7 @@
 				5E7C70CF44075CF73F03AD4B /* TokensViewControllerTableViewHeader.swift in Sources */,
 				5E7C7233A9A5F9D1A89FF569 /* TokensViewControllerTableViewSectionHeader.swift in Sources */,
 				5E7C756B31278B71E68D5E10 /* TokensViewControllerCollectiblesCollectionViewHeader.swift in Sources */,
+				875B3C34250A75FA0085BD08 /* QRCodeResolutionCoordinator.swift in Sources */,
 				8782035D2431E66600792F12 /* FilterTokensCoordinator.swift in Sources */,
 				5E7C721B569E1CD1C68295F6 /* LayoutConstraintsWrapper.swift in Sources */,
 				5E7C779E0415809A7166A85F /* GetERC20BalanceCoordinator.swift in Sources */,

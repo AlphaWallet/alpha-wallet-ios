@@ -8,6 +8,7 @@ protocol NewTokenViewControllerDelegate: class {
     func didAddAddress(address: AlphaWallet.Address, in viewController: NewTokenViewController)
     func didTapChangeServer(in viewController: NewTokenViewController)
     func openQRCode(in controller: NewTokenViewController)
+    func didClose(viewController: NewTokenViewController)
 }
 
 enum RPCServerOrAuto: Hashable {
@@ -29,6 +30,20 @@ enum RPCServerOrAuto: Hashable {
             return R.string.localizable.detectingServerAutomaticallyButtonTitle()
         case .server(let server):
             return server.name
+        }
+    }
+}
+
+enum NewTokenInitialState {
+    case address(AlphaWallet.Address)
+    case empty
+
+    var addressStringValue: String {
+        switch self {
+        case .address(let address):
+            return address.eip55String
+        default:
+            return String()
         }
     }
 }
@@ -57,9 +72,10 @@ class NewTokenViewController: UIViewController {
     weak var delegate: NewTokenViewControllerDelegate?
 
 // swiftlint:disable function_body_length
-    init(server: RPCServerOrAuto) {
+    init(server: RPCServerOrAuto, initialState: NewTokenInitialState) {
         self.server = server
         super.init(nibName: nil, bundle: nil)
+        hidesBottomBarWhenPushed = true
 
         changeServerButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
         changeServerButton.addTarget(self, action: #selector(changeServerAction(_:)), for: .touchUpInside)
@@ -73,7 +89,8 @@ class NewTokenViewController: UIViewController {
 
         addressTextField.delegate = self
         addressTextField.returnKeyType = .next
-
+        addressTextField.value = initialState.addressStringValue
+        
         symbolTextField.delegate = self
         symbolTextField.returnKeyType = .next
 
@@ -198,6 +215,14 @@ class NewTokenViewController: UIViewController {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        if isMovingFromParent || isBeingDismissed {
+            delegate?.didClose(viewController: self)
+        }
     }
 
     public func configure() {

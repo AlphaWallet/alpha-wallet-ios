@@ -11,7 +11,8 @@ target 'AlphaWallet' do
   pod 'Eureka', '~> 5.2.1'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
-  pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'f0c4c1c374d2dc031b9fedfc5bfa974333d9a5c6'
+
+  pod 'QRCodeReaderViewController', :git=>'https://github.com/AlphaWallet/QRCodeReaderViewController.git', :commit=>'30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65'
   pod 'KeychainSwift', :git=>'https://github.com/AlphaWallet/keychain-swift.git', :branch=>'alphawallet'
   pod 'SwiftLint'
   pod 'SeedStackViewController'
