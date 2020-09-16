@@ -34,7 +34,7 @@ target 'AlphaWallet' do
   pod 'PromiseKit/Alamofire'
   #To force SWXMLHash which Macaw depends on to be Swift >= 4
   pod 'SWXMLHash', '~> 5.0.0'
-  pod "Macaw", :git => 'https://github.com/alpha-wallet/Macaw.git', :commit => '2596ad0229e7c8b69471355ed44506dcdaf27e9d'
+  pod "Macaw", :git => 'https://github.com/alpha-wallet/Macaw.git', :commit => 'e1f4eb1d2b81676fb10e9835c5e2ce9e9f51faf9'
   pod "Kanna", :git => 'https://github.com/tid-kijyun/Kanna.git', :commit => '06a04bc28783ccbb40efba355dee845a024033e8'
   pod 'TrustWalletCore'
   pod 'AWSSNS'
