@@ -171,6 +171,11 @@ class TokensCardViewController: UIViewController, TokenVerifiableStatusViewContr
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .plain, target: self, action: #selector(didTapCancelButton))
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.prefersLargeTitles = false
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         guard let buttonsBarHolder = buttonsBar.superview else {
