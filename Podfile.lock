@@ -99,7 +99,7 @@ DEPENDENCIES:
   - Kanna (from `https://github.com/tid-kijyun/Kanna.git`, commit `06a04bc28783ccbb40efba355dee845a024033e8`)
   - KeychainSwift (from `https://github.com/AlphaWallet/keychain-swift.git`, branch `alphawallet`)
   - Kingfisher
-  - Macaw (from `https://github.com/alpha-wallet/Macaw.git`, commit `2596ad0229e7c8b69471355ed44506dcdaf27e9d`)
+  - Macaw (from `https://github.com/alpha-wallet/Macaw.git`, commit `e1f4eb1d2b81676fb10e9835c5e2ce9e9f51faf9`)
   - MBProgressHUD
   - Mixpanel-swift
   - Moya (~> 10.0.1)
@@ -167,7 +167,7 @@ EXTERNAL SOURCES:
     :branch: alphawallet
     :git: https://github.com/AlphaWallet/keychain-swift.git
   Macaw:
-    :commit: 2596ad0229e7c8b69471355ed44506dcdaf27e9d
+    :commit: e1f4eb1d2b81676fb10e9835c5e2ce9e9f51faf9
     :git: https://github.com/alpha-wallet/Macaw.git
   QRCodeReaderViewController:
     :commit: 30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65
@@ -195,7 +195,7 @@ CHECKOUT OPTIONS:
     :commit: b797d40a9d08ec509db4335140cf2259b226e6a2
     :git: https://github.com/AlphaWallet/keychain-swift.git
   Macaw:
-    :commit: 2596ad0229e7c8b69471355ed44506dcdaf27e9d
+    :commit: e1f4eb1d2b81676fb10e9835c5e2ce9e9f51faf9
     :git: https://github.com/alpha-wallet/Macaw.git
   QRCodeReaderViewController:
     :commit: 30d1a2a7d167d0d207ae0ae3a4d81bcf473d7a65
@@ -256,6 +256,6 @@ SPEC CHECKSUMS:
   TrustWalletCore: dd8c81d5958f1eb737abea1e14675efcc6a104aa
   web3swift: 1597d4997976d21325882db4c523f1dfd5459406
 
-PODFILE CHECKSUM: a9bf6d3f2a168088ff4dc107162872cdeb8db6e4
+PODFILE CHECKSUM: ec2b391a12a22f8ccec61785b00f8d8eade47186
 
 COCOAPODS: 1.8.4
