@@ -145,7 +145,9 @@ class SingleChainTokenCoordinator: Coordinator {
             autoDetectMainnetPartnerTokens()
         case .xDai:
             autoDetectXDaiPartnerTokens()
-        case .kovan, .ropsten, .rinkeby, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom:
+        case .rinkeby:
+            autoDetectRinkebyPartnerTokens()
+        case .kovan, .ropsten, .poa, .sokol, .classic, .callisto, .goerli, .artis_sigma1, .binance_smart_chain, .binance_smart_chain_testnet, .artis_tau1, .custom:
             break
         }
     }
@@ -156,6 +158,10 @@ class SingleChainTokenCoordinator: Coordinator {
 
     private func autoDetectXDaiPartnerTokens() {
         autoDetectTokens(withContracts: Constants.ethDenverXDaiPartnerContracts)
+    }
+
+    private func autoDetectRinkebyPartnerTokens() {
+        autoDetectTokens(withContracts: Constants.rinkebyPartnerContracts)
     }
 
     private func autoDetectTokens(withContracts contractsToDetect: [(name: String, contract: AlphaWallet.Address)]) {
@@ -526,7 +532,7 @@ extension SingleChainTokenCoordinator: TokensCardCoordinatorDelegate {
 }
 
 extension TransferType {
-    
+
     func uniswapHolder(theme: UniswapHolder.Theme) -> UniswapHolder {
         switch self {
         case .ERC20Token(let token, _, _):
@@ -556,7 +562,7 @@ extension SingleChainTokenCoordinator: TokenViewControllerDelegate {
 
     func didTapErc20ExchangeOnUniswap(forTransferType transferType: TransferType, inViewController viewController: TokenViewController) {
         let theme = viewController.traitCollection.uniswapTheme
-        
+
         delegate?.didPressErc20ExchangeOnUniswap(for: transferType.uniswapHolder(theme: theme), in: self)
     }
 
