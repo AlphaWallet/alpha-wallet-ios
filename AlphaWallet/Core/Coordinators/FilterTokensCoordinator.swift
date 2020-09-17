@@ -40,8 +40,8 @@ class FilterTokensCoordinator {
                     } else if lowercasedKeyword == "erc875" || lowercasedKeyword == "erc 875" {
                         return $0.type == .erc875
                     } else if lowercasedKeyword == "tokenscript" {
-                        let xmlHandler = XMLHandler(contract: $0.contractAddress, assetDefinitionStore: assetDefinitionStore)
-                        return xmlHandler.hasAssetDefinition && xmlHandler.server == $0.server
+                        let xmlHandler = XMLHandler(token: $0, assetDefinitionStore: assetDefinitionStore)
+                        return xmlHandler.hasNoBaseAssetDefinition && (xmlHandler.server?.matches(server: $0.server) ?? false)
                     } else {
                         return $0.name.trimmed.lowercased().contains(lowercasedKeyword) ||
                                 $0.symbol.trimmed.lowercased().contains(lowercasedKeyword) ||

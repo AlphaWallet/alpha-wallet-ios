@@ -9,7 +9,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     let assetDefinitionStore: AssetDefinitionStore
 
     var headerTitle: String {
-        let tokenTypeName = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
+        let tokenTypeName = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore).getNameInPluralForm()
 		return R.string.localizable.aWalletTokenTransferSelectQuantityTitle(tokenTypeName)
     }
 
@@ -28,7 +28,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     var descriptionLabelColor: UIColor {
         return Colors.appText
     }
-    
+
     var noteTitleLabelText: String {
         return R.string.localizable.aWalletTokenSellNoteTitleLabelTitle()
     }
@@ -60,7 +60,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     var noteCornerRadius: CGFloat {
         return Metrics.CornerRadius.box
     }
-    
+
     var choiceLabelColor: UIColor {
         return Colors.appGrayLabel
     }
@@ -68,7 +68,7 @@ struct SetTransferTokensCardExpiryDateViewControllerViewModel {
     var choiceLabelFont: UIFont {
         return Fonts.regular(size: 10)!
     }
-    
+
     var linkExpiryDateLabelText: String {
         return R.string.localizable.aWalletTokenSellLinkExpiryDateTitle()
     }

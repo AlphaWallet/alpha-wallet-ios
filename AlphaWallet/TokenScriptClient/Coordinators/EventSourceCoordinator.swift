@@ -5,6 +5,7 @@ import BigInt
 import PromiseKit
 import web3swift
 
+//TODO rename this generic name to reflect that it's for event instances, not for event activity
 class EventSourceCoordinator {
     private var wallet: Wallet
     private let config: Config
@@ -23,7 +24,7 @@ class EventSourceCoordinator {
     }
 
     func fetchEventsByTokenId(forToken token: TokenObject) -> [Promise<Void>] {
-        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         guard xmlHandler.hasAssetDefinition else { return .init() }
         guard !xmlHandler.attributesWithEventSource.isEmpty else { return .init() }
 
@@ -42,7 +43,7 @@ class EventSourceCoordinator {
 
     func fetchEthereumEvents() {
         if rateLimitedUpdater == nil {
-            rateLimitedUpdater = RateLimiter(name: "Poll Ethereum events", limit: 15, autoRun: true) { [weak self] in
+            rateLimitedUpdater = RateLimiter(name: "Poll Ethereum events for instances", limit: 15, autoRun: true) { [weak self] in
                 self?.fetchEthereumEventsImpl()
             }
         } else {

@@ -49,10 +49,15 @@ class InCoordinator: NSObject, Coordinator {
     }
     //TODO We might not need this anymore once we stop using the vendored Web3Swift library which uses a WKWebView underneath
     private var claimOrderCoordinator: ClaimOrderCoordinator?
+    //TODO rename this generic name to reflect that it's for event instances, not for event activity
     lazy private var eventsDataStore: EventsDataStore = {
         EventsDataStore(realm: self.realm(forAccount: wallet))
     }()
+    lazy private var eventsActivityDataStore: EventsActivityDataStore = {
+        EventsActivityDataStore(realm: self.realm(forAccount: wallet))
+    }()
     private var eventSourceCoordinator: EventSourceCoordinator?
+    private var eventSourceCoordinatorForActivities: EventSourceCoordinatorForActivities?
     var tokensStorages = ServerDictionary<TokensDataStore>()
     lazy var nativeCryptoCurrencyPrices: ServerDictionary<Subscribable<Double>> = {
         return createEtherPricesSubscribablesForAllChains()
@@ -70,6 +75,9 @@ class InCoordinator: NSObject, Coordinator {
     }
     private var dappBrowserCoordinator: DappBrowserCoordinator? {
         return coordinators.compactMap { $0 as? DappBrowserCoordinator }.first
+    }
+    private var activityCoordinator: ActivitiesCoordinator? {
+        return coordinators.compactMap { $0 as? ActivitiesCoordinator }.first
     }
 
     private lazy var helpUsCoordinator: HelpUsCoordinator = {
@@ -127,12 +135,29 @@ class InCoordinator: NSObject, Coordinator {
         //TODO this is firing twice for each contract. We can be more efficient
         assetDefinitionStore.subscribe { [weak self] contract in
             guard let strongSelf = self else { return }
-            let xmlHandler = XMLHandler(contract: contract, assetDefinitionStore: strongSelf.assetDefinitionStore)
+            let tokens = strongSelf.tokensStorages.values.flatMap { $0.enabledObject }
+            //Assume same contract don't exist in multiple chains
+            guard let token = tokens.first(where: { $0.contractAddress.sameContract(as: contract) }) else { return }
+            let xmlHandler = XMLHandler(token: token, assetDefinitionStore: strongSelf.assetDefinitionStore)
             guard xmlHandler.hasAssetDefinition, let server = xmlHandler.server else { return }
-            let tokensDataStore = strongSelf.tokensStorages[server]
-            guard let token = tokensDataStore.token(forContract: contract) else { return }
-            strongSelf.eventsDataStore.deleteEvents(forTokenContract: contract)
-            let _ = strongSelf.eventSourceCoordinator?.fetchEventsByTokenId(forToken: token)
+            switch server {
+            case .any:
+                for each in strongSelf.config.enabledServers {
+                    strongSelf.fetchEvents(forTokenContract: contract, server: each)
+                }
+            case .server(let server):
+                strongSelf.fetchEvents(forTokenContract: contract, server: server)
+            }
+        }
+    }
+
+    private func fetchEvents(forTokenContract contract: AlphaWallet.Address, server: RPCServer) {
+        let tokensDataStore = tokensStorages[server]
+        guard let token = tokensDataStore.token(forContract: contract) else { return }
+        eventsDataStore.deleteEvents(forTokenContract: contract)
+        let _ = eventSourceCoordinator?.fetchEventsByTokenId(forToken: token)
+        if Features.isActivityEnabled {
+            let _ = eventSourceCoordinatorForActivities?.fetchEvents(forToken: token)
         }
     }
 
@@ -237,6 +262,12 @@ class InCoordinator: NSObject, Coordinator {
         eventSourceCoordinator = EventSourceCoordinator(wallet: wallet, config: config, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsDataStore)
     }
 
+    private func setUpEventSourceCoordinatorForActivities() {
+        guard Features.isActivityEnabled else { return }
+        eventSourceCoordinatorForActivities = EventSourceCoordinatorForActivities(wallet: wallet, config: config, tokensStorages: tokensStorages, assetDefinitionStore: assetDefinitionStore, eventsDataStore: eventsActivityDataStore)
+        eventSourceCoordinatorForActivities?.delegate = self
+    }
+
     private func setupTokenDataStores() {
         tokensStorages = .init()
         for each in RPCServer.allCases {
@@ -298,11 +329,16 @@ class InCoordinator: NSObject, Coordinator {
         setupEtherBalances()
         setupWalletSessions()
         setupCallForAssetAttributeCoordinators()
+        //TODO rename this generic name to reflect that it's for event instances, not for event activity. A few other related ones too
         setUpEventSourceCoordinator()
+        setUpEventSourceCoordinatorForActivities()
     }
 
     private func fetchEthereumEvents() {
         eventSourceCoordinator?.fetchEthereumEvents()
+        if Features.isActivityEnabled {
+            eventSourceCoordinatorForActivities?.fetchEthereumEvents()
+        }
     }
 
     private func pollEthereumEvents(tokenCollection: TokenCollection) {
@@ -375,6 +411,25 @@ class InCoordinator: NSObject, Coordinator {
         return coordinator
     }
 
+    private func createActivityCoordinator() -> ActivitiesCoordinator {
+        let realm = self.realm(forAccount: wallet)
+        let coordinator = ActivitiesCoordinator(
+                config: config,
+                sessions: walletSessions,
+                keystore: keystore,
+                tokensStorages: tokensStorages,
+                assetDefinitionStore: assetDefinitionStore,
+                eventsActivityDataStore: eventsActivityDataStore,
+                eventsDataStore: eventsDataStore,
+                transactionCoordinator: transactionCoordinator
+        )
+        coordinator.delegate = self
+        coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.activityTabbarItemTitle(), image: R.image.tab_transactions(), selectedImage: nil)
+        coordinator.start()
+        addCoordinator(coordinator)
+        return coordinator
+    }
+
     private func createBrowserCoordinator(sessions: ServerDictionary<WalletSession>, realm: Realm, browserOnly: Bool) -> DappBrowserCoordinator {
         let coordinator = DappBrowserCoordinator(sessions: sessions, keystore: keystore, config: config, sharedRealm: realm, browserOnly: browserOnly)
         coordinator.delegate = self
@@ -412,7 +467,13 @@ class InCoordinator: NSObject, Coordinator {
 
         let transactionCoordinator = createTransactionCoordinator(promptBackupCoordinator: promptBackupCoordinator)
         configureNavigationControllerForLargeTitles(transactionCoordinator.navigationController)
-        viewControllers.append(transactionCoordinator.navigationController)
+        if Features.isActivityEnabled {
+            let activityCoordinator = createActivityCoordinator()
+            configureNavigationControllerForLargeTitles(activityCoordinator.navigationController)
+            viewControllers.append(activityCoordinator.navigationController)
+        } else {
+            viewControllers.append(transactionCoordinator.navigationController)
+        }
 
         let browserCoordinator = createBrowserCoordinator(sessions: walletSessions, realm: realm, browserOnly: false)
         viewControllers.append(browserCoordinator.navigationController)
@@ -839,7 +900,7 @@ extension InCoordinator: UITabBarControllerDelegate {
             dappBrowserCoordinator?.willHide()
         }
         return true
-    } 
+    }
 }
 
 extension InCoordinator: TransactionsStorageDelegate {
@@ -847,5 +908,24 @@ extension InCoordinator: TransactionsStorageDelegate {
         for each in contracts {
             assetDefinitionStore.fetchXML(forContract: each)
         }
+    }
+}
+
+extension InCoordinator: EventSourceCoordinatorForActivitiesDelegate {
+    func didUpdate(inCoordinator coordinator: EventSourceCoordinatorForActivities) {
+        activityCoordinator?.reload()
+    }
+}
+
+extension InCoordinator: ActivitiesCoordinatorDelegate {
+    func didPressTransaction(transaction: Transaction, in viewController: ActivitiesViewController) {
+        transactionCoordinator?.showTransaction(transaction, inViewController: viewController)
+    }
+
+    func show(tokenObject: TokenObject, fromCoordinator coordinator: ActivitiesCoordinator) {
+        //TODO way better UX if we can just open the token without switching tabs
+        showTab(.wallet)
+        guard let tokensCoordinator = tokensCoordinator else { return }
+        tokensCoordinator.didSelect(token: tokenObject, in: tokensCoordinator.rootViewController)
     }
 }

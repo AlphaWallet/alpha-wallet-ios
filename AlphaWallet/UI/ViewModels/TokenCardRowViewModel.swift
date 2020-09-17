@@ -149,7 +149,7 @@ struct TokenCardRowViewModel: TokenCardRowViewModelProtocol {
     }
 
     var tokenScriptHtml: (html: String, hash: Int) {
-        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
         let html: String
         let style: String
         switch tokenView {

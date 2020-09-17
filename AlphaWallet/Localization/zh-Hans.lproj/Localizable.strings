@@ -127,6 +127,7 @@
 "transactions.received.ether" = "您已收到%@ %@";
 "transactions.received.ether.notification.prompt" = "是否在收到%@时允许通知？";
 "transaction.navigation.title" = "交易";
+"activity.tabbar.item.title" = "Activity";
 "import.navigation.title" = "导入钱包";
 "configureTransaction.data.label.title" = "交易数据（可选）";
 "configureTransaction.nonce.label.title" = "Nonce（可选）";
@@ -469,3 +470,8 @@
 "qrCode.openInBrowser.title" = "Open in Browser";
 "qrCode.openInEtherscan.title" = "Open in Etherscan";
 "assets.selectAsset.title" = "Select Asset";
+"activity.from" = "from %@";
+"activity.to" = "to %@";
+"activity.approvalObtained" = "Gave approval to move %@";
+"activity.ownerApproved" = "Approved to move %@";
+"activity.goToToken" = "Go to Token";
