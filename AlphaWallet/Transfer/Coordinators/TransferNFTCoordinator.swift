@@ -20,7 +20,7 @@ class TransferNFTCoordinator: Coordinator {
     private var statusViewController: StatusViewController?
     private var status = StatusViewControllerViewModel.State.processing {
         didSet {
-            let tokenTypeName = XMLHandler(contract: walletAddress, assetDefinitionStore: assetDefinitionStore).getLabel()
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore).getLabel()
             statusViewController?.configure(viewModel: .init(
                     state: status,
                     inProgressText: R.string.localizable.aWalletTokenTransferInProgressTitle(tokenTypeName),
@@ -54,7 +54,7 @@ class TransferNFTCoordinator: Coordinator {
         statusViewController = StatusViewController()
         if let vc = statusViewController {
             vc.delegate = self
-            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getLabel()
+            let tokenTypeName = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore).getLabel()
             vc.configure(viewModel: .init(
                     state: .processing,
                     inProgressText: R.string.localizable.aWalletTokenTransferInProgressTitle(tokenTypeName),

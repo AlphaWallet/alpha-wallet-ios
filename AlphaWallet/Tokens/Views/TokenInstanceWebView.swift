@@ -46,7 +46,6 @@ class TokenInstanceWebView: UIView {
     }
 
     //TODO see if we can be smarter about just subscribing to the attribute once. Note that this is not `Subscribable.subscribeOnce()`
-    private let server: RPCServer
     private let walletAddress: AlphaWallet.Address
     private let assetDefinitionStore: AssetDefinitionStore
     private var hashOfCurrentHtml: Int?
@@ -63,9 +62,10 @@ class TokenInstanceWebView: UIView {
     //TODO remove once we refactor internals to include a TokenScriptContext
     private var lastTokenHolder: TokenHolder?
     var actionProperties: TokenInstanceWebView.SetProperties.Properties = .init()
-    private var lastActionLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
     private var estimatedProgressObservation: NSKeyValueObservation!
+    private var lastCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]?
 
+    var server: RPCServer
     var isWebViewInteractionEnabled: Bool = false {
         didSet {
             webView.isUserInteractionEnabled = isWebViewInteractionEnabled
@@ -138,48 +138,73 @@ class TokenInstanceWebView: UIView {
     }
 
     //Implementation: String concatentation is slow, but it's not obvious at all
-    func update(withTokenHolder tokenHolder: TokenHolder, actionLevelAttributeValues updatedActionLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
+    func update(withTokenHolder tokenHolder: TokenHolder, cardLevelAttributeValues updatedCardLevelAttributeValues: [AttributeId: AssetAttributeSyntaxValue]? = nil, isFungible: Bool, isFirstUpdate: Bool = true) {
         lastTokenHolder = tokenHolder
         let unresolvedAttributesDependentOnProps = self.unresolvedAttributesDependentOnProps(tokenHolder: tokenHolder)
 
-        let actionLevelAttributeValues = (updatedActionLevelAttributeValues ?? lastActionLevelAttributeValues) ?? .init()
-        lastActionLevelAttributeValues = actionLevelAttributeValues
-        var token = [AttributeId: String]()
-        token["_count"] = String(tokenHolder.count)
+        let cardLevelAttributeValues = (updatedCardLevelAttributeValues ?? lastCardLevelAttributeValues) ?? .init()
+        lastCardLevelAttributeValues = cardLevelAttributeValues
+        var tokenData = [AttributeId: String]()
+        tokenData["_count"] = String(tokenHolder.count)
 
-        //TODO We are stuffing the props-dependent attributes into lastActionLevelAttributeValues. Should not be doing this as it's not intention revealing and wrong
-        if lastActionLevelAttributeValues != nil {
-            lastActionLevelAttributeValues = lastActionLevelAttributeValues?.merging(unresolvedAttributesDependentOnProps) { _, new in new }
+        //TODO We are stuffing the props-dependent attributes into lastCardLevelAttributeValues. Should not be doing this as it's not intention revealing and wrong. But scope-wise, is it wrong? Because these attributes can only be card-level, not token-level, right?
+        if lastCardLevelAttributeValues != nil {
+            lastCardLevelAttributeValues = lastCardLevelAttributeValues?.merging(unresolvedAttributesDependentOnProps) { _, new in new }
         } else {
-            lastActionLevelAttributeValues = unresolvedAttributesDependentOnProps
+            lastCardLevelAttributeValues = unresolvedAttributesDependentOnProps
         }
 
-        let attributeValues: AssetAttributeValues
-        if isAction {
-            attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values.merging(actionLevelAttributeValues) { _, new in new })
-        } else {
-            attributeValues = AssetAttributeValues(attributeValues: tokenHolder.values
-                    .merging(unresolvedAttributesDependentOnProps, uniquingKeysWith: { _, new in new })
-                    .merging(actionLevelAttributeValues, uniquingKeysWith: { _, new in new }))
-        }
+        let tokenAttributeValues: AssetAttributeValues
+        let cardAttributeValues: AssetAttributeValues
+        tokenAttributeValues = AssetAttributeValues(attributeValues: tokenHolder.values)
+        cardAttributeValues = AssetAttributeValues(attributeValues: unresolvedAttributesDependentOnProps.merging(cardLevelAttributeValues, uniquingKeysWith: { _, new in new }))
 
-        let resolvedAttributeNameValues = attributeValues.resolve { [weak self] _ in
+        let resolvedTokenAttributeNameValues = tokenAttributeValues.resolve { [weak self] _ in
             guard let strongSelf = self else { return }
             guard isFirstUpdate else { return }
             strongSelf.update(withTokenHolder: tokenHolder, isFungible: isFungible, isFirstUpdate: false)
         }.merging(implicitAttributes(tokenHolder: tokenHolder, isFungible: isFungible)) { (_, new) in new }
 
+        let resolvedCardAttributeNameValues = cardAttributeValues.resolve { [weak self] _ in
+            guard let strongSelf = self else { return }
+            guard isFirstUpdate else { return }
+            strongSelf.update(withTokenHolder: tokenHolder, isFungible: isFungible, isFirstUpdate: false)
+        }
+
+        update(withId: tokenHolder.tokenIds[0], resolvedTokenAttributeNameValues: resolvedTokenAttributeNameValues, resolvedCardAttributeNameValues: resolvedCardAttributeNameValues, isFirstUpdate: isFirstUpdate)
+    }
+
+    func update(withId id: BigUInt, resolvedTokenAttributeNameValues: [AttributeId: AssetInternalValue], resolvedCardAttributeNameValues: [AttributeId: AssetInternalValue], isFirstUpdate: Bool = true) {
+        var tokenData = [AttributeId: String]()
         let convertor = AssetAttributeToJavaScriptConvertor()
-        for (name, value) in resolvedAttributeNameValues {
+        for (name, value) in resolvedTokenAttributeNameValues {
             if let value = convertor.formatAsTokenScriptJavaScript(value: value) {
-                token[name] = value
+                tokenData[name] = value
+            }
+        }
+        var cardData = [AttributeId: String]()
+        for (name, value) in resolvedCardAttributeNameValues {
+            if let value = convertor.formatAsTokenScriptJavaScript(value: value) {
+                cardData[name] = value
             }
         }
 
+        let tokenDataString = tokenData.map { name, value in "\(name): \(value)," }.joined()
+        let cardDataString = cardData.map { name, value in "\(name): \(value)," }.joined()
+        //TODO remove this soon since it's no longer in the JavaScript API
+        let combinedData = tokenData.merging(cardData, uniquingKeysWith: { _, new in new })
+        let combinedDataString = combinedData.map { name, value in "\(name): \(value)," }.joined()
+
         var string = "\nweb3.tokens.data.currentInstance = {\n"
-        for (name, value) in token {
-            string += "\(name): \(value),"
-        }
+        string += combinedDataString
+        string += "\n}"
+
+        string += "\nweb3.tokens.data.token = {\n"
+        string += tokenDataString
+        string += "\n}"
+
+        string += "\nweb3.tokens.data.card = {\n"
+        string += cardDataString
         string += "\n}"
 
         //TODO include attribute type definitions
@@ -197,13 +222,13 @@ class TokenInstanceWebView: UIView {
 //        string += "\n}"
 //        string += "\n}"
 
-        let containerCssId = generateContainerCssId(forTokenHolder: tokenHolder)
+        let containerCssId = generateContainerCssId(forTokenId: id)
         string += """
-                  \nweb3.tokens.dataChanged(oldTokens, web3.tokens.data, "\(containerCssId)")
+                  \nweb3.tokens.dataChanged(old, web3.tokens.data, "\(containerCssId)")
                   """
         let javaScript = """
                          console.log(`update() ran`)
-                         const oldTokens = web3.tokens.data
+                         const old = web3.tokens.data
                          """ + string
 
         //Important to inject JavaScript differently depending on whether this is the first time it's loaded because the HTML document may not be ready yet. Seems like it is necessary for `afterDocumentIsLoaded` to always be true here in order to avoid `Can't find variable: web3` errors when used for token cards
@@ -216,8 +241,8 @@ class TokenInstanceWebView: UIView {
 
     private func unresolvedAttributesDependentOnProps(tokenHolder: TokenHolder) -> [AttributeId: AssetAttributeSyntaxValue] {
         guard !localRefs.isEmpty else { return .init() }
-        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
-        let attributes = xmlHandler.fields.filter { $0.value.isDependentOnProps && lastActionLevelAttributeValues?[$0.key] == nil }
+        let xmlHandler = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
+        let attributes = xmlHandler.fields.filter { $0.value.isDependentOnProps && lastCardLevelAttributeValues?[$0.key] == nil }
         //TODO it's not important for now whether it is .real or .watch, but should fix
         let account = Wallet(type: .watch(walletAddress))
         return attributes.resolve(withTokenIdOrEvent: .tokenId(tokenId: tokenHolder.tokenIds[0]), userEntryValues: .init(), server: server, account: account, additionalValues: .init(), localRefs: localRefs)
@@ -233,7 +258,7 @@ class TokenInstanceWebView: UIView {
             case .tokenId:
                 results[each.javaScriptName] = .uint(tokenHolder.tokens[0].id)
             case .label:
-                let localizedNameFromAssetDefinition = XMLHandler(contract: tokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore).getLabel(fallback: tokenHolder.name)
+                let localizedNameFromAssetDefinition = XMLHandler(contract: tokenHolder.contractAddress, tokenType: tokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore).getLabel(fallback: tokenHolder.name)
                 results[each.javaScriptName] = .string(localizedNameFromAssetDefinition)
             case .symbol:
                 results[each.javaScriptName] = .string(tokenHolder.symbol)
@@ -289,7 +314,7 @@ class TokenInstanceWebView: UIView {
         }
         webView.loadHTMLString(html, baseURL: nil)
         hashOfLoadedHtml = hashOfCurrentHtml
-    } 
+    }
 
     private func makeIntroductionWebViewFullHeight(renderingAttempt: RenderingAttempt) {
         let forLoadId: Int? = loadId
@@ -374,18 +399,18 @@ extension TokenInstanceWebView: WKScriptMessageHandler {
         }
 
         guard let oldJsonString = oldProperties.jsonString, let newJsonString = actionProperties.jsonString, oldJsonString != newJsonString else { return }
-        if lastActionLevelAttributeValues != nil {
+        if lastCardLevelAttributeValues != nil {
             delegate?.reinject(tokenInstanceWebView: self)
         }
     }
 
     private func checkPropsNameClashErrorWithCardAttributes() -> String? {
         guard let lastTokenHolder = lastTokenHolder else { return nil }
-        let xmlHandler = XMLHandler(contract: lastTokenHolder.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(contract: lastTokenHolder.contractAddress, tokenType: lastTokenHolder.tokenType, assetDefinitionStore: assetDefinitionStore)
         let attributes = xmlHandler.fields
         let attributeIds: [AttributeId]
-        if let lastActionLevelAttributeValues = lastActionLevelAttributeValues {
-            attributeIds = Array(attributes.keys) + Array(lastActionLevelAttributeValues.keys)
+        if let lastCardLevelAttributeValues = lastCardLevelAttributeValues {
+            attributeIds = Array(attributes.keys) + Array(lastCardLevelAttributeValues.keys)
         } else {
             attributeIds = Array(attributes.keys)
         }

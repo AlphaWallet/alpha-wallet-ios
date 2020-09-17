@@ -15,6 +15,9 @@ class AssetDefinitionStore {
         case error
     }
 
+    //TODO ugly hack. Check where it's read to know why it's needed
+    static var instance: AssetDefinitionStore!
+
     private var httpHeaders: HTTPHeaders = {
         guard let appVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else { return [:] }
         return [
@@ -83,6 +86,7 @@ class AssetDefinitionStore {
     init(backingStore: AssetDefinitionBackingStore = AssetDefinitionDiskBackingStoreWithOverrides()) {
         self.backingStore = backingStore
         self.backingStore.delegate = self
+        AssetDefinitionStore.instance = self
     }
 
     func hasConflict(forContract contract: AlphaWallet.Address) -> Bool {
@@ -105,11 +109,15 @@ class AssetDefinitionStore {
 
     subscript(contract: AlphaWallet.Address) -> String? {
         get {
-            return backingStore[contract]
+            backingStore[contract]
         }
-        set(xml) {
-            backingStore[contract] = xml
+        set(value) {
+            backingStore[contract] = value
         }
+    }
+
+    private func cacheXml(_ xml: String, forContract contract: AlphaWallet.Address) {
+        backingStore[contract] = xml
     }
 
     func isOfficial(contract: AlphaWallet.Address) -> Bool {
@@ -154,7 +162,7 @@ class AssetDefinitionStore {
                             completionHandler?(result)
                         }
                     } else {
-                        strongSelf[contract] = xml
+                        strongSelf.cacheXml(xml, forContract: contract)
                         XMLHandler.invalidate(forContract: contract)
                         completionHandler?(.updated)
                         strongSelf.triggerSubscribers(forContract: contract)

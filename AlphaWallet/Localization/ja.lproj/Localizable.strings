@@ -127,6 +127,7 @@
 "transactions.received.ether" = "You have received %@ %@";
 "transactions.received.ether.notification.prompt" = "Allow Notifications When You Receive %@?";
 "transaction.navigation.title" = "トランザクション";
+"activity.tabbar.item.title" = "Activity";
 "import.navigation.title" = "ウォレットをインポート";
 "configureTransaction.data.label.title" = "トランザクション データ (オプション)";
 "configureTransaction.nonce.label.title" = "Nonce (Optional)";
@@ -469,3 +470,8 @@
 "qrCode.openInBrowser.title" = "Open in Browser";
 "qrCode.openInEtherscan.title" = "Open in Etherscan";
 "assets.selectAsset.title" = "Select Asset";
+"activity.from" = "from %@";
+"activity.to" = "to %@";
+"activity.approvalObtained" = "Gave approval to move %@";
+"activity.ownerApproved" = "Approved to move %@";
+"activity.goToToken" = "Go to Token";

@@ -108,11 +108,12 @@ private class PrivateXMLHandler {
     private let xmlContext = PrivateXMLHandler.createXmlContext(withLang: PrivateXMLHandler.lang)
     private let contractAddress: AlphaWallet.Address
     private weak var assetDefinitionStore: AssetDefinitionStore?
-    var server: RPCServer?
+    var server: RPCServerOrAny?
     //Explicit type so that the variable autocompletes with AppCode
     private lazy var selections = extractSelectionsForToken()
     private let isOfficial: Bool
     private let isCanonicalized: Bool
+    private let isBase: Bool
     lazy private var contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]] = extractContractNamesAndAddresses()
 
     private var tokenElement: XMLElement? {
@@ -121,6 +122,11 @@ private class PrivateXMLHandler {
 
     private var holdingContractElement: XMLElement? {
         return XMLHandler.getHoldingContractElement(fromRoot: xml, xmlContext: xmlContext)
+    }
+
+    fileprivate var tokenType: TokenInterfaceType? {
+        holdingContractElement?["interface"]
+                .flatMap { TokenInterfaceType(rawValue: $0) }
     }
 
     var hasValidTokenScriptFile: Bool
@@ -158,12 +164,12 @@ private class PrivateXMLHandler {
     var actions: [TokenInstanceAction] {
         guard hasValidTokenScriptFile else { return [] }
         var results = [TokenInstanceAction]()
-        let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceCardElements(fromRoot: xml, xmlContext: xmlContext))
+        let fromTokenAsTopLevel = Array(XMLHandler.getTokenScriptTokenInstanceActionCardElements(fromRoot: xml, xmlContext: xmlContext))
         let fromActionAsTopLevel = Array(XMLHandler.getTokenScriptActionOnlyActionElements(fromRoot: xml, xmlContext: xmlContext))
         let actionElements = fromTokenAsTopLevel + fromActionAsTopLevel
         for actionElement in actionElements {
             if let name = XMLHandler.getNameElement(fromActionElement: actionElement, xmlContext: xmlContext)?.text?.trimmed.nilIfEmpty,
-               let viewElement = XMLHandler.getViewElement(fromActionElement: actionElement, xmlContext: xmlContext) {
+               let viewElement = XMLHandler.getViewElement(fromCardElement: actionElement, xmlContext: xmlContext) {
                 let (html: html, style: style) = extractHtml(fromViewElement: viewElement)
                 guard !html.isEmpty else { continue }
                 let attributes = extractFields(forActionElement: actionElement)
@@ -175,8 +181,7 @@ private class PrivateXMLHandler {
             }
         }
         if fromActionAsTopLevel.isEmpty {
-            holdingContractElement?["interface"]
-                    .flatMap { TokenInterfaceType(rawValue: $0) }
+            tokenType
                     .flatMap { results.append(contentsOf: defaultActions(forTokenType: $0)) }
         } else {
             //TODO "erc20Send" name is not good for cryptocurrency
@@ -189,6 +194,49 @@ private class PrivateXMLHandler {
 
     var attributesWithEventSource: [AssetAttribute] {
         fields.values.filter { $0.isEventOriginBased }
+    }
+
+    var activityCards: [TokenScriptCard] {
+        let cards = Array(XMLHandler.getTokenScriptTokenInstanceActivityCardElements(fromRoot: xml, xmlContext: xmlContext))
+        let results: [TokenScriptCard] = cards.compactMap { eachCard in
+            guard let name = eachCard["name"],
+              let ethereumEventElement = XMLHandler.getEthereumOriginElementEvents(fromAttributeTypeElement: eachCard, xmlContext: xmlContext),
+               let eventName = ethereumEventElement["type"],
+               let asnModuleNamedElement = XMLHandler.getAsnModuleNamedTypeElement(fromRoot: xml, xmlContext: xmlContext, forTypeName: eventName) else { return nil }
+            let optionalContract: AlphaWallet.Address?
+            if let eventContractName = ethereumEventElement["contract"],
+               let eventSourceContractElement = XMLHandler.getContractElementByName(contractName: eventContractName, fromRoot: xml, xmlContext: xmlContext) {
+                let addressElements = XMLHandler.getAddressElements(fromContractElement: eventSourceContractElement, xmlContext: xmlContext)
+                optionalContract = addressElements.first?.text.flatMap({ AlphaWallet.Address(string: $0.trimmed) })
+            } else {
+                optionalContract = contractAddress
+            }
+            guard let contract = optionalContract, let origin = Origin(forEthereumEventElement: ethereumEventElement, asnModuleNamedTypeElement: asnModuleNamedElement, contract: contract, xmlContext: xmlContext) else { return nil }
+            switch origin {
+            case .event(let eventOrigin):
+                let viewHtml: String
+                let viewStyle: String
+                let itemViewHtml: String
+                let itemViewStyle: String
+
+                if let viewElement = XMLHandler.getViewElement(fromCardElement: eachCard, xmlContext: xmlContext) {
+                    (html: viewHtml, style: viewStyle) = extractHtml(fromViewElement: viewElement)
+                } else {
+                    viewHtml = ""
+                    viewStyle = ""
+                }
+                if let itemViewElement = XMLHandler.getItemViewElement(fromCardElement: eachCard, xmlContext: xmlContext) {
+                    (html: itemViewHtml, style: itemViewStyle) = extractHtml(fromViewElement: itemViewElement)
+                } else {
+                    itemViewHtml = ""
+                    itemViewStyle = ""
+                }
+                return .init(name: name, eventOrigin: eventOrigin, view: (html: viewHtml, style: viewStyle), itemView: (html: itemViewHtml, style: itemViewStyle), isBase: isBase)
+            case .tokenId, .userEntry, .function:
+                return nil
+            }
+        }
+        return results
     }
 
     lazy var fieldIdsAndNames: [AttributeId: String] = {
@@ -240,14 +288,19 @@ private class PrivateXMLHandler {
         let xmlString = assetDefinitionStore[contract]
         let isOfficial = assetDefinitionStore.isOfficial(contract: contract)
         let isCanonicalized = assetDefinitionStore.isCanonicalized(contract: contract)
-        self.init(contract: contract, xmlString: xmlString, isOfficial: isOfficial, isCanonicalized: isCanonicalized, assetDefinitionStore: assetDefinitionStore)
+        self.init(contract: contract, xmlString: xmlString, isBase: false, isOfficial: isOfficial, isCanonicalized: isCanonicalized, assetDefinitionStore: assetDefinitionStore)
     }
 
-    init(contract: AlphaWallet.Address, xmlString: String?, isOfficial: Bool, isCanonicalized: Bool, assetDefinitionStore: AssetDefinitionStore) {
+    convenience init(contract: AlphaWallet.Address, baseXml: String, assetDefinitionStore: AssetDefinitionStore) {
+        self.init(contract: contract, xmlString: baseXml, isBase: true, isOfficial: true, isCanonicalized: true, assetDefinitionStore: assetDefinitionStore)
+    }
+
+    private init(contract: AlphaWallet.Address, xmlString: String?, isBase: Bool, isOfficial: Bool, isCanonicalized: Bool, assetDefinitionStore: AssetDefinitionStore) {
         let xmlString = xmlString ?? ""
         self.contractAddress = contract
         self.isOfficial = isOfficial
         self.isCanonicalized = isCanonicalized
+        self.isBase = isBase
         self.assetDefinitionStore = assetDefinitionStore
         //We still compute the TokenScript status even if xmlString is empty because it might be considered empty because there's a conflict
         let tokenScriptStatusPromise = PrivateXMLHandler.computeTokenScriptStatus(forContract: contract, xmlString: xmlString, isOfficial: isOfficial, isCanonicalized: isCanonicalized, assetDefinitionStore: assetDefinitionStore)
@@ -256,16 +309,28 @@ private class PrivateXMLHandler {
             let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus)
             self.xml = xml
             self.hasValidTokenScriptFile = hasValidTokenScriptFile
-            self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
+            if isBase ?? false {
+                self.server = .any
+            } else {
+                self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract).flatMap { .server($0) }
+            }
         } else {
             xml = (try? Kanna.XML(xml: xmlString, encoding: .utf8)) ?? PrivateXMLHandler.emptyXML
             hasValidTokenScriptFile = true
-            server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract)
+            if isBase {
+                self.server = .any
+            } else {
+                server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: xmlContext, matchingContract: contract).flatMap { .server($0) }
+            }
             tokenScriptStatusPromise.done { tokenScriptStatus in
                 let (xml, hasValidTokenScriptFile) = PrivateXMLHandler.storeXmlAccordingToTokenScriptStatus(xmlString: xmlString, tokenScriptStatus: tokenScriptStatus)
                 self.xml = xml
                 self.hasValidTokenScriptFile = hasValidTokenScriptFile
-                self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: self.xmlContext, matchingContract: contract)
+                if isBase {
+                    self.server = .any
+                } else {
+                    self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: self.xmlContext, matchingContract: contract).flatMap { .server($0) }
+                }
                 self.assetDefinitionStore?.invalidateSignatureStatus(forContract: self.contractAddress)
             }.cauterize()
         }
@@ -511,7 +576,7 @@ private class PrivateXMLHandler {
         for each in XMLHandler.getAttributeElements(fromAttributeElement: element, xmlContext: xmlContext) {
             guard let name = each["name"] else { continue }
             //TODO we pass in server because we are assuming the server used for non-token-holding contracts are the same as the token-holding contract for now. Not always true. We'll have to fix it in the future when TokenScript supports it
-            guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
+            guard let attribute = server.flatMap({ AssetAttribute(attribute: each, xmlContext: xmlContext, root: xml, tokenContract: contractAddress, server: $0, contractNamesAndAddresses: contractNamesAndAddresses) }) else { continue }
             fields[name] = attribute
         }
         return fields
@@ -547,7 +612,7 @@ private class PrivateXMLHandler {
         let namespaces = [
             "ts": PrivateXMLHandler.tokenScriptNamespace,
             "ds": "http://www.w3.org/2000/09/xmldsig#",
-            "xhtml": "http://www.w3.org/1999/xhtml", 
+            "xhtml": "http://www.w3.org/1999/xhtml",
             "asnx": "urn:ietf:params:xml:ns:asnx",
             "ethereum": "urn:ethereum:constantinople",
         ]
@@ -577,14 +642,31 @@ public class XMLHandler {
     //TODO not the best thing to have, especially because it's an optional
     static var callForAssetAttributeCoordinators: ServerDictionary<CallForAssetAttributeCoordinator>?
     fileprivate static var xmlHandlers: [AlphaWallet.Address: PrivateXMLHandler] = [:]
+    fileprivate static var baseXmlHandlers: [String: PrivateXMLHandler] = [:]
     private let privateXMLHandler: PrivateXMLHandler
+    private let baseXMLHandler: PrivateXMLHandler?
 
     var hasAssetDefinition: Bool {
+        if baseXMLHandler == nil {
+            return privateXMLHandler.hasValidTokenScriptFile
+        } else {
+            return true
+        }
+    }
+
+    var hasNoBaseAssetDefinition: Bool {
         return privateXMLHandler.hasValidTokenScriptFile
     }
 
     var fields: [AttributeId: AssetAttribute] {
-        privateXMLHandler.fields
+        //TODO cache?
+        if let baseXMLHandler = baseXMLHandler {
+            let overrides = privateXMLHandler.fields
+            let base = baseXMLHandler.fields
+            return base.merging(overrides) { _, new in new }
+        } else {
+            return privateXMLHandler.fields
+        }
     }
 
     var tokenScriptStatus: Promise<TokenLevelTokenScriptDisplayStatus> {
@@ -596,42 +678,143 @@ public class XMLHandler {
     }
 
     var tokenViewIconifiedHtml: (html: String, style: String) {
-        return privateXMLHandler.tokenViewIconifiedHtml
+        let (html: html, style: style) = privateXMLHandler.tokenViewIconifiedHtml
+        if let baseXMLHandler = baseXMLHandler {
+            if html.isEmpty {
+                return baseXMLHandler.tokenViewIconifiedHtml
+            } else {
+                return privateXMLHandler.tokenViewIconifiedHtml
+            }
+        } else {
+            return privateXMLHandler.tokenViewIconifiedHtml
+        }
     }
 
     var tokenViewHtml: (html: String, style: String) {
-        return privateXMLHandler.tokenViewHtml
+        let (html: html, style: style) = privateXMLHandler.tokenViewHtml
+        if let baseXMLHandler = baseXMLHandler {
+            if html.isEmpty {
+                return baseXMLHandler.tokenViewHtml
+            } else {
+                return privateXMLHandler.tokenViewHtml
+            }
+        } else {
+            return privateXMLHandler.tokenViewHtml
+        }
     }
 
     var actions: [TokenInstanceAction] {
-        return privateXMLHandler.actions
+        //TODO cache?
+        if let baseXMLHandler = baseXMLHandler {
+            let overrides = privateXMLHandler.actions
+            let base = baseXMLHandler.actions
+            let overrideNames = overrides.map { $0.name }
+            return overrides + base.filter { !overrideNames.contains($0.name) }
+        } else {
+            return privateXMLHandler.actions
+        }
     }
 
-    var server: RPCServer? {
-        return privateXMLHandler.server
+    var server: RPCServerOrAny? {
+        if let baseXMLHandler = baseXMLHandler {
+            return baseXMLHandler.server
+        } else {
+            return privateXMLHandler.server
+        }
     }
 
     var attributesWithEventSource: [AssetAttribute] {
-        privateXMLHandler.attributesWithEventSource
+        //TODO cache?
+        if let baseXMLHandler = baseXMLHandler {
+            let overrides = privateXMLHandler.attributesWithEventSource
+            let base = baseXMLHandler.attributesWithEventSource
+            let overrideNames = overrides.map { $0.name }
+            return overrides + base.filter { !overrideNames.contains($0.name) }
+        } else {
+            return privateXMLHandler.attributesWithEventSource
+        }
+    }
+
+    var activityCards: [TokenScriptCard] {
+        //TODO cache?
+        if let baseXMLHandler = baseXMLHandler {
+            let overrides = privateXMLHandler.activityCards
+            let base = baseXMLHandler.activityCards
+            let overrideNames = overrides.map { $0.name }
+            return overrides + base.filter { !overrideNames.contains($0.name) }
+        } else {
+            return privateXMLHandler.activityCards
+        }
     }
 
     var fieldIdsAndNames: [AttributeId: String] {
-        return privateXMLHandler.fieldIdsAndNames
+        //TODO cache?
+        if let baseXMLHandler = baseXMLHandler {
+            let overrides = privateXMLHandler.fieldIdsAndNames
+            let base = baseXMLHandler.fieldIdsAndNames
+            return base.merging(overrides) { _, new in new }
+        } else {
+            return privateXMLHandler.fieldIdsAndNames
+        }
     }
 
-    init(contract: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) {
+    convenience init(token: TokenObject, assetDefinitionStore: AssetDefinitionStore) {
+        self.init(contract: token.contractAddress, tokenType: token.type, assetDefinitionStore: assetDefinitionStore)
+    }
+
+    convenience init(contract: AlphaWallet.Address, tokenType: TokenType, assetDefinitionStore: AssetDefinitionStore) {
+        self.init(contract: contract, optionalTokenType: tokenType, assetDefinitionStore: assetDefinitionStore)
+    }
+
+    //private because we don't want client code creating XMLHandler(s) to be able to accidentally pass in a nil TokenType
+    private init(contract: AlphaWallet.Address, optionalTokenType tokenType: TokenType?, assetDefinitionStore: AssetDefinitionStore) {
         if let handler = XMLHandler.xmlHandlers[contract] {
             privateXMLHandler = handler
         } else {
             privateXMLHandler = PrivateXMLHandler(contract: contract, assetDefinitionStore: assetDefinitionStore)
             XMLHandler.xmlHandlers[contract] = privateXMLHandler
         }
+
+        if Features.isActivityEnabled, let tokenType = tokenType {
+            let tokenTypeForBaseXml: TokenType
+            if privateXMLHandler.hasValidTokenScriptFile, let tokenTypeInXml = privateXMLHandler.tokenType.flatMap({ TokenType(tokenInterfaceType: $0) }) {
+                tokenTypeForBaseXml = tokenTypeInXml
+            } else {
+                tokenTypeForBaseXml = tokenType
+            }
+
+            //Key cannot be just `contract`, because the type can change (from the overriding TokenScript file)
+            let key = "\(contract.eip55String)-\(tokenTypeForBaseXml.rawValue)"
+            if let handler = XMLHandler.baseXmlHandlers[key] {
+                baseXMLHandler = handler
+            } else {
+                if let xml = TokenScript.baseTokenScriptFiles[tokenTypeForBaseXml] {
+                    baseXMLHandler = PrivateXMLHandler(contract: contract, baseXml: xml, assetDefinitionStore: assetDefinitionStore)
+                    XMLHandler.baseXmlHandlers[key] = baseXMLHandler
+                } else {
+                    baseXMLHandler = nil
+                }
+            }
+        } else {
+            baseXMLHandler = nil
+        }
     }
 
-    static func getNonTokenHoldingContract(byName name: String, server: RPCServer, fromContractNamesAndAddresses contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]]) -> AlphaWallet.Address? {
+    static func tokenScriptStatus(forContract contract: AlphaWallet.Address, assetDefinitionStore: AssetDefinitionStore) -> Promise<TokenLevelTokenScriptDisplayStatus> {
+        XMLHandler(contract: contract, optionalTokenType: nil, assetDefinitionStore: assetDefinitionStore).tokenScriptStatus
+    }
+
+    static func getNonTokenHoldingContract(byName name: String, server: RPCServerOrAny, fromContractNamesAndAddresses contractNamesAndAddresses: [String: [(AlphaWallet.Address, RPCServer)]]) -> AlphaWallet.Address? {
         guard let addressesAndServers = contractNamesAndAddresses[name] else { return nil }
-        guard let (contract, _) = addressesAndServers.first(where: { $0.1 == server }) else { return nil }
-        return contract
+        switch server {
+        case .any:
+            //TODO returning the first seems arbitary, but I don't think TokenScript design has explored this area yet
+            guard let (contract, _) = addressesAndServers.first else { return nil }
+            return contract
+        case .server(let server):
+            guard let (contract, _) = addressesAndServers.first(where: { $0.1 == server }) else { return nil }
+            return contract
+        }
     }
 
     //Returns nil if the XML schema is not supported
@@ -667,15 +850,40 @@ public class XMLHandler {
     func getToken(name: String, symbol: String, fromTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, index: UInt16, inWallet account: Wallet, server: RPCServer, tokenType: TokenType) -> Token {
         //TODO get rid of the forced unwrap
         let callForAssetAttributeCoordinator = (XMLHandler.callForAssetAttributeCoordinators?[server])!
-        return privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, tokenType: tokenType)
+        let overrides = privateXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, tokenType: tokenType)
+        if let baseXMLHandler = baseXMLHandler {
+            let base = baseXMLHandler.getToken(name: name, symbol: symbol, fromTokenIdOrEvent: tokenIdOrEvent, index: index, inWallet: account, server: server, callForAssetAttributeCoordinator: callForAssetAttributeCoordinator, tokenType: tokenType)
+            let baseValues = base.values
+            let overriddenValues = overrides.values
+            return Token(
+                    tokenIdOrEvent: overrides.tokenIdOrEvent,
+                    tokenType: overrides.tokenType,
+                    index: overrides.index,
+                    name: overrides.name,
+                    symbol: overrides.symbol,
+                    status: overrides.status,
+                    //TODO cache?
+                    values: baseValues.merging(overriddenValues) { _, new in new }
+            )
+        } else {
+            return overrides
+        }
     }
 
     func getLabel(fallback: String = R.string.localizable.tokenTitlecase()) -> String {
-        return privateXMLHandler.labelInSingularForm ?? fallback
+        if let baseXMLHandler = baseXMLHandler {
+            return privateXMLHandler.labelInSingularForm ?? baseXMLHandler.labelInSingularForm ?? fallback
+        } else {
+            return privateXMLHandler.labelInSingularForm ?? fallback
+        }
     }
 
     func getNameInPluralForm(fallback: String = R.string.localizable.tokensTitlecase()) -> String {
-        return privateXMLHandler.labelInPluralForm ?? fallback
+        if let baseXMLHandler = baseXMLHandler {
+            return privateXMLHandler.labelInPluralForm ?? baseXMLHandler.labelInPluralForm ?? fallback
+        } else {
+            return privateXMLHandler.labelInPluralForm ?? fallback
+        }
     }
 
     static func checkTokenScriptSchema(forPath path: URL) -> TokenScriptSchema {
@@ -732,6 +940,13 @@ public class XMLHandler {
     }
 
     func resolveAttributesBypassingCache(withTokenIdOrEvent tokenIdOrEvent: TokenIdOrEvent, server: RPCServer, account: Wallet) -> [AttributeId: AssetAttributeSyntaxValue] {
-        privateXMLHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
+        let overrides = privateXMLHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
+        if let baseXMLHandler = baseXMLHandler {
+            //TODO This is inefficient because overridden attributes get resolved too
+            let base = baseXMLHandler.resolveAttributesBypassingCache(withTokenIdOrEvent: tokenIdOrEvent, server: server, account: account)
+            return base.merging(overrides) { _, new in new }
+        } else {
+            return overrides
+        }
     }
 }

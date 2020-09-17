@@ -17,7 +17,7 @@ struct TokensCardViewModel {
     let tokenHolders: [TokenHolder]
 
     var actions: [TokenInstanceAction] {
-        let xmlHandler = XMLHandler(contract: token.contractAddress, assetDefinitionStore: assetDefinitionStore)
+        let xmlHandler = XMLHandler(token: token, assetDefinitionStore: assetDefinitionStore)
         let actionsFromTokenScript = xmlHandler.actions
         if actionsFromTokenScript.isEmpty {
             switch token.type {
