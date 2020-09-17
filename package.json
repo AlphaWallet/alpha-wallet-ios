@@ -3,10 +3,10 @@
     "danger": "^9.1.5"
   },
   "dependencies": {
-    "kind-of": "6.0.3",
-    "lodash": "^4.17.19",
-    "mem": "^4.0.0",
-    "minimist": "1.2.3",
     "npm": "^6.14.6"
+  },
+  "resolutions": {
+    "mem": "^4.0.0",
+    "yargs-parser": "^13.1.2"
   }
 }
