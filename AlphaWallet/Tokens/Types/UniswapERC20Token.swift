@@ -14,7 +14,7 @@ struct UniswapERC20Token {
 }
 
 extension UniswapERC20Token {
-    
+
     static func isSupport(token: TokenObject) -> Bool {
         switch token.server {
         case .main:
@@ -89,6 +89,7 @@ extension UniswapERC20Token {
         .init(name: "STORJ", contract: AlphaWallet.Address(string: "0xB64ef51C888972c908CFacf59B47C1AfBC0Ab8aC")!, decimal: 8),
         .init(name: "sUSD", contract: AlphaWallet.Address(string: "0x57Ab1ec28D129707052df4dF418D58a2D46d5f51")!, decimal: 18),
         .init(name: "sXAU", contract: AlphaWallet.Address(string: "0x261EfCdD24CeA98652B9700800a13DfBca4103fF")!, decimal: 18),
+        .init(name: "UNI", contract: AlphaWallet.Address(string: "0x1f9840a85d5af5bf1d1762f925bdaddc4201f984")!, decimal: 18),
         .init(name: "USDC", contract: AlphaWallet.Address(string: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48")!, decimal: 6),
         .init(name: "USDS", contract: AlphaWallet.Address(string: "0x098fEEd90F28493e02f6e745a2767120E7B79A1B")!, decimal: 8),
         .init(name: "USDT", contract: AlphaWallet.Address(string: "0xdAC17F958D2ee523a2206206994597C13D831ec7")!, decimal: 6),
@@ -99,5 +100,6 @@ extension UniswapERC20Token {
         .init(name: "XCHF", contract: AlphaWallet.Address(string: "0xB4272071eCAdd69d933AdcD19cA99fe80664fc08")!, decimal: 18),
         .init(name: "XIO", contract: AlphaWallet.Address(string: "0xa45Eaf6d2Ce4d1a67381d5588B865457023c23A0")!, decimal: 18),
         .init(name: "ZRX", contract: AlphaWallet.Address(string: "0xE41d2489571d322189246DaFA5ebDe1F4699F498")!, decimal: 18),
+
     ]
 }
