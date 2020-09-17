@@ -60,7 +60,7 @@ public struct Constants {
     // FIFA hardcoded FIFA token address
     static let ticketContractAddress = AlphaWallet.Address(string: "0xA66A3F08068174e8F005112A8b2c7A507a822335")!
     static let ticketContractAddressRopsten = AlphaWallet.Address(string: "0xD8e5F58DE3933E1E35f9c65eb72cb188674624F3")!
-    
+
     // UEFA hardcoded addresses
     static let uefaMainnet = AlphaWallet.Address(string: "0x89D142Bef8605646881C68dcD48cDAF17FE597dC")!
     static let uefaRpcServer = RPCServer.main
@@ -151,7 +151,12 @@ public struct Constants {
         (name: "PAX", contract: AlphaWallet.Address(string: "0x8e870d67f660d95d5be530380d0ec0bd388289e1")!),
         (name: "TUSD", contract: AlphaWallet.Address(string: "0x8dd5fbce2f6a956c3022ba3663759011dd51e73e")!),
         (name: "USDC", contract: AlphaWallet.Address(string: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")!),
-        (name: "USDO", contract: AlphaWallet.Address(string: "0x98f2ab72198f2e64527bdb28931f60c0f77ac2fc")!)
+        (name: "USDO", contract: AlphaWallet.Address(string: "0x98f2ab72198f2e64527bdb28931f60c0f77ac2fc")!),
+        (name: "SHANKAI", contract: Self.ticketContractAddress),
+    ]
+
+    static let rinkebyPartnerContracts = [
+        (name: "HKS", contract: AlphaWallet.Address(string: "0x75cB2Cc380d1387a79eE64b1b7C9Fa051139a319")!),
     ]
 
     static let defaultEnabledServers: [RPCServer] = [.main, .xDai]
