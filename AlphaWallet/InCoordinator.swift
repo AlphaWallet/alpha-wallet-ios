@@ -386,7 +386,7 @@ class InCoordinator: NSObject, Coordinator {
                 filterTokensCoordinator: filterTokensCoordinator,
                 analyticsCoordinator: analyticsCoordinator
         )
-        
+
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
         coordinator.delegate = self
         coordinator.start()
@@ -927,5 +927,9 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
         showTab(.wallet)
         guard let tokensCoordinator = tokensCoordinator else { return }
         tokensCoordinator.didSelect(token: tokenObject, in: tokensCoordinator.rootViewController)
+    }
+
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, fromCoordinator coordinator: ActivitiesCoordinator, inViewController viewController: UIViewController) {
+        didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
 }
