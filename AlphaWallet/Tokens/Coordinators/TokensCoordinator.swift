@@ -146,6 +146,18 @@ class TokensCoordinator: Coordinator {
     func listOfBadTokenScriptFilesChanged(fileNames: [TokenScriptFileIndices.FileName]) {
         tokensViewController.listOfBadTokenScriptFiles = fileNames
     }
+
+    func launchUniversalScanner() {
+        let session = sessions[config.server]
+        let scanQRCodeCoordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
+        let tokensDatastores = tokenCollection.tokenDataStores
+
+        let coordinator = QRCodeResolutionCoordinator(coordinator: scanQRCodeCoordinator, tokensDatastores: tokensDatastores, assetDefinitionStore: assetDefinitionStore)
+        coordinator.delegate = self
+
+        addCoordinator(coordinator)
+        coordinator.start()
+    }
 }
 
 extension TokensCoordinator: TokensViewControllerDelegate {
@@ -191,15 +203,7 @@ extension TokensCoordinator: TokensViewControllerDelegate {
     }
 
     func scanQRCodeSelected(in viewController: UIViewController) {
-        let session = sessions[config.server]
-        let scanQRCodeCoordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: session.account, server: session.server)
-        let tokensDatastores = tokenCollection.tokenDataStores
-
-        let coordinator = QRCodeResolutionCoordinator(coordinator: scanQRCodeCoordinator, tokensDatastores: tokensDatastores, assetDefinitionStore: assetDefinitionStore)
-        coordinator.delegate = self
-
-        addCoordinator(coordinator)
-        coordinator.start()
+        launchUniversalScanner()
     }
 }
 

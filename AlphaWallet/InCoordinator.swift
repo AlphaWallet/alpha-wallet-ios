@@ -131,6 +131,10 @@ class InCoordinator: NSObject, Coordinator {
         setupWatchingTokenScriptFileChangesToFetchEvents()
     }
 
+    func launchUniversalScanner() {
+        tokensCoordinator?.launchUniversalScanner()
+    }
+
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {
         //TODO this is firing twice for each contract. We can be more efficient
         assetDefinitionStore.subscribe { [weak self] contract in
@@ -386,7 +390,7 @@ class InCoordinator: NSObject, Coordinator {
                 filterTokensCoordinator: filterTokensCoordinator,
                 analyticsCoordinator: analyticsCoordinator
         )
-        
+
         coordinator.rootViewController.tabBarItem = UITabBarItem(title: R.string.localizable.walletTokensTabbarItemTitle(), image: R.image.tab_wallet(), selectedImage: nil)
         coordinator.delegate = self
         coordinator.start()
