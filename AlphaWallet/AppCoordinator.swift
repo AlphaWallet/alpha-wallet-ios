@@ -252,6 +252,10 @@ class AppCoordinator: NSObject, Coordinator {
         universalLinkPasteboardCoordinator.start()
     }
 
+    func launchUniversalScanner() {
+        inCoordinator?.launchUniversalScanner()
+    }
+
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, in viewController: UIViewController) {
         inCoordinator?.didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
