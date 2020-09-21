@@ -64,6 +64,51 @@ struct Config {
         return id
     }
 
+    private static func generateLastFetchedErc20InteractionBlockNumberKey(_ wallet: AlphaWallet.Address) -> String {
+        "\(Keys.lastFetchedAutoDetectedTransactedTokenErc20BlockNumber)-\(wallet.eip55String)"
+    }
+
+    private static func generateLastFetchedAutoDetectedTransactedTokenErc20BlockNumberKey(_ wallet: AlphaWallet.Address) -> String {
+        "\(Keys.lastFetchedAutoDetectedTransactedTokenErc20BlockNumber)-\(wallet.eip55String)"
+    }
+
+    private static func generateLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumberKey(_ wallet: AlphaWallet.Address) -> String {
+        "\(Keys.lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber)-\(wallet.eip55String)"
+    }
+
+    static func setLastFetchedErc20InteractionBlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) {
+        var dictionary: [String: NSNumber] = (defaults.value(forKey: generateLastFetchedErc20InteractionBlockNumberKey(wallet)) as? [String: NSNumber]) ?? .init()
+        dictionary["\(server.chainID)"] = NSNumber(value: blockNumber)
+        defaults.set(dictionary, forKey: generateLastFetchedErc20InteractionBlockNumberKey(wallet))
+    }
+
+    static func getLastFetchedErc20InteractionBlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) -> Int? {
+        guard let dictionary = defaults.value(forKey: generateLastFetchedErc20InteractionBlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
+        return dictionary["\(server.chainID)"]?.intValue
+    }
+
+    static func setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) {
+        var dictionary: [String: NSNumber] = (defaults.value(forKey: generateLastFetchedAutoDetectedTransactedTokenErc20BlockNumberKey(wallet)) as? [String: NSNumber]) ?? .init()
+        dictionary["\(server.chainID)"] = NSNumber(value: blockNumber)
+        defaults.set(dictionary, forKey: generateLastFetchedAutoDetectedTransactedTokenErc20BlockNumberKey(wallet))
+    }
+
+    static func getLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) -> Int? {
+        guard let dictionary = defaults.value(forKey: generateLastFetchedAutoDetectedTransactedTokenErc20BlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
+        return dictionary["\(server.chainID)"]?.intValue
+    }
+
+    static func setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(_ blockNumber: Int, server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) {
+        var dictionary: [String: NSNumber] = (defaults.value(forKey: generateLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumberKey(wallet)) as? [String: NSNumber]) ?? .init()
+        dictionary["\(server.chainID)"] = NSNumber(value: blockNumber)
+        defaults.set(dictionary, forKey: generateLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumberKey(wallet))
+    }
+
+    static func getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(_ server: RPCServer, wallet: AlphaWallet.Address, defaults: UserDefaults = UserDefaults.standard) -> Int? {
+        guard let dictionary = defaults.value(forKey: generateLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumberKey(wallet)) as? [String: NSNumber] else { return nil }
+        return dictionary["\(server.chainID)"]?.intValue
+    }
+
     struct Keys {
         static let chainID = "chainID"
         static let isCryptoPrimaryCurrency = "isCryptoPrimaryCurrency"
@@ -73,6 +118,9 @@ struct Config {
         static let walletAddressesAlreadyPromptedForBackUp = "walletAddressesAlreadyPromptedForBackUp "
         static let locale = "locale"
         static let enabledServers = "enabledChains"
+        static let lastFetchedErc20InteractionBlockNumber = "lastFetchedErc20InteractionBlockNumber"
+        static let lastFetchedAutoDetectedTransactedTokenErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc20BlockNumber"
+        static let lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber"
     }
 
     let defaults: UserDefaults
