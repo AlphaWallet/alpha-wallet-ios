@@ -36,6 +36,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         return true
     }
 
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> ()) {
+        if shortcutItem.type == "com.stormbird.alphawallet.qrScanner" {
+            appCoordinator.launchUniversalScanner()
+        }
+        completionHandler(true)
+    }
+
     private func cognitoRegistration() {
         // Override point for customization after application launch.
         /// Setup AWS Cognito credentials
