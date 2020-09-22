@@ -97,11 +97,24 @@ class SingleChainTokenCoordinator: Coordinator {
 
     private func autoDetectTransactedTokensImpl(wallet: AlphaWallet.Address, erc20: Bool) -> Promise<Void> {
         return Promise<Void> { seal in
-            GetContractInteractions().getContractList(address: wallet, server: session.server, erc20: erc20) { [weak self] contracts in
+            let startBlock: Int?
+            if erc20 {
+                startBlock = Config.getLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
+            } else {
+                startBlock = Config.getLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
+            }
+            GetContractInteractions().getContractList(address: wallet, server: session.server, startBlock: startBlock, erc20: erc20) { [weak self] contracts, maxBlockNumber in
+                guard let strongSelf = self else { return }
                 defer {
                     seal.fulfill(())
                 }
-                guard let strongSelf = self else { return }
+                if let maxBlockNumber = maxBlockNumber {
+                    if erc20 {
+                        Config.setLastFetchedAutoDetectedTransactedTokenErc20BlockNumber(maxBlockNumber, server: strongSelf.session.server, wallet: wallet)
+                    } else {
+                        Config.setLastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber(maxBlockNumber, server: strongSelf.session.server, wallet: wallet)
+                    }
+                }
                 guard let currentAddress = strongSelf.keystore.recentlyUsedWallet?.address, currentAddress.sameContract(as: wallet) else { return }
                 let detectedContracts = contracts
                 let alreadyAddedContracts = strongSelf.storage.enabledObject.map { $0.contractAddress }
