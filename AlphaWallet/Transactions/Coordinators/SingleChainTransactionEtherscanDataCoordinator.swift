@@ -77,10 +77,16 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
 
     //TODO should this be added to the queue?
     private func autoDetectERC20Transactions() {
+        let wallet = session.account.address
+        let startBlock = Config.getLastFetchedErc20InteractionBlockNumber(session.server, wallet: wallet).flatMap { $0 + 1 }
         GetContractInteractions().getErc20Interactions(
-                address: session.account.address,
-                server: session.server
+                address: wallet,
+                server: session.server,
+                startBlock: startBlock
         ) { result in
+            if let maxBlockNumber = result.map { $0.blockNumber }.max() {
+                Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: self.session.server, wallet: wallet)
+            }
             self.update(items: result)
         }
     }

@@ -134,12 +134,24 @@ enum RPCServer: Hashable, CaseIterable {
         }
     }
 
-    func etherscanAPIURLForTransactionList(for address: AlphaWallet.Address) -> URL? {
-        return getEtherscanURL.flatMap { URL(string: "\($0)\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)") }
+    func etherscanAPIURLForTransactionList(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
+         getEtherscanURL.flatMap {
+             var url = "\($0)\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)"
+             if let startBlock = startBlock {
+                 url = "\(url)&startBlock=\(startBlock)"
+             }
+             return URL(string: url)
+         }
     }
 
-    func etherscanAPIURLForERC20TxList(for address: AlphaWallet.Address) -> URL? {
-        return getEtherscanURLERC20Events.flatMap { URL(string: "\($0)\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)") }
+    func etherscanAPIURLForERC20TxList(for address: AlphaWallet.Address, startBlock: Int?) -> URL? {
+        getEtherscanURLERC20Events.flatMap {
+            var url = "\($0)\(address.eip55String)&apikey=\(Constants.Credentials.etherscanKey)"
+            if let startBlock = startBlock {
+                url = "\(url)&startBlock=\(startBlock)"
+            }
+            return URL(string: url)
+        }
     }
 
     func etherscanContractDetailsWebPageURL(for address: AlphaWallet.Address) -> URL {
