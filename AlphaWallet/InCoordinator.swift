@@ -932,4 +932,8 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
         guard let tokensCoordinator = tokensCoordinator else { return }
         tokensCoordinator.didSelect(token: tokenObject, in: tokensCoordinator.rootViewController)
     }
+
+    func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, fromCoordinator coordinator: ActivitiesCoordinator, inViewController viewController: UIViewController) {
+        didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
+    }
 }

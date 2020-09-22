@@ -5,6 +5,7 @@ import UIKit
 protocol ActivityViewControllerDelegate: class {
     func reinject(viewController: ActivityViewController)
     func goToToken(viewController: ActivityViewController)
+    func didPressViewContractWebPage(_ contract: AlphaWallet.Address, server: RPCServer, viewController: ActivityViewController)
 }
 
 class ActivityViewController: UIViewController {
@@ -52,6 +53,8 @@ class ActivityViewController: UIViewController {
         view.addSubview(roundedBackground)
 
         tokenImageView.contentMode = .scaleAspectFit
+        let tap = UITapGestureRecognizer(target: self, action: #selector(showContractWebPage))
+        tokenImageView.addGestureRecognizer(tap)
 
         stateImageView.translatesAutoresizingMaskIntoConstraints = false
         stateImageView.contentMode = .scaleAspectFit
@@ -180,6 +183,10 @@ class ActivityViewController: UIViewController {
 
     @objc private func goToToken() {
         delegate?.goToToken(viewController: self)
+    }
+
+    @objc private func showContractWebPage() {
+        delegate?.didPressViewContractWebPage(viewModel.activity.tokenObject.contractAddress, server: viewModel.activity.tokenObject.server, viewController: self)
     }
 }
 
