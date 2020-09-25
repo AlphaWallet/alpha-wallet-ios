@@ -35,7 +35,8 @@ class AssetDefinitionStore {
         return df
     }()
     private var lastContractInPasteboard: String?
-    private var subscribers: [(AlphaWallet.Address) -> Void] = []
+    private var tokenScriptBodyChangedSubscribers: [(AlphaWallet.Address) -> Void] = []
+    private var tokenScriptSignatureChangedSubscribers: [(AlphaWallet.Address) -> Void] = []
     private var backingStore: AssetDefinitionBackingStore
 
     lazy var assetAttributesCache: AssetAttributesCache = AssetAttributesCache(assetDefinitionStore: self)
@@ -128,8 +129,12 @@ class AssetDefinitionStore {
         return backingStore.isCanonicalized(contract: contract)
     }
 
-    func subscribe(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {
-        subscribers.append(subscribe)
+    func subscribeToBodyChanges(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {
+        tokenScriptBodyChangedSubscribers.append(subscribe)
+    }
+
+    func subscribeToSignatureChanges(_ subscribe: @escaping (_ contract: AlphaWallet.Address) -> Void) {
+        tokenScriptSignatureChangedSubscribers.append(subscribe)
     }
 
     /// useCacheAndFetch: when true, the completionHandler will be called immediately and a second time if an updated XML is fetched. When false, the completionHandler will only be called up fetching an updated XML
@@ -165,7 +170,8 @@ class AssetDefinitionStore {
                         strongSelf.cacheXml(xml, forContract: contract)
                         XMLHandler.invalidate(forContract: contract)
                         completionHandler?(.updated)
-                        strongSelf.triggerSubscribers(forContract: contract)
+                        strongSelf.triggerBodyChangedSubscribers(forContract: contract)
+                        strongSelf.triggerSignatureChangedSubscribers(forContract: contract)
                     }
                 } else {
                     completionHandler?(.error)
@@ -179,8 +185,12 @@ class AssetDefinitionStore {
         return !xml.trimmed.hasSuffix(">")
     }
 
-    private func triggerSubscribers(forContract contract: AlphaWallet.Address) {
-        subscribers.forEach { $0(contract) }
+    private func triggerBodyChangedSubscribers(forContract contract: AlphaWallet.Address) {
+        tokenScriptBodyChangedSubscribers.forEach { $0(contract) }
+    }
+
+    private func triggerSignatureChangedSubscribers(forContract contract: AlphaWallet.Address) {
+        tokenScriptSignatureChangedSubscribers.forEach { $0(contract) }
     }
 
     @objc private func fetchXMLForContractInPasteboard() {
@@ -220,7 +230,7 @@ class AssetDefinitionStore {
     }
 
     func invalidateSignatureStatus(forContract contract: AlphaWallet.Address) {
-        triggerSubscribers(forContract: contract)
+        triggerSignatureChangedSubscribers(forContract: contract)
     }
 
     func getCacheTokenScriptSignatureVerificationType(forXmlString xmlString: String) -> TokenScriptSignatureVerificationType? {
@@ -240,7 +250,8 @@ class AssetDefinitionStore {
 extension AssetDefinitionStore: AssetDefinitionBackingStoreDelegate {
     func invalidateAssetDefinition(forContract contract: AlphaWallet.Address) {
         XMLHandler.invalidate(forContract: contract)
-        triggerSubscribers(forContract: contract)
+        triggerBodyChangedSubscribers(forContract: contract)
+        triggerSignatureChangedSubscribers(forContract: contract)
         fetchXML(forContract: contract)
     }
 

@@ -81,7 +81,11 @@ class TokensCardCoordinator: NSObject, Coordinator {
     }
 
     private func refreshUponAssetDefinitionChanges() {
-        assetDefinitionStore.subscribe { [weak self] contract in
+        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
+            guard let strongSelf = self else { return }
+            strongSelf.refreshScreen(forContract: contract)
+        }
+        assetDefinitionStore.subscribeToSignatureChanges { [weak self] contract in
             guard let strongSelf = self else { return }
             strongSelf.refreshScreen(forContract: contract)
         }
