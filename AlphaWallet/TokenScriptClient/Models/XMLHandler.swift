@@ -331,7 +331,9 @@ private class PrivateXMLHandler {
                 } else {
                     self.server = PrivateXMLHandler.extractServer(fromXML: xml, xmlContext: self.xmlContext, matchingContract: contract).flatMap { .server($0) }
                 }
-                self.assetDefinitionStore?.invalidateSignatureStatus(forContract: self.contractAddress)
+                if !isBase {
+                    self.assetDefinitionStore?.invalidateSignatureStatus(forContract: self.contractAddress)
+                }
             }.cauterize()
         }
     }
