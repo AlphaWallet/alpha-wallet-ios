@@ -148,7 +148,10 @@ import Eureka
     }
 
     private func maxTopInset() -> CGFloat {
-        return max(0, floor(bounds.size.height - (font?.lineHeight ?? 0) - 4.0))
+        //Split out computation to speed up build time. 300ms -> <50ms, as of Xcode 11.7
+        let value: CGFloat = bounds.size.height - (font?.lineHeight ?? 0) - 4.0
+        return max(0, floor(value))
+
     }
 
     private func setTitlePositionForTextAlignment() {
