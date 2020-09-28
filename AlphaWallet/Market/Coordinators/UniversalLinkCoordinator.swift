@@ -100,8 +100,9 @@ class UniversalLinkCoordinator: Coordinator {
             "expiry": signedOrder.order.expiry.description,
             "nonce": signedOrder.order.nonce,
             "v": signature.substring(from: 128),
-            "r": "0x" + signature.substring(with: Range(uncheckedBounds: (0, 64))),
-            "s": "0x" + signature.substring(with: Range(uncheckedBounds: (64, 128))),
+            //Use string interpolation instead of concatentation to speed up build time. 160ms -> <100ms, as of Xcode 11.7
+            "r": "0x\(signature.substring(with: Range(uncheckedBounds: (0, 64))))",
+            "s": "0x\(signature.substring(with: Range(uncheckedBounds: (64, 128))))",
             "networkId": server.chainID.description,
             "contractAddress": signedOrder.order.contractAddress
         ]
