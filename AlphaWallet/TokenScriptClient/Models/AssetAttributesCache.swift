@@ -21,7 +21,7 @@ class AssetAttributesCache {
     }
 
     private func setUpClearCacheWhenTokenScriptChanges() {
-        assetDefinitionStore?.subscribe { [weak self] contract in
+        assetDefinitionStore?.subscribeToBodyChanges { [weak self] contract in
             guard let strongSelf = self else { return }
             strongSelf.resolvedAttributesData.remove(contract: contract)
             strongSelf.functionOriginAttributes.removeValue(forKey: contract)
