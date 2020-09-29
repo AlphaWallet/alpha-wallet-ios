@@ -158,9 +158,10 @@ class ActivitiesCoordinator: Coordinator {
     }
 
     private func fetchAndRefreshActivities(contractsAndCards: [(tokenContract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String)]) {
+        let recentEvents = eventsActivityDataStore.getRecentEvents()
         var activitiesAndTokens: [(Activity, TokenObject, TokenHolder)] = .init()
         for (eachContract, eachServer, card, interpolatedFilter) in contractsAndCards {
-            let activities = getActivities(forTokenContract: eachContract, server: eachServer, card: card, interpolatedFilter: interpolatedFilter)
+            let activities = getActivities(recentEvents, forTokenContract: eachContract, server: eachServer, card: card, interpolatedFilter: interpolatedFilter)
             activitiesAndTokens.append(contentsOf: activities)
         }
 
@@ -173,8 +174,13 @@ class ActivitiesCoordinator: Coordinator {
         }
     }
 
-    private func getActivities(forTokenContract contract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String) -> [(Activity, TokenObject, TokenHolder)] {
-        let events = eventsActivityDataStore.getEvents(forContract: card.eventOrigin.contract, forEventName: card.eventOrigin.eventName, filter: interpolatedFilter, server: server)
+    private func getActivities(_ allActivities: [EventActivity], forTokenContract contract: AlphaWallet.Address, server: RPCServer, card: TokenScriptCard, interpolatedFilter: String) -> [(Activity, TokenObject, TokenHolder)] {
+        let events = allActivities.filter { $0.contract == card.eventOrigin.contract.eip55String
+                && $0.server == server
+                && $0.eventName == card.eventOrigin.eventName
+                && $0.filter == interpolatedFilter
+        }
+
         //Cache tokens lookup for performance
         var tokensCache: [AlphaWallet.Address: TokenObject] = .init()
         let activitiesForThisCard: [(activity: Activity, tokenObject: TokenObject, tokenHolder: TokenHolder)] = events.compactMap { eachEvent in
@@ -248,6 +254,12 @@ class ActivitiesCoordinator: Coordinator {
 
     private func reloadViewControllerImpl() {
         let transactionAlreadyRepresentedAsActivities = Set(activities.map { $0.transactionId })
+        let transactions: [Transaction]
+        if activities.count == EventsActivityDataStore.numberOfActivitiesToUse, let blockNumberOfOldestActivity = activities.last?.blockNumber {
+            transactions = self.transactions.filter { $0.blockNumber >= blockNumberOfOldestActivity }
+        } else {
+            transactions = self.transactions
+        }
         let items: [ActivityOrTransaction] = activities.map { .activity($0) } + transactions.filter { txn in !transactionAlreadyRepresentedAsActivities.contains(txn.id) }.map { .transaction($0) }
         rootViewController.configure(viewModel: .init(activities: items))
     }
