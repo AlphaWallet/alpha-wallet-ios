@@ -17,11 +17,12 @@ struct EstimateGasRequest: JSONRPCKit.Request {
     }
 
     var parameters: Any? {
-        let results = [
+        //Explicit type declaration to speed up build time. 160msec -> <100ms, as of Xcode 11.7
+        let results: [[String: String]] = [
             [
                 "from": from.description,
                 "to": to?.description ?? "",
-                "value": "0x" + String(value, radix: 16) ?? "0x0",
+                "value": "0x" + String(value, radix: 16),
                 "data": data.hexEncoded,
             ],
         ]

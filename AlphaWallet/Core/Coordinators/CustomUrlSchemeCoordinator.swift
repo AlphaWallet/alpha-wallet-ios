@@ -2,6 +2,7 @@
 
 import Foundation
 import BigInt
+import PromiseKit
 
 protocol CustomUrlSchemeCoordinatorDelegate: class {
     func openSendPaymentFlow(_ paymentFlow: PaymentFlow, server: RPCServer, inCoordinator coordinator: CustomUrlSchemeCoordinator)
@@ -28,7 +29,9 @@ class CustomUrlSchemeCoordinator: Coordinator {
         case .address:
             break
         case .eip681(let protocolName, let address, let functionName, let params):
-            Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse().done { result in
+            firstly {
+                Eip681Parser(protocolName: protocolName, address: address, functionName: functionName, params: params).parse()
+            }.done { result in
                 guard let (contract: contract, optionalServer, recipient, amount) = result.parameters else { return }
                 let server = optionalServer ?? .main
                 let tokensDatastore = self.tokensDatastores[server]
@@ -44,7 +47,8 @@ class CustomUrlSchemeCoordinator: Coordinator {
                             break
                         case .fungibleTokenComplete(let name, let symbol, let decimals):
                             //TODO update fetching to retrieve balance too so we can display the correct balance in the view controller
-                            let token = ERCToken(
+                            //Explicit type declaration to speed up build time. 130msec -> 50ms, as of Xcode 11.7
+                            let token: ERCToken = ERCToken(
                                     contract: contract,
                                     server: server,
                                     name: name,
