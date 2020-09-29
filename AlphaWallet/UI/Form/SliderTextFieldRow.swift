@@ -82,7 +82,7 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
             contentView.addSubview(slider)
             addConstraints()
         }
-        
+
         textField.leftView = .spacerWidth(16)
         textField.leftViewMode = .always
         textField.rightView = .spacerWidth(16)
@@ -94,7 +94,7 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
         textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
         textField.layer.borderColor = UIColor.clear.cgColor
         textField.cornerRadius = DataEntry.Metric.cornerRadius
-        
+
         selectionStyle = .none
         slider.minimumValue = sliderRow.minimumValue
         slider.maximumValue = sliderRow.maximumValue
@@ -117,7 +117,7 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
 
         textField.heightAnchor.constraint(equalToConstant: 30).isActive = true
         textField.widthAnchor.constraint(equalToConstant: 140).isActive = true
-        
+
         let views: [String: Any] = ["titleLabel": titleLabel, "textField": textField, "slider": slider]
         let metrics = ["vPadding": 12, "spacing": 12.0]
         if shouldShowTitle {
@@ -134,7 +134,11 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
         let roundedValue: Float
         let steps = Float(sliderRow.steps)
         if steps > 0 {
-            let stepValue = round((slider.value - slider.minimumValue) / (slider.maximumValue - slider.minimumValue) * steps)
+            //Split out computation for numerator and denominator to speed up build time. 2.9s -> <100ms, as of Xcode 11.7
+            let stepValueNumerator = (slider.value - slider.minimumValue)
+            let stepValueDenominator = (slider.maximumValue - slider.minimumValue) * steps
+            let stepValue = round(stepValueNumerator / stepValueDenominator)
+
             let stepAmount = (slider.maximumValue - slider.minimumValue) / steps
             roundedValue = stepValue * stepAmount + slider.minimumValue
         } else {
@@ -168,18 +172,18 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
         row.value = value
         slider.value = value
     }
-    
+
     open func textFieldDidEndEditing(_ textField: UITextField) {
         textField.layer.borderColor = UIColor.clear.cgColor
         textField.backgroundColor = DataEntry.Color.searchTextFieldBackground
-        
+
         textField.dropShadow(color: .clear, radius: DataEntry.Metric.shadowRadius)
     }
-    
+
     open func textFieldDidBeginEditing(_ textField: UITextField) {
         textField.backgroundColor = Colors.appWhite
         textField.layer.borderColor = DataEntry.Color.textFieldShadowWhileEditing.cgColor
-        
+
         textField.dropShadow(color: DataEntry.Color.textFieldShadowWhileEditing, radius: DataEntry.Metric.shadowRadius)
     }
 
