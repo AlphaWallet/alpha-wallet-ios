@@ -48,8 +48,8 @@
 
 class Token {
 
-    constructor(tokenInstance) {
-        this.props = tokenInstance;
+    constructor(data) {
+        this.props = data;
         this.setConfirm();
     }
 
@@ -64,7 +64,7 @@ class Token {
         return`
         &lt;div class="ui container"&gt;
           &lt;div class="ui segment"&gt;
-            &lt;span&gt;&lt;bold&gt;&lt;h3&gt;Sent ${this.props.symbol} ${this.props.amount}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
+            &lt;span&gt;&lt;bold&gt;&lt;h3&gt;Sent ${this.props.token.symbol} ${this.props.card.amount}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
           &lt;/div&gt;
         &lt;/div&gt;
 `;
@@ -72,7 +72,7 @@ class Token {
 }
 
 web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
-    const currentTokenInstance = web3.tokens.data.currentInstance;
+    const currentTokenInstance = web3.tokens.data;
     document.getElementById(tokenIdCard).innerHTML = new Token(currentTokenInstance).render();
 };
 
@@ -83,17 +83,17 @@ web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
                 <style type="text/css">&style;</style>
 				<script  type="text/javascript">
 class Token {
-    constructor(tokenInstance) {
-        this.props = tokenInstance;
+    constructor(data) {
+        this.props = data;
     }
 
     render() {
-        let message = `Sent ${this.props.symbol}`;
+        let message = `Sent ${this.props.token.symbol}`;
         return`
         &lt;div class="ui container"&gt;
           &lt;div class="ui segment"&gt;
             &lt;span&gt;&lt;bold&gt;&lt;h3&gt;${message}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
-            &lt;p&gt;Sent -${this.props.amount} ${this.props.symbol}&lt;/p&gt;
+            &lt;p&gt;Sent -${this.props.card.amount} ${this.props.token.symbol}&lt;/p&gt;
           &lt;/div&gt;
         &lt;/div&gt;
 `;
@@ -101,7 +101,7 @@ class Token {
 }
 
 web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
-    const currentTokenInstance = web3.tokens.data.currentInstance;
+    const currentTokenInstance = web3.tokens.data;
     document.getElementById(tokenIdCard).innerHTML = new Token(currentTokenInstance).render();
 };
 						</script>
@@ -117,8 +117,8 @@ web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
 
 class Token {
 
-    constructor(tokenInstance) {
-        this.props = tokenInstance;
+    constructor(data) {
+        this.props = data;
         this.setConfirm();
     }
 
@@ -133,7 +133,7 @@ class Token {
         return`
         &lt;div class="ui container"&gt;
           &lt;div class="ui segment"&gt;
-            &lt;span&gt;&lt;bold&gt;&lt;h3&gt;Received ${this.props.symbol} ${this.props.amount}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
+            &lt;span&gt;&lt;bold&gt;&lt;h3&gt;Received ${this.props.token.symbol} ${this.props.card.amount}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
           &lt;/div&gt;
         &lt;/div&gt;
 `;
@@ -141,7 +141,7 @@ class Token {
 }
 
 web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
-    const currentTokenInstance = web3.tokens.data.currentInstance;
+    const currentTokenInstance = web3.tokens.data;
     document.getElementById(tokenIdCard).innerHTML = new Token(currentTokenInstance).render();
 };
 
@@ -153,17 +153,17 @@ web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
                 <style type="text/css">&style;</style>
                 <script  type="text/javascript">
 class Token {
-    constructor(tokenInstance) {
-        this.props = tokenInstance;
+    constructor(data) {
+        this.props = data;
     }
 
     render() {
-        let message = `Received ${this.props.symbol}`;
+        let message = `Received ${this.props.token.symbol}`;
         return`
         &lt;div class="ui container"&gt;
           &lt;div class="ui segment"&gt;
             &lt;span&gt;&lt;bold&gt;&lt;h3&gt;${message}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
-            &lt;p&gt;Received -${this.props.amount} ${this.props.symbol}&lt;/p&gt;
+            &lt;p&gt;Received -${this.props.card.amount} ${this.props.token.symbol}&lt;/p&gt;
           &lt;/div&gt;
         &lt;/div&gt;
 `;
@@ -171,7 +171,7 @@ class Token {
 }
 
 web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
-    const currentTokenInstance = web3.tokens.data.currentInstance;
+    const currentTokenInstance = web3.tokens.data;
     document.getElementById(tokenIdCard).innerHTML = new Token(currentTokenInstance).render();
 };
 
@@ -188,8 +188,8 @@ web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
                 <script  type="text/javascript">
 class Token {
 
-    constructor(tokenInstance) {
-        this.props = tokenInstance;
+    constructor(card) {
+        this.props = card;
         this.setConfirm();
     }
 
@@ -204,7 +204,7 @@ class Token {
         return`
         &lt;div class="ui container"&gt;
           &lt;div class="ui segment"&gt;
-            &lt;span&gt;&lt;bold&gt;&lt;h3&gt;Owner Approved ${this.props.symbol}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
+            &lt;span&gt;&lt;bold&gt;&lt;h3&gt;Owner Approved ${this.props.token.symbol}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
           &lt;/div&gt;
         &lt;/div&gt;
 `;
@@ -212,7 +212,7 @@ class Token {
 }
 
 web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
-    const currentTokenInstance = web3.tokens.data.currentInstance;
+    const currentTokenInstance = web3.tokens.data;
     document.getElementById(tokenIdCard).innerHTML = new Token(currentTokenInstance).render();
 };
 
@@ -224,12 +224,12 @@ web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
                 <style type="text/css">&style;</style>
                 <script  type="text/javascript">
 class Token {
-    constructor(tokenInstance) {
-        this.props = tokenInstance;
+    constructor(data) {
+        this.props = data;
     }
 
     render() {
-        let message = `Owner Approved ${this.props.symbol}`;
+        let message = `Owner Approved ${this.props.token.symbol}`;
         return`
         &lt;div class="ui container"&gt;
           &lt;div class="ui segment"&gt;
@@ -242,7 +242,7 @@ class Token {
 }
 
 web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
-    const currentTokenInstance = web3.tokens.data.currentInstance;
+    const currentTokenInstance = web3.tokens.data;
     document.getElementById(tokenIdCard).innerHTML = new Token(currentTokenInstance).render();
 };
                 </script>
@@ -258,8 +258,8 @@ web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
                 <script  type="text/javascript">
 class Token {
 
-    constructor(tokenInstance) {
-        this.props = tokenInstance;
+    constructor(data) {
+        this.props = data;
         this.setConfirm();
     }
 
@@ -274,7 +274,7 @@ class Token {
         return`
         &lt;div class="ui container"&gt;
           &lt;div class="ui segment"&gt;
-            &lt;span&gt;&lt;bold&gt;&lt;h3&gt;Approval Obtained ${this.props.symbol}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
+            &lt;span&gt;&lt;bold&gt;&lt;h3&gt;Approval Obtained ${this.props.token.symbol}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
           &lt;/div&gt;
         &lt;/div&gt;
 `;
@@ -282,7 +282,7 @@ class Token {
 }
 
 web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
-    const currentTokenInstance = web3.tokens.data.currentInstance;
+    const currentTokenInstance = web3.tokens.data;
     document.getElementById(tokenIdCard).innerHTML = new Token(currentTokenInstance).render();
 };
 
@@ -293,17 +293,17 @@ web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
                 <style type="text/css">&style;</style>
                 <script  type="text/javascript">
 class Token {
-    constructor(tokenInstance) {
-        this.props = tokenInstance;
+    constructor(data) {
+        this.props = data;
     }
 
     render() {
-        let message = `Approval Obtained ${this.props.symbol}`;
+        let message = `Approval Obtained ${this.props.token.symbol}`;
         return`
         &lt;div class="ui container"&gt;
           &lt;div class="ui segment"&gt;
             &lt;span&gt;&lt;bold&gt;&lt;h3&gt;${message}&lt;/h3&gt;&lt;/bold&gt;&lt;/span&gt;
-            &lt;p&gt;Approval Obtained -${this.props.amount} ${this.props.symbol}&lt;/p&gt;
+            &lt;p&gt;Approval Obtained -${this.props.card.amount} ${this.props.token.symbol}&lt;/p&gt;
           &lt;/div&gt;
         &lt;/div&gt;
 `;
@@ -311,7 +311,7 @@ class Token {
 }
 
 web3.tokens.dataChanged = (oldTokens, updatedTokens, tokenIdCard) =&gt; {
-    const currentTokenInstance = web3.tokens.data.currentInstance;
+    const currentTokenInstance = web3.tokens.data;
     document.getElementById(tokenIdCard).innerHTML = new Token(currentTokenInstance).render();
 };
                 </script>
