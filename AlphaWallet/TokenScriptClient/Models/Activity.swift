@@ -93,12 +93,3 @@ struct Activity {
         }
     }
 }
-
-//TODO We can use the repo server instead and remove this after testing
-extension Constants {
-    static let erc20ContractsSupportingActivities: [(address: AlphaWallet.Address, server: RPCServer, tokenScript: String)] = [
-        //(address: AlphaWallet.Address(string: "0x6b175474e89094c44da98b954eedeac495271d0f")!, server: .main, tokenScript: (try! String(contentsOf: R.file.daiTsml()!))),
-        //(address: AlphaWallet.Address(uncheckedAgainstNullAddress: "0x0000000000000000000000000000000000000000")!, server: .main, tokenScript: (try! String(contentsOf: R.file.ethTsml()!))),
-        //(address: AlphaWallet.Address(uncheckedAgainstNullAddress: "0x3a3a65aab0dd2a17e3f1947ba16138cd37d08c04")!, server: .main, tokenScript: (try! String(contentsOf: R.file.aETHTsml()!))),
-    ]
-}
