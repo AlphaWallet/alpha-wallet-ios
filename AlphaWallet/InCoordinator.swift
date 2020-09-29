@@ -137,7 +137,7 @@ class InCoordinator: NSObject, Coordinator {
 
     private func setupWatchingTokenScriptFileChangesToFetchEvents() {
         //TODO this is firing twice for each contract. We can be more efficient
-        assetDefinitionStore.subscribe { [weak self] contract in
+        assetDefinitionStore.subscribeToBodyChanges { [weak self] contract in
             guard let strongSelf = self else { return }
             let tokens = strongSelf.tokensStorages.values.flatMap { $0.enabledObject }
             //Assume same contract don't exist in multiple chains
