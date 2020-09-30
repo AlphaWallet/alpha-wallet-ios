@@ -5,6 +5,7 @@ import UIKit
 protocol ActivityViewControllerDelegate: class {
     func reinject(viewController: ActivityViewController)
     func goToToken(viewController: ActivityViewController)
+    func goToTransaction(viewController: ActivityViewController)
     func didPressViewContractWebPage(_ contract: AlphaWallet.Address, server: RPCServer, viewController: ActivityViewController)
 }
 
@@ -45,6 +46,9 @@ class ActivityViewController: UIViewController {
         self.viewModel = viewModel
 
         super.init(nibName: nil, bundle: nil)
+
+        let viewTransactionButton = UIBarButtonItem(image: R.image.statement(), style: .plain, target: self, action: #selector(showTransaction))
+        navigationItem.rightBarButtonItem = viewTransactionButton
 
         title = viewModel.viewControllerTitle
         view.backgroundColor = viewModel.backgroundColor
@@ -187,6 +191,10 @@ class ActivityViewController: UIViewController {
 
     @objc private func showContractWebPage() {
         delegate?.didPressViewContractWebPage(viewModel.activity.tokenObject.contractAddress, server: viewModel.activity.tokenObject.server, viewController: self)
+    }
+
+    @objc private func showTransaction() {
+        delegate?.goToTransaction(viewController: self)
     }
 }
 
