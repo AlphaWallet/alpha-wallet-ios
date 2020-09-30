@@ -45,6 +45,13 @@ class TransactionsStorage {
         return objects.filter { $0.state == TransactionState.pending }
     }
 
+    func transaction(withTransactionId transactionId: String) -> Transaction? {
+        realm.objects(Transaction.self)
+                .filter("id = '\(transactionId)'")
+                .filter("chainId = \(server.chainID)")
+                .first
+    }
+
     private func addTokensWithContractAddresses(fromTransactions transactions: [Transaction], contractsAndTokenTypes: [AlphaWallet.Address: TokenType]) {
         let tokens = self.tokens(from: transactions, contractsAndTokenTypes: contractsAndTokenTypes)
         delegate?.didAddTokensWith(contracts: Array(Set(tokens.map { $0.address })), inTransactionsStorage: self)

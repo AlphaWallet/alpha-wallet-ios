@@ -933,6 +933,10 @@ extension InCoordinator: ActivitiesCoordinatorDelegate {
         tokensCoordinator.didSelect(token: tokenObject, in: tokensCoordinator.rootViewController)
     }
 
+    func show(transactionWithId transactionId: String, server: RPCServer, inViewController viewController: UIViewController, fromCoordinator coordinator: ActivitiesCoordinator) {
+        transactionCoordinator?.showTransaction(withId: transactionId, server: server, inViewController: viewController)
+    }
+
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, fromCoordinator coordinator: ActivitiesCoordinator, inViewController viewController: UIViewController) {
         didPressViewContractWebPage(forContract: contract, server: server, in: viewController)
     }
