@@ -111,7 +111,7 @@ extension Transaction {
                     let getDecimals = tokensStorage.getDecimals(for: contract)
                     let getTokenType = tokensStorage.getTokenType(for: contract)
                     return firstly {
-                        when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType )
+                        when(fulfilled: getContractName, getContractSymbol, getDecimals, getTokenType)
                     }.then { name, symbol, decimals, tokenType -> Promise<[LocalizedOperationObject]> in
                         let operationType = mapTokenTypeToTransferOperationType(tokenType)
                         let result = LocalizedOperationObject(from: transaction.from, to: to, contract: contract, type: operationType.rawValue, value: String(amount), symbol: symbol, name: name, decimals: Int(decimals))
