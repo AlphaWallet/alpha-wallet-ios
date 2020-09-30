@@ -135,10 +135,9 @@ open class SliderTextFieldCell: Cell<Float>, CellType, UITextFieldDelegate {
         let steps = Float(sliderRow.steps)
         if steps > 0 {
             //Split out computation for numerator and denominator to speed up build time. 2.9s -> <100ms, as of Xcode 11.7
-            let stepValueNumerator = (slider.value - slider.minimumValue)
-            let stepValueDenominator = (slider.maximumValue - slider.minimumValue) * steps
+            let stepValueNumerator = (slider.value - slider.minimumValue) * steps
+            let stepValueDenominator = (slider.maximumValue - slider.minimumValue)
             let stepValue = round(stepValueNumerator / stepValueDenominator)
-
             let stepAmount = (slider.maximumValue - slider.minimumValue) / steps
             roundedValue = stepValue * stepAmount + slider.minimumValue
         } else {
