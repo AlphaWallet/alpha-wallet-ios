@@ -1,7 +1,7 @@
 // Copyright SIX DAY LLC. All rights reserved.
 
-import Foundation
 import UIKit
+import PromiseKit
 import Result
 
 protocol TransactionCoordinatorDelegate: class, CanOpenURL {
@@ -98,6 +98,13 @@ class TransactionCoordinator: Coordinator {
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(title: R.string.localizable.cancel(), style: .plain, target: controller, action: #selector(dismiss))
         nav.makePresentationFullScreenForiOS13Migration()
         viewController.present(nav, animated: true, completion: nil)
+    }
+
+    func showTransaction(withId transactionId: String, server: RPCServer, inViewController viewController: UIViewController) {
+        //Quite likely we should have the transaction already
+        //TODO handle when we don't handle the transaction, so we must fetch it. There might not be a simple API call to just fetch a single transaction. Probably have to fetch all transactions in a single block with Etherscan?
+        guard let transaction = transactionsCollection.transaction(withTransactionId: transactionId, server: server) else { return }
+        showTransaction(transaction, inViewController: viewController)
     }
 
     @objc func didEnterForeground() {
