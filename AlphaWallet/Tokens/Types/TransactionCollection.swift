@@ -26,4 +26,9 @@ class TransactionCollection {
         }
         return transactions
     }
+
+    func transaction(withTransactionId transactionId: String, server: RPCServer) -> Transaction? {
+        guard let storage = transactionsStorages.first(where: { $0.server == server }) else { return nil }
+        return storage.transaction(withTransactionId: transactionId)
+    }
 }

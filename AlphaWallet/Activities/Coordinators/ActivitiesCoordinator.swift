@@ -5,6 +5,7 @@ import UIKit
 protocol ActivitiesCoordinatorDelegate: class {
     func didPressTransaction(transaction: Transaction, in viewController: ActivitiesViewController)
     func show(tokenObject: TokenObject, fromCoordinator coordinator: ActivitiesCoordinator)
+    func show(transactionWithId transactionId: String, server: RPCServer, inViewController viewController: UIViewController, fromCoordinator coordinator: ActivitiesCoordinator)
     func didPressViewContractWebPage(forContract contract: AlphaWallet.Address, server: RPCServer, fromCoordinator coordinator: ActivitiesCoordinator, inViewController viewController: UIViewController)
 }
 
@@ -349,6 +350,10 @@ extension ActivitiesCoordinator: ActivityViewControllerDelegate {
             navigationController.popViewController(animated: false)
         }
         delegate?.show(tokenObject: viewController.viewModel.activity.tokenObject, fromCoordinator: self)
+    }
+
+    func goToTransaction(viewController: ActivityViewController) {
+        delegate?.show(transactionWithId: viewController.viewModel.activity.transactionId, server: viewController.viewModel.activity.server, inViewController: viewController, fromCoordinator: self)
     }
 
     func didPressViewContractWebPage(_ contract: AlphaWallet.Address, server: RPCServer, viewController: ActivityViewController) {
