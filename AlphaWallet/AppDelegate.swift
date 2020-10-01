@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     }
 
     func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> ()) {
-        if shortcutItem.type == "com.stormbird.alphawallet.qrScanner" {
+        if shortcutItem.type == Constants.launchShortcutKey {
             appCoordinator.launchUniversalScanner()
         }
         completionHandler(true)
