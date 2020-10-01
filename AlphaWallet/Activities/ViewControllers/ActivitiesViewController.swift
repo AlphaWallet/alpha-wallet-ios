@@ -82,6 +82,42 @@ class ActivitiesViewController: UIViewController {
         ])
         return container
     }
+
+    private func createPseudoActivity(fromTransaction transaction: Transaction) -> Activity {
+        let activityName: String
+        //TODO pass in instead
+        if EtherKeystore.current!.address.sameContract(as: transaction.from) {
+            activityName = "sent"
+        } else {
+            activityName = "received"
+        }
+        var cardAttributes = [AttributeId: AssetInternalValue]()
+        cardAttributes["symbol"] = .string(transaction.server.symbol)
+        if let value = BigUInt(transaction.value) {
+            cardAttributes["amount"] = .uint(value)
+        }
+        if let value = AlphaWallet.Address(string: transaction.to) {
+            cardAttributes["to"] = .address(value)
+        }
+        if let value = AlphaWallet.Address(string: transaction.from) {
+            cardAttributes["from"] = .address(value)
+        }
+        return .init(
+                //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
+                id: transaction.blockNumber + 10000000,
+                tokenObject: TokensDataStore.etherToken(forServer: transaction.server),
+                server: transaction.server,
+                name: activityName,
+                eventName: activityName,
+                blockNumber: transaction.blockNumber,
+                transactionId: transaction.id,
+                date: transaction.date,
+                values: (token: .init(), card: cardAttributes),
+                view: (html: "", style: ""),
+                itemView: (html: "", style: ""),
+                isBaseCard: true
+        )
+    }
 }
 
 extension ActivitiesViewController: StatefulViewController {
@@ -98,7 +134,13 @@ extension ActivitiesViewController: UITableViewDelegate {
         case .activity(let activity):
             delegate?.didPressActivity(activity: activity, in: self)
         case .transaction(let transaction):
-            delegate?.didPressTransaction(transaction: transaction, in: self)
+            //ETH
+            if transaction.operation == nil {
+                let activity = createPseudoActivity(fromTransaction: transaction)
+                delegate?.didPressActivity(activity: activity, in: self)
+            } else {
+                delegate?.didPressTransaction(transaction: transaction, in: self)
+            }
         }
     }
 
@@ -133,42 +175,8 @@ extension ActivitiesViewController: UITableViewDataSource {
         case .transaction(let transaction):
             //ETH
             if transaction.operation == nil {
-                let activityName: String
-                //TODO pass in instead
-                if EtherKeystore.current!.address.sameContract(as: transaction.from) {
-                    activityName = "sent"
-                } else {
-                    activityName = "received"
-                }
-
-                var cardAttributes = [AttributeId: AssetInternalValue]()
-                cardAttributes["symbol"] = .string(transaction.server.symbol)
-                if let value = BigUInt(transaction.value) {
-                    cardAttributes["amount"] = .uint(value)
-                }
-                if let value = AlphaWallet.Address(string: transaction.to) {
-                    cardAttributes["to"] = .address(value)
-                }
-                if let value = AlphaWallet.Address(string: transaction.from) {
-                    cardAttributes["from"] = .address(value)
-                }
-
+                let activity = createPseudoActivity(fromTransaction: transaction)
                 let cell: DefaultActivityItemViewCell = tableView.dequeueReusableCell(for: indexPath)
-                let activity = Activity(
-                        //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
-                        id: transaction.blockNumber + 10000000,
-                        tokenObject: TokensDataStore.etherToken(forServer: transaction.server),
-                        server: transaction.server,
-                        name: activityName,
-                        eventName: activityName,
-                        blockNumber: transaction.blockNumber,
-                        transactionId: "",
-                        date: transaction.date,
-                        values: (token: .init(), card: cardAttributes),
-                        view: (html: "", style: ""),
-                        itemView: (html: "", style: ""),
-                        isBaseCard: true
-                        )
                 cell.configure(viewModel: .init(activity: activity))
                 return cell
             } else {
