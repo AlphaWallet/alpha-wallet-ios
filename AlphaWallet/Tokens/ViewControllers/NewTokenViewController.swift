@@ -67,6 +67,7 @@ class NewTokenViewController: UIViewController {
     private let buttonsBar = ButtonsBar(configuration: .green(buttons: 1))
     private let changeServerButton = UIButton()
     private var scrollViewBottomAnchorConstraint: NSLayoutConstraint!
+    private var shouldFireDetectionWhenAppear: Bool
 
     var server: RPCServerOrAuto
     weak var delegate: NewTokenViewControllerDelegate?
@@ -74,7 +75,14 @@ class NewTokenViewController: UIViewController {
 // swiftlint:disable function_body_length
     init(server: RPCServerOrAuto, initialState: NewTokenInitialState) {
         self.server = server
+        switch initialState {
+        case .address:
+            shouldFireDetectionWhenAppear = true
+        case .empty:
+            shouldFireDetectionWhenAppear = false
+        }
         super.init(nibName: nil, bundle: nil)
+
         hidesBottomBarWhenPushed = true
 
         changeServerButton.setTitleColor(Colors.navigationButtonTintColor, for: .normal)
@@ -90,7 +98,7 @@ class NewTokenViewController: UIViewController {
         addressTextField.delegate = self
         addressTextField.returnKeyType = .next
         addressTextField.value = initialState.addressStringValue
-        
+
         symbolTextField.delegate = self
         symbolTextField.returnKeyType = .next
 
@@ -215,6 +223,16 @@ class NewTokenViewController: UIViewController {
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if shouldFireDetectionWhenAppear {
+            shouldFireDetectionWhenAppear = false
+            addressTextField.errorState = .none
+            updateContractValue(value: addressTextField.value.trimmed)
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
