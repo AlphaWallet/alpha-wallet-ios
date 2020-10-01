@@ -77,15 +77,9 @@ class ActivitiesViewController: UIViewController {
         title.font = viewModel.headerTitleFont
         container.addSubview(title)
         title.translatesAutoresizingMaskIntoConstraints = false
-        if section == 0 {
-            NSLayoutConstraint.activate([
-                title.anchorsConstraint(to: container, edgeInsets: .init(top: 18, left: 20, bottom: 16, right: 0))
-            ])
-        } else {
-            NSLayoutConstraint.activate([
-                title.anchorsConstraint(to: container, edgeInsets: .init(top: 4, left: 20, bottom: 16, right: 0))
-            ])
-        }
+        NSLayoutConstraint.activate([
+            title.anchorsConstraint(to: container, edgeInsets: .init(top: 18, left: 20, bottom: 16, right: 0))
+        ])
         return container
     }
 }
@@ -106,6 +100,14 @@ extension ActivitiesViewController: UITableViewDelegate {
         case .transaction(let transaction):
             delegate?.didPressTransaction(transaction: transaction, in: self)
         }
+    }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        UIView()
     }
 }
 
