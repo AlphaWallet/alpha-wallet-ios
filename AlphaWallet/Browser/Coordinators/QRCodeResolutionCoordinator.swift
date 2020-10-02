@@ -72,7 +72,7 @@ final class QRCodeResolutionCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private var skipResolvedCodes: Bool = false
     private var navigationController: UINavigationController {
-        return scanQRCodeCoordinator.navigationController
+        scanQRCodeCoordinator.parentNavigationController
     }
     private let scanQRCodeCoordinator: ScanQRCodeCoordinator
     private var rpcServer: RPCServer {
@@ -108,10 +108,6 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
         resolveScanResult(result)
     }
 
-    private func stopScannerAndDissmiss(completion: @escaping () -> Void) {
-        scanQRCodeCoordinator.stopScannerAndDissmiss(completion: completion)
-    }
-
     private func resolveScanResult(_ rawValue: String) {
         guard let delegate = delegate else { return }
         let rpcServer = self.rpcServer
@@ -132,9 +128,7 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
                 }
 
                 showDidScanWalletAddress(for: actions, completion: { action in
-                    self.stopScannerAndDissmiss {
-                        delegate.coordinator(self, didResolveAddress: contract, action: action)
-                    }
+                    delegate.coordinator(self, didResolveAddress: contract, action: action)
                 }, cancelCompletion: {
                     self.skipResolvedCodes = false
                 })
@@ -142,25 +136,17 @@ extension QRCodeResolutionCoordinator: ScanQRCodeCoordinatorDelegate {
             case .eip681(let protocolName, let address, let function, let params):
                 let data = CheckEIP681Params(protocolName: protocolName, address: address, functionName: function, params: params, rpcServer: rpcServer)
 
-                self.stopScannerAndDissmiss {
-                    self.checkEIP681(data).done { result in
-                        delegate.coordinator(self, didResolveTransferType: result.transferType, token: result.token)
-                    }.cauterize()
-                }
+                self.checkEIP681(data).done { result in
+                    delegate.coordinator(self, didResolveTransferType: result.transferType, token: result.token)
+                }.cauterize()
             }
         case .other(let value):
-            stopScannerAndDissmiss {
-                delegate.coordinator(self, didResolveString: value)
-            }
+            delegate.coordinator(self, didResolveString: value)
         case .walletConnect(let url):
-            stopScannerAndDissmiss {
-                delegate.coordinator(self, didResolveWalletConnectURL: url)
-            }
+            delegate.coordinator(self, didResolveWalletConnectURL: url)
         case .url(let url):
             showOpenURL(completion: {
-                self.stopScannerAndDissmiss {
-                    delegate.coordinator(self, didResolveURL: url)
-                }
+                delegate.coordinator(self, didResolveURL: url)
             }, cancelCompletion: {
                 //NOTE: we need to reset flat to false to make shure that next detected QR code will be handled
                 self.skipResolvedCodes = false
