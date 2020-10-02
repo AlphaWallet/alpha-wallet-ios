@@ -12,12 +12,13 @@ class AccountsViewController: UIViewController {
     private let roundedBackground = RoundedBackground()
     private let tableView = UITableView(frame: .zero, style: .plain)
     private var viewModel: AccountsViewModel {
-        return AccountsViewModel(hdWallets: hdWallets, keystoreWallets: keystoreWallets, watchedWallets: watchedWallets)
+        AccountsViewModel(config: config, hdWallets: hdWallets, keystoreWallets: keystoreWallets, watchedWallets: watchedWallets)
     }
     private var hdWallets: [Wallet] = []
     private var keystoreWallets: [Wallet] = []
     private var watchedWallets: [Wallet] = []
     private var balances: [AlphaWallet.Address: Balance?] = [:]
+    private let config: Config
     private let keystore: Keystore
     private let balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator
     private let analyticsCoordinator: AnalyticsCoordinator?
@@ -28,7 +29,8 @@ class AccountsViewController: UIViewController {
         return !keystore.wallets.isEmpty
     }
 
-    init(keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(config: Config, keystore: Keystore, balanceCoordinator: GetNativeCryptoCurrencyBalanceCoordinator, analyticsCoordinator: AnalyticsCoordinator?) {
+        self.config = config
         self.keystore = keystore
         self.balanceCoordinator = balanceCoordinator
         self.analyticsCoordinator = analyticsCoordinator
@@ -135,8 +137,9 @@ class AccountsViewController: UIViewController {
 
     private func getAccountViewModels(for path: IndexPath) -> AccountViewModel {
         let account = self.account(for: path)
+        let walletName = viewModel.walletName(forAccount: account)
         let balance = self.balances[account.address].flatMap { $0 }
-        let model = AccountViewModel(wallet: account, current: etherKeystore?.recentlyUsedWallet, walletBalance: balance, server: balanceCoordinator.server)
+        let model = AccountViewModel(wallet: account, current: etherKeystore?.recentlyUsedWallet, walletBalance: balance, server: balanceCoordinator.server, walletName: walletName)
         return model
     }
 

@@ -1,6 +1,7 @@
 // Copyright © 2018 Stormbird PTE. LTD.
 
 import UIKit
+import PromiseKit
 
 protocol SettingsViewControllerDelegate: class, CanOpenURL {
     func settingsViewControllerAdvancedSettingsSelected(in controller: SettingsViewController)
@@ -13,6 +14,7 @@ protocol SettingsViewControllerDelegate: class, CanOpenURL {
 
 class SettingsViewController: UIViewController {
     private let lock = Lock()
+    private let config: Config
     private let keystore: Keystore
     private let account: Wallet
     private let analyticsCoordinator: AnalyticsCoordinator?
@@ -55,7 +57,8 @@ class SettingsViewController: UIViewController {
         view = tableView
     }
 
-    init(keystore: Keystore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator?) {
+    init(config: Config, keystore: Keystore, account: Wallet, analyticsCoordinator: AnalyticsCoordinator?) {
+        self.config = config
         self.keystore = keystore
         self.account = account
         self.analyticsCoordinator = analyticsCoordinator
@@ -109,26 +112,28 @@ class SettingsViewController: UIViewController {
         }
     }
 
-    private func configureChangeWalletCellWithResolvedESN(_ row: SettingsWalletRow, cell: SettingTableViewCell) {
+    private func configureChangeWalletCellWithResolvedENS(_ row: SettingsWalletRow, cell: SettingTableViewCell) {
         cell.configure(viewModel: .init(
             titleText: row.title,
-            subTitleText: self.viewModel.addressReplacedWithESN(),
+            subTitleText: self.viewModel.addressReplacedWithENSOrWalletName(),
             icon: row.icon)
         )
 
         let serverToResolveEns = RPCServer.main
         let address = account.address
 
-        ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: address) { [weak self] result in
+        firstly {
+            GetWalletNameCoordinator(config: config).getName(forAddress: account.address)
+        }.done { [weak self] name in
             guard let strongSelf = self else { return }
-
+            //TODO check if still correct cell, since this is async
             let viewModel: SettingTableViewCellViewModel = .init(
-                titleText: row.title,
-                subTitleText: strongSelf.viewModel.addressReplacedWithESN(result.value),
-                icon: row.icon
+                    titleText: row.title,
+                    subTitleText: strongSelf.viewModel.addressReplacedWithENSOrWalletName(name),
+                    icon: row.icon
             )
             cell.configure(viewModel: viewModel)
-        }
+        }.cauterize()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -205,7 +210,7 @@ extension SettingsViewController: UITableViewDataSource {
             let row = rows[indexPath.row]
             switch row {
             case .changeWallet:
-                configureChangeWalletCellWithResolvedESN(row, cell: cell)
+                configureChangeWalletCellWithResolvedENS(row, cell: cell)
             case .backup:
                 cell.configure(viewModel: .init(settingsWalletRow: row))
                 let walletSecurityLevel = PromptBackupCoordinator(keystore: self.keystore, wallet: self.account, config: .init(), analyticsCoordinator: analyticsCoordinator).securityLevel

@@ -30,7 +30,7 @@ class SettingsCoordinator: Coordinator {
 	var coordinators: [Coordinator] = []
 
 	lazy var rootViewController: SettingsViewController = {
-		let controller = SettingsViewController(keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator)
+		let controller = SettingsViewController(config: config, keystore: keystore, account: account, analyticsCoordinator: analyticsCoordinator)
 		controller.delegate = self
 		controller.modalPresentationStyle = .pageSheet
 		return controller
@@ -94,7 +94,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
         )
         coordinator.delegate = self
         coordinator.start()
-        addCoordinator(coordinator) 
+        addCoordinator(coordinator)
     }
 
     func settingsViewControllerMyWalletAddressSelected(in controller: SettingsViewController) {

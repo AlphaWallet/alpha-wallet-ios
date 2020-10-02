@@ -121,6 +121,7 @@ struct Config {
         static let lastFetchedErc20InteractionBlockNumber = "lastFetchedErc20InteractionBlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenErc20BlockNumber"
         static let lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber = "lastFetchedAutoDetectedTransactedTokenNonErc20BlockNumber"
+        static let walletNames = "walletNames"
     }
 
     let defaults: UserDefaults
@@ -175,5 +176,39 @@ struct Config {
         }
         addresses.append(address.eip55String)
         defaults.setValue(addresses, forKey: Keys.walletAddressesAlreadyPromptedForBackUp)
+    }
+}
+
+extension Config {
+    var walletNames: [AlphaWallet.Address: String] {
+        if let names = defaults.dictionary(forKey: Keys.walletNames) as? [String: String] {
+            let tuples = names.compactMap { key, value -> (AlphaWallet.Address, String)? in
+                guard let address = AlphaWallet.Address(string: key) else { return nil }
+                return (address, value)
+            }
+            return Dictionary(uniqueKeysWithValues: tuples)
+        } else {
+            return .init()
+        }
+    }
+
+    private func setWalletNames(walletNames: [AlphaWallet.Address: String]) {
+        let names = walletNames.map { ($0.key.eip55String, $0.value) }
+        let dictionary = Dictionary(names, uniquingKeysWith: { $1 })
+        defaults.set(dictionary, forKey: Keys.walletNames)
+    }
+
+    func saveWalletName(_ walletName: String, forAddress address: AlphaWallet.Address) {
+        var walletName = walletName.trimmed
+        guard !walletName.isEmpty else { return }
+        var names = walletNames
+        names[address] = walletName
+        setWalletNames(walletNames: names)
+    }
+
+    func deleteWalletName(forAccount address: AlphaWallet.Address) {
+        var names = walletNames
+        names[address] = nil
+        setWalletNames(walletNames: names)
     }
 }
