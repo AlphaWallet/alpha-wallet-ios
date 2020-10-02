@@ -25,7 +25,7 @@ class AddHideTokensCoordinator: Coordinator {
     private let assetDefinitionStore: AssetDefinitionStore
     private let singleChainTokenCoordinators: [SingleChainTokenCoordinator]
     private let config: Config
-    
+
     var coordinators: [Coordinator] = []
     weak var delegate: AddHideTokensCoordinatorDelegate?
 
