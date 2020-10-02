@@ -134,7 +134,14 @@ class AccountsCoordinator: Coordinator {
 
             navigationController.present(controller, animated: true, completion: nil)
         case .watch:
-            break
+            let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { _ in
+                UIPasteboard.general.string = account.address.eip55String
+            }
+            controller.addAction(copyAction)
+            let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
+            controller.addAction(cancelAction)
+            controller.makePresentationFullScreenForiOS13Migration()
+            navigationController.present(controller, animated: true, completion: nil)
         }
     }
 
