@@ -5,10 +5,10 @@ import UIKit
 class AccountViewCell: UITableViewCell {
     private let addressLabel = UILabel()
     private let balanceLabel = UILabel()
-    
+
     var viewModel: AccountViewModel?
     var account: Wallet?
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         separatorInset = .zero

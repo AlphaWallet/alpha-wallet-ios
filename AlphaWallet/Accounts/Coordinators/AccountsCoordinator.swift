@@ -23,7 +23,7 @@ class AccountsCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
 
     lazy var accountsViewController: AccountsViewController = {
-        let controller = AccountsViewController(keystore: keystore, balanceCoordinator: balanceCoordinator, analyticsCoordinator: analyticsCoordinator)
+        let controller = AccountsViewController(config: config, keystore: keystore, balanceCoordinator: balanceCoordinator, analyticsCoordinator: analyticsCoordinator)
         controller.navigationItem.leftBarButtonItem = UIBarButtonItem(image: R.image.backWhite(), style: .done, target: self, action: #selector(dismiss))
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem(title: R.string.localizable.addButtonTitle(), style: .plain, target: self, action: #selector(addWallet))
         controller.allowsAccountDeletion = true
@@ -121,6 +121,11 @@ class AccountsCoordinator: Coordinator {
             }
             controller.addAction(backupKeystoreAction)
 
+            let renameAction = UIAlertAction(title: R.string.localizable.walletsNameRename(), style: .default) { [weak self] _ in
+                self?.promptRenameWallet(account.address)
+            }
+            controller.addAction(renameAction)
+
             let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { _ in
                 UIPasteboard.general.string = account.address.eip55String
             }
@@ -134,6 +139,11 @@ class AccountsCoordinator: Coordinator {
 
             navigationController.present(controller, animated: true, completion: nil)
         case .watch:
+            let renameAction = UIAlertAction(title: R.string.localizable.walletsNameRename(), style: .default) { [weak self] _ in
+                self?.promptRenameWallet(account.address)
+            }
+            controller.addAction(renameAction)
+
             let copyAction = UIAlertAction(title: R.string.localizable.copyAddress(), style: .default) { _ in
                 UIPasteboard.general.string = account.address.eip55String
             }
@@ -143,6 +153,38 @@ class AccountsCoordinator: Coordinator {
             controller.makePresentationFullScreenForiOS13Migration()
             navigationController.present(controller, animated: true, completion: nil)
         }
+    }
+
+    private func promptRenameWallet(_ account: AlphaWallet.Address) {
+        let alertController = UIAlertController(
+                title: R.string.localizable.walletsNameRenameTo(),
+                message: nil,
+                preferredStyle: .alert
+        )
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: { [weak self] _ -> Void in
+            guard let strongSelf = self else { return }
+            let textField = alertController.textFields![0] as UITextField
+            let name = textField.text?.trimmed ?? ""
+            if name.isEmpty {
+                strongSelf.config.deleteWalletName(forAccount: account)
+                strongSelf.accountsViewController.fetch()
+            } else {
+                strongSelf.config.saveWalletName(name, forAddress: account)
+                strongSelf.accountsViewController.fetch()
+            }
+        }))
+        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel))
+        alertController.addTextField(configurationHandler: { [weak self] (textField: UITextField!) -> Void in
+            guard let strongSelf = self else { return }
+            let serverToResolveEns = RPCServer.main
+            ENSReverseLookupCoordinator(server: serverToResolveEns).getENSNameFromResolver(forAddress: account) { result in
+                guard let ensName = result.value else { return }
+                textField.placeholder = ensName
+            }
+            let walletNames = strongSelf.config.walletNames
+            textField.text = walletNames[account]
+        })
+        navigationController.present(alertController, animated: true, completion: nil)
     }
 
     private func showCreateWallet() {
@@ -159,7 +201,6 @@ class AccountsCoordinator: Coordinator {
 }
 
 extension AccountsCoordinator: AccountsViewControllerDelegate {
-
     func didSelectAccount(account: Wallet, in viewController: AccountsViewController) {
         delegate?.didSelectAccount(account: account, in: self)
     }
