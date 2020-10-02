@@ -11,8 +11,7 @@ protocol ScanQRCodeCoordinatorDelegate: class {
 }
 
 final class ScanQRCodeCoordinator: NSObject, Coordinator {
-    lazy var navigationController = UINavigationController(rootViewController: qrcodeController)
-    private let parentNavigationController: UINavigationController
+    private lazy var navigationController = UINavigationController(rootViewController: qrcodeController)
     private lazy var reader = QRCodeReader(metadataObjectTypes: [AVMetadataObject.ObjectType.qr])
     private lazy var qrcodeController: QRCodeReaderViewController = {
         let controller = QRCodeReaderViewController(
@@ -41,6 +40,7 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
     private let account: Wallet
     private let server: RPCServer
 
+    let parentNavigationController: UINavigationController
     var coordinators: [Coordinator] = []
     weak var delegate: ScanQRCodeCoordinatorDelegate?
 
@@ -55,15 +55,14 @@ final class ScanQRCodeCoordinator: NSObject, Coordinator {
         parentNavigationController.present(navigationController, animated: true)
     }
 
-    @objc func dismiss() {
+    @objc private func dismiss() {
         stopScannerAndDissmiss {
             self.delegate?.didCancel(in: self)
         }
     }
 
-    func stopScannerAndDissmiss(completion: @escaping () -> Void) {
+    private func stopScannerAndDissmiss(completion: @escaping () -> Void) {
         reader.stopScanning()
-
         navigationController.dismiss(animated: true, completion: completion)
     }
 }
@@ -77,7 +76,9 @@ extension ScanQRCodeCoordinator: QRCodeReaderDelegate {
     }
 
     func reader(_ reader: QRCodeReaderViewController!, didScanResult result: String!) {
-        delegate?.didScan(result: result, in: self)
+        stopScannerAndDissmiss {
+            self.delegate?.didScan(result: result, in: self)
+        }
     }
 
     func reader(_ reader: QRCodeReaderViewController!, myQRCodeSelected sender: UIButton!) {
@@ -96,13 +97,13 @@ extension ScanQRCodeCoordinator: RequestCoordinatorDelegate {
 
     func didCancel(in coordinator: RequestCoordinator) {
         removeCoordinator(coordinator)
-        
+
         coordinator.navigationController.dismiss(animated: true)
     }
 }
 
 extension UIBarButtonItem {
-    
+
     static func cancelBarButton(_ target: AnyObject, selector: Selector) -> UIBarButtonItem {
         return .init(barButtonSystemItem: .cancel, target: target, action: selector)
     }

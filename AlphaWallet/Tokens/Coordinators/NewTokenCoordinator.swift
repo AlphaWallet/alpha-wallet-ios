@@ -18,7 +18,7 @@ protocol NewTokenCoordinatorDelegate: class {
 }
 
 class NewTokenCoordinator: Coordinator {
-    
+
     private var serverToAddCustomTokenOn: RPCServerOrAuto = .auto {
         didSet {
             switch serverToAddCustomTokenOn {
@@ -212,7 +212,6 @@ extension NewTokenCoordinator: ScanQRCodeCoordinatorDelegate {
 
     func didScan(result: String, in coordinator: ScanQRCodeCoordinator) {
         removeCoordinator(coordinator)
-
         viewController.didScanQRCode(result)
     }
 }
