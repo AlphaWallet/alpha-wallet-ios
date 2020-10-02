@@ -39,7 +39,7 @@ class AddHideTokensViewController: UIViewController {
     private let notificationCenter = NotificationCenter.default
     weak var delegate: AddHideTokensViewControllerDelegate?
 
-    init(viewModel: AddHideTokensViewModel, sessions: ServerDictionary<WalletSession>, assetDefinitionStore: AssetDefinitionStore) { 
+    init(viewModel: AddHideTokensViewModel, sessions: ServerDictionary<WalletSession>, assetDefinitionStore: AssetDefinitionStore) {
         self.assetDefinitionStore = assetDefinitionStore
         self.sessions = sessions
         self.viewModel = viewModel
@@ -85,14 +85,13 @@ class AddHideTokensViewController: UIViewController {
         notificationCenter.removeObserver(self)
 
         if isMovingFromParent || isBeingDismissed {
+            if let prefersLargeTitles = prefersLargeTitles {
+                //This unfortunately breaks the smooth animation if we pop back and show the large title
+                navigationController?.navigationBar.prefersLargeTitles = prefersLargeTitles
+            }
             delegate?.didClose(viewController: self)
             return
         }
-
-        if let prefersLargeTitles = prefersLargeTitles {
-            navigationController?.navigationBar.prefersLargeTitles = prefersLargeTitles
-        }
-        prefersLargeTitles = nil
     }
 
     @objc private func keyboardWillShow(_ notification: Notification) {
@@ -139,7 +138,7 @@ class AddHideTokensViewController: UIViewController {
         tableView.backgroundColor = viewModel.backgroundColor
         view.backgroundColor = viewModel.backgroundColor
     }
-    
+
     private func reload() {
         tableView.reloadData()
     }
@@ -300,7 +299,7 @@ extension AddHideTokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let view: AddHideTokenSectionHeaderView = tableView.dequeueReusableHeaderFooterView()
         view.configure(viewModel: .init(text: viewModel.titleForSection(section)))
-        
+
         return view
     }
 
