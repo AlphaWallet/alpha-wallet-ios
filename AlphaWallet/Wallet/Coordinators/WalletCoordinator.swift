@@ -171,7 +171,7 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
 
         let coordinator = ScanQRCodeCoordinator(navigationController: navigationController, account: wallet, server: config.server)
         coordinator.delegate = self
-        
+
         addCoordinator(coordinator)
         coordinator.start()
     }

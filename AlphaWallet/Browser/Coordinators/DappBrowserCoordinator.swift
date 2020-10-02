@@ -2,7 +2,7 @@
 
 import Foundation
 import UIKit
-import BigInt 
+import BigInt
 import RealmSwift
 import WebKit
 
@@ -217,7 +217,7 @@ final class DappBrowserCoordinator: NSObject, Coordinator {
         if forceReload {
             browserViewController.reload()
         }
-    } 
+    }
 
     func signMessage(with type: SignMessageType, account: EthereumAccount, callbackID: Int) {
         nativeCryptoCurrencyBalanceView.hide()
@@ -682,7 +682,7 @@ extension DappBrowserCoordinator: ScanQRCodeCoordinatorDelegate {
 
     func didScan(result: String, in coordinator: ScanQRCodeCoordinator) {
         removeCoordinator(coordinator)
-        
+
         guard let url = URL(string: result) else { return }
         open(url: url, animated: false)
     }
