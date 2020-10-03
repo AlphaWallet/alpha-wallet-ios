@@ -6,9 +6,9 @@ import UIKit
 struct SettingsViewModel {
     private let account: Wallet
 
-    func addressReplacedWithESN(_ ensName: String? = nil) -> String {
-        if let ensName = ensName {
-            return "\(ensName) | \(account.address.truncateMiddle)"
+    func addressReplacedWithENSOrWalletName(_ ensOrWalletName: String? = nil) -> String {
+        if let ensOrWalletName = ensOrWalletName {
+            return "\(ensOrWalletName) | \(account.address.truncateMiddle)"
         } else {
             return account.address.eip55String
         }

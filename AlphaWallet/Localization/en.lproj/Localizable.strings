@@ -117,6 +117,8 @@
 "wallets.verifySeedPhrase.title" = "Verify Seed Phrase";
 "wallets.verifySeedPhrase.wrong" = "Invalid seed phrase. Please check and try again.";
 "wallets.verifySeedPhrase.doNotTakeScreenshotDescription" = "It's not a good idea to take a screenshot of your seed phrase";
+"wallets.name.rename" = "Rename Wallet";
+"wallets.name.rename.to" = "Rename Wallet to";
 "wallets.addHideTokens.title" = "Add / Hide Tokens";
 "wallets.hideToken.title" = "Hide";
 "addHideTokens.title" = "Add / Hide Tokens";
