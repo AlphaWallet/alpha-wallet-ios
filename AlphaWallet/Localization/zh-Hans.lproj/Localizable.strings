@@ -117,6 +117,8 @@
 "wallets.verifySeedPhrase.title" = "验证助记词";
 "wallets.verifySeedPhrase.wrong" = "无效助记词。请检查并重试。";
 "wallets.verifySeedPhrase.doNotTakeScreenshotDescription" = "切勿将助记词保存为屏幕截图";
+"wallets.name.rename" = "Rename Wallet";
+"wallets.name.rename.to" = "Rename Wallet to";
 "wallets.addHideTokens.title" = "添加/隐藏通证";
 "wallets.hideToken.title" = "隐藏";
 "addHideTokens.title" = "添加/隐藏通证";
