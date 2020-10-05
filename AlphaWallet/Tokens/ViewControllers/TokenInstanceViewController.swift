@@ -205,6 +205,7 @@ class TokenInstanceViewController: UIViewController, TokenVerifiableStatusViewCo
             rowView = {
                 let view = TokenCardRowView(server: .main, tokenView: .view, showCheckbox: false, assetDefinitionStore: assetDefinitionStore)
                 view.isStandalone = true
+                view.tokenScriptRendererView.isWebViewInteractionEnabled = true
                 return view
             }()
         }
