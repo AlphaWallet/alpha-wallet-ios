@@ -157,12 +157,12 @@ extension TransactionConfirmationViewController: UITableViewDataSource {
         return header
     }
 
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        return nil
-    }
-
+    //Hide the footer
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0.0
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
     }
 }
 
@@ -185,5 +185,5 @@ private extension UIBarButtonItem {
         ])
 
         return UIBarButtonItem(customView: container)
-    } 
+    }
 }

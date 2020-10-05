@@ -149,7 +149,7 @@ extension ActivitiesViewController: UITableViewDelegate {
         .leastNormalMagnitude
     }
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        UIView()
+        nil
     }
 }
 

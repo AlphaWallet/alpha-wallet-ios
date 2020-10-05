@@ -25,22 +25,22 @@ class AdvancedSettingsViewController: UIViewController {
         tableView.register(SettingTableViewCell.self)
         tableView.separatorStyle = .singleLine
         tableView.backgroundColor = GroupedTable.Color.background
-        
+
         return tableView
     }()
     weak var delegate: AdvancedSettingsViewControllerDelegate?
-    
+
     override func loadView() {
         view = tableView
     }
 
     init() {
         super.init(nibName: nil, bundle: nil)
-        
+
         tableView.dataSource = self
         tableView.delegate = self
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -56,7 +56,7 @@ class AdvancedSettingsViewController: UIViewController {
 }
 
 extension AdvancedSettingsViewController: UITableViewDataSource {
-    
+
     public func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
@@ -66,34 +66,35 @@ extension AdvancedSettingsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath) 
+        let cell: SettingTableViewCell = tableView.dequeueReusableCell(for: indexPath)
         cell.configure(viewModel: viewModel.cellViewModel(indexPath: indexPath))
-        
+
         return cell
     }
 }
 
 extension AdvancedSettingsViewController: UITableViewDelegate {
-    
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
     }
 
+    //Hide the header
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return nil
+        nil
+    }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
     }
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        return nil
+        nil
     }
-    
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0.01
-    }
-    
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 0.01
-    }
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         switch viewModel.rows[indexPath.row] {
         case .console:
