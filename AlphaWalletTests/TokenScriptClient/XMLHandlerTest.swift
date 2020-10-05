@@ -914,7 +914,7 @@ class XMLHandlerTest: XCTestCase {
 
     func testNoAssetDefinition() {
         let store = AssetDefinitionStore(backingStore: AssetDefinitionInMemoryBackingStore())
-        let xmlHandler = XMLHandler(contract: Constants.nullAddress, tokenType: .erc20, assetDefinitionStore: store)
+        let xmlHandler = XMLHandler(contract: Constants.nullAddress, tokenType: .erc875, assetDefinitionStore: store)
         let tokenId = BigUInt("0000000000000000000000000000000002000000000000000000000000000000", radix: 16)!
         let server: RPCServer = .main
         let token = xmlHandler.getToken(name: "Some name", symbol: "Some symbol", fromTokenIdOrEvent: .tokenId(tokenId: tokenId), index: 1, inWallet: .make(), server: server, tokenType: TokenType.erc721)
