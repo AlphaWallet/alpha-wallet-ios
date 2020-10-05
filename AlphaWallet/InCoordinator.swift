@@ -604,7 +604,7 @@ class InCoordinator: NSObject, Coordinator {
         })
         alertController.addAction(copyAction)
         alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: .default, handler: nil))
-        navigationController.present(alertController, animated: true, completion: nil)
+        presentationViewController.present(alertController, animated: true, completion: nil)
     }
 
     private func fetchXMLAssetDefinitions() {
@@ -865,7 +865,6 @@ extension InCoordinator: PaymentCoordinatorDelegate {
         switch result {
         case .sentTransaction(let transaction):
             handlePendingTransaction(transaction: transaction)
-            showTransactionSent(transaction: transaction)
             removeCoordinator(coordinator)
 
             guard let currentTab = tabBarController?.selectedViewController else { return }
@@ -873,6 +872,9 @@ extension InCoordinator: PaymentCoordinatorDelegate {
 
             // Once transaction sent, show transactions screen.
             showTab(.transactionsOrActivity)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                self.showTransactionSent(transaction: transaction)
+            }
         case .signedTransaction: break
         }
     }
