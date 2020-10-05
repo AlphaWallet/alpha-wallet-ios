@@ -28,6 +28,7 @@ class AccountsCoordinator: Coordinator {
         controller.navigationItem.rightBarButtonItem = UIBarButtonItem(title: R.string.localizable.addButtonTitle(), style: .plain, target: self, action: #selector(addWallet))
         controller.allowsAccountDeletion = true
         controller.delegate = self
+        controller.hidesBottomBarWhenPushed = true
         return controller
     }()
 
