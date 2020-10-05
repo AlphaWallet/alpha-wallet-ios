@@ -16,15 +16,19 @@ protocol InCoordinatorDelegate: class {
 enum Tabs {
     case wallet
     case alphaWalletSettings
-    case transactions
+    case transactionsOrActivity
     case browser
 
     var className: String {
         switch self {
         case .wallet:
             return String(describing: TokensViewController.self)
-        case .transactions:
-            return String(describing: TransactionsViewController.self)
+        case .transactionsOrActivity:
+            if Features.isActivityEnabled {
+                return String(describing: ActivitiesViewController.self)
+            } else {
+                return String(describing: TransactionsViewController.self)
+            }
         case .alphaWalletSettings:
             return String(describing: SettingsViewController.self)
         case .browser:
@@ -868,7 +872,7 @@ extension InCoordinator: PaymentCoordinatorDelegate {
             currentTab.dismiss(animated: true)
 
             // Once transaction sent, show transactions screen.
-            showTab(.transactions)
+            showTab(.transactionsOrActivity)
         case .signedTransaction: break
         }
     }
