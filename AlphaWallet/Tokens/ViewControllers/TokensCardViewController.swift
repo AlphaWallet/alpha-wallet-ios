@@ -423,16 +423,6 @@ extension TokensCardViewController: UITableViewDelegate, UITableViewDataSource {
             delegate?.didTapTokenInstanceIconified(tokenHolder: tokenHolder, in: self)
         }
     }
-
-    //Needed to make gap between cells narrower
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 0
-    }
-
-    //Needed to make gap between cells narrower
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return nil
-    }
 }
 
 extension TokensCardViewController: BaseTokenCardTableViewCellDelegate {

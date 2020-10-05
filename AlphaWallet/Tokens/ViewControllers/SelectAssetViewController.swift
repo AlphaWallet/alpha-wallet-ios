@@ -81,7 +81,7 @@ class SelectAssetViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = false
         hidesBottomBarWhenPushed = true
         navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(dissmiss))
-        
+
         fetchTokens()
     }
 
@@ -138,18 +138,10 @@ extension SelectAssetViewController: UITableViewDelegate {
 
         delegate?.controller(self, didSelectToken: token)
     }
-
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 0.01
-    }
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return nil
-    }
 }
 
 extension SelectAssetViewController: UITableViewDataSource {
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let token = viewModel.item(for: indexPath.row)
         let server = token.server
