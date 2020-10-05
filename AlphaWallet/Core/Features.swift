@@ -3,5 +3,5 @@
 import Foundation
 
 enum Features {
-    static let isActivityEnabled = false
+    static let isActivityEnabled = true
 }
