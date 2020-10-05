@@ -110,6 +110,13 @@ extension DiscoverDappsViewController: UITableViewDelegate {
         let title = viewModel.dappCategories[section].name
         return SectionHeaderView(title: title)
     }
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
+    }
 }
 
 extension DiscoverDappsViewController: DiscoverDappCellDelegate {
