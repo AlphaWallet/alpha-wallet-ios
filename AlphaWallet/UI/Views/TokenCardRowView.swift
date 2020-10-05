@@ -44,13 +44,6 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 			}
 		}
 	}
-	lazy private var tokenScriptRendererView: TokenInstanceWebView = {
-		//TODO pass in keystore or wallet address instead
-		let walletAddress = EtherKeystore.current!.address
-		let webView = TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
-		webView.delegate = self
-		return webView
-	}()
 
     //These are necessary because non-TokenScript views have margins whereas TokenScript views doesn't
 	private var constraintsWithLeadingMarginsThatDependsOnWhetherTokenScriptIsUsed: [NSLayoutConstraint] = []
@@ -63,6 +56,13 @@ class TokenCardRowView: UIView, TokenCardRowViewProtocol {
 	var checkboxImageView = UIImageView(image: R.image.ticket_bundle_unchecked())
 	var stateLabel = UILabel()
 	var tokenView: TokenView
+	lazy var tokenScriptRendererView: TokenInstanceWebView = {
+		//TODO pass in keystore or wallet address instead
+		let walletAddress = EtherKeystore.current!.address
+		let webView = TokenInstanceWebView(server: server, walletAddress: walletAddress, assetDefinitionStore: assetDefinitionStore)
+		webView.delegate = self
+		return webView
+	}()
 	var showCheckbox: Bool {
 		didSet {
 			checkboxImageView.isHidden = !showCheckbox
