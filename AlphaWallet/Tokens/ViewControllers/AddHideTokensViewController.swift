@@ -306,6 +306,14 @@ extension AddHideTokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         65
     }
+
+    //Hide the footer
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        .leastNormalMagnitude
+    }
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        nil
+    }
 }
 
 extension AddHideTokensViewController: UISearchResultsUpdating {
