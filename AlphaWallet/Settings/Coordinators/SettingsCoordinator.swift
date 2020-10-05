@@ -39,6 +39,7 @@ class SettingsCoordinator: Coordinator {
     lazy var advancedSettingsViewController: AdvancedSettingsViewController = {
         let controller = AdvancedSettingsViewController()
         controller.delegate = self
+        controller.hidesBottomBarWhenPushed = true
         return controller
     }()
 
