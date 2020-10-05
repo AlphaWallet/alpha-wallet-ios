@@ -104,15 +104,20 @@ struct ActivityViewModel {
     }
 
     var stateImage: UIImage? {
-        switch activity.nativeViewType {
-        case .erc20Sent, .erc721Sent, .nativeCryptoSent:
-            return R.image.activitySend()
-        case .erc20Received, .erc721Received, .nativeCryptoReceived:
-            return R.image.activityReceive()
-        case .erc20OwnerApproved, .erc20ApprovalObtained, .erc721OwnerApproved, .erc721ApprovalObtained:
-            return nil
-        case .none:
-            return nil
+        switch activity.state {
+        case .completed:
+            switch activity.nativeViewType {
+            case .erc20Sent, .erc721Sent, .nativeCryptoSent:
+                return R.image.activitySend()
+            case .erc20Received, .erc721Received, .nativeCryptoReceived:
+                return R.image.activityReceive()
+            case .erc20OwnerApproved, .erc20ApprovalObtained, .erc721OwnerApproved, .erc721ApprovalObtained:
+                return nil
+            case .none:
+                return nil
+            }
+        case .pending:
+            return R.image.activityPending()
         }
     }
 }

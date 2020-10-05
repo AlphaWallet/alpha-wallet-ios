@@ -102,6 +102,16 @@ class ActivitiesViewController: UIViewController {
         if let value = AlphaWallet.Address(string: transaction.from) {
             cardAttributes["from"] = .address(value)
         }
+        let state: Activity.State
+        switch transaction.state {
+        case .pending:
+            state = .pending
+        case .completed:
+            state = .completed
+        //TODO we don't need the other states at the moment
+        case .error, .failed, .unknown:
+            state = .completed
+        }
         return .init(
                 //We only use this ID for refreshing the display of specific activity, since the display for ETH send/receives don't ever need to be refreshed, just need a number that don't clash with other activities
                 id: transaction.blockNumber + 10000000,
@@ -115,7 +125,8 @@ class ActivitiesViewController: UIViewController {
                 values: (token: .init(), card: cardAttributes),
                 view: (html: "", style: ""),
                 itemView: (html: "", style: ""),
-                isBaseCard: true
+                isBaseCard: true,
+                state: state
         )
     }
 }
