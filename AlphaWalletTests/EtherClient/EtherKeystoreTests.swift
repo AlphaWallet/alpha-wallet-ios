@@ -6,7 +6,7 @@ import LocalAuthentication
 import BigInt
 import KeychainSwift
 import TrustKeystore
-import TrustWalletCore
+import WalletCore
 
 class EtherKeystoreTests: XCTestCase {
 
