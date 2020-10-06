@@ -45,7 +45,9 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
     private func authorizationNotDetermined(handler: @escaping () -> Void) {
         notificationCenter.getNotificationSettings { settings in
             if case .notDetermined = settings.authorizationStatus {
-                handler()
+                DispatchQueue.main.async {
+                    handler()
+                }
             }
         }
     }
@@ -54,9 +56,9 @@ class PushNotificationsCoordinator: NSObject, Coordinator {
     private func requestForAuthorization() {
         notificationCenter.requestAuthorization(options: [.badge, .alert, .sound]) { granted, error in
             if granted {
-                DispatchQueue.main.async(execute: {
+                DispatchQueue.main.async {
                     UIApplication.shared.registerForRemoteNotifications()
-                })
+                }
             } else {
                 //Do stuff if unsuccessful…
             }
