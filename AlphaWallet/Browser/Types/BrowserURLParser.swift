@@ -27,7 +27,7 @@ final class BrowserURLParser {
         return buildSearchURL(for: string)
     }
 
-    /// Builds a search URL from a seach query string.
+    /// Builds a search URL from a search query string.
     func buildSearchURL(for query: String) -> URL {
         var components = URLComponents()
         components.scheme = "https"

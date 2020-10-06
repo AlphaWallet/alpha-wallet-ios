@@ -71,7 +71,7 @@ class SendHeaderView: UIView {
         tokenIconImageView.subscribable = viewModel.iconImage
         titleLabel.attributedText = viewModel.titleAttributedString
         valueLabel.attributedText = viewModel.valueAttributedString
-        blockChainTagLabel.configure(viewModel: viewModel.blockChaintagViewModel)
+        blockChainTagLabel.configure(viewModel: viewModel.blockChainTagViewModel)
     }
 
     @objc private func showContractWebPage() {

@@ -21,13 +21,13 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
 	}
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		//If max attempt limit is reached we should valdiate if one minute gone.
+		//If max attempt limit is reached we should validate if one minute gone.
 		if lock.isIncorrectMaxAttemptTimeSet {
 			lockView.lockTitle.text = lockEnterPasscodeViewModel?.tryAfterOneMinute
 			maxAttemptTimerValidation()
 		}
 	}
-	func showBioMerickAuth() {
+	func showBioMetricAuth() {
 		context = LAContext()
 		touchValidation()
 	}

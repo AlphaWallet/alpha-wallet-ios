@@ -11,7 +11,7 @@ protocol ShowSeedPhraseViewControllerDelegate: class {
     func biometricsFailed(for account: EthereumAccount, inViewController viewController: ShowSeedPhraseViewController)
 }
 
-//We must be careful to no longer show the seedphrase and remove it from memory when this screen is hidden because another VC is displayed over it or because the device is locked
+//We must be careful to no longer show the seed phrase and remove it from memory when this screen is hidden because another VC is displayed over it or because the device is locked
 class ShowSeedPhraseViewController: UIViewController {
     private enum State {
         case notDisplayedSeedPhrase

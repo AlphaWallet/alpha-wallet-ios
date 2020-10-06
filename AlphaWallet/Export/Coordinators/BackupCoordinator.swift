@@ -159,7 +159,7 @@ class BackupCoordinator: Coordinator {
         enterPasswordCoordinator?.endUserInterface(animated: true)
 
         finish(result: .success(true))
-        //Bit of delay to wait for ttoree UI animation to almost finish
+        //Bit of delay to wait for UI animation to almost finish
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             SuccessOverlayView.show()
         }

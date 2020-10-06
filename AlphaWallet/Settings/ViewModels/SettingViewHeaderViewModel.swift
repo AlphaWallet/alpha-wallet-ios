@@ -24,7 +24,7 @@ struct SettingViewHeaderViewModel {
         return Fonts.regular(size: 13)!
     }
 
-    var backgoundColor: UIColor {
+    var backgroundColor: UIColor {
         return R.color.alabaster()!
     }
 

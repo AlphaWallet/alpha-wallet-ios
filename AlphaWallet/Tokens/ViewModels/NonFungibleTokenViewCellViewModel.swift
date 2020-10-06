@@ -90,7 +90,7 @@ struct NonFungibleTokenViewCellViewModel {
         token.icon
     }
 
-    var blockChaintagViewModel: BlockchainTagLabelViewModel {
+    var blockChainTagViewModel: BlockchainTagLabelViewModel {
         return .init(server: server)
     }
 

@@ -709,7 +709,7 @@ extension TokensCardCoordinator: TokenInstanceActionViewControllerDelegate {
 
 extension TokensCardCoordinator: TransactionInProgressCoordinatorDelegate {
 
-    func transactionInProgressDidDissmiss(in coordinator: TransactionInProgressCoordinator) {
+    func transactionInProgressDidDismiss(in coordinator: TransactionInProgressCoordinator) {
         removeCoordinator(coordinator)
     }
 }

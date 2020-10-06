@@ -11,7 +11,7 @@ struct TransactionConfirmationTableViewHeaderViewModel {
     let title: String
     let placeholder: String
     let details: String = String()
-    
+
     var titleLabelFont: UIFont {
         return Fonts.regular(size: 17)!
     }
@@ -36,7 +36,7 @@ struct TransactionConfirmationTableViewHeaderViewModel {
         return R.color.dove()!
     }
 
-    var backgoundColor: UIColor {
+    var backgroundColor: UIColor {
         return Colors.appBackground
     }
 }

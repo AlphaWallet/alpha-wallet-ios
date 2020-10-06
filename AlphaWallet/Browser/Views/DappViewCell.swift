@@ -8,7 +8,7 @@ protocol DappViewCellDelegate: class {
     func didLongPressed(dapp: Bookmark, onCell cell: DappViewCell)
 }
 
-//Because of how we implemented shadows parallex doesn't work anymore. Fix it again by adding another wrapper around imageHolder? Maybe shadow should just be implemented with a sublayer
+//Because of how we implemented shadows parallax doesn't work anymore. Fix it again by adding another wrapper around imageHolder? Maybe shadow should just be implemented with a sublayer
 class DappViewCell: UICollectionViewCell {
     private let marginAroundImage = CGFloat(7)
     private let jiggleAnimationKey = "jiggle"
