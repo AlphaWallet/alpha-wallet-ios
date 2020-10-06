@@ -112,7 +112,7 @@ struct AssetAttribute {
                 } else {
                     originFound = nil
                 }
-            case .some(.function), .some(.userEntry), .some(.userEntry), .some(.tokenId), .none:
+            case .some(.function), .some(.userEntry), .some(.tokenId), .none:
                 originFound = possibleOrigin
             }
         }

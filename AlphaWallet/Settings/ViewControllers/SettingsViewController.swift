@@ -119,9 +119,6 @@ class SettingsViewController: UIViewController {
             icon: row.icon)
         )
 
-        let serverToResolveEns = RPCServer.main
-        let address = account.address
-
         firstly {
             GetWalletNameCoordinator(config: config).getName(forAddress: account.address)
         }.done { [weak self] name in

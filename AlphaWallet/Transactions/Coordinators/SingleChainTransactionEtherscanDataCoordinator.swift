@@ -84,7 +84,7 @@ class SingleChainTransactionEtherscanDataCoordinator: SingleChainTransactionData
                 server: session.server,
                 startBlock: startBlock
         ) { result in
-            if let maxBlockNumber = result.map { $0.blockNumber }.max() {
+            if let maxBlockNumber = result.map({ $0.blockNumber }).max() {
                 Config.setLastFetchedErc20InteractionBlockNumber(maxBlockNumber, server: self.session.server, wallet: wallet)
             }
             self.update(items: result)

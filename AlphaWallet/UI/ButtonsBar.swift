@@ -142,7 +142,7 @@ class ButtonsBarBackgroundView: UIView {
     }
 }
 
-@objc class ButtonsBar: UIView {
+class ButtonsBar: UIView {
     static let buttonsHeight = CGFloat(ScreenChecker().isNarrowScreen ? 38 : 48)
     //A gap so it doesn't stick to the bottom of devices without a bottom safe area
     static let marginAtBottomScreen = CGFloat(3)
