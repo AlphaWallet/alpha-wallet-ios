@@ -100,7 +100,7 @@ class UniversalLinkCoordinator: Coordinator {
             "expiry": signedOrder.order.expiry.description,
             "nonce": signedOrder.order.nonce,
             "v": signature.substring(from: 128),
-            //Use string interpolation instead of concatentation to speed up build time. 160ms -> <100ms, as of Xcode 11.7
+            //Use string interpolation instead of concatenation to speed up build time. 160ms -> <100ms, as of Xcode 11.7
             "r": "0x\(signature.substring(with: Range(uncheckedBounds: (0, 64))))",
             "s": "0x\(signature.substring(with: Range(uncheckedBounds: (64, 128))))",
             "networkId": server.chainID.description,
@@ -399,7 +399,7 @@ class UniversalLinkCoordinator: Coordinator {
         let provider = Web3HttpProvider(nodeURL, network: server.web3Network)!
         return web3(provider: provider).personal.ecrecover(
                 hash: messageHash,
-                signature: Data(bytes: signature.hexa2Bytes)
+                signature: Data(bytes: signature.hexToBytes)
         )
     }
 

@@ -51,6 +51,6 @@ struct TokenIdOrigin {
 
 extension String {
     init?(numberEncodingUtf8String number: BigUInt) {
-        self.init(data: Data(bytes: String(number, radix: 16).hexa2Bytes), encoding: .utf8)
+        self.init(data: Data(bytes: String(number, radix: 16).hexToBytes), encoding: .utf8)
     }
 }

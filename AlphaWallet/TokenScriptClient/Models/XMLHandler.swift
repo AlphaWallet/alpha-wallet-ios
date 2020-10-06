@@ -516,7 +516,7 @@ private class PrivateXMLHandler {
                 actions = [.nonFungibleTransfer]
             }
         case .erc875:
-            if contractAddress.isFifaTicketcontract {
+            if contractAddress.isFifaTicketContract {
                 actions = [.nftRedeem, .nftSell, .nonFungibleTransfer]
             } else {
                 actions = [.nftSell, .nonFungibleTransfer]
@@ -584,7 +584,7 @@ private class PrivateXMLHandler {
         return fields
     }
 
-    //TODOis it still necessary to santize? Maybe we still need to strip a, button, html?
+    //TODOis it still necessary to sanitize? Maybe we still need to strip a, button, html?
     //TODO Need to cache? Too slow?
     private func sanitize(html: String) -> String {
         return html
@@ -810,7 +810,7 @@ public class XMLHandler {
         guard let addressesAndServers = contractNamesAndAddresses[name] else { return nil }
         switch server {
         case .any:
-            //TODO returning the first seems arbitary, but I don't think TokenScript design has explored this area yet
+            //TODO returning the first seems arbitrary, but I don't think TokenScript design has explored this area yet
             guard let (contract, _) = addressesAndServers.first else { return nil }
             return contract
         case .server(let server):

@@ -33,7 +33,7 @@ struct UserEntryOrigin {
         case .utf8:
             return .string(userEntry)
         case .bytes:
-            guard let userEntryNumber = BigUInt(userEntry, radix: 16) else { return .bytes(Data(bytes: userEntry.drop0x.hexa2Bytes)) }
+            guard let userEntryNumber = BigUInt(userEntry, radix: 16) else { return .bytes(Data(bytes: userEntry.drop0x.hexToBytes)) }
             let number: BigUInt = (bitmask & userEntryNumber) >> bitShift
             return .bytes(number.serialize())
         case .e18:

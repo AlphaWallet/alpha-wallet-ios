@@ -80,7 +80,7 @@ class SelectAssetViewController: UIViewController {
         navigationController?.applyTintAdjustment()
         navigationController?.navigationBar.prefersLargeTitles = false
         hidesBottomBarWhenPushed = true
-        navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(dissmiss))
+        navigationItem.rightBarButtonItem = UIBarButtonItem.closeBarButton(self, selector: #selector(dismiss))
 
         fetchTokens()
     }
@@ -116,7 +116,7 @@ class SelectAssetViewController: UIViewController {
         }
     }
 
-    @objc private func dissmiss(_ sender: UIBarButtonItem) {
+    @objc private func dismiss(_ sender: UIBarButtonItem) {
         delegate?.controller(self, didCancelSelected: sender)
     }
 }

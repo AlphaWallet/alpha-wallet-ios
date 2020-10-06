@@ -15,7 +15,7 @@ class LockViewModel {
         return count
     }
     var passcodeAttemptLimit: Int {
-        //If max attempt limit is rached we should give only 1 attempt.
+        //If max attempt limit is reached we should give only 1 attempt.
         return lock.isIncorrectMaxAttemptTimeSet ? 1 : 5
     }
 }

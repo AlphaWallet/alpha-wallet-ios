@@ -17,7 +17,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         }
     }
 
-    private static let menmonicSuggestionsBarHeight: CGFloat = ScreenChecker().isNarrowScreen ? 40 : 60
+    private static let mnemonicSuggestionsBarHeight: CGFloat = ScreenChecker().isNarrowScreen ? 40 : 60
 
     private let keystore: Keystore
     private let analyticsCoordinator: AnalyticsCoordinator?
@@ -209,7 +209,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         roundedBackground.addSubview(importKeystoreJsonFromCloudButton)
         roundedBackground.addSubview(importSeedDescriptionLabel)
 
-        mnemonicSuggestionsCollectionView.frame = .init(x: 0, y: 0, width: 0, height: ImportWalletViewController.menmonicSuggestionsBarHeight)
+        mnemonicSuggestionsCollectionView.frame = .init(x: 0, y: 0, width: 0, height: ImportWalletViewController.mnemonicSuggestionsBarHeight)
 
         let footerBar = UIView()
         footerBar.translatesAutoresizingMaskIntoConstraints = false
@@ -225,7 +225,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         footerBottomConstraint.constant = -UIApplication.shared.bottomSafeAreaHeight
         keyboardChecker.constraint = footerBottomConstraint
 
-        let labelBottonInset: CGFloat = ScreenChecker().isNarrowScreen ? 10 : 20
+        let labelButtonInset: CGFloat = ScreenChecker().isNarrowScreen ? 10 : 20
 
         NSLayoutConstraint.activate([
             mnemonicTextView.heightAnchor.constraint(equalToConstant: heightThatFitsPrivateKeyNicely),
@@ -253,11 +253,11 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
 
             importKeystoreJsonFromCloudButton.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 10),
             importKeystoreJsonFromCloudButton.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -10),
-            importKeystoreJsonFromCloudButton.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -labelBottonInset),
+            importKeystoreJsonFromCloudButton.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -labelButtonInset),
 
             importSeedDescriptionLabel.leadingAnchor.constraint(equalTo: footerBar.leadingAnchor, constant: 30),
             importSeedDescriptionLabel.trailingAnchor.constraint(equalTo: footerBar.trailingAnchor, constant: -30),
-            importSeedDescriptionLabel.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -labelBottonInset),
+            importSeedDescriptionLabel.bottomAnchor.constraint(equalTo: footerBar.topAnchor, constant: -labelButtonInset),
 
             footerBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             footerBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -270,7 +270,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
             scrollView.bottomAnchor.constraint(equalTo: footerBar.topAnchor),
 
         ] + roundedBackground.createConstraintsWithContainer(view: view) + buttonsBar.anchorsConstraint(to: footerBar))
-        
+
         configure()
         showMnemonicControlsOnly()
 
@@ -281,7 +281,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
                 guard let strongSelf = self else { return }
                 strongSelf.demo()
             }
-        } 
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -349,7 +349,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
         importKeystoreJsonFromCloudButton.titleLabel?.font = viewModel.importKeystoreJsonButtonFont
         importKeystoreJsonFromCloudButton.titleLabel?.adjustsFontSizeToFitWidth = true
 
-        importSeedDescriptionLabel.attributedText = viewModel.importSeedAtrributedText
+        importSeedDescriptionLabel.attributedText = viewModel.importSeedAttributedText
 
         buttonsBar.configure()
         let importButton = buttonsBar.buttons[0]
@@ -594,7 +594,7 @@ class ImportWalletViewController: UIViewController, CanScanQRCode {
     private func moveFocusToTextEntryField(after textInput: UIView) {
         switch textInput {
         case mnemonicTextView:
-            view.endEditing(true) 
+            view.endEditing(true)
         case keystoreJSONTextView:
             passwordTextField.becomeFirstResponder()
         case passwordTextField:

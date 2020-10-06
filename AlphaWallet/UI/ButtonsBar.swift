@@ -149,7 +149,7 @@ class ButtonsBar: UIView {
 
     private var buttonContainerViews: [ContainerViewWithShadow<BarButton>] = []
     private var moreButtonContainerViews: [ContainerViewWithShadow<BarButton>] = []
-    //NOTE: we need to handle buttont changes, for this we will use buttonsStackView, to make sure that number of button has changed
+    //NOTE: we need to handle button changes, for this we will use buttonsStackView, to make sure that number of button has changed
     private var buttonsStackView: UIStackView
     private var innerStackView: UIStackView
     private var observations: [NSKeyValueObservation] = []

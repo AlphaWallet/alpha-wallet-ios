@@ -292,12 +292,12 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
 
             stateLabel.heightAnchor.constraint(equalToConstant: 22),
 
-            //It is important to anchor the collection view to an outer stackview (which has aligment=.fill) instead of child stackviews which does not have alignment=.fill
+            //It is important to anchor the collection view to an outer stackview (which has alignment=.fill) instead of child stackviews which does not have alignment=.fill
             attributesCollectionView.leadingAnchor.constraint(equalTo: mainVerticalStackView.leadingAnchor, constant: outerHorizontalMargin),
             attributesCollectionView.trailingAnchor.constraint(equalTo: mainVerticalStackView.trailingAnchor, constant: -outerHorizontalMargin),
             attributesCollectionViewHeightConstraint,
 
-            //It is important to anchor the collection view to the outermost stackview (which has aligment=.fill) instead of child stackviews which does not have alignment=.fill
+            //It is important to anchor the collection view to the outermost stackview (which has alignment=.fill) instead of child stackviews which does not have alignment=.fill
             rankingsCollectionView.leadingAnchor.constraint(equalTo: attributesCollectionView.leadingAnchor),
             rankingsCollectionView.trailingAnchor.constraint(equalTo: attributesCollectionView.trailingAnchor),
             rankingsCollectionViewHeightConstraint,
@@ -305,7 +305,7 @@ class OpenSeaNonFungibleTokenCardRowView: UIView, TokenCardRowViewProtocol {
             verticalGenerationIconImageView.widthAnchor.constraint(equalTo: verticalCooldownIconImageView.widthAnchor),
             verticalCooldownIconImageView.widthAnchor.constraint(equalTo: verticalCooldownIconImageView.heightAnchor),
 
-            //It is important to anchor the collection view to the outermost stackview (which has aligment=.fill) instead of child stackviews which does not have alignment=.fill
+            //It is important to anchor the collection view to the outermost stackview (which has alignment=.fill) instead of child stackviews which does not have alignment=.fill
             statsCollectionView.leadingAnchor.constraint(equalTo: attributesCollectionView.leadingAnchor),
             statsCollectionView.trailingAnchor.constraint(equalTo: attributesCollectionView.trailingAnchor),
             statsCollectionViewHeightConstraint,

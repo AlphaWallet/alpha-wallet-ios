@@ -33,6 +33,6 @@ class LockEnterPasscodeCoordinator: Coordinator {
 	func showAuthentication() {
 		guard lock.isPasscodeSet else { return }
 		lockEnterPasscodeViewController.showKeyboard()
-		lockEnterPasscodeViewController.showBioMerickAuth()
+		lockEnterPasscodeViewController.showBioMetricAuth()
 	}
 }

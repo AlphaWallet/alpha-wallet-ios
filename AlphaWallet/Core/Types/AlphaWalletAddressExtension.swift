@@ -21,7 +21,7 @@ extension AlphaWallet.Address {
 
 extension EthereumAddress {
     init(address: AlphaWallet.Address) {
-        //EthereumAddress(Data) is much faster than EthereumAddress(String). This is significant because we can make a few hungred calls
+        //EthereumAddress(Data) is much faster than EthereumAddress(String). This is significant because we can make a few hundred calls
         let data = Data.fromHex(address.eip55String)!
         self.init(data)!
     }
